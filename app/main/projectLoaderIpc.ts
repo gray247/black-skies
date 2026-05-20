@@ -4,15 +4,24 @@ import path from 'node:path';
 import {
   LoadedProject,
   OutlineFile,
+  ProjectBootstrapRequest,
+  ProjectBootstrapResponse,
   ProjectDialogResult,
   ProjectIssue,
   ProjectLoadRequest,
   ProjectLoadResponse,
   ProjectLoadFailure,
+  ProjectBootstrapFailure,
   SceneDraftMetadata,
   PROJECT_LOADER_CHANNELS,
 } from '../shared/ipc/projectLoader';
 import { authorizeProjectPath } from './layoutIpc.js';
+import {
+  bootstrapFreshProject,
+  BOOTSTRAP_INVALID_MARKER,
+  PROJECT_METADATA_SCHEMA_VERSION,
+  ProjectBootstrapError,
+} from './projectBootstrap.js';
 
 const ISSUE_PREFIX = '[projectLoader]';
 export const MAX_SCENE_READ_CONCURRENCY = 8;
@@ -33,6 +42,7 @@ function logIssue(issue: ProjectIssue): void {
 export function registerProjectLoaderIpc(): void {
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.openDialog);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.loadProject);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.createProject);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.getSamplePath);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.setDevProjectPath);
 
@@ -114,6 +124,27 @@ export function registerProjectLoaderIpc(): void {
   );
 
   ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.createProject,
+    async (_event, request: ProjectBootstrapRequest): Promise<ProjectBootstrapResponse> => {
+      try {
+        const created = await bootstrapFreshProject({
+          parentPath: request?.parentPath,
+          title: request?.title,
+        });
+        const { project, issues } = await loadProjectFromDisk(created.projectPath);
+        issues.forEach(logIssue);
+        authorizeProjectPath(project.path);
+        return { ok: true, project, issues };
+      } catch (error) {
+        return {
+          ok: false,
+          error: normalizeBootstrapFailure(error),
+        };
+      }
+    },
+  );
+
+  ipcMain.handle(
     PROJECT_LOADER_CHANNELS.getSamplePath,
     async (): Promise<string | null> => {
       const samplePath = await resolveSampleProjectPath();
@@ -142,11 +173,12 @@ function mapSystemErrorCode(code?: string): ProjectLoadErrorCode {
   }
 }
 
-async function loadProjectFromDisk(projectPath: string): Promise<{
+export async function loadProjectFromDisk(projectPath: string): Promise<{
   project: LoadedProject;
   issues: ProjectIssue[];
 }> {
   const { projectPath: normalizedPath, issues: rootIssues } = await resolveProjectRootPath(projectPath);
+  await ensureNotInvalidBootstrap(normalizedPath);
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
   const metadata = await readProjectMetadata(normalizedPath);
@@ -159,6 +191,34 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
     drafts,
   };
   return { project, issues: [...rootIssues, ...issues] };
+}
+
+async function ensureNotInvalidBootstrap(projectPath: string): Promise<void> {
+  const markerPath = path.join(projectPath, BOOTSTRAP_INVALID_MARKER);
+  try {
+    const stats = await fs.stat(markerPath);
+    if (stats.isFile()) {
+      throw new ProjectLoaderAggregateError(
+        'Project bootstrap was marked invalid.',
+        [
+          {
+            level: 'error',
+            message: 'Project bootstrap marker indicates invalid project state.',
+            path: markerPath,
+          },
+        ],
+        'PROJECT_INVALID',
+      );
+    }
+  } catch (error) {
+    if (error instanceof ProjectLoaderAggregateError) {
+      throw error;
+    }
+    if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+      return;
+    }
+    throw error;
+  }
 }
 
 async function hasOutlineMarker(projectPath: string): Promise<boolean> {
@@ -236,23 +296,66 @@ export async function resolveProjectRootPath(projectPath: string): Promise<{
 
 export async function readProjectMetadata(projectPath: string): Promise<{ name?: string; projectId?: string }> {
   const metadataPath = path.join(projectPath, 'project.json');
+  let parsed: { name?: string; project_id?: string; schema_version?: string };
   try {
     const raw = await fs.readFile(metadataPath, 'utf8');
-    const parsed = JSON.parse(raw) as { name?: string; project_id?: string };
-    const projectId = typeof parsed.project_id === 'string' ? parsed.project_id.trim() : '';
-    const name = typeof parsed.name === 'string' ? parsed.name.trim() : '';
-    const metadata: { name?: string; projectId?: string } = {};
-    if (projectId.length > 0) {
-      metadata.projectId = projectId;
-    }
-    if (name.length > 0) {
-      metadata.name = name;
-    }
-    return metadata;
+    parsed = JSON.parse(raw) as { name?: string; project_id?: string; schema_version?: string };
   } catch {
     // best effort: ignore missing or invalid metadata
+    return {};
   }
-  return {};
+
+  const schemaVersion = typeof parsed.schema_version === 'string' ? parsed.schema_version.trim() : '';
+  if (schemaVersion && schemaVersion !== PROJECT_METADATA_SCHEMA_VERSION) {
+    throw new ProjectLoaderAggregateError(
+      'project.json uses an unsupported schema version.',
+      [
+        {
+          level: 'error',
+          message: `Expected schema_version "${PROJECT_METADATA_SCHEMA_VERSION}" but received "${schemaVersion}".`,
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_UNSUPPORTED_VERSION',
+    );
+  }
+
+  const projectId = typeof parsed.project_id === 'string' ? parsed.project_id.trim() : '';
+  const name = typeof parsed.name === 'string' ? parsed.name.trim() : '';
+  const metadata: { name?: string; projectId?: string } = {};
+  if (projectId.length > 0) {
+    metadata.projectId = projectId;
+  }
+  if (name.length > 0) {
+    metadata.name = name;
+  }
+  return metadata;
+}
+
+function normalizeBootstrapFailure(error: unknown): ProjectBootstrapFailure['error'] {
+  if (error instanceof ProjectBootstrapError) {
+    return {
+      code: error.code,
+      message: error.message,
+      issues: error.issues,
+    };
+  }
+
+  if (error instanceof ProjectLoaderAggregateError) {
+    return {
+      code: error.code === 'PROJECT_INVALID' || error.code === 'PROJECT_UNSUPPORTED_VERSION'
+        ? error.code
+        : 'BOOTSTRAP_FAILED',
+      message: error.message,
+      issues: error.issues,
+    };
+  }
+
+  const message = error instanceof Error ? error.message : 'Unknown error';
+  return {
+    code: 'BOOTSTRAP_FAILED',
+    message,
+  };
 }
 
 async function readOutline(projectPath: string): Promise<OutlineFile> {

@@ -89,6 +89,21 @@ Scene body`;
     expect(fsMock.readFile).toHaveBeenCalledWith(join(projectPath, 'project.json'), 'utf8');
   });
 
+  it('readProjectMetadata rejects unsupported schema versions', async () => {
+    const projectPath = join(tmpdir(), 'black-skies', 'sample_project', 'Esther_Estate');
+    fsMock.readFile.mockResolvedValue(
+      JSON.stringify({
+        schema_version: 'ProjectMetadataSchema v9',
+        project_id: 'proj_esther_estate',
+        name: 'Esther Estate',
+      }),
+    );
+
+    await expect(readProjectMetadata(projectPath)).rejects.toMatchObject({
+      code: 'PROJECT_UNSUPPORTED_VERSION',
+    });
+  });
+
   it('runWithConcurrency limits concurrent executions', async () => {
     const items = Array.from({ length: 5 }, (_, index) => index);
     let active = 0;
