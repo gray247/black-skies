@@ -5,6 +5,7 @@ import {
   createSplitCommandLifecycleRegistry,
   createSplitCommandLifecycleSeam,
   createSplitCommandAuthorityProfile,
+  createSplitCommandSecondaryLaunchContract,
   createSplitCommandPairIdentity,
 } from '../../shared/splitCommandAuthority';
 
@@ -152,6 +153,55 @@ describe('splitCommandAuthority', () => {
     ).toBe(false);
     expect(() =>
       registry.registerPrimaryWindow(),
+    ).toThrow('Split command lifecycle registry has been cleared.');
+  });
+
+  it('requires a live primary pair before preparing a secondary launch contract', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(() =>
+      createSplitCommandSecondaryLaunchContract(registry),
+    ).toThrow('Primary Split command window must be registered before secondary launch.');
+
+    const primaryState = registry.registerPrimaryWindow();
+    expect(primaryState.windowRole).toBe('primary');
+
+    expect(
+      createSplitCommandSecondaryLaunchContract(registry),
+    ).toEqual({
+      windowRole: 'secondary',
+      pairIdentity: {
+        pairId: 'split-command:session-123',
+        sessionGeneration: 'session-123',
+      },
+      authority: {
+        windowRole: 'secondary',
+        sharedSessionTruthOwner: 'primary',
+        localPresentationStateOwner: 'secondary',
+        staleSecondaryResurrectionForbidden: true,
+        stateBoundaries: {
+          sharedSessionTruth: 'shared-session-truth',
+          localPresentationState: 'local-presentation-state',
+          ephemeralUiState: 'ephemeral-ui-state',
+        },
+      },
+      requiresLivePrimaryPair: true,
+      launchArguments: [
+        '--blackskies-split-command-role=secondary',
+        '--blackskies-split-command-pair-id=split-command:session-123',
+        '--blackskies-split-command-session-generation=session-123',
+        '--blackskies-split-command-shared-session-owner=primary',
+        '--blackskies-split-command-local-presentation-owner=secondary',
+        '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
+      ],
+    });
+
+    registry.clear();
+
+    expect(() =>
+      createSplitCommandSecondaryLaunchContract(registry),
     ).toThrow('Split command lifecycle registry has been cleared.');
   });
 });

@@ -36,6 +36,7 @@ import { resolveConfiguredServicePort } from './serviceResolution.js';
 import { randomUUID } from 'node:crypto';
 import {
   createSplitCommandLifecycleSeam,
+  type SplitCommandSecondaryLaunchContract,
   type SplitCommandLifecycleSeam,
 } from '../shared/splitCommandAuthority.js';
 
@@ -74,6 +75,7 @@ const splitCommandLifecycleSeam: SplitCommandLifecycleSeam | null =
     experimentalEnabled: runtimeConfig.ui.experimentalSplitCommandWorkspace,
     sessionGeneration: randomUUID(),
   });
+let splitCommandSecondaryLaunchContract: SplitCommandSecondaryLaunchContract | null = null;
 const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) =>
   entry.toLowerCase(),
 );
@@ -684,6 +686,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   window.on('closed', () => {
+    splitCommandSecondaryLaunchContract = null;
     splitCommandLifecycleSeam?.clear();
     if (mainWindow === window) {
       mainWindow = null;
@@ -736,6 +739,21 @@ async function bootstrap(): Promise<void> {
     await startServices();
     const window = await createMainWindow();
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
+    if (splitCommandLifecycleSeam) {
+      try {
+        splitCommandSecondaryLaunchContract =
+          splitCommandLifecycleSeam.registry.createSecondaryLaunchContract();
+        ensureMainLogger().info('Split command secondary launch contract prepared', {
+          pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
+          windowRole: splitCommandSecondaryLaunchContract.windowRole,
+        });
+      } catch (error) {
+        splitCommandSecondaryLaunchContract = null;
+        ensureMainLogger().warn('Split command secondary launch contract unavailable', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
     mainWindow = window;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';

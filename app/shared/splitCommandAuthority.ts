@@ -30,6 +30,14 @@ export interface SplitCommandRuntimeContext {
   readonly launchArguments: readonly string[];
 }
 
+export interface SplitCommandSecondaryLaunchContract {
+  readonly windowRole: 'secondary';
+  readonly pairIdentity: SplitCommandPairIdentity;
+  readonly authority: SplitCommandAuthorityProfile;
+  readonly launchArguments: readonly string[];
+  readonly requiresLivePrimaryPair: true;
+}
+
 export interface SplitCommandWindowLifecycleState {
   readonly windowRole: SplitCommandWindowRole;
   readonly pairIdentity: SplitCommandPairIdentity;
@@ -44,6 +52,7 @@ export interface SplitCommandLifecycleRegistry {
   readonly isActive: boolean;
   registerPrimaryWindow(): SplitCommandWindowLifecycleState;
   registerSecondaryWindow(): SplitCommandWindowLifecycleState;
+  createSecondaryLaunchContract(): SplitCommandSecondaryLaunchContract;
   matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
   clear(): void;
 }
@@ -120,6 +129,38 @@ export function buildSplitCommandRuntimeContext(
   };
 }
 
+export function createSplitCommandSecondaryLaunchContract(
+  registry: Pick<
+    SplitCommandLifecycleRegistry,
+    'pairIdentity' | 'authority' | 'isActive' | 'primaryWindowRegistered'
+  >,
+): SplitCommandSecondaryLaunchContract {
+  if (!registry.isActive) {
+    throw new Error('Split command lifecycle registry has been cleared.');
+  }
+  if (!registry.primaryWindowRegistered) {
+    throw new Error('Primary Split command window must be registered before secondary launch.');
+  }
+
+  const authority = createSplitCommandAuthorityProfile('secondary');
+  return {
+    windowRole: 'secondary',
+    pairIdentity: registry.pairIdentity,
+    authority,
+    requiresLivePrimaryPair: true,
+    launchArguments: [
+      `--blackskies-split-command-role=${authority.windowRole}`,
+      `--blackskies-split-command-pair-id=${registry.pairIdentity.pairId}`,
+      `--blackskies-split-command-session-generation=${registry.pairIdentity.sessionGeneration}`,
+      `--blackskies-split-command-shared-session-owner=${authority.sharedSessionTruthOwner}`,
+      `--blackskies-split-command-local-presentation-owner=${authority.localPresentationStateOwner}`,
+      `--blackskies-split-command-stale-secondary-resurrection-forbidden=${String(
+        authority.staleSecondaryResurrectionForbidden,
+      )}`,
+    ],
+  };
+}
+
 export function createSplitCommandLifecycleRegistry(
   input: SplitCommandRuntimeContextInput,
 ): SplitCommandLifecycleRegistry {
@@ -167,6 +208,14 @@ export function createSplitCommandLifecycleRegistry(
       assertActive();
       secondaryWindowRegistered = true;
       return buildWindowLifecycleState('secondary');
+    },
+    createSecondaryLaunchContract() {
+      return createSplitCommandSecondaryLaunchContract({
+        pairIdentity: runtimeContext.pairIdentity,
+        authority: runtimeContext.authority,
+        isActive: active,
+        primaryWindowRegistered,
+      });
     },
     matchesPairIdentity(candidateInput: SplitCommandRuntimeContextInput) {
       if (!active) {
