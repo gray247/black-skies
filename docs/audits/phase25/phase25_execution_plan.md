@@ -143,6 +143,7 @@ The phase should only expand when the observed issue actually belongs to the cat
 - classify what is runtime-proven, test-lane-proven, human-smoke only, policy-only, and still deferred
 - explicitly carry forward anything still unproven rather than relabeling it solved
 - close only what has evidence for the lane being claimed
+- status note: Phase 25 closure now records `25A` complete, `25B` deferred/unjustified, and `25C` complete as a narrow stress-lane hardening fix; the remaining items are deferred carry-forward rather than open-ended speculation.
 
 ## Exit Criteria
 
@@ -153,6 +154,7 @@ Phase 25 closes when all of the following are true:
 - reconnect/drop behavior is classified at the correct surface
 - long-session degradation is either fixed, reproducible, or deferred with evidence
 - unresolved instability is documented instead of silently normalized
+- Phase 25 closure review may satisfy this exit condition with deferred carry-forward where the evidence explicitly shows no stable-GUI reconnect/drop proof and no broader runtime claim.
 
 ## Validation Plan
 

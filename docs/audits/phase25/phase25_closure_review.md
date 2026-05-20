@@ -1,11 +1,11 @@
 # Phase 25 Closure Review
 
-Status: Evidence packet prepared
+Status: Closed with deferred carry-forward
 Date: 2026-05-20
 
 ## Purpose
 
-This review closes the Phase 25A baseline work and records the current evidence boundary for the remaining Phase 25 batches.
+This review closes Phase 25 as a bounded hardening phase. The baseline packet, the narrow stress-lane fix, and the closure classification now exist together, and any remaining risk is explicitly deferred rather than relabeled as solved.
 
 ## Evidence Collected
 
@@ -32,28 +32,29 @@ This review closes the Phase 25A baseline work and records the current evidence 
 
 ## Stable GUI vs Split Command Split
 
-- Stable GUI evidence was exercised through the load harness baselines.
+- Stable GUI evidence was exercised through the load harness baselines and the stress rerun after the narrow fix.
 - Split Command-only reproduction has not been established for Phase 25.
 - The current evidence does not justify broadening Phase 25 into Split Command-specific runtime work.
 
 ## 25B Gate
 
-Phase 25B remains deferred.
+Phase 25B remains deferred and unjustified by current evidence.
 
 Reason:
 
-- no stable GUI backend-drop/reconnect reproduction exists in the current Phase 25A evidence set
-- no Split Command-only backend-drop/reconnect reproduction exists in the current Phase 25A evidence set
-- the current known load failure is classified as CI-sensitive transient variability, not a repeatable blocker that warrants broad backend work
+- no stable GUI backend-drop/reconnect reproduction exists in the current Phase 25 evidence set
+- no Split Command-only backend-drop/reconnect reproduction exists in the current Phase 25 evidence set
+- the earlier load failure is now classified as a reproducible stress-lane backend/service issue that was fixed narrowly, while the separate stable-GUI reconnect/drop class remains unproven
 
 ## 25C / 25D Position
 
-- `25C` durability and performance hardening is not yet justified by new reproducible evidence.
-- `25D` closure review is satisfied only for the baseline packet; the broader phase stays open until an actionable `25B` or `25C` lane exists.
+- `25C` durability and performance hardening is complete as a narrow, reproducible stress-lane fix.
+- `25D` closure review is satisfied for the full Phase 25 evidence packet and documents the deferred carry-forward items.
 
 ## Current Conclusion
 
 - Phase 25A is complete.
-- Phase 25 overall is not complete yet.
-- The documented plan is now materially tighter: baseline evidence exists, the evidence class is explicit, and the next justified action still depends on a reproducible stable GUI or Split Command failure.
-
+- Phase 25B is deferred and remains unjustified by evidence.
+- Phase 25C is complete as a narrow hardening fix.
+- Phase 25 is complete with deferred carry-forward for the remaining unproven risk classes.
+- No stable-GUI reconnect/drop proof exists, no broad durability rewrite was made, and no production-readiness or output-quality claim is being made here.
