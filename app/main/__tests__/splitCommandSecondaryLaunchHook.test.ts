@@ -1,10 +1,12 @@
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
 
 const browserWindowState = {
   instances: [] as BrowserWindowMock[],
   failOnInstance: 0,
 };
+const ipcHandlers = new Map<string, (...args: unknown[]) => unknown>();
 
 const logger = {
   info: vi.fn(),
@@ -16,14 +18,20 @@ const logger = {
 let experimentalSplitCommandWorkspace = false;
 
 class BrowserWindowMock {
+  static fromWebContents = vi.fn((webContents: { owner?: BrowserWindowMock } | null) =>
+    webContents?.owner ?? null,
+  );
+
   readonly options: BrowserWindowConstructorOptions;
   readonly webContents = {
+    owner: undefined as BrowserWindowMock | undefined,
     setWindowOpenHandler: vi.fn(),
     on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
       const handlers = this.webContentsListeners.get(event) ?? [];
       handlers.push(handler);
       this.webContentsListeners.set(event, handlers);
     }),
+    send: vi.fn((..._args: unknown[]) => {}),
     emit: (event: string, ...args: unknown[]): void => {
       for (const handler of this.webContentsListeners.get(event) ?? []) {
         handler(...args);
@@ -45,6 +53,7 @@ class BrowserWindowMock {
     }
 
     this.options = options;
+    this.webContents.owner = this;
     browserWindowState.instances.push(this);
   }
 
@@ -102,7 +111,9 @@ vi.mock('electron', () => ({
     showErrorBox: vi.fn(),
   },
   ipcMain: {
-    handle: vi.fn(),
+    handle: vi.fn((channel: string, listener: (...args: unknown[]) => unknown) => {
+      ipcHandlers.set(channel, listener);
+    }),
     removeHandler: vi.fn(),
   },
   shell: {
@@ -193,11 +204,27 @@ async function loadMainModule(): Promise<void> {
   await new Promise((resolve) => setImmediate(resolve));
 }
 
+function getOwnershipSyncPayloads(window: BrowserWindowMock): unknown[] {
+  return vi
+    .mocked(window.webContents.send)
+    .mock.calls.filter(([channel]) => channel === SPLIT_COMMAND_CHANNELS.ownershipSync)
+    .map(([, payload]) => payload);
+}
+
+function getSplitCommandRequestHandler():
+  | ((event: { sender: unknown }) => unknown | Promise<unknown>)
+  | undefined {
+  return ipcHandlers.get(SPLIT_COMMAND_CHANNELS.requestOwnershipSync) as
+    | ((event: { sender: unknown }) => unknown | Promise<unknown>)
+    | undefined;
+}
+
 describe('main split command launch hook', () => {
   beforeEach(() => {
     vi.resetModules();
     browserWindowState.instances = [];
     browserWindowState.failOnInstance = 0;
+    ipcHandlers.clear();
     experimentalSplitCommandWorkspace = false;
     process.env.PLAYWRIGHT = '1';
     delete process.env.BLACKSKIES_FORCE_SERVICES;
@@ -220,6 +247,7 @@ describe('main split command launch hook', () => {
     expect(browserWindowState.instances).toHaveLength(1);
     const [primaryWindow] = browserWindowState.instances;
     expect(primaryWindow.options.webPreferences.additionalArguments).toEqual([]);
+    expect(getOwnershipSyncPayloads(primaryWindow)).toHaveLength(0);
     expect(logger.info).not.toHaveBeenCalledWith(
       'Split command focus ownership classified',
       expect.anything(),
@@ -258,6 +286,39 @@ describe('main split command launch hook', () => {
         '--blackskies-split-command-local-presentation-owner=secondary',
         '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
       ]),
+    );
+    expect(getOwnershipSyncPayloads(primaryWindow)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageKind: 'ownership-snapshot',
+          windowRole: 'primary',
+          validationReason: 'healthy',
+          pairIdentity: expect.objectContaining({
+            pairId: expect.stringMatching(/^split-command:/),
+            sessionGeneration: expect.any(String),
+          }),
+        }),
+      ]),
+    );
+    expect(getOwnershipSyncPayloads(secondaryWindow)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageKind: 'ownership-snapshot',
+          windowRole: 'secondary',
+          validationReason: 'healthy',
+        }),
+      ]),
+    );
+    const requestHandler = getSplitCommandRequestHandler();
+    expect(requestHandler).toBeDefined();
+    await expect(
+      Promise.resolve(requestHandler?.({ sender: primaryWindow.webContents })),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        messageKind: 'ownership-snapshot',
+        windowRole: 'primary',
+        validationReason: 'healthy',
+      }),
     );
     expect(logger.info).toHaveBeenCalledWith(
       'Split command focus ownership classified',
@@ -422,6 +483,15 @@ describe('main split command launch hook', () => {
         }),
       }),
     );
+    expect(getOwnershipSyncPayloads(browserWindowState.instances[0])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageKind: 'ownership-fallback',
+          windowRole: 'primary',
+          validationReason: 'secondary-lost',
+        }),
+      ]),
+    );
     expect(primaryWindow.isDestroyed()).toBe(false);
     expect(secondaryWindow.isDestroyed()).toBe(true);
     expect(browserWindowState.instances).toHaveLength(2);
@@ -477,6 +547,15 @@ describe('main split command launch hook', () => {
           mutationValidationReason: 'secondary-lost',
         }),
       }),
+    );
+    expect(getOwnershipSyncPayloads(browserWindowState.instances[0])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageKind: 'ownership-fallback',
+          windowRole: 'primary',
+          validationReason: 'secondary-lost',
+        }),
+      ]),
     );
     expect(secondaryWindow.isDestroyed()).toBe(true);
   });
@@ -615,6 +694,15 @@ describe('main split command launch hook', () => {
           rebuildBlockReason: 'secondary-launch-failed',
         },
       }),
+    );
+    expect(getOwnershipSyncPayloads(browserWindowState.instances[0])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          messageKind: 'ownership-fallback',
+          windowRole: 'primary',
+          validationReason: 'rebuild-blocked',
+        }),
+      ]),
     );
     expect(logger.warn).toHaveBeenCalledWith(
       'Split command secondary launch contract unavailable',

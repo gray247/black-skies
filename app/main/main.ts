@@ -36,11 +36,15 @@ import { resolveConfiguredServicePort } from './serviceResolution.js';
 import { randomUUID } from 'node:crypto';
 import {
   createSplitCommandLifecycleSeam,
+  buildSplitCommandOwnershipSyncMessage,
   type SplitCommandPrimaryCollapseReason,
   type SplitCommandSecondaryLossReason,
   type SplitCommandSecondaryLaunchContract,
   type SplitCommandLifecycleSeam,
+  type SplitCommandOwnershipSyncMessage,
+  type SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority.js';
+import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -230,6 +234,79 @@ function ensureMainLogger(): Logger {
     mainLogger = getLogger('main.process');
   }
   return mainLogger;
+}
+
+function getSplitCommandWindowForRole(windowRole: SplitCommandWindowRole): BrowserWindow | null {
+  if (windowRole === 'primary') {
+    return mainWindow;
+  }
+  return splitCommandSecondaryWindow;
+}
+
+function buildSplitCommandOwnershipSyncForRole(
+  windowRole: SplitCommandWindowRole,
+): SplitCommandOwnershipSyncMessage | null {
+  if (!splitCommandLifecycleSeam) {
+    return null;
+  }
+  if (splitCommandLifecycleSeam.registry.fallbackState.pairHealthStatus === 'cleared') {
+    return null;
+  }
+
+  return buildSplitCommandOwnershipSyncMessage({
+    activePairIdentity: splitCommandLifecycleSeam.registry.pairIdentity,
+    claimedPairIdentity: splitCommandLifecycleSeam.runtimeContext.pairIdentity,
+    windowRole,
+    fallbackState: splitCommandLifecycleSeam.registry.fallbackState,
+  });
+}
+
+function publishSplitCommandOwnershipSync(
+  targetRoles: readonly SplitCommandWindowRole[],
+): void {
+  if (!splitCommandLifecycleSeam || targetRoles.length === 0) {
+    return;
+  }
+
+  for (const windowRole of targetRoles) {
+    const targetWindow = getSplitCommandWindowForRole(windowRole);
+    if (!targetWindow || targetWindow.isDestroyed()) {
+      continue;
+    }
+
+    const message = buildSplitCommandOwnershipSyncForRole(windowRole);
+    if (!message) {
+      continue;
+    }
+
+    targetWindow.webContents.send(SPLIT_COMMAND_CHANNELS.ownershipSync, message);
+  }
+}
+
+function registerSplitCommandOwnershipIpc(): void {
+  ipcMain.removeHandler(SPLIT_COMMAND_CHANNELS.requestOwnershipSync);
+  ipcMain.handle(SPLIT_COMMAND_CHANNELS.requestOwnershipSync, (event) => {
+    if (!splitCommandLifecycleSeam) {
+      return null;
+    }
+
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!senderWindow) {
+      return null;
+    }
+
+    const windowRole =
+      senderWindow === mainWindow
+        ? 'primary'
+        : senderWindow === splitCommandSecondaryWindow
+          ? 'secondary'
+          : null;
+    if (!windowRole) {
+      return null;
+    }
+
+    return buildSplitCommandOwnershipSyncForRole(windowRole);
+  });
 }
 
 async function isPortAvailable(port: number): Promise<boolean> {
@@ -817,6 +894,7 @@ function noteSplitCommandSecondaryLoss(
     details,
   });
 
+  publishSplitCommandOwnershipSync(['primary']);
   recordSplitCommandFocusOwnership('secondary', details);
   clearSplitCommandPairRuntimeReferences();
 }
@@ -833,6 +911,8 @@ function noteSplitCommandSecondaryRebuildBlocked(details?: unknown): void {
     fallbackState,
     details,
   });
+
+  publishSplitCommandOwnershipSync(['primary']);
 }
 
 function noteSplitCommandPrimaryCollapse(
@@ -856,6 +936,7 @@ function noteSplitCommandPrimaryCollapse(
     details,
   });
 
+  publishSplitCommandOwnershipSync(['secondary']);
   recordSplitCommandFocusOwnership('primary', details);
   clearSplitCommandPairRuntimeReferences();
 
@@ -934,6 +1015,7 @@ async function bootstrap(): Promise<void> {
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
     recordSplitCommandFocusOwnership('primary');
     mainWindow = window;
+    publishSplitCommandOwnershipSync(['primary']);
     if (splitCommandLifecycleSeam) {
       try {
         splitCommandSecondaryLaunchContract =
@@ -953,6 +1035,7 @@ async function bootstrap(): Promise<void> {
           throw secondaryRegistrationError;
         }
         splitCommandSecondaryWindow = secondaryWindow;
+        publishSplitCommandOwnershipSync(['primary', 'secondary']);
         ensureMainLogger().info('Split command secondary window launched', {
           pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
           windowRole: splitCommandSecondaryLaunchContract.windowRole,
@@ -1043,6 +1126,7 @@ if (!hasSingleInstanceLock) {
       registerRendererLogSink();
       registerProjectLoaderIpc();
       registerDiagnosticsIpc();
+      registerSplitCommandOwnershipIpc();
       registerLayoutIpc({
         devServerUrl: START_URL.startsWith('http') ? START_URL : null,
         rendererIndexFile,

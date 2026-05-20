@@ -8,6 +8,8 @@ import {
   deriveSplitCommandFocusOwnershipState,
   deriveSplitCommandInputRoutingAuthority,
   deriveSplitCommandMutationAuthority,
+  buildSplitCommandOwnershipSyncMessage,
+  matchesSplitCommandOwnershipSyncMessagePairIdentity,
   createSplitCommandSecondaryLaunchContract,
   createSplitCommandPairIdentity,
 } from '../../shared/splitCommandAuthority';
@@ -523,6 +525,65 @@ describe('splitCommandAuthority', () => {
       localMutationOwner: 'none',
       localUndoOwner: 'none',
       mutationValidationReason: 'cleared',
+    });
+  });
+
+  it('builds bounded ownership sync messages and rejects stale pair identity reuse', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+    const healthyMessage = buildSplitCommandOwnershipSyncMessage({
+      activePairIdentity,
+      claimedPairIdentity: {
+        sessionGeneration: 'session-123',
+      },
+      windowRole: 'primary',
+      fallbackState: {
+        pairHealthStatus: 'healthy',
+        primaryCollapseReason: null,
+        secondaryLossReason: null,
+        rebuildBlockReason: null,
+      },
+    });
+
+    expect(healthyMessage).toMatchObject({
+      messageKind: 'ownership-snapshot',
+      messageVersion: 1,
+      pairIdentity: activePairIdentity,
+      windowRole: 'primary',
+      validationReason: 'healthy',
+      fallbackState: {
+        pairHealthStatus: 'healthy',
+      },
+    });
+    expect(matchesSplitCommandOwnershipSyncMessagePairIdentity(healthyMessage, activePairIdentity)).toBe(true);
+    expect(
+      matchesSplitCommandOwnershipSyncMessagePairIdentity(
+        healthyMessage,
+        createSplitCommandPairIdentity({
+          sessionGeneration: 'session-999',
+        }),
+      ),
+    ).toBe(false);
+
+    const fallbackMessage = buildSplitCommandOwnershipSyncMessage({
+      activePairIdentity,
+      claimedPairIdentity: {
+        sessionGeneration: 'session-123',
+      },
+      windowRole: 'secondary',
+      fallbackState: {
+        pairHealthStatus: 'primary-lost',
+        primaryCollapseReason: 'closed',
+        secondaryLossReason: null,
+        rebuildBlockReason: null,
+      },
+    });
+
+    expect(fallbackMessage).toMatchObject({
+      messageKind: 'ownership-fallback',
+      windowRole: 'secondary',
+      validationReason: 'primary-lost',
     });
   });
 

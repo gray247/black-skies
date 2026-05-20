@@ -277,12 +277,16 @@ Boundaries:
 - define IPC and synchronization constraints
 - define atomic cross-window update expectations
 
+24C status: complete as a cross-window routing, mutation authority, and bounded IPC/sync slice. The experimental Split Command path now classifies focus ownership, input ownership, shared mutation/undo authority, and explicit ownership-sync messages in the main/preload seams with stale-generation rejection and atomic state transitions. No monitor placement, reconnect choreography, save/export routing, or broad IPC mesh was added, and the stable/default GUI path remains protected.
+
 ### `24D` Validation, proof, and closure review
 
 - classify what is runtime-proven, harness-proven, and human-proven
 - verify that no hidden promotion path exists
 - verify the stable GUI remains sacred/default
 - verify remaining gaps are explicitly deferred rather than hidden
+
+24D status: complete as a validation/proof/closure review slice. Phase 24 now has explicit closure notes for 24A through 24D, the stable GUI remains the sacred/default path, and Split Command remains experimental and flag-gated. The documented proof claims stay bounded: no physical two-monitor proof, no monitor placement proof, no reconnect proof, and no broad IPC mesh proof.
 
 ## Files / Surfaces Expected During Implementation
 

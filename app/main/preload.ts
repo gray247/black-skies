@@ -4,6 +4,15 @@ import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import * as modePolicy from '../shared/modePolicy';
 import * as testMode from '../renderer/testMode/testModeManager';
+import {
+  SPLIT_COMMAND_CHANNELS,
+  type SplitCommandOwnershipBridge,
+} from '../shared/ipc/splitCommand';
+import {
+  matchesSplitCommandOwnershipSyncMessagePairIdentity,
+  type SplitCommandOwnershipSyncMessage,
+  type SplitCommandWindowRole,
+} from '../shared/splitCommandAuthority';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
@@ -16,6 +25,109 @@ const safeExpose = (key: string, api: unknown) => {
     console.warn(`[preload] expose ${key} failed:`, err);
   }
 };
+
+function readSplitCommandLaunchContextFromArgv():
+  | {
+      readonly windowRole: SplitCommandWindowRole;
+      readonly pairId: string;
+      readonly sessionGeneration: string;
+    }
+  | null {
+  const roleArg = process.argv.find((entry) => entry.startsWith('--blackskies-split-command-role='));
+  const pairIdArg = process.argv.find((entry) =>
+    entry.startsWith('--blackskies-split-command-pair-id='),
+  );
+  const generationArg = process.argv.find((entry) =>
+    entry.startsWith('--blackskies-split-command-session-generation='),
+  );
+
+  if (!roleArg || !pairIdArg || !generationArg) {
+    return null;
+  }
+
+  const windowRole = roleArg.split('=', 2)[1] as SplitCommandWindowRole | undefined;
+  const pairId = pairIdArg.split('=', 2)[1] ?? '';
+  const sessionGeneration = generationArg.split('=', 2)[1] ?? '';
+  if ((windowRole !== 'primary' && windowRole !== 'secondary') || !pairId || !sessionGeneration) {
+    return null;
+  }
+
+  return {
+    windowRole,
+    pairId,
+    sessionGeneration,
+  };
+}
+
+const splitCommandLaunchContext = readSplitCommandLaunchContextFromArgv();
+let splitCommandOwnershipSync: SplitCommandOwnershipSyncMessage | null = null;
+const splitCommandOwnershipSyncListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
+
+function notifySplitCommandOwnershipSyncListeners(
+  message: SplitCommandOwnershipSyncMessage,
+): void {
+  for (const listener of splitCommandOwnershipSyncListeners) {
+    try {
+      listener(message);
+    } catch (error) {
+      console.warn('[preload] split command ownership sync listener failed', error);
+    }
+  }
+}
+
+function normalizeSplitCommandOwnershipSyncMessage(
+  candidate: unknown,
+): SplitCommandOwnershipSyncMessage | null {
+  if (!candidate || typeof candidate !== 'object') {
+    return null;
+  }
+  const message = candidate as Partial<SplitCommandOwnershipSyncMessage> & {
+    pairIdentity?: { pairId?: unknown; sessionGeneration?: unknown };
+  };
+  if (
+    message.messageVersion !== 1 ||
+    (message.messageKind !== 'ownership-snapshot' && message.messageKind !== 'ownership-fallback') ||
+    !message.pairIdentity ||
+    typeof message.pairIdentity.pairId !== 'string' ||
+    typeof message.pairIdentity.sessionGeneration !== 'string'
+  ) {
+    return null;
+  }
+  return message as SplitCommandOwnershipSyncMessage;
+}
+
+function applySplitCommandOwnershipSync(nextMessage: SplitCommandOwnershipSyncMessage): boolean {
+  if (
+    !splitCommandLaunchContext ||
+    nextMessage.pairIdentity.pairId !== splitCommandLaunchContext.pairId ||
+    nextMessage.pairIdentity.sessionGeneration !== splitCommandLaunchContext.sessionGeneration
+  ) {
+    return false;
+  }
+  if (
+    splitCommandOwnershipSync &&
+    !matchesSplitCommandOwnershipSyncMessagePairIdentity(
+      nextMessage,
+      splitCommandOwnershipSync.pairIdentity,
+    )
+  ) {
+    return false;
+  }
+
+  splitCommandOwnershipSync = nextMessage;
+  notifySplitCommandOwnershipSyncListeners(nextMessage);
+  return true;
+}
+
+if (splitCommandLaunchContext) {
+  ipcRenderer.on(SPLIT_COMMAND_CHANNELS.ownershipSync, (_event, payload) => {
+    const message = normalizeSplitCommandOwnershipSyncMessage(payload);
+    if (!message) {
+      return;
+    }
+    applySplitCommandOwnershipSync(message);
+  });
+}
 
 const applyVisualStableAttrs = (element: HTMLElement | null) => {
   if (!element) {
@@ -1976,6 +2088,38 @@ const layoutBridge: LayoutBridge = {
   },
 };
 
+const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunchContext
+  ? {
+      windowRole: splitCommandLaunchContext.windowRole,
+      async requestOwnershipSync(): Promise<SplitCommandOwnershipSyncMessage | null> {
+        try {
+          const response = await ipcRenderer.invoke(SPLIT_COMMAND_CHANNELS.requestOwnershipSync);
+          const message = normalizeSplitCommandOwnershipSyncMessage(response);
+          if (message && applySplitCommandOwnershipSync(message)) {
+            return message;
+          }
+        } catch (error) {
+          console.warn('[preload] Failed to request split command ownership sync', error);
+        }
+        return splitCommandOwnershipSync;
+      },
+      readOwnershipSync(): SplitCommandOwnershipSyncMessage | null {
+        return splitCommandOwnershipSync;
+      },
+      subscribeOwnershipSync(
+        listener: (message: SplitCommandOwnershipSyncMessage) => void,
+      ): () => void {
+        splitCommandOwnershipSyncListeners.add(listener);
+        if (splitCommandOwnershipSync) {
+          listener(splitCommandOwnershipSync);
+        }
+        return () => {
+          splitCommandOwnershipSyncListeners.delete(listener);
+        };
+      },
+    }
+  : null;
+
 registerConsoleForwarding();
 
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
@@ -1983,6 +2127,9 @@ contextBridge.exposeInMainWorld('services', servicesBridge);
 contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
 contextBridge.exposeInMainWorld('layout', layoutBridge);
 contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+if (splitCommandBridge) {
+  safeExpose('splitCommand', splitCommandBridge);
+}
 
 if (process.env.PLAYWRIGHT === '1') {
   const devTools = {

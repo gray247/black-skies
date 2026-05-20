@@ -2,6 +2,7 @@ import type { ProjectLoaderApi } from '../../shared/ipc/projectLoader';
 import type { ServicesBridge } from '../../shared/ipc/services';
 import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type { LayoutBridge } from '../../shared/ipc/layout';
+import type { SplitCommandOwnershipBridge } from '../../shared/ipc/splitCommand';
 import type { RuntimeConfig } from '../../shared/config/runtime';
 
 type DevHarness = {
@@ -60,6 +61,7 @@ declare global {
     diagnostics?: DiagnosticsBridge;
     runtimeConfig?: RuntimeConfig;
     layout?: LayoutBridge;
+    splitCommand?: SplitCommandOwnershipBridge;
     __dev?: DevHarness;
     __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     __serviceHealthRetry?: () => Promise<void>;

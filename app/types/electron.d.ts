@@ -21,6 +21,8 @@ declare module 'electron' {
 
   interface IpcRenderer {
     invoke(channel: string, ...args: unknown[]): Promise<unknown>;
+    on(channel: string, listener: (event: unknown, ...args: unknown[]) => void): void;
+    removeListener(channel: string, listener: (event: unknown, ...args: unknown[]) => void): void;
   }
 
   interface IpcMain {

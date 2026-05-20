@@ -43,6 +43,22 @@ export type SplitCommandMutationOwner = 'primary' | 'secondary' | 'none';
 
 export type SplitCommandMutationValidationReason = SplitCommandFocusValidationReason;
 
+export type SplitCommandOwnershipSyncKind = 'ownership-snapshot' | 'ownership-fallback';
+
+export interface SplitCommandOwnershipSyncMessage {
+  readonly messageKind: SplitCommandOwnershipSyncKind;
+  readonly messageVersion: 1;
+  readonly pairIdentity: SplitCommandPairIdentity;
+  readonly windowRole: SplitCommandWindowRole;
+  readonly authority: SplitCommandAuthorityProfile;
+  readonly fallbackState: SplitCommandPairFallbackState;
+  readonly activeWindowIdentity: SplitCommandActiveWindowIdentity;
+  readonly focusOwnershipState: SplitCommandFocusOwnershipState;
+  readonly inputRoutingAuthority: SplitCommandInputRoutingAuthority;
+  readonly mutationAuthority: SplitCommandMutationAuthority;
+  readonly validationReason: SplitCommandFocusValidationReason;
+}
+
 export interface SplitCommandPairFallbackState {
   readonly pairHealthStatus: SplitCommandPairHealthStatus;
   readonly primaryCollapseReason: SplitCommandPrimaryCollapseReason | null;
@@ -294,6 +310,41 @@ export function deriveSplitCommandMutationAuthority(
     staleMutationClaimsRejected: true,
     mutationValidationReason: inputRoutingAuthority.focusValidationReason,
   };
+}
+
+export function buildSplitCommandOwnershipSyncMessage(
+  input: SplitCommandFocusOwnershipInput,
+): SplitCommandOwnershipSyncMessage {
+  const focusOwnershipState = deriveSplitCommandFocusOwnershipState(input);
+  const inputRoutingAuthority = deriveSplitCommandInputRoutingAuthority(input);
+  const mutationAuthority = deriveSplitCommandMutationAuthority(input);
+
+  return {
+    messageKind:
+      focusOwnershipState.focusValidationReason === 'healthy'
+        ? 'ownership-snapshot'
+        : 'ownership-fallback',
+    messageVersion: 1,
+    pairIdentity: input.activePairIdentity,
+    windowRole: input.windowRole,
+    authority: createSplitCommandAuthorityProfile(input.windowRole),
+    fallbackState: input.fallbackState,
+    activeWindowIdentity: focusOwnershipState.activeWindowIdentity,
+    focusOwnershipState,
+    inputRoutingAuthority,
+    mutationAuthority,
+    validationReason: focusOwnershipState.focusValidationReason,
+  };
+}
+
+export function matchesSplitCommandOwnershipSyncMessagePairIdentity(
+  message: Pick<SplitCommandOwnershipSyncMessage, 'pairIdentity'>,
+  activePairIdentity: SplitCommandPairIdentity,
+): boolean {
+  return (
+    message.pairIdentity.pairId === activePairIdentity.pairId &&
+    message.pairIdentity.sessionGeneration === activePairIdentity.sessionGeneration
+  );
 }
 
 export function createSplitCommandSecondaryLaunchContract(
