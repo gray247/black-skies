@@ -2956,6 +2956,7 @@ Backlog note drifted after phase-log cleanup.
   - the plan defines runtime truth vs project truth, session ownership, draft-state authority, recovery semantics, save/export boundaries, autosave vs accepted-truth semantics, dirty/stale rules, runtime vs persisted memory boundaries, renderer/backend/main ownership, cross-window continuity expectations, explicit non-goals, human-validation requirements, proof classifications, stop/escalation triggers, and definition-of-done criteria,
   - docs-only planning pass; no runtime code was changed,
   - stable GUI remains sacred/default, Split Command remains experimental unless later justified, Phase 26 loader/bootstrap authority remains intact, and Phase 24-25 fail-closed semantics remain in force.
+- [2026-05-20] Roadmap reconciliation / canonicalization pass updated the master roadmap spine and deferred-work matrix to reflect the documented Phase 24-26 execution reality, the current Phase 27 planning state, and a provisional post-27 future bucket structure; no runtime code was changed.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

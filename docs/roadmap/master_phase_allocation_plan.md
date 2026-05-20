@@ -5,7 +5,7 @@ Owns: Future phase/pass structure, sequencing, dependencies, entry criteria, exi
 Does not own: Proof doctrine, deferred item inventory, runtime implementation, snapshot ontology implementation, restore behavior implementation, GUI redesign, or Phase 14 execution artifacts.
 Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md), [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
 Downstream dependencies: [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
-Last reviewed: 2026-05-14.
+Last reviewed: 2026-05-20.
 Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
 
 # Master Phase Allocation Plan
@@ -111,9 +111,37 @@ This document uses the status model defined in [authority_reconciliation_strateg
 | Phase 18 - New GUI Migration Gate | Decide when and how the newer GUI can replace the current production/default GUI |
 | Phase 19 - Roadmap / Deferred Ledger Reconciliation | Keep deferred, TODO, later, stub, and refactor items allocated and non-drifting |
 
-Phase 20+ remains provisional and should not be treated as committed execution work until stabilization phases are accepted.
-Phase 20+ items are provisional future governance buckets only, not committed execution phases, not authorized implementation campaigns, and not suitable for broad `/goals` execution until expanded into governed phase plans.
+Legacy `Phase 20+` placeholder language has been superseded by documented Phase 24-27 reality.
+Post-27 buckets are provisional future governance buckets only, not committed execution phases, not authorized implementation campaigns, and not suitable for broad `/goals` execution until expanded into governed phase plans.
 Phase numbering may shift if prerequisite governance or orchestration work needs to be inserted, but any renumbering must flow through the existing tracker, roadmap, and deferred-matrix process rather than creating a competing roadmap.
+
+Documented execution reality now extends beyond the original Phase 20+ placeholder language:
+
+- Phase 20-23 were provisional planning / transition buckets and are retained as historical context rather than being redefined here.
+- Phase 24 - True two-monitor workspace foundation is closed.
+- Phase 25 - Long-session / large-project hardening is closed.
+- Phase 26 - Project bootstrap truth + brand-new story creation workflow is closed.
+- Phase 27 - Runtime Truth, Session Lifecycle, and Authoring Continuity is in planning.
+- Phase 28+ is a provisional future bucket family, not a committed sequence.
+- Future buckets may split, merge, or reorder as evidence, dependencies, or governance needs change.
+
+## Provisional Future Buckets
+
+The following buckets are strategic themes, not finalized commitments. They may split, merge, or reorder as later phases are accepted.
+
+| Bucket | Provisional theme | Current intent |
+| --- | --- | --- |
+| Phase 28+ | Visible multi-monitor workflow / cross-window authority hardening | Make the experimental split-command surface more legible, visible, and operator-coherent without breaking fail-closed behavior |
+| Phase 29+ | Runtime/session continuity and recovery | Define session ownership, reopen continuity, recovery semantics, and stale-session handling across windows |
+| Phase 30+ | Authoring lifecycle maturity | Clarify create, draft, critique, accept, and reopen transitions without expanding into output-quality claims |
+| Phase 31+ | Persistence / recovery maturity | Tighten save, export, autosave, dirty-state, and recovery boundaries so runtime truth and persisted truth stay distinct |
+| Phase 32+ | AI orchestration / intelligence governance | Keep AI admission, provenance, and trust-language rules bounded before any broader intelligence workflows land |
+| Phase 33+ | Memory systems | Define runtime memory, persisted memory, and continuity rules so memory does not masquerade as accepted project truth |
+| Phase 34+ | Narrative tooling | Expand story-structuring helpers and writer-facing narrative support only after lifecycle and authority boundaries are stable |
+| Phase 35+ | Export / publishing | Separate exported artifacts from accepted project truth and define the publishing authority boundary |
+| Phase 36+ | Collaboration / governance | If and when needed, define multi-operator, review, or governance workflows without collapsing authority ownership |
+
+All buckets above remain provisional. No later bucket should be treated as a final promise about order, scope, or implementation depth.
 
 ## Phase 14 Structure
 
@@ -408,7 +436,8 @@ Likely passes:
 - Phase 14 precedes Phase 18 GUI migration.
 - Phase 16 may run in parallel with parts of Phase 14 but cannot replace real authority proof.
 - Phase 19 depends on [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md).
-- Phase 20+ remains provisional until stabilization phases are accepted.
+- The post-27 roadmap remains provisional until later execution buckets are explicitly governed and accepted.
+- Later buckets may split, merge, or reorder without rewriting the canonical record of completed phases.
 
 ## Cross-System Operational Risk Sweep
 
@@ -573,5 +602,5 @@ This phase plan is canonical for phase and pass sequencing. Status changes or ph
 | --- | --- |
 | Whether Phase 13 closure should happen immediately after governance acceptance or after slice acceptance | Deferred; current default is that slice acceptance may remain pending after Phase 13 closes |
 | Whether Phase 14A.1 updates an existing spec or creates a narrow new spec | Deferred; inspect current spec ownership before deciding |
-| Whether Phase 20+ buckets need names now or should remain unnamed categories | Deferred; current plan keeps them provisional only |
+| Whether post-27 buckets should be split, merged, or renamed once concrete evidence justifies it | Deferred; current plan keeps them provisional and reorderable |
 | Whether governance acceptance with exceptions can proceed if exceptions do not affect the starting slice | Deferred; likely yes only when every exception is explicitly marked non-blocking for the slice |
