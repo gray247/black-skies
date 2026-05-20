@@ -33,6 +33,11 @@ import {
   type ServicePortRange,
 } from '../shared/config/runtime.js';
 import { resolveConfiguredServicePort } from './serviceResolution.js';
+import { randomUUID } from 'node:crypto';
+import {
+  buildSplitCommandRuntimeContext,
+  type SplitCommandRuntimeContext,
+} from '../shared/splitCommandAuthority.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -64,6 +69,12 @@ const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
+const splitCommandRuntimeContext: SplitCommandRuntimeContext | null =
+  runtimeConfig.ui.experimentalSplitCommandWorkspace
+    ? buildSplitCommandRuntimeContext({
+        sessionGeneration: randomUUID(),
+      })
+    : null;
 const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) =>
   entry.toLowerCase(),
 );
@@ -634,7 +645,9 @@ async function createMainWindow(): Promise<BrowserWindow> {
       nodeIntegration: false,
       sandbox: false,
       preload: PRELOAD_PATH,
-      additionalArguments: [],
+      additionalArguments: splitCommandRuntimeContext
+        ? [...splitCommandRuntimeContext.launchArguments]
+        : [],
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
