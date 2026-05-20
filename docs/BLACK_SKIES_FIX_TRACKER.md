@@ -2958,7 +2958,7 @@ Backlog note drifted after phase-log cleanup.
   - stable GUI remains sacred/default, Split Command remains experimental unless later justified, Phase 26 loader/bootstrap authority remains intact, and Phase 24-25 fail-closed semantics remain in force.
 - [2026-05-20] Roadmap reconciliation / canonicalization pass updated the master roadmap spine and deferred-work matrix to reflect the documented Phase 24-26 execution reality, the current Phase 27 planning state, and a provisional post-27 future bucket structure; no runtime code was changed.
 - [2026-05-20] Phase 27A runtime/session truth contract foundation started:
-  - added `app/shared/runtimeSessionTruth.ts` with explicit runtime truth vs project truth boundary types, session lifecycle steps, ownership-surface boundaries, and draft-state classifications,
+  - refined `app/shared/runtimeSessionTruth.ts` into explicit runtime truth vs project truth boundary types, a named session lifecycle-state contract, ownership-surface boundaries, and the initial session-state classification set for `runtime-only`, `persisted`, `dirty`, `unsaved`, `stale`, `partial`, and `recovery-required`,
   - added unit coverage for the shared contract labels and validators,
   - no authoring behavior, autosave/save/export routing, or recovery runtime behavior changed in this pass.
 - [2026-05-20] Phase 26D closure review completed:

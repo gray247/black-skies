@@ -1,4 +1,4 @@
-export const SESSION_LIFECYCLE_STEPS = [
+export const SESSION_LIFECYCLE_STATES = [
   'bootstrap',
   'session-attached',
   'project-loaded',
@@ -9,23 +9,25 @@ export const SESSION_LIFECYCLE_STEPS = [
   'recover-fail-closed',
 ] as const;
 
-export type SessionLifecycleStep = (typeof SESSION_LIFECYCLE_STEPS)[number];
+export type SessionLifecycleState = (typeof SESSION_LIFECYCLE_STATES)[number];
 
-export const DRAFT_STATE_CLASSIFICATIONS = [
+export const SESSION_LIFECYCLE_STEPS = SESSION_LIFECYCLE_STATES;
+export type SessionLifecycleStep = SessionLifecycleState;
+
+export const DRAFT_SESSION_STATE_CLASSIFICATIONS = [
   'runtime-only',
   'persisted',
-  'generated',
-  'critiqued',
-  'accepted',
   'dirty',
   'unsaved',
   'stale',
   'partial',
-  'orphaned',
   'recovery-required',
 ] as const;
 
-export type DraftStateClassification = (typeof DRAFT_STATE_CLASSIFICATIONS)[number];
+export type DraftSessionStateClassification = (typeof DRAFT_SESSION_STATE_CLASSIFICATIONS)[number];
+
+export const DRAFT_STATE_CLASSIFICATIONS = DRAFT_SESSION_STATE_CLASSIFICATIONS;
+export type DraftStateClassification = DraftSessionStateClassification;
 
 export const RUNTIME_OWNERSHIP_SURFACES = [
   'main-process',
@@ -35,6 +37,11 @@ export const RUNTIME_OWNERSHIP_SURFACES = [
 ] as const;
 
 export type RuntimeOwnershipSurface = (typeof RUNTIME_OWNERSHIP_SURFACES)[number];
+
+export interface SessionLifecycleContract {
+  readonly currentState: SessionLifecycleState;
+  readonly states: readonly SessionLifecycleState[];
+}
 
 export interface RuntimeTruthBoundaryContract {
   readonly runtimeTruth: 'runtime-only';
@@ -83,27 +90,39 @@ export interface SessionOwnershipContract {
   };
 }
 
-export interface DraftStateTruthContract {
+export interface DraftSessionStateContract {
   readonly classifications: readonly DraftStateClassification[];
 }
 
+export type DraftStateTruthContract = DraftSessionStateContract;
+
 export interface RuntimeSessionTruthContract {
-  readonly sessionLifecycleStep: SessionLifecycleStep;
-  readonly truthBoundary: RuntimeTruthBoundaryContract;
+  readonly runtimeTruthBoundary: RuntimeTruthBoundaryContract;
+  readonly sessionLifecycle: SessionLifecycleContract;
   readonly sessionOwnership: SessionOwnershipContract;
-  readonly draftStateTruth: DraftStateTruthContract;
+  readonly draftSessionState: DraftSessionStateContract;
 }
 
-const DRAFT_STATE_CLASSIFICATION_SET = new Set<string>(DRAFT_STATE_CLASSIFICATIONS);
-const SESSION_LIFECYCLE_STEP_SET = new Set<string>(SESSION_LIFECYCLE_STEPS);
+const DRAFT_STATE_CLASSIFICATION_SET = new Set<string>(DRAFT_SESSION_STATE_CLASSIFICATIONS);
+const SESSION_LIFECYCLE_STATE_SET = new Set<string>(SESSION_LIFECYCLE_STATES);
 const RUNTIME_OWNERSHIP_SURFACE_SET = new Set<string>(RUNTIME_OWNERSHIP_SURFACES);
 
-export function isSessionLifecycleStep(value: string): value is SessionLifecycleStep {
-  return SESSION_LIFECYCLE_STEP_SET.has(value);
+export function isSessionLifecycleState(value: string): value is SessionLifecycleState {
+  return SESSION_LIFECYCLE_STATE_SET.has(value);
 }
 
-export function isDraftStateClassification(value: string): value is DraftStateClassification {
+export function isSessionLifecycleStep(value: string): value is SessionLifecycleState {
+  return isSessionLifecycleState(value);
+}
+
+export function isDraftSessionStateClassification(
+  value: string,
+): value is DraftSessionStateClassification {
   return DRAFT_STATE_CLASSIFICATION_SET.has(value);
+}
+
+export function isDraftStateClassification(value: string): value is DraftSessionStateClassification {
+  return isDraftSessionStateClassification(value);
 }
 
 export function isRuntimeOwnershipSurface(value: string): value is RuntimeOwnershipSurface {
@@ -161,12 +180,25 @@ export function createSessionOwnershipContract(): SessionOwnershipContract {
   });
 }
 
-export function createDraftStateTruthContract(
-  classifications: readonly DraftStateClassification[],
-): DraftStateTruthContract {
+export function createSessionLifecycleContract(
+  currentState: SessionLifecycleState,
+): SessionLifecycleContract {
+  if (!isSessionLifecycleState(currentState)) {
+    throw new Error(`Unknown session lifecycle state: ${currentState}`);
+  }
+
+  return Object.freeze({
+    currentState,
+    states: Object.freeze([...SESSION_LIFECYCLE_STATES]),
+  });
+}
+
+export function createDraftSessionStateContract(
+  classifications: readonly DraftSessionStateClassification[],
+): DraftSessionStateContract {
   const validated = classifications.map((classification) => {
-    if (!isDraftStateClassification(classification)) {
-      throw new Error(`Unknown draft state classification: ${classification}`);
+    if (!isDraftSessionStateClassification(classification)) {
+      throw new Error(`Unknown draft/session state classification: ${classification}`);
     }
     return classification;
   });
@@ -177,17 +209,13 @@ export function createDraftStateTruthContract(
 }
 
 export function createRuntimeSessionTruthContract(input: {
-  readonly sessionLifecycleStep: SessionLifecycleStep;
-  readonly draftStateClassifications: readonly DraftStateClassification[];
+  readonly sessionLifecycleState: SessionLifecycleState;
+  readonly draftSessionStateClassifications: readonly DraftSessionStateClassification[];
 }): RuntimeSessionTruthContract {
-  if (!isSessionLifecycleStep(input.sessionLifecycleStep)) {
-    throw new Error(`Unknown session lifecycle step: ${input.sessionLifecycleStep}`);
-  }
-
   return Object.freeze({
-    sessionLifecycleStep: input.sessionLifecycleStep,
-    truthBoundary: createRuntimeTruthBoundaryContract(),
+    runtimeTruthBoundary: createRuntimeTruthBoundaryContract(),
+    sessionLifecycle: createSessionLifecycleContract(input.sessionLifecycleState),
     sessionOwnership: createSessionOwnershipContract(),
-    draftStateTruth: createDraftStateTruthContract(input.draftStateClassifications),
+    draftSessionState: createDraftSessionStateContract(input.draftSessionStateClassifications),
   });
 }

@@ -1,19 +1,24 @@
 import {
-  createDraftStateTruthContract,
+  createDraftSessionStateContract,
   createRuntimeSessionTruthContract,
   createRuntimeTruthBoundaryContract,
+  createSessionLifecycleContract,
   createSessionOwnershipContract,
   DRAFT_STATE_CLASSIFICATIONS,
+  DRAFT_SESSION_STATE_CLASSIFICATIONS,
   isDraftStateClassification,
+  isDraftSessionStateClassification,
   isRuntimeOwnershipSurface,
+  isSessionLifecycleState,
   isSessionLifecycleStep,
   RUNTIME_OWNERSHIP_SURFACES,
+  SESSION_LIFECYCLE_STATES,
   SESSION_LIFECYCLE_STEPS,
 } from '../../shared/runtimeSessionTruth';
 
 describe('runtime/session truth contract', () => {
   it('declares the canonical session lifecycle and draft classifications', () => {
-    expect(SESSION_LIFECYCLE_STEPS).toEqual([
+    expect(SESSION_LIFECYCLE_STATES).toEqual([
       'bootstrap',
       'session-attached',
       'project-loaded',
@@ -23,19 +28,17 @@ describe('runtime/session truth contract', () => {
       'reload-reopen',
       'recover-fail-closed',
     ]);
-    expect(DRAFT_STATE_CLASSIFICATIONS).toEqual([
+    expect(SESSION_LIFECYCLE_STEPS).toEqual(SESSION_LIFECYCLE_STATES);
+    expect(DRAFT_SESSION_STATE_CLASSIFICATIONS).toEqual([
       'runtime-only',
       'persisted',
-      'generated',
-      'critiqued',
-      'accepted',
       'dirty',
       'unsaved',
       'stale',
       'partial',
-      'orphaned',
       'recovery-required',
     ]);
+    expect(DRAFT_STATE_CLASSIFICATIONS).toEqual(DRAFT_SESSION_STATE_CLASSIFICATIONS);
     expect(RUNTIME_OWNERSHIP_SURFACES).toEqual([
       'main-process',
       'renderer',
@@ -45,8 +48,10 @@ describe('runtime/session truth contract', () => {
   });
 
   it('validates the known lifecycle, draft, and ownership labels', () => {
+    expect(isSessionLifecycleState('editing')).toBe(true);
     expect(isSessionLifecycleStep('editing')).toBe(true);
     expect(isSessionLifecycleStep('not-a-step')).toBe(false);
+    expect(isDraftSessionStateClassification('dirty')).toBe(true);
     expect(isDraftStateClassification('dirty')).toBe(true);
     expect(isDraftStateClassification('not-a-classification')).toBe(false);
     expect(isRuntimeOwnershipSurface('renderer')).toBe(true);
@@ -59,6 +64,22 @@ describe('runtime/session truth contract', () => {
       projectTruth: 'persisted',
       runtimeOwnershipSurface: 'renderer',
       projectOwnershipSurface: 'persisted-project-files',
+    });
+  });
+
+  it('keeps the session lifecycle contract explicit and bounded', () => {
+    expect(createSessionLifecycleContract('draft-hydrated')).toEqual({
+      currentState: 'draft-hydrated',
+      states: [
+        'bootstrap',
+        'session-attached',
+        'project-loaded',
+        'draft-hydrated',
+        'editing',
+        'save-export',
+        'reload-reopen',
+        'recover-fail-closed',
+      ],
     });
   });
 
@@ -89,24 +110,36 @@ describe('runtime/session truth contract', () => {
   });
 
   it('preserves the requested draft classifications without collapsing them', () => {
-    const contract = createDraftStateTruthContract(['generated', 'dirty', 'unsaved', 'stale']);
+    const contract = createDraftSessionStateContract(['runtime-only', 'dirty', 'unsaved', 'stale']);
 
-    expect(contract.classifications).toEqual(['generated', 'dirty', 'unsaved', 'stale']);
+    expect(contract.classifications).toEqual(['runtime-only', 'dirty', 'unsaved', 'stale']);
   });
 
   it('assembles the session truth contract from the shared contract pieces', () => {
     const contract = createRuntimeSessionTruthContract({
-      sessionLifecycleStep: 'draft-hydrated',
-      draftStateClassifications: ['runtime-only', 'partial', 'recovery-required'],
+      sessionLifecycleState: 'draft-hydrated',
+      draftSessionStateClassifications: ['runtime-only', 'partial', 'recovery-required'],
     });
 
     expect(contract).toEqual({
-      sessionLifecycleStep: 'draft-hydrated',
-      truthBoundary: {
+      runtimeTruthBoundary: {
         runtimeTruth: 'runtime-only',
         projectTruth: 'persisted',
         runtimeOwnershipSurface: 'renderer',
         projectOwnershipSurface: 'persisted-project-files',
+      },
+      sessionLifecycle: {
+        currentState: 'draft-hydrated',
+        states: [
+          'bootstrap',
+          'session-attached',
+          'project-loaded',
+          'draft-hydrated',
+          'editing',
+          'save-export',
+          'reload-reopen',
+          'recover-fail-closed',
+        ],
       },
       sessionOwnership: {
         mainProcess: {
@@ -131,7 +164,7 @@ describe('runtime/session truth contract', () => {
           doesNotOwn: ['runtime-only state', 'window-local UI state', 'ephemeral caches'],
         },
       },
-      draftStateTruth: {
+      draftSessionState: {
         classifications: ['runtime-only', 'partial', 'recovery-required'],
       },
     });
@@ -139,12 +172,12 @@ describe('runtime/session truth contract', () => {
 
   it('rejects unknown labels instead of normalizing them away', () => {
     expect(() =>
-      createDraftStateTruthContract(['generated', 'mystery-state' as never]),
-    ).toThrow(/Unknown draft state classification/);
+      createDraftSessionStateContract(['dirty', 'mystery-state' as never]),
+    ).toThrow(/Unknown draft\/session state classification/);
     expect(() =>
       createRuntimeSessionTruthContract({
-        sessionLifecycleStep: 'bootstrap',
-        draftStateClassifications: ['generated', 'stale'],
+        sessionLifecycleState: 'bootstrap',
+        draftSessionStateClassifications: ['runtime-only', 'stale'],
       }),
     ).not.toThrow();
   });
