@@ -36,6 +36,7 @@ import { resolveConfiguredServicePort } from './serviceResolution.js';
 import { randomUUID } from 'node:crypto';
 import {
   createSplitCommandLifecycleSeam,
+  type SplitCommandPrimaryCollapseReason,
   type SplitCommandSecondaryLossReason,
   type SplitCommandSecondaryLaunchContract,
   type SplitCommandLifecycleSeam,
@@ -689,20 +690,14 @@ async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   window.on('closed', () => {
-    splitCommandPairTeardownInProgress = true;
-    if (splitCommandSecondaryWindow && !splitCommandSecondaryWindow.isDestroyed()) {
-      splitCommandSecondaryWindow.destroy();
-    }
-    splitCommandSecondaryWindow = null;
-    splitCommandSecondaryLaunchContract = null;
-    splitCommandLifecycleSeam?.clear();
-    splitCommandPairTeardownInProgress = false;
+    noteSplitCommandPrimaryCollapse('closed');
     if (mainWindow === window) {
       mainWindow = null;
     }
   });
   window.webContents.on('render-process-gone', (_event, details) => {
     console.error('[main] Renderer process gone', details);
+    noteSplitCommandPrimaryCollapse('crashed', details);
   });
   window.on('unresponsive', () => {
     console.error('[main] BrowserWindow became unresponsive.');
@@ -828,6 +823,38 @@ function noteSplitCommandSecondaryLoss(
   if (!secondaryWindow.isDestroyed()) {
     secondaryWindow.destroy();
   }
+}
+
+function noteSplitCommandPrimaryCollapse(
+  reason: SplitCommandPrimaryCollapseReason,
+  details?: unknown,
+): void {
+  if (!splitCommandLifecycleSeam) {
+    return;
+  }
+
+  if (splitCommandLifecycleSeam.registry.fallbackState.pairHealthStatus === 'primary-lost') {
+    return;
+  }
+
+  splitCommandPairTeardownInProgress = true;
+  const fallbackState = splitCommandLifecycleSeam.registry.markPrimaryCollapsed(reason);
+  ensureMainLogger().warn('Split command primary window collapsed', {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    reason,
+    fallbackState,
+    details,
+  });
+
+  splitCommandSecondaryLaunchContract = null;
+
+  const secondaryWindow = splitCommandSecondaryWindow;
+  splitCommandSecondaryWindow = null;
+  if (secondaryWindow && !secondaryWindow.isDestroyed()) {
+    secondaryWindow.destroy();
+  }
+
+  splitCommandPairTeardownInProgress = false;
 }
 
 async function bootstrap(): Promise<void> {

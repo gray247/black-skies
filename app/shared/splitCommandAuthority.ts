@@ -12,10 +12,20 @@ export type SplitCommandSecondaryLossReason =
   | 'crashed'
   | 'destroyed';
 
-export type SplitCommandPairHealthStatus = 'healthy' | 'secondary-lost' | 'cleared';
+export type SplitCommandPrimaryCollapseReason =
+  | 'closed'
+  | 'crashed'
+  | 'authority-changed';
+
+export type SplitCommandPairHealthStatus =
+  | 'healthy'
+  | 'secondary-lost'
+  | 'primary-lost'
+  | 'cleared';
 
 export interface SplitCommandPairFallbackState {
   readonly pairHealthStatus: SplitCommandPairHealthStatus;
+  readonly primaryCollapseReason: SplitCommandPrimaryCollapseReason | null;
   readonly secondaryLossReason: SplitCommandSecondaryLossReason | null;
 }
 
@@ -67,6 +77,7 @@ export interface SplitCommandLifecycleRegistry {
   registerSecondaryWindow(): SplitCommandWindowLifecycleState;
   releaseSecondaryWindow(): void;
   markSecondaryLost(reason: SplitCommandSecondaryLossReason): SplitCommandPairFallbackState;
+  markPrimaryCollapsed(reason: SplitCommandPrimaryCollapseReason): SplitCommandPairFallbackState;
   createSecondaryLaunchContract(): SplitCommandSecondaryLaunchContract;
   matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
   clear(): void;
@@ -155,6 +166,9 @@ export function createSplitCommandSecondaryLaunchContract(
     | 'fallbackState'
   >,
 ): SplitCommandSecondaryLaunchContract {
+  if (registry.fallbackState.pairHealthStatus === 'primary-lost') {
+    throw new Error('Split command pair was invalidated by primary collapse.');
+  }
   if (!registry.isActive) {
     throw new Error('Split command lifecycle registry has been cleared.');
   }
@@ -196,6 +210,7 @@ export function createSplitCommandLifecycleRegistry(
   let active = true;
   let fallbackState: SplitCommandPairFallbackState = {
     pairHealthStatus: 'healthy',
+    primaryCollapseReason: null,
     secondaryLossReason: null,
   };
 
@@ -251,6 +266,7 @@ export function createSplitCommandLifecycleRegistry(
       secondaryWindowRegistered = true;
       fallbackState = {
         pairHealthStatus: 'healthy',
+        primaryCollapseReason: null,
         secondaryLossReason: null,
       };
       return buildWindowLifecycleState('secondary');
@@ -268,7 +284,22 @@ export function createSplitCommandLifecycleRegistry(
       secondaryWindowRegistered = false;
       fallbackState = {
         pairHealthStatus: 'secondary-lost',
+        primaryCollapseReason: null,
         secondaryLossReason: reason,
+      };
+      return fallbackState;
+    },
+    markPrimaryCollapsed(reason: SplitCommandPrimaryCollapseReason) {
+      if (!active) {
+        return fallbackState;
+      }
+      active = false;
+      primaryWindowRegistered = false;
+      secondaryWindowRegistered = false;
+      fallbackState = {
+        pairHealthStatus: 'primary-lost',
+        primaryCollapseReason: reason,
+        secondaryLossReason: null,
       };
       return fallbackState;
     },
@@ -298,6 +329,7 @@ export function createSplitCommandLifecycleRegistry(
       secondaryWindowRegistered = false;
       fallbackState = {
         pairHealthStatus: 'cleared',
+        primaryCollapseReason: null,
         secondaryLossReason: null,
       };
     },

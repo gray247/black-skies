@@ -149,6 +149,7 @@ describe('splitCommandAuthority', () => {
     expect(registry.secondaryWindowRegistered).toBe(false);
     expect(registry.fallbackState).toEqual({
       pairHealthStatus: 'cleared',
+      primaryCollapseReason: null,
       secondaryLossReason: null,
     });
     expect(
@@ -241,11 +242,13 @@ describe('splitCommandAuthority', () => {
 
     expect(registry.fallbackState).toEqual({
       pairHealthStatus: 'healthy',
+      primaryCollapseReason: null,
       secondaryLossReason: null,
     });
 
     expect(registry.markSecondaryLost('closed')).toEqual({
       pairHealthStatus: 'secondary-lost',
+      primaryCollapseReason: null,
       secondaryLossReason: 'closed',
     });
     expect(registry.secondaryWindowRegistered).toBe(false);
@@ -258,6 +261,41 @@ describe('splitCommandAuthority', () => {
 
     expect(registry.fallbackState).toEqual({
       pairHealthStatus: 'cleared',
+      primaryCollapseReason: null,
+      secondaryLossReason: null,
+    });
+  });
+
+  it('invalidates stale pair identity when the primary collapses', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    registry.registerPrimaryWindow();
+    registry.registerSecondaryWindow();
+
+    expect(registry.markPrimaryCollapsed('closed')).toEqual({
+      pairHealthStatus: 'primary-lost',
+      primaryCollapseReason: 'closed',
+      secondaryLossReason: null,
+    });
+    expect(registry.isActive).toBe(false);
+    expect(registry.primaryWindowRegistered).toBe(false);
+    expect(registry.secondaryWindowRegistered).toBe(false);
+    expect(
+      registry.matchesPairIdentity({
+        sessionGeneration: 'session-123',
+      }),
+    ).toBe(false);
+    expect(() =>
+      createSplitCommandSecondaryLaunchContract(registry),
+    ).toThrow('Split command pair was invalidated by primary collapse.');
+
+    registry.clear();
+
+    expect(registry.fallbackState).toEqual({
+      pairHealthStatus: 'cleared',
+      primaryCollapseReason: null,
       secondaryLossReason: null,
     });
   });

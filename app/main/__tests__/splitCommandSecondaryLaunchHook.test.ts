@@ -289,6 +289,7 @@ describe('main split command launch hook', () => {
         reason: 'closed',
         fallbackState: {
           pairHealthStatus: 'secondary-lost',
+          primaryCollapseReason: null,
           secondaryLossReason: 'closed',
         },
       }),
@@ -312,7 +313,57 @@ describe('main split command launch hook', () => {
         reason: 'crashed',
         fallbackState: {
           pairHealthStatus: 'secondary-lost',
+          primaryCollapseReason: null,
           secondaryLossReason: 'crashed',
+        },
+      }),
+    );
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+  });
+
+  it('marks the pair stale when the primary BrowserWindow closes and destroys the secondary', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+
+    primaryWindow.destroy();
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command primary window collapsed',
+      expect.objectContaining({
+        reason: 'closed',
+        fallbackState: {
+          pairHealthStatus: 'primary-lost',
+          primaryCollapseReason: 'closed',
+          secondaryLossReason: null,
+        },
+      }),
+    );
+    expect(primaryWindow.isDestroyed()).toBe(true);
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+  });
+
+  it('marks the pair stale when the primary renderer crashes and prevents reuse', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+
+    primaryWindow.webContents.emit('render-process-gone', {}, { reason: 'crashed' });
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command primary window collapsed',
+      expect.objectContaining({
+        reason: 'crashed',
+        fallbackState: {
+          pairHealthStatus: 'primary-lost',
+          primaryCollapseReason: 'crashed',
+          secondaryLossReason: null,
         },
       }),
     );
