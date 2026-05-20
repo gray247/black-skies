@@ -337,6 +337,44 @@ Phase 27 is done when:
 - proof classifications are written before implementation starts
 - stop/escalation triggers are written before implementation starts
 
+## 16. Phase 27 Proof Status After Implementation
+
+This section is a planning aid only. It does not broaden scope or claim operator validation.
+
+### Runtime-proven
+
+- None yet from this phase set unless a human runtime smoke is recorded separately.
+
+### Harness / test-lane proven
+
+- `runtime truth` vs `project truth` contract types and validators.
+- Renderer read-only session-truth summary in `ProjectHome`.
+- Narrow `stale` and `recovery-required` signal mapping from existing loader warnings and failure codes.
+- Main-process lifecycle classification snapshots for startup, load success/failure, and graceful shutdown.
+- Dirty/unsaved continuity overlay across the renderer/main classification seam.
+
+### Policy-only
+
+- Ownership boundaries between main process, renderer, backend/services, and persisted project files.
+- Session-lifecycle naming, draft-state naming, recovery semantics, save/export boundaries, autosave semantics, and cross-window continuity expectations.
+- Tracker notes and implementation-plan text.
+
+### Deferred
+
+- Save/export routing.
+- Autosave behavior.
+- Recovery repair or recovery runtime proof.
+- Multi-window promotion and Split Command promotion.
+- Backend accept/persistence rewrites.
+
+### Unproven
+
+- Human-visible session truth from an operator launch.
+- Stable-GUI smoke confirmation.
+- Accepted-truth after reload/reopen.
+- Reproducible live stale/recovery-required smoke confirmation.
+- Production readiness and output-quality claims.
+
 ## High-Risk Files for the Next Phase
 
 Likely files to review first when implementation begins:

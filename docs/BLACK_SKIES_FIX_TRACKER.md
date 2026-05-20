@@ -2979,6 +2979,10 @@ Backlog note drifted after phase-log cleanup.
   - `app/renderer/components/ProjectHome.tsx` now composes the main-process `sessionTruth` baseline with local renderer-only dirty/unsaved overlays instead of replacing the contract, so loaded project continuity stays read-only,
   - the shared runtime/session truth contract now exposes a narrow composition helper for baseline-plus-overlay classification merging,
   - targeted renderer coverage now proves a loaded main-process baseline can keep `partial` visible while dirty/unsaved remains present across reopen without promoting the state to persisted truth.
+- [2026-05-20] Phase 27F validation/proof planning started:
+  - `docs/audits/phase27/phase27_execution_plan.md` now separates runtime-proven, harness/test-lane proven, policy-only, deferred, and unproven Phase 27 claims,
+  - `docs/audits/phase27/phase27_validation_checklist.md` captures the narrow human smoke checklist for session-truth visibility, loaded baseline state, dirty/unsaved continuity, and safe stale/recovery-required repro cases,
+  - this pass does not add runtime code or expand save/export/autosave/recovery behavior.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
