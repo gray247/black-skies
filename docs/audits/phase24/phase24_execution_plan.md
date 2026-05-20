@@ -268,6 +268,8 @@ Boundaries:
 - define retry / recovery bounds
 - define hidden-window prevention rules for bootstrap and failure recovery
 
+24B status: complete as a bounded recovery and fallback slice. The experimental Split Command path now classifies secondary loss, primary collapse, teardown/orphan prevention, and bounded rebuild blocking in the main process without adding reconnect choreography, monitor placement, focus routing, broad IPC synchronization, or visible recovery UI. This is not physical two-monitor proof; it is fallback-state and recovery-bound proof only.
+
 ### `24C` Cross-window routing and mutation contract
 
 - define focus and input routing rules
