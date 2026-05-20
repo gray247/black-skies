@@ -15,7 +15,9 @@ import type {
 } from '../../shared/ipc/projectLoader';
 import {
   createRuntimeSessionTruthContract,
+  composeRuntimeSessionTruthContract,
   type DraftSessionStateClassification,
+  type RuntimeSessionTruthContract,
   type SessionLifecycleState,
 } from '../../shared/runtimeSessionTruth';
 import type { ToastPayload } from '../types/toast';
@@ -303,6 +305,9 @@ export default function ProjectHome({
     readStoredLastProjectPath(),
   );
   const [lastLoadErrorCode, setLastLoadErrorCode] = useState<string | null>(null);
+  const [loadedSessionTruth, setLoadedSessionTruth] = useState<RuntimeSessionTruthContract | null>(
+    null,
+  );
   const [newProjectTitle, setNewProjectTitle] = useState<string>('Untitled Story');
   const sampleAttemptedRef = useRef(false);
   const stalePathsRef = useRef<Set<string>>(new Set());
@@ -474,7 +479,7 @@ export default function ProjectHome({
     () => classifyProjectHomeSignal({ loadErrorCode: lastLoadErrorCode, issues }),
     [issues, lastLoadErrorCode],
   );
-  const sessionTruth = useMemo(
+  const localSessionTruth = useMemo(
     () =>
       createRuntimeSessionTruthContract({
         sessionLifecycleState: deriveProjectHomeSessionLifecycleState({
@@ -488,7 +493,7 @@ export default function ProjectHome({
           activeSceneId,
           activeSceneDraftSource,
           issues,
-        }).concat(projectHomeSignalClassification === 'clean' ? [] : [projectHomeSignalClassification]),
+        }),
       }),
     [
       activeProject,
@@ -496,7 +501,38 @@ export default function ProjectHome({
       activeSceneId,
       isLoading,
       issues,
+    ],
+  );
+  const sessionTruth = useMemo(
+    () => {
+      const draftSessionStateClassifications: DraftSessionStateClassification[] = [];
+      if (projectHomeSignalClassification !== 'clean') {
+        draftSessionStateClassifications.push(projectHomeSignalClassification);
+      }
+      if (activeSceneId && activeSceneDraftSource === 'override') {
+        draftSessionStateClassifications.push('dirty', 'unsaved');
+      }
+
+      return composeRuntimeSessionTruthContract(loadedSessionTruth ?? localSessionTruth, {
+        sessionLifecycleState: activeProject
+          ? deriveProjectHomeSessionLifecycleState({
+              isLoading,
+              activeProject,
+              activeSceneId,
+              activeSceneDraftSource,
+            })
+          : loadedSessionTruth?.sessionLifecycle.currentState,
+        draftSessionStateClassifications,
+      });
+    },
+    [
+      activeProject,
+      activeSceneDraftSource,
+      activeSceneId,
+      isLoading,
+      loadedSessionTruth,
       projectHomeSignalClassification,
+      localSessionTruth,
     ],
   );
   const sessionTruthClassifications = sessionTruth.draftSessionState.classifications.join(', ');
@@ -626,6 +662,7 @@ export default function ProjectHome({
             options,
             error: response.error,
           });
+          setLoadedSessionTruth(response.sessionTruth ?? null);
           setLastLoadErrorCode(response.error.code);
           console.warn('[ProjectHome] Project load returned issues', {
             targetPath,
@@ -723,6 +760,7 @@ export default function ProjectHome({
           issueCount: response.issues.length,
         });
         setActiveProject(response.project);
+        setLoadedSessionTruth(response.sessionTruth ?? null);
         setLastLoadErrorCode(null);
         setActiveSceneId((previous) => {
           if (previous && response.project.drafts[previous]) {

@@ -8,6 +8,7 @@ import type {
   ProjectIssue,
   ProjectLoaderApi,
 } from '../../shared/ipc/projectLoader';
+import { createRuntimeSessionTruthContract } from '../../shared/runtimeSessionTruth';
 import type { ToastPayload } from '../types/toast';
 
 function createSampleProject(path: string): LoadedProject {
@@ -766,6 +767,10 @@ describe('ProjectHome recent project recovery', () => {
     const draftOverrides = {
       sc_0001: '# Scene One\n\nUpdated draft text.',
     };
+    const sessionTruthBaseline = createRuntimeSessionTruthContract({
+      sessionLifecycleState: 'project-loaded',
+      draftSessionStateClassifications: ['persisted', 'partial'],
+    });
 
     const projectLoader: ProjectLoaderApi = {
       openProjectDialog: vi.fn(),
@@ -774,6 +779,7 @@ describe('ProjectHome recent project recovery', () => {
         ok: true,
         project,
         issues: [],
+        sessionTruth: sessionTruthBaseline,
       }),
     };
 
@@ -795,7 +801,66 @@ describe('ProjectHome recent project recovery', () => {
     expect(sessionTruth).toHaveTextContent('Runtime truth: runtime-only; Project truth: persisted');
     expect(sessionTruth).toHaveTextContent('Lifecycle state: editing');
     expect(sessionTruth).toHaveTextContent('Signal classification: clean');
-    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, dirty, unsaved');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, partial, dirty, unsaved');
+  });
+
+  it('keeps the main-process baseline classifications visible across a reopen boundary', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath);
+    const draftOverrides = {
+      sc_0001: '# Scene One\n\nUpdated draft text.',
+    };
+    const sessionTruthBaseline = createRuntimeSessionTruthContract({
+      sessionLifecycleState: 'project-loaded',
+      draftSessionStateClassifications: ['persisted', 'partial'],
+    });
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project,
+      issues: [],
+      sessionTruth: sessionTruthBaseline,
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const { rerender } = render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        draftOverrides={draftOverrides}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByRole('status', { name: /Session truth/i })).toHaveTextContent(
+      'Draft/session state: persisted, partial, dirty, unsaved',
+    );
+
+    rerender(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        draftOverrides={draftOverrides}
+        reopenRequest={{ path: samplePath, requestId: 42 }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.getByRole('status', { name: /Session truth/i })).toHaveTextContent(
+      'Draft/session state: persisted, partial, dirty, unsaved',
+    );
   });
 
   it('surfaces stale signal classification when the loader corrects a nested project path', async () => {

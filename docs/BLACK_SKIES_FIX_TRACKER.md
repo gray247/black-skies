@@ -2975,6 +2975,10 @@ Backlog note drifted after phase-log cleanup.
   - project-load IPC responses now carry read-only `sessionTruth` snapshots alongside the existing load result shape,
   - startup and shutdown paths in `app/main/main.ts` now classify session truth for logging only; no save/export/autosave or recovery repair behavior changed,
   - targeted main-process coverage was added for startup, clean load, recovery-required failure, partial failure, and shutdown classifications.
+- [2026-05-20] Phase 27E dirty/unsaved continuity classification started:
+  - `app/renderer/components/ProjectHome.tsx` now composes the main-process `sessionTruth` baseline with local renderer-only dirty/unsaved overlays instead of replacing the contract, so loaded project continuity stays read-only,
+  - the shared runtime/session truth contract now exposes a narrow composition helper for baseline-plus-overlay classification merging,
+  - targeted renderer coverage now proves a loaded main-process baseline can keep `partial` visible while dirty/unsaved remains present across reopen without promoting the state to persisted truth.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

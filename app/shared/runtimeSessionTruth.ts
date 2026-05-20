@@ -219,3 +219,38 @@ export function createRuntimeSessionTruthContract(input: {
     draftSessionState: createDraftSessionStateContract(input.draftSessionStateClassifications),
   });
 }
+
+function mergeDraftSessionStateClassifications(
+  baseline: readonly DraftSessionStateClassification[],
+  overlay: readonly DraftSessionStateClassification[],
+): DraftSessionStateClassification[] {
+  const merged: DraftSessionStateClassification[] = [...baseline];
+  overlay.forEach((classification) => {
+    if (!merged.includes(classification)) {
+      merged.push(classification);
+    }
+  });
+  return merged;
+}
+
+export function composeRuntimeSessionTruthContract(
+  baseline: RuntimeSessionTruthContract,
+  input: {
+    readonly sessionLifecycleState?: SessionLifecycleState;
+    readonly draftSessionStateClassifications?: readonly DraftSessionStateClassification[];
+  },
+): RuntimeSessionTruthContract {
+  return Object.freeze({
+    runtimeTruthBoundary: baseline.runtimeTruthBoundary,
+    sessionLifecycle: createSessionLifecycleContract(
+      input.sessionLifecycleState ?? baseline.sessionLifecycle.currentState,
+    ),
+    sessionOwnership: baseline.sessionOwnership,
+    draftSessionState: createDraftSessionStateContract(
+      mergeDraftSessionStateClassifications(
+        baseline.draftSessionState.classifications,
+        input.draftSessionStateClassifications ?? [],
+      ),
+    ),
+  });
+}
