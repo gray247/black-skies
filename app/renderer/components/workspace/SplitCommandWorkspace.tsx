@@ -375,6 +375,13 @@ function IntelligenceReadinessPanel({
       <p className="split-command__panel-note">
         No AI certainty, hidden inference, or story-quality judgment is active here.
       </p>
+      <ul className="split-command__panel-bullets" aria-label="Intelligence panel admission rules">
+        <li>Owner required before a panel can leave deferred status.</li>
+        <li>Authority level and provenance sources must be explicit.</li>
+        <li>Trust language, fallback behavior, and proof class must be named.</li>
+        <li>Current-project scope must stay narrow and visible.</li>
+        <li>Separate panels need a reason not to stay embedded, status-only, or deferred.</li>
+      </ul>
     </section>
   );
 }

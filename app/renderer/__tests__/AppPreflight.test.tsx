@@ -1731,6 +1731,12 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
       /Generated claims stay generated unless verified separately/i,
     );
+    expect(screen.getByLabelText('Intelligence panel admission rules')).toHaveTextContent(
+      /Owner required before a panel can leave deferred status/i,
+    );
+    expect(screen.getByLabelText('Intelligence panel admission rules')).toHaveTextContent(
+      /Authority level and provenance sources must be explicit/i,
+    );
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',

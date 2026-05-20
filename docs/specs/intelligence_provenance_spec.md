@@ -161,6 +161,26 @@ Before any future intelligence panel can be shown, it must have:
 
 If a surface cannot satisfy those rules, it stays deferred.
 
+## Admission Rules For Future Intelligence Panels
+
+Future intelligence panels may only become separate panels when they satisfy all of the following:
+
+- the panel has a named owner
+- the panel has an explicit authority level
+- the panel lists its provenance sources
+- the panel uses honest trust and confidence language
+- the panel defines fallback and empty-state behavior
+- the panel declares its proof class
+- the panel stays current-project scoped
+- the panel has a concrete reason it cannot remain embedded, status-only, or deferred
+
+Rules:
+
+- if a future intelligence surface can stay embedded without losing honesty, it should stay embedded
+- if a future intelligence surface can stay status-only without losing clarity, it should stay status-only
+- if a future intelligence surface cannot yet satisfy these rules, it remains deferred
+- these rules exist to prevent panel sprawl and fake intelligence surfaces
+
 ## Non-Claims
 
 This spec does not claim:
@@ -184,4 +204,3 @@ This spec supplements, and does not replace:
 - `docs/roadmap/authority_reconciliation_strategy.md`
 
 Phase numbers may shift only through the existing tracker, roadmap, and deferred-matrix process.
-
