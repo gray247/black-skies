@@ -337,7 +337,10 @@ export function createSplitCommandLifecycleRegistry(
 }
 
 export function createSplitCommandLifecycleSeam(
-  input: SplitCommandRuntimeContextInput & { readonly experimentalEnabled: boolean },
+  input: SplitCommandRuntimeContextInput & {
+    readonly experimentalEnabled: boolean;
+    readonly onClear?: () => void;
+  },
 ): SplitCommandLifecycleSeam | null {
   if (!input.experimentalEnabled) {
     return null;
@@ -354,6 +357,9 @@ export function createSplitCommandLifecycleSeam(
     runtimeContext,
     registry,
     launchArguments: runtimeContext.launchArguments,
-    clear: () => registry.clear(),
+    clear: () => {
+      input.onClear?.();
+      registry.clear();
+    },
   };
 }

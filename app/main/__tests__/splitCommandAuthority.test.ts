@@ -120,6 +120,32 @@ describe('splitCommandAuthority', () => {
     expect(seam?.registry.secondaryWindowRegistered).toBe(false);
   });
 
+  it('runs the explicit teardown callback before clearing the split command registry', () => {
+    let teardownCalls = 0;
+    const seam = createSplitCommandLifecycleSeam({
+      experimentalEnabled: true,
+      sessionGeneration: 'session-123',
+      onClear: () => {
+        teardownCalls += 1;
+      },
+    });
+
+    expect(seam).not.toBeNull();
+    seam?.registry.registerPrimaryWindow();
+    seam?.registry.registerSecondaryWindow();
+
+    seam?.clear();
+    seam?.clear();
+
+    expect(teardownCalls).toBe(2);
+    expect(seam?.registry.isActive).toBe(false);
+    expect(seam?.registry.fallbackState).toEqual({
+      pairHealthStatus: 'cleared',
+      primaryCollapseReason: null,
+      secondaryLossReason: null,
+    });
+  });
+
   it('prevents pair identity reuse after teardown and keeps secondary authority local', () => {
     const registry = createSplitCommandLifecycleRegistry({
       sessionGeneration: 'session-123',

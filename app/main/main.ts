@@ -76,6 +76,7 @@ const splitCommandLifecycleSeam: SplitCommandLifecycleSeam | null =
   createSplitCommandLifecycleSeam({
     experimentalEnabled: runtimeConfig.ui.experimentalSplitCommandWorkspace,
     sessionGeneration: randomUUID(),
+    onClear: clearSplitCommandPairRuntimeReferences,
   });
 let splitCommandSecondaryLaunchContract: SplitCommandSecondaryLaunchContract | null = null;
 const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) =>
@@ -816,13 +817,7 @@ function noteSplitCommandSecondaryLoss(
     details,
   });
 
-  splitCommandSecondaryLaunchContract = null;
-
-  const secondaryWindow = splitCommandSecondaryWindow;
-  splitCommandSecondaryWindow = null;
-  if (!secondaryWindow.isDestroyed()) {
-    secondaryWindow.destroy();
-  }
+  clearSplitCommandPairRuntimeReferences();
 }
 
 function noteSplitCommandPrimaryCollapse(
@@ -846,6 +841,12 @@ function noteSplitCommandPrimaryCollapse(
     details,
   });
 
+  clearSplitCommandPairRuntimeReferences();
+
+  splitCommandPairTeardownInProgress = false;
+}
+
+function clearSplitCommandPairRuntimeReferences(): void {
   splitCommandSecondaryLaunchContract = null;
 
   const secondaryWindow = splitCommandSecondaryWindow;
@@ -853,8 +854,6 @@ function noteSplitCommandPrimaryCollapse(
   if (secondaryWindow && !secondaryWindow.isDestroyed()) {
     secondaryWindow.destroy();
   }
-
-  splitCommandPairTeardownInProgress = false;
 }
 
 async function bootstrap(): Promise<void> {
