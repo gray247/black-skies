@@ -1726,7 +1726,10 @@ describe('App preflight integration', () => {
       /Current project only/i,
     );
     expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
-      /generated, verified, speculative, deferred, unavailable/i,
+      /generated \/ verified \/ speculative \/ deferred \/ unavailable/i,
+    );
+    expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
+      /Generated claims stay generated unless verified separately/i,
     );
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {

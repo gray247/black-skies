@@ -324,7 +324,9 @@ function GlobalToolsPanel({
           <dd>{commandCenterCommands.length}</dd>
         </div>
       </dl>
-      <p className="split-command__panel-note">No command palette or execution path is active.</p>
+      <p className="split-command__panel-note">
+        No command palette or execution path is active.
+      </p>
     </section>
   );
 }
@@ -359,13 +361,17 @@ function IntelligenceReadinessPanel({
         </div>
         <div>
           <dt>Available</dt>
-          <dd>{sceneCount} scenes</dd>
+          <dd>{sceneCount > 0 ? `${sceneCount} scenes` : "Unavailable"}</dd>
         </div>
         <div>
           <dt>States</dt>
-          <dd>generated, verified, speculative, deferred, unavailable</dd>
+          <dd>generated / verified / speculative / deferred / unavailable</dd>
         </div>
       </dl>
+      <p className="split-command__panel-note">
+        Generated claims stay generated unless verified separately. Speculative claims stay
+        speculative. Unavailable data remains unavailable instead of being guessed.
+      </p>
       <p className="split-command__panel-note">
         No AI certainty, hidden inference, or story-quality judgment is active here.
       </p>
@@ -457,17 +463,17 @@ export default function SplitCommandWorkspace({
               aria-label="Metadata command surfaces"
               hidden={commandCenterCollapsed}
             >
-            <ProjectStatsPanel
-              project={project}
-              outline={activeOutline}
-              activeUnit={activeUnit}
-            />
+              <ProjectStatsPanel
+                project={project}
+                outline={activeOutline}
+                activeUnit={activeUnit}
+              />
 
-            <IntelligenceReadinessPanel project={project} />
+              <IntelligenceReadinessPanel project={project} />
 
-            <GlobalToolsPanel commands={commands} />
+              <GlobalToolsPanel commands={commands} />
+            </div>
           </div>
-        </div>
         </div>
       </aside>
 

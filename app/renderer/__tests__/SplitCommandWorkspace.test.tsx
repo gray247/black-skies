@@ -196,7 +196,10 @@ describe("SplitCommandWorkspace", () => {
       /Current project only/i,
     );
     expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /generated, verified, speculative, deferred, unavailable/i,
+      /generated \/ verified \/ speculative \/ deferred \/ unavailable/i,
+    );
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /Generated claims stay generated unless verified separately/i,
     );
     expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
       /No AI certainty, hidden inference, or story-quality judgment is active here/i,
@@ -229,6 +232,9 @@ describe("SplitCommandWorkspace", () => {
     );
     expect(screen.getByLabelText("Structure Overview")).toHaveTextContent(
       /Scene-only structure loaded/i,
+    );
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /Unavailable/i,
     );
   });
 
