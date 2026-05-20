@@ -29,6 +29,16 @@ export type SplitCommandRebuildBlockReason =
   | 'secondary-retry-budget-exhausted'
   | 'stale-generation';
 
+export type SplitCommandFocusOwner = 'primary' | 'secondary' | 'none';
+
+export type SplitCommandFocusValidationReason =
+  | 'healthy'
+  | 'stale-generation'
+  | 'cleared'
+  | 'primary-lost'
+  | 'secondary-lost'
+  | 'rebuild-blocked';
+
 export interface SplitCommandPairFallbackState {
   readonly pairHealthStatus: SplitCommandPairHealthStatus;
   readonly primaryCollapseReason: SplitCommandPrimaryCollapseReason | null;
@@ -51,6 +61,31 @@ export interface SplitCommandAuthorityProfile {
     readonly localPresentationState: SplitCommandStateBoundary;
     readonly ephemeralUiState: SplitCommandStateBoundary;
   };
+}
+
+export interface SplitCommandActiveWindowIdentity {
+  readonly pairIdentity: SplitCommandPairIdentity;
+  readonly windowRole: SplitCommandWindowRole;
+  readonly focusOwner: SplitCommandFocusOwner;
+}
+
+export interface SplitCommandFocusOwnershipState {
+  readonly activeWindowIdentity: SplitCommandActiveWindowIdentity;
+  readonly globalFocusOwner: 'primary';
+  readonly sharedFocusAuthorityOwner: 'primary';
+  readonly localFocusOwner: SplitCommandFocusOwner;
+  readonly canOwnSharedFocus: boolean;
+  readonly canOwnLocalFocus: boolean;
+  readonly focusValidationReason: SplitCommandFocusValidationReason;
+}
+
+export interface SplitCommandInputRoutingAuthority {
+  readonly activeWindowIdentity: SplitCommandActiveWindowIdentity;
+  readonly globalFocusOwner: 'primary';
+  readonly sharedInputOwner: 'primary';
+  readonly localInputOwner: SplitCommandFocusOwner;
+  readonly staleInputClaimsRejected: true;
+  readonly focusValidationReason: SplitCommandFocusValidationReason;
 }
 
 export interface SplitCommandRuntimeContext {
@@ -95,6 +130,8 @@ export interface SplitCommandLifecycleSeam {
   readonly runtimeContext: SplitCommandRuntimeContext;
   readonly registry: SplitCommandLifecycleRegistry;
   readonly launchArguments: readonly string[];
+  readonly focusOwnershipState: SplitCommandFocusOwnershipState | null;
+  classifyFocusOwnership(windowRole: SplitCommandWindowRole): SplitCommandFocusOwnershipState;
   clear(): void;
 }
 
@@ -102,6 +139,13 @@ export interface SplitCommandRuntimeContextInput {
   readonly sessionGeneration: string;
   readonly windowRole?: SplitCommandWindowRole;
   readonly pairId?: string;
+}
+
+export interface SplitCommandFocusOwnershipInput {
+  readonly activePairIdentity: SplitCommandPairIdentity;
+  readonly claimedPairIdentity: SplitCommandRuntimeContextInput;
+  readonly windowRole: SplitCommandWindowRole;
+  readonly fallbackState: SplitCommandPairFallbackState;
 }
 
 function normalizeNonEmpty(value: string, label: string): string {
@@ -160,6 +204,58 @@ export function buildSplitCommandRuntimeContext(
         authority.staleSecondaryResurrectionForbidden,
       )}`,
     ],
+  };
+}
+
+export function deriveSplitCommandFocusOwnershipState(
+  input: SplitCommandFocusOwnershipInput,
+): SplitCommandFocusOwnershipState {
+  const claimedPairIdentity = createSplitCommandPairIdentity(input.claimedPairIdentity);
+  const focusValidationReason: SplitCommandFocusValidationReason =
+    input.fallbackState.pairHealthStatus === 'cleared'
+      ? 'cleared'
+      : input.fallbackState.pairHealthStatus === 'primary-lost'
+        ? 'primary-lost'
+        : input.fallbackState.pairHealthStatus === 'secondary-lost'
+          ? 'secondary-lost'
+          : input.fallbackState.pairHealthStatus === 'rebuild-blocked'
+            ? 'rebuild-blocked'
+            : claimedPairIdentity.sessionGeneration !== input.activePairIdentity.sessionGeneration ||
+                claimedPairIdentity.pairId !== input.activePairIdentity.pairId
+              ? 'stale-generation'
+              : 'healthy';
+
+  const isHealthy = focusValidationReason === 'healthy';
+  const localFocusOwner: SplitCommandFocusOwner =
+    isHealthy && input.windowRole === 'secondary' ? 'secondary' : isHealthy ? 'primary' : 'none';
+  const activeWindowIdentity: SplitCommandActiveWindowIdentity = {
+    pairIdentity: input.activePairIdentity,
+    windowRole: input.windowRole,
+    focusOwner: localFocusOwner,
+  };
+
+  return {
+    activeWindowIdentity,
+    globalFocusOwner: 'primary',
+    sharedFocusAuthorityOwner: 'primary',
+    localFocusOwner,
+    canOwnSharedFocus: isHealthy && input.windowRole === 'primary',
+    canOwnLocalFocus: isHealthy,
+    focusValidationReason,
+  };
+}
+
+export function deriveSplitCommandInputRoutingAuthority(
+  input: SplitCommandFocusOwnershipInput,
+): SplitCommandInputRoutingAuthority {
+  const focusOwnershipState = deriveSplitCommandFocusOwnershipState(input);
+  return {
+    activeWindowIdentity: focusOwnershipState.activeWindowIdentity,
+    globalFocusOwner: focusOwnershipState.globalFocusOwner,
+    sharedInputOwner: focusOwnershipState.sharedFocusAuthorityOwner,
+    localInputOwner: focusOwnershipState.localFocusOwner,
+    staleInputClaimsRejected: true,
+    focusValidationReason: focusOwnershipState.focusValidationReason,
   };
 }
 
@@ -378,12 +474,26 @@ export function createSplitCommandLifecycleSeam(
     windowRole: runtimeContext.authority.windowRole,
     pairId: runtimeContext.pairIdentity.pairId,
   });
+  let focusOwnershipState: SplitCommandFocusOwnershipState | null = null;
 
   return {
     runtimeContext,
     registry,
     launchArguments: runtimeContext.launchArguments,
+    get focusOwnershipState() {
+      return focusOwnershipState;
+    },
+    classifyFocusOwnership(windowRole: SplitCommandWindowRole) {
+      focusOwnershipState = deriveSplitCommandFocusOwnershipState({
+        activePairIdentity: runtimeContext.pairIdentity,
+        claimedPairIdentity: runtimeContext.pairIdentity,
+        windowRole,
+        fallbackState: registry.fallbackState,
+      });
+      return focusOwnershipState;
+    },
     clear: () => {
+      focusOwnershipState = null;
       input.onClear?.();
       registry.clear();
     },

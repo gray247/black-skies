@@ -220,6 +220,10 @@ describe('main split command launch hook', () => {
     expect(browserWindowState.instances).toHaveLength(1);
     const [primaryWindow] = browserWindowState.instances;
     expect(primaryWindow.options.webPreferences.additionalArguments).toEqual([]);
+    expect(logger.info).not.toHaveBeenCalledWith(
+      'Split command focus ownership classified',
+      expect.anything(),
+    );
   });
 
   it('launches a secondary BrowserWindow only in experimental mode', async () => {
@@ -250,6 +254,40 @@ describe('main split command launch hook', () => {
         '--blackskies-split-command-local-presentation-owner=secondary',
         '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
       ]),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Split command focus ownership classified',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'primary',
+            focusOwner: 'primary',
+          }),
+          globalFocusOwner: 'primary',
+          sharedFocusAuthorityOwner: 'primary',
+          localFocusOwner: 'primary',
+          canOwnSharedFocus: true,
+          canOwnLocalFocus: true,
+          focusValidationReason: 'healthy',
+        }),
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Split command focus ownership classified',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'secondary',
+            focusOwner: 'secondary',
+          }),
+          globalFocusOwner: 'primary',
+          sharedFocusAuthorityOwner: 'primary',
+          localFocusOwner: 'secondary',
+          canOwnSharedFocus: false,
+          canOwnLocalFocus: true,
+          focusValidationReason: 'healthy',
+        }),
+      }),
     );
   });
 
@@ -295,6 +333,20 @@ describe('main split command launch hook', () => {
         },
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command focus ownership rejected',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'secondary',
+            focusOwner: 'none',
+          }),
+          focusValidationReason: 'secondary-lost',
+          canOwnSharedFocus: false,
+          canOwnLocalFocus: false,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(false);
     expect(secondaryWindow.isDestroyed()).toBe(true);
     expect(browserWindowState.instances).toHaveLength(2);
@@ -318,6 +370,18 @@ describe('main split command launch hook', () => {
           secondaryLossReason: 'crashed',
           rebuildBlockReason: null,
         },
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command focus ownership rejected',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'secondary',
+            focusOwner: 'none',
+          }),
+          focusValidationReason: 'secondary-lost',
+        }),
       }),
     );
     expect(secondaryWindow.isDestroyed()).toBe(true);
@@ -345,6 +409,20 @@ describe('main split command launch hook', () => {
         },
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command focus ownership rejected',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'primary',
+            focusOwner: 'none',
+          }),
+          focusValidationReason: 'primary-lost',
+          canOwnSharedFocus: false,
+          canOwnLocalFocus: false,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(true);
     expect(secondaryWindow.isDestroyed()).toBe(true);
   });
@@ -369,6 +447,18 @@ describe('main split command launch hook', () => {
           secondaryLossReason: null,
           rebuildBlockReason: null,
         },
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command focus ownership rejected',
+      expect.objectContaining({
+        focusOwnershipState: expect.objectContaining({
+          activeWindowIdentity: expect.objectContaining({
+            windowRole: 'primary',
+            focusOwner: 'none',
+          }),
+          focusValidationReason: 'primary-lost',
+        }),
       }),
     );
     expect(secondaryWindow.isDestroyed()).toBe(true);

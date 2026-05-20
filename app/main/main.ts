@@ -817,6 +817,7 @@ function noteSplitCommandSecondaryLoss(
     details,
   });
 
+  recordSplitCommandFocusOwnership('secondary', details);
   clearSplitCommandPairRuntimeReferences();
 }
 
@@ -855,6 +856,7 @@ function noteSplitCommandPrimaryCollapse(
     details,
   });
 
+  recordSplitCommandFocusOwnership('primary', details);
   clearSplitCommandPairRuntimeReferences();
 
   splitCommandPairTeardownInProgress = false;
@@ -867,6 +869,29 @@ function clearSplitCommandPairRuntimeReferences(): void {
   splitCommandSecondaryWindow = null;
   if (secondaryWindow && !secondaryWindow.isDestroyed()) {
     secondaryWindow.destroy();
+  }
+}
+
+function recordSplitCommandFocusOwnership(
+  windowRole: 'primary' | 'secondary',
+  details?: unknown,
+): void {
+  if (!splitCommandLifecycleSeam) {
+    return;
+  }
+
+  const focusOwnershipState = splitCommandLifecycleSeam.classifyFocusOwnership(windowRole);
+
+  const logPayload = {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    focusOwnershipState,
+    details,
+  };
+
+  if (focusOwnershipState.focusValidationReason === 'healthy') {
+    ensureMainLogger().info('Split command focus ownership classified', logPayload);
+  } else {
+    ensureMainLogger().warn('Split command focus ownership rejected', logPayload);
   }
 }
 
@@ -883,6 +908,7 @@ async function bootstrap(): Promise<void> {
     await startServices();
     const window = await createMainWindow();
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
+    recordSplitCommandFocusOwnership('primary');
     mainWindow = window;
     if (splitCommandLifecycleSeam) {
       try {
@@ -897,6 +923,7 @@ async function bootstrap(): Promise<void> {
         );
         try {
           splitCommandLifecycleSeam.registry.registerSecondaryWindow();
+          recordSplitCommandFocusOwnership('secondary');
         } catch (secondaryRegistrationError) {
           secondaryWindow.destroy();
           throw secondaryRegistrationError;

@@ -5,6 +5,7 @@ import {
   createSplitCommandLifecycleRegistry,
   createSplitCommandLifecycleSeam,
   createSplitCommandAuthorityProfile,
+  deriveSplitCommandFocusOwnershipState,
   createSplitCommandSecondaryLaunchContract,
   createSplitCommandPairIdentity,
 } from '../../shared/splitCommandAuthority';
@@ -144,6 +145,201 @@ describe('splitCommandAuthority', () => {
       primaryCollapseReason: null,
       secondaryLossReason: null,
       rebuildBlockReason: null,
+    });
+  });
+
+  it('classifies primary and secondary focus ownership consistently', () => {
+    const primaryPairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity: primaryPairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'primary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toEqual({
+      activeWindowIdentity: {
+        pairIdentity: primaryPairIdentity,
+        windowRole: 'primary',
+        focusOwner: 'primary',
+      },
+      globalFocusOwner: 'primary',
+      sharedFocusAuthorityOwner: 'primary',
+      localFocusOwner: 'primary',
+      canOwnSharedFocus: true,
+      canOwnLocalFocus: true,
+      focusValidationReason: 'healthy',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity: primaryPairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toEqual({
+      activeWindowIdentity: {
+        pairIdentity: primaryPairIdentity,
+        windowRole: 'secondary',
+        focusOwner: 'secondary',
+      },
+      globalFocusOwner: 'primary',
+      sharedFocusAuthorityOwner: 'primary',
+      localFocusOwner: 'secondary',
+      canOwnSharedFocus: false,
+      canOwnLocalFocus: true,
+      focusValidationReason: 'healthy',
+    });
+  });
+
+  it('rejects stale focus ownership after primary collapse', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'primary',
+        fallbackState: {
+          pairHealthStatus: 'primary-lost',
+          primaryCollapseReason: 'closed',
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localFocusOwner: 'none',
+      canOwnSharedFocus: false,
+      canOwnLocalFocus: false,
+      focusValidationReason: 'primary-lost',
+    });
+  });
+
+  it('blocks focus ownership reuse after teardown', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'cleared',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localFocusOwner: 'none',
+      canOwnSharedFocus: false,
+      canOwnLocalFocus: false,
+      focusValidationReason: 'cleared',
+    });
+  });
+
+  it('rejects stale generation focus claims', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-456',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localFocusOwner: 'none',
+      canOwnSharedFocus: false,
+      canOwnLocalFocus: false,
+      focusValidationReason: 'stale-generation',
+    });
+  });
+
+  it('preserves primary authority as the global focus owner', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      globalFocusOwner: 'primary',
+      sharedFocusAuthorityOwner: 'primary',
+      localFocusOwner: 'secondary',
+    });
+  });
+
+  it('keeps secondary focus local-only', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandFocusOwnershipState({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      canOwnSharedFocus: false,
+      canOwnLocalFocus: true,
+      localFocusOwner: 'secondary',
     });
   });
 
