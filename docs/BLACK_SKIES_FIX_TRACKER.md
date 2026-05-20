@@ -2935,6 +2935,11 @@ Backlog note drifted after phase-log cleanup.
   - the UI explicitly says Black Skies creates the project folder automatically after save-location selection,
   - the blank vs. starter-scaffold options remain honest and still route through the loader-authoritative bootstrap path,
   - targeted renderer coverage now includes the clarified copy alongside the existing UI-entry proof; no backend authoring, output-quality, or readiness claims changed.
+- [2026-05-20] Phase 26C.1 discoverability follow-up for the visible new-project entry:
+  - the create-project controls now remain visible after the sample project loads, instead of disappearing with the transient empty-state welcome block,
+  - the narrow fix keeps loader/bootstrap authority intact while making the new-project entry reachable in the normal loaded ProjectHome runtime,
+  - targeted renderer coverage now asserts the create-project controls are still present after sample-project bootstrap completes,
+  - this is a narrow UI discoverability correction, not a change to backend authoring workflow scope or project-creation semantics.
 - [2026-05-20] Phase 26C.2 create/open/reopen continuity proof:
   - freshly created blank and scaffold projects now round-trip through the normal loader path and can be reopened without changing project identity or bootstrap-state classification,
   - partial projects remain classified as partial rather than being silently repaired,

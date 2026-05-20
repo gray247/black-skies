@@ -751,6 +751,11 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Sample Project/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /Create another bootstrap project/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /New project title/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+    ).toBeInTheDocument();
   });
 
   it('labels empty bootstrap state explicitly', async () => {

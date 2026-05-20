@@ -237,6 +237,7 @@ export default function ProjectHome({
   const hasDebugLog = debugLogEntries.length > 0;
   const diagnosticsSectionId = useId();
   const welcomeSectionId = useId();
+  const newProjectSectionId = useId();
   const draftSceneTitleId = useId();
   const draftSceneMetaId = useId();
 
@@ -1073,45 +1074,48 @@ export default function ProjectHome({
               Quick start with sample project
             </button>
           </div>
-          <div className="project-home__bootstrap-create">
-            <label className="project-home__bootstrap-create-label" htmlFor="project-home-new-title">
-              New project title
-            </label>
-            <input
-              id="project-home-new-title"
-              className="project-home__bootstrap-create-input"
-              value={newProjectTitle}
-              onChange={(event) => setNewProjectTitle(event.target.value)}
-              spellCheck={false}
-              autoComplete="off"
-              aria-label="New project title"
-            />
-            <div className="project-home__bootstrap-create-actions">
-              <button
-                type="button"
-                className="project-home__welcome-button"
-                data-testid={TID.createProjectBtn}
-                onClick={() => void handleCreateProject('empty')}
-                disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
-              >
-                Choose save location and create blank project
-              </button>
-              <button
-                type="button"
-                className="project-home__welcome-button project-home__welcome-button--secondary"
-                onClick={() => void handleCreateProject('scaffold_initialized')}
-                disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
-              >
-                Choose save location and create starter scaffold
-              </button>
-            </div>
-            <p className="project-home__bootstrap-create-hint">
-              Choose where to save the project. Black Skies creates the project folder
-              automatically.
-            </p>
-          </div>
         </section>
       )}
+      <section className="project-home__bootstrap-create" aria-labelledby={newProjectSectionId}>
+        <div className="project-home__bootstrap-create-copy">
+          <p className="project-home__welcome-eyebrow">New project</p>
+          <h3 id={newProjectSectionId}>Create another bootstrap project</h3>
+          <p className="project-home__bootstrap-create-hint">
+            Choose where to save the project. Black Skies creates the project folder automatically.
+          </p>
+        </div>
+        <label className="project-home__bootstrap-create-label" htmlFor="project-home-new-title">
+          New project title
+        </label>
+        <input
+          id="project-home-new-title"
+          className="project-home__bootstrap-create-input"
+          value={newProjectTitle}
+          onChange={(event) => setNewProjectTitle(event.target.value)}
+          spellCheck={false}
+          autoComplete="off"
+          aria-label="New project title"
+        />
+        <div className="project-home__bootstrap-create-actions">
+          <button
+            type="button"
+            className="project-home__welcome-button"
+            data-testid={TID.createProjectBtn}
+            onClick={() => void handleCreateProject('empty')}
+            disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
+          >
+            Choose save location and create blank project
+          </button>
+          <button
+            type="button"
+            className="project-home__welcome-button project-home__welcome-button--secondary"
+            onClick={() => void handleCreateProject('scaffold_initialized')}
+            disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
+          >
+            Choose save location and create starter scaffold
+          </button>
+        </div>
+      </section>
 
       <section className="project-home__diagnostics">
         <div className="project-home__diagnostics-header">
