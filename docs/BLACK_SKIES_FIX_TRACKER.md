@@ -2961,6 +2961,10 @@ Backlog note drifted after phase-log cleanup.
   - refined `app/shared/runtimeSessionTruth.ts` into explicit runtime truth vs project truth boundary types, a named session lifecycle-state contract, ownership-surface boundaries, and the initial session-state classification set for `runtime-only`, `persisted`, `dirty`, `unsaved`, `stale`, `partial`, and `recovery-required`,
   - added unit coverage for the shared contract labels and validators,
   - no authoring behavior, autosave/save/export routing, or recovery runtime behavior changed in this pass.
+- [2026-05-20] Phase 27B first consumer wiring started:
+  - `app/renderer/components/ProjectHome.tsx` now derives a read-only runtime/session truth summary from the shared contract and surfaces it in the project details card as a status-only consumer seam,
+  - the initial wiring stays bounded to visible classification text and does not mutate project files, authoring flow, autosave/save/export routing, or recovery behavior,
+  - targeted renderer coverage was added for the session-truth summary.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

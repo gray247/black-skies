@@ -13,6 +13,11 @@ import type {
   ProjectIssue,
   ProjectLoaderApi,
 } from '../../shared/ipc/projectLoader';
+import {
+  createRuntimeSessionTruthContract,
+  type DraftSessionStateClassification,
+  type SessionLifecycleState,
+} from '../../shared/runtimeSessionTruth';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
 import {
@@ -190,6 +195,53 @@ function describeBootstrapState(project: LoadedProject): { label: string; detail
         detail: 'The project can load, but no bootstrap state is recorded.',
       };
   }
+}
+
+function deriveProjectHomeSessionLifecycleState(input: {
+  readonly isLoading: boolean;
+  readonly activeProject: LoadedProject | null;
+  readonly activeSceneId: string | null;
+  readonly activeSceneDraftSource: 'fallback' | 'override' | 'disk';
+}): SessionLifecycleState {
+  if (input.isLoading && !input.activeProject) {
+    return 'session-attached';
+  }
+  if (!input.activeProject) {
+    return 'bootstrap';
+  }
+  if (input.activeSceneId && input.activeSceneDraftSource === 'override') {
+    return 'editing';
+  }
+  if (input.activeSceneId) {
+    return 'draft-hydrated';
+  }
+  return 'project-loaded';
+}
+
+function deriveProjectHomeDraftClassifications(input: {
+  readonly isLoading: boolean;
+  readonly activeProject: LoadedProject | null;
+  readonly activeSceneId: string | null;
+  readonly activeSceneDraftSource: 'fallback' | 'override' | 'disk';
+  readonly issues: readonly ProjectIssue[];
+}): DraftSessionStateClassification[] {
+  const classifications: DraftSessionStateClassification[] = [];
+
+  if (input.activeProject) {
+    classifications.push('persisted');
+  } else {
+    classifications.push('runtime-only');
+  }
+
+  if (input.activeSceneId && input.activeSceneDraftSource === 'override') {
+    classifications.push('dirty', 'unsaved');
+  }
+
+  if (input.issues.length > 0) {
+    classifications.push('partial');
+  }
+
+  return classifications;
 }
 
 export default function ProjectHome({
@@ -391,6 +443,26 @@ export default function ProjectHome({
     () => JSON.stringify(diagnostics, null, 2),
     [diagnostics],
   );
+  const sessionTruth = useMemo(
+    () =>
+      createRuntimeSessionTruthContract({
+        sessionLifecycleState: deriveProjectHomeSessionLifecycleState({
+          isLoading,
+          activeProject,
+          activeSceneId,
+          activeSceneDraftSource,
+        }),
+        draftSessionStateClassifications: deriveProjectHomeDraftClassifications({
+          isLoading,
+          activeProject,
+          activeSceneId,
+          activeSceneDraftSource,
+          issues,
+        }),
+      }),
+    [activeProject, activeSceneDraftSource, activeSceneId, isLoading, issues],
+  );
+  const sessionTruthClassifications = sessionTruth.draftSessionState.classifications.join(', ');
 
   const handleCopyDebugLog = useCallback(() => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -1318,6 +1390,20 @@ export default function ProjectHome({
                     Project structure matches the current bootstrap state.
                   </p>
                 )}
+                <div className="project-home__session-truth" role="status" aria-label="Session truth">
+                  <h5>Session truth</h5>
+                  <p>
+                    Runtime truth:
+                    {' '}
+                    {sessionTruth.runtimeTruthBoundary.runtimeTruth}
+                    {'; '}
+                    Project truth:
+                    {' '}
+                    {sessionTruth.runtimeTruthBoundary.projectTruth}
+                  </p>
+                  <p>Lifecycle state: {sessionTruth.sessionLifecycle.currentState}</p>
+                  <p>Draft/session state: {sessionTruthClassifications || 'none reported'}</p>
+                </div>
               </div>
             ) : (
               <p className="project-home__empty">Select a project to preview its outline and scenes.</p>

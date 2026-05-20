@@ -760,6 +760,43 @@ describe('ProjectHome recent project recovery', () => {
     expect(container.querySelectorAll('.project-home__bootstrap-create-actions > button')).toHaveLength(1);
   });
 
+  it('surfaces a read-only session truth summary for the loaded project', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath);
+    const draftOverrides = {
+      sc_0001: '# Scene One\n\nUpdated draft text.',
+    };
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        draftOverrides={draftOverrides}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
+    expect(sessionTruth).toHaveTextContent('Runtime truth: runtime-only; Project truth: persisted');
+    expect(sessionTruth).toHaveTextContent('Lifecycle state: editing');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, dirty, unsaved');
+  });
+
   it('labels empty bootstrap state explicitly', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const projectLoader: ProjectLoaderApi = {
