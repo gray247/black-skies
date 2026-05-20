@@ -136,6 +136,7 @@ The phase should only expand when the observed issue actually belongs to the cat
 - address long-session flicker, memory pressure, reload/reopen drift, and large-project responsiveness only where reproducible
 - keep changes minimal and localized to the failing path
 - do not optimize speculative bottlenecks
+- status note: a reproducible stress-lane `POST /api/v1/draft/accept` failure was traced to recovery-state file access and same-scene harness collisions; the fix path stayed narrow (per-file recovery lock + per-scene stress serialization) and did not widen into GUI or architecture changes.
 
 ### `25D` Closure review and deferred carry-forward
 

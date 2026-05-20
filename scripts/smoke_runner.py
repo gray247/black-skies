@@ -13,6 +13,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
+from threading import Lock
 from typing import Any, Iterable, Protocol, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,9 @@ _SMOKE_WIZARD_STEPS: tuple[str, ...] = (
 )
 
 DEFAULT_WIZARD_STEPS: tuple[str, ...] = _SMOKE_WIZARD_STEPS
+
+_SCENE_CYCLE_LOCKS: dict[str, asyncio.Lock] = {}
+_SCENE_CYCLE_LOCKS_GUARD = Lock()
 
 
 class SmokeMetricsSink(Protocol):
@@ -142,6 +146,17 @@ def compute_scene_sha(project_root: Path, scene_id: str) -> str:
             time.sleep(delay * (attempt + 1))
     # Should never reach here because loop either returns or raises.
     raise RuntimeError(f"Failed to compute digest for scene {scene_id}")
+
+
+def _scene_cycle_lock(scene_id: str) -> asyncio.Lock:
+    """Return a stable async lock for a scene identifier."""
+
+    with _SCENE_CYCLE_LOCKS_GUARD:
+        lock = _SCENE_CYCLE_LOCKS.get(scene_id)
+        if lock is None:
+            lock = asyncio.Lock()
+            _SCENE_CYCLE_LOCKS[scene_id] = lock
+    return lock
 
 
 def build_accept_payload(
@@ -246,70 +261,73 @@ async def run_cycles(config: SmokeTestConfig, *, metrics: SmokeMetricsSink | Non
         for index, scene_id in enumerate(scene_ids):
             step = wizard_steps[index % len(wizard_steps)]
             label = f"smoke-{index + 1:02d}-{scene_id}"
-            LOGGER.info("[%s] Locking wizard step '%s'", scene_id, step)
-            await _post_json(
-                client,
-                "/api/v1/draft/wizard/lock",
-                {
-                    "project_id": config.project_id,
-                    "step": step,
-                    "label": label,
-                },
-                metrics=metrics,
-            )
-
-            LOGGER.info("[%s] Generating draft", scene_id)
-            generate_payload = {
-                "project_id": config.project_id,
-                "unit_scope": "scene",
-                "unit_ids": [scene_id],
-                "seed": 42 + index,
-                "overrides": {},
-            }
-            generate_response = await _post_json(
-                client, "/api/v1/draft/generate", generate_payload, metrics=metrics
-            )
-            generate_json = generate_response.json()
-            units = generate_json.get("units", [])
-            if not units:
-                raise RuntimeError("Draft generation returned no units.")
-            unit = next((item for item in units if item.get("id") == scene_id), units[0])
-            raw_draft_id = str(generate_json.get("draft_id"))
-            if isinstance(raw_draft_id, str) and re.fullmatch(r"dr_\d{3}", raw_draft_id):
-                draft_id = raw_draft_id
-            else:
-                draft_id = f"dr_{index + 1:03d}"
-                LOGGER.debug(
-                    "Normalising draft id '%s' to '%s' for load run.", raw_draft_id, draft_id
+            async with _scene_cycle_lock(scene_id):
+                LOGGER.info("[%s] Locking wizard step '%s'", scene_id, step)
+                await _post_json(
+                    client,
+                    "/api/v1/draft/wizard/lock",
+                    {
+                        "project_id": config.project_id,
+                        "step": step,
+                        "label": label,
+                    },
+                    metrics=metrics,
                 )
-            estimated_cost = (
-                float(generate_json.get("budget", {}).get("estimated_usd", 0.0))
-                if isinstance(generate_json.get("budget"), dict)
-                else 0.0
-            )
-            if metrics is not None:
-                metrics.record_budget(estimated_cost_usd=estimated_cost)
 
-            LOGGER.info("[%s] Requesting critique", scene_id)
-            critique_payload = {
-                "draft_id": draft_id,
-                "unit_id": scene_id,
-                "rubric": ["Logic", "Continuity", "Character"],
-            }
-            await _post_json(client, "/api/v1/draft/critique", critique_payload, metrics=metrics)
+                LOGGER.info("[%s] Generating draft", scene_id)
+                generate_payload = {
+                    "project_id": config.project_id,
+                    "unit_scope": "scene",
+                    "unit_ids": [scene_id],
+                    "seed": 42 + index,
+                    "overrides": {},
+                }
+                generate_response = await _post_json(
+                    client, "/api/v1/draft/generate", generate_payload, metrics=metrics
+                )
+                generate_json = generate_response.json()
+                units = generate_json.get("units", [])
+                if not units:
+                    raise RuntimeError("Draft generation returned no units.")
+                unit = next((item for item in units if item.get("id") == scene_id), units[0])
+                raw_draft_id = str(generate_json.get("draft_id"))
+                if isinstance(raw_draft_id, str) and re.fullmatch(r"dr_\d{3}", raw_draft_id):
+                    draft_id = raw_draft_id
+                else:
+                    draft_id = f"dr_{index + 1:03d}"
+                    LOGGER.debug(
+                        "Normalising draft id '%s' to '%s' for load run.", raw_draft_id, draft_id
+                    )
+                estimated_cost = (
+                    float(generate_json.get("budget", {}).get("estimated_usd", 0.0))
+                    if isinstance(generate_json.get("budget"), dict)
+                    else 0.0
+                )
+                if metrics is not None:
+                    metrics.record_budget(estimated_cost_usd=estimated_cost)
 
-            previous_sha = compute_scene_sha(project_root, scene_id)
-            accept_payload = build_accept_payload(
-                project_id=config.project_id,
-                draft_id=draft_id,
-                unit=unit,
-                previous_sha=previous_sha,
-                message=f"Smoke accept cycle {index + 1}",
-                estimated_cost=estimated_cost,
-            )
+                LOGGER.info("[%s] Requesting critique", scene_id)
+                critique_payload = {
+                    "draft_id": draft_id,
+                    "unit_id": scene_id,
+                    "rubric": ["Logic", "Continuity", "Character"],
+                }
+                await _post_json(
+                    client, "/api/v1/draft/critique", critique_payload, metrics=metrics
+                )
 
-            LOGGER.info("[%s] Accepting draft", scene_id)
-            await _post_json(client, "/api/v1/draft/accept", accept_payload, metrics=metrics)
+                previous_sha = compute_scene_sha(project_root, scene_id)
+                accept_payload = build_accept_payload(
+                    project_id=config.project_id,
+                    draft_id=draft_id,
+                    unit=unit,
+                    previous_sha=previous_sha,
+                    message=f"Smoke accept cycle {index + 1}",
+                    estimated_cost=estimated_cost,
+                )
+
+                LOGGER.info("[%s] Accepting draft", scene_id)
+                await _post_json(client, "/api/v1/draft/accept", accept_payload, metrics=metrics)
 
     LOGGER.info("Completed %s smoke cycle(s).", config.cycles)
 

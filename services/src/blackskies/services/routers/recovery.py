@@ -35,6 +35,7 @@ from ..http import default_error_responses, raise_filesystem_error, raise_valida
 from ..models._project_id import validate_project_id
 from ..operations.recovery import RecoveryService
 from ..persistence import SNAPSHOT_ID_PATTERN, SnapshotPersistence, write_json_atomic
+from ..persistence.atomic import locked_path
 from ..utils.paths import to_posix
 from .dependencies import (
     get_diagnostics,
@@ -150,18 +151,19 @@ class RecoveryTracker:
 
     def _read_state(self, project_id: str) -> dict[str, Any]:
         path = self._state_path(project_id)
-        if not path.exists():
-            return self._normalise_state({"status": "idle"})
-        try:
-            with path.open("r", encoding="utf-8") as handle:
-                raw_state = json.load(handle)
-        except json.JSONDecodeError:
-            raw_state = {"status": "idle"}
+        with locked_path(path):
+            if not path.exists():
+                return self._normalise_state({"status": "idle"})
+            try:
+                with path.open("r", encoding="utf-8") as handle:
+                    raw_state = json.load(handle)
+            except json.JSONDecodeError:
+                raw_state = {"status": "idle"}
 
-        normalised = self._normalise_state(raw_state)
-        if normalised != raw_state:
-            write_json_atomic(path, normalised, durable=self._write_durable())
-        return normalised
+            normalised = self._normalise_state(raw_state)
+            if normalised != raw_state:
+                write_json_atomic(path, normalised, durable=self._write_durable())
+            return normalised
 
     def _write_durable(self) -> bool:
         """Return whether recovery state writes should fsync to disk."""

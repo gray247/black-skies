@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timedelta, timezone
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -127,3 +129,28 @@ def test_synthetic_mode_uses_non_durable_recovery_writes(
     tracker.mark_completed(project_id, {"snapshot_id": "snap-001", "path": "dummy"})
 
     assert captured and all(flag is False for flag in captured)
+
+
+def test_read_state_uses_the_same_path_lock_for_stable_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    tracker = RecoveryTracker(settings)
+    project_id = "proj-lock-read"
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps({"status": "idle"}), encoding="utf-8")
+
+    lock_entries: list[Path] = []
+
+    @contextmanager
+    def fake_locked_path(path: Path):
+        lock_entries.append(path)
+        yield
+
+    monkeypatch.setattr("blackskies.services.routers.recovery.locked_path", fake_locked_path)
+
+    state = tracker._read_state(project_id)
+
+    assert state["status"] == "idle"
+    assert lock_entries == [state_path]

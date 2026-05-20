@@ -15,7 +15,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1] / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from scripts import check_slo, load
+from scripts import check_slo, load, smoke_runner
 
 
 def test_load_profile_data_handles_missing_file(tmp_path: Path) -> None:
@@ -124,6 +124,15 @@ def test_build_profile_validates_positive_concurrency() -> None:
 
 def test_distribute_cycles_balances_remainder() -> None:
     assert list(load.distribute_cycles(10, 3)) == [4, 3, 3]
+
+
+def test_scene_cycle_lock_is_shared_per_scene() -> None:
+    lock_a = smoke_runner._scene_cycle_lock("sc_001")
+    lock_b = smoke_runner._scene_cycle_lock("sc_001")
+    lock_c = smoke_runner._scene_cycle_lock("sc_002")
+
+    assert lock_a is lock_b
+    assert lock_a is not lock_c
 
 
 def test_load_metrics_computations() -> None:
