@@ -1079,9 +1079,10 @@ export default function ProjectHome({
       <section className="project-home__bootstrap-create" aria-labelledby={newProjectSectionId}>
         <div className="project-home__bootstrap-create-copy">
           <p className="project-home__welcome-eyebrow">New project</p>
-          <h3 id={newProjectSectionId}>Create another bootstrap project</h3>
+          <h3 id={newProjectSectionId}>Create a new project</h3>
           <p className="project-home__bootstrap-create-hint">
-            Choose where to save the project. Black Skies creates the project folder automatically.
+            Name the project, choose where to save it, and Black Skies creates the folder
+            automatically.
           </p>
         </div>
         <label className="project-home__bootstrap-create-label" htmlFor="project-home-new-title">
@@ -1104,16 +1105,19 @@ export default function ProjectHome({
             onClick={() => void handleCreateProject('empty')}
             disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
           >
-            Choose save location and create blank project
+            Create project
           </button>
-          <button
-            type="button"
-            className="project-home__welcome-button project-home__welcome-button--secondary"
-            onClick={() => void handleCreateProject('scaffold_initialized')}
-            disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
-          >
-            Choose save location and create starter scaffold
-          </button>
+          <details className="project-home__bootstrap-create-advanced">
+            <summary>Advanced options</summary>
+            <button
+              type="button"
+              className="project-home__welcome-button project-home__welcome-button--secondary"
+              onClick={() => void handleCreateProject('scaffold_initialized')}
+              disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
+            >
+              Create starter scaffold
+            </button>
+          </details>
         </div>
       </section>
 

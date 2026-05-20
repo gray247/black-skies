@@ -464,7 +464,7 @@ describe('ProjectHome recent project recovery', () => {
       target: { value: 'Blank Story' },
     });
     fireEvent.click(
-      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+      screen.getByRole('button', { name: /^Create project$/i }),
     );
 
     await waitFor(() => {
@@ -538,8 +538,9 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
       target: { value: 'Story Scaffold' },
     });
+    fireEvent.click(screen.getByText(/Advanced options/i));
     fireEvent.click(
-      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
+      screen.getByRole('button', { name: /Create starter scaffold/i }),
     );
 
     await waitFor(() => {
@@ -608,7 +609,7 @@ describe('ProjectHome recent project recovery', () => {
       target: { value: 'Blank Story' },
     });
     fireEvent.click(
-      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+      screen.getByRole('button', { name: /^Create project$/i }),
     );
 
     await waitFor(() => {
@@ -690,9 +691,8 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
       target: { value: 'Story Scaffold' },
     });
-    fireEvent.click(
-      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
-    );
+    fireEvent.click(screen.getByText(/Advanced options/i));
+    fireEvent.click(screen.getByRole('button', { name: /Create starter scaffold/i }));
 
     await waitFor(() => {
       expect(createProjectMock).toHaveBeenCalledWith({
@@ -740,7 +740,7 @@ describe('ProjectHome recent project recovery', () => {
 
     (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
 
-    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+    const { container } = render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
     await waitFor(() => {
       expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
@@ -751,11 +751,13 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Sample Project/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /Create another bootstrap project/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /Create a new project/i })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /New project title/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+      screen.getByRole('button', { name: /^Create project$/i }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Advanced options/i)).toBeInTheDocument();
+    expect(container.querySelectorAll('.project-home__bootstrap-create-actions > button')).toHaveLength(1);
   });
 
   it('labels empty bootstrap state explicitly', async () => {
@@ -821,14 +823,14 @@ describe('ProjectHome recent project recovery', () => {
 
     expect(
       screen.getByText(
-        'Choose where to save the project. Black Skies creates the project folder automatically.',
+        'Name the project, choose where to save it, and Black Skies creates the folder automatically.',
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+      screen.getByRole('button', { name: /^Create project$/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
+      screen.getByText(/Advanced options/i),
     ).toBeInTheDocument();
   });
 
