@@ -273,6 +273,18 @@ describe('main split command launch hook', () => {
       }),
     );
     expect(logger.info).toHaveBeenCalledWith(
+      'Split command input ownership classified',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          globalFocusOwner: 'primary',
+          sharedInputOwner: 'primary',
+          localInputOwner: 'primary',
+          staleInputClaimsRejected: true,
+          focusValidationReason: 'healthy',
+        }),
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
       'Split command focus ownership classified',
       expect.objectContaining({
         focusOwnershipState: expect.objectContaining({
@@ -285,6 +297,18 @@ describe('main split command launch hook', () => {
           localFocusOwner: 'secondary',
           canOwnSharedFocus: false,
           canOwnLocalFocus: true,
+          focusValidationReason: 'healthy',
+        }),
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Split command input ownership classified',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          globalFocusOwner: 'primary',
+          sharedInputOwner: 'primary',
+          localInputOwner: 'secondary',
+          staleInputClaimsRejected: true,
           focusValidationReason: 'healthy',
         }),
       }),
@@ -347,6 +371,16 @@ describe('main split command launch hook', () => {
         }),
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command input ownership rejected',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          localInputOwner: 'none',
+          focusValidationReason: 'secondary-lost',
+          staleInputClaimsRejected: true,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(false);
     expect(secondaryWindow.isDestroyed()).toBe(true);
     expect(browserWindowState.instances).toHaveLength(2);
@@ -380,6 +414,15 @@ describe('main split command launch hook', () => {
             windowRole: 'secondary',
             focusOwner: 'none',
           }),
+          focusValidationReason: 'secondary-lost',
+        }),
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command input ownership rejected',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          localInputOwner: 'none',
           focusValidationReason: 'secondary-lost',
         }),
       }),
@@ -423,6 +466,16 @@ describe('main split command launch hook', () => {
         }),
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command input ownership rejected',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          localInputOwner: 'none',
+          focusValidationReason: 'primary-lost',
+          staleInputClaimsRejected: true,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(true);
     expect(secondaryWindow.isDestroyed()).toBe(true);
   });
@@ -457,6 +510,15 @@ describe('main split command launch hook', () => {
             windowRole: 'primary',
             focusOwner: 'none',
           }),
+          focusValidationReason: 'primary-lost',
+        }),
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command input ownership rejected',
+      expect.objectContaining({
+        inputRoutingAuthority: expect.objectContaining({
+          localInputOwner: 'none',
           focusValidationReason: 'primary-lost',
         }),
       }),

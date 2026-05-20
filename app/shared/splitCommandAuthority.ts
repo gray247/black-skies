@@ -131,7 +131,9 @@ export interface SplitCommandLifecycleSeam {
   readonly registry: SplitCommandLifecycleRegistry;
   readonly launchArguments: readonly string[];
   readonly focusOwnershipState: SplitCommandFocusOwnershipState | null;
+  readonly inputRoutingAuthority: SplitCommandInputRoutingAuthority | null;
   classifyFocusOwnership(windowRole: SplitCommandWindowRole): SplitCommandFocusOwnershipState;
+  classifyInputRoutingAuthority(windowRole: SplitCommandWindowRole): SplitCommandInputRoutingAuthority;
   clear(): void;
 }
 
@@ -475,6 +477,7 @@ export function createSplitCommandLifecycleSeam(
     pairId: runtimeContext.pairIdentity.pairId,
   });
   let focusOwnershipState: SplitCommandFocusOwnershipState | null = null;
+  let inputRoutingAuthority: SplitCommandInputRoutingAuthority | null = null;
 
   return {
     runtimeContext,
@@ -482,6 +485,9 @@ export function createSplitCommandLifecycleSeam(
     launchArguments: runtimeContext.launchArguments,
     get focusOwnershipState() {
       return focusOwnershipState;
+    },
+    get inputRoutingAuthority() {
+      return inputRoutingAuthority;
     },
     classifyFocusOwnership(windowRole: SplitCommandWindowRole) {
       focusOwnershipState = deriveSplitCommandFocusOwnershipState({
@@ -492,8 +498,18 @@ export function createSplitCommandLifecycleSeam(
       });
       return focusOwnershipState;
     },
+    classifyInputRoutingAuthority(windowRole: SplitCommandWindowRole) {
+      inputRoutingAuthority = deriveSplitCommandInputRoutingAuthority({
+        activePairIdentity: runtimeContext.pairIdentity,
+        claimedPairIdentity: runtimeContext.pairIdentity,
+        windowRole,
+        fallbackState: registry.fallbackState,
+      });
+      return inputRoutingAuthority;
+    },
     clear: () => {
       focusOwnershipState = null;
+      inputRoutingAuthority = null;
       input.onClear?.();
       registry.clear();
     },

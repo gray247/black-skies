@@ -893,6 +893,18 @@ function recordSplitCommandFocusOwnership(
   } else {
     ensureMainLogger().warn('Split command focus ownership rejected', logPayload);
   }
+
+  const inputRoutingAuthority = splitCommandLifecycleSeam.classifyInputRoutingAuthority(windowRole);
+  const inputLogPayload = {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    inputRoutingAuthority,
+    details,
+  };
+  if (inputRoutingAuthority.focusValidationReason === 'healthy') {
+    ensureMainLogger().info('Split command input ownership classified', inputLogPayload);
+  } else {
+    ensureMainLogger().warn('Split command input ownership rejected', inputLogPayload);
+  }
 }
 
 async function bootstrap(): Promise<void> {

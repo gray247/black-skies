@@ -6,6 +6,7 @@ import {
   createSplitCommandLifecycleSeam,
   createSplitCommandAuthorityProfile,
   deriveSplitCommandFocusOwnershipState,
+  deriveSplitCommandInputRoutingAuthority,
   createSplitCommandSecondaryLaunchContract,
   createSplitCommandPairIdentity,
 } from '../../shared/splitCommandAuthority';
@@ -340,6 +341,82 @@ describe('splitCommandAuthority', () => {
       canOwnSharedFocus: false,
       canOwnLocalFocus: true,
       localFocusOwner: 'secondary',
+    });
+  });
+
+  it('routes global input ownership to primary and keeps secondary local-only', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandInputRoutingAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'primary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      globalFocusOwner: 'primary',
+      sharedInputOwner: 'primary',
+      localInputOwner: 'primary',
+      staleInputClaimsRejected: true,
+      focusValidationReason: 'healthy',
+    });
+
+    expect(
+      deriveSplitCommandInputRoutingAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      globalFocusOwner: 'primary',
+      sharedInputOwner: 'primary',
+      localInputOwner: 'secondary',
+      staleInputClaimsRejected: true,
+      focusValidationReason: 'healthy',
+    });
+  });
+
+  it('rejects stale secondary input claims when focus ownership is invalid', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandInputRoutingAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-999',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'secondary-lost',
+          primaryCollapseReason: null,
+          secondaryLossReason: 'closed',
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localInputOwner: 'none',
+      staleInputClaimsRejected: true,
+      focusValidationReason: 'secondary-lost',
     });
   });
 
