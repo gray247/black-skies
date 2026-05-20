@@ -26,6 +26,6 @@ test.describe('Split Command smoke', () => {
     await expect(page.getByRole('region', { name: 'Story Navigation' })).toBeVisible();
     await expect(page.getByTestId('workspace-action-generate')).toBeEnabled();
     await expect(page.locator('[data-testid="dock-workspace"]')).toHaveCount(0);
-    expect(electronApp.windows().length).toBe(1);
+    expect(electronApp.windows().length).toBe(2);
   });
 });
