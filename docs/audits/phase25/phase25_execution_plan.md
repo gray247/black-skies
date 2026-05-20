@@ -66,6 +66,33 @@ Large-project assumptions should be recorded with rough, repeatable counts such 
 - document count
 - project reload frequency
 
+## Baseline / Stress Matrix
+
+Phase 25A uses a small, repeatable matrix to separate baseline behavior from stress behavior before any hardening work begins.
+
+| Lane | Command shape | Purpose | Evidence class |
+| --- | --- | --- | --- |
+| Smoke baseline | `python scripts/load.py --profile smoke --start-service` | Short repeatable sanity lane for long-session / large-project harness health | reproducible if it passes or fails consistently |
+| Default baseline | `python scripts/load.py --profile default --start-service` | Baseline workstation load with moderate concurrency and warmup | reproducible when the same profile is rerun |
+| Stress lane | `python scripts/load.py --profile stress --start-service` | Elevated concurrency stress for durability and responsiveness drift | reproducible or intermittent with captured evidence |
+| Soak lane | `python scripts/load.py --profile soak --start-service` | Longer-duration drift observation | reproducible or intermittent with captured evidence |
+| Project-switch loop | profile-backed load lane with explicit reopen/switch repetition | Capture reload/reopen drift and project-switch behavior | reproducible if the loop count and project assumptions are recorded |
+
+Current matrix guidance:
+
+- keep stable GUI evidence separate from Split Command-only evidence
+- record the exact lane, profile, cycle count, concurrency, timeout, and project assumptions before each run
+- classify failures before any hardening work:
+  - reproducible
+  - intermittent with captured evidence
+  - CI-only
+  - operator-observed only
+  - unverified suspicion
+  - policy-only concern
+- only reproducible and intermittent-with-captured-evidence lanes may justify code changes
+- `CI-only` lanes need a local reproduction path before they can justify broad hardening
+- the smoke lane is the first pass baseline; it is not a substitute for the stress or soak lanes
+
 ## Resource and Memory Rules
 
 - Memory pressure must be measured from observed runtime behavior, not inferred from general slowness.
@@ -95,6 +122,8 @@ The phase should only expand when the observed issue actually belongs to the cat
 - capture the minimum reproducible path for flicker, reconnect loss, or durability drift
 - separate stable GUI reproduction from Split Command-only reproduction
 - document the session-length and project-size assumptions used in each run
+- start with the smoke baseline lane, then widen only if the same evidence class repeats in the default/stress/soak lanes
+- use the project-switch loop only when the run notes include the exact loop count and project assumptions
 
 ### `25B` Backend drop / reconnect investigation
 
@@ -129,6 +158,10 @@ Phase 25 closes when all of the following are true:
 - Targeted renderer or App tests for any touched durability or reconnect path
 - Backend tests only if the failure crosses into service contracts or reconnect behavior
 - Playwright smoke for long-session stability, project switch, reload/reopen, and stable GUI baseline checks
+- Baseline/stress harness runs using `scripts/load.py` profiles:
+  - smoke baseline first
+  - default baseline only when smoke evidence needs a higher-confidence baseline
+  - stress and soak only when the issue class justifies a longer lane
 - Split Command flag-on smoke only if it is part of the reproduced failure
 - Lint only if renderer/UI code changes
 - Human smoke after a fix only for build/runtime/workflow verification, not quality claims
