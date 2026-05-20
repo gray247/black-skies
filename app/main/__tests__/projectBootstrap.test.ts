@@ -116,6 +116,29 @@ describe('project bootstrap contract', () => {
     expect(loaded.issues).toEqual([]);
   });
 
+  it('round-trips a freshly created blank project through the loader without changing bootstrap state', async () => {
+    const result = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: 'Round Trip Blank',
+    });
+
+    const firstLoad = await loadProjectFromDisk(result.projectPath);
+    const secondLoad = await loadProjectFromDisk(result.projectPath);
+
+    expect(firstLoad.project).toMatchObject({
+      path: result.projectPath,
+      projectId: result.projectId,
+      bootstrapState: 'empty',
+    });
+    expect(secondLoad.project).toMatchObject({
+      path: result.projectPath,
+      projectId: result.projectId,
+      bootstrapState: 'empty',
+    });
+    expect(secondLoad.project.bootstrapTemplate).toBeUndefined();
+    expect(secondLoad.issues).toEqual([]);
+  });
+
   it('creates an explicit starter scaffold without inheriting sample-project state', async () => {
     const result = await bootstrapFreshProject({
       parentPath: workspaceRoot,
@@ -181,6 +204,33 @@ describe('project bootstrap contract', () => {
     expect(loaded.project.scenes).toHaveLength(1);
     expect(loaded.project.drafts).toHaveProperty('sc_0001');
     expect(loaded.issues).toEqual([]);
+  });
+
+  it('round-trips a freshly created starter scaffold through the loader without changing bootstrap state', async () => {
+    const result = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: 'Round Trip Scaffold',
+      initialState: 'scaffold_initialized',
+    });
+
+    const firstLoad = await loadProjectFromDisk(result.projectPath);
+    const secondLoad = await loadProjectFromDisk(result.projectPath);
+
+    expect(firstLoad.project).toMatchObject({
+      path: result.projectPath,
+      projectId: result.projectId,
+      bootstrapState: 'scaffold_initialized',
+      bootstrapTemplate: 'starter-scaffold-v1',
+    });
+    expect(secondLoad.project).toMatchObject({
+      path: result.projectPath,
+      projectId: result.projectId,
+      bootstrapState: 'scaffold_initialized',
+      bootstrapTemplate: 'starter-scaffold-v1',
+    });
+    expect(secondLoad.project.scenes).toHaveLength(1);
+    expect(secondLoad.project.drafts).toHaveProperty('sc_0001');
+    expect(secondLoad.issues).toEqual([]);
   });
 
   it('generates unique ids for repeated same-title bootstrap requests', async () => {

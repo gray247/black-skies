@@ -557,6 +557,171 @@ describe('ProjectHome recent project recovery', () => {
     });
   });
 
+  it('reopens a freshly created blank project through the normal loader path', async () => {
+    const parentPath = 'C:\\Dev\\black-skies\\projects';
+    const createdPath = 'C:\\Dev\\black-skies\\projects\\proj_blank_story_1234567890';
+    const createdProject: LoadedProject = {
+      path: createdPath,
+      projectId: 'proj_blank_story_1234567890',
+      name: 'Blank Story',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline_proj_blank_story_1234567890',
+        acts: [],
+        chapters: [],
+        scenes: [],
+      },
+      scenes: [],
+      drafts: {},
+      bootstrapState: 'empty',
+    };
+    const createProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createdProject,
+      issues: [],
+    });
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createdProject,
+      issues: [],
+    });
+    const onReopenConsumed = vi.fn();
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: parentPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(null),
+      createProject: createProjectMock,
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const { rerender } = render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onReopenConsumed={onReopenConsumed}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
+      target: { value: 'Blank Story' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+    );
+
+    await waitFor(() => {
+      expect(createProjectMock).toHaveBeenCalledWith({
+        parentPath,
+        title: 'Blank Story',
+        initialState: 'empty',
+      });
+    });
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledWith({ path: createdPath });
+    });
+
+    rerender(
+      <ProjectHome
+        suppressBootstrap
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onReopenConsumed={onReopenConsumed}
+        reopenRequest={{ path: createdPath, requestId: 42 }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledTimes(2);
+    });
+    expect(onReopenConsumed).toHaveBeenCalledWith({ requestId: 42, status: 'success' });
+    expect(screen.getByText('Empty project')).toBeInTheDocument();
+  });
+
+  it('reopens a freshly created scaffold project through the normal loader path', async () => {
+    const parentPath = 'C:\\Dev\\black-skies\\projects';
+    const createdPath = 'C:\\Dev\\black-skies\\projects\\proj_story_scaffold_1234567890';
+    const createdProject: LoadedProject = {
+      path: createdPath,
+      projectId: 'proj_story_scaffold_1234567890',
+      name: 'Story Scaffold',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline_proj_story_scaffold_1234567890',
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Chapter 1' }],
+        scenes: [{ id: 'sc_0001', order: 1, title: 'Scene 1', chapter_id: 'ch_0001' }],
+      },
+      scenes: [{ id: 'sc_0001', title: 'Scene 1', order: 1, chapter_id: 'ch_0001' }],
+      drafts: { sc_0001: 'starter' },
+      bootstrapState: 'scaffold_initialized',
+      bootstrapTemplate: 'starter-scaffold-v1',
+    };
+    const createProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createdProject,
+      issues: [],
+    });
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createdProject,
+      issues: [],
+    });
+    const onReopenConsumed = vi.fn();
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: parentPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(null),
+      createProject: createProjectMock,
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const { rerender } = render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onReopenConsumed={onReopenConsumed}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
+      target: { value: 'Story Scaffold' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
+    );
+
+    await waitFor(() => {
+      expect(createProjectMock).toHaveBeenCalledWith({
+        parentPath,
+        title: 'Story Scaffold',
+        initialState: 'scaffold_initialized',
+      });
+    });
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledWith({ path: createdPath });
+    });
+
+    rerender(
+      <ProjectHome
+        suppressBootstrap
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onReopenConsumed={onReopenConsumed}
+        reopenRequest={{ path: createdPath, requestId: 43 }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledTimes(2);
+    });
+    expect(onReopenConsumed).toHaveBeenCalledWith({ requestId: 43, status: 'success' });
+    expect(screen.getByText('Template-seeded starter scaffold')).toBeInTheDocument();
+  });
+
   it('surfaces project metadata after a successful load', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const project = createSampleProject(samplePath);
