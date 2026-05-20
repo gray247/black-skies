@@ -39,6 +39,10 @@ export type SplitCommandFocusValidationReason =
   | 'secondary-lost'
   | 'rebuild-blocked';
 
+export type SplitCommandMutationOwner = 'primary' | 'secondary' | 'none';
+
+export type SplitCommandMutationValidationReason = SplitCommandFocusValidationReason;
+
 export interface SplitCommandPairFallbackState {
   readonly pairHealthStatus: SplitCommandPairHealthStatus;
   readonly primaryCollapseReason: SplitCommandPrimaryCollapseReason | null;
@@ -88,6 +92,16 @@ export interface SplitCommandInputRoutingAuthority {
   readonly focusValidationReason: SplitCommandFocusValidationReason;
 }
 
+export interface SplitCommandMutationAuthority {
+  readonly activeWindowIdentity: SplitCommandActiveWindowIdentity;
+  readonly sharedMutationOwner: 'primary';
+  readonly localMutationOwner: SplitCommandMutationOwner;
+  readonly sharedUndoOwner: 'primary';
+  readonly localUndoOwner: SplitCommandMutationOwner;
+  readonly staleMutationClaimsRejected: true;
+  readonly mutationValidationReason: SplitCommandMutationValidationReason;
+}
+
 export interface SplitCommandRuntimeContext {
   readonly pairIdentity: SplitCommandPairIdentity;
   readonly authority: SplitCommandAuthorityProfile;
@@ -132,8 +146,10 @@ export interface SplitCommandLifecycleSeam {
   readonly launchArguments: readonly string[];
   readonly focusOwnershipState: SplitCommandFocusOwnershipState | null;
   readonly inputRoutingAuthority: SplitCommandInputRoutingAuthority | null;
+  readonly mutationAuthority: SplitCommandMutationAuthority | null;
   classifyFocusOwnership(windowRole: SplitCommandWindowRole): SplitCommandFocusOwnershipState;
   classifyInputRoutingAuthority(windowRole: SplitCommandWindowRole): SplitCommandInputRoutingAuthority;
+  classifyMutationAuthority(windowRole: SplitCommandWindowRole): SplitCommandMutationAuthority;
   clear(): void;
 }
 
@@ -258,6 +274,25 @@ export function deriveSplitCommandInputRoutingAuthority(
     localInputOwner: focusOwnershipState.localFocusOwner,
     staleInputClaimsRejected: true,
     focusValidationReason: focusOwnershipState.focusValidationReason,
+  };
+}
+
+export function deriveSplitCommandMutationAuthority(
+  input: SplitCommandFocusOwnershipInput,
+): SplitCommandMutationAuthority {
+  const inputRoutingAuthority = deriveSplitCommandInputRoutingAuthority(input);
+  const localMutationOwner: SplitCommandMutationOwner =
+    inputRoutingAuthority.focusValidationReason === 'healthy'
+      ? inputRoutingAuthority.localInputOwner
+      : 'none';
+  return {
+    activeWindowIdentity: inputRoutingAuthority.activeWindowIdentity,
+    sharedMutationOwner: 'primary',
+    localMutationOwner,
+    sharedUndoOwner: 'primary',
+    localUndoOwner: localMutationOwner,
+    staleMutationClaimsRejected: true,
+    mutationValidationReason: inputRoutingAuthority.focusValidationReason,
   };
 }
 
@@ -478,6 +513,7 @@ export function createSplitCommandLifecycleSeam(
   });
   let focusOwnershipState: SplitCommandFocusOwnershipState | null = null;
   let inputRoutingAuthority: SplitCommandInputRoutingAuthority | null = null;
+  let mutationAuthority: SplitCommandMutationAuthority | null = null;
 
   return {
     runtimeContext,
@@ -488,6 +524,9 @@ export function createSplitCommandLifecycleSeam(
     },
     get inputRoutingAuthority() {
       return inputRoutingAuthority;
+    },
+    get mutationAuthority() {
+      return mutationAuthority;
     },
     classifyFocusOwnership(windowRole: SplitCommandWindowRole) {
       focusOwnershipState = deriveSplitCommandFocusOwnershipState({
@@ -507,9 +546,19 @@ export function createSplitCommandLifecycleSeam(
       });
       return inputRoutingAuthority;
     },
+    classifyMutationAuthority(windowRole: SplitCommandWindowRole) {
+      mutationAuthority = deriveSplitCommandMutationAuthority({
+        activePairIdentity: runtimeContext.pairIdentity,
+        claimedPairIdentity: runtimeContext.pairIdentity,
+        windowRole,
+        fallbackState: registry.fallbackState,
+      });
+      return mutationAuthority;
+    },
     clear: () => {
       focusOwnershipState = null;
       inputRoutingAuthority = null;
+      mutationAuthority = null;
       input.onClear?.();
       registry.clear();
     },

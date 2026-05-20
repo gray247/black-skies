@@ -905,6 +905,18 @@ function recordSplitCommandFocusOwnership(
   } else {
     ensureMainLogger().warn('Split command input ownership rejected', inputLogPayload);
   }
+
+  const mutationAuthority = splitCommandLifecycleSeam.classifyMutationAuthority(windowRole);
+  const mutationLogPayload = {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    mutationAuthority,
+    details,
+  };
+  if (mutationAuthority.mutationValidationReason === 'healthy') {
+    ensureMainLogger().info('Split command mutation ownership classified', mutationLogPayload);
+  } else {
+    ensureMainLogger().warn('Split command mutation ownership rejected', mutationLogPayload);
+  }
 }
 
 async function bootstrap(): Promise<void> {

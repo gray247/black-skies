@@ -7,6 +7,7 @@ import {
   createSplitCommandAuthorityProfile,
   deriveSplitCommandFocusOwnershipState,
   deriveSplitCommandInputRoutingAuthority,
+  deriveSplitCommandMutationAuthority,
   createSplitCommandSecondaryLaunchContract,
   createSplitCommandPairIdentity,
 } from '../../shared/splitCommandAuthority';
@@ -417,6 +418,111 @@ describe('splitCommandAuthority', () => {
       localInputOwner: 'none',
       staleInputClaimsRejected: true,
       focusValidationReason: 'secondary-lost',
+    });
+  });
+
+  it('classifies shared mutation and undo ownership consistently', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandMutationAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'primary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      sharedMutationOwner: 'primary',
+      localMutationOwner: 'primary',
+      sharedUndoOwner: 'primary',
+      localUndoOwner: 'primary',
+      staleMutationClaimsRejected: true,
+      mutationValidationReason: 'healthy',
+    });
+
+    expect(
+      deriveSplitCommandMutationAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'healthy',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      sharedMutationOwner: 'primary',
+      localMutationOwner: 'secondary',
+      sharedUndoOwner: 'primary',
+      localUndoOwner: 'secondary',
+      staleMutationClaimsRejected: true,
+      mutationValidationReason: 'healthy',
+    });
+  });
+
+  it('rejects stale mutation ownership after primary collapse', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandMutationAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-456',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'primary-lost',
+          primaryCollapseReason: 'closed',
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localMutationOwner: 'none',
+      localUndoOwner: 'none',
+      staleMutationClaimsRejected: true,
+      mutationValidationReason: 'primary-lost',
+    });
+  });
+
+  it('blocks mutation ownership reuse after teardown', () => {
+    const activePairIdentity = createSplitCommandPairIdentity({
+      sessionGeneration: 'session-123',
+    });
+
+    expect(
+      deriveSplitCommandMutationAuthority({
+        activePairIdentity,
+        claimedPairIdentity: {
+          sessionGeneration: 'session-123',
+        },
+        windowRole: 'secondary',
+        fallbackState: {
+          pairHealthStatus: 'cleared',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: null,
+        },
+      }),
+    ).toMatchObject({
+      localMutationOwner: 'none',
+      localUndoOwner: 'none',
+      mutationValidationReason: 'cleared',
     });
   });
 

@@ -224,6 +224,10 @@ describe('main split command launch hook', () => {
       'Split command focus ownership classified',
       expect.anything(),
     );
+    expect(logger.info).not.toHaveBeenCalledWith(
+      'Split command mutation ownership classified',
+      expect.anything(),
+    );
   });
 
   it('launches a secondary BrowserWindow only in experimental mode', async () => {
@@ -285,6 +289,19 @@ describe('main split command launch hook', () => {
       }),
     );
     expect(logger.info).toHaveBeenCalledWith(
+      'Split command mutation ownership classified',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          sharedMutationOwner: 'primary',
+          localMutationOwner: 'primary',
+          sharedUndoOwner: 'primary',
+          localUndoOwner: 'primary',
+          staleMutationClaimsRejected: true,
+          mutationValidationReason: 'healthy',
+        }),
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
       'Split command focus ownership classified',
       expect.objectContaining({
         focusOwnershipState: expect.objectContaining({
@@ -310,6 +327,19 @@ describe('main split command launch hook', () => {
           localInputOwner: 'secondary',
           staleInputClaimsRejected: true,
           focusValidationReason: 'healthy',
+        }),
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Split command mutation ownership classified',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          sharedMutationOwner: 'primary',
+          localMutationOwner: 'secondary',
+          sharedUndoOwner: 'primary',
+          localUndoOwner: 'secondary',
+          staleMutationClaimsRejected: true,
+          mutationValidationReason: 'healthy',
         }),
       }),
     );
@@ -381,6 +411,17 @@ describe('main split command launch hook', () => {
         }),
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command mutation ownership rejected',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          localMutationOwner: 'none',
+          localUndoOwner: 'none',
+          mutationValidationReason: 'secondary-lost',
+          staleMutationClaimsRejected: true,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(false);
     expect(secondaryWindow.isDestroyed()).toBe(true);
     expect(browserWindowState.instances).toHaveLength(2);
@@ -424,6 +465,16 @@ describe('main split command launch hook', () => {
         inputRoutingAuthority: expect.objectContaining({
           localInputOwner: 'none',
           focusValidationReason: 'secondary-lost',
+        }),
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command mutation ownership rejected',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          localMutationOwner: 'none',
+          localUndoOwner: 'none',
+          mutationValidationReason: 'secondary-lost',
         }),
       }),
     );
@@ -476,6 +527,17 @@ describe('main split command launch hook', () => {
         }),
       }),
     );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command mutation ownership rejected',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          localMutationOwner: 'none',
+          localUndoOwner: 'none',
+          mutationValidationReason: 'primary-lost',
+          staleMutationClaimsRejected: true,
+        }),
+      }),
+    );
     expect(primaryWindow.isDestroyed()).toBe(true);
     expect(secondaryWindow.isDestroyed()).toBe(true);
   });
@@ -520,6 +582,16 @@ describe('main split command launch hook', () => {
         inputRoutingAuthority: expect.objectContaining({
           localInputOwner: 'none',
           focusValidationReason: 'primary-lost',
+        }),
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command mutation ownership rejected',
+      expect.objectContaining({
+        mutationAuthority: expect.objectContaining({
+          localMutationOwner: 'none',
+          localUndoOwner: 'none',
+          mutationValidationReason: 'primary-lost',
         }),
       }),
     );
