@@ -87,6 +87,58 @@ function createMultiSceneProject(path: string): LoadedProject {
   };
 }
 
+function createBootstrapStateProject(
+  path: string,
+  bootstrapState: 'empty' | 'scaffold_initialized' | 'partial',
+  bootstrapTemplate?: string,
+): LoadedProject {
+  const outline: OutlineFile =
+    bootstrapState === 'scaffold_initialized'
+      ? {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'outline-002',
+          acts: ['Act I'],
+          chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+          scenes: [{ id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' }],
+        }
+      : {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'outline-001',
+          acts: [],
+          chapters: [],
+          scenes: [],
+        };
+  return {
+    ...createSampleProject(path),
+    bootstrapState,
+    bootstrapTemplate,
+    outline,
+    scenes:
+      bootstrapState === 'scaffold_initialized'
+        ? [
+            {
+              id: 'sc_0001',
+              title: 'Scene One',
+              order: 1,
+              chapter_id: 'ch_0001',
+            },
+          ]
+        : [],
+    drafts:
+      bootstrapState === 'scaffold_initialized'
+        ? {
+            sc_0001: '---\n' +
+              'id: sc_0001\n' +
+              'title: Scene One\n' +
+              'order: 1\n' +
+              'chapter_id: ch_0001\n' +
+              '---\n' +
+              'Starter scaffold scene.\n',
+          }
+        : {},
+  };
+}
+
 describe('ProjectHome recent project recovery', () => {
   const flushPromises = () => act(async () => { await Promise.resolve(); });
 
@@ -386,6 +438,87 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Sample Project/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
+  });
+
+  it('labels empty bootstrap state explicitly', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createBootstrapStateProject(samplePath, 'empty'),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByText('Empty project')).toBeInTheDocument();
+    expect(screen.getByText('No scenes or drafts have been created yet.')).toBeInTheDocument();
+  });
+
+  it('labels scaffold-initialized projects as template-seeded starter scaffolds', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createBootstrapStateProject(samplePath, 'scaffold_initialized', 'starter-scaffold-v1'),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByText('Template-seeded starter scaffold')).toBeInTheDocument();
+    expect(
+      screen.getByText('A deterministic starter scaffold is present and marked as template-seeded.'),
+    ).toBeInTheDocument();
+  });
+
+  it('labels partial bootstrap state explicitly without implying repair', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createBootstrapStateProject(samplePath, 'partial'),
+        issues: [
+          {
+            level: 'warning',
+            message: 'Project bootstrap state does not match the persisted project structure.',
+          },
+        ],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByText('Partial project')).toBeInTheDocument();
+    expect(
+      screen.getByText('Persisted structure does not fully match the recorded bootstrap state.'),
+    ).toBeInTheDocument();
   });
 
   it('labels restored copies in the project details panel', async () => {

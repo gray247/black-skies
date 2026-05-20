@@ -165,6 +165,33 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   }
 }
 
+function describeBootstrapState(project: LoadedProject): { label: string; detail: string } {
+  switch (project.bootstrapState) {
+    case 'empty':
+      return {
+        label: 'Empty project',
+        detail: 'No scenes or drafts have been created yet.',
+      };
+    case 'scaffold_initialized':
+      return {
+        label: project.bootstrapTemplate ? 'Template-seeded starter scaffold' : 'Starter scaffold',
+        detail: project.bootstrapTemplate
+          ? 'A deterministic starter scaffold is present and marked as template-seeded.'
+          : 'A deterministic starter scaffold is present.',
+      };
+    case 'partial':
+      return {
+        label: 'Partial project',
+        detail: 'Persisted structure does not fully match the recorded bootstrap state.',
+      };
+    default:
+      return {
+        label: 'Bootstrap state unavailable',
+        detail: 'The project can load, but no bootstrap state is recorded.',
+      };
+  }
+}
+
 export default function ProjectHome({
   onToast,
   onProjectLoaded,
@@ -606,13 +633,22 @@ export default function ProjectHome({
         });
 
         if (!options?.silent) {
+          const bootstrapState = response.project.bootstrapState ?? null;
           const successTitle =
             options?.reason === 'bootstrap'
-              ? 'Sample project loaded'
+              ? bootstrapState === 'scaffold_initialized'
+                ? 'Starter scaffold loaded'
+                : bootstrapState === 'empty'
+                  ? 'Blank project loaded'
+                  : 'Project loaded'
               : `${response.project.name} ready`;
           const successDescription =
             options?.reason === 'bootstrap'
-              ? 'Esther Estate is ready to explore the dock layout.'
+              ? bootstrapState === 'scaffold_initialized'
+                ? 'The starter scaffold is ready for the next step.'
+                : bootstrapState === 'empty'
+                  ? 'The project is empty and ready for a first scaffold.'
+                  : 'The project bootstrap completed successfully.'
               : 'Outline and draft metadata synced successfully.';
           onToast({
             tone: 'info',
@@ -1085,6 +1121,14 @@ export default function ProjectHome({
                   </div>
                   <span className="project-home__details-path">{activeProject.path}</span>
                 </div>
+                <div className="project-home__bootstrap-state">
+                  <span className="project-home__bootstrap-state-label">
+                    {describeBootstrapState(activeProject).label}
+                  </span>
+                  <p className="project-home__bootstrap-state-detail">
+                    {describeBootstrapState(activeProject).detail}
+                  </p>
+                </div>
                 <dl className="project-home__stats">
                   <div>
                     <dt>Acts</dt>
@@ -1117,7 +1161,7 @@ export default function ProjectHome({
                   </div>
                 ) : (
                   <p className="project-home__details-hint">
-                    Outline and draft metadata look healthy.
+                    Project structure matches the current bootstrap state.
                   </p>
                 )}
               </div>
