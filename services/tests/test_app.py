@@ -2077,9 +2077,7 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert "missing_drafts" not in manifest
 
 
-def test_draft_accept_rejects_missing_draft_state(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_draft_accept_rejects_missing_draft_state(test_client: TestClient, tmp_path: Path) -> None:
     """Accepted draft state is not fabricated for scaffolded projects."""
 
     project_id = "proj_accept_missing_draft"
