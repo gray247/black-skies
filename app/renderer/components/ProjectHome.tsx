@@ -219,7 +219,6 @@ function deriveProjectHomeSessionLifecycleState(input: {
 }
 
 function deriveProjectHomeDraftClassifications(input: {
-  readonly isLoading: boolean;
   readonly activeProject: LoadedProject | null;
   readonly activeSceneId: string | null;
   readonly activeSceneDraftSource: 'fallback' | 'override' | 'disk';
@@ -242,6 +241,33 @@ function deriveProjectHomeDraftClassifications(input: {
   }
 
   return classifications;
+}
+
+type ProjectHomeSignalClassification = 'clean' | 'stale' | 'recovery-required';
+
+function isRecoveryRequiredLoadCode(code: string | null | undefined): boolean {
+  return code === 'PROJECT_INVALID' || code === 'PROJECT_UNSUPPORTED_VERSION';
+}
+
+function classifyProjectHomeSignal(input: {
+  readonly loadErrorCode: string | null;
+  readonly issues: readonly ProjectIssue[];
+}): ProjectHomeSignalClassification {
+  if (isRecoveryRequiredLoadCode(input.loadErrorCode)) {
+    return 'recovery-required';
+  }
+
+  const hasStaleWarning = input.issues.some((issue) => {
+    const message = issue.message.toLowerCase();
+    const detail = issue.detail?.toLowerCase() ?? '';
+    return (
+      message.includes('nested inside a project root') ||
+      message.includes('does not match the recorded bootstrap state') ||
+      detail.includes('using project root:')
+    );
+  });
+
+  return hasStaleWarning ? 'stale' : 'clean';
 }
 
 export default function ProjectHome({
@@ -276,6 +302,7 @@ export default function ProjectHome({
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
   );
+  const [lastLoadErrorCode, setLastLoadErrorCode] = useState<string | null>(null);
   const [newProjectTitle, setNewProjectTitle] = useState<string>('Untitled Story');
   const sampleAttemptedRef = useRef(false);
   const stalePathsRef = useRef<Set<string>>(new Set());
@@ -443,6 +470,10 @@ export default function ProjectHome({
     () => JSON.stringify(diagnostics, null, 2),
     [diagnostics],
   );
+  const projectHomeSignalClassification = useMemo(
+    () => classifyProjectHomeSignal({ loadErrorCode: lastLoadErrorCode, issues }),
+    [issues, lastLoadErrorCode],
+  );
   const sessionTruth = useMemo(
     () =>
       createRuntimeSessionTruthContract({
@@ -453,14 +484,20 @@ export default function ProjectHome({
           activeSceneDraftSource,
         }),
         draftSessionStateClassifications: deriveProjectHomeDraftClassifications({
-          isLoading,
           activeProject,
           activeSceneId,
           activeSceneDraftSource,
           issues,
-        }),
+        }).concat(projectHomeSignalClassification === 'clean' ? [] : [projectHomeSignalClassification]),
       }),
-    [activeProject, activeSceneDraftSource, activeSceneId, isLoading, issues],
+    [
+      activeProject,
+      activeSceneDraftSource,
+      activeSceneId,
+      isLoading,
+      issues,
+      projectHomeSignalClassification,
+    ],
   );
   const sessionTruthClassifications = sessionTruth.draftSessionState.classifications.join(', ');
 
@@ -589,6 +626,7 @@ export default function ProjectHome({
             options,
             error: response.error,
           });
+          setLastLoadErrorCode(response.error.code);
           console.warn('[ProjectHome] Project load returned issues', {
             targetPath,
             code: response.error.code,
@@ -619,6 +657,7 @@ export default function ProjectHome({
           if (
             options?.allowFallback !== false &&
             options?.reason !== 'bootstrap' &&
+            !isRecoveryRequiredLoadCode(response.error.code) &&
             projectLoader.getSampleProjectPath
           ) {
             void (async () => {
@@ -684,6 +723,7 @@ export default function ProjectHome({
           issueCount: response.issues.length,
         });
         setActiveProject(response.project);
+        setLastLoadErrorCode(null);
         setActiveSceneId((previous) => {
           if (previous && response.project.drafts[previous]) {
             return previous;
@@ -1390,24 +1430,25 @@ export default function ProjectHome({
                     Project structure matches the current bootstrap state.
                   </p>
                 )}
-                <div className="project-home__session-truth" role="status" aria-label="Session truth">
-                  <h5>Session truth</h5>
-                  <p>
-                    Runtime truth:
-                    {' '}
-                    {sessionTruth.runtimeTruthBoundary.runtimeTruth}
-                    {'; '}
-                    Project truth:
-                    {' '}
-                    {sessionTruth.runtimeTruthBoundary.projectTruth}
-                  </p>
-                  <p>Lifecycle state: {sessionTruth.sessionLifecycle.currentState}</p>
-                  <p>Draft/session state: {sessionTruthClassifications || 'none reported'}</p>
-                </div>
               </div>
             ) : (
               <p className="project-home__empty">Select a project to preview its outline and scenes.</p>
             )}
+            <div className="project-home__session-truth" role="status" aria-label="Session truth">
+              <h5>Session truth</h5>
+              <p>
+                Runtime truth:
+                {' '}
+                {sessionTruth.runtimeTruthBoundary.runtimeTruth}
+                {'; '}
+                Project truth:
+                {' '}
+                {sessionTruth.runtimeTruthBoundary.projectTruth}
+              </p>
+              <p>Lifecycle state: {sessionTruth.sessionLifecycle.currentState}</p>
+              <p>Signal classification: {projectHomeSignalClassification}</p>
+              <p>Draft/session state: {sessionTruthClassifications || 'none reported'}</p>
+            </div>
           </section>
 
           <section

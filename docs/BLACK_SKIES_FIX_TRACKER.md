@@ -2965,6 +2965,11 @@ Backlog note drifted after phase-log cleanup.
   - `app/renderer/components/ProjectHome.tsx` now derives a read-only runtime/session truth summary from the shared contract and surfaces it in the project details card as a status-only consumer seam,
   - the initial wiring stays bounded to visible classification text and does not mutate project files, authoring flow, autosave/save/export routing, or recovery behavior,
   - targeted renderer coverage was added for the session-truth summary.
+- [2026-05-20] Phase 27C stale/recovery-required signal mapping started:
+  - `app/renderer/components/ProjectHome.tsx` now maps existing loader warnings and explicit unsupported/invalid load failures into read-only `stale` and `recovery-required` session-truth classifications,
+  - recovery-required loads are no longer allowed to silently fall through to the sample-project fallback path,
+  - the session-truth status block now renders in both loaded and empty/recovery states so the signal can be observed without mutating project files or adding repair behavior,
+  - targeted renderer coverage was added for stale, recovery-required, and clean/dirty classification display.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

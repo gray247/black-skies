@@ -794,7 +794,95 @@ describe('ProjectHome recent project recovery', () => {
     const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
     expect(sessionTruth).toHaveTextContent('Runtime truth: runtime-only; Project truth: persisted');
     expect(sessionTruth).toHaveTextContent('Lifecycle state: editing');
+    expect(sessionTruth).toHaveTextContent('Signal classification: clean');
     expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, dirty, unsaved');
+  });
+
+  it('surfaces stale signal classification when the loader corrects a nested project path', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const nestedPath = `${samplePath}\\Esther_Estate`;
+    const warningIssues: ProjectIssue[] = [
+      {
+        level: 'warning',
+        message: 'Selected folder was nested inside a project root.',
+        detail: `Using project root: ${samplePath}`,
+        path: nestedPath,
+      },
+    ];
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: nestedPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createSampleProject(samplePath),
+        issues: warningIssues,
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome suppressBootstrap onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Open project/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: nestedPath });
+    });
+
+    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
+    expect(sessionTruth).toHaveTextContent('Signal classification: stale');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, partial, stale');
+    expect(projectLoader.getSampleProjectPath).not.toHaveBeenCalled();
+  });
+
+  it('surfaces recovery-required signal classification without attempting a silent repair', async () => {
+    const stalePath = 'C:\\archived\\broken-project';
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: stalePath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: false,
+        error: {
+          code: 'PROJECT_UNSUPPORTED_VERSION',
+          message: 'project.json uses an unsupported schema version.',
+          issues: [
+            {
+              level: 'error',
+              message: 'project.json uses an unsupported schema version.',
+              detail: 'Expected schema_version "ProjectMetadata v999".',
+              path: `${stalePath}\\project.json`,
+            },
+          ],
+        },
+      }),
+      createProject: vi.fn(),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    const toasts: ToastPayload[] = [];
+
+    render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={(toast) => toasts.push(toast)}
+        onProjectLoaded={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /Open project/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: stalePath });
+    });
+
+    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
+    expect(sessionTruth).toHaveTextContent('Signal classification: recovery-required');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: runtime-only, partial, recovery-required');
+    expect(projectLoader.getSampleProjectPath).not.toHaveBeenCalled();
+    expect(projectLoader.createProject).not.toHaveBeenCalled();
+    expect(toasts.some((toast) => toast.title === 'Could not open project')).toBe(true);
   });
 
   it('labels empty bootstrap state explicitly', async () => {
