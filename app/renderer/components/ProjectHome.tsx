@@ -768,6 +768,19 @@ export default function ProjectHome({
     ],
   );
 
+  const loadProjectAtPathRef = useRef(loadProjectAtPath);
+  useEffect(() => {
+    loadProjectAtPathRef.current = loadProjectAtPath;
+  }, [loadProjectAtPath]);
+
+  const onReopenConsumedRef = useRef(onReopenConsumed);
+  useEffect(() => {
+    onReopenConsumedRef.current = onReopenConsumed;
+  }, [onReopenConsumed]);
+
+  const reopenPath = reopenRequest?.path ?? null;
+  const reopenRequestId = reopenRequest?.requestId ?? null;
+
   const handleOpenProject = useCallback(async () => {
     if (!projectLoader) {
       onToast({
@@ -985,21 +998,21 @@ export default function ProjectHome({
   }, [activeProject, activeScene, activeSceneDraft, onActiveSceneChange]);
 
   useEffect(() => {
-    if (!reopenRequest) {
+    if (reopenPath === null || reopenRequestId === null) {
       return;
     }
 
     let cancelled = false;
 
     const execute = async () => {
-      const project = await loadProjectAtPath(reopenRequest.path, {
+      const project = await loadProjectAtPathRef.current(reopenPath, {
         reason: 'recovery',
       });
       if (cancelled) {
         return;
       }
       const status = project ? 'success' : 'error';
-      onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
+      onReopenConsumedRef.current?.({ requestId: reopenRequestId, status });
     };
 
     void execute();
@@ -1007,7 +1020,7 @@ export default function ProjectHome({
     return () => {
       cancelled = true;
     };
-  }, [loadProjectAtPath, onReopenConsumed, reopenRequest]);
+  }, [reopenPath, reopenRequestId]);
 
   return (
     <div className="project-home">
