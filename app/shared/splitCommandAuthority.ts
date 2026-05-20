@@ -30,6 +30,31 @@ export interface SplitCommandRuntimeContext {
   readonly launchArguments: readonly string[];
 }
 
+export interface SplitCommandWindowLifecycleState {
+  readonly windowRole: SplitCommandWindowRole;
+  readonly pairIdentity: SplitCommandPairIdentity;
+  readonly authority: SplitCommandAuthorityProfile;
+}
+
+export interface SplitCommandLifecycleRegistry {
+  readonly pairIdentity: SplitCommandPairIdentity;
+  readonly authority: SplitCommandAuthorityProfile;
+  readonly primaryWindowRegistered: boolean;
+  readonly secondaryWindowRegistered: boolean;
+  readonly isActive: boolean;
+  registerPrimaryWindow(): SplitCommandWindowLifecycleState;
+  registerSecondaryWindow(): SplitCommandWindowLifecycleState;
+  matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
+  clear(): void;
+}
+
+export interface SplitCommandLifecycleSeam {
+  readonly runtimeContext: SplitCommandRuntimeContext;
+  readonly registry: SplitCommandLifecycleRegistry;
+  readonly launchArguments: readonly string[];
+  clear(): void;
+}
+
 export interface SplitCommandRuntimeContextInput {
   readonly sessionGeneration: string;
   readonly windowRole?: SplitCommandWindowRole;
@@ -92,5 +117,93 @@ export function buildSplitCommandRuntimeContext(
         authority.staleSecondaryResurrectionForbidden,
       )}`,
     ],
+  };
+}
+
+export function createSplitCommandLifecycleRegistry(
+  input: SplitCommandRuntimeContextInput,
+): SplitCommandLifecycleRegistry {
+  const runtimeContext = buildSplitCommandRuntimeContext(input);
+  let primaryWindowRegistered = false;
+  let secondaryWindowRegistered = false;
+  let active = true;
+
+  function assertActive(): void {
+    if (!active) {
+      throw new Error('Split command lifecycle registry has been cleared.');
+    }
+  }
+
+  function buildWindowLifecycleState(windowRole: SplitCommandWindowRole): SplitCommandWindowLifecycleState {
+    return {
+      windowRole,
+      pairIdentity: runtimeContext.pairIdentity,
+      authority: createSplitCommandAuthorityProfile(windowRole),
+    };
+  }
+
+  return {
+    get pairIdentity() {
+      return runtimeContext.pairIdentity;
+    },
+    get authority() {
+      return runtimeContext.authority;
+    },
+    get primaryWindowRegistered() {
+      return primaryWindowRegistered;
+    },
+    get secondaryWindowRegistered() {
+      return secondaryWindowRegistered;
+    },
+    get isActive() {
+      return active;
+    },
+    registerPrimaryWindow() {
+      assertActive();
+      primaryWindowRegistered = true;
+      return buildWindowLifecycleState('primary');
+    },
+    registerSecondaryWindow() {
+      assertActive();
+      secondaryWindowRegistered = true;
+      return buildWindowLifecycleState('secondary');
+    },
+    matchesPairIdentity(candidateInput: SplitCommandRuntimeContextInput) {
+      if (!active) {
+        return false;
+      }
+      const candidate = createSplitCommandPairIdentity(candidateInput);
+      return (
+        candidate.sessionGeneration === runtimeContext.pairIdentity.sessionGeneration &&
+        candidate.pairId === runtimeContext.pairIdentity.pairId
+      );
+    },
+    clear() {
+      active = false;
+      primaryWindowRegistered = false;
+      secondaryWindowRegistered = false;
+    },
+  };
+}
+
+export function createSplitCommandLifecycleSeam(
+  input: SplitCommandRuntimeContextInput & { readonly experimentalEnabled: boolean },
+): SplitCommandLifecycleSeam | null {
+  if (!input.experimentalEnabled) {
+    return null;
+  }
+
+  const runtimeContext = buildSplitCommandRuntimeContext(input);
+  const registry = createSplitCommandLifecycleRegistry({
+    sessionGeneration: runtimeContext.pairIdentity.sessionGeneration,
+    windowRole: runtimeContext.authority.windowRole,
+    pairId: runtimeContext.pairIdentity.pairId,
+  });
+
+  return {
+    runtimeContext,
+    registry,
+    launchArguments: runtimeContext.launchArguments,
+    clear: () => registry.clear(),
   };
 }

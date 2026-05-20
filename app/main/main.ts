@@ -35,8 +35,8 @@ import {
 import { resolveConfiguredServicePort } from './serviceResolution.js';
 import { randomUUID } from 'node:crypto';
 import {
-  buildSplitCommandRuntimeContext,
-  type SplitCommandRuntimeContext,
+  createSplitCommandLifecycleSeam,
+  type SplitCommandLifecycleSeam,
 } from '../shared/splitCommandAuthority.js';
 
 function resolveProjectRoot(): string {
@@ -69,12 +69,11 @@ const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
-const splitCommandRuntimeContext: SplitCommandRuntimeContext | null =
-  runtimeConfig.ui.experimentalSplitCommandWorkspace
-    ? buildSplitCommandRuntimeContext({
-        sessionGeneration: randomUUID(),
-      })
-    : null;
+const splitCommandLifecycleSeam: SplitCommandLifecycleSeam | null =
+  createSplitCommandLifecycleSeam({
+    experimentalEnabled: runtimeConfig.ui.experimentalSplitCommandWorkspace,
+    sessionGeneration: randomUUID(),
+  });
 const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) =>
   entry.toLowerCase(),
 );
@@ -645,8 +644,8 @@ async function createMainWindow(): Promise<BrowserWindow> {
       nodeIntegration: false,
       sandbox: false,
       preload: PRELOAD_PATH,
-      additionalArguments: splitCommandRuntimeContext
-        ? [...splitCommandRuntimeContext.launchArguments]
+      additionalArguments: splitCommandLifecycleSeam
+        ? [...splitCommandLifecycleSeam.launchArguments]
         : [],
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
@@ -685,6 +684,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   window.on('closed', () => {
+    splitCommandLifecycleSeam?.clear();
     if (mainWindow === window) {
       mainWindow = null;
     }
@@ -735,6 +735,7 @@ async function bootstrap(): Promise<void> {
   try {
     await startServices();
     const window = await createMainWindow();
+    splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
     mainWindow = window;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';
