@@ -2951,6 +2951,11 @@ Backlog note drifted after phase-log cleanup.
   - failure modes remain deterministic and non-destructive: no silent repair, no hidden bootstrap mutation, no inherited runtime lineage, and no fake "ready to write" claim when backend authoring paths are unavailable,
   - targeted loader and service tests passed alongside app lint, main build, repo hygiene, and diff checks,
   - proof classification remains backend-compatibility / degraded-authoring boundary only; output-quality, real-author-material maturity, and production-readiness claims remain deferred.
+- [2026-05-20] Phase 27 execution plan created at `docs/audits/phase27/phase27_execution_plan.md`:
+  - Phase 27 is scoped as `Runtime Truth, Session Lifecycle, and Authoring Continuity`,
+  - the plan defines runtime truth vs project truth, session ownership, draft-state authority, recovery semantics, save/export boundaries, autosave vs accepted-truth semantics, dirty/stale rules, runtime vs persisted memory boundaries, renderer/backend/main ownership, cross-window continuity expectations, explicit non-goals, human-validation requirements, proof classifications, stop/escalation triggers, and definition-of-done criteria,
+  - docs-only planning pass; no runtime code was changed,
+  - stable GUI remains sacred/default, Split Command remains experimental unless later justified, Phase 26 loader/bootstrap authority remains intact, and Phase 24-25 fail-closed semantics remain in force.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
