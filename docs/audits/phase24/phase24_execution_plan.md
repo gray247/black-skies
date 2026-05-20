@@ -259,6 +259,8 @@ Boundaries:
 - define session generation invalidation and project-switch semantics
 - define what each window may read and mutate
 
+24A status: complete as an authority, pairing, lifecycle, and secondary-launch foundation slice. This slice proved the experimental Split Command path can carry explicit authority, generation, and pair identity into a hidden secondary BrowserWindow launch hook without changing the stable/default GUI path. It did not prove physical two-monitor placement, reconnect/recovery, focus routing, or broad IPC synchronization; those remain deferred to later batches.
+
 ### `24B` Recovery and fallback contract
 
 - define single-monitor fallback behavior
