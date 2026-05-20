@@ -298,6 +298,39 @@ describe('project bootstrap contract', () => {
     });
   });
 
+  it('classifies unsupported bootstrap metadata as partial with an explicit warning', async () => {
+    const created = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: 'Unsupported Story',
+    });
+
+    await writeFile(
+      join(created.projectPath, 'project.json'),
+      JSON.stringify(
+        {
+          schema_version: 'ProjectMetadataSchema v1',
+          project_id: created.projectId,
+          name: created.projectName,
+          bootstrap_state: 'template_seeded',
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+
+    const loaded = await loadProjectFromDisk(created.projectPath);
+    expect(loaded.project.bootstrapState).toBe('partial');
+    expect(loaded.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          level: 'warning',
+          message: 'Project bootstrap metadata records an unsupported bootstrap state.',
+        }),
+      ]),
+    );
+  });
+
   it('classifies mismatched scaffold state as partial rather than silently repairing it', async () => {
     const created = await bootstrapFreshProject({
       parentPath: workspaceRoot,

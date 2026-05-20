@@ -302,6 +302,7 @@ export async function readProjectMetadata(projectPath: string): Promise<{
   name?: string;
   projectId?: string;
   bootstrapState?: 'empty' | 'scaffold_initialized';
+  bootstrapStateRaw?: string;
   bootstrapTemplate?: string;
 }> {
   const metadataPath = path.join(projectPath, 'project.json');
@@ -341,6 +342,10 @@ export async function readProjectMetadata(projectPath: string): Promise<{
     parsed.bootstrap_state === 'scaffold_initialized' || parsed.bootstrap_state === 'empty'
       ? parsed.bootstrap_state
       : undefined;
+  const bootstrapStateRaw =
+    typeof parsed.bootstrap_state === 'string' && !bootstrapState
+      ? parsed.bootstrap_state.trim()
+      : undefined;
   const bootstrapTemplate =
     typeof parsed.bootstrap_template === 'string' && parsed.bootstrap_template.trim().length > 0
       ? parsed.bootstrap_template.trim()
@@ -349,6 +354,7 @@ export async function readProjectMetadata(projectPath: string): Promise<{
     name?: string;
     projectId?: string;
     bootstrapState?: 'empty' | 'scaffold_initialized';
+    bootstrapStateRaw?: string;
     bootstrapTemplate?: string;
   } = {};
   if (projectId.length > 0) {
@@ -360,6 +366,9 @@ export async function readProjectMetadata(projectPath: string): Promise<{
   if (bootstrapState) {
     metadata.bootstrapState = bootstrapState;
   }
+  if (bootstrapStateRaw) {
+    metadata.bootstrapStateRaw = bootstrapStateRaw;
+  }
   if (bootstrapTemplate) {
     metadata.bootstrapTemplate = bootstrapTemplate;
   }
@@ -367,7 +376,7 @@ export async function readProjectMetadata(projectPath: string): Promise<{
 }
 
 function classifyProjectBootstrapState(
-  metadata: { bootstrapState?: 'empty' | 'scaffold_initialized' },
+  metadata: { bootstrapState?: 'empty' | 'scaffold_initialized'; bootstrapStateRaw?: string },
   outline: OutlineFile,
   scenes: SceneDraftMetadata[],
   drafts: Record<string, string>,
@@ -387,6 +396,20 @@ function classifyProjectBootstrapState(
       : outlineSceneCount === parsedSceneCount && parsedSceneCount > 0
         ? 'scaffold_initialized'
         : 'partial';
+
+  if (metadata.bootstrapStateRaw) {
+    issues.push({
+      level: 'warning',
+      message: 'Project bootstrap metadata records an unsupported bootstrap state.',
+      detail: `Unsupported bootstrap_state value: ${metadata.bootstrapStateRaw}.`,
+    });
+    if (!metadata.bootstrapState) {
+      return {
+        bootstrapState: 'partial',
+        issues,
+      };
+    }
+  }
 
   if (metadata.bootstrapState && metadata.bootstrapState !== derivedState) {
     issues.push({

@@ -275,6 +275,51 @@ def _bootstrap_outline(
     return [scene["id"] for scene in scenes]
 
 
+def _bootstrap_blank_project(
+    base_dir: Path,
+    project_id: str,
+    *,
+    bootstrap_state: str = "empty",
+) -> Path:
+    """Write a minimal fresh-project contract without scaffolded story content."""
+
+    project_dir = base_dir / project_id
+    project_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_project_budget(base_dir, project_id)
+
+    project_meta = {
+        "schema_version": "ProjectMetadataSchema v1",
+        "project_id": project_id,
+        "name": f"Project {project_id}",
+        "bootstrap_state": bootstrap_state,
+        "budget": {
+            "soft": 5.0,
+            "hard": 10.0,
+            "spent_usd": 0.0,
+        },
+    }
+    (project_dir / "project.json").write_text(
+        json.dumps(project_meta, indent=2),
+        encoding="utf-8",
+    )
+    (project_dir / "outline.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "OutlineSchema v1",
+                "outline_id": f"outline_{project_id}",
+                "project_id": project_id,
+                "acts": [],
+                "chapters": [],
+                "scenes": [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    return project_dir
+
+
 def _bootstrap_scene(
     tmp_path: Path,
     project_id: str,
@@ -847,6 +892,37 @@ def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -
     assert project_meta["budget"]["spent_usd"] == pytest.approx(0.0)
 
 
+def test_draft_generate_rejects_blank_project_without_scenes(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Fresh blank projects fail honestly when generation is requested prematurely."""
+
+    project_id = "proj_draft_blank_generate"
+    _bootstrap_blank_project(tmp_path, project_id)
+
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": ["sc_0001"],
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert response.status_code == 400
+
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["message"] == "Outline artifact failed schema validation."
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["bootstrap_state"] == "empty"
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(0.0)
+
+    drafts_dir = tmp_path / project_id / "drafts"
+    assert not drafts_dir.exists()
+
+
 def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) -> None:
     """Generation refuses to run when the hard budget would be exceeded."""
 
@@ -1080,6 +1156,36 @@ def test_draft_critique_missing_scene_budget_failure(
     detail = response.json()
     assert detail["code"] == "VALIDATION"
     assert "Scene markdown is missing" in detail["message"]
+
+
+def test_draft_critique_rejects_missing_draft_state(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Scaffolded projects fail honestly when their draft state is absent."""
+
+    project_id = "proj_critique_missing_draft"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    project_meta_path = tmp_path / project_id / "project.json"
+    project_meta = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    project_meta["bootstrap_state"] = "scaffold_initialized"
+    project_meta["bootstrap_template"] = "starter-scaffold-v1"
+    project_meta_path.write_text(json.dumps(project_meta, indent=2), encoding="utf-8")
+
+    payload = _build_critique_payload(unit_id=scene_ids[0])
+    payload["project_id"] = project_id
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["message"] == "Scene markdown is missing."
+
+    summary_path = tmp_path / project_id / "history" / "critiques" / f"{scene_ids[0]}.json"
+    assert not summary_path.exists()
+
+    project_meta_after = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    assert project_meta_after["bootstrap_state"] == "scaffold_initialized"
+    assert project_meta_after["bootstrap_template"] == "starter-scaffold-v1"
 
 
 def test_draft_critique_budget_logging(
@@ -1969,6 +2075,49 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert draft_entry["path"].startswith("drafts/")
     assert draft_entry["purpose"] == "payoff"
     assert "missing_drafts" not in manifest
+
+
+def test_draft_accept_rejects_missing_draft_state(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Accepted draft state is not fabricated for scaffolded projects."""
+
+    project_id = "proj_accept_missing_draft"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    project_meta_path = tmp_path / project_id / "project.json"
+    project_meta = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    project_meta["bootstrap_state"] = "scaffold_initialized"
+    project_meta["bootstrap_template"] = "starter-scaffold-v1"
+    project_meta_path.write_text(json.dumps(project_meta, indent=2), encoding="utf-8")
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_missing",
+        "unit_id": scene_ids[0],
+        "unit": {
+            "id": scene_ids[0],
+            "previous_sha256": "0" * 64,
+            "text": "Static text that should never be accepted.",
+            "meta": {},
+        },
+        "message": "Missing draft state probe.",
+        "snapshot_label": "accept",
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["message"] == "Scene markdown is missing."
+
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    assert not state_path.exists()
+    snapshot_dir = tmp_path / project_id / "history" / "snapshots"
+    assert not snapshot_dir.exists()
+
+    project_meta_after = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    assert project_meta_after["bootstrap_state"] == "scaffold_initialized"
+    assert project_meta_after["bootstrap_template"] == "starter-scaffold-v1"
 
 
 def test_draft_accept_logs_slow_timing_metadata_without_payload_text(
