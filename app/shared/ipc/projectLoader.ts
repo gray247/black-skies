@@ -71,6 +71,8 @@ export interface LoadedProject {
   outline: OutlineFile;
   scenes: SceneDraftMetadata[];
   drafts: Record<string, string>;
+  bootstrapState?: 'empty' | 'scaffold_initialized' | 'partial';
+  bootstrapTemplate?: string;
 }
 
 export interface ProjectLoadRequest {
@@ -105,6 +107,7 @@ export type ProjectLoadResponse = ProjectLoadSuccess | ProjectLoadFailure;
 export interface ProjectBootstrapRequest {
   parentPath: string;
   title: string;
+  initialState?: 'empty' | 'scaffold_initialized';
 }
 
 export interface ProjectBootstrapSuccess {

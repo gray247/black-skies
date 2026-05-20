@@ -6,6 +6,9 @@ import type { OutlineFile, ProjectIssue } from '../shared/ipc/projectLoader';
 export const PROJECT_METADATA_SCHEMA_VERSION = 'ProjectMetadataSchema v1';
 export const BOOTSTRAP_INVALID_MARKER = 'bootstrap.invalid.json';
 export const BOOTSTRAP_MAX_ATTEMPTS = 8;
+export const STARTER_SCAFFOLD_TEMPLATE = 'starter-scaffold-v1';
+
+export type ProjectBootstrapState = 'empty' | 'scaffold_initialized';
 
 export type ProjectBootstrapErrorCode =
   | 'INVALID_PARENT_PATH'
@@ -27,6 +30,7 @@ export class ProjectBootstrapError extends Error {
 export interface ProjectBootstrapRequest {
   parentPath: string;
   title: string;
+  initialState?: ProjectBootstrapState;
 }
 
 export interface ProjectBootstrapResult {
@@ -63,12 +67,21 @@ export function generateProjectId(rawTitle: string): string {
   return `proj_${slug}_${suffix}`;
 }
 
-export function buildProjectBootstrapMetadata(projectId: string, projectTitle: string): Record<string, unknown> {
-  return {
+export function buildProjectBootstrapMetadata(
+  projectId: string,
+  projectTitle: string,
+  initialState: ProjectBootstrapState = 'empty',
+): Record<string, unknown> {
+  const metadata: Record<string, unknown> = {
     schema_version: PROJECT_METADATA_SCHEMA_VERSION,
     project_id: projectId,
     name: projectTitle,
+    bootstrap_state: initialState,
   };
+  if (initialState === 'scaffold_initialized') {
+    metadata.bootstrap_template = STARTER_SCAFFOLD_TEMPLATE;
+  }
+  return metadata;
 }
 
 export function buildBlankOutline(projectId: string): OutlineFile {
@@ -79,6 +92,43 @@ export function buildBlankOutline(projectId: string): OutlineFile {
     acts: [],
     chapters: [],
     scenes: [],
+  };
+}
+
+export function buildStarterOutline(projectId: string): OutlineFile {
+  return {
+    schema_version: 'OutlineSchema v1',
+    outline_id: `outline_${projectId}`,
+    project_id: projectId,
+    acts: ['Act I'],
+    chapters: [
+      {
+        id: 'ch_0001',
+        order: 1,
+        title: 'Chapter 1',
+      },
+    ],
+    scenes: [
+      {
+        id: 'sc_0001',
+        order: 1,
+        title: 'Scene 1',
+        chapter_id: 'ch_0001',
+      },
+    ],
+  };
+}
+
+export function buildStarterSceneDraft(projectId: string): Record<string, string> {
+  return {
+    'sc_0001.md': `---
+id: sc_0001
+title: Scene 1
+order: 1
+chapter_id: ch_0001
+---
+Starter scaffold scene for ${projectId}.
+`,
   };
 }
 
@@ -161,7 +211,12 @@ export async function bootstrapFreshProject(
     const tempWorkspace = await mkdtemp(tempPrefix);
 
     try {
-      await createWorkspaceSkeletonWithIdentity(tempWorkspace, projectId, projectTitle);
+      await createWorkspaceSkeletonWithIdentity(
+        tempWorkspace,
+        projectId,
+        projectTitle,
+        request.initialState ?? 'empty',
+      );
       await rename(tempWorkspace, projectPath);
       return { projectPath, projectId, projectName: projectTitle };
     } catch (error) {
@@ -219,12 +274,19 @@ async function createWorkspaceSkeletonWithIdentity(
   workspacePath: string,
   projectId: string,
   projectTitle: string,
+  initialState: ProjectBootstrapState,
 ): Promise<void> {
   await mkdir(workspacePath, { recursive: true });
   await mkdir(join(workspacePath, 'drafts'), { recursive: true });
-  await writeJsonAtomic(
-    join(workspacePath, 'project.json'),
-    buildProjectBootstrapMetadata(projectId, projectTitle),
-  );
+  await writeJsonAtomic(join(workspacePath, 'project.json'), buildProjectBootstrapMetadata(projectId, projectTitle, initialState));
+  if (initialState === 'scaffold_initialized') {
+    await writeJsonAtomic(join(workspacePath, 'outline.json'), buildStarterOutline(projectId));
+    const starterDrafts = buildStarterSceneDraft(projectId);
+    for (const [filename, contents] of Object.entries(starterDrafts)) {
+      await writeFile(join(workspacePath, 'drafts', filename), contents, 'utf8');
+    }
+    return;
+  }
+
   await writeJsonAtomic(join(workspacePath, 'outline.json'), buildBlankOutline(projectId));
 }

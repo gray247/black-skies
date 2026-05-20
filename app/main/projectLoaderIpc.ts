@@ -130,6 +130,7 @@ export function registerProjectLoaderIpc(): void {
         const created = await bootstrapFreshProject({
           parentPath: request?.parentPath,
           title: request?.title,
+          initialState: request?.initialState,
         });
         const { project, issues } = await loadProjectFromDisk(created.projectPath);
         issues.forEach(logIssue);
@@ -182,6 +183,7 @@ export async function loadProjectFromDisk(projectPath: string): Promise<{
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
   const metadata = await readProjectMetadata(normalizedPath);
+  const classification = classifyProjectBootstrapState(metadata, outline, scenes, drafts);
   const project: LoadedProject = {
     path: normalizedPath,
     projectId: metadata.projectId,
@@ -189,8 +191,10 @@ export async function loadProjectFromDisk(projectPath: string): Promise<{
     outline,
     scenes,
     drafts,
+    bootstrapState: classification.bootstrapState,
+    bootstrapTemplate: metadata.bootstrapTemplate,
   };
-  return { project, issues: [...rootIssues, ...issues] };
+  return { project, issues: [...rootIssues, ...issues, ...classification.issues] };
 }
 
 async function ensureNotInvalidBootstrap(projectPath: string): Promise<void> {
@@ -294,9 +298,20 @@ export async function resolveProjectRootPath(projectPath: string): Promise<{
   return { projectPath: normalizedPath, issues: [] };
 }
 
-export async function readProjectMetadata(projectPath: string): Promise<{ name?: string; projectId?: string }> {
+export async function readProjectMetadata(projectPath: string): Promise<{
+  name?: string;
+  projectId?: string;
+  bootstrapState?: 'empty' | 'scaffold_initialized';
+  bootstrapTemplate?: string;
+}> {
   const metadataPath = path.join(projectPath, 'project.json');
-  let parsed: { name?: string; project_id?: string; schema_version?: string };
+  let parsed: {
+    name?: string;
+    project_id?: string;
+    schema_version?: string;
+    bootstrap_state?: string;
+    bootstrap_template?: string;
+  };
   try {
     const raw = await fs.readFile(metadataPath, 'utf8');
     parsed = JSON.parse(raw) as { name?: string; project_id?: string; schema_version?: string };
@@ -322,14 +337,73 @@ export async function readProjectMetadata(projectPath: string): Promise<{ name?:
 
   const projectId = typeof parsed.project_id === 'string' ? parsed.project_id.trim() : '';
   const name = typeof parsed.name === 'string' ? parsed.name.trim() : '';
-  const metadata: { name?: string; projectId?: string } = {};
+  const bootstrapState =
+    parsed.bootstrap_state === 'scaffold_initialized' || parsed.bootstrap_state === 'empty'
+      ? parsed.bootstrap_state
+      : undefined;
+  const bootstrapTemplate =
+    typeof parsed.bootstrap_template === 'string' && parsed.bootstrap_template.trim().length > 0
+      ? parsed.bootstrap_template.trim()
+      : undefined;
+  const metadata: {
+    name?: string;
+    projectId?: string;
+    bootstrapState?: 'empty' | 'scaffold_initialized';
+    bootstrapTemplate?: string;
+  } = {};
   if (projectId.length > 0) {
     metadata.projectId = projectId;
   }
   if (name.length > 0) {
     metadata.name = name;
   }
+  if (bootstrapState) {
+    metadata.bootstrapState = bootstrapState;
+  }
+  if (bootstrapTemplate) {
+    metadata.bootstrapTemplate = bootstrapTemplate;
+  }
   return metadata;
+}
+
+function classifyProjectBootstrapState(
+  metadata: { bootstrapState?: 'empty' | 'scaffold_initialized' },
+  outline: OutlineFile,
+  scenes: SceneDraftMetadata[],
+  drafts: Record<string, string>,
+): {
+  bootstrapState: 'empty' | 'scaffold_initialized' | 'partial';
+  issues: ProjectIssue[];
+} {
+  const issues: ProjectIssue[] = [];
+  const outlineSceneCount = outline.scenes.length;
+  const parsedSceneCount = scenes.length;
+  const draftCount = Object.keys(drafts).length;
+  const hasOutlineStructure = outline.acts.length > 0 || outline.chapters.length > 0 || outlineSceneCount > 0;
+  const hasPersistentContent = hasOutlineStructure || parsedSceneCount > 0 || draftCount > 0;
+  const derivedState =
+    !hasPersistentContent
+      ? 'empty'
+      : outlineSceneCount === parsedSceneCount && parsedSceneCount > 0
+        ? 'scaffold_initialized'
+        : 'partial';
+
+  if (metadata.bootstrapState && metadata.bootstrapState !== derivedState) {
+    issues.push({
+      level: 'warning',
+      message: 'Project bootstrap state does not match the persisted project structure.',
+      detail: `Metadata says ${metadata.bootstrapState} but filesystem structure resolves to ${derivedState}.`,
+    });
+    return {
+      bootstrapState: 'partial',
+      issues,
+    };
+  }
+
+  return {
+    bootstrapState: metadata.bootstrapState ?? derivedState,
+    issues,
+  };
 }
 
 function normalizeBootstrapFailure(error: unknown): ProjectBootstrapFailure['error'] {

@@ -109,9 +109,77 @@ describe('project bootstrap contract', () => {
       path: result.projectPath,
       projectId: result.projectId,
       name: 'Brand New Story',
+      bootstrapState: 'empty',
     });
     expect(loaded.project.scenes).toEqual([]);
     expect(loaded.project.drafts).toEqual({});
+    expect(loaded.issues).toEqual([]);
+  });
+
+  it('creates an explicit starter scaffold without inheriting sample-project state', async () => {
+    const result = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: '  Starter / Scaffold  ',
+      initialState: 'scaffold_initialized',
+    });
+
+    expect(result.projectName).toBe('Starter Scaffold');
+    expect(result.projectId).toMatch(/^proj_starter-scaffold_[a-f0-9]{10}$/);
+
+    const projectJson = await readJson(join(result.projectPath, 'project.json'));
+    const outlineJson = await readJson(join(result.projectPath, 'outline.json'));
+    const starterDraft = await readFile(join(result.projectPath, 'drafts', 'sc_0001.md'), 'utf8');
+
+    expect(projectJson).toMatchObject({
+      schema_version: 'ProjectMetadataSchema v1',
+      project_id: result.projectId,
+      name: 'Starter Scaffold',
+      bootstrap_state: 'scaffold_initialized',
+      bootstrap_template: 'starter-scaffold-v1',
+    });
+    expect(outlineJson).toMatchObject({
+      schema_version: 'OutlineSchema v1',
+      outline_id: `outline_${result.projectId}`,
+      project_id: result.projectId,
+      acts: ['Act I'],
+      chapters: [
+        {
+          id: 'ch_0001',
+          order: 1,
+          title: 'Chapter 1',
+        },
+      ],
+      scenes: [
+        {
+          id: 'sc_0001',
+          order: 1,
+          title: 'Scene 1',
+          chapter_id: 'ch_0001',
+        },
+      ],
+    });
+    expect(starterDraft).toContain('id: sc_0001');
+    expect(starterDraft).toContain('chapter_id: ch_0001');
+    await expect(stat(join(result.projectPath, 'history'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+    await expect(stat(join(result.projectPath, 'recovery'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+    await expect(stat(join(result.projectPath, 'snapshots'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+
+    const loaded = await loadProjectFromDisk(result.projectPath);
+    expect(loaded.project).toMatchObject({
+      path: result.projectPath,
+      projectId: result.projectId,
+      name: 'Starter Scaffold',
+      bootstrapState: 'scaffold_initialized',
+      bootstrapTemplate: 'starter-scaffold-v1',
+    });
+    expect(loaded.project.scenes).toHaveLength(1);
+    expect(loaded.project.drafts).toHaveProperty('sc_0001');
     expect(loaded.issues).toEqual([]);
   });
 
@@ -178,6 +246,27 @@ describe('project bootstrap contract', () => {
     await expect(loadProjectFromDisk(created.projectPath)).rejects.toMatchObject({
       code: 'PROJECT_INVALID',
     });
+  });
+
+  it('classifies mismatched scaffold state as partial rather than silently repairing it', async () => {
+    const created = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: 'Partial Scaffold',
+      initialState: 'scaffold_initialized',
+    });
+
+    await rm(join(created.projectPath, 'drafts', 'sc_0001.md'));
+
+    const loaded = await loadProjectFromDisk(created.projectPath);
+    expect(loaded.project.bootstrapState).toBe('partial');
+    expect(loaded.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          level: 'warning',
+          message: 'Project bootstrap state does not match the persisted project structure.',
+        }),
+      ]),
+    );
   });
 
   it('rejects a non-directory parent path before creating a project', async () => {
