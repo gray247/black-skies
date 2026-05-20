@@ -1037,8 +1037,9 @@ export default function ProjectHome({
             <p className="project-home__welcome-eyebrow">Welcome</p>
             <h3 id={welcomeSectionId}>Open an existing project or create a new bootstrap project</h3>
             <p>
-              Open a project folder to continue an existing draft, or create a fresh blank project
-              or starter scaffold through the loader-authoritative bootstrap path.
+              Open a project folder to continue an existing draft, or choose where to save a fresh
+              blank project or starter scaffold. Black Skies creates the project folder
+              automatically through the loader-authoritative bootstrap path.
             </p>
           </div>
           <div className="project-home__welcome-actions">
@@ -1080,7 +1081,7 @@ export default function ProjectHome({
                 onClick={() => void handleCreateProject('empty')}
                 disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
               >
-                Choose folder and create blank project
+                Choose save location and create blank project
               </button>
               <button
                 type="button"
@@ -1088,9 +1089,13 @@ export default function ProjectHome({
                 onClick={() => void handleCreateProject('scaffold_initialized')}
                 disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
               >
-                Choose folder and create starter scaffold
+                Choose save location and create starter scaffold
               </button>
             </div>
+            <p className="project-home__bootstrap-create-hint">
+              Choose where to save the project. Black Skies creates the project folder
+              automatically.
+            </p>
           </div>
         </section>
       )}

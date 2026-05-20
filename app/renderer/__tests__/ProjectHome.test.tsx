@@ -463,7 +463,9 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
       target: { value: 'Blank Story' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /Create blank project/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+    );
 
     await waitFor(() => {
       expect(projectLoader.openProjectDialog).toHaveBeenCalledTimes(1);
@@ -536,7 +538,9 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
       target: { value: 'Story Scaffold' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /Create starter scaffold/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
+    );
 
     await waitFor(() => {
       expect(projectLoader.openProjectDialog).toHaveBeenCalledTimes(1);
@@ -631,6 +635,30 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByText('Template-seeded starter scaffold')).toBeInTheDocument();
     expect(
       screen.getByText('A deterministic starter scaffold is present and marked as template-seeded.'),
+    ).toBeInTheDocument();
+  });
+
+  it('explains that Black Skies creates the project folder after the user chooses a save location', async () => {
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(null),
+      loadProject: vi.fn(),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} suppressBootstrap />);
+
+    expect(
+      screen.getByText(
+        'Choose where to save the project. Black Skies creates the project folder automatically.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Choose save location and create blank project/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Choose save location and create starter scaffold/i }),
     ).toBeInTheDocument();
   });
 
