@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-18
+Last Reviewed: 2026-05-19
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -2879,3 +2879,5 @@ Backlog note drifted after phase-log cleanup.
 - [2026-05-19] Phase 23C trust/confidence refinement completed. Intelligence-readiness copy now distinguishes generated, verified, speculative, deferred, and unavailable states with explicit fallback messaging; no live AI behavior, hidden scoring, or output-quality validation was added.
 - [2026-05-19] Phase 23D intelligence panel admission rules and gating implemented in Split Command. The Intelligence Readiness surface now shows the guardrail vocabulary for future intelligence panels: owner, authority level, provenance sources, trust language, fallback behavior, proof class, current-project scope, and a reason not to remain embedded, status-only, or deferred. No live AI behavior, model prompting, or hidden inference was added.
 - [2026-05-19] Phase 23 validation/closure review completed. Phase 23A-23D stayed within intelligence-governance/foundation scope; stable GUI isolation and Split Command flag-gating remained intact; no fake AI, hidden inference, scoring, output-quality claims, or detached-window/two-monitor behavior landed. Phase 23 is closed with exceptions and carries forward deferred output-quality, real-author-material, start-from-scratch, and future intelligence admission gaps.
+- [2026-05-19] Phase 24 final execution plan created at `docs/audits/phase24/phase24_execution_plan.md`. This is docs-only materialization: no runtime code changed, true two-monitor implementation has not begun, stable GUI remains sacred/default, and Split Command remains experimental and flag-gated.
+- [2026-05-19] Phase 25 long-session / large-project hardening plan initialized at `docs/audits/phase25/phase25_execution_plan.md`. The plan now includes explicit evidence-threshold classes, measurable session-duration baselines, memory/resource measurement rules, stability-vs-performance separation, anti-flakiness guardrails, and exit criteria so Phase 25 cannot drift into speculative bug hunting. Runtime behavior has not changed in this pass.
