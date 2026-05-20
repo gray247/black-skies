@@ -7,6 +7,18 @@ export type SplitCommandStateBoundary =
   | 'local-presentation-state'
   | 'ephemeral-ui-state';
 
+export type SplitCommandSecondaryLossReason =
+  | 'closed'
+  | 'crashed'
+  | 'destroyed';
+
+export type SplitCommandPairHealthStatus = 'healthy' | 'secondary-lost' | 'cleared';
+
+export interface SplitCommandPairFallbackState {
+  readonly pairHealthStatus: SplitCommandPairHealthStatus;
+  readonly secondaryLossReason: SplitCommandSecondaryLossReason | null;
+}
+
 export interface SplitCommandPairIdentity {
   readonly pairId: string;
   readonly sessionGeneration: string;
@@ -50,9 +62,11 @@ export interface SplitCommandLifecycleRegistry {
   readonly primaryWindowRegistered: boolean;
   readonly secondaryWindowRegistered: boolean;
   readonly isActive: boolean;
+  readonly fallbackState: SplitCommandPairFallbackState;
   registerPrimaryWindow(): SplitCommandWindowLifecycleState;
   registerSecondaryWindow(): SplitCommandWindowLifecycleState;
   releaseSecondaryWindow(): void;
+  markSecondaryLost(reason: SplitCommandSecondaryLossReason): SplitCommandPairFallbackState;
   createSecondaryLaunchContract(): SplitCommandSecondaryLaunchContract;
   matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
   clear(): void;
@@ -133,7 +147,12 @@ export function buildSplitCommandRuntimeContext(
 export function createSplitCommandSecondaryLaunchContract(
   registry: Pick<
     SplitCommandLifecycleRegistry,
-    'pairIdentity' | 'authority' | 'isActive' | 'primaryWindowRegistered' | 'secondaryWindowRegistered'
+    | 'pairIdentity'
+    | 'authority'
+    | 'isActive'
+    | 'primaryWindowRegistered'
+    | 'secondaryWindowRegistered'
+    | 'fallbackState'
   >,
 ): SplitCommandSecondaryLaunchContract {
   if (!registry.isActive) {
@@ -144,6 +163,9 @@ export function createSplitCommandSecondaryLaunchContract(
   }
   if (registry.secondaryWindowRegistered) {
     throw new Error('Secondary Split command window is already registered.');
+  }
+  if (registry.fallbackState.pairHealthStatus !== 'healthy') {
+    throw new Error('Split command pair is not healthy enough to launch a secondary window.');
   }
 
   const authority = createSplitCommandAuthorityProfile('secondary');
@@ -172,6 +194,10 @@ export function createSplitCommandLifecycleRegistry(
   let primaryWindowRegistered = false;
   let secondaryWindowRegistered = false;
   let active = true;
+  let fallbackState: SplitCommandPairFallbackState = {
+    pairHealthStatus: 'healthy',
+    secondaryLossReason: null,
+  };
 
   function assertActive(): void {
     if (!active) {
@@ -203,6 +229,9 @@ export function createSplitCommandLifecycleRegistry(
     get isActive() {
       return active;
     },
+    get fallbackState() {
+      return fallbackState;
+    },
     registerPrimaryWindow() {
       assertActive();
       if (primaryWindowRegistered) {
@@ -220,6 +249,10 @@ export function createSplitCommandLifecycleRegistry(
         throw new Error('Secondary Split command window is already registered.');
       }
       secondaryWindowRegistered = true;
+      fallbackState = {
+        pairHealthStatus: 'healthy',
+        secondaryLossReason: null,
+      };
       return buildWindowLifecycleState('secondary');
     },
     releaseSecondaryWindow() {
@@ -228,6 +261,17 @@ export function createSplitCommandLifecycleRegistry(
       }
       secondaryWindowRegistered = false;
     },
+    markSecondaryLost(reason: SplitCommandSecondaryLossReason) {
+      if (!active) {
+        return fallbackState;
+      }
+      secondaryWindowRegistered = false;
+      fallbackState = {
+        pairHealthStatus: 'secondary-lost',
+        secondaryLossReason: reason,
+      };
+      return fallbackState;
+    },
     createSecondaryLaunchContract() {
       return createSplitCommandSecondaryLaunchContract({
         pairIdentity: runtimeContext.pairIdentity,
@@ -235,6 +279,7 @@ export function createSplitCommandLifecycleRegistry(
         isActive: active,
         primaryWindowRegistered,
         secondaryWindowRegistered,
+        fallbackState,
       });
     },
     matchesPairIdentity(candidateInput: SplitCommandRuntimeContextInput) {
@@ -251,6 +296,10 @@ export function createSplitCommandLifecycleRegistry(
       active = false;
       primaryWindowRegistered = false;
       secondaryWindowRegistered = false;
+      fallbackState = {
+        pairHealthStatus: 'cleared',
+        secondaryLossReason: null,
+      };
     },
   };
 }

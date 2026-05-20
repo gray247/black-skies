@@ -36,6 +36,7 @@ import { resolveConfiguredServicePort } from './serviceResolution.js';
 import { randomUUID } from 'node:crypto';
 import {
   createSplitCommandLifecycleSeam,
+  type SplitCommandSecondaryLossReason,
   type SplitCommandSecondaryLaunchContract,
   type SplitCommandLifecycleSeam,
 } from '../shared/splitCommandAuthority.js';
@@ -113,6 +114,7 @@ const PYTHON_EXECUTABLE = resolvePythonExecutable();
 
 let mainWindow: BrowserWindow | null = null;
 let splitCommandSecondaryWindow: BrowserWindow | null = null;
+let splitCommandPairTeardownInProgress = false;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 
 let servicesProcess: ServicesProcess | null = null;
@@ -687,12 +689,14 @@ async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   window.on('closed', () => {
+    splitCommandPairTeardownInProgress = true;
     if (splitCommandSecondaryWindow && !splitCommandSecondaryWindow.isDestroyed()) {
       splitCommandSecondaryWindow.destroy();
     }
     splitCommandSecondaryWindow = null;
     splitCommandSecondaryLaunchContract = null;
     splitCommandLifecycleSeam?.clear();
+    splitCommandPairTeardownInProgress = false;
     if (mainWindow === window) {
       mainWindow = null;
     }
@@ -756,16 +760,21 @@ async function createSplitCommandSecondaryWindow(
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('render-process-gone', (_event, details) => {
     console.error('[main] Split command secondary renderer gone', details);
+    noteSplitCommandSecondaryLoss('crashed', details);
   });
   window.on('unresponsive', () => {
     console.error('[main] Split command secondary BrowserWindow became unresponsive.');
   });
   window.on('closed', () => {
-    if (splitCommandSecondaryWindow === window) {
-      splitCommandSecondaryWindow = null;
+    if (splitCommandPairTeardownInProgress) {
+      if (splitCommandSecondaryWindow === window) {
+        splitCommandSecondaryWindow = null;
+      }
+      splitCommandSecondaryLaunchContract = null;
+      splitCommandLifecycleSeam?.registry.releaseSecondaryWindow();
+      return;
     }
-    splitCommandSecondaryLaunchContract = null;
-    splitCommandLifecycleSeam?.registry.releaseSecondaryWindow();
+    noteSplitCommandSecondaryLoss('closed');
   });
 
   console.log('[main] loading split command secondary', START_URL);
@@ -794,6 +803,31 @@ async function createSplitCommandSecondaryWindow(
   }
 
   return window;
+}
+
+function noteSplitCommandSecondaryLoss(
+  reason: SplitCommandSecondaryLossReason,
+  details?: unknown,
+): void {
+  if (!splitCommandLifecycleSeam || !splitCommandSecondaryWindow) {
+    return;
+  }
+
+  const fallbackState = splitCommandLifecycleSeam.registry.markSecondaryLost(reason);
+  ensureMainLogger().warn('Split command secondary window lost', {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    reason,
+    fallbackState,
+    details,
+  });
+
+  splitCommandSecondaryLaunchContract = null;
+
+  const secondaryWindow = splitCommandSecondaryWindow;
+  splitCommandSecondaryWindow = null;
+  if (!secondaryWindow.isDestroyed()) {
+    secondaryWindow.destroy();
+  }
 }
 
 async function bootstrap(): Promise<void> {

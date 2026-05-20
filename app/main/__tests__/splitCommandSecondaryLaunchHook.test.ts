@@ -19,11 +19,21 @@ class BrowserWindowMock {
   readonly options: BrowserWindowConstructorOptions;
   readonly webContents = {
     setWindowOpenHandler: vi.fn(),
-    on: vi.fn(),
+    on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+      const handlers = this.webContentsListeners.get(event) ?? [];
+      handlers.push(handler);
+      this.webContentsListeners.set(event, handlers);
+    }),
+    emit: (event: string, ...args: unknown[]): void => {
+      for (const handler of this.webContentsListeners.get(event) ?? []) {
+        handler(...args);
+      }
+    },
     openDevTools: vi.fn(),
   };
 
   private readonly listeners = new Map<string, Array<(...args: unknown[]) => void>>();
+  private readonly webContentsListeners = new Map<string, Array<(...args: unknown[]) => void>>();
   private destroyed = false;
 
   constructor(options: BrowserWindowConstructorOptions) {
@@ -261,5 +271,51 @@ describe('main split command launch hook', () => {
       ]),
     );
     expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it('marks the pair degraded when the secondary BrowserWindow closes and blocks silent respawn', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+
+    secondaryWindow.emit('closed');
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command secondary window lost',
+      expect.objectContaining({
+        reason: 'closed',
+        fallbackState: {
+          pairHealthStatus: 'secondary-lost',
+          secondaryLossReason: 'closed',
+        },
+      }),
+    );
+    expect(primaryWindow.isDestroyed()).toBe(false);
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+    expect(browserWindowState.instances).toHaveLength(2);
+  });
+
+  it('marks the pair degraded when the secondary renderer crashes', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    const [, secondaryWindow] = browserWindowState.instances;
+    secondaryWindow.webContents.emit('render-process-gone', {}, { reason: 'crashed' });
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command secondary window lost',
+      expect.objectContaining({
+        reason: 'crashed',
+        fallbackState: {
+          pairHealthStatus: 'secondary-lost',
+          secondaryLossReason: 'crashed',
+        },
+      }),
+    );
+    expect(secondaryWindow.isDestroyed()).toBe(true);
   });
 });

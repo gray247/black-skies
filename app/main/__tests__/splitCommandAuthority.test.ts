@@ -147,6 +147,10 @@ describe('splitCommandAuthority', () => {
     expect(registry.isActive).toBe(false);
     expect(registry.primaryWindowRegistered).toBe(false);
     expect(registry.secondaryWindowRegistered).toBe(false);
+    expect(registry.fallbackState).toEqual({
+      pairHealthStatus: 'cleared',
+      secondaryLossReason: null,
+    });
     expect(
       registry.matchesPairIdentity({
         sessionGeneration: 'session-123',
@@ -225,5 +229,36 @@ describe('splitCommandAuthority', () => {
         requiresLivePrimaryPair: true,
       }),
     );
+  });
+
+  it('marks the pair as degraded when the secondary is lost and blocks respawn until cleared', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    registry.registerPrimaryWindow();
+    registry.registerSecondaryWindow();
+
+    expect(registry.fallbackState).toEqual({
+      pairHealthStatus: 'healthy',
+      secondaryLossReason: null,
+    });
+
+    expect(registry.markSecondaryLost('closed')).toEqual({
+      pairHealthStatus: 'secondary-lost',
+      secondaryLossReason: 'closed',
+    });
+    expect(registry.secondaryWindowRegistered).toBe(false);
+
+    expect(() => createSplitCommandSecondaryLaunchContract(registry)).toThrow(
+      'Split command pair is not healthy enough to launch a secondary window.',
+    );
+
+    registry.clear();
+
+    expect(registry.fallbackState).toEqual({
+      pairHealthStatus: 'cleared',
+      secondaryLossReason: null,
+    });
   });
 });
