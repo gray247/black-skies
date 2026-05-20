@@ -604,6 +604,8 @@ import {
 import { loadRuntimeConfig } from '../shared/config/runtime.js';
 import {
   PROJECT_LOADER_CHANNELS,
+  type ProjectBootstrapRequest,
+  type ProjectBootstrapResponse,
   type ProjectDialogResult,
   type ProjectLoadRequest,
   type ProjectLoadResponse,
@@ -1910,6 +1912,10 @@ const projectLoaderApi: ProjectLoaderApi = {
       request,
     );
     return response as ProjectLoadResponse;
+  },
+  async createProject(request: ProjectBootstrapRequest): Promise<ProjectBootstrapResponse> {
+    const response = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.createProject, request);
+    return response as ProjectBootstrapResponse;
   },
   async getSampleProjectPath(): Promise<string | null> {
     if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {

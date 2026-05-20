@@ -171,7 +171,7 @@ describe('ProjectHome recent project recovery', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /Start with an existing project or the sample project/i,
+        name: /Open an existing project or create a new bootstrap project/i,
       }),
     ).toBeInTheDocument();
     expect(
@@ -213,7 +213,7 @@ describe('ProjectHome recent project recovery', () => {
 
     expect(
       screen.queryByRole('heading', {
-        name: /Start with an existing project or the sample project/i,
+        name: /Open an existing project or create a new bootstrap project/i,
       }),
     ).toBeNull();
     expect(screen.getByRole('button', { name: /Open project/i })).toBeEnabled();
@@ -407,6 +407,150 @@ describe('ProjectHome recent project recovery', () => {
       window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
     ) as Array<{ path: string }>;
     expect(storedRecents[0]?.path).toBe(samplePath);
+  });
+
+  it('creates a blank project through the loader-authoritative bootstrap path', async () => {
+    const parentPath = 'C:\\Dev\\black-skies\\projects';
+    const createdPath = 'C:\\Dev\\black-skies\\projects\\proj_blank_story_1234567890';
+    const createProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: {
+        path: createdPath,
+        projectId: 'proj_blank_story_1234567890',
+        name: 'Blank Story',
+        outline: {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'outline_proj_blank_story_1234567890',
+          acts: [],
+          chapters: [],
+          scenes: [],
+        },
+        scenes: [],
+        drafts: {},
+        bootstrapState: 'empty' as const,
+      } satisfies LoadedProject,
+      issues: [],
+    });
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: parentPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(null),
+      createProject: createProjectMock,
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: {
+          path: createdPath,
+          projectId: 'proj_blank_story_1234567890',
+          name: 'Blank Story',
+          outline: {
+            schema_version: 'OutlineSchema v1',
+            outline_id: 'outline_proj_blank_story_1234567890',
+            acts: [],
+            chapters: [],
+            scenes: [],
+          },
+          scenes: [],
+          drafts: {},
+          bootstrapState: 'empty' as const,
+        } satisfies LoadedProject,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
+      target: { value: 'Blank Story' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Create blank project/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.openProjectDialog).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(createProjectMock).toHaveBeenCalledWith({
+        parentPath,
+        title: 'Blank Story',
+        initialState: 'empty',
+      });
+    });
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: createdPath });
+    });
+  });
+
+  it('creates a scaffold-initialized project through the loader-authoritative bootstrap path', async () => {
+    const parentPath = 'C:\\Dev\\black-skies\\projects';
+    const createdPath = 'C:\\Dev\\black-skies\\projects\\proj_story_scaffold_1234567890';
+    const createProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: {
+        path: createdPath,
+        projectId: 'proj_story_scaffold_1234567890',
+        name: 'Story Scaffold',
+        outline: {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'outline_proj_story_scaffold_1234567890',
+          acts: ['Act I'],
+          chapters: [{ id: 'ch_0001', order: 1, title: 'Chapter 1' }],
+          scenes: [{ id: 'sc_0001', order: 1, title: 'Scene 1', chapter_id: 'ch_0001' }],
+        },
+        scenes: [{ id: 'sc_0001', title: 'Scene 1', order: 1, chapter_id: 'ch_0001' }],
+        drafts: { sc_0001: 'starter' },
+        bootstrapState: 'scaffold_initialized' as const,
+        bootstrapTemplate: 'starter-scaffold-v1',
+      } satisfies LoadedProject,
+      issues: [],
+    });
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: parentPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(null),
+      createProject: createProjectMock,
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: {
+          path: createdPath,
+          projectId: 'proj_story_scaffold_1234567890',
+          name: 'Story Scaffold',
+          outline: {
+            schema_version: 'OutlineSchema v1',
+            outline_id: 'outline_proj_story_scaffold_1234567890',
+            acts: ['Act I'],
+            chapters: [{ id: 'ch_0001', order: 1, title: 'Chapter 1' }],
+            scenes: [{ id: 'sc_0001', order: 1, title: 'Scene 1', chapter_id: 'ch_0001' }],
+          },
+          scenes: [{ id: 'sc_0001', title: 'Scene 1', order: 1, chapter_id: 'ch_0001' }],
+          drafts: { sc_0001: 'starter' },
+          bootstrapState: 'scaffold_initialized' as const,
+          bootstrapTemplate: 'starter-scaffold-v1',
+        } satisfies LoadedProject,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: /New project title/i }), {
+      target: { value: 'Story Scaffold' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Create starter scaffold/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.openProjectDialog).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(createProjectMock).toHaveBeenCalledWith({
+        parentPath,
+        title: 'Story Scaffold',
+        initialState: 'scaffold_initialized',
+      });
+    });
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: createdPath });
+    });
   });
 
   it('surfaces project metadata after a successful load', async () => {

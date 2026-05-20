@@ -224,6 +224,7 @@ export default function ProjectHome({
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
   );
+  const [newProjectTitle, setNewProjectTitle] = useState<string>('Untitled Story');
   const sampleAttemptedRef = useRef(false);
   const stalePathsRef = useRef<Set<string>>(new Set());
 
@@ -837,6 +838,100 @@ export default function ProjectHome({
     [loadProjectAtPath, onToast, projectLoader],
   );
 
+  const handleCreateProject = useCallback(
+    async (initialState: 'empty' | 'scaffold_initialized') => {
+      if (!projectLoader?.createProject) {
+        onToast({
+          tone: 'error',
+          title: 'Project creation unavailable',
+          description: 'The desktop bootstrap bridge is offline.',
+        });
+        return;
+      }
+
+      const title = newProjectTitle.trim();
+      if (!title) {
+        onToast({
+          tone: 'warning',
+          title: 'Project title required',
+          description: 'Enter a title before creating a fresh project.',
+        });
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        recordDebugEvent('project-home.create.begin', { title, initialState });
+        const folderChoice = await projectLoader.openProjectDialog();
+        if (folderChoice.canceled || !folderChoice.filePath) {
+          recordDebugEvent('project-home.create.cancelled', { title, initialState });
+          return;
+        }
+        const response = await projectLoader.createProject({
+          parentPath: folderChoice.filePath,
+          title,
+          initialState,
+        });
+        if (!response.ok) {
+          recordDebugEvent('project-home.create.failure', {
+            title,
+            initialState,
+            error: response.error,
+          });
+          const detail = response.error.issues?.find((issue) => issue.detail)?.detail;
+          const description = detail
+            ? `${response.error.message} (${detail})`
+            : response.error.message;
+          onToast({
+            tone: 'error',
+            title: 'Could not create project',
+            description,
+          });
+          notifyIssues(response.error.issues ?? []);
+          return;
+        }
+
+        recordDebugEvent('project-home.create.success', {
+          title,
+          initialState,
+          path: response.project.path,
+        });
+        const loadedProject = await loadProjectAtPath(response.project.path, {
+          reason: 'bootstrap',
+          silent: true,
+          allowFallback: false,
+        });
+        if (loadedProject) {
+          onToast({
+            tone: 'info',
+            title:
+              initialState === 'scaffold_initialized'
+                ? 'Starter scaffold created'
+                : 'Blank project created',
+            description:
+              initialState === 'scaffold_initialized'
+                ? 'The starter scaffold loaded through the loader path.'
+                : 'The blank project loaded through the loader path.',
+          });
+        }
+      } catch (error) {
+        recordDebugEvent('project-home.create.exception', {
+          title,
+          initialState,
+          message: error instanceof Error ? error.message : String(error),
+        });
+        onToast({
+          tone: 'error',
+          title: 'Project creation failed',
+          description: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [loadProjectAtPath, newProjectTitle, notifyIssues, onToast, projectLoader],
+  );
+
   useEffect(() => {
     if (!projectLoader || activeProject || sampleAttemptedRef.current || suppressBootstrap) {
       return;
@@ -940,10 +1035,10 @@ export default function ProjectHome({
         <section className="project-home__welcome" aria-labelledby={welcomeSectionId}>
           <div className="project-home__welcome-copy">
             <p className="project-home__welcome-eyebrow">Welcome</p>
-            <h3 id={welcomeSectionId}>Start with an existing project or the sample project</h3>
+            <h3 id={welcomeSectionId}>Open an existing project or create a new bootstrap project</h3>
             <p>
-              Open a project folder to continue an existing draft, or load the packaged sample
-              project to see the workspace layout and draft flow immediately.
+              Open a project folder to continue an existing draft, or create a fresh blank project
+              or starter scaffold through the loader-authoritative bootstrap path.
             </p>
           </div>
           <div className="project-home__welcome-actions">
@@ -963,6 +1058,39 @@ export default function ProjectHome({
             >
               Quick start with sample project
             </button>
+          </div>
+          <div className="project-home__bootstrap-create">
+            <label className="project-home__bootstrap-create-label" htmlFor="project-home-new-title">
+              New project title
+            </label>
+            <input
+              id="project-home-new-title"
+              className="project-home__bootstrap-create-input"
+              value={newProjectTitle}
+              onChange={(event) => setNewProjectTitle(event.target.value)}
+              spellCheck={false}
+              autoComplete="off"
+              aria-label="New project title"
+            />
+            <div className="project-home__bootstrap-create-actions">
+              <button
+                type="button"
+                className="project-home__welcome-button"
+                data-testid={TID.createProjectBtn}
+                onClick={() => void handleCreateProject('empty')}
+                disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
+              >
+                Choose folder and create blank project
+              </button>
+              <button
+                type="button"
+                className="project-home__welcome-button project-home__welcome-button--secondary"
+                onClick={() => void handleCreateProject('scaffold_initialized')}
+                disabled={!loaderAvailable || isLoading || !projectLoader?.createProject}
+              >
+                Choose folder and create starter scaffold
+              </button>
+            </div>
           </div>
         </section>
       )}

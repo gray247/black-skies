@@ -142,5 +142,6 @@ export interface ProjectDialogResult {
 export interface ProjectLoaderApi {
   openProjectDialog: () => Promise<ProjectDialogResult>;
   loadProject: (request: ProjectLoadRequest) => Promise<ProjectLoadResponse>;
+  createProject?: (request: ProjectBootstrapRequest) => Promise<ProjectBootstrapResponse>;
   getSampleProjectPath?: () => Promise<string | null>;
 }
