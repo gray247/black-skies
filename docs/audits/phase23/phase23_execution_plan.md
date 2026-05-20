@@ -268,3 +268,21 @@ Phase 23 does not claim:
 
 ## Current Scope Note
 Phase 23 is intelligence governance first. If later implementation work is approved, it must use this plan as the contract boundary rather than inventing new authority rules midstream.
+
+## Closure Status
+Phase 23 is closed with exceptions.
+
+Completed work:
+
+- 23A intelligence provenance/authority foundation
+- 23B deterministic Intelligence Readiness surface
+- 23C trust/confidence/fallback refinement
+- 23D intelligence panel admission rules and gating
+
+Deferred carry-forward items remain:
+
+- output-quality validation
+- real-author-material workflow maturity
+- brand-new story-from-scratch workflow
+- detached-window / two-monitor behavior
+- future intelligence surfaces that cannot satisfy the admission contract
