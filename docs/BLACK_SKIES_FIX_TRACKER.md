@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-19
+Last Reviewed: 2026-05-20
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -2881,3 +2881,4 @@ Backlog note drifted after phase-log cleanup.
 - [2026-05-19] Phase 23 validation/closure review completed. Phase 23A-23D stayed within intelligence-governance/foundation scope; stable GUI isolation and Split Command flag-gating remained intact; no fake AI, hidden inference, scoring, output-quality claims, or detached-window/two-monitor behavior landed. Phase 23 is closed with exceptions and carries forward deferred output-quality, real-author-material, start-from-scratch, and future intelligence admission gaps.
 - [2026-05-19] Phase 24 final execution plan created at `docs/audits/phase24/phase24_execution_plan.md`. This is docs-only materialization: no runtime code changed, true two-monitor implementation has not begun, stable GUI remains sacred/default, and Split Command remains experimental and flag-gated.
 - [2026-05-19] Phase 25 long-session / large-project hardening plan initialized at `docs/audits/phase25/phase25_execution_plan.md`. The plan now includes explicit evidence-threshold classes, measurable session-duration baselines, memory/resource measurement rules, stability-vs-performance separation, anti-flakiness guardrails, and exit criteria so Phase 25 cannot drift into speculative bug hunting. Runtime behavior has not changed in this pass.
+- [2026-05-20] Security Audit `Run light-load sanity check` failed on `ubuntu-latest` during `python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service` with `P95 latency 332.43ms` and `P99 latency 453.72ms` over threshold. The failure is not docs-related: the same commit was docs-only, and local reruns of the same command stayed well below threshold (`p95 ~59ms`, `p99 ~64ms`). Current classification: CI-sensitive / transient performance variability in the draft-accept lane, not a proven runtime regression.
