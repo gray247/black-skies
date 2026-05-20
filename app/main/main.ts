@@ -112,6 +112,7 @@ const RESOLVED_PORT_RANGE = resolvePortRange(
 const PYTHON_EXECUTABLE = resolvePythonExecutable();
 
 let mainWindow: BrowserWindow | null = null;
+let splitCommandSecondaryWindow: BrowserWindow | null = null;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 
 let servicesProcess: ServicesProcess | null = null;
@@ -686,6 +687,10 @@ async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   window.on('closed', () => {
+    if (splitCommandSecondaryWindow && !splitCommandSecondaryWindow.isDestroyed()) {
+      splitCommandSecondaryWindow.destroy();
+    }
+    splitCommandSecondaryWindow = null;
     splitCommandSecondaryLaunchContract = null;
     splitCommandLifecycleSeam?.clear();
     if (mainWindow === window) {
@@ -726,6 +731,71 @@ async function createMainWindow(): Promise<BrowserWindow> {
   return window;
 }
 
+async function createSplitCommandSecondaryWindow(
+  contract: SplitCommandSecondaryLaunchContract,
+): Promise<BrowserWindow> {
+  console.log('[main] Creating split command secondary window. projectRoot=', projectRoot);
+  const windowOptions = {
+    width: 1280,
+    height: 840,
+    minWidth: 960,
+    minHeight: 640,
+    show: false,
+    autoHideMenuBar: true,
+    env: { ...process.env, PLAYWRIGHT: '1' },
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      preload: PRELOAD_PATH,
+      additionalArguments: [...contract.launchArguments],
+    },
+  } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
+  const window = new BrowserWindow(windowOptions);
+
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  window.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[main] Split command secondary renderer gone', details);
+  });
+  window.on('unresponsive', () => {
+    console.error('[main] Split command secondary BrowserWindow became unresponsive.');
+  });
+  window.on('closed', () => {
+    if (splitCommandSecondaryWindow === window) {
+      splitCommandSecondaryWindow = null;
+    }
+    splitCommandSecondaryLaunchContract = null;
+    splitCommandLifecycleSeam?.registry.releaseSecondaryWindow();
+  });
+
+  console.log('[main] loading split command secondary', START_URL);
+  try {
+    await window.loadURL(START_URL);
+  } catch (error) {
+    ensureMainLogger().warn('Failed to load split command secondary renderer URL', {
+      error: error instanceof Error ? error.message : String(error),
+      url: START_URL,
+    });
+    if (START_URL !== rendererIndexFile) {
+      try {
+        await window.loadFile(rendererIndexFile);
+      } catch (innerError) {
+        ensureMainLogger().warn('Split command secondary fallback loadFile failed', {
+          error: innerError instanceof Error ? innerError.message : String(innerError),
+          path: rendererIndexFile,
+        });
+        window.destroy();
+        throw innerError instanceof Error ? innerError : new Error(String(innerError));
+      }
+    } else {
+      window.destroy();
+      throw error instanceof Error ? error : new Error(String(error));
+    }
+  }
+
+  return window;
+}
+
 async function bootstrap(): Promise<void> {
   if (mainWindow && !mainWindow.isDestroyed()) {
     if (mainWindow.isMinimized()) {
@@ -739,6 +809,7 @@ async function bootstrap(): Promise<void> {
     await startServices();
     const window = await createMainWindow();
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
+    mainWindow = window;
     if (splitCommandLifecycleSeam) {
       try {
         splitCommandSecondaryLaunchContract =
@@ -747,14 +818,28 @@ async function bootstrap(): Promise<void> {
           pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
           windowRole: splitCommandSecondaryLaunchContract.windowRole,
         });
+        const secondaryWindow = await createSplitCommandSecondaryWindow(
+          splitCommandSecondaryLaunchContract,
+        );
+        try {
+          splitCommandLifecycleSeam.registry.registerSecondaryWindow();
+        } catch (secondaryRegistrationError) {
+          secondaryWindow.destroy();
+          throw secondaryRegistrationError;
+        }
+        splitCommandSecondaryWindow = secondaryWindow;
+        ensureMainLogger().info('Split command secondary window launched', {
+          pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
+          windowRole: splitCommandSecondaryLaunchContract.windowRole,
+        });
       } catch (error) {
         splitCommandSecondaryLaunchContract = null;
+        splitCommandSecondaryWindow = null;
         ensureMainLogger().warn('Split command secondary launch contract unavailable', {
           error: error instanceof Error ? error.message : String(error),
         });
       }
     }
-    mainWindow = window;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';
     ensureMainLogger().error('Bootstrap failed', { message });

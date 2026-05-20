@@ -1,0 +1,265 @@
+import type { BrowserWindowConstructorOptions } from 'electron';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const browserWindowState = {
+  instances: [] as BrowserWindowMock[],
+  failOnInstance: 0,
+};
+
+const logger = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+};
+
+let experimentalSplitCommandWorkspace = false;
+
+class BrowserWindowMock {
+  readonly options: BrowserWindowConstructorOptions;
+  readonly webContents = {
+    setWindowOpenHandler: vi.fn(),
+    on: vi.fn(),
+    openDevTools: vi.fn(),
+  };
+
+  private readonly listeners = new Map<string, Array<(...args: unknown[]) => void>>();
+  private destroyed = false;
+
+  constructor(options: BrowserWindowConstructorOptions) {
+    if (
+      browserWindowState.failOnInstance > 0 &&
+      browserWindowState.instances.length + 1 === browserWindowState.failOnInstance
+    ) {
+      throw new Error('split command secondary launch failed');
+    }
+
+    this.options = options;
+    browserWindowState.instances.push(this);
+  }
+
+  on(event: string, handler: (...args: unknown[]) => void): this {
+    const handlers = this.listeners.get(event) ?? [];
+    handlers.push(handler);
+    this.listeners.set(event, handlers);
+    return this;
+  }
+
+  emit(event: string, ...args: unknown[]): void {
+    for (const handler of this.listeners.get(event) ?? []) {
+      handler(...args);
+    }
+  }
+
+  async loadURL(): Promise<void> {}
+
+  async loadFile(): Promise<void> {}
+
+  isDestroyed(): boolean {
+    return this.destroyed;
+  }
+
+  isMinimized(): boolean {
+    return false;
+  }
+
+  restore(): void {}
+
+  focus(): void {}
+
+  show(): void {}
+
+  destroy(): void {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+    this.emit('closed');
+  }
+}
+
+vi.mock('electron', () => ({
+  app: {
+    isPackaged: false,
+    whenReady: vi.fn(() => Promise.resolve()),
+    on: vi.fn(),
+    quit: vi.fn(),
+    requestSingleInstanceLock: vi.fn(() => true),
+    setAppUserModelId: vi.fn(),
+  },
+  BrowserWindow: BrowserWindowMock,
+  dialog: {
+    showErrorBox: vi.fn(),
+  },
+  ipcMain: {
+    handle: vi.fn(),
+    removeHandler: vi.fn(),
+  },
+  shell: {
+    openPath: vi.fn(),
+  },
+}));
+
+vi.mock('node:fs', () => ({
+  default: {
+    existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
+    statSync: vi.fn(() => ({
+      isFile: () => true,
+    })),
+  },
+  existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
+  statSync: vi.fn(() => ({
+    isFile: () => true,
+  })),
+}));
+
+vi.mock('../logging.js', () => ({
+  getLogger: vi.fn(() => logger),
+  initializeMainLogging: vi.fn(async () => {}),
+  logWithLevel: vi.fn(),
+  getDiagnosticsLogFilePath: vi.fn(() => null),
+  registerRendererLogSink: vi.fn(),
+  shutdownLogging: vi.fn(async () => {}),
+}));
+
+vi.mock('../projectLoaderIpc.js', () => ({
+  registerProjectLoaderIpc: vi.fn(),
+}));
+
+vi.mock('../layoutIpc.js', () => ({
+  registerLayoutIpc: vi.fn(),
+}));
+
+vi.mock('../serviceResolution.js', () => ({
+  resolveConfiguredServicePort: vi.fn(() => null),
+}));
+
+vi.mock('../../shared/config/runtime.js', () => {
+  const defaultRuntimeConfig = {
+    service: {
+      portRange: { min: 43750, max: 43850 },
+      healthProbe: { maxAttempts: 40, baseDelayMs: 250, maxDelayMs: 2000 },
+      allowedPythonExecutables: ['python'],
+      bundledPythonPath: '',
+    },
+    budget: {
+      softLimitUsd: 5,
+      hardLimitUsd: 10,
+      costPer1000WordsUsd: 0.02,
+    },
+    analytics: {
+      emotionIntensity: {},
+      defaultEmotionIntensity: 0.5,
+      pace: { slowThreshold: 1.2, fastThreshold: 0.8 },
+    },
+    ui: {
+      enableDocking: false,
+      defaultPreset: 'standard',
+      experimentalSplitCommandWorkspace: false,
+      hotkeys: {
+        enablePresetHotkeys: true,
+        focusCycleOrder: ['outline', 'draftPreview', 'storyInsights', 'corkboard', 'timeline', 'critique'],
+      },
+    },
+  } as const;
+
+  return {
+    DEFAULT_HEALTH_PROBE: defaultRuntimeConfig.service.healthProbe,
+    DEFAULT_SERVICE_PORT_RANGE: defaultRuntimeConfig.service.portRange,
+    DEFAULT_RUNTIME_CONFIG: defaultRuntimeConfig,
+    loadRuntimeConfig: vi.fn(() => ({
+      ...defaultRuntimeConfig,
+      ui: {
+        ...defaultRuntimeConfig.ui,
+        experimentalSplitCommandWorkspace,
+      },
+    })),
+  };
+});
+
+async function loadMainModule(): Promise<void> {
+  await import('../main');
+  await new Promise((resolve) => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
+}
+
+describe('main split command launch hook', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    browserWindowState.instances = [];
+    browserWindowState.failOnInstance = 0;
+    experimentalSplitCommandWorkspace = false;
+    process.env.PLAYWRIGHT = '1';
+    delete process.env.BLACKSKIES_FORCE_SERVICES;
+    delete process.env.BLACKSKIES_SERVICES_PORT;
+    delete process.env.BLACKSKIES_CONFIG_PATH;
+  });
+
+  afterEach(() => {
+    delete process.env.PLAYWRIGHT;
+    delete process.env.BLACKSKIES_FORCE_SERVICES;
+    delete process.env.BLACKSKIES_SERVICES_PORT;
+    delete process.env.BLACKSKIES_CONFIG_PATH;
+  });
+
+  it('keeps the stable path at one BrowserWindow with no secondary launch', async () => {
+    experimentalSplitCommandWorkspace = false;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
+    const [primaryWindow] = browserWindowState.instances;
+    expect(primaryWindow.options.webPreferences.additionalArguments).toEqual([]);
+  });
+
+  it('launches a secondary BrowserWindow only in experimental mode', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+
+    expect(primaryWindow.options.webPreferences.additionalArguments).toEqual(
+      expect.arrayContaining([
+        '--blackskies-split-command-role=primary',
+        expect.stringMatching(/^--blackskies-split-command-pair-id=split-command:/),
+        expect.stringMatching(/^--blackskies-split-command-session-generation=/),
+        '--blackskies-split-command-shared-session-owner=primary',
+        '--blackskies-split-command-local-presentation-owner=primary',
+        '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
+      ]),
+    );
+    expect(secondaryWindow.options.show).toBe(false);
+    expect(secondaryWindow.options.webPreferences.additionalArguments).toEqual(
+      expect.arrayContaining([
+        '--blackskies-split-command-role=secondary',
+        expect.stringMatching(/^--blackskies-split-command-pair-id=split-command:/),
+        expect.stringMatching(/^--blackskies-split-command-session-generation=/),
+        '--blackskies-split-command-shared-session-owner=primary',
+        '--blackskies-split-command-local-presentation-owner=secondary',
+        '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
+      ]),
+    );
+  });
+
+  it('degrades safely when the secondary BrowserWindow cannot be created', async () => {
+    experimentalSplitCommandWorkspace = true;
+    browserWindowState.failOnInstance = 2;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
+    expect(browserWindowState.instances[0].options.webPreferences.additionalArguments).toEqual(
+      expect.arrayContaining([
+        '--blackskies-split-command-role=primary',
+        expect.stringMatching(/^--blackskies-split-command-pair-id=split-command:/),
+        expect.stringMatching(/^--blackskies-split-command-session-generation=/),
+        '--blackskies-split-command-shared-session-owner=primary',
+        '--blackskies-split-command-local-presentation-owner=primary',
+        '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
+      ]),
+    );
+    expect(logger.warn).toHaveBeenCalled();
+  });
+});

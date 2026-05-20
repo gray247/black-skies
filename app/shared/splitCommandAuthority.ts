@@ -52,6 +52,7 @@ export interface SplitCommandLifecycleRegistry {
   readonly isActive: boolean;
   registerPrimaryWindow(): SplitCommandWindowLifecycleState;
   registerSecondaryWindow(): SplitCommandWindowLifecycleState;
+  releaseSecondaryWindow(): void;
   createSecondaryLaunchContract(): SplitCommandSecondaryLaunchContract;
   matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
   clear(): void;
@@ -132,7 +133,7 @@ export function buildSplitCommandRuntimeContext(
 export function createSplitCommandSecondaryLaunchContract(
   registry: Pick<
     SplitCommandLifecycleRegistry,
-    'pairIdentity' | 'authority' | 'isActive' | 'primaryWindowRegistered'
+    'pairIdentity' | 'authority' | 'isActive' | 'primaryWindowRegistered' | 'secondaryWindowRegistered'
   >,
 ): SplitCommandSecondaryLaunchContract {
   if (!registry.isActive) {
@@ -140,6 +141,9 @@ export function createSplitCommandSecondaryLaunchContract(
   }
   if (!registry.primaryWindowRegistered) {
     throw new Error('Primary Split command window must be registered before secondary launch.');
+  }
+  if (registry.secondaryWindowRegistered) {
+    throw new Error('Secondary Split command window is already registered.');
   }
 
   const authority = createSplitCommandAuthorityProfile('secondary');
@@ -201,13 +205,28 @@ export function createSplitCommandLifecycleRegistry(
     },
     registerPrimaryWindow() {
       assertActive();
+      if (primaryWindowRegistered) {
+        throw new Error('Primary Split command window is already registered.');
+      }
       primaryWindowRegistered = true;
       return buildWindowLifecycleState('primary');
     },
     registerSecondaryWindow() {
       assertActive();
+      if (!primaryWindowRegistered) {
+        throw new Error('Primary Split command window must be registered before secondary registration.');
+      }
+      if (secondaryWindowRegistered) {
+        throw new Error('Secondary Split command window is already registered.');
+      }
       secondaryWindowRegistered = true;
       return buildWindowLifecycleState('secondary');
+    },
+    releaseSecondaryWindow() {
+      if (!active) {
+        return;
+      }
+      secondaryWindowRegistered = false;
     },
     createSecondaryLaunchContract() {
       return createSplitCommandSecondaryLaunchContract({
@@ -215,6 +234,7 @@ export function createSplitCommandLifecycleRegistry(
         authority: runtimeContext.authority,
         isActive: active,
         primaryWindowRegistered,
+        secondaryWindowRegistered,
       });
     },
     matchesPairIdentity(candidateInput: SplitCommandRuntimeContextInput) {

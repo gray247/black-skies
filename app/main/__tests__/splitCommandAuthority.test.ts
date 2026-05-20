@@ -136,6 +136,7 @@ describe('splitCommandAuthority', () => {
       }),
     ).toBe(false);
 
+    registry.registerPrimaryWindow();
     const secondaryState = registry.registerSecondaryWindow();
     expect(secondaryState.authority.sharedSessionTruthOwner).toBe('primary');
     expect(secondaryState.authority.localPresentationStateOwner).toBe('secondary');
@@ -203,5 +204,26 @@ describe('splitCommandAuthority', () => {
     expect(() =>
       createSplitCommandSecondaryLaunchContract(registry),
     ).toThrow('Split command lifecycle registry has been cleared.');
+  });
+
+  it('releases only the secondary registration without losing primary authority', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    registry.registerPrimaryWindow();
+    registry.registerSecondaryWindow();
+    registry.releaseSecondaryWindow();
+
+    expect(registry.primaryWindowRegistered).toBe(true);
+    expect(registry.secondaryWindowRegistered).toBe(false);
+    expect(
+      createSplitCommandSecondaryLaunchContract(registry),
+    ).toEqual(
+      expect.objectContaining({
+        windowRole: 'secondary',
+        requiresLivePrimaryPair: true,
+      }),
+    );
   });
 });
