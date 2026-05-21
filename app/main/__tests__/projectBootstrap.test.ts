@@ -365,4 +365,30 @@ describe('project bootstrap contract', () => {
       code: 'INVALID_PARENT_PATH',
     });
   });
+
+  it('fails closed when the selected create location is inside an existing project root', async () => {
+    const existingProject = await bootstrapFreshProject({
+      parentPath: workspaceRoot,
+      title: 'Existing Story',
+    });
+    const nestedParent = join(existingProject.projectPath, 'nested-save-location');
+
+    await expect(
+      bootstrapFreshProject({
+        parentPath: nestedParent,
+        title: 'Nested Story',
+      }),
+    ).rejects.toMatchObject({
+      code: 'NESTED_PROJECT_ROOT',
+    });
+
+    await expect(stat(nestedParent)).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+    expect((await stat(existingProject.projectPath)).isDirectory()).toBe(true);
+    expect(await readJson(join(existingProject.projectPath, 'project.json'))).toMatchObject({
+      project_id: existingProject.projectId,
+      name: 'Existing Story',
+    });
+  });
 });

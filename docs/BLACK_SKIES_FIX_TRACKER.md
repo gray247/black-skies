@@ -2987,6 +2987,10 @@ Backlog note drifted after phase-log cleanup.
   - loaded disk drafts are now treated as persisted baseline state instead of local edits, so `dirty` / `unsaved` only appear after a real user edit or explicit override,
   - the App/ProjectHome draft handoff now removes edits that match the persisted baseline instead of retaining them as false dirty state,
   - empty loaded projects remain classified as clean/persisted and the remaining smoke blockers are unchanged.
+- [2026-05-21] Phase 27 smoke-failure fix pass 2 started:
+  - create-project/bootstrap now fails closed when the selected save location is already inside an existing project root, including the selected root itself,
+  - open-path nested correction remains in place for loader-opened projects, but create requests now return a visible `NESTED_PROJECT_ROOT` failure instead of silently nesting a new project folder,
+  - targeted main/renderer tests cover the guard and the existing open correction path; human smoke still remains paused until the remaining blocker pass is addressed.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

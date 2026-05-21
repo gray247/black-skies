@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { ipcMain } from 'electron';
 
 const fsMock = vi.hoisted(() => ({
   access: vi.fn(),
@@ -31,6 +32,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 import {
+  registerProjectLoaderIpc,
   extractFrontMatter,
   parseFrontMatterValue,
   readProjectMetadata,
@@ -47,6 +49,7 @@ describe('projectLoaderIpc helpers', () => {
     fsMock.mkdir.mockReset();
     fsMock.rm.mockReset();
     fsMock.writeFile.mockReset();
+    vi.mocked(ipcMain.handle).mockReset();
   });
 
   it('extractFrontMatter parses scalar and array values', () => {
@@ -143,5 +146,47 @@ Scene body`;
         message: 'Selected folder was nested inside a project root.',
       }),
     ]);
+  });
+
+  it('rejects create-project requests when the selected parent is already nested inside a project root', async () => {
+    const existingProjectRoot = join(tmpdir(), 'black-skies-ipc-create-root');
+    const nestedParent = join(existingProjectRoot, 'nested-save-location');
+
+    fsMock.access.mockImplementation(async (filePath: string) => {
+      if (
+        filePath === join(existingProjectRoot, 'outline.json') ||
+        filePath === join(existingProjectRoot, 'project.json')
+      ) {
+        return undefined;
+      }
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    });
+
+    registerProjectLoaderIpc();
+
+    const createHandler = vi.mocked(ipcMain.handle).mock.calls.find(
+      ([channel]) => channel === 'project-loader:create-project',
+    )?.[1];
+    expect(createHandler).toBeTypeOf('function');
+
+    const response = await (createHandler as (event: unknown, request: unknown) => Promise<unknown>)(
+      {},
+      {
+        parentPath: nestedParent,
+        title: 'Nested Story',
+      },
+    );
+
+    expect(response).toMatchObject({
+      ok: false,
+      error: {
+        code: 'NESTED_PROJECT_ROOT',
+      },
+    });
+    expect(fsMock.mkdir).not.toHaveBeenCalled();
+    expect(vi.mocked(ipcMain.handle)).toHaveBeenCalledWith(
+      'project-loader:create-project',
+      expect.any(Function),
+    );
   });
 });

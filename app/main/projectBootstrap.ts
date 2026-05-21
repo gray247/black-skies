@@ -13,6 +13,7 @@ export type ProjectBootstrapState = 'empty' | 'scaffold_initialized';
 export type ProjectBootstrapErrorCode =
   | 'INVALID_PARENT_PATH'
   | 'INVALID_TITLE'
+  | 'NESTED_PROJECT_ROOT'
   | 'PROJECT_CONFLICT'
   | 'BOOTSTRAP_FAILED';
 
@@ -180,6 +181,22 @@ export async function bootstrapFreshProject(
     throw new ProjectBootstrapError('Project title is required.', 'INVALID_TITLE');
   }
 
+  const nestedProjectRoot = await findContainingProjectRoot(parentPath);
+  if (nestedProjectRoot) {
+    throw new ProjectBootstrapError(
+      'Selected folder is inside an existing project root.',
+      'NESTED_PROJECT_ROOT',
+      [
+        {
+          level: 'error',
+          message: 'Selected folder is inside an existing project root.',
+          detail: `Choose a folder outside ${nestedProjectRoot}.`,
+          path: parentPath,
+        },
+      ],
+    );
+  }
+
   try {
     await mkdir(parentPath, { recursive: true });
   } catch (error) {
@@ -289,4 +306,25 @@ async function createWorkspaceSkeletonWithIdentity(
   }
 
   await writeJsonAtomic(join(workspacePath, 'outline.json'), buildBlankOutline(projectId));
+}
+
+async function findContainingProjectRoot(targetPath: string): Promise<string | null> {
+  let currentPath = resolve(targetPath);
+
+  while (true) {
+    if (
+      (await pathExists(join(currentPath, 'outline.json'))) &&
+      (await pathExists(join(currentPath, 'project.json')))
+    ) {
+      return currentPath;
+    }
+
+    const parentPath = dirname(currentPath);
+    if (parentPath === currentPath) {
+      break;
+    }
+    currentPath = parentPath;
+  }
+
+  return null;
 }

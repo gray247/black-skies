@@ -126,6 +126,7 @@ export interface ProjectBootstrapFailure {
     code:
       | 'INVALID_PARENT_PATH'
       | 'INVALID_TITLE'
+      | 'NESTED_PROJECT_ROOT'
       | 'PROJECT_CONFLICT'
       | 'PROJECT_INVALID'
       | 'PROJECT_UNSUPPORTED_VERSION'
