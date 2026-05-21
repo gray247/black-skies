@@ -1,6 +1,6 @@
 # Phase 27 Human Validation Checklist
 
-Status: Draft
+Status: Closed
 Date: 2026-05-20
 
 ## Purpose
@@ -71,6 +71,15 @@ Phase 27 human smoke already found several real GUI issues, but only a subset we
 - The current shell is transitional and not the final writer-focused editor.
 
 These items are preserved for later roadmap phases and must not be used to expand Phase 27 into a cosmetic GUI redesign pass.
+
+## Final Human Smoke Result
+
+- Clean fixture passed on `sample_project/proj_smoke-final_7540da0299`.
+- `Esther_Estate` edit/reopen flow passed.
+- Dirty-state truth passed: no false `dirty` / `unsaved` before edit, and local edits still surface correctly.
+- Scene stability passed: no observed startup ping-pong during the smoke run.
+- Pane usability was sufficient for validation after the layout recovery pass.
+- Phase 27 human smoke is therefore accepted as complete for closure purposes.
 
 ## Evidence Notes
 

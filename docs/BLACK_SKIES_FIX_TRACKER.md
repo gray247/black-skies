@@ -3005,6 +3005,11 @@ Backlog note drifted after phase-log cleanup.
   - Phase 27 blockers are the already-fixed false dirty/unsaved-before-edit, nested project creation, active-scene flicker, and smoke-blocking pane collapse issues,
   - relocation popup overlap and floating-pane awkwardness are watch-only unless they become validation blockers,
   - crowded panes, always-visible control overload, raw metadata presentation, mashed button/task surfaces, and other writer-focused redesign concerns are future GUI debt for later roadmap phases and must not expand Phase 27 scope.
+- [2026-05-21] Phase 27 closure recorded after human smoke passed:
+  - the canonical clean smoke baseline `sample_project/proj_smoke-final_7540da0299` passed validation,
+  - the Esther Estate edit/reopen flow passed with corrected dirty-state truth,
+  - scene stability remained stable during the smoke run and pane usability was sufficient for validation,
+  - Phase 27 is now closed as a runtime truth / session lifecycle / authoring continuity phase, while relocation-popup overlap, floating-pane awkwardness, and broader writer-focused GUI redesign debt remain deferred or watch-only for later roadmap work.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
