@@ -28,6 +28,7 @@ let mockLoadedProjectId: string | undefined;
 let mockLoadedProjectPath: string | undefined;
 let mockLoadedProjectName: string | undefined;
 let mockLoadedProjectScenes: Array<{ id: string; title: string; order: number }> | undefined;
+let mockLoadedProjectDrafts: Record<string, string> | undefined;
 let mockActiveSceneId: string | undefined;
 
 beforeEach(() => {
@@ -100,12 +101,22 @@ function ProjectHomeMock({
   );
   const projectPath = mockLoadedProjectPath ?? '/projects/demo';
   const projectName = mockLoadedProjectName ?? 'Demo Project';
+  const projectDrafts = useMemo(() => mockLoadedProjectDrafts ?? {}, []);
   const bodyActiveSceneId =
     typeof document !== 'undefined' ? document.body?.dataset.activeSceneId ?? null : null;
   const activeSceneId = requestedActiveSceneId ?? bodyActiveSceneId ?? mockActiveSceneId ?? null;
   const activeScene =
     scenes.find((scene) => scene.id === activeSceneId) ?? scenes[0] ?? null;
-  const currentDraft = activeScene ? draftOverrides?.[activeScene.id] ?? '' : '';
+  const overrideDraft = activeScene ? draftOverrides?.[activeScene.id] : undefined;
+  const diskDraft = activeScene ? projectDrafts[activeScene.id] : undefined;
+  const currentDraft =
+    activeScene ? overrideDraft ?? diskDraft ?? '' : '';
+  const activeSceneDraftSource =
+    typeof overrideDraft === 'string'
+      ? 'override'
+      : typeof diskDraft === 'string'
+        ? 'disk'
+        : 'fallback';
 
   useEffect(() => {
     if (lastLoadedProjectPathRef.current !== projectPath) {
@@ -132,14 +143,13 @@ function ProjectHomeMock({
           title: scene.title,
           order: scene.order,
         })),
-        drafts: {},
+        drafts: { ...projectDrafts },
       } satisfies LoadedProject);
     }
 
     if (!activeScene) {
       return;
     }
-
     const activeDraftKey = `${activeScene.id}:${currentDraft}`;
     if (lastDraftRef.current === activeDraftKey) {
       return;
@@ -150,12 +160,13 @@ function ProjectHomeMock({
       sceneTitle: activeScene.title,
       draft: currentDraft,
     });
-    if (currentDraft) {
+    if (activeSceneDraftSource === 'override' && currentDraft) {
       onDraftChange?.(activeScene.id, currentDraft);
     }
   }, [
     activeScene,
     currentDraft,
+    activeSceneDraftSource,
     draftOverrides,
     onActiveSceneChange,
     onDraftChange,
@@ -163,6 +174,7 @@ function ProjectHomeMock({
     projectName,
     projectPath,
     requestedActiveSceneId,
+    projectDrafts,
     scenes,
   ]);
 
@@ -170,6 +182,7 @@ function ProjectHomeMock({
     <div
       data-testid="project-home-mock"
       data-active-scene-id={activeScene?.id ?? ''}
+      data-draft-override-count={Object.keys(draftOverrides ?? {}).length}
     >
       {currentDraft}
     </div>
@@ -380,6 +393,7 @@ describe('App preflight integration', () => {
     mockLoadedProjectPath = undefined;
     mockLoadedProjectName = undefined;
     mockLoadedProjectScenes = undefined;
+    mockLoadedProjectDrafts = undefined;
     mockActiveSceneId = undefined;
   });
 
@@ -1068,6 +1082,62 @@ describe('App preflight integration', () => {
     expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
   });
 
+  it('keeps loaded persisted drafts out of the dirty override bucket on initial open', async () => {
+    const projectPath = '/projects/demo';
+    const persistedDraft = 'Persisted scene body from disk.';
+    mockLoadedProjectPath = projectPath;
+    mockLoadedProjectName = 'Demo Project';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+    ];
+    mockLoadedProjectDrafts = {
+      sc_0001: persistedDraft,
+    };
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn(),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: {
+          path: projectPath,
+          name: 'Demo Project',
+          outline: {
+            schema_version: 'OutlineSchema v1',
+            outline_id: 'out_demo',
+            acts: [],
+            chapters: [],
+            scenes: [
+              {
+                id: 'sc_0001',
+                order: 1,
+                title: 'Arrival',
+                chapter_id: 'ch_0001',
+                beat_refs: [],
+              },
+            ],
+          },
+          scenes: [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
+          drafts: {
+            sc_0001: persistedDraft,
+          },
+        } satisfies LoadedProject,
+        issues: [],
+      }),
+    };
+
+    const App = loadAppWithServices(services, { projectLoader });
+
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-draft-override-count', '0'),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveTextContent(persistedDraft),
+    );
+  });
+
   it('hydrates floated draft preview from the shared live state instead of stale disk text', async () => {
     const generatedText = 'Mara steadied her breath as the corridor held still.';
     const projectPath = '/projects/demo';
@@ -1122,7 +1192,6 @@ describe('App preflight integration', () => {
       updatedAt: Date.now(),
     };
 
-    writeDraftPreviewSyncState(projectPath, sharedState);
     window.history.pushState(null, '', `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(projectPath)}`);
 
     const App = loadAppWithServices(services, { projectLoader });
@@ -1130,6 +1199,8 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await waitFor(() => expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: projectPath }));
+    writeDraftPreviewSyncState(projectPath, sharedState);
+    dispatchDraftPreviewStorageEvent(projectPath);
     await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedText));
     expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
     expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');

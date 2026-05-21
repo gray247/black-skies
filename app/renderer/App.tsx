@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useReducer } from "react";
+import { useLayoutEffect } from "react";
 
 import ProjectHome, {
   type ActiveScenePayload,
@@ -573,6 +574,7 @@ export default function App(): JSX.Element {
   const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
   const currentProjectRef = useRef<LoadedProject | null>(null);
   const pendingSceneSelectionRef = useRef<string | null>(null);
+  const suppressHydrationDraftChangeRef = useRef(false);
   const testSetProjectLoadRequestRef = useRef(0);
   const isVisualHomeMode = isVisualMode && currentProject === null;
   const draftPreviewSyncSourceIdRef = useRef(
@@ -933,7 +935,7 @@ export default function App(): JSX.Element {
   }, [projectSummary?.path]);
 
   const projectDraftsRef = useRef<Record<string, string>>({});
-  useEffect(() => {
+  useLayoutEffect(() => {
     projectDraftsRef.current = projectDrafts;
   }, [projectDrafts]);
 
@@ -1481,10 +1483,12 @@ export default function App(): JSX.Element {
       const unitIds = project.scenes.map((scene) => scene.id);
 
       const projectWithId: TrackedLoadedProject = { ...project, projectId };
+      currentProjectRef.current = projectWithId;
+      suppressHydrationDraftChangeRef.current = true;
       setCurrentProject(projectWithId);
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
-      setDraftEdits({ ...canonicalDrafts });
+      setDraftEdits({});
       projectDraftsRef.current = canonicalDrafts;
 
       let nextScene: { id: string; title: string | null } | null = null;
@@ -2035,8 +2039,24 @@ export default function App(): JSX.Element {
       const nextScene = { id: payload.sceneId, title: payload.sceneTitle };
       return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
     });
+    if (suppressHydrationDraftChangeRef.current) {
+      suppressHydrationDraftChangeRef.current = false;
+      return;
+    }
     setDraftEdits((previous) => {
-      if (Object.prototype.hasOwnProperty.call(previous, payload.sceneId)) {
+      const baselineDraft =
+        projectDraftsRef.current[payload.sceneId] ??
+        currentProjectRef.current?.drafts[payload.sceneId] ??
+        '';
+      if (payload.draft === baselineDraft) {
+        if (!Object.prototype.hasOwnProperty.call(previous, payload.sceneId)) {
+          return previous;
+        }
+        const nextDraftEdits = { ...previous };
+        delete nextDraftEdits[payload.sceneId];
+        return nextDraftEdits;
+      }
+      if (previous[payload.sceneId] === payload.draft) {
         return previous;
       }
       return { ...previous, [payload.sceneId]: payload.draft };
@@ -2045,6 +2065,16 @@ export default function App(): JSX.Element {
 
   const handleDraftChange = useCallback((sceneId: string, draft: string) => {
     setDraftEdits((previous) => {
+      const baselineDraft =
+        projectDraftsRef.current[sceneId] ?? currentProjectRef.current?.drafts[sceneId] ?? '';
+      if (draft === baselineDraft) {
+        if (!Object.prototype.hasOwnProperty.call(previous, sceneId)) {
+          return previous;
+        }
+        const nextDraftEdits = { ...previous };
+        delete nextDraftEdits[sceneId];
+        return nextDraftEdits;
+      }
       if (previous[sceneId] === draft) {
         return previous;
       }

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ProjectHome from '../components/ProjectHome';
@@ -802,6 +803,89 @@ describe('ProjectHome recent project recovery', () => {
     expect(sessionTruth).toHaveTextContent('Lifecycle state: editing');
     expect(sessionTruth).toHaveTextContent('Signal classification: clean');
     expect(sessionTruth).toHaveTextContent('Draft/session state: persisted, partial, dirty, unsaved');
+  });
+
+  it('keeps a loaded persisted-draft project clean until the user edits the draft editor', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath);
+    let applyDraftEdit: ((draft: string) => void) | null = null;
+    const DraftOverridesHarness = () => {
+      const [draftOverrides, setDraftOverrides] = useState<Record<string, string>>({});
+      applyDraftEdit = (draft: string) => {
+        setDraftOverrides((previous) => ({ ...previous, sc_0001: draft }));
+      };
+      return (
+        <ProjectHome
+          onToast={vi.fn()}
+          onProjectLoaded={vi.fn()}
+          onDraftChange={(sceneId, draft) => {
+            setDraftOverrides((previous) => ({ ...previous, [sceneId]: draft }));
+          }}
+          draftOverrides={draftOverrides}
+        />
+      );
+    };
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<DraftOverridesHarness />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
+    expect(sessionTruth).toHaveTextContent('Signal classification: clean');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted');
+    expect(sessionTruth).toHaveTextContent('Lifecycle state: draft-hydrated');
+
+    expect(applyDraftEdit).not.toBeNull();
+    act(() => {
+      applyDraftEdit?.('# Scene One\n\nUpdated draft text.');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('status', { name: /Session truth/i })).toHaveTextContent(
+        'Draft/session state: persisted, dirty, unsaved',
+      );
+    });
+  });
+
+  it('keeps an empty loaded project clean and persisted', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createBootstrapStateProject(samplePath, 'empty'),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
+    expect(sessionTruth).toHaveTextContent('Signal classification: clean');
+    expect(sessionTruth).toHaveTextContent('Draft/session state: persisted');
+    expect(sessionTruth).not.toHaveTextContent('dirty');
+    expect(sessionTruth).not.toHaveTextContent('unsaved');
   });
 
   it('keeps the main-process baseline classifications visible across a reopen boundary', async () => {
