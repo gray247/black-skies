@@ -45,6 +45,33 @@ It is intentionally narrow and does not validate save/export/autosave, recovery 
 - Multi-window promotion.
 - Split Command promotion.
 
+## Phase 27 UX Debt Classification
+
+Phase 27 human smoke already found several real GUI issues, but only a subset were Phase 27 blockers.
+
+### Phase 27 blockers already fixed
+
+- False dirty/unsaved before edit.
+- Nested project creation.
+- Active-scene flicker.
+- Pane collapse that made smoke validation impossible.
+
+### Phase 27 watch-only
+
+- Relocation popup overlap.
+- Floating pane awkwardness when it does not block validation.
+
+### Future GUI redesign debt
+
+- Crowded panes.
+- Too many always-visible controls.
+- Metadata presented as raw data instead of writer-useful information.
+- Buttons and tasks mashed together.
+- Need for file, dropdown, and contextual systems.
+- The current shell is transitional and not the final writer-focused editor.
+
+These items are preserved for later roadmap phases and must not be used to expand Phase 27 into a cosmetic GUI redesign pass.
+
 ## Evidence Notes
 
 - Record the exact project path and project state used for each smoke step.
