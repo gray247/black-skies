@@ -2997,6 +2997,10 @@ Backlog note drifted after phase-log cleanup.
 - [2026-05-21] Phase 27 smoke-failure fix pass 4 started:
   - `sample_project/proj_smoke-final_7540da0299` is the canonical clean smoke baseline for Phase 27 human validation,
   - the validation checklist now says to expect `project-loaded`, `clean`, and `persisted` on open, with no `dirty` / `unsaved` until a real local edit occurs.
+- [2026-05-21] Phase 27 smoke-remediation pass 5 started:
+  - `ProjectHome` now wraps its main/sidebar layout when the pane gets narrow enough that the scene metadata column would otherwise collapse into an unusable strip,
+  - floating layout bounds now clamp to a more usable minimum window size so detached panes open at a readable size instead of inheriting a cramped dock rectangle,
+  - targeted browser/e2e and main-layout tests now cover the responsive sidebar recovery and the floating-window minimum-size clamp.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

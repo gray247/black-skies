@@ -234,8 +234,8 @@ export function clampBoundsToDisplay(
     targetDisplay = screen.getDisplayMatching(bounds) ?? screen.getPrimaryDisplay();
   }
   const workArea = targetDisplay.workArea;
-  const width = Math.max(240, Math.min(bounds.width, workArea.width));
-  const height = Math.max(180, Math.min(bounds.height, workArea.height));
+  const width = Math.min(workArea.width, Math.max(640, bounds.width));
+  const height = Math.min(workArea.height, Math.max(480, bounds.height));
   const maxX = workArea.x + workArea.width - width;
   const maxY = workArea.y + workArea.height - height;
   const clampedX = Number.isFinite(bounds.x) ? Math.min(Math.max(bounds.x, workArea.x), maxX) : workArea.x;
@@ -389,8 +389,8 @@ async function openFloatingWindow(
     height: safeBounds?.height ?? request.bounds?.height ?? 420,
     x: safeBounds?.x ?? request.bounds?.x,
     y: safeBounds?.y ?? request.bounds?.y,
-    minWidth: 360,
-    minHeight: 240,
+    minWidth: 640,
+    minHeight: 480,
     autoHideMenuBar: true,
     show: false,
     parent,

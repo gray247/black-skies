@@ -45,11 +45,11 @@ describe('clampBoundsToDisplay', () => {
 
   it('falls back to primary display when id not found', () => {
     const bounds = clampBoundsToDisplay({ x: -200, y: 10, width: 100, height: 100 }, 99);
-    expect(bounds).toEqual({ x: 0, y: 10, width: 240, height: 180 });
+    expect(bounds).toEqual({ x: 0, y: 10, width: 640, height: 480 });
   });
 
   it('clamps negative coordinates inside work area', () => {
     const bounds = clampBoundsToDisplay({ x: -500, y: -500, width: 400, height: 400 }, 1);
-    expect(bounds).toEqual({ x: 0, y: 0, width: 400, height: 400 });
+    expect(bounds).toEqual({ x: 0, y: 0, width: 640, height: 480 });
   });
 });
