@@ -30,6 +30,8 @@ let mockLoadedProjectName: string | undefined;
 let mockLoadedProjectScenes: Array<{ id: string; title: string; order: number }> | undefined;
 let mockLoadedProjectDrafts: Record<string, string> | undefined;
 let mockActiveSceneId: string | undefined;
+let mockProjectHomeInitialSceneId: string | null | undefined;
+let mockActiveSceneHistory: string[] = [];
 
 beforeEach(() => {
   if (!(global as typeof globalThis & { window?: Window }).window) {
@@ -104,9 +106,19 @@ function ProjectHomeMock({
   const projectDrafts = useMemo(() => mockLoadedProjectDrafts ?? {}, []);
   const bodyActiveSceneId =
     typeof document !== 'undefined' ? document.body?.dataset.activeSceneId ?? null : null;
-  const activeSceneId = requestedActiveSceneId ?? bodyActiveSceneId ?? mockActiveSceneId ?? null;
+  const defaultActiveSceneId =
+    mockProjectHomeInitialSceneId !== undefined
+      ? mockProjectHomeInitialSceneId
+      : scenes[0]?.id ?? null;
+  const activeSceneId =
+    requestedActiveSceneId ?? bodyActiveSceneId ?? mockActiveSceneId ?? defaultActiveSceneId;
   const activeScene =
-    scenes.find((scene) => scene.id === activeSceneId) ?? scenes[0] ?? null;
+    scenes.find((scene) => scene.id === activeSceneId) ??
+    (activeSceneId
+      ? scenes[0] ?? null
+      : mockProjectHomeInitialSceneId === null
+        ? null
+        : scenes[0] ?? null);
   const overrideDraft = activeScene ? draftOverrides?.[activeScene.id] : undefined;
   const diskDraft = activeScene ? projectDrafts[activeScene.id] : undefined;
   const currentDraft =
@@ -117,6 +129,16 @@ function ProjectHomeMock({
       : typeof diskDraft === 'string'
         ? 'disk'
         : 'fallback';
+
+  useEffect(() => {
+    if (!activeScene) {
+      return;
+    }
+    if (mockActiveSceneHistory[mockActiveSceneHistory.length - 1] === activeScene.id) {
+      return;
+    }
+    mockActiveSceneHistory.push(activeScene.id);
+  }, [activeScene]);
 
   useEffect(() => {
     if (lastLoadedProjectPathRef.current !== projectPath) {
@@ -395,6 +417,8 @@ describe('App preflight integration', () => {
     mockLoadedProjectScenes = undefined;
     mockLoadedProjectDrafts = undefined;
     mockActiveSceneId = undefined;
+    mockProjectHomeInitialSceneId = undefined;
+    mockActiveSceneHistory = [];
   });
 
   afterEach(() => {
@@ -1204,6 +1228,41 @@ describe('App preflight integration', () => {
     await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedText));
     expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
     expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+  });
+
+  it('starts from the persisted same-project active scene without ping-ponging through the first scene', async () => {
+    const projectPath = '/projects/esther-estate';
+    mockLoadedProjectPath = projectPath;
+    mockLoadedProjectId = 'proj_esther_estate';
+    mockLoadedProjectName = 'Esther Estate';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Scene 1', order: 1 },
+      { id: 'sc_0004', title: 'Scene 4', order: 4 },
+    ];
+    mockLoadedProjectDrafts = {
+      sc_0001: 'Scene 1 draft text',
+      sc_0004: 'Scene 4 draft text',
+    };
+    mockProjectHomeInitialSceneId = null;
+    writeDraftPreviewSyncState(projectPath, {
+      sourceId: 'dock-window',
+      projectPath,
+      activeSceneId: 'sc_0004',
+      projectDrafts: mockLoadedProjectDrafts,
+      draftEdits: {},
+      updatedAt: Date.now(),
+    });
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute(
+        'data-active-scene-id',
+        'sc_0004',
+      ),
+    );
+    expect(mockActiveSceneHistory).toEqual(['sc_0004']);
   });
 
   it('keeps the floated draft preview synced when another window publishes a new active scene', async () => {

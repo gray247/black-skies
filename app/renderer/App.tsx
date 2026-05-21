@@ -194,6 +194,29 @@ function deriveProjectDisplayLabel(
   return restoredCopy ? `${rootName} (restored copy)` : rootName;
 }
 
+function resolveStartupScene(
+  project: LoadedProject,
+  requestedSceneId?: string | null,
+): { id: string; title: string | null } | null {
+  const persistedSceneId = readDraftPreviewSyncState(project.path)?.activeSceneId ?? null;
+  const candidateSceneIds = [persistedSceneId, requestedSceneId];
+
+  for (const candidateSceneId of candidateSceneIds) {
+    const normalizedCandidateSceneId =
+      typeof candidateSceneId === "string" ? candidateSceneId.trim() : "";
+    if (!normalizedCandidateSceneId) {
+      continue;
+    }
+    const candidateScene = project.scenes.find((scene) => scene.id === normalizedCandidateSceneId);
+    if (candidateScene) {
+      return { id: candidateScene.id, title: candidateScene.title ?? null };
+    }
+  }
+
+  const firstScene = project.scenes[0] ?? null;
+  return firstScene ? { id: firstScene.id, title: firstScene.title ?? null } : null;
+}
+
 type BatchCritiqueStatus = "idle" | "running" | "success" | "error";
 
 interface BatchCritiqueResult {
@@ -1491,18 +1514,11 @@ export default function App(): JSX.Element {
       setDraftEdits({});
       projectDraftsRef.current = canonicalDrafts;
 
-      let nextScene: { id: string; title: string | null } | null = null;
-      const preservedId = options?.preserveSceneId ?? null;
-      if (preservedId) {
-        const preservedScene = project.scenes.find((scene) => scene.id === preservedId);
-        if (preservedScene) {
-          nextScene = { id: preservedScene.id, title: preservedScene.title ?? null };
-        }
-      }
-      if (!nextScene) {
-        const firstScene = project.scenes[0] ?? null;
-        nextScene = firstScene ? { id: firstScene.id, title: firstScene.title ?? null } : null;
-      }
+      const nextScene = resolveStartupScene(project, options?.preserveSceneId ?? null);
+      recordDebugEvent("app.activateProject.startupScene", {
+        path: project.path,
+        startupSceneId: nextScene?.id ?? null,
+      });
       setActiveScene(nextScene);
       resetCritique();
       setProjectSummary({
