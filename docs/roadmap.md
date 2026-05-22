@@ -26,6 +26,7 @@ Later phases can be partially implemented in parallel. A phase marked `Partial` 
 ## Post-Phase-27 Roadmap Note
 
 - Phase 28-31 are the correction / realignment block defined in `docs/roadmap/master_phase_allocation_plan.md`.
+- That correction block reindexes the old post-27 future family instead of deleting it; the preserved bucket themes now appear as Phase 32-40.
 - Post-Phase-27 sequencing and renumbering should be read from that master plan, not inferred from older phase placeholders.
 
 ## Phase summary

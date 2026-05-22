@@ -13,6 +13,12 @@ This phase is documentation-only. It does not change product code.
 
 The previous post-27 provisional bucket family has been shifted forward by four phases to make room for the correction block.
 
+### Exact counts
+
+- Pre-insertion post-Phase-27 future family: 9 labeled buckets.
+- Post-insertion future family: 13 explicit phases.
+- The roadmap did not lose any of the original post-27 themes; it reindexed them and inserted four correction phases ahead of them.
+
 | Former label | New label | Notes |
 | --- | --- | --- |
 | Phase 28+ visible multi-monitor workflow / cross-window authority hardening | Phase 32 | Existing theme family shifted forward. |
@@ -24,6 +30,50 @@ The previous post-27 provisional bucket family has been shifted forward by four 
 | Phase 34+ narrative tooling | Phase 38 | Existing theme family shifted forward. |
 | Phase 35+ export / publishing | Phase 39 | Existing theme family shifted forward. |
 | Phase 36+ collaboration / governance | Phase 40 | Existing theme family shifted forward. |
+
+## Roadmap Preservation Verification
+
+### What existed before insertion
+
+- `Phase 28+` visible multi-monitor workflow / cross-window authority hardening
+- `Phase 29+` runtime/session continuity and recovery
+- `Phase 30+` authoring lifecycle maturity
+- `Phase 31+` persistence / recovery maturity
+- `Phase 32+` AI orchestration / intelligence governance
+- `Phase 33+` memory systems
+- `Phase 34+` narrative tooling
+- `Phase 35+` export / publishing
+- `Phase 36+` collaboration / governance
+
+### What exists after insertion
+
+- `Phase 28` Planning / Roadmap Authority Audit
+- `Phase 29` Issue / Risk / Error Reconciliation
+- `Phase 30` GUI / Workflow Realignment Spec
+- `Phase 31` Roadmap Rewrite + Phase Renumbering
+- `Phase 32` Visible multi-monitor workflow / cross-window authority hardening
+- `Phase 33` Runtime/session continuity and recovery
+- `Phase 34` Authoring lifecycle maturity
+- `Phase 35` Persistence / recovery maturity
+- `Phase 36` AI orchestration / intelligence governance
+- `Phase 37` Memory systems
+- `Phase 38` Narrative tooling
+- `Phase 39` Export / publishing
+- `Phase 40` Collaboration / governance
+
+### Preservation classification
+
+- Merged phases: none.
+- Removed phases: none.
+- Renamed phases: all nine former provisional post-27 buckets were reindexed to Phase 32-40.
+- Consolidated scopes: the old `Phase 28+` family label was consolidated into explicit numbered phases; the underlying themes were preserved.
+- Untouched phases: there were no preexisting Phase 28-40 build-phase runtime claims to preserve because the post-27 planning family was provisional only.
+
+### Scope disappearance check
+
+- No prior planned scope disappeared.
+- The correction block inserted four new governance phases and preserved the former post-27 bucket themes as shifted future phases.
+- Historical references to the old numbering remain valid as migration history, not as current active numbering.
 
 ## Migration Note
 

@@ -126,6 +126,12 @@ Documented execution reality now extends beyond the original Phase 20+ placehold
 - Phase 32-40 are the shifted provisional future buckets.
 - Future buckets may split, merge, or reorder as evidence, dependencies, or governance needs change, but the Phase 28-31 correction block remains the required insertion point for this realignment.
 
+Preservation note:
+
+- Pre-insertion post-Phase-27 future family: 9 labeled buckets (`Phase 28+` through `Phase 36+`).
+- Post-insertion future family: 13 explicit phases (`Phase 28` through `Phase 40`).
+- No future scope was removed or merged in this correction pass; the old provisional family was reindexed, preserved, and expanded with the inserted correction block.
+
 ## Phase 28-31 Correction Block
 
 These phases are governance and roadmap correction work, not product feature phases.
