@@ -1,6 +1,6 @@
 # Phase 28 Planning / Roadmap Authority Audit
 
-Status: Draft
+Status: Closed
 Date: 2026-05-21
 
 ## Purpose
@@ -142,3 +142,10 @@ Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Uni
   - `docs/audits/phase28/stale_doc_register.md` (preliminary)
   - `docs/audits/phase28/conflict_register.md` (preliminary)
   - `docs/audits/phase28/runtime_truth_alignment_notes.md`
+- Phase 28 closure pass resolved stale/conflict dispositions, finalized authority hierarchy and runtime-truth precedence notes, and added closure evidence:
+  - `docs/audits/phase28/stale_doc_register.md` (resolved)
+  - `docs/audits/phase28/conflict_register.md` (resolved)
+  - `docs/audits/phase28/authority_map.md` (finalized)
+  - `docs/audits/phase28/runtime_truth_alignment_notes.md` (finalized)
+  - `docs/audits/phase28/phase28_authority_audit_closure.md`
+  - closure determination: Phase 28 can close and Phase 29 may begin after operator acceptance.
