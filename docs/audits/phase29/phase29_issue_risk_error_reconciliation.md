@@ -52,6 +52,19 @@ The pass assigned stable `P29-SURF`, `P29-CTRL`, and `P29-DEV` IDs for initial G
 All dispositions remain preliminary and pending later Phase 29 review.
 Phase 30 workflow/spec decisions were not started.
 
+## Pass 2 Progress Note
+
+Phase 29 Pass 2 created the initial workflow mapping artifacts:
+
+- `docs/audits/phase29/workflow_conflict_register.md`
+- `docs/audits/phase29/workspace_header_density_review.md`
+- `docs/audits/phase29/persistence_and_recovery_surface_review.md`
+- `docs/audits/phase29/phase29_pass2_workflow_mapping_summary.md`
+
+The pass added stable `P29-WFLOW` IDs for workflow mapping only.
+Existing `P29-SURF`, `P29-CTRL`, and `P29-DEV` IDs were preserved.
+Phase 30 workflow/spec decisions were not started.
+
 ## Phase 29 Control Requirements
 
 ### Stable ID rules
