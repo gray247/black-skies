@@ -39,6 +39,19 @@ The following Phase 27 human-smoke blockers were remediated and should be treate
 | Stale claims | docs or comments that imply the current shell is final, or that Phase 28+ still means the pre-correction bucket family | Needs rewrite | Reword as historical, future-only, or corrected numbering. |
 | Broken assumptions | any doc or note that treats placeholder intelligence or GUI scaffolding as runtime truth | Needs rewrite | Reconcile in the audit and workflow spec. |
 
+## Pass 1 Progress Note
+
+Phase 29 Pass 1 created the initial surface inventory artifacts:
+
+- `docs/audits/phase29/gui_surface_inventory.md`
+- `docs/audits/phase29/tool_button_control_inventory.md`
+- `docs/audits/phase29/dev_surface_initial_findings.md`
+- `docs/audits/phase29/phase29_pass1_surface_inventory_summary.md`
+
+The pass assigned stable `P29-SURF`, `P29-CTRL`, and `P29-DEV` IDs for initial GUI, control, and dev/test surfaces.
+All dispositions remain preliminary and pending later Phase 29 review.
+Phase 30 workflow/spec decisions were not started.
+
 ## Phase 29 Control Requirements
 
 ### Stable ID rules
