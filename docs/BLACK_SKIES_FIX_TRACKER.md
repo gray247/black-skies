@@ -3031,6 +3031,10 @@ Backlog note drifted after phase-log cleanup.
    - the disposition matrix now classifies major surviving systems as `keep`, `merge`, `contextualize`, `background`, `advanced_only`, `support_only`, `dev_only`, `defer`, or `validate_first`,
    - the current Writing Surface and generation entry survive, while the Workspace Header is classified for later decomposition rather than preservation as a single mixed-authority bucket,
    - Story Insights and Companion are classified for contextual authority only, Relationship Graph and export are capped as advanced-only, Split Command is deferred as experimental, support and recovery tooling are fenced into support authority, and rewrite/apply plus diagnostics-bridge seams remain `validate_first`.
+ - [2026-05-22] Phase 29 Pass 6 completed closure synthesis and carry-forward governance:
+   - Phase 29 now has explicit closure-readiness, carry-forward, human-review checkpoint, Phase 30 dependency, and closure-condition artifacts,
+   - the phase is classified as conditionally ready for formal closure: no audit stop condition remains unresolved, but human review is still required on Workspace Header decomposition, rewrite/apply trust, support-versus-diagnostics separation, Story Insights / Companion authority, Split Command legitimacy, export authority, command-style access, snapshots/recovery visibility, contextual intelligence, and Writing Surface boundaries,
+   - carry-forward governance remains explicit for rewrite/apply, Workspace Header overload, support-versus-diagnostics separation, contextual intelligence authority, Split Command deferral, command access visibility, export authority, and Writing Surface boundary policy.
  - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
