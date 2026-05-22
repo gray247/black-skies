@@ -3044,6 +3044,9 @@ Backlog note drifted after phase-log cleanup.
  - [2026-05-22] Phase 30 Pass 2 established workflow-policy and Story Unit governance boundaries:
    - Story Units are now governed conceptually as workflow-level narrative objects without being promoted into finalized runtime persistence structure,
    - workflow ownership, intelligence interaction, and workflow transition rules now preserve Writing Surface primacy, keep Command Center analysis-first, fence support/recovery and diagnostics apart, and keep intelligence-assisted mutation below validate-first governance.
+ - [2026-05-22] Phase 30 Pass 1A codified workflow philosophy before further UI exploration:
+   - Writing Surface sovereignty, contextual intelligence, progressive disclosure, structural-versus-contextual separation, dual-monitor discipline, hover/pin containment, and anti-dashboard guardrails are now explicit workflow-governance rules,
+   - interpretive instruments are accepted directionally while grading systems, fake certainty metrics, duplicated authority controls, telemetry walls, and dashboard creep are explicitly rejected directionally.
  - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
