@@ -134,3 +134,11 @@ Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Uni
 - The authority/historical/stale/future-only split is recorded in the tracker.
 - The roadmap phase sequence has a clear insertion point for the correction block.
 - No runtime code is changed by this phase.
+
+## Pass Progress
+
+- Phase 28 Pass 1 completed initial authority inventory artifacts:
+  - `docs/audits/phase28/authority_map.md`
+  - `docs/audits/phase28/stale_doc_register.md` (preliminary)
+  - `docs/audits/phase28/conflict_register.md` (preliminary)
+  - `docs/audits/phase28/runtime_truth_alignment_notes.md`
