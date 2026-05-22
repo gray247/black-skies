@@ -65,6 +65,19 @@ The pass added stable `P29-WFLOW` IDs for workflow mapping only.
 Existing `P29-SURF`, `P29-CTRL`, and `P29-DEV` IDs were preserved.
 Phase 30 workflow/spec decisions were not started.
 
+## Pass 3 Progress Note
+
+Phase 29 Pass 3 created the initial intelligence-audit artifacts:
+
+- `docs/audits/phase29/intelligence_surface_matrix.md`
+- `docs/audits/phase29/fake_intelligence_risk_register.md`
+- `docs/audits/phase29/intelligence_visibility_pressure_review.md`
+- `docs/audits/phase29/phase29_pass3_intelligence_audit_summary.md`
+
+The pass added stable `P29-INTEL` IDs for intelligence-surface classification only.
+Existing `P29-SURF`, `P29-CTRL`, `P29-DEV`, and `P29-WFLOW` IDs were preserved.
+Phase 30 workflow/spec decisions were not started.
+
 ## Phase 29 Control Requirements
 
 ### Stable ID rules
