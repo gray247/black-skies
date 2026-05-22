@@ -7,7 +7,7 @@ Date: 2026-05-21
 
 Phase 30 defines the target GUI/workflow spine for the real product direction:
 
-- writing area as a scratchboard / immersive writing surface
+- writing area as a Writing Surface / immersive writing surface
 - highlight text and choose "Capture as Story Unit"
 - create blank Story Units between existing units
 - keep Story Units in a hierarchy/tree that can be rearranged, expanded, merged, bridged, and eventually become coherent story parts
@@ -32,9 +32,29 @@ Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Uni
 - `docs/specs/current_state.md`
 - operator-provided GUI revamp report used as product-direction evidence only
 
+## Policy Decision Requirements
+
+Phase 30 cannot close until each of the following has an accepted policy decision:
+
+- Writing Surface policy
+- Command Center policy
+- Story Unit workflow policy
+- dev GUI versus production GUI policy
+- model-routing visibility and testing policy
+- dual-monitor / single-monitor fallback policy
+- command/search access policy
+
+Story Unit workflow must explicitly separate:
+
+- desired workflow
+- current model support
+- persistence gap
+- migration risk
+- unresolved governance question
+
 ## Writing Surface
 
-### Scratchboard behavior
+### Writing surface behavior
 
 - The writing surface should feel calm, immersive, and writer-first.
 - It should remain the primary place for drafting.
@@ -123,7 +143,7 @@ Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Uni
 
 ## Required Outputs
 
-- writing surface / scratchboard behavior contract
+- Writing Surface behavior contract
 - highlight-to-capture Story Unit flow
 - blank Story Unit insertion flow
 - Story Unit hierarchy/tree behavior draft
@@ -144,6 +164,8 @@ Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Uni
 - dev/test controls are not treated as final GUI controls
 - model-routing visibility is explicit enough to prevent hidden quality escalation
 - any unresolved data-model or quality-evaluation issue is routed to candidate Phase 32 instead of being hidden
+- each policy area listed above has an accepted or accepted-with-exceptions decision
+- Phase 31 cannot begin until these policy decisions are recorded
 
 ## Stop Conditions
 

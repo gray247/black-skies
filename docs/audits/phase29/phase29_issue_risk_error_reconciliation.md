@@ -39,6 +39,74 @@ The following Phase 27 human-smoke blockers were remediated and should be treate
 | Stale claims | docs or comments that imply the current shell is final, or that Phase 28+ still means the pre-correction bucket family | Needs rewrite | Reword as historical, future-only, or corrected numbering. |
 | Broken assumptions | any doc or note that treats placeholder intelligence or GUI scaffolding as runtime truth | Needs rewrite | Reconcile in the audit and workflow spec. |
 
+## Phase 29 Control Requirements
+
+### Stable ID rules
+
+- Every inventory item must carry a stable classification ID.
+- IDs must follow the correction-block scheme from `docs/audits/phase28_31/phase28_31_execution_plan.md`.
+- Keep the original ID even if the item is later merged, hidden, deferred, or deleted.
+- Do not recycle IDs.
+
+### Inventory field requirements
+
+Every row in the Phase 29 inventory must include:
+
+- classification_id
+- surface_or_item
+- type
+- source_area
+- file_or_component_path
+- owner_doc_or_runtime_source
+- user_facing_or_dev_only
+- runtime_backed_or_placeholder
+- current_visibility
+- workflow_role
+- overlaps_with
+- recommended_disposition
+- disposition_reason
+- evidence
+- evidence_quality
+- confidence
+- risk_level
+- target_phase
+- review_status
+- notes
+
+### Source boundaries
+
+Phase 29 must inspect, at minimum:
+
+- renderer components
+- workspace/layout/docking components
+- visible controls/buttons/toggles
+- command registry or command-like structures
+- IPC/preload bridges that expose visible behavior
+- runtime flags/config that expose or hide GUI behavior
+- docs-declared GUI surfaces
+- tests/dev controls that may leak into product assumptions
+- intelligence/analysis surfaces
+- workflow entry points
+
+If a new source area is needed, record why before expanding scope.
+
+### Evidence quality and review
+
+- Each row must include explicit evidence and an evidence-quality label.
+- Weak evidence is `weak_needs_review`, not assumed truth.
+- Human review sign-off must be recorded as `accepted`, `accepted_with_exceptions`, `rejected`, or `needs_rework`.
+
+### Phase 29 closure gate
+
+Phase 30 cannot begin until:
+
+- every inventoried item has a stable ID
+- every inventoried item has a disposition or `validate_first` reason
+- every `validate_first` item has an owner or next step
+- dev-only versus production-visible surfaces are classified
+- placeholder/mock/future-only intelligence surfaces are labeled
+- human review sign-off is recorded
+
 ## Reconciliation Rules
 
 - If an item blocks validation or makes the operator misread truth, treat it as a blocker for the current smoke or audit pass.
@@ -62,6 +130,7 @@ The following Phase 27 human-smoke blockers were remediated and should be treate
 - dev/test controls are separated from production GUI expectations
 - placeholder intelligence is not classified as shipped capability
 - Phase 30 has enough input to define workflow and visibility policy without guessing
+- Phase 30 cannot begin until the Phase 29 closure gate above is satisfied
 
 ## Stop Conditions
 

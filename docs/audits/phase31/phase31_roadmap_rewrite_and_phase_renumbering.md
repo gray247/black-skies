@@ -115,6 +115,22 @@ The previous post-27 provisional bucket family has been shifted forward by four 
 - build-resumption gates
 - candidate Phase 32 decision: insert, defer, or reject based on Phase 28-30 evidence
 
+## Build-Resume Decision Output
+
+Phase 31 must end with exactly one of these outcomes:
+
+- `build may resume`
+- `limited build only`
+- `Candidate Phase 32 required`
+- `correction block blocked`
+
+Each outcome must include:
+
+- evidence
+- consequences
+- affected phases or docs
+- any remaining blockers
+
 ## Acceptance Gates
 
 - every shifted phase has an old label, new label, and preservation status
@@ -122,6 +138,8 @@ The previous post-27 provisional bucket family has been shifted forward by four 
 - active, deferred, historical, and superseded roadmap states are distinguishable
 - build phases remain blocked until correction-block closure is accepted
 - candidate Phase 32 is either justified with evidence or left as a documented candidate, not silently inserted
+- the Build-Resume Decision Output above is recorded exactly once
+- Phase 29 and Phase 30 closure artifacts are present before renumbering is finalized
 
 ## Stop Conditions
 
@@ -129,6 +147,7 @@ The previous post-27 provisional bucket family has been shifted forward by four 
 - Phase 28-30 outputs disagree and cannot be reconciled without operator decision
 - a proposed roadmap rewrite removes or merges scope without explicit rationale
 - build work is requested before the roadmap rewrite is accepted
+- a build-resume outcome is requested without evidence or consequence notes
 
 ## Handoff Requirements
 

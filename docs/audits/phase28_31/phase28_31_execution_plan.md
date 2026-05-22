@@ -7,6 +7,8 @@ Date: 2026-05-21
 
 Phases 28-31 are correction and governance phases, not feature phases.
 
+Phase 28 is closed. Its artifacts are inputs to Phase 29, not active work.
+
 Purpose of the block:
 
 - reconcile planning docs with runtime truth
@@ -18,6 +20,7 @@ Purpose of the block:
 - prevent architectural romanticism, panel accumulation, speculative intelligence, and roadmap mythology
 
 This block is documentation-first and evidence-first. Runtime code changes are out of scope.
+No new build work begins during the correction block except documented validation blockers approved under the build-freeze exception policy.
 
 ## 2. Pass Structure Per Phase
 
@@ -28,6 +31,8 @@ This block is documentation-first and evidence-first. Runtime code changes are o
 - Pass 3: Governance Definition
 - Optional Passes 4-6: warning labels, archive labels, runtime-truth references, migration notes
 
+Phase 28 is closed; use its final authority map, stale register, conflict register, runtime-truth alignment notes, and closure artifact as Phase 29 input evidence.
+
 ### Phase 29 - Issue / Risk / Error Reconciliation (5-10 passes)
 
 - Pass 1: Surface Inventory
@@ -36,6 +41,8 @@ This block is documentation-first and evidence-first. Runtime code changes are o
 - Pass 4: Dev vs Production Audit
 - Pass 5: Keep/Merge/Hide/Delete Matrix
 - Optional Passes 6-10: deeper overlap analysis, runtime verification, UX contradiction review, historical cleanup, unresolved-risk documentation
+
+Phase 29 inventory items must use stable IDs and evidence-quality scoring. IDs are never recycled.
 
 ### Phase 30 - GUI / Workflow Realignment Spec (4-8 passes)
 
@@ -75,6 +82,10 @@ This block is documentation-first and evidence-first. Runtime code changes are o
 Warning:
 Do not run Phases 28-31 as one mega-pass. The correction block must proceed as forensic investigations with explicit artifacts and stop conditions.
 
+Operating constraint:
+Do not compress multiple correction-block phases into one run unless explicitly instructed.
+Phase 29 work must not begin Phase 30 decisions.
+
 ## 4. Artifact Registry
 
 ### Phase 28 artifacts
@@ -111,32 +122,165 @@ Do not run Phases 28-31 as one mega-pass. The correction block must proceed as f
 - `docs/audits/phase31/build_resume_decision.md`
 - `docs/audits/phase31/candidate_phase32_decision.md`
 
-## 5. Inventory Schema (Phase 29)
+### Correction-block decision log
+
+- `docs/audits/phase28_31/decision_log.md`
+
+## 5. Phase 29 Classification ID Scheme
+
+Phase 29 inventory items must use stable IDs:
+
+- `P29-SURF-001` for GUI/user-visible surfaces
+- `P29-CTRL-001` for buttons, toggles, commands, palette entries, and menu/control surfaces
+- `P29-WFLOW-001` for workflows
+- `P29-INTEL-001` for intelligence/AI/analysis surfaces
+- `P29-DEV-001` for dev/test/diagnostic surfaces
+- `P29-RISK-001` for risks or unresolved hazards
+- `P29-DOC-001` for doc-only claims that affect tool/workflow interpretation
+
+Rules:
+
+- IDs remain stable once assigned.
+- IDs are not recycled.
+- If an item is later merged, hidden, deferred, or deleted, keep the original ID and mark the new disposition.
+- Later corrections must reference the original ID.
+
+## 6. Inventory Schema (Phase 29)
 
 Required fields:
 
-- `surface`
+- `classification_id`
+- `surface_or_item`
 - `type`
-- `location`
-- `current_owner`
+- `source_area`
+- `file_or_component_path`
+- `owner_doc_or_runtime_source`
 - `user_facing_or_dev_only`
 - `runtime_backed_or_placeholder`
 - `current_visibility`
 - `workflow_role`
 - `overlaps_with`
-- `keep_merge_hide_defer_delete`
-- `risk_level`
+- `recommended_disposition`
+- `disposition_reason`
 - `evidence`
+- `evidence_quality`
+- `confidence`
+- `risk_level`
 - `target_phase`
+- `review_status`
 - `notes`
 
 Allowed values:
 
-- `keep_merge_hide_defer_delete`: `keep`, `merge`, `hide`, `defer`, `delete_candidate`, `dev_only`, `validate_first`
+- `recommended_disposition`: `keep`, `merge`, `hide`, `defer`, `delete_candidate`, `dev_only`, `validate_first`
 - `runtime_backed_or_placeholder`: `runtime_backed`, `partial`, `placeholder`, `mock`, `experimental_flagged`, `historical`, `future_only`, `unknown`
+- `evidence_quality`: `direct_runtime_file`, `direct_doc_claim`, `test_reference`, `config_or_flag`, `inferred_from_multiple_sources`, `weak_needs_review`
+- `confidence`: `high`, `medium`, `low`
+- `review_status`: `pending`, `accepted`, `accepted_with_exceptions`, `rejected`, `needs_rework`
 - `risk_level`: `low`, `medium`, `high`, `blocker`
 
-## 6. Stop Conditions
+## 7. Source Boundaries
+
+Phase 29 inventory must inspect, at minimum:
+
+- renderer components
+- workspace/layout/docking components
+- visible controls/buttons/toggles
+- command registry or command-like structures
+- IPC/preload bridges that expose visible behavior
+- runtime flags/config that expose or hide GUI behavior
+- docs-declared GUI surfaces
+- tests/dev controls that may leak into product assumptions
+- intelligence/analysis surfaces
+- workflow entry points
+
+It must not become an unbounded repo-wide fishing expedition.
+
+If a new source area is needed, Phase 29 must record why.
+
+## 8. Evidence Quality Requirements
+
+Every inventory row must include evidence that can be checked without guessing.
+
+Preferred evidence hierarchy:
+
+1. `direct_runtime_file`
+2. `direct_doc_claim`
+3. `test_reference`
+4. `config_or_flag`
+5. `inferred_from_multiple_sources`
+6. `weak_needs_review`
+
+Rules:
+
+- cite exact file paths
+- note whether the item is runtime-backed, partial, placeholder, mock, experimental-flagged, historical, future-only, or unknown
+- do not promote weak evidence to high confidence
+- if evidence is weak, mark it for review instead of inferring product truth
+
+## 9. No-Fantasy-Promotion Rule
+
+Any future intelligence surface must be labeled as one of:
+
+- `runtime_backed`
+- `partial`
+- `placeholder`
+- `mock`
+- `future_only`
+- `unknown`
+
+Do not let future intelligence claims read as current runtime capability.
+
+## 10. Human Review Sign-Off Format
+
+Each major Phase 29 pass must end with one of:
+
+- `accepted`
+- `accepted_with_exceptions`
+- `rejected`
+- `needs_rework`
+
+The sign-off note must include:
+
+- reviewer
+- date
+- scope reviewed
+- evidence used
+- exceptions or blockers
+- next step
+
+## 11. Correction and Rollback Mechanism
+
+Wrong classifications are corrected without silent overwrite.
+
+Process:
+
+1. update the original row or artifact status
+2. preserve the original `classification_id`
+3. add a `decision_log` entry with the new decision
+4. cite the evidence that invalidated the prior decision
+5. keep the old disposition visible in notes when helpful
+
+## 12. Build-Freeze Exception Policy
+
+Runtime/code work is frozen during Phases 29-31 unless a validation blocker prevents audit progress.
+
+Allowed exceptions only:
+
+- validation blocker prevents docs/audit completion
+- typo, lint, or doc-tooling fix blocks validation
+- repository hygiene issue blocks audit progress
+- fix is documented in the tracker or closure notes
+
+Not allowed:
+
+- new GUI features
+- new intelligence features
+- new Story Unit runtime behavior
+- roadmap renumbering outside Phase 31
+- Candidate Phase 32 insertion before the Phase 31 decision
+
+## 13. Stop Conditions
 
 Pause the correction block when any of the following occurs:
 
@@ -149,8 +293,10 @@ Pause the correction block when any of the following occurs:
 - fake intelligence surface that cannot be classified
 - evidence that current phase scope is too broad to close
 - human review required but not yet completed
+- a classification cannot be corrected without erasing provenance
+- a build-freeze exception is requested for non-validation work
 
-## 7. Candidate Phase 32 Trigger Rules
+## 14. Candidate Phase 32 Trigger Rules
 
 ### Candidate Phase 32 becomes required if Phase 28-31 cannot safely answer
 
@@ -178,16 +324,16 @@ Pause the correction block when any of the following occurs:
 
 Candidate Phase 32 is not active numbering in this plan. It is candidate-only until Phase 31 evidence-based decision.
 
-## 8. Human Validation Requirements
+## 15. Human Validation Requirements
 
 Human validation is mandatory for workflow-direction decisions.
 
-- Phase 28: operator review of authority hierarchy and stale/future-only labels
+- Phase 28: closed; no further review required for current closure unless reopened by operator instruction
 - Phase 29: operator review of keep/merge/hide/defer/delete classifications
-- Phase 30: operator review of writing surface, command center, Story Unit workflow, and dev-vs-production GUI policy
+- Phase 30: operator review of Writing Surface, Command Center, Story Unit workflow, and dev-vs-production GUI policy
 - Phase 31: operator approval before build resumes or candidate Phase 32 is inserted
 
-## 9. Handoff Requirements
+## 16. Handoff Requirements
 
 Each pass must report:
 
@@ -205,7 +351,7 @@ Each pass must report:
 Assistant continuity risk note:
 Future assistants must treat this execution plan as the correction-block operating guide. They must not collapse phases, skip inventories, or resume feature work without the Phase 31 build-resume decision.
 
-## 10. Validation
+## 17. Validation
 
 For each pass in this correction block, run at minimum:
 
@@ -214,7 +360,7 @@ For each pass in this correction block, run at minimum:
 
 Also run obvious doc validation commands when available in repo tooling.
 
-## 11. Cross-Phase Handoff Note
+## 18. Cross-Phase Handoff Note
 
 - Phase 28 identifies authority.
 - Phase 29 inventories what survives.

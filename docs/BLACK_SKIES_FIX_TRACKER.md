@@ -3014,11 +3014,15 @@ Backlog note drifted after phase-log cleanup.
   - the master roadmap has been realigned so Phase 28-31 are the correction / realignment block and the former post-27 buckets shift forward into the Phase 32-40 provisional family,
   - the planning work is documentation-only and exists to separate authority docs, historical docs, stale claims, future-only fantasy, and phase-number migration notes before any new build phase resumes,
   - no runtime code changed in this pass.
-- [2026-05-21] Phase 28-31 correction block strengthened:
-  - each correction-block doc now defines required outputs, acceptance gates, stop conditions, handoff requirements, validation requirements, and an unresolved-question register,
-  - the cross-phase handoff is explicit: Phase 28 identifies authority, Phase 29 inventories what survives, Phase 30 defines the future workflow, and Phase 31 rewrites the roadmap,
-  - `Story Unit Data Model + Qualitative Evaluation Foundation` is documented as a candidate Phase 32 only if Phase 28-31 evidence proves it is required before GUI rebuild; it has not been inserted into active numbering.
-- [2026-05-20] Phase 26D closure review completed:
+ - [2026-05-21] Phase 28-31 correction block strengthened:
+   - each correction-block doc now defines required outputs, acceptance gates, stop conditions, handoff requirements, validation requirements, and an unresolved-question register,
+   - the cross-phase handoff is explicit: Phase 28 identifies authority, Phase 29 inventories what survives, Phase 30 defines the future workflow, and Phase 31 rewrites the roadmap,
+   - `Story Unit Data Model + Qualitative Evaluation Foundation` is documented as a candidate Phase 32 only if Phase 28-31 evidence proves it is required before GUI rebuild; it has not been inserted into active numbering.
+ - [2026-05-22] Phase 28-31 correction-block execution controls strengthened:
+   - the correction-block execution plan now treats Phase 28 as closed input evidence, requires stable IDs and evidence-quality scoring for Phase 29 inventories, and adds a correction/rollback mechanism plus build-freeze exception policy,
+   - Phase 29/30/31 docs now carry explicit closure gates and human-review expectations so the block cannot collapse multiple phases into one run,
+   - correction-block decisions are logged centrally in `docs/audits/phase28_31/decision_log.md`.
+ - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
   - sample-project inheritance, silent repair, and hidden bootstrap mutation did not land,
