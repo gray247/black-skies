@@ -3022,6 +3022,11 @@ Backlog note drifted after phase-log cleanup.
    - the correction-block execution plan now treats Phase 28 as closed input evidence, requires stable IDs and evidence-quality scoring for Phase 29 inventories, and adds a correction/rollback mechanism plus build-freeze exception policy,
    - Phase 29/30/31 docs now carry explicit closure gates and human-review expectations so the block cannot collapse multiple phases into one run,
    - correction-block decisions are logged centrally in `docs/audits/phase28_31/decision_log.md`.
+ - [2026-05-22] Phase 29 passes 1-4 established the correction-block audit evidence base:
+   - Pass 1 assigned stable `P29-SURF`, `P29-CTRL`, and `P29-DEV` IDs for visible surfaces, controls, and dev/test seams,
+   - Pass 2 mapped `P29-WFLOW` workflow groups and confirmed high-risk overlap around the Workspace Header, persistence/recovery actions, and experimental Split Command navigation,
+   - Pass 3 added `P29-INTEL` classifications and confirmed that Story Insights, Companion, Relationship Graph, and rewrite/apply surfaces carry more visible authority than qualitative proof currently supports,
+   - Pass 4 added `P29-BOUND` authority-boundary evidence and confirmed the strongest trust-risk seams are rewrite/apply mutation, restore/recovery actions, support-versus-diagnostics leakage, and experimental workflow-pressure overhang.
  - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

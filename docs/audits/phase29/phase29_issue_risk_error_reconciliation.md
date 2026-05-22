@@ -78,6 +78,20 @@ The pass added stable `P29-INTEL` IDs for intelligence-surface classification on
 Existing `P29-SURF`, `P29-CTRL`, `P29-DEV`, and `P29-WFLOW` IDs were preserved.
 Phase 30 workflow/spec decisions were not started.
 
+## Pass 4 Progress Note
+
+Phase 29 Pass 4 created the initial boundary and authority-separation artifacts:
+
+- `docs/audits/phase29/authority_boundary_matrix.md`
+- `docs/audits/phase29/mutation_authority_review.md`
+- `docs/audits/phase29/support_vs_dev_boundary_review.md`
+- `docs/audits/phase29/experimental_workflow_pressure_review.md`
+- `docs/audits/phase29/phase29_pass4_boundary_authority_summary.md`
+
+The pass added stable `P29-BOUND` IDs for authority-boundary classification only.
+Existing `P29-SURF`, `P29-CTRL`, `P29-DEV`, `P29-WFLOW`, and `P29-INTEL` IDs were preserved.
+Phase 30 workflow/spec decisions were not started.
+
 ## Phase 29 Control Requirements
 
 ### Stable ID rules
