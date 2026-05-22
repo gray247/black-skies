@@ -8,6 +8,7 @@ Pass: 6 - Closure Synthesis and Carry-Forward Governance
 ## Purpose
 
 These checkpoints define where operator review is mandatory before future work proceeds beyond Phase 29 governance.
+These checkpoints govern future workflow promotion and authority approval. They do not, by themselves, reinterpret the current Phase 29 closure state.
 
 ## Workspace Header authority decomposition
 

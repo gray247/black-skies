@@ -14,6 +14,7 @@ It does not redesign workflows or begin Phase 30 architecture.
 
 Phase 29 established a stable audit evidence base across surfaces, controls, workflows, intelligence systems, authority boundaries, and governance dispositions.
 The phase proved that the current product shell contains real runtime-backed capabilities, but also concentrated authority overload, mixed mutation pathways, support-versus-diagnostics leakage, and several intelligence surfaces whose visible authority exceeds qualitative proof.
+Phase 29 findings consistently support narrower visible authority, stronger contextual layering, reduced workflow overload, and clearer separation between authoring, orchestration, support, diagnostics, and experimental systems.
 
 ## Strongest Confirmed Architectural Problems
 
@@ -32,7 +33,7 @@ The phase proved that the current product shell contains real runtime-backed cap
 
 - Rewrite/apply is the highest combined trust and mutation risk in the current system.
 - Snapshot restore, backup restore, and recovery actions are legitimate but high-consequence support mutations.
-- Generation is a legitimate mutation authority, but duplicated entry points still blur where that authority lives.
+- Generation is a legitimate runtime mutation pathway, but its workflow authority and trust framing still require governed placement.
 
 ## Strongest Confirmed Support vs Dev Leakage Risks
 
@@ -44,7 +45,7 @@ The phase proved that the current product shell contains real runtime-backed cap
 
 - Story Insights presents real runtime analytics, but not validated narrative authority.
 - Companion surfaces remain broader in visible authority than their runtime and qualitative proof justify.
-- Relationship Graph implies strong interpretive truth despite only partial runtime support.
+- Relationship Graph can imply stronger interpretive authority than current runtime and qualitative evidence justify.
 - Command-registry routing metadata would overstate orchestration maturity if surfaced directly.
 
 ## Confirmed Workflow-Overload Areas
@@ -93,10 +94,13 @@ The phase proved that the current product shell contains real runtime-backed cap
 - Story Insights if the project intends to promote analytics from descriptive metrics into prescriptive story guidance
 - Companion if the project intends to promote local/model advisory surfaces into trusted ongoing writer guidance
 
+Candidate Phase 32 should only activate if Phase 30 cannot safely govern intelligence-assisted mutation authority and qualitative validation requirements within the existing workflow policy structure.
+
 ## Closure Criteria Assessment
 
 Phase 29 evidence is strong enough to support a formal closure pass.
 Phase 29 is not yet ready for unconditional closure because the governance outcomes still require explicit human review on the highest-risk authority seams.
+Blocking classifications in Phase 29 refer to blocking future workflow promotion, authority approval, or implementation progression in affected areas, not necessarily blocking Phase 29 closure itself unless explicitly stated.
 
 ## Stop Conditions
 

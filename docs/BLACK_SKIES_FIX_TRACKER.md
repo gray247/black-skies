@@ -3035,6 +3035,9 @@ Backlog note drifted after phase-log cleanup.
    - Phase 29 now has explicit closure-readiness, carry-forward, human-review checkpoint, Phase 30 dependency, and closure-condition artifacts,
    - the phase is classified as conditionally ready for formal closure: no audit stop condition remains unresolved, but human review is still required on Workspace Header decomposition, rewrite/apply trust, support-versus-diagnostics separation, Story Insights / Companion authority, Split Command legitimacy, export authority, command-style access, snapshots/recovery visibility, contextual intelligence, and Writing Surface boundaries,
    - carry-forward governance remains explicit for rewrite/apply, Workspace Header overload, support-versus-diagnostics separation, contextual intelligence authority, Split Command deferral, command access visibility, export authority, and Writing Surface boundary policy.
+ - [2026-05-22] Phase 29 human-review and closure wording tightened before operator review:
+   - blocking language now explicitly means blocking future workflow promotion, authority approval, or implementation progression in affected areas unless a row says it also blocks Phase 29 closure,
+   - closure wording now emphasizes narrower visible authority, stronger contextual layering, and the distinction between runtime-backed capability, qualitative validation, and governance approval without changing any Phase 29 conclusions or counts.
  - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

@@ -8,6 +8,7 @@ Pass: 6 - Closure Synthesis and Carry-Forward Governance
 ## Purpose
 
 This register preserves unresolved or deferred governance issues that must survive beyond Phase 29.
+Blocking classifications in Phase 29 refer to blocking future workflow promotion, authority approval, or implementation progression in affected areas unless a row explicitly states that it also blocks Phase 29 closure itself.
 
 ## Carry-Forward Rows
 
