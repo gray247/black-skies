@@ -30,6 +30,11 @@ Phase 30 Pass 1 is governance-only.
 It establishes operational philosophy, mockup interpretation rules, authority layering, and dual-monitor constraints before workflow architecture begins.
 Dual-monitor behavior remains exploratory only, and Command Center remains analysis-first at this stage.
 
+## Pass 2 Progress Note
+
+Phase 30 Pass 2 is workflow-policy only.
+It defines Story Unit conceptual governance, workflow ownership boundaries, intelligence interaction constraints, and workflow transition rules without defining persistence architecture, layouts, or implementation mechanics.
+
 ## Source References
 
 - `docs/specs/workflow_spine.md`
