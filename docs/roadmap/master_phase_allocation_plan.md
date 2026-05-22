@@ -121,25 +121,37 @@ Documented execution reality now extends beyond the original Phase 20+ placehold
 - Phase 24 - True two-monitor workspace foundation is closed.
 - Phase 25 - Long-session / large-project hardening is closed.
 - Phase 26 - Project bootstrap truth + brand-new story creation workflow is closed.
-- Phase 27 - Runtime Truth, Session Lifecycle, and Authoring Continuity is in planning.
-- Phase 28+ is a provisional future bucket family, not a committed sequence.
-- Future buckets may split, merge, or reorder as evidence, dependencies, or governance needs change.
+- Phase 27 - Runtime Truth, Session Lifecycle, and Authoring Continuity is closed.
+- Phase 28-31 are the correction / realignment block and must complete before new build phases resume.
+- Phase 32-40 are the shifted provisional future buckets.
+- Future buckets may split, merge, or reorder as evidence, dependencies, or governance needs change, but the Phase 28-31 correction block remains the required insertion point for this realignment.
 
-## Provisional Future Buckets
+## Phase 28-31 Correction Block
+
+These phases are governance and roadmap correction work, not product feature phases.
+
+| Phase | Role |
+| --- | --- |
+| Phase 28 | Planning / Roadmap Authority Audit |
+| Phase 29 | Issue / Risk / Error Reconciliation |
+| Phase 30 | GUI / Workflow Realignment Spec |
+| Phase 31 | Roadmap Rewrite + Phase Renumbering |
+
+## Phase 32-40 Provisional Future Buckets
 
 The following buckets are strategic themes, not finalized commitments. They may split, merge, or reorder as later phases are accepted.
 
 | Bucket | Provisional theme | Current intent |
 | --- | --- | --- |
-| Phase 28+ | Visible multi-monitor workflow / cross-window authority hardening | Make the experimental split-command surface more legible, visible, and operator-coherent without breaking fail-closed behavior |
-| Phase 29+ | Runtime/session continuity and recovery | Define session ownership, reopen continuity, recovery semantics, and stale-session handling across windows |
-| Phase 30+ | Authoring lifecycle maturity | Clarify create, draft, critique, accept, and reopen transitions without expanding into output-quality claims |
-| Phase 31+ | Persistence / recovery maturity | Tighten save, export, autosave, dirty-state, and recovery boundaries so runtime truth and persisted truth stay distinct |
-| Phase 32+ | AI orchestration / intelligence governance | Keep AI admission, provenance, and trust-language rules bounded before any broader intelligence workflows land |
-| Phase 33+ | Memory systems | Define runtime memory, persisted memory, and continuity rules so memory does not masquerade as accepted project truth |
-| Phase 34+ | Narrative tooling | Expand story-structuring helpers and writer-facing narrative support only after lifecycle and authority boundaries are stable |
-| Phase 35+ | Export / publishing | Separate exported artifacts from accepted project truth and define the publishing authority boundary |
-| Phase 36+ | Collaboration / governance | If and when needed, define multi-operator, review, or governance workflows without collapsing authority ownership |
+| Phase 32 | Visible multi-monitor workflow / cross-window authority hardening | Make the experimental split-command surface more legible, visible, and operator-coherent without breaking fail-closed behavior |
+| Phase 33 | Runtime/session continuity and recovery | Define session ownership, reopen continuity, recovery semantics, and stale-session handling across windows |
+| Phase 34 | Authoring lifecycle maturity | Clarify create, draft, critique, accept, and reopen transitions without expanding into output-quality claims |
+| Phase 35 | Persistence / recovery maturity | Tighten save, export, autosave, dirty-state, and recovery boundaries so runtime truth and persisted truth stay distinct |
+| Phase 36 | AI orchestration / intelligence governance | Keep AI admission, provenance, and trust-language rules bounded before any broader intelligence workflows land |
+| Phase 37 | Memory systems | Define runtime memory, persisted memory, and continuity rules so memory does not masquerade as accepted project truth |
+| Phase 38 | Narrative tooling | Expand story-structuring helpers and writer-facing narrative support only after lifecycle and authority boundaries are stable |
+| Phase 39 | Export / publishing | Separate exported artifacts from accepted project truth and define the publishing authority boundary |
+| Phase 40 | Collaboration / governance | If and when needed, define multi-operator, review, or governance workflows without collapsing authority ownership |
 
 All buckets above remain provisional. No later bucket should be treated as a final promise about order, scope, or implementation depth.
 

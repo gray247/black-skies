@@ -23,6 +23,11 @@ Related planning docs:
 ## Runtime-aware planning note
 Later phases can be partially implemented in parallel. A phase marked `Partial` may include shipped seams, feature-flagged paths, advisory systems, or incomplete UI.
 
+## Post-Phase-27 Roadmap Note
+
+- Phase 28-31 are the correction / realignment block defined in `docs/roadmap/master_phase_allocation_plan.md`.
+- Post-Phase-27 sequencing and renumbering should be read from that master plan, not inferred from older phase placeholders.
+
 ## Phase summary
 | Phase | Name | Verified status | Runtime-aware summary |
 | :---- | :---- | :-------------- | :-------------------- |

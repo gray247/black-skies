@@ -1,0 +1,55 @@
+# Phase 31 Roadmap Rewrite + Phase Renumbering
+
+Status: Draft
+Date: 2026-05-21
+
+## Purpose
+
+Phase 31 turns the Phase 28-30 audit/spec work into a corrected roadmap sequence and preserves the old identities as migration history.
+
+This phase is documentation-only. It does not change product code.
+
+## Renumbering Summary
+
+The previous post-27 provisional bucket family has been shifted forward by four phases to make room for the correction block.
+
+| Former label | New label | Notes |
+| --- | --- | --- |
+| Phase 28+ visible multi-monitor workflow / cross-window authority hardening | Phase 32 | Existing theme family shifted forward. |
+| Phase 29+ runtime/session continuity and recovery | Phase 33 | Existing theme family shifted forward. |
+| Phase 30+ authoring lifecycle maturity | Phase 34 | Existing theme family shifted forward. |
+| Phase 31+ persistence / recovery maturity | Phase 35 | Existing theme family shifted forward. |
+| Phase 32+ AI orchestration / intelligence governance | Phase 36 | Existing theme family shifted forward. |
+| Phase 33+ memory systems | Phase 37 | Existing theme family shifted forward. |
+| Phase 34+ narrative tooling | Phase 38 | Existing theme family shifted forward. |
+| Phase 35+ export / publishing | Phase 39 | Existing theme family shifted forward. |
+| Phase 36+ collaboration / governance | Phase 40 | Existing theme family shifted forward. |
+
+## Migration Note
+
+- Keep the old phase identities searchable in tracker history and roadmap notes.
+- Do not delete historical references simply because the numbering changed.
+- If a doc still references the old post-27 numbering, it must be rewritten or annotated so the old label cannot be mistaken for current plan structure.
+- The correction block itself is not a product feature sequence. It is a roadmap repair sequence.
+
+## Success Gates Before Coding Resumes
+
+1. Phase 28 authority audit is complete and recorded.
+2. Phase 29 issue/risk/error reconciliation is complete and recorded.
+3. Phase 30 GUI/workflow realignment spec is complete and recorded.
+4. Phase 31 renumbering is reflected in the tracker and master roadmap.
+5. Phase 32-40 are clearly labeled as the shifted provisional future family.
+6. Stale claims about Phase 27 planning or the old Phase 28+ bucket family are rewritten or labeled historical.
+7. No runtime code changes are made in the correction block itself.
+
+## Build Blockers Until Closure
+
+- No new product build phase should begin until the correction block is accepted.
+- No GUI redesign work should proceed under the old numbering.
+- No later-phase claim should be treated as committed execution unless its corrected phase number is recorded.
+
+## Exit Criteria
+
+- The roadmap reads as a single corrected sequence rather than a competing set of phase stories.
+- Historical labels remain visible in migration notes.
+- Future build work can resume using the shifted numbering without ambiguity.

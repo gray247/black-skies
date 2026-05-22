@@ -3010,6 +3010,10 @@ Backlog note drifted after phase-log cleanup.
   - the Esther Estate edit/reopen flow passed with corrected dirty-state truth,
   - scene stability remained stable during the smoke run and pane usability was sufficient for validation,
   - Phase 27 is now closed as a runtime truth / session lifecycle / authoring continuity phase, while relocation-popup overlap, floating-pane awkwardness, and broader writer-focused GUI redesign debt remain deferred or watch-only for later roadmap work.
+- [2026-05-21] Phase 28 planning / roadmap authority audit started:
+  - the master roadmap has been realigned so Phase 28-31 are the correction / realignment block and the former post-27 buckets shift forward into the Phase 32-40 provisional family,
+  - the planning work is documentation-only and exists to separate authority docs, historical docs, stale claims, future-only fantasy, and phase-number migration notes before any new build phase resumes,
+  - no runtime code changed in this pass.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
