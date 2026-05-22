@@ -92,6 +92,19 @@ The pass added stable `P29-BOUND` IDs for authority-boundary classification only
 Existing `P29-SURF`, `P29-CTRL`, `P29-DEV`, `P29-WFLOW`, and `P29-INTEL` IDs were preserved.
 Phase 30 workflow/spec decisions were not started.
 
+## Pass 5 Progress Note
+
+Phase 29 Pass 5 created the initial disposition and governance-classification artifacts:
+
+- `docs/audits/phase29/keep_merge_hide_defer_delete_matrix.md`
+- `docs/audits/phase29/workspace_header_disposition_review.md`
+- `docs/audits/phase29/intelligence_surface_disposition_review.md`
+- `docs/audits/phase29/dev_vs_product_surface_disposition.md`
+- `docs/audits/phase29/phase29_pass5_disposition_summary.md`
+
+The pass converted accumulated Phase 29 evidence into preliminary governance dispositions without redesigning the GUI or starting Phase 30 workflow policy.
+Existing `P29-SURF`, `P29-CTRL`, `P29-DEV`, `P29-WFLOW`, `P29-INTEL`, and `P29-BOUND` IDs were preserved.
+
 ## Phase 29 Control Requirements
 
 ### Stable ID rules
