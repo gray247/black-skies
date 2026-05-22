@@ -18,6 +18,12 @@ Phase 30 defines the target GUI/workflow spine for the real product direction:
 
 This is a target spec, not a runtime claim.
 
+## Correction Block Handoff
+
+Phase 28 identifies authority. Phase 29 inventories what survives. Phase 30 defines the future workflow. Phase 31 rewrites the roadmap from that evidence.
+
+Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Unit Data Model + Qualitative Evaluation Foundation`. It should resolve Story Unit persistence and model-quality evaluation before any GUI rebuild. It is not inserted permanently by Phase 30.
+
 ## Source References
 
 - `docs/specs/workflow_spine.md`
@@ -114,6 +120,61 @@ This is a target spec, not a runtime claim.
 - API or stronger-model routing should be visibly intentional when quality requires escalation.
 - The GUI should distinguish "local", "API", and "quality escalation" states instead of hiding them inside generic AI output.
 - Testing surfaces may show more routing detail than the final GUI, but the final GUI should still make the quality boundary legible.
+
+## Required Outputs
+
+- writing surface / scratchboard behavior contract
+- highlight-to-capture Story Unit flow
+- blank Story Unit insertion flow
+- Story Unit hierarchy/tree behavior draft
+- rearrange/move/merge/expand/bridge/gap-removal workflow definitions
+- Command Center zone policy
+- command palette/search-bar strategy
+- dev GUI versus production GUI separation policy
+- dual-monitor / detachable command-center policy
+- tool visibility matrix
+- local/API model-routing visibility policy
+- candidate Phase 32 trigger list for unresolved Story Unit persistence or qualitative evaluation questions
+
+## Acceptance Gates
+
+- the target workflow is concrete enough for later implementation planning
+- the spec distinguishes current runtime reality from future workflow intent
+- Story Unit behavior is defined at the workflow level without pretending persistence exists
+- dev/test controls are not treated as final GUI controls
+- model-routing visibility is explicit enough to prevent hidden quality escalation
+- any unresolved data-model or quality-evaluation issue is routed to candidate Phase 32 instead of being hidden
+
+## Stop Conditions
+
+- the spec requires a canonical Story Unit persistence model before the current phase can responsibly continue
+- model-quality requirements cannot be stated without a separate evaluation framework
+- GUI workflow decisions contradict Phase 28 authority or Phase 29 inventory classifications
+- the phase turns into visual design or runtime implementation
+
+## Handoff Requirements
+
+- Phase 31 receives a workflow architecture spec with explicit dependencies and unresolved questions
+- candidate Phase 32 scope is listed only if unresolved Story Unit persistence or qualitative evaluation blocks future implementation
+- future GUI rebuild work receives tool visibility and dev/prod separation rules
+- old scene-first compatibility questions remain visible for roadmap placement
+
+## Validation Requirements
+
+- docs-only diff check
+- repository hygiene check for tracked files
+- targeted grep for runtime-claim wording if the spec adds future-only behavior
+- no runtime tests unless runtime files are changed, which is out of scope
+
+## Unresolved-Question Register
+
+| Question | Current handling |
+| --- | --- |
+| Are Story Units canonical persisted data or a compatibility layer over scenes first? | Candidate Phase 32 unless resolved by accepted Phase 30 spec. |
+| How do Story Units relate to scenes, drafts, outline nodes, and metadata? | Candidate Phase 32 trigger. |
+| What are the undo/delete/merge/split guarantees for Story Units? | Candidate Phase 32 trigger. |
+| What quality rubric decides when local routing is insufficient and API/stronger model escalation is justified? | Candidate Phase 32 trigger. |
+| Which future command-center zones are allowed to appear before runtime-backed intelligence exists? | Phase 30 policy decision with Phase 29 inventory input. |
 
 ## Exit Criteria
 

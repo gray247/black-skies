@@ -9,6 +9,12 @@ Phase 31 turns the Phase 28-30 audit/spec work into a corrected roadmap sequence
 
 This phase is documentation-only. It does not change product code.
 
+## Correction Block Handoff
+
+Phase 28 identifies authority. Phase 29 inventories what survives. Phase 30 defines the future workflow. Phase 31 rewrites the roadmap from that evidence.
+
+Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Unit Data Model + Qualitative Evaluation Foundation`. It should resolve Story Unit persistence and model-quality evaluation before any GUI rebuild. It is not inserted permanently by Phase 31 unless Phase 28-31 evidence proves the roadmap cannot safely resume without it.
+
 ## Renumbering Summary
 
 The previous post-27 provisional bucket family has been shifted forward by four phases to make room for the correction block.
@@ -97,6 +103,55 @@ The previous post-27 provisional bucket family has been shifted forward by four 
 - No new product build phase should begin until the correction block is accepted.
 - No GUI redesign work should proceed under the old numbering.
 - No later-phase claim should be treated as committed execution unless its corrected phase number is recorded.
+
+## Required Outputs
+
+- final old-to-new phase mapping
+- preservation verification with counts before and after insertion
+- merged/removed/renamed/consolidated/untouched classification
+- corrected active roadmap sequence
+- deferred roadmap sequence
+- superseded roadmap labels and migration note
+- build-resumption gates
+- candidate Phase 32 decision: insert, defer, or reject based on Phase 28-30 evidence
+
+## Acceptance Gates
+
+- every shifted phase has an old label, new label, and preservation status
+- no old planned scope disappears silently
+- active, deferred, historical, and superseded roadmap states are distinguishable
+- build phases remain blocked until correction-block closure is accepted
+- candidate Phase 32 is either justified with evidence or left as a documented candidate, not silently inserted
+
+## Stop Conditions
+
+- a prior planned scope cannot be mapped to a new phase
+- Phase 28-30 outputs disagree and cannot be reconciled without operator decision
+- a proposed roadmap rewrite removes or merges scope without explicit rationale
+- build work is requested before the roadmap rewrite is accepted
+
+## Handoff Requirements
+
+- downstream build phases receive the corrected numbering and gates
+- any candidate Phase 32 decision includes rationale and affected shifted phases
+- historical references stay searchable in migration notes
+- tracker and master roadmap are updated together for any accepted renumbering
+
+## Validation Requirements
+
+- docs-only diff check
+- repository hygiene check for tracked files
+- targeted grep for stale old-numbering references in roadmap authority docs
+- no runtime tests unless runtime files are changed, which is out of scope
+
+## Unresolved-Question Register
+
+| Question | Current handling |
+| --- | --- |
+| Should candidate Phase 32 be inserted before the shifted future family? | Candidate only until Phase 28-31 evidence proves it is required. |
+| If candidate Phase 32 is inserted, do current Phase 32-40 shift to Phase 33-41? | Must be decided explicitly in a later preservation audit. |
+| Which roadmap docs need warning headers for historical numbering? | Phase 31 execution task. |
+| What acceptance authority allows build phases to resume? | Operator acceptance plus tracker/master-roadmap update. |
 
 ## Exit Criteria
 

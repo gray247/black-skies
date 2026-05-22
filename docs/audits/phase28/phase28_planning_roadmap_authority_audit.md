@@ -9,6 +9,12 @@ Phase 28 audits which docs are acting as authority, which are historical, which 
 
 This phase is documentation-only. It does not change runtime behavior, product code, or phase execution order by itself.
 
+## Correction Block Handoff
+
+Phase 28 identifies authority. Phase 29 inventories what survives. Phase 30 defines the future workflow. Phase 31 rewrites the roadmap from that evidence.
+
+Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Unit Data Model + Qualitative Evaluation Foundation`. It should resolve Story Unit persistence and model-quality evaluation before any GUI rebuild. It is not inserted permanently by Phase 28.
+
 ## Evidence Inputs
 
 - `docs/BLACK_SKIES_FIX_TRACKER.md`
@@ -76,6 +82,52 @@ This phase is documentation-only. It does not change runtime behavior, product c
 - `future only`
 - `needs rewrite`
 - `warning`
+
+## Required Outputs
+
+- authority map for current roadmap, tracker, spec, GUI, audit, and phase docs
+- historical-doc list
+- stale-claim list
+- future-only / product-direction evidence list
+- conflict register with owning doc for each conflict
+- rewrite/archive/warning-label recommendations
+- tracker note recording the audit result
+
+## Acceptance Gates
+
+- every inspected doc is classified as authority, historical, stale, future-only, or warning/needs-rewrite
+- conflicts are assigned an owning document instead of left as ambiguous cross-doc disagreement
+- runtime-truth docs are not overridden by planning docs
+- product-direction evidence is not promoted to runtime truth
+- Phase 29 has enough input to inventory real risks and surviving surfaces
+
+## Stop Conditions
+
+- a supposed authority doc contradicts runtime truth and cannot be safely labeled without operator decision
+- a missing artifact is necessary to classify a current authority claim
+- a doc claims shipped behavior that cannot be verified from current runtime/code/test evidence
+- the audit starts requiring product code changes
+
+## Handoff Requirements
+
+- Phase 29 receives the authority map, stale-claim list, and conflict register
+- any future-only GUI/intelligence claims are carried forward as candidate inventory items, not as accepted product scope
+- unresolved authority questions remain visible rather than being collapsed into Phase 29 assumptions
+
+## Validation Requirements
+
+- docs-only diff check
+- repository hygiene check for tracked files
+- targeted doc grep for stale `Phase 27` and old `Phase 28+` claims where relevant
+- no runtime tests unless runtime files are changed, which is out of scope
+
+## Unresolved-Question Register
+
+| Question | Current handling |
+| --- | --- |
+| Should the operator-provided GUI revamp report become a repo-tracked reference artifact? | Unresolved; treat as product-direction evidence only until explicitly added. |
+| Do older GUI docs need warning headers or archive moves? | Forward to Phase 29/31 after classification. |
+| Which doc owns final Story Unit governance before implementation? | Candidate Phase 32 unless Phase 30 fully resolves it. |
 
 ## Exit Criteria
 

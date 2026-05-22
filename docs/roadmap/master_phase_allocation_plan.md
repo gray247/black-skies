@@ -131,6 +131,7 @@ Preservation note:
 - Pre-insertion post-Phase-27 future family: 9 labeled buckets (`Phase 28+` through `Phase 36+`).
 - Post-insertion future family: 13 explicit phases (`Phase 28` through `Phase 40`).
 - No future scope was removed or merged in this correction pass; the old provisional family was reindexed, preserved, and expanded with the inserted correction block.
+- Candidate follow-up: `Story Unit Data Model + Qualitative Evaluation Foundation` may become a new Phase 32 only if Phase 28-31 evidence proves Story Unit persistence and model-quality evaluation must be resolved before GUI rebuild work resumes. It is not inserted into the active numbering yet.
 
 ## Phase 28-31 Correction Block
 
