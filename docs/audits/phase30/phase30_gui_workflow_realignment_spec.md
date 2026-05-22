@@ -24,6 +24,12 @@ Phase 28 identifies authority. Phase 29 inventories what survives. Phase 30 defi
 
 Candidate Phase 32, if Phase 28-31 evidence proves it is required, is `Story Unit Data Model + Qualitative Evaluation Foundation`. It should resolve Story Unit persistence and model-quality evaluation before any GUI rebuild. It is not inserted permanently by Phase 30.
 
+## Pass 1 Planning Note
+
+Phase 30 Pass 1 is governance-only.
+It establishes operational philosophy, mockup interpretation rules, authority layering, and dual-monitor constraints before workflow architecture begins.
+Dual-monitor behavior remains exploratory only, and Command Center remains analysis-first at this stage.
+
 ## Source References
 
 - `docs/specs/workflow_spine.md`

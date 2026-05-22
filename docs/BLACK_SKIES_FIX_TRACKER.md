@@ -3038,6 +3038,9 @@ Backlog note drifted after phase-log cleanup.
  - [2026-05-22] Phase 29 human-review and closure wording tightened before operator review:
    - blocking language now explicitly means blocking future workflow promotion, authority approval, or implementation progression in affected areas unless a row says it also blocks Phase 29 closure,
    - closure wording now emphasizes narrower visible authority, stronger contextual layering, and the distinction between runtime-backed capability, qualitative validation, and governance approval without changing any Phase 29 conclusions or counts.
+ - [2026-05-22] Phase 30 Pass 1 established planning-governance boundaries:
+   - Phase 30 now has explicit operational philosophy, mockup governance, authority-layering, and dual-monitor governance artifacts before workflow architecture work begins,
+   - Writing Surface primacy remains the governing rule, Command Center is bounded as analysis-first, dual-monitor behavior remains exploratory only, and no mockup or experimental shell may silently become approved product direction.
  - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,
