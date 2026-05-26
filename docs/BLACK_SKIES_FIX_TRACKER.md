@@ -27,6 +27,9 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-05-26] Phase R2 reconciliation pass aligned the governance snapshot and survivability ledger:
   - survivability labels are now referenced consistently as provisional Phase R2 planning labels only,
   - Phase R2 remains open until a later closure snapshot records agreement on safe lanes, blocked lanes, source-of-truth artifacts, explicit non-promotions, and implementation reopening conditions.
+- [2026-05-26] Phase R2 closure snapshot draft recorded in `docs/audits/phase_r2_closure_snapshot_draft.md`:
+  - captures a non-closing draft skeleton for authority artifacts, safe/careful/blocked lanes, explicit non-promotions, and implementation reopening conditions,
+  - does not declare Phase R2 closed and does not reopen blocked implementation lanes.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
