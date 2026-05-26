@@ -49,6 +49,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - Pass 6 direction is highest waste-risk surface-family classification,
   - `Story Unit` presentation scope remains limited to shell-visible seams only,
   - future reconstruction should distinguish surface survival from underlying contract survival.
+- [2026-05-26] Roadmap reconstruction Pass 6 received orchestrator rulings:
+  - Pass 7 direction is command/search subsystem classification,
+  - command/search is prioritized because of bypass risk,
+  - detached-window routing remains `Historical Only` candidate, not explicit `Historical Only` yet.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
