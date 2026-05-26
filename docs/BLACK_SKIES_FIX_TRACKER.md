@@ -53,6 +53,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - Pass 7 direction is command/search subsystem classification,
   - command/search is prioritized because of bypass risk,
   - detached-window routing remains `Historical Only` candidate, not explicit `Historical Only` yet.
+- [2026-05-26] Roadmap reconstruction Pass 7 received orchestrator rulings:
+  - Pass 8 direction is mixed-authority header concentration,
+  - `search` should be treated as distinct from command palette by default,
+  - `verification` should later be separated from `restore` and `snapshot creation`.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
