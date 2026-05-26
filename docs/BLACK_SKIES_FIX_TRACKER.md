@@ -30,6 +30,9 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-05-26] Phase R2 closure snapshot draft recorded in `docs/audits/phase_r2_closure_snapshot_draft.md`:
   - captures a non-closing draft skeleton for authority artifacts, safe/careful/blocked lanes, explicit non-promotions, and implementation reopening conditions,
   - does not declare Phase R2 closed and does not reopen blocked implementation lanes.
+- [2026-05-26] Roadmap reconstruction inventory Pass 1 received orchestrator rulings:
+  - `docs/roadmap.md` is now treated as legacy roadmap authority pending reconciliation or supersession,
+  - reconstruction-era planning replaces `Candidate Phase 32` wording with `Structural Governance Pressure Candidate` and keeps that pressure non-authoritative.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
