@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-20
+Last Reviewed: 2026-05-26
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -15,6 +15,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Documentation Continuity Updates
+- [2026-05-26] Phase R2 governance snapshot recorded in `docs/audits/phase_r2_governance_snapshot.md`:
+  - preserves the synthesized workflow-state and surface-authority findings as a lightweight continuity artifact,
+  - keeps the result explicitly provisional and planning-oriented,
+  - records current planning/readiness blockers and dangerous assumptions without promoting topology, implementation architecture, or Candidate Phase 32 into approved scope.
+- [2026-05-26] Phase R2 roadmap survivability ledger recorded in `docs/audits/phase_r2_roadmap_survivability_ledger.md`:
+  - classifies current and planned work by survivability, transitional value, governance blockage, workflow blockage, and research-only status,
+  - remains a planning-support artifact only and does not rewrite the roadmap or activate Phase 32.
+- [2026-05-26] Phase R2 reconciliation pass aligned the governance snapshot and survivability ledger:
+  - survivability labels are now referenced consistently as provisional Phase R2 planning labels only,
+  - Phase R2 remains open until a later closure snapshot records agreement on safe lanes, blocked lanes, source-of-truth artifacts, explicit non-promotions, and implementation reopening conditions.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
