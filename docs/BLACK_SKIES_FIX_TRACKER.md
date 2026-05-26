@@ -37,6 +37,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - `Phase 19` is now treated as `Historical Draft / Superseded Candidate`,
   - `Phase 14-19` remain the `Governance Spine Historical Family`,
   - Pass 3 direction is `Phase 20-27` survivability classification by phase.
+- [2026-05-26] Roadmap reconstruction Pass 3 received orchestrator rulings:
+  - Pass 4 direction is `Phase 20-24` maintenance-safe versus redesign-bound classification,
+  - `Phase 24` is treated as authority-routing evidence rather than a current implementation foundation,
+  - the visible `Phase 23` Intelligence Readiness surface is historical scaffolding only, while provenance/trust rules survive.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
