@@ -33,6 +33,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-05-26] Roadmap reconstruction inventory Pass 1 received orchestrator rulings:
   - `docs/roadmap.md` is now treated as legacy roadmap authority pending reconciliation or supersession,
   - reconstruction-era planning replaces `Candidate Phase 32` wording with `Structural Governance Pressure Candidate` and keeps that pressure non-authoritative.
+- [2026-05-26] Roadmap reconstruction Pass 2 received orchestrator rulings:
+  - `Phase 19` is now treated as `Historical Draft / Superseded Candidate`,
+  - `Phase 14-19` remain the `Governance Spine Historical Family`,
+  - Pass 3 direction is `Phase 20-27` survivability classification by phase.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
