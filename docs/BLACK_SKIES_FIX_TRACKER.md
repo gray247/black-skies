@@ -85,6 +85,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - prepares movement from semantic governance reconstruction toward workflow-state reconstruction without finalizing workflow-state canon or authorizing roadmap, GUI, topology, command/search, diagnostics, or Story Unit changes,
   - carries forward stable findings around visibility legitimacy, adjacency authority equivalence, repetition normalization, truth-signal distortion, advisory/mutation separation, inspection/recovery separation, diagnostics audience split, and generation scope as mutation-boundary authority,
   - extracts provisional workflow-state requirements and candidate families for the next reconstruction cluster while keeping current GUI status transitional.
+- [2026-05-27] Roadmap reconstruction Pass 21 recorded in `docs/audits/provisional_workflow_state_family_inventory_pass21.md`:
+  - inventories provisional workflow-state families without finalizing workflow-state canon, rewriting the roadmap, redesigning the GUI, or authorizing command/search, topology, diagnostics, or Story Unit expansion,
+  - applies orchestrator rulings that Focused Drafting is both state and constraint, Generation/Rewrite/Mutation-Boundary should split, Support/Recovery and Diagnostics/Developer-Test start separate, and Export/Output remains an authority class first,
+  - preserves state versus constraint versus overlay versus authority-class distinctions for Pass 22 matrix work.
+- [2026-05-27] Roadmap reconstruction Pass 22 recorded in `docs/audits/workflow_state_authority_question_matrix_pass22.md`:
+  - maps unanswered authority, visibility, mutation, vocabulary, diagnostics, support/dev, command/search, status/truth, and export questions across provisional workflow-state families without finalizing workflow-state canon,
+  - preserves Focused Drafting as state plus constraint, Recovery Diagnostics as exceptional overlay/subfamily, Diagnostics/Developer-Test as dev/test-only state context, and Export/Output as authority class first,
+  - identifies blockers for workflow-state canon, implementation sequencing, Story Unit pressure reconstruction, command/search reconstruction, and support/diagnostics vocabulary stabilization.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
