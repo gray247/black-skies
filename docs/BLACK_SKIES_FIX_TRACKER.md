@@ -129,6 +129,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs structural mutation governance, structural mutation authority, organizational mutation pressure, hierarchy mutation semantics, and structural continuity mutation pressure without authorizing Story Unit persistence, topology architecture, structural canon, workflow-state canon, structural search, or command/search implementation,
   - separates hierarchy mutation, grouping mutation, outline mutation, scene-like mutation, organizational mutation, recomputed structure mutation, restore/reopen structural mutation, and generation/rewrite structural mutation as pressure families only,
   - records stale-state/source-of-truth reconstruction as the next dependency before structural mutation authority, structural retrieval governance, topology containment, restore/reopen split work, or structural command/search inheritance can stabilize.
+- [2026-05-27] Roadmap reconstruction Pass 32 recorded in `docs/audits/stale_state_source_of_truth_reconstruction_pass32.md`:
+  - reconstructs stale-state authority, source-of-truth authority, continuity survival semantics, restore/reopen source-of-truth pressure, and authoritative reconstruction pressure without authorizing Story Unit persistence, topology architecture, structural canon, structural retrieval, workflow-state canon, or command/search implementation,
+  - distinguishes current, restored, reopened, generated, rewritten, recomputed, advisory, and structural authority pressure while preserving that continuity survival is not persistence authorization and reconstruction pressure is not canonical authority,
+  - records topology containment, structural retrieval governance, structural command/search inheritance, batch continuity authority, rollback/failure semantics, diagnostics evidence grouping, and restore/reopen boundary detail as deferred dependencies.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
