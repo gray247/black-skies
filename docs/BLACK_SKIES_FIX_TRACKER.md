@@ -81,6 +81,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs provisional diagnostics audience vocabulary families for product-support diagnostics, developer/test diagnostics, and recovery diagnostics without treating them as final product copy,
   - classifies internal-only terms, translated support condition language, context-dependent diagnostics access, and leakage-sensitive diagnostics vocabulary,
   - preserves `openDiagnosticsFolder` as potentially shared only if visible/audience vocabulary remains split and keeps diagnostics folder access context-dependent.
+- [2026-05-27] Roadmap reconstruction Pass 20 recorded in `docs/audits/workflow_state_reconstruction_preparation_pass20.md`:
+  - prepares movement from semantic governance reconstruction toward workflow-state reconstruction without finalizing workflow-state canon or authorizing roadmap, GUI, topology, command/search, diagnostics, or Story Unit changes,
+  - carries forward stable findings around visibility legitimacy, adjacency authority equivalence, repetition normalization, truth-signal distortion, advisory/mutation separation, inspection/recovery separation, diagnostics audience split, and generation scope as mutation-boundary authority,
+  - extracts provisional workflow-state requirements and candidate families for the next reconstruction cluster while keeping current GUI status transitional.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
