@@ -105,6 +105,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs selection scope semantics across drafting, generation, rewrite/apply, verification, recovery pressure, and future command/search inheritance without finalizing workflow-state canon or authorizing implementation,
   - distinguishes selection as context, target, mutation scope, destination, evidence, and structural hint while preserving that selection is not permission and scope is not execution,
   - records command/search inheritance as blocked until selected context, target, destination, evidence, mutation scope, stale selection, broad scope, and multi-selection semantics are stabilized.
+- [2026-05-27] Roadmap reconstruction Pass 26 recorded in `docs/audits/command_search_inheritance_reconstruction_pass26.md`:
+  - reconstructs command/search inheritance semantics without authorizing command/search implementation, workflow-state canon, GUI redesign, roadmap rewrite, topology, diagnostics expansion, or Story Unit persistence,
+  - analyzes read-only search inheritance before command execution inheritance and distinguishes discover, navigate, prepare, preview, inspect, queue, request, and execute,
+  - records mutation-capable command routes as blocked until workflow-state authority, selection semantics, Mutation-Boundary Authority, support/recovery framing, diagnostics audience boundaries, and blast-radius governance stabilize.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
