@@ -65,6 +65,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs exposure boundaries between operator support truth, developer diagnostics authority, validation scaffolding, internal operational semantics, and ordinary workflow legitimacy,
   - keeps test-state, frozen/offline, service-health injection, and diagnostics bridge semantics classified as developer/test/internal reality unless explicitly bounded as operator support,
   - records that exposure contamination is highest where service-health/status, recovery diagnostics, test bridges, and header-visible runtime signals borrow ordinary workflow legitimacy through support placement and repeated visibility.
+- [2026-05-27] Roadmap reconstruction Pass 16 recorded in `docs/audits/internal_semantics_vs_user_workflow_vocabulary_pass16.md`:
+  - reconstructs vocabulary boundaries between internal operational semantics, developer/test vocabulary, product-support vocabulary, runtime truth language, diagnostics authority language, and user-facing workflow vocabulary,
+  - records `test-offline`, frozen-state, test bridge, and diagnostics bridge terminology as leakage-sensitive unless confined to dev/test or explicitly bounded support contexts,
+  - preserves the finding that always-visible service status is support truth plus workflow-readiness pressure, not neutral ambient truth.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
