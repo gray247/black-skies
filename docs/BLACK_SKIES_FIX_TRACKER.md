@@ -133,6 +133,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs stale-state authority, source-of-truth authority, continuity survival semantics, restore/reopen source-of-truth pressure, and authoritative reconstruction pressure without authorizing Story Unit persistence, topology architecture, structural canon, structural retrieval, workflow-state canon, or command/search implementation,
   - distinguishes current, restored, reopened, generated, rewritten, recomputed, advisory, and structural authority pressure while preserving that continuity survival is not persistence authorization and reconstruction pressure is not canonical authority,
   - records topology containment, structural retrieval governance, structural command/search inheritance, batch continuity authority, rollback/failure semantics, diagnostics evidence grouping, and restore/reopen boundary detail as deferred dependencies.
+- [2026-05-27] Roadmap reconstruction Pass 33 recorded in `docs/audits/topology_containment_reconstruction_pass33.md`:
+  - reconstructs topology containment, relationship pressure, hierarchy containment, traversal pressure, structural relationship governance, and graph-identity pressure without authorizing topology architecture, graph architecture, Story Unit persistence, structural canon, structural retrieval, workflow-state canon, or command/search implementation,
+  - distinguishes relationship visibility from graph identity, traversal pressure from traversal authorization, hierarchy pressure from topology canon, recomputed relationships from durable structural identity, and advisory relationships from authoritative relationships,
+  - records structural retrieval governance, structural command/search inheritance, rollback/failure semantics, diagnostics evidence grouping, topology-aware mutation pressure, topology-aware recovery pressure, and source-of-truth vocabulary as deferred dependencies.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
