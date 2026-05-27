@@ -113,6 +113,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs restore, reopen, and recovery governance semantics without finalizing workflow-state canon or authorizing implementation, command/search routes, topology, diagnostics expansion, or Story Unit persistence,
   - preserves recovery mutation as exceptional authority and separates restore, reopen, repair, verification, inspection, support visibility, and Recovery Diagnostics,
   - records recovery-adjacent command/search routes as blocked until restore/reopen governance, recovery blast radius, exception-state inheritance, and diagnostics boundaries stabilize.
+- [2026-05-27] Roadmap reconstruction Pass 28 recorded in `docs/audits/batch_authority_multiselection_governance_pass28.md`:
+  - reconstructs batch authority and multi-selection governance without finalizing workflow-state canon or authorizing implementation, command/search routes, topology, diagnostics expansion, or Story Unit persistence,
+  - distinguishes context grouping, target grouping, destination grouping, evidence grouping, mutation-scope grouping, and structural grouping while preserving that multi-selection is not batch permission and grouped visibility is not grouped authority,
+  - records structural batch semantics and structural search as blocked pending Story Unit pressure reconstruction.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
