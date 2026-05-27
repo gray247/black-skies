@@ -117,6 +117,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs batch authority and multi-selection governance without finalizing workflow-state canon or authorizing implementation, command/search routes, topology, diagnostics expansion, or Story Unit persistence,
   - distinguishes context grouping, target grouping, destination grouping, evidence grouping, mutation-scope grouping, and structural grouping while preserving that multi-selection is not batch permission and grouped visibility is not grouped authority,
   - records structural batch semantics and structural search as blocked pending Story Unit pressure reconstruction.
+- [2026-05-27] Roadmap reconstruction Pass 29 recorded in `docs/audits/story_unit_pressure_reconstruction_pass29.md`:
+  - reconstructs Story Unit pressure, structural identity pressure, organizational semantics, topology pressure, and persistence pressure without authorizing Story Unit implementation, Story Unit persistence, structural search, topology architecture, GUI redesign, roadmap rewrite, or command/search implementation,
+  - distinguishes scene-like identity pressure, outline/object identity pressure, grouped narrative object pressure, structural continuity pressure, and organizational hierarchy pressure while preserving that structural pressure is not implementation need,
+  - records continuity authority, stale-state/source-of-truth reconstruction, topology containment, structural search governance, command/search structural inheritance, and structural mutation boundaries as deferred dependencies.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
