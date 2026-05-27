@@ -101,6 +101,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - maps Mutation-Boundary Authority as a provisional transition governor across drafting-to-generation, drafting-to-rewrite/apply, selection-to-generation, selection-to-rewrite/apply, advisory-to-rewrite/apply, verification-to-mutation, recovery-to-restore mutation, and future command/search mutation routes,
   - preserves the distinctions between mutation-boundary authority and mutation execution, selection scope and mutation permission, advisory suggestion and rewrite/apply mutation, and generation scope and generation action,
   - records command/search inheritance as blocked until mutation target, scope, confirmation, blast radius, and active workflow-state authority are reconstructed.
+- [2026-05-27] Roadmap reconstruction Pass 25 recorded in `docs/audits/selection_scope_semantics_reconstruction_pass25.md`:
+  - reconstructs selection scope semantics across drafting, generation, rewrite/apply, verification, recovery pressure, and future command/search inheritance without finalizing workflow-state canon or authorizing implementation,
+  - distinguishes selection as context, target, mutation scope, destination, evidence, and structural hint while preserving that selection is not permission and scope is not execution,
+  - records command/search inheritance as blocked until selected context, target, destination, evidence, mutation scope, stale selection, broad scope, and multi-selection semantics are stabilized.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
