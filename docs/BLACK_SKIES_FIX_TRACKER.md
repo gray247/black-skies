@@ -121,6 +121,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs Story Unit pressure, structural identity pressure, organizational semantics, topology pressure, and persistence pressure without authorizing Story Unit implementation, Story Unit persistence, structural search, topology architecture, GUI redesign, roadmap rewrite, or command/search implementation,
   - distinguishes scene-like identity pressure, outline/object identity pressure, grouped narrative object pressure, structural continuity pressure, and organizational hierarchy pressure while preserving that structural pressure is not implementation need,
   - records continuity authority, stale-state/source-of-truth reconstruction, topology containment, structural search governance, command/search structural inheritance, and structural mutation boundaries as deferred dependencies.
+- [2026-05-27] Roadmap reconstruction Pass 30 recorded in `docs/audits/continuity_authority_reconstruction_pass30.md`:
+  - reconstructs continuity authority, continuity inheritance pressure, narrative continuity semantics, structural continuity semantics, and persistence-adjacent continuity pressure without authorizing Story Unit persistence, topology architecture, structural canon, workflow-state canon, structural search, or command/search implementation,
+  - separates narrative continuity from structural continuity and distinguishes continuity pressure from persistence authorization, grouped continuity from stable identity, continuity inheritance from source-of-truth canon, and recomputed continuity from durable continuity identity,
+  - records stale-state/source-of-truth reconstruction, topology containment, structural search governance, command/search structural inheritance, structural mutation governance, batch continuity authority, and restore/reopen split work as deferred dependencies.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
