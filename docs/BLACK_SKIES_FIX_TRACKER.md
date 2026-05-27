@@ -93,6 +93,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - maps unanswered authority, visibility, mutation, vocabulary, diagnostics, support/dev, command/search, status/truth, and export questions across provisional workflow-state families without finalizing workflow-state canon,
   - preserves Focused Drafting as state plus constraint, Recovery Diagnostics as exceptional overlay/subfamily, Diagnostics/Developer-Test as dev/test-only state context, and Export/Output as authority class first,
   - identifies blockers for workflow-state canon, implementation sequencing, Story Unit pressure reconstruction, command/search reconstruction, and support/diagnostics vocabulary stabilization.
+- [2026-05-27] Roadmap reconstruction Pass 23 recorded in `docs/audits/provisional_workflow_state_entry_exit_pass23.md`:
+  - maps provisional entry and exit criteria for workflow-state families without finalizing workflow-state canon, rewriting the roadmap, redesigning the GUI, or authorizing command/search, topology, diagnostics, or Story Unit expansion,
+  - analyzes Focused Drafting first as both state candidate and protective governing constraint, then maps provisional transitions for selection, generation, rewrite/apply, mutation-boundary authority, advisory/review, verification/inspection, support/recovery, recovery diagnostics, developer/test diagnostics, advanced analysis, and structure/organization,
+  - records the highest entry/exit ambiguity around Focused Drafting constraint persistence, selection becoming mutation scope, advisory becoming mutation, verification becoming recovery, recovery exposing diagnostics, and structure implying Story Unit persistence.
+- [2026-05-27] Roadmap reconstruction Pass 24 recorded in `docs/audits/mutation_boundary_authority_transition_map_pass24.md`:
+  - maps Mutation-Boundary Authority as a provisional transition governor across drafting-to-generation, drafting-to-rewrite/apply, selection-to-generation, selection-to-rewrite/apply, advisory-to-rewrite/apply, verification-to-mutation, recovery-to-restore mutation, and future command/search mutation routes,
+  - preserves the distinctions between mutation-boundary authority and mutation execution, selection scope and mutation permission, advisory suggestion and rewrite/apply mutation, and generation scope and generation action,
+  - records command/search inheritance as blocked until mutation target, scope, confirmation, blast radius, and active workflow-state authority are reconstructed.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
