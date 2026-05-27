@@ -109,6 +109,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs command/search inheritance semantics without authorizing command/search implementation, workflow-state canon, GUI redesign, roadmap rewrite, topology, diagnostics expansion, or Story Unit persistence,
   - analyzes read-only search inheritance before command execution inheritance and distinguishes discover, navigate, prepare, preview, inspect, queue, request, and execute,
   - records mutation-capable command routes as blocked until workflow-state authority, selection semantics, Mutation-Boundary Authority, support/recovery framing, diagnostics audience boundaries, and blast-radius governance stabilize.
+- [2026-05-27] Roadmap reconstruction Pass 27 recorded in `docs/audits/recovery_restore_reopen_governance_pass27.md`:
+  - reconstructs restore, reopen, and recovery governance semantics without finalizing workflow-state canon or authorizing implementation, command/search routes, topology, diagnostics expansion, or Story Unit persistence,
+  - preserves recovery mutation as exceptional authority and separates restore, reopen, repair, verification, inspection, support visibility, and Recovery Diagnostics,
+  - records recovery-adjacent command/search routes as blocked until restore/reopen governance, recovery blast radius, exception-state inheritance, and diagnostics boundaries stabilize.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
