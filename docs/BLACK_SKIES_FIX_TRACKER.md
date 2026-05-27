@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-26
+Last Reviewed: 2026-05-27
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -57,6 +57,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - Pass 8 direction is mixed-authority header concentration,
   - `search` should be treated as distinct from command palette by default,
   - `verification` should later be separated from `restore` and `snapshot creation`.
+- [2026-05-27] Roadmap reconstruction Pass 14 recorded in `docs/audits/support_truth_diagnostics_leakage_boundaries_pass14.md`:
+  - reconstructs support truth versus diagnostics leakage boundaries without rewriting the roadmap, renumbering phases, redesigning the GUI, or authorizing diagnostics expansion,
+  - preserves the distinction between operator-facing support, developer diagnostics, runtime truth, operational readiness inference, retry truth, recovery truth, workflow contamination, and diagnostics leakage,
+  - records that the highest leakage risk remains in service-health/test-offline branches, recovery-adjacent diagnostics entry, retry/status support surfaces, and test/offline scaffolding that shares product-visible support families.
+- [2026-05-27] Roadmap reconstruction Pass 15 recorded in `docs/audits/operator_support_vs_developer_diagnostics_pass15.md`:
+  - reconstructs exposure boundaries between operator support truth, developer diagnostics authority, validation scaffolding, internal operational semantics, and ordinary workflow legitimacy,
+  - keeps test-state, frozen/offline, service-health injection, and diagnostics bridge semantics classified as developer/test/internal reality unless explicitly bounded as operator support,
+  - records that exposure contamination is highest where service-health/status, recovery diagnostics, test bridges, and header-visible runtime signals borrow ordinary workflow legitimacy through support placement and repeated visibility.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
