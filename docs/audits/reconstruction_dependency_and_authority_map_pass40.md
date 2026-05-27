@@ -35,11 +35,12 @@ Assumption handling:
 - `docs/audits/failed_retrieval_invalidity_semantics_pass37.md`
 - `docs/audits/restore_reopen_boundary_detail_pass38.md`
 - `docs/audits/source_of_truth_vocabulary_stabilization_pass39.md`
+- `docs/audits/recovery_diagnostics_governance_pass41.md` (control update)
 
 ## Executive Findings
 
 - The reconstruction arc now has enough local findings to require global control artifacts.
-- The highest unresolved blockers are source-of-truth authority, recovery diagnostics governance, structural command/search inheritance, structural retrieval governance, Story Unit pressure, topology containment, and rollback/failure semantics.
+- The highest unresolved blockers are source-of-truth authority, recovery diagnostics closure, structural command/search inheritance, structural retrieval governance, Story Unit pressure, topology containment, diagnostics evidence grouping, and rollback/failure semantics.
 - Most dangerous implementation waste would come from treating provisional pressure families as product architecture.
 - Command/search remains the largest bypass risk because it can inherit or compress every unresolved authority family.
 - Vocabulary is now a governance surface; repeated provisional terms can become de facto canon if not tracked.
@@ -50,7 +51,7 @@ Assumption handling:
 - `Mutation`: governs generation, rewrite/apply, restore/recovery mutation, structural mutation pressure, and batch mutation pressure. Current status: provisional; blocked by Mutation-Boundary Authority, source-of-truth authority, rollback/failure semantics, and workflow-state canon.
 - `Recovery`: governs restore, reopen, repair, recovery diagnostics, recovery-after-failure, and stale restoration. Current status: exceptional only; recovery execution remains unauthorized.
 - `Retrieval`: governs visible/retrievable/stale/recomputed/grouped/invalid retrieval pressure. Current status: pressure-only; structural retrieval and retrieval-linked execution remain unauthorized.
-- `Diagnostics`: governs product-support diagnostics, developer/test diagnostics, recovery diagnostics, diagnostics evidence, and diagnostics audience separation. Current status: split conceptually, but recovery diagnostics governance remains unresolved.
+- `Diagnostics`: governs product-support diagnostics, developer/test diagnostics, recovery diagnostics, diagnostics evidence, and diagnostics audience separation. Current status: split conceptually; recovery diagnostics is partially reconstructed by Pass 41 but remains non-authorizing and not closed.
 - `Advisory`: governs critique, review, interpretation, structural suggestions, and advisory continuity. Current status: non-mutating; must not become accepted authority.
 - `Inspection`: governs verification, evidence, reports, and bounded proof. Current status: evidence-only; must not become repair, recovery, or mutation permission.
 - `Support`: governs support truth, retry truth, service/runtime condition language, and user-facing condition explanation. Current status: maintenance-safe when contextual; unsafe when ambient or diagnostics-leaking.
@@ -70,13 +71,13 @@ Assumption handling:
 - Roadmap rewrite is blocked by closure gates for this reconstruction arc.
 - Command/search structural inheritance is blocked by structural retrieval governance, source-of-truth vocabulary, topology containment, rollback/failure semantics, retrieval invalidity, and restore/reopen boundary detail.
 - Retrieval-linked execution is blocked by retrieval governance, grouped retrieval governance, failed retrieval invalidity, rollback/failure semantics, restore/reopen boundary detail, and source-of-truth vocabulary.
-- Recovery-linked routes are blocked by restore/reopen boundary detail, recovery diagnostics governance, rollback/failure semantics, and support/recovery exception framing.
+- Recovery-linked routes are blocked by restore/reopen boundary detail, recovery diagnostics closure, rollback/failure semantics, support/recovery exception framing, diagnostics evidence grouping, and user-facing condition language.
 - Structural retrieval is blocked by Story Unit pressure, topology containment, source-of-truth authority, retrieval invalidity, and vocabulary stabilization.
 - Structural mutation is blocked by Story Unit pressure, continuity authority, source-of-truth authority, topology containment, and mutation-boundary extension.
 - Topology architecture is blocked by Story Unit persistence, source-of-truth authority, structural retrieval governance, relationship vocabulary, and graph-identity containment.
 - Story Unit persistence is blocked by structural identity pressure, source-of-truth authority, continuity authority, structural mutation governance, topology containment, and structural retrieval governance.
 - Batch authority is blocked by selection semantics, grouped retrieval semantics, rollback/failure semantics, batch continuity authority, and mutation-boundary governance.
-- Recovery diagnostics governance is blocked by diagnostics audience split, support truth boundaries, restore/reopen boundaries, retrieval invalidity evidence, and source-of-truth vocabulary.
+- Recovery diagnostics governance is partially reconstructed by Pass 41 and remains blocked from closure by diagnostics evidence grouping, user-facing condition language, restore/reopen authority detail, retrieval invalidity evidence boundaries, source-of-truth vocabulary, and recovery exception entry/exit rules.
 - Product vocabulary is blocked by internal/provisional vocabulary separation, source-of-truth vocabulary, recovery language split, retrieval invalidity language, and structural term containment.
 
 ## Contradiction Register
@@ -91,7 +92,7 @@ Assumption handling:
 ### C-002
 
 - contradiction: Visibility is necessary for support and recovery, yet visibility creates legitimacy and normalization pressure.
-- affected docs/passes: Passes 11, 14, 20, 27, 38
+- affected docs/passes: Passes 11, 14, 20, 27, 38, 41
 - status: open
 - why it matters: support/recovery surfaces can become ordinary workflow tooling.
 
@@ -105,7 +106,7 @@ Assumption handling:
 ### C-004
 
 - contradiction: Verification improves safety, yet verification evidence can be read as repair, recovery, or mutation permission.
-- affected docs/passes: Passes 9, 11, 22, 27, 36
+- affected docs/passes: Passes 9, 11, 22, 27, 36, 41
 - status: contained
 - why it matters: proof must remain separate from action authority.
 
@@ -126,14 +127,14 @@ Assumption handling:
 ### C-007
 
 - contradiction: Restore protects work, yet restore-as-replacement can overwrite or abandon current authority.
-- affected docs/passes: Passes 27, 32, 36, 38
+- affected docs/passes: Passes 27, 32, 36, 38, 41
 - status: open
 - why it matters: recovery safety language can hide high-impact mutation.
 
 ### C-008
 
 - contradiction: Reopen feels like navigation, yet it can resume, replace, recover, or rehydrate authority.
-- affected docs/passes: Passes 27, 32, 38, 39
+- affected docs/passes: Passes 27, 32, 38, 39, 41
 - status: open
 - why it matters: reopen cannot be exposed as harmless routing until authority effects are bounded.
 
@@ -161,7 +162,7 @@ Assumption handling:
 ### C-012
 
 - contradiction: Retrieval helps orientation, yet retrieval visibility implies persistence, identity, and authority.
-- affected docs/passes: Passes 34, 35, 37
+- affected docs/passes: Passes 34, 35, 37, 41
 - status: open
 - why it matters: structural retrieval can become Story Unit persistence by another route.
 
@@ -182,21 +183,21 @@ Assumption handling:
 ### C-015
 
 - contradiction: Failure evidence is needed, yet failure visibility can imply rollback, repair, retry, or recovery authority.
-- affected docs/passes: Passes 36, 37, 38
+- affected docs/passes: Passes 36, 37, 38, 41
 - status: open
 - why it matters: failure handling can create accidental recovery routes.
 
 ### C-016
 
 - contradiction: Command/search improves access, yet discoverability and routing can become authorization.
-- affected docs/passes: Passes 7, 21-26, 34-38
+- affected docs/passes: Passes 7, 21-26, 34-38, 41
 - status: open
 - why it matters: command/search is the primary bypass vector.
 
 ### C-017
 
 - contradiction: Vocabulary needs stabilization, yet stabilized terms can become canon or product copy prematurely.
-- affected docs/passes: Passes 16-19, 39
+- affected docs/passes: Passes 16-19, 39, 41
 - status: open
 - why it matters: language can promote unauthorized architecture.
 
@@ -222,6 +223,10 @@ Assumption handling:
 - batch recovery authority
 - diagnostics expansion
 - recovery diagnostics as ordinary workflow
+- recovery diagnostics as recovery permission
+- recovery diagnostics as source-of-truth authority
+- diagnostics-folder exposure as ordinary workflow tooling
+- generic `View diagnostics` wording as neutral product copy
 - current GUI as final workflow architecture
 - provisional vocabulary as product copy
 - `canonical`, `current`, `source of truth`, `restored`, `reopened`, `retrievable`, `grouped`, `continuity`, or `recomputed` as unqualified product authority terms
@@ -229,7 +234,7 @@ Assumption handling:
 ## Deferred Dependency Register
 
 - `Source-of-Truth Vocabulary`: needs narrower current/active/visible, restored/recovered/rehydrated/reopened/resumed, stale/invalid/unresolved/orphaned splits.
-- `Recovery Diagnostics Governance`: needs separation from support truth, restore/reopen authority, retrieval invalidity, and developer/test diagnostics.
+- `Recovery Diagnostics Governance`: partially reconstructed by Pass 41; still needs closure around diagnostics evidence grouping, user-facing condition language, recovery exception entry/exit, restore/reopen adjacency, retrieval invalidity evidence, and developer/test investigation boundaries.
 - `User-Facing Condition Language`: needs split from internal governance vocabulary.
 - `Command/Search Structural Inheritance`: needs structural retrieval, source-of-truth vocabulary, rollback/failure semantics, topology-aware mutation/recovery pressure, and recovery diagnostics governance first.
 - `Retrieval-Linked Execution Pressure`: needs retrieval invalidity, grouped retrieval, rollback/failure, restore/reopen boundary, and source-of-truth vocabulary first.
@@ -238,7 +243,7 @@ Assumption handling:
 - `Topology-Aware Recovery Pressure`: needs restore/reopen boundary, source-of-truth vocabulary, recovery diagnostics governance, and topology containment.
 - `Story Unit Persistence Decision`: needs structural identity, continuity, source-of-truth, topology, retrieval, and mutation governance.
 - `Rollback / Partial Failure Detail`: needs source-of-truth vocabulary and restore/reopen failure detail before command/search routes.
-- `Diagnostics Evidence Grouping`: needs recovery diagnostics governance and retrieval invalidity separation.
+- `Diagnostics Evidence Grouping`: needs recovery evidence, diagnostics evidence, retrieval invalidity evidence, and developer/test evidence to remain separately grouped after Pass 41.
 
 ## Closure Gates For Current Reconstruction Arc
 
@@ -247,7 +252,7 @@ Assumption handling:
 - Gate 3: blocked promotions register accepted and kept active through any roadmap rewrite.
 - Gate 4: deferred dependency register converted into an explicit next-pass queue.
 - Gate 5: source-of-truth vocabulary split produces internal governance terms versus candidate user-facing condition language.
-- Gate 6: recovery diagnostics governance separates support truth, recovery evidence, diagnostics evidence, and developer/test diagnostics.
+- Gate 6: recovery diagnostics governance separates support truth, recovery evidence, diagnostics evidence, developer/test diagnostics, and investigation-only evidence without authorizing recovery execution or diagnostics expansion.
 - Gate 7: structural retrieval and grouped retrieval remain non-authorizing unless a later pass explicitly changes status.
 - Gate 8: command/search inheritance remains blocked until workflow-state authority and structural/recovery/retrieval dependencies are mapped.
 - Gate 9: Story Unit and topology remain pressure-only unless separate authorization artifacts are created.
@@ -258,7 +263,7 @@ Assumption handling:
 - workflow-state canon is not finalized
 - source-of-truth vocabulary remains provisional
 - command/search inheritance remains blocked
-- recovery diagnostics governance remains unresolved
+- recovery diagnostics governance is partially reconstructed but not closed
 - restore/reopen execution remains unauthorized
 - retrieval-linked execution remains unauthorized
 - structural retrieval remains unauthorized
@@ -291,13 +296,15 @@ Assumption handling:
 - retrieval-linked execution
 - batch mutation or batch recovery
 - diagnostics expansion or recovery diagnostics normalization
+- diagnostics-folder exposure as ordinary workflow tooling
+- recovery diagnostics language that implies restore, reopen, rollback, retry, rehydrate, or resume-authority permission
 - GUI redesign based on provisional workflow families
 - roadmap rewrite before closure gates are satisfied
 
 ## Areas Still Too Fragmented
 
 - source-of-truth vocabulary versus user-facing condition language
-- recovery diagnostics evidence versus support truth
+- recovery diagnostics evidence versus support truth, recovery evidence, investigation-only evidence, and developer/test diagnostics
 - structural retrieval versus command/search retrieval
 - grouped retrieval versus batch authority
 - topology-aware mutation versus structural mutation
@@ -309,11 +316,22 @@ Assumption handling:
 
 ## Recommended Next Pass
 
-Run Pass 41 focused on recovery diagnostics governance.
+Run Pass 42 focused on user-facing condition language versus internal governance vocabulary.
 
-Pass 41 should:
-- keep diagnostics expansion unauthorized
-- separate recovery diagnostics evidence from support truth, restore/reopen authority, retrieval invalidity, source-of-truth authority, developer/test diagnostics, and user-facing condition language
+Pass 42 should:
+- use Pass 41 recovery diagnostics boundaries as input
+- split support explanation, recovery evidence, diagnostics evidence, developer/test investigation, and user-facing condition language
+- keep diagnostics expansion, recovery execution, command/search implementation, topology architecture, Story Unit persistence, structural canon, structural retrieval, GUI redesign, roadmap rewrite, phase renumbering, and Phase 32 activation unauthorized
 - preserve this dependency/authority map as the active control artifact
-- update contradiction IDs rather than restating contradictions without identifiers
-- keep workflow-state canon, command/search implementation, topology architecture, Story Unit persistence, structural canon, structural retrieval, recovery execution, GUI redesign, roadmap rewrite, phase renumbering, and Phase 32 activation unauthorized
+- update contradiction IDs and blocked-promotion entries rather than restating conflicts without register changes
+
+## Pass 41 Control Update
+
+Pass 41 created `docs/audits/recovery_diagnostics_governance_pass41.md`.
+
+Control updates:
+- Recovery diagnostics is now partially reconstructed as a separate authority family, but remains non-authorizing and not closed.
+- Recovery diagnostics cannot inherit mutation authority, recovery permission, source-of-truth authority, retrieval execution authority, restore authority, reopen authority, rollback authority, rehydrate authority, retry authority, or resume-authority status.
+- `View diagnostics` and diagnostics-folder exposure are now explicitly governance-sensitive terminology, not neutral support copy.
+- Existing contradiction IDs `C-002`, `C-004`, `C-007`, `C-008`, `C-012`, `C-015`, `C-016`, and `C-017` carry Pass 41 findings; no new contradiction ID was required.
+- User-facing condition language is the next dependency because recovery diagnostics vocabulary must not become product-support copy by repetition.

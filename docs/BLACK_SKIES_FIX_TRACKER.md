@@ -165,6 +165,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - creates a synthesis/control artifact for the reconstruction arc without rewriting the roadmap, authorizing implementation, finalizing workflow-state canon, redesigning the GUI, or promoting topology, Story Unit persistence, command/search expansion, structural retrieval, or recovery execution,
   - maps active authority families, dependency blockers, stable contradiction IDs, blocked promotions, deferred dependencies, closure gates, implementation blockers, safe maintenance lanes, forbidden implementation lanes, and fragmented areas,
   - establishes the contradiction register `C-001` through `C-017` and recommends recovery diagnostics governance as the next reconstruction pass while preserving the map as a control artifact.
+- [2026-05-27] Roadmap reconstruction Pass 41 recorded in `docs/audits/recovery_diagnostics_governance_pass41.md`:
+  - reconstructs recovery diagnostics governance as a separate non-authorizing authority family without authorizing diagnostics expansion, recovery execution, recovery-linked command/search routes, workflow-state canon, topology architecture, Story Unit persistence, structural retrieval execution, or roadmap rewrite,
+  - distinguishes inspect, investigate, verify, recover, reopen, restore, retry, rollback, rehydrate, and resume authority while preserving that recovery diagnostics evidence does not grant mutation authority, recovery permission, source-of-truth authority, or retrieval execution authority,
+  - updates the Pass 40 control artifact to keep recovery diagnostics partially reconstructed but not closed, mark `View diagnostics` and diagnostics-folder exposure as governance-sensitive terminology, and carry Pass 41 findings through existing contradiction IDs `C-002`, `C-004`, `C-007`, `C-008`, `C-012`, `C-015`, `C-016`, and `C-017`.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
