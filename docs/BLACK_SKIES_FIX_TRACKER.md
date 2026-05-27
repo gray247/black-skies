@@ -161,6 +161,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - stabilizes provisional vocabulary families around authority, recovery, stale state, recomputation, continuity, restoration, retrieval invalidity, and resumed/reopened state semantics without authorizing workflow-state canon, command/search implementation, topology architecture, Story Unit persistence, structural canon, retrieval execution, recovery execution, or structural command/search inheritance,
   - distinguishes visibility from authority, continuity from persistence, recomputation from durable identity, restoration from replacement, navigation from authority resumption, stale meaning from current authority, advisory structure from accepted structure, and grouped retrieval from object identity,
   - records overloaded terms such as current, authoritative, canonical, accepted, resumed, reopened, restored, rehydrated, recovered, stale, recomputed, advisory, visible, retrievable, grouped, persisted, active, invalid, unresolved, orphaned, continuity, and source of truth as provisional vocabulary requiring continued governance.
+- [2026-05-27] Roadmap reconstruction Pass 40 recorded in `docs/audits/reconstruction_dependency_and_authority_map_pass40.md`:
+  - creates a synthesis/control artifact for the reconstruction arc without rewriting the roadmap, authorizing implementation, finalizing workflow-state canon, redesigning the GUI, or promoting topology, Story Unit persistence, command/search expansion, structural retrieval, or recovery execution,
+  - maps active authority families, dependency blockers, stable contradiction IDs, blocked promotions, deferred dependencies, closure gates, implementation blockers, safe maintenance lanes, forbidden implementation lanes, and fragmented areas,
+  - establishes the contradiction register `C-001` through `C-017` and recommends recovery diagnostics governance as the next reconstruction pass while preserving the map as a control artifact.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
