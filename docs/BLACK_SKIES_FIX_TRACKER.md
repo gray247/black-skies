@@ -73,6 +73,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs the vocabulary split between product-support diagnostics and developer/test diagnostics without authorizing diagnostics expansion, GUI redesign, roadmap rewrite, or product copy rewrite,
   - preserves internal reason keys such as `test-offline`, `service_port_unavailable`, frozen-state flags, and service test events as implementation/test vocabulary unless translated into bounded support condition language,
   - records recovery-adjacent `View diagnostics`, test-offline service wording, diagnostics bridge terminology, and always-visible status pressure as the highest diagnostics vocabulary leakage areas.
+- [2026-05-27] Roadmap reconstruction Pass 18 recorded in `docs/audits/diagnostics_bridge_authority_split_pass18.md`:
+  - reconstructs how the current diagnostics bridge blends product-support diagnostics, developer/test diagnostics, runtime truth, validation scaffolding, recovery investigation, and support investigation,
+  - records the bridge as implementation-narrow but semantically broad because one exposed diagnostics family serves multiple audiences,
+  - preserves recovery diagnostics as an exceptional diagnostics family and keeps `service_port_unavailable` internal-only pending later vocabulary governance.
+- [2026-05-27] Roadmap reconstruction Pass 19 recorded in `docs/audits/canonical_diagnostics_audience_vocabulary_pass19.md`:
+  - reconstructs provisional diagnostics audience vocabulary families for product-support diagnostics, developer/test diagnostics, and recovery diagnostics without treating them as final product copy,
+  - classifies internal-only terms, translated support condition language, context-dependent diagnostics access, and leakage-sensitive diagnostics vocabulary,
+  - preserves `openDiagnosticsFolder` as potentially shared only if visible/audience vocabulary remains split and keeps diagnostics folder access context-dependent.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
