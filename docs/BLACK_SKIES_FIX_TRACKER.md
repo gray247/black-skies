@@ -69,6 +69,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reconstructs vocabulary boundaries between internal operational semantics, developer/test vocabulary, product-support vocabulary, runtime truth language, diagnostics authority language, and user-facing workflow vocabulary,
   - records `test-offline`, frozen-state, test bridge, and diagnostics bridge terminology as leakage-sensitive unless confined to dev/test or explicitly bounded support contexts,
   - preserves the finding that always-visible service status is support truth plus workflow-readiness pressure, not neutral ambient truth.
+- [2026-05-27] Roadmap reconstruction Pass 17 recorded in `docs/audits/product_support_vs_dev_test_diagnostics_vocabulary_pass17.md`:
+  - reconstructs the vocabulary split between product-support diagnostics and developer/test diagnostics without authorizing diagnostics expansion, GUI redesign, roadmap rewrite, or product copy rewrite,
+  - preserves internal reason keys such as `test-offline`, `service_port_unavailable`, frozen-state flags, and service test events as implementation/test vocabulary unless translated into bounded support condition language,
+  - records recovery-adjacent `View diagnostics`, test-offline service wording, diagnostics bridge terminology, and always-visible status pressure as the highest diagnostics vocabulary leakage areas.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
