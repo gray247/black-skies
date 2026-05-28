@@ -229,6 +229,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - defines a compact authorization record / approval protocol covering approval levels, required request fields, scope bounds, explicit exclusions, rollback/stop conditions, and evidence requirements without authorizing implementation,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that authorization mechanics are now interpreted through existing implementation-eligibility, maintenance-lane, blocked-promotion, dependency-gate, source-of-truth, validation, and authority-family controls with no new stable IDs,
   - confirms no implementation was authorized, authorization governance is now more operationally specified, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 56 recorded in `docs/audits/phase13/pass56_source_truth_current_stale_active_semantics.md`:
+  - narrows the current / stale / active / obsolete / superseded / authoritative ambiguity cluster so future planning can distinguish currentness, activity, historical value, supersession, and invalidity without creating final source-of-truth canon,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that currentness semantics are now interpreted through existing source-of-truth, lifecycle, validation, authorization, and blocked-promotion controls with no new stable IDs,
+  - confirms no implementation was authorized, semantic clarification remains governance-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

@@ -515,3 +515,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit authorization-record interpretation guidance for scope control, exclusions, stop/escalation, and evidence-bound approval review, but Pass 55 does not change formal Pass 43 status values.
 - Approval records, candidate-review approvals, ambiguity-reduction approvals, maintenance approvals, and validation evidence remain non-authorizing unless later explicit human/orchestrator implementation authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 56 Control Update
+
+Pass 56 created `docs/audits/phase13/pass56_source_truth_current_stale_active_semantics.md`.
+
+Control updates:
+- Pass 56 narrows the source-of-truth currentness ambiguity cluster by defining provisional governance meanings for current, active, stale, obsolete, superseded, authoritative, provisional, historical, and invalid so future planning can distinguish current evidence, active procedure, stale relevance, and supersession without creating final source-of-truth canon.
+- Pass 56 preserves that currentness semantics remain governed through existing source-of-truth, lifecycle, validation, authorization, and blocked-promotion controls rather than new register sprawl; no new stable IDs were required.
+- `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit currentness/supersession interpretation guidance for authorization review, lifecycle reading, validation reuse, and truth-adjacent maintenance review, but Pass 56 does not change formal Pass 43 status values.
+- Current, active, stale, historical, superseded, and validated states remain non-authorizing unless later explicit governance grants authority within a named scope.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
