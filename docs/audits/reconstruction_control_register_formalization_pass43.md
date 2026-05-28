@@ -80,6 +80,14 @@ ID rules:
 - Renaming a title does not change the ID.
 - Future passes should reference IDs directly when changing scope, status, dependency, or closure state.
 
+Entry-allocation note:
+
+- Pass 43 creates concrete entries for `C-###`, `BP-###`, `DG-###`, `GD-###`, `PF-###`, `IE-###`, `AF-###`, and `SM-###`.
+- Pass 43 reserves `VC-###` and `RS-###` as stable ID families, but does not itemize individual vocabulary-containment or reconstruction-state entries yet.
+- Until a later artifact itemizes `VC-###` entries, future passes should reference Pass 42 vocabulary lanes and Pass 43 status values rather than inventing ad hoc IDs.
+- Until a later artifact itemizes `RS-###` entries, reconstruction state should be expressed with the allowed status values in this pass and linked to the affected domain, dependency gate, blocked promotion, or authority family.
+- This reservation avoids fake ID completeness and register sprawl while keeping the schema ready for later formalization.
+
 ## 6. Register State Model
 
 Allowed status values:

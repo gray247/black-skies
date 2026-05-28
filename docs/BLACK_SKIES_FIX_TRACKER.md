@@ -177,6 +177,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - formalizes the reconstruction control system with stable register classes, ID families, register states, contradiction formalization, blocked-promotion IDs, dependency-gate IDs, authority-family IDs, governance-domain and pressure-field registers, safe-maintenance lane IDs, implementation-eligibility classes, reauthorization logic, and closure mechanics,
   - preserves that analyzed findings are not automatically stabilized, contained contradictions are not automatically closed, and no blocked promotion reopens without dependency gates, contradiction status, vocabulary containment, authority-family stabilization, safe-maintenance review, evidence, and explicit orchestrator reauthorization,
   - updates the Pass 40 control artifact to reference Pass 43 as the formal register schema and recommends Pass 44 as Safe Maintenance Lane Hardening without authorizing implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
+- [2026-05-27] Pre-Pass-44 governance integrity audit recorded in `docs/audits/phase13/pass41_43_governance_integrity_audit.md`:
+  - audits Passes 41-43 as the gate before Arc 3 / Pass 44 and records that Pass 44 has not begun,
+  - patches the Pass 43 schema and Pass 40 control-map wording to clarify that `VC-###` and `RS-###` are reserved ID families, not itemized registers yet,
+  - recommends `PATCHED — READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

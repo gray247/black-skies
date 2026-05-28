@@ -370,6 +370,7 @@ Control updates:
 - Pass 43 formalizes register classes for contradictions, blocked promotions, dependency gates, governance domains, pressure fields, reconstruction states, implementation eligibility, vocabulary containment, authority families, and safe-maintenance lanes.
 - Pass 43 defines stable ID families: `C-###`, `BP-###`, `DG-###`, `GD-###`, `PF-###`, `RS-###`, `IE-###`, `VC-###`, `AF-###`, and `SM-###`.
 - Pass 43 creates blocked-promotion IDs `BP-001` through `BP-017`, dependency-gate IDs `DG-001` through `DG-010`, authority-family IDs `AF-001` through `AF-017`, governance-domain IDs `GD-001` through `GD-011`, pressure-field IDs `PF-001` through `PF-011`, safe-maintenance lane IDs `SM-001` through `SM-008`, and implementation-eligibility IDs `IE-001` through `IE-005`.
+- Pass 43 reserves `VC-###` and `RS-###` as ID families without itemized entries; future passes should use Pass 42 vocabulary lanes and Pass 43 status values until later formalization creates concrete IDs.
 - Future passes should update affected registers by ID. Findings that do not update relevant IDs remain analytical and should not be treated as control-state changes.
 - No blocked promotion reopens implicitly. Reentry requires dependency gates, contradiction status, vocabulary containment, authority-family stabilization, safe-maintenance review, evidence, and explicit orchestrator reauthorization.
 - Recommended Pass 44 is Safe Maintenance Lane Hardening.
