@@ -399,3 +399,51 @@ Control updates:
 - Export/output work remains blocked from implementation readiness through existing controls including `BP-017`, `DG-006`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
 - Diagnostic output remains evidence-only and must not inherit workflow, recovery, or source-of-truth authority; diagnostics evidence grouping remains deferred.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 46 Control Update
+
+Pass 46 created `docs/audits/phase13/pass46_diagnostics_evidence_grouping_containment.md`.
+
+Control updates:
+- Pass 46 contains diagnostics evidence grouping so grouped diagnostics, diagnostic summaries, diagnostic bundles, diagnostic timelines, and repeated diagnostic clusters do not silently become diagnosis authority, workflow tooling, recovery authority, source-of-truth resolution, current-state authority, or implementation authorization.
+- Pass 46 preserves that diagnostics evidence grouping is governed through existing recovery, diagnostics, vocabulary, maintenance-lane, and source-of-truth controls rather than new register sprawl; no new stable IDs were required.
+- `AF-006` and `AF-007` now have explicit grouping-containment guidance for recovery-adjacent evidence, grouped diagnostics, diagnostic recommendations, exported diagnostic bundles, and diagnostic audit artifacts, but Pass 46 does not change formal Pass 43 status values.
+- Grouped diagnostics remain blocked from implementation readiness through existing controls including `BP-010`, `BP-012`, `BP-013`, `BP-014`, `BP-017`, `DG-002`, `DG-006`, `DG-008`, `DG-010`, `IE-002`, and `IE-004`.
+- Diagnostic grouping, exposure, export, and repeated clustering remain authority-sensitive and are not automatically safe maintenance.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 47 Control Update
+
+Pass 47 created `docs/audits/phase13/pass47_source_of_truth_boundary_containment.md`.
+
+Control updates:
+- Pass 47 contains source-of-truth boundary pressure so recovered states, restored copies, resumed sessions, generated summaries, exported reports, diagnostic bundles, retrieved structures, grouped evidence, snapshots, planning artifacts, copied prompts, tracker entries, and control-map entries do not silently become authoritative.
+- Pass 47 preserves that source-of-truth boundary containment is governed through existing recovery, retrieval, diagnostics, export/output, vocabulary, maintenance-lane, and implementation-eligibility controls rather than new register sprawl; no new stable IDs were required.
+- `AF-005`, `AF-011`, `AF-014`, and `AF-017` now have explicit boundary-containment guidance for truth-pressure surfaces, but Pass 47 does not change formal Pass 43 status values.
+- Source-of-truth-sensitive surfaces remain blocked from implementation readiness through existing controls including `BP-005`, `BP-010`, `BP-014`, `BP-016`, `BP-017`, `DG-002`, `DG-003`, `DG-006`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
+- Current-looking, restored, resumed, retrieved, grouped, and exported materials remain authority-sensitive and are not automatically safe maintenance.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 48 Control Update
+
+Pass 48 created `docs/audits/phase13/pass48_governance_artifact_lifecycle_supersession_containment.md`.
+
+Control updates:
+- Pass 48 contains governance artifact lifecycle and supersession pressure so tracker entries, control-map entries, audit artifacts, copied prompts, generated summaries, archived artifacts, commit records, workflow results, and batch commits do not silently become current authority, semantic validation, implementation readiness, or permanent canon.
+- Pass 48 preserves that lifecycle/supersession containment is governed through existing source-of-truth, export/output, diagnostics, vocabulary, maintenance-lane, and implementation-eligibility controls rather than new register sprawl; no new stable IDs were required.
+- `AF-011` and `AF-017` now have explicit lifecycle/supersession containment guidance for currentness, archival state, copied governance outputs, and batch-boundary pressure, but Pass 48 does not change formal Pass 43 status values.
+- Governance artifacts remain blocked from implementation readiness through existing controls including `BP-014`, `BP-016`, `BP-017`, `DG-006`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
+- Artifact visibility, archival survival, copied reuse, workflow green, and commit history remain authority-sensitive and are not automatically safe maintenance.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 49 Control Update
+
+Pass 49 created `docs/audits/phase13/pass49_validation_workflow_green_authority_containment.md`.
+
+Control updates:
+- Pass 49 contains validation/workflow-green authority pressure so clean status, diff hygiene, lint success, test success, build success, workflow green, commit records, push state, validation reports, closure messages, and batch commit success do not silently become governance approval, semantic correctness, implementation readiness, or source-of-truth validation.
+- Pass 49 preserves that validation/workflow-green containment is governed through existing source-of-truth, lifecycle, export/output, maintenance-lane, and implementation-eligibility controls rather than new register sprawl; no new stable IDs were required.
+- `AF-011` and `AF-017` now have explicit validation-surface containment guidance for currentness claims, generated validation reports, workflow-green reuse, and batch-boundary pressure, but Pass 49 does not change formal Pass 43 status values.
+- Validation surfaces remain blocked from implementation readiness through existing controls including `BP-014`, `BP-016`, `BP-017`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
+- Green checks, clean states, and successful validation outputs remain authority-sensitive and are not automatically safe maintenance.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
