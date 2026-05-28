@@ -559,3 +559,14 @@ Control updates:
 - `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit maintenance-lane selection guidance for evidence expectations, review-triggering work, hard-blocked maintenance categories, and candidate maintenance queue interpretation, but Pass 59 does not change formal Pass 43 status values.
 - Eligible maintenance remains evidence-bound, review-required maintenance remains authority-sensitive, and hard-blocked maintenance remains blocked unless later explicit governance reauthorizes it.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 60 Control Update
+
+Pass 60 created `docs/audits/phase13/pass60_limited_implementation_candidate_review.md`.
+
+Control updates:
+- Pass 60 reviews limited implementation-candidate lanes for governance-support tooling, maintenance automation, constrained diagnostics tooling, constrained validation tooling, constrained export/output tooling, and artifact lifecycle tooling so future planning can compare utility, adjacency risk, gate burden, and rollback needs without approving implementation.
+- Pass 60 preserves that candidate-lane review remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, maintenance-lane, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, `AF-017`, and `SM-001` now have explicit candidate-lane review guidance for non-authorizing review, gate burden comparison, rollback expectations, and defer-versus-candidate interpretation, but Pass 60 does not change formal Pass 43 status values.
+- Governance-support tooling, maintenance automation, constrained diagnostics tooling, constrained validation tooling, constrained export/output tooling, and artifact lifecycle tooling remain non-authorized candidate lanes unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
