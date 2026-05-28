@@ -537,3 +537,14 @@ Control updates:
 - `AF-007`, `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit recovery-legitimacy interpretation guidance for restored-copy review, recovered-state review, retry-candidate escalation, and diagnostics-evidence separation, but Pass 57 does not change formal Pass 43 status values.
 - Reopened, restored, recovered, retried, resumed, and recovery-visible states remain non-authorizing unless later explicit governance grants authority within a named scope.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 58 Control Update
+
+Pass 58 created `docs/audits/phase13/pass58_retrieval_grouped_legitimacy_boundary.md`.
+
+Control updates:
+- Pass 58 narrows the grouped-retrieval legitimacy ambiguity cluster by defining provisional governance meanings for retrieval, grouped retrieval, clustered retrieval, continuity summary, inferred relationship, retrieval evidence, retrieval authority, provisional grouping, and navigational grouping so future planning can distinguish convenience structure, inferred linkage, and authority-bearing structure without creating final retrieval architecture or persistence behavior.
+- Pass 58 preserves that retrieval-grouping legitimacy remains governed through existing retrieval, source-of-truth, authorization, and blocked-promotion controls rather than new register sprawl; no new stable IDs were required.
+- `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit grouped-retrieval interpretation guidance for continuity-summary review, inferred-relationship review, grouped-structure escalation, and retrieval-evidence containment, but Pass 58 does not change formal Pass 43 status values.
+- Grouped retrieval, clustered retrieval, continuity summaries, inferred relationships, and navigational groupings remain non-authorizing unless later explicit governance grants authority within a named scope.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

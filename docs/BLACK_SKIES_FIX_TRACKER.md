@@ -237,6 +237,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - narrows the reopen / restore / recover / retry / resume ambiguity cluster so future planning can distinguish recovery evidence, support context, provisional recovery state, and recovery authority without creating final recovery architecture,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that recovery legitimacy semantics are now interpreted through existing recovery, source-of-truth, diagnostics, authorization, and blocked-promotion controls with no new stable IDs,
   - confirms no implementation was authorized, recovery boundary clarification remains governance-only, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 58 recorded in `docs/audits/phase13/pass58_retrieval_grouped_legitimacy_boundary.md`:
+  - narrows the grouped retrieval / clustered retrieval / continuity summary ambiguity cluster so future planning can distinguish retrieval evidence, convenience structure, provisional grouping, navigational grouping, inferred relationship, and authority-bearing structure without creating final retrieval architecture,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that grouped retrieval legitimacy is now interpreted through existing retrieval, source-of-truth, authorization, and blocked-promotion controls with no new stable IDs,
+  - confirms no implementation was authorized, retrieval legitimacy clarification remains governance-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
