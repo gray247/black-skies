@@ -374,3 +374,16 @@ Control updates:
 - Future passes should update affected registers by ID. Findings that do not update relevant IDs remain analytical and should not be treated as control-state changes.
 - No blocked promotion reopens implicitly. Reentry requires dependency gates, contradiction status, vocabulary containment, authority-family stabilization, safe-maintenance review, evidence, and explicit orchestrator reauthorization.
 - Recommended Pass 44 is Safe Maintenance Lane Hardening.
+
+## Pass 44 Control Update
+
+Pass 44 created `docs/audits/phase13/pass44_safe_maintenance_lane_hardening.md`.
+
+Control updates:
+- Pass 44 hardens safe maintenance from lane description into operational governance with required impact metadata, evidence, before/after checklist use, blocked-area declarations, and discovered-but-not-fixed declarations.
+- `DG-010` advances from partially reconstructed to stabilized for planning for current-arc maintenance governance because the required checklist and evidence model now exist.
+- `GD-011` advances from exploratory to partially reconstructed because maintenance-versus-implementation blur is now governed operationally, though not closed.
+- `SM-001` through `SM-008` remain maintenance-safe only when Pass 44 metadata, evidence, and checklist requirements are satisfied.
+- Export/output behavior is now explicitly classified as maintenance-sensitive without solving export/output authority in this pass.
+- Diagnostics logging remains maintenance-candidate work only when visibility does not expand; diagnostics grouping, exposure, surfacing, and workflow placement remain unresolved and not automatically safe.
+- Existing register families are sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

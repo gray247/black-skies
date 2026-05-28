@@ -181,6 +181,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - audits Passes 41-43 as the gate before Arc 3 / Pass 44 and records that Pass 44 has not begun,
   - patches the Pass 43 schema and Pass 40 control-map wording to clarify that `VC-###` and `RS-###` are reserved ID families, not itemized registers yet,
   - recommends `PATCHED — READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
+- [2026-05-27] Roadmap reconstruction Pass 44 recorded in `docs/audits/phase13/pass44_safe_maintenance_lane_hardening.md`:
+  - hardens the Safe Maintenance Lane as operational governance rather than feature work by requiring maintenance impact metadata, lightweight evidence for `no impact` claims, reusable before/after checklist use, `Blocked Areas Not Touched`, and `Discovered But Not Fixed` reporting,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to advance `DG-010` to stabilized-for-planning status for current-arc maintenance governance, advance `GD-011` to partially reconstructed, and keep `SM-001` through `SM-008` maintenance-safe only when Pass 44 evidence and checklist rules are satisfied,
+  - confirms no implementation was authorized, no blocked domain was reopened, Safe Maintenance Lane hardening is operational governance rather than feature work, and Arc 3 operational enforcement has begun only as governance/docs hardening.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
