@@ -548,3 +548,14 @@ Control updates:
 - `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit grouped-retrieval interpretation guidance for continuity-summary review, inferred-relationship review, grouped-structure escalation, and retrieval-evidence containment, but Pass 58 does not change formal Pass 43 status values.
 - Grouped retrieval, clustered retrieval, continuity summaries, inferred relationships, and navigational groupings remain non-authorizing unless later explicit governance grants authority within a named scope.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 59 Control Update
+
+Pass 59 created `docs/audits/phase13/pass59_maintenance_lane_selection.md`.
+
+Control updates:
+- Pass 59 selects realistic maintenance lanes for later review by separating eligible maintenance, maintenance with review, maintenance-candidate-only work, hard-blocked maintenance, and deferred maintenance so future planning can choose low-risk upkeep without converting maintenance readiness into implementation permission.
+- Pass 59 preserves that maintenance-lane selection remains governed through existing maintenance-lane, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit maintenance-lane selection guidance for evidence expectations, review-triggering work, hard-blocked maintenance categories, and candidate maintenance queue interpretation, but Pass 59 does not change formal Pass 43 status values.
+- Eligible maintenance remains evidence-bound, review-required maintenance remains authority-sensitive, and hard-blocked maintenance remains blocked unless later explicit governance reauthorizes it.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
