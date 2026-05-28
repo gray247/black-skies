@@ -504,3 +504,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit prioritization/reentry-sequencing guidance for planning consumption, but Pass 54 does not change formal Pass 43 status values.
 - Priority order does not authorize implementation. Deferred/high-risk domains remain blocked, candidate lanes remain gated, and maintenance-safe lanes remain evidence-bound.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 55 Control Update
+
+Pass 55 created `docs/audits/phase13/pass55_authorization_record_approval_protocol.md`.
+
+Control updates:
+- Pass 55 defines a compact authorization record / approval protocol so future approval requests must name authorization level, affected domains/files, authority-family impact, blocked-promotion and dependency-gate review, approved scope, explicit exclusions, rollback conditions, stop conditions, validation expectations, expiration/supersession, and approving authority without turning eligibility or planning state into permission.
+- Pass 55 preserves that authorization mechanics remain governed through existing implementation-eligibility, maintenance-lane, blocked-promotion, dependency-gate, source-of-truth, validation, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit authorization-record interpretation guidance for scope control, exclusions, stop/escalation, and evidence-bound approval review, but Pass 55 does not change formal Pass 43 status values.
+- Approval records, candidate-review approvals, ambiguity-reduction approvals, maintenance approvals, and validation evidence remain non-authorizing unless later explicit human/orchestrator implementation authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
