@@ -221,6 +221,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - establishes the Reconstruction Control Map as a planning-only bridge organizing governed domains, blocked domains, unresolved domains, implementation-candidate domains, maintenance-safe lanes, dependency ordering, pressure fields, and authorization requirements without authorizing implementation,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing controls are now synthesized into a planning/control map using current IDs and no new stable IDs,
   - confirms no implementation was authorized, the Reconstruction Control Map is planning-only, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 54 recorded in `docs/audits/phase13/pass54_domain_prioritization_reentry_sequencing.md`:
+  - uses the Reconstruction Control Map to define reconstruction ordering, dependency sequencing, survivability assessment, deferred/high-risk domains, and candidate reentry lanes without authorizing implementation,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that sequencing and prioritization are now governed through existing control families and no new stable IDs were required,
+  - confirms no implementation was authorized, sequencing remains planning-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

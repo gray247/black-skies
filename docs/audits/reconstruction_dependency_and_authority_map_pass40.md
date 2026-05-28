@@ -493,3 +493,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit control-map synthesis guidance for planning consumption, but Pass 53 does not change formal Pass 43 status values.
 - The Reconstruction Control Map is organizational and procedural only. It does not authorize implementation, reopen blocked domains, create architecture canon, or convert implementation candidates into approved work.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 54 Control Update
+
+Pass 54 created `docs/audits/phase13/pass54_domain_prioritization_reentry_sequencing.md`.
+
+Control updates:
+- Pass 54 adds sequencing and prioritization logic on top of the Reconstruction Control Map so future planning can distinguish near-term governance stabilization, ambiguity reduction, maintenance-safe stabilization, controlled tooling candidates, limited implementation-candidate review, and long-deferred high-risk domains without converting order into permission.
+- Pass 54 preserves that sequencing interpretation remains governed through existing implementation-eligibility, maintenance-lane, blocked-promotion, dependency-gate, validation, source-of-truth, lifecycle, export/output, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit prioritization/reentry-sequencing guidance for planning consumption, but Pass 54 does not change formal Pass 43 status values.
+- Priority order does not authorize implementation. Deferred/high-risk domains remain blocked, candidate lanes remain gated, and maintenance-safe lanes remain evidence-bound.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
