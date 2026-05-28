@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-27
+Last Reviewed: 2026-05-28
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -185,6 +185,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - hardens the Safe Maintenance Lane as operational governance rather than feature work by requiring maintenance impact metadata, lightweight evidence for `no impact` claims, reusable before/after checklist use, `Blocked Areas Not Touched`, and `Discovered But Not Fixed` reporting,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to advance `DG-010` to stabilized-for-planning status for current-arc maintenance governance, advance `GD-011` to partially reconstructed, and keep `SM-001` through `SM-008` maintenance-safe only when Pass 44 evidence and checklist rules are satisfied,
   - confirms no implementation was authorized, no blocked domain was reopened, Safe Maintenance Lane hardening is operational governance rather than feature work, and Arc 3 operational enforcement has begun only as governance/docs hardening.
+- [2026-05-28] Roadmap reconstruction Pass 45 recorded in `docs/audits/phase13/pass45_export_output_authority_containment.md`:
+  - contains export/output authority across generated reports, generated summaries, audit artifacts, exported documents, copied prompts, copied summaries, snapshots, logs, diagnostic bundles, recovery bundles, test output, generated planning artifacts, and future downloadable/exportable material without implementing any of those surfaces,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing control families are sufficient for export/output containment, `AF-017` now has explicit containment guidance without formal Pass 43 status churn, and export/output remains blocked from implementation readiness through existing controls,
+  - confirms no implementation was authorized, export/output authority is contained but not implemented, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

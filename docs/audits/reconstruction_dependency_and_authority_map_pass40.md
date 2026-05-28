@@ -387,3 +387,15 @@ Control updates:
 - Export/output behavior is now explicitly classified as maintenance-sensitive without solving export/output authority in this pass.
 - Diagnostics logging remains maintenance-candidate work only when visibility does not expand; diagnostics grouping, exposure, surfacing, and workflow placement remain unresolved and not automatically safe.
 - Existing register families are sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 45 Control Update
+
+Pass 45 created `docs/audits/phase13/pass45_export_output_authority_containment.md`.
+
+Control updates:
+- Pass 45 defines export/output containment so generated, copied, exported, bundled, archived, or shared materials do not silently become source-of-truth authority, workflow canon, architecture canon, persistence proof, recovery authority, retrieval authority, implementation authorization, or product canon.
+- Pass 45 preserves that export/output authority remains governed through existing control families rather than new register sprawl; no new stable IDs were required.
+- `AF-017` now has explicit containment guidance for generated summaries, reports, snapshots, copied prompts, diagnostic bundles, recovery bundles, planning artifacts, and archive outputs, but Pass 45 does not yet change the formal Pass 43 status values for `AF-017` or `IE-004`.
+- Export/output work remains blocked from implementation readiness through existing controls including `BP-017`, `DG-006`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
+- Diagnostic output remains evidence-only and must not inherit workflow, recovery, or source-of-truth authority; diagnostics evidence grouping remains deferred.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
