@@ -447,3 +447,27 @@ Control updates:
 - Validation surfaces remain blocked from implementation readiness through existing controls including `BP-014`, `BP-016`, `BP-017`, `DG-008`, `DG-009`, `DG-010`, `IE-002`, and `IE-004`.
 - Green checks, clean states, and successful validation outputs remain authority-sensitive and are not automatically safe maintenance.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 50 Control Update
+
+Pass 50 created `docs/audits/phase13/pass50_implementation_eligibility_controlled_reentry_containment.md`.
+
+Control updates:
+- Pass 50 contains implementation-eligibility / controlled-reentry pressure so governance completion, maintenance qualification, output containment, diagnostics containment, source-of-truth containment, lifecycle containment, validation success, tracker/control updates, and batch closure do not silently become implementation permission, implementation readiness, or roadmap progress.
+- Pass 50 preserves that implementation eligibility remains governed through existing implementation-eligibility, maintenance-lane, source-of-truth, lifecycle, export/output, validation, and blocked-promotion controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, and `IE-005` now have explicit controlled-reentry interpretation guidance for maintenance evidence, unresolved blocked domains, implementation-candidate pressure, and planning-stabilization language, but Pass 50 does not change formal Pass 43 status values.
+- Implementation reentry remains blocked from authorization through existing controls including `BP-014`, `BP-016`, `BP-017`, `DG-008`, `DG-009`, `DG-010`, `IE-003`, and `IE-004`.
+- Eligibility discussion, containment closure, tracker/control currency, and green validation remain authority-sensitive and are not automatically safe maintenance or implementation permission.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 51 Control Update
+
+Pass 51 created `docs/audits/phase13/pass51_controlled_reentry_checklist_authorization_procedure.md`.
+
+Control updates:
+- Pass 51 compresses Passes 44-50 into an operational controlled-reentry checklist and authorization procedure so future work can be classified as governance-only, maintenance with evidence, blocked, escalated, implementation-candidate only, or explicitly authorized implementation without conflating those outcomes.
+- Pass 51 preserves that controlled reentry remains governed through existing implementation-eligibility, maintenance-lane, blocked-promotion, source-of-truth, lifecycle, export/output, validation, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit procedural interpretation guidance for maintenance review, implementation-candidate review, artifact currentness checks, validation scope checks, and human/orchestrator authorization boundaries, but Pass 51 does not change formal Pass 43 status values.
+- Controlled reentry remains blocked from implementation authorization through existing controls including `BP-014`, `BP-016`, `BP-017`, `DG-008`, `DG-009`, `DG-010`, `IE-003`, and `IE-004` unless later explicit human/orchestrator authorization says otherwise.
+- Checklist completion, validation success, containment closure, tracker/control currency, and implementation-candidate classification remain authority-sensitive and are not automatically safe maintenance, roadmap progress, or implementation permission.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

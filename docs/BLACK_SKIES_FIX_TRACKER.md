@@ -205,6 +205,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - contains validation/workflow-green authority pressure across clean Git status, diff hygiene, docs lint, tests, builds, CI workflow green, commit history, pushed state, validation output, previous closure messages, and batch commit success without implementing validation tooling,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing control families are sufficient for validation/workflow-green containment, `AF-011` and `AF-017` now have explicit validation-surface guidance without formal Pass 43 status churn, and validation surfaces remain blocked from implementation readiness through existing controls,
   - confirms no implementation was authorized, validation/workflow-green authority pressure is contained but no validation tooling was created, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 50 recorded in `docs/audits/phase13/pass50_implementation_eligibility_controlled_reentry_containment.md`:
+  - contains implementation-eligibility / controlled-reentry pressure so governance completion, green validation, tracker/control updates, maintenance qualification, batch closure, and adjacent containment work do not silently become implementation permission or roadmap progress,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing implementation-eligibility, maintenance-lane, source-of-truth, lifecycle, export/output, and validation controls are sufficient for Pass 50 without formal Pass 43 status churn or new stable IDs,
+  - confirms no implementation was authorized, implementation eligibility is contained but not granted, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 51 recorded in `docs/audits/phase13/pass51_controlled_reentry_checklist_authorization_procedure.md`:
+  - compresses Passes 44-50 into an operational controlled-reentry checklist and authorization procedure with explicit allow/block/escalate outcomes and named review requirements,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing implementation-eligibility, maintenance-lane, blocked-promotion, source-of-truth, lifecycle, export/output, and validation controls are sufficient for Pass 51 without formal Pass 43 status churn or new stable IDs,
+  - confirms no implementation was authorized, controlled reentry procedure is defined but implementation is not authorized, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
