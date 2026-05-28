@@ -249,6 +249,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reviews bounded implementation-candidate lanes for governance-support tooling, maintenance automation, constrained diagnostics tooling, constrained validation tooling, constrained export/output tooling, and artifact lifecycle tooling without approving any of them,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that candidate-lane review is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no implementation was authorized and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 61 recorded in `docs/audits/phase13/pass61_roadmap_reconstruction_draft.md`:
+  - drafts a governed reconstruction roadmap from the Reconstruction Control Map, sequencing logic, maintenance lane selection, and candidate review without authorizing implementation or creating roadmap promises,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that roadmap reconstruction is now interpreted through existing implementation-eligibility, maintenance-lane, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no implementation was authorized, the roadmap remains planning-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
