@@ -217,6 +217,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - audits Arc B closure across Passes 44-51 to confirm authority containment, blocked-domain preservation, anti-promotion law continuity, register hygiene, and operational usability without creating the Reconstruction Control Map,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that Arc B is coherent for governance closure and ready for a planning-only `reconstruction_control_map.md` artifact using existing controls and no new stable IDs,
   - confirms no implementation was authorized, recommends `READY FOR RECONSTRUCTION CONTROL MAP`, and confirms blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 53 recorded in `docs/audits/phase13/reconstruction_control_map.md`:
+  - establishes the Reconstruction Control Map as a planning-only bridge organizing governed domains, blocked domains, unresolved domains, implementation-candidate domains, maintenance-safe lanes, dependency ordering, pressure fields, and authorization requirements without authorizing implementation,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing controls are now synthesized into a planning/control map using current IDs and no new stable IDs,
+  - confirms no implementation was authorized, the Reconstruction Control Map is planning-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
