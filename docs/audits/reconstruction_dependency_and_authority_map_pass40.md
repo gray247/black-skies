@@ -581,3 +581,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit roadmap-sequencing interpretation guidance for separating maintenance, ambiguity reduction, candidate review, and authorization-required implementation, but Pass 61 does not change formal Pass 43 status values.
 - Governance stabilization, maintenance review, ambiguity reduction, candidate review, and authorization-ready preparation remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 62 Control Update
+
+Pass 62 created `docs/audits/phase13/pass62_anti_fake_completeness_roadmap_audit.md`.
+
+Control updates:
+- Pass 62 audits the governed reconstruction roadmap for fake completeness, implied implementation approval, hidden authorization drift, candidate-lane overpromotion, sequencing theater, and maintenance-to-feature drift so roadmap use remains planning-only rather than being mistaken for implementation readiness or roadmap commitment.
+- Pass 62 preserves that roadmap-acceptance review remains governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit anti-fake-completeness interpretation guidance for roadmap reuse, candidate-lane wording, maintenance separation, and non-authorizing sequencing review, but Pass 62 does not change formal Pass 43 status values.
+- Roadmap sequencing, candidate ordering, maintenance lane planning, and ambiguity-reduction lanes remain non-authorizing planning structures unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
