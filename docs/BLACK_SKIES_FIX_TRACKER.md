@@ -213,6 +213,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - compresses Passes 44-50 into an operational controlled-reentry checklist and authorization procedure with explicit allow/block/escalate outcomes and named review requirements,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that existing implementation-eligibility, maintenance-lane, blocked-promotion, source-of-truth, lifecycle, export/output, and validation controls are sufficient for Pass 51 without formal Pass 43 status churn or new stable IDs,
   - confirms no implementation was authorized, controlled reentry procedure is defined but implementation is not authorized, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 52 recorded in `docs/audits/phase13/pass52_arc_b_closure_audit_reconstruction_control_map_readiness.md`:
+  - audits Arc B closure across Passes 44-51 to confirm authority containment, blocked-domain preservation, anti-promotion law continuity, register hygiene, and operational usability without creating the Reconstruction Control Map,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that Arc B is coherent for governance closure and ready for a planning-only `reconstruction_control_map.md` artifact using existing controls and no new stable IDs,
+  - confirms no implementation was authorized, recommends `READY FOR RECONSTRUCTION CONTROL MAP`, and confirms blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
