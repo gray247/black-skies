@@ -233,6 +233,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - narrows the current / stale / active / obsolete / superseded / authoritative ambiguity cluster so future planning can distinguish currentness, activity, historical value, supersession, and invalidity without creating final source-of-truth canon,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that currentness semantics are now interpreted through existing source-of-truth, lifecycle, validation, authorization, and blocked-promotion controls with no new stable IDs,
   - confirms no implementation was authorized, semantic clarification remains governance-only, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 57 recorded in `docs/audits/phase13/pass57_recovery_legitimacy_boundary.md`:
+  - narrows the reopen / restore / recover / retry / resume ambiguity cluster so future planning can distinguish recovery evidence, support context, provisional recovery state, and recovery authority without creating final recovery architecture,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that recovery legitimacy semantics are now interpreted through existing recovery, source-of-truth, diagnostics, authorization, and blocked-promotion controls with no new stable IDs,
+  - confirms no implementation was authorized, recovery boundary clarification remains governance-only, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

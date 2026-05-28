@@ -526,3 +526,14 @@ Control updates:
 - `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit currentness/supersession interpretation guidance for authorization review, lifecycle reading, validation reuse, and truth-adjacent maintenance review, but Pass 56 does not change formal Pass 43 status values.
 - Current, active, stale, historical, superseded, and validated states remain non-authorizing unless later explicit governance grants authority within a named scope.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 57 Control Update
+
+Pass 57 created `docs/audits/phase13/pass57_recovery_legitimacy_boundary.md`.
+
+Control updates:
+- Pass 57 narrows the recovery-legitimacy ambiguity cluster by defining provisional governance meanings for reopen, restore, recover, retry, resume, restored copy, recovered state, recovery evidence, and recovery authority so future planning can distinguish visible continuity, provisional recovery state, and true recovery authority without creating final recovery architecture.
+- Pass 57 preserves that recovery-legitimacy semantics remain governed through existing recovery, source-of-truth, diagnostics, authorization, and blocked-promotion controls rather than new register sprawl; no new stable IDs were required.
+- `AF-007`, `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit recovery-legitimacy interpretation guidance for restored-copy review, recovered-state review, retry-candidate escalation, and diagnostics-evidence separation, but Pass 57 does not change formal Pass 43 status values.
+- Reopened, restored, recovered, retried, resumed, and recovery-visible states remain non-authorizing unless later explicit governance grants authority within a named scope.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
