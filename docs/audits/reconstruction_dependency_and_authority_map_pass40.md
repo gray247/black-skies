@@ -768,3 +768,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit remediation-verification guidance confirming that allowlist precision, banned-vocabulary constraints, negative-path validation, script/test seam clarity, rollback seam coverage, and stop-condition drift controls are verified closed findings rather than open plan weaknesses, but Pass 79 does not change formal Pass 43 status values.
 - Remediation verification remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 80 Control Update
+
+Pass 80 created `docs/audits/phase13/pass80_arc_b_closure_readiness_review.md`.
+
+Control updates:
+- Pass 80 audits Arc B closure readiness against the actual reconstruction-governance objectives and concludes that the arc is complete only on the narrow claim that Black Skies can now leave pure governance reconstruction and enter a first controlled implementation-planning cycle without authorizing coding.
+- Pass 80 preserves that Arc B closure interpretation remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, safe-maintenance, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit Arc B closure-readiness guidance distinguishing achieved governance separation, review-lane maturity, narrow implementation-planning viability, and unresolved truth-dependent residual risks from any broader implementation-readiness claim, but Pass 80 does not change formal Pass 43 status values.
+- Arc B closure readiness remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
