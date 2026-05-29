@@ -658,3 +658,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit post-roadmap readiness-audit interpretation guidance for maintenance-go verdicts, candidate-review hold boundaries, approval-gated reentry review, and non-authorizing go/no-go assessment, but Pass 68 does not change formal Pass 43 status values.
 - Maintenance-review readiness remains non-authorizing review readiness, and candidate-review packaging remains non-authorizing until later explicit human/orchestrator approval says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 70 Control Update
+
+Pass 70 created `docs/audits/phase13/pass70_governance_support_tooling_candidate_review_approval.md`.
+
+Control updates:
+- Pass 70 creates a candidate-review approval record for governance-support tooling and concludes that the lane is approval-review eligible only with explicit conditions, support-only scope, explicit exclusions, and human/orchestrator approval of the candidate-review record.
+- Pass 70 preserves that governance-support-tooling approval eligibility remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-support-tooling approval-eligibility guidance for support-only scope, currentness/supersession caution, non-authorizing output discipline, candidate-review stop conditions, and approval-review-versus-implementation separation, but Pass 70 does not change formal Pass 43 status values.
+- Approval-review eligibility remains non-authorizing, and candidate-review approval remains distinct from implementation approval unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
