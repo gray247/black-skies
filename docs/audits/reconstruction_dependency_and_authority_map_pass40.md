@@ -636,3 +636,14 @@ Control updates:
 - `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit first-package maintenance interpretation guidance for package eligibility, review-required items, deferred diagnostics logging, evidence expectations, and non-execution package selection, but Pass 66 does not change formal Pass 43 status values.
 - Package selection, package ordering, and maintenance review recommendations remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 67 Control Update
+
+Pass 67 created `docs/audits/phase13/pass67_first_candidate_reentry_review_package.md`.
+
+Control updates:
+- Pass 67 defines the first concrete candidate reentry review package by classifying governance-support tooling, maintenance automation, artifact lifecycle tooling, constrained validation tooling, constrained diagnostics tooling, and constrained export/output tooling as review-package, defer, or block so later candidate review can begin from named lanes, evidence expectations, and stop conditions without authorizing implementation.
+- Pass 67 preserves that first-package candidate reentry selection remains governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit first-package candidate-reentry interpretation guidance for review-package selection, deferred ambiguity-heavy lanes, blocked adjacency-heavy lanes, required candidate-review authorization records, and non-authorizing evidence expectations, but Pass 67 does not change formal Pass 43 status values.
+- Package selection, package ordering, candidate-review preparation, and required evidence remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
