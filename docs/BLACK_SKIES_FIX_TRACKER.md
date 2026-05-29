@@ -257,6 +257,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - audits the governed reconstruction roadmap for fake completeness, implied implementation approval, hidden authorization drift, sequencing theater, green-means-safe drift, and maintenance-to-feature drift without authorizing implementation,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that roadmap-acceptance review is now interpreted through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms the roadmap remains planning-only, no implementation was authorized, and blocked domains remain blocked.
+- [2026-05-28] Roadmap reconstruction Pass 63 recorded in `docs/audits/phase13/pass63_implementation_readiness_criteria_draft.md`:
+  - defines provisional implementation-readiness criteria for future candidate lanes by separating not-eligible, candidate-only, ambiguity-reduction-required, governance-review-required, authorization-review-eligible, and implementation-review-eligible states without authorizing implementation,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that readiness interpretation is now governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no implementation was authorized and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

@@ -592,3 +592,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit anti-fake-completeness interpretation guidance for roadmap reuse, candidate-lane wording, maintenance separation, and non-authorizing sequencing review, but Pass 62 does not change formal Pass 43 status values.
 - Roadmap sequencing, candidate ordering, maintenance lane planning, and ambiguity-reduction lanes remain non-authorizing planning structures unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 63 Control Update
+
+Pass 63 created `docs/audits/phase13/pass63_implementation_readiness_criteria_draft.md`.
+
+Control updates:
+- Pass 63 defines provisional implementation-readiness criteria so future candidate lanes can be assessed as not eligible, candidate only, ambiguity-reduction required, governance review required, authorization-review eligible, or implementation-review eligible without turning readiness language into authorization.
+- Pass 63 preserves that readiness interpretation remains governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit readiness-criteria interpretation guidance for required preconditions, disqualifying conditions, candidate-lane reassessment, and non-authorizing readiness labels, but Pass 63 does not change formal Pass 43 status values.
+- Authorization-review eligibility and implementation-review eligibility remain non-authorizing review states unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
