@@ -713,3 +713,58 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator implementation-package guidance for exact allowed outputs, anti-ranking and anti-source-of-truth exclusions, anti-approval-signaling validation expectations, exact-human-review decision points, and expiration/revocation handling, but Pass 74 does not change formal Pass 43 status values.
 - Authorization packaging for the locator remains non-authorizing, and no implementation, runtime, GUI, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 75 Control Update
+
+Pass 75 created `docs/audits/phase13/pass75_artifact_locator_authorization_decision.md`.
+
+Control updates:
+- Pass 75 records the human/orchestrator decision that the governance artifact locator is authorized for narrow implementation planning only, limited to future planning for path, existence, and basic-metadata scope without authorizing coding.
+- Pass 75 preserves that locator planning authorization remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator planning-authorization guidance for implementation-plan-only authorization, preserved exclusions, next-artifact requirements, and non-coding decision boundaries, but Pass 75 does not change formal Pass 43 status values.
+- Planning authorization for the locator remains narrower than implementation authorization, and no coding, runtime, GUI, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 76 Control Update
+
+Pass 76 created `docs/audits/phase13/pass76_artifact_locator_implementation_plan.md`.
+
+Control updates:
+- Pass 76 defines the narrow implementation plan for the governance artifact locator by naming the exact future script/test seam, planned capability, validation commands, rollback plan, and stop conditions without authorizing coding.
+- Pass 76 preserves that locator implementation planning remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator implementation-plan guidance for script-only support surfaces, exact future module names, anti-ranking and anti-source-of-truth exclusions, validation expectations, and rollback triggers, but Pass 76 does not change formal Pass 43 status values.
+- Implementation planning for the locator remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 77 Control Update
+
+Pass 77 created `docs/audits/phase13/pass77_artifact_locator_plan_audit.md`.
+
+Control updates:
+- Pass 77 audits the artifact locator implementation plan specifically to try to reject it on scope creep, authority drift, source-of-truth leakage, approval signaling, validation weakness, rollback weakness, incomplete stop conditions, and hidden assumptions.
+- Pass 77 preserves that locator implementation-plan audit interpretation remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit artifact-locator plan-audit guidance for allowlist precision, banned-vocabulary constraints, negative-path validation, script/test seam caution, rollback boundary tightening, and non-authorizing patch requirements, but Pass 77 does not change formal Pass 43 status values.
+- Plan approval remains conditional, and no coding, runtime, GUI, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 78 Control Update
+
+Pass 78 created `docs/audits/phase13/pass78_artifact_locator_audit_remediation.md`.
+
+Control updates:
+- Pass 78 remediates the required artifact-locator implementation-plan audit findings by tightening Pass 76 around explicit governed-artifact allowlists, banned output vocabulary, negative-path validation, script/test seam boundaries, rollback expansion, and stop-condition expansion without authorizing implementation.
+- Pass 78 preserves that artifact-locator audit remediation remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit remediation guidance for fail-closed allowlist handling, banned-vocabulary enforcement planning, negative-path validation expectations, seam-boundary containment, rollback expansion, and closed-audit interpretation, but Pass 78 does not change formal Pass 43 status values.
+- Audit remediation remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 79 Control Update
+
+Pass 79 created `docs/audits/phase13/pass79_artifact_locator_remediation_verification.md`.
+
+Control updates:
+- Pass 79 verifies the Pass 78 remediation against the actual Pass 77 audit findings and concludes that the required artifact-locator implementation-plan remediations are materially complete rather than merely restated.
+- Pass 79 preserves that remediation-verification interpretation remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit remediation-verification guidance confirming that allowlist precision, banned-vocabulary constraints, negative-path validation, script/test seam clarity, rollback seam coverage, and stop-condition drift controls are verified closed findings rather than open plan weaknesses, but Pass 79 does not change formal Pass 43 status values.
+- Remediation verification remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

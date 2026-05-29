@@ -308,6 +308,32 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - concludes that the package is `AUTHORIZATION PACKAGE READY FOR HUMAN REVIEW` while preserving explicit exclusions against authority ranking, source-of-truth selection, approval or readiness summaries, repo editing, runtime/product/GUI behavior, and blocked-domain adjacency,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator implementation-authorization packaging is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no tooling was built, no implementation was authorized, and human/orchestrator approval is still required before coding.
+- [2026-05-29] Roadmap reconstruction Pass 75 recorded in `docs/audits/phase13/pass75_artifact_locator_authorization_decision.md`:
+  - records the human/orchestrator decision `AUTHORIZED FOR NARROW IMPLEMENTATION PLANNING ONLY` for the governance artifact locator,
+  - authorizes only a narrow implementation-planning artifact for path, existence, and basic-metadata scope while preserving explicit exclusions against source-of-truth selection, authority ranking, approval/readiness summaries, repo editing, GUI/product/runtime behavior, diagnostics/recovery/retrieval/export behavior, roadmap advancement, and maintenance execution support,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator planning authorization is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no coding was authorized, and the required next artifact is an implementation plan only.
+- [2026-05-29] Roadmap reconstruction Pass 76 recorded in `docs/audits/phase13/pass76_artifact_locator_implementation_plan.md`:
+  - defines a narrow implementation plan for the governance artifact locator and names an exact future script/test seam, planned capability, validation commands, rollback plan, and stop conditions,
+  - keeps the planned capability limited to governance artifact path, existence, and basic filesystem metadata reporting while explicitly excluding authority ranking, source-of-truth selection, approval/readiness summaries, repo editing, GUI/product/runtime surfaces, diagnostics/recovery/retrieval/export behavior, roadmap advancement, and maintenance execution support,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator implementation planning is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no coding was authorized, and the plan is ready for review.
+- [2026-05-29] Roadmap reconstruction Pass 77 recorded in `docs/audits/phase13/pass77_artifact_locator_plan_audit.md`:
+  - audits Pass 76 aggressively for hidden implementation authorization, scope creep, authority drift, source-of-truth leakage, approval signaling, validation weakness, rollback weakness, incomplete stop conditions, and hidden assumptions,
+  - concludes that the plan is `APPROVED WITH PATCHES` rather than cleanly approved because it still needs tighter governed-artifact allowlist precision, negative-path validation, banned-vocabulary constraints, and stronger rollback/stop precision,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator implementation-plan audit findings are now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no implementation was authorized, and no new implementation scope was created.
+- [2026-05-29] Roadmap reconstruction Pass 78 recorded in `docs/audits/phase13/pass78_artifact_locator_audit_remediation.md`:
+  - remediates the Pass 77 findings by patching Pass 76 directly with an explicit governed-artifact allowlist, explicit banned vocabulary list, negative-path validation checks, seam clarification, rollback expansion, and stop-condition expansion,
+  - concludes that all required Pass 77 findings are closed and that the implementation plan now fails closed more effectively on scope drift, approval signaling, source-of-truth leakage, and seam expansion,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that artifact-locator audit remediation is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no implementation was authorized, and the implementation plan remains subject to future review.
+- [2026-05-29] Roadmap reconstruction Pass 79 recorded in `docs/audits/phase13/pass79_artifact_locator_remediation_verification.md`:
+  - verifies Pass 78 against the actual Pass 77 findings and actively attempts to reject the remediation,
+  - confirms that the explicit governed-artifact allowlist, banned vocabulary list, negative-path validation, seam clarification, rollback expansion, and stop-condition expansion are all present and sufficiently close the required Pass 77 findings,
+  - concludes `REMEDIATION VERIFIED`, with remaining concerns classified as residual governance risks rather than failed remediations,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that artifact-locator remediation verification is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no new scope was created, and no implementation was authorized.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
