@@ -625,3 +625,14 @@ Control updates:
 - `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit canon-planning interpretation guidance for truth-question scoping, dependent-domain review, conflict-adjudication planning, and non-authorizing canon preparation, but Pass 65 does not change formal Pass 43 status values.
 - Source-of-truth canon planning, conflict-adjudication planning, and truth-decision-area planning remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 66 Control Update
+
+Pass 66 created `docs/audits/phase13/pass66_first_maintenance_review_package.md`.
+
+Control updates:
+- Pass 66 defines the first concrete maintenance review package by classifying bounded maintenance candidates as eligible, review-required, deferred, or blocked so later maintenance review can begin from named items, evidence expectations, and stop conditions without executing maintenance.
+- Pass 66 preserves that first-package maintenance selection remains governed through existing maintenance-lane, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit first-package maintenance interpretation guidance for package eligibility, review-required items, deferred diagnostics logging, evidence expectations, and non-execution package selection, but Pass 66 does not change formal Pass 43 status values.
+- Package selection, package ordering, and maintenance review recommendations remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

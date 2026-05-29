@@ -269,6 +269,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - plans what a future source-of-truth canon would need to decide by listing unresolved truth questions, dependent domains, decision areas, dependency blockers, and premature-canonization risks without defining the canon,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that source-of-truth canon planning is now interpreted through existing source-of-truth, recovery, retrieval, lifecycle, validation, authorization, and blocked-promotion controls with no new stable IDs,
   - confirms no implementation was authorized, the canon remains undefined, and blocked domains remain blocked.
+- [2026-05-29] Roadmap reconstruction Pass 66 recorded in `docs/audits/phase13/pass66_first_maintenance_review_package.md`:
+  - defines the first concrete maintenance review package by classifying bounded maintenance candidates as eligible, review-required, deferred, or blocked without executing any maintenance,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that first-package maintenance selection is now interpreted through existing maintenance-lane, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no maintenance was executed, no implementation was authorized, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
