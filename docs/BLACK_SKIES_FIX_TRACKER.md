@@ -265,6 +265,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - defines procedural authorization lifecycle handling for active, superseded, expired, revoked, historical, and invalid authorization records so future approval history can be revalidated, audited, and superseded without creating permanent permission,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that authorization lifecycle interpretation is now governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no implementation was authorized and blocked domains remain blocked.
+- [2026-05-29] Roadmap reconstruction Pass 65 recorded in `docs/audits/phase13/pass65_source_truth_canon_planning.md`:
+  - plans what a future source-of-truth canon would need to decide by listing unresolved truth questions, dependent domains, decision areas, dependency blockers, and premature-canonization risks without defining the canon,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that source-of-truth canon planning is now interpreted through existing source-of-truth, recovery, retrieval, lifecycle, validation, authorization, and blocked-promotion controls with no new stable IDs,
+  - confirms no implementation was authorized, the canon remains undefined, and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

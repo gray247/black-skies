@@ -614,3 +614,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit authorization-history and expiration interpretation guidance for lifecycle state, revalidation triggers, supersession handling, conflict handling, and non-transferability, but Pass 64 does not change formal Pass 43 status values.
 - Active authorization is not permanent, stale authorization cannot be reused, and historical or superseded authorization remains non-authorizing unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 65 Control Update
+
+Pass 65 created `docs/audits/phase13/pass65_source_truth_canon_planning.md`.
+
+Control updates:
+- Pass 65 plans what a future source-of-truth canon would need to decide by identifying unresolved truth questions, dependent domains, candidate decision areas, disqualifying conditions, and premature-canonization risks without defining the canon itself.
+- Pass 65 preserves that source-of-truth canon planning remains governed through existing source-of-truth, recovery, retrieval, lifecycle, validation, authorization, and blocked-promotion controls rather than new register sprawl; no new stable IDs were required.
+- `AF-011`, `AF-017`, `IE-002`, `IE-004`, and `SM-001` now have explicit canon-planning interpretation guidance for truth-question scoping, dependent-domain review, conflict-adjudication planning, and non-authorizing canon preparation, but Pass 65 does not change formal Pass 43 status values.
+- Source-of-truth canon planning, conflict-adjudication planning, and truth-decision-area planning remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
