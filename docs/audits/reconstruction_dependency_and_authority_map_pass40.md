@@ -647,3 +647,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit first-package candidate-reentry interpretation guidance for review-package selection, deferred ambiguity-heavy lanes, blocked adjacency-heavy lanes, required candidate-review authorization records, and non-authorizing evidence expectations, but Pass 67 does not change formal Pass 43 status values.
 - Package selection, package ordering, candidate-review preparation, and required evidence remain non-authorizing planning states unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 68 Control Update
+
+Pass 68 created `docs/audits/phase13/pass68_post_roadmap_reentry_readiness_audit.md`.
+
+Control updates:
+- Pass 68 audits Passes 63 through 67 and concludes that the project is ready to begin the first governed maintenance review cycle, while candidate reentry review remains approval-gated and not ready to begin automatically.
+- Pass 68 preserves that post-roadmap reentry readiness remains governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit post-roadmap readiness-audit interpretation guidance for maintenance-go verdicts, candidate-review hold boundaries, approval-gated reentry review, and non-authorizing go/no-go assessment, but Pass 68 does not change formal Pass 43 status values.
+- Maintenance-review readiness remains non-authorizing review readiness, and candidate-review packaging remains non-authorizing until later explicit human/orchestrator approval says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
