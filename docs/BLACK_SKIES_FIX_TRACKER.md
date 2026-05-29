@@ -298,6 +298,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - advances only a narrow `governance artifact locator` concept toward future authorization-record preparation while deferring or blocking the more judgment-bearing concepts,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that governance-support-tooling concept selection is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no tooling was built, no implementation was authorized, and blocked domains remain blocked.
+- [2026-05-29] Roadmap reconstruction Pass 73 recorded in `docs/audits/phase13/pass73_governance_artifact_locator_authorization_review.md`:
+  - prepares an authorization-review record for the narrow governance artifact locator concept and constrains the concept to governance-artifact paths, existence reporting, and basic file metadata only,
+  - concludes that the locator is `AUTHORIZATION REVIEW ELIGIBLE WITH CONDITIONS` while preserving explicit exclusions against authority ranking, source-of-truth selection, approval-status signaling, repo editing, and runtime/product/GUI behavior,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator authorization-review eligibility is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no implementation was authorized, and authorization-review eligibility is not implementation approval.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

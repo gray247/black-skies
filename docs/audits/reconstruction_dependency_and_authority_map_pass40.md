@@ -691,3 +691,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-support-tooling concept-selection guidance for advancing only the narrow governance-artifact-locator concept, deferring judgment-bearing summary and checklist concepts, blocking maintenance-assistance drift, and preserving non-authorizing output discipline, but Pass 72 does not change formal Pass 43 status values.
 - Concept advancement toward later authorization-record preparation remains non-authorizing, and no reviewed concept becomes approved for implementation unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 73 Control Update
+
+Pass 73 created `docs/audits/phase13/pass73_governance_artifact_locator_authorization_review.md`.
+
+Control updates:
+- Pass 73 prepares the authorization-review record for the narrow governance artifact locator concept and evaluates whether the concept can become authorization-review eligible while remaining limited to governance-artifact paths, artifact existence, and basic file metadata without authorizing implementation.
+- Pass 73 preserves that locator authorization-review eligibility remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator authorization-review guidance for path-and-metadata-only scope, anti-ranking exclusions, anti-source-of-truth-selection exclusions, anti-approval-signaling exclusions, and revocation/expiration conditions, but Pass 73 does not change formal Pass 43 status values.
+- Authorization-review eligibility for the locator remains non-authorizing, and no implementation, runtime, GUI, or repo-editing behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
