@@ -289,6 +289,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - creates a candidate-review approval record for governance-support tooling and concludes that the lane is approval-review eligible only with explicit conditions, support-only scope, and human/orchestrator approval of the review record,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that governance-support-tooling approval eligibility is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no tooling was built, no implementation was authorized, and candidate-review approval is not implementation approval.
+- [2026-05-29] Roadmap reconstruction Pass 71 recorded in `docs/audits/phase13/pass71_governance_support_tooling_candidate_review_scope.md`:
+  - defines the candidate review scope for governance-support tooling by separating allowed review questions and support-only review concepts from excluded approval, truth-selection, repo-editing, runtime, and blocked-domain concepts,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that governance-support-tooling review scope is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tool was built, no implementation was authorized, and candidate review scope is not implementation approval.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
