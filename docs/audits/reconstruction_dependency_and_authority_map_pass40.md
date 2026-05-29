@@ -680,3 +680,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-support-tooling review-scope guidance for allowed review questions, excluded concept classes, support-only output discipline, and approval-review-versus-build separation, but Pass 71 does not change formal Pass 43 status values.
 - Candidate review scope remains non-authorizing, and reviewed concepts remain support-only unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 72 Control Update
+
+Pass 72 created `docs/audits/phase13/pass72_governance_support_tooling_candidate_review.md`.
+
+Control updates:
+- Pass 72 reviews the allowed governance-support tooling concepts and compares locator, stale/superseded reporting, blocked-area summary, checklist generation, and maintenance-review assistance concepts by usefulness, authority risk, source-of-truth risk, lifecycle/currentness risk, approval-signaling risk, boundary burden, and evidence burden without authorizing implementation.
+- Pass 72 preserves that governance-support-tooling concept selection remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-support-tooling concept-selection guidance for advancing only the narrow governance-artifact-locator concept, deferring judgment-bearing summary and checklist concepts, blocking maintenance-assistance drift, and preserving non-authorizing output discipline, but Pass 72 does not change formal Pass 43 status values.
+- Concept advancement toward later authorization-record preparation remains non-authorizing, and no reviewed concept becomes approved for implementation unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
