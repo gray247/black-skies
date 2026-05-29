@@ -261,6 +261,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - defines provisional implementation-readiness criteria for future candidate lanes by separating not-eligible, candidate-only, ambiguity-reduction-required, governance-review-required, authorization-review-eligible, and implementation-review-eligible states without authorizing implementation,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that readiness interpretation is now governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no implementation was authorized and blocked domains remain blocked.
+- [2026-05-29] Roadmap reconstruction Pass 64 recorded in `docs/audits/phase13/pass64_authorization_history_expiration_procedure.md`:
+  - defines procedural authorization lifecycle handling for active, superseded, expired, revoked, historical, and invalid authorization records so future approval history can be revalidated, audited, and superseded without creating permanent permission,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that authorization lifecycle interpretation is now governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no implementation was authorized and blocked domains remain blocked.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

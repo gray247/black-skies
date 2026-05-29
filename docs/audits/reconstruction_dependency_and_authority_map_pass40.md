@@ -603,3 +603,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit readiness-criteria interpretation guidance for required preconditions, disqualifying conditions, candidate-lane reassessment, and non-authorizing readiness labels, but Pass 63 does not change formal Pass 43 status values.
 - Authorization-review eligibility and implementation-review eligibility remain non-authorizing review states unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 64 Control Update
+
+Pass 64 created `docs/audits/phase13/pass64_authorization_history_expiration_procedure.md`.
+
+Control updates:
+- Pass 64 defines a procedural authorization lifecycle for active, superseded, expired, revoked, historical, and invalid authorization records so future approval history can be revalidated, audited, superseded, and retired without turning prior approval into permanent permission.
+- Pass 64 preserves that authorization lifecycle interpretation remains governed through existing implementation-eligibility, authorization, maintenance-lane, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit authorization-history and expiration interpretation guidance for lifecycle state, revalidation triggers, supersession handling, conflict handling, and non-transferability, but Pass 64 does not change formal Pass 43 status values.
+- Active authorization is not permanent, stale authorization cannot be reused, and historical or superseded authorization remains non-authorizing unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
