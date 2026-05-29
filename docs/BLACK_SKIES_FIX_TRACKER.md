@@ -303,6 +303,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - concludes that the locator is `AUTHORIZATION REVIEW ELIGIBLE WITH CONDITIONS` while preserving explicit exclusions against authority ranking, source-of-truth selection, approval-status signaling, repo editing, and runtime/product/GUI behavior,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator authorization-review eligibility is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
   - confirms no tooling was built, no implementation was authorized, and authorization-review eligibility is not implementation approval.
+- [2026-05-29] Roadmap reconstruction Pass 74 recorded in `docs/audits/phase13/pass74_artifact_locator_implementation_authorization_package.md`:
+  - prepares the implementation authorization package for the narrow governance artifact locator by defining exact allowed scope, exact exclusions, human/orchestrator decision points, validation expectations, and rollback/revocation conditions without granting authorization,
+  - concludes that the package is `AUTHORIZATION PACKAGE READY FOR HUMAN REVIEW` while preserving explicit exclusions against authority ranking, source-of-truth selection, approval or readiness summaries, repo editing, runtime/product/GUI behavior, and blocked-domain adjacency,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to record that locator implementation-authorization packaging is now interpreted through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls with no new stable IDs,
+  - confirms no tooling was built, no implementation was authorized, and human/orchestrator approval is still required before coding.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

@@ -702,3 +702,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator authorization-review guidance for path-and-metadata-only scope, anti-ranking exclusions, anti-source-of-truth-selection exclusions, anti-approval-signaling exclusions, and revocation/expiration conditions, but Pass 73 does not change formal Pass 43 status values.
 - Authorization-review eligibility for the locator remains non-authorizing, and no implementation, runtime, GUI, or repo-editing behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 74 Control Update
+
+Pass 74 created `docs/audits/phase13/pass74_artifact_locator_implementation_authorization_package.md`.
+
+Control updates:
+- Pass 74 prepares the implementation authorization package for the governance artifact locator by defining exact path/existence/basic-metadata-only scope, explicit exclusions, human/orchestrator decision points, validation expectations, rollback/revocation conditions, and stop conditions without granting implementation authorization.
+- Pass 74 preserves that locator implementation-authorization packaging remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `AF-011`, and `AF-017` now have explicit governance-artifact-locator implementation-package guidance for exact allowed outputs, anti-ranking and anti-source-of-truth exclusions, anti-approval-signaling validation expectations, exact-human-review decision points, and expiration/revocation handling, but Pass 74 does not change formal Pass 43 status values.
+- Authorization packaging for the locator remains non-authorizing, and no implementation, runtime, GUI, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
