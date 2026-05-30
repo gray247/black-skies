@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 92 operational baseline audit recorded in `docs/audits/phase14/pass92_operational_baseline_audit.md`:
+  - captures the observed operational baseline without mixing in repair work,
+  - records that docs lint, renderer build, main build, bounded backend startup, and the declared truth lane pass in this workspace,
+  - records that the broad renderer suite and broad services suite are not green, and classifies the main fake-complete, deferred, obsolete, and investigate surfaces for later recovery intake.
 - [2026-05-26] Phase R2 governance snapshot recorded in `docs/audits/phase_r2_governance_snapshot.md`:
   - preserves the synthesized workflow-state and surface-authority findings as a lightweight continuity artifact,
   - keeps the result explicitly provisional and planning-oriented,
