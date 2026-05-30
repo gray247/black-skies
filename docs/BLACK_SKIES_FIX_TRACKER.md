@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 96 renderer rewrite sync repair plan recorded in `docs/audits/phase14/pass96_renderer_rewrite_sync_repair_plan.md`:
+  - narrows the repair target to the post-sync visible draft invariant after `Sync draft view`,
+  - keeps the intended contract anchored on visible rewritten draft correctness rather than permanent `draftEdits` residency,
+  - limits the likely implementation seam to `useCritique.applyRewrite`, `App` draft normalization callbacks, and the failing `AppCritique` mock contract without authorizing state-model redesign.
 - [2026-05-30] Pass 95 renderer rewrite sync authority map recorded in `docs/audits/phase14/pass95_renderer_rewrite_sync_authority_map.md`:
   - classifies persisted draft files as canonical authority and the renderer as a baseline-plus-override mirror model rather than a single permanent in-memory authority store,
   - records `projectDrafts` and `currentProject.drafts` as renderer baseline mirrors, `draftEdits` as live transitional override state, and project-path preview sync as cache/helper state,
