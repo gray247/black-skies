@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 98 revised renderer rewrite sync implementation plan recorded in `docs/audits/phase14/pass98_revised_renderer_rewrite_sync_implementation_plan.md`:
+  - converts the Pass 97 review into a test-first implementation authorization with explicit expansion gates,
+  - classifies `AppCritique.test.tsx` as the primary implementation target, `useCritique.ts` and `App.tsx` as conditional-only targets, and rejects `ProjectHome.tsx` plus `draftPreviewSync.ts` for the first repair lane,
+  - defines the evidence required to widen beyond the failing test harness and the evidence that forbids widening.
 - [2026-05-30] Pass 97 renderer rewrite sync implementation plan review recorded in `docs/audits/phase14/pass97_renderer_rewrite_sync_implementation_plan_review.md`:
   - challenges the Pass 96 repair lane as slightly broader than necessary,
   - removes `ProjectHome.tsx` and `draftPreviewSync.ts` from the initial authorized implementation scope absent new evidence,
