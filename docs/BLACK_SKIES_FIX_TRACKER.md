@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 97 renderer rewrite sync implementation plan review recorded in `docs/audits/phase14/pass97_renderer_rewrite_sync_implementation_plan_review.md`:
+  - challenges the Pass 96 repair lane as slightly broader than necessary,
+  - removes `ProjectHome.tsx` and `draftPreviewSync.ts` from the initial authorized implementation scope absent new evidence,
+  - classifies the bug as mixed with a strong test-harness component and recommends a test-first implementation lane with conditional expansion only into `useCritique.ts` or `App.tsx`.
 - [2026-05-30] Pass 96 renderer rewrite sync repair plan recorded in `docs/audits/phase14/pass96_renderer_rewrite_sync_repair_plan.md`:
   - narrows the repair target to the post-sync visible draft invariant after `Sync draft view`,
   - keeps the intended contract anchored on visible rewritten draft correctness rather than permanent `draftEdits` residency,
