@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 100 renderer rewrite sync implementation recorded in `docs/audits/phase14/pass100_renderer_rewrite_sync_implementation.md`:
+  - restores the approved rewrite-sync contract with a test-only change in `app/renderer/__tests__/AppCritique.test.tsx`,
+  - replaces the mock's static draft fallback with a persistent visible-draft model so post-sync assertions reflect the approved visible contract instead of override-only persistence,
+  - keeps `useCritique.ts`, `App.tsx`, `ProjectHome.tsx`, and `draftPreviewSync.ts` untouched because the narrow proof and the full app suite both passed without runtime expansion.
 - [2026-05-30] Pass 99 renderer rewrite sync implementation authorization recorded in `docs/audits/phase14/pass99_renderer_rewrite_sync_implementation_authorization.md`:
   - confirms the evidence chain is complete enough to authorize a bounded implementation lane,
   - authorizes `AppCritique.test.tsx` as the first implementation target, keeps `useCritique.ts` and `App.tsx` conditional-only, and marks `ProjectHome.tsx` plus `draftPreviewSync.ts` unauthorized for the first repair move,

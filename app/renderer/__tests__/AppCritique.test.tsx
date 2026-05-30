@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
@@ -74,6 +74,7 @@ function ProjectHomeMock({
 }: ProjectHomeMockProps): JSX.Element {
   const bootstrappedRef = useRef(false);
   const lastDraftRef = useRef<string | null>(null);
+  const [visibleDraft, setVisibleDraft] = useState(loadedProject.drafts.sc_0001);
 
   useEffect(() => {
     if (bootstrappedRef.current) {
@@ -93,33 +94,35 @@ function ProjectHomeMock({
       lastOpenedPath: loadedProject.path,
     });
 
-    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001;
+    const draftText = draftOverrides?.sc_0001 ?? visibleDraft;
     const editedDraft =
       typeof window.__TEST_PROJECT_HOME_EDITED_DRAFT === 'string'
         ? window.__TEST_PROJECT_HOME_EDITED_DRAFT
         : draftText;
     lastDraftRef.current = draftText;
+    setVisibleDraft(editedDraft);
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     onDraftChange?.('sc_0001', editedDraft);
-  }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
+  }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded, visibleDraft]);
 
   useEffect(() => {
     if (!bootstrappedRef.current) {
       return;
     }
-    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001;
+    const draftText = draftOverrides?.sc_0001 ?? visibleDraft;
     if (lastDraftRef.current === draftText) {
       return;
     }
     lastDraftRef.current = draftText;
+    setVisibleDraft(draftText);
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     onDraftChange?.('sc_0001', draftText);
-  }, [draftOverrides, onActiveSceneChange, onDraftChange]);
+  }, [draftOverrides, onActiveSceneChange, onDraftChange, visibleDraft]);
 
   return (
     <div
       data-testid="project-home-mock"
-      data-draft={draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001}
+      data-draft={draftOverrides?.sc_0001 ?? visibleDraft}
     />
   );
 }
