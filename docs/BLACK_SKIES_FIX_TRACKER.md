@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 93 operational baseline recovery triage recorded in `docs/audits/phase14/pass93_operational_baseline_recovery_triage.md`:
+  - converts Pass 92 discovery evidence into bounded recovery-lane candidates without authorizing repair,
+  - ranks renderer critique/rewrite sync ownership mapping as the safest first recovery-planning lane,
+  - keeps environment normalization, broad backend failure classification, GUI human smoke, packaging audit, fake-complete containment, defer lanes, and kill-candidate surfaces explicitly separated for later passes.
 - [2026-05-30] Pass 92 operational baseline audit recorded in `docs/audits/phase14/pass92_operational_baseline_audit.md`:
   - captures the observed operational baseline without mixing in repair work,
   - records that docs lint, renderer build, main build, bounded backend startup, and the declared truth lane pass in this workspace,
