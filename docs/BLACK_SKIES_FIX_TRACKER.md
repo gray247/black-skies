@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 94 renderer critique/rewrite sync ownership map recorded in `docs/audits/phase14/pass94_renderer_critique_rewrite_sync_ownership_map.md`:
+  - maps the failing renderer critique/rewrite sync lane to the renderer state handoff among `useCritique`, `App`, and `ProjectHome`,
+  - records the backend critique/rewrite route path as independently supported by prior truth-lane evidence rather than the leading suspected owner,
+  - classifies the main failure surface as mixed UI-state-sync plus test-expectation ownership, with the mocked `ProjectHome` contract carrying part of the red signal.
 - [2026-05-30] Pass 93 operational baseline recovery triage recorded in `docs/audits/phase14/pass93_operational_baseline_recovery_triage.md`:
   - converts Pass 92 discovery evidence into bounded recovery-lane candidates without authorizing repair,
   - ranks renderer critique/rewrite sync ownership mapping as the safest first recovery-planning lane,
