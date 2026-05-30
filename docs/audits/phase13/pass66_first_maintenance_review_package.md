@@ -177,6 +177,10 @@ Validation results must state:
 - what they do not cover
 - whether any scope-specific checks were added
 
+Note:
+
+- `pnpm lint:docs` covers the repo's fixed docs-lint set rather than the full phase13 governance doc set
+
 ## 11. Register / Tracker Impact
 
 Pass 66 references existing control structures without creating new stable IDs.

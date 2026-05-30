@@ -364,6 +364,30 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - fixes the candidate file classes at governance docs under `docs/audits/phase13/`, `docs/audits/reconstruction_dependency_and_authority_map_pass40.md`, and `docs/BLACK_SKIES_FIX_TRACKER.md`, while explicitly excluding authority-rule rewrites, caveat compression, truth/recovery/retrieval/validation wording changes, and any test/build/source modification,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
   - confirms no edits were executed, no implementation was authorized, and the package remains preparation-only.
+- [2026-05-30] Roadmap reconstruction Pass 86 recorded in `docs/audits/phase13/pass86_docs_only_maintenance_execution_plan.md`:
+  - converts the Pass 85 docs-only maintenance package into an execution-review plan with exact candidate file classes, allowed edit matrix, rejected edit matrix, bounded validation, fail-closed stop conditions, and per-file rollback rules,
+  - concludes `READY FOR MAINTENANCE EXECUTION REVIEW` only on the narrow claim that a later docs-only maintenance-execution review can be run safely if it stays inside the package boundary,
+  - preserves explicit refusal of governance-meaning changes, authority wording changes, truth/recovery/retrieval/validation wording changes, roadmap/pass/control reinterpretation, and any source/test/build modification,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no maintenance was executed and no implementation was authorized.
+- [2026-05-30] Roadmap reconstruction Pass 87 recorded in `docs/audits/phase13/pass87_docs_only_maintenance_execution_review.md`:
+  - reviews the Pass 86 execution plan against the allowed file classes and edit types and scans for exact execute-grade candidate edits without applying them,
+  - finds a narrow candidate list rather than a broad maintenance batch: the only execute-grade items are docs-lint limitation clarifications in `docs/audits/phase13/pass66_first_maintenance_review_package.md` and `docs/audits/phase13/pass86_docs_only_maintenance_execution_plan.md`,
+  - defers lower-value or more interpretive note additions and rejects speculative broad cleanup, speculative link normalization, and tracker/control-surface cleanup as too close to governance-meaning drift,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - records `READY WITH LIMITED EDIT LIST` and confirms that no maintenance was executed and no implementation was authorized.
+- [2026-05-30] Roadmap reconstruction Pass 88 recorded in `docs/audits/phase13/pass88_docs_only_maintenance_execution.md`:
+  - executes only the two approved Pass 87 docs-lint limitation clarifications in `docs/audits/phase13/pass66_first_maintenance_review_package.md` and `docs/audits/phase13/pass86_docs_only_maintenance_execution_plan.md`,
+  - adds fixed-scope notes stating that `pnpm lint:docs` covers the repo's fixed docs-lint set rather than the full phase13 governance artifacts broadly,
+  - confirms that the edits only narrow possible overread of validation scope, do not change governance meaning or authority wording, and do not touch any deferred or rejected candidates,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no implementation was authorized and no maintenance outside the two approved note additions was executed.
+- [2026-05-30] Roadmap reconstruction Pass 89 recorded in `docs/audits/phase13/pass89_docs_only_maintenance_verification.md`:
+  - verifies that Pass 88 stayed inside the two-item execute list approved by Pass 87,
+  - confirms that `docs/audits/phase13/pass66_first_maintenance_review_package.md` received only the fixed-scope `pnpm lint:docs` limitation clarification and that `docs/audits/phase13/pass86_docs_only_maintenance_execution_plan.md` reflects only the corresponding fixed-scope clarification,
+  - confirms no deferred or rejected Pass 87 candidates were touched, no governance/authority/truth/recovery/retrieval/validation policy wording changed, and no source/test/build files changed,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - records `MAINTENANCE VERIFIED` without overclaiming validation scope.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

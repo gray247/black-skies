@@ -823,3 +823,47 @@ Control updates:
 - `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-package-preparation guidance for candidate file-class limits, banned edit classes, per-edit evidence expectations, bounded validation interpretation, and fail-closed stop conditions, but Pass 85 does not change formal Pass 43 status values.
 - Docs-only maintenance-package preparation remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 86 Control Update
+
+Pass 86 created `docs/audits/phase13/pass86_docs_only_maintenance_execution_plan.md`.
+
+Control updates:
+- Pass 86 converts the Pass 85 docs-only maintenance package into an execution-review plan by fixing exact candidate file classes, accepted edit categories, rejected edit categories, validation rules, fail-closed stop conditions, and per-file rollback behavior for a future maintenance-execution review.
+- Pass 86 preserves that docs-only maintenance-execution planning remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-execution-plan guidance distinguishing execution-review readiness from execution authorization and requiring refusal of authority-wording drift, truth-sensitive wording drift, validation-signaling drift, and non-doc file expansion, but Pass 86 does not change formal Pass 43 status values.
+- Docs-only maintenance-execution planning remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 87 Control Update
+
+Pass 87 created `docs/audits/phase13/pass87_docs_only_maintenance_execution_review.md`.
+
+Control updates:
+- Pass 87 reviews the docs-only maintenance execution plan against the allowed file classes and edit types and concludes that the first safe execution set is narrower than the full package: execute-grade candidates are limited to docs-lint limitation clarifications in execution-relevant governance artifacts rather than broader cleanup across the package.
+- Pass 87 preserves that docs-only maintenance-execution review remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-execution-review guidance distinguishing execute-grade clarification notes from deferred lower-value note additions and rejected interpretation-adjacent cleanup, but Pass 87 does not change formal Pass 43 status values.
+- Docs-only maintenance-execution review remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 88 Control Update
+
+Pass 88 created `docs/audits/phase13/pass88_docs_only_maintenance_execution.md`.
+
+Control updates:
+- Pass 88 executes only the two Pass 87 execute-grade docs-lint limitation clarifications and confirms that the first docs-only maintenance execution can be carried out safely when confined to fixed-scope validation-coverage notes in already-approved governance artifacts.
+- Pass 88 preserves that docs-only maintenance execution remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-execution guidance confirming that fixed-scope validation-coverage clarifications can execute without changing governance meaning, authority wording, or approval posture when deferred and rejected candidates remain untouched, but Pass 88 does not change formal Pass 43 status values.
+- Docs-only maintenance execution remains non-authorizing for implementation, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 89 Control Update
+
+Pass 89 created `docs/audits/phase13/pass89_docs_only_maintenance_verification.md`.
+
+Control updates:
+- Pass 89 verifies that the first docs-only maintenance execution stayed within the two approved Pass 87 clarification edits and did not expand into deferred or rejected cleanup.
+- Pass 89 preserves that docs-only maintenance verification remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-verification guidance confirming that the Pass 88 execution remained bounded, non-authorizing, and non-reinterpretive, but Pass 89 does not change formal Pass 43 status values.
+- Docs-only maintenance verification remains non-authorizing for implementation, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
