@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-05-30] Pass 95 renderer rewrite sync authority map recorded in `docs/audits/phase14/pass95_renderer_rewrite_sync_authority_map.md`:
+  - classifies persisted draft files as canonical authority and the renderer as a baseline-plus-override mirror model rather than a single permanent in-memory authority store,
+  - records `projectDrafts` and `currentProject.drafts` as renderer baseline mirrors, `draftEdits` as live transitional override state, and project-path preview sync as cache/helper state,
+  - narrows the likely contract drift to the failing test harness versus implementation mirror semantics, while keeping visible post-sync correctness as the intended user-facing contract.
 - [2026-05-30] Pass 94 renderer critique/rewrite sync ownership map recorded in `docs/audits/phase14/pass94_renderer_critique_rewrite_sync_ownership_map.md`:
   - maps the failing renderer critique/rewrite sync lane to the renderer state handoff among `useCritique`, `App`, and `ProjectHome`,
   - records the backend critique/rewrite route path as independently supported by prior truth-lane evidence rather than the leading suspected owner,
