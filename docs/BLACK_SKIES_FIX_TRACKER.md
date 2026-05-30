@@ -340,6 +340,12 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - records `ARC B COMPLETE WITH RESIDUAL RISKS`, with unresolved source-of-truth, lifecycle/currentness, authorization-enforcement, and broader candidate-lane maturity risks carried forward explicitly,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
   - confirms no tooling was built, no implementation was authorized, and no blocked domain was reopened.
+- [2026-05-30] Roadmap reconstruction Pass 82 recorded in `docs/audits/phase13/pass82_post_implementation_governance_audit.md`:
+  - audits the full artifact-locator governance journey from candidate review through implementation to determine whether the governance framework actually controlled a real implementation candidate,
+  - concludes `VALIDATED WITH IMPROVEMENTS`: scope remained bounded, authorization drift did not occur, audits materially improved the design, and governance prevented implementation sprawl, but the process still carried more ceremony than the final feature justified and the first implementation plan was broader than the final accepted shape,
+  - identifies hostile audit, explicit exclusions, remediation, and remediation verification as the most valuable controls, while noting that some repeated planning and packaging ceremony added limited value,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no new tooling was created in this pass, no scope was expanded, and no blocked domain was reopened.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.

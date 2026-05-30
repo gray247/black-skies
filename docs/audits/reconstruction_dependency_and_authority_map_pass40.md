@@ -779,3 +779,14 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit Arc B closure-readiness guidance distinguishing achieved governance separation, review-lane maturity, narrow implementation-planning viability, and unresolved truth-dependent residual risks from any broader implementation-readiness claim, but Pass 80 does not change formal Pass 43 status values.
 - Arc B closure readiness remains non-authorizing for coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 82 Control Update
+
+Pass 82 created `docs/audits/phase13/pass82_post_implementation_governance_audit.md`.
+
+Control updates:
+- Pass 82 audits the full artifact-locator governance journey after implementation and concludes that the governance framework successfully controlled a real implementation candidate from review through implementation, but with measurable process inefficiency and an initial implementation plan broader than the final accepted shape.
+- Pass 82 preserves that post-implementation governance interpretation remains governed through existing implementation-eligibility, authorization, blocked-promotion, dependency-gate, safe-maintenance, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit post-implementation governance-audit guidance distinguishing bounded-scope success, anti-sprawl success, hostile-audit effectiveness, and future minimization needs from any claim that the broader framework is fully optimized, but Pass 82 does not change formal Pass 43 status values.
+- Post-implementation governance validation remains non-authorizing for additional coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
