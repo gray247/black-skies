@@ -21,9 +21,7 @@ def locator_script_module() -> ModuleType:
 
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     if spec is None or spec.loader is None:
-        raise RuntimeError(
-            "Unable to load governance artifact locator module specification"
-        )
+        raise RuntimeError("Unable to load governance artifact locator module specification")
 
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
