@@ -790,3 +790,36 @@ Control updates:
 - `IE-002`, `IE-003`, `IE-004`, `IE-005`, `SM-001`, `AF-011`, and `AF-017` now have explicit post-implementation governance-audit guidance distinguishing bounded-scope success, anti-sprawl success, hostile-audit effectiveness, and future minimization needs from any claim that the broader framework is fully optimized, but Pass 82 does not change formal Pass 43 status values.
 - Post-implementation governance validation remains non-authorizing for additional coding, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 83 Control Update
+
+Pass 83 created `docs/audits/phase13/pass83_maintenance_wave2_review.md`.
+
+Control updates:
+- Pass 83 reviews the next maintenance domains after the first maintenance wave and concludes that Docs / Test / Build Maintenance and Dependency / Security Maintenance remain maintenance-shaped but governance-sensitive enough to require explicit review, while Diagnostics Logging remains too adjacency-heavy for near-term promotion and stays deferred.
+- Pass 83 preserves that Maintenance Wave 2 review interpretation remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit Maintenance Wave 2 guidance distinguishing review-required maintenance classes from deferred diagnostics maintenance and preventing post-artifact-locator governance success from being overread as proof that broader maintenance domains are automatically safe, but Pass 83 does not change formal Pass 43 status values.
+- Maintenance Wave 2 classification remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 84 Control Update
+
+Pass 84 created `docs/audits/phase13/pass84_docs_test_build_maintenance_review.md`.
+
+Control updates:
+- Pass 84 reviews the Docs / Test / Build maintenance domain at a narrower sub-area level and concludes that only docs cleanup without semantic drift and docs-lint coverage notes are sufficiently bounded to enter a narrow maintenance-package-preparation posture, while test harness maintenance, build script maintenance, and validation-command documentation remain review-required.
+- Pass 84 preserves that Docs / Test / Build maintenance review interpretation remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs/test/build review guidance distinguishing docs-only eligible sub-areas from behavior-sensitive harness, build, and validation-documentation sub-areas, but Pass 84 does not change formal Pass 43 status values.
+- Docs / Test / Build maintenance classification remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 85 Control Update
+
+Pass 85 created `docs/audits/phase13/pass85_docs_only_maintenance_package_preparation.md`.
+
+Control updates:
+- Pass 85 prepares the first narrow docs-only maintenance package from the Pass 84 eligible areas by fixing the future package to governance-doc typo fixes, broken relative-link fixes, non-semantic formatting fixes, docs-lint coverage note additions, and lint-coverage limitation clarification that does not change governance meaning.
+- Pass 85 preserves that docs-only maintenance-package preparation remains governed through existing safe-maintenance, implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit docs-only maintenance-package-preparation guidance for candidate file-class limits, banned edit classes, per-edit evidence expectations, bounded validation interpretation, and fail-closed stop conditions, but Pass 85 does not change formal Pass 43 status values.
+- Docs-only maintenance-package preparation remains non-authorizing for execution, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

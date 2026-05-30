@@ -346,6 +346,24 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - identifies hostile audit, explicit exclusions, remediation, and remediation verification as the most valuable controls, while noting that some repeated planning and packaging ceremony added limited value,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
   - confirms no new tooling was created in this pass, no scope was expanded, and no blocked domain was reopened.
+- [2026-05-30] Roadmap reconstruction Pass 83 recorded in `docs/audits/phase13/pass83_maintenance_wave2_review.md`:
+  - reviews the next maintenance domains after the first maintenance wave and classifies Docs / Test / Build Maintenance and Dependency / Security Maintenance as `REVIEW REQUIRED`, while classifying Diagnostics Logging Eligibility as `DEFER`,
+  - rejects automatic promotion by noting that these domains still carry validation, runtime, visibility, source-of-truth, recovery, or diagnostics adjacency risks even when they appear maintenance-shaped,
+  - places Docs / Test / Build and Dependency / Security into a future Maintenance Wave 3 review posture and keeps Diagnostics Logging in the Deferred Queue,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no implementation was authorized and no maintenance work was executed.
+- [2026-05-30] Roadmap reconstruction Pass 84 recorded in `docs/audits/phase13/pass84_docs_test_build_maintenance_review.md`:
+  - reviews the Docs / Test / Build maintenance domain at finer granularity and concludes that a narrow docs-only package can be safely prepared,
+  - classifies docs cleanup without semantic drift and docs-lint coverage notes as `ELIGIBLE`, while keeping test harness maintenance, build script maintenance, and validation-command documentation at `REVIEW REQUIRED`,
+  - narrows the next plausible maintenance package to the two docs-only areas and rejects automatic promotion of harness, build-script, or validation-command work,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no maintenance was executed and no implementation was authorized.
+- [2026-05-30] Roadmap reconstruction Pass 85 recorded in `docs/audits/phase13/pass85_docs_only_maintenance_package_preparation.md`:
+  - prepares a narrow docs-only maintenance package from the two Pass 84 eligible areas without executing any maintenance,
+  - limits the future package to governance-doc typo fixes, broken relative-link fixes, non-semantic formatting fixes, docs-lint coverage note additions, and lint-coverage limitation clarification that does not change governance meaning,
+  - fixes the candidate file classes at governance docs under `docs/audits/phase13/`, `docs/audits/reconstruction_dependency_and_authority_map_pass40.md`, and `docs/BLACK_SKIES_FIX_TRACKER.md`, while explicitly excluding authority-rule rewrites, caveat compression, truth/recovery/retrieval/validation wording changes, and any test/build/source modification,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no edits were executed, no implementation was authorized, and the package remains preparation-only.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
