@@ -878,3 +878,14 @@ Control updates:
 - `SM-001`, `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit maintenance-lane-closure guidance distinguishing successful scope control and verification from process-efficiency concerns, and explicitly allowing future low-risk maintenance lanes to compress planning ceremony while retaining exact file/edit limits, stop conditions, and verification, but Pass 90 does not change formal Pass 43 status values.
 - Maintenance-lane closure remains non-authorizing for implementation, and no source, GUI, runtime, repo-editing, or blocked-domain behavior becomes approved unless later explicit human/orchestrator authorization says otherwise.
 - Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.
+
+## Pass 91 Control Update
+
+Pass 91 created `docs/audits/phase14/pass91_operational_baseline_intake_plan.md`.
+
+Control updates:
+- Pass 91 transitions from governance reconstruction into operational baseline intake planning by defining a bounded audit method for discovering current repo/build/test/runtime/feature reality without permitting repair, redesign, or blocked-domain reentry.
+- Pass 91 preserves that operational-baseline-intake planning remains governed through existing implementation-eligibility, blocked-promotion, dependency-gate, and authority-family controls rather than new register sprawl; no new stable IDs were required.
+- `IE-002`, `IE-003`, `IE-004`, `AF-011`, and `AF-017` now have explicit operational-baseline-intake guidance distinguishing runtime/build/test observation from readiness claims, roadmap/spec presence from implementation proof, and audit discovery from recovery authorization, but Pass 91 does not change formal Pass 43 status values.
+- Operational baseline intake planning remains non-authorizing for implementation, repair, redesign, repo-editing, or blocked-domain behavior unless later explicit human/orchestrator authorization says otherwise.
+- Existing register families remain sufficient. No new contradiction, blocked-promotion, dependency-gate, governance-domain, pressure-field, implementation-eligibility, authority-family, vocabulary-containment, reconstruction-state, or safe-maintenance IDs were required.

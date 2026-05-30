@@ -394,6 +394,12 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - identifies meaningful process overhead: the review and verification chain was much larger than the two-note maintenance payload, so future low-risk lanes should preserve exact file/edit limits, stop conditions, and verification while compressing repeated planning and restatement ceremony,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
   - confirms that no new maintenance package was created and no implementation was authorized.
+- [2026-05-30] Operational baseline intake Pass 91 recorded in `docs/audits/phase14/pass91_operational_baseline_intake_plan.md`:
+  - defines the bounded method for a later operational baseline audit without performing the audit itself,
+  - establishes the audit/recovery firewall explicitly: audit discovers, recovery repairs, and the two must not be mixed,
+  - defines how Pass 92 should inventory repo/build/test surfaces, verify launch/runtime behavior, classify real versus planned versus fake-complete features, detect obsolete or abandoned work, and report keep/rebuild/defer/kill intake outcomes without proposing fixes during intake,
+  - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` accordingly,
+  - confirms no implementation, repair, redesign, dependency upgrade, or blocked-domain reopening was authorized.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
 - Phase 11B passes 0-21 are complete.
