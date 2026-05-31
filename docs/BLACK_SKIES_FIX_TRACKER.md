@@ -3596,3 +3596,9 @@ Backlog note drifted after phase-log cleanup.
   - confirms PASS 2 service-truth lane is now clean (`19 passed`) with no `PytestConfigWarning` for unknown `cache_dir`,
   - confirms broad backend lane remains green (`python -m pytest services/tests -q` => `611 passed, 10 skipped`) and hygiene checks pass,
   - concludes warning lane status as `WARNING CLEANED UP`.
+- [2026-05-31] Pass 118 backend recovery closure review recorded in `docs/audits/phase14/pass118_backend_recovery_closure_review.md`:
+  - confirms the previously queued backend recovery items are closed (`.env.example` drift, draft-timeout contract lane, memory-accept race lane, and cache_dir warning lane),
+  - records required closure-check validation as green (`python -m pytest services/tests -q` => `611 passed, 10 skipped`; `pnpm test:service-truth` => `19 passed`),
+  - confirms no warnings/failures in required closure commands and keeps prior explicit-config service-process flake as historical monitor-only context,
+  - confirms hygiene gates pass (`git diff --check`, `pnpm lint:docs`),
+  - concludes backend lane status as `BACKEND RECOVERY CLOSED WITH CAVEATS`.
