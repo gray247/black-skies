@@ -3548,3 +3548,9 @@ Backlog note drifted after phase-log cleanup.
   - classifies service-process launch instability as `NEEDS FLAKE REPRODUCTION` before repair planning,
   - classifies the Windows prototype memory accept race as `NEEDS OWNERSHIP MAP` before repair planning,
   - keeps the PASS 2 `cache_dir` warning as `LOW PRIORITY` hygiene follow-up.
+- [2026-05-31] Pass 110 `.env.example` service-settings drift repair recorded in `docs/audits/phase14/pass110_env_example_service_settings_drift_repair.md`:
+  - repairs the deterministic `services/tests/unit/test_config.py::test_env_example_documents_service_settings` failure by documenting the three missing keys in `.env.example`,
+  - adds `BLACKSKIES_BACKUP_VERIFIER_MATURITY`, `BLACKSKIES_MEMORY_LAB_MATURITY`, and `BLACKSKIES_PHASE4_MOCK_ROUTES_ENABLED` in the corresponding existing env sections,
+  - keeps runtime behavior/config code unchanged and remains inside the bundled narrow repair scope,
+  - confirms the narrow config test lane is green (`8 passed`),
+  - records that optional broad backend validation remains red due to the known out-of-scope prototype memory accept race.
