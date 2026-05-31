@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
@@ -24,6 +25,20 @@ class AdvisoryStorageError(ValueError):
     """Raised when advisory storage invariants are violated."""
 
 
+_SCAFFOLD_LOCKS: dict[str, threading.RLock] = {}
+_SCAFFOLD_LOCKS_GUARD = threading.Lock()
+
+
+def _scaffold_lock_for(project_root: Path) -> threading.RLock:
+    key = str(project_root.resolve())
+    with _SCAFFOLD_LOCKS_GUARD:
+        lock = _SCAFFOLD_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _SCAFFOLD_LOCKS[key] = lock
+        return lock
+
+
 @dataclass(frozen=True)
 class MemoryPrototypeStorage:
     """Filesystem helper for prototype-only advisory artifacts."""
@@ -39,40 +54,45 @@ class MemoryPrototypeStorage:
         return self.project_root / "history" / "memory_prototype"
 
     def ensure_scaffold(self) -> None:
-        for path in (
-            self.memory_root / "ledger",
-            self.memory_root / "deltas",
-            self.memory_root / "packets" / "draft",
-            self.memory_root / "packets" / "rewrite",
-            self.memory_root / "packets" / "critique",
-            self.memory_root / "drift",
-            self.history_root / "runs",
-            self.history_root / "diagnostics",
-            self.history_root / "eval",
-        ):
-            path.mkdir(parents=True, exist_ok=True)
+        with _scaffold_lock_for(self.project_root):
+            for path in (
+                self.memory_root / "ledger",
+                self.memory_root / "deltas",
+                self.memory_root / "packets" / "draft",
+                self.memory_root / "packets" / "rewrite",
+                self.memory_root / "packets" / "critique",
+                self.memory_root / "drift",
+                self.history_root / "runs",
+                self.history_root / "diagnostics",
+                self.history_root / "eval",
+            ):
+                path.mkdir(parents=True, exist_ok=True)
 
-        atomic_write_json(
-            self.memory_root / "schema_version.json",
-            {
+            schema_path = self.memory_root / "schema_version.json"
+            schema_payload = {
                 "schema_version": SCHEMA_VERSION,
                 "prototype_version": PROTOTYPE_VERSION,
-            },
-        )
-        atomic_write_json(
-            self.history_root / "status.json",
-            {
-                "status": "ok",
-                "updated_at": _now_iso(),
-                "last_success_at": _now_iso(),
-                "last_error_code": None,
-                "last_error_message": None,
-                "consecutive_failures": 0,
-                "retry_after_seconds": 0,
-                "affected_components": [],
-                "note": "M2 advisory storage initialized",
-            },
-        )
+            }
+            if read_json_if_exists(schema_path) != schema_payload:
+                atomic_write_json(schema_path, schema_payload)
+
+            status_path = self.history_root / "status.json"
+            if not status_path.exists():
+                now = _now_iso()
+                atomic_write_json(
+                    status_path,
+                    {
+                        "status": "ok",
+                        "updated_at": now,
+                        "last_success_at": now,
+                        "last_error_code": None,
+                        "last_error_message": None,
+                        "consecutive_failures": 0,
+                        "retry_after_seconds": 0,
+                        "affected_components": [],
+                        "note": "M2 advisory storage initialized",
+                    },
+                )
 
     def write_advisory_artifact(
         self,

@@ -3572,3 +3572,9 @@ Backlog note drifted after phase-log cleanup.
   - preserves explicit unauthorized scope for schema/provider changes, broad persistence changes, Memory Lab promotion, unrelated tests, and dependencies/lockfiles,
   - requires bounded prototype-lane validation for race resolution and idempotency before any verification claim,
   - concludes authorization status as `IMPLEMENTATION AUTHORIZED` for the narrow prototype storage lane.
+- [2026-05-31] Pass 114 memory accept race implementation recorded in `docs/audits/phase14/pass114_memory_accept_race_implementation.md`:
+  - implements the authorized prototype-local repair in `services/src/blackskies/services/memory_prototype/storage.py` by serializing `ensure_scaffold()` with a project-root keyed lock,
+  - reduces scaffold replace contention by skipping `schema_version.json` rewrites when payload is unchanged and by initializing `history/memory_prototype/status.json` only when missing,
+  - keeps `services/src/blackskies/services/io.py` unchanged because no new evidence required global atomic-write behavior changes,
+  - confirms required bounded validation lanes pass (`1 passed`, `1 passed`, `3 passed`, plus `git diff --check` and `pnpm lint:docs`),
+  - concludes implementation status as `IMPLEMENTATION COMPLETE` with no scope expansion.
