@@ -3512,3 +3512,9 @@ Backlog note drifted after phase-log cleanup.
   - `services/tests/unit/test_draft_generation_experiment.py::test_provider_backed_draft_error_falls_back` conflicts with adjacent timeout evidence: `services/tests/unit/test_draft_generation_adapter.py` preserves timeout escalation and `services/tests/test_app.py` preserves timeout-to-`504` route behavior,
   - current classification is contract ambiguity with a strong test-drift signal, not a simple ownership gap,
   - the next safe lane is timeout-contract clarification before repair planning, so implementation should not start yet.
+- [2026-05-31] Pass 104 draft-generation timeout contract clarified:
+  - provider timeout is now classified as a distinct failure class, not as a synthesized-success fallback case,
+  - generic adapter failures and unusable/empty provider text may still fall back to local synthesized draft text, but timeout-shaped adapter failures should continue to escalate through `DraftGenerationProviderTimeoutError`,
+  - the intended public contract remains controlled timeout exposure through the draft-generation route as HTTP `504` / `PROVIDER_TIMEOUT`,
+  - `services/tests/unit/test_draft_generation_experiment.py::test_provider_backed_draft_error_falls_back` is now treated as the stale contract outlier,
+  - the next repair plan may stay narrow around that test seam first; runtime source changes are conditional only if new contradiction evidence appears.
