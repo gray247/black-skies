@@ -3608,3 +3608,9 @@ Backlog note drifted after phase-log cleanup.
   - confirms hygiene checks pass (`git diff --check`, `pnpm lint:docs`) and no fresh red renderer signal appears in required commands,
   - carries forward that remaining renderer risk is mainly workflow-smoke/human-verification confidence rather than deterministic failing tests,
   - concludes renderer intake status as `RENDERER QUEUE GREEN / MOVE TO WORKFLOW SMOKE`.
+- [2026-05-31] Pass 120 workflow smoke human verification plan recorded in `docs/audits/phase14/pass120_workflow_smoke_human_verification_plan.md`:
+  - defines a bounded manual checklist across app launch, backend health visibility, project load/switch continuity, draft/generate/critique/rewrite flows, snapshot/recovery, export, diagnostics/error visibility, and offline/online behavior,
+  - requires per-step evidence capture (action, expected result, screenshot/log proof, blocker classification, and Codex-lane escalation decision),
+  - sets explicit blocker gates for launch/load failures, deterministic continuity contamination, core editorial flow breakage, misleading recovery/export outcomes, and broken offline/online recovery semantics,
+  - preserves non-blocking classification for minor copy/layout issues without workflow breakage and for non-reproducible one-off flakes,
+  - concludes planning status as `HUMAN SMOKE PLAN READY`.
