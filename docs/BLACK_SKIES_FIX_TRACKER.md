@@ -3542,3 +3542,9 @@ Backlog note drifted after phase-log cleanup.
   - confirms the stale timeout-fallback contract was removed from the experiment test and replaced by timeout escalation expectation,
   - confirms timeout-escalation preservation lanes remain green in adapter and route bounded tests,
   - concludes audit verdict as `IMPLEMENTATION ACCEPTED` with no immediate follow-up repair required for this lane.
+- [2026-05-31] Pass 109 backend recovery queue reassessment recorded in `docs/audits/phase14/pass109_backend_recovery_queue_reassessment.md`:
+  - closes the draft-generation timeout lane in recovery prioritization and reassesses only the remaining Pass 102 backend findings,
+  - ranks `.env.example` service-settings drift as `READY FOR REPAIR PLANNING` and recommends it as the next backend lane,
+  - classifies service-process launch instability as `NEEDS FLAKE REPRODUCTION` before repair planning,
+  - classifies the Windows prototype memory accept race as `NEEDS OWNERSHIP MAP` before repair planning,
+  - keeps the PASS 2 `cache_dir` warning as `LOW PRIORITY` hygiene follow-up.
