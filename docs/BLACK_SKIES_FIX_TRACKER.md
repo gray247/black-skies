@@ -3506,3 +3506,9 @@ Backlog note drifted after phase-log cleanup.
   - the service-process health launch timeout currently behaves like a full-suite/config-variant instability because it failed only in the explicit services-config broad run and passed in isolation,
   - the PASS 2 service-truth lane still passes, but it emits a `cache_dir` pytest warning and must not be overclaimed as full backend health,
   - the recommended first backend recovery lane is narrow timeout/fallback contract classification for draft generation, ahead of config cleanup or broad environment normalization.
+- [2026-05-31] Pass 103 draft-generation timeout/fallback ownership map recorded:
+  - `services/src/blackskies/services/operations/draft_generation.py` clearly owns both the generic adapter fallback path and the timeout-escalation path,
+  - current code falls back for generic `AdapterError` and unusable provider text, but escalates timeout-shaped adapter failures into `DraftGenerationProviderTimeoutError`,
+  - `services/tests/unit/test_draft_generation_experiment.py::test_provider_backed_draft_error_falls_back` conflicts with adjacent timeout evidence: `services/tests/unit/test_draft_generation_adapter.py` preserves timeout escalation and `services/tests/test_app.py` preserves timeout-to-`504` route behavior,
+  - current classification is contract ambiguity with a strong test-drift signal, not a simple ownership gap,
+  - the next safe lane is timeout-contract clarification before repair planning, so implementation should not start yet.
