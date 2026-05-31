@@ -3524,3 +3524,9 @@ Backlog note drifted after phase-log cleanup.
   - constrains the authorized repair candidate to the experiment test file, with `services/src/blackskies/services/operations/draft_generation.py` conditional-only if new contradiction evidence appears,
   - keeps route behavior changes, adapter behavior changes, config changes, generic fallback behavior changes, and dependency changes explicitly unauthorized,
   - defines exact bounded validation commands and explicit non-proof boundaries before implementation authorization.
+- [2026-05-31] Pass 106 draft-generation timeout implementation authorization recorded in `docs/audits/phase14/pass106_draft_generation_timeout_implementation_authorization.md`:
+  - authorizes implementation for `services/tests/unit/test_draft_generation_experiment.py` only,
+  - keeps `services/src/blackskies/services/operations/draft_generation.py` conditional-only and unopened unless new runtime contradiction evidence appears,
+  - preserves explicit unauthorized scope for route behavior, adapter behavior, config, dependencies, unrelated tests, generic fallback behavior, and route timeout behavior,
+  - requires bounded validation that jointly proves stale-timeout expectation realignment, generic fallback preservation, and timeout-to-`504` preservation,
+  - concludes authorization status as `IMPLEMENTATION AUTHORIZED` for the narrow Pass 105 candidate.
