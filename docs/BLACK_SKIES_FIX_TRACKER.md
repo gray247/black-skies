@@ -3530,3 +3530,9 @@ Backlog note drifted after phase-log cleanup.
   - preserves explicit unauthorized scope for route behavior, adapter behavior, config, dependencies, unrelated tests, generic fallback behavior, and route timeout behavior,
   - requires bounded validation that jointly proves stale-timeout expectation realignment, generic fallback preservation, and timeout-to-`504` preservation,
   - concludes authorization status as `IMPLEMENTATION AUTHORIZED` for the narrow Pass 105 candidate.
+- [2026-05-31] Pass 107 draft-generation timeout implementation recorded in `docs/audits/phase14/pass107_draft_generation_timeout_implementation.md`:
+  - updates only `services/tests/unit/test_draft_generation_experiment.py` to align the stale timeout case with timeout escalation (`DraftGenerationProviderTimeoutError`) instead of fallback text expectation,
+  - preserves the generic adapter fallback lane and route timeout lane by keeping adjacent adapter and route tests unchanged and green,
+  - keeps conditional runtime scope unopened because no new contradiction evidence appeared in `services/src/blackskies/services/operations/draft_generation.py`,
+  - confirms required bounded validation commands passed (`4 passed`, `3 passed`, `1 passed`, plus `git diff --check` and `pnpm lint:docs`),
+  - concludes implementation status as `IMPLEMENTATION COMPLETE` with no scope expansion.

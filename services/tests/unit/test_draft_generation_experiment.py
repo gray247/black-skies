@@ -12,7 +12,10 @@ from blackskies.services.model_router import create_default_model_router
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.models.draft import DraftGenerateRequest, DraftUnitScope
 from blackskies.services.models.outline import OutlineScene
-from blackskies.services.operations.draft_generation import DraftGenerationService
+from blackskies.services.operations.draft_generation import (
+    DraftGenerationProviderTimeoutError,
+    DraftGenerationService,
+)
 
 
 def _write_project_budget(project_root: Path) -> None:
@@ -148,9 +151,8 @@ async def test_provider_backed_draft_error_falls_back(
         provider_calls_enabled=True,
     )
 
-    result = await service.generate(_request(project_root), _scenes(), project_root=project_root)
-
-    assert "enters Scene 1" in result.response["units"][0]["text"]
+    with pytest.raises(DraftGenerationProviderTimeoutError):
+        await service.generate(_request(project_root), _scenes(), project_root=project_root)
     assert adapter.calls == 1
 
 
