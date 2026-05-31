@@ -45,9 +45,7 @@ def main() -> int:
     temp_root = REPO_ROOT / "codex_temp" / "service-truth" / run_id
     base_temp = temp_root / "basetemp"
     scratch = temp_root / "scratch"
-    cache_dir = REPO_ROOT / ".pytest-cache-local" / "service-truth"
-
-    for path in (base_temp, scratch, cache_dir):
+    for path in (base_temp, scratch):
         path.mkdir(parents=True, exist_ok=True)
 
     env = dict(os.environ)
@@ -61,8 +59,6 @@ def main() -> int:
         "pytest",
         "--basetemp",
         str(base_temp),
-        "-o",
-        f"cache_dir={cache_dir}",
         "-o",
         "addopts=",
         "--import-mode=importlib",

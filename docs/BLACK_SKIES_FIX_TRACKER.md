@@ -3590,3 +3590,9 @@ Backlog note drifted after phase-log cleanup.
   - records PASS 2 service-truth lane as green with persistent warning (`19 passed, 1 warning`) and retains the `cache_dir` warning as low-priority hygiene follow-up,
   - records the historical service-process launch flake as non-reproduced in this recheck and downgrades it to monitor-only unless fresh repro appears,
   - concludes current backend queue state as `BACKEND GREEN EXCEPT WARNINGS`.
+- [2026-05-31] Pass 117 cache_dir pytest warning cleanup recorded in `docs/audits/phase14/pass117_cache_dir_pytest_warning_cleanup.md`:
+  - identifies warning ownership in `scripts/run_service_truth.py`, where `-o cache_dir=...` was passed while cacheprovider was disabled (`-p no:cacheprovider`),
+  - applies a trivial low-risk repair by removing the stale `cache_dir` override and related dead path setup from the service-truth runner only,
+  - confirms PASS 2 service-truth lane is now clean (`19 passed`) with no `PytestConfigWarning` for unknown `cache_dir`,
+  - confirms broad backend lane remains green (`python -m pytest services/tests -q` => `611 passed, 10 skipped`) and hygiene checks pass,
+  - concludes warning lane status as `WARNING CLEANED UP`.
