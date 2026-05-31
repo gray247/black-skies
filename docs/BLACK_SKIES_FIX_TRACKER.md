@@ -3566,3 +3566,9 @@ Backlog note drifted after phase-log cleanup.
   - keeps the repair explicitly prototype-only and rejects production memory redesign, Memory Lab promotion, schema changes, provider changes, and broad persistence changes,
   - defines the exact proof set as the prototype accept-race test plus the existing prototype idempotency test, with broader prototype coverage only if needed,
   - concludes the lane `READY FOR IMPLEMENTATION AUTHORIZATION`.
+- [2026-05-31] Pass 113 memory accept race implementation authorization recorded in `docs/audits/phase14/pass113_memory_accept_race_implementation_authorization.md`:
+  - authorizes implementation for `services/src/blackskies/services/memory_prototype/storage.py` only,
+  - keeps `services/src/blackskies/services/io.py` conditional-only and unopened unless new evidence proves global atomic-write behavior must change,
+  - preserves explicit unauthorized scope for schema/provider changes, broad persistence changes, Memory Lab promotion, unrelated tests, and dependencies/lockfiles,
+  - requires bounded prototype-lane validation for race resolution and idempotency before any verification claim,
+  - concludes authorization status as `IMPLEMENTATION AUTHORIZED` for the narrow prototype storage lane.
