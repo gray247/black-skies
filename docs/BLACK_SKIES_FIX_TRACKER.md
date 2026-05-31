@@ -3584,3 +3584,9 @@ Backlog note drifted after phase-log cleanup.
   - confirms required bounded validation commands pass again in audit (`1 passed`, `1 passed`, `3 passed`, plus `git diff --check` and `pnpm lint:docs`),
   - records non-proof boundaries (no full-backend proof, no non-prototype/cross-process persistence guarantee),
   - concludes audit verdict as `IMPLEMENTATION ACCEPTED WITH CAVEATS`.
+- [2026-05-31] Pass 116 backend recovery queue recheck recorded in `docs/audits/phase14/pass116_backend_recovery_queue_recheck.md`:
+  - rechecks backend queue status after closure of `.env.example` drift, draft-timeout contract, and memory-accept-race lanes,
+  - records required broad backend validation as green in this pass (`python -m pytest services/tests -q` => `611 passed, 10 skipped`),
+  - records PASS 2 service-truth lane as green with persistent warning (`19 passed, 1 warning`) and retains the `cache_dir` warning as low-priority hygiene follow-up,
+  - records the historical service-process launch flake as non-reproduced in this recheck and downgrades it to monitor-only unless fresh repro appears,
+  - concludes current backend queue state as `BACKEND GREEN EXCEPT WARNINGS`.
