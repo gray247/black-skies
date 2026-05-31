@@ -3518,3 +3518,9 @@ Backlog note drifted after phase-log cleanup.
   - the intended public contract remains controlled timeout exposure through the draft-generation route as HTTP `504` / `PROVIDER_TIMEOUT`,
   - `services/tests/unit/test_draft_generation_experiment.py::test_provider_backed_draft_error_falls_back` is now treated as the stale contract outlier,
   - the next repair plan may stay narrow around that test seam first; runtime source changes are conditional only if new contradiction evidence appears.
+- [2026-05-31] Pass 105 draft-generation timeout repair plan recorded in `docs/audits/phase14/pass105_draft_generation_timeout_repair_plan.md`:
+  - confirms the stale expectation should be rewritten from timeout fallback to timeout escalation in `services/tests/unit/test_draft_generation_experiment.py` only,
+  - preserves the generic adapter failure fallback contract as a required retained lane, with timeout escalation and route `504` behavior still protected,
+  - constrains the authorized repair candidate to the experiment test file, with `services/src/blackskies/services/operations/draft_generation.py` conditional-only if new contradiction evidence appears,
+  - keeps route behavior changes, adapter behavior changes, config changes, generic fallback behavior changes, and dependency changes explicitly unauthorized,
+  - defines exact bounded validation commands and explicit non-proof boundaries before implementation authorization.
