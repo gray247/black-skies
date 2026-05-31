@@ -3554,3 +3554,9 @@ Backlog note drifted after phase-log cleanup.
   - keeps runtime behavior/config code unchanged and remains inside the bundled narrow repair scope,
   - confirms the narrow config test lane is green (`8 passed`),
   - records that optional broad backend validation remains red due to the known out-of-scope prototype memory accept race.
+- [2026-05-31] Pass 111 memory accept race ownership map recorded in `docs/audits/phase14/pass111_memory_accept_race_ownership_map.md`:
+  - reproduces `services/tests/prototype/test_memory_accept_race.py::test_memory_accept_race_resolution` and confirms Windows `PermissionError` (`WinError 5`) at `services/src/blackskies/services/io.py:20` during concurrent `os.replace(...)`,
+  - maps prototype acceptance/read-eligibility ownership to `memory_prototype/canonical_state_reader.py` and lineage contract ownership to `memory_prototype/schemas.py`,
+  - maps persistence ownership to `memory_prototype/storage.py` with low-level replace ownership in `services/src/blackskies/services/io.py`,
+  - confirms no explicit lock/serialization guard exists in the failing prototype write path, with concurrency injected by test `ThreadPoolExecutor`,
+  - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE — READY FOR REPAIR PLAN`.
