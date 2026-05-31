@@ -3560,3 +3560,9 @@ Backlog note drifted after phase-log cleanup.
   - maps persistence ownership to `memory_prototype/storage.py` with low-level replace ownership in `services/src/blackskies/services/io.py`,
   - confirms no explicit lock/serialization guard exists in the failing prototype write path, with concurrency injected by test `ThreadPoolExecutor`,
   - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE — READY FOR REPAIR PLAN`.
+- [2026-05-31] Pass 112 memory accept race repair plan recorded in `docs/audits/phase14/pass112_memory_accept_race_repair_plan.md`:
+  - selects `services/src/blackskies/services/memory_prototype/storage.py` as the primary repair candidate and keeps `services/src/blackskies/services/io.py` conditional-only,
+  - plans to serialize `ensure_scaffold()` with a prototype-local lock and preserve scaffold-write idempotence instead of changing the global atomic-write primitive,
+  - keeps the repair explicitly prototype-only and rejects production memory redesign, Memory Lab promotion, schema changes, provider changes, and broad persistence changes,
+  - defines the exact proof set as the prototype accept-race test plus the existing prototype idempotency test, with broader prototype coverage only if needed,
+  - concludes the lane `READY FOR IMPLEMENTATION AUTHORIZATION`.
