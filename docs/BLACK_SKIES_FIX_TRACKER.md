@@ -21,6 +21,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - removes the `ProjectHome` child echo path so `App.tsx` remains the canonical `activeSceneId` writer,
   - keeps `ProjectHome` as a local mirror plus intent emitter, restores the startup first-scene fallback, and keeps explicit-clear replay suppression in App,
   - validates green across `pnpm --filter app test`, `pnpm --filter app build`, `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron`, `git diff --check`, and `pnpm lint:docs`, with only the human smoke retest left as a prudent follow-up.
+- [2026-06-01] Pass 131 scene authority human retest closure review recorded in `docs/audits/phase14/pass131_scene_authority_human_retest_closure_review.md`:
+  - records that the user attempted to reproduce the prior project-switch scene flicker / oscillation and could not reproduce it,
+  - closes the scene-selection / project-switch oscillation defect with a monitoring caveat after the Pass 130 single-writer repair and green startup authority contract,
+  - points the next recovery lane at snapshot timeout / offline cascade.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
