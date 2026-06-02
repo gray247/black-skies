@@ -326,7 +326,6 @@ export default function ProjectHome({
   const [newProjectTitle, setNewProjectTitle] = useState<string>('Untitled Story');
   const sceneWriteOrderRef = useRef(0);
   const projectSwitchGenerationRef = useRef(0);
-  const lastLocalSceneWriteEventIdRef = useRef<string | null>(null);
   const sampleAttemptedRef = useRef(false);
   const stalePathsRef = useRef<Set<string>>(new Set());
   const recordSceneWriteTrace = useCallback(
@@ -349,7 +348,6 @@ export default function ProjectHome({
     ): string => {
       const order = ++sceneWriteOrderRef.current;
       const eventId = `${scope}:${order}`;
-      lastLocalSceneWriteEventIdRef.current = eventId;
       recordDebugEvent(scope, {
         eventId,
         order,
@@ -415,30 +413,9 @@ export default function ProjectHome({
     return 'fallback';
   }, [activeProject, activeSceneId, draftOverrides]);
 
-  useEffect(() => {
-    if (!activeProject || !requestedActiveSceneId || requestedActiveSceneId === activeSceneId) {
-      return;
-    }
-    if (activeProject.scenes.some((scene) => scene.id === requestedActiveSceneId)) {
-      recordSceneWriteTrace('project-home.scene.write', {
-        writerKind: 'project_home_prop_sync',
-        sourceFunction: 'requestedActiveSceneIdEffect',
-        requestedSceneId: requestedActiveSceneId,
-        previousSceneId: activeSceneId,
-        committedSceneId: requestedActiveSceneId,
-        projectId: activeProject.projectId ?? projectId ?? null,
-        projectPath: activeProject.path,
-        projectSwitchGenerationToken: projectSwitchGenerationRef.current,
-        hydrationGenerationToken: null,
-        causalTriggerId: 'requestedActiveSceneId',
-        outcome: 'apply',
-      });
-      setActiveSceneId(requestedActiveSceneId);
-    }
-  }, [activeProject, activeSceneId, projectId, recordSceneWriteTrace, requestedActiveSceneId]);
-
   const commitActiveSceneSelection = useCallback(
     (sceneId: string) => {
+      setActiveSceneId(sceneId);
       recordSceneWriteTrace('project-home.scene.write', {
         writerKind: 'user_selection',
         sourceFunction: 'commitActiveSceneSelection',
@@ -453,7 +430,6 @@ export default function ProjectHome({
         outcome: activeSceneId === sceneId ? 'skip' : 'apply',
         skipReason: activeSceneId === sceneId ? 'same-scene' : null,
       });
-      setActiveSceneId(sceneId);
       if (!onActiveSceneChange || !activeProject) {
         return;
       }
@@ -471,6 +447,36 @@ export default function ProjectHome({
     },
     [activeProject, activeSceneId, draftOverrides, onActiveSceneChange, projectId, recordSceneWriteTrace],
   );
+
+  useEffect(() => {
+    if (!activeProject) {
+      return;
+    }
+    if (requestedActiveSceneId === activeSceneId) {
+      return;
+    }
+    if (requestedActiveSceneId === null) {
+      setActiveSceneId(null);
+      return;
+    }
+    if (activeProject.scenes.some((scene) => scene.id === requestedActiveSceneId)) {
+      const targetScene = activeProject.scenes.find((scene) => scene.id === requestedActiveSceneId) ?? null;
+      if (!targetScene) {
+        return;
+      }
+      setActiveSceneId(targetScene.id);
+      if (!onActiveSceneChange) {
+        return;
+      }
+      const nextDraft =
+        draftOverrides?.[targetScene.id] ?? activeProject.drafts[targetScene.id] ?? '';
+      onActiveSceneChange({
+        sceneId: targetScene.id,
+        sceneTitle: targetScene.title,
+        draft: nextDraft,
+      });
+    }
+  }, [activeProject, activeSceneId, draftOverrides, onActiveSceneChange, requestedActiveSceneId]);
 
   useEffect(() => {
     if (!activeProject || !activeSceneId) {
@@ -837,18 +843,16 @@ export default function ProjectHome({
           issueCount: response.issues.length,
         });
         const projectSwitchGenerationToken = ++projectSwitchGenerationRef.current;
+        const previousSceneId = activeSceneId;
+        const nextSceneId =
+          previousSceneId && response.project.drafts[previousSceneId]
+            ? previousSceneId
+            : response.project.scenes[0]?.id ?? response.project.outline.scenes[0]?.id ?? null;
         setActiveProject(response.project);
         setLoadedSessionTruth(response.sessionTruth ?? null);
         setLastLoadErrorCode(null);
-        let previousSceneId: string | null = null;
-        let nextSceneId: string | null = null;
-        setActiveSceneId((previous) => {
-          previousSceneId = previous;
-          nextSceneId = previous && response.project.drafts[previous]
-            ? previous
-            : response.project.scenes[0]?.id ?? response.project.outline.scenes[0]?.id ?? null;
-          return nextSceneId;
-        });
+        setIssues(response.issues);
+        setActiveSceneId(nextSceneId);
         recordSceneWriteTrace('project-home.scene.write', {
           writerKind: 'project_switch',
           sourceFunction: 'loadProjectAtPath',
@@ -863,7 +867,6 @@ export default function ProjectHome({
           outcome: nextSceneId === previousSceneId ? 'skip' : 'apply',
           skipReason: nextSceneId === previousSceneId ? 'same-scene' : null,
         });
-        setIssues(response.issues);
         upsertRecent(response.project);
         persistLastProjectPath(response.project.path);
         setStoredLastProjectPath(response.project.path);
@@ -1222,57 +1225,6 @@ export default function ProjectHome({
       cancelled = true;
     };
   }, [activeProject, handleOpenSampleProject, onToast, projectLoader, suppressBootstrap]);
-
-  useEffect(() => {
-    if (!onActiveSceneChange) {
-      return;
-    }
-    if (!activeProject || !activeScene) {
-      recordSceneWriteTrace('project-home.scene.write', {
-        writerKind: 'project_home_effect_echo',
-        sourceFunction: 'activeSceneEchoEffect',
-        requestedSceneId: null,
-        previousSceneId: activeSceneId,
-        committedSceneId: null,
-        projectId: activeProject?.projectId ?? projectId ?? null,
-        projectPath: activeProject?.path ?? null,
-        projectSwitchGenerationToken: projectSwitchGenerationRef.current,
-        hydrationGenerationToken: null,
-        causalTriggerId: lastLocalSceneWriteEventIdRef.current,
-        outcome: activeSceneId === null ? 'skip' : 'apply',
-        skipReason: activeSceneId === null ? 'already-cleared' : null,
-      });
-      onActiveSceneChange(null);
-      return;
-    }
-    recordSceneWriteTrace('project-home.scene.write', {
-      writerKind: 'project_home_effect_echo',
-      sourceFunction: 'activeSceneEchoEffect',
-      requestedSceneId: activeScene.id,
-      previousSceneId: activeSceneId,
-      committedSceneId: activeScene.id,
-      projectId: activeProject.projectId ?? projectId ?? null,
-      projectPath: activeProject.path,
-      projectSwitchGenerationToken: projectSwitchGenerationRef.current,
-      hydrationGenerationToken: null,
-      causalTriggerId: lastLocalSceneWriteEventIdRef.current,
-      outcome: activeSceneId === activeScene.id ? 'skip' : 'apply',
-      skipReason: activeSceneId === activeScene.id ? 'same-scene' : null,
-    });
-    onActiveSceneChange({
-      sceneId: activeScene.id,
-      sceneTitle: activeScene.title,
-      draft: activeSceneDraft,
-    });
-  }, [
-    activeProject,
-    activeScene,
-    activeSceneDraft,
-    activeSceneId,
-    onActiveSceneChange,
-    projectId,
-    recordSceneWriteTrace,
-  ]);
 
   useEffect(() => {
     if (reopenPath === null || reopenRequestId === null) {

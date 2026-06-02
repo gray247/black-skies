@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-01] Pass 130 scene single-writer authority implementation recorded in `docs/audits/phase14/pass130_scene_single_writer_authority_implementation.md`:
+  - removes the `ProjectHome` child echo path so `App.tsx` remains the canonical `activeSceneId` writer,
+  - keeps `ProjectHome` as a local mirror plus intent emitter, restores the startup first-scene fallback, and keeps explicit-clear replay suppression in App,
+  - validates green across `pnpm --filter app test`, `pnpm --filter app build`, `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron`, `git diff --check`, and `pnpm lint:docs`, with only the human smoke retest left as a prudent follow-up.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
@@ -3651,3 +3655,20 @@ Backlog note drifted after phase-log cleanup.
   - isolates the most likely cause to `ProjectHome.tsx`, where local `activeSceneId` is not cleared when the parent clears `requestedActiveSceneId`, allowing `activeSceneEchoEffect` to reassert stale scene ownership back to `App`,
   - ranks the stale-local-scene sync gap at high confidence and recommends a narrow `ProjectHome.tsx` fix first,
   - keeps `App.tsx` conditional only if the local sync fix does not remove the false-ready state.
+- [2026-06-01] Pass 127 no-scene false-ready projecthome null-sync repair recorded in `docs/audits/phase14/pass127_no_scene_false_ready_projecthome_null_sync_repair.md`:
+  - applies the narrow `ProjectHome.tsx` null-sync change so local `activeSceneId` is explicitly cleared when the parent clears `requestedActiveSceneId` and suppresses the stale echo for that transition,
+  - preserves the existing non-null sync path and keeps `App.tsx` unchanged,
+  - confirms the broad app test suite and build remain green, but the targeted `startup_authority_contract` Playwright run still fails in two places,
+  - records the new failure state as broader than the original `NO_SCENE_FALSE_READY` symptom: `scene selection authority contract` now times out during bootstrap stability, and `action readiness contract` still fails while waiting for Generate to become enabled,
+  - concludes the lane `REPAIR BLOCKED` because the null-sync repair did not produce a green authority contract and the broader scene authority surface still needs another pass.
+- [2026-06-01] Pass 128 correction review recorded in `docs/audits/phase14/pass128_scene_authority_failure_correction_plan.md`:
+  - verifies the Pass 127 runtime null-sync edge has been reverted in the working tree, leaving only documentation dirty at the end of the pass,
+  - re-runs the startup authority evidence and confirms the action-readiness failure still reproduces after `scene.select.clear`, followed by a stale `scene.select.commit` back to `sc_0001` and a `workspace.actions` re-enable,
+  - concludes the issue is still a broader scene authority problem rather than a small readiness-only bug, so the next repair target should be a single-writer scene authority plan instead of revising the failed null-sync edge in place,
+  - keeps Pass 127 as a failed-attempt record and recommends no commit until the broader repair plan is defined.
+- [2026-06-01] Pass 129 single-writer authority repair plan recorded in `docs/audits/phase14/pass129_scene_single_writer_authority_repair_plan.md`:
+  - formalizes `App.tsx` as the single canonical authority for `activeSceneId`,
+  - demotes `ProjectHome.tsx` to a controlled mirror and intent emitter so it no longer owns an independent scene authority branch,
+  - keeps startup restore, draft-preview replay, and split-command replay inside `App` behind project/context and hydration-token gates,
+  - explicitly forbids child-level reassertion after an explicit clear, because the clear/reassert loop is the source of the `NO_SCENE_FALSE_READY` state,
+  - leaves `WorkspaceHeader` readiness logic unchanged for now because the failure is downstream of authority churn, not the button gate itself.

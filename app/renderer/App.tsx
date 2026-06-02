@@ -631,6 +631,7 @@ export default function App(): JSX.Element {
   const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
   const currentProjectRef = useRef<LoadedProject | null>(null);
   const pendingSceneSelectionRef = useRef<string | null>(null);
+  const sceneSelectionNullLockRef = useRef(false);
   const suppressHydrationDraftChangeRef = useRef(false);
   const testSetProjectLoadRequestRef = useRef(0);
   const isVisualHomeMode = isVisualMode && currentProject === null;
@@ -837,6 +838,22 @@ export default function App(): JSX.Element {
       const hydrationGenerationToken =
         instrumentation?.hydrationGenerationToken ?? draftPreviewHydrationGenerationRef.current;
       if (requestedSceneId === null) {
+        sceneSelectionNullLockRef.current = true;
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+        const clearProjectPath = projectSummary?.path ?? currentProjectRef.current?.path ?? null;
+        if (clearProjectPath) {
+          writeDraftPreviewSyncState(
+            clearProjectPath,
+            createDraftPreviewSyncState({
+              sourceId: draftPreviewSyncSourceIdRef.current,
+              projectPath: clearProjectPath,
+              activeSceneId: null,
+              projectDrafts: projectDraftsRef.current,
+              draftEdits,
+            }),
+          );
+        }
         recordSceneWriteTrace("scene.write.apply", {
           writerKind,
           sourceFunction,
@@ -956,6 +973,7 @@ export default function App(): JSX.Element {
         sceneCount: scenesList.length,
         sceneIds,
       });
+      sceneSelectionNullLockRef.current = false;
       setActiveScene((previous) => {
         const nextScene = { id: targetScene.id, title: targetScene.title ?? null };
         return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
@@ -1159,6 +1177,7 @@ export default function App(): JSX.Element {
       const nextProjectDrafts = sharedState.projectDrafts ?? {};
       const nextDraftEdits = sharedState.draftEdits ?? {};
       const nextDrafts = { ...nextProjectDrafts, ...nextDraftEdits };
+      const suppressSceneReplay = sceneSelectionNullLockRef.current && Boolean(sharedState.activeSceneId);
       const currentState: DraftPreviewSyncState = {
         sourceId: draftPreviewSyncSourceIdRef.current,
         projectPath: projectSummary.path,
@@ -1187,8 +1206,13 @@ export default function App(): JSX.Element {
         return;
       }
 
-      draftPreviewSyncPendingStateRef.current = sharedState;
-      draftPreviewSyncHydratedRef.current = false;
+      if (suppressSceneReplay) {
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+      } else {
+        draftPreviewSyncPendingStateRef.current = sharedState;
+        draftPreviewSyncHydratedRef.current = false;
+      }
 
       if (Object.keys(nextProjectDrafts).length > 0) {
         setProjectDrafts((previous) => ({ ...previous, ...nextProjectDrafts }));
@@ -1205,7 +1229,8 @@ export default function App(): JSX.Element {
         const targetScene =
           currentProjectRef.current?.scenes.find((scene) => scene.id === sharedState.activeSceneId) ??
           null;
-        if (targetScene) {
+        if (targetScene && activeSceneId !== null && !suppressSceneReplay) {
+          sceneSelectionNullLockRef.current = false;
           recordSceneWriteTrace("scene.write.draft-preview", {
             writerKind: "draft_preview_replay",
             sourceFunction: "applyDraftPreviewState",
@@ -1228,10 +1253,20 @@ export default function App(): JSX.Element {
       }
     };
 
-    applyDraftPreviewState(window.localStorage.getItem(draftPreviewSyncKey));
+    const suppressDraftPreviewSceneReplay =
+      sceneSelectionNullLockRef.current && activeSceneId === null;
+    if (!suppressDraftPreviewSceneReplay) {
+      applyDraftPreviewState(window.localStorage.getItem(draftPreviewSyncKey));
+    } else {
+      draftPreviewSyncPendingStateRef.current = null;
+      draftPreviewSyncHydratedRef.current = true;
+    }
 
     const handleStorage = (event: StorageEvent) => {
       if (event.storageArea !== window.localStorage || event.key !== draftPreviewSyncKey) {
+        return;
+      }
+      if (sceneSelectionNullLockRef.current && activeSceneId === null) {
         return;
       }
       applyDraftPreviewState(event.newValue);
@@ -1373,6 +1408,7 @@ export default function App(): JSX.Element {
     setCurrentProject(null);
     setProjectDrafts({});
     setDraftEdits({});
+    sceneSelectionNullLockRef.current = true;
     setActiveScene(null);
     setCritiqueRubric([...DEFAULT_CRITIQUE_RUBRIC]);
     setCompanionOpen(false);
@@ -1686,6 +1722,11 @@ export default function App(): JSX.Element {
       projectDraftsRef.current = canonicalDrafts;
 
       const nextScene = resolveStartupScene(project, options?.preserveSceneId ?? null);
+      if (nextScene) {
+        sceneSelectionNullLockRef.current = false;
+      } else {
+        sceneSelectionNullLockRef.current = true;
+      }
       recordDebugEvent("app.activateProject.startupScene", {
         path: project.path,
         startupSceneId: nextScene?.id ?? null,
@@ -2243,6 +2284,22 @@ export default function App(): JSX.Element {
       },
     ) => {
     if (!payload) {
+      sceneSelectionNullLockRef.current = true;
+      draftPreviewSyncPendingStateRef.current = null;
+      draftPreviewSyncHydratedRef.current = true;
+      const clearProjectPath = projectSummary?.path ?? currentProjectRef.current?.path ?? null;
+      if (clearProjectPath) {
+        writeDraftPreviewSyncState(
+          clearProjectPath,
+          createDraftPreviewSyncState({
+            sourceId: draftPreviewSyncSourceIdRef.current,
+            projectPath: clearProjectPath,
+            activeSceneId: null,
+            projectDrafts: projectDraftsRef.current,
+            draftEdits,
+          }),
+        );
+      }
       recordSceneWriteTrace("scene.write.handle-active-scene-change", {
         writerKind: meta?.writerKind ?? "project_home_callback",
         sourceFunction: meta?.sourceFunction ?? "handleActiveSceneChange",
@@ -2262,6 +2319,7 @@ export default function App(): JSX.Element {
       setActiveScene((previous) => (previous === null ? previous : null));
       return;
     }
+    sceneSelectionNullLockRef.current = false;
     recordSceneWriteTrace("scene.write.handle-active-scene-change", {
       writerKind: meta?.writerKind ?? "project_home_callback",
       sourceFunction: meta?.sourceFunction ?? "handleActiveSceneChange",
@@ -2529,6 +2587,8 @@ export default function App(): JSX.Element {
       !splitCommandModeRequested ||
       !splitCommandShellHydratedRef.current ||
       !currentProject ||
+      activeSceneId === null ||
+      sceneSelectionNullLockRef.current ||
       !splitCommandShellState.selectedSceneId ||
       splitCommandShellState.selectedSceneId === activeSceneId
     ) {
