@@ -3645,3 +3645,9 @@ Backlog note drifted after phase-log cleanup.
   - keeps scene-selection, project-switch, hydration, and authority behavior unchanged,
   - confirms `pnpm --filter app test` and `pnpm --filter app build` stay green and the targeted Playwright contract now passes all but the existing readiness test,
   - records that `startup_authority_contract › action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.
+- [2026-06-01] Pass 126 no-scene false-ready repair plan recorded in `docs/audits/phase14/pass126_no_scene_false_ready_repair_plan.md`:
+  - identifies the `NO_SCENE_FALSE_READY` failure as a real readiness bug, not test drift and not the Pass 123 instrumentation regression,
+  - maps action readiness ownership to `App.tsx` gates, with the critical dependency being `sceneReadyForActions = Boolean(activeSceneId)`,
+  - isolates the most likely cause to `ProjectHome.tsx`, where local `activeSceneId` is not cleared when the parent clears `requestedActiveSceneId`, allowing `activeSceneEchoEffect` to reassert stale scene ownership back to `App`,
+  - ranks the stale-local-scene sync gap at high confidence and recommends a narrow `ProjectHome.tsx` fix first,
+  - keeps `App.tsx` conditional only if the local sync fix does not remove the false-ready state.
