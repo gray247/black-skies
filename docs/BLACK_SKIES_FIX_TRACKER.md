@@ -3620,3 +3620,10 @@ Backlog note drifted after phase-log cleanup.
   - records hydration-capable overwrite surfaces in draft-preview sync and feature-gated split-command shell selection reapply,
   - records required runtime evidence anchors (human smoke observation plus reproduced ordered scene-commit test trace contract) but no direct reproduced oscillation sequence with one dominant writer,
   - classifies the lane `MULTIPLE CANDIDATES REMAIN` with ranked causes and recommends a narrow next repair lane focused on single-writer scene authority and stale-hydration overwrite gating.
+- [2026-06-01] Pass 122 scene selection runtime instrumentation plan recorded in `docs/audits/phase14/pass122_scene_selection_runtime_instrumentation_plan.md`:
+  - defines the exact writer paths requiring instrumentation across `App` and `ProjectHome` scene selection/project-switch/hydration flows,
+  - defines required runtime event taxonomy and minimum metadata set, including project-switch and hydration generation tokens for deterministic ordering,
+  - defines explicit runtime classification boundaries for user selection vs project activation vs persisted-scene restore vs draft-preview replay vs split-command replay,
+  - defines a reproducible capture procedure and evidence package requirements for definitive closure (ordered traces, raw logs, and repeated oscillation reproduction),
+  - defines root-cause closure criteria with mandatory runtime proof and a weighted confidence model requiring `>= 80%` for `ROOT CAUSE IDENTIFIED`,
+  - classifies the lane `READY FOR INSTRUMENTATION IMPLEMENTATION` with instrumentation-only scope for the next pass.
