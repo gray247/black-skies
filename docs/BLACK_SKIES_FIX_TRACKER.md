@@ -3633,3 +3633,9 @@ Backlog note drifted after phase-log cleanup.
   - keeps behavior unchanged while preserving existing selection/project/hydration logic and only adding diagnostic logging,
   - validates successfully with `pnpm --filter app test`, `pnpm --filter app build`, `git diff --check`, and `pnpm lint:docs`,
   - concludes implementation status as `INSTRUMENTATION COMPLETE`.
+- [2026-06-01] Pass 124 scene instrumentation regression and root-cause review recorded in `docs/audits/phase14/pass124_scene_instrumentation_regression_and_root_cause_review.md`:
+  - identifies a new renderer regression introduced by Pass 123: `ProjectHome.tsx` now records debug events inside the functional `setActiveSceneId(...)` updater in `loadProjectAtPath(...)`, which can notify the component while React is still rendering the updater,
+  - classifies the React warning `Cannot update ProjectHome while rendering ProjectHome.` as an instrumentation-side-effect regression, not a scene-selection behavior change,
+  - keeps the `NO_SCENE_FALSE_READY` readiness failure unresolved as a likely existing scene-authority/readiness bug that may still be coupled to the oscillation loop,
+  - records the runtime oscillation evidence as multi-writer churn (`project_home_prop_sync`, `project_home_callback`, `draft_preview_replay`) without a dominant `>= 80%` root cause,
+  - recommends the smallest safe next implementation as a narrow `ProjectHome.tsx` instrumentation fix first, with broader scene repair deferred until the render-phase warning is removed and the readiness failure can be re-evaluated cleanly.
