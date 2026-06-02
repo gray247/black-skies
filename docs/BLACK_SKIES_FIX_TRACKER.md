@@ -3639,3 +3639,9 @@ Backlog note drifted after phase-log cleanup.
   - keeps the `NO_SCENE_FALSE_READY` readiness failure unresolved as a likely existing scene-authority/readiness bug that may still be coupled to the oscillation loop,
   - records the runtime oscillation evidence as multi-writer churn (`project_home_prop_sync`, `project_home_callback`, `draft_preview_replay`) without a dominant `>= 80%` root cause,
   - recommends the smallest safe next implementation as a narrow `ProjectHome.tsx` instrumentation fix first, with broader scene repair deferred until the render-phase warning is removed and the readiness failure can be re-evaluated cleanly.
+- [2026-06-01] Pass 125 projecthome instrumentation regression fix recorded in `docs/audits/phase14/pass125_projecthome_instrumentation_regression_fix.md`:
+  - moves the `project-home.scene.write` trace emission for `loadProjectAtPath(...)` out of the functional `setActiveSceneId((previous) => { ... })` updater so `ProjectHome` no longer performs a debug-log side effect while React is processing that updater,
+  - preserves the same diagnostic meaning by recording the trace immediately after the state update with the captured previous/next scene ids and project-switch generation token,
+  - keeps scene-selection, project-switch, hydration, and authority behavior unchanged,
+  - confirms `pnpm --filter app test` and `pnpm --filter app build` stay green and the targeted Playwright contract now passes all but the existing readiness test,
+  - records that `startup_authority_contract › action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.

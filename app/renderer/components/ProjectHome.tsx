@@ -840,25 +840,28 @@ export default function ProjectHome({
         setActiveProject(response.project);
         setLoadedSessionTruth(response.sessionTruth ?? null);
         setLastLoadErrorCode(null);
+        let previousSceneId: string | null = null;
+        let nextSceneId: string | null = null;
         setActiveSceneId((previous) => {
-          const nextSceneId = previous && response.project.drafts[previous]
+          previousSceneId = previous;
+          nextSceneId = previous && response.project.drafts[previous]
             ? previous
             : response.project.scenes[0]?.id ?? response.project.outline.scenes[0]?.id ?? null;
-          recordSceneWriteTrace('project-home.scene.write', {
-            writerKind: 'project_switch',
-            sourceFunction: 'loadProjectAtPath',
-            requestedSceneId: nextSceneId,
-            previousSceneId: previous,
-            committedSceneId: nextSceneId,
-            projectId: response.project.projectId ?? projectId ?? null,
-            projectPath: response.project.path,
-            projectSwitchGenerationToken,
-            hydrationGenerationToken: null,
-            causalTriggerId: 'project-home.load.success',
-            outcome: nextSceneId === previous ? 'skip' : 'apply',
-            skipReason: nextSceneId === previous ? 'same-scene' : null,
-          });
           return nextSceneId;
+        });
+        recordSceneWriteTrace('project-home.scene.write', {
+          writerKind: 'project_switch',
+          sourceFunction: 'loadProjectAtPath',
+          requestedSceneId: nextSceneId,
+          previousSceneId,
+          committedSceneId: nextSceneId,
+          projectId: response.project.projectId ?? projectId ?? null,
+          projectPath: response.project.path,
+          projectSwitchGenerationToken,
+          hydrationGenerationToken: null,
+          causalTriggerId: 'project-home.load.success',
+          outcome: nextSceneId === previousSceneId ? 'skip' : 'apply',
+          skipReason: nextSceneId === previousSceneId ? 'same-scene' : null,
         });
         setIssues(response.issues);
         upsertRecent(response.project);
