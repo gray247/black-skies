@@ -1889,13 +1889,30 @@ export default function App(): JSX.Element {
     try {
       const response = await snapshotApi({ projectId });
       if (!response.ok) {
+        const isTimeout = response.error?.code === 'TIMEOUT';
         pushToast({
-          tone: 'error',
-          title: 'Snapshot creation failed',
-          description: `No snapshot was created. ${
-            response.error?.message ?? 'Check the trace ID, then try again.'
-          }`.trim(),
+          tone: isTimeout ? 'warning' : 'error',
+          title: isTimeout ? 'Snapshot request timed out' : 'Snapshot creation failed',
+          description: isTimeout
+            ? 'Snapshot request timed out. The snapshot may still complete. Refresh the snapshots panel to check.'
+            : `No snapshot was created. ${
+                response.error?.message ?? 'Check the trace ID, then try again.'
+              }`.trim(),
           traceId: response.traceId ?? response.error?.traceId,
+          actions: isTimeout
+            ? [
+                {
+                  label: 'Refresh snapshots panel',
+                  onPress: () => {
+                    console.log('[snapshot-timeout-toast-action]', {
+                      snapshotId: null,
+                      actionLabel: 'Refresh snapshots panel',
+                    });
+                    openSnapshotsPanel();
+                  },
+                },
+              ]
+            : undefined,
         });
         return;
       }
@@ -1927,10 +1944,13 @@ export default function App(): JSX.Element {
       refreshSnapshotsPanel();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const isTimeout = typeof message === 'string' && message.toLowerCase().includes('timed out');
       pushToast({
-        tone: 'error',
-        title: 'Snapshot creation failed',
-        description: `No snapshot was created. ${message}`.trim(),
+        tone: isTimeout ? 'warning' : 'error',
+        title: isTimeout ? 'Snapshot request timed out' : 'Snapshot creation failed',
+        description: isTimeout
+          ? 'Snapshot request timed out. The snapshot may still complete. Refresh the snapshots panel to check.'
+          : `No snapshot was created. ${message}`.trim(),
       });
     } finally {
       setSnapshotting(false);

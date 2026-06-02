@@ -86,6 +86,7 @@ describe('serviceApi', () => {
     delete process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS;
     delete process.env.BLACKSKIES_BRIDGE_BACKOFF_MS;
     delete process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS;
+    delete process.env.BLACKSKIES_BRIDGE_SNAPSHOT_CREATE_TIMEOUT_MS;
     delete process.env.BLACKSKIES_BRIDGE_FAILURE_THRESHOLD;
     delete process.env.BLACKSKIES_BRIDGE_RESET_MS;
     delete process.env.BLACKSKIES_BRIDGE_RESTORE_TIMEOUT_MS;
@@ -388,6 +389,30 @@ describe('serviceApi', () => {
         timeout_ms: 300000,
         unit_count: 0,
         operation_name: 'backup-create',
+        completion_status: 'unknown',
+        backend_may_still_be_running: true,
+      });
+    }
+  });
+
+  it('uses a dedicated timeout budget for snapshot creation requests', async () => {
+    process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS = '50';
+    const timeoutError = new Error('aborted');
+    timeoutError.name = 'AbortError';
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValue(timeoutError);
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.createProjectSnapshot?.({ projectId: 'proj_test' });
+
+    expect(result?.ok).toBe(false);
+    if (result && !result.ok) {
+      expect(result.error.code).toBe('TIMEOUT');
+      expect(result.error.details).toEqual({
+        timeout_ms: 120000,
+        unit_count: 0,
+        operation_name: 'snapshot-create',
         completion_status: 'unknown',
         backend_may_still_be_running: true,
       });

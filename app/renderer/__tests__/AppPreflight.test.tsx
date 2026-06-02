@@ -1699,6 +1699,45 @@ describe('App preflight integration', () => {
     expect(await screen.findByText('snap-new')).toBeInTheDocument();
   });
 
+  it('shows a timeout-specific snapshot message when the bridge times out', async () => {
+    services.createProjectSnapshot = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'TIMEOUT',
+        message: 'Request timed out after 45000ms.',
+        details: {
+          timeout_ms: 120000,
+          unit_count: 0,
+          operation_name: 'snapshot-create',
+          completion_status: 'unknown',
+          backend_may_still_be_running: true,
+        },
+        traceId: 'trace-snapshot-timeout',
+      },
+      traceId: 'trace-snapshot-timeout',
+    });
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const snapshotButton = await screen.findByTestId('workspace-action-snapshot');
+    fireEvent.click(snapshotButton);
+
+    const message = await screen.findByText('Snapshot request timed out', {
+      selector: '.toast__title',
+    });
+    const toastCard = message.closest('.toast');
+    expect(toastCard).not.toBeNull();
+    if (toastCard) {
+      expect(within(toastCard).queryByText(/no snapshot was created/i)).toBeNull();
+      const refreshButton = within(toastCard).getByRole('button', {
+        name: /refresh snapshots panel/i,
+      });
+      await userEvent.click(refreshButton);
+      await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalled());
+    }
+  });
+
   it('opens snapshots panel without revealing a snapshot path from the create toast', async () => {
     services.exportProject = vi.fn().mockRejectedValue(new Error('export service unavailable'));
 

@@ -25,6 +25,22 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - records that the user attempted to reproduce the prior project-switch scene flicker / oscillation and could not reproduce it,
   - closes the scene-selection / project-switch oscillation defect with a monitoring caveat after the Pass 130 single-writer repair and green startup authority contract,
   - points the next recovery lane at snapshot timeout / offline cascade.
+- [2026-06-01] Pass 132 snapshot timeout / offline cascade intake recorded in `docs/audits/phase14/pass132_snapshot_timeout_offline_cascade_intake.md`:
+  - maps the snapshot creation path across `App.tsx`, `app/main/preload.ts`, snapshot persistence, recovery, and service-health surfaces,
+  - records the human smoke failure signature as `Snapshot creation failed` / `Request timed out after 45000ms` / offline-cascade symptoms rather than as a scene-authority regression,
+  - identifies the next step as targeted runtime repro because the current evidence maps ownership and the generic 45s bridge budget, but does not yet isolate whether the root cause is bridge timeout, backend slowness, or health-cascade handling.
+- [2026-06-02] Pass 133 snapshot timeout targeted repro evidence plan recorded in `docs/audits/phase14/pass133_snapshot_timeout_targeted_repro_evidence_plan.md`:
+  - defines exact preflight, console, backend-log, and health-endpoint capture steps for reproducing the 45s snapshot timeout and offline cascade,
+  - classifies the likely outcomes across bridge timeout, backend slowness, backend completion after timeout, backend error, health-probe failure, and renderer-side offline cascade,
+  - keeps the first pass instrumentation-free because the current bridge logs, renderer debug buffer, service health UI, and backend route logs are sufficient for a targeted repro.
+- [2026-06-02] Pass 134 snapshot timeout repair plan recorded in `docs/audits/phase14/pass134_snapshot_timeout_repair_plan.md`:
+  - incorporates the late-success evidence that `POST /api/v1/snapshots` started at `2026-06-02T15:32:51` and returned `HTTP 200` around `2026-06-02T15:33:39`, after the renderer/preload request timeout expired,
+  - reclassifies the defect away from offline-cascade handling because `/api/v1/healthz` stayed healthy before / during / after the snapshot attempt,
+  - recommends the smallest safe repair as a snapshot-specific bridge timeout plus truthful timeout copy in the renderer, while keeping generic request policy and service-health state unchanged.
+- [2026-06-02] Pass 135 snapshot timeout implementation recorded in `docs/audits/phase14/pass135_snapshot_timeout_implementation.md`:
+  - implements the snapshot-specific bridge timeout (`120000ms`) for `POST /snapshots` and keeps the generic bridge timeout unchanged,
+  - updates the renderer timeout branch to say the snapshot may still complete and to offer a refresh-snapshots action instead of claiming a definitive failure,
+  - preserves backend behavior unchanged and records the focused renderer, bridge, backend snapshot, build, and docs validation results as green.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,

@@ -772,6 +772,7 @@ const REQUEST_POLICY: BridgeResiliencePolicy = {
 };
 
 const DRAFT_REQUEST_MAX_TIMEOUT_MS = 300_000;
+const SNAPSHOT_CREATE_REQUEST_TIMEOUT_MS = Math.max(REQUEST_POLICY.timeoutMs, 120_000);
 const RESTORE_REQUEST_TIMEOUT_MS = Math.max(
   REQUEST_POLICY.timeoutMs,
   parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESTORE_TIMEOUT_MS, 300_000),
@@ -937,6 +938,9 @@ function resolveRequestTimeoutMs(unitCount: number): number {
 }
 
 function resolveRouteTimeoutMs(normalizedPath: string, unitCount: number): number {
+  if (normalizedPath === 'snapshots') {
+    return SNAPSHOT_CREATE_REQUEST_TIMEOUT_MS;
+  }
   if (normalizedPath === 'restore') {
     return RESTORE_REQUEST_TIMEOUT_MS;
   }
@@ -962,6 +966,14 @@ function buildTimeoutDetails(
     return {
       ...baseDetails,
       operation_name: 'restore-copy',
+      completion_status: 'unknown',
+      backend_may_still_be_running: true,
+    };
+  }
+  if (normalizedPath === 'snapshots') {
+    return {
+      ...baseDetails,
+      operation_name: 'snapshot-create',
       completion_status: 'unknown',
       backend_may_still_be_running: true,
     };
