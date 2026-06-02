@@ -77,6 +77,40 @@ import "./styles/stable-home.css";
 
 type DraftGenerationScope = "active-scene" | "all-scenes";
 
+type SceneWriteWriterKind =
+  | "user_selection"
+  | "project_activation"
+  | "draft_preview_replay"
+  | "persisted_scene_restore"
+  | "split_command_replay"
+  | "project_home_callback"
+  | "project_home_effect_echo"
+  | "project_home_prop_sync"
+  | "project_home_load_default"
+  | "commit_sink"
+  | "harness_selection";
+
+type SceneWriteOutcome = "apply" | "skip" | "observe";
+
+interface SceneWriteTracePayload {
+  writerKind: SceneWriteWriterKind;
+  sourceFunction: string;
+  requestedSceneId: string | null;
+  previousSceneId: string | null;
+  committedSceneId: string | null;
+  projectId: string | null;
+  projectPath: string | null;
+  projectSwitchGenerationToken: number | null;
+  hydrationGenerationToken: number | null;
+  causalTriggerId: string | null;
+  outcome: SceneWriteOutcome;
+  skipReason?: string | null;
+  eventId?: string;
+  order?: number;
+  timestampMs?: number;
+  perfMs?: number | null;
+}
+
 export function getTestModes() {
   if (typeof document === "undefined") {
     return { visualMode: false, stableDockMode: false, flowMode: true };
@@ -766,10 +800,57 @@ export default function App(): JSX.Element {
   });
   const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(null);
   const activeSceneId = activeScene?.id ?? null;
+  const recordSceneWriteTrace = useCallback(
+    (scope: string, payload: SceneWriteTracePayload): string => {
+      const order = ++sceneWriteOrderRef.current;
+      const eventId = `${scope}:${order}`;
+      recordDebugEvent(scope, {
+        eventId,
+        order,
+        timestampMs: Date.now(),
+        perfMs: typeof performance !== "undefined" ? performance.now() : null,
+        ...payload,
+      });
+      return eventId;
+    },
+    [],
+  );
   const applySceneSelection = useCallback(
-    (requestedSceneId?: string | null) => {
+    (
+      requestedSceneId?: string | null,
+      instrumentation?: {
+        writerKind?: SceneWriteWriterKind;
+        sourceFunction?: string;
+        causalTriggerId?: string | null;
+        projectSwitchGenerationToken?: number | null;
+        hydrationGenerationToken?: number | null;
+      },
+    ) => {
       const scenesList = currentProjectRef.current?.scenes ?? [];
+      const previousSceneId = activeSceneId;
+      const writerKind = instrumentation?.writerKind ?? "harness_selection";
+      const sourceFunction = instrumentation?.sourceFunction ?? "applySceneSelection";
+      const projectId = currentProjectRef.current?.projectId ?? null;
+      const projectPath = currentProjectRef.current?.path ?? null;
+      const projectSwitchGenerationToken =
+        instrumentation?.projectSwitchGenerationToken ?? projectSwitchGenerationRef.current;
+      const hydrationGenerationToken =
+        instrumentation?.hydrationGenerationToken ?? draftPreviewHydrationGenerationRef.current;
       if (requestedSceneId === null) {
+        recordSceneWriteTrace("scene.write.apply", {
+          writerKind,
+          sourceFunction,
+          requestedSceneId: null,
+          previousSceneId,
+          committedSceneId: null,
+          projectId,
+          projectPath,
+          projectSwitchGenerationToken,
+          hydrationGenerationToken,
+          causalTriggerId: instrumentation?.causalTriggerId ?? null,
+          outcome: previousSceneId === null ? "skip" : "apply",
+          skipReason: previousSceneId === null ? "already-cleared" : null,
+        });
         console.log(
           "[dbg:scene.select.clear]",
           JSON.stringify({ sceneCount: scenesList.length }),
@@ -784,6 +865,20 @@ export default function App(): JSX.Element {
       const normalizedRequestedSceneId =
         typeof requestedSceneId === "string" ? requestedSceneId.trim() : "";
       if (scenesList.length === 0) {
+        recordSceneWriteTrace("scene.write.apply", {
+          writerKind,
+          sourceFunction,
+          requestedSceneId: normalizedRequestedSceneId || null,
+          previousSceneId,
+          committedSceneId: null,
+          projectId,
+          projectPath,
+          projectSwitchGenerationToken,
+          hydrationGenerationToken,
+          causalTriggerId: instrumentation?.causalTriggerId ?? null,
+          outcome: "skip",
+          skipReason: "no-scenes",
+        });
         console.log(
           "[dbg:scene.select.missing-scene]",
           JSON.stringify({
@@ -803,6 +898,20 @@ export default function App(): JSX.Element {
         ? scenesList.find((scene) => scene.id === normalizedRequestedSceneId) ?? null
         : fallbackScene;
       if (!targetScene) {
+        recordSceneWriteTrace("scene.write.apply", {
+          writerKind,
+          sourceFunction,
+          requestedSceneId: normalizedRequestedSceneId || null,
+          previousSceneId,
+          committedSceneId: null,
+          projectId,
+          projectPath,
+          projectSwitchGenerationToken,
+          hydrationGenerationToken,
+          causalTriggerId: instrumentation?.causalTriggerId ?? null,
+          outcome: "skip",
+          skipReason: "scene-id-not-found",
+        });
         console.log(
           "[dbg:scene.select.missing-scene]",
           JSON.stringify({
@@ -826,6 +935,20 @@ export default function App(): JSX.Element {
           sceneCount: scenesList.length,
         }),
       );
+      recordSceneWriteTrace("scene.write.apply", {
+        writerKind,
+        sourceFunction,
+        requestedSceneId: normalizedRequestedSceneId || null,
+        previousSceneId,
+        committedSceneId: targetScene.id,
+        projectId,
+        projectPath,
+        projectSwitchGenerationToken,
+        hydrationGenerationToken,
+        causalTriggerId: instrumentation?.causalTriggerId ?? null,
+        outcome: previousSceneId === targetScene.id ? "skip" : "apply",
+        skipReason: previousSceneId === targetScene.id ? "same-scene" : null,
+      });
       recordDebugEvent("scene.select.apply", {
         requestedSceneId: normalizedRequestedSceneId || null,
         selectedSceneId: targetScene.id,
@@ -840,7 +963,7 @@ export default function App(): JSX.Element {
       pendingSceneSelectionRef.current = null;
       return true;
     },
-    [setActiveScene],
+    [activeSceneId, recordSceneWriteTrace, setActiveScene],
   );
 
   useEffect(() => {
@@ -853,7 +976,12 @@ export default function App(): JSX.Element {
     const win = window as typeof window & {
       __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     };
-    win.__blackSkiesSelectScene = (sceneId) => applySceneSelection(sceneId);
+    win.__blackSkiesSelectScene = (sceneId) =>
+      applySceneSelection(sceneId, {
+        writerKind: "harness_selection",
+        sourceFunction: "__blackSkiesSelectScene",
+        causalTriggerId: "test:select-scene",
+      });
     console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: true }));
     return () => {
       console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: false }));
@@ -871,7 +999,11 @@ export default function App(): JSX.Element {
       if (sceneId === null || (typeof sceneId === 'string' && sceneId.length > 0)) {
         console.log('[dbg:scene.select.request]', JSON.stringify({ sceneId }));
         pendingSceneSelectionRef.current = sceneId;
-        applySceneSelection(sceneId);
+        applySceneSelection(sceneId, {
+          writerKind: "harness_selection",
+          sourceFunction: "test:select-scene",
+          causalTriggerId: "test:select-scene",
+        });
       }
     };
     window.addEventListener('test:select-scene', handler);
@@ -882,7 +1014,11 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     if (pendingSceneSelectionRef.current !== null) {
-      applySceneSelection(pendingSceneSelectionRef.current);
+      applySceneSelection(pendingSceneSelectionRef.current, {
+        writerKind: "harness_selection",
+        sourceFunction: "pendingSceneSelectionRefReplay",
+        causalTriggerId: "pending-scene-selection",
+      });
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
@@ -908,6 +1044,10 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const sceneWriteOrderRef = useRef(0);
+  const projectSwitchGenerationRef = useRef(0);
+  const draftPreviewHydrationGenerationRef = useRef(0);
+  const splitCommandHydrationGenerationRef = useRef(0);
   const [splitCommandShellState, dispatchSplitCommandShell] = useReducer(
     splitCommandShellReducer,
     null,
@@ -1014,6 +1154,8 @@ export default function App(): JSX.Element {
         return;
       }
 
+      const hydrationGenerationToken = ++draftPreviewHydrationGenerationRef.current;
+
       const nextProjectDrafts = sharedState.projectDrafts ?? {};
       const nextDraftEdits = sharedState.draftEdits ?? {};
       const nextDrafts = { ...nextProjectDrafts, ...nextDraftEdits };
@@ -1028,6 +1170,20 @@ export default function App(): JSX.Element {
       if (isDraftPreviewStateEqual(sharedState, currentState)) {
         draftPreviewSyncPendingStateRef.current = null;
         draftPreviewSyncHydratedRef.current = true;
+        recordSceneWriteTrace("scene.write.draft-preview", {
+          writerKind: "draft_preview_replay",
+          sourceFunction: "applyDraftPreviewState",
+          requestedSceneId: sharedState.activeSceneId ?? null,
+          previousSceneId: activeSceneId,
+          committedSceneId: sharedState.activeSceneId ?? null,
+          projectId: currentProjectRef.current?.projectId ?? projectSummary.projectId ?? null,
+          projectPath: projectSummary.path,
+          projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+          hydrationGenerationToken,
+          causalTriggerId: sharedState.sourceId,
+          outcome: "skip",
+          skipReason: "already-hydrated",
+        });
         return;
       }
 
@@ -1050,6 +1206,20 @@ export default function App(): JSX.Element {
           currentProjectRef.current?.scenes.find((scene) => scene.id === sharedState.activeSceneId) ??
           null;
         if (targetScene) {
+          recordSceneWriteTrace("scene.write.draft-preview", {
+            writerKind: "draft_preview_replay",
+            sourceFunction: "applyDraftPreviewState",
+            requestedSceneId: sharedState.activeSceneId,
+            previousSceneId: activeSceneId,
+            committedSceneId: targetScene.id,
+            projectId: currentProjectRef.current?.projectId ?? projectSummary.projectId ?? null,
+            projectPath: projectSummary.path,
+            projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+            hydrationGenerationToken,
+            causalTriggerId: sharedState.sourceId,
+            outcome: activeSceneId === targetScene.id ? "skip" : "apply",
+            skipReason: activeSceneId === targetScene.id ? "same-scene" : null,
+          });
           setActiveScene((previous) => {
             const nextScene = { id: targetScene.id, title: targetScene.title ?? null };
             return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
@@ -1485,6 +1655,7 @@ export default function App(): JSX.Element {
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
+      const projectSwitchGenerationToken = ++projectSwitchGenerationRef.current;
       if (typeof window !== "undefined") {
         console.log("[dbg:project.commit.start]", project.path);
       }
@@ -1518,6 +1689,20 @@ export default function App(): JSX.Element {
       recordDebugEvent("app.activateProject.startupScene", {
         path: project.path,
         startupSceneId: nextScene?.id ?? null,
+      });
+      recordSceneWriteTrace("scene.write.activate-project", {
+        writerKind: "project_activation",
+        sourceFunction: "activateProject",
+        requestedSceneId: options?.preserveSceneId ?? null,
+        previousSceneId: activeSceneId,
+        committedSceneId: nextScene?.id ?? null,
+        projectId,
+        projectPath: project.path,
+        projectSwitchGenerationToken,
+        hydrationGenerationToken: draftPreviewHydrationGenerationRef.current,
+        causalTriggerId: "app.handleProjectLoaded",
+        outcome: nextScene ? "apply" : "skip",
+        skipReason: nextScene ? null : "no-startup-scene",
       });
       setActiveScene(nextScene);
       resetCritique();
@@ -2046,11 +2231,53 @@ export default function App(): JSX.Element {
     };
   }, [activateProject, isMountedRef, pushToast]);
 
-  const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
+  const handleActiveSceneChange = useCallback(
+    (
+      payload: ActiveScenePayload | null,
+      meta?: {
+        triggerEventId?: string | null;
+        writerKind?: SceneWriteWriterKind;
+        projectSwitchGenerationToken?: number | null;
+        hydrationGenerationToken?: number | null;
+        sourceFunction?: string;
+      },
+    ) => {
     if (!payload) {
+      recordSceneWriteTrace("scene.write.handle-active-scene-change", {
+        writerKind: meta?.writerKind ?? "project_home_callback",
+        sourceFunction: meta?.sourceFunction ?? "handleActiveSceneChange",
+        requestedSceneId: null,
+        previousSceneId: activeSceneId,
+        committedSceneId: null,
+        projectId: projectSummary?.projectId ?? currentProjectRef.current?.projectId ?? null,
+        projectPath: projectSummary?.path ?? currentProjectRef.current?.path ?? null,
+        projectSwitchGenerationToken:
+          meta?.projectSwitchGenerationToken ?? projectSwitchGenerationRef.current,
+        hydrationGenerationToken:
+          meta?.hydrationGenerationToken ?? draftPreviewHydrationGenerationRef.current,
+        causalTriggerId: meta?.triggerEventId ?? null,
+        outcome: activeSceneId === null ? "skip" : "apply",
+        skipReason: activeSceneId === null ? "already-cleared" : null,
+      });
       setActiveScene((previous) => (previous === null ? previous : null));
       return;
     }
+    recordSceneWriteTrace("scene.write.handle-active-scene-change", {
+      writerKind: meta?.writerKind ?? "project_home_callback",
+      sourceFunction: meta?.sourceFunction ?? "handleActiveSceneChange",
+      requestedSceneId: payload.sceneId,
+      previousSceneId: activeSceneId,
+      committedSceneId: payload.sceneId,
+      projectId: projectSummary?.projectId ?? currentProjectRef.current?.projectId ?? null,
+      projectPath: projectSummary?.path ?? currentProjectRef.current?.path ?? null,
+      projectSwitchGenerationToken:
+        meta?.projectSwitchGenerationToken ?? projectSwitchGenerationRef.current,
+      hydrationGenerationToken:
+        meta?.hydrationGenerationToken ?? draftPreviewHydrationGenerationRef.current,
+      causalTriggerId: meta?.triggerEventId ?? null,
+      outcome: activeSceneId === payload.sceneId ? "skip" : "apply",
+      skipReason: activeSceneId === payload.sceneId ? "same-scene" : null,
+    });
     setActiveScene((previous) => {
       const nextScene = { id: payload.sceneId, title: payload.sceneTitle };
       return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
@@ -2077,7 +2304,9 @@ export default function App(): JSX.Element {
       }
       return { ...previous, [payload.sceneId]: payload.draft };
     });
-  }, []);
+    },
+    [activeSceneId, currentProjectRef, projectSummary?.path, projectSummary?.projectId, recordSceneWriteTrace],
+  );
 
   const handleDraftChange = useCallback((sceneId: string, draft: string) => {
     setDraftEdits((previous) => {
@@ -2305,7 +2534,28 @@ export default function App(): JSX.Element {
     ) {
       return;
     }
-    applySceneSelection(splitCommandShellState.selectedSceneId);
+    const hydrationGenerationToken = ++splitCommandHydrationGenerationRef.current;
+    recordSceneWriteTrace("scene.write.split-command", {
+      writerKind: "split_command_replay",
+      sourceFunction: "splitCommandSceneReplayEffect",
+      requestedSceneId: splitCommandShellState.selectedSceneId,
+      previousSceneId: activeSceneId,
+      committedSceneId: splitCommandShellState.selectedSceneId,
+      projectId: projectSummary?.projectId ?? currentProjectRef.current?.projectId ?? null,
+      projectPath: projectSummary?.path ?? currentProjectRef.current?.path ?? null,
+      projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+      hydrationGenerationToken,
+      causalTriggerId: splitCommandPersistedStateRef.current,
+      outcome: activeSceneId === splitCommandShellState.selectedSceneId ? "skip" : "apply",
+      skipReason: activeSceneId === splitCommandShellState.selectedSceneId ? "same-scene" : null,
+    });
+    applySceneSelection(splitCommandShellState.selectedSceneId, {
+      writerKind: "split_command_replay",
+      sourceFunction: "splitCommandSceneReplayEffect",
+      causalTriggerId: splitCommandPersistedStateRef.current,
+      projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+      hydrationGenerationToken: splitCommandHydrationGenerationRef.current,
+    });
   }, [
     activeSceneId,
     applySceneSelection,
@@ -2559,6 +2809,20 @@ export default function App(): JSX.Element {
       const committedProjectStateSerialized = JSON.stringify(committedProjectStateSnapshot);
       if (committedProjectStateRef.current !== committedProjectStateSerialized) {
         committedProjectStateRef.current = committedProjectStateSerialized;
+        recordSceneWriteTrace("scene.select.commit", {
+          writerKind: "commit_sink",
+          sourceFunction: "scene.select.commit",
+          requestedSceneId: activeSceneIdValue || null,
+          previousSceneId: activeSceneIdValue || null,
+          committedSceneId: activeSceneIdValue || null,
+          projectId: projectIdValue || null,
+          projectPath: projectSummary?.path ?? null,
+          projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+          hydrationGenerationToken:
+            draftPreviewHydrationGenerationRef.current || splitCommandHydrationGenerationRef.current,
+          causalTriggerId: null,
+          outcome: "observe",
+        });
         recordDebugEvent("scene.select.commit", committedProjectStateSnapshot);
         console.log(
           "[dbg:scene.select.commit]",
@@ -2863,13 +3127,33 @@ export default function App(): JSX.Element {
 
   const handleSplitCommandSceneSelect = useCallback(
     (sceneId: string) => {
+      const triggerEventId = recordSceneWriteTrace("scene.write.split-command", {
+        writerKind: "user_selection",
+        sourceFunction: "handleSplitCommandSceneSelect",
+        requestedSceneId: sceneId,
+        previousSceneId: activeSceneId,
+        committedSceneId: sceneId,
+        projectId: projectSummary?.projectId ?? currentProjectRef.current?.projectId ?? null,
+        projectPath: projectSummary?.path ?? currentProjectRef.current?.path ?? null,
+        projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+        hydrationGenerationToken: splitCommandHydrationGenerationRef.current,
+        causalTriggerId: "story-navigation-click",
+        outcome: activeSceneId === sceneId ? "skip" : "apply",
+        skipReason: activeSceneId === sceneId ? "same-scene" : null,
+      });
       dispatchSplitCommandShell({
         type: "shell/select-scene",
         payload: { sceneId },
       });
-      applySceneSelection(sceneId);
+      applySceneSelection(sceneId, {
+        writerKind: "user_selection",
+        sourceFunction: "handleSplitCommandSceneSelect",
+        causalTriggerId: triggerEventId,
+        projectSwitchGenerationToken: projectSwitchGenerationRef.current,
+        hydrationGenerationToken: splitCommandHydrationGenerationRef.current,
+      });
     },
-    [applySceneSelection],
+    [activeSceneId, applySceneSelection, currentProjectRef, projectSummary?.path, projectSummary?.projectId, recordSceneWriteTrace],
   );
 
   const workspaceBody = splitCommandModeRequested ? (

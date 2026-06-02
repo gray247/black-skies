@@ -3627,3 +3627,9 @@ Backlog note drifted after phase-log cleanup.
   - defines a reproducible capture procedure and evidence package requirements for definitive closure (ordered traces, raw logs, and repeated oscillation reproduction),
   - defines root-cause closure criteria with mandatory runtime proof and a weighted confidence model requiring `>= 80%` for `ROOT CAUSE IDENTIFIED`,
   - classifies the lane `READY FOR INSTRUMENTATION IMPLEMENTATION` with instrumentation-only scope for the next pass.
+- [2026-06-01] Pass 123 scene selection runtime instrumentation implementation recorded in `docs/audits/phase14/pass123_scene_selection_runtime_instrumentation_implementation.md`:
+  - instruments the active-scene write paths in `App.tsx` and `ProjectHome.tsx` with structured debug events and consistent metadata capture,
+  - captures event id, order, timestamps, writer kind, source function, requested/previous/committed scene ids, project identity, generation tokens, causal trigger ids when available, and apply/skip outcome,
+  - keeps behavior unchanged while preserving existing selection/project/hydration logic and only adding diagnostic logging,
+  - validates successfully with `pnpm --filter app test`, `pnpm --filter app build`, `git diff --check`, and `pnpm lint:docs`,
+  - concludes implementation status as `INSTRUMENTATION COMPLETE`.
