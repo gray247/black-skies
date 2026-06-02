@@ -3614,3 +3614,9 @@ Backlog note drifted after phase-log cleanup.
   - sets explicit blocker gates for launch/load failures, deterministic continuity contamination, core editorial flow breakage, misleading recovery/export outcomes, and broken offline/online recovery semantics,
   - preserves non-blocking classification for minor copy/layout issues without workflow breakage and for non-reproducible one-off flakes,
   - concludes planning status as `HUMAN SMOKE PLAN READY`.
+- [2026-06-01] Pass 121A scene selection oscillation investigation recorded in `docs/audits/phase14/pass121a_scene_selection_oscillation_investigation.md`:
+  - confirms `activeScene` has multiple renderer write paths in `App.tsx` (selection apply, startup project activation, storage hydration, callback-commit, and reset/clear paths),
+  - confirms project switching and scene switching share authority boundaries across `ProjectHome` local state, `onProjectLoaded` handoff, `activateProject`, and `requestedActiveSceneId` rebind paths,
+  - records hydration-capable overwrite surfaces in draft-preview sync and feature-gated split-command shell selection reapply,
+  - records required runtime evidence anchors (human smoke observation plus reproduced ordered scene-commit test trace contract) but no direct reproduced oscillation sequence with one dominant writer,
+  - classifies the lane `MULTIPLE CANDIDATES REMAIN` with ranked causes and recommends a narrow next repair lane focused on single-writer scene authority and stale-hydration overwrite gating.
