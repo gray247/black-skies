@@ -1,4 +1,4 @@
-Ôªø
+
 
 # BLACK SKIES - FIX TRACKER
 
@@ -45,6 +45,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - records the human retest outcome that Black Skies opened successfully after local launch cleanup and snapshot creation worked,
   - closes the snapshot timeout defect with a monitoring caveat because the prior 45-second failure did not reproduce after the Pass 135 repair and the earlier launch trouble was attributed to port/process conflict rather than snapshot repair failure,
   - recommends keeping launch / port hygiene as a separate follow-up lane if the startup conflict resurfaces, while leaving the snapshot timeout recovery lane closed.
+- [2026-06-03] Pass 137 human validation remaining checklist review recorded in `docs/audits/phase14/pass137_human_validation_remaining_checklist_review.md`:
+  - reconciles the original Pass 120 workflow smoke checklist against the closed scene-authority and snapshot-timeout lanes,
+  - keeps the remaining human retest list focused on the still-open workflow confidence items rather than reopening the closed recovery lanes,
+  - preserves launch / port hygiene as a watch item only, with a new recovery lane recommended only if reproducible startup instability returns.
+- [2026-06-03] Pass 138 human validation results and baseline readiness review recorded in `docs/audits/phase14/pass138_human_validation_results_and_baseline_readiness_review.md`:
+  - records the user validation pass outcomes across backend health, project load, draft continuity, generation, critique, rewrite, export, and diagnostics surfaces,
+  - accepts offline / online behavior with an evidence caveat and keeps launch / port hygiene as a separate watch item only,
+  - confirms no new recovery lane is required from this run and marks the baseline recovery stream ready for closure review.
+- [2026-06-03] Pass 139 baseline recovery closure review recorded in `docs/audits/phase14/pass139_baseline_recovery_closure_review.md`:
+  - closes the baseline recovery / maintenance arc after the scene-switching, snapshot-timeout, and remaining human validation items were accepted or passed,
+  - preserves the item 12 offline / online caveat as monitoring-only and keeps launch / port hygiene as a watch item rather than a new lane,
+  - points the next checkpoint at defining the next forward-build phase from the recovered baseline.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
@@ -248,7 +260,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-05-27] Pre-Pass-44 governance integrity audit recorded in `docs/audits/phase13/pass41_43_governance_integrity_audit.md`:
   - audits Passes 41-43 as the gate before Arc 3 / Pass 44 and records that Pass 44 has not begun,
   - patches the Pass 43 schema and Pass 40 control-map wording to clarify that `VC-###` and `RS-###` are reserved ID families, not itemized registers yet,
-  - recommends `PATCHED ‚Äî READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
+  - recommends `PATCHED ó READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
 - [2026-05-27] Roadmap reconstruction Pass 44 recorded in `docs/audits/phase13/pass44_safe_maintenance_lane_hardening.md`:
   - hardens the Safe Maintenance Lane as operational governance rather than feature work by requiring maintenance impact metadata, lightweight evidence for `no impact` claims, reusable before/after checklist use, `Blocked Areas Not Touched`, and `Discovered But Not Fixed` reporting,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to advance `DG-010` to stabilized-for-planning status for current-arc maintenance governance, advance `GD-011` to partially reconstructed, and keep `SM-001` through `SM-008` maintenance-safe only when Pass 44 evidence and checklist rules are satisfied,
@@ -2271,7 +2283,7 @@ Last Updated: 2026-04-30
   - expected impact: reduce `Missing X server/$DISPLAY`, platform-init, and chrome-sandbox launch failures that cascade into readiness/beforeEach timeouts.
 - 2026-04-23 - Codex - CI verification run #242 (`3c0c6ec`) confirms HARNESS_ONLY failure count drop from prior 23 failed / 2 skipped (run #241) to 15 failed / 2 skipped / 8 passed.
 - 2026-04-23 - Codex - First remaining failure cluster is now functional/UI-harness behavior, not launcher bring-up:
-  - first listed failing test in HARNESS_ONLY summary: `tests/e2e/budget-meter.spec.ts` (`HARNESS_ONLY: Budget meter (packaged) ‚Ä∫ updates immediately after critique`),
+  - first listed failing test in HARNESS_ONLY summary: `tests/e2e/budget-meter.spec.ts` (`HARNESS_ONLY: Budget meter (packaged) õ updates immediately after critique`),
   - additional remaining failures include missing/hidden UI anchors (`wizard-root`, pane title visibility), bridge-health expectation mismatch in `truth.real-service.spec.ts`, and missing visual snapshot baseline in `visual.home.spec.ts`.
 - 2026-04-23 - Codex - Budget-meter cluster fix:
   - refactored `budget-meter.spec.ts` to apply harness overrides both immediately (`page.evaluate`) and on future navigations (`page.addInitScript`) via shared helper,
@@ -2464,9 +2476,9 @@ Last Updated: 2026-04-30
   - `pnpm exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts -g "budget_indicator_flow|budget_guardrail_smoke" --project=electron --workers=1` passed,
   - `budget-meter.spec.ts` still asserts deterministic preflight readiness and the strict `$0.02 / $10.00` post-critique budget label.
 
-## PASS 5 ‚Äî Fixture Authority & Scene Selection Stability
+## PASS 5 ó Fixture Authority & Scene Selection Stability
 
-### Section 1 ‚Äî Fixture Contract Authority
+### Section 1 ó Fixture Contract Authority
 - Status: RESOLVED
 - Root cause: E2E and truth lanes referenced different or non-existent sample project paths. `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` were not reliably materialized in CI.
 - Fix: introduced shared materializer `scripts/materialize_e2e_fixture.mjs`.
@@ -2477,7 +2489,7 @@ Last Updated: 2026-04-30
   - workflow verifies filesystem state immediately after materialization.
 - Key invariant: `No Playwright or truth execution occurs unless fixture contract is valid`
 
-### Section 2 ‚Äî Scene Selection Authority
+### Section 2 ó Scene Selection Authority
 - Status: RESOLVED
 - Root cause: tests used event-only or DOM-based selection paths that did not guarantee commit to `App` active scene state.
 - Authority map:
@@ -2502,7 +2514,7 @@ Last Updated: 2026-04-30
     - commit marker missing
 - Key invariant: `Active scene is only considered selected when committed marker is set`
 
-### Section 3 ‚Äî Large File / Coupling Risk
+### Section 3 ó Large File / Coupling Risk
 - Status: NEW FINDING
 - Observation: `App.tsx` and `preload.ts` are large enough that full inspection is truncated in terminal/debug output.
 - Risk:
@@ -2513,7 +2525,7 @@ Last Updated: 2026-04-30
   - document the selection authority map above.
   - add a targeted regression test that enforces the canonical authority contract below.
   - prefer small, explicit test APIs over indirect DOM/event paths.
-- Classification: `High-coupling authority zone ‚Äî requires explicit contract tests`
+- Classification: `High-coupling authority zone ó requires explicit contract tests`
 - Selection authority regression guard:
   - wait for selection hook readiness: `typeof window.__blackSkiesSelectScene === "function"`
   - execute: `const result = window.__dev.selectScene("sc_0001")`
@@ -2535,7 +2547,7 @@ Last Updated: 2026-04-30
   - DOM presence of corkboard cards is not proof
   - event dispatch alone is not proof
 
-### Section 4 ‚Äî Current System State
+### Section 4 ó Current System State
 - Fixture contract: enforced and deterministic
 - Analytics preflight: reliable gate
 - Scene selection: routed through canonical authority
@@ -2551,7 +2563,7 @@ Last Updated: 2026-04-30
   - large-file coupling
   - future contract drift
 
-### Section 5 ‚Äî Repository Hygiene Note
+### Section 5 ó Repository Hygiene Note
 - Status: NON-FUNCTIONAL / UNRELATED WORKSPACE ARTIFACT
 - Observation: `git status` shows a pre-existing deleted path: `D "ted memory docs, services, and tests\\"`.
 - Scope: this deletion was not introduced by the current fixture or scene-selection fixes.
@@ -2614,7 +2626,7 @@ Operational doc was not updated after dev launcher migration.
 - Last Updated: 2026-04-21
 
 #### Description
-Multiple active docs contained mojibake characters (`‚Äî`, `‚Äú`, `‚Äù`).
+Multiple active docs contained mojibake characters (`ó`, `ì`, `î`).
 
 #### Known Facts
 - `docs/phase_bridge.md` and `docs/ops/start_codex_gui_notes.md` were remediated in this pass.
@@ -3587,7 +3599,7 @@ Backlog note drifted after phase-log cleanup.
   - maps prototype acceptance/read-eligibility ownership to `memory_prototype/canonical_state_reader.py` and lineage contract ownership to `memory_prototype/schemas.py`,
   - maps persistence ownership to `memory_prototype/storage.py` with low-level replace ownership in `services/src/blackskies/services/io.py`,
   - confirms no explicit lock/serialization guard exists in the failing prototype write path, with concurrency injected by test `ThreadPoolExecutor`,
-  - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE ‚Äî READY FOR REPAIR PLAN`.
+  - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE ó READY FOR REPAIR PLAN`.
 - [2026-05-31] Pass 112 memory accept race repair plan recorded in `docs/audits/phase14/pass112_memory_accept_race_repair_plan.md`:
   - selects `services/src/blackskies/services/memory_prototype/storage.py` as the primary repair candidate and keeps `services/src/blackskies/services/io.py` conditional-only,
   - plans to serialize `ensure_scaffold()` with a prototype-local lock and preserve scaffold-write idempotence instead of changing the global atomic-write primitive,
@@ -3672,7 +3684,7 @@ Backlog note drifted after phase-log cleanup.
   - preserves the same diagnostic meaning by recording the trace immediately after the state update with the captured previous/next scene ids and project-switch generation token,
   - keeps scene-selection, project-switch, hydration, and authority behavior unchanged,
   - confirms `pnpm --filter app test` and `pnpm --filter app build` stay green and the targeted Playwright contract now passes all but the existing readiness test,
-  - records that `startup_authority_contract ‚Ä∫ action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.
+  - records that `startup_authority_contract õ action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.
 - [2026-06-01] Pass 126 no-scene false-ready repair plan recorded in `docs/audits/phase14/pass126_no_scene_false_ready_repair_plan.md`:
   - identifies the `NO_SCENE_FALSE_READY` failure as a real readiness bug, not test drift and not the Pass 123 instrumentation regression,
   - maps action readiness ownership to `App.tsx` gates, with the critical dependency being `sceneReadyForActions = Boolean(activeSceneId)`,
