@@ -17,7 +17,10 @@ Current enforcement covers these high-signal docs:
 - `docs/specs/model_runtime.md`
 - `docs/specs/feature_maturity_migration.md`
 - `docs/specs/agents_and_services.md`
-- `docs/roadmap.md`
+- `docs/BLACK_SKIES_FIX_TRACKER.md`
+- `docs/roadmap/master_phase_allocation_plan.md`
+- `docs/roadmap/deferred_work_matrix.md`
+- `docs/roadmap/authority_reconciliation_strategy.md`
 - `docs/phases/phase_charter.md`
 - `docs/deferred/voice_notes_transcription.md`
 - `docs/deferred/smart_merge_tool.md`
@@ -47,7 +50,11 @@ Canon runtime docs:
 - `docs/specs/model_runtime.md`
 
 Planning docs:
-- `docs/roadmap.md`
+- `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status
+- `docs/roadmap/master_phase_allocation_plan.md` for phase sequencing
+- `docs/roadmap/deferred_work_matrix.md` for deferred allocation
+- `docs/roadmap/authority_reconciliation_strategy.md` for authority doctrine
+- `docs/roadmap.md` as a legacy planning snapshot
 - `docs/phases/phase_charter.md`
 
 Deferred/planned feature docs:

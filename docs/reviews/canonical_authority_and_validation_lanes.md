@@ -1,23 +1,25 @@
 # Canonical Authority and Validation Lanes
 
+Status: Historical / superseded guidance
+
 ## Purpose
-This document reduces false confidence by naming which docs are authoritative, which are derivative or transitional, and what each validation lane does and does not prove.
+This document reduces false confidence by naming which docs were treated as authoritative in the older snapshot model, which are derivative or transitional, and what each validation lane does and does not prove.
 
 ## Canonical Authority Map
 
 | Area | Canonical source | Supporting sources | Non-canonical / derivative / transitional sources | Known conflicts or ambiguity |
 | --- | --- | --- | --- | --- |
 | Phased scope | `docs/phases/phase_charter.md` | `docs/specs/architecture.md`, `docs/BUILD_PLAN.md` | `docs/phase_bridge.md`, `docs/phases/README.md`, review docs, archive docs | `docs/BUILD_PLAN.md` has historically over-claimed authority; treat it as supporting implementation context, not scope authority. |
-| Current status / phase progress | `docs/roadmap.md` for the snapshot, with `phase_log.md` as the dated ledger | `docs/phases/phase_log.md` | `docs/BUILD_PLAN.md`, `docs/phase_bridge.md`, review docs | `phase_log.md`, `docs/roadmap.md`, and `docs/phases/phase_charter.md` overlap on status language; the roadmap is the current snapshot, while the phase logs record locked history. |
+| Current status / phase progress | `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status, with `docs/phases/phase_log.md` as the dated ledger | `docs/roadmap/master_phase_allocation_plan.md`, `docs/phases/phase_charter.md` | `docs/BUILD_PLAN.md`, `docs/phase_bridge.md`, review docs | Older snapshot-era docs still overlap on status language; use the tracker for live status and the master plan for sequencing. |
 | Architecture boundaries | `docs/specs/architecture.md` | `docs/specs/data_model.md`, `docs/specs/endpoints.md`, `docs/specs/agents_and_services.md`, `docs/gui/gui_layouts.md` | `docs/BUILD_PLAN.md`, `docs/phase_bridge.md`, review docs | `docs/BUILD_PLAN.md` references architecture work but does not override the spec. |
 | Testing / validation guidance | `docs/reviews/canonical_authority_and_validation_lanes.md` for lane meanings; `docs/reviews/test_taxonomy_and_truth_matrix.md` for current classification; `docs/reviews/truth_lane_definition_and_gap_report.md` for the current truth-lane path; `docs/reviews/preload_hook_inventory_and_containment.md` for hook containment; `docs/tests.md` as a practical guide | `docs/ops/repo_hygiene.md`, `docs/phases/phase_charter.md`, `docs/roadmap.md` | `docs/tests.md` when read as an older gate map, smoke-only launchers, UI-only harness docs, review artifacts | `docs/tests.md` should not be treated as the source of lane truth; the taxonomy matrix, truth gap report, and preload hook inventory are the classification references. |
 | Operational hygiene guidance | `docs/ops/repo_hygiene.md` | `.gitignore`, repo hygiene scripts, local hook installer docs | generated reports, backup files, cache directories, review artifacts | Hygiene policy is stable; generated artifacts should not be treated as active documentation. |
 
 ## Current Authority Conflicts
 
-- `phase_log.md`, `docs/roadmap.md`, and `docs/phases/phase_charter.md` overlap on scope and status wording.
+- Older snapshot-era docs overlapped on scope and status wording.
 - `docs/phases/README.md` combines index language with authority claims, which can make it sound more canonical than it is.
-- `docs/BUILD_PLAN.md` still reads like a broad authoritative roadmap even though the phase charter and roadmap are the stronger live references.
+- `docs/BUILD_PLAN.md` still reads like a broad authoritative roadmap even though the tracker and master plan are the stronger live references.
 - `docs/tests.md` is an older gate map and can be mistaken for current validation authority.
 - `docs/phase_bridge.md` is transition guidance, not live scope authority.
 

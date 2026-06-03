@@ -13,13 +13,24 @@ This guide is a pointer document. It should direct readers to canonical runtime 
 3. `docs/specs/model_runtime.md`
 4. Runtime code cited by those documents
 
-## Use these for planning, not runtime truth
+## Use these for current planning and status
+
+1. `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status
+2. `docs/roadmap/master_phase_allocation_plan.md` for phase sequencing
+3. `docs/roadmap/deferred_work_matrix.md` for deferred-work allocation
+4. `docs/roadmap/authority_reconciliation_strategy.md` for authority doctrine
+5. `docs/phases/phase_charter.md` for phase scope
+6. `docs/phases/phase_log.md` for dated history
+
+## Use these for supporting planning references
 
 - `docs/roadmap.md`
 - `docs/phases/phase_charter.md`
 - `docs/phases/phase_log.md`
 - phase-specific planning docs under `docs/phases/`
 - deferred docs under `docs/deferred/`
+
+`docs/roadmap.md` is a legacy planning snapshot and should be read as background unless a later pass intentionally revives it.
 
 ## Use these as historical/prototype references only
 

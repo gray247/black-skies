@@ -6,7 +6,7 @@ Authority: this document is a broad implementation map and dependency/planning r
 
 > **Purpose**
 > This document is a broad implementation map for Black Skies, including the full phase sequence, goals, dependencies, exit criteria, and feature mapping.
-> It is not the canonical scope or current-status authority; use `docs/phases/phase_charter.md` for phase scope and `docs/roadmap.md` / `phase_log.md` for current status and lock history.
+> It is not the canonical scope or current-status authority; use `docs/phases/phase_charter.md` for phase scope, `docs/BLACK_SKIES_FIX_TRACKER.md` for current status, `docs/roadmap/master_phase_allocation_plan.md` for sequencing, and `docs/phases/phase_log.md` for dated history.
 
 ---
 

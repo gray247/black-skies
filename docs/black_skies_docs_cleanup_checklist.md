@@ -10,7 +10,10 @@ Use these instead for live truth:
 - `docs/specs/current_state.md`
 - `docs/specs/memory_runtime.md`
 - `docs/specs/model_runtime.md`
-- `docs/roadmap.md` for planning status
+- `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status
+- `docs/roadmap/master_phase_allocation_plan.md` for phase sequencing
+- `docs/roadmap/deferred_work_matrix.md` for deferred-work allocation
+- `docs/roadmap/authority_reconciliation_strategy.md` for authority doctrine
 - `docs/phases/phase_charter.md` for future scope
 
 ## Legend
@@ -71,7 +74,7 @@ You can also add `(#issue-number)` or PR links after each item.
 
 ### 2.1 Establish a Single “Book of Record” for Phases
 
-- [x] 🔴 Pick one master doc for phase-level intent (**candidate: `phase_charter.md` or `BUILD_PLAN.md` as the source of truth**).
+- [x] 🔴 Pick one master doc for phase-level intent (**current split: `phase_charter.md` for scope, `BLACK_SKIES_FIX_TRACKER.md` for status, `master_phase_allocation_plan.md` for sequencing**).
 - [x] 🔴 For every phase-related doc (`phase9_charter`, `phase10_recovery_pipeline`, `phase11_export_pipeline`, `phase9_11_testplan`, etc.):
   - [x] Ensure each has a **“Source of Truth”** line at the top that points back to the master phase map.
   - [x] Confirm that **status / scope / out-of-scope** match the master view.

@@ -1,11 +1,14 @@
-Status: Active roadmap / status authority, not runtime authority
-Version: 1.1.0
-Last Reviewed: 2026-05-06
+Status: Legacy roadmap snapshot / not current live status authority
+Version: 1.1.1
+Last Reviewed: 2026-06-03
 
 # Roadmap
 
-Authority note: this file is the single planning and status authority for phase progress.
-It is not runtime authority. For runtime truth, use `build/runtime_truth.json` and `docs/specs/current_state.md`.
+Authority note: this file is a legacy planning snapshot for phase progress.
+It is not current live status authority. For current operational status, use `docs/BLACK_SKIES_FIX_TRACKER.md`.
+For phase sequencing, use `docs/roadmap/master_phase_allocation_plan.md`.
+For deferred allocation, use `docs/roadmap/deferred_work_matrix.md`.
+For runtime truth, use `build/runtime_truth.json` and `docs/specs/current_state.md`.
 
 Related planning docs:
 - Scope authority: `docs/phases/phase_charter.md`

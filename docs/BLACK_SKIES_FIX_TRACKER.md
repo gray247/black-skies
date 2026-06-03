@@ -61,7 +61,22 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - recommends Phase 19 - Roadmap / Deferred Ledger Reconciliation as the next checkpoint after baseline recovery,
   - keeps speculative and low-priority deferred items parked while pulling wrapper/CWD, continuity, restore/backup, and GUI authority items back into near-term roadmap attention,
   - avoids reopening the closed scene-authority and snapshot-timeout lanes and keeps launch / port hygiene watch-only.
-- [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
+- [2026-06-03] Pass 141 roadmap authority audit and deferred ledger source inventory recorded in docs/audits/phase19/pass141_roadmap_authority_audit.md:
+  - classifies docs/roadmap/master_phase_allocation_plan.md, docs/roadmap/deferred_work_matrix.md, docs/roadmap/authority_reconciliation_strategy.md, and docs/BLACK_SKIES_FIX_TRACKER.md as the current authoritative core for roadmap sequencing, deferred allocation, proof doctrine, and live status,
+  - marks docs/phases/phase_log.md as historical-only and docs/roadmap.md as legacy status snapshot material with stale live-authority claims,
+  - keeps docs/memory-lab/roadmap.md separate as branch-specific planning rather than repo-wide roadmap authority until the workstream intentionally switches programs.
+- [2026-06-03] Pass 142 roadmap source inventory and contradiction register recorded in `docs/audits/phase19/pass142_source_inventory_and_contradiction_register.md`:
+  - inventories the current authority stack, deferred-work sources, historical-only material, and branch-specific Memory Lab planning without editing the authority docs themselves,
+  - records the live contradiction set between the tracker/master-plan authority split and stale pointer docs such as `docs/roadmap.md`, `docs/phases/phase_charter.md`, `docs/phases/phase_log.md`, `docs/BUILD_PLAN.md`, `docs/phases/README.md`, `docs/reviews/canonical_authority_and_validation_lanes.md`, and the Phase 28 authority-map artifacts,
+  - prepares Phase 19.3 controlled roadmap docs alignment and keeps the next edit surface bounded to the live authority pointers first.
+- [2026-06-03] Pass 144 secondary roadmap reference cleanup sweep recorded in `docs/audits/phase19/pass144_secondary_roadmap_reference_cleanup_sweep.md`:
+  - cleans the remaining secondary guidance docs that still pointed readers at the older roadmap / phase-log split, including `docs/agent_reading_guide.md`, `docs/policies/runtime_truth_policy.md`, and `docs/black_skies_docs_cleanup_checklist.md`,
+  - replaces those references with the current authority stack while preserving the historical sections and legacy roadmap snapshot framing,
+  - records the bounded follow-up as a historical-reference label pass only if contributors continue to confuse archival guidance with live authority.
+- [2026-06-03] Pass 143 controlled roadmap docs alignment recorded in `docs/audits/phase19/pass143_controlled_roadmap_docs_alignment.md`:
+  - updates the live pointer docs so `docs/roadmap.md` is clearly legacy/historical instead of claiming single current status authority,
+  - redirects current operational status to `docs/BLACK_SKIES_FIX_TRACKER.md`, phase sequencing to `docs/roadmap/master_phase_allocation_plan.md`, deferred allocation to `docs/roadmap/deferred_work_matrix.md`, and history to `docs/phases/phase_log.md`,
+  - marks the canonical authority/validation lanes review as historical/superseded guidance and updates the ops and phase-index pointers to the current authority stack.- [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
   - accepts the recovery lane with a narrow caveat that validation proves the renderer/test contract, not full human GUI smoke.

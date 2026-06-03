@@ -11,7 +11,8 @@ Authority note:
 - This document is not runtime authority.
 - It does not define current runtime truth or current shipped status.
 - Runtime truth: `build/runtime_truth.json` and `docs/specs/current_state.md`.
-- Current phase status: `docs/roadmap.md`.
+- Current operational status: `docs/BLACK_SKIES_FIX_TRACKER.md`.
+- Phase sequencing: `docs/roadmap/master_phase_allocation_plan.md`.
 - History ledger: `docs/phases/phase_log.md`.
 
 ## P7 - Release candidate baseline

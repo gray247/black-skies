@@ -5,7 +5,8 @@ Last Reviewed: 2026-04-19
 # Phase log - change history
 
 Authority note: this file is dated history only.
-- Current status authority: `docs/roadmap.md`
+- Current operational status: `docs/BLACK_SKIES_FIX_TRACKER.md`
+- Phase sequencing: `docs/roadmap/master_phase_allocation_plan.md`
 - Scope authority: `docs/phases/phase_charter.md`
 - Runtime authority: `build/runtime_truth.json` and canon runtime docs
 
@@ -21,4 +22,4 @@ Authority note: this file is dated history only.
 ## Formatting and usage
 - Keep entries dated and factual.
 - Do not use this file as live status authority.
-- Track active status changes in `docs/roadmap.md`.
+- Track active status changes in `docs/BLACK_SKIES_FIX_TRACKER.md`.

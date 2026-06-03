@@ -5,7 +5,7 @@ Last Reviewed: 2025-11-05
 # Phase Documentation
 
 Authority note: this folder is an active phase index for P8-P11, not the full authority hierarchy.
-Start with `phase_charter.md` for scope, use `docs/roadmap.md` for the current status snapshot, and use `phase_log.md` for dated history. `docs/BUILD_PLAN.md` is supporting implementation context, not the scope authority.
+Start with `phase_charter.md` for scope, use `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status, use `docs/roadmap/master_phase_allocation_plan.md` for phase sequencing, and use `phase_log.md` for dated history. `docs/BUILD_PLAN.md` is supporting implementation context, not the scope authority.
 
 Canonical docs:
 - `phase_charter.md`
