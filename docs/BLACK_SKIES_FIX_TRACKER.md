@@ -85,6 +85,22 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - reverts `app/tests/e2e/phase5-export-integrity-flow.spec.ts` to its pre-Pass147 state because that test change was outside the authorized Pass 147 slice,
   - preserves the restore-as-copy runtime implementation from Pass 147 unchanged and keeps the monitoring caveats from Pass 148 intact,
   - confirms the correction pass is green across `git diff --check`, `pnpm lint:docs`, `python -m pytest services/tests/unit/test_restore_service.py services/tests/test_backups.py services/tests/test_app.py -k "restore or backup"` (`21 passed, 66 deselected`), `pnpm --filter app test` (`59 files passed / 335 tests passed`), and `pnpm --filter app build`.
+- [2026-06-03] Pass 150 restore-as-copy human retest failure intake recorded in `docs/audits/phase15/pass150_restore_as_copy_human_retest_failure_intake.md`:
+  - records that the observed `Request timed out after 45000ms` came from the generic health probe in `useServiceHealth`, not from the restore-as-copy request path,
+  - notes that `backups/restore` already uses a dedicated `300_000ms` preload timeout, so the failure is not evidence of a restore eligibility regression or a generic restore timeout bug,
+  - classifies the incident as a health-probe false cascade with an unresolved restore outcome and recommends targeted restore repro before any commit decision.
+- [2026-06-03] Pass 151 restore-as-copy targeted repro evidence plan recorded in `docs/audits/phase15/pass151_restore_as_copy_targeted_repro_evidence_plan.md`:
+  - confirms the restore request already has a dedicated `300_000ms` timeout budget in `app/main/preload.ts`, while the observed `45000ms` failure came from the generic service-health probe path,
+  - defines the exact browser-console, backend-log, health-endpoint, and filesystem checks needed to separate restore completion from health-cascade behavior,
+  - keeps instrumentation unnecessary for now and recommends a targeted human repro before any new runtime correction decision.
+- [2026-06-03] Pass 152 restore-as-copy health-cascade repair plan recorded in `docs/audits/phase15/pass152_restore_as_copy_health_cascade_repair_plan.md`:
+  - classifies the observed false-offline / timeout behavior as restore-request starvation of the health probe path rather than an eligibility failure,
+  - recommends the smallest safe repair as backend offload of the long restore work, with only a narrow renderer health-cascade guard if the false-offline state still appears during restore-in-progress,
+  - keeps the dedicated restore timeout contract intact and avoids the full async-job redesign or global health-timeout inflation.
+- [2026-06-03] Pass 153 restore-as-copy health-cascade implementation recorded in `docs/audits/phase15/pass153_restore_as_copy_health_cascade_implementation.md`:
+  - offloads the ZIP restore route in `services/src/blackskies/services/routers/restore.py` with `run_in_threadpool`, keeps the existing backup-restore offload path intact, and moves restored-copy validation off the request path as well,
+  - adds a narrow restore-in-progress renderer guard so `useServiceHealth` does not flip the UI to offline while a known restore-as-copy operation is active, preventing the false offline / success contradiction observed during human retest,
+  - proves `/api/v1/healthz` responsiveness during long restore activity with new backend concurrency tests for both `/api/v1/backups/restore` and `/api/v1/restore`, and revalidates the change set with `python -m pytest services/tests/unit/test_restore_service.py services/tests/test_backups.py services/tests/test_app.py -k "restore or backup"` (`23 passed, 66 deselected`), `pnpm --filter app test` (`59 files passed / 336 tests passed`), `pnpm --filter app build`, `git diff --check`, and `pnpm lint:docs`.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
@@ -282,7 +298,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-05-27] Pre-Pass-44 governance integrity audit recorded in `docs/audits/phase13/pass41_43_governance_integrity_audit.md`:
   - audits Passes 41-43 as the gate before Arc 3 / Pass 44 and records that Pass 44 has not begun,
   - patches the Pass 43 schema and Pass 40 control-map wording to clarify that `VC-###` and `RS-###` are reserved ID families, not itemized registers yet,
-  - recommends `PATCHED ó READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
+  - recommends `PATCHED ‚Äî READY FOR PASS 44` with Pass 44 still limited to Safe Maintenance Lane Hardening and without reopening implementation, roadmap rewrite, workflow-state canon, command/search, topology, Story Unit persistence, structural retrieval, recovery execution, diagnostics expansion, or product copy.
 - [2026-05-27] Roadmap reconstruction Pass 44 recorded in `docs/audits/phase13/pass44_safe_maintenance_lane_hardening.md`:
   - hardens the Safe Maintenance Lane as operational governance rather than feature work by requiring maintenance impact metadata, lightweight evidence for `no impact` claims, reusable before/after checklist use, `Blocked Areas Not Touched`, and `Discovered But Not Fixed` reporting,
   - updates `docs/audits/reconstruction_dependency_and_authority_map_pass40.md` to advance `DG-010` to stabilized-for-planning status for current-arc maintenance governance, advance `GD-011` to partially reconstructed, and keep `SM-001` through `SM-008` maintenance-safe only when Pass 44 evidence and checklist rules are satisfied,
@@ -2305,7 +2321,7 @@ Last Updated: 2026-04-30
   - expected impact: reduce `Missing X server/$DISPLAY`, platform-init, and chrome-sandbox launch failures that cascade into readiness/beforeEach timeouts.
 - 2026-04-23 - Codex - CI verification run #242 (`3c0c6ec`) confirms HARNESS_ONLY failure count drop from prior 23 failed / 2 skipped (run #241) to 15 failed / 2 skipped / 8 passed.
 - 2026-04-23 - Codex - First remaining failure cluster is now functional/UI-harness behavior, not launcher bring-up:
-  - first listed failing test in HARNESS_ONLY summary: `tests/e2e/budget-meter.spec.ts` (`HARNESS_ONLY: Budget meter (packaged) õ updates immediately after critique`),
+  - first listed failing test in HARNESS_ONLY summary: `tests/e2e/budget-meter.spec.ts` (`HARNESS_ONLY: Budget meter (packaged) ‚Ä∫ updates immediately after critique`),
   - additional remaining failures include missing/hidden UI anchors (`wizard-root`, pane title visibility), bridge-health expectation mismatch in `truth.real-service.spec.ts`, and missing visual snapshot baseline in `visual.home.spec.ts`.
 - 2026-04-23 - Codex - Budget-meter cluster fix:
   - refactored `budget-meter.spec.ts` to apply harness overrides both immediately (`page.evaluate`) and on future navigations (`page.addInitScript`) via shared helper,
@@ -2498,9 +2514,9 @@ Last Updated: 2026-04-30
   - `pnpm exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts -g "budget_indicator_flow|budget_guardrail_smoke" --project=electron --workers=1` passed,
   - `budget-meter.spec.ts` still asserts deterministic preflight readiness and the strict `$0.02 / $10.00` post-critique budget label.
 
-## PASS 5 ó Fixture Authority & Scene Selection Stability
+## PASS 5 ‚Äî Fixture Authority & Scene Selection Stability
 
-### Section 1 ó Fixture Contract Authority
+### Section 1 ‚Äî Fixture Contract Authority
 - Status: RESOLVED
 - Root cause: E2E and truth lanes referenced different or non-existent sample project paths. `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` were not reliably materialized in CI.
 - Fix: introduced shared materializer `scripts/materialize_e2e_fixture.mjs`.
@@ -2511,7 +2527,7 @@ Last Updated: 2026-04-30
   - workflow verifies filesystem state immediately after materialization.
 - Key invariant: `No Playwright or truth execution occurs unless fixture contract is valid`
 
-### Section 2 ó Scene Selection Authority
+### Section 2 ‚Äî Scene Selection Authority
 - Status: RESOLVED
 - Root cause: tests used event-only or DOM-based selection paths that did not guarantee commit to `App` active scene state.
 - Authority map:
@@ -2536,7 +2552,7 @@ Last Updated: 2026-04-30
     - commit marker missing
 - Key invariant: `Active scene is only considered selected when committed marker is set`
 
-### Section 3 ó Large File / Coupling Risk
+### Section 3 ‚Äî Large File / Coupling Risk
 - Status: NEW FINDING
 - Observation: `App.tsx` and `preload.ts` are large enough that full inspection is truncated in terminal/debug output.
 - Risk:
@@ -2547,7 +2563,7 @@ Last Updated: 2026-04-30
   - document the selection authority map above.
   - add a targeted regression test that enforces the canonical authority contract below.
   - prefer small, explicit test APIs over indirect DOM/event paths.
-- Classification: `High-coupling authority zone ó requires explicit contract tests`
+- Classification: `High-coupling authority zone ‚Äî requires explicit contract tests`
 - Selection authority regression guard:
   - wait for selection hook readiness: `typeof window.__blackSkiesSelectScene === "function"`
   - execute: `const result = window.__dev.selectScene("sc_0001")`
@@ -2569,7 +2585,7 @@ Last Updated: 2026-04-30
   - DOM presence of corkboard cards is not proof
   - event dispatch alone is not proof
 
-### Section 4 ó Current System State
+### Section 4 ‚Äî Current System State
 - Fixture contract: enforced and deterministic
 - Analytics preflight: reliable gate
 - Scene selection: routed through canonical authority
@@ -2585,7 +2601,7 @@ Last Updated: 2026-04-30
   - large-file coupling
   - future contract drift
 
-### Section 5 ó Repository Hygiene Note
+### Section 5 ‚Äî Repository Hygiene Note
 - Status: NON-FUNCTIONAL / UNRELATED WORKSPACE ARTIFACT
 - Observation: `git status` shows a pre-existing deleted path: `D "ted memory docs, services, and tests\\"`.
 - Scope: this deletion was not introduced by the current fixture or scene-selection fixes.
@@ -2648,7 +2664,7 @@ Operational doc was not updated after dev launcher migration.
 - Last Updated: 2026-04-21
 
 #### Description
-Multiple active docs contained mojibake characters (`ó`, `ì`, `î`).
+Multiple active docs contained mojibake characters (`‚Äî`, `‚Äú`, `‚Äù`).
 
 #### Known Facts
 - `docs/phase_bridge.md` and `docs/ops/start_codex_gui_notes.md` were remediated in this pass.
@@ -3621,7 +3637,7 @@ Backlog note drifted after phase-log cleanup.
   - maps prototype acceptance/read-eligibility ownership to `memory_prototype/canonical_state_reader.py` and lineage contract ownership to `memory_prototype/schemas.py`,
   - maps persistence ownership to `memory_prototype/storage.py` with low-level replace ownership in `services/src/blackskies/services/io.py`,
   - confirms no explicit lock/serialization guard exists in the failing prototype write path, with concurrency injected by test `ThreadPoolExecutor`,
-  - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE ó READY FOR REPAIR PLAN`.
+  - classifies the failure as prototype-lane + Windows environment risk (not baseline runtime owner) and marks the lane `OWNERSHIP MAP COMPLETE ‚Äî READY FOR REPAIR PLAN`.
 - [2026-05-31] Pass 112 memory accept race repair plan recorded in `docs/audits/phase14/pass112_memory_accept_race_repair_plan.md`:
   - selects `services/src/blackskies/services/memory_prototype/storage.py` as the primary repair candidate and keeps `services/src/blackskies/services/io.py` conditional-only,
   - plans to serialize `ensure_scaffold()` with a prototype-local lock and preserve scaffold-write idempotence instead of changing the global atomic-write primitive,
@@ -3706,7 +3722,7 @@ Backlog note drifted after phase-log cleanup.
   - preserves the same diagnostic meaning by recording the trace immediately after the state update with the captured previous/next scene ids and project-switch generation token,
   - keeps scene-selection, project-switch, hydration, and authority behavior unchanged,
   - confirms `pnpm --filter app test` and `pnpm --filter app build` stay green and the targeted Playwright contract now passes all but the existing readiness test,
-  - records that `startup_authority_contract õ action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.
+  - records that `startup_authority_contract ‚Ä∫ action readiness contract` still fails with `NO_SCENE_FALSE_READY`, which remains a separate scene-authority bug outside this narrow regression fix.
 - [2026-06-01] Pass 126 no-scene false-ready repair plan recorded in `docs/audits/phase14/pass126_no_scene_false_ready_repair_plan.md`:
   - identifies the `NO_SCENE_FALSE_READY` failure as a real readiness bug, not test drift and not the Pass 123 instrumentation regression,
   - maps action readiness ownership to `App.tsx` gates, with the critical dependency being `sceneReadyForActions = Boolean(activeSceneId)`,

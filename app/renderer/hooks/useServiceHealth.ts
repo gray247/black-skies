@@ -29,12 +29,17 @@ interface UseServiceHealthResult {
 declare global {
   interface Window {
     __testEnv?: { isPlaywright?: boolean };
+    __restoreOperationInProgress?: boolean;
   }
 }
 
 const windowWithTestEnv =
   typeof window !== 'undefined'
     ? (window as Window & { __testEnv?: { isPlaywright?: boolean } })
+    : undefined;
+const windowWithRestoreFlag =
+  typeof window !== 'undefined'
+    ? (window as Window & { __restoreOperationInProgress?: boolean })
     : undefined;
 
 const RETRY_THROTTLE_MS = 1_000;
@@ -229,13 +234,16 @@ export function useServiceHealth(
 
   const handleFailure = useCallback(
     (error?: ServiceError | null, portIssue = false) => {
-      logFailure(error);
       if (!mountedRef.current) {
         return;
       }
       if (dominantOffline) {
         return;
       }
+      if (windowWithRestoreFlag?.__restoreOperationInProgress === true) {
+        return;
+      }
+      logFailure(error);
       const nextForceOffline = initialPortUnavailable ? true : false;
       void commitHealthSnapshot({
         status: 'offline',

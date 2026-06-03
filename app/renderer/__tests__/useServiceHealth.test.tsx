@@ -49,6 +49,8 @@ function Harness({
 
 describe('useServiceHealth', () => {
   afterEach(() => {
+    delete (window as typeof window & { __restoreOperationInProgress?: boolean })
+      .__restoreOperationInProgress;
     vi.restoreAllMocks();
   });
 
@@ -127,6 +129,40 @@ describe('useServiceHealth', () => {
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('offline'));
     await waitFor(() => expect(screen.getByTestId('port-flag')).toHaveTextContent('true'));
     expect(screen.getByTestId('error')).toHaveTextContent('Backend service port is unavailable.');
+  });
+
+  it('keeps the latest service status stable while a restore is in progress', async () => {
+    const services = {
+      checkHealth: vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          data: { status: 'online' },
+          traceId: 'trace-online',
+        } satisfies ServiceHealthResponse)
+        .mockResolvedValueOnce({
+          ok: false,
+          error: {
+            message: 'Request timed out after 45000ms',
+            code: 'TIMEOUT',
+            traceId: 'trace-timeout',
+          },
+        }),
+      exportProject: vi.fn(),
+    } as ServicesBridge;
+
+    render(<Harness services={services} />);
+
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('online'));
+
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+    (window as typeof window & { __restoreOperationInProgress?: boolean }).__restoreOperationInProgress =
+      true;
+    fireEvent.click(screen.getByTestId('retry-button'));
+
+    await waitFor(() => expect(services.checkHealth).toHaveBeenCalledTimes(2));
+    expect(screen.getByTestId('status')).toHaveTextContent('online');
+    expect(screen.getByTestId('error')).toHaveTextContent('');
   });
 
   it('registers and cleans up shared test listeners outside stable-home mode', async () => {

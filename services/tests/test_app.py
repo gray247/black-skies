@@ -3062,6 +3062,115 @@ def test_restore_from_zip_preserves_copy_when_cleanup_fails(
     assert preserved_path.exists()
 
 
+def test_restore_from_zip_keeps_healthz_responsive_during_restore(
+    test_client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_id = "proj_restore_zip_health"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "project.json").write_text(
+        json.dumps({"project_id": project_id, "name": "Restore ZIP Health"}),
+        encoding="utf-8",
+    )
+    (project_root / "outline.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "OutlineSchema v1",
+                "outline_id": "out_001",
+                "acts": ["Act I"],
+                "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                "scenes": [
+                    {
+                        "id": "sc_0001",
+                        "order": 1,
+                        "title": "Scene 1",
+                        "chapter_id": "ch_0001",
+                        "beat_refs": [],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    (exports_dir / "demo_export.zip").write_bytes(b"placeholder")
+
+    started = threading.Event()
+    release = threading.Event()
+    restored_dir = project_root.parent / f"{project_id}_restored_20260603_120001"
+
+    def _restore_from_zip(
+        project_root_arg: str,
+        zip_name: str,
+        *,
+        restore_as_new: bool,
+        project_id: str,
+    ) -> dict[str, Any]:
+        started.set()
+        assert release.wait(timeout=5), "restore test was not released"
+        restored_dir.mkdir(parents=True, exist_ok=True)
+        return {
+            "status": "ok",
+            "restored_project_slug": restored_dir.name,
+            "restored_path": str(restored_dir),
+            "operation": {
+                "source_kind": "zip-archive",
+                "archive_path": str(project_root / "exports" / zip_name),
+                "destination_path": str(restored_dir),
+                "elapsed_ms": 5000,
+                "completion_status": "validated-success",
+                "validation_status": "passed",
+                "cleanup_status": "not-needed",
+                "degraded_reasons": [],
+            },
+        }
+
+    def _validate_restored_copy(*, settings, diagnostics, restored_path, operation):
+        return True, {
+            **operation,
+            "validation_status": "passed",
+            "completion_status": "validated-success",
+            "cleanup_status": "not-needed",
+            "degraded_reasons": [],
+        }
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.restore.restore_from_zip",
+        _restore_from_zip,
+    )
+    monkeypatch.setattr(
+        "blackskies.services.routers.restore.validate_restored_copy",
+        _validate_restored_copy,
+    )
+
+    response_holder: dict[str, object] = {}
+
+    def _run_restore() -> None:
+        response_holder["response"] = test_client.post(
+            f"{API_PREFIX}/restore",
+            json={"projectId": project_id, "zipName": "demo_export.zip", "restoreAsNew": True},
+        )
+
+    restore_thread = threading.Thread(target=_run_restore, daemon=True)
+    restore_thread.start()
+
+    assert started.wait(timeout=5)
+
+    health_started = time.monotonic()
+    health_response = test_client.get(f"{API_PREFIX}/healthz")
+    health_elapsed = time.monotonic() - health_started
+    assert health_response.status_code == 200
+    assert health_elapsed < 2
+
+    release.set()
+    restore_thread.join(timeout=5)
+    assert "response" in response_holder
+    response = response_holder["response"]
+    assert response.status_code == 200
+    assert restored_dir.exists()
+
+
 def test_recovery_restore_normalises_legacy_flag(test_client: TestClient, tmp_path: Path) -> None:
     """Restoring snapshots clears stale recovery flags that predate status fields."""
 

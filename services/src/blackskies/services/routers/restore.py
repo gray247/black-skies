@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+from fastapi.concurrency import run_in_threadpool
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -82,7 +83,8 @@ async def restore_project(
     claim_scope = "restored-copy-materialized-from-zip"
     restore_target_name = payload.zipName or "<latest>"
     if payload.zipName:
-        result = restore_from_zip(
+        result = await run_in_threadpool(
+            restore_from_zip,
             project_root,
             payload.zipName,
             restore_as_new=payload.restoreAsNew,
@@ -95,7 +97,8 @@ async def restore_project(
             claim_scope = "restored-copy-materialized-from-backup-archive"
             restore_target_name = latest_backup_name
             try:
-                result = backup_service.restore_backup(
+                result = await run_in_threadpool(
+                    backup_service.restore_backup,
                     project_id=payload.projectId,
                     backup_name=latest_backup_name,
                     restore_as_new=payload.restoreAsNew,
@@ -123,7 +126,8 @@ async def restore_project(
                     detail="No ZIP archives found for this project",
                 )
             restore_target_name = zip_name
-            result = restore_from_zip(
+            result = await run_in_threadpool(
+                restore_from_zip,
                 project_root,
                 zip_name,
                 restore_as_new=payload.restoreAsNew,
@@ -147,7 +151,8 @@ async def restore_project(
 
     restored_path_value = result.get("restored_path")
     if restored_path_value:
-        is_valid, validation_payload = validate_restored_copy(
+        is_valid, validation_payload = await run_in_threadpool(
+            validate_restored_copy,
             settings=settings,
             diagnostics=diagnostics,
             restored_path=restored_path_value,

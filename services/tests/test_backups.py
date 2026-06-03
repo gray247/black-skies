@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import threading
+import time
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
@@ -132,6 +134,89 @@ def test_backup_restore_creates_restored_project(test_client: TestClient) -> Non
     assert (restored_dir / "project.json").exists()
     assert (restored_dir / "outline.json").exists()
     assert (restored_dir / "drafts").exists()
+
+
+def test_backup_restore_keeps_healthz_responsive_during_restore(
+    test_client: TestClient, monkeypatch
+) -> None:
+    project_id = "proj_backup_restore_health"
+    project_root = _seed_project(_project_base_dir(test_client), project_id)
+
+    payload = _create_backup(test_client, project_id)
+    backup_name = Path(payload["path"]).name
+    restored_dir = project_root.parent / f"{project_id}_restored_20260603_120000"
+    started = threading.Event()
+    release = threading.Event()
+
+    def _restore_backup(
+        self,
+        *,
+        project_id: str,
+        backup_name: str,
+        restore_as_new: bool = True,
+    ):
+        started.set()
+        assert release.wait(timeout=5), "restore test was not released"
+        restored_dir.mkdir(parents=True, exist_ok=True)
+        return {
+            "status": "ok",
+            "restored_project_slug": restored_dir.name,
+            "restored_path": str(restored_dir),
+            "operation": {
+                "source_kind": "backup-bundle",
+                "archive_path": str(_project_base_dir(test_client) / "backups" / backup_name),
+                "destination_path": str(restored_dir),
+                "elapsed_ms": 5000,
+                "completion_status": "validated-success",
+                "validation_status": "passed",
+                "cleanup_status": "not-needed",
+                "degraded_reasons": [],
+            },
+        }
+
+    def _validate_restored_copy(*, settings, diagnostics, restored_path, operation):
+        return True, {
+            **operation,
+            "validation_status": "passed",
+            "completion_status": "validated-success",
+            "cleanup_status": "not-needed",
+            "degraded_reasons": [],
+        }
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.backups.BackupService.restore_backup",
+        _restore_backup,
+    )
+    monkeypatch.setattr(
+        "blackskies.services.routers.backups.validate_restored_copy",
+        _validate_restored_copy,
+    )
+
+    response_holder: dict[str, object] = {}
+
+    def _run_restore() -> None:
+        response_holder["response"] = test_client.post(
+            "/api/v1/backups/restore",
+            json={"projectId": project_id, "backupName": backup_name, "restoreAsNew": True},
+        )
+
+    restore_thread = threading.Thread(target=_run_restore, daemon=True)
+    restore_thread.start()
+
+    assert started.wait(timeout=5)
+
+    health_started = time.monotonic()
+    health_response = test_client.get("/api/v1/healthz")
+    health_elapsed = time.monotonic() - health_started
+    assert health_response.status_code == 200
+    assert health_elapsed < 2
+
+    release.set()
+    restore_thread.join(timeout=5)
+    assert "response" in response_holder
+    response = response_holder["response"]
+    assert response.status_code == 200
+    assert restored_dir.exists()
 
 
 def test_backup_listing_returns_created_entries(test_client: TestClient) -> None:

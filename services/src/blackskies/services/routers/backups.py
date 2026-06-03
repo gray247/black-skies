@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastapi.concurrency import run_in_threadpool
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field, ValidationError
 
@@ -144,14 +145,16 @@ async def restore_backup(
 
     backup_service = BackupService(settings=settings, diagnostics=diagnostics)
     try:
-        result = backup_service.restore_backup(
+        result = await run_in_threadpool(
+            backup_service.restore_backup,
             project_id=request_model.projectId,
             backup_name=request_model.backupName,
             restore_as_new=request_model.restoreAsNew,
         )
         restored_path_value = result.get("restored_path")
         if isinstance(restored_path_value, str):
-            is_valid, validation_payload = validate_restored_copy(
+            is_valid, validation_payload = await run_in_threadpool(
+                validate_restored_copy,
                 settings=settings,
                 diagnostics=diagnostics,
                 restored_path=restored_path_value,

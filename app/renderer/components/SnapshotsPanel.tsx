@@ -109,6 +109,14 @@ const resolvePreservedRestorePath = (error: ServiceError | undefined): string | 
   return typeof destinationPath === 'string' && destinationPath.length > 0 ? destinationPath : null;
 };
 
+const setRestoreOperationInProgress = (inProgress: boolean): void => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  (window as typeof window & { __restoreOperationInProgress?: boolean }).__restoreOperationInProgress =
+    inProgress;
+};
+
 const isPreservedDegradedRestore = (error: ServiceError | undefined): boolean => {
   const details = readOperationErrorDetails(error?.details);
   return details?.operation?.completion_status === 'degraded-preserved';
@@ -800,6 +808,7 @@ export default function SnapshotsPanel({
       return;
     }
 
+    setRestoreOperationInProgress(true);
     setRestoringBackup(backupName);
     try {
       const response = await services.restoreBackup({
@@ -901,6 +910,7 @@ export default function SnapshotsPanel({
         description: `Your current project was not changed. ${message}`.trim(),
       });
     } finally {
+      setRestoreOperationInProgress(false);
       setRestoringBackup(null);
       setBackupRestoreConfirmOpen(false);
       setPendingRestoreBackupName(null);
@@ -918,6 +928,7 @@ export default function SnapshotsPanel({
       return;
     }
 
+    setRestoreOperationInProgress(true);
     setRestoringZip(true);
     pushToast({
       tone: 'info',
@@ -1016,6 +1027,7 @@ export default function SnapshotsPanel({
             : undefined,
       });
     } finally {
+      setRestoreOperationInProgress(false);
       setRestoringZip(false);
       setRestoreConfirmOpen(false);
     }
