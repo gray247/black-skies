@@ -69,6 +69,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - inventories the current authority stack, deferred-work sources, historical-only material, and branch-specific Memory Lab planning without editing the authority docs themselves,
   - records the live contradiction set between the tracker/master-plan authority split and stale pointer docs such as `docs/roadmap.md`, `docs/phases/phase_charter.md`, `docs/phases/phase_log.md`, `docs/BUILD_PLAN.md`, `docs/phases/README.md`, `docs/reviews/canonical_authority_and_validation_lanes.md`, and the Phase 28 authority-map artifacts,
   - prepares Phase 19.3 controlled roadmap docs alignment and keeps the next edit surface bounded to the live authority pointers first.
+- [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
+  - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
+  - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
+  - recommends the restore-as-copy eligibility contract as the first implementation lane inside the selected arc.
 - [2026-06-03] Pass 144 secondary roadmap reference cleanup sweep recorded in `docs/audits/phase19/pass144_secondary_roadmap_reference_cleanup_sweep.md`:
   - cleans the remaining secondary guidance docs that still pointed readers at the older roadmap / phase-log split, including `docs/agent_reading_guide.md`, `docs/policies/runtime_truth_policy.md`, and `docs/black_skies_docs_cleanup_checklist.md`,
   - replaces those references with the current authority stack while preserving the historical sections and legacy roadmap snapshot framing,
