@@ -57,6 +57,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - closes the baseline recovery / maintenance arc after the scene-switching, snapshot-timeout, and remaining human validation items were accepted or passed,
   - preserves the item 12 offline / online caveat as monitoring-only and keeps launch / port hygiene as a watch item rather than a new lane,
   - points the next checkpoint at defining the next forward-build phase from the recovered baseline.
+- [2026-06-03] Pass 140 recovered baseline roadmap checkpoint recorded in docs/audits/phase14/pass140_recovered_baseline_roadmap_checkpoint.md:
+  - recommends Phase 19 - Roadmap / Deferred Ledger Reconciliation as the next checkpoint after baseline recovery,
+  - keeps speculative and low-priority deferred items parked while pulling wrapper/CWD, continuity, restore/backup, and GUI authority items back into near-term roadmap attention,
+  - avoids reopening the closed scene-authority and snapshot-timeout lanes and keeps launch / port hygiene watch-only.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
