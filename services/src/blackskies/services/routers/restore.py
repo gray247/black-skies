@@ -61,7 +61,7 @@ class RestoreRequest(BaseModel):
 
     projectId: str = Field(..., description="Project identifier")
     zipName: Optional[str] = Field(None, description="Specific ZIP file inside exports/")
-    restoreAsNew: Optional[bool] = Field(True, description="Always create a new project folder")
+    restoreAsNew: bool = Field(..., description="Always create a new project folder")
 
 
 @router.post("", status_code=status.HTTP_200_OK)
@@ -82,7 +82,12 @@ async def restore_project(
     claim_scope = "restored-copy-materialized-from-zip"
     restore_target_name = payload.zipName or "<latest>"
     if payload.zipName:
-        result = restore_from_zip(project_root, payload.zipName)
+        result = restore_from_zip(
+            project_root,
+            payload.zipName,
+            restore_as_new=payload.restoreAsNew,
+            project_id=payload.projectId,
+        )
     else:
         backup_service = BackupService(settings=settings, diagnostics=diagnostics)
         latest_backup_name = backup_service.latest_backup_name(project_id=payload.projectId)
@@ -90,7 +95,11 @@ async def restore_project(
             claim_scope = "restored-copy-materialized-from-backup-archive"
             restore_target_name = latest_backup_name
             try:
-                result = backup_service.restore_backup(backup_name=latest_backup_name)
+                result = backup_service.restore_backup(
+                    project_id=payload.projectId,
+                    backup_name=latest_backup_name,
+                    restore_as_new=payload.restoreAsNew,
+                )
             except FileNotFoundError as exc:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -114,16 +123,26 @@ async def restore_project(
                     detail="No ZIP archives found for this project",
                 )
             restore_target_name = zip_name
-            result = restore_from_zip(project_root, zip_name)
+            result = restore_from_zip(
+                project_root,
+                zip_name,
+                restore_as_new=payload.restoreAsNew,
+                project_id=payload.projectId,
+            )
     if result.get("status") != "ok":
         logger.error("Restore failed for %s: %s", restore_target_name, result.get("message"))
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "code": "VALIDATION",
-                "message": result.get("message") or "Restore failed",
-                "details": {"operation": result.get("operation"), "source": restore_target_name},
+        raise_validation_error(
+            message=result.get("message") or "Restore failed",
+            details={
+                "operation": result.get("operation"),
+                "source": restore_target_name,
+                "eligibility_decision": result.get("eligibility_decision"),
+                "blocked_reasons": (result.get("eligibility_decision") or {}).get(
+                    "blocked_reasons", []
+                ),
             },
+            diagnostics=diagnostics,
+            project_root=None,
         )
 
     restored_path_value = result.get("restored_path")

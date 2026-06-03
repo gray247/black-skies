@@ -4,6 +4,7 @@ import type {
   BackupVerificationReport,
   ServiceError,
   ServicesBridge,
+  RestoreCopyEligibilityDecision,
   SnapshotVerificationSummary,
 } from '../../shared/ipc/services';
 import type { ServiceStatus } from '../components/ServiceStatusPill';
@@ -111,6 +112,50 @@ const resolvePreservedRestorePath = (error: ServiceError | undefined): string | 
 const isPreservedDegradedRestore = (error: ServiceError | undefined): boolean => {
   const details = readOperationErrorDetails(error?.details);
   return details?.operation?.completion_status === 'degraded-preserved';
+};
+
+const readRestoreEligibilityDecision = (
+  details: unknown,
+): RestoreCopyEligibilityDecision | null => {
+  if (!details || typeof details !== 'object') {
+    return null;
+  }
+  const payload = details as {
+    eligibility_decision?: RestoreCopyEligibilityDecision;
+    blocked_reasons?: string[];
+    [key: string]: unknown;
+  };
+  if (payload.eligibility_decision && typeof payload.eligibility_decision === 'object') {
+    const decision = payload.eligibility_decision as RestoreCopyEligibilityDecision;
+    return Array.isArray(decision.blocked_reasons) ? decision : null;
+  }
+  return Array.isArray(payload.blocked_reasons)
+    ? {
+        eligible: payload.blocked_reasons.length === 0,
+        blocked_reasons: payload.blocked_reasons,
+      }
+    : null;
+};
+
+const describeRestoreBlockedReasons = (blockedReasons: string[]): string => {
+  const labels: Record<string, string> = {
+    missing_source: 'source is missing',
+    unreadable_source: 'source is unreadable',
+    ambiguous_source_kind: 'source kind is ambiguous',
+    missing_manifest: 'required manifest files are missing',
+    invalid_manifest: 'manifest evidence is invalid',
+    checksum_unavailable: 'checksum evidence is unavailable',
+    checksum_mismatch: 'checksum evidence does not match',
+    scope_mismatch: 'source scope does not match the current project',
+    destination_exists: 'the destination already exists',
+    destination_unavailable: 'the destination cannot be created',
+    overwrite_not_allowed: 'copy restore overwrite is not allowed',
+    backend_unavailable: 'backend services are unavailable',
+    policy_blocked: 'policy blocked the restore',
+  };
+  return blockedReasons
+    .map((reason) => labels[reason] ?? reason)
+    .join(', ');
 };
 
 export default function SnapshotsPanel({
@@ -757,8 +802,22 @@ export default function SnapshotsPanel({
 
     setRestoringBackup(backupName);
     try {
-      const response = await services.restoreBackup({ backupName });
+      const response = await services.restoreBackup({
+        projectId,
+        backupName,
+        restoreAsNew: true,
+      });
       if (!response.ok) {
+        const eligibilityDecision = readRestoreEligibilityDecision(response.error?.details);
+        if (eligibilityDecision?.blocked_reasons?.length) {
+          pushToast({
+            tone: 'warning',
+            title: 'Backup restore not available',
+            description: `The selected backup is not eligible for copy restore. ${describeRestoreBlockedReasons(eligibilityDecision.blocked_reasons)}`.trim(),
+            traceId: response.traceId ?? response.error?.traceId,
+          });
+          return;
+        }
         if (isPreservedDegradedRestore(response.error)) {
           const preservedPath = resolvePreservedRestorePath(response.error);
           pushToast({
@@ -872,6 +931,16 @@ export default function SnapshotsPanel({
         restoreAsNew: true,
       });
       if (!response.ok) {
+        const eligibilityDecision = readRestoreEligibilityDecision(response.error?.details);
+        if (eligibilityDecision?.blocked_reasons?.length) {
+          pushToast({
+            tone: 'warning',
+            title: 'Restore not available',
+            description: `The selected ZIP is not eligible for copy restore. ${describeRestoreBlockedReasons(eligibilityDecision.blocked_reasons)}`.trim(),
+            traceId: response.traceId ?? response.error?.traceId,
+          });
+          return;
+        }
         if (isPreservedDegradedRestore(response.error)) {
           const preservedPath = resolvePreservedRestorePath(response.error);
           pushToast({
@@ -1091,7 +1160,9 @@ export default function SnapshotsPanel({
                           !services?.restoreBackup
                         }
                       >
-                        {restoringBackup === entry.filename ? 'Restoring...' : 'Restore backup'}
+                        {restoringBackup === entry.filename
+                          ? 'Restoring...'
+                          : 'Restore backup as copy'}
                       </button>
                     </div>
                   </li>
@@ -1332,7 +1403,7 @@ export default function SnapshotsPanel({
             aria-modal="true"
             aria-label={`Confirm restore backup ${pendingRestoreBackupName}`}
           >
-            <h3>Restore backup {pendingRestoreBackupName}</h3>
+            <h3>Restore backup as copy {pendingRestoreBackupName}</h3>
             <p>
               This creates a new sibling copy of the current project from the selected backup.
               Existing project folders are not overwritten.
@@ -1350,7 +1421,9 @@ export default function SnapshotsPanel({
                 onClick={handleConfirmBackupRestore}
                 disabled={restoringBackup === pendingRestoreBackupName}
               >
-                {restoringBackup === pendingRestoreBackupName ? 'Restoring...' : 'Restore backup'}
+                {restoringBackup === pendingRestoreBackupName
+                  ? 'Restoring...'
+                  : 'Restore backup as copy'}
               </button>
             </div>
           </div>

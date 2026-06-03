@@ -1841,7 +1841,7 @@ export const serviceApi = {
     makeServiceCall<RestoreFromZipResponse>('restore', 'POST', {
       projectId: request.projectId,
       ...(request.zipName ? { zipName: request.zipName } : {}),
-      ...(request.restoreAsNew !== undefined ? { restoreAsNew: request.restoreAsNew } : {}),
+      restoreAsNew: request.restoreAsNew,
     }),
   analyticsSummary: (projectId: string, forceRefresh = false) => {
     const params = new URLSearchParams({ project_id: projectId });
@@ -1874,7 +1874,9 @@ export const serviceApi = {
   },
   restoreBackup: (request: BackupRestoreBridgeRequest) =>
     makeServiceCall<BackupRestoreBridgeResponse>('backups/restore', 'POST', {
+      projectId: request.projectId,
       backupName: request.backupName,
+      restoreAsNew: request.restoreAsNew,
     }),
   exportProject: (request: ProjectExportBridgeRequest) =>
     makeServiceCall<ProjectExportBridgeResponse>('export', 'POST', {

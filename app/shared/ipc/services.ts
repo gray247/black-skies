@@ -268,6 +268,22 @@ export interface RestoreAuthorityObservation {
   does_not_imply: string[];
 }
 
+export interface RestoreCopyEligibilityDecision {
+  eligible: boolean;
+  blocked_reasons: string[];
+  warnings?: string[];
+  source_kind?: string | null;
+  source_name?: string;
+  source_scope?: string | null;
+  source_project_id?: string | null;
+  expected_project_id?: string | null;
+  restore_as_new?: boolean;
+  current_project_root?: string;
+  destination_preview?: string | null;
+  checksum_state?: string | null;
+  checks?: Record<string, boolean | string | null>;
+}
+
 export interface RestoreSemanticContext {
   current_project_files_replaced?: boolean;
   restored_copy_materialized?: boolean;
@@ -344,7 +360,9 @@ export interface BackupListBridgeRequest {
 export type BackupListBridgeResponse = BackupSummary[];
 
 export interface BackupRestoreBridgeRequest {
+  projectId: string;
   backupName: string;
+  restoreAsNew: boolean;
 }
 
 export interface BackupRestoreBridgeResponse {
@@ -352,6 +370,7 @@ export interface BackupRestoreBridgeResponse {
   restored_path?: string;
   restored_project_slug?: string;
   message?: string;
+  eligibility_decision?: RestoreCopyEligibilityDecision;
   operation?: RestoreOperationMetadata;
   restore_observation?: RestoreAuthorityObservation;
   restore_semantic_context?: RestoreSemanticContext;
@@ -493,7 +512,7 @@ export interface ProjectExportBridgeResponse {
 export interface RestoreFromZipRequest {
   projectId: string;
   zipName?: string;
-  restoreAsNew?: boolean;
+  restoreAsNew: boolean;
 }
 
 export interface RestoreFromZipResponse {
@@ -502,6 +521,7 @@ export interface RestoreFromZipResponse {
   restored_project_slug?: string;
   message?: string;
   details?: unknown;
+  eligibility_decision?: RestoreCopyEligibilityDecision;
   operation?: RestoreOperationMetadata;
   restore_observation?: RestoreAuthorityObservation;
   restore_semantic_context?: RestoreSemanticContext;

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query, status
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from ..backup_service import BackupService
 from ..config import ServiceSettings
@@ -54,7 +54,9 @@ class BackupCreateRequest(BaseModel):
 
 
 class BackupRestoreRequest(BaseModel):
+    projectId: str
     backupName: str
+    restoreAsNew: bool = Field(..., description="Always create a new project folder")
 
 
 @router.post("", status_code=status.HTTP_200_OK)
@@ -142,7 +144,11 @@ async def restore_backup(
 
     backup_service = BackupService(settings=settings, diagnostics=diagnostics)
     try:
-        result = backup_service.restore_backup(backup_name=request_model.backupName)
+        result = backup_service.restore_backup(
+            project_id=request_model.projectId,
+            backup_name=request_model.backupName,
+            restore_as_new=request_model.restoreAsNew,
+        )
         restored_path_value = result.get("restored_path")
         if isinstance(restored_path_value, str):
             is_valid, validation_payload = validate_restored_copy(
@@ -159,6 +165,21 @@ async def restore_backup(
                     project_root=None,
                 )
             result["operation"] = validation_payload
+        if result.get("status") != "ok":
+            raise_validation_error(
+                message=result.get("message") or "Backup restore failed.",
+                details={
+                    "backupName": request_model.backupName,
+                    "projectId": request_model.projectId,
+                    "operation": result.get("operation"),
+                    "eligibility_decision": result.get("eligibility_decision"),
+                    "blocked_reasons": (result.get("eligibility_decision") or {}).get(
+                        "blocked_reasons", []
+                    ),
+                },
+                diagnostics=diagnostics,
+                project_root=None,
+            )
         result["restore_observation"] = _restore_observation(
             claim_scope="restored-copy-materialized-from-backup-archive"
         )

@@ -15,7 +15,11 @@ from typing import Any
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
-from .restore_service import _create_destination, _restore_operation_payload
+from .restore_service import (
+    _create_destination,
+    _restore_operation_payload,
+    evaluate_restore_as_copy_eligibility,
+)
 from .utils.paths import to_posix
 
 BACKUP_FILENAME_TEMPLATE = "BS_{timestamp}.zip"
@@ -33,6 +37,31 @@ def _hashfile(path: Path) -> str:
         for chunk in iter(lambda: handle.read(8192), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _validate_backup_checksums(
+    *, manifest_dir: Path, checksum_payload: dict[str, Any]
+) -> bool:
+    files = checksum_payload.get("files")
+    if not isinstance(files, list):
+        return False
+
+    for entry in files:
+        if not isinstance(entry, dict):
+            return False
+        relative_path = entry.get("path")
+        checksum = entry.get("checksum")
+        if not isinstance(relative_path, str) or not relative_path:
+            return False
+        if not isinstance(checksum, str) or not checksum:
+            return False
+        file_path = manifest_dir / relative_path
+        if not file_path.is_file():
+            return False
+        if _hashfile(file_path) != checksum:
+            return False
+
+    return True
 
 
 class BackupService:
@@ -150,19 +179,230 @@ class BackupService:
         latest_name = entries[0].get("filename")
         return latest_name if isinstance(latest_name, str) and latest_name else None
 
-    def restore_backup(self, *, backup_name: str) -> dict[str, Any]:
+    def restore_backup(
+        self,
+        *,
+        project_id: str,
+        backup_name: str,
+        restore_as_new: bool | None = True,
+    ) -> dict[str, Any]:
         backup_root = self._settings.backups_dir
         backup_path = backup_root / backup_name
+        destination_parent = self._settings.project_base_dir
+        current_project_root = self._settings.project_base_dir / project_id
+        destination_preview = _create_destination(str(destination_parent), project_id)
+
         if not backup_path.exists():
-            raise FileNotFoundError(backup_path)
+            eligibility = evaluate_restore_as_copy_eligibility(
+                source_kind="backup-bundle",
+                source_name=backup_name,
+                restore_as_new=restore_as_new,
+                current_project_root=str(current_project_root),
+                destination_path=destination_preview,
+                source_exists=False,
+                source_readable=False,
+                source_project_id=None,
+                expected_project_id=project_id,
+                manifest_present=False,
+                manifest_valid=False,
+                checksum_state="unavailable",
+                checksum_required=True,
+                destination_exists=os.path.exists(destination_preview),
+                destination_parent_exists=destination_parent.exists(),
+                source_scope="project-backups",
+            )
+            return {
+                "status": "error",
+                "message": "backup bundle not found",
+                "eligibility_decision": eligibility,
+                "operation": _restore_operation_payload(
+                    source_kind="backup-bundle",
+                    archive_path=backup_path,
+                    destination_path=Path(destination_preview),
+                    elapsed_ms=0,
+                    failure_phase="archive-open",
+                    completion_status="blocked" if not eligibility["eligible"] else "failed",
+                    cleanup_status="completed",
+                ),
+            }
 
         temp_dir = Path(tempfile.mkdtemp())
         started_at = time.perf_counter()
         try:
+            source_readable = False
+            source_project_id: str | None = None
+            checksum_state = "unavailable"
+            manifest_present = False
+            manifest_valid = False
+            project_data: dict[str, Any] | None = None
+
             with zipfile.ZipFile(backup_path) as archive:
+                source_readable = True
                 if BACKUP_CHECKSUMS not in archive.namelist():
-                    raise ValueError("Backup bundle is missing checksums.json")
-                archive.extractall(temp_dir)
+                    checksum_state = "unavailable"
+                    eligibility = evaluate_restore_as_copy_eligibility(
+                        source_kind="backup-bundle",
+                        source_name=backup_name,
+                        restore_as_new=restore_as_new,
+                        current_project_root=str(current_project_root),
+                        destination_path=destination_preview,
+                        source_exists=True,
+                        source_readable=source_readable,
+                        source_project_id=None,
+                        expected_project_id=project_id,
+                        manifest_present=False,
+                        manifest_valid=False,
+                        checksum_state=checksum_state,
+                        checksum_required=True,
+                        destination_exists=os.path.exists(destination_preview),
+                        destination_parent_exists=destination_parent.exists(),
+                        source_scope="project-backups",
+                    )
+                    return {
+                        "status": "error",
+                        "message": "Backup bundle is missing checksums.json",
+                        "eligibility_decision": eligibility,
+                        "operation": _restore_operation_payload(
+                            source_kind="backup-bundle",
+                            archive_path=backup_path,
+                            destination_path=Path(destination_preview),
+                            elapsed_ms=round((time.perf_counter() - started_at) * 1000),
+                            failure_phase="archive-open",
+                            completion_status="blocked" if not eligibility["eligible"] else "failed",
+                            cleanup_status="completed",
+                        ),
+                    }
+                else:
+                    archive.extractall(temp_dir)
+                    try:
+                        checksum_payload = json.loads(archive.read(BACKUP_CHECKSUMS).decode("utf-8"))
+                    except json.JSONDecodeError:
+                        checksum_state = "unavailable"
+                        eligibility = evaluate_restore_as_copy_eligibility(
+                            source_kind="backup-bundle",
+                            source_name=backup_name,
+                            restore_as_new=restore_as_new,
+                            current_project_root=str(current_project_root),
+                            destination_path=destination_preview,
+                            source_exists=True,
+                            source_readable=source_readable,
+                            source_project_id=None,
+                            expected_project_id=project_id,
+                            manifest_present=False,
+                            manifest_valid=False,
+                            checksum_state=checksum_state,
+                            checksum_required=True,
+                            destination_exists=os.path.exists(destination_preview),
+                            destination_parent_exists=destination_parent.exists(),
+                            source_scope="project-backups",
+                        )
+                        return {
+                            "status": "error",
+                            "message": "Backup bundle checksums.json is invalid",
+                            "eligibility_decision": eligibility,
+                            "operation": _restore_operation_payload(
+                                source_kind="backup-bundle",
+                                archive_path=backup_path,
+                                destination_path=Path(destination_preview),
+                                elapsed_ms=round((time.perf_counter() - started_at) * 1000),
+                                failure_phase="archive-open",
+                                completion_status="blocked" if not eligibility["eligible"] else "failed",
+                                cleanup_status="completed",
+                            ),
+                        }
+                    if not isinstance(checksum_payload, dict):
+                        checksum_state = "mismatch"
+                    else:
+                        checksum_state = "available"
+                        checksum_project_id = checksum_payload.get("project_id")
+                        if isinstance(checksum_project_id, str) and checksum_project_id.strip():
+                            source_project_id = checksum_project_id
+                        manifest_dir = _find_manifest_dir(temp_dir)
+                        manifest_present = manifest_dir is not None
+                        if manifest_dir is not None and _ensure_required_files(manifest_dir):
+                            project_json = manifest_dir / "project.json"
+                            try:
+                                with project_json.open("r", encoding="utf-8") as handle:
+                                    parsed_project = json.load(handle)
+                            except json.JSONDecodeError:
+                                manifest_valid = False
+                            else:
+                                if isinstance(parsed_project, dict):
+                                    project_data = parsed_project
+                                    manifest_valid = True
+                                    if source_project_id is None:
+                                        project_id_value = (
+                                            project_data.get("project_id") or project_data.get("slug")
+                                        )
+                                        if isinstance(project_id_value, str) and project_id_value.strip():
+                                            source_project_id = project_id_value
+                                    checksum_state = (
+                                        "available"
+                                        if _validate_backup_checksums(
+                                            manifest_dir=manifest_dir,
+                                            checksum_payload=checksum_payload,
+                                        )
+                                        else "mismatch"
+                                    )
+                                else:
+                                    manifest_valid = False
+                        else:
+                            manifest_valid = False
+
+            if source_project_id is None:
+                manifest_dir = _find_manifest_dir(temp_dir)
+                if manifest_dir is not None:
+                    if project_data is None:
+                        project_json = manifest_dir / "project.json"
+                        if project_json.exists():
+                            try:
+                                with project_json.open("r", encoding="utf-8") as handle:
+                                    parsed_project = json.load(handle)
+                            except json.JSONDecodeError:
+                                parsed_project = None
+                            if isinstance(parsed_project, dict):
+                                project_data = parsed_project
+                    if project_data is not None:
+                        project_id_value = project_data.get("project_id") or project_data.get("slug")
+                        if isinstance(project_id_value, str) and project_id_value.strip():
+                            source_project_id = project_id_value
+
+            parent = self._settings.project_base_dir
+            destination = _create_destination(str(parent), project_id)
+            eligibility = evaluate_restore_as_copy_eligibility(
+                source_kind="backup-bundle",
+                source_name=backup_name,
+                restore_as_new=restore_as_new,
+                current_project_root=str(current_project_root),
+                destination_path=destination,
+                source_exists=True,
+                source_readable=source_readable,
+                source_project_id=source_project_id,
+                expected_project_id=project_id,
+                manifest_present=manifest_present,
+                manifest_valid=manifest_valid,
+                checksum_state=checksum_state,
+                checksum_required=True,
+                destination_exists=os.path.exists(destination),
+                destination_parent_exists=destination_parent.exists(),
+                source_scope="project-backups",
+            )
+            if not eligibility["eligible"]:
+                return {
+                    "status": "error",
+                    "message": "restore-as-copy eligibility blocked",
+                    "eligibility_decision": eligibility,
+                    "operation": _restore_operation_payload(
+                        source_kind="backup-bundle",
+                        archive_path=backup_path,
+                        destination_path=Path(destination),
+                        elapsed_ms=round((time.perf_counter() - started_at) * 1000),
+                        failure_phase="eligibility",
+                        completion_status="blocked",
+                        cleanup_status="completed",
+                        degraded_reasons=list(eligibility["blocked_reasons"]),
+                    ),
+                }
 
             manifest_dir = _find_manifest_dir(temp_dir)
             if not manifest_dir:
@@ -171,18 +411,18 @@ class BackupService:
             if not _ensure_required_files(manifest_dir):
                 raise FileNotFoundError("Restored backup missing required files")
 
-            project_json = manifest_dir / "project.json"
-            if not project_json.exists():
-                raise FileNotFoundError("project.json missing in backup")
-
-            with project_json.open("r", encoding="utf-8") as handle:
-                project_data = json.load(handle)
-            if not isinstance(project_data, dict):
-                raise FileNotFoundError("project.json payload is invalid in backup")
+            if project_data is None:
+                project_json = manifest_dir / "project.json"
+                if not project_json.exists():
+                    raise FileNotFoundError("project.json missing in backup")
+                with project_json.open("r", encoding="utf-8") as handle:
+                    parsed_project = json.load(handle)
+                if not isinstance(parsed_project, dict):
+                    raise FileNotFoundError("project.json payload is invalid in backup")
+                project_data = parsed_project
             slug_value = project_data.get("project_id") or project_data.get("slug")
             slug = slug_value if isinstance(slug_value, str) and slug_value.strip() else "restored"
 
-            parent = self._settings.project_base_dir
             destination = _create_destination(str(parent), slug)
             shutil.move(str(manifest_dir), destination)
             destination_path = Path(destination)
@@ -191,6 +431,7 @@ class BackupService:
                 "status": "ok",
                 "restored_path": to_posix(Path(destination)),
                 "restored_project_slug": os.path.basename(destination),
+                "eligibility_decision": eligibility,
                 "operation": _restore_operation_payload(
                     source_kind="backup-bundle",
                     archive_path=backup_path,

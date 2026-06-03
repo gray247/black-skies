@@ -137,4 +137,49 @@ describe('SnapshotsPanel restore workflow', () => {
       expect(revealPath).toHaveBeenCalledWith('/tmp/demo_restored_bad');
     });
   });
+
+  it('surfaces blocked restore eligibility reasons for ZIP restores', async () => {
+    const restoreFromZip = vi.fn().mockResolvedValue({
+      ok: false,
+      traceId: 'trace-restore-blocked',
+      error: {
+        code: 'VALIDATION',
+        message: 'restore-as-copy eligibility blocked',
+        details: {
+          eligibility_decision: {
+            eligible: false,
+            blocked_reasons: ['missing_manifest', 'scope_mismatch'],
+          },
+        },
+      },
+    });
+    const pushToast = vi.fn();
+
+    render(
+      <SnapshotsPanel
+        projectId="demo"
+        projectPath="/projects/demo"
+        services={{ restoreFromZip } as ServicesBridge}
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /restore latest zip/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /^restore$/i }));
+
+    await waitFor(() =>
+      expect(pushToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tone: 'warning',
+          title: 'Restore not available',
+        }),
+      ),
+    );
+    expect(
+      pushToast.mock.calls.some((call) =>
+        String(call[0]?.description ?? '').includes('required manifest files are missing'),
+      ),
+    ).toBe(true);
+  });
 });

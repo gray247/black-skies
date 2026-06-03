@@ -110,7 +110,7 @@ def test_backup_restore_creates_restored_project(test_client: TestClient) -> Non
 
     restore_response = test_client.post(
         "/api/v1/backups/restore",
-        json={"backupName": backup_name},
+        json={"projectId": project_id, "backupName": backup_name, "restoreAsNew": True},
     )
     assert restore_response.status_code == 200
     restored = restore_response.json()
@@ -170,19 +170,66 @@ def test_backup_listing_orders_latest_first_for_project_restore_alignment(
 
 
 def test_backup_restore_rejects_bundle_without_checksums(test_client: TestClient) -> None:
+    project_id = "proj_bad_bundle"
     backups_dir = _project_base_dir(test_client) / "backups"
     backups_dir.mkdir(parents=True, exist_ok=True)
     archive_path = backups_dir / "BS_20260516_010101.zip"
     with zipfile.ZipFile(archive_path, "w") as archive:
-        archive.writestr("project.json", json.dumps({"project_id": "proj_bad_bundle"}))
+        archive.writestr("project.json", json.dumps({"project_id": project_id}))
         archive.writestr("outline.json", json.dumps({"schema_version": "OutlineSchema v1"}))
 
-    response = test_client.post("/api/v1/backups/restore", json={"backupName": archive_path.name})
+    response = test_client.post(
+        "/api/v1/backups/restore",
+        json={
+            "projectId": project_id,
+            "backupName": archive_path.name,
+            "restoreAsNew": True,
+        },
+    )
 
     assert response.status_code == 400
     payload = response.json()
     assert payload["code"] == "VALIDATION"
     assert payload["message"] == "Backup bundle is missing checksums.json"
+    assert "checksum_unavailable" in payload["details"]["eligibility_decision"]["blocked_reasons"]
+
+
+def test_backup_restore_blocks_scope_mismatch(test_client: TestClient) -> None:
+    project_id = "proj_backup_scope"
+    backups_dir = _project_base_dir(test_client) / "backups"
+    backups_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = backups_dir / "BS_20260516_010102.zip"
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.writestr(
+            "checksums.json",
+            json.dumps(
+                {
+                    "schema_version": "BackupChecksums v1",
+                    "project_id": "proj_other",
+                    "created_at": "2026-05-16T01:01:02Z",
+                    "files": [
+                        {"path": "project.json", "checksum": "deadbeef"},
+                        {"path": "outline.json", "checksum": "deadbeef"},
+                    ],
+                }
+            ),
+        )
+        archive.writestr("project.json", json.dumps({"project_id": "proj_other"}))
+        archive.writestr("outline.json", json.dumps({"schema_version": "OutlineSchema v1"}))
+
+    response = test_client.post(
+        "/api/v1/backups/restore",
+        json={
+            "projectId": project_id,
+            "backupName": archive_path.name,
+            "restoreAsNew": True,
+        },
+    )
+
+    assert response.status_code == 400
+    payload = response.json()
+    assert payload["code"] == "VALIDATION"
+    assert "scope_mismatch" in payload["details"]["eligibility_decision"]["blocked_reasons"]
 
 
 def test_backup_restore_cleans_invalid_materialized_copy(
@@ -204,7 +251,7 @@ def test_backup_restore_cleans_invalid_materialized_copy(
 
     restore_response = test_client.post(
         "/api/v1/backups/restore",
-        json={"backupName": backup_name},
+        json={"projectId": project_id, "backupName": backup_name, "restoreAsNew": True},
     )
 
     assert restore_response.status_code == 400

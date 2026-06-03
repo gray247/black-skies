@@ -989,10 +989,14 @@ it('renders backup list and triggers backup actions', async () => {
     name: /Confirm restore backup BS_20251119_120000\.zip/i,
   });
   expect(within(confirmModal).getByText(/creates a new sibling copy/i)).toBeInTheDocument();
-  fireEvent.click(within(confirmModal).getByRole('button', { name: /Restore backup/i }));
+  fireEvent.click(
+    within(confirmModal).getByRole('button', { name: /Restore backup as copy/i }),
+  );
   await waitFor(() =>
     expect(restoreBackup).toHaveBeenCalledWith({
+      projectId: 'proj',
       backupName: 'BS_20251119_120000.zip',
+      restoreAsNew: true,
     }),
   );
   await waitFor(() =>
@@ -1005,6 +1009,94 @@ it('renders backup list and triggers backup actions', async () => {
       }),
     ),
   );
+});
+
+it('surfaces blocked restore eligibility reasons for backup restores', async () => {
+  const listProjectSnapshots = vi.fn().mockResolvedValue({
+    ok: true,
+    data: [],
+  });
+  const getLastVerification = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      project_id: 'proj',
+      snapshots: [],
+    },
+  });
+  const listBackups = vi.fn().mockResolvedValue({
+    ok: true,
+    data: [
+      {
+        filename: 'BS_20251119_120000.zip',
+        project_id: 'proj',
+        path: 'backups/BS_20251119_120000.zip',
+        created_at: '2025-11-19T12:00:00Z',
+        checksum: 'def',
+      },
+    ],
+  });
+  const restoreBackup = vi.fn().mockResolvedValue({
+    ok: false,
+    error: {
+      code: 'VALIDATION',
+      message: 'restore-as-copy eligibility blocked',
+      details: {
+        eligibility_decision: {
+          eligible: false,
+          blocked_reasons: ['scope_mismatch', 'destination_exists'],
+        },
+      },
+    },
+    traceId: 'trace-restore-blocked',
+  });
+  const pushToast = vi.fn();
+
+  render(
+    <SnapshotsPanel
+      projectId="proj"
+      projectPath="/projects/proj"
+      services={
+        {
+          listProjectSnapshots,
+          getLastVerification,
+          listBackups,
+          restoreBackup,
+        } as Partial<ServicesBridge>
+      }
+      serviceStatus="online"
+      pushToast={pushToast}
+    />,
+  );
+
+  await waitFor(() => expect(listBackups).toHaveBeenCalledWith({ projectId: 'proj' }));
+
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Restore backup BS_20251119_120000\.zip/i }),
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Restore backup as copy/i }),
+  );
+
+  await waitFor(() =>
+    expect(restoreBackup).toHaveBeenCalledWith({
+      projectId: 'proj',
+      backupName: 'BS_20251119_120000.zip',
+      restoreAsNew: true,
+    }),
+  );
+  await waitFor(() =>
+    expect(pushToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tone: 'warning',
+        title: 'Backup restore not available',
+      }),
+    ),
+  );
+  expect(
+    pushToast.mock.calls.some((call) =>
+      String(call[0]?.description ?? '').includes('scope does not match the current project'),
+    ),
+  ).toBe(true);
 });
 
 it('surfaces actionable text when backup verification fails', async () => {

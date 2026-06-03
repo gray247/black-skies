@@ -314,6 +314,28 @@ describe('serviceApi', () => {
     );
   });
 
+  it('serializes restore-backup requests with copy eligibility fields', async () => {
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.restoreBackup?.({
+      projectId: 'proj_test',
+      backupName: 'BS_20260516_010101.zip',
+      restoreAsNew: true,
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/backups/restore',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj_test',
+          backupName: 'BS_20260516_010101.zip',
+          restoreAsNew: true,
+        }),
+      }),
+    );
+  });
+
   it('uses the restore-specific timeout budget for restore-from-zip requests', async () => {
     process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS = '50';
     const timeoutError = new Error('aborted');
@@ -429,7 +451,11 @@ describe('serviceApi', () => {
     fetchMock.mockRejectedValue(timeoutError);
 
     const serviceApi = await loadServiceApi();
-    const result = await serviceApi.restoreBackup?.({ backupName: 'BS_20260516_010101.zip' });
+    const result = await serviceApi.restoreBackup?.({
+      projectId: 'proj_test',
+      backupName: 'BS_20260516_010101.zip',
+      restoreAsNew: true,
+    });
 
     expect(result?.ok).toBe(false);
     if (result && !result.ok) {

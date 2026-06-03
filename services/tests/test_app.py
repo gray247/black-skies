@@ -2824,6 +2824,60 @@ def test_restore_from_zip_returns_copy_materialization_semantics(
     assert payload["restore_semantic_context"]["browseable_path_available"] is True
 
 
+def test_restore_from_zip_blocks_copy_overwrite_attempt(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Copy restore rejects unsafe overwrite intent before materialization."""
+
+    project_id = "proj_restore_zip_blocked"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+    scene_markdown = (project_root / "drafts" / "sc_0001.md").read_text(encoding="utf-8")
+
+    zip_path = exports_dir / "demo_export.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr(
+            "project.json",
+            json.dumps({"project_id": project_id, "name": "Restore ZIP Blocked"}),
+        )
+        archive.writestr(
+            "outline.json",
+            json.dumps(
+                {
+                    "schema_version": "OutlineSchema v1",
+                    "outline_id": "out_001",
+                    "acts": ["Act I"],
+                    "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                    "scenes": [
+                        {
+                            "id": "sc_0001",
+                            "order": 1,
+                            "title": "Scene 1",
+                            "chapter_id": "ch_0001",
+                            "beat_refs": [],
+                        }
+                    ],
+                }
+            ),
+        )
+        archive.writestr("drafts/sc_0001.md", scene_markdown)
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "zipName": "demo_export.zip", "restoreAsNew": False},
+    )
+
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["eligibility_decision"]["blocked_reasons"] == [
+        "overwrite_not_allowed"
+    ]
+
+
 def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
     test_client: TestClient, tmp_path: Path
 ) -> None:

@@ -69,6 +69,22 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - inventories the current authority stack, deferred-work sources, historical-only material, and branch-specific Memory Lab planning without editing the authority docs themselves,
   - records the live contradiction set between the tracker/master-plan authority split and stale pointer docs such as `docs/roadmap.md`, `docs/phases/phase_charter.md`, `docs/phases/phase_log.md`, `docs/BUILD_PLAN.md`, `docs/phases/README.md`, `docs/reviews/canonical_authority_and_validation_lanes.md`, and the Phase 28 authority-map artifacts,
   - prepares Phase 19.3 controlled roadmap docs alignment and keeps the next edit surface bounded to the live authority pointers first.
+- [2026-06-03] Pass 146 restore-as-copy eligibility contract plan recorded in `docs/audits/phase15/pass146_restore_as_copy_eligibility_contract_plan.md`:
+  - maps the current restore-as-copy behavior across `app/renderer/components/SnapshotsPanel.tsx`, `app/main/preload.ts`, `services/src/blackskies/services/routers/restore.py`, `services/src/blackskies/services/routers/backups.py`, `services/src/blackskies/services/restore_service.py`, and `services/src/blackskies/services/backup_service.py`,
+  - identifies the main contract gap as an implicit availability gate with no explicit preflight eligibility decision, plus an unused `restoreAsNew` field in the current frontend-to-backend contract,
+  - recommends the Phase 15.2 implementation lane as a shared restore-eligibility helper with blocked reasons, warnings, and destination preview before any runtime change.
+- [2026-06-03] Pass 147 restore-as-copy eligibility contract implementation recorded in `docs/audits/phase15/pass147_restore_as_copy_eligibility_contract_implementation.md`:
+  - adds the shared copy-restore eligibility helper and threads it through ZIP restore and backup restore before any sibling copy is materialized,
+  - requires explicit `restoreAsNew: true` on both restore-as-copy request paths, returns blocked reasons through validation errors, and keeps snapshot in-place recovery separate,
+  - validates green across targeted backend restore/backup tests, `pnpm --filter app test` (`59 files passed / 335 tests passed`), `pnpm --filter app build`, `python -m compileall services/src/blackskies/services`, `git diff --check`, and `pnpm lint:docs`.
+- [2026-06-03] Pass 148 restore-as-copy implementation caveat review recorded in `docs/audits/phase15/pass148_restore_as_copy_implementation_caveat_review.md`:
+  - classifies the ZIP checksum limitation and implicit restore-latest source precedence as monitoring-only or non-blocking caveats, not runtime blockers,
+  - flags the `app/tests/e2e/phase5-export-integrity-flow.spec.ts` spillover as a scope-boundary blocker for a clean commit pass even though the runtime restore contract remains green,
+  - recommends one small follow-up correction before commit so the pass boundary matches the authorized test slice.
+- [2026-06-03] Pass 149 restore-as-copy E2E spillover correction recorded in `docs/audits/phase15/pass149_restore_as_copy_e2e_spillover_correction.md`:
+  - reverts `app/tests/e2e/phase5-export-integrity-flow.spec.ts` to its pre-Pass147 state because that test change was outside the authorized Pass 147 slice,
+  - preserves the restore-as-copy runtime implementation from Pass 147 unchanged and keeps the monitoring caveats from Pass 148 intact,
+  - confirms the correction pass is green across `git diff --check`, `pnpm lint:docs`, `python -m pytest services/tests/unit/test_restore_service.py services/tests/test_backups.py services/tests/test_app.py -k "restore or backup"` (`21 passed, 66 deselected`), `pnpm --filter app test` (`59 files passed / 335 tests passed`), and `pnpm --filter app build`.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
@@ -80,28 +96,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - [2026-06-03] Pass 143 controlled roadmap docs alignment recorded in `docs/audits/phase19/pass143_controlled_roadmap_docs_alignment.md`:
   - updates the live pointer docs so `docs/roadmap.md` is clearly legacy/historical instead of claiming single current status authority,
   - redirects current operational status to `docs/BLACK_SKIES_FIX_TRACKER.md`, phase sequencing to `docs/roadmap/master_phase_allocation_plan.md`, deferred allocation to `docs/roadmap/deferred_work_matrix.md`, and history to `docs/phases/phase_log.md`,
-  - marks the canonical authority/validation lanes review as historical/superseded guidance and updates the ops and phase-index pointers to the current authority stack.- [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
+  - marks the canonical authority/validation lanes review as historical/superseded guidance and updates the ops and phase-index pointers to the current authority stack.
+- [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
   - accepts the recovery lane with a narrow caveat that validation proves the renderer/test contract, not full human GUI smoke.
-- [2026-05-30] Pass 100 renderer rewrite sync implementation recorded in `docs/audits/phase14/pass100_renderer_rewrite_sync_implementation.md`:
-  - restores the approved rewrite-sync contract with a test-only change in `app/renderer/__tests__/AppCritique.test.tsx`,
-  - replaces the mock's static draft fallback with a persistent visible-draft model so post-sync assertions reflect the approved visible contract instead of override-only persistence,
-  - keeps `useCritique.ts`, `App.tsx`, `ProjectHome.tsx`, and `draftPreviewSync.ts` untouched because the narrow proof and the full app suite both passed without runtime expansion.
-- [2026-05-30] Pass 99 renderer rewrite sync implementation authorization recorded in `docs/audits/phase14/pass99_renderer_rewrite_sync_implementation_authorization.md`:
-  - confirms the evidence chain is complete enough to authorize a bounded implementation lane,
-  - authorizes `AppCritique.test.tsx` as the first implementation target, keeps `useCritique.ts` and `App.tsx` conditional-only, and marks `ProjectHome.tsx` plus `draftPreviewSync.ts` unauthorized for the first repair move,
-  - fixes the required validation and guardrails for the later implementation pass so scope cannot widen without fresh evidence.
-- [2026-05-30] Pass 98 revised renderer rewrite sync implementation plan recorded in `docs/audits/phase14/pass98_revised_renderer_rewrite_sync_implementation_plan.md`:
-  - converts the Pass 97 review into a test-first implementation authorization with explicit expansion gates,
-  - classifies `AppCritique.test.tsx` as the primary implementation target, `useCritique.ts` and `App.tsx` as conditional-only targets, and rejects `ProjectHome.tsx` plus `draftPreviewSync.ts` for the first repair lane,
-  - defines the evidence required to widen beyond the failing test harness and the evidence that forbids widening.
-- [2026-05-30] Pass 97 renderer rewrite sync implementation plan review recorded in `docs/audits/phase14/pass97_renderer_rewrite_sync_implementation_plan_review.md`:
-  - challenges the Pass 96 repair lane as slightly broader than necessary,
-  - removes `ProjectHome.tsx` and `draftPreviewSync.ts` from the initial authorized implementation scope absent new evidence,
-  - classifies the bug as mixed with a strong test-harness component and recommends a test-first implementation lane with conditional expansion only into `useCritique.ts` or `App.tsx`.
-- [2026-05-30] Pass 96 renderer rewrite sync repair plan recorded in `docs/audits/phase14/pass96_renderer_rewrite_sync_repair_plan.md`:
-  - narrows the repair target to the post-sync visible draft invariant after `Sync draft view`,
   - keeps the intended contract anchored on visible rewritten draft correctness rather than permanent `draftEdits` residency,
   - limits the likely implementation seam to `useCritique.applyRewrite`, `App` draft normalization callbacks, and the failing `AppCritique` mock contract without authorizing state-model redesign.
 - [2026-05-30] Pass 95 renderer rewrite sync authority map recorded in `docs/audits/phase14/pass95_renderer_rewrite_sync_authority_map.md`:
