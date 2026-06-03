@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-28
+Last Reviewed: 2026-06-03
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -41,6 +41,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - implements the snapshot-specific bridge timeout (`120000ms`) for `POST /snapshots` and keeps the generic bridge timeout unchanged,
   - updates the renderer timeout branch to say the snapshot may still complete and to offer a refresh-snapshots action instead of claiming a definitive failure,
   - preserves backend behavior unchanged and records the focused renderer, bridge, backend snapshot, build, and docs validation results as green.
+- [2026-06-03] Pass 136 snapshot timeout human retest closure review recorded in `docs/audits/phase14/pass136_snapshot_timeout_human_retest_closure_review.md`:
+  - records the human retest outcome that Black Skies opened successfully after local launch cleanup and snapshot creation worked,
+  - closes the snapshot timeout defect with a monitoring caveat because the prior 45-second failure did not reproduce after the Pass 135 repair and the earlier launch trouble was attributed to port/process conflict rather than snapshot repair failure,
+  - recommends keeping launch / port hygiene as a separate follow-up lane if the startup conflict resurfaces, while leaving the snapshot timeout recovery lane closed.
 - [2026-05-30] Pass 101 renderer rewrite sync post-implementation audit recorded in `docs/audits/phase14/pass101_renderer_rewrite_sync_post_implementation_audit.md`:
   - confirms Pass 100 stayed inside the primary authorized test file and did not widen into any conditional or unauthorized runtime files,
   - confirms the targeted rewrite-sync lane and the full app suite both remain green on the committed implementation,
