@@ -124,6 +124,17 @@ def _dedupe_reasons(reasons: list[str]) -> list[str]:
     return ordered
 
 
+def _restore_source_label(
+    *, source_family: str | None, selection_mode: str | None
+) -> str | None:
+    if source_family not in {"backup-bundle", "export-zip"}:
+        return None
+    if selection_mode not in {"named", "latest"}:
+        return None
+    source_suffix = "backup" if source_family == "backup-bundle" else "zip"
+    return f"{selection_mode}-{source_suffix}"
+
+
 def _destination_overlaps_current_root(
     *, current_project_root: str, destination_path: str
 ) -> bool:
@@ -135,6 +146,8 @@ def _destination_overlaps_current_root(
 def evaluate_restore_as_copy_eligibility(
     *,
     source_kind: str | None,
+    source_family: str | None = None,
+    selection_mode: str | None = None,
     source_name: str,
     restore_as_new: bool | None,
     current_project_root: str,
@@ -155,10 +168,13 @@ def evaluate_restore_as_copy_eligibility(
     """Evaluate whether a copy restore is safe to materialize."""
 
     blocked_reasons: list[str] = []
+    resolved_source_family = source_family or source_kind
     checks = {
         "source_exists": source_exists,
         "source_readable": source_readable,
         "source_kind_explicit": bool(source_kind and str(source_kind).strip()),
+        "source_family_explicit": bool(resolved_source_family and str(resolved_source_family).strip()),
+        "selection_mode_explicit": bool(selection_mode and str(selection_mode).strip()),
         "restore_as_new_requested": restore_as_new is True,
         "manifest_present": manifest_present,
         "manifest_valid": manifest_valid,
@@ -168,6 +184,7 @@ def evaluate_restore_as_copy_eligibility(
         "destination_parent_exists": destination_parent_exists,
         "current_root_safe": True,
         "scope_matches": True,
+        "target_is_unique_sibling": True,
     }
 
     if not checks["source_kind_explicit"]:
@@ -195,30 +212,44 @@ def evaluate_restore_as_copy_eligibility(
 
     if not destination_parent_exists:
         blocked_reasons.append("destination_unavailable")
+        checks["target_is_unique_sibling"] = False
 
     if destination_path:
         if destination_exists:
             blocked_reasons.append("destination_exists")
+            checks["target_is_unique_sibling"] = False
         if _destination_overlaps_current_root(
             current_project_root=current_project_root,
             destination_path=destination_path,
         ):
             blocked_reasons.append("overwrite_not_allowed")
             checks["current_root_safe"] = False
+            checks["target_is_unique_sibling"] = False
     else:
         blocked_reasons.append("destination_unavailable")
+        checks["target_is_unique_sibling"] = False
 
     if policy_blocked_reason:
         blocked_reasons.append(policy_blocked_reason)
 
     blocked_reasons = _dedupe_reasons(blocked_reasons)
     destination_preview = to_posix(Path(destination_path)) if destination_path else None
+    source_label = _restore_source_label(
+        source_family=resolved_source_family,
+        selection_mode=selection_mode,
+    )
+    authority_state = "eligible" if not blocked_reasons else "blocked"
 
     return {
         "eligible": len(blocked_reasons) == 0,
         "blocked_reasons": blocked_reasons,
         "warnings": [],
         "source_kind": source_kind,
+        "source_family": resolved_source_family,
+        "selection_mode": selection_mode,
+        "source_label": source_label,
+        "authority_state": authority_state,
+        "target_semantics": "unique-sibling-copy",
         "source_name": source_name,
         "source_scope": source_scope,
         "source_project_id": source_project_id,
@@ -294,6 +325,7 @@ def restore_from_zip(
     *,
     restore_as_new: bool | None = True,
     project_id: str | None = None,
+    selection_mode: str | None = "named",
 ) -> Dict[str, Any]:
     """Extract a ZIP export into a new sibling folder without overwriting."""
     exports_dir = os.path.join(project_root, "exports")
@@ -307,6 +339,8 @@ def restore_from_zip(
         destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
+            source_family="export-zip",
+            selection_mode=selection_mode,
             source_name=os.path.basename(zip_filename),
             restore_as_new=restore_as_new,
             current_project_root=project_root,
@@ -351,6 +385,8 @@ def restore_from_zip(
             destination = _create_destination(parent, slug)
             eligibility = evaluate_restore_as_copy_eligibility(
                 source_kind="export-zip",
+                source_family="export-zip",
+                selection_mode=selection_mode,
                 source_name=os.path.basename(zip_filename),
                 restore_as_new=restore_as_new,
                 current_project_root=project_root,
@@ -440,6 +476,8 @@ def restore_from_zip(
         destination = _create_destination(parent, slug)
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
+            source_family="export-zip",
+            selection_mode=selection_mode,
             source_name=os.path.basename(zip_filename),
             restore_as_new=restore_as_new,
             current_project_root=project_root,
@@ -494,6 +532,8 @@ def restore_from_zip(
         destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
+            source_family="export-zip",
+            selection_mode=selection_mode,
             source_name=os.path.basename(zip_filename),
             restore_as_new=restore_as_new,
             current_project_root=project_root,
@@ -529,6 +569,8 @@ def restore_from_zip(
         destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
+            source_family="export-zip",
+            selection_mode=selection_mode,
             source_name=os.path.basename(zip_filename),
             restore_as_new=restore_as_new,
             current_project_root=project_root,

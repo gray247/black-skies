@@ -128,6 +128,11 @@ def test_backup_restore_creates_restored_project(test_client: TestClient) -> Non
     assert restored["operation"]["source_kind"] == "backup-bundle"
     assert restored["operation"]["completion_status"] == "validated-success"
     assert restored["operation"]["validation_status"] == "passed"
+    assert restored["eligibility_decision"]["source_family"] == "backup-bundle"
+    assert restored["eligibility_decision"]["selection_mode"] == "named"
+    assert restored["eligibility_decision"]["source_label"] == "named-backup"
+    assert restored["eligibility_decision"]["authority_state"] == "eligible"
+    assert restored["eligibility_decision"]["target_semantics"] == "unique-sibling-copy"
 
     restored_dir = project_root.parent / restored_slug
     assert restored_dir.exists()
@@ -154,6 +159,7 @@ def test_backup_restore_keeps_healthz_responsive_during_restore(
         project_id: str,
         backup_name: str,
         restore_as_new: bool = True,
+        selection_mode: str = "named",
     ):
         started.set()
         assert release.wait(timeout=5), "restore test was not released"
@@ -171,6 +177,45 @@ def test_backup_restore_keeps_healthz_responsive_during_restore(
                 "validation_status": "passed",
                 "cleanup_status": "not-needed",
                 "degraded_reasons": [],
+                "source_family": "backup-bundle",
+                "selection_mode": selection_mode,
+                "source_label": "named-backup",
+            },
+            "eligibility_decision": {
+                "eligible": True,
+                "blocked_reasons": [],
+                "warnings": [],
+                "source_kind": "backup-bundle",
+                "source_family": "backup-bundle",
+                "selection_mode": selection_mode,
+                "source_label": "named-backup",
+                "authority_state": "eligible",
+                "target_semantics": "unique-sibling-copy",
+                "source_name": backup_name,
+                "source_scope": "project-backups",
+                "source_project_id": project_id,
+                "expected_project_id": project_id,
+                "restore_as_new": True,
+                "current_project_root": str(project_root),
+                "destination_preview": str(restored_dir),
+                "checksum_state": "available",
+                "checks": {
+                    "source_exists": True,
+                    "source_readable": True,
+                    "source_kind_explicit": True,
+                    "source_family_explicit": True,
+                    "selection_mode_explicit": True,
+                    "restore_as_new_requested": True,
+                    "manifest_present": True,
+                    "manifest_valid": True,
+                    "checksum_state": "available",
+                    "checksum_required": True,
+                    "destination_exists": False,
+                    "destination_parent_exists": True,
+                    "current_root_safe": True,
+                    "scope_matches": True,
+                    "target_is_unique_sibling": True,
+                },
             },
         }
 

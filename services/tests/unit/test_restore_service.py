@@ -30,6 +30,11 @@ def test_restore_from_zip_creates_unique_subfolder(tmp_path: Path) -> None:
     assert result["operation"]["completion_status"] == "materialized"
     assert result["operation"]["validation_status"] == "not-run"
     assert result["operation"]["destination_path"] == restored_path.as_posix()
+    assert result["eligibility_decision"]["source_family"] == "export-zip"
+    assert result["eligibility_decision"]["selection_mode"] == "named"
+    assert result["eligibility_decision"]["source_label"] == "named-zip"
+    assert result["eligibility_decision"]["authority_state"] == "eligible"
+    assert result["eligibility_decision"]["target_semantics"] == "unique-sibling-copy"
 
 
 def test_restore_copy_eligibility_blocks_unsafe_copy_paths(tmp_path: Path) -> None:
@@ -39,6 +44,8 @@ def test_restore_copy_eligibility_blocks_unsafe_copy_paths(tmp_path: Path) -> No
 
     decision = evaluate_restore_as_copy_eligibility(
         source_kind=None,
+        source_family="export-zip",
+        selection_mode="named",
         source_name="demo_export.zip",
         restore_as_new=False,
         current_project_root=str(current_root),
@@ -70,3 +77,7 @@ def test_restore_copy_eligibility_blocks_unsafe_copy_paths(tmp_path: Path) -> No
         "policy_blocked",
     ]
     assert decision["checks"]["current_root_safe"] is False
+    assert decision["source_family"] == "export-zip"
+    assert decision["selection_mode"] == "named"
+    assert decision["source_label"] == "named-zip"
+    assert decision["authority_state"] == "blocked"

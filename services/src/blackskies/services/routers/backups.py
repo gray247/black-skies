@@ -150,6 +150,7 @@ async def restore_backup(
             project_id=request_model.projectId,
             backup_name=request_model.backupName,
             restore_as_new=request_model.restoreAsNew,
+            selection_mode="named",
         )
         restored_path_value = result.get("restored_path")
         if isinstance(restored_path_value, str):

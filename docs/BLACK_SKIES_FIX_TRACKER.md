@@ -109,6 +109,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - keeps Phase 15 open because `RDM-BACKUP-001`, `RDM-BROWSE-001`, and `RDM-CONTINUITY-001` remain unresolved in the deferred ledger even after restore-as-copy closed,
   - keeps restore performance as a monitoring-only caveat and does not promote it into a new lane unless it starts causing timeout or failure again,
   - recommends `RDM-BACKUP-001 - Backup and restore authority mapping` as the next forward-build lane and keeps GUI / splash / launch-flow, emotion graph, and Memory Lab switching out of the immediate next step.
+- [2026-06-04] Pass 157 backup/restore authority mapping implementation recorded in `docs/audits/phase15/pass157_backup_restore_authority_mapping_implementation.md`:
+  - adds explicit source-authority labels for `named-backup`, `latest-backup`, `named-zip`, and `latest-zip` paths by threading `selection_mode` through the shared restore eligibility helper,
+  - extends restore eligibility payloads with `source_family`, `selection_mode`, `source_label`, `authority_state`, and `target_semantics` so the backend truth model no longer forces the renderer to infer source identity,
+  - pins the new authority labels and target semantics in the focused restore/backup backend tests and keeps snapshot recovery separate.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,

@@ -2822,6 +2822,11 @@ def test_restore_from_zip_returns_copy_materialization_semantics(
     assert payload["restore_semantic_context"]["current_project_files_replaced"] is False
     assert payload["restore_semantic_context"]["restored_copy_materialized"] is True
     assert payload["restore_semantic_context"]["browseable_path_available"] is True
+    assert payload["eligibility_decision"]["source_family"] == "export-zip"
+    assert payload["eligibility_decision"]["selection_mode"] == "named"
+    assert payload["eligibility_decision"]["source_label"] == "named-zip"
+    assert payload["eligibility_decision"]["authority_state"] == "eligible"
+    assert payload["eligibility_decision"]["target_semantics"] == "unique-sibling-copy"
 
 
 def test_restore_from_zip_blocks_copy_overwrite_attempt(
@@ -2876,6 +2881,9 @@ def test_restore_from_zip_blocks_copy_overwrite_attempt(
     assert detail["details"]["eligibility_decision"]["blocked_reasons"] == [
         "overwrite_not_allowed"
     ]
+    assert detail["details"]["eligibility_decision"]["source_family"] == "export-zip"
+    assert detail["details"]["eligibility_decision"]["selection_mode"] == "named"
+    assert detail["details"]["eligibility_decision"]["source_label"] == "named-zip"
 
 
 def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
@@ -2965,6 +2973,11 @@ def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
     assert payload["restore_observation"]["historical_only"] is False
     assert payload["restore_semantic_context"]["current_project_files_replaced"] is False
     assert payload["restore_semantic_context"]["restored_copy_materialized"] is True
+    assert payload["eligibility_decision"]["source_family"] == "backup-bundle"
+    assert payload["eligibility_decision"]["selection_mode"] == "latest"
+    assert payload["eligibility_decision"]["source_label"] == "latest-backup"
+    assert payload["eligibility_decision"]["authority_state"] == "eligible"
+    assert payload["eligibility_decision"]["target_semantics"] == "unique-sibling-copy"
     restored_dir = Path(payload["restored_path"])
     assert restored_dir.exists()
     assert (restored_dir / "drafts" / "sc_0002.md").exists()
@@ -2972,6 +2985,84 @@ def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
         entry["filename"]
         for entry in test_client.get("/api/v1/backups", params={"projectId": project_id}).json()
     ]
+
+
+def test_restore_latest_without_zip_name_uses_latest_zip_source_label(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Restore-latest falls back to the latest ZIP and reports the source label explicitly."""
+
+    project_id = "proj_restore_latest_zip"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "project.json").write_text(
+        json.dumps({"project_id": project_id, "name": "Restore Latest Zip"}),
+        encoding="utf-8",
+    )
+    (project_root / "outline.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "OutlineSchema v1",
+                "outline_id": "out_001",
+                "acts": ["Act I"],
+                "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                "scenes": [
+                    {
+                        "id": "sc_0001",
+                        "order": 1,
+                        "title": "Scene 1",
+                        "chapter_id": "ch_0001",
+                        "beat_refs": [],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001", body="Latest ZIP body.")
+    scene_markdown = (project_root / "drafts" / "sc_0001.md").read_text(encoding="utf-8")
+
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    zip_path = exports_dir / "demo_export.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr(
+            "project.json",
+            json.dumps({"project_id": project_id, "name": "Restore Latest Zip"}),
+        )
+        archive.writestr(
+            "outline.json",
+            json.dumps(
+                {
+                    "schema_version": "OutlineSchema v1",
+                    "outline_id": "out_001",
+                    "acts": ["Act I"],
+                    "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                    "scenes": [
+                        {
+                            "id": "sc_0001",
+                            "order": 1,
+                            "title": "Scene 1",
+                            "chapter_id": "ch_0001",
+                            "beat_refs": [],
+                        }
+                    ],
+                }
+            ),
+        )
+        archive.writestr("drafts/sc_0001.md", scene_markdown)
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "restoreAsNew": True},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["eligibility_decision"]["source_family"] == "export-zip"
+    assert payload["eligibility_decision"]["selection_mode"] == "latest"
+    assert payload["eligibility_decision"]["source_label"] == "latest-zip"
+    assert payload["eligibility_decision"]["authority_state"] == "eligible"
 
 
 def test_restore_from_zip_cleans_invalid_materialized_copy(
@@ -3106,6 +3197,7 @@ def test_restore_from_zip_keeps_healthz_responsive_during_restore(
         *,
         restore_as_new: bool,
         project_id: str,
+        selection_mode: str = "named",
     ) -> dict[str, Any]:
         started.set()
         assert release.wait(timeout=5), "restore test was not released"
@@ -3115,7 +3207,7 @@ def test_restore_from_zip_keeps_healthz_responsive_during_restore(
             "restored_project_slug": restored_dir.name,
             "restored_path": str(restored_dir),
             "operation": {
-                "source_kind": "zip-archive",
+                "source_kind": "export-zip",
                 "archive_path": str(project_root / "exports" / zip_name),
                 "destination_path": str(restored_dir),
                 "elapsed_ms": 5000,
@@ -3123,6 +3215,45 @@ def test_restore_from_zip_keeps_healthz_responsive_during_restore(
                 "validation_status": "passed",
                 "cleanup_status": "not-needed",
                 "degraded_reasons": [],
+                "source_family": "export-zip",
+                "selection_mode": selection_mode,
+                "source_label": "named-zip" if selection_mode == "named" else "latest-zip",
+            },
+            "eligibility_decision": {
+                "eligible": True,
+                "blocked_reasons": [],
+                "warnings": [],
+                "source_kind": "export-zip",
+                "source_family": "export-zip",
+                "selection_mode": selection_mode,
+                "source_label": "named-zip" if selection_mode == "named" else "latest-zip",
+                "authority_state": "eligible",
+                "target_semantics": "unique-sibling-copy",
+                "source_name": zip_name,
+                "source_scope": "project-exports",
+                "source_project_id": project_id,
+                "expected_project_id": project_id,
+                "restore_as_new": True,
+                "current_project_root": str(project_root),
+                "destination_preview": str(restored_dir),
+                "checksum_state": "unavailable",
+                "checks": {
+                    "source_exists": True,
+                    "source_readable": True,
+                    "source_kind_explicit": True,
+                    "source_family_explicit": True,
+                    "selection_mode_explicit": True,
+                    "restore_as_new_requested": True,
+                    "manifest_present": True,
+                    "manifest_valid": True,
+                    "checksum_state": "unavailable",
+                    "checksum_required": False,
+                    "destination_exists": False,
+                    "destination_parent_exists": True,
+                    "current_root_safe": True,
+                    "scope_matches": True,
+                    "target_is_unique_sibling": True,
+                },
             },
         }
 

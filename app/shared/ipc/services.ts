@@ -273,6 +273,11 @@ export interface RestoreCopyEligibilityDecision {
   blocked_reasons: string[];
   warnings?: string[];
   source_kind?: string | null;
+  source_family?: 'backup-bundle' | 'export-zip' | string | null;
+  selection_mode?: 'named' | 'latest' | string | null;
+  source_label?: 'named-backup' | 'latest-backup' | 'named-zip' | 'latest-zip' | string | null;
+  authority_state?: 'eligible' | 'blocked' | string | null;
+  target_semantics?: 'unique-sibling-copy' | string | null;
   source_name?: string;
   source_scope?: string | null;
   source_project_id?: string | null;

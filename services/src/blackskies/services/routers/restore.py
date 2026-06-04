@@ -89,6 +89,7 @@ async def restore_project(
             payload.zipName,
             restore_as_new=payload.restoreAsNew,
             project_id=payload.projectId,
+            selection_mode="named",
         )
     else:
         backup_service = BackupService(settings=settings, diagnostics=diagnostics)
@@ -102,6 +103,7 @@ async def restore_project(
                     project_id=payload.projectId,
                     backup_name=latest_backup_name,
                     restore_as_new=payload.restoreAsNew,
+                    selection_mode="latest",
                 )
             except FileNotFoundError as exc:
                 raise HTTPException(
@@ -132,6 +134,7 @@ async def restore_project(
                 zip_name,
                 restore_as_new=payload.restoreAsNew,
                 project_id=payload.projectId,
+                selection_mode="latest",
             )
     if result.get("status") != "ok":
         logger.error("Restore failed for %s: %s", restore_target_name, result.get("message"))

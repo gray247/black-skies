@@ -185,6 +185,7 @@ class BackupService:
         project_id: str,
         backup_name: str,
         restore_as_new: bool | None = True,
+        selection_mode: str | None = "named",
     ) -> dict[str, Any]:
         backup_root = self._settings.backups_dir
         backup_path = backup_root / backup_name
@@ -195,6 +196,8 @@ class BackupService:
         if not backup_path.exists():
             eligibility = evaluate_restore_as_copy_eligibility(
                 source_kind="backup-bundle",
+                source_family="backup-bundle",
+                selection_mode=selection_mode,
                 source_name=backup_name,
                 restore_as_new=restore_as_new,
                 current_project_root=str(current_project_root),
@@ -242,6 +245,8 @@ class BackupService:
                     checksum_state = "unavailable"
                     eligibility = evaluate_restore_as_copy_eligibility(
                         source_kind="backup-bundle",
+                        source_family="backup-bundle",
+                        selection_mode=selection_mode,
                         source_name=backup_name,
                         restore_as_new=restore_as_new,
                         current_project_root=str(current_project_root),
@@ -280,6 +285,8 @@ class BackupService:
                         checksum_state = "unavailable"
                         eligibility = evaluate_restore_as_copy_eligibility(
                             source_kind="backup-bundle",
+                            source_family="backup-bundle",
+                            selection_mode=selection_mode,
                             source_name=backup_name,
                             restore_as_new=restore_as_new,
                             current_project_root=str(current_project_root),
@@ -371,6 +378,8 @@ class BackupService:
             destination = _create_destination(str(parent), project_id)
             eligibility = evaluate_restore_as_copy_eligibility(
                 source_kind="backup-bundle",
+                source_family="backup-bundle",
+                selection_mode=selection_mode,
                 source_name=backup_name,
                 restore_as_new=restore_as_new,
                 current_project_root=str(current_project_root),
