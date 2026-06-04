@@ -105,6 +105,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - records the human retest outcome that `Restore backup as copy` completed successfully, the restored sibling project folder exists, and the original Esther Estate project still opens normally after restore,
   - closes the restore-as-copy lane with a performance caveat because the restore is slow but no longer blocking on false backend-offline behavior,
   - keeps the slow-restore behavior in monitoring only and does not open a new recovery lane unless the slowdown becomes unacceptable or reintroduces a timeout/failure.
+- [2026-06-04] Pass 155 post restore-as-copy forward-build checkpoint recorded in `docs/audits/phase15/pass155_post_restore_as_copy_forward_build_checkpoint.md`:
+  - keeps Phase 15 open because `RDM-BACKUP-001`, `RDM-BROWSE-001`, and `RDM-CONTINUITY-001` remain unresolved in the deferred ledger even after restore-as-copy closed,
+  - keeps restore performance as a monitoring-only caveat and does not promote it into a new lane unless it starts causing timeout or failure again,
+  - recommends `RDM-BACKUP-001 - Backup and restore authority mapping` as the next forward-build lane and keeps GUI / splash / launch-flow, emotion graph, and Memory Lab switching out of the immediate next step.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
