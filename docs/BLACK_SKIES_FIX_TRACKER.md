@@ -101,6 +101,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - offloads the ZIP restore route in `services/src/blackskies/services/routers/restore.py` with `run_in_threadpool`, keeps the existing backup-restore offload path intact, and moves restored-copy validation off the request path as well,
   - adds a narrow restore-in-progress renderer guard so `useServiceHealth` does not flip the UI to offline while a known restore-as-copy operation is active, preventing the false offline / success contradiction observed during human retest,
   - proves `/api/v1/healthz` responsiveness during long restore activity with new backend concurrency tests for both `/api/v1/backups/restore` and `/api/v1/restore`, and revalidates the change set with `python -m pytest services/tests/unit/test_restore_service.py services/tests/test_backups.py services/tests/test_app.py -k "restore or backup"` (`23 passed, 66 deselected`), `pnpm --filter app test` (`59 files passed / 336 tests passed`), `pnpm --filter app build`, `git diff --check`, and `pnpm lint:docs`.
+- [2026-06-03] Pass 154 restore-as-copy human retest closure review recorded in `docs/audits/phase15/pass154_restore_as_copy_human_retest_closure_review.md`:
+  - records the human retest outcome that `Restore backup as copy` completed successfully, the restored sibling project folder exists, and the original Esther Estate project still opens normally after restore,
+  - closes the restore-as-copy lane with a performance caveat because the restore is slow but no longer blocking on false backend-offline behavior,
+  - keeps the slow-restore behavior in monitoring only and does not open a new recovery lane unless the slowdown becomes unacceptable or reintroduces a timeout/failure.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
