@@ -2878,9 +2878,7 @@ def test_restore_from_zip_blocks_copy_overwrite_attempt(
     assert response.status_code == 400
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
-    assert detail["details"]["eligibility_decision"]["blocked_reasons"] == [
-        "overwrite_not_allowed"
-    ]
+    assert detail["details"]["eligibility_decision"]["blocked_reasons"] == ["overwrite_not_allowed"]
     assert detail["details"]["eligibility_decision"]["source_family"] == "export-zip"
     assert detail["details"]["eligibility_decision"]["selection_mode"] == "named"
     assert detail["details"]["eligibility_decision"]["source_label"] == "named-zip"

@@ -124,9 +124,7 @@ def _dedupe_reasons(reasons: list[str]) -> list[str]:
     return ordered
 
 
-def _restore_source_label(
-    *, source_family: str | None, selection_mode: str | None
-) -> str | None:
+def _restore_source_label(*, source_family: str | None, selection_mode: str | None) -> str | None:
     if source_family not in {"backup-bundle", "export-zip"}:
         return None
     if selection_mode not in {"named", "latest"}:
@@ -135,9 +133,7 @@ def _restore_source_label(
     return f"{selection_mode}-{source_suffix}"
 
 
-def _destination_overlaps_current_root(
-    *, current_project_root: str, destination_path: str
-) -> bool:
+def _destination_overlaps_current_root(*, current_project_root: str, destination_path: str) -> bool:
     current_root = Path(current_project_root).resolve()
     destination_root = Path(destination_path).resolve()
     return destination_root == current_root or current_root in destination_root.parents
@@ -173,7 +169,9 @@ def evaluate_restore_as_copy_eligibility(
         "source_exists": source_exists,
         "source_readable": source_readable,
         "source_kind_explicit": bool(source_kind and str(source_kind).strip()),
-        "source_family_explicit": bool(resolved_source_family and str(resolved_source_family).strip()),
+        "source_family_explicit": bool(
+            resolved_source_family and str(resolved_source_family).strip()
+        ),
         "selection_mode_explicit": bool(selection_mode and str(selection_mode).strip()),
         "restore_as_new_requested": restore_as_new is True,
         "manifest_present": manifest_present,
@@ -336,7 +334,9 @@ def restore_from_zip(
     source_readable = False
     if not os.path.isfile(zip_path):
         logger.error("ZIP not found: %s", zip_path)
-        destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
+        destination_preview = _create_destination(
+            os.path.dirname(project_root), _read_project_slug(project_root)
+        )
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
             source_family="export-zip",
@@ -495,7 +495,9 @@ def restore_from_zip(
             source_scope="project-exports",
         )
         if not eligibility["eligible"]:
-            logger.warning("ZIP restore copy eligibility blocked: %s", eligibility["blocked_reasons"])
+            logger.warning(
+                "ZIP restore copy eligibility blocked: %s", eligibility["blocked_reasons"]
+            )
             return {
                 "status": "error",
                 "message": "restore-as-copy eligibility blocked",
@@ -529,7 +531,9 @@ def restore_from_zip(
         }
     except zipfile.BadZipFile:
         logger.exception("ZIP archive corrupt: %s", zip_path)
-        destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
+        destination_preview = _create_destination(
+            os.path.dirname(project_root), _read_project_slug(project_root)
+        )
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
             source_family="export-zip",
@@ -566,7 +570,9 @@ def restore_from_zip(
         }
     except OSError as exc:
         logger.exception("Failed to restore zip: %s", zip_path)
-        destination_preview = _create_destination(os.path.dirname(project_root), _read_project_slug(project_root))
+        destination_preview = _create_destination(
+            os.path.dirname(project_root), _read_project_slug(project_root)
+        )
         eligibility = evaluate_restore_as_copy_eligibility(
             source_kind="export-zip",
             source_family="export-zip",

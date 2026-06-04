@@ -41,9 +41,7 @@ def _hashfile(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _validate_backup_checksums(
-    *, manifest_dir: Path, checksum_payload: dict[str, Any]
-) -> bool:
+def _validate_backup_checksums(*, manifest_dir: Path, checksum_payload: dict[str, Any]) -> bool:
     files = checksum_payload.get("files")
     if not isinstance(files, list):
         return False
@@ -73,9 +71,7 @@ def _safe_archive_checksum(path: Path) -> str:
         return ""
 
 
-def _archive_created_at(
-    *, archive_path: Path, checksum_payload: dict[str, Any] | None
-) -> str:
+def _archive_created_at(*, archive_path: Path, checksum_payload: dict[str, Any] | None) -> str:
     if checksum_payload is not None:
         created_at = checksum_payload.get("created_at")
         if isinstance(created_at, str) and created_at:
@@ -320,9 +316,9 @@ class BackupService:
                         parsed_project = None
                     if isinstance(parsed_project, dict):
                         if source_project_id is None:
-                            project_id_value = (
-                                parsed_project.get("project_id") or parsed_project.get("slug")
-                            )
+                            project_id_value = parsed_project.get(
+                                "project_id"
+                            ) or parsed_project.get("slug")
                             if isinstance(project_id_value, str) and project_id_value.strip():
                                 source_project_id = project_id_value
                     else:
@@ -523,14 +519,18 @@ class BackupService:
                             destination_path=Path(destination_preview),
                             elapsed_ms=round((time.perf_counter() - started_at) * 1000),
                             failure_phase="archive-open",
-                            completion_status="blocked" if not eligibility["eligible"] else "failed",
+                            completion_status=(
+                                "blocked" if not eligibility["eligible"] else "failed"
+                            ),
                             cleanup_status="completed",
                         ),
                     }
                 else:
                     archive.extractall(temp_dir)
                     try:
-                        checksum_payload = json.loads(archive.read(BACKUP_CHECKSUMS).decode("utf-8"))
+                        checksum_payload = json.loads(
+                            archive.read(BACKUP_CHECKSUMS).decode("utf-8")
+                        )
                     except json.JSONDecodeError:
                         checksum_state = "unavailable"
                         eligibility = evaluate_restore_as_copy_eligibility(
@@ -563,7 +563,9 @@ class BackupService:
                                 destination_path=Path(destination_preview),
                                 elapsed_ms=round((time.perf_counter() - started_at) * 1000),
                                 failure_phase="archive-open",
-                                completion_status="blocked" if not eligibility["eligible"] else "failed",
+                                completion_status=(
+                                    "blocked" if not eligibility["eligible"] else "failed"
+                                ),
                                 cleanup_status="completed",
                             ),
                         }
@@ -588,10 +590,13 @@ class BackupService:
                                     project_data = parsed_project
                                     manifest_valid = True
                                     if source_project_id is None:
-                                        project_id_value = (
-                                            project_data.get("project_id") or project_data.get("slug")
-                                        )
-                                        if isinstance(project_id_value, str) and project_id_value.strip():
+                                        project_id_value = project_data.get(
+                                            "project_id"
+                                        ) or project_data.get("slug")
+                                        if (
+                                            isinstance(project_id_value, str)
+                                            and project_id_value.strip()
+                                        ):
                                             source_project_id = project_id_value
                                     checksum_state = (
                                         "available"
@@ -620,7 +625,9 @@ class BackupService:
                             if isinstance(parsed_project, dict):
                                 project_data = parsed_project
                     if project_data is not None:
-                        project_id_value = project_data.get("project_id") or project_data.get("slug")
+                        project_id_value = project_data.get("project_id") or project_data.get(
+                            "slug"
+                        )
                         if isinstance(project_id_value, str) and project_id_value.strip():
                             source_project_id = project_id_value
 
