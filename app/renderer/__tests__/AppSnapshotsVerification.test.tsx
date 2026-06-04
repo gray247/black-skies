@@ -1011,6 +1011,136 @@ it('renders backup list and triggers backup actions', async () => {
   );
 });
 
+it('shows backup source states and gates restore by restorable status', async () => {
+  const listProjectSnapshots = vi.fn().mockResolvedValue({
+    ok: true,
+    data: [],
+  });
+  const getLastVerification = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      project_id: 'proj',
+      snapshots: [],
+    },
+  });
+  const backupEntries: BackupSummary[] = [
+    {
+      filename: 'BS_20251120_000000.zip',
+      project_id: 'proj',
+      path: 'backups/BS_20251120_000000.zip',
+      created_at: '2025-11-20T00:00:00Z',
+      checksum: 'abc',
+      browseable: true,
+      verified: true,
+      restorable: true,
+      blocked: false,
+      stale: false,
+      authority_state: 'restorable',
+      authority_reasons: [],
+      source_family: 'backup-bundle',
+      selection_mode: 'named',
+      source_label: 'named-backup',
+      source_scope: 'project-backups',
+      source_project_id: 'proj',
+      expected_project_id: 'proj',
+      target_semantics: 'unique-sibling-copy',
+    },
+    {
+      filename: 'BS_20251119_120000.zip',
+      project_id: 'proj',
+      path: 'backups/BS_20251119_120000.zip',
+      created_at: '2025-11-19T12:00:00Z',
+      checksum: 'def',
+      browseable: true,
+      verified: true,
+      restorable: false,
+      blocked: false,
+      stale: true,
+      authority_state: 'stale',
+      authority_reasons: ['scope_mismatch'],
+      source_family: 'backup-bundle',
+      selection_mode: 'named',
+      source_label: 'named-backup',
+      source_scope: 'project-backups',
+      source_project_id: 'proj_other',
+      expected_project_id: 'proj',
+      target_semantics: 'unique-sibling-copy',
+    },
+    {
+      filename: 'BS_20251118_120000.zip',
+      project_id: 'proj',
+      path: 'backups/BS_20251118_120000.zip',
+      created_at: '2025-11-18T12:00:00Z',
+      checksum: 'ghi',
+      browseable: true,
+      verified: false,
+      restorable: false,
+      blocked: true,
+      stale: false,
+      authority_state: 'blocked',
+      authority_reasons: ['missing_manifest'],
+      source_family: 'backup-bundle',
+      selection_mode: 'named',
+      source_label: 'named-backup',
+      source_scope: 'project-backups',
+      source_project_id: null,
+      expected_project_id: 'proj',
+      target_semantics: 'unique-sibling-copy',
+    },
+  ];
+  const listBackups = vi.fn().mockResolvedValue({
+    ok: true,
+    data: backupEntries,
+  });
+  const restoreBackup = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      status: 'ok',
+      restored_project_slug: 'proj_restored_001',
+      restored_path: '/tmp/proj_restored_001',
+    },
+  });
+
+  render(
+    <SnapshotsPanel
+      projectId="proj"
+      projectPath="/projects/proj"
+      services={
+        {
+          listProjectSnapshots,
+          getLastVerification,
+          listBackups,
+          restoreBackup,
+        } as Partial<ServicesBridge>
+      }
+      serviceStatus="online"
+      pushToast={vi.fn()}
+    />,
+  );
+
+  await waitFor(() => expect(listBackups).toHaveBeenCalledWith({ projectId: 'proj' }));
+
+  expect(screen.getByTestId('snapshots-backup-state-BS_20251120_000000.zip')).toHaveTextContent(
+    'Restorable',
+  );
+  expect(screen.getByTestId('snapshots-backup-restore-BS_20251120_000000.zip')).toBeEnabled();
+
+  expect(screen.getByTestId('snapshots-backup-state-BS_20251119_120000.zip')).toHaveTextContent(
+    'Stale',
+  );
+  expect(screen.getByTestId('snapshots-backup-restore-BS_20251119_120000.zip')).toBeDisabled();
+
+  expect(screen.getByTestId('snapshots-backup-state-BS_20251118_120000.zip')).toHaveTextContent(
+    'Blocked',
+  );
+  expect(screen.getByTestId('snapshots-backup-restore-BS_20251118_120000.zip')).toBeDisabled();
+
+  fireEvent.click(screen.getByTestId('snapshots-backup-restore-BS_20251120_000000.zip'));
+  await screen.findByRole('dialog', {
+    name: /Confirm restore backup BS_20251120_000000\.zip/i,
+  });
+});
+
 it('surfaces blocked restore eligibility reasons for backup restores', async () => {
   const listProjectSnapshots = vi.fn().mockResolvedValue({
     ok: true,

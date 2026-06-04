@@ -103,7 +103,7 @@ async def list_backups(
     projectId: str = Query(..., alias="projectId"),
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-) -> list[dict[str, str]]:
+) -> list[dict[str, Any]]:
     try:
         validated_id = validate_project_id(projectId)
     except ValueError as exc:
@@ -124,7 +124,11 @@ async def list_backups(
         )
 
     backup_service = BackupService(settings=settings, diagnostics=diagnostics)
-    return backup_service.list_backups(project_id=validated_id)
+    return await run_in_threadpool(
+        backup_service.list_backups,
+        project_id=validated_id,
+        include_foreign=True,
+    )
 
 
 @router.post("/restore", status_code=status.HTTP_200_OK)

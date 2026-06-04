@@ -93,7 +93,10 @@ async def restore_project(
         )
     else:
         backup_service = BackupService(settings=settings, diagnostics=diagnostics)
-        latest_backup_name = backup_service.latest_backup_name(project_id=payload.projectId)
+        latest_backup_name = await run_in_threadpool(
+            backup_service.latest_backup_name,
+            project_id=payload.projectId,
+        )
         if latest_backup_name:
             claim_scope = "restored-copy-materialized-from-backup-archive"
             restore_target_name = latest_backup_name

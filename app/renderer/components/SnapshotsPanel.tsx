@@ -166,6 +166,74 @@ const describeRestoreBlockedReasons = (blockedReasons: string[]): string => {
     .join(', ');
 };
 
+const resolveBackupAuthorityState = (
+  entry: BackupSummary,
+): 'browseable' | 'verified' | 'restorable' | 'blocked' | 'stale' => {
+  const state = entry.authority_state;
+  if (
+    state === 'browseable' ||
+    state === 'verified' ||
+    state === 'restorable' ||
+    state === 'blocked' ||
+    state === 'stale'
+  ) {
+    return state;
+  }
+  if (entry.stale === true) {
+    return 'stale';
+  }
+  if (entry.blocked === true) {
+    return 'blocked';
+  }
+  if (entry.restorable === true) {
+    return 'restorable';
+  }
+  if (entry.verified === true) {
+    return 'verified';
+  }
+  if (entry.browseable === true) {
+    return 'browseable';
+  }
+  return 'restorable';
+};
+
+const describeBackupAuthorityState = (entry: BackupSummary): string => {
+  const state = resolveBackupAuthorityState(entry);
+  switch (state) {
+    case 'restorable':
+      return 'Restorable';
+    case 'verified':
+      return 'Verified';
+    case 'blocked':
+      return 'Blocked';
+    case 'stale':
+      return 'Stale';
+    default:
+      return 'Browseable';
+  }
+};
+
+const describeBackupAuthorityNote = (entry: BackupSummary): string => {
+  const state = resolveBackupAuthorityState(entry);
+  const reasons = Array.isArray(entry.authority_reasons) ? entry.authority_reasons : [];
+  const reasonText = reasons.length ? ` Reasons: ${describeRestoreBlockedReasons(reasons)}.` : '';
+  switch (state) {
+    case 'restorable':
+      return 'Verified for copy restore.';
+    case 'verified':
+      return 'Verified, but not restorable.';
+    case 'blocked':
+      return `Visible, but restore is blocked.${reasonText}`.trim();
+    case 'stale':
+      return `Visible, but stale for the current project.${reasonText}`.trim();
+    default:
+      return 'Visible locally, but not verified.';
+  }
+};
+
+const canRestoreBackupEntry = (entry: BackupSummary): boolean =>
+  resolveBackupAuthorityState(entry) === 'restorable';
+
 export default function SnapshotsPanel({
   projectId,
   projectPath,
@@ -768,29 +836,47 @@ export default function SnapshotsPanel({
   }, [backendUnavailable, creatingBackup, fetchBackups, projectId, pushToast, services]);
 
   const handleRestoreBackup = useCallback(
-    async (backupName: string) => {
-    if (!projectId) {
-      pushToast({
-        tone: 'warning',
-        title: 'Backup restore unavailable',
-        description: 'Open a project before restoring a backup.',
-      });
-      return;
-    }
+    async (entry: BackupSummary) => {
+      const backupName = entry.filename;
+      if (!projectId) {
+        pushToast({
+          tone: 'warning',
+          title: 'Backup restore unavailable',
+          description: 'Open a project before restoring a backup.',
+        });
+        return;
+      }
 
-    if (!services?.restoreBackup || backendUnavailable) {
-      pushToast({
-        tone: 'warning',
-        title: 'Backup restore unavailable',
-        description:
-          'Backend services are unavailable. Your current project is unchanged; retry once the local API reconnects.',
-      });
-      return;
-    }
+      if (!canRestoreBackupEntry(entry)) {
+        const stateLabel = describeBackupAuthorityState(entry).toLowerCase();
+        const reasons = Array.isArray(entry.authority_reasons)
+          ? describeRestoreBlockedReasons(entry.authority_reasons)
+          : '';
+        pushToast({
+          tone: 'warning',
+          title: 'Backup restore not available',
+          description: reasons
+            ? `The selected backup is ${stateLabel} and cannot be restored. ${reasons}`.trim()
+            : `The selected backup is ${stateLabel} and cannot be restored.`,
+        });
+        return;
+      }
 
-    setPendingRestoreBackupName(backupName);
-    setBackupRestoreConfirmOpen(true);
-  }, [backendUnavailable, projectId, pushToast, services]);
+      if (!services?.restoreBackup || backendUnavailable) {
+        pushToast({
+          tone: 'warning',
+          title: 'Backup restore unavailable',
+          description:
+            'Backend services are unavailable. Your current project is unchanged; retry once the local API reconnects.',
+        });
+        return;
+      }
+
+      setPendingRestoreBackupName(backupName);
+      setBackupRestoreConfirmOpen(true);
+    },
+    [backendUnavailable, projectId, pushToast, services],
+  );
 
   const handleCancelBackupRestore = useCallback(() => {
     if (restoringBackup) {
@@ -1149,36 +1235,64 @@ export default function SnapshotsPanel({
               <p className="snapshots-panel__backups-empty">Loading backups...</p>
             ) : backups.length ? (
               <ul className="snapshots-panel__backups-list">
-                {backups.map((entry) => (
-                  <li
-                    key={entry.filename}
-                    className="snapshots-panel__backup-row"
-                    data-testid="snapshots-backup-row"
-                  >
-                    <div className="snapshots-panel__backup-meta">
-                      <strong>{entry.filename}</strong>
-                      <p>{entry.created_at}</p>
-                      <p className="snapshots-panel__backup-path">{entry.path}</p>
-                    </div>
-                    <div className="snapshots-panel__backup-actions">
-                      <button
-                        type="button"
-                        aria-label={`Restore backup ${entry.filename}`}
-                        data-testid={`snapshots-backup-restore-${entry.filename}`}
-                        onClick={() => handleRestoreBackup(entry.filename)}
-                        disabled={
-                          restoringBackup === entry.filename ||
-                          backendUnavailable ||
-                          !services?.restoreBackup
-                        }
-                      >
-                        {restoringBackup === entry.filename
-                          ? 'Restoring...'
-                          : 'Restore backup as copy'}
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                {backups.map((entry) => {
+                  const authorityState = resolveBackupAuthorityState(entry);
+                  const canRestore = canRestoreBackupEntry(entry);
+                  const authorityReasons = Array.isArray(entry.authority_reasons)
+                    ? entry.authority_reasons
+                    : [];
+
+                  return (
+                    <li
+                      key={entry.filename}
+                      className="snapshots-panel__backup-row"
+                      data-testid="snapshots-backup-row"
+                    >
+                      <div className="snapshots-panel__backup-meta">
+                        <strong>{entry.filename}</strong>
+                        <p>{entry.created_at}</p>
+                        <p className="snapshots-panel__backup-path">{entry.path}</p>
+                        <p
+                          className={`snapshots-panel__backup-state snapshots-panel__backup-state--${authorityState}`}
+                          data-testid={`snapshots-backup-state-${entry.filename}`}
+                        >
+                          {describeBackupAuthorityState(entry)}
+                        </p>
+                        <p className="snapshots-panel__backup-state-note">
+                          {describeBackupAuthorityNote(entry)}
+                        </p>
+                        {authorityReasons.length ? (
+                          <p className="snapshots-panel__backup-state-reasons">
+                            {describeRestoreBlockedReasons(authorityReasons)}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="snapshots-panel__backup-actions">
+                        <button
+                          type="button"
+                          aria-label={`Restore backup ${entry.filename}`}
+                          data-testid={`snapshots-backup-restore-${entry.filename}`}
+                          onClick={() => handleRestoreBackup(entry)}
+                          disabled={
+                            restoringBackup === entry.filename ||
+                            backendUnavailable ||
+                            !services?.restoreBackup ||
+                            !canRestore
+                          }
+                          title={
+                            !canRestore
+                              ? `This backup is ${describeBackupAuthorityState(entry).toLowerCase()} and cannot be restored.`
+                              : undefined
+                          }
+                        >
+                          {restoringBackup === entry.filename
+                            ? 'Restoring...'
+                            : 'Restore backup as copy'}
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="snapshots-panel__backups-empty">No backups available yet.</p>

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import threading
 import time
 import zipfile
@@ -11,6 +12,8 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+
+from blackskies.services.backup_service import BackupService
 
 
 def _project_base_dir(client: TestClient) -> Path:
@@ -77,6 +80,37 @@ def _create_backup(test_client: TestClient, project_id: str) -> dict[str, str]:
     response = test_client.post("/api/v1/backups", json={"projectId": project_id})
     assert response.status_code == 200
     return response.json()
+
+
+def _write_backup_bundle(
+    backup_path: Path,
+    *,
+    project_id: str,
+    include_checksums: bool = True,
+    checksums_project_id: str | None = None,
+) -> None:
+    project_json = json.dumps({"project_id": project_id}, indent=2)
+    outline_json = json.dumps({"schema_version": "OutlineSchema v1"}, indent=2)
+    project_checksum = hashlib.sha256(project_json.encode("utf-8")).hexdigest()
+    outline_checksum = hashlib.sha256(outline_json.encode("utf-8")).hexdigest()
+    with zipfile.ZipFile(backup_path, "w") as archive:
+        if include_checksums:
+            archive.writestr(
+                "checksums.json",
+                json.dumps(
+                    {
+                        "schema_version": "BackupChecksums v1",
+                        "project_id": checksums_project_id or project_id,
+                        "created_at": "2026-05-16T01:01:03Z",
+                        "files": [
+                            {"path": "project.json", "checksum": project_checksum},
+                            {"path": "outline.json", "checksum": outline_checksum},
+                        ],
+                    }
+                ),
+            )
+        archive.writestr("project.json", project_json)
+        archive.writestr("outline.json", outline_json)
 
 
 def test_backup_creation_emits_bundle_with_checksums(test_client: TestClient) -> None:
@@ -275,6 +309,163 @@ def test_backup_listing_returns_created_entries(test_client: TestClient) -> None
     entries = response.json()
     assert any(entry["filename"] == payload["filename"] for entry in entries)
     assert payload["path"] in [entry["path"] for entry in entries]
+
+
+def test_backup_listing_keeps_healthz_responsive_during_classification(
+    test_client: TestClient, monkeypatch
+) -> None:
+    project_id = "proj_backup_list_health"
+    _seed_project(_project_base_dir(test_client), project_id)
+    started = threading.Event()
+    release = threading.Event()
+
+    def _list_backups(
+        self,
+        *,
+        project_id: str,
+        include_foreign: bool = True,
+    ):
+        started.set()
+        assert release.wait(timeout=5), "backup listing test was not released"
+        return [
+            {
+                "project_id": project_id,
+                "filename": "BS_20260604_120000.zip",
+                "path": "backups/BS_20260604_120000.zip",
+                "created_at": "2026-06-04T12:00:00Z",
+                "checksum": "abc",
+                "browseable": True,
+                "verified": True,
+                "restorable": True,
+                "blocked": False,
+                "stale": False,
+                "authority_state": "restorable",
+                "authority_reasons": [],
+                "source_family": "backup-bundle",
+                "selection_mode": "named",
+                "source_label": "named-backup",
+                "source_scope": "project-backups",
+                "source_project_id": project_id,
+                "expected_project_id": project_id,
+                "target_semantics": "unique-sibling-copy",
+            }
+        ]
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.backups.BackupService.list_backups",
+        _list_backups,
+    )
+
+    response_holder: dict[str, object] = {}
+
+    def _run_listing() -> None:
+        response_holder["response"] = test_client.get(
+            "/api/v1/backups",
+            params={"projectId": project_id},
+        )
+
+    listing_thread = threading.Thread(target=_run_listing, daemon=True)
+    listing_thread.start()
+
+    assert started.wait(timeout=5)
+
+    health_started = time.monotonic()
+    health_response = test_client.get("/api/v1/healthz")
+    health_elapsed = time.monotonic() - health_started
+    assert health_response.status_code == 200
+    assert health_elapsed < 2
+
+    release.set()
+    listing_thread.join(timeout=5)
+    assert "response" in response_holder
+    response = response_holder["response"]
+    assert response.status_code == 200
+    assert response.json()[0]["authority_state"] == "restorable"
+
+
+def test_backup_listing_exposes_browseable_verified_restorable_states(
+    test_client: TestClient,
+) -> None:
+    project_id = "proj_backup_states"
+    _seed_project(_project_base_dir(test_client), project_id)
+
+    with patch(
+        "blackskies.services.backup_service._timestamp",
+        return_value="20260510_012515",
+    ):
+        current_payload = _create_backup(test_client, project_id)
+
+    backups_dir = _project_base_dir(test_client) / "backups"
+    stale_archive = backups_dir / "BS_20260510_012516.zip"
+    blocked_archive = backups_dir / "BS_20260510_012517.zip"
+    _write_backup_bundle(
+        stale_archive,
+        project_id="proj_other",
+        checksums_project_id="proj_other",
+    )
+    _write_backup_bundle(
+        blocked_archive,
+        project_id=project_id,
+        include_checksums=False,
+    )
+
+    response = test_client.get("/api/v1/backups", params={"projectId": project_id})
+    assert response.status_code == 200
+    entries = {entry["filename"]: entry for entry in response.json()}
+
+    current_entry = entries[current_payload["filename"]]
+    assert current_entry["browseable"] is True
+    assert current_entry["verified"] is True
+    assert current_entry["restorable"] is True
+    assert current_entry["blocked"] is False
+    assert current_entry["stale"] is False
+    assert current_entry["authority_state"] == "restorable"
+    assert current_entry["source_project_id"] == project_id
+    assert current_entry["source_label"] == "named-backup"
+
+    stale_entry = entries[stale_archive.name]
+    assert stale_entry["browseable"] is True
+    assert stale_entry["verified"] is True
+    assert stale_entry["restorable"] is False
+    assert stale_entry["blocked"] is False
+    assert stale_entry["stale"] is True
+    assert stale_entry["authority_state"] == "stale"
+    assert stale_entry["source_project_id"] == "proj_other"
+    assert stale_entry["authority_reasons"] == ["scope_mismatch"]
+
+    blocked_entry = entries[blocked_archive.name]
+    assert blocked_entry["browseable"] is True
+    assert blocked_entry["verified"] is False
+    assert blocked_entry["restorable"] is False
+    assert blocked_entry["blocked"] is True
+    assert blocked_entry["stale"] is False
+    assert blocked_entry["authority_state"] == "blocked"
+    assert blocked_entry["authority_reasons"] == ["missing_manifest"]
+
+
+def test_latest_backup_name_skips_stale_entries(test_client: TestClient) -> None:
+    project_id = "proj_backup_latest_authority"
+    _seed_project(_project_base_dir(test_client), project_id)
+
+    with patch(
+        "blackskies.services.backup_service._timestamp",
+        return_value="20260510_012515",
+    ):
+        current_payload = _create_backup(test_client, project_id)
+
+    backups_dir = _project_base_dir(test_client) / "backups"
+    stale_archive = backups_dir / "BS_20260510_012516.zip"
+    _write_backup_bundle(
+        stale_archive,
+        project_id="proj_other",
+        checksums_project_id="proj_other",
+    )
+
+    backup_service = BackupService(
+        settings=test_client.app.state.settings,
+        diagnostics=test_client.app.state.diagnostics,
+    )
+    assert backup_service.latest_backup_name(project_id=project_id) == current_payload["filename"]
 
 
 def test_backup_listing_orders_latest_first_for_project_restore_alignment(

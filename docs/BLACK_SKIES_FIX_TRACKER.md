@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-06-03
+Last Reviewed: 2026-06-04
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -113,6 +113,22 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - adds explicit source-authority labels for `named-backup`, `latest-backup`, `named-zip`, and `latest-zip` paths by threading `selection_mode` through the shared restore eligibility helper,
   - extends restore eligibility payloads with `source_family`, `selection_mode`, `source_label`, `authority_state`, and `target_semantics` so the backend truth model no longer forces the renderer to infer source identity,
   - pins the new authority labels and target semantics in the focused restore/backup backend tests and keeps snapshot recovery separate.
+- [2026-06-04] Pass 158 backup/restore authority mapping human spot-check closure recorded in `docs/audits/phase15/pass158_backup_restore_authority_mapping_human_spot_check_closure.md`:
+  - records the operator spot-check result `PASS` after opening Black Skies, opening Esther Estate, opening the backup/restore panel, confirming backup restore usability, rerunning `Restore backup as copy`, and reopening Esther Estate successfully afterward,
+  - closes `RDM-BACKUP-001` as implemented and human validated,
+  - keeps the next Phase 15 slice pointed at `RDM-BROWSE-001` without reopening restore-as-copy or continuity work.
+- [2026-06-04] Pass 160 browseable / verified / restorable implementation recorded in `docs/audits/phase15/pass160_browseable_verified_restorable_implementation.md`:
+  - exposes explicit browseable / verified / restorable / blocked / stale state fields and authority reasons on backup rows so visibility no longer implies restore permission,
+  - keeps stale foreign backups visible but disabled, keeps blocked bundles visible with reasons, and gates the restore CTA on `restorable` instead of row visibility,
+  - preserves restore-as-copy behavior and keeps the current project overwrite-safe while leaving the next closure step to human validation.
+- [2026-06-04] Pass 160A backup source-state offline regression fix recorded in `docs/audits/phase15/pass160a_backup_source_state_offline_regression_fix.md`:
+  - offloads backup archive classification and latest-backup selection to the threadpool so `GET /api/v1/backups` and restore-latest source selection no longer monopolize the FastAPI event loop,
+  - keeps `/api/v1/healthz` responsive during backup listing work and adds backend concurrency coverage for the new classification path,
+  - records the transient scene write to `sc_0001` as a separate deferred scene-authority caveat, not as part of this backup/offline regression fix.
+- [2026-06-04] Pass 161 browseable / verified / restorable closure review recorded in `docs/audits/phase15/pass161_browseable_verified_restorable_closure_review.md`:
+  - records the human retest PASS after Pass 160 and Pass 160A: backup listing loads, source-state labels appear, the restore CTA stays gated by restorable state, and the backend does not flip false offline after the backup panel loads,
+  - closes `RDM-BROWSE-001` as implemented and human validated while keeping the transient `sc_0001` scene write as a deferred scene-authority caveat,
+  - preserves the earlier restore-as-copy performance caveat as separate monitoring-only context and does not open a new recovery lane from this closure.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,

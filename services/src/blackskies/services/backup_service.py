@@ -16,6 +16,8 @@ from typing import Any
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .restore_service import (
+    _ensure_required_files,
+    _find_manifest_dir,
     _create_destination,
     _restore_operation_payload,
     evaluate_restore_as_copy_eligibility,
@@ -62,6 +64,68 @@ def _validate_backup_checksums(
             return False
 
     return True
+
+
+def _safe_archive_checksum(path: Path) -> str:
+    try:
+        return _hashfile(path)
+    except OSError:
+        return ""
+
+
+def _archive_created_at(
+    *, archive_path: Path, checksum_payload: dict[str, Any] | None
+) -> str:
+    if checksum_payload is not None:
+        created_at = checksum_payload.get("created_at")
+        if isinstance(created_at, str) and created_at:
+            return created_at
+    try:
+        return (
+            datetime.fromtimestamp(archive_path.stat().st_mtime, timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+    except OSError:
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _backup_authority_payload(
+    *,
+    project_id: str,
+    relative_path: str,
+    archive_path: Path,
+    created_at: str,
+    checksum: str,
+    source_project_id: str | None,
+    authority_state: str,
+    verified: bool,
+    restorable: bool,
+    blocked: bool,
+    stale: bool,
+    authority_reasons: list[str],
+) -> dict[str, Any]:
+    return {
+        "project_id": project_id,
+        "filename": archive_path.name,
+        "path": relative_path,
+        "created_at": created_at,
+        "checksum": checksum,
+        "browseable": True,
+        "verified": verified,
+        "restorable": restorable,
+        "blocked": blocked,
+        "stale": stale,
+        "authority_state": authority_state,
+        "authority_reasons": authority_reasons,
+        "source_family": "backup-bundle",
+        "selection_mode": "named",
+        "source_label": "named-backup",
+        "source_scope": "project-backups",
+        "source_project_id": source_project_id,
+        "expected_project_id": project_id,
+        "target_semantics": "unique-sibling-copy",
+    }
 
 
 class BackupService:
@@ -138,46 +202,232 @@ class BackupService:
                 temp_path.unlink()
             raise
 
-    def list_backups(self, *, project_id: str) -> list[dict[str, str]]:
+    def _classify_backup_archive(
+        self,
+        *,
+        archive_path: Path,
+        project_id: str,
+        include_foreign: bool,
+    ) -> dict[str, Any] | None:
+        relative_path = to_posix(archive_path.relative_to(self._settings.project_base_dir))
+        checksum = _safe_archive_checksum(archive_path)
+        created_at = _archive_created_at(archive_path=archive_path, checksum_payload=None)
+        source_project_id: str | None = None
+        authority_reasons: list[str] = []
+        verified = False
+        restorable = False
+        blocked = False
+        stale = False
+        authority_state = "browseable"
+
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                if BACKUP_CHECKSUMS not in archive.namelist():
+                    authority_reasons.append("missing_manifest")
+                    blocked = True
+                    authority_state = "blocked"
+                    return _backup_authority_payload(
+                        project_id=project_id,
+                        relative_path=relative_path,
+                        archive_path=archive_path,
+                        created_at=created_at,
+                        checksum=checksum,
+                        source_project_id=None,
+                        authority_state=authority_state,
+                        verified=verified,
+                        restorable=restorable,
+                        blocked=blocked,
+                        stale=stale,
+                        authority_reasons=authority_reasons,
+                    )
+
+                try:
+                    payload = json.loads(archive.read(BACKUP_CHECKSUMS).decode("utf-8"))
+                except json.JSONDecodeError:
+                    authority_reasons.append("invalid_manifest")
+                    blocked = True
+                    authority_state = "blocked"
+                    return _backup_authority_payload(
+                        project_id=project_id,
+                        relative_path=relative_path,
+                        archive_path=archive_path,
+                        created_at=created_at,
+                        checksum=checksum,
+                        source_project_id=None,
+                        authority_state=authority_state,
+                        verified=verified,
+                        restorable=restorable,
+                        blocked=blocked,
+                        stale=stale,
+                        authority_reasons=authority_reasons,
+                    )
+
+                if not isinstance(payload, dict):
+                    authority_reasons.append("invalid_manifest")
+                    blocked = True
+                    authority_state = "blocked"
+                    return _backup_authority_payload(
+                        project_id=project_id,
+                        relative_path=relative_path,
+                        archive_path=archive_path,
+                        created_at=created_at,
+                        checksum=checksum,
+                        source_project_id=None,
+                        authority_state=authority_state,
+                        verified=verified,
+                        restorable=restorable,
+                        blocked=blocked,
+                        stale=stale,
+                        authority_reasons=authority_reasons,
+                    )
+
+                checksum_created_at = _archive_created_at(
+                    archive_path=archive_path,
+                    checksum_payload=payload,
+                )
+                created_at = checksum_created_at
+                checksum_project_id = payload.get("project_id")
+                if isinstance(checksum_project_id, str) and checksum_project_id.strip():
+                    source_project_id = checksum_project_id
+
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    archive.extractall(temp_dir)
+                    manifest_dir = _find_manifest_dir(Path(temp_dir))
+                    if manifest_dir is None or not _ensure_required_files(manifest_dir):
+                        authority_reasons.append("invalid_manifest")
+                        blocked = True
+                        authority_state = "blocked"
+                        return _backup_authority_payload(
+                            project_id=project_id,
+                            relative_path=relative_path,
+                            archive_path=archive_path,
+                            created_at=created_at,
+                            checksum=checksum,
+                            source_project_id=source_project_id,
+                            authority_state=authority_state,
+                            verified=verified,
+                            restorable=restorable,
+                            blocked=blocked,
+                            stale=stale,
+                            authority_reasons=authority_reasons,
+                        )
+
+                    project_json = manifest_dir / "project.json"
+                    try:
+                        with project_json.open("r", encoding="utf-8") as handle:
+                            parsed_project = json.load(handle)
+                    except json.JSONDecodeError:
+                        parsed_project = None
+                    if isinstance(parsed_project, dict):
+                        if source_project_id is None:
+                            project_id_value = (
+                                parsed_project.get("project_id") or parsed_project.get("slug")
+                            )
+                            if isinstance(project_id_value, str) and project_id_value.strip():
+                                source_project_id = project_id_value
+                    else:
+                        authority_reasons.append("invalid_manifest")
+                        blocked = True
+                        authority_state = "blocked"
+                        return _backup_authority_payload(
+                            project_id=project_id,
+                            relative_path=relative_path,
+                            archive_path=archive_path,
+                            created_at=created_at,
+                            checksum=checksum,
+                            source_project_id=source_project_id,
+                            authority_state=authority_state,
+                            verified=verified,
+                            restorable=restorable,
+                            blocked=blocked,
+                            stale=stale,
+                            authority_reasons=authority_reasons,
+                        )
+
+                    checksum_valid = _validate_backup_checksums(
+                        manifest_dir=manifest_dir,
+                        checksum_payload=payload,
+                    )
+                    if not checksum_valid:
+                        authority_reasons.append("checksum_mismatch")
+                        blocked = True
+                        authority_state = "blocked"
+                        return _backup_authority_payload(
+                            project_id=project_id,
+                            relative_path=relative_path,
+                            archive_path=archive_path,
+                            created_at=created_at,
+                            checksum=checksum,
+                            source_project_id=source_project_id,
+                            authority_state=authority_state,
+                            verified=verified,
+                            restorable=restorable,
+                            blocked=blocked,
+                            stale=stale,
+                            authority_reasons=authority_reasons,
+                        )
+
+                    verified = True
+                    if source_project_id and source_project_id != project_id:
+                        stale = True
+                        authority_state = "stale"
+                        authority_reasons.append("scope_mismatch")
+                        if not include_foreign:
+                            return None
+                    else:
+                        restorable = True
+                        authority_state = "restorable"
+
+        except (OSError, zipfile.BadZipFile, json.JSONDecodeError):
+            authority_reasons = ["unreadable_source"]
+            blocked = True
+            authority_state = "blocked"
+
+        return _backup_authority_payload(
+            project_id=project_id,
+            relative_path=relative_path,
+            archive_path=archive_path,
+            created_at=created_at,
+            checksum=checksum,
+            source_project_id=source_project_id,
+            authority_state=authority_state,
+            verified=verified,
+            restorable=restorable,
+            blocked=blocked,
+            stale=stale,
+            authority_reasons=authority_reasons,
+        )
+
+    def list_backups(
+        self,
+        *,
+        project_id: str,
+        include_foreign: bool = True,
+    ) -> list[dict[str, Any]]:
         backup_root = self._settings.backups_dir
         if not backup_root.exists():
             return []
 
-        entries: list[dict[str, str]] = []
+        entries: list[dict[str, Any]] = []
         for archive_path in sorted(backup_root.glob("BS_*.zip"), reverse=True):
-            try:
-                with zipfile.ZipFile(archive_path) as archive:
-                    if BACKUP_CHECKSUMS not in archive.namelist():
-                        continue
-                    payload = json.loads(archive.read(BACKUP_CHECKSUMS).decode("utf-8"))
-            except (OSError, zipfile.BadZipFile, json.JSONDecodeError):
-                continue
-            if payload.get("project_id") != project_id:
-                continue
-            created_at = payload.get("created_at")
-            if not isinstance(created_at, str):
-                created_at = (
-                    datetime.fromtimestamp(archive_path.stat().st_mtime, timezone.utc)
-                    .isoformat()
-                    .replace("+00:00", "Z")
-                )
-            entries.append(
-                {
-                    "project_id": payload.get("project_id") or project_id,
-                    "filename": archive_path.name,
-                    "path": to_posix(archive_path.relative_to(self._settings.project_base_dir)),
-                    "created_at": created_at,
-                    "checksum": _hashfile(archive_path),
-                }
+            summary = self._classify_backup_archive(
+                archive_path=archive_path,
+                project_id=project_id,
+                include_foreign=include_foreign,
             )
+            if summary is None:
+                continue
+            entries.append(summary)
         return entries
 
     def latest_backup_name(self, *, project_id: str) -> str | None:
-        entries = self.list_backups(project_id=project_id)
-        if not entries:
-            return None
-        latest_name = entries[0].get("filename")
-        return latest_name if isinstance(latest_name, str) and latest_name else None
+        entries = self.list_backups(project_id=project_id, include_foreign=False)
+        for entry in entries:
+            if entry.get("restorable") is True:
+                latest_name = entry.get("filename")
+                if isinstance(latest_name, str) and latest_name:
+                    return latest_name
+        return None
 
     def restore_backup(
         self,

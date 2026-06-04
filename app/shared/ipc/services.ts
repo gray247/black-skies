@@ -337,6 +337,20 @@ export interface BackupSummary {
   path: string;
   created_at: string;
   checksum: string;
+  browseable?: boolean;
+  verified?: boolean;
+  restorable?: boolean;
+  blocked?: boolean;
+  stale?: boolean;
+  authority_state?: 'browseable' | 'verified' | 'restorable' | 'blocked' | 'stale' | string | null;
+  authority_reasons?: string[];
+  source_family?: 'backup-bundle' | string | null;
+  selection_mode?: 'named' | 'latest' | string | null;
+  source_label?: 'named-backup' | 'latest-backup' | 'named-zip' | 'latest-zip' | string | null;
+  source_scope?: string | null;
+  source_project_id?: string | null;
+  expected_project_id?: string | null;
+  target_semantics?: string | null;
 }
 
 export interface BackupCreateBridgeRequest {
