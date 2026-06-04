@@ -129,6 +129,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - records the human retest PASS after Pass 160 and Pass 160A: backup listing loads, source-state labels appear, the restore CTA stays gated by restorable state, and the backend does not flip false offline after the backup panel loads,
   - closes `RDM-BROWSE-001` as implemented and human validated while keeping the transient `sc_0001` scene write as a deferred scene-authority caveat,
   - preserves the earlier restore-as-copy performance caveat as separate monitoring-only context and does not open a new recovery lane from this closure.
+- [2026-06-04] Pass 162 final backup / restore authority closure review recorded in `docs/audits/phase15/pass162_final_backup_restore_authority_closure_review.md`:
+  - closes Phase 15 backup / restore authority hardening with caveats after the restore-as-copy lane, backup / restore authority mapping, browseable / verified / restorable distinction, and backup source-state regression were all closed or fixed and human validated,
+  - preserves the restore-as-copy performance caveat and the deferred `sc_0001` scene-authority write as non-blocking caveats only,
+  - does not reopen snapshot ontology, recovery routes, GUI redesign, launcher / splash / workflow, Memory Lab, export / packaging, or restore-speed work.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
