@@ -133,6 +133,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - closes Phase 15 backup / restore authority hardening with caveats after the restore-as-copy lane, backup / restore authority mapping, browseable / verified / restorable distinction, and backup source-state regression were all closed or fixed and human validated,
   - preserves the restore-as-copy performance caveat and the deferred `sc_0001` scene-authority write as non-blocking caveats only,
   - does not reopen snapshot ontology, recovery routes, GUI redesign, launcher / splash / workflow, Memory Lab, export / packaging, or restore-speed work.
+- [2026-06-04] Pass 166 RDM-HARNESS-001 harness fixture contract implementation recorded in `docs/audits/phase16/pass166_rdm_harness_fixture_contract_implementation.md`:
+  - creates the harness / fixture contract in `docs/contracts/harness_fixture_contract.md` and clarifies that harness smoke, synthetic lanes, fixture parity, and startup dataset markers are witness evidence only,
+  - updates the workflow-truth matrix and system-truth map so fixture completeness, synthetic success, and debug logs cannot be overread as runtime truth,
+  - leaves `RDM-HARNESS-001` implementation / closure pending; no runtime files, test files, or logs were changed in this pass.
+- [2026-06-04] Pass 167 RDM-HARNESS-001 consumer docs and mapping alignment recorded in `docs/audits/phase16/pass167_rdm_harness_consumer_docs_alignment.md`:
+  - aligns the Playwright diagnostic runbook plus the truth-matrix and system-truth-map consumer docs to `docs/contracts/harness_fixture_contract.md`,
+  - clarifies that harness smoke, startup snapshots, dataset markers, canary artifacts, and synthetic-mode success are witness evidence only and cannot prove runtime truth,
+  - keeps `RDM-HARNESS-001` implementation / closure pending; no runtime files, test files, scripts, or logs were changed in this pass.
+- [2026-06-04] Pass 168 RDM-HARNESS-001 closure readiness review recorded in `docs/audits/phase16/pass168_rdm_harness_closure_readiness_review.md`:
+  - concludes the harness fixture contract lane can close with caveats because Pass 166 created the contract, Pass 167 aligned the consumer docs, and the lane is docs/governance-only rather than runtime-facing,
+  - records `RDM-HARNESS-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream truth/synthetic/teardown consumers as future proof-boundary work,
+  - does not touch runtime files, tests, scripts, or logs.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,

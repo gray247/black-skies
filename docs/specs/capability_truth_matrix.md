@@ -31,6 +31,9 @@ Authoritative contract artifact: [audited_chain_contract.json](/C:/Dev/black-ski
 - Truth-lane accept/recovery assertions must not use `.snapshots/*`.
 
 ## Test-Lane Policy
-- `App Harness Smoke` and harness e2e lanes are appearance/stability checks only.
+- `App Harness Smoke` and harness e2e lanes are witness evidence only and must not be promoted to workflow truth.
+- Synthetic lanes can prove wiring, timing, and contract shape, but not backend/runtime truth.
 - `App Truth Lane` is the workflow-truth gate and must avoid synthetic bypasses for audited capabilities.
 - Any test labeled `integrity`, `truth`, or `real-service` must assert route truth and persistence truth, not only UI visibility.
+- Fixture completeness cannot prove live project correctness.
+- Harness/fixture evidence should be interpreted through `docs/contracts/harness_fixture_contract.md`.

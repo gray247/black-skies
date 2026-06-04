@@ -9,7 +9,8 @@ Provide a deterministic incident workflow for `app-e2e` CI failures so teams can
 
 ## Scope and lane authority
 - Primary lane: `HARNESS_ONLY App Smoke (Playwright)` in `.github/workflows/eval.yml`.
-- This lane is harness evidence, not truth-lane proof.
+- This lane is harness witness evidence, not truth-lane proof.
+- Harness / fixture contract reference: [docs/contracts/harness_fixture_contract.md](../contracts/harness_fixture_contract.md).
 - Truth-lane claims still require `pnpm test:truth`.
 
 ## Hypothesis map
@@ -69,8 +70,13 @@ Provide a deterministic incident workflow for `app-e2e` CI failures so teams can
 - Required paths:
   - `ci_artifacts/playwright_diagnostics`
   - `app/playwright-report`
-  - `app/test-results`
-  - fallback package-relative report roots (`app/app/...`)
+- `app/test-results`
+- fallback package-relative report roots (`app/app/...`)
+
+### Harness evidence reminder
+- App smoke, startup snapshots, dataset markers, and canary artifacts are harness proof markers only.
+- Fixture/materialization failures are setup-contract failures first; they are not automatic product-runtime failures.
+- Synthetic-mode success cannot prove real backend, real filesystem, restore safety, or operator workflow safety.
 
 ## Canary and fail-fast policy
 - Canary executes before full suite.

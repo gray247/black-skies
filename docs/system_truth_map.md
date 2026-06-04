@@ -110,6 +110,60 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
   - completion marker missing after restore action
   - mode-specific dismissal assumptions applied universally
 
+## Fixture Materialization / Harness Dataset
+- owner:
+  - Harness fixture materialization contract and Playwright startup dataset seeding.
+- setter:
+  - fixture materializer, startup bootstrap, and seeded alias roots.
+- proof marker:
+  - fixture alias parity
+  - startup dataset markers
+  - seeded alias-root snapshot state
+  - required snapshot directories/files present in the selected fixture
+- dependent tests:
+  - harness smoke and harness e2e setup flows
+  - any spec that relies on seeded sample-project aliases or temp project roots
+- failure classification:
+  - alias parity mismatch
+  - seeded fixture missing required files/dirs
+  - dataset markers present but fixture scope incomplete
+  - debug-log agreement without fixture agreement
+- note:
+  - fixture materialization is A5 harness/fixture evidence; it is setup proof, not runtime proof.
+  - startup snapshots, dataset markers, and canary artifacts are harness proof markers only.
+  - alias fixture parity is a setup contract, not operator/project truth.
+
+## Synthetic Boundary
+- owner:
+  - synthetic-mode harness lanes.
+- setter:
+  - synthetic-mode bootstrap and controlled stub routes.
+- proof marker:
+  - explicit synthetic-mode marker
+  - controlled stub/service response markers
+- dependent tests:
+  - synthetic-only harness lanes and wiring checks
+- failure classification:
+  - synthetic success being read as real runtime truth
+  - backend/runtime claims made from A6 evidence
+
+## Truth-Lane Boundary
+- owner:
+  - real backend + persistence + non-synthetic route path.
+- setter:
+  - real route calls and persisted-state assertions.
+- proof marker:
+  - non-synthetic route truth
+  - persistence truth
+  - route/persistence agreement
+- dependent tests:
+  - `App Truth Lane`
+  - any capability lane labeled `integrity`, `truth`, or `real-service`
+- failure classification:
+  - route truth asserted without persistence truth
+  - persistence truth asserted without non-synthetic route proof
+  - harness-only or synthetic-only evidence overclaimed as runtime proof
+
 ## Test Lane Responsibilities
 - smoke lane:
   - fast harness launcher sanity (`pnpm test:e2e` default smoke filter), fixture/materialization path, startup contract health.
@@ -137,6 +191,8 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
   - banner visibility, restore trigger, and `__snapshotRestoreDone` completion coupling.
 - Playwright readiness helpers:
   - `_bootstrap.ts` is authority-critical; assumptions here can invalidate multiple suites simultaneously.
+- debug logs:
+  - observational only; they do not carry authority by themselves.
 
 ## Renderer Isolation / Contamination Controls
 - cleanup contract:
