@@ -1,3 +1,6 @@
+> Authority note: This document is historical/legacy planning material only. It is not runtime authority, not current operational status, and not the canonical roadmap source.
+>
+> Current authority lives in `docs/BLACK_SKIES_FIX_TRACKER.md`, `docs/roadmap/master_phase_allocation_plan.md`, `docs/roadmap/deferred_work_matrix.md`, and `docs/roadmap/authority_reconciliation_strategy.md`.
 Status: Legacy roadmap snapshot / not current live status authority
 Version: 1.1.1
 Last Reviewed: 2026-06-03
