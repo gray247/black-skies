@@ -14,12 +14,28 @@ Authority note: this is a practical validation guide, not the canonical lane cla
 - Repo hygiene checks prove the tree is clean, not that the product is correct.
 - Truth-lane results must not be inferred from smoke fallback, stubbed fixtures, or UI-only coverage.
 
+## Command Matrix
+
+| Category | Expected CWD | Command | What it proves | What it does not prove | Evidence class |
+| --- | --- | --- | --- | --- | --- |
+| Local dev launch | Repo root | `pnpm dev` | Local Electron + renderer dev launch path and repo-root bootstrap | Packaged launch, truth-lane proof, CI parity, or runtime truth | Local |
+| Local backend-only launch | Repo root | `python -m uvicorn blackskies.services.app:create_app --factory --reload` or `powershell -ExecutionPolicy Bypass -File scripts/run-dev-backend.ps1` | Backend service bring-up only | Renderer launch, wrapper authority, packaged launch, or truth-lane proof | Backend-only |
+| Harness smoke | Repo root | `pnpm test:e2e` | Harness setup, fixture sanity, and interaction sanity | Truth-lane closure, packaged launch, or real backend performance proof | Harness |
+| Truth lane | Repo root | `pnpm test:truth` | Scoped receipt-producing truth evidence with live backend and persistence/readback claims in the truth contract | Harness proof, packaged proof, or full product readiness | Truth-lane |
+| Service truth | Repo root | `pnpm test:service-truth` | Backend/service contract behavior only | Renderer truth, launch determinism, or product readiness | Backend-only |
+| Synthetic / load harness | Repo root | `python scripts/load.py --host <host> --port <port>` | Synthetic E2E wiring and load-harness behavior | Real backend performance, restore safety, or operator workflow safety | Synthetic |
+| CI validation | CI workspace | `xvfb-run -a pnpm test:e2e` and `xvfb-run -a pnpm --dir app exec playwright test -c ./playwright.config.ts` | CI launch and artifact expectations | Local Windows launch determinism, truth-lane proof, or runtime readiness without matching local proof | CI |
+| Packaged launch | Repo root to packaged artifact | `pnpm --dir app run package:dir` or `pnpm --dir app run package:win` then launch `app/dist-electron/main/main.js` | Packaged build / entrypoint path | Dev launch determinism, smoke proof, or truth-lane proof | Packaged |
+
+Wrapper / launcher / CWD authority for the command matrix is bounded by [Wrapper / Launcher / CWD Authority Contract](./contracts/wrapper_launcher_cwd_authority_contract.md).
+
 ## Current commands by lane
 
 ### Truth lane
 - Authoritative command: `pnpm test:truth`
 - Launcher path: `scripts/truth-with-backend.mjs`
 - What it does: starts the real backend, materializes a temp `Esther_Estate` project root from the bundled sample snapshot, launches Electron against the real service port, then attaches over CDP and calls the real renderer preflight bridge without service stubs or preload-only overrides.
+- Wrapper / launcher / CWD authority is bounded by [Wrapper / Launcher / CWD Authority Contract](./contracts/wrapper_launcher_cwd_authority_contract.md).
 - What it does not prove: the Generate button click path itself. It proves the live renderer bridge and the preflight service call from the loaded real project.
 - Current status: runnable in this workspace. The lane now reaches the live Electron renderer, verifies the real bridge, and exercises the preflight service against the loaded project.
 - Harness-only preload APIs (`__dev`, `__test`, `__testInsights`, `testMode`) are fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` and are not part of the truth-lane command.
@@ -80,6 +96,7 @@ Use these to verify tracked-file cleanliness and hook wiring. They do not prove 
 - UI-only tests do not prove service correctness.
 - The truth lane is the explicit launcher path above, not any smoke or harness fallback.
 - A passing harness run that depends on `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` is still harness evidence, not production truth.
+- CI success and smoke success remain harness/CI evidence, not wrapper authority or local Windows determinism proof.
 - If a command only proves a lane-specific subset, say so explicitly in review notes.
 
 ## Where to look next

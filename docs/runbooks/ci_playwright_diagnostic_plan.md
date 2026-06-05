@@ -11,6 +11,7 @@ Provide a deterministic incident workflow for `app-e2e` CI failures so teams can
 - Primary lane: `HARNESS_ONLY App Smoke (Playwright)` in `.github/workflows/eval.yml`.
 - This lane is harness witness evidence, not truth-lane proof.
 - Harness / fixture contract reference: [docs/contracts/harness_fixture_contract.md](../contracts/harness_fixture_contract.md).
+- Wrapper / launcher / CWD contract reference: [docs/contracts/wrapper_launcher_cwd_authority_contract.md](../contracts/wrapper_launcher_cwd_authority_contract.md).
 - Truth-lane claims still require `pnpm test:truth`.
 
 ## Hypothesis map
@@ -77,6 +78,8 @@ Provide a deterministic incident workflow for `app-e2e` CI failures so teams can
 - App smoke, startup snapshots, dataset markers, and canary artifacts are harness proof markers only.
 - Fixture/materialization failures are setup-contract failures first; they are not automatic product-runtime failures.
 - Synthetic-mode success cannot prove real backend, real filesystem, restore safety, or operator workflow safety.
+- CI launch evidence does not prove local Windows launch determinism.
+- Teardown / harness / smoke evidence does not prove wrapper authority.
 - Teardown failures are classified through `docs/contracts/playwright_teardown_governance_contract.md` before they are treated as product failures.
 
 ## Canary and fail-fast policy

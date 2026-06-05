@@ -167,6 +167,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - confirms the four Phase 16 proof-boundary lanes are closed with caveats, but `RDM-WRAPPER-001` remains open in the same Phase 16 allocation so Phase 16 as a whole cannot close yet,
   - recommends `RDM-WRAPPER-001 - Wrapper / launcher / CWD authority and execution determinism` as the next lane and keeps the remaining deferred items separate,
   - preserves the Phase 16 contracts as downstream proof boundaries and does not claim runtime safety, product readiness, GUI closure, restore closure, or `sc_0001` closure.
+- [2026-06-04] Pass 179 RDM-WRAPPER-001 wrapper / launcher / CWD authority contract recorded in `docs/audits/phase16/pass179_rdm_wrapper_launcher_cwd_authority_contract.md`:
+  - creates `docs/contracts/wrapper_launcher_cwd_authority_contract.md` so canonical command authority, repo-root/app-root boundaries, dev/packaged boundaries, backend spawn, port ownership, CI, smoke/harness, truth, and synthetic launch evidence stay explicit,
+  - keeps `RDM-WRAPPER-001` active / implementation pending, records that command docs alone do not prove runtime behavior, and makes no runtime, test, or script changes in this pass,
+  - requires a focused human spot-check after implementation before the lane can close.
+- [2026-06-04] Pass 180 RDM-WRAPPER-001 command guidance alignment recorded in `docs/audits/phase16/pass180_rdm_wrapper_command_guidance_alignment.md`:
+  - aligns `docs/tests.md` and the CI Playwright diagnostic plan to the wrapper / launcher / CWD authority contract so operator command guidance is explicit and canonical,
+  - keeps `RDM-WRAPPER-001` active / human launch spot-check pending and makes no runtime, test, or script changes in this pass,
+  - does not claim local Windows determinism, packaged launch correctness, or truth-lane proof from command guidance alone.
+- [2026-06-04] Pass 181 RDM-WRAPPER-001 closure readiness review recorded in `docs/audits/phase16/pass181_rdm_wrapper_closure_readiness_review.md`:
+  - closes `RDM-WRAPPER-001` with caveats as a docs/governance wrapper / launcher / CWD authority lane after contract creation and command-guidance alignment, without claiming local Windows launch determinism or packaged launch proof,
+  - records that no runtime files, tests, scripts, or workflows changed in the wrapper closure pass and defers human spot-check to a later runtime-facing phase unless a direct contradiction appears,
+  - marks the wrapper lane resolved in the deferred-work matrix while preserving its contract as a downstream proof boundary for future launch work.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
