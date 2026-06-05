@@ -18,6 +18,10 @@ const SIGNAL_CLAIM_MODES = new Set<NarrativeQualitativeSignalClaimMode>([
   "assertion",
 ]);
 
+interface NarrativeQualitativeSignalValidationContext {
+  readonly knownIds?: ReadonlySet<string>;
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -53,6 +57,7 @@ function validateForbiddenGradingFields(value: Record<string, unknown>, path = "
 
 export function validateNarrativeQualitativeSignal(
   value: unknown,
+  context: NarrativeQualitativeSignalValidationContext = {},
 ): NarrativeValidationResult<NarrativeQualitativeSignal> {
   const issues: NarrativeValidationIssue[] = [];
   if (!isPlainObject(value)) {
@@ -80,6 +85,14 @@ export function validateNarrativeQualitativeSignal(
     issues.push({ path: "$.relatedObjectIds", message: "relatedObjectIds must be a non-empty array of strings." });
   } else if (value.relatedObjectIds.some((entry) => entry.trim().length === 0)) {
     issues.push({ path: "$.relatedObjectIds", message: "relatedObjectIds must not include blank ids." });
+  }
+
+  if (context.knownIds && isStringArray(value.relatedObjectIds)) {
+    for (const [index, id] of value.relatedObjectIds.entries()) {
+      if (id.trim().length > 0 && !context.knownIds.has(id)) {
+        issues.push({ path: `$.relatedObjectIds[${index}]`, message: `unknown referenced id: ${id}` });
+      }
+    }
   }
 
   const provenanceResult = validateNarrativeProvenance(value.provenance as NarrativeProvenance);

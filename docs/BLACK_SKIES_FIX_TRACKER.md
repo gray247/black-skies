@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 202 qualitative signal contract boundary review recorded in `app/shared/narrativeQualitativeSignals.ts`, `app/shared/narrativeQualitativeSignalValidation.ts`, and `app/renderer/utils/__tests__/narrativeQualitativeSignals.test.ts`:
+  - hardens the contract boundary with missing-id checks, empty-reference rejection, explicit known-id handling, and fixture-facing grading-language rejection,
+  - keeps the signal contract explainable and read-only without evaluator logic or runtime wiring,
+  - preserves the no-migration, no-UI, no-prose-extraction, and no-project-mutation posture.
 - [2026-06-05] Pass 201 qualitative signal contract v0 implemented in `app/shared/narrativeQualitativeSignals.ts`, `app/shared/narrativeQualitativeSignalValidation.ts`, and `app/renderer/utils/__tests__/narrativeQualitativeSignals.test.ts`:
   - adds a shared read-only contract for explainable qualitative signals with bounded confidence, durable object-id references, and explicit provenance,
   - rejects grading metadata, blank explanations, empty references, and inferred authored-truth claims while keeping the evaluator unimplemented,

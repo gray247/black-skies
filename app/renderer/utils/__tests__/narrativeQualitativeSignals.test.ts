@@ -37,6 +37,19 @@ function createSignal(category: (typeof NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES)
 }
 
 describe("Narrative qualitative signal contract v0", () => {
+  it("covers all required qualitative signal categories", () => {
+    expect(NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES).toEqual([
+      "contradiction",
+      "unresolved_gap",
+      "relationship_provenance",
+      "foreshadow_payoff",
+      "orphaned_assertion",
+      "sequence_reorder",
+      "scene_projection",
+      "authored_inferred_boundary",
+    ]);
+  });
+
   it("validates a correct qualitative signal", () => {
     const result = validateNarrativeQualitativeSignal(createSignal("contradiction"));
 
@@ -55,6 +68,32 @@ describe("Narrative qualitative signal contract v0", () => {
     }
   });
 
+  it("rejects missing or blank ids", () => {
+    const missingId = validateNarrativeQualitativeSignal({
+      ...createSignal("contradiction"),
+      id: undefined as never,
+    });
+    const blankId = validateNarrativeQualitativeSignal({
+      ...createSignal("contradiction"),
+      id: "   ",
+    });
+
+    expect(missingId.ok).toBe(false);
+    expect(blankId.ok).toBe(false);
+  });
+
+  it("rejects empty object references", () => {
+    const result = validateNarrativeQualitativeSignal({
+      ...createSignal("orphaned_assertion"),
+      relatedObjectIds: [],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues.some((issue) => issue.path === "$.relatedObjectIds")).toBe(true);
+    }
+  });
+
   it("rejects score, grade, and rating metadata", () => {
     for (const [key, value] of [
       ["score", 0.99],
@@ -70,6 +109,17 @@ describe("Narrative qualitative signal contract v0", () => {
       if (!result.ok) {
         expect(result.issues.some((issue) => issue.path === `$.${key}`)).toBe(true);
       }
+    }
+  });
+
+  it("rejects unknown referenced ids when a known id set is provided", () => {
+    const result = validateNarrativeQualitativeSignal(createSignal("scene_projection"), {
+      knownIds: new Set(["nar_example_1"]),
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues.some((issue) => issue.path === "$.relatedObjectIds[1]")).toBe(true);
     }
   });
 
@@ -124,12 +174,31 @@ describe("Narrative qualitative signal contract v0", () => {
     expect(withoutProvenance.ok).toBe(false);
   });
 
+  it("keeps fixture-facing metadata free of grading language", () => {
+    for (const category of NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES) {
+      const signal = createSignal(category);
+      const metadataText = `${signal.label} ${signal.explanation} ${signal.claimMode ?? ""}`.toLowerCase();
+
+      expect(metadataText).not.toMatch(/\bscore\b/);
+      expect(metadataText).not.toMatch(/\bgrade\b/);
+      expect(metadataText).not.toMatch(/\brating\b/);
+      expect(metadataText).not.toMatch(/\bquality\b/);
+      expect(metadataText).not.toMatch(/\bverdict\b/);
+      expect(metadataText).not.toMatch(/\bpass\b/);
+      expect(metadataText).not.toMatch(/\bfail\b/);
+      expect(metadataText).not.toMatch(/\bcertain\b/);
+    }
+  });
+
   it("remains a contract and validation layer without prose parsing or evaluator behavior", () => {
-    const moduleKeys = Object.keys({
+    const exportedNames = Object.keys({
       validateNarrativeQualitativeSignal,
       NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES,
     });
 
-    expect(moduleKeys.some((key) => /parse|evaluator|analyz|extract/i.test(key))).toBe(false);
+    expect(exportedNames).toEqual([
+      "validateNarrativeQualitativeSignal",
+      "NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES",
+    ]);
   });
 });
