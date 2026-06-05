@@ -38,3 +38,4 @@ Authoritative contract artifact: [audited_chain_contract.json](/C:/Dev/black-ski
 - Fixture completeness cannot prove live project correctness.
 - Harness/fixture evidence should be interpreted through `docs/contracts/harness_fixture_contract.md`.
 - Synthetic authority limits are governed by `docs/contracts/synthetic_mode_claim_matrix_contract.md`.
+- Teardown governance evidence is bounded by `docs/contracts/playwright_teardown_governance_contract.md`.

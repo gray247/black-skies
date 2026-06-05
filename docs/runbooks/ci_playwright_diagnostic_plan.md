@@ -77,6 +77,7 @@ Provide a deterministic incident workflow for `app-e2e` CI failures so teams can
 - App smoke, startup snapshots, dataset markers, and canary artifacts are harness proof markers only.
 - Fixture/materialization failures are setup-contract failures first; they are not automatic product-runtime failures.
 - Synthetic-mode success cannot prove real backend, real filesystem, restore safety, or operator workflow safety.
+- Teardown failures are classified through `docs/contracts/playwright_teardown_governance_contract.md` before they are treated as product failures.
 
 ## Canary and fail-fast policy
 - Canary executes before full suite.

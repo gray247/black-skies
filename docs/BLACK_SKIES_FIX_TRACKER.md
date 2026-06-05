@@ -158,6 +158,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - classifies the synthetic-mode code, launcher, policy-test, and load-harness surfaces as witness/setup evidence only and blocks synthetic success from being overread as runtime truth, restore safety, or full product readiness,
   - records `RDM-SYNTH-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime-facing synthetic consumers as future proof-boundary work,
   - does not touch runtime files, tests, scripts, or logs.
+- [2026-06-04] Pass 176 RDM-TEARDOWN-001 Playwright teardown governance contract and closure review recorded in `docs/audits/phase16/pass176_rdm_teardown_governance_contract_and_closure_review.md`:
+  - creates `docs/contracts/playwright_teardown_governance_contract.md` so teardown evidence, fixture residue cleanup, worker/process shutdown, temp-directory cleanup, trace/artifact finalization, and CI/local parity risks stay explicit,
+  - classifies teardown surfaces as harness reliability evidence only and blocks teardown success from being overread as runtime truth, product readiness, restore safety, filesystem authority, or truth-lane closure,
+  - records `RDM-TEARDOWN-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime/test harness consumers as future proof-boundary work,
+  - does not touch runtime files, tests, scripts, or logs.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,

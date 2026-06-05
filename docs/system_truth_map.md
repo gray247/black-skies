@@ -202,6 +202,8 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
   - clear `window.__*` helpers, `window.timeline`, `localStorage`, `sessionStorage`, timers, and `modal-root` portal state between specs.
 - residual risk:
   - any new renderer-global helper or dataset marker must be added to the cleanup allowlist before it is safe to rely on in test suites.
+- teardown authority:
+  - teardown governance is bounded by `docs/contracts/playwright_teardown_governance_contract.md`.
 
 ## Unsupported Mutation Paths
 Tests should not mutate these directly unless a dedicated dev-only bridge exists:
