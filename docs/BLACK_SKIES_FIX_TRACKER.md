@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 189 narrative object architecture consolidation recorded in `docs/audits/phase17/pass189_narrative_object_architecture_consolidation_and_handoff_anchor.md`:
+  - consolidates the Phase 17 narrative ontology cluster into a handoff-safe anchor,
+  - notes that `docs/audits/phase17/pass184_narrative_ontology_reconciliation_review.md` is missing from disk even though its findings were referenced later in the cluster,
+  - keeps Phase 17 open pending either a recovered Pass 184 artifact or explicit acceptance of the evidence gap before formal signoff.
 - [2026-06-01] Pass 130 scene single-writer authority implementation recorded in `docs/audits/phase14/pass130_scene_single_writer_authority_implementation.md`:
   - removes the `ProjectHome` child echo path so `App.tsx` remains the canonical `activeSceneId` writer,
   - keeps `ProjectHome` as a local mirror plus intent emitter, restores the startup first-scene fallback, and keeps explicit-clear replay suppression in App,
