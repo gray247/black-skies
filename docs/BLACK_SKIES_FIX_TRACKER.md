@@ -25,6 +25,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - confirms the adapter remains a temporary read-only bridge, not migration and not runtime authority,
   - hardens the bridge against duplicate scene ids while preserving the no-migration posture,
   - records the expectation that future native narrative-object persistence should supersede or narrow the adapter once migration exists.
+- [2026-06-05] Pass 198 qualitative evaluation fixture foundation planning recorded in `docs/audits/phase32/pass198_qualitative_evaluation_fixture_foundation_planning.md`:
+  - plans manually authored fixture categories for contradiction, unresolved gaps, relationship/provenance, foreshadow/payoff, orphaned assertions, sequence/reorder, scene projection, and authored-vs-inferred boundaries,
+  - keeps the future evaluator explainable and read-only rather than score-based or judgment-based,
+  - preserves scene-first runtime validity and avoids prose extraction, Companion authority, or runtime wiring in this planning pass.
 - [2026-06-05] Pass 195 read-only scene compatibility planning recorded in `docs/audits/phase32/pass195_read_only_scene_compatibility_planning.md`:
   - maps the current scene-first authority surfaces that the future adapter must stay behind,
   - keeps the future adapter strictly read-only and fixture-driven for the first implementation slice,
