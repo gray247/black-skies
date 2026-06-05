@@ -141,6 +141,12 @@ export function validateNarrativeProvenance(
   if (typeof value.authorConfirmed !== "boolean") {
     issues.push({ path: `${path}.authorConfirmed`, message: "authorConfirmed must be a boolean." });
   }
+  for (const key of ["source", "note"] as const) {
+    const candidate = value[key];
+    if (!(candidate === undefined || candidate === null || typeof candidate === "string")) {
+      issues.push({ path: `${path}.${key}`, message: `${key} must be a string, null, or omitted.` });
+    }
+  }
 
   if (issues.length === 0) {
     const provenance = value as unknown as NarrativeProvenance;
