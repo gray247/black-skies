@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-06-04
+Last Reviewed: 2026-06-05
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 199 qualitative evaluation fixture foundation implemented in `app/shared/narrativeQualitativeFixtures.ts` and `app/renderer/utils/__tests__/narrativeQualitativeFixtures.test.ts`:
+  - adds manually authored fixture bundles for contradiction, unresolved gap, relationship/provenance, foreshadow/payoff, orphaned assertion, sequence/reorder, scene projection, and authored-vs-inferred boundary cases,
+  - records expected future-signal metadata plus provenance and non-claim boundaries without grading, score-as-truth metadata, automatic prose extraction, Companion authority, or runtime wiring,
+  - validates each bundle against Narrative Object Contract v0 and keeps the scene-projection example explicitly derived/read-only.
 - [2026-06-05] Pass 196 read-only scene compatibility adapter implementation recorded in `app/shared/narrativeSceneCompatibility.ts` and `app/renderer/utils/__tests__/narrativeSceneCompatibility.test.ts`:
   - derives a read-only narrative-object-compatible bundle from existing scene-first-like input without wiring it into runtime behavior,
   - preserves scene ids and order, keeps provenance derived, and avoids automatic prose extraction,
