@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 195 read-only scene compatibility planning recorded in `docs/audits/phase32/pass195_read_only_scene_compatibility_planning.md`:
+  - maps the current scene-first authority surfaces that the future adapter must stay behind,
+  - keeps the future adapter strictly read-only and fixture-driven for the first implementation slice,
+  - preserves the no-migration posture and scene-first runtime authority while planning Pass 196.
 - [2026-06-05] Pass 194 Narrative Object Contract v0 boundary review and hardening recorded in `app/shared/narrativeObjectValidation.ts` and `app/renderer/utils/__tests__/narrativeObjectContract.test.ts`:
   - hardens provenance validation for optional metadata, duplicate-ID rejection, relationship endpoint/category checks, and standalone assertion coverage without wiring the contract into runtime behavior,
   - keeps scene-first compatibility untouched and preserves the read-only contract boundary for future compatibility planning,
