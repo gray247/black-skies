@@ -17,6 +17,9 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 204 static qualitative evaluator v0 implemented in `app/shared/narrativeStaticQualitativeEvaluator.ts` and `app/renderer/utils/__tests__/narrativeStaticQualitativeEvaluator.test.ts`:
+  - adds a pure shared evaluator that maps the existing manually authored qualitative fixture categories to bounded qualitative signals without prose parsing, AI, Companion inference, grading, or runtime wiring,
+  - validates emitted signals against the qualitative signal contract and keeps the slice fixture-driven and read-only.
 - [2026-06-05] Pass 203 static qualitative evaluator v0 planning recorded in `docs/audits/phase32/pass203_static_qualitative_evaluator_v0_planning.md`:
   - plans a deterministic, read-only, fixture-driven evaluator boundary that emits bounded qualitative signals without prose parsing, AI, Companion, grading, or runtime authority,
   - inventories the current contract, validation, fixture, adapter, and test authorities that the future evaluator must stay subordinate to,
