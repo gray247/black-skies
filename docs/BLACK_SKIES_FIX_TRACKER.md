@@ -163,6 +163,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - classifies teardown surfaces as harness reliability evidence only and blocks teardown success from being overread as runtime truth, product readiness, restore safety, filesystem authority, or truth-lane closure,
   - records `RDM-TEARDOWN-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime/test harness consumers as future proof-boundary work,
   - does not touch runtime files, tests, scripts, or logs.
+- [2026-06-04] Pass 177 Phase 16 closure and next-lane selection review recorded in `docs/audits/phase16/pass177_phase16_closure_and_next_lane_selection_review.md`:
+  - confirms the four Phase 16 proof-boundary lanes are closed with caveats, but `RDM-WRAPPER-001` remains open in the same Phase 16 allocation so Phase 16 as a whole cannot close yet,
+  - recommends `RDM-WRAPPER-001 - Wrapper / launcher / CWD authority and execution determinism` as the next lane and keeps the remaining deferred items separate,
+  - preserves the Phase 16 contracts as downstream proof boundaries and does not claim runtime safety, product readiness, GUI closure, restore closure, or `sc_0001` closure.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
