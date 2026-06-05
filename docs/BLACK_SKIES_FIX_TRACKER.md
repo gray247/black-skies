@@ -21,6 +21,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - derives a read-only narrative-object-compatible bundle from existing scene-first-like input without wiring it into runtime behavior,
   - preserves scene ids and order, keeps provenance derived, and avoids automatic prose extraction,
   - keeps the adapter isolated to shared code and tests so scene-first runtime, export, recovery, and project-switch behavior remain unchanged.
+- [2026-06-05] Pass 197 read-only scene compatibility boundary review recorded in `app/shared/narrativeSceneCompatibility.ts` and `app/renderer/utils/__tests__/narrativeSceneCompatibility.test.ts`:
+  - confirms the adapter remains a temporary read-only bridge, not migration and not runtime authority,
+  - hardens the bridge against duplicate scene ids while preserving the no-migration posture,
+  - records the expectation that future native narrative-object persistence should supersede or narrow the adapter once migration exists.
 - [2026-06-05] Pass 195 read-only scene compatibility planning recorded in `docs/audits/phase32/pass195_read_only_scene_compatibility_planning.md`:
   - maps the current scene-first authority surfaces that the future adapter must stay behind,
   - keeps the future adapter strictly read-only and fixture-driven for the first implementation slice,

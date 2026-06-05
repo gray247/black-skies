@@ -191,6 +191,7 @@ export function deriveReadOnlyNarrativeObjectsFromScenes(
 
   const outlineChapters = [...input.outline.chapters].sort((left, right) => left.order - right.order);
   const sceneIdsInOrder: string[] = [];
+  const seenSceneIds = new Set<string>();
 
   for (const scene of input.scenes) {
     if (!isValidSceneDraftMetadata(scene)) {
@@ -200,6 +201,14 @@ export function deriveReadOnlyNarrativeObjectsFromScenes(
       });
       continue;
     }
+    if (seenSceneIds.has(scene.id)) {
+      issues.push({
+        path: `$.scenes[${sceneIdsInOrder.length}].id`,
+        message: `duplicate scene id: ${scene.id}`,
+      });
+      continue;
+    }
+    seenSceneIds.add(scene.id);
 
     const storyUnit = createDerivedStoryUnit(scene, input.path);
     sceneIdsInOrder.push(scene.id);

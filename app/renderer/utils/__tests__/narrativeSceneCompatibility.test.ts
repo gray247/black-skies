@@ -148,4 +148,32 @@ describe("read-only scene compatibility adapter", () => {
       expect(result.issues.some((issue) => issue.path.includes("$.scenes"))).toBe(true);
     }
   });
+
+  it("fails safely on duplicate scene ids", () => {
+    const result = deriveReadOnlyNarrativeObjectsFromScenes({
+      ...SCENE_COMPATIBILITY_FIXTURE,
+      scenes: [
+        {
+          id: "sc_0001",
+          title: "Opening",
+          order: 1,
+          chapter_id: "ch_0001",
+        },
+        {
+          id: "sc_0001",
+          title: "Duplicate Opening",
+          order: 2,
+          chapter_id: "ch_0001",
+        },
+      ],
+      drafts: {
+        sc_0001: "Once upon a time...",
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues.some((issue) => issue.message.includes("duplicate scene id"))).toBe(true);
+    }
+  });
 });
