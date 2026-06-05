@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 193 Narrative Object Contract v0 implementation recorded in `app/shared/narrativeObjectContract.ts`, `app/shared/narrativeObjectValidation.ts`, `app/shared/narrativeObjectFixtures.ts`, and `app/renderer/utils/__tests__/narrativeObjectContract.test.ts`:
+  - introduces shared narrative object contract types, validation helpers, and manually authored fixtures without wiring them into runtime behavior,
+  - keeps scene-first compatibility intact and preserves the no-migration posture for the first slice,
+  - limits the implementation to contract, validation, and unit-test coverage only.
 - [2026-06-05] Pass 191 Phase 17 closure review and Phase 32 replacement charter recorded in `docs/audits/phase17/pass191_phase17_closure_review.md` and `docs/roadmap/candidate_phase32_story_unit_data_model_and_qualitative_evaluation_foundation.md`:
   - closes Phase 17 for architecture discovery and handoff preparation,
   - preserves scene-first compatibility and explicitly defers implementation to the replacement Phase 32 planning arc,
