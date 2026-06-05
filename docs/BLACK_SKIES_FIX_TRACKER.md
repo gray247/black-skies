@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 200 qualitative evaluation fixture boundary review recorded in `app/shared/narrativeQualitativeFixtures.ts` and `app/renderer/utils/__tests__/narrativeQualitativeFixtures.test.ts`:
+  - hardens the fixture boundary with explicit category coverage, provenance checks, and grading-language rejection while keeping the fixture bundle manually authored and read-only,
+  - keeps the fixture foundation outside runtime code paths and leaves the evaluator unimplemented,
+  - preserves the fixture-only scope without changing scene loading, export, recovery, project-switch, or UI behavior.
 - [2026-06-05] Pass 199 qualitative evaluation fixture foundation implemented in `app/shared/narrativeQualitativeFixtures.ts` and `app/renderer/utils/__tests__/narrativeQualitativeFixtures.test.ts`:
   - adds manually authored fixture bundles for contradiction, unresolved gap, relationship/provenance, foreshadow/payoff, orphaned assertion, sequence/reorder, scene projection, and authored-vs-inferred boundary cases,
   - records expected future-signal metadata plus provenance and non-claim boundaries without grading, score-as-truth metadata, automatic prose extraction, Companion authority, or runtime wiring,

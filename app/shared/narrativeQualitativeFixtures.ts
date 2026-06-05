@@ -718,7 +718,7 @@ export const NARRATIVE_QUALITATIVE_FIXTURES: readonly NarrativeQualitativeFixtur
     ],
     mustNotOverclaim: [
       "do not treat the inferred relationship as authored truth",
-      "do not infer stronger certainty than the provenance states",
+      "do not infer stronger confidence than the provenance states",
     ],
   },
   {
@@ -741,7 +741,7 @@ export const NARRATIVE_QUALITATIVE_FIXTURES: readonly NarrativeQualitativeFixtur
       "no prose parsing is required to see the setup/payoff connection",
     ],
     mustNotOverclaim: [
-      "do not convert the link into a verdict",
+      "do not convert the link into a conclusion",
       "do not claim the setup guarantees a specific outcome",
     ],
   },

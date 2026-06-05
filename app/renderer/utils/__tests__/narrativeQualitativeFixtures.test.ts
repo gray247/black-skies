@@ -4,6 +4,19 @@ import { NARRATIVE_QUALITATIVE_FIXTURES } from "../../../shared/narrativeQualita
 import { collectNarrativeObjectIds, validateNarrativeObjectBundle } from "../../../shared/narrativeObjectValidation";
 
 describe("Narrative qualitative fixture foundation", () => {
+  it("covers all required qualitative fixture categories", () => {
+    expect(NARRATIVE_QUALITATIVE_FIXTURES.map((fixture) => fixture.category).sort()).toEqual([
+      "authored_vs_inferred_boundary",
+      "contradiction",
+      "foreshadow_payoff",
+      "orphaned_assertion",
+      "relationship_provenance",
+      "scene_projection",
+      "sequence_reorder",
+      "unresolved_narrative_gap",
+    ]);
+  });
+
   it("validates every qualitative fixture bundle against Narrative Object Contract v0", () => {
     for (const fixture of NARRATIVE_QUALITATIVE_FIXTURES) {
       const result = validateNarrativeObjectBundle(fixture.bundle);
@@ -11,6 +24,21 @@ describe("Narrative qualitative fixture foundation", () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value).toBe(fixture.bundle);
+      }
+    }
+  });
+
+  it("keeps all fixture provenance explicit without Companion authorship claims", () => {
+    for (const fixture of NARRATIVE_QUALITATIVE_FIXTURES) {
+      for (const object of [
+        ...fixture.bundle.assertions,
+        ...fixture.bundle.storyUnits,
+        ...fixture.bundle.gaps,
+        ...fixture.bundle.relationships,
+        ...fixture.bundle.scenes,
+        ...fixture.bundle.chapters,
+      ]) {
+        expect(object.provenance.origin).not.toBe("companion");
       }
     }
   });
@@ -166,6 +194,11 @@ describe("Narrative qualitative fixture foundation", () => {
       expect(metadataText).not.toMatch(/\bscore\b/);
       expect(metadataText).not.toMatch(/\bgrade\b/);
       expect(metadataText).not.toMatch(/\brating\b/);
+      expect(metadataText).not.toMatch(/\bquality\b/);
+      expect(metadataText).not.toMatch(/\bverdict\b/);
+      expect(metadataText).not.toMatch(/\bpass\b/);
+      expect(metadataText).not.toMatch(/\bfail\b/);
+      expect(metadataText).not.toMatch(/\bcertainty\b/);
     }
   });
 });
