@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 191 Phase 17 closure review and Phase 32 replacement charter recorded in `docs/audits/phase17/pass191_phase17_closure_review.md` and `docs/roadmap/candidate_phase32_story_unit_data_model_and_qualitative_evaluation_foundation.md`:
+  - closes Phase 17 for architecture discovery and handoff preparation,
+  - preserves scene-first compatibility and explicitly defers implementation to the replacement Phase 32 planning arc,
+  - keeps the new Phase 32 charter as a roadmap replacement arc only, not an immediate phase jump.
 - [2026-06-05] Pass 190 Story Unit Data Model + Narrative Object Contract planning recorded in `docs/audits/phase17/pass190_story_unit_data_model_and_narrative_object_contract_planning.md`:
   - captures the minimum safe implementation boundary for the future narrative object contract,
   - keeps scene-first runtime compatibility intact and explicitly rejects a mandatory Story Unit gate,
