@@ -42,6 +42,78 @@ test.describe('startup_authority_contract', () => {
     }
   };
 
+  const waitForNoProjectAuthorityState = async (page: Page, classification: string) => {
+    await page.waitForFunction(
+      () => {
+        const loaded =
+          document.body?.dataset?.projectLoaded ?? document.documentElement?.dataset?.projectLoaded ?? null;
+        const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
+          | HTMLButtonElement
+          | null;
+        const critique = document.querySelector('[data-testid="workspace-action-critique"]') as
+          | HTMLButtonElement
+          | null;
+        if (!generate || !critique) {
+          return false;
+        }
+        const actionsEnabled = !generate.disabled || !critique.disabled;
+        if (loaded === '1') {
+          return true;
+        }
+        const win = window as typeof window & { __startupAuthorityNoProjectDisabledSince?: number };
+        if (actionsEnabled) {
+          delete win.__startupAuthorityNoProjectDisabledSince;
+          return false;
+        }
+        const now = performance.now();
+        if (typeof win.__startupAuthorityNoProjectDisabledSince !== 'number') {
+          win.__startupAuthorityNoProjectDisabledSince = now;
+          return false;
+        }
+        return now - win.__startupAuthorityNoProjectDisabledSince >= 500;
+      },
+      null,
+      { timeout: 30_000 },
+    ).catch(async (error) => {
+      const snapshot = await collectStartupStateSnapshot(page);
+      throw new Error(
+        `[${classification}] no-project authority did not settle: ${JSON.stringify(snapshot)}` +
+          (error instanceof Error ? ` cause="${error.message}"` : ''),
+      );
+    });
+  };
+
+  const waitForActionButtonsDisabledState = async (page: Page, classification: string) => {
+    await page.waitForFunction(
+      () => {
+        const ids = ['workspace-action-generate', 'workspace-action-critique'] as const;
+        const buttonsDisabled = ids.every((testId) => {
+          const button = document.querySelector(`[data-testid="${testId}"]`) as HTMLButtonElement | null;
+          return Boolean(button) && button.disabled;
+        });
+        const win = window as typeof window & { __startupAuthorityDisabledSince?: number };
+        if (!buttonsDisabled) {
+          delete win.__startupAuthorityDisabledSince;
+          return false;
+        }
+        const now = performance.now();
+        if (typeof win.__startupAuthorityDisabledSince !== 'number') {
+          win.__startupAuthorityDisabledSince = now;
+          return false;
+        }
+        return now - win.__startupAuthorityDisabledSince >= 500;
+      },
+      null,
+      { timeout: 30_000 },
+    ).catch(async (error) => {
+      const snapshot = await collectStartupStateSnapshot(page);
+      throw new Error(
+        `[${classification}] action buttons did not settle disabled: ${JSON.stringify(snapshot)}` +
+          (error instanceof Error ? ` cause="${error.message}"` : ''),
+      );
+    });
+  };
+
   test('scene selection authority contract', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page, {
@@ -206,6 +278,7 @@ test.describe('startup_authority_contract', () => {
         })),
       )
       .toEqual({ bodySceneId: null, htmlSceneId: null });
+    await waitForActionButtonsDisabledState(page, 'NO_SCENE_FALSE_READY');
     await assertActionsDisabled(
       ['workspace-action-generate', 'workspace-action-critique'],
       'NO_SCENE_FALSE_READY',
@@ -332,6 +405,7 @@ test.describe('startup_authority_contract', () => {
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await installServiceStubs(page, 'normal', 'full');
+    await waitForNoProjectAuthorityState(page, 'PROJECT_REHYDRATE_DRIFT');
     const noProjectSnapshot = await collectStartupStateSnapshot(page);
     const noProjectLoaded = noProjectSnapshot.project.loadedBody ?? noProjectSnapshot.project.loadedHtml;
     if (noProjectLoaded === '1') {

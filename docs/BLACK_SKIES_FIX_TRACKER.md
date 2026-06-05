@@ -3824,3 +3824,7 @@ Backlog note drifted after phase-log cleanup.
   - keeps startup restore, draft-preview replay, and split-command replay inside `App` behind project/context and hydration-token gates,
   - explicitly forbids child-level reassertion after an explicit clear, because the clear/reassert loop is the source of the `NO_SCENE_FALSE_READY` state,
   - leaves `WorkspaceHeader` readiness logic unchanged for now because the failure is downstream of authority churn, not the button gate itself.
+- [2026-06-04] Startup authority `PROJECT_REHYDRATE_DRIFT` no-project probe stabilized in `app/tests/e2e/startup_authority_contract.spec.ts`:
+  - waits for a settled no-project authority state before classifying the known caveat versus a disabled-action path,
+  - keeps runtime behavior unchanged and narrows the test to the intended authority boundary,
+  - preserves the existing deferred caveat that some no-project startup paths may still rehydrate in the harness.
