@@ -145,6 +145,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - concludes the harness fixture contract lane can close with caveats because Pass 166 created the contract, Pass 167 aligned the consumer docs, and the lane is docs/governance-only rather than runtime-facing,
   - records `RDM-HARNESS-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream truth/synthetic/teardown consumers as future proof-boundary work,
   - does not touch runtime files, tests, scripts, or logs.
+- [2026-06-04] Pass 171 RDM-TRUTH-001 truth-lane claim matrix contract recorded in `docs/audits/phase16/pass171_rdm_truth_lane_claim_matrix_contract.md`:
+  - creates the truth-lane claim matrix contract so route truth, persistence/readback truth, UI witness evidence, harness witness evidence, synthetic evidence, backend-only truth, and artifact/receipt evidence stay separated,
+  - keeps `scripts/truth-with-backend.mjs` as the authoritative receipt-producing truth lane while distinguishing the backend-only service truth runner, the real-service reference spec, and the harness-only diagnostic spec,
+  - keeps `RDM-TRUTH-001` active and closure pending while preserving the downstream warning that harness and synthetic evidence cannot be promoted into truth-lane closure by themselves.
+- [2026-06-04] Pass 172 RDM-TRUTH-001 closure readiness review recorded in `docs/audits/phase16/pass172_rdm_truth_lane_closure_readiness_review.md`:
+  - concludes the truth-lane authority-scope lane can close with caveats because Pass 169 scoped the lane, Pass 170 mapped the existing surfaces and overclaim risks, and Pass 171 created the claim-matrix contract plus consumer wording alignment,
+  - records `RDM-TRUTH-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime-facing truth-lane consumers as future proof-boundary work,
+  - does not touch runtime files, tests, scripts, or logs.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,
