@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 190 Story Unit Data Model + Narrative Object Contract planning recorded in `docs/audits/phase17/pass190_story_unit_data_model_and_narrative_object_contract_planning.md`:
+  - captures the minimum safe implementation boundary for the future narrative object contract,
+  - keeps scene-first runtime compatibility intact and explicitly rejects a mandatory Story Unit gate,
+  - recommends a docs/spec contract-only first slice while the migration boundary and persistence family decision remain unresolved.
 - [2026-06-05] Pass 189 narrative object architecture consolidation recorded in `docs/audits/phase17/pass189_narrative_object_architecture_consolidation_and_handoff_anchor.md`:
   - consolidates the Phase 17 narrative ontology cluster into a handoff-safe anchor,
   - notes that `docs/audits/phase17/pass184_narrative_ontology_reconciliation_review.md` is missing from disk even though its findings were referenced later in the cluster,
