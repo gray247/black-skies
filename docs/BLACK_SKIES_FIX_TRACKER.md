@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 201 qualitative signal contract v0 implemented in `app/shared/narrativeQualitativeSignals.ts`, `app/shared/narrativeQualitativeSignalValidation.ts`, and `app/renderer/utils/__tests__/narrativeQualitativeSignals.test.ts`:
+  - adds a shared read-only contract for explainable qualitative signals with bounded confidence, durable object-id references, and explicit provenance,
+  - rejects grading metadata, blank explanations, empty references, and inferred authored-truth claims while keeping the evaluator unimplemented,
+  - keeps the contract outside runtime code paths and avoids prose extraction, UI wiring, and project mutation.
 - [2026-06-05] Pass 200 qualitative evaluation fixture boundary review recorded in `app/shared/narrativeQualitativeFixtures.ts` and `app/renderer/utils/__tests__/narrativeQualitativeFixtures.test.ts`:
   - hardens the fixture boundary with explicit category coverage, provenance checks, and grading-language rejection while keeping the fixture bundle manually authored and read-only,
   - keeps the fixture foundation outside runtime code paths and leaves the evaluator unimplemented,
