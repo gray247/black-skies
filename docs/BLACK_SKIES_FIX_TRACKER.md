@@ -153,6 +153,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - concludes the truth-lane authority-scope lane can close with caveats because Pass 169 scoped the lane, Pass 170 mapped the existing surfaces and overclaim risks, and Pass 171 created the claim-matrix contract plus consumer wording alignment,
   - records `RDM-TRUTH-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime-facing truth-lane consumers as future proof-boundary work,
   - does not touch runtime files, tests, scripts, or logs.
+- [2026-06-04] Pass 175 RDM-SYNTH-001 synthetic-mode claim contract and closure review recorded in `docs/audits/phase16/pass175_rdm_synth_claim_contract_and_closure_review.md`:
+  - creates `docs/contracts/synthetic_mode_claim_matrix_contract.md` so synthetic evidence, A6 authority, enabling flags, blocking rules, production bans, truth-lane bans, and load-harness synthetic caveats stay explicit,
+  - classifies the synthetic-mode code, launcher, policy-test, and load-harness surfaces as witness/setup evidence only and blocks synthetic success from being overread as runtime truth, restore safety, or full product readiness,
+  - records `RDM-SYNTH-001` as resolved/closed with caveats in the deferred-work matrix while preserving downstream runtime-facing synthetic consumers as future proof-boundary work,
+  - does not touch runtime files, tests, scripts, or logs.
 - [2026-06-03] Pass 145 next forward-build arc selection recorded in `docs/audits/phase19/pass145_next_forward_build_arc_selection.md`:
   - selects `Phase 15 - Backup / Restore Authority Hardening` as the next forward-build arc from the recovered baseline,
   - keeps GUI / splash / launch-flow rebuild, emotion-graph planning, and Memory Lab switching out of the immediate build path,

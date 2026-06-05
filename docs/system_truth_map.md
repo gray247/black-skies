@@ -146,6 +146,8 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
 - failure classification:
   - synthetic success being read as real runtime truth
   - backend/runtime claims made from A6 evidence
+- note:
+  - synthetic authority limits are governed by `docs/contracts/synthetic_mode_claim_matrix_contract.md`.
 
 ## Truth-Lane Boundary
 - owner:

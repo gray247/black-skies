@@ -37,3 +37,4 @@ Authoritative contract artifact: [audited_chain_contract.json](/C:/Dev/black-ski
 - Any test labeled `integrity`, `truth`, or `real-service` must assert route truth and persistence truth, not only UI visibility.
 - Fixture completeness cannot prove live project correctness.
 - Harness/fixture evidence should be interpreted through `docs/contracts/harness_fixture_contract.md`.
+- Synthetic authority limits are governed by `docs/contracts/synthetic_mode_claim_matrix_contract.md`.
