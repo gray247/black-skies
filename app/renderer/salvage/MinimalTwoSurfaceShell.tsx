@@ -1,3 +1,5 @@
+import { MINIMAL_SALVAGE_SHELL_MODEL } from "./salvageShellModel";
+
 const FUTURE_COMMAND_CENTER_AREAS = [
   "Story Units",
   "Narrative Gaps",
@@ -7,9 +9,12 @@ const FUTURE_COMMAND_CENTER_AREAS = [
   "Outline / Lore / Character Tools",
 ] as const;
 
-const SCENE_NAV_ITEMS = ["Current Scene", "Next Scene", "Scene Notes"] as const;
-
 export default function MinimalTwoSurfaceShell() {
+  const selectedScene =
+    MINIMAL_SALVAGE_SHELL_MODEL.sceneList.find(
+      (scene) => scene.id === MINIMAL_SALVAGE_SHELL_MODEL.selectedSceneId,
+    ) ?? MINIMAL_SALVAGE_SHELL_MODEL.sceneList[0];
+
   return (
     <main
       data-testid="minimal-two-surface-shell"
@@ -36,16 +41,14 @@ export default function MinimalTwoSurfaceShell() {
 
           <section aria-label="Current project context">
             <h3>Current Project Context</h3>
-            <p>Project placeholder: active scene, chapter, and project identity appear here later.</p>
+            <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
+            <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
+            <p>Selected scene: {MINIMAL_SALVAGE_SHELL_MODEL.currentSceneLabel}</p>
           </section>
 
           <nav aria-label="Minimal scene navigation">
             <h3>Minimal Scene Navigation</h3>
-            <ul>
-              {SCENE_NAV_ITEMS.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+            <p>Direct writing remains available before any command-side selection or tool action.</p>
           </nav>
 
           <section aria-label="Writing entry">
@@ -53,10 +56,11 @@ export default function MinimalTwoSurfaceShell() {
             <textarea
               id="minimal-writing-surface-editor"
               aria-label="Writing Surface editor"
-              placeholder="Start writing the current scene here."
+              defaultValue={MINIMAL_SALVAGE_SHELL_MODEL.prosePlaceholder}
               rows={10}
             />
             <p>Story Units are optional later and are not required before writing begins.</p>
+            {selectedScene ? <p>Current writing focus: {selectedScene.label}</p> : null}
           </section>
         </section>
 
@@ -77,6 +81,32 @@ export default function MinimalTwoSurfaceShell() {
               This surface stays separate from writing and can begin minimal or empty while the
               writing path remains usable.
             </p>
+          </section>
+
+          <section aria-label="Project status">
+            <h3>Project Status</h3>
+            <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
+            <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
+          </section>
+
+          <section aria-label="Static scene list">
+            <h3>Scene List Skeleton</h3>
+            <ul>
+              {MINIMAL_SALVAGE_SHELL_MODEL.sceneList.map((scene) => {
+                const isSelected = scene.id === MINIMAL_SALVAGE_SHELL_MODEL.selectedSceneId;
+
+                return (
+                  <li
+                    key={scene.id}
+                    data-scene-id={scene.id}
+                    aria-current={isSelected ? "true" : undefined}
+                  >
+                    <span>{scene.label}</span>
+                    <span>{scene.statusText}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
 
           <section aria-label="Future Command Center tools">

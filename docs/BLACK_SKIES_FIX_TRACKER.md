@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 217 and Pass 218 static salvage shell project context planning and static scene list skeleton recorded in `docs/audits/phase32/pass217_salvage_static_project_context_planning.md`, `app/renderer/salvage/salvageShellModel.ts`, and `app/renderer/salvage/MinimalTwoSurfaceShell.tsx`:
+  - plans a salvage-only static model for project title, selected scene, scene list items, prose placeholder text, and project status without using project-loader contracts, sample-project files, or filesystem IO,
+  - adds static project context and a static scene list skeleton inside the isolated two-surface shell so the Writing Surface stays available first and the Command Center stays separate and non-gating,
+  - keeps the slice outside runtime replacement, project persistence, recovery, export, project-switch, Companion, AI, evaluator runtime, and migration behavior.
 - [2026-06-05] Pass 215 and Pass 216 salvage branch scaffold readiness review and isolated two-surface shell scaffold recorded in `docs/audits/phase32/pass215_salvage_branch_scaffold_readiness.md` and `app/renderer/salvage/MinimalTwoSurfaceShell.tsx`:
   - confirms the salvage branch head and keeps `logs/pass133-backend.txt` as the only expected untracked path before scaffold work,
   - selects `app/renderer/salvage/` as an isolated renderer-side scaffold location that stays outside `App.tsx`, `preload.ts`, and current project-loader runtime wiring,
