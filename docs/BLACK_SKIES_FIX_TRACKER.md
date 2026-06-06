@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 215 and Pass 216 salvage branch scaffold readiness review and isolated two-surface shell scaffold recorded in `docs/audits/phase32/pass215_salvage_branch_scaffold_readiness.md` and `app/renderer/salvage/MinimalTwoSurfaceShell.tsx`:
+  - confirms the salvage branch head and keeps `logs/pass133-backend.txt` as the only expected untracked path before scaffold work,
+  - selects `app/renderer/salvage/` as an isolated renderer-side scaffold location that stays outside `App.tsx`, `preload.ts`, and current project-loader runtime wiring,
+  - adds a minimal two-surface shell scaffold plus targeted tests that keep the Writing Surface sovereign, the Command Center separate and non-gating, and the slice free of runtime replacement, persistence, migration, Companion, AI, or Command Center tool implementation claims.
 - [2026-06-05] Pass 214A corrected salvage shell planning to preserve the two-work-surface architecture in `docs/audits/phase32/pass213_minimal_clean_shell_boundary.md` and `docs/audits/phase32/pass214_salvage_carry_forward_plan.md`:
   - replaces the earlier one-workspace wording with an explicit Writing Surface plus Command Center Surface boundary,
   - keeps writing sovereign and low-friction while bounding the Command Center as a separate contextual workspace that supports writing without gating it.
