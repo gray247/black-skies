@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 221 and Pass 222 salvage carry-forward extraction map and product system dossier plan completed in `docs/audits/phase32/pass221_salvage_carry_forward_extraction_map.md` and `docs/audits/phase32/pass222_product_system_dossier_plan.md`:
+  - maps what shared contracts, validators, and test or tooling patterns can be carried forward soon, what must wait behind later boundaries, and what old monster-file surfaces should remain reference-only,
+  - defines the future dossier set needed to capture Writing Surface, Command Center Surface, narrative foundations, projections, review systems, explicit-content handling, AI routing, and startup or presentation systems before broader salvage implementation continues,
+  - keeps the pass planning-only without claiming code extraction, rebuild implementation, runtime change, old-app discard, migration or persistence start, or finalized product vision.
 - [2026-06-05] Pass 220A corrected salvage architecture planning to prevent scene-first foundation drift in `docs/audits/phase32/pass219_salvage_exclusion_ledger.md` and `docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md`:
   - makes Narrative Insertion and Narrative Assertion the salvage-shell foundation and limits scene language to projection, prose-container, or legacy compatibility contexts,
   - removes scene-first salvage architecture wording from the current extraction and blueprint planning without claiming code change, runtime change, rebuild implementation, or migration start.
