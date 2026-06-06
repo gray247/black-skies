@@ -55,6 +55,15 @@ const SIGNAL_CONFIDENCE_BY_CATEGORY: Record<
   authored_vs_inferred_boundary: "medium",
 };
 
+const BUNDLE_ARRAY_KEYS = [
+  "assertions",
+  "storyUnits",
+  "gaps",
+  "relationships",
+  "scenes",
+  "chapters",
+] as const;
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -79,6 +88,21 @@ function prefixIssues(
     path: `${pathPrefix}${issue.path.slice(1)}`,
     message: issue.message,
   }));
+}
+
+function validateBundleShape(value: unknown, path: string): NarrativeValidationIssue[] {
+  if (!isPlainObject(value)) {
+    return [{ path, message: "bundle must be an object with narrative object arrays." }];
+  }
+
+  const issues: NarrativeValidationIssue[] = [];
+  for (const key of BUNDLE_ARRAY_KEYS) {
+    if (!Array.isArray(value[key])) {
+      issues.push({ path: `${path}.${key}`, message: `${key} must be an array.` });
+    }
+  }
+
+  return issues;
 }
 
 function uniqueIds(...groups: readonly (readonly string[])[]): readonly string[] {
@@ -466,6 +490,12 @@ export function evaluateStaticQualitativeFixtures(
 
     const typedFixture = fixture as unknown as NarrativeQualitativeFixtureCase;
 
+    const bundleShapeIssues = validateBundleShape(typedFixture.bundle, `${fixturePath}.bundle`);
+    if (bundleShapeIssues.length > 0) {
+      issues.push(...bundleShapeIssues);
+      continue;
+    }
+
     const bundleResult = validateNarrativeObjectBundle(typedFixture.bundle);
     if (!bundleResult.ok) {
       issues.push(...prefixIssues(bundleResult.issues, `${fixturePath}.bundle`));
@@ -473,6 +503,15 @@ export function evaluateStaticQualitativeFixtures(
     }
 
     if (typedFixture.comparisonBundle !== undefined) {
+      const comparisonBundleShapeIssues = validateBundleShape(
+        typedFixture.comparisonBundle,
+        `${fixturePath}.comparisonBundle`,
+      );
+      if (comparisonBundleShapeIssues.length > 0) {
+        issues.push(...comparisonBundleShapeIssues);
+        continue;
+      }
+
       const comparisonResult = validateNarrativeObjectBundle(typedFixture.comparisonBundle);
       if (!comparisonResult.ok) {
         issues.push(...prefixIssues(comparisonResult.issues, `${fixturePath}.comparisonBundle`));

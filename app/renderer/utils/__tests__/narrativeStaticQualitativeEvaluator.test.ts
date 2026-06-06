@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { NARRATIVE_QUALITATIVE_FIXTURES } from "../../../shared/narrativeQualitativeFixtures";
@@ -25,6 +28,20 @@ function collectFixtureKnownIds() {
   }
 
   return knownIds;
+}
+
+function collectFixtureSceneShape(fixtures: typeof NARRATIVE_QUALITATIVE_FIXTURES) {
+  return fixtures.map((fixture) => ({
+    category: fixture.category,
+    bundleScenes: fixture.bundle.scenes.map((scene) => ({
+      id: scene.id,
+      order: scene.order,
+    })),
+    comparisonScenes: (fixture.comparisonBundle?.scenes ?? []).map((scene) => ({
+      id: scene.id,
+      order: scene.order,
+    })),
+  }));
 }
 
 describe("Static qualitative evaluator v0", () => {
@@ -89,6 +106,47 @@ describe("Static qualitative evaluator v0", () => {
 
     expect(input).toEqual(before);
     expect(result.ok).toBe(true);
+  });
+
+  it("does not change fixture scene ids or scene order", () => {
+    const input = structuredClone(NARRATIVE_QUALITATIVE_FIXTURES);
+    const beforeSceneShape = collectFixtureSceneShape(input);
+
+    const result = evaluateStaticQualitativeFixtures(input);
+
+    expect(result.ok).toBe(true);
+    expect(collectFixtureSceneShape(input)).toEqual(beforeSceneShape);
+  });
+
+  it("stays outside file-write and project persistence APIs", () => {
+    const evaluatorSource = readFileSync(
+      resolve(process.cwd(), "shared/narrativeStaticQualitativeEvaluator.ts"),
+      "utf8",
+    );
+
+    expect(evaluatorSource).not.toMatch(/from\s+["'](?:node:)?fs/);
+    expect(evaluatorSource).not.toMatch(/from\s+["'](?:node:)?path/);
+    expect(evaluatorSource).not.toMatch(
+      /\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|mkdir(?:Sync)?|rm(?:Sync)?|unlink(?:Sync)?|rename(?:Sync)?|copyFile(?:Sync)?|createWriteStream)\b/,
+    );
+    expect(evaluatorSource).not.toMatch(
+      /\b(?:localStorage|sessionStorage|indexedDB|electronAPI|ipcRenderer|preload|projectFile|saveProject|loadProject)\b/,
+    );
+  });
+
+  it("keeps evaluator-produced signal provenance derived and non-authoritative", () => {
+    const result = evaluateStaticQualitativeFixtures(NARRATIVE_QUALITATIVE_FIXTURES);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      for (const signal of result.value) {
+        expect(signal.provenance.origin).toBe("derived");
+        expect(signal.provenance.status).toBe("derived");
+        expect(signal.provenance.authorConfirmed).toBe(false);
+        expect(signal.provenance.source).toBe("static-qualitative-evaluator-v0");
+        expect(signal.claimMode).toBeUndefined();
+      }
+    }
   });
 
   it("preserves contradiction signals as competing authored assertions", () => {
@@ -271,6 +329,73 @@ describe("Static qualitative evaluator v0", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.issues.some((issue) => issue.path.includes("$.fixtures[0].category"))).toBe(true);
+    }
+  });
+
+  it("fails clearly when fixture input is not an array", () => {
+    const result = evaluateStaticQualitativeFixtures({ category: "contradiction" } as never);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toContainEqual({ path: "$", message: "fixtures must be an array." });
+    }
+  });
+
+  it("fails clearly when a known-category fixture is missing a bundle", () => {
+    const result = evaluateStaticQualitativeFixtures([
+      {
+        category: "contradiction",
+      } as unknown as (typeof NARRATIVE_QUALITATIVE_FIXTURES)[number],
+    ]);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toContainEqual({
+        path: "$.fixtures[0].bundle",
+        message: "bundle must be an object with narrative object arrays.",
+      });
+    }
+  });
+
+  it("fails clearly when a fixture bundle has missing object references", () => {
+    const fixture = NARRATIVE_QUALITATIVE_FIXTURES.find((entry) => entry.category === "relationship_provenance");
+
+    expect(fixture).toBeDefined();
+    if (!fixture) {
+      return;
+    }
+
+    const [relationship, ...remainingRelationships] = fixture.bundle.relationships;
+    expect(relationship).toBeDefined();
+    if (!relationship) {
+      return;
+    }
+
+    const brokenFixture = {
+      ...fixture,
+      bundle: {
+        ...fixture.bundle,
+        relationships: [
+          {
+            ...relationship,
+            sourceId: "missing_relationship_source",
+          },
+          ...remainingRelationships,
+        ],
+      },
+    };
+
+    const result = evaluateStaticQualitativeFixtures([brokenFixture]);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(
+        result.issues.some(
+          (issue) =>
+            issue.path === "$.fixtures[0].bundle.relationships[0].sourceId" &&
+            issue.message === "unknown referenced id: missing_relationship_source",
+        ),
+      ).toBe(true);
     }
   });
 

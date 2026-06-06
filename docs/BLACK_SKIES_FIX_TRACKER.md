@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 205 static qualitative evaluator boundary review/hardening recorded in `app/shared/narrativeStaticQualitativeEvaluator.ts` and `app/renderer/utils/__tests__/narrativeStaticQualitativeEvaluator.test.ts`:
+  - adds a narrow malformed-fixture guard so known-category inputs with missing or malformed bundles fail with validation issues instead of unsafe bundle access,
+  - strengthens evaluator-only tests for signal contract validity, read-only scene id/order preservation, missing-reference failures, derived non-authoritative signal provenance, and absence of file-write/project persistence APIs,
+  - keeps the evaluator fixture-driven and outside runtime/UI/project loading/export/recovery/project-switch behavior, with no AI/Companion inference, automatic prose extraction, or grading authority.
 - [2026-06-05] Pass 204 static qualitative evaluator v0 implemented in `app/shared/narrativeStaticQualitativeEvaluator.ts` and `app/renderer/utils/__tests__/narrativeStaticQualitativeEvaluator.test.ts`:
   - adds a pure shared evaluator that maps the existing manually authored qualitative fixture categories to bounded qualitative signals without prose parsing, AI, Companion inference, grading, or runtime wiring,
   - validates emitted signals against the qualitative signal contract and keeps the slice fixture-driven and read-only.
