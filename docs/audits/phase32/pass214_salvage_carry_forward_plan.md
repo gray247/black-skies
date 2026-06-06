@@ -5,6 +5,14 @@
 This pass defines what should be carried forward into a salvage rebuild, what should wait, and what should remain reference-only.
 It is a planning artifact only.
 
+The target shell remains a two-work-surface system:
+
+- `Writing Surface`
+- `Command Center Surface`
+
+The Writing Surface may be minimally functional first.
+The Command Center Surface may begin as a minimal contextual workspace, but it should exist as a separate work surface from the start.
+
 ## Carry Forward Immediately
 
 ### Shared foundation modules
@@ -94,14 +102,14 @@ These pieces are useful but should not enter the first clean shell:
 - docking or split-command complexity,
 - floating-pane and relocation workflows.
 
-The first shell should prove writing, loading, and clean authority boundaries before any of these come back.
+The first shell should prove Writing Surface flow, Command Center Surface separation, loading, and clean authority boundaries before any of these come back.
 
 ## Reference Only / Quarantine
 
 - `app/renderer/App.tsx`
   - useful knowledge: project activation flow, current scene authority edge cases, shell feature inventory
   - wholesale-copy risk: concentrates too many responsibilities and test-mode paths
-  - clean replacement should do instead: one minimal app root with clear project shell, scene selection, and editor boundaries only
+  - clean replacement should do instead: one minimal app root with clear Writing Surface and Command Center Surface boundaries, plus only the scene selection and editor behavior needed by minimal v0
 
 - `app/main/preload.ts`
   - useful knowledge: existing IPC families and required bridge capabilities
@@ -111,12 +119,12 @@ The first shell should prove writing, loading, and clean authority boundaries be
 - `app/renderer/components/ProjectHome.tsx`
   - useful knowledge: recent project behavior, sample open behavior, basic create/open interactions
   - wholesale-copy risk: mixes loader, diagnostics, session truth, local storage, scene selection, and preview responsibilities
-  - clean replacement should do instead: separate project launcher concerns from workspace concerns
+  - clean replacement should do instead: separate project launcher concerns from the two work surfaces
 
 - `app/renderer/components/workspace/StoryNavigationPanel.tsx`
   - useful knowledge: compact scene-list rendering pattern
   - wholesale-copy risk: tied to `StoryUnitV1` compatibility scaffolding
-  - clean replacement should do instead: render a direct scene list first, with no Story Unit dependency
+  - clean replacement should do instead: render direct scene navigation inside the Writing Surface first, with no Story Unit dependency and no requirement that the Command Center be populated
 
 - `app/renderer/hooks/useRecovery.ts`
   - useful knowledge: recovery-state gating and reopen-flow handling
@@ -211,6 +219,7 @@ Before any rebuild implementation begins, the user should approve:
 
 - branch or folder strategy,
 - minimal shell scope,
+- two-work-surface boundary,
 - carry-forward list,
 - first code slice,
 - stop or kill criteria.

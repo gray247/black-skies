@@ -17,8 +17,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 214A corrected salvage shell planning to preserve the two-work-surface architecture in `docs/audits/phase32/pass213_minimal_clean_shell_boundary.md` and `docs/audits/phase32/pass214_salvage_carry_forward_plan.md`:
+  - replaces the earlier one-workspace wording with an explicit Writing Surface plus Command Center Surface boundary,
+  - keeps writing sovereign and low-friction while bounding the Command Center as a separate contextual workspace that supports writing without gating it.
 - [2026-06-05] Pass 213 and Pass 214 minimal clean shell boundary and salvage carry-forward plan completed in `docs/audits/phase32/pass213_minimal_clean_shell_boundary.md` and `docs/audits/phase32/pass214_salvage_carry_forward_plan.md`:
-  - defines the smallest salvage shell as a scene-first create/open/write surface with one workspace, a narrow bridge, a narrow loader contract, and no Companion, Memory Lab, migration, runtime evaluator use, graph UI, or shell sprawl,
+  - defines the smallest salvage shell as a scene-first create/open/write surface with separate Writing Surface and Command Center Surface work areas, a narrow bridge, a narrow loader contract, and no Companion, Memory Lab, migration, runtime evaluator use, graph UI, or shell sprawl,
   - separates immediate carry-forward modules from later carry-forward and reference-only or quarantine surfaces so the known-good Phase 32 foundation can survive without inheriting the current app monolith,
   - recommends a same-repo salvage branch as the first implementation staging strategy without claiming salvage rebuild start, file moves, code changes, old-app discard, new-shell implementation, or migration start.
 - [2026-06-05] Pass 211 and Pass 212 untangle inventory and rebuild-vs-salvage decision record completed in `docs/audits/phase32/pass211_black_skies_untangle_inventory.md` and `docs/audits/phase32/pass212_rebuild_vs_salvage_decision_record.md`:
