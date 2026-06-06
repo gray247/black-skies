@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 209 and Pass 210 narrative object persistence boundary and contract planning recorded in `docs/audits/phase32/pass209_narrative_object_persistence_boundary_planning.md` and `docs/audits/phase32/pass210_narrative_object_persistence_contract_planning.md`:
+  - classifies the current scene-first project family, loader, drafts, outline, recovery, export, project-switch, and Story Unit scaffolding as the active runtime or compatibility authorities that future narrative persistence must stay behind,
+  - recommends a separate versioned narrative-object store beside existing scene data with explicit scene or chapter projection links while keeping that store optional and outside runtime writes until a later migration and runtime-boundary arc exists,
+  - plans a persistence contract with durable ids, provenance, lineage, tombstones, contradiction coexistence, and missing-store compatibility without claiming persistence implementation, migration, runtime integration, project file writes, or UI behavior.
 - [2026-06-05] Pass 208 foundation integration boundary review and checkpoint recorded in `docs/audits/phase32/pass208_foundation_integration_boundary_review_and_checkpoint.md`:
   - records the completed foundation lane as implemented and tested while keeping it explicitly outside runtime, UI, migration, persistence, export, recovery, and project-switch behavior,
   - confirms the current posture remains test-only, read-only where applicable, and bounded against prose extraction, grading authority, and authored-truth overreach,
