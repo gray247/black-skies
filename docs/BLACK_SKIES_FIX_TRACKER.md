@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-06] Pass 229 and Pass 230 Story Unit and Outline dossiers created in `docs/product_systems/story_unit.md` and `docs/product_systems/outline.md`:
+  - defines Story Unit as an optional author-facing organization primitive with durable grouping identity, lineage-aware lifecycle states, and explicit authored-versus-inferred boundaries without replacing the smaller narrative foundation,
+  - defines Outline as an optional planning, navigation, and structure support system that can reference narrative primitives, Story Units, gaps, and projection containers without becoming narrative truth or a gate before writing,
+  - keeps the pass documentation-only without claiming finalized product vision, code implementation, UI implementation, runtime change, or migration or persistence start.
 - [2026-06-06] Pass 227 and Pass 228 Narrative Insertion / Assertion and Prose / Scene Projection dossiers created in `docs/product_systems/narrative_insertion_assertion.md` and `docs/product_systems/prose_scene_projection.md`:
   - defines `Narrative Insertion / Narrative Assertion` as the smallest narrative foundation with durable identity, authored-versus-inferred boundaries, reorder and contradiction support, and no Story Unit or prose-first gate,
   - defines prose as drafting expression and scene as projection, container, view, or legacy compatibility only, explicitly rejecting scene-first salvage authority and projection-equals-truth drift,
