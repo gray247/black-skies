@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 211 and Pass 212 untangle inventory and rebuild-vs-salvage decision record completed in `docs/audits/phase32/pass211_black_skies_untangle_inventory.md` and `docs/audits/phase32/pass212_rebuild_vs_salvage_decision_record.md`:
+  - inventories the current Phase 32 shared foundation, loader contracts, renderer shell, preload bridge, sample project evidence, and snapshot test truth to separate keep-worthy modules from high-coupling surfaces,
+  - records the main tangle risks around app-shell orchestration size, preload API sprawl, scene-authority duplication, StoryUnit compatibility ossification, recovery or snapshot coupling, and test-mode gravity,
+  - recommends a salvage rebuild decision posture for a smaller clean Black Skies shell without claiming rebuild start, runtime change, file moves, old-app discard, persistence implementation, migration, or GUI work.
 - [2026-06-05] Pass 209 and Pass 210 narrative object persistence boundary and contract planning recorded in `docs/audits/phase32/pass209_narrative_object_persistence_boundary_planning.md` and `docs/audits/phase32/pass210_narrative_object_persistence_contract_planning.md`:
   - classifies the current scene-first project family, loader, drafts, outline, recovery, export, project-switch, and Story Unit scaffolding as the active runtime or compatibility authorities that future narrative persistence must stay behind,
   - recommends a separate versioned narrative-object store beside existing scene data with explicit scene or chapter projection links while keeping that store optional and outside runtime writes until a later migration and runtime-boundary arc exists,
