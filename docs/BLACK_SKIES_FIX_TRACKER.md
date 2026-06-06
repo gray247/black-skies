@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 208 foundation integration boundary review and checkpoint recorded in `docs/audits/phase32/pass208_foundation_integration_boundary_review_and_checkpoint.md`:
+  - records the completed foundation lane as implemented and tested while keeping it explicitly outside runtime, UI, migration, persistence, export, recovery, and project-switch behavior,
+  - confirms the current posture remains test-only, read-only where applicable, and bounded against prose extraction, grading authority, and authored-truth overreach,
+  - recommends persistence boundary planning as the next safe arc instead of runtime implementation.
 - [2026-06-05] Pass 206 and Pass 207 foundation integration planning and test-only proof recorded in `docs/audits/phase32/pass206_foundation_integration_planning.md` and `app/renderer/utils/__tests__/narrativeFoundationIntegration.test.ts`:
   - plans the smallest safe test-only chain across qualitative fixture bundles, narrative object validation, static qualitative evaluation, and qualitative signal validation without runtime wiring,
   - adds a narrow integration proof that fixtures validate, emitted signals stay id-based and non-authoritative, Story Units remain non-mandatory for orphaned assertions, and the optional scene adapter remains read-only and derived,
