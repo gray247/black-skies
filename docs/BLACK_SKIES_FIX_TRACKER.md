@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-06] Pass 225 and Pass 226 Writing Surface and Command Center Surface dossiers created in `docs/product_systems/writing_surface.md` and `docs/product_systems/command_center_surface.md`:
+  - defines the Writing Surface as the sovereign low-friction prose area where direct writing remains available first and neither Command Center nor Story Units are required to begin,
+  - defines the Command Center Surface as a separate contextual support, planning, and inspection workspace that stays non-gating, resists dashboard clutter, and does not elevate inferred or AI output into authored truth,
+  - keeps the pass documentation-only without claiming finalized product vision, code implementation, UI implementation, runtime change, or migration or persistence start.
 - [2026-06-06] Pass 223 and Pass 224 master product system dossier registry and reusable dossier template created in `docs/product_systems/README.md` and `docs/product_systems/_dossier_template.md`:
   - creates the master 42-dossier registry across Product, Intelligence, and System classes so future planning work has named document targets instead of ad hoc feature drift,
   - adds a reusable dossier template that forces authority, provenance, workflow, storage, routing, testing, and future-boundary questions before individual system dossiers are accepted,

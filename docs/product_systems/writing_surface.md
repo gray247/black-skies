@@ -1,0 +1,370 @@
+# Writing Surface
+
+## 1. Status Header
+
+- Dossier name: `Writing Surface`
+- Status: `drafted`
+- Class: `Product`
+- Owner / review lane: `Phase 32 product-definition lane`
+- Last reviewed: `2026-06-06`
+- Depends on: `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
+- Feeds into: `Command Center Surface`, `Outline`, `Story Unit`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Explicit-Content Marker / Send-Package Censor`, `Companion`
+- Runtime authority: `future`
+- User-facing: `yes`
+- Hidden/background: `partial`
+
+## 2. Purpose
+
+Define the sovereign writer-facing surface where Black Skies writing begins and remains valid even when support systems are absent, incomplete, or deferred.
+
+## 3. User Problem Solved
+
+The writer needs a place to enter prose quickly, continue prose with low friction, and stay inside an uncluttered writing flow without being blocked by planning tools, Story Unit setup, or AI workflow ceremony.
+
+## 4. What The System Does
+
+The Writing Surface:
+
+- provides direct entry into prose first,
+- provides the main drafting area for the current writing focus,
+- supports starting from a blank page,
+- supports starting from an idea or insertion,
+- supports continuing from existing prose,
+- may later display projection or container views without making them the foundation,
+- eventually receives structured support from narrative, continuity, critique, revision, and censor systems while keeping the writer in control.
+
+## 5. What The System Does Not Do
+
+The Writing Surface does not:
+
+- require the Command Center before writing can begin,
+- require Story Units before writing can begin,
+- require AI before writing can begin,
+- act as a diagnostics panel,
+- act as a graph workspace,
+- act as a dashboard,
+- become a clone of the Command Center,
+- treat projections or containers as narrative foundation authority,
+- convert inferred or AI-generated material into authored truth automatically.
+
+## 6. User-Facing Behavior
+
+Visible behavior should emphasize:
+
+- fast entry into prose,
+- low friction,
+- writer-first focus,
+- minimal clutter,
+- clear current-writing context,
+- explicit control over when support signals or tool outputs are shown,
+- calm persistence of draft work without ritualized setup steps.
+
+## 7. Hidden/Background Behavior
+
+Background behavior may later include:
+
+- draft autosave or recovery coordination,
+- continuity or critique refresh triggers,
+- explicit-content send-package checks,
+- local model or paid model routing preparation,
+- context packaging for future support systems.
+
+Background behavior must not silently claim authorship, certainty, or authority over writer intent.
+
+## 8. What Appears First
+
+What appears first:
+
+- the writing entry area,
+- the active prose context,
+- minimal project or focus context,
+- minimal controls needed to continue or begin writing.
+
+The first experience must support direct writing before any support surface action.
+
+## 9. What Is Summonable
+
+Summonable later from the Writing Surface:
+
+- outline context,
+- Story Unit context,
+- insertion or assertion context,
+- continuity notes,
+- critique notes,
+- revision or feedback notes,
+- explicit-content send-package status,
+- Companion assistance when explicitly invoked.
+
+These items should appear only when useful to the current writing task.
+
+## 10. What Is Hidden Until Needed
+
+Hidden until needed:
+
+- continuity detail,
+- critique detail,
+- signal-heavy narrative inspection,
+- support summaries from Feedback Notes,
+- send-package masking or approval prompts,
+- Companion context panes,
+- any high-density inspection views that belong primarily to the Command Center.
+
+## 11. Inputs
+
+Current or future inputs:
+
+- raw prose typed by the writer,
+- blank-page intent,
+- idea or insertion seed material,
+- existing prose or restored draft material,
+- narrative insertion or assertion references,
+- Story Unit references when optional and useful,
+- outline context,
+- continuity flags,
+- critique findings,
+- feedback or revision notes,
+- explicit-content marker status,
+- Companion suggestions when explicitly summoned later.
+
+## 12. Outputs
+
+Outputs include:
+
+- working prose,
+- active writing context,
+- revision-ready draft material,
+- writer-approved structured updates later,
+- explicit human decisions about whether support output is accepted or ignored.
+
+Outputs must remain subordinate to author control.
+
+## 13. Which Other Systems Consume Those Outputs
+
+Likely downstream consumers:
+
+- `Narrative Insertion / Narrative Assertion`
+- `Story Unit`
+- `Outline`
+- `Continuity`
+- `Critique`
+- `Feedback Notes / Revision Resolution`
+- `Explicit-Content Marker / Send-Package Censor`
+- `Companion`, later
+
+All downstream systems should consume writer work without claiming that consumption changes authorship status by default.
+
+## 14. What Gets Stored
+
+Eventually stored:
+
+- prose drafts,
+- focus metadata,
+- writer-approved structural references,
+- explicit user choices related to revision or send-package handling,
+- bounded view or placement preferences if they genuinely belong to the writing flow.
+
+## 15. What Remains Temporary
+
+Temporary or derived:
+
+- current cursor and editing state,
+- ephemeral support prompts,
+- transient critique overlays,
+- transient continuity highlights,
+- derived projection views,
+- temporary AI suggestions not yet accepted by the writer.
+
+## 16. Relationship To Narrative Insertion / Assertion
+
+The Writing Surface should eventually read from and feed into `Narrative Insertion / Narrative Assertion`, but those primitives remain the smallest narrative foundation rather than hidden UI-only metadata.
+
+The Writing Surface may begin with direct prose before structured narrative primitives are surfaced to the user.
+When narrative primitives appear, they should support the writing flow rather than replace it with data-entry ceremony.
+
+## 17. Relationship To Story Units
+
+Story Units are optional support structures.
+They may later help the writer navigate or organize work, but they are not required to create or continue prose.
+
+The Writing Surface must remain valid when Story Units are absent, incomplete, or deferred.
+
+## 18. Relationship To Prose / Scene Projection
+
+The Writing Surface may display prose directly and may later display projection or container views.
+Those views remain downstream projections or compatibility surfaces rather than base narrative authority.
+
+Projection display is allowed.
+Projection-led foundation drift is not.
+
+## 19. Relationship To Writing Surface
+
+This dossier defines the Writing Surface itself as the sovereign writing area.
+
+Sovereignty means:
+
+- direct writing remains available first,
+- support systems may assist but not take over,
+- authorial intent is expressed here first,
+- nothing outside the Writing Surface should make basic writing unavailable by default.
+
+## 20. Relationship To Command Center Surface
+
+The Writing Surface is distinct from the Command Center Surface.
+
+The Command Center may support, summarize, inspect, or orchestrate tools around writing, but the Writing Surface does not depend on it in order to begin or continue prose.
+
+## 21. GUI Placement Principles
+
+Placement rules:
+
+- the main visual and interaction weight belongs to prose work,
+- support affordances should be present only when they help current writing,
+- clutter should be aggressively resisted,
+- diagnostics and graph-style views should stay out unless explicitly summoned and justified,
+- the Writing Surface should never read like a dashboard.
+
+## 22. Local LLM Role
+
+Possible later local-model roles:
+
+- suggestion drafting,
+- rewrite assistance,
+- continuity packaging,
+- critique generation,
+- explicit-content-safe local transformations.
+
+All local-model output remains optional until the writer accepts it.
+
+## 23. Paid API Role
+
+Possible later paid-model roles:
+
+- heavier critique,
+- rewrite or generation work,
+- advanced narrative inspection,
+- send-package-safe summarized replacements when needed.
+
+Paid API usage must stay bounded by routing and cost policy dossiers.
+
+## 24. Model Routing Notes
+
+The Writing Surface should not expose raw routing complexity by default.
+Routing should happen through a later dedicated model-policy layer.
+
+Any AI-assisted writing path must keep:
+
+- author control,
+- explicit invocation or explicit workflow policy,
+- cost visibility where relevant,
+- privacy-aware routing,
+- no fake certainty.
+
+## 25. Explicit-Content / Send-Package Handling, If Applicable
+
+The Writing Surface may eventually surface:
+
+- explicit-content flags,
+- masked send-package previews,
+- approval prompts for summary replacements,
+- visibility into what will be sent externally versus what remains local.
+
+It should not silently alter writer prose without clear approval.
+
+## 26. Privacy / Safety / Censor Behavior, If Applicable
+
+Privacy and safety rules:
+
+- local writing remains local unless a later routed action says otherwise,
+- explicit-content handling must preserve continuity while protecting external send paths,
+- unsafe payload handling must not destroy or overwrite the original local writing,
+- censor or masking views must be clearly distinguished from authored prose.
+
+## 27. Testing Requirements
+
+Future proof set should include:
+
+- direct-writing-first tests,
+- no-Command-Center-required tests,
+- no-Story-Unit-required tests,
+- projection-versus-foundation boundary tests,
+- support-overlay non-gating tests,
+- AI suggestion non-authority tests,
+- explicit-content approval-flow tests,
+- clutter and summonability behavior tests where practical.
+
+## 28. Governance Risks
+
+Key risks:
+
+- support systems crowding out direct writing,
+- AI suggestions being mistaken for authored truth,
+- projection containers acquiring hidden authority,
+- Companion becoming a required path instead of optional assistance,
+- critique or continuity output presenting fake certainty,
+- dashboard clutter creeping into the sovereign writing area.
+
+## 29. Failure Modes
+
+Failure modes include:
+
+- writing path blocked by unavailable support systems,
+- clutter overload that slows basic drafting,
+- lost separation between prose and derived overlays,
+- unsafe AI output being blended into prose without approval,
+- send-package handling masking the wrong material,
+- direct writing becoming slower than external editors.
+
+## 30. v1 Boundary
+
+`v1` should include:
+
+- direct prose entry,
+- low-friction continuation of prose,
+- minimal current-writing context,
+- strong separation from the Command Center,
+- no mandatory Story Unit step,
+- no mandatory AI step,
+- no graph or diagnostics takeover.
+
+## 31. v2 Boundary
+
+`v2` may add:
+
+- optional insertion or assertion context,
+- optional Story Unit context,
+- optional continuity overlays,
+- optional critique notes,
+- optional feedback or revision resolution panels,
+- explicit-content send-package visibility.
+
+## 32. Future-Only Boundary
+
+Future-only items:
+
+- deeper Companion co-writing behavior,
+- advanced AI orchestration,
+- dense multi-tool overlays,
+- sophisticated projection switching,
+- integrated graph editing,
+- rich automation that would risk sovereignty or clutter before governance is ready.
+
+## 33. Open Questions
+
+- What is the minimum current-writing context that helps without slowing entry?
+- Which support signals belong inline versus off-surface?
+- When should insertion or assertion references become visible to the writer?
+- How much structure should be writable from the Writing Surface versus only inspectable there?
+- What is the right threshold for surfacing explicit-content send-package prompts?
+
+## 34. Acceptance Criteria
+
+This dossier is acceptable only if it states explicitly that:
+
+- direct writing is available first,
+- the writer can begin without the Command Center,
+- the writer can begin without Story Units,
+- projection containers do not replace the narrative foundation,
+- inferred, derived, or Companion output does not become authored truth without author action,
+- the Writing Surface does not present fake certainty,
+- the Writing Surface does not become a dashboard, diagnostics pane, graph tool, or Command Center clone,
+- AI remains optional rather than mandatory.
