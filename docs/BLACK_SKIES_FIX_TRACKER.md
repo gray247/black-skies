@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 206 and Pass 207 foundation integration planning and test-only proof recorded in `docs/audits/phase32/pass206_foundation_integration_planning.md` and `app/renderer/utils/__tests__/narrativeFoundationIntegration.test.ts`:
+  - plans the smallest safe test-only chain across qualitative fixture bundles, narrative object validation, static qualitative evaluation, and qualitative signal validation without runtime wiring,
+  - adds a narrow integration proof that fixtures validate, emitted signals stay id-based and non-authoritative, Story Units remain non-mandatory for orphaned assertions, and the optional scene adapter remains read-only and derived,
+  - keeps the bundle outside runtime/UI/loading/export/recovery/project-switch behavior with no migration, persistence writes, Companion or AI inference, prose extraction, or grading authority.
 - [2026-06-05] Pass 205 static qualitative evaluator boundary review/hardening recorded in `app/shared/narrativeStaticQualitativeEvaluator.ts` and `app/renderer/utils/__tests__/narrativeStaticQualitativeEvaluator.test.ts`:
   - adds a narrow malformed-fixture guard so known-category inputs with missing or malformed bundles fail with validation issues instead of unsafe bundle access,
   - strengthens evaluator-only tests for signal contract validity, read-only scene id/order preservation, missing-reference failures, derived non-authoritative signal provenance, and absence of file-write/project persistence APIs,
