@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-06] Pass 223 and Pass 224 master product system dossier registry and reusable dossier template created in `docs/product_systems/README.md` and `docs/product_systems/_dossier_template.md`:
+  - creates the master 42-dossier registry across Product, Intelligence, and System classes so future planning work has named document targets instead of ad hoc feature drift,
+  - adds a reusable dossier template that forces authority, provenance, workflow, storage, routing, testing, and future-boundary questions before individual system dossiers are accepted,
+  - keeps the pass documentation-only without claiming individual dossiers completed, finalized product vision, code implementation, runtime change, or migration or persistence start.
 - [2026-06-05] Pass 221 and Pass 222 salvage carry-forward extraction map and product system dossier plan completed in `docs/audits/phase32/pass221_salvage_carry_forward_extraction_map.md` and `docs/audits/phase32/pass222_product_system_dossier_plan.md`:
   - maps what shared contracts, validators, and test or tooling patterns can be carried forward soon, what must wait behind later boundaries, and what old monster-file surfaces should remain reference-only,
   - defines the future dossier set needed to capture Writing Surface, Command Center Surface, narrative foundations, projections, review systems, explicit-content handling, AI routing, and startup or presentation systems before broader salvage implementation continues,
