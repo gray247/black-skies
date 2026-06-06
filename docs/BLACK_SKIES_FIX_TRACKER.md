@@ -17,6 +17,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-06] Pass 227 and Pass 228 Narrative Insertion / Assertion and Prose / Scene Projection dossiers created in `docs/product_systems/narrative_insertion_assertion.md` and `docs/product_systems/prose_scene_projection.md`:
+  - defines `Narrative Insertion / Narrative Assertion` as the smallest narrative foundation with durable identity, authored-versus-inferred boundaries, reorder and contradiction support, and no Story Unit or prose-first gate,
+  - defines prose as drafting expression and scene as projection, container, view, or legacy compatibility only, explicitly rejecting scene-first salvage authority and projection-equals-truth drift,
+  - keeps the pass documentation-only without claiming finalized product vision, code implementation, UI implementation, runtime change, or migration or persistence start.
 - [2026-06-06] Pass 225 and Pass 226 Writing Surface and Command Center Surface dossiers created in `docs/product_systems/writing_surface.md` and `docs/product_systems/command_center_surface.md`:
   - defines the Writing Surface as the sovereign low-friction prose area where direct writing remains available first and neither Command Center nor Story Units are required to begin,
   - defines the Command Center Surface as a separate contextual support, planning, and inspection workspace that stays non-gating, resists dashboard clutter, and does not elevate inferred or AI output into authored truth,
