@@ -17,9 +17,16 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-05] Pass 220A corrected salvage architecture planning to prevent scene-first foundation drift in `docs/audits/phase32/pass219_salvage_exclusion_ledger.md` and `docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md`:
+  - makes Narrative Insertion and Narrative Assertion the salvage-shell foundation and limits scene language to projection, prose-container, or legacy compatibility contexts,
+  - removes scene-first salvage architecture wording from the current extraction and blueprint planning without claiming code change, runtime change, rebuild implementation, or migration start.
+- [2026-06-05] Pass 219 and Pass 220 salvage exclusion ledger and modular salvage architecture blueprint created in `docs/audits/phase32/pass219_salvage_exclusion_ledger.md` and `docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md`:
+  - records the old monster-file surfaces and mixed-authority domains that must not be carried forward wholesale into the salvage shell,
+  - separates rebuild-from-scratch, carry-forward, and quarantine categories so future extraction work can stay selective instead of importing the old shell shape,
+  - defines a modular salvage structure and anti-monster guardrails without claiming extraction implementation, file moves, runtime wiring, rebuild completion, or migration or persistence start.
 - [2026-06-05] Pass 217 and Pass 218 static salvage shell project context planning and static scene list skeleton recorded in `docs/audits/phase32/pass217_salvage_static_project_context_planning.md`, `app/renderer/salvage/salvageShellModel.ts`, and `app/renderer/salvage/MinimalTwoSurfaceShell.tsx`:
-  - plans a salvage-only static model for project title, selected scene, scene list items, prose placeholder text, and project status without using project-loader contracts, sample-project files, or filesystem IO,
-  - adds static project context and a static scene list skeleton inside the isolated two-surface shell so the Writing Surface stays available first and the Command Center stays separate and non-gating,
+  - plans a salvage-only static model for project title, selected writing focus, projection-list placeholder items, prose placeholder text, and project status without using project-loader contracts, sample-project files, or filesystem IO,
+  - adds static project context and a temporary projection-list placeholder inside the isolated two-surface shell so the Writing Surface stays available first and the Command Center stays separate and non-gating,
   - keeps the slice outside runtime replacement, project persistence, recovery, export, project-switch, Companion, AI, evaluator runtime, and migration behavior.
 - [2026-06-05] Pass 215 and Pass 216 salvage branch scaffold readiness review and isolated two-surface shell scaffold recorded in `docs/audits/phase32/pass215_salvage_branch_scaffold_readiness.md` and `app/renderer/salvage/MinimalTwoSurfaceShell.tsx`:
   - confirms the salvage branch head and keeps `logs/pass133-backend.txt` as the only expected untracked path before scaffold work,
@@ -29,7 +36,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - replaces the earlier one-workspace wording with an explicit Writing Surface plus Command Center Surface boundary,
   - keeps writing sovereign and low-friction while bounding the Command Center as a separate contextual workspace that supports writing without gating it.
 - [2026-06-05] Pass 213 and Pass 214 minimal clean shell boundary and salvage carry-forward plan completed in `docs/audits/phase32/pass213_minimal_clean_shell_boundary.md` and `docs/audits/phase32/pass214_salvage_carry_forward_plan.md`:
-  - defines the smallest salvage shell as a scene-first create/open/write surface with separate Writing Surface and Command Center Surface work areas, a narrow bridge, a narrow loader contract, and no Companion, Memory Lab, migration, runtime evaluator use, graph UI, or shell sprawl,
+  - defines the smallest salvage shell as a direct-write create/open/write surface with separate Writing Surface and Command Center Surface work areas, a narrow bridge, a narrow loader contract, and no Companion, Memory Lab, migration, runtime evaluator use, graph UI, or shell sprawl,
   - separates immediate carry-forward modules from later carry-forward and reference-only or quarantine surfaces so the known-good Phase 32 foundation can survive without inheriting the current app monolith,
   - recommends a same-repo salvage branch as the first implementation staging strategy without claiming salvage rebuild start, file moves, code changes, old-app discard, new-shell implementation, or migration start.
 - [2026-06-05] Pass 211 and Pass 212 untangle inventory and rebuild-vs-salvage decision record completed in `docs/audits/phase32/pass211_black_skies_untangle_inventory.md` and `docs/audits/phase32/pass212_rebuild_vs_salvage_decision_record.md`:
