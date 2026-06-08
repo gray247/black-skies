@@ -78,8 +78,10 @@ Nothing should block direct writing by default.
 ## 12. Outputs
 
 - marker states later,
+- local-only, outbound-blocked, or transform-required classifications later,
 - masked or summarized outbound packages,
 - approval prompts later,
+- refusal or fallback states later,
 - risk classifications later.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -94,15 +96,17 @@ Nothing should block direct writing by default.
 
 - explicit-content preferences later,
 - marker metadata later,
-- approval history later,
+- approval and refusal history later,
 - transformed-package audit records later.
+- local-only lock decisions later.
 
 ## 15. What Remains Temporary
 
 - one-off transformed packages,
 - masking previews,
 - ephemeral safety summaries,
-- pre-send warnings.
+- pre-send warnings,
+- provider refusal states awaiting local fallback or abandonment.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -149,6 +153,7 @@ Starting never-send or raw outbound categories include explicit sexual content, 
 - outbound packages may be masked, summarized, or transformed,
 - local-only raw analysis is preferred,
 - routing must respect explicit-content risk before cost optimization,
+- explicit-content classification may force local-only handling, block outbound packaging, or require transformed-package approval,
 - original prose must remain unchanged by censor behavior.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
@@ -156,7 +161,8 @@ Starting never-send or raw outbound categories include explicit sexual content, 
 - marker, censor, and package systems are related but not identical,
 - masking should preserve continuity and causality where possible,
 - never-send or raw outbound categories are a starting doctrine rather than a finished exhaustive list,
-- transformed packages should be previewable and later approvable.
+- transformed packages should be previewable and later approvable,
+- explicit-content handling must hand a clear local-only, transform-required, or outbound-blocked state to routing and package construction before any provider call.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -219,8 +225,8 @@ Richer marker systems, per-project policy, and export-aware handling.
 ### Critical Questions
 
 - What minimum transformation contract is required before any outbound explicit-content package is assembled?
+- What local-only, transform-required, or outbound-blocked classification must explicit-content handling hand to routing and package construction before any provider call is allowed?
 - What preview and approval steps are mandatory before transformed explicit-content material is sent outward?
-- What routing and package checks must explicit-content material pass before any provider call or export-aware send path is allowed?
 - What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package?
 - What local-only raw analysis is allowed, and which results from that analysis must never cross into outbound raw-package behavior without a new decision?
 

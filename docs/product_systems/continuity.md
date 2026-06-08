@@ -74,15 +74,17 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 
 ## 12. Outputs
 
-- continuity signals,
+- continuity findings,
 - contradiction candidates,
 - unresolved-causality warnings,
 - evidence bundles,
+- continuity-derived signal candidates for `Signal Architecture`,
 - accepted continuity notes later.
 - accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions.
 
 ## 13. Which Other Systems Consume Those Outputs
 
+- `Signal Architecture`
 - `Writing Surface`
 - `Command Center Surface`
 - `Memory Lab`
@@ -94,13 +96,14 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 
 - accepted continuity decisions later,
 - accepted continuity truth in author-owned foundations, notes, lore, character facts, or explicit author decisions later,
-- purposeful durable advisory history later when it helps track story maturation,
-- provenance for accepted findings,
+- explicitly retained durable advisory history later when it helps explain story maturation or a resolved continuity outcome,
+- provenance for accepted findings and retained dismiss or suppress decisions later,
 - explicit suppress or ignore decisions later.
 
 ## 15. What Remains Temporary
 
 - unaccepted findings,
+- continuity-derived signal candidates before normalization or expiry,
 - confidence estimates,
 - ephemeral comparison runs,
 - provisional hypotheses,
@@ -223,10 +226,10 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 ### Critical Questions
 
 - What narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
-- Which continuity outputs must remain temporary signals, and which may become durable only after explicit author action?
-- What minimum state model is required for accepted, dismissed, suppressed, and ignored findings before any continuity UI or storage wiring is attempted?
-- Which continuity finding types may surface directly as advisory signals, and which must stay inside inspectable evidence rather than appearing as truth claims?
-- Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts them?
+- Which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
+- What minimum shared state model is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
+- Which acceptance outcomes create author-owned truth updates, and which remain advisory-only continuity records?
+- Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
 
 ### Major Questions
 

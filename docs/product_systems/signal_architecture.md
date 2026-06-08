@@ -64,18 +64,19 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 
 ## 11. Inputs
 
-- continuity findings,
-- critique outputs,
+- continuity findings and continuity-derived signal candidates,
+- critique outputs and critique-derived signal candidates,
 - Memory Lab findings later,
 - Companion observations later,
 - structural or projection context when relevant.
 
 ## 12. Outputs
 
-- normalized signals,
-- provenance markers,
+- normalized signal records,
+- provenance and source references,
 - severity and confidence labels,
-- mute or resolve candidates later.
+- display-safe summaries later,
+- mute, resolve, or stale-state candidates later.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -88,15 +89,18 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 ## 14. What Gets Stored
 
 - accepted resolutions later,
-- purposeful durable advisory history later when it helps track story maturation,
 - signal provenance later,
-- mute or suppress preferences later.
+- mute, suppress, resolve, and staleness state later,
+- explicitly retained durable advisory history later when it remains relevant,
+- never accepted story truth.
 
 ## 15. What Remains Temporary
 
+- candidate signals before normalization,
 - ephemeral signals,
 - stale signals after rewrite,
 - low-confidence hints,
+- duplicate or superseded signal instances,
 - background suggestions not yet surfaced,
 - missing or irrelevant data that does not become useful information.
 
@@ -204,12 +208,12 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Critical Questions
 
-- Which systems may emit first-class signals, and which may only produce findings that another system must normalize first?
-- Which consumers may only display signals, and which may offer accept, dismiss, mute, or resolve actions?
-- What minimum normalized signal contract must every signal carry for severity, confidence, provenance, and source reference before multi-surface wiring exists?
-- What storage contract applies to signal provenance, mute state, resolution state, and staleness markers before runtime wiring is attempted?
-- What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels?
-- Which signal events justify durable advisory history, and which should expire as temporary noise?
+- Which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
+- Which downstream consumers may only display signals, and which may change signal state through accept, dismiss, mute, resolve, or stale actions?
+- What minimum normalized signal state contract must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
+- What storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
+- What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
+- Which signal history events justify durable storage, and which should expire as temporary noise once no longer relevant?
 
 ### Major Questions
 

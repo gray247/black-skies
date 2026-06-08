@@ -77,8 +77,10 @@ Heavy long-context or expensive provider escalation.
 ## 12. Outputs
 
 - route decisions,
+- local-only, blocked, or outbound-eligible status later,
 - manual approval prompts later,
 - blocked or downgraded run outcomes,
+- package-assembly allowed or denied status later,
 - visible mode status later.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -95,6 +97,7 @@ Heavy long-context or expensive provider escalation.
 - user mode preferences later,
 - budget caps later,
 - routing policy selections later,
+- explicit approval history later,
 - run history summaries later.
 
 ## 15. What Remains Temporary
@@ -102,7 +105,8 @@ Heavy long-context or expensive provider escalation.
 - per-run route decisions,
 - transient cost estimates,
 - fallback warnings,
-- one-off manual approvals.
+- one-off manual approvals,
+- provider refusal states before retry, local fallback, or abandonment.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -155,10 +159,11 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 
 Routing must respect explicit-content rules.
 Some tasks may be local-only because outbound packages are unsafe or unacceptable.
+Routing must decide whether work stays local-only, may assemble outbound packages, or must stop entirely after explicit-content checks.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Routing must honor privacy mode, explicit-content boundaries, and no-money or local-only constraints without silently overriding them.
+Routing must honor privacy mode, explicit-content boundaries, and no-money or local-only constraints without silently overriding them or silently reclassifying a blocked task as outbound-safe.
 
 ## 27. Testing Requirements
 
@@ -217,6 +222,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 - Which task classes, if any, may run silently, and only under local, deterministic, or explicitly pre-approved conditions?
 - Which task classes always require fresh user approval even when project settings, prior modes, or convenience rules would otherwise permit a run?
+- Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls?
 - What minimum spending guardrails must exist before any paid-model path can be wired?
 - What cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
 - What fallback behavior is allowed when local execution fails, when paid execution fails, or when both paths are blocked?
