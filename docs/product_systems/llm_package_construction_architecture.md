@@ -165,6 +165,17 @@ Packages must respect privacy, censorship, and explicit-content boundaries befor
 Package construction must not override local-only, never-send, or refusal states handed down by routing or explicit-content policy.
 Package construction must preserve the distinction between raw manuscript, author redaction or mask map, and outbound package view.
 
+Minimum rough package-boundary vocabulary:
+
+- `raw manuscript`: the author's underlying prose or narrative material before redaction, masking, substitution, or exclusion for AI use.
+- `author redaction or mask map`: the author's explicit instructions for which ranges may be hidden, summarized, substituted, or excluded for a given AI task.
+- `AI exclusion zone`: a range or artifact barred from routing, package assembly, previews, summaries, and outbound payloads unless the author later authorizes a different treatment.
+- `author-approved package view`: the redacted, summarized, substituted, or otherwise prepared AI-facing context the author has approved for the task.
+- `outbound payload view`: the actual provider-bound payload rendered from the approved package view plus task wrapper, safety wrapper, and provider-specific formatting.
+
+These are rough product-definition boundaries, not a final implementation schema.
+Raw excluded ranges must not leak into outbound package construction, package previews, or package summaries, and downstream systems must rely on the approved package view rather than silently reaching back to raw excluded text.
+
 ## 27. Testing Requirements
 
 - package ordering is deterministic,
@@ -223,7 +234,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - What truncation contract preserves mission, hard rules, evidence scope, and output expectations under token pressure?
 - What provider-neutral safety checks must run before any outbound provider call or package approval surface is wired?
 - What invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
-- How must raw manuscript, author redaction or mask map, AI exclusion zones, and outbound package view remain distinct through package assembly?
+- How must raw manuscript, author redaction or mask map, AI exclusion zones, author-approved package view, and outbound payload view remain distinct through package assembly?
 - How must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
 
 ### Major Questions

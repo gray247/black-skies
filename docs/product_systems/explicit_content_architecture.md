@@ -161,6 +161,17 @@ Starting never-send or raw outbound categories include explicit sexual content, 
 - explicit-content classification may force local-only handling, block outbound packaging, or require transformed-package approval,
 - original prose must remain unchanged by censor behavior.
 
+Minimum rough routing-state vocabulary for explicit-content handling:
+
+- `silent-local`: local-only, free, non-destructive, advisory explicit-content work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
+- `session-approved`: higher-risk handling the author has explicitly allowed for the current session, within bounded scope.
+- `fresh-approval-required`: handling that needs a new explicit approval because risk, destination, spend, or package contents changed.
+- `blocked`: policy disallows the outbound or tool-using path before execution.
+- `refused`: an otherwise eligible path is declined by the provider, the system, or the user at approval time.
+- `no-ai-route-available`: no permitted AI route remains after local refusal or failure, outbound refusal or blocking, failed clearance, denied approval, or insufficient masking or substitution.
+
+These are rough product-definition states, not a final implementation workflow.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 - marker, censor, and package systems are related but not identical,
@@ -170,11 +181,23 @@ Starting never-send or raw outbound categories include explicit sexual content, 
 - explicit-content handling must hand a clear local-only, transform-required, or outbound-blocked state to routing and package construction before any provider call,
 - outbound package construction must use the author-approved redacted or package view rather than excluded raw manuscript ranges.
 
+Minimum rough package-boundary vocabulary:
+
+- `raw manuscript`: the author's original prose before any masking, substitution, summary, or exclusion for AI use.
+- `author redaction or mask map`: the author's explicit range-level instructions for hiding, summarizing, substituting, or excluding content for a task.
+- `AI exclusion zone`: any marked range that AI routing, package construction, previews, summaries, or outbound payloads must not use unless the author later grants a different authorization.
+- `author-approved package view`: the prepared AI-facing version the author approves for the task after masking, substitution, summary, or exclusion.
+- `outbound payload view`: the actual provider-bound content rendered from the approved package view plus task-specific wrapping.
+
+Masked summaries and substitutions are package or context artifacts, not author-owned truth unless the author explicitly saves or converts them.
+These are rough product-definition boundaries, not a final implementation schema.
+
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 - no silent outward leakage of raw explicit content,
 - no silent censorship of the local manuscript,
 - AI exclusion zones must be honored by routing, package construction, Continuity, Signal Architecture, Memory Lab, Companion, and any outbound package preview,
+- raw excluded ranges must not leak into signal summaries, previews, Memory Lab behavior, Companion behavior, or outbound payload construction unless the author explicitly authorizes a different treatment,
 - preserve meaning where possible,
 - surface uncertainty when masking damages context.
 
@@ -201,6 +224,9 @@ Risks:
 - unclear difference between masked package and edited manuscript,
 - API refusal loops,
 - trust loss if transforms are hidden.
+
+At rough doctrine level, `no-ai-route-available` appears when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, approval is denied or clearance fails, and no permitted AI fallback remains for that AI task.
+`no-ai-route-available` is route failure, not manuscript failure, and direct writing must remain available.
 
 ## 29. Failure Modes
 

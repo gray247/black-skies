@@ -158,12 +158,24 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - spending guardrails must stay visible and bounded,
 - exact spending thresholds remain unresolved.
 
+Minimum rough routing and approval-state vocabulary:
+
+- `silent-local`: local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
+- `session-approved`: work allowed for a bounded risk class after explicit approval in the current session, without implying standing permission forever.
+- `fresh-approval-required`: work risky enough to require a new explicit approval because scope, spend, destination, or consequence changed.
+- `blocked`: work policy disallows before execution because privacy, explicit-content, budget, project, or user rules forbid the route.
+- `refused`: a route that was attempted or considered eligible but then declined by the provider, the system, or the user at approval time.
+- `no-ai-route-available`: all permitted AI routes for the task are unavailable, blocked, refused, or clearance-failed, and no allowed AI fallback remains.
+
+These are rough product-definition states, not a final runtime permission model.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Routing must respect explicit-content rules.
 Some tasks may be local-only because outbound packages are unsafe or unacceptable.
 Routing must decide whether work stays local-only, may assemble outbound packages, or must stop entirely after explicit-content checks.
-If both local and outbound AI routes fail or refuse even after allowed masking, substitution, or route changes, the routing outcome becomes `no-ai-route-available`.
+At rough doctrine level, `no-ai-route-available` appears when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, approval is denied or clearance fails, and no permitted AI fallback remains for that task.
+`no-ai-route-available` is route failure, not manuscript failure, and direct writing must remain available.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -237,7 +249,6 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 ### Major Questions
 
 - What exact spending thresholds should exist?
-- What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling?
 - How should per-project versus global modes work?
 - How should mode changes behave mid-project, especially local-only to API?
 - How should API findings be reconciled with local findings when they contradict each other?
@@ -261,6 +272,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards. If clearance fails, package assembly must stop or produce only local, non-outbound artifacts.
 - Does outbound refusal or failure count as a manuscript failure? Answered: no. A refusal is treated as a route failure, not a manuscript failure.
 - What is the starting routing precedence? Answered: user approval or refusal -> privacy or local-only -> explicit-content restrictions -> no-money or budget limits -> project settings -> model quality preference -> convenience or automation.
+- What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling? Answered: rough doctrine uses those states with the meanings defined in this dossier; exact approval thresholds and enforcement remain unresolved.
 
 ### Deferred Questions
 

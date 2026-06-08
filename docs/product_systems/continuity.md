@@ -190,6 +190,20 @@ Governance rules:
 - no inferred finding becomes authored truth without user action,
 - durable advisory history must be purposeful and relevant rather than stored just because data exists.
 
+Minimum rough lifecycle vocabulary for continuity and signal handoff:
+
+- `candidate`: an unaccepted continuity finding, evidence bundle, or potential signal handoff that remains advisory.
+- `accepted`: the author has explicitly accepted the continuity outcome as meaningful; accepted manuscript prose becomes authored text, but structured continuity truth appears only through explicit save, convert, or update actions.
+- `dismissed`: a reviewed continuity item judged not actionable and not worth active surfacing, though minimal provenance may remain.
+- `suppressed`: a continuity item intentionally hidden from default surfacing without claiming the underlying concern was false.
+- `ignored`: a continuity item left unacted on, with no promise of durable retention beyond temporary advisory history.
+- `stale`: a continuity item likely outdated after rewrite or new evidence and needing revalidation before reuse.
+- `expired`: a stale or low-value advisory item that should stop surfacing and usually stop persisting.
+- `converted`: an advisory continuity outcome explicitly turned into another durable form, such as a signal handoff or an author-owned note or fact.
+- `resolved`: a continuity concern whose review loop is closed by dismissal, suppression, or explicit author action.
+
+These are rough product-definition terms, not a final runtime schema.
+
 Risks:
 
 - false certainty,
@@ -231,13 +245,12 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 - What narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
 - Which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
-- What minimum shared state model is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
+- What minimum shared state model, beyond the rough lifecycle vocabulary above, is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
 - Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
 
 ### Major Questions
 
 - Who are the exact continuity producers and consumers?
-- What shared lifecycle or state vocabulary should `Continuity` and `Signal Architecture` use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states?
 - How should intentional contradiction and unresolved mystery be distinguished from actual continuity holes?
 - How should imported scene-first projects, deleted draft material, and recovery artifacts be handled?
 
@@ -256,6 +269,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Which acceptance outcomes create author-owned truth updates, and which remain advisory-only continuity records? Answered: only explicit author acceptance creates author-owned continuity truth; accepted manuscript prose becomes authored text, but structured continuity facts are created only by explicit save, convert, or update actions.
 - Do AI inference, summaries, signals, and advisory continuity records become author-owned continuity truth on their own? Answered: no, they remain advisory evidence until explicitly accepted by the author.
 - Is there a separate accepted-continuity kingdom or shadow canon? Answered: no.
+- What shared lifecycle or state vocabulary should `Continuity` and `Signal Architecture` use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states? Answered: rough doctrine uses those terms with continuity-specific meanings in this dossier; exact runtime schema and storage contracts remain unresolved.
 
 ### Deferred Questions
 

@@ -174,6 +174,20 @@ Governance rules:
 - accepted story truth must live in author-owned foundations rather than in the signal layer,
 - durable advisory history must be purposeful and relevant rather than retained as noise.
 
+Minimum rough lifecycle vocabulary for signal handoff and durable signal state:
+
+- `candidate`: an upstream advisory finding offered to `Signal Architecture` for normalization, not yet durable signal state.
+- `accepted`: a signal outcome or state change that the author, or an explicit accepted workflow, has approved as durable signal state.
+- `dismissed`: a reviewed signal judged not actionable and no longer worth active surfacing.
+- `suppressed`: a signal intentionally hidden from default views while preserving bounded provenance and policy state.
+- `ignored`: a signal left unresolved without an explicit suppression, dismissal, or resolution action.
+- `stale`: a signal likely outdated after rewrite, new evidence, or context drift and needing revalidation before reuse.
+- `expired`: a stale or low-value signal removed from active surfacing because it no longer justifies durable attention.
+- `converted`: a signal explicitly turned into another downstream artifact or action request, without becoming story truth on its own.
+- `resolved`: a signal concern whose handling loop is closed for triage purposes, even though accepted story truth still lives elsewhere.
+
+These are rough product-definition terms, not a final runtime schema or storage contract.
+
 Risks:
 
 - alert fatigue,
@@ -212,14 +226,13 @@ Resolution flows, mute policies, and smarter grouping.
 
 - Which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
 - Which accepted workflows, if any, besides direct author action may create durable signal-state changes?
-- What minimum normalized signal state contract must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
+- What minimum normalized signal state contract, beyond the rough lifecycle vocabulary above, must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
 - What storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
 - What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
 - Which signal history events justify durable storage, and which should expire as temporary noise once no longer relevant?
 
 ### Major Questions
 
-- What shared lifecycle or state vocabulary should `Signal Architecture` and upstream advisory producers use for candidate, normalized, dismissed, suppressed, ignored, stale, expired, converted, and resolved states?
 - How should muting and resolution work without hiding source truth?
 - How should stale signals after heavy rewrite be expired or revalidated?
 - How should conflicting signals from multiple producers be grouped or challenged?
@@ -238,6 +251,7 @@ Resolution flows, mute policies, and smarter grouping.
 - Who owns durable signal state? Answered: `Signal Architecture`.
 - May consumer surfaces create durable signal-state changes on their own? Answered: no. Consumer surfaces may display signals and request actions, but only the author or explicit accepted workflows may create durable resolve, dismiss, snooze, convert, or similar signal-state changes.
 - Does accepted story truth live in the signal layer? Answered: no, accepted truth belongs in author-owned story foundations or other explicit author decisions.
+- What shared lifecycle or state vocabulary should `Signal Architecture` and upstream advisory producers use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states? Answered: rough doctrine uses those terms with signal-specific meanings in this dossier; exact normalization, storage, and transport contracts remain unresolved.
 
 ### Deferred Questions
 
