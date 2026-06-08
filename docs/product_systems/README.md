@@ -109,6 +109,26 @@ Registry rule:
 - it should not be treated as product authority until it is at least `reviewed`
 - `accepted` means the planning boundary is approved, not that runtime implementation is complete
 
+## Current Rough Dossier Blanks
+
+The following rough dossiers now exist as first-wave `exploring` or `partial` working files.
+They are not build-ready.
+Some are direct dossier targets from the master list, and some are bridge or architecture dossiers that may later merge, shrink, or split back into the master list.
+
+| File | Maps to registry target(s) | Current posture | Build-ready |
+| --- | --- | --- | --- |
+| `continuity.md` | `Continuity` | rough / exploring | no |
+| `signal_architecture.md` | `Continuity`, `Critique`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
+| `authorship_provenance_ai_visibility.md` | `Writing Surface`, `Command Center Surface`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Import / Export / Google Docs` | rough / exploring | no |
+| `model_routing_and_budget_architecture.md` | `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails` | rough / exploring | no |
+| `llm_package_construction_architecture.md` | `Model Router / Provider Execution Policy`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Memory Lab` | rough / exploring | no |
+| `explicit_content_architecture.md` | `Explicit-Content Marker / Send-Package Censor`, `Import / Export / Google Docs` | rough / exploring | no |
+| `memory_lab.md` | `Memory Lab` | rough / exploring | no |
+| `companion.md` | `Companion` | rough / exploring | no |
+
+Question migration is now dossier-centered.
+The raw question bank is archive or intake only and should not remain the main active planning spine.
+
 ## Dependency Notes
 
 Dependency posture:
@@ -118,6 +138,7 @@ Dependency posture:
 - intelligence systems should not become hidden runtime authority over authored truth.
 - system dossiers must exist early enough to constrain execution, evidence, storage, routing, and failure behavior before complex intelligence features expand.
 - `Command Center Surface` supports writing and organizes support systems, but it does not gate direct writing.
+- rough bridge dossiers may exist temporarily when they prevent question-bank sprawl, but they should later merge, shrink, split, or disappear once the permanent dossier boundaries are clearer.
 
 ## Not Good-Idea-Fairy Clarification
 

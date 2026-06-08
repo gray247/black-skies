@@ -10,8 +10,15 @@
 - Depends on:
 - Feeds into:
 - Runtime authority: `yes` / `no` / `future`
+- Authority level: `authored truth` / `advisory` / `derived` / `operational` / `future`
 - User-facing: `yes` / `no` / `partial`
 - Hidden/background: `yes` / `no` / `partial`
+
+Template rules:
+
+- Dossiers are living investigation files. They may end as `build`, `merge`, `shrink`, `split`, `defer`, `reject`, or `unknown`.
+- Raw open-question banks are archive or intake sources only. Questions should migrate into the relevant dossier before they guide design or implementation.
+- Answered questions should be marked `resolved` or `superseded`, not recopied forever.
 
 ## 2. Purpose
 
@@ -119,9 +126,9 @@ Describe any local-model responsibility.
 
 Describe any paid-model responsibility.
 
-## 24. Model Routing Notes
+## 24. Model Routing Notes And Cost / Budget Impact
 
-Describe routing, privacy, cost, fallback, and control notes when models are involved.
+Describe routing, privacy, cost, fallback, control notes, and budget impact when models are involved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -135,9 +142,9 @@ Describe privacy, safety, filtering, and censor boundaries.
 
 List the minimum proof set for the system.
 
-## 28. Governance Risks
+## 28. Governance Rules And Risks
 
-Describe governance and authority risks, including any danger of:
+List hard governance rules first, then describe governance and authority risks, including any danger of:
 
 - inferred or Companion output being treated as authored truth,
 - false confidence being displayed as certainty,
@@ -163,7 +170,38 @@ Describe items that are explicitly out of scope for near-term implementation.
 
 ## 33. Open Questions
 
-List unresolved planning questions.
+Use the following structure:
+
+### Known Answers
+
+List answers that are already established by current doctrine so they do not return as pseudo-open questions.
+
+### Open Questions
+
+List unresolved planning questions that still need investigation.
+
+### Edge Cases
+
+List edge cases worth preserving during design so they do not disappear into happy-path planning.
+
+### Blockers Before Coding
+
+List the unresolved questions that block safe implementation or runtime wiring.
+
+### Can Defer
+
+List questions that matter, but do not block the next bounded planning or implementation slice.
+
+### Possible Merge / Shrink / Delete
+
+List ways the dossier may later merge into another dossier, shrink to a subsection, split into narrower dossiers, or be rejected.
+
+### Question Intake Notes
+
+Record which raw question-bank items, loose notes, or historical planning artifacts should be triaged into this dossier next.
+
+Raw question banks remain archive or intake sources only.
+Answered questions should be marked `resolved` or `superseded` here rather than recopied forever.
 
 ## 34. Acceptance Criteria
 
@@ -175,4 +213,6 @@ This dossier is acceptable only if it states explicitly that:
 - the system does not present fake certainty,
 - the system does not introduce story grading unless a future explicitly approved tool authorizes it,
 - the system does not create dashboard clutter as default behavior,
-- the system does not claim hidden runtime authority that the implementation does not actually own.
+- the system does not claim hidden runtime authority that the implementation does not actually own,
+- active questions live in the dossier instead of only in a giant standalone register,
+- the dossier remains a living investigation file rather than a locked milestone claim.
