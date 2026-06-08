@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-08] `docs/product_systems/pre_code_discovery_plan.md` created:
+  - records the 12-step pre-code roadmap and handover spine,
+  - docs-only with no runtime or app-source changes,
+  - planning-only and not build-ready.
 - [2026-06-08] Fatal Question Decision Patch 1 applied Jason decisions across the first-wave rough dossiers:
   - resolves or downgrades Fatal questions where doctrine now answers author authority over AI text, accepted continuity truth, purposeful advisory history, Memory Lab retention, routing precedence, never-send raw outbound rules, provider-specific packaging evolution, and Companion authority,
   - keeps the affected dossiers rough or exploring and not build-ready,
