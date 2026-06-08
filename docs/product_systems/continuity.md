@@ -237,6 +237,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 ### Major Questions
 
 - Who are the exact continuity producers and consumers?
+- What shared lifecycle or state vocabulary should `Continuity` and `Signal Architecture` use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states?
 - How should intentional contradiction and unresolved mystery be distinguished from actual continuity holes?
 - How should imported scene-first projects, deleted draft material, and recovery artifacts be handled?
 
@@ -262,6 +263,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Advanced batch reporting.
 - Polished visual severity systems.
 - Possible merge or shrink with `signal_architecture.md` after both contracts are sharper.
+- Does a reusable continuity and signal lifecycle contract artifact eventually need to exist, or can the stabilized lifecycle rules remain inside these dossiers and `system_interaction_map.md`?
 
 ## 34. Acceptance Criteria
 

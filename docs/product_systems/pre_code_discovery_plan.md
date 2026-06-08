@@ -149,6 +149,34 @@ Current product-system planning has already completed these steps:
 - Status: not complete.
 - Rule: do not mark build-ready while Critical questions remain.
 
+#### Current Follow-On Contract Needs
+
+These are candidate contract artifacts revealed during Step 6 tightening.
+Do not create new docs for them yet.
+Capture them inside the existing dossiers unless a later controlled batch proves a separate artifact is necessary.
+
+- Continuity / Signal shared lifecycle contract
+  Candidate homes: `continuity.md`, `signal_architecture.md`, and `system_interaction_map.md` only if a relationship note is helpful.
+- Durable advisory history retention contract
+  Candidate homes: `continuity.md`, `signal_architecture.md`, `memory_lab.md`.
+- Approval classes and spend guardrails contract
+  Candidate homes: `model_routing_and_budget_architecture.md`, `companion.md`, `llm_package_construction_architecture.md`.
+- Provider-neutral package contract
+  Candidate homes: `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`.
+- Redaction / mask-map / package-view contract
+  Candidate homes: `llm_package_construction_architecture.md`, `explicit_content_architecture.md`, and relationship notes in `continuity.md` or `signal_architecture.md` if needed.
+- Explicit-content preview and clearance contract
+  Candidate homes: `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`.
+- `no-ai-route-available` escalation contract
+  Candidate homes: `model_routing_and_budget_architecture.md`, `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, `companion.md`.
+
+Rule for these needs:
+
+- keep product or system contract shaping inside existing dossiers first,
+- do not create a new product dossier unless selected by a controlled batch,
+- do not create a separate signal tracker or signal-state doc unless a later controlled batch proves `signal_architecture.md` and `system_interaction_map.md` are insufficient,
+- if a later separate contract artifact is justified, classify it as reusable or temporary at creation time and define its later archive, merge, or supersede rule.
+
 ### 7. Ecosystem Review
 
 - Purpose: compare dossiers for overlap, redundancy, missing systems, merge, shrink, or delete candidates.
@@ -234,6 +262,7 @@ Do not create yet:
 - `system_topology.md` unless topology review begins
 - `ecosystem_review.md` unless ecosystem review begins
 - new product dossiers unless selected by a controlled batch
+- separate signal tracker or signal-state doc unless a controlled batch proves existing dossier homes are insufficient
 
 ## Stop Conditions
 

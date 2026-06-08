@@ -237,6 +237,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 ### Major Questions
 
 - What exact spending thresholds should exist?
+- What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling?
 - How should per-project versus global modes work?
 - How should mode changes behave mid-project, especially local-only to API?
 - How should API findings be reconciled with local findings when they contradict each other?
@@ -266,6 +267,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Advanced dashboards.
 - Fine-grained provider tuning.
 - Possible split into routing policy and budget guardrails, or shrink if master routing dossiers absorb it.
+- Does a reusable approval classes and spend guardrails contract eventually need to exist, or can the stabilized class vocabulary remain inside routing, package construction, explicit-content, and Companion dossiers?
 
 ## 34. Acceptance Criteria
 

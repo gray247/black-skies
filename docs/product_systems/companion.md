@@ -248,6 +248,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 - Advanced conversation memory.
 - Surface or tone consolidation from bridge docs after the Companion contract is stable.
+- Does the `no-ai-route-available` escalation contract eventually need a reusable Companion-facing artifact, or can the fallback explanation and manual or no-AI options remain split across routing, explicit-content, package construction, and Companion dossiers?
 
 ## 34. Acceptance Criteria
 

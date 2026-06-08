@@ -266,6 +266,8 @@ Richer marker systems, per-project policy, and export-aware handling.
 
 - Provider-specific transformations.
 - Possible split between writer-visible markers and outbound send-package behavior if one side needs its own dossier.
+- Does a reusable explicit-content preview and clearance contract eventually need to exist, or can the stabilized clearance states remain inside explicit-content, routing, and package construction dossiers?
+- Does the `no-ai-route-available` escalation contract eventually need a reusable artifact, or can it remain split across routing, explicit-content, package construction, and Companion dossiers?
 
 ## 34. Acceptance Criteria
 

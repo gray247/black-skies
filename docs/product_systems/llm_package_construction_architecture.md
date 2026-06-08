@@ -260,6 +260,8 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Advanced compression tuning.
 - Per-provider optimization.
 - Partial merge into routing or explicit-content dossiers after package rules are stable enough to shrink safely.
+- Does a reusable provider-neutral package contract eventually need to exist, or can the stabilized outbound invariants remain inside routing, package construction, and explicit-content dossiers?
+- Does a reusable redaction or mask-map or package-view contract eventually need to exist, or can the stabilized state distinctions remain inside package construction and explicit-content dossiers?
 
 ## 34. Acceptance Criteria
 

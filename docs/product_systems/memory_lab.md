@@ -248,6 +248,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 - Advanced investigation modes.
 - Public-facing shrink into `Companion` if Companion becomes the visible front-end for most interactions.
+- Does a reusable durable advisory history retention contract eventually need to exist across `Continuity`, `Signal Architecture`, and `Memory Lab`, or can the stabilized retention rules remain inside those dossiers?
 
 ## 34. Acceptance Criteria
 

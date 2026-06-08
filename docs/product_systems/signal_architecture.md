@@ -219,6 +219,7 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Major Questions
 
+- What shared lifecycle or state vocabulary should `Signal Architecture` and upstream advisory producers use for candidate, normalized, dismissed, suppressed, ignored, stale, expired, converted, and resolved states?
 - How should muting and resolution work without hiding source truth?
 - How should stale signals after heavy rewrite be expired or revalidated?
 - How should conflicting signals from multiple producers be grouped or challenged?
@@ -243,6 +244,7 @@ Resolution flows, mute policies, and smarter grouping.
 - Historical dashboards.
 - Advanced multi-project signal aggregation.
 - Possible shrink into shared contracts if signal governance becomes small enough.
+- Does a reusable continuity and signal lifecycle contract artifact eventually need to exist, or can the stabilized lifecycle rules remain inside `signal_architecture.md`, `continuity.md`, and `system_interaction_map.md`?
 
 ## 34. Acceptance Criteria
 
