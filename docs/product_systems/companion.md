@@ -215,12 +215,12 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 ### Critical Questions
 
-- What visibility triggers are allowed?
-- What interruption rules are allowed?
-- What escalation rules are allowed?
-- What API spending rules govern Companion work?
-- What evidence citation expectations apply before Companion claims investigative support?
-- What explicit user-action permission model governs tool triggers?
+- Jason decision candidate: what visibility triggers and interruption rules allow `Companion` to appear uninvited, and when must it stay silent unless explicitly summoned?
+- Jason decision candidate: what permission model governs what `Companion` may suggest, what safe local or support actions it may execute, and what always requires explicit user action?
+- Jason decision candidate: what routing, spending, outbound, and tool-use approval boundaries govern `Companion` escalation from local advisory help to paid, outbound, or tool-using help?
+- Future contract need: what evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
+- Jason decision candidate: what should `Companion` do when `no-ai-route-available` occurs, and which manual or no-AI fallbacks may it offer without gating direct writing?
+- Future contract need: how must `Companion` handle masked or AI-excluded ranges so it does not reveal raw content, overstate unavailable evidence, or bypass package-boundary doctrine?
 
 ### Major Questions
 
@@ -243,6 +243,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Does Companion gate writing by default? Answered: no.
 - May Companion eventually run safe local or support actions if settings allow? Answered: yes.
 - May Companion send raw content, mutate story truth, or canonize facts without approval? Answered: no.
+- Is `Companion` the same thing as `Memory Lab` or a proxy truth owner for it? Answered: no. `Companion` is a bounded interface layer over other systems and remains advisory.
 
 ### Deferred Questions
 

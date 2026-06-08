@@ -219,11 +219,11 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 ### Critical Questions
 
-- What are the acceptance-state rules for authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
-- What is the minimum provenance model for storage and rendering?
-- How should export and sync preserve, transform, or suppress provenance?
-- What persistence behavior is required before provenance appears in runtime surfaces?
-- What private provenance metadata, if any, survives when visible distinction is toggled off?
+- Jason decision candidate: what provenance records must be visible by default, and which visibility states may be user-toggleable across writing, review, and export views?
+- Jason decision candidate: after explicit acceptance or heavy rewrite, when must AI-origin output remain visibly marked, and when may the author hide that distinction without erasing provenance history?
+- Future contract need: what minimum provenance model is required for rendering, storage, and acceptance-state tracking across authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
+- Future contract need: what deletion, hiding, export, and sync behavior must govern visible provenance records and private provenance metadata?
+- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views affect provenance records without leaking sensitive content or turning provenance into author-owned truth or an undeletable scar?
 
 ### Major Questions
 
@@ -249,6 +249,7 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - May explicit author action make AI-origin text author-owned text? Answered: yes.
 - Is visible difference after acceptance permanently required? Answered: no, it is user-controlled.
 - Is export behavior forced to preserve one visible provenance mode? Answered: no, export behavior is user-controlled.
+- Is provenance metadata the same thing as author-owned story truth? Answered: no. Provenance serves visibility, review, and author control; it does not become story truth on its own.
 
 ### Deferred Questions
 

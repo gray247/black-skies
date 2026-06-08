@@ -213,13 +213,11 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 ### Critical Questions
 
-- What may Memory Lab read?
-- What may Memory Lab store?
-- What may Memory Lab infer?
-- What must Memory Lab cite?
-- What must Memory Lab forget or discard?
-- What authority limits, evidence requirements, storage boundaries, and routing rules are required before runtime wiring?
-- What retention tiers, forgetting behavior, performance limits, and storage-cost boundaries are needed to keep purposeful memory from turning into hoarding?
+- Jason decision candidate: what narrative material may `Memory Lab` read by default, and what categories require explicit author save, approval, or later opt-in before they are remembered durably?
+- Future contract need: what remembered material must carry citation, source trace, and evidence quality markers before downstream systems rely on it?
+- Jason decision candidate: what must `Memory Lab` forget, delete, or discard by default, and what author controls govern later forgetting or removal?
+- Jason decision candidate: may masked or AI-excluded raw manuscript spans ever be stored, and if so under what local-only or explicit author-approved conditions?
+- Future contract need: what authority limits, retention tiers, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
 
 ### Major Questions
 
@@ -243,6 +241,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - May Memory Lab silently change prose, assertions, lore, continuity facts, or accepted records? Answered: no.
 - May Memory Lab retain meaningful information that supports continuity, memory, structure, investigation, or author decision support? Answered: yes.
 - Should Memory Lab hoard data simply because data exists? Answered: no.
+- Is remembered material automatically author-owned truth or canon? Answered: no. `Memory Lab` remains advisory and evidence-bearing unless the author explicitly saves or accepts truth elsewhere.
 
 ### Deferred Questions
 
