@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-26
+Last Reviewed: 2026-06-08
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
