@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-07] First-wave dossier review and tightening updated the rough system dossiers and created `docs/product_systems/system_interaction_map.md`:
+  - clarifies the highest-risk doctrine boundaries for authorship/provenance, routing and budget, package construction, explicit-content handling, Memory Lab, and Companion without promoting unresolved questions into doctrine,
+  - adds a rough explanatory interaction map for the first-wave systems while explicitly rejecting any implication of runtime wiring, authority inheritance, or implementation readiness,
+  - keeps the pass documentation-only with no runtime code and no implementation work.
 - [2026-06-07] Dossier / question realignment updated `docs/product_systems/_dossier_template.md`, `docs/product_systems/current_truth_index.md`, `docs/product_systems/README.md`, and first-wave rough dossier blanks:
   - moves active questions into dossier-centered structures and demotes the raw question bank to archive or intake posture,
   - promotes recent doctrine for signal visibility, human authorship, AI visibility, budget modes, package construction, explicit-content handling, and prototype isolation into repo-tracked docs,

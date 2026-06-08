@@ -164,9 +164,10 @@ Memory Lab must not quietly preserve or transmit sensitive material outside appr
 Governance rules:
 
 - Memory Lab is a likely narrative forensic intelligence or story-brain layer,
-- "angry old bastard reader" may survive as tone or reference only, not final UI copy,
+- "angry old bastard reader" may survive as tone or reference only, not final UI copy and not an authority grant,
 - Memory Lab is not automatic truth owner,
-- Memory Lab may never silently change prose, assertions, lore, or continuity facts.
+- Memory Lab may never silently change prose, assertions, lore, or continuity facts,
+- Memory Lab must not become author, judge, or silent actor over story truth.
 
 Risks:
 
@@ -197,51 +198,46 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - hidden persistence expansion without policy,
 - default heavy paid investigation loops.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- Memory Lab is likely narrative forensic intelligence or the story brain,
-- it is not simple storage,
-- it is not automatic truth owner,
-- it may feed `Companion`, `Continuity`, `Critique`, `Relationship Map`, and `Emotion Graph`.
+- What may Memory Lab persist, forget, or treat as investigative memory without becoming canon or hidden storage sprawl?
+- What may Memory Lab never silently change across prose, assertions, lore, continuity facts, or accepted records?
 
-### Open Questions
+### Critical Questions
 
-- what it reads,
-- what it stores,
-- what it infers,
-- what it cites,
-- what it forgets,
-- what it may never silently change.
+- What may Memory Lab read?
+- What may Memory Lab store?
+- What may Memory Lab infer?
+- What must Memory Lab cite?
+- What must Memory Lab forget or discard?
+- What authority limits, evidence requirements, storage boundaries, and routing rules are required before runtime wiring?
 
-### Edge Cases
+### Major Questions
 
-- deleted drafts,
-- contradictory versions,
-- explicit-content-heavy projects,
-- local-only environments with weak hardware.
+- How should deleted drafts be handled?
+- How should contradictory versions be represented?
+- How should explicit-content-heavy projects be investigated under local-only rules?
+- How should local-only environments with weak hardware degrade?
 
-### Blockers Before Coding
+### Minor Questions
 
-- authority limits,
-- evidence requirements,
-- storage boundaries,
-- routing and cost rules.
+- What polished UI metaphors are acceptable after authority is settled?
+- What tone or voice presentation should survive into UI, if any?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- polished UI metaphors,
-- tone/voice presentation,
-- advanced investigation modes.
+- Is Memory Lab likely narrative forensic intelligence or the story brain? Answered: yes, as working rough doctrine.
+- Is Memory Lab simple storage? Answered: no.
+- Is Memory Lab automatic truth owner? Answered: no.
+- May Memory Lab feed `Companion`, `Continuity`, `Critique`, `Relationship Map`, and `Emotion Graph`? Answered: yes, within evidence and authority limits.
+- Is "angry old bastard reader" final UI copy? Answered: no, it may survive as tone or reference only.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier should stay separate from `Companion`, but its public-facing portions may later shrink if Companion becomes the visible front-end for most interactions.
-
-### Question Intake Notes
-
-Move Memory Lab questions here from raw notes and the register instead of leaving them as abstract planning gravity.
+- Advanced investigation modes.
+- Public-facing shrink into `Companion` if Companion becomes the visible front-end for most interactions.
 
 ## 34. Acceptance Criteria
 
@@ -250,4 +246,5 @@ This rough dossier is acceptable only if:
 - Memory Lab stays non-authoritative,
 - its forensic role is clear,
 - tone references are kept separate from final UI claims,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

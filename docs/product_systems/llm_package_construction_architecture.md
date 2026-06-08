@@ -26,12 +26,14 @@ Writers need trustworthy, bounded model interactions that preserve mission, cont
 
 - defines package structure,
 - orders hard rules, context, and output instructions,
+- defines input and output expectations for packaged work,
 - governs chunking, masking, summaries, and model/provider differences,
 - helps preserve evidence and provenance boundaries.
 
 ## 5. What The System Does Not Do
 
 - it does not silently dump full manuscript state without policy,
+- it is not casual prompt stuffing,
 - it does not assume one prompt shape fits every task,
 - it does not replace routing or explicit-content policy.
 
@@ -140,7 +142,8 @@ Paid API paths need stricter packaging, summaries, masking, and approval boundar
 - first tokens carry mission and hard rules,
 - middle tokens carry supporting context,
 - last tokens repeat mission and output rules,
-- package design matters as much as prompt wording.
+- package design matters as much as prompt wording,
+- exact schemas, chunking, compression, truncation, and provider-specific tuning remain unresolved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -195,49 +198,47 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - hidden package expansion,
 - provider-dependent story-authority behavior.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- package construction matters as much as prompt wording,
-- first tokens carry mission and hard rules,
-- middle tokens carry supporting context,
-- last tokens repeat mission and output rules.
+- What mandatory payload boundary governs content leaving the local machine when privacy, provenance, routing, and explicit-content rules conflict?
+- What prevents package construction from creating hidden authority by changing task meaning, evidence scope, or output expectations per provider?
 
-### Open Questions
+### Critical Questions
 
-- schema design,
-- chunking and compression policy,
-- truncation behavior,
-- evidence citation packaging,
-- provider-specific differences.
+- What is the minimum schema and input/output contract?
+- What truncation policy keeps mission, hard rules, and output expectations intact?
+- What masking and explicit-content interaction rules apply before any provider call?
+- What provider-neutral safety boundaries must exist before runtime wiring?
+- How should evidence citation packaging work?
 
-### Edge Cases
+### Major Questions
 
-- masked content removing needed evidence,
-- long-context overflow,
-- contradictory context bundles.
+- What schema design and input/output expectation formats are worth preserving through rough design?
+- What chunking and compression policy should exist?
+- How should long-context overflow be handled?
+- How should contradictory context bundles be represented?
+- How should provider-specific differences and tuning be isolated?
 
-### Blockers Before Coding
+### Minor Questions
 
-- minimum schema,
-- truncation policy,
-- masking interaction rules,
-- provider-neutral safety boundaries.
+- What UI polish is useful for package previews after package rules stabilize?
+- What preview wording best explains package intent without showing raw package internals by default?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- UI polish for package previews,
-- advanced compression tuning,
-- per-provider optimization.
+- Does package construction matter as much as prompt wording? Answered: yes.
+- Do first tokens carry mission and hard rules? Answered: yes.
+- Do middle tokens carry supporting context? Answered: yes.
+- Do last tokens repeat mission and output rules? Answered: yes.
+- Is casual prompt stuffing acceptable? Answered: no.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later merge partially into routing or explicit-content dossiers, but only after package rules are stable enough to shrink safely.
-
-### Question Intake Notes
-
-Move package-construction questions here from the raw register and loose notes instead of leaving them as orphan planning items.
+- Advanced compression tuning.
+- Per-provider optimization.
+- Partial merge into routing or explicit-content dossiers after package rules are stable enough to shrink safely.
 
 ## 34. Acceptance Criteria
 
@@ -245,5 +246,7 @@ This rough dossier is acceptable only if:
 
 - package doctrine is explicit,
 - no hidden prompt-stuffing assumptions remain,
+- unresolved schema, chunking, truncation, provider-tuning, and explicit-content interaction questions stay unresolved until later doctrine answers them,
 - masking and safety stay in view,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation claim is made.

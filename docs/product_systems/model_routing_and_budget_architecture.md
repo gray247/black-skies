@@ -34,6 +34,7 @@ Writers need useful intelligence help without hidden cost, lag, privacy surprise
 - it does not guarantee best quality every time,
 - it does not silently spend paid API budget,
 - it does not assume strong local hardware,
+- it does not define exact spending thresholds yet,
 - it does not make AI mandatory.
 
 ## 6. User-Facing Behavior
@@ -48,7 +49,7 @@ Working doctrine includes:
 
 ## 7. Hidden/Background Behavior
 
-- low-cost local observation when feasible,
+- low-cost local observation when feasible and allowed,
 - routing preparation,
 - blocked or deferred runs when policy forbids escalation.
 
@@ -146,7 +147,8 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - silent local observation is preferred when feasible,
 - manual run is the backup,
 - paid API is the later escalation path,
-- spending guardrails must stay visible and bounded.
+- spending guardrails must stay visible and bounded,
+- exact spending thresholds remain unresolved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -171,7 +173,8 @@ Governance rules:
 - no silent paid API spend,
 - no forced AI dependency,
 - direct writing stays available,
-- routing policy must stay subordinate to writer control.
+- routing policy must stay subordinate to writer control,
+- paid API remains the heavy, deep, or long-context escalation path rather than the default path.
 
 Risks:
 
@@ -201,47 +204,47 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - hidden provider switching,
 - silent API fallback when local fails.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- budget monster matters,
-- weak PC, no-money, local-only, selective API, and deep API modes matter,
-- silent local observation is preferred when feasible,
-- paid API is for heavy or long-context work.
+- What non-overridable precedence order governs `no-money`, `local-only`, project privacy, explicit-content, and manual API approval policies when they conflict?
 
-### Open Questions
+### Critical Questions
 
-- what may run silently,
-- what always requires approval,
-- what the minimum spending guardrails are,
-- how per-project versus global modes should work.
+- What may run silently?
+- What always requires approval?
+- What are the minimum spending guardrails?
+- What exact spending thresholds should exist?
+- What cost exposure rules must be visible before runtime wiring?
+- What fallback rules apply when local or API paths fail?
 
-### Edge Cases
+### Major Questions
 
-- local model too weak,
-- user switches from local-only to API mid-project,
-- API contradiction with local findings.
+- How should per-project versus global modes work?
+- How should mode changes behave mid-project, especially local-only to API?
+- How should API findings be reconciled with local findings when they contradict each other?
+- What should happen when a local model is too weak for the requested task?
 
-### Blockers Before Coding
+### Minor Questions
 
-- explicit approval rules,
-- cost exposure rules,
-- fallback rules when local or API paths fail.
+- What polished mode names should replace or refine the working labels?
+- What budget-status presentation avoids both hidden spend and panic noise?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- polished mode names,
-- advanced dashboards,
-- fine-grained provider tuning.
+- Does the budget monster matter? Answered: yes.
+- Do weak PC, no-money, local-only, selective API, and deep API modes matter? Answered: yes.
+- Is silent local observation preferred when feasible? Answered: yes.
+- Is paid API the default path? Answered: no, it is for heavy, deep, or long-context work.
+- Is silent paid API spend allowed? Answered: no.
+- Can any system escalate from local or no-money modes to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later split cleanly into routing policy and budget guardrails, or shrink if the master routing dossiers absorb it.
-
-### Question Intake Notes
-
-Route, budget, and mode questions should move here from raw notes and the giant register.
+- Advanced dashboards.
+- Fine-grained provider tuning.
+- Possible split into routing policy and budget guardrails, or shrink if master routing dossiers absorb it.
 
 ## 34. Acceptance Criteria
 
@@ -249,5 +252,7 @@ This rough dossier is acceptable only if:
 
 - user control stays explicit,
 - silent paid spend is rejected,
+- exact spending thresholds remain unresolved until later doctrine resolves them,
 - writing is never gated behind routing setup,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no build-ready runtime claim is made.

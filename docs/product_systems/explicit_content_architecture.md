@@ -27,11 +27,13 @@ Writers need to keep their local story intact while safely deciding what can be 
 - distinguishes marker, censor, and package behavior,
 - keeps raw local prose separate from outbound transformed packages,
 - preserves continuity and causality where possible,
-- supports preview and approval later.
+- supports preview and approval later,
+- keeps local-only raw analysis possible.
 
 ## 5. What The System Does Not Do
 
 - it does not silently censor local authored prose,
+- it does not mutate original prose through censor behavior,
 - it does not force all writing into safe-mode presentation,
 - it does not assume every explicit problem is the same as every privacy problem.
 
@@ -46,7 +48,8 @@ Writers need to keep their local story intact while safely deciding what can be 
 
 - local-only raw analysis later,
 - package transformation later,
-- policy checks before outbound runs.
+- policy checks before outbound runs,
+- refusal or fallback behavior later when outbound policy blocks a run.
 
 ## 8. What Appears First
 
@@ -137,13 +140,15 @@ Local models may help with raw local analysis later if allowed and bounded.
 ## 23. Paid API Role
 
 Paid API must never receive raw local explicit story content unless future rules explicitly allow it.
+Exact refusal and fallback behavior remains unresolved.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
 - raw story remains local,
 - outbound packages may be masked, summarized, or transformed,
 - local-only raw analysis is preferred,
-- routing must respect explicit-content risk before cost optimization.
+- routing must respect explicit-content risk before cost optimization,
+- original prose must remain unchanged by censor behavior.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -202,47 +207,44 @@ Richer marker systems, per-project policy, and export-aware handling.
 - hidden transformation before send,
 - runtime build-out without explicit routing and package rules.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- raw story remains local,
-- outbound packages may be masked, summarized, or transformed,
-- continuity and causality should be preserved where possible,
-- marker, censor, and package systems are related but not identical.
+- What authority boundary keeps local authored manuscript state separate from transformed outbound package state so censoring cannot masquerade as editing?
 
-### Open Questions
+### Critical Questions
 
-- user preview and approval rules,
-- marker visibility rules,
-- API refusal handling,
-- local-only raw analysis boundaries.
+- What is the minimum transformation contract?
+- What preview and approval flow is required before transformed content is sent outward?
+- What routing and package interaction rules apply to explicit-content material?
+- What API refusal and fallback behavior is acceptable?
+- What are the local-only raw analysis boundaries?
 
-### Edge Cases
+### Major Questions
 
-- masking removes essential causal evidence,
-- user wants local-only analysis but later export,
-- imported explicit-content metadata conflicts with local policy.
+- What marker visibility rules should exist?
+- How should the system warn when masking removes essential causal evidence?
+- How should local-only analysis interact with later export?
+- How should imported explicit-content metadata be reconciled with local policy?
 
-### Blockers Before Coding
+### Minor Questions
 
-- minimum transformation contract,
-- approval flow,
-- routing and package interaction rules.
+- What advanced mode presets are useful later?
+- What export metadata polish is desirable after the core contract is settled?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- advanced mode presets,
-- export metadata polish,
-- provider-specific transformations.
+- Does raw story remain local by default? Answered: yes.
+- May outbound packages be masked, summarized, or transformed? Answered: yes.
+- Should continuity and causality be preserved where possible? Answered: yes.
+- Are marker, censor, and package systems identical? Answered: no, they are related but distinct.
+- May censor behavior silently mutate local authored prose? Answered: no.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later split between writer-visible markers and outbound send-package behavior, or shrink if one side proves trivial.
-
-### Question Intake Notes
-
-Move explicit-content questions here from the raw register and loose notes instead of letting them stay as a giant free-floating bank.
+- Provider-specific transformations.
+- Possible split between writer-visible markers and outbound send-package behavior if one side needs its own dossier.
 
 ## 34. Acceptance Criteria
 
@@ -250,5 +252,8 @@ This rough dossier is acceptable only if:
 
 - the local manuscript stays protected,
 - outbound transformation stays explicit,
+- no censor behavior mutates original prose,
+- preview and approval remain explicitly unresolved until later doctrine resolves them,
 - continuity preservation remains visible,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

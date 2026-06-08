@@ -33,11 +33,13 @@ Writers need clear authorship and provenance visibility so AI assistance never q
 
 - it does not decide whether text is good,
 - it does not silently convert AI output into author truth,
+- it does not hide AI contribution inside apparently human-authored prose,
+- it does not automatically mutate manuscript text on behalf of AI,
 - it does not require permanent visible noise for every token forever.
 
 ## 6. User-Facing Behavior
 
-Current doctrine-under-review:
+Current doctrine-under-review for visible UI treatment, not a locked build contract:
 
 - black = author text
 - green = AI-generated text
@@ -89,14 +91,16 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 
 - provenance metadata later,
 - acceptance state later,
-- source-tool references later.
+- source-tool references later,
+- export or sync persistence behavior only after explicit rules exist.
 
 ## 15. What Remains Temporary
 
 - ephemeral suggestions,
 - transient color or badge states,
 - unaccepted generated text,
-- masked outbound previews.
+- masked outbound previews,
+- any exact acceptance-to-authorship transition rule until explicitly approved.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -139,6 +143,7 @@ Paid API outputs must remain clearly marked as advisory or generated until the w
 
 Visibility itself should be cheap.
 Upstream AI generation may cost money, but provenance display must not require extra spending.
+Exact persistence and export treatment remain unresolved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -162,6 +167,8 @@ Governance rules:
 
 - AI output is advisory unless accepted,
 - "No story is complete until every word on every page is mine",
+- no invisible AI authorship,
+- no automatic AI manuscript mutation,
 - provenance markers must not fake certainty,
 - authorship visibility must not collapse into invisible blending.
 
@@ -193,47 +200,46 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - invisible provenance rewriting,
 - provenance-as-judgment systems.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- black = author text,
-- green = AI-generated text,
-- purple = AI suggestion,
-- red or strikeout = removed, masked, rejected, or censored text,
-- AI is advisory unless accepted.
+- When, if ever, does accepted AI text become author text rather than accepted AI-origin text?
+- Can accepted AI text ever lose visible provenance completely, and under what explicit author action?
 
-### Open Questions
+### Critical Questions
 
-- when accepted AI text becomes author text,
-- whether markings persist forever,
-- how export and sync should preserve or transform provenance.
+- What are the acceptance-state rules for authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
+- What is the minimum provenance model for storage and rendering?
+- How should export and sync preserve, transform, or suppress provenance?
+- What persistence behavior is required before provenance appears in runtime surfaces?
 
-### Edge Cases
+### Major Questions
 
-- heavily rewritten AI text,
-- imported documents with no provenance history,
-- masked outbound packages versus local prose.
+- Do markings persist forever, until author conversion, until export, or by view mode?
+- How should heavily rewritten AI text be classified?
+- How should imported documents with no provenance history be represented?
+- How should masked outbound packages differ visually and semantically from local prose?
 
-### Blockers Before Coding
+### Minor Questions
 
-- acceptance-state rules,
-- export behavior,
-- minimum provenance model for storage and rendering.
+- What exact palette should implement the current doctrine?
+- Should the UI use animation, badges, strikeout, or combined states for dense cases?
+- What provenance wording is clear without creating permanent visual noise?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- exact palette tuning,
-- animation or badge polish,
-- advanced provenance browsing.
+- Does black currently mean author text? Answered: yes, as doctrine under UI review.
+- Does green currently mean AI-generated text? Answered: yes, as doctrine under UI review.
+- Does purple currently mean AI suggestion? Answered: yes, as doctrine under UI review.
+- Does red or strikeout currently mean removed, masked, rejected, or censored text? Answered: yes, as doctrine under UI review.
+- Is AI advisory unless accepted? Answered: yes.
+- Is the current color doctrine final implementation detail? Answered: no, exact UI treatment remains under review.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later share boundaries with `explicit_content_architecture.md` and `companion.md`, but authorship visibility should remain its own trust contract unless proven redundant.
-
-### Question Intake Notes
-
-Move color, provenance, and AI-authorship questions here instead of keeping them only in the raw register.
+- Advanced provenance browsing.
+- Long-term merge boundary with `explicit_content_architecture.md` and `companion.md`.
 
 ## 34. Acceptance Criteria
 
@@ -242,4 +248,7 @@ This rough dossier is acceptable only if:
 - AI never silently becomes authored truth,
 - the authorship doctrine stays explicit,
 - the current color doctrine is marked as under review rather than falsely finalized,
+- accepted-AI transition remains explicitly unresolved until later doctrine resolves it,
+- no invisible AI authorship is implied,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

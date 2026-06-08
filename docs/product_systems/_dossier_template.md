@@ -18,7 +18,9 @@ Template rules:
 
 - Dossiers are living investigation files. They may end as `build`, `merge`, `shrink`, `split`, `defer`, `reject`, or `unknown`.
 - Raw open-question banks are archive or intake sources only. Questions should migrate into the relevant dossier before they guide design or implementation.
-- Answered questions should be marked `resolved` or `superseded`, not recopied forever.
+- Each dossier must contain one centralized `Pre-Rough Alignment Questionnaire`. Do not scatter questions throughout the dossier.
+- Questions migrated from raw banks should be placed into one of the six questionnaire categories, not left as a generic open-question list.
+- Answered questions should be marked `answered` or `superseded`, not recopied forever as live uncertainty.
 
 ## 2. Purpose
 
@@ -168,40 +170,36 @@ Describe the next bounded extension after v1.
 
 Describe items that are explicitly out of scope for near-term implementation.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
 Use the following structure:
 
-### Known Answers
+### Fatal Questions
 
-List answers that are already established by current doctrine so they do not return as pseudo-open questions.
+Questions that can block architecture or code because the wrong answer can create deep entanglement, authority drift, data model rot, or irreversible product-direction damage.
+These may require a separate thread or dedicated decision pass.
 
-### Open Questions
+Do not mark the dossier build-ready while any Fatal Question remains open.
 
-List unresolved planning questions that still need investigation.
+### Critical Questions
 
-### Edge Cases
+Questions that must be answered before this system is implemented, wired into runtime, connected to AI, or treated as build-ready.
 
-List edge cases worth preserving during design so they do not disappear into happy-path planning.
+### Major Questions
 
-### Blockers Before Coding
+Important product or architecture questions that affect design, but can remain open during rough dossier exploration.
 
-List the unresolved questions that block safe implementation or runtime wiring.
+### Minor Questions
 
-### Can Defer
+UI wording, presentation, tuning, naming, or polish questions that should not block rough dossier work.
 
-List questions that matter, but do not block the next bounded planning or implementation slice.
+### Answered / Superseded Questions
 
-### Possible Merge / Shrink / Delete
+Questions already answered by current doctrine and should not keep resurfacing as live uncertainty.
 
-List ways the dossier may later merge into another dossier, shrink to a subsection, split into narrower dossiers, or be rejected.
+### Deferred Questions
 
-### Question Intake Notes
-
-Record which raw question-bank items, loose notes, or historical planning artifacts should be triaged into this dossier next.
-
-Raw question banks remain archive or intake sources only.
-Answered questions should be marked `resolved` or `superseded` here rather than recopied forever.
+Real questions that are intentionally not needed for this stage.
 
 ## 34. Acceptance Criteria
 
@@ -215,4 +213,6 @@ This dossier is acceptable only if it states explicitly that:
 - the system does not create dashboard clutter as default behavior,
 - the system does not claim hidden runtime authority that the implementation does not actually own,
 - active questions live in the dossier instead of only in a giant standalone register,
+- active questions live only in the centralized `Pre-Rough Alignment Questionnaire`,
+- Fatal and Critical questions are not buried inside a generic open-question list,
 - the dossier remains a living investigation file rather than a locked milestone claim.

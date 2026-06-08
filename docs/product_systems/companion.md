@@ -28,11 +28,12 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - asks bounded questions,
 - summarizes evidence,
 - helps investigate when invited,
-- may later trigger tools under explicit boundaries.
+- may later trigger tools under explicit user-action boundaries.
 
 ## 5. What The System Does Not Do
 
 - it is not truth owner,
+- it is not author, judge, or silent actor,
 - it does not silently commit story changes,
 - it does not replace Writing Surface sovereignty,
 - it does not become a mandatory gate before writing.
@@ -169,6 +170,7 @@ Governance rules:
 
 - Companion is likely the interface or personality layer over Memory Lab and other systems,
 - Companion is not truth owner,
+- Companion is not author, judge, or silent actor,
 - Companion may question, summarize, investigate, and explain,
 - Companion must not silently spend, rewrite, or canonize.
 
@@ -201,50 +203,45 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - silent paid deep-reasoning loops,
 - personality-first behavior without evidence discipline.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- Companion is likely the interface or personality layer over Memory Lab and other systems,
-- Companion is not truth owner,
-- Companion can explain, question, summarize, and investigate with boundaries.
+- What permission boundary prevents Companion from becoming a proxy truth owner or silent actor when it triggers tools, routes work, or spends money?
 
-### Open Questions
+### Critical Questions
 
-- visibility rules,
-- interruption rules,
-- escalation rules,
-- API spending rules,
-- evidence citation expectations,
-- personality boundaries.
+- What visibility triggers are allowed?
+- What interruption rules are allowed?
+- What escalation rules are allowed?
+- What API spending rules govern Companion work?
+- What evidence citation expectations apply before Companion claims investigative support?
+- What explicit user-action permission model governs tool triggers?
 
-### Edge Cases
+### Major Questions
 
-- weak hardware,
-- local-only mode,
-- explicit-content-heavy material,
-- contradictory downstream systems.
+- What personality boundaries keep Companion from over-personified authority?
+- How should Companion degrade on weak hardware or local-only mode?
+- How should Companion handle explicit-content-heavy material?
+- How should Companion present contradictory downstream systems?
 
-### Blockers Before Coding
+### Minor Questions
 
-- visibility triggers,
-- evidence requirements,
-- routing and spending rules,
-- tool-trigger permission model.
+- What exact personality voice should survive into UI?
+- What cosmetic presentation polish is useful after authority and routing boundaries are stable?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- exact personality voice,
-- advanced conversation memory,
-- cosmetic presentation polish.
+- Is Companion likely the interface or personality layer over Memory Lab and other systems? Answered: yes, as working rough doctrine.
+- Is Companion truth owner? Answered: no.
+- Can Companion explain, question, summarize, and investigate with boundaries? Answered: yes.
+- May Companion silently spend, rewrite, or canonize? Answered: no.
+- Does Companion gate writing by default? Answered: no.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-Companion should remain separate from `Memory Lab`, but some surface or tone details may later shrink into the Companion dossier from other bridge docs.
-
-### Question Intake Notes
-
-Move Companion questions here from the raw register and loose notes instead of treating Companion as a free-floating concept cloud.
+- Advanced conversation memory.
+- Surface or tone consolidation from bridge docs after the Companion contract is stable.
 
 ## 34. Acceptance Criteria
 
@@ -252,5 +249,7 @@ This rough dossier is acceptable only if:
 
 - Companion stays advisory,
 - Companion does not become truth owner,
+- Companion does not become author, judge, or silent actor,
 - writing remains sovereign,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

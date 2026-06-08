@@ -191,45 +191,43 @@ Resolution flows, mute policies, and smarter grouping.
 - signal-only gating before writing,
 - invisible AI-only signal decisions.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- signals may surface in `Outline`, `Writing Surface`, `Command Center`, `Companion`, and tool-specific panels,
-- one signal may have multiple consumers,
-- signals are advisory unless the writer accepts or acts on them.
+- What single authority model governs signal identity, lifecycle, and cross-surface display so one signal does not become multiple competing authorities?
 
-### Open Questions
+### Critical Questions
 
-- how severity, confidence, and provenance should be normalized,
-- what storage rules apply,
-- how muting and resolution should work.
+- Who may emit signals?
+- Who may treat a signal as actionable?
+- How should severity, confidence, and provenance be normalized?
+- What storage rules apply to signal provenance, mute state, resolution, and staleness?
+- How does signal provenance stay intact across surfaces?
 
-### Edge Cases
+### Major Questions
 
-- stale signals after heavy rewrite,
-- conflicting signals from multiple producers,
-- masked-content signals that lose context.
+- How should muting and resolution work without hiding source truth?
+- How should stale signals after heavy rewrite be expired or revalidated?
+- How should conflicting signals from multiple producers be grouped or challenged?
+- How should masked-content signals preserve enough context without leaking raw content?
 
-### Blockers Before Coding
+### Minor Questions
 
-- who may emit signals,
-- who may treat a signal as actionable,
-- how signal provenance stays intact across surfaces.
+- What visual styling polish is appropriate after the authority model is stable?
+- What label vocabulary should avoid fake precision?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- visual styling polish,
-- historical dashboards,
-- advanced multi-project signal aggregation.
+- May signals surface in `Outline`, `Writing Surface`, `Command Center`, `Companion`, and tool-specific panels? Answered: yes.
+- May one signal have multiple consumers? Answered: yes.
+- Are signals authored truth by default? Answered: no, they are advisory unless the writer accepts or acts on them.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later shrink into shared contracts plus a few core dossiers if signal governance becomes small enough.
-
-### Question Intake Notes
-
-Move signal-placement and signal-governance questions here from raw notes and the giant register.
+- Historical dashboards.
+- Advanced multi-project signal aggregation.
+- Possible shrink into shared contracts if signal governance becomes small enough.
 
 ## 34. Acceptance Criteria
 
@@ -238,4 +236,5 @@ This rough dossier is acceptable only if:
 - signals remain advisory,
 - multi-surface display does not create multi-authority drift,
 - no hidden runtime authority is implied,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no build-ready claim is made.

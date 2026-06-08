@@ -207,47 +207,44 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - silent rewrite or restructure,
 - runtime wiring that bypasses writer acceptance.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-### Known Answers
+### Fatal Questions
 
-- continuity is advisory and signal-producing,
-- `Narrative Insertion / Narrative Assertion` remains the foundation,
-- scene is projection or compatibility only,
-- continuity may feed `Memory Lab`, `Companion`, `Critique`, `Writing Surface`, and `Command Center`.
+- Where does accepted continuity truth live, and what makes it authored rather than inferred?
+- Which systems may produce or consume durable continuity artifacts without granting Continuity truth ownership?
 
-### Open Questions
+### Critical Questions
 
-- who are the exact continuity producers and consumers,
-- what continuity artifacts become durable versus temporary,
-- what acceptance flow should exist for accepted continuity.
+- What may Continuity observe before runtime wiring exists?
+- What continuity artifacts become durable versus temporary?
+- What acceptance flow exists for accepted, dismissed, suppressed, or ignored findings?
+- What may Continuity surface without over-claiming authority?
 
-### Edge Cases
+### Major Questions
 
-- imported scene-first projects,
-- deleted draft material,
-- intentional contradiction,
-- unresolved mystery versus actual hole.
+- Who are the exact continuity producers and consumers?
+- How should intentional contradiction and unresolved mystery be distinguished from actual continuity holes?
+- How should imported scene-first projects, deleted draft material, and recovery artifacts be handled?
 
-### Blockers Before Coding
+### Minor Questions
 
-- what continuity may observe before runtime wiring,
-- what continuity may store before persistence rules exist,
-- what continuity may surface without over-claiming authority.
+- What visual severity vocabulary is useful without becoming an accusation wall?
+- What batch-reporting presentation is worth preserving later?
 
-### Can Defer
+### Answered / Superseded Questions
 
-- graph views,
-- advanced batch reporting,
-- polished visual severity systems.
+- Is Continuity advisory and signal-producing? Answered: yes.
+- Does `Narrative Insertion / Narrative Assertion` remain the foundation? Answered: yes.
+- Is scene a foundation layer? Answered: no, scene remains projection or compatibility only.
+- May Continuity feed `Memory Lab`, `Companion`, `Critique`, `Writing Surface`, and `Command Center`? Answered: yes, within advisory limits.
 
-### Possible Merge / Shrink / Delete
+### Deferred Questions
 
-This dossier may later share boundaries with `signal_architecture.md`, but continuity should remain its own product-intelligence contract unless a stronger consolidation case appears.
-
-### Question Intake Notes
-
-Migrate continuity questions from the raw external register here instead of treating the raw bank as active canon.
+- Graph views.
+- Advanced batch reporting.
+- Polished visual severity systems.
+- Possible merge or shrink with `signal_architecture.md` after both contracts are sharper.
 
 ## 34. Acceptance Criteria
 
@@ -257,4 +254,5 @@ This rough dossier is acceptable only if:
 - narrative primitives remain the foundation,
 - projections do not become truth owners,
 - no silent rewrite authority is implied,
+- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime build-readiness claim is made.
