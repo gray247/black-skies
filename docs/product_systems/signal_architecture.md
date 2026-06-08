@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Continuity`, `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Assertion`
 - Feeds into: `Continuity`, `Critique`, `Companion`, `Memory Lab`, `Writing Surface`, `Command Center Surface`
 - Runtime authority: `future`
@@ -27,6 +27,7 @@ Give the writer structured warnings, questions, and cues without turning signals
 - defines shared signal vocabulary,
 - allows one signal to appear across multiple surfaces,
 - preserves provenance, confidence, and severity,
+- preserves the difference between advisory history and author-owned story truth,
 - separates signals from mutation authority.
 
 ## 5. What The System Does Not Do
@@ -87,6 +88,7 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 ## 14. What Gets Stored
 
 - accepted resolutions later,
+- purposeful durable advisory history later when it helps track story maturation,
 - signal provenance later,
 - mute or suppress preferences later.
 
@@ -95,7 +97,8 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 - ephemeral signals,
 - stale signals after rewrite,
 - low-confidence hints,
-- background suggestions not yet surfaced.
+- background suggestions not yet surfaced,
+- missing or irrelevant data that does not become useful information.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -161,7 +164,9 @@ Governance rules:
 - signals are not authored truth,
 - no signal may silently execute mutation,
 - no single surface owns signal law,
-- one signal may have multiple consumers without duplicating authority.
+- one signal may have multiple consumers without duplicating authority,
+- accepted story truth must live in author-owned foundations rather than in the signal layer,
+- durable advisory history must be purposeful and relevant rather than retained as noise.
 
 Risks:
 
@@ -195,7 +200,7 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Fatal Questions
 
-- What single authority model governs signal identity, lifecycle, and cross-surface display so one signal does not become multiple competing authorities?
+- None currently. Jason's doctrine narrows signal authority: signals remain advisory, accepted truth lives elsewhere, and remaining questions are identity, lifecycle, and storage design.
 
 ### Critical Questions
 
@@ -204,6 +209,7 @@ Resolution flows, mute policies, and smarter grouping.
 - How should severity, confidence, and provenance be normalized?
 - What storage rules apply to signal provenance, mute state, resolution, and staleness?
 - How does signal provenance stay intact across surfaces?
+- What purposeful durable advisory history is worth keeping for story maturation without turning signals into clutter or shadow canon?
 
 ### Major Questions
 
@@ -222,6 +228,7 @@ Resolution flows, mute policies, and smarter grouping.
 - May signals surface in `Outline`, `Writing Surface`, `Command Center`, `Companion`, and tool-specific panels? Answered: yes.
 - May one signal have multiple consumers? Answered: yes.
 - Are signals authored truth by default? Answered: no, they are advisory unless the writer accepts or acts on them.
+- Does accepted story truth live in the signal layer? Answered: no, accepted truth belongs in author-owned story foundations or other explicit author decisions.
 
 ### Deferred Questions
 
@@ -235,6 +242,7 @@ This rough dossier is acceptable only if:
 
 - signals remain advisory,
 - multi-surface display does not create multi-authority drift,
+- accepted truth does not migrate into the signal layer,
 - no hidden runtime authority is implied,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no build-ready claim is made.

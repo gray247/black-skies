@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Memory Lab`, `Continuity`, `Signal Architecture`, `Model Routing And Budget Architecture`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Critique`, `Continuity`
 - Runtime authority: `future`
@@ -28,6 +28,7 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - asks bounded questions,
 - summarizes evidence,
 - helps investigate when invited,
+- may later run safe local or support actions if settings allow,
 - may later trigger tools under explicit user-action boundaries.
 
 ## 5. What The System Does Not Do
@@ -148,10 +149,12 @@ Paid API use must remain explicitly routed, justified, and visible when deeper r
 ## 24. Model Routing Notes And Cost / Budget Impact
 
 Companion must respect budget modes, avoid surprise spend, and stay quiet when routing policy says no.
+Companion may not silently spend money even if safe local or support actions later become available.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Companion must respect transformed-package rules and must not reveal masked raw content in its own voice.
+Companion must not send raw content without approval.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -172,7 +175,8 @@ Governance rules:
 - Companion is not truth owner,
 - Companion is not author, judge, or silent actor,
 - Companion may question, summarize, investigate, and explain,
-- Companion must not silently spend, rewrite, or canonize.
+- Companion may later run safe local or support actions if settings allow,
+- Companion must not silently spend, rewrite, send raw content, mutate story truth, or canonize facts without approval.
 
 Risks:
 
@@ -207,7 +211,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 ### Fatal Questions
 
-- What permission boundary prevents Companion from becoming a proxy truth owner or silent actor when it triggers tools, routes work, or spends money?
+- None currently. Jason's doctrine reduces the architecture-level authority risk; remaining questions are exact tool, setting, and approval boundaries.
 
 ### Critical Questions
 
@@ -237,6 +241,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Can Companion explain, question, summarize, and investigate with boundaries? Answered: yes.
 - May Companion silently spend, rewrite, or canonize? Answered: no.
 - Does Companion gate writing by default? Answered: no.
+- May Companion eventually run safe local or support actions if settings allow? Answered: yes.
+- May Companion send raw content, mutate story truth, or canonize facts without approval? Answered: no.
 
 ### Deferred Questions
 
@@ -250,6 +256,7 @@ This rough dossier is acceptable only if:
 - Companion stays advisory,
 - Companion does not become truth owner,
 - Companion does not become author, judge, or silent actor,
+- any future safe local or support actions remain settings-bound and approval-bound,
 - writing remains sovereign,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

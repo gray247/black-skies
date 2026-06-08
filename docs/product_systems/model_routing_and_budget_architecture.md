@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Companion`, `Memory Lab`
 - Feeds into: `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails`
 - Runtime authority: `future`
@@ -147,6 +147,7 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - silent local observation is preferred when feasible,
 - manual run is the backup,
 - paid API is the later escalation path,
+- starting precedence is user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
 - spending guardrails must stay visible and bounded,
 - exact spending thresholds remain unresolved.
 
@@ -174,6 +175,8 @@ Governance rules:
 - no forced AI dependency,
 - direct writing stays available,
 - routing policy must stay subordinate to writer control,
+- routing precedence starts with user approval or refusal, then privacy or local-only rules, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
+- provider or model experimentation may evolve by genre, task, model strength, local-versus-paid path, and writing mode,
 - paid API remains the heavy, deep, or long-context escalation path rather than the default path.
 
 Risks:
@@ -208,7 +211,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 ### Fatal Questions
 
-- What non-overridable precedence order governs `no-money`, `local-only`, project privacy, explicit-content, and manual API approval policies when they conflict?
+- None currently. Jason's starting routing precedence resolves the architecture-level ordering question; remaining questions are enforcement, thresholds, and per-system application.
 
 ### Critical Questions
 
@@ -218,6 +221,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - What exact spending thresholds should exist?
 - What cost exposure rules must be visible before runtime wiring?
 - What fallback rules apply when local or API paths fail?
+- How should the starting precedence be enforced when policies collide across tools or surfaces?
 
 ### Major Questions
 
@@ -239,6 +243,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Is paid API the default path? Answered: no, it is for heavy, deep, or long-context work.
 - Is silent paid API spend allowed? Answered: no.
 - Can any system escalate from local or no-money modes to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
+- What is the starting routing precedence? Answered: user approval or refusal -> privacy or local-only -> explicit-content restrictions -> no-money or budget limits -> project settings -> model quality preference -> convenience or automation.
 
 ### Deferred Questions
 
@@ -252,6 +257,7 @@ This rough dossier is acceptable only if:
 
 - user control stays explicit,
 - silent paid spend is rejected,
+- starting routing precedence is explicit but still rough rather than a final runtime contract,
 - exact spending thresholds remain unresolved until later doctrine resolves them,
 - writing is never gated behind routing setup,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,

@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Assertion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Critique`, `Companion`, `Import / Export / Google Docs`, `Explicit-Content Marker / Send-Package Censor`
 - Runtime authority: `future`
@@ -27,6 +27,7 @@ Writers need clear authorship and provenance visibility so AI assistance never q
 - defines authorship and provenance display rules,
 - distinguishes authored text from AI output and suggestions,
 - records acceptance and rejection boundaries,
+- allows author-controlled transition from AI-origin text into author-owned text,
 - supports later export and review behavior.
 
 ## 5. What The System Does Not Do
@@ -46,11 +47,14 @@ Current doctrine-under-review for visible UI treatment, not a locked build contr
 - purple = AI suggestion
 - red or strikeout = removed, masked, rejected, or censored text
 
+After explicit author action, visible difference is user-controlled rather than permanently forced.
+
 ## 7. Hidden/Background Behavior
 
 - provenance metadata,
 - acceptance timestamps later,
 - tool-source attribution later.
+- Detached or reduced provenance may be allowed later when the author rewrites text into their own words.
 
 ## 8. What Appears First
 
@@ -77,7 +81,7 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - visible text-state distinctions,
 - provenance annotations,
 - acceptance-state markers,
-- export and review visibility rules later.
+- user-controlled export and review visibility rules later.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -92,7 +96,8 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - provenance metadata later,
 - acceptance state later,
 - source-tool references later,
-- export or sync persistence behavior only after explicit rules exist.
+- export or sync persistence behavior only after explicit rules exist,
+- private provenance metadata later when user settings keep history without forcing visible marks.
 
 ## 15. What Remains Temporary
 
@@ -100,7 +105,7 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - transient color or badge states,
 - unaccepted generated text,
 - masked outbound previews,
-- any exact acceptance-to-authorship transition rule until explicitly approved.
+- exact storage, export, and private-metadata treatment until explicitly approved.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -119,6 +124,7 @@ Projection remains display, not base truth.
 
 This dossier is central to Writing Surface trust.
 The Writing Surface should make authorship status obvious without becoming visually noisy.
+Author authority remains primary over any AI-origin trace.
 
 ## 20. Relationship To Command Center Surface
 
@@ -143,7 +149,7 @@ Paid API outputs must remain clearly marked as advisory or generated until the w
 
 Visibility itself should be cheap.
 Upstream AI generation may cost money, but provenance display must not require extra spending.
-Exact persistence and export treatment remain unresolved.
+Exact persistence, private metadata, and export treatment remain unresolved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -167,8 +173,12 @@ Governance rules:
 
 - AI output is advisory unless accepted,
 - "No story is complete until every word on every page is mine",
+- author authority controls the final text decision,
+- AI tracking serves the author and must not become an undeletable scar,
 - no invisible AI authorship,
 - no automatic AI manuscript mutation,
+- visible difference after acceptance may be toggleable by user setting,
+- export behavior is user-controlled,
 - provenance markers must not fake certainty,
 - authorship visibility must not collapse into invisible blending.
 
@@ -177,6 +187,7 @@ Risks:
 - author confusion,
 - permanent visual overload,
 - ambiguous transition from AI text to author text,
+- provenance rules that feel punitive instead of useful,
 - hidden export laundering of provenance.
 
 ## 29. Failure Modes
@@ -196,7 +207,7 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 ## 32. Future-Only Boundary
 
-- automatic declassification of AI text into authored truth,
+- forced permanent provenance scars that override author authority,
 - invisible provenance rewriting,
 - provenance-as-judgment systems.
 
@@ -204,8 +215,7 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 ### Fatal Questions
 
-- When, if ever, does accepted AI text become author text rather than accepted AI-origin text?
-- Can accepted AI text ever lose visible provenance completely, and under what explicit author action?
+- None currently. Jason's doctrine resolves author authority over accepted or rewritten AI text; remaining questions are implementation-level provenance, storage, and export controls.
 
 ### Critical Questions
 
@@ -213,10 +223,11 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - What is the minimum provenance model for storage and rendering?
 - How should export and sync preserve, transform, or suppress provenance?
 - What persistence behavior is required before provenance appears in runtime surfaces?
+- What private provenance metadata, if any, survives when visible distinction is toggled off?
 
 ### Major Questions
 
-- Do markings persist forever, until author conversion, until export, or by view mode?
+- How should user-controlled visibility modes behave across writing, review, and export views?
 - How should heavily rewritten AI text be classified?
 - How should imported documents with no provenance history be represented?
 - How should masked outbound packages differ visually and semantically from local prose?
@@ -235,6 +246,9 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - Does red or strikeout currently mean removed, masked, rejected, or censored text? Answered: yes, as doctrine under UI review.
 - Is AI advisory unless accepted? Answered: yes.
 - Is the current color doctrine final implementation detail? Answered: no, exact UI treatment remains under review.
+- May explicit author action make AI-origin text author-owned text? Answered: yes.
+- Is visible difference after acceptance permanently required? Answered: no, it is user-controlled.
+- Is export behavior forced to preserve one visible provenance mode? Answered: no, export behavior is user-controlled.
 
 ### Deferred Questions
 
@@ -248,7 +262,8 @@ This rough dossier is acceptable only if:
 - AI never silently becomes authored truth,
 - the authorship doctrine stays explicit,
 - the current color doctrine is marked as under review rather than falsely finalized,
-- accepted-AI transition remains explicitly unresolved until later doctrine resolves it,
+- author authority over accepted or rewritten AI-origin text is primary,
+- visible difference after acceptance is user-controlled rather than permanently forced,
 - no invisible AI authorship is implied,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

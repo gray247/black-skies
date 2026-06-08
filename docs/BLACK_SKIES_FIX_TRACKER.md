@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-08] Fatal Question Decision Patch 1 applied Jason decisions across the first-wave rough dossiers:
+  - resolves or downgrades Fatal questions where doctrine now answers author authority over AI text, accepted continuity truth, purposeful advisory history, Memory Lab retention, routing precedence, never-send raw outbound rules, provider-specific packaging evolution, and Companion authority,
+  - keeps the affected dossiers rough or exploring and not build-ready,
+  - makes no runtime code or app source changes.
 - [2026-06-07] First-wave dossier review and tightening updated the rough system dossiers and created `docs/product_systems/system_interaction_map.md`:
   - clarifies the highest-risk doctrine boundaries for authorship/provenance, routing and budget, package construction, explicit-content handling, Memory Lab, and Companion without promoting unresolved questions into doctrine,
   - adds a rough explanatory interaction map for the first-wave systems while explicitly rejecting any implication of runtime wiring, authority inheritance, or implementation readiness,

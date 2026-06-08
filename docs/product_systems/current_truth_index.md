@@ -48,28 +48,56 @@ Current Black Skies doctrine is:
 - Outline is optional.
 - Inferred output is not authored truth.
 - AI is advisory unless accepted by the user.
+- Author authority controls the final text decision.
 - Silent or subtle observation is preferred first.
 - Manual run is the backup.
 - Paid API is reserved for heavy, deep, or long-context work when quality or scale requires it.
 - Signals may surface in Outline, Writing Surface, Command Center, Companion, or tool-specific panels, but signals remain advisory unless the user accepts or acts on them.
+- Accepted continuity truth lives in author-owned story foundations, notes, lore, character facts, narrative assertions, or other explicit author decisions.
+- There is no separate accepted-continuity kingdom or shadow canon.
 - Human-author doctrine: "No story is complete until every word on every page is mine."
 - AI contribution visibility doctrine is under review, but current doctrine trends toward:
   - black = author text
   - green = AI-generated text
   - purple = AI suggestion
   - red or strikeout = removed, masked, rejected, or censored text
+- explicit author action may make AI-origin text author-owned text,
+- visible difference after acceptance is user-controlled rather than permanently forced,
+- export behavior for AI visibility and provenance is user-controlled,
+- exact provenance storage, private metadata, and sync behavior remain unresolved,
 - Memory Lab is currently understood as a likely narrative intelligence or forensic layer, not a build-ready runtime authority.
+- Memory Lab may retain meaningful information when it supports continuity, memory, structure, investigation, or author decision support.
+- Memory Lab must not hoard data that does not become information or serve a clear purpose.
 - Companion is currently understood as a likely interface or personality layer over Memory Lab and other systems, not a build-ready runtime authority.
+- Companion may eventually run safe local or support actions if settings allow, but it must not silently spend money, rewrite prose, mutate story truth, send raw content, or canonize facts without approval.
 - Budget and model routing affect whether work runs silently, manually, locally, or through paid API.
+- Starting routing precedence is:
+  - user approval or refusal
+  - privacy or local-only restrictions
+  - explicit-content restrictions
+  - no-money or budget limits
+  - project settings
+  - model quality preference
+  - convenience or automation
 - Current working budget and routing modes include weak PC mode, no-money mode, local-only mode, selective API mode, and deep API mode.
 - LLM package construction matters as much as prompt wording:
   - first tokens carry mission and hard rules
   - middle tokens carry supporting context
   - last tokens repeat mission and output rules
+- provider-specific packaging may evolve by genre, task, model strength, local-versus-paid path, and writing mode, but it must not silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose
 - Explicit-content package doctrine currently assumes:
   - raw story remains local
   - outbound packages may be masked, summarized, or transformed
   - continuity and causality should be preserved where possible
+- Starting never-send or raw outbound categories include:
+  - explicit sexual content
+  - extreme violence or gore
+  - minor-related sensitive content
+  - private author notes marked local-only
+  - deleted drafts marked archived or private
+  - raw manuscript text from local-only projects
+  - anything the user marks never-send
+- Durable advisory history may exist when it is purposeful and relevant; data points are not automatically worth keeping.
 - Throwaway prototypes are allowed only if they are isolated, disposable, and not treated as architecture proof.
 - The raw 2,500-question register is archive or intake only. Active design questions must live in the relevant dossier.
 - Product dossiers are living investigation files, not locked milestone claims.

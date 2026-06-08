@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Continuity`, `Signal Architecture`, `Narrative Insertion / Assertion`, `Model Routing And Budget Architecture`
 - Feeds into: `Companion`, `Continuity`, `Critique`, `Relationship Map`, `Emotion Graph`
 - Runtime authority: `future`
@@ -26,6 +26,7 @@ Writers need a system that can read widely, cite evidence, hold investigative co
 
 - reads and compares narrative material,
 - builds investigative memory and evidence,
+- retains meaningful information when it supports continuity, memory, structure, investigation, or author decision support,
 - produces findings, questions, and hypotheses,
 - supports multiple downstream systems.
 
@@ -46,7 +47,8 @@ Memory Lab may later appear as an inspectable investigative layer, report source
 - indexing,
 - comparison,
 - citation gathering,
-- long-context memory work later.
+- long-context memory work later,
+- relevance filtering so Memory Lab does not hoard data just because it exists.
 
 ## 8. What Appears First
 
@@ -92,6 +94,7 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 ## 14. What Gets Stored
 
 - indexed evidence later,
+- meaningful memory records later when they support continuity, memory, structure, investigation, or author decision support,
 - retrieval structures later,
 - investigation traces later,
 - accepted memory boundaries later.
@@ -101,7 +104,8 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - unaccepted hypotheses,
 - working memory sets,
 - temporary investigations,
-- provider-specific intermediate runs.
+- provider-specific intermediate runs,
+- data points that do not become information or serve a clear purpose.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -143,6 +147,7 @@ Paid API is for deep, broad, or long-context investigations when routing and bud
 
 Memory Lab is a likely heavy user of routing and budget policy.
 It should not assume deep paid runs by default.
+Retention policy must also respect relevance, performance, and storage-cost discipline.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -167,7 +172,9 @@ Governance rules:
 - "angry old bastard reader" may survive as tone or reference only, not final UI copy and not an authority grant,
 - Memory Lab is not automatic truth owner,
 - Memory Lab may never silently change prose, assertions, lore, or continuity facts,
-- Memory Lab must not become author, judge, or silent actor over story truth.
+- Memory Lab must not become author, judge, or silent actor over story truth,
+- Memory Lab may retain meaningful information when it supports continuity, memory, structure, investigation, or author decision support,
+- Memory Lab must not hoard data that does not become information or serve a clear purpose.
 
 Risks:
 
@@ -202,8 +209,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 ### Fatal Questions
 
-- What may Memory Lab persist, forget, or treat as investigative memory without becoming canon or hidden storage sprawl?
-- What may Memory Lab never silently change across prose, assertions, lore, continuity facts, or accepted records?
+- None currently. Jason's doctrine narrows Memory Lab retention and silent-action boundaries; remaining questions are implementation-level retention tiers, forgetting, performance, and storage cost.
 
 ### Critical Questions
 
@@ -213,6 +219,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - What must Memory Lab cite?
 - What must Memory Lab forget or discard?
 - What authority limits, evidence requirements, storage boundaries, and routing rules are required before runtime wiring?
+- What retention tiers, forgetting behavior, performance limits, and storage-cost boundaries are needed to keep purposeful memory from turning into hoarding?
 
 ### Major Questions
 
@@ -233,6 +240,9 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - Is Memory Lab automatic truth owner? Answered: no.
 - May Memory Lab feed `Companion`, `Continuity`, `Critique`, `Relationship Map`, and `Emotion Graph`? Answered: yes, within evidence and authority limits.
 - Is "angry old bastard reader" final UI copy? Answered: no, it may survive as tone or reference only.
+- May Memory Lab silently change prose, assertions, lore, continuity facts, or accepted records? Answered: no.
+- May Memory Lab retain meaningful information that supports continuity, memory, structure, investigation, or author decision support? Answered: yes.
+- Should Memory Lab hoard data simply because data exists? Answered: no.
 
 ### Deferred Questions
 
@@ -245,6 +255,7 @@ This rough dossier is acceptable only if:
 
 - Memory Lab stays non-authoritative,
 - its forensic role is clear,
+- retention remains relevance-driven rather than hoarding-driven,
 - tone references are kept separate from final UI claims,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

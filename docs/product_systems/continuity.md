@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Narrative Insertion / Assertion`, `Prose / Scene Projection`, `Writing Surface`, `Command Center Surface`
 - Feeds into: `Signal Architecture`, `Memory Lab`, `Companion`, `Critique`, `Writing Surface`, `Command Center Surface`
 - Runtime authority: `future`
@@ -27,6 +27,7 @@ Help the writer notice contradiction, omission, drift, and causality pressure wi
 - observes narrative foundations and projections,
 - compares material across time and structure,
 - emits continuity findings, warnings, and evidence bundles,
+- routes accepted continuity decisions back into author-owned story foundations instead of a shadow canon,
 - supports later acceptance, resolution, and traceability flows.
 
 ## 5. What The System Does Not Do
@@ -78,6 +79,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - unresolved-causality warnings,
 - evidence bundles,
 - accepted continuity notes later.
+- accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -91,6 +93,8 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 ## 14. What Gets Stored
 
 - accepted continuity decisions later,
+- accepted continuity truth in author-owned foundations, notes, lore, character facts, or explicit author decisions later,
+- purposeful durable advisory history later when it helps track story maturation,
 - provenance for accepted findings,
 - explicit suppress or ignore decisions later.
 
@@ -100,7 +104,8 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - confidence estimates,
 - ephemeral comparison runs,
 - provisional hypotheses,
-- expensive deep-review outputs that have not been accepted.
+- expensive deep-review outputs that have not been accepted,
+- noisy or irrelevant advisory history that does not become useful information.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -171,10 +176,12 @@ Continuity must not leak raw manuscript content by default and must not silently
 Governance rules:
 
 - continuity is advisory and signal-producing, not truth-owning,
+- accepted continuity truth lives in author-owned story foundations rather than a separate accepted-continuity kingdom,
 - no silent mutation of manuscript truth,
 - no scene-first authority drift,
 - no Story Unit gate,
-- no inferred finding becomes authored truth without user action.
+- no inferred finding becomes authored truth without user action,
+- durable advisory history must be purposeful and relevant rather than stored just because data exists.
 
 Risks:
 
@@ -211,8 +218,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 ### Fatal Questions
 
-- Where does accepted continuity truth live, and what makes it authored rather than inferred?
-- Which systems may produce or consume durable continuity artifacts without granting Continuity truth ownership?
+- None currently. Jason's doctrine resolves continuity truth ownership; remaining questions are about exact storage shape, lifecycle, and purposeful advisory history.
 
 ### Critical Questions
 
@@ -220,6 +226,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - What continuity artifacts become durable versus temporary?
 - What acceptance flow exists for accepted, dismissed, suppressed, or ignored findings?
 - What may Continuity surface without over-claiming authority?
+- What purposeful durable advisory history is worth keeping without creating noise or shadow canon?
 
 ### Major Questions
 
@@ -238,6 +245,8 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Does `Narrative Insertion / Narrative Assertion` remain the foundation? Answered: yes.
 - Is scene a foundation layer? Answered: no, scene remains projection or compatibility only.
 - May Continuity feed `Memory Lab`, `Companion`, `Critique`, `Writing Surface`, and `Command Center`? Answered: yes, within advisory limits.
+- Where does accepted continuity truth live? Answered: in author-owned story foundations, notes, lore, character facts, narrative assertions, or other explicit author decisions.
+- Is there a separate accepted-continuity kingdom or shadow canon? Answered: no.
 
 ### Deferred Questions
 
@@ -253,6 +262,7 @@ This rough dossier is acceptable only if:
 - continuity stays advisory,
 - narrative primitives remain the foundation,
 - projections do not become truth owners,
+- accepted continuity truth returns to author-owned foundations rather than a shadow canon,
 - no silent rewrite authority is implied,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime build-readiness claim is made.

@@ -20,6 +20,7 @@ This map is explanatory, not an implementation plan.
 - Outline is optional.
 - AI is advisory unless accepted by the user.
 - Inferred output is not authored truth.
+- Author authority controls the final text decision.
 
 ## Core System Layers
 
@@ -45,9 +46,10 @@ This map is explanatory, not an implementation plan.
 
 - `Narrative Insertion / Narrative Assertion` feeds projections, advisory systems, and later tool context.
 - `Continuity` inspects narrative foundations and projections, then emits advisory continuity findings.
+- Accepted continuity truth returns to author-owned foundations, notes, lore, character facts, or other explicit author decisions rather than a shadow canon.
 - `Signal Architecture` normalizes and routes signal-shaped outputs across surfaces.
-- `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work.
-- `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems.
+- `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work, but it should retain only meaningful information that serves continuity, memory, structure, investigation, or author decision support.
+- `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems, and may later run safe local or support actions if settings allow.
 - `Authorship / Provenance / AI Visibility` governs how AI contribution and transformation remain visible.
 - `Model Routing And Budget Architecture` governs whether local, manual, or paid-model paths are allowed.
 - `LLM Package Construction Architecture` governs how model-facing packages are assembled.
@@ -66,6 +68,7 @@ Important boundary:
 
 - signals remain advisory unless the user accepts or acts on them,
 - signal visibility does not grant signal authority,
+- durable advisory history should be kept only when it is purposeful and relevant,
 - one signal may have multiple consumers without creating multiple truth owners.
 
 ## AI/Model Flow
@@ -83,6 +86,7 @@ Important boundary:
 
 - arrows do not imply runtime wiring exists,
 - arrows do not imply paid API is enabled,
+- routing precedence starts with user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
 - arrows do not imply silent paid spend is allowed.
 
 ## Explicit-Content Package Flow
@@ -97,6 +101,7 @@ Rough doctrine flow:
 Important boundary:
 
 - explicit-content transforms outbound packages, not raw prose,
+- starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send,
 - local-only raw analysis remains possible,
 - marker, censor, and package behavior are related but not identical.
 
@@ -117,8 +122,10 @@ Current doctrine-under-review:
 
 Important boundary:
 
-- accepted-AI transition remains unresolved,
-- export and persistence behavior remain unresolved,
+- explicit author action may make AI-origin text author-owned text,
+- visible difference after acceptance is user-controlled rather than permanently forced,
+- export behavior is user-controlled,
+- exact persistence and private metadata behavior remain unresolved,
 - visibility does not equal final implementation contract.
 
 ## Memory Lab / Companion Relationship
@@ -129,11 +136,13 @@ Important boundary:
 - `Companion` is not `Memory Lab`.
 - `Companion` is not truth owner.
 - `Memory Lab` is not automatic truth owner.
+- `Companion` must not silently spend money, mutate story truth, rewrite prose, send raw content, or canonize facts without approval.
 
 ## Continuity / Signal Relationship
 
 - `Continuity` is a major producer of advisory continuity findings.
 - `Signal Architecture` defines how those findings can become normalized signals for multiple consumers.
+- Accepted continuity truth belongs in author-owned story foundations or other explicit author decisions, not in Continuity or Signal as shadow canon.
 - `Continuity` does not own truth.
 - `Signal Architecture` does not turn findings into authored truth.
 
@@ -146,7 +155,7 @@ Important boundary:
 ## Known Unknowns
 
 - exact signal severity, confidence, and resolution taxonomy,
-- exact accepted-AI transition rules,
+- exact provenance storage, sync, and private-metadata rules,
 - exact routing thresholds and approval rules,
 - exact package schemas, chunking, and truncation rules,
 - exact explicit-content approval and refusal behavior,
@@ -164,6 +173,7 @@ Important boundary:
 - `Memory Lab` may feed `Companion`, but `Companion` is not `Memory Lab`.
 - Model routing governs whether local, manual, or paid-model paths are allowed.
 - Explicit-content transforms outbound packages, not raw prose.
+- Provider-specific packaging may evolve, but it must not silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose.
 - Authorship and provenance govern visibility of AI contributions, not automatic acceptance.
 
 ## Acceptance Criteria

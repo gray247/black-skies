@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Model Routing And Budget Architecture`, `Authorship Provenance AI Visibility`, `Explicit Content Architecture`
 - Feeds into: `Companion`, `Memory Lab`, `Continuity`, `Critique`, `Model Router / Provider Execution Policy`
 - Runtime authority: `future`
@@ -142,12 +142,15 @@ Paid API paths need stricter packaging, summaries, masking, and approval boundar
 - first tokens carry mission and hard rules,
 - middle tokens carry supporting context,
 - last tokens repeat mission and output rules,
+- provider-specific packaging may evolve by genre, task, model strength, local-versus-paid path, and writing mode,
+- meaning, author intent, evidence scope, canon facts, and task purpose must remain controlled even when wrappers or schemas change,
 - package design matters as much as prompt wording,
 - exact schemas, chunking, compression, truncation, and provider-specific tuning remain unresolved.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Package construction must cooperate with masking, summarization, and transformed-package rules without losing essential continuity.
+Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -166,7 +169,8 @@ Governance rules:
 
 - package construction is not casual prompt stuffing,
 - no silent package widening,
-- no hidden provider-specific behavior that changes authority claims,
+- provider-specific packaging may evolve, but it must not silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose,
+- starting never-send or raw outbound categories are real doctrine, but the list may evolve,
 - evidence and output rules must survive packaging.
 
 Risks:
@@ -202,8 +206,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 
 ### Fatal Questions
 
-- What mandatory payload boundary governs content leaving the local machine when privacy, provenance, routing, and explicit-content rules conflict?
-- What prevents package construction from creating hidden authority by changing task meaning, evidence scope, or output expectations per provider?
+- None currently. Jason's doctrine resolves the top-level payload and provider-evolution boundaries; remaining questions are exact schema, enforcement, and packaging mechanics.
 
 ### Critical Questions
 
@@ -212,6 +215,8 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - What masking and explicit-content interaction rules apply before any provider call?
 - What provider-neutral safety boundaries must exist before runtime wiring?
 - How should evidence citation packaging work?
+- How are starting never-send or raw outbound categories enforced, evolved, and reviewed over time?
+- How are provider-specific wrappers, schemas, chunking, and model choices allowed to vary without changing mission or evidence scope?
 
 ### Major Questions
 
@@ -233,6 +238,9 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Do middle tokens carry supporting context? Answered: yes.
 - Do last tokens repeat mission and output rules? Answered: yes.
 - Is casual prompt stuffing acceptable? Answered: no.
+- May provider-specific packaging evolve by genre, task, model strength, local-versus-paid path, and writing mode? Answered: yes.
+- May provider-specific packaging silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose? Answered: no.
+- Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
 
 ### Deferred Questions
 
@@ -246,6 +254,7 @@ This rough dossier is acceptable only if:
 
 - package doctrine is explicit,
 - no hidden prompt-stuffing assumptions remain,
+- provider-specific packaging is allowed to evolve only inside controlled mission and evidence boundaries,
 - unresolved schema, chunking, truncation, provider-tuning, and explicit-content interaction questions stay unresolved until later doctrine answers them,
 - masking and safety stay in view,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,

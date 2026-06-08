@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-07`
+- Last reviewed: `2026-06-08`
 - Depends on: `Authorship Provenance AI Visibility`, `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`
 - Feeds into: `Explicit-Content Marker / Send-Package Censor`, `Writing Surface`, `Command Center Surface`, `Import / Export / Google Docs`
 - Runtime authority: `future`
@@ -141,6 +141,7 @@ Local models may help with raw local analysis later if allowed and bounded.
 
 Paid API must never receive raw local explicit story content unless future rules explicitly allow it.
 Exact refusal and fallback behavior remains unresolved.
+Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
@@ -154,6 +155,7 @@ Exact refusal and fallback behavior remains unresolved.
 
 - marker, censor, and package systems are related but not identical,
 - masking should preserve continuity and causality where possible,
+- never-send or raw outbound categories are a starting doctrine rather than a finished exhaustive list,
 - transformed packages should be previewable and later approvable.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
@@ -177,6 +179,7 @@ Governance rules:
 - raw story remains local,
 - outbound transformation must be explicit,
 - marker, censor, and package behavior must not collapse into one hidden system,
+- starting never-send or raw outbound categories are real doctrine, but the list may evolve,
 - no silent author-text mutation.
 
 Risks:
@@ -211,7 +214,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 
 ### Fatal Questions
 
-- What authority boundary keeps local authored manuscript state separate from transformed outbound package state so censoring cannot masquerade as editing?
+- None currently. Jason's doctrine resolves the raw-local versus outbound-package boundary; remaining questions are transformation, approval, refusal, and local-only analysis details.
 
 ### Critical Questions
 
@@ -240,6 +243,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 - Should continuity and causality be preserved where possible? Answered: yes.
 - Are marker, censor, and package systems identical? Answered: no, they are related but distinct.
 - May censor behavior silently mutate local authored prose? Answered: no.
+- Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
 
 ### Deferred Questions
 
@@ -252,6 +256,7 @@ This rough dossier is acceptable only if:
 
 - the local manuscript stays protected,
 - outbound transformation stays explicit,
+- starting never-send or raw outbound doctrine remains rough rather than exhaustive,
 - no censor behavior mutates original prose,
 - preview and approval remain explicitly unresolved until later doctrine resolves them,
 - continuity preservation remains visible,
