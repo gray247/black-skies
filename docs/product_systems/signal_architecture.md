@@ -224,12 +224,12 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Critical Questions
 
-- Which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
-- Which accepted workflows, if any, besides direct author action may create durable signal-state changes?
-- What minimum normalized signal state contract, beyond the rough lifecycle vocabulary above, must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
-- What storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
-- What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
-- Which signal history events justify durable storage, and which should expire as temporary noise once no longer relevant?
+- Jason decision candidate: which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
+- Jason decision candidate: which accepted workflows, if any, besides direct author action may create durable signal-state changes?
+- Future contract need: what minimum normalized signal state contract, beyond the rough lifecycle vocabulary above, must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
+- Future contract need: what storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
+- Future contract need: what transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
+- Future contract need: which signal history events justify durable storage, and which should expire as temporary noise once no longer relevant?
 
 ### Major Questions
 
@@ -261,6 +261,8 @@ Resolution flows, mute policies, and smarter grouping.
 - Does a reusable continuity and signal lifecycle contract artifact eventually need to exist, or can the stabilized lifecycle rules remain inside `signal_architecture.md`, `continuity.md`, and `system_interaction_map.md`?
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the continuity and signal side of this cluster is stable enough to pause tightening and shift the next dossier attention toward `Authorship Provenance AI Visibility`, `Memory Lab`, and `Companion`.
 
 This rough dossier is acceptable only if:
 

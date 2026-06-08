@@ -240,11 +240,11 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 ### Critical Questions
 
-- Which approval classes may rely on session approval, and which must require fresh approval because risk is too high?
-- What minimum spending guardrails must exist before any paid-model path can be wired?
-- What cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
-- Which failure combinations should transition directly to `no-ai-route-available`, and which should still offer retryable local-only or manual fallback first?
-- How is the starting precedence enforced when user choice, privacy, explicit-content, budget, project settings, and convenience rules collide across tools or surfaces?
+- Jason decision candidate: which approval classes may rely on session approval, and which must require fresh approval because risk is too high?
+- Jason decision candidate: what minimum spending guardrails must exist before any paid-model path can be wired?
+- Jason decision candidate: what cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
+- Jason decision candidate: which failure combinations should transition directly to `no-ai-route-available`, and which should still offer retryable local-only or manual fallback first?
+- Future contract need: how is the starting precedence enforced when user choice, privacy, explicit-content, budget, project settings, and convenience rules collide across tools or surfaces?
 
 ### Major Questions
 
@@ -282,6 +282,8 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Does a reusable approval classes and spend guardrails contract eventually need to exist, or can the stabilized class vocabulary remain inside routing, package construction, explicit-content, and Companion dossiers?
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the routing, package, and explicit-content side of this cluster is stable enough to pause tightening and shift the next dossier attention toward `Authorship Provenance AI Visibility`, `Memory Lab`, and `Companion`.
 
 This rough dossier is acceptable only if:
 

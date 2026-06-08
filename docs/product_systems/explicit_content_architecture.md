@@ -257,10 +257,10 @@ Richer marker systems, per-project policy, and export-aware handling.
 
 ### Critical Questions
 
-- What minimum transformation contract is required before any outbound explicit-content package is assembled?
-- What preview and approval steps are mandatory before transformed explicit-content material is sent outward?
-- What exact state contract must distinguish raw manuscript, author redaction or mask map, author-approved package view, and outbound payload view before runtime wiring is attempted?
-- Which local-only raw analysis results may inform local advisory systems, and which must never cross into outbound raw-package behavior without a new author decision?
+- Future contract need: what minimum transformation contract is required before any outbound explicit-content package is assembled?
+- Jason decision candidate: what preview and approval steps are mandatory before transformed explicit-content material is sent outward?
+- Future contract need: what exact state contract must distinguish raw manuscript, author redaction or mask map, author-approved package view, and outbound payload view before runtime wiring is attempted?
+- Jason decision candidate: which local-only raw analysis results may inform local advisory systems, and which must never cross into outbound raw-package behavior without a new author decision?
 
 ### Major Questions
 
@@ -296,6 +296,8 @@ Richer marker systems, per-project policy, and export-aware handling.
 - Does the `no-ai-route-available` escalation contract eventually need a reusable artifact, or can it remain split across routing, explicit-content, package construction, and Companion dossiers?
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the routing, package, and explicit-content side of this cluster is stable enough to pause tightening and shift the next dossier attention toward `Authorship Provenance AI Visibility`, `Memory Lab`, and `Companion`.
 
 This rough dossier is acceptable only if:
 

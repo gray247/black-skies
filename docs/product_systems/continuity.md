@@ -243,10 +243,10 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 ### Critical Questions
 
-- What narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
-- Which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
-- What minimum shared state model, beyond the rough lifecycle vocabulary above, is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
-- Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
+- Jason decision candidate: what narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
+- Jason decision candidate: which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
+- Future contract need: what minimum shared state model, beyond the rough lifecycle vocabulary above, is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
+- Future contract need: which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
 
 ### Major Questions
 
@@ -280,6 +280,8 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Does a reusable continuity and signal lifecycle contract artifact eventually need to exist, or can the stabilized lifecycle rules remain inside these dossiers and `system_interaction_map.md`?
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the continuity and signal side of this cluster is stable enough to pause tightening and shift the next dossier attention toward `Authorship Provenance AI Visibility`, `Memory Lab`, and `Companion`.
 
 This rough dossier is acceptable only if:
 

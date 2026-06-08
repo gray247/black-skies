@@ -230,12 +230,12 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 
 ### Critical Questions
 
-- What minimum provider-neutral package contract must exist for mission, hard rules, context, and output expectations before any provider wiring is allowed?
-- What truncation contract preserves mission, hard rules, evidence scope, and output expectations under token pressure?
-- What provider-neutral safety checks must run before any outbound provider call or package approval surface is wired?
-- What invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
-- How must raw manuscript, author redaction or mask map, AI exclusion zones, author-approved package view, and outbound payload view remain distinct through package assembly?
-- How must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
+- Future contract need: what minimum provider-neutral package contract must exist for mission, hard rules, context, and output expectations before any provider wiring is allowed?
+- Future contract need: what truncation contract preserves mission, hard rules, evidence scope, and output expectations under token pressure?
+- Future contract need: what provider-neutral safety checks must run before any outbound provider call or package approval surface is wired?
+- Future contract need: what invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
+- Future contract need: how must raw manuscript, author redaction or mask map, AI exclusion zones, author-approved package view, and outbound payload view remain distinct through package assembly?
+- Future contract need: how must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
 
 ### Major Questions
 
@@ -275,6 +275,8 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Does a reusable redaction or mask-map or package-view contract eventually need to exist, or can the stabilized state distinctions remain inside package construction and explicit-content dossiers?
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the routing, package, and explicit-content side of this cluster is stable enough to pause tightening and shift the next dossier attention toward `Authorship Provenance AI Visibility`, `Memory Lab`, and `Companion`.
 
 This rough dossier is acceptable only if:
 
