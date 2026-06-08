@@ -215,16 +215,16 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 ### Critical Questions
 
-- What may run silently?
-- What always requires approval?
-- What are the minimum spending guardrails?
-- What exact spending thresholds should exist?
-- What cost exposure rules must be visible before runtime wiring?
-- What fallback rules apply when local or API paths fail?
-- How should the starting precedence be enforced when policies collide across tools or surfaces?
+- Which task classes, if any, may run silently, and only under local, deterministic, or explicitly pre-approved conditions?
+- Which task classes always require fresh user approval even when project settings, prior modes, or convenience rules would otherwise permit a run?
+- What minimum spending guardrails must exist before any paid-model path can be wired?
+- What cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
+- What fallback behavior is allowed when local execution fails, when paid execution fails, or when both paths are blocked?
+- How is the starting precedence enforced when user choice, privacy, explicit-content, budget, project settings, and convenience rules collide across tools or surfaces?
 
 ### Major Questions
 
+- What exact spending thresholds should exist?
 - How should per-project versus global modes work?
 - How should mode changes behave mid-project, especially local-only to API?
 - How should API findings be reconciled with local findings when they contradict each other?

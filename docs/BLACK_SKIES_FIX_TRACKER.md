@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-06-08] Critical Question Tightening Pass 1 refined the first-wave continuity/routing/package cluster:
+  - tightens remaining Critical questions in `continuity.md`, `signal_architecture.md`, `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md`, and `explicit_content_architecture.md`,
+  - moves doctrine-answered or non-blocking items out of Critical where supported while keeping the dossiers rough and not build-ready,
+  - docs-only with no runtime code or app-source changes.
 - [2026-06-08] `docs/product_systems/pre_code_discovery_plan.md` created:
   - records the 12-step pre-code roadmap and handover spine,
   - docs-only with no runtime or app-source changes,

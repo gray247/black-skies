@@ -210,21 +210,21 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 
 ### Critical Questions
 
-- What is the minimum schema and input/output contract?
-- What truncation policy keeps mission, hard rules, and output expectations intact?
-- What masking and explicit-content interaction rules apply before any provider call?
-- What provider-neutral safety boundaries must exist before runtime wiring?
-- How should evidence citation packaging work?
-- How are starting never-send or raw outbound categories enforced, evolved, and reviewed over time?
-- How are provider-specific wrappers, schemas, chunking, and model choices allowed to vary without changing mission or evidence scope?
+- What minimum provider-neutral package contract must exist for mission, hard rules, context, and output expectations before any provider wiring is allowed?
+- What truncation contract preserves mission, hard rules, evidence scope, and output expectations under token pressure?
+- What masking and explicit-content rules must be enforced before any outbound package is assembled or provider call is allowed?
+- What provider-neutral safety checks must run before any outbound provider call or package approval surface is wired?
+- What invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
 
 ### Major Questions
 
+- How should evidence citation packaging work when a task needs explicit evidence traceability?
 - What schema design and input/output expectation formats are worth preserving through rough design?
 - What chunking and compression policy should exist?
 - How should long-context overflow be handled?
 - How should contradictory context bundles be represented?
 - How should provider-specific differences and tuning be isolated?
+- How should changes to never-send or raw outbound categories be reviewed over time after the starting doctrine exists?
 
 ### Minor Questions
 

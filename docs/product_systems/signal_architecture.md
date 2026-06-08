@@ -204,12 +204,12 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Critical Questions
 
-- Who may emit signals?
-- Who may treat a signal as actionable?
-- How should severity, confidence, and provenance be normalized?
-- What storage rules apply to signal provenance, mute state, resolution, and staleness?
-- How does signal provenance stay intact across surfaces?
-- What purposeful durable advisory history is worth keeping for story maturation without turning signals into clutter or shadow canon?
+- Which systems may emit first-class signals, and which may only produce findings that another system must normalize first?
+- Which consumers may only display signals, and which may offer accept, dismiss, mute, or resolve actions?
+- What minimum normalized signal contract must every signal carry for severity, confidence, provenance, and source reference before multi-surface wiring exists?
+- What storage contract applies to signal provenance, mute state, resolution state, and staleness markers before runtime wiring is attempted?
+- What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels?
+- Which signal events justify durable advisory history, and which should expire as temporary noise?
 
 ### Major Questions
 

@@ -218,11 +218,11 @@ Richer marker systems, per-project policy, and export-aware handling.
 
 ### Critical Questions
 
-- What is the minimum transformation contract?
-- What preview and approval flow is required before transformed content is sent outward?
-- What routing and package interaction rules apply to explicit-content material?
-- What API refusal and fallback behavior is acceptable?
-- What are the local-only raw analysis boundaries?
+- What minimum transformation contract is required before any outbound explicit-content package is assembled?
+- What preview and approval steps are mandatory before transformed explicit-content material is sent outward?
+- What routing and package checks must explicit-content material pass before any provider call or export-aware send path is allowed?
+- What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package?
+- What local-only raw analysis is allowed, and which results from that analysis must never cross into outbound raw-package behavior without a new decision?
 
 ### Major Questions
 

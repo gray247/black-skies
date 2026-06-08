@@ -222,11 +222,11 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 ### Critical Questions
 
-- What may Continuity observe before runtime wiring exists?
-- What continuity artifacts become durable versus temporary?
-- What acceptance flow exists for accepted, dismissed, suppressed, or ignored findings?
-- What may Continuity surface without over-claiming authority?
-- What purposeful durable advisory history is worth keeping without creating noise or shadow canon?
+- What narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
+- Which continuity outputs must remain temporary signals, and which may become durable only after explicit author action?
+- What minimum state model is required for accepted, dismissed, suppressed, and ignored findings before any continuity UI or storage wiring is attempted?
+- Which continuity finding types may surface directly as advisory signals, and which must stay inside inspectable evidence rather than appearing as truth claims?
+- Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts them?
 
 ### Major Questions
 
