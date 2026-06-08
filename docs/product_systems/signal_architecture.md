@@ -76,6 +76,7 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 - provenance and source references,
 - severity and confidence labels,
 - display-safe summaries later,
+- author-action or accepted-workflow state-change candidates later,
 - mute, resolve, or stale-state candidates later.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -88,6 +89,7 @@ Heavy batch signal generation, advanced analytics, and historical diff views.
 
 ## 14. What Gets Stored
 
+- durable signal state later in `Signal Architecture`,
 - accepted resolutions later,
 - signal provenance later,
 - mute, suppress, resolve, and staleness state later,
@@ -152,7 +154,7 @@ Signal packaging must preserve provenance while respecting masked or summarized 
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Signals must not reveal masked raw content through summaries or previews.
+Signals must not reveal masked or AI-excluded raw content through summaries or previews.
 
 ## 27. Testing Requirements
 
@@ -209,7 +211,7 @@ Resolution flows, mute policies, and smarter grouping.
 ### Critical Questions
 
 - Which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
-- Which downstream consumers may only display signals, and which may change signal state through accept, dismiss, mute, resolve, or stale actions?
+- Which accepted workflows, if any, besides direct author action may create durable signal-state changes?
 - What minimum normalized signal state contract must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
 - What storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
 - What transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
@@ -232,6 +234,8 @@ Resolution flows, mute policies, and smarter grouping.
 - May signals surface in `Outline`, `Writing Surface`, `Command Center`, `Companion`, and tool-specific panels? Answered: yes.
 - May one signal have multiple consumers? Answered: yes.
 - Are signals authored truth by default? Answered: no, they are advisory unless the writer accepts or acts on them.
+- Who owns durable signal state? Answered: `Signal Architecture`.
+- May consumer surfaces create durable signal-state changes on their own? Answered: no. Consumer surfaces may display signals and request actions, but only the author or explicit accepted workflows may create durable resolve, dismiss, snooze, convert, or similar signal-state changes.
 - Does accepted story truth live in the signal layer? Answered: no, accepted truth belongs in author-owned story foundations or other explicit author decisions.
 
 ### Deferred Questions

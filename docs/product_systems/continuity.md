@@ -80,7 +80,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - evidence bundles,
 - continuity-derived signal candidates for `Signal Architecture`,
 - accepted continuity notes later.
-- accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions.
+- accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions created through explicit author acceptance or explicit save, convert, or update actions.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -95,7 +95,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 ## 14. What Gets Stored
 
 - accepted continuity decisions later,
-- accepted continuity truth in author-owned foundations, notes, lore, character facts, or explicit author decisions later,
+- accepted continuity truth in author-owned foundations, notes, lore, character facts, or explicit author decisions later only through explicit author save, convert, or update actions,
 - explicitly retained durable advisory history later when it helps explain story maturation or a resolved continuity outcome,
 - provenance for accepted findings and retained dismiss or suppress decisions later,
 - explicit suppress or ignore decisions later.
@@ -104,6 +104,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 
 - unaccepted findings,
 - continuity-derived signal candidates before normalization or expiry,
+- AI inference, summaries, and advisory continuity records before explicit author acceptance,
 - confidence estimates,
 - ephemeral comparison runs,
 - provisional hypotheses,
@@ -159,8 +160,11 @@ Paid API use is for deep, broad, or long-context review only when necessary and 
 If continuity uses outbound packages later:
 
 - raw story should stay local,
+- author-controlled masks, substitutions, summaries, and AI exclusion zones must be honored before any outbound continuity package is assembled,
+- outbound continuity packaging must use the author-approved redacted or package view rather than excluded raw manuscript ranges,
 - masked or summarized packages may be used outward,
-- continuity and causality should be preserved where possible.
+- continuity and causality should be preserved where possible,
+- masked summaries or substitutions used for outbound work remain package artifacts rather than author-owned continuity truth unless explicitly saved or converted by the author.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -228,7 +232,6 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - What narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
 - Which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
 - What minimum shared state model is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
-- Which acceptance outcomes create author-owned truth updates, and which remain advisory-only continuity records?
 - Which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
 
 ### Major Questions
@@ -249,6 +252,8 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Is scene a foundation layer? Answered: no, scene remains projection or compatibility only.
 - May Continuity feed `Memory Lab`, `Companion`, `Critique`, `Writing Surface`, and `Command Center`? Answered: yes, within advisory limits.
 - Where does accepted continuity truth live? Answered: in author-owned story foundations, notes, lore, character facts, narrative assertions, or other explicit author decisions.
+- Which acceptance outcomes create author-owned truth updates, and which remain advisory-only continuity records? Answered: only explicit author acceptance creates author-owned continuity truth; accepted manuscript prose becomes authored text, but structured continuity facts are created only by explicit save, convert, or update actions.
+- Do AI inference, summaries, signals, and advisory continuity records become author-owned continuity truth on their own? Answered: no, they remain advisory evidence until explicitly accepted by the author.
 - Is there a separate accepted-continuity kingdom or shadow canon? Answered: no.
 
 ### Deferred Questions

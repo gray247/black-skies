@@ -78,6 +78,7 @@ Nothing by default beyond safe, honest tool behavior.
 - structured model packages after routing and explicit-content clearance later,
 - package summaries later,
 - truncation or masking notes later,
+- author-approved redacted or package views later,
 - blocked-assembly reasons later,
 - provider-specific send payloads later.
 
@@ -93,11 +94,13 @@ Nothing by default beyond safe, honest tool behavior.
 
 - templates or schemas later,
 - package policy versions later,
-- approved package summaries later.
+- approved package summaries later,
+- author-approved redaction or mask-view references later.
 
 ## 15. What Remains Temporary
 
 - per-run packages,
+- raw-manuscript, redaction-map, and outbound-package-view distinctions before any saved conversion later,
 - chunk decisions,
 - token estimates,
 - provider-specific renderings,
@@ -154,11 +157,13 @@ Paid API paths need stricter packaging, summaries, masking, and approval boundar
 Package construction must cooperate with masking, summarization, and transformed-package rules without losing essential continuity.
 Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 Package construction should receive routing approval and explicit-content clearance before any outbound package is assembled, and it must not widen a blocked task into outbound-safe behavior on its own.
+Outbound package construction must use the author-approved redacted or package view, not excluded raw manuscript ranges, for masked or AI-excluded sections.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Packages must respect privacy, censorship, and explicit-content boundaries before any provider call.
 Package construction must not override local-only, never-send, or refusal states handed down by routing or explicit-content policy.
+Package construction must preserve the distinction between raw manuscript, author redaction or mask map, and outbound package view.
 
 ## 27. Testing Requirements
 
@@ -215,10 +220,10 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 ### Critical Questions
 
 - What minimum provider-neutral package contract must exist for mission, hard rules, context, and output expectations before any provider wiring is allowed?
-- What routing approval state and explicit-content clearance must exist before outbound package assembly may begin?
 - What truncation contract preserves mission, hard rules, evidence scope, and output expectations under token pressure?
 - What provider-neutral safety checks must run before any outbound provider call or package approval surface is wired?
 - What invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
+- How must raw manuscript, author redaction or mask map, AI exclusion zones, and outbound package view remain distinct through package assembly?
 - How must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
 
 ### Major Questions
@@ -243,9 +248,12 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Do middle tokens carry supporting context? Answered: yes.
 - Do last tokens repeat mission and output rules? Answered: yes.
 - Is casual prompt stuffing acceptable? Answered: no.
+- What routing approval state and explicit-content clearance must exist before outbound package assembly may begin? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards.
 - May provider-specific packaging evolve by genre, task, model strength, local-versus-paid path, and writing mode? Answered: yes.
 - May provider-specific packaging silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose? Answered: no.
 - Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
+- Can package construction self-approve outbound work? Answered: no.
+- What happens if outbound clearance fails? Answered: package construction must stop or produce only local, non-outbound artifacts.
 
 ### Deferred Questions
 

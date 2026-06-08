@@ -78,6 +78,7 @@ Heavy long-context or expensive provider escalation.
 
 - route decisions,
 - local-only, blocked, or outbound-eligible status later,
+- `no-ai-route-available` state later when no permitted AI route remains,
 - manual approval prompts later,
 - blocked or downgraded run outcomes,
 - package-assembly allowed or denied status later,
@@ -152,6 +153,8 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - manual run is the backup,
 - paid API is the later escalation path,
 - starting precedence is user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
+- silent runs are allowed only for local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation,
+- paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk,
 - spending guardrails must stay visible and bounded,
 - exact spending thresholds remain unresolved.
 
@@ -160,10 +163,12 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 Routing must respect explicit-content rules.
 Some tasks may be local-only because outbound packages are unsafe or unacceptable.
 Routing must decide whether work stays local-only, may assemble outbound packages, or must stop entirely after explicit-content checks.
+If both local and outbound AI routes fail or refuse even after allowed masking, substitution, or route changes, the routing outcome becomes `no-ai-route-available`.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Routing must honor privacy mode, explicit-content boundaries, and no-money or local-only constraints without silently overriding them or silently reclassifying a blocked task as outbound-safe.
+Routing must also honor author-controlled masks, summaries, substitutions, and AI exclusion zones before any outbound package path is considered.
 
 ## 27. Testing Requirements
 
@@ -177,6 +182,9 @@ Routing must honor privacy mode, explicit-content boundaries, and no-money or lo
 Governance rules:
 
 - no silent paid API spend,
+- no silent outbound manuscript transfer,
+- no silent truth mutation,
+- no silent destructive action,
 - no forced AI dependency,
 - direct writing stays available,
 - routing policy must stay subordinate to writer control,
@@ -220,12 +228,10 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 ### Critical Questions
 
-- Which task classes, if any, may run silently, and only under local, deterministic, or explicitly pre-approved conditions?
-- Which task classes always require fresh user approval even when project settings, prior modes, or convenience rules would otherwise permit a run?
-- Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls?
+- Which approval classes may rely on session approval, and which must require fresh approval because risk is too high?
 - What minimum spending guardrails must exist before any paid-model path can be wired?
 - What cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
-- What fallback behavior is allowed when local execution fails, when paid execution fails, or when both paths are blocked?
+- Which failure combinations should transition directly to `no-ai-route-available`, and which should still offer retryable local-only or manual fallback first?
 - How is the starting precedence enforced when user choice, privacy, explicit-content, budget, project settings, and convenience rules collide across tools or surfaces?
 
 ### Major Questions
@@ -248,7 +254,11 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Is silent local observation preferred when feasible? Answered: yes.
 - Is paid API the default path? Answered: no, it is for heavy, deep, or long-context work.
 - Is silent paid API spend allowed? Answered: no.
+- Which task classes may run silently? Answered: only local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
+- Which task classes require approval? Answered: paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk.
 - Can any system escalate from local or no-money modes to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
+- Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards. If clearance fails, package assembly must stop or produce only local, non-outbound artifacts.
+- Does outbound refusal or failure count as a manuscript failure? Answered: no. A refusal is treated as a route failure, not a manuscript failure.
 - What is the starting routing precedence? Answered: user approval or refusal -> privacy or local-only -> explicit-content restrictions -> no-money or budget limits -> project settings -> model quality preference -> convenience or automation.
 
 ### Deferred Questions

@@ -26,6 +26,7 @@ Writers need to keep their local story intact while safely deciding what can be 
 
 - distinguishes marker, censor, and package behavior,
 - keeps raw local prose separate from outbound transformed packages,
+- allows author-controlled masking, summarization, substitution, and AI exclusion before routing or outbound package construction,
 - preserves continuity and causality where possible,
 - supports preview and approval later,
 - keeps local-only raw analysis possible.
@@ -79,9 +80,11 @@ Nothing should block direct writing by default.
 
 - marker states later,
 - local-only, outbound-blocked, or transform-required classifications later,
+- author-approved redacted or package views later,
 - masked or summarized outbound packages,
 - approval prompts later,
 - refusal or fallback states later,
+- `no-ai-route-available` state later,
 - risk classifications later.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -97,12 +100,14 @@ Nothing should block direct writing by default.
 - explicit-content preferences later,
 - marker metadata later,
 - approval and refusal history later,
-- transformed-package audit records later.
+- author redaction or mask maps later,
+- transformed-package audit records later,
 - local-only lock decisions later.
 
 ## 15. What Remains Temporary
 
 - one-off transformed packages,
+- masked summaries or substitutions used only as package or context artifacts unless explicitly saved or converted by the author,
 - masking previews,
 - ephemeral safety summaries,
 - pre-send warnings,
@@ -162,12 +167,14 @@ Starting never-send or raw outbound categories include explicit sexual content, 
 - masking should preserve continuity and causality where possible,
 - never-send or raw outbound categories are a starting doctrine rather than a finished exhaustive list,
 - transformed packages should be previewable and later approvable,
-- explicit-content handling must hand a clear local-only, transform-required, or outbound-blocked state to routing and package construction before any provider call.
+- explicit-content handling must hand a clear local-only, transform-required, or outbound-blocked state to routing and package construction before any provider call,
+- outbound package construction must use the author-approved redacted or package view rather than excluded raw manuscript ranges.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 - no silent outward leakage of raw explicit content,
 - no silent censorship of the local manuscript,
+- AI exclusion zones must be honored by routing, package construction, Continuity, Signal Architecture, Memory Lab, Companion, and any outbound package preview,
 - preserve meaning where possible,
 - surface uncertainty when masking damages context.
 
@@ -225,10 +232,9 @@ Richer marker systems, per-project policy, and export-aware handling.
 ### Critical Questions
 
 - What minimum transformation contract is required before any outbound explicit-content package is assembled?
-- What local-only, transform-required, or outbound-blocked classification must explicit-content handling hand to routing and package construction before any provider call is allowed?
 - What preview and approval steps are mandatory before transformed explicit-content material is sent outward?
-- What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package?
-- What local-only raw analysis is allowed, and which results from that analysis must never cross into outbound raw-package behavior without a new decision?
+- What exact state contract must distinguish raw manuscript, author redaction or mask map, author-approved package view, and outbound payload view before runtime wiring is attempted?
+- Which local-only raw analysis results may inform local advisory systems, and which must never cross into outbound raw-package behavior without a new author decision?
 
 ### Major Questions
 
@@ -236,6 +242,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 - How should the system warn when masking removes essential causal evidence?
 - How should local-only analysis interact with later export?
 - How should imported explicit-content metadata be reconciled with local policy?
+- Which retry order is most understandable before the app declares `no-ai-route-available`?
 
 ### Minor Questions
 
@@ -250,6 +257,10 @@ Richer marker systems, per-project policy, and export-aware handling.
 - Are marker, censor, and package systems identical? Answered: no, they are related but distinct.
 - May censor behavior silently mutate local authored prose? Answered: no.
 - Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
+- What local-only, transform-required, or outbound-blocked classification must explicit-content handling hand to routing and package construction before any provider call is allowed? Answered: explicit-content handling must hand one of those clearance states before any provider call is allowed.
+- What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package? Answered: blocked or refused outbound explicit-content work must not block direct writing and should offer local-only handling, transform, mask, summarize options, manual continuation, route change where allowed, or cancel. If both local and outbound AI routes fail or refuse, the state becomes `no-ai-route-available`.
+- May the author manually mask, summarize, substitute, or exclude selected manuscript ranges before AI routing or outbound package construction? Answered: yes.
+- Does manual masking or exclusion alter the manuscript by default? Answered: no. It changes package or context artifacts unless the author explicitly saves the masked version into the manuscript.
 
 ### Deferred Questions
 
