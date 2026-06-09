@@ -154,7 +154,7 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - manual run is the backup,
 - paid API is the later escalation path,
 - systems should prefer the cheapest safe source of truth or context first before escalating into heavier scans or provider work,
-- starting precedence is user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
+- starting precedence is author authority, then masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience,
 - silent runs are allowed only for local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation,
 - paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk,
 - full-project, local-LLM, paid, outbound, destructive, or durable-state-changing work may not run silently,
@@ -162,17 +162,22 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - no heavier scan should run while the user is actively typing unless it is cheap, local, and non-disruptive,
 - scheduled or idle local work may prepare advisory findings, but applying those findings still requires the owning-system contract and author approval where required,
 - no paid or outbound scheduled work may run without approval,
-- spending guardrails must stay visible and bounded,
-- exact spending thresholds remain unresolved.
+- default paid cap is zero until the author sets one,
+- estimated cost must be shown before paid work,
+- session budget remaining must stay visible later when paid work is available,
+- over-cap work must be blocked,
+- paid work must never retry silently,
+- lower-priority convenience may not override author, masking, privacy, outbound, or spend boundaries,
+- exact spending thresholds above the cap floor remain unresolved.
 
 Minimum rough routing and approval-state vocabulary:
 
 - `silent-local`: local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
-- `session-approved`: work allowed for a bounded risk class after explicit approval in the current session, without implying standing permission forever.
-- `fresh-approval-required`: work risky enough to require a new explicit approval because scope, spend, destination, or consequence changed.
+- `session-approved`: bounded paid critique, bounded outbound model help, scheduled local-only jobs, and repeated low-risk approved workflow actions may rely on explicit current-session approval without implying standing permission forever.
+- `fresh-approval-required`: first outbound manuscript transfer, explicit-content outbound package, spend above cap, provider switch after refusal, exporting or syncing or publishing, deletion, truth mutation, raw excluded-span retention, or tool use outside safe local UI must require a new explicit approval because scope, spend, destination, or consequence changed.
 - `blocked`: work policy disallows before execution because privacy, explicit-content, budget, project, or user rules forbid the route.
 - `refused`: a route that was attempted or considered eligible but then declined by the provider, the system, or the user at approval time.
-- `no-ai-route-available`: all permitted AI routes for the task are unavailable, blocked, refused, or clearance-failed, and no allowed AI fallback remains.
+- `no-ai-route-available`: the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, and no permitted AI fallback remains.
 
 Minimum rough workload tiers:
 
@@ -191,7 +196,7 @@ They are rough effort and approval labels, not exact scheduler, job, or hardware
 Routing must respect explicit-content rules.
 Some tasks may be local-only because outbound packages are unsafe or unacceptable.
 Routing must decide whether work stays local-only, may assemble outbound packages, or must stop entirely after explicit-content checks.
-At rough doctrine level, `no-ai-route-available` appears when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, approval is denied or clearance fails, and no permitted AI fallback remains for that task.
+At rough doctrine level, `no-ai-route-available` appears when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, or explicit-content clearance fails and no permitted AI fallback remains for that task.
 `no-ai-route-available` is route failure, not manuscript failure, and direct writing must remain available.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
@@ -218,7 +223,11 @@ Governance rules:
 - direct writing stays available,
 - routing policy must stay subordinate to writer control,
 - routing and budget authority governs whether scheduled or idle work may remain local-only, must ask permission, or must stop,
-- routing precedence starts with user approval or refusal, then privacy or local-only rules, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
+- routing precedence starts with author authority, then masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience,
+- lower-priority convenience may not override higher-priority author, masking, privacy, outbound, or spend boundaries,
+- the default paid cap is zero until the author sets one,
+- over-cap work must be blocked,
+- paid work must not retry silently,
 - provider or model experimentation may evolve by genre, task, model strength, local-versus-paid path, and writing mode,
 - paid API remains the heavy, deep, or long-context escalation path rather than the default path.
 
@@ -258,11 +267,10 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 ### Critical Questions
 
-- Jason decision candidate: which approval classes may rely on session approval, and which must require fresh approval because risk is too high?
-- Jason decision candidate: what minimum spending guardrails must exist before any paid-model path can be wired?
-- Jason decision candidate: what cost exposure must be visible before a task can leave the local boundary or consume paid tokens?
-- Jason decision candidate: which failure combinations should transition directly to `no-ai-route-available`, and which should still offer retryable local-only or manual fallback first?
-- Future contract need: how is the starting precedence enforced when user choice, privacy, explicit-content, budget, project settings, and convenience rules collide across tools or surfaces?
+- Future contract need: what exact approval UX, scope, persistence, revocation, and audit behavior should govern `session-approved` versus `fresh-approval-required` work before runtime wiring?
+- Future contract need: what exact spend-cap persistence, session-budget accounting, over-cap messaging, and cross-surface telemetry are required before paid routing can be implemented?
+- Future contract need: what exact enforcement and recovery behavior should govern `no-ai-route-available` across routing, package construction, explicit-content handling, and `Companion` explanation flows?
+- Future contract need: how is the accepted precedence enforced consistently when author authority, masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience collide across tools or surfaces?
 
 ### Major Questions
 
@@ -289,7 +297,11 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Can any system escalate from local or no-money modes to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
 - Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards. If clearance fails, package assembly must stop or produce only local, non-outbound artifacts.
 - Does outbound refusal or failure count as a manuscript failure? Answered: no. A refusal is treated as a route failure, not a manuscript failure.
-- What is the starting routing precedence? Answered: user approval or refusal -> privacy or local-only -> explicit-content restrictions -> no-money or budget limits -> project settings -> model quality preference -> convenience or automation.
+- What approval classes may rely on session approval, and which must require fresh approval? Answered: session approval may cover bounded paid critique, bounded outbound model help, scheduled local-only jobs, and repeated low-risk approved workflow actions. Fresh approval is required for first outbound manuscript transfer, explicit-content outbound package, spend above cap, provider switch after refusal, exporting or syncing or publishing, deletion, truth mutation, raw excluded-span retention, and tool use outside safe local UI.
+- What minimum spending guardrails must exist before any paid-model path can be wired? Answered: the default paid cap is zero until the author sets one, estimated cost must be shown before paid work, session budget remaining must be visible, over-cap work must be blocked, and paid work must never retry silently.
+- What cost exposure must be visible before a task can leave the local boundary or consume paid tokens? Answered: estimated cost before paid work and visible session budget remaining.
+- Which failure combinations should transition directly to `no-ai-route-available`? Answered: when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, and no permitted fallback remains.
+- What is the starting routing precedence? Answered: author authority -> masks or AI exclusion zones -> privacy or outbound rules -> spend rules -> routing preference -> `Companion` convenience.
 - What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling? Answered: rough doctrine uses those states with the meanings defined in this dossier; exact approval thresholds and enforcement remain unresolved.
 - What rough resource-governed assistance posture should routing enforce before systems escalate into heavier scans or provider work? Answered: systems should prefer the cheapest safe source of truth or context first and escalate into deeper analysis only when cost, privacy, mutation risk, and hardware impact permit.
 - What rough workload tiers should routing and budget policy recognize before runtime wiring? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
