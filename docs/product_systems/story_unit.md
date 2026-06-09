@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-09`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Prose / Scene Projection`
 - Feeds into: `Outline`, `Continuity`, `Critique`, `Relationship Map`, `Memory Lab`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -79,7 +79,9 @@ What appears first should stay minimal:
 
 - the existence of Story Unit as an optional organization tool,
 - a label or title when the writer wants one,
+- identity, type, status, order or grouping, and attached material reference when a Story Unit exists,
 - linked narrative work when it already exists,
+- mass or progress info and signal summary when useful,
 - clear status or lifecycle state when relevant.
 
 It must not appear as a prerequisite to start writing.
@@ -161,9 +163,15 @@ Downstream systems should consume Story Unit structure as support context, not a
 Eventually stored:
 
 - Story Unit identity,
+- type,
 - title or label,
-- purpose,
 - status,
+- order or grouping,
+- attached material reference,
+- mass or progress info,
+- signal summary,
+- authority state,
+- purpose,
 - linked insertion or assertion ids,
 - linked gap ids,
 - linked relationship ids,
@@ -222,25 +230,34 @@ Valid paths include:
 - Story Unit first when the writer wants that path.
 
 The Writing Surface stays sovereign regardless of whether a Story Unit exists.
+Current-text actions belong in the `Writing Surface`.
 
 ## 20. Relationship To Command Center Surface
 
 Story Units will likely be easier to inspect and organize in the Command Center, but that does not make the Command Center a gate.
 
 The Command Center may host Story Unit creation, review, grouping, and lineage inspection while still preserving direct writing first.
+Review, approval, bulk, routing, export, prototype, and other heavy workflow actions belong in `Command Center Surface`.
 
-## 21. GUI Placement Principles
+## 21. Relationship To Outline
+
+Outline gets structure and map actions for Story Units.
+Story Unit can support Outline structure without turning Outline into the owner of grouped narrative truth.
+
+## 22. GUI Placement Principles
 
 Placement rules:
 
 - Story Unit controls should appear when organization helps current work,
 - Story Unit views should not flood the default writing path,
+- low-risk planning changes may happen directly,
+- changes that affect accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation,
 - lifecycle and grouping detail should stay readable and bounded,
 - the system must resist becoming a renamed scene tree,
 - the Command Center must not turn Story Units into dashboard clutter,
 - grouped structural context should remain support context rather than a hidden canon layer.
 
-## 22. Local LLM Role
+## 23. Local LLM Role
 
 Possible later local-model roles:
 
@@ -253,7 +270,7 @@ Possible later local-model roles:
 
 All local-model output remains proposed structure until the writer accepts it.
 
-## 23. Paid API Role
+## 24. Paid API Role
 
 Possible later paid-model roles:
 
@@ -265,7 +282,7 @@ Possible later paid-model roles:
 
 Paid-model output remains advisory until accepted by the writer.
 
-## 24. Model Routing Notes
+## 25. Model Routing Notes
 
 Routing should remain behind later policy layers.
 
@@ -278,7 +295,7 @@ Any AI-assisted Story Unit flow must preserve:
 - no default dependency on AI,
 - no silent mutation of manuscript, canon, or durable signal state.
 
-## 25. Explicit-Content / Send-Package Handling, If Applicable
+## 26. Explicit-Content / Send-Package Handling, If Applicable
 
 If Story Units later package explicit material for review or routing, package handling must preserve:
 
@@ -288,7 +305,7 @@ If Story Units later package explicit material for review or routing, package ha
 - no silent rewrite of authored structure,
 - no leakage of raw excluded text through grouped previews, prototype bundles, or signal groupings unless explicitly permitted by the author.
 
-## 26. Privacy / Safety / Censor Behavior, If Applicable
+## 27. Privacy / Safety / Censor Behavior, If Applicable
 
 If Story Units participate in model-facing packaging later, privacy and safety rules must ensure:
 
@@ -298,7 +315,7 @@ If Story Units participate in model-facing packaging later, privacy and safety r
 - clear user awareness when content leaves the local boundary,
 - masks and AI exclusion zones remain in force even when grouped work is reorganized.
 
-## 27. Testing Requirements
+## 28. Testing Requirements
 
 Minimum proof set:
 
@@ -310,9 +327,11 @@ Minimum proof set:
 - promoted or archived lifecycle states preserve identity history,
 - Story Unit links do not replace insertion or assertion identity,
 - grouped work does not silently become accepted manuscript structure,
-- grouped signals do not grant Story Unit ownership of durable signal state.
+- grouped signals do not grant Story Unit ownership of durable signal state,
+- smallest stable payload can be shown without turning Story Unit into a junk drawer,
+- high-risk lifecycle changes require explicit confirmation.
 
-## 28. Governance Risks
+## 29. Governance Risks
 
 Key risks:
 
@@ -320,11 +339,12 @@ Key risks:
 - Story Unit replacing insertion or assertion foundation,
 - Story Unit becoming a disguised projection-container hierarchy,
 - Story Unit hardening into a hidden structural truth owner,
+- Story Unit becoming a junk drawer for memory, provenance, critique, or archive material,
 - inferred grouping becoming authorial truth,
 - Command Center forcing Story Unit workflow before writing,
 - AI grouping acquiring more authority than the writer intended.
 
-## 29. Failure Modes
+## 30. Failure Modes
 
 Expected failure or degraded states:
 
@@ -333,6 +353,7 @@ Expected failure or degraded states:
 - stale links after reorder or split,
 - over-clustered work packages,
 - grouping that obscures manuscript-order versus work-container purpose,
+- lifecycle changes applied without clear confirmation boundary,
 - conflicting inferred grouping proposals,
 - lineage confusion after merge or promotion.
 
@@ -342,19 +363,24 @@ Containment rules:
 - keep proposals non-authoritative,
 - surface ambiguity instead of silently rewriting structure.
 
-## 30. v1 Boundary
+## 31. v1 Boundary
 
 Minimum approved first version:
 
 - durable Story Unit identity,
+- type,
+- status,
+- order or grouping,
+- attached material reference,
+- mass or progress info,
+- signal summary,
+- authority state,
 - optional title or label,
-- optional purpose or status,
-- links to insertion or assertion ids,
 - clear authored-versus-proposed boundary,
 - no AI dependency,
 - no mandate to create Story Units before writing.
 
-## 31. v2 Boundary
+## 32. v2 Boundary
 
 Next bounded extension:
 
@@ -366,7 +392,7 @@ Next bounded extension:
 - prototype-bundle preparation,
 - grouped signal review support.
 
-## 32. Future-Only Boundary
+## 33. Future-Only Boundary
 
 Future-only items:
 
@@ -377,13 +403,11 @@ Future-only items:
 - any attempt to redefine Story Units as the base narrative primitive,
 - any workflow that lets Story Units silently mutate manuscript truth or durable signal state.
 
-## 33. Pre-Rough Alignment Questionnaire
+## 34. Pre-Rough Alignment Questionnaire
 
 ### Critical
 
-- What is the smallest useful authored Story Unit payload for `v1` without turning Story Unit into a mandatory scene replacement or hidden truth owner?
-- Which lifecycle transitions require explicit author confirmation before they can affect grouped manuscript structure, prototype inputs, or signal grouping?
-- Which Story Unit actions belong in `Writing Surface` versus `Command Center Surface` first?
+- Which lifecycle transitions need the strongest confirmation, undo, or recovery path beyond the rough doctrine boundary?
 
 ### Major
 
@@ -398,12 +422,14 @@ Future-only items:
 - Story Unit may support drag-and-drop organization, prototype input preparation, signal grouping, and structural context.
 - Story Unit does not own narrative truth and must not silently mutate manuscript text, canon, or durable signal state.
 - Story Unit may help Outline and `Prose / Scene Projection` organize material without becoming a hidden authority layer.
+- The smallest stable Story Unit payload includes identity, type, status, order or grouping, attached material reference, mass or progress info, signal summary, and authority state.
+- Low-risk planning changes may happen directly.
+- Changes affecting accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation.
+- `Writing Surface` gets current-text actions, Outline gets structure and map actions, and `Command Center Surface` gets review, approval, bulk, routing, export, prototype, and other heavy workflow actions.
 
 ### Jason Decision Candidates
 
-- What is the smallest stable default Story Unit payload?
-- Which lifecycle transitions require explicit author confirmation first?
-- Which Story Unit actions belong in `Writing Surface` versus `Command Center Surface` first?
+- Which lifecycle transitions need the strongest undo, recovery, or provenance handling first?
 
 ### Future Contract Needs
 
@@ -411,12 +437,13 @@ Future-only items:
 - Exact split, merge, archive, and promotion contract.
 - Exact grouped-signal and prototype-input contract.
 - Exact cross-surface interaction contract for `Writing Surface`, Outline, and `Command Center Surface`.
+- Exact lifecycle confirmation, undo, and recovery contract.
 
-## 34. Current-Cluster Rough Stability
+## 35. Current-Cluster Rough Stability
 
 This dossier remains rough, investigative, and blocked for implementation. The structural story system cluster is not yet stable enough to pause after this first connected-system tightening pass.
 
-## 35. Acceptance Criteria
+## 36. Acceptance Criteria
 
 This dossier is acceptable only if it states explicitly that:
 

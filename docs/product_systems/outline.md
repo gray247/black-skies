@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-09`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`, `Story Unit`, `Prose / Scene Projection`
 - Feeds into: `Timeline / Pacing / Pressure`, `Continuity`, `Draft Generation / Rewrite Loop`, `Import / Export`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -78,7 +78,7 @@ Background behavior may later include:
 - label suggestions,
 - rough structure checks,
 - continuity-linked planning warnings,
-- small signal projection,
+- small signal projection limited to high-value story-shape and blocker signals,
 - prototype launch preparation,
 - chronology-versus-telling-order comparison,
 - structural mass analysis,
@@ -95,7 +95,7 @@ What appears first should stay minimal:
 - current top-level structural shape when it exists,
 - the current selected or current-location node when useful,
 - current mass or progress indicators when useful,
-- small signal marks when useful,
+- small signal marks when useful for contradiction, pacing, missing bridge or gap, continuity warning, over or under planned mass, or blocked author-action state,
 - minimal cues that outline can be ignored if the writer wants direct prose first.
 
 ## 9. What Is Summonable
@@ -108,6 +108,7 @@ Summonable within or around Outline:
 - linked Story Unit context,
 - linked gaps,
 - linked projection containers,
+- selected projection view,
 - revision tasks,
 - planning alternatives,
 - future structure comparisons,
@@ -167,7 +168,7 @@ Outline outputs may include:
 - structural alternatives,
 - navigation context,
 - mass or pressure indicators,
-- signal projection markers,
+- signal projection markers limited by default to high-value story-shape and blocker signals,
 - prototype launch context,
 - author-approved planning structure,
 - downstream packaging for rewrite or export preparation.
@@ -239,6 +240,7 @@ Outline must not let projection structure become the hidden source of narrative 
 
 Projected writing order may differ from accepted manuscript order.
 Projection can support experimentation without silently rewriting accepted manuscript structure.
+Projection comparison belongs first in Outline or other support surfaces.
 
 ## 19. Relationship To Writing Surface
 
@@ -249,6 +251,7 @@ The writer may discover structure later and add planning afterward.
 
 Outline can support writing from the side or above, but it must not become a precondition for basic prose work.
 Outline may absorb some quick-check context that would otherwise clutter the manuscript pane, but it must not gate direct writing or crowd the default writing view.
+The `Writing Surface` may show one selected projection at a time, but detailed projection comparison should not crowd the manuscript.
 
 ## 20. Relationship To Command Center Surface
 
@@ -261,12 +264,16 @@ That placement must preserve:
 - no forced planning ritual,
 - no disguised dashboard sprawl.
 
+`Command Center Surface` becomes the heavier review surface when comparison involves approval, bulk action, routing or spend state, export, prototype review, or blocker review.
+
 ## 21. GUI Placement Principles
 
 Placement rules:
 
 - outline context should appear where planning helps, not everywhere,
 - reorder tools should be explicit and reversible,
+- planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely,
+- accepted manuscript or telling-order rearrangement requires preview, confirmation, undo or recovery, and provenance,
 - deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
 - Outline must not become a mandatory container list in disguise,
@@ -340,6 +347,7 @@ Minimum proof set:
 - Outline node cannot overwrite assertion truth,
 - Outline reorder proposal does not mutate authored structure without action,
 - projected order does not silently become accepted manuscript order,
+- planning blobs, rough beats, empty units, and prototype-only units can be rearranged without implying accepted manuscript rewrite,
 - drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
 - inferred outline suggestions remain non-authoritative,
 - optional projection links do not promote projection containers into base authority,
@@ -427,7 +435,6 @@ Future-only items:
 ### Critical
 
 - Which accepted manuscript or telling-order drag-and-drop operations require preview-only mode, confirmation, and recovery before author acceptance?
-- Which signal-marker categories are useful enough to surface by default without letting Outline become a signal dashboard?
 - Which prototype launch inputs are safe enough to expose from Outline first without turning Outline into a hidden routing or package launcher?
 
 ### Major
@@ -442,22 +449,27 @@ Future-only items:
 - Outline is a layered structural story map rather than a chapter-only outline.
 - Outline units may begin as flexible blobs and later become beats, scenes, chapters, sections, arcs, or other author-defined containers.
 - Outline may drive projected writing order for experimentation, but projected order is not automatically accepted manuscript order.
+- Outline default signal markers are limited to contradiction, pacing, missing bridge or gap, continuity warning, over or under planned mass, and blocked author-action state.
 - Outline may display small source-labeled signal markers while `Signal Architecture` retains ownership of durable signal state.
 - Outline default display stays lightweight, while deeper detail is hoverable, contextual, filterable, or summonable.
 - Outline may launch prototype runs as advisory planning artifacts only; prototype output does not become manuscript truth, accepted assertions, or continuity truth without explicit author action.
 - Outline may absorb some quick-check context to reduce manuscript clutter, but direct writing remains available and Outline does not gate the `Writing Surface`.
+- Planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely.
+- Accepted manuscript or telling-order changes require preview, confirmation, undo or recovery, and provenance or action record.
+- Projection comparison lives first in Outline or other support surfaces; the `Writing Surface` shows one selected projection at a time, while heavier comparison and approval review belongs in `Command Center Surface`.
 
 ### Jason Decision Candidates
 
-- Which signal-marker categories are strong enough for the lightweight default display?
 - Which accepted manuscript rearrangements are safe enough to expose from Outline before deeper workflow shaping?
 
 ### Future Contract Needs
 
 - Exact drag-and-drop preview, confirmation, undo, and provenance contract.
+- Exact default-versus-filtered signal-marker visibility contract.
 - Exact mass, capacity, and pressure indicator contract.
 - Exact chronology-versus-telling-order comparison contract.
 - Exact prototype launch, review, and conversion contract.
+- Exact projection-comparison placement and handoff contract across Outline, `Writing Surface`, and `Command Center Surface`.
 - Exact signal-marker visibility, filtering, and hover-detail contract.
 
 ## 34. Current-Cluster Rough Stability

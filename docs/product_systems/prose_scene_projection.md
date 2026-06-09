@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-09`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Outline`
 - Feeds into: `Writing Surface`, `Story Unit`, `Outline`, `Continuity`, `Import / Export / Google Docs`, `Snapshots / Backup / Restore / History`
 - Runtime authority: `future`
@@ -85,6 +85,7 @@ What appears first:
 - prose as visible writing,
 - a usable drafting expression layer,
 - only as much container structure as the current workflow needs,
+- one selected projection when projection view is useful,
 - no false claim that projected order is already accepted manuscript order.
 
 Direct prose remains valid even before deeper projection or grouping systems are populated.
@@ -212,11 +213,13 @@ That visible presentation does not make the projection layer the hidden owner of
 
 The Writing Surface stays sovereign even when projection views are rich.
 Projection can show rearranged material without committing manuscript mutation.
+The `Writing Surface` should show one selected projection at a time rather than detailed comparison views.
 
 ## 20. Relationship To Command Center Surface
 
 The Command Center may inspect or manipulate projection arrangement, compatibility views, or grouping state.
 It should not turn those projection concerns into the narrative foundation.
+`Command Center Surface` becomes the heavier comparison surface when projection review involves approval, bulk action, routing or spend state, export, prototype review, or blocker review.
 
 ## 21. GUI Placement Principles
 
@@ -224,6 +227,8 @@ Placement rules:
 
 - prose is allowed to be front-and-center,
 - scene or container views may be useful but must not imply semantic supremacy,
+- selected projection can appear in the `Writing Surface`,
+- detailed projection comparison belongs first in Outline or other support surfaces,
 - projection controls should appear only when they help drafting, organization, compatibility, or export,
 - visible grouping should not mislead the user about where narrative truth actually lives,
 - alternate arrangements or prototype comparisons should remain clearly summonable or reviewable rather than silently replacing the accepted manuscript view.
@@ -286,6 +291,7 @@ Future proof set should include:
 - projection-versus-foundation boundary tests,
 - prose-display tests,
 - container-grouping tests,
+- one-selected-projection display tests,
 - projected-order-versus-accepted-order tests,
 - prototype-comparison separation tests,
 - legacy-compatibility tests,
@@ -356,7 +362,6 @@ Future-only items:
 ### Critical
 
 - Which projection remapping actions require preview, confirmation, and recovery before they can affect accepted manuscript order or export-facing structure?
-- Which projection comparisons belong in the `Writing Surface` first versus `Command Center Surface` or Outline summonable layers?
 - Which projected materials must remain visibly distinguished from accepted manuscript text at all times?
 
 ### Major
@@ -370,19 +375,24 @@ Future-only items:
 - Projected order may differ from accepted manuscript order.
 - Projection can show rearranged material without committing manuscript mutation.
 - Projection can support prototype comparison and alternate telling order.
+- Projection comparison lives first in Outline or other support surfaces.
+- The `Writing Surface` may show one selected projection at a time.
+- Detailed comparison should not crowd the manuscript.
+- `Command Center Surface` is used when comparison involves approval, bulk action, routing or spend, export, prototype review, or blocker review.
 - Projection must distinguish draft, prototype, advisory, masked-summary, package-artifact, and accepted-manuscript states.
 - Projection does not own narrative truth and does not silently create truth or rewrite accepted manuscript structure.
 
 ### Jason Decision Candidates
 
-- Which projection comparisons belong in the `Writing Surface` first versus surrounding support surfaces?
 - Which remapping actions are safe enough to expose before deeper workflow shaping?
 
 ### Future Contract Needs
 
 - Exact projection remapping preview, confirmation, undo, and provenance contract.
+- Exact selected-projection switching and persistence contract.
 - Exact accepted-manuscript-versus-projected-view labeling contract.
 - Exact prototype comparison presentation contract.
+- Exact cross-surface comparison handoff contract across Outline, `Writing Surface`, and `Command Center Surface`.
 - Exact export, recovery, and compatibility projection contract.
 
 ## 34. Current-Cluster Rough Stability
