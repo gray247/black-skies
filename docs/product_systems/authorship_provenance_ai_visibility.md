@@ -192,6 +192,20 @@ Governance rules:
 - clean-by-default writing views and clean-by-default exports are valid doctrine so long as the author can summon provenance when needed,
 - hidden or discarded provenance must not silently survive into export, `Companion`, `Memory Lab`, or outbound package context.
 
+Minimum rough provenance and source fields:
+
+- `source type`
+- `owning system`
+- `author-owned truth` versus `advisory` versus `temporary` versus `archive`
+- explicit author action that `accepted`, `saved`, or `converted` the item later
+- `visibility` and export status
+- `mask`, `AI exclusion`, or `package-view` relationship
+- `deleted`, `forgotten`, or `discarded` status
+- `citation` or source-trace requirement
+
+These fields serve the author's understanding, review, and control.
+They do not become author-owned story truth on their own.
+
 Risks:
 
 - author confusion,
@@ -229,9 +243,9 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 ### Critical Questions
 
-- Future contract need: what minimum provenance model is required for rendering, storage, and acceptance-state tracking across authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
-- Future contract need: what exact deletion, hiding, discard, export, and sync workflow must govern visible provenance records and private provenance metadata once runtime surfaces exist?
-- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views affect provenance records without leaking sensitive content, retaining raw excluded text by default, or turning provenance into author-owned truth or an undeletable scar?
+- Future contract need: beyond the rough provenance and source fields above, what minimum provenance model is required for rendering, storage, and acceptance-state tracking across authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
+- Future contract need: beyond the rough fields above, what exact deletion, hiding, discard, export, and sync workflow must govern visible provenance records and private provenance metadata once runtime surfaces exist?
+- Future contract need: beyond the rough fields above, how must manual masking, AI exclusion zones, and author-approved package views affect provenance records without leaking sensitive content, retaining raw excluded text by default, or turning provenance into author-owned truth or an undeletable scar?
 
 ### Major Questions
 
@@ -262,6 +276,7 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - After explicit acceptance or heavy rewrite, when must AI-origin output remain visibly marked, and when may the author hide that distinction without erasing provenance history? Answered: accepted AI-assisted text becomes authored manuscript text and need not remain visibly marked unless the author chooses that view.
 - How should export preserve, transform, or suppress provenance? Answered: exports should be clean by default, and provenance remains local or private unless the author explicitly chooses an export mode that includes provenance, notes, or audit history.
 - How should manual masking, AI exclusion zones, and author-approved package views affect provenance? Answered: provenance may record that masking, exclusion, substitution, or an author-approved package summary existed, but it must not retain or expose raw excluded text by default.
+- What rough provenance and source fields should exist before `Companion` or `Memory Lab` can present something as reliable guidance? Answered: source type, owning system, authority tier, author action, visibility or export status, mask or exclusion or package-view relationship, deleted or forgotten or discarded status, and citation or source-trace requirement.
 
 ### Deferred Questions
 
@@ -269,6 +284,8 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - Long-term merge boundary with `explicit_content_architecture.md` and `companion.md`.
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but this adjacent provenance and signal alignment pass is stable enough to pause after rough field boundaries are recorded.
 
 This rough dossier is acceptable only if:
 

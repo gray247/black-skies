@@ -188,6 +188,23 @@ Minimum rough lifecycle vocabulary for signal handoff and durable signal state:
 
 These are rough product-definition terms, not a final runtime schema or storage contract.
 
+Minimum rough signal provenance and handoff fields:
+
+- `source type`
+- `owning system`
+- `author-owned truth` versus `advisory` versus `temporary` versus `archive`
+- source action that `accepted`, `saved`, `converted`, or surfaced the item
+- `visibility` and export status where relevant
+- `mask`, `AI exclusion`, or `package-view` relationship
+- `deleted`, `forgotten`, or `discarded` status where relevant
+- `citation` or source-trace requirement
+
+Temporary `Companion` highlights or annotations are advisory overlays.
+They are not manuscript edits, not author-owned truth, and not durable signal state.
+They may become signal candidates only through explicit author action or an accepted workflow.
+Durable signal state remains owned by `Signal Architecture`.
+Raw excluded text must not leak through highlight summaries, signal summaries, or previews.
+
 Risks:
 
 - alert fatigue,
@@ -224,10 +241,10 @@ Resolution flows, mute policies, and smarter grouping.
 
 ### Critical Questions
 
-- Jason decision candidate: which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first?
+- Jason decision candidate: which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first, including whether temporary `Companion` highlights may only escalate as signal candidates?
 - Jason decision candidate: which accepted workflows, if any, besides direct author action may create durable signal-state changes?
-- Future contract need: what minimum normalized signal state contract, beyond the rough lifecycle vocabulary above, must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
-- Future contract need: what storage contract applies to signal provenance, mute state, resolution state, staleness markers, and retained advisory history before runtime wiring is attempted?
+- Future contract need: what minimum normalized signal state contract, beyond the rough lifecycle vocabulary and provenance fields above, must every signal carry for severity, confidence, provenance, source reference, and lifecycle state before multi-surface wiring exists?
+- Future contract need: what storage contract applies to signal provenance, mute state, resolution state, staleness markers, retained advisory history, and expiring temporary signal-candidate history before runtime wiring is attempted?
 - Future contract need: what transport rules keep signal provenance and source references intact across Writing Surface, Command Center, Outline, Companion, and later panels without letting display state become story truth?
 - Future contract need: which signal history events justify durable storage, and which should expire as temporary noise once no longer relevant?
 
@@ -252,6 +269,8 @@ Resolution flows, mute policies, and smarter grouping.
 - May consumer surfaces create durable signal-state changes on their own? Answered: no. Consumer surfaces may display signals and request actions, but only the author or explicit accepted workflows may create durable resolve, dismiss, snooze, convert, or similar signal-state changes.
 - Does accepted story truth live in the signal layer? Answered: no, accepted truth belongs in author-owned story foundations or other explicit author decisions.
 - What shared lifecycle or state vocabulary should `Signal Architecture` and upstream advisory producers use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states? Answered: rough doctrine uses those terms with signal-specific meanings in this dossier; exact normalization, storage, and transport contracts remain unresolved.
+- May temporary `Companion` highlights or annotations become durable signal state directly? Answered: no. They are advisory overlays and may only become signal candidates through explicit author action or an accepted workflow.
+- What rough provenance and source fields should signal candidates preserve? Answered: source type, owning system, authority tier, source action, visibility or export status where relevant, mask or exclusion or package-view relationship, deleted or forgotten or discarded status where relevant, and citation or source-trace requirement.
 
 ### Deferred Questions
 

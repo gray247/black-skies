@@ -203,6 +203,13 @@ Minimum rough lifecycle vocabulary for continuity and signal handoff:
 - `resolved`: a continuity concern whose review loop is closed by dismissal, suppression, or explicit author action.
 
 These are rough product-definition terms, not a final runtime schema.
+Continuity may produce continuity-local advisory records, evidence bundles, and continuity candidates without making them durable signal history.
+Some continuity outputs may be offered to `Signal Architecture` as signal candidates.
+`Signal Architecture` owns durable signal state.
+Provenance records source, action, and history, but it does not own truth.
+`Memory Lab` may retain governed recall only under its retention rules.
+`Companion` may explain and guide using cited source labels, but it does not own continuity, signal state, provenance, or truth.
+Archive references are historical context, not active doctrine.
 
 Risks:
 
@@ -244,9 +251,9 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 ### Critical Questions
 
 - Jason decision candidate: what narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
-- Jason decision candidate: which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, or author-owned truth updates?
+- Jason decision candidate: which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, author-owned truth updates, or non-durable provenance/history?
 - Future contract need: what minimum shared state model, beyond the rough lifecycle vocabulary above, is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
-- Future contract need: which continuity artifacts justify durable advisory history at all, and which must expire unless the writer explicitly accepts or explicitly keeps them?
+- Future contract need: which continuity artifacts justify durable advisory history at all, which may become governed recall, and which must expire unless the writer explicitly accepts or explicitly keeps them?
 
 ### Major Questions
 
@@ -270,6 +277,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 - Do AI inference, summaries, signals, and advisory continuity records become author-owned continuity truth on their own? Answered: no, they remain advisory evidence until explicitly accepted by the author.
 - Is there a separate accepted-continuity kingdom or shadow canon? Answered: no.
 - What shared lifecycle or state vocabulary should `Continuity` and `Signal Architecture` use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states? Answered: rough doctrine uses those terms with continuity-specific meanings in this dossier; exact runtime schema and storage contracts remain unresolved.
+- How do `Continuity`, `Signal Architecture`, provenance, `Memory Lab`, and `Companion` relate at rough doctrine level? Answered: `Continuity` may produce continuity-local advisory records and signal candidates, `Signal Architecture` owns durable signal state, provenance records source or action or history without owning truth, `Memory Lab` retains governed recall only under its retention rules, and `Companion` may explain and guide using cited source labels without owning the underlying systems.
 
 ### Deferred Questions
 
