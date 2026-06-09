@@ -96,7 +96,9 @@ Current product-system planning has already completed these steps:
 - centralized `Pre-Rough Alignment Questionnaire` added,
 - `system_interaction_map.md` created,
 - first fatal question decision patch applied,
-- Fatal questions in first-wave dossiers reduced, resolved, or downgraded to Critical while dossiers remain rough and not build-ready.
+- Fatal questions in first-wave dossiers reduced, resolved, or downgraded to Critical while dossiers remain rough and not build-ready,
+- dossier inventory and missing-dossier reconciliation completed for the currently registered product-system set.
+- controlled question-intake review completed for all `23 / 23` placeholder dossiers created in that reconciliation sweep.
 
 ## 12-Step Pre-Code Roadmap
 
@@ -192,6 +194,35 @@ Current product-system planning has already completed these steps:
 - Current note: the previously listed structural story system cluster has now moved from next-candidate status into paused cluster status above.
 - Future note: run a dossier inventory or missing-dossier reconciliation pass before choosing the next major Step 6 bundle.
 
+#### Dossier Inventory / Reconciliation Note
+
+- The current registry contains `42` registered or planned product systems.
+- `18` dossier files existed before the reconciliation pass for this sweep.
+- `23` missing one-to-one registered dossiers were created as placeholder dossiers in the reconciliation pass.
+- `41` dossier files now exist under `docs/product_systems/`.
+- `0` registered systems remain fully unrepresented only if bridge-backed coverage counts as representation for this sweep.
+- `6` registry systems are currently represented by existing bridge or architecture dossiers rather than one-to-one filenames:
+  - `Critique` -> `signal_architecture.md`
+  - `Explicit-Content Marker / Send-Package Censor` -> `explicit_content_architecture.md`
+  - `Import / Export / Google Docs` -> `explicit_content_architecture.md` and `authorship_provenance_ai_visibility.md`
+  - `Local LLM vs Paid API Routing` -> `model_routing_and_budget_architecture.md`
+  - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
+  - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
+- `Critique` and `Import / Export / Google Docs` remain the strongest candidates for later one-to-one dossiers even though provisional bridge coverage exists now.
+- The external raw question-bank source currently lives at `C:\Dev\plan ideas\continuity\open_questions_register.md`.
+- That raw register remains archive, intake, or triage source only rather than active planning spine.
+- Active questions still belong inside the relevant dossier `Pre-Rough Alignment Questionnaire`.
+- All `23 / 23` placeholder dossiers created in the inventory batch have now received controlled question-intake review across five intake batches:
+  - Batch 1: workflow, scene, draft, timeline, and foreshadow or payoff
+  - Batch 2: settings, snapshots, service health, diagnostics, and testing or harness
+  - Batch 3: senses, overused words, cliche, theme, and plugin or rubric
+  - Batch 4: binder, search or retrieval, series binder, file manager, and accessibility
+  - Batch 5: feedback notes, splash or startup, and async job queue
+- `0` placeholder dossiers remain unreviewed for this intake sweep.
+- Dossier creation and question-intake review are not dossier completion.
+- All new dossiers remain rough, investigative, and not build-ready.
+- Implementation remains blocked or not build-ready.
+
 #### Current Follow-On Contract Needs
 
 These are candidate contract artifacts revealed during Step 6 tightening.
@@ -270,6 +301,20 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, `writing_surface.md`, `command_center_surface.md`.
 - Exact protection and enforcement contract for deleted, hidden, masked, or AI-excluded material across views, recall, inference, prototypes, package previews, and outbound payloads
   Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, `memory_lab.md`, `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, and `model_routing_and_budget_architecture.md` when needed.
+- Exact state contracts
+  Candidate homes: remaining active dossiers as applicable; keep shaping inside the relevant dossier rather than a new shared register unless a later controlled batch proves otherwise.
+- Exact workflow contracts
+  Candidate homes: remaining active dossiers as applicable; especially workflow-heavy product and system dossiers.
+- Exact protection and enforcement contracts
+  Candidate homes: remaining active dossiers as applicable; especially privacy, masking, retrieval, file, routing, and async-job dossiers.
+- Exact display and default-view contracts
+  Candidate homes: remaining active dossiers as applicable; especially user-facing product and intelligence dossiers.
+- Exact cross-surface interaction contracts
+  Candidate homes: `writing_surface.md`, `command_center_surface.md`, related consumer dossiers, and `system_interaction_map.md` only when relationship notes are helpful.
+- Later bridge-backed dossier review for `Critique`
+  Candidate homes: future one-to-one dossier decision; do not create in this pass.
+- Later bridge-backed dossier review for `Import / Export / Google Docs`
+  Candidate homes: future one-to-one dossier decision; do not create in this pass.
 
 Rule for these needs:
 

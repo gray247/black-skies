@@ -1,0 +1,202 @@
+# Service Health / Offline / Degraded Mode
+
+## 1. Status Header
+
+- Dossier name: `Service Health / Offline / Degraded Mode`
+- Status: `drafted`
+- Class: `System`
+- Owner / review lane: `Phase 32 product-definition lane`
+- Last reviewed: `2026-06-09`
+- Depends on: `Writing Surface`, `Command Center Surface`, `Async Job Queue / Task Runner`
+- Feeds into: all runtime-dependent systems
+- Runtime authority: `future`
+- Authority level: `operational`
+- User-facing: `partial`
+- Hidden/background: `yes`
+
+## 2. Purpose
+
+Define how Black Skies behaves when services are healthy, offline, degraded, refused, or partially unavailable without blocking direct writing.
+
+## 3. User Problem Solved
+
+The writer needs the app to fail clearly and safely without losing access to local writing or misrepresenting unavailable AI or support features.
+
+## 4. What The System Does
+
+- detect health state,
+- surface degraded or offline status,
+- constrain unavailable operations safely.
+
+## 5. What The System Does Not Do
+
+- hide critical failures,
+- pretend unavailable services are working,
+- block direct writing unnecessarily.
+
+## 6. User-Facing Behavior
+
+Visible behavior should emphasize clear status, fallback paths, and continued local writing.
+
+## 7. Hidden/Background Behavior
+
+Background checks may track service state, but health monitoring does not create product authority.
+
+## 8. What Appears First
+
+- relevant availability state,
+- direct writing path,
+- actionable fallback cues when needed.
+
+## 9. What Is Summonable
+
+- deeper health detail,
+- failure history,
+- retry paths.
+
+## 10. What Is Hidden Until Needed
+
+- dense diagnostics,
+- low-level service internals.
+
+## 11. Inputs
+
+- service state,
+- routing state,
+- local capability state,
+- approval and budget blockers.
+
+## 12. Outputs
+
+- health status,
+- degraded-mode cues,
+- blocked or fallback state.
+
+## 13. Which Other Systems Consume Those Outputs
+
+- all runtime-dependent systems
+
+## 14. What Gets Stored
+
+- recent health state,
+- bounded failure history,
+- availability markers.
+
+## 15. What Remains Temporary
+
+- current outage state,
+- transient retry conditions.
+
+## 16. Relationship To Narrative Insertion / Assertion
+
+Health state affects support availability, not truth ownership.
+
+## 17. Relationship To Story Units
+
+No special Story Unit authority exists here.
+
+## 18. Relationship To Prose / Scene Projection
+
+Projection support may degrade, but accepted text remains distinct.
+
+## 19. Relationship To Writing Surface
+
+Direct writing must remain available during degraded or offline modes when local editing is possible.
+
+## 20. Relationship To Command Center Surface
+
+The Command Center may host deeper availability or blocker views without becoming mandatory for writing.
+
+## 21. GUI Placement Principles
+
+Keep availability state visible when relevant, not as permanent clutter.
+
+## 22. Local LLM Role
+
+Local AI availability is one health dimension.
+
+## 23. Paid API Role
+
+Paid-path availability is another health dimension and must reflect approval and spend blockers accurately.
+
+## 24. Model Routing Notes And Cost / Budget Impact
+
+Health state must align with routing, budget, and `no-ai-route-available` doctrine.
+
+## 25. Explicit-Content / Send-Package Handling, If Applicable
+
+Degraded state must not bypass explicit-content restrictions.
+
+## 26. Privacy / Safety / Censor Behavior, If Applicable
+
+Fallback behavior must preserve privacy and protection boundaries.
+
+## 27. Testing Requirements
+
+Prove offline and degraded states stay accurate and preserve direct writing.
+
+## 28. Governance Rules And Risks
+
+- no false-healthy state,
+- no writing gate through service failure,
+- no unsafe fallback.
+
+## 29. Failure Modes
+
+If health reporting fails, the app should prefer safe local assumptions and preserve writing.
+
+## 30. v1 Boundary
+
+Basic healthy, offline, degraded, and blocked-state handling.
+
+## 31. v2 Boundary
+
+Richer fallback and recovery guidance.
+
+## 32. Future-Only Boundary
+
+Deep predictive health orchestration.
+
+## 33. Pre-Rough Alignment Questionnaire
+
+Intake note:
+- external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
+- old questions merged: yes, mainly from `## Degraded Mode` and failure-edge-case questions
+- stale placeholder questions removed or superseded: yes
+- active question count after merge: 10
+- remaining blocker summary: `0 Fatal`, `4 Critical`, `3 Major`
+
+### Fatal Questions
+
+- None yet.
+
+### Critical Questions
+
+- Critical: how should route failure, approval denial, budget block, service outage, refused execution, and degraded capability be distinguished visibly so the app does not fake a single generic "offline" state?
+- Critical: which operations remain available in degraded mode, including direct writing, read-only project open, safe raw-prose copy, snapshot creation, backup export, and project repair?
+- Critical: which actions must be forbidden in degraded mode because they are destructive, truth-mutating, or likely to worsen recovery?
+- Future contract need: what safe-mode or startup-bypass paths are required when bad settings, bad projects, or broken subsystems cause crash loops or prevent normal recovery?
+
+### Major Questions
+
+- Major: how much health detail belongs in primary surfaces by default versus deeper diagnostics or blocker views?
+- Major: should degraded mode explain exactly what broke, remain intentionally calm, and offer recovery steps in one place, and how much of that belongs in the Command Center versus a lighter status cue?
+- Major: when should degraded mode create diagnostic bundles or bounded failure history automatically versus only on explicit author action?
+
+### Minor Questions
+
+- Minor: what wording best distinguishes offline, blocked, refused, degraded, unavailable, and read-only fallback?
+
+### Answered / Superseded Questions
+
+- Direct writing must remain available when local editing is still possible.
+- Superseded by current doctrine: degraded operation must not bypass explicit-content restrictions, privacy boundaries, or approval rules.
+- Health reporting must not create false-healthy state.
+
+### Deferred Questions
+
+- Deferred: exact telemetry, heartbeat, and alert thresholds.
+
+## 34. Acceptance Criteria
+
+This dossier is acceptable only if degraded operation remains truthful, safe, and non-gating.

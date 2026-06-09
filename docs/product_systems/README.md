@@ -41,56 +41,56 @@ The full dossier set is grouped into three classes:
 | --- | --- | --- | --- |
 | 1 | Writing Surface | Product | planned |
 | 2 | Command Center Surface | Product | planned |
-| 3 | Workflow Spine / Author Journey | Product | planned |
-| 4 | Binder / Project Library | Product | planned |
-| 5 | Scene Cards / Corkboard | Product | planned |
+| 3 | [Workflow Spine / Author Journey](workflow_spine_author_journey.md) | Product | planned |
+| 4 | [Binder / Project Library](binder_project_library.md) | Product | planned |
+| 5 | [Scene Cards / Corkboard](scene_cards_corkboard.md) | Product | planned |
 | 6 | Story Unit | Product | planned |
 | 7 | Narrative Insertion / Assertion | Product | planned |
 | 8 | Prose / Scene Projection | Product | planned |
 | 10 | Outline | Product | planned |
-| 16 | Feedback Notes / Revision Resolution | Product | planned |
+| 16 | [Feedback Notes / Revision Resolution](feedback_notes_revision_resolution.md) | Product | planned |
 | 17 | Lore Cards | Product | planned |
 | 18 | Character Cards | Product | planned |
-| 19 | Project Index / Search / Retrieval | Product | planned |
-| 20 | Series Binder / Cross-Story Linking | Product | planned |
-| 28 | Theme System | Product | planned |
-| 29 | Accessibility / Hotkeys / Large-Font Mode | Product | planned |
-| 30 | Settings / Preferences / Workspace Layout | Product | planned |
-| 31 | Splash / Startup Experience | Product | planned |
+| 19 | [Project Index / Search / Retrieval](project_index_search_retrieval.md) | Product | planned |
+| 20 | [Series Binder / Cross-Story Linking](series_binder_cross_story_linking.md) | Product | planned |
+| 28 | [Theme System](theme_system.md) | Product | planned |
+| 29 | [Accessibility / Hotkeys / Large-Font Mode](accessibility_hotkeys_large_font_mode.md) | Product | planned |
+| 30 | [Settings / Preferences / Workspace Layout](settings_preferences_workspace_layout.md) | Product | planned |
+| 31 | [Splash / Startup Experience](splash_startup_experience.md) | Product | planned |
 | 32 | Import / Export / Google Docs | Product | planned |
-| 34 | File Manager / Asset Pane | Product | planned |
+| 34 | [File Manager / Asset Pane](file_manager_asset_pane.md) | Product | planned |
 
 ### B. Intelligence Dossiers
 
 | ID | Dossier | Class | Initial status |
 | --- | --- | --- | --- |
-| 9 | Draft Generation / Rewrite Loop | Intelligence | planned |
-| 11 | Timeline / Pacing / Pressure | Intelligence | planned |
+| 9 | [Draft Generation / Rewrite Loop](draft_generation_rewrite_loop.md) | Intelligence | planned |
+| 11 | [Timeline / Pacing / Pressure](timeline_pacing_pressure.md) | Intelligence | planned |
 | 12 | Relationship Map | Intelligence | planned |
 | 13 | Emotion Graph | Intelligence | planned |
 | 14 | Continuity | Intelligence | planned |
 | 15 | Critique | Intelligence | planned |
-| 21 | Senses Usage | Intelligence | planned |
-| 22 | Overused Words | Intelligence | planned |
-| 23 | Cliche Detection | Intelligence | planned |
-| 24 | Foreshadow / Payoff | Intelligence | planned |
+| 21 | [Senses Usage](senses_usage.md) | Intelligence | planned |
+| 22 | [Overused Words](overused_words.md) | Intelligence | planned |
+| 23 | [Cliche Detection](cliche_detection.md) | Intelligence | planned |
+| 24 | [Foreshadow / Payoff](foreshadow_payoff.md) | Intelligence | planned |
 | 25 | Explicit-Content Marker / Send-Package Censor | Intelligence | planned |
 | 26 | Companion | Intelligence | planned |
 | 27 | Memory Lab | Intelligence | planned |
 | 35 | Local LLM vs Paid API Routing | Intelligence | planned |
 | 36 | Model Router / Provider Execution Policy | Intelligence | planned |
 | 37 | Budget / Token / Cost Guardrails | Intelligence | planned |
-| 41 | Plugin / Rubric System | Intelligence | planned |
+| 41 | [Plugin / Rubric System](plugin_rubric_system.md) | Intelligence | planned |
 
 ### C. System Dossiers
 
 | ID | Dossier | Class | Initial status |
 | --- | --- | --- | --- |
-| 33 | Snapshots / Backup / Restore / History | System | planned |
-| 38 | Async Job Queue / Task Runner | System | planned |
-| 39 | Service Health / Offline / Degraded Mode | System | planned |
-| 40 | Diagnostics / Error Visibility / Debug Console | System | planned |
-| 42 | Testing / Harness / Evidence Contract | System | planned |
+| 33 | [Snapshots / Backup / Restore / History](snapshots_backup_restore_history.md) | System | planned |
+| 38 | [Async Job Queue / Task Runner](async_job_queue_task_runner.md) | System | planned |
+| 39 | [Service Health / Offline / Degraded Mode](service_health_offline_degraded_mode.md) | System | planned |
+| 40 | [Diagnostics / Error Visibility / Debug Console](diagnostics_error_visibility_debug_console.md) | System | planned |
+| 42 | [Testing / Harness / Evidence Contract](testing_harness_evidence_contract.md) | System | planned |
 
 ## Dossier Status Fields
 
@@ -129,6 +129,15 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 
 Question migration is now dossier-centered.
 The raw question bank is archive or intake only and should not remain the main active planning spine.
+The current external raw question-bank source is `C:\Dev\plan ideas\continuity\open_questions_register.md`.
+That external register remains archive, intake, or triage source only and is not active repo canon.
+Active questions belong inside the relevant dossier's centralized `Pre-Rough Alignment Questionnaire`.
+The 2026-06-09 inventory batch created `23` placeholder dossiers so that every clearly derivable registry target has a dossier home, but placeholder creation is not dossier completion.
+All `23 / 23` placeholder dossiers have now received controlled question-intake review from the external archive source.
+That leaves `0` remaining unreviewed placeholder dossiers for this intake sweep.
+Registry coverage also still includes `6` bridge-backed systems rather than one-to-one dossier files; `Critique` and `Import / Export / Google Docs` are the strongest candidates for later one-to-one dossiers.
+`0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
+Question-intake review does not equal dossier completion, and all new dossiers remain rough, investigative, and not build-ready.
 The interaction map is explanatory only and does not imply runtime wiring, authority, or build readiness.
 
 ## Dependency Notes
