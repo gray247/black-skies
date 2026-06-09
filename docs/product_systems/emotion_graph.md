@@ -48,6 +48,7 @@ Emotion Graph does not:
 Visible behavior should emphasize:
 
 - clear distinction between accepted or author-defined emotional intent and inferred or advisory analysis,
+- accepted or author-defined emotional intent first in the default view,
 - readable emotional shape without false certainty,
 - useful filtering and inspection,
 - support for author review without truth ownership drift.
@@ -71,7 +72,7 @@ What appears first should stay minimal:
 
 - primary emotional shape,
 - accepted or author-defined emotional intent when it exists,
-- clearly labeled candidate or advisory emotional cues,
+- optional and clearly labeled inferred or advisory emotional cues,
 - small signal hints when useful.
 
 ## 9. What Is Summonable
@@ -92,6 +93,7 @@ Summonable within or around Emotion Graph:
 
 Hidden until needed:
 
+- inferred or advisory emotional analysis beyond the accepted or author-defined default view,
 - dense evidence trails,
 - old signal history,
 - provenance-heavy change history,
@@ -197,6 +199,8 @@ Placement rules:
 
 - graphs should stay readable and bounded,
 - accepted intent and advisory analysis should stay visually distinct,
+- accepted or author-defined emotional intent should appear first by default,
+- inferred emotional analysis must be optional, advisory, and visibly labeled,
 - dense evidence and history should stay summonable,
 - graph views should not become default clutter,
 - support surfaces must not overwhelm writing flow.
@@ -254,6 +258,8 @@ Privacy and safety rules must ensure:
 Minimum proof set:
 
 - accepted emotional intent stays distinct from candidate or advisory analysis,
+- default graph view shows accepted or author-defined emotional intent first,
+- inferred emotional analysis remains optional, advisory, and visibly labeled,
 - inferred emotional suggestions do not become accepted truth without author action,
 - deleted, hidden, masked, or excluded material does not leak into graph summaries,
 - Story Unit or Outline links do not become the owner of emotional truth,
@@ -271,6 +277,7 @@ Governance rules:
 Key risks:
 
 - inferred emotion analysis being mistaken for accepted author intent,
+- default graph mixing accepted and inferred emotional analysis without clear distinction,
 - graph views becoming a hidden canon tracker,
 - continuity or signals drifting into graph-owned truth,
 - advisory pacing analysis collapsing into accepted emotional truth visually.
@@ -351,11 +358,10 @@ Future-only items:
 - Emotion Graph may visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape.
 - It must distinguish accepted or author-defined emotional intent from inferred or advisory emotional analysis.
 - It must not silently canonize emotional truth.
+- Emotion Graph default view should show accepted or author-defined emotional intent first.
+- Inferred emotional analysis must be optional, advisory, visibly labeled, and must not silently canonize emotional truth.
 
 ### Jason Decision Candidates
-
-- What smallest default accepted-emotion view is useful without causing graph clutter?
-- Which actions belong in `Writing Surface` versus `Command Center Surface` for emotional review and acceptance?
 
 ### Future Contract Needs
 
@@ -363,6 +369,7 @@ Future-only items:
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Emotion Graph.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
+- Exact default-view, filter, and visual-distinction contract for accepted intent versus inferred analysis.
 
 ### Deferred Questions
 

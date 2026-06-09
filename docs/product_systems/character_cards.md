@@ -49,6 +49,7 @@ Character Cards do not:
 Visible behavior should emphasize:
 
 - clear separation between accepted facts and candidate or advisory material,
+- accepted facts first in the default card view,
 - low-friction inspection of character status and links,
 - bounded updates under author control,
 - useful organization without replacing manuscript or assertion authority.
@@ -72,7 +73,7 @@ What appears first should stay minimal:
 - character identity,
 - accepted high-value facts when they exist,
 - clearly labeled status or role cues,
-- small summaries of linked candidate or advisory issues when useful.
+- tiny candidate or signal indicators when useful.
 
 ## 9. What Is Summonable
 
@@ -93,6 +94,11 @@ Summonable within or around Character Cards:
 
 Hidden until needed:
 
+- candidate facts,
+- advisory inferences,
+- detailed signal views,
+- `Memory Lab` recall,
+- `Companion` suggestions,
 - dense continuity evidence,
 - old signal history,
 - deep recall trails,
@@ -193,12 +199,14 @@ Projection remains support or display context rather than the source of characte
 Character Cards may support the `Writing Surface` through bounded lookups, links, overlays, or support views.
 
 Direct writing must remain available without requiring card interaction.
+Small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts` may live near the `Writing Surface`.
 
 ## 20. Relationship To Command Center Surface
 
 `Command Center Surface` may host heavier review, filtering, inspection, and candidate-acceptance workflows around Character Cards.
 
 That support must not turn the Command Center into the owner of character truth.
+Heavier actions such as candidate review, accept or reject, bulk action, unresolved candidate review, conflict review, signal review, and cleanup workflows belong in `Command Center Surface`.
 
 ## 21. GUI Placement Principles
 
@@ -206,6 +214,7 @@ Placement rules:
 
 - cards should stay readable and bounded,
 - accepted facts should appear clearly distinguished from candidates or advisory material,
+- the default card should show accepted facts only, plus tiny candidate or signal indicators,
 - dense evidence and history should stay summonable,
 - card views should not become dashboard clutter,
 - support surfaces must not overwhelm writing flow.
@@ -264,6 +273,7 @@ Privacy and safety rules must ensure:
 Minimum proof set:
 
 - accepted character facts stay distinct from candidate or advisory material,
+- default card view shows accepted facts first without candidate, recall, Companion, or signal detail crowding the card,
 - inferred character suggestions do not become accepted truth without author action,
 - deleted, hidden, masked, or excluded material does not leak into card summaries,
 - Story Unit or Outline links do not become the owner of character truth,
@@ -281,6 +291,7 @@ Governance rules:
 Key risks:
 
 - candidate facts collapsing into accepted truth visually,
+- default card clutter causing candidate or advisory material to feel accepted,
 - card views becoming a hidden canon tracker,
 - `Memory Lab` recall being mistaken for accepted fact,
 - `Companion` explanation being mistaken for accepted fact,
@@ -363,11 +374,12 @@ Future-only items:
 - Character Cards may display accepted author-owned facts and advisory or candidate material, but they must clearly distinguish them.
 - Only explicit author acceptance can turn a character candidate or fact into author-owned truth.
 - Character Cards must not silently create, alter, or canonize character truth.
+- Character Cards default view should show accepted facts only, plus tiny candidate or signal indicators.
+- Candidate facts, advisory inference, `Memory Lab` recall, `Companion` suggestions, and signal details must not crowd the default card view.
+- `Writing Surface` gets small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts`.
+- `Command Center Surface` gets heavier review and management actions such as review candidates, accept or reject, bulk actions, unresolved candidates, conflicts, signals, and cleanup workflows.
 
 ### Jason Decision Candidates
-
-- What smallest default accepted-fact view is useful without causing card clutter?
-- Which actions belong in `Writing Surface` versus `Command Center Surface` for character-fact review and acceptance?
 
 ### Future Contract Needs
 
@@ -375,6 +387,8 @@ Future-only items:
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Character Cards.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
+- Exact default-card indicator, expansion, and clutter-boundary contract.
+- Exact `Writing Surface` versus `Command Center Surface` action-routing contract for Character Cards.
 
 ### Deferred Questions
 

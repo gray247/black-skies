@@ -49,6 +49,7 @@ Relationship Map does not:
 Visible behavior should emphasize:
 
 - clearly labeled accepted versus candidate versus advisory relationship edges,
+- accepted or author-confirmed relationships first in the default view,
 - readable visualization without false certainty,
 - useful filtering and inspection,
 - support for author review without truth ownership drift.
@@ -72,7 +73,7 @@ What appears first should stay minimal:
 
 - primary entities,
 - accepted high-value links when they exist,
-- clearly labeled candidate or advisory link cues,
+- optional and clearly distinct candidate or advisory link cues,
 - small signal hints when useful.
 
 ## 9. What Is Summonable
@@ -93,6 +94,7 @@ Summonable within or around Relationship Map:
 
 Hidden until needed:
 
+- inferred or advisory relationships beyond the accepted or author-confirmed default view,
 - dense evidence trails,
 - old signal history,
 - provenance-heavy change history,
@@ -200,6 +202,8 @@ Placement rules:
 
 - maps should stay readable and bounded,
 - accepted and candidate relationships should stay visually distinct,
+- accepted or author-confirmed relationships should appear first by default,
+- inferred or advisory relationships must be optional and visibly distinct,
 - dense evidence and history should stay summonable,
 - map views should not become default clutter,
 - support surfaces must not overwhelm writing flow.
@@ -257,6 +261,8 @@ Privacy and safety rules must ensure:
 Minimum proof set:
 
 - accepted relationship facts stay distinct from candidate or advisory inferences,
+- default map view shows accepted or author-confirmed relationships first,
+- inferred or advisory relationships remain optional and do not collapse into accepted truth visually,
 - inferred relationship suggestions do not become accepted truth without author action,
 - deleted, hidden, masked, or excluded material does not leak into relationship summaries,
 - Story Unit or Outline links do not become the owner of relationship truth,
@@ -275,6 +281,7 @@ Key risks:
 
 - graph edges being mistaken for accepted fact,
 - inferred relationship analysis collapsing into accepted truth visually,
+- default graph mixing accepted and inferred edges without clear distinction,
 - map views becoming a hidden canon tracker,
 - continuity or signals drifting into graph-owned truth.
 
@@ -355,11 +362,10 @@ Future-only items:
 - It may show emotional, factual, conflict, alliance, family, power, dependency, and timeline relationships.
 - It displays or projects relationships but does not own truth.
 - Durable relationship facts must come from author-owned truth or explicit author acceptance.
+- Relationship Map default view should show accepted or author-confirmed relationships first.
+- Inferred or advisory relationships must be optional, visibly distinct, and must not collapse into accepted relationship truth.
 
 ### Jason Decision Candidates
-
-- What smallest default accepted-relationship view is useful without causing graph clutter?
-- Which actions belong in `Writing Surface` versus `Command Center Surface` for relationship review and acceptance?
 
 ### Future Contract Needs
 
@@ -367,6 +373,7 @@ Future-only items:
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Relationship Map.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
+- Exact default-view, filter, and visual-distinction contract for accepted versus inferred relationships.
 
 ### Deferred Questions
 
