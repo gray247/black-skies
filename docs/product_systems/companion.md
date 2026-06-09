@@ -62,6 +62,7 @@ Companion may later:
 - waiting quietly,
 - preparing bounded context,
 - deferring to stronger systems for evidence,
+- preparing explanations for scheduled, idle, or overnight local findings later without owning the underlying service,
 - staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later.
 
 ## 8. What Appears First
@@ -76,6 +77,7 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 - question prompts,
 - evidence walk-through,
 - workflow guidance and safe panel-opening help later,
+- prepared findings from scheduled, idle, or overnight local work later,
 - rough capability candidates under review, not implementation commitments: `Where was I?`, `Show me the source`, `Highlight the gap`, `Explain this warning`, `Open the right panel`, `Show package preview`, `Why is AI blocked?`, `Use my mask summary`, `Save this as advisory memory`, `Promote this to canon`, `Forget this`, `What changed since last session?`, `Clean stale signals`, `What needs attention?`, and `Show only things blocking writing`.
 
 ## 10. What Is Hidden Until Needed
@@ -101,6 +103,7 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 - navigation guidance,
 - temporary Writing Surface highlights or annotations later,
 - manual or no-AI fallback options later,
+- prepared-finding explanations later,
 - evidence citations later,
 - tool-trigger requests later,
 - signal candidates later when the author chooses to escalate a temporary highlight or concern.
@@ -184,6 +187,7 @@ Companion may suggest freely within local and advisory bounds.
 Companion may perform safe local support actions only when they are non-destructive, non-authoritative, non-spending, non-outbound, and do not mutate manuscript text or author-owned truth.
 Companion must require approval for paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, or explicit-content outbound actions.
 Companion must never silently bypass masks, exclusions, routing approval, or spend guardrails.
+Companion may explain or present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduler or silently apply resulting durable effects.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -217,6 +221,7 @@ Governance rules:
 - Companion may guide workflows and explain system state, but guided action is not system ownership,
 - recall used by `Companion` must preserve memory type such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
 - `Companion` must not treat recalled memory as author-owned truth unless the memory tier says it is author-owned truth,
+- Companion may present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduled service and must not silently apply results,
 - Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
 
@@ -294,6 +299,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Surface or tone consolidation from bridge docs after the Companion contract is stable.
 - Does the `no-ai-route-available` escalation contract eventually need a reusable Companion-facing artifact, or can the fallback explanation and manual or no-AI options remain split across routing, explicit-content, package construction, and Companion dossiers?
 - Workflow capability candidates remain rough product possibilities, not implementation commitments or build permission.
+- Future scheduled or idle local-service behavior remains a candidate contract area, not a selected implementation artifact.
 
 ## 34. Acceptance Criteria
 

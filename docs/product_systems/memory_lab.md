@@ -49,6 +49,7 @@ Any later recall exposed through `Companion` should preserve memory type rather 
 - indexing,
 - comparison,
 - citation gathering,
+- scheduled, idle, or overnight local preparation later when allowed,
 - long-context memory work later,
 - relevance filtering so Memory Lab does not hoard data just because it exists.
 
@@ -68,6 +69,7 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 
 - deep long-context indexing,
 - overnight or expensive review,
+- user-visible controls for scheduled, idle, or overnight local work later,
 - internal working sets.
 
 ## 11. Inputs
@@ -86,6 +88,7 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - continuity and critique support,
 - downstream signal candidates,
 - Companion support material,
+- prepared local-only findings later from scheduled, idle, or overnight work,
 - governed recall records later with memory-type boundaries such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -162,6 +165,8 @@ Paid API is for deep, broad, or long-context investigations when routing and bud
 Memory Lab is a likely heavy user of routing and budget policy.
 It should not assume deep paid runs by default.
 Retention policy must also respect relevance, performance, and storage-cost discipline.
+Some Memory Lab work may be better as scheduled, idle, or overnight local work when local analysis is slow but free.
+Any silent scheduled work must remain local-only, free, non-destructive, advisory, non-outbound, non-mutating, and mask or exclusion-safe.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -195,7 +200,10 @@ Governance rules:
 - Memory Lab must not store masked or AI-excluded raw manuscript spans by default,
 - forgotten, deleted, or discarded material must not remain active advisory context,
 - governed recall used by `Companion` must preserve memory type rather than treating all recall as author-owned truth,
-- Memory Lab is governed recall, not canon.
+- Memory Lab is governed recall, not canon,
+- scheduled, cron, idle, or overnight local work is only a future candidate behavior, not a selected implementation artifact,
+- scheduled findings may become advisory findings, continuity candidates, or signal candidates later, but they must not silently become durable truth, durable signal state, deletion, or manuscript mutation,
+- scheduled work should be user-visible and controllable later through rough concepts such as enabled or disabled, run now, run overnight, run when idle, local-only, requires approval before applying results, show prepared findings, and discard prepared findings.
 
 Risks:
 
@@ -271,6 +279,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - Public-facing shrink into `Companion` if Companion becomes the visible front-end for most interactions.
 - Does a reusable durable advisory history retention contract eventually need to exist across `Continuity`, `Signal Architecture`, and `Memory Lab`, or can the stabilized retention rules remain inside those dossiers?
 - Future workflow capability candidates, not implementation commitments: `Where was I?` or session re-entry, `Show me the source`, `Save this as advisory memory`, `Promote this to canon`, `Forget this`, `What changed since last session?`, and memory-backed `What needs attention?`
+- Future scheduled or idle local-work candidates, not implementation commitments: overnight local continuity scan, stale signal cleanup suggestions, Memory Lab citation or index refresh, local summary or index generation, non-outbound critique prep, project health scan, `What changed since last session?` preparation, advisory-history expiry candidate review, and local-only gap scan preparation.
 
 ## 34. Acceptance Criteria
 
