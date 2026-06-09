@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
 - Feeds into: `Outline`, `Story Unit`, `Relationship Map`, `Emotion Graph`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Lore Cards`, `Character Cards`, `Companion`, `Memory Lab`
 - Runtime authority: `future`
@@ -28,6 +28,7 @@ The Command Center Surface:
 - supports planning and inspection around writing,
 - organizes contextual tools,
 - shows bounded support state and narrative inspection,
+- may surface attention state, blocker state, routing or spend state, memory or provenance summaries, prepared findings, and package or export controls later when bounded,
 - provides a home for structured or analy­tical systems that do not belong in the main drafting area,
 - allows tool orchestration without making those tools the authorial source of truth.
 
@@ -42,7 +43,8 @@ The Command Center Surface does not:
 - force projection-led workflow before writing,
 - become a dashboard junk drawer,
 - turn AI output into truth because it appears in a side surface,
-- accumulate every support system as always-on clutter.
+- accumulate every support system as always-on clutter,
+- silently resolve, mutate, spend, send, delete, canonize, or bypass masks on behalf of other systems.
 
 ## 6. User-Facing Behavior
 
@@ -147,6 +149,7 @@ Outputs may include:
 - bounded warnings or prompts.
 
 These outputs are support outputs, not automatic authored truth.
+They must also remain subordinate to `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -278,6 +281,8 @@ Routing notes should support:
 - degraded-mode clarity,
 - explicit distinction between suggestion and truth.
 
+Command Center routing or spend visibility must not turn the surface into infrastructure clutter or imply permission to override owning-system approval rules.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 The Command Center may eventually show:
@@ -297,7 +302,8 @@ Privacy and safety behavior should include:
 - clear boundary between local material and outbound package material,
 - visible safety state when external routing is involved,
 - explicit user approval before destructive or masking transforms affect outbound content,
-- no false claim that a support system has verified truth or moral correctness.
+- no false claim that a support system has verified truth or moral correctness,
+- surfaced blockers or prepared findings may guide attention, but they must not silently resolve durable signal state, mutate manuscript truth, or bypass masks and exclusions.
 
 ## 27. Testing Requirements
 
@@ -321,6 +327,14 @@ Key risks:
 - Story Units drifting into a required gate,
 - projection views taking over structural authority,
 - tool sprawl outrunning the product-definition discipline.
+
+Doctrine anchors for the current tightening pass:
+
+- the Command Center supports writing but does not gate writing,
+- the Command Center must not become a dashboard junk drawer,
+- it may organize attention, status, signals, workflow choices, routing or spend state, memory or provenance summaries, and package or export controls without becoming truth owner,
+- it may surface blockers and prepared findings, but it cannot silently resolve, mutate, spend, send, delete, canonize, or bypass masks,
+- capability ideas such as `What needs attention?` and `Show only things blocking writing` remain product candidates, not implementation commitments.
 
 ## 29. Failure Modes
 
@@ -367,15 +381,48 @@ Future-only items:
 - large dashboard-style operational surfaces,
 - any behavior that would weaken Writing Surface sovereignty.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
+
+### Fatal Questions
+
+- None currently. Command Center non-gating doctrine is intact; remaining questions are bounded visibility, permissions, and ownership handoffs.
+
+### Critical Questions
+
+- Jason decision candidate: what is the smallest stable default Command Center that is still useful without becoming a dashboard junk drawer?
+- Future contract need: what exact visibility contract should govern always-visible versus contextual versus summonable blockers, attention views, routing or spend state, memory or provenance summaries, and package or export controls?
+- Future contract need: what exact action-permission boundaries should govern surfaced blockers, prepared findings, routing prompts, and package or export controls so the Command Center never silently resolves durable signal state, mutates truth, spends, sends, deletes, or bypasses masks?
+- Future contract need: how should `What needs attention?` and `Show only things blocking writing` views relate to `Signal Architecture`, `Memory Lab`, routing or budget states, and author authority without becoming hidden truth ownership?
+
+### Major Questions
 
 - Which support tools deserve always-visible presence rather than summonability?
 - How much structure should be editable here versus merely inspectable?
-- What is the smallest stable default Command Center that is still useful?
 - How should routing, health, and cost signals appear without turning the surface into ops clutter?
 - Which outputs belong here first: outline, continuity, critique, or feedback resolution?
 
+### Minor Questions
+
+- What naming or grouping language best keeps the surface bounded?
+- What visual treatment distinguishes blockers, prepared findings, and merely informational status?
+
+### Answered / Superseded Questions
+
+- Does the Command Center support writing but not gate writing? Answered: yes.
+- May the Command Center become a dashboard junk drawer? Answered: no.
+- Does the Command Center own authorial truth? Answered: no.
+- May the Command Center surface blockers and prepared findings? Answered: yes, as support state only.
+- May the Command Center silently resolve, mutate, spend, send, delete, canonize, or bypass masks? Answered: no.
+- Must the Command Center respect `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority? Answered: yes.
+
+### Deferred Questions
+
+- Later polish and densification rules after default-surface boundaries stabilize.
+- Broader orchestration and multi-tool layout work after ownership and permission contracts are tighter.
+
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, and this first tightening pass is not yet stable enough to pause because visibility and action-boundary contracts still need shaping.
 
 This dossier is acceptable only if it states explicitly that:
 

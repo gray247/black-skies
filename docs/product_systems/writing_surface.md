@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
 - Feeds into: `Command Center Surface`, `Outline`, `Story Unit`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Explicit-Content Marker / Send-Package Censor`, `Companion`
 - Runtime authority: `future`
@@ -70,6 +70,7 @@ Background behavior may later include:
 - context packaging for future support systems.
 
 Background behavior must not silently claim authorship, certainty, or authority over writer intent.
+Heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes must remain governed by the owning-system approval rules rather than Writing Surface authority.
 
 ## 8. What Appears First
 
@@ -96,6 +97,7 @@ Summonable later from the Writing Surface:
 - Companion assistance when explicitly invoked.
 
 These items should appear only when useful to the current writing task.
+Temporary highlights, annotations, provenance overlays, package previews, and warnings remain advisory or inspectable support elements rather than manuscript edits, truth, or durable signal state unless the author explicitly saves, converts, or accepts them through the owning system.
 
 ## 10. What Is Hidden Until Needed
 
@@ -259,6 +261,8 @@ Any AI-assisted writing path must keep:
 - privacy-aware routing,
 - no fake certainty.
 
+The Writing Surface may surface guidance, signals, provenance overlays, `Companion` highlights, package previews, or warnings only in ways that preserve writing flow and do not block local direct writing.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 The Writing Surface may eventually surface:
@@ -278,6 +282,8 @@ Privacy and safety rules:
 - explicit-content handling must preserve continuity while protecting external send paths,
 - unsafe payload handling must not destroy or overwrite the original local writing,
 - censor or masking views must be clearly distinguished from authored prose.
+- author-controlled manual masking and AI exclusion zones must not prevent local direct writing,
+- masked or excluded ranges must not leak through advisory overlays, previews, or signal summaries.
 
 ## 27. Testing Requirements
 
@@ -302,6 +308,15 @@ Key risks:
 - Companion becoming a required path instead of optional assistance,
 - critique or continuity output presenting fake certainty,
 - dashboard clutter creeping into the sovereign writing area.
+
+Doctrine anchors for the current tightening pass:
+
+- the Writing Surface is sovereign,
+- direct writing must always be available,
+- AI, `Companion`, signals, `Memory Lab`, routing, package construction, and Command Center support must not gate basic writing,
+- temporary highlights or annotations are advisory overlays, not manuscript edits, not truth, and not durable signal state unless explicitly saved, converted, or accepted,
+- manual masking and AI exclusion zones are author-controlled and must not block local direct writing,
+- heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules rather than Writing Surface authority.
 
 ## 29. Failure Modes
 
@@ -348,15 +363,47 @@ Future-only items:
 - integrated graph editing,
 - rich automation that would risk sovereignty or clutter before governance is ready.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-- What is the minimum current-writing context that helps without slowing entry?
-- Which support signals belong inline versus off-surface?
-- When should insertion or assertion references become visible to the writer?
-- How much structure should be writable from the Writing Surface versus only inspectable there?
+### Fatal Questions
+
+- None currently. Current doctrine preserves Writing Surface sovereignty and direct-writing-first behavior; remaining questions are display, approval, and handoff contracts.
+
+### Critical Questions
+
+- Future contract need: what exact inline versus off-surface display contract should govern signals, provenance overlays, `Companion` highlights, package previews, and warnings so writing flow stays primary and non-gated?
+- Future contract need: what exact approval and interaction contract should govern how the Writing Surface exposes heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes without becoming the owner of those actions?
+- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views behave inside the Writing Surface so local direct writing remains available while excluded raw text does not leak through overlays, previews, or summaries?
+
+### Major Questions
+
+- Jason decision candidate: what is the minimum current-writing context that helps without slowing entry?
+- Jason decision candidate: when should insertion or assertion references become visible to the writer during active drafting?
 - What is the right threshold for surfacing explicit-content send-package prompts?
+- How much structure should be writable from the Writing Surface versus only inspectable there?
+
+### Minor Questions
+
+- What visual vocabulary keeps overlays calm without hiding important support state?
+- What terminology best distinguishes draft text, advisory overlays, and author-approved structural context?
+
+### Answered / Superseded Questions
+
+- Is the Writing Surface sovereign? Answered: yes.
+- Must direct writing always remain available? Answered: yes.
+- May the Command Center, `Companion`, signals, `Memory Lab`, routing, package construction, or AI workflows gate basic writing? Answered: no.
+- Are temporary highlights or annotations manuscript edits, truth, or durable signal state by default? Answered: no. They are advisory overlays unless the author explicitly saves, converts, or accepts them through the owning system.
+- May manual masking or AI exclusion zones prevent local direct writing? Answered: no.
+- Do heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules? Answered: yes.
+
+### Deferred Questions
+
+- Future polish for dense overlay presentation after authority and handoff contracts stabilize.
+- Broader workflow integration after the Writing Surface, Command Center, and `Narrative Insertion / Narrative Assertion` cluster is tighter.
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, and this first tightening pass is not yet stable enough to pause because display, masking, and approval handoff contracts still need shaping.
 
 This dossier is acceptable only if it states explicitly that:
 

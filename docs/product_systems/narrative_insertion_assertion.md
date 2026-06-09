@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Prose / Scene Projection`
 - Feeds into: `Story Unit`, `Outline`, `Relationship Map`, `Continuity`, `Critique`, `Memory Lab`, `Prose / Scene Projection`
 - Runtime authority: `future`
@@ -71,6 +71,7 @@ Background behavior may later include:
 - provenance tracking.
 
 Background behavior must remain bounded and must not silently promote inferred output to authored truth.
+Accepted narrative assertions may become author-owned truth only through explicit author action rather than inference, display, or advisory reuse.
 
 ## 8. What Appears First
 
@@ -134,6 +135,7 @@ Outputs may include:
 - continuity and critique inputs.
 
 Outputs are structural support outputs, not automatic authorial truth.
+This dossier must preserve the distinction between draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -258,6 +260,8 @@ Any model-assisted insertion or assertion workflow must preserve:
 - no automatic authored-truth promotion,
 - clear separation between candidate and confirmed structure.
 
+AI suggestions, `Companion` guidance, signals, continuity warnings, and `Memory Lab` recall may inform insertion or assertion workflows, but they do not become narrative truth automatically.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Insertions or assertions may later support explicit-content review by:
@@ -299,6 +303,15 @@ Key risks:
 - hiding contradiction under premature resolution,
 - allowing projection containers to redefine the narrative foundation,
 - confusing critique summaries with base narrative primitives.
+
+Doctrine anchors for the current tightening pass:
+
+- `Narrative Insertion / Narrative Assertion` is foundational,
+- authored change must be explicit and author-owned,
+- accepted narrative assertions may become author-owned truth only through explicit author action,
+- AI suggestions, `Companion` guidance, signals, continuity warnings, and `Memory Lab` recall do not become narrative truth automatically,
+- insertion and assertion logic must distinguish draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts,
+- Outline, Scene, Story Unit, `Companion`, and `Memory Lab` must not become the source of truth by standing in for narrative assertion.
 
 ## 29. Failure Modes
 
@@ -342,15 +355,47 @@ Future-only items:
 - full AI-driven restructuring without author confirmation,
 - any mandatory structure-first workflow that harms direct writing.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-- What is the best difference between an insertion and an assertion, if they split later?
+### Fatal Questions
+
+- None currently. Foundational doctrine is intact; remaining questions are confirmation workflow, state distinctions, and exposure boundaries.
+
+### Critical Questions
+
+- Jason decision candidate: what is the best difference between an insertion and an assertion, if they split later?
+- Future contract need: what exact author workflow should govern confirming inferred candidates, converting prose-derived candidates, and turning accepted assertions into author-owned truth without hidden ceremony?
+- Future contract need: what exact state and provenance distinctions must exist between draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts before runtime wiring?
+- Future contract need: how should contradiction, continuity, and structural consumers distinguish narrative assertion truth from advisory suggestions or projections so Outline, Scene, Story Unit, `Companion`, and `Memory Lab` do not become surrogate truth owners?
+
+### Major Questions
+
 - How much direct user exposure should the smallest unit get in early product versions?
 - When should direct capture appear versus staying background-only?
-- What is the right author workflow for confirming inferred candidates?
 - How should contradiction branches be displayed without creating clutter?
 
+### Minor Questions
+
+- What terminology best helps users understand insertion versus assertion if the concepts later split?
+- What visual treatment keeps structural context visible without turning it into mandatory ceremony?
+
+### Answered / Superseded Questions
+
+- Is `Narrative Insertion / Narrative Assertion` foundational? Answered: yes.
+- Must authored change remain explicit and author-owned? Answered: yes.
+- May accepted narrative assertions become author-owned truth without explicit author action? Answered: no.
+- Do AI suggestions, `Companion` guidance, signals, continuity warnings, or `Memory Lab` recall become narrative truth automatically? Answered: no.
+- Must insertion and assertion logic distinguish draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts? Answered: yes, at rough doctrine level.
+- May Outline, Scene, Story Unit, `Companion`, or `Memory Lab` stand in as the narrative source of truth? Answered: no.
+
+### Deferred Questions
+
+- Later ergonomic polish for direct capture and structural inspection after confirmation workflow and state distinctions are tighter.
+- Richer contradiction visualization after foundational author-confirmation rules stabilize.
+
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, and this first tightening pass is not yet stable enough to pause because confirmation workflow and state-distinction contracts still need shaping.
 
 This dossier is acceptable only if it states explicitly that:
 
