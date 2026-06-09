@@ -149,6 +149,33 @@ Current product-system planning has already completed these steps:
 - Status: not complete.
 - Rule: do not mark build-ready while Critical questions remain.
 
+#### Current Cluster Progress
+
+- Continuity / Signal / Routing / Package / Explicit-content cluster
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact future contract shaping and Jason decision follow-up continue later where applicable.
+  Already shaped in this cluster: continuity truth boundaries; signal candidate versus durable signal-state boundaries; routing approval and spend guardrails; package and outbound clearance boundaries; explicit-content masking, exclusion, and fallback boundaries; rough `no-ai-route-available` doctrine; and resource-governed workload tier doctrine where routing touches it.
+
+- Provenance / Memory Lab / Companion cluster
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact future contract shaping continues later.
+  Already shaped in this cluster: provenance as private author-support metadata; clean default writing and export behavior; `Memory Lab` as governed recall rather than canon; `Memory Lab` retention and source tiers; `Companion` as workflow guide rather than system owner; `Companion` system-navigation support; temporary Writing Surface highlights or annotations; `Companion` plus `Memory Lab` workflow capability candidates; scheduled, idle, or overnight local-service candidate behavior; and resource-governed assistance plus workload tiers.
+
+#### Applied Routing / Resource Decisions
+
+- Jason's accepted routing or resource decisions are now applied in the active dossiers:
+  - session approval may cover bounded paid critique, bounded outbound model help, scheduled local-only jobs, and repeated low-risk approved workflow actions,
+  - fresh approval is required for first outbound manuscript transfer, explicit-content outbound package, spend above cap, provider switch after refusal, export or sync or publish, deletion, truth mutation, raw excluded-span retention, and tool use outside safe local UI,
+  - spending guardrails now include default cap `0` until set, estimated cost before paid work, visible session budget remaining, over-cap work blocked, and no silent paid retries,
+  - `no-ai-route-available` now appears when the local route fails or refuses, the outbound route blocks or refuses, masking or substitution remains insufficient, required approval is denied, the budget cap blocks the task, or no permitted fallback remains,
+  - precedence is now author authority -> masks or AI exclusion zones -> privacy or outbound rules -> spend rules -> routing preference -> `Companion` convenience.
+- Remaining work for those decisions is future contract shaping around exact approval UX, persistence, revocation, audit behavior, telemetry, and cross-surface enforcement.
+
+#### Next Candidate Cluster
+
+- Next candidate Step 6 cluster: `Writing Surface`, `Command Center Surface`, and `Narrative Insertion / Narrative Assertion`.
+- Purpose of that next candidate cluster: confirm Writing Surface sovereignty, confirm direct writing remains always available, confirm Command Center supports writing without gating it, prevent Command Center from becoming a dashboard junk drawer, clarify how `Narrative Insertion / Narrative Assertion` anchors authored change, and clarify how Writing Surface, Command Center, `Companion`, signals, `Memory Lab`, and routing interact without shifting truth ownership away from the author.
+
 #### Current Follow-On Contract Needs
 
 These are candidate contract artifacts revealed during Step 6 tightening.
