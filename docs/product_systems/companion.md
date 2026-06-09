@@ -152,7 +152,18 @@ Companion may discuss or suggest Story Unit grouping later, but Story Units rema
 
 Companion may reference projections and prose views, but projection is not story truth.
 
-## 19. Relationship To Writing Surface
+## 19A. Relationship To Critique / Evaluation
+
+`Critique` is a capability layer, not a Companion replacement.
+Companion may route a request into Critique when the author is asking for evaluation, evidence-backed findings, ranked issues, comparison notes, signal candidates, feedback-note candidates, or rewrite prompts.
+Companion may explain or review Critique outcomes, but it does not own Critique's evidence interpretation, issue ranking, or advisory findings.
+
+## 19B. Relationship To Author Intent / Story Setup
+
+Companion may route story-setup requests into Author Intent / Story Setup when the author is setting goals, boundaries, preferences, or story parameters.
+Companion may explain or help update those settings, but it does not own them and it must not silently turn them into a universal startup gate.
+
+## 19C. Relationship To Writing Surface
 
 Companion must never gate the Writing Surface.
 Direct writing remains available first.
@@ -203,6 +214,9 @@ No scan should run while the author is actively typing unless it is cheap, local
 No full-project scan should run on every save.
 No paid or outbound scheduled work should run without approval.
 Direct writing remains available even when scans or jobs are blocked, deferred, refused, or unavailable.
+
+Companion should explicitly tell the author when a request belongs to another system rather than pretending to absorb that work itself.
+Examples of routed requests include evaluation requests for Critique, story-setup requests for Author Intent / Story Setup, rewrite requests for Draft Generation / Rewrite Loop, durable-attention requests for Signal Architecture, continuity-consistency requests for Continuity, and note or revision-tracking requests for Feedback Notes / Revision Resolution.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -317,6 +331,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 - Future contract need: beyond the rough source labels above, what exact evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
 - Future contract need: beyond the rough highlight lifecycle above, what exact visibility, dismissal, snooze, expiry, and handoff rules should govern temporary `Companion` Writing Surface highlights or annotations before they are dismissed, saved, converted, or offered as signal candidates?
+- Future contract need: what exact routing language should Companion use when it tells the author a request belongs to Critique, Author Intent / Story Setup, Draft Generation / Rewrite Loop, Signal Architecture, Continuity, or Feedback Notes / Revision Resolution instead of Companion itself?
 
 ### Major Questions
 
@@ -349,6 +364,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - What rough lifecycle states should temporary `Companion` highlights or annotations use? Answered: suggested, visible, dismissed, snoozed, saved as advisory note, converted to signal candidate, promoted through owning system, and expired.
 - What rough resource-governed assistance posture should `Companion` follow before offering deeper work? Answered: prefer current UI state, accepted doctrine, saved project metadata, governed `Memory Lab` recall, existing signals, and prepared findings first, then offer heavier scans as optional work.
 - What rough workload tiers should `Companion` communicate when help ranges from cheap lookup to expensive analysis? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
+- Should Companion silently absorb every requested task? Answered: no. Companion should route requests to the owning system when the author is actually asking for Critique, Author Intent / Story Setup, Draft Generation / Rewrite Loop, Signal Architecture, Continuity, or Feedback Notes / Revision Resolution work.
 
 ### Deferred Questions
 

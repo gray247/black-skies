@@ -178,6 +178,11 @@ Current product-system planning has already completed these steps:
   Current posture: stable enough to pause current tightening while exact state, workflow, protection, and display contract shaping continues later.
   Already shaped in this cluster: `Character Cards` showing accepted facts first by default; `Lore Cards` showing accepted lore or rules first by default; `Relationship Map` showing accepted or author-confirmed relationships first by default; `Emotion Graph` showing accepted or author-defined emotional intent first by default; candidate, advisory, or inferred material staying optional, hidden until needed, or visibly distinct; tiny candidate or signal indicators appearing without crowding default views; `Writing Surface` receiving small current-text actions such as show card, attach note, propose candidate, and view related facts; `Command Center Surface` receiving heavier review or management actions such as review candidates, accept or reject, bulk actions, unresolved candidates, conflicts, signals, and cleanup workflows; a shared state model distinguishing accepted author-owned fact or intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item; preserved source labels for candidate, advisory, or inferred items; direct small actions for create candidate, attach note, hide or dismiss advisory item, or open source; explicit confirmation requirements for accepting, updating, deleting, or restoring truth, exposing protected sources, converting advisory inference into accepted fact, bulk actions, and export or sync or publish; protection rules preventing deleted, hidden, masked, or AI-excluded material from appearing in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted and allowed by owning-system rules; `Character Cards` and `Lore Cards` holding accepted facts or lore only when explicitly author-accepted; `Relationship Map` and `Emotion Graph` remaining primarily projection or visualization surfaces whose accepted relationship or emotional-intent records still require explicit author acceptance; no shadow canon; and no silent truth mutation.
 
+- Critique / Evaluation / Author Intent / Companion routing cluster
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact routing, intake, and capability-boundary contract shaping continues later.
+  Already shaped in this cluster: `Companion` routing requests to the owning system instead of absorbing every task; `Critique` treated as an evaluation capability rather than a universal surface; `Author Intent / Story Setup` treated as a living goal-and-boundary profile rather than a rigid startup gate; old `Wizard` concept preserved as a historical seed for `Author Intent / Story Setup` plus `Workflow Spine / Author Journey`; and old `Critique` concept preserved as a historical seed for `Critique`, `Feedback Notes`, `Signal Architecture`, `Draft Generation`, `Plugin / Rubric System`, `Continuity`, and `Companion` explanation.
+
 #### Applied Routing / Resource Decisions
 
 - Jason's accepted routing or resource decisions are now applied in the active dossiers:
@@ -193,6 +198,7 @@ Current product-system planning has already completed these steps:
 - Next candidate Step 6 cluster: not selected in this planning-spine sync.
 - Current note: the previously listed structural story system cluster has now moved from next-candidate status into paused cluster status above.
 - Future note: run a dossier inventory or missing-dossier reconciliation pass before choosing the next major Step 6 bundle.
+- Future note: the next likely concept-capture pass is to decide whether `critique_evaluation.md` should become a one-to-one dossier, while `Author Intent / Story Setup` may remain inside `Workflow Spine / Author Journey` for now.
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -209,6 +215,7 @@ Current product-system planning has already completed these steps:
   - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
   - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
 - `Critique` and `Import / Export / Google Docs` remain the strongest candidates for later one-to-one dossiers even though provisional bridge coverage exists now.
+- The Critique / Evaluation / Author Intent / Companion routing cluster has now been captured across the existing docs without creating new dossiers.
 - The external raw question-bank source currently lives at `C:\Dev\plan ideas\continuity\open_questions_register.md`.
 - That raw register remains archive, intake, or triage source only rather than active planning spine.
 - Active questions still belong inside the relevant dossier `Pre-Rough Alignment Questionnaire`.

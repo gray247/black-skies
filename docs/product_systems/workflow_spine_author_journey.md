@@ -95,6 +95,13 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 
 The workflow spine may guide work around narrative actions, but it does not replace narrative foundation authority.
 
+## 16A. Relationship To Author Intent / Story Setup
+
+The old Wizard concept is now treated as a historical seed for Author Intent / Story Setup rather than as a rigid startup gate.
+Author Intent / Story Setup may live inside the workflow spine for now as a living profile of goals, boundaries, preferences, and story parameters.
+Its values may be known now, unknown, ask-later, inferred candidate, system-suggested, confirmed by the author, or changed over time.
+It should supply guidance to Outline, Critique, Companion, Draft Generation, Routing, and related systems, but it must not block direct writing.
+
 ## 17. Relationship To Story Units
 
 Story Unit use remains optional.
@@ -167,8 +174,8 @@ Intake note:
 - external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
 - old questions merged: yes, mainly from `# 8. Workflow Spine / Author Journey Questions`
 - stale placeholder questions removed or superseded: yes
-- active question count after merge: 7
-- remaining blocker summary: `0 Fatal`, `3 Critical`, `2 Major`
+- active question count after merge: 8
+- remaining blocker summary: `0 Fatal`, `4 Critical`, `2 Major`
 
 ### Fatal Questions
 
@@ -179,6 +186,7 @@ Intake note:
 - Future contract need: which project starting points must reach direct writing without required setup, and which may pass through optional support setup first?
 - Critical: what workflow state is durable versus session-only, especially for resume, last-used context, and workflow-progress markers?
 - Jason decision candidate: should workflow modes remain explicit user-chosen modes, lightweight context filters, or mostly invisible posture changes, and which visible tool changes are allowed when they switch?
+- Future contract need: how should Author Intent / Story Setup be represented as a living profile rather than a rigid startup wizard, and which fields may remain unknown, ask-later, inferred candidate, system-suggested, confirmed, or changed over time?
 
 ### Major Questions
 
@@ -195,11 +203,13 @@ Intake note:
 - Workflow support does not own truth.
 - Superseded by current doctrine: workflow support must not block typing or gate writing behind required setup.
 - Questions better owned elsewhere: model-routing preferences, budget preferences, explicit-content send rules, and Google Docs entry flows belong primarily to routing, settings, or import/export dossiers.
+- Old Wizard is preserved only as a historical seed for Author Intent / Story Setup plus workflow guidance; it is not a required startup gate.
 
 ### Deferred Questions
 
 - Deferred: exact workflow analytics and personalization rules.
 - Deferred: whether a setup wizard survives as a separate product concept or dissolves into other systems after later workflow and startup tightening.
+- Deferred: whether Author Intent / Story Setup remains inside Workflow Spine / Author Journey or later becomes its own one-to-one dossier.
 
 ## 34. Acceptance Criteria
 
