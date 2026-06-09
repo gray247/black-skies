@@ -59,6 +59,16 @@ Visible behavior should emphasize:
 - explicit control over when support signals or tool outputs are shown,
 - calm persistence of draft work without ritualized setup steps.
 
+Default Writing Surface context should stay minimal:
+
+- project or story,
+- current unit,
+- save state,
+- optional word or progress information,
+- a clear way to summon context or support.
+
+It should not default to a full dashboard, all signals, all `Memory Lab` findings, all routing state, all provenance, full outline or tree state, or constant AI panels.
+
 ## 7. Hidden/Background Behavior
 
 Background behavior may later include:
@@ -182,6 +192,8 @@ The Writing Surface should eventually read from and feed into `Narrative Inserti
 
 The Writing Surface may begin with direct prose before structured narrative primitives are surfaced to the user.
 When narrative primitives appear, they should support the writing flow rather than replace it with data-entry ceremony.
+Insertion or assertion references should be contextual or summonable rather than always-on.
+They may appear when the author requests them, cursor or selection context requires them, a blocker affects the current passage, the author is accepting or inserting advisory text, or the author opens provenance or context overlays.
 
 ## 17. Relationship To Story Units
 
@@ -377,8 +389,6 @@ Future-only items:
 
 ### Major Questions
 
-- Jason decision candidate: what is the minimum current-writing context that helps without slowing entry?
-- Jason decision candidate: when should insertion or assertion references become visible to the writer during active drafting?
 - What is the right threshold for surfacing explicit-content send-package prompts?
 - How much structure should be writable from the Writing Surface versus only inspectable there?
 
@@ -395,6 +405,8 @@ Future-only items:
 - Are temporary highlights or annotations manuscript edits, truth, or durable signal state by default? Answered: no. They are advisory overlays unless the author explicitly saves, converts, or accepts them through the owning system.
 - May manual masking or AI exclusion zones prevent local direct writing? Answered: no.
 - Do heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules? Answered: yes.
+- What is the minimum current-writing context that helps without slowing entry? Answered: project or story, current unit, save state, optional word or progress information, and a clear way to summon context or support.
+- When should insertion or assertion references become visible to the writer during active drafting? Answered: they should be contextual or summonable, not always-on, and may appear when requested, when cursor or selection context requires them, when a blocker affects the current passage, when advisory text is being accepted or inserted, or when provenance or context overlays are opened.
 
 ### Deferred Questions
 

@@ -25,7 +25,7 @@ The writer needs a narrative unit small enough to support continuity, contradict
 
 `Narrative Insertion / Assertion` provides:
 
-- the smallest narrative identity unit,
+- a paired foundation where `Narrative Insertion` handles manuscript text or change placement and `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision,
 - a durable narrative reference that can exist before or after prose,
 - a narrative fact, event, implication, or claim that can be linked, contradicted, reordered, or grouped,
 - a basis for continuity, critique, relationship mapping, gap modeling, memory, and later projection into prose or containers.
@@ -41,6 +41,7 @@ It allows Black Skies to retain narrative meaning even when the visible prose or
 - require Story Units to exist first,
 - require the user to enter ontology data before writing,
 - claim that inferred or AI-produced structure is authored truth,
+- allow inserted prose to silently create accepted story truth,
 - resolve contradictions automatically,
 - replace prose as the visible act of writing,
 - replace outline, Story Unit, critique note, or projection view with one flat concept.
@@ -49,7 +50,8 @@ It allows Black Skies to retain narrative meaning even when the visible prose or
 
 User-facing behavior may later include:
 
-- direct insertion or assertion capture,
+- direct insertion capture,
+- direct assertion capture,
 - optional linking to prose,
 - optional grouping into Story Units,
 - optional relationship display,
@@ -57,6 +59,7 @@ User-facing behavior may later include:
 - optional reorderable structural views.
 
 User-facing behavior must stay optional when it risks slowing direct writing.
+Insertion and assertion may be paired in workflows, but one must not silently create the other.
 
 ## 7. Hidden/Background Behavior
 
@@ -111,6 +114,7 @@ Hidden until needed:
 Possible inputs:
 
 - direct user-authored insertion or assertion text,
+- inserted prose that may later produce an assertion candidate,
 - prose-derived user confirmations later,
 - optional Story Unit grouping context,
 - outline placement context,
@@ -125,7 +129,9 @@ Possible inputs:
 
 Outputs may include:
 
-- durable narrative identities,
+- durable insertion identities,
+- assertion candidates,
+- accepted author-approved assertions later,
 - sequence-independent narrative references,
 - reorderable structural units,
 - contradiction edges,
@@ -190,6 +196,12 @@ This dossier defines the foundation itself.
 - critique display.
 
 It is the base identity layer that later systems should consume rather than replace.
+Within that foundation, `Narrative Insertion` and `Narrative Assertion` should split conceptually:
+
+- `Narrative Insertion` = manuscript text or change placement
+- `Narrative Assertion` = explicit author-confirmed story truth, fact, or decision
+
+Inserted prose may create an assertion candidate, but only explicit author action may save or accept it as author-owned truth.
 
 ## 17. Relationship To Story Units
 
@@ -363,7 +375,6 @@ Future-only items:
 
 ### Critical Questions
 
-- Jason decision candidate: what is the best difference between an insertion and an assertion, if they split later?
 - Future contract need: what exact author workflow should govern confirming inferred candidates, converting prose-derived candidates, and turning accepted assertions into author-owned truth without hidden ceremony?
 - Future contract need: what exact state and provenance distinctions must exist between draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts before runtime wiring?
 - Future contract need: how should contradiction, continuity, and structural consumers distinguish narrative assertion truth from advisory suggestions or projections so Outline, Scene, Story Unit, `Companion`, and `Memory Lab` do not become surrogate truth owners?
@@ -387,6 +398,7 @@ Future-only items:
 - Do AI suggestions, `Companion` guidance, signals, continuity warnings, or `Memory Lab` recall become narrative truth automatically? Answered: no.
 - Must insertion and assertion logic distinguish draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts? Answered: yes, at rough doctrine level.
 - May Outline, Scene, Story Unit, `Companion`, or `Memory Lab` stand in as the narrative source of truth? Answered: no.
+- What is the best difference between an insertion and an assertion, if they split later? Answered: `Narrative Insertion` handles manuscript text or change placement, while `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision. They may pair in workflows, but one must not silently create the other.
 
 ### Deferred Questions
 

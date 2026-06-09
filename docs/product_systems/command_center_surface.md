@@ -80,6 +80,8 @@ What appears first should be minimal:
 - only the smallest useful always-visible support elements.
 
 It may begin nearly empty if writing is already usable.
+The smallest stable default Command Center should stay limited to blockers, active signals needing author attention, relevant routing or spend or approval state, prepared findings waiting for review, and active package or export or sync state.
+It must not default to every `Memory Lab` item, every old signal, all archive or intake material, all AI suggestions, every workflow button, or giant analytics views.
 
 ## 9. What Is Summonable
 
@@ -246,6 +248,8 @@ Tool visibility classes:
 - `future-only`
   - systems not yet bounded or approved for near-term use
 
+The default Command Center should remain the smallest useful attention or control surface rather than a dashboard junk drawer.
+
 ## 22. Local LLM Role
 
 Possible local-model roles:
@@ -389,7 +393,6 @@ Future-only items:
 
 ### Critical Questions
 
-- Jason decision candidate: what is the smallest stable default Command Center that is still useful without becoming a dashboard junk drawer?
 - Future contract need: what exact visibility contract should govern always-visible versus contextual versus summonable blockers, attention views, routing or spend state, memory or provenance summaries, and package or export controls?
 - Future contract need: what exact action-permission boundaries should govern surfaced blockers, prepared findings, routing prompts, and package or export controls so the Command Center never silently resolves durable signal state, mutates truth, spends, sends, deletes, or bypasses masks?
 - Future contract need: how should `What needs attention?` and `Show only things blocking writing` views relate to `Signal Architecture`, `Memory Lab`, routing or budget states, and author authority without becoming hidden truth ownership?
@@ -414,6 +417,7 @@ Future-only items:
 - May the Command Center surface blockers and prepared findings? Answered: yes, as support state only.
 - May the Command Center silently resolve, mutate, spend, send, delete, canonize, or bypass masks? Answered: no.
 - Must the Command Center respect `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority? Answered: yes.
+- What is the smallest stable default Command Center that is still useful without becoming a dashboard junk drawer? Answered: blockers, active signals needing author attention, relevant routing or spend or approval state, prepared findings waiting for review, and active package or export or sync state.
 
 ### Deferred Questions
 
