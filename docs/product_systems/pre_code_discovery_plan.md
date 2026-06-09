@@ -166,6 +166,11 @@ Current product-system planning has already completed these steps:
   Current posture: stable enough to pause current tightening while exact future UI, state, and interaction contract shaping continues later.
   Already shaped in this cluster: Writing Surface sovereignty; direct writing always available; minimal default Writing Surface context; contextual or summonable insertion or assertion references; clean default writing view; lightweight, contextual, dismissible inline overlay boundaries; heavier context in summonable side or support surfaces; heavy-action prompts without silent execution; author-controlled masks and AI exclusion zones; raw excluded-text no-leak boundaries; manuscript, mask, exclusion, package-view, and outbound-payload distinctions; smallest useful default Command Center; Command Center anti-junk-drawer doctrine; Command Center visibility levels of always-visible, contextual, and summonable; Command Center action-permission boundaries; Command Center attention or blocker ownership boundaries; conceptual split between `Narrative Insertion` and `Narrative Assertion`; insertion without automatic assertion truth; assertion candidates requiring explicit author accept, save, or convert; narrative state or provenance distinctions; and consumer-boundary doctrine for `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`, `Outline`, Scene, Story Unit, and `Command Center Surface`.
 
+- Structural Story System cluster: `Outline`, `Prose / Scene Projection`, and `Story Unit`
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact workflow, state, and interaction contract shaping continues later.
+  Already shaped in this cluster: `Outline` as layered structural story map; flexible blobs, beats, scenes, chapters, and other containers; drag-and-drop planning movement; accepted-manuscript movement as preview or proposal only; projected order versus accepted manuscript order; mass, capacity, and word-pressure indicators without blocking writing; chronology versus telling or reading order; small default signal markers; `Signal Architecture` ownership of durable signal state; `Outline` as signal receiver or projector rather than signal owner; lightweight default Outline display; deeper hoverable, contextual, filterable, or summonable layers; prototype launcher behavior; safe prototype inputs; default-blocked prototype inputs; prototype outputs as advisory or generated planning artifacts; `Prose / Scene Projection` as view or projection rather than truth owner; `Story Unit` as optional flexible grouping or work container; smallest stable Story Unit payload; strongest lifecycle protection actions for delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material; and `Writing Surface`, `Outline`, and `Command Center Surface` action split.
+
 #### Applied Routing / Resource Decisions
 
 - Jason's accepted routing or resource decisions are now applied in the active dossiers:
@@ -178,8 +183,8 @@ Current product-system planning has already completed these steps:
 
 #### Next Candidate Cluster
 
-- Next candidate Step 6 cluster: `Outline`, `Prose / Scene Projection`, and `Story Unit`.
-- Purpose of that next candidate cluster: confirm `Outline` is optional and not narrative truth, confirm Scene is projection or container or view or legacy compatibility only, confirm Story Unit is optional grouping or work-container only, prevent structure tools from becoming hidden truth owners, and clarify how `Outline`, Scene, Story Unit, `Writing Surface`, `Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, and `Companion` interact without shifting truth ownership away from the author.
+- Next candidate Step 6 cluster: not selected in this planning-spine sync.
+- Current note: the previously listed structural story system cluster has now moved from next-candidate status into paused cluster status above.
 
 #### Current Follow-On Contract Needs
 
@@ -227,6 +232,24 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `narrative_insertion_assertion.md`.
 - Narrative Insertion consumer API or contract details
   Candidate homes: `narrative_insertion_assertion.md`, with relationship notes later in `continuity.md`, `signal_architecture.md`, `memory_lab.md`, or structure dossiers if needed.
+- Exact Outline drag-and-drop preview, confirmation, undo, and provenance contract
+  Candidate homes: `outline.md`.
+- Exact accepted-manuscript preview or proposal workflow
+  Candidate homes: `outline.md`, `prose_scene_projection.md`, `command_center_surface.md`.
+- Exact prototype launch, review, conversion, and protected-input approval contract
+  Candidate homes: `outline.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and `explicit_content_architecture.md` when needed.
+- Exact projection preview, proposal, duplication, and comparison workflow
+  Candidate homes: `prose_scene_projection.md`, `outline.md`, `command_center_surface.md`.
+- Exact accepted-manuscript versus projected-view labeling contract
+  Candidate homes: `prose_scene_projection.md`, `writing_surface.md`, `authorship_provenance_ai_visibility.md`.
+- Exact Story Unit payload and state contract
+  Candidate homes: `story_unit.md`.
+- Exact Story Unit lifecycle confirmation, undo, recovery, and provenance contract
+  Candidate homes: `story_unit.md`, with routing or authority notes later if needed.
+- Exact split, merge, archive, and promotion workflow contract
+  Candidate homes: `story_unit.md`, `narrative_insertion_assertion.md`, `signal_architecture.md`, and `memory_lab.md` where later relationship notes are needed.
+- Exact cross-surface interaction contract among `Writing Surface`, `Outline`, `Prose / Scene Projection`, `Story Unit`, and `Command Center Surface`
+  Candidate homes: `writing_surface.md`, `outline.md`, `prose_scene_projection.md`, `story_unit.md`, `command_center_surface.md`, and `system_interaction_map.md` if a relationship note becomes necessary.
 
 Rule for these needs:
 
