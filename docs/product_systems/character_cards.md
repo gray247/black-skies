@@ -129,6 +129,9 @@ Character Card outputs may include:
 - accepted character fact views,
 - candidate fact views,
 - advisory summaries,
+- signal-linked concern views,
+- `Memory Lab` recall or reference views,
+- `Companion` suggestion views,
 - relationship links,
 - emotion or status summaries,
 - bounded signal summaries,
@@ -156,6 +159,8 @@ Downstream systems must preserve accepted fact versus candidate versus advisory 
 Eventually stored:
 
 - character identity,
+- item state labels for accepted author-owned fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted fact references,
 - candidate fact references,
 - role or status labels,
@@ -200,6 +205,7 @@ Character Cards may support the `Writing Surface` through bounded lookups, links
 
 Direct writing must remain available without requiring card interaction.
 Small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts` may live near the `Writing Surface`.
+Those actions may create or inspect support items, but they must not bulk-review or silently mutate accepted truth.
 
 ## 20. Relationship To Command Center Surface
 
@@ -207,6 +213,7 @@ Small current-text actions such as `show card`, `attach note`, `propose candidat
 
 That support must not turn the Command Center into the owner of character truth.
 Heavier actions such as candidate review, accept or reject, bulk action, unresolved candidate review, conflict review, signal review, and cleanup workflows belong in `Command Center Surface`.
+Explicit confirmation is required for accept as author-owned truth, update accepted truth, delete accepted truth, restore deleted truth, expose hidden, masked, or excluded source, convert advisory inference into accepted fact, bulk accept or reject or delete, and export or sync or publish related card data.
 
 ## 21. GUI Placement Principles
 
@@ -266,7 +273,8 @@ Privacy and safety rules must ensure:
 
 - hidden or deleted character material does not leak into recall, summaries, or outbound work,
 - masked or excluded material stays protected,
-- advisory systems do not silently retain protected raw material as character truth.
+- advisory systems do not silently retain protected raw material as character truth,
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 
@@ -354,6 +362,7 @@ Future-only items:
 ### Critical Questions
 
 - What exact accepted fact versus candidate fact versus advisory inference state model is required?
+- What exact item-state model is required for accepted truth, candidate, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
 - Who may create, update, hide, delete, accept, or reject character facts?
 - How must deleted, hidden, masked, or excluded material be protected from card views, recall, and summaries?
 
@@ -378,12 +387,18 @@ Future-only items:
 - Candidate facts, advisory inference, `Memory Lab` recall, `Companion` suggestions, and signal details must not crowd the default card view.
 - `Writing Surface` gets small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts`.
 - `Command Center Surface` gets heavier review and management actions such as review candidates, accept or reject, bulk actions, unresolved candidates, conflicts, signals, and cleanup workflows.
+- Each Character Card item may distinguish accepted author-owned fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
+- Every candidate, advisory, or inferred item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
+- Direct small actions may create candidate items, attach notes, hide advisory items, dismiss advisory items, or open related sources.
+- Explicit confirmation is required for accepting truth, updating accepted truth, deleting or restoring accepted truth, exposing protected source, converting advisory inference into accepted fact, bulk accept or reject or delete, and export or sync or publish related data.
+- Character Cards may hold accepted facts only when explicitly author-accepted.
 
 ### Jason Decision Candidates
 
 ### Future Contract Needs
 
 - Exact accepted fact, candidate fact, and advisory inference contract.
+- Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Character Cards.
 - Exact protection contract for deleted, hidden, masked, and excluded material.

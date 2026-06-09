@@ -124,6 +124,9 @@ Relationship Map outputs may include:
 - accepted relationship views,
 - candidate relationship views,
 - advisory relationship summaries,
+- signal-linked concern views,
+- `Memory Lab` recall or reference views,
+- `Companion` suggestion views,
 - emotional or factual link summaries,
 - bounded signal overlays,
 - cross-links into cards, narrative, continuity, and support surfaces.
@@ -150,6 +153,8 @@ Downstream systems must preserve accepted relationship fact versus candidate ver
 Eventually stored:
 
 - entity identities and references,
+- item state labels for accepted author-confirmed relationship fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted relationship references,
 - candidate relationship references,
 - relationship type labels,
@@ -195,6 +200,7 @@ Direct writing must remain available without requiring map interaction.
 `Command Center Surface` may host heavier relationship inspection, filtering, candidate review, and blocker review workflows.
 
 That support must not turn the Command Center into the owner of relationship truth.
+Explicit confirmation is required before accepted relationship truth is created, updated, deleted, restored, bulk accepted or rejected or deleted, or exported or synced or published through map workflows.
 
 ## 21. GUI Placement Principles
 
@@ -254,7 +260,8 @@ Privacy and safety rules must ensure:
 
 - hidden or deleted relationship evidence does not leak into map summaries or recall,
 - masked or excluded material stays protected,
-- advisory systems do not silently retain protected raw material as relationship truth.
+- advisory systems do not silently retain protected raw material as relationship truth,
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` default edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 
@@ -342,6 +349,7 @@ Future-only items:
 ### Critical Questions
 
 - What exact accepted relationship fact versus candidate relationship versus advisory inference state model is required?
+- What exact item-state model is required for accepted truth, candidate, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
 - Who may create, update, hide, delete, accept, or reject relationship facts?
 - How must deleted, hidden, masked, or excluded material be protected from map views, recall, and summaries?
 
@@ -364,12 +372,16 @@ Future-only items:
 - Durable relationship facts must come from author-owned truth or explicit author acceptance.
 - Relationship Map default view should show accepted or author-confirmed relationships first.
 - Inferred or advisory relationships must be optional, visibly distinct, and must not collapse into accepted relationship truth.
+- Each Relationship Map item may distinguish accepted author-confirmed relationship fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
+- Every candidate, advisory, or inferred relationship item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
+- Accepted relationship records must still come from explicit author acceptance even when the map projects or visualizes them.
 
 ### Jason Decision Candidates
 
 ### Future Contract Needs
 
 - Exact accepted relationship, candidate relationship, and advisory inference contract.
+- Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Relationship Map.
 - Exact protection contract for deleted, hidden, masked, and excluded material.

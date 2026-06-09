@@ -122,6 +122,9 @@ Emotion Graph outputs may include:
 - accepted emotional-intent views,
 - candidate emotional-interpretation views,
 - advisory emotional summaries,
+- signal-linked concern views,
+- `Memory Lab` recall or reference views,
+- `Companion` suggestion views,
 - tension or intensity summaries,
 - bounded signal overlays,
 - cross-links into cards, narrative, continuity, and support surfaces.
@@ -148,6 +151,8 @@ Downstream systems must preserve accepted emotional intent versus candidate inte
 Eventually stored:
 
 - graph identity and scope,
+- item state labels for accepted author-defined intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted emotional-intent references,
 - candidate emotional-interpretation references,
 - optional provenance,
@@ -192,6 +197,7 @@ Direct writing must remain available without requiring graph interaction.
 `Command Center Surface` may host heavier emotional inspection, filtering, candidate review, and blocker review workflows.
 
 That support must not turn the Command Center into the owner of emotional truth.
+Explicit confirmation is required before accepted emotional intent is created, updated, deleted, restored, bulk accepted or rejected or deleted, or exported or synced or published through graph workflows.
 
 ## 21. GUI Placement Principles
 
@@ -251,7 +257,8 @@ Privacy and safety rules must ensure:
 
 - hidden or deleted emotional evidence does not leak into graph summaries or recall,
 - masked or excluded material stays protected,
-- advisory systems do not silently retain protected raw material as emotional truth.
+- advisory systems do not silently retain protected raw material as emotional truth,
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` default inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 
@@ -339,6 +346,7 @@ Future-only items:
 ### Critical Questions
 
 - What exact accepted emotional intent versus candidate interpretation versus advisory analysis state model is required?
+- What exact item-state model is required for accepted intent, candidate item, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
 - Who may create, update, hide, delete, accept, or reject emotional facts or intent?
 - How must deleted, hidden, masked, or excluded material be protected from graph views, recall, and summaries?
 
@@ -360,12 +368,16 @@ Future-only items:
 - It must not silently canonize emotional truth.
 - Emotion Graph default view should show accepted or author-defined emotional intent first.
 - Inferred emotional analysis must be optional, advisory, visibly labeled, and must not silently canonize emotional truth.
+- Each Emotion Graph item may distinguish accepted author-defined intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
+- Every candidate, advisory, or inferred emotional item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
+- Accepted emotional-intent records must still come from explicit author acceptance even when the graph projects or visualizes them.
 
 ### Jason Decision Candidates
 
 ### Future Contract Needs
 
 - Exact accepted emotional intent, candidate interpretation, and advisory analysis contract.
+- Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Emotion Graph.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
