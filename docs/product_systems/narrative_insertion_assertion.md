@@ -60,6 +60,7 @@ User-facing behavior may later include:
 
 User-facing behavior must stay optional when it risks slowing direct writing.
 Insertion and assertion may be paired in workflows, but one must not silently create the other.
+Insertion can happen without creating assertion truth.
 
 ## 7. Hidden/Background Behavior
 
@@ -142,6 +143,7 @@ Outputs may include:
 
 Outputs are structural support outputs, not automatic authorial truth.
 This dossier must preserve the distinction between draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts.
+The system must also distinguish inserted advisory text, assertion candidate, continuity fact, and provenance record as separate states rather than collapsing them into one layer.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -202,6 +204,7 @@ Within that foundation, `Narrative Insertion` and `Narrative Assertion` should s
 - `Narrative Assertion` = explicit author-confirmed story truth, fact, or decision
 
 Inserted prose may create an assertion candidate, but only explicit author action may save or accept it as author-owned truth.
+The author must explicitly accept, save, or convert an assertion candidate before it becomes author-owned truth.
 
 ## 17. Relationship To Story Units
 
@@ -273,6 +276,7 @@ Any model-assisted insertion or assertion workflow must preserve:
 - clear separation between candidate and confirmed structure.
 
 AI suggestions, `Companion` guidance, signals, continuity warnings, and `Memory Lab` recall may inform insertion or assertion workflows, but they do not become narrative truth automatically.
+Consumers may read accepted narrative assertions according to authority rules, but they do not own them.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -291,6 +295,7 @@ Privacy and safety rules:
 - local narrative structure may remain more explicit than outbound package structure,
 - explicit-content markers must not silently erase author meaning,
 - unsafe outbound handling must preserve local structural truth.
+- no consumer may silently create, alter, or delete author-owned assertion truth.
 
 ## 27. Testing Requirements
 
@@ -324,6 +329,16 @@ Doctrine anchors for the current tightening pass:
 - AI suggestions, `Companion` guidance, signals, continuity warnings, and `Memory Lab` recall do not become narrative truth automatically,
 - insertion and assertion logic must distinguish draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts,
 - Outline, Scene, Story Unit, `Companion`, and `Memory Lab` must not become the source of truth by standing in for narrative assertion.
+
+Consumer-boundary guidance:
+
+- `Continuity` may use accepted assertions as truth support.
+- `Signal Architecture` may receive candidates or conflicts.
+- `Memory Lab` may recall accepted assertions under governed recall.
+- `Companion` may explain or guide.
+- `Outline`, Scene, Story Unit, and Command Center may project or organize accepted assertions.
+
+None of those consumers may silently create, alter, or delete author-owned assertion truth.
 
 ## 29. Failure Modes
 
@@ -399,6 +414,10 @@ Future-only items:
 - Must insertion and assertion logic distinguish draft text, accepted manuscript text, author-approved assertions, advisory suggestions, masked summaries, and package or context artifacts? Answered: yes, at rough doctrine level.
 - May Outline, Scene, Story Unit, `Companion`, or `Memory Lab` stand in as the narrative source of truth? Answered: no.
 - What is the best difference between an insertion and an assertion, if they split later? Answered: `Narrative Insertion` handles manuscript text or change placement, while `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision. They may pair in workflows, but one must not silently create the other.
+- May insertion happen without creating assertion truth? Answered: yes.
+- What must happen before an assertion candidate becomes author-owned truth? Answered: the author must explicitly accept, save, or convert it.
+- What rough narrative states must remain distinct? Answered: draft text, accepted manuscript text, inserted advisory text, assertion candidate, accepted narrative assertion, continuity fact, advisory suggestion, masked summary, package or context artifact, and provenance record.
+- What are the rough consumer boundaries for accepted assertions? Answered: `Continuity` may use them as truth support, `Signal Architecture` may receive candidates or conflicts, `Memory Lab` may recall them under governed recall, `Companion` may explain or guide, and `Outline`, Scene, Story Unit, and Command Center may project or organize them. None may silently create, alter, or delete author-owned assertion truth.
 
 ### Deferred Questions
 

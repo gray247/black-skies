@@ -121,6 +121,12 @@ Hidden until needed:
 - debug-heavy views,
 - future-only experimental systems.
 
+Command Center visibility should stay bounded by three rough levels:
+
+- `always-visible`: only current blockers, urgent approval state, or active route failure when relevant
+- `contextual`: signals, prepared findings, routing or spend state, and package or export state related to the current task
+- `summonable`: full detail views, history, `Memory Lab` recall, provenance, older signals, and analytics-like summaries
+
 ## 11. Inputs
 
 Likely inputs:
@@ -152,6 +158,7 @@ Outputs may include:
 
 These outputs are support outputs, not automatic authored truth.
 They must also remain subordinate to `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority.
+The Command Center organizes attention, but it does not own blockers.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -286,6 +293,7 @@ Routing notes should support:
 - explicit distinction between suggestion and truth.
 
 Command Center routing or spend visibility must not turn the surface into infrastructure clutter or imply permission to override owning-system approval rules.
+The Command Center may present actions, but it cannot silently mutate manuscript text, truth, signal state, memory, export or sync or publish state, routing spend, deletion state, masks, or package output.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -339,6 +347,16 @@ Doctrine anchors for the current tightening pass:
 - it may organize attention, status, signals, workflow choices, routing or spend state, memory or provenance summaries, and package or export controls without becoming truth owner,
 - it may surface blockers and prepared findings, but it cannot silently resolve, mutate, spend, send, delete, canonize, or bypass masks,
 - capability ideas such as `What needs attention?` and `Show only things blocking writing` remain product candidates, not implementation commitments.
+
+Ownership boundaries for organized attention:
+
+- `Signal Architecture` owns durable signal state.
+- `Model Routing And Budget Architecture` owns route, spend, and approval state.
+- `Memory Lab` owns governed recall.
+- `Continuity` owns continuity candidates and continuity-truth support.
+- `LLM Package Construction Architecture` owns package assembly.
+- `Explicit Content Architecture` owns clearance and masking constraints.
+- the author owns final truth and manuscript.
 
 ## 29. Failure Modes
 
@@ -418,6 +436,9 @@ Future-only items:
 - May the Command Center silently resolve, mutate, spend, send, delete, canonize, or bypass masks? Answered: no.
 - Must the Command Center respect `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority? Answered: yes.
 - What is the smallest stable default Command Center that is still useful without becoming a dashboard junk drawer? Answered: blockers, active signals needing author attention, relevant routing or spend or approval state, prepared findings waiting for review, and active package or export or sync state.
+- What rough visibility levels should the Command Center use? Answered: `always-visible` for current blockers, urgent approval state, or active route failure when relevant; `contextual` for signals, prepared findings, routing or spend state, and package or export state tied to the current task; and `summonable` for full detail, history, governed recall, provenance, older signals, and analytics-like summaries.
+- Does the Command Center own blockers? Answered: no. It organizes attention, but ownership remains with the relevant system.
+- May the Command Center silently mutate manuscript, truth, signal state, memory, export or sync or publish state, routing spend, deletion, masks, or package output? Answered: no.
 
 ### Deferred Questions
 

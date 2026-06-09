@@ -68,6 +68,9 @@ Default Writing Surface context should stay minimal:
 - a clear way to summon context or support.
 
 It should not default to a full dashboard, all signals, all `Memory Lab` findings, all routing state, all provenance, full outline or tree state, or constant AI panels.
+Default writing view should stay clean.
+Inline overlays are allowed only when they are lightweight, contextual, dismissible, and directly relevant to the current text.
+Heavier context should open in summonable side or support surfaces rather than crowding the manuscript.
 
 ## 7. Hidden/Background Behavior
 
@@ -120,6 +123,16 @@ Hidden until needed:
 - send-package masking or approval prompts,
 - Companion context panes,
 - any high-density inspection views that belong primarily to the Command Center.
+
+Heavier context includes:
+
+- provenance detail,
+- signal detail,
+- `Memory Lab` recall,
+- `Companion` explanation,
+- routing state,
+- package previews,
+- broader context or history views.
 
 ## 11. Inputs
 
@@ -274,6 +287,8 @@ Any AI-assisted writing path must keep:
 - no fake certainty.
 
 The Writing Surface may surface guidance, signals, provenance overlays, `Companion` highlights, package previews, or warnings only in ways that preserve writing flow and do not block local direct writing.
+The Writing Surface may surface heavy-action prompts, but it may not execute them silently.
+Actions may later include `Run`, `Review`, `Send`, `Approve`, `Open Command Center`, or `Defer`, but the owning system controls the approval rules.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -285,6 +300,7 @@ The Writing Surface may eventually surface:
 - visibility into what will be sent externally versus what remains local.
 
 It should not silently alter writer prose without clear approval.
+Package previews should distinguish manuscript text, mask map, exclusion zone, author-approved package view, and outbound payload view.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -296,6 +312,7 @@ Privacy and safety rules:
 - censor or masking views must be clearly distinguished from authored prose.
 - author-controlled manual masking and AI exclusion zones must not prevent local direct writing,
 - masked or excluded ranges must not leak through advisory overlays, previews, or signal summaries.
+- raw excluded text must not leak into `Companion`, `Memory Lab`, outbound package previews, signals, or summaries unless explicitly permitted by the author.
 
 ## 27. Testing Requirements
 
@@ -407,6 +424,10 @@ Future-only items:
 - Do heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules? Answered: yes.
 - What is the minimum current-writing context that helps without slowing entry? Answered: project or story, current unit, save state, optional word or progress information, and a clear way to summon context or support.
 - When should insertion or assertion references become visible to the writer during active drafting? Answered: they should be contextual or summonable, not always-on, and may appear when requested, when cursor or selection context requires them, when a blocker affects the current passage, when advisory text is being accepted or inserted, or when provenance or context overlays are opened.
+- Should the default writing view stay clean, and when are inline overlays acceptable? Answered: yes. Inline overlays are allowed only when they are lightweight, contextual, dismissible, and directly relevant to the current text.
+- Should heavier context remain off the default manuscript view? Answered: yes. Provenance detail, signal detail, `Memory Lab` recall, `Companion` explanation, routing state, package previews, and broader context or history views belong in summonable side or support surfaces.
+- May the Writing Surface surface heavy-action prompts without silently executing them? Answered: yes. It may present actions such as `Run`, `Review`, `Send`, `Approve`, `Open Command Center`, or `Defer`, but the owning system controls approval and execution boundaries.
+- How should package previews distinguish masked or excluded material? Answered: they should distinguish manuscript text, mask map, exclusion zone, author-approved package view, and outbound payload view.
 
 ### Deferred Questions
 
