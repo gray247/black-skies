@@ -1,0 +1,395 @@
+# Lore Cards
+
+## 1. Status Header
+
+- Dossier name: `Lore Cards`
+- Status: `drafted`
+- Class: `Product`
+- Owner / review lane: `Phase 32 product-definition lane`
+- Last reviewed: `2026-06-09`
+- Depends on: `Narrative Insertion / Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`
+- Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Outline`, `Emotion Graph`
+- Runtime authority: `future`
+- Authority level: `advisory`
+- User-facing: `yes`
+- Hidden/background: `partial`
+
+## 2. Purpose
+
+Define Lore Cards as an optional world-support system that organizes accepted lore, candidate lore, and advisory world inferences without becoming a hidden truth owner or shadow canon.
+
+## 3. User Problem Solved
+
+The writer needs a bounded way to inspect world rules, places, objects, organizations, supernatural rules, history, and setting facts without letting recall, notes, or AI-derived world summaries quietly harden into canon.
+
+## 4. What The System Does
+
+Lore Cards may:
+
+- organize world rules, places, objects, organizations, supernatural rules, history, and setting facts,
+- show accepted lore,
+- show candidate or advisory lore when clearly labeled,
+- surface linked continuity or signal context,
+- provide structured world references for writing and review,
+- support navigation across related world concepts.
+
+## 5. What The System Does Not Do
+
+Lore Cards do not:
+
+- replace accepted narrative assertions or explicit author decisions as lore authority,
+- silently create, alter, delete, or canonize lore truth,
+- turn world inference into accepted lore automatically,
+- let `Memory Lab`, `Companion`, `Continuity`, or signals become hidden lore owners,
+- require card creation before writing or world discovery can happen,
+- become a junk drawer for archive debris, every note fragment, or unrelated critique material.
+
+## 6. User-Facing Behavior
+
+Visible behavior should emphasize:
+
+- clear accepted-versus-candidate-versus-advisory distinction,
+- low-friction access to world information,
+- author-controlled updates,
+- support for writing and review without replacing canonical foundations.
+
+## 7. Hidden/Background Behavior
+
+Background behavior may later include:
+
+- candidate lore extraction,
+- continuity-linked world warnings,
+- grouped signal summaries,
+- Companion explanation,
+- Memory Lab recall suggestions.
+
+Background behavior must remain advisory and must not silently mutate accepted lore.
+
+## 8. What Appears First
+
+What appears first should stay minimal:
+
+- lore identity,
+- accepted high-value lore facts when they exist,
+- small world-status or rule cues when useful,
+- clearly labeled candidate or advisory summaries.
+
+## 9. What Is Summonable
+
+Summonable within or around Lore Cards:
+
+- full accepted fact lists,
+- candidate lore,
+- advisory world notes,
+- linked narrative assertions,
+- continuity evidence,
+- signal detail,
+- relationship links,
+- Story Unit or Outline links,
+- Memory Lab recall,
+- Companion explanation.
+
+## 10. What Is Hidden Until Needed
+
+Hidden until needed:
+
+- dense continuity evidence,
+- recall trails,
+- archived world material,
+- old signal history,
+- provenance-heavy change history,
+- critique-heavy world analysis.
+
+## 11. Inputs
+
+Lore Card inputs may include:
+
+- accepted narrative assertions,
+- accepted lore facts,
+- accepted continuity facts,
+- manuscript evidence,
+- author notes,
+- author-approved lore updates,
+- advisory inferences,
+- signal summaries,
+- governed Memory Lab recall,
+- optional Outline or Story Unit links.
+
+## 12. Outputs
+
+Lore Card outputs may include:
+
+- accepted lore fact views,
+- candidate lore views,
+- advisory summaries,
+- world-rule summaries,
+- linked relationship views,
+- bounded signal summaries,
+- cross-links into narrative, continuity, and support surfaces.
+
+These outputs are support views, not author-owned truth by themselves.
+
+## 13. Which Other Systems Consume Those Outputs
+
+Likely consumers:
+
+- `Writing Surface`
+- `Command Center Surface`
+- `Continuity`
+- `Relationship Map`
+- `Outline`
+- `Companion`
+- `Memory Lab`
+
+Downstream systems must preserve accepted lore versus candidate lore versus advisory world inference boundaries.
+
+## 14. What Gets Stored
+
+Eventually stored:
+
+- lore identity,
+- accepted fact references,
+- candidate fact references,
+- world-rule or status labels,
+- linked relationship references,
+- provenance,
+- author action history where needed,
+- visibility state for support views.
+
+## 15. What Remains Temporary
+
+Temporary or non-durable:
+
+- inferred lore suggestions,
+- temporary lore candidates,
+- unresolved signals,
+- advisory summaries,
+- transient Companion explanations,
+- unsaved Memory Lab recall views.
+
+## 16. Relationship To Narrative Insertion / Assertion
+
+Lore Cards may display lore-related truth that comes from accepted assertions or other explicit author decisions.
+
+They do not replace `Narrative Insertion / Narrative Assertion` as the truth foundation.
+
+## 17. Relationship To Story Units
+
+Lore Cards may reference Story Units when grouped work or revision focus is useful.
+
+Story Unit links remain optional and must not make structure the owner of lore truth.
+
+## 18. Relationship To Prose / Scene Projection
+
+Lore Cards may reference projected prose or scene views as evidence or navigation context.
+
+Projection remains support or display context rather than the source of lore truth.
+
+## 19. Relationship To Writing Surface
+
+Lore Cards may support the `Writing Surface` through bounded lookups, links, overlays, or support views.
+
+Direct writing must remain available without requiring lore-card interaction.
+
+## 20. Relationship To Command Center Surface
+
+`Command Center Surface` may host heavier review, filtering, inspection, and candidate-acceptance workflows around Lore Cards.
+
+That support must not turn the Command Center into the owner of lore truth.
+
+## 21. GUI Placement Principles
+
+Placement rules:
+
+- cards should stay readable and bounded,
+- accepted lore should appear clearly distinguished from candidate or advisory material,
+- dense evidence and history should stay summonable,
+- card views should not become dashboard clutter,
+- support surfaces must not overwhelm writing flow.
+
+## 22. Local LLM Role
+
+Possible later local-model roles:
+
+- candidate lore extraction,
+- consistency hints,
+- world-rule clustering,
+- contradiction spotting,
+- bounded summary generation.
+
+Local-model output remains advisory unless explicitly accepted by the author.
+
+## 23. Paid API Role
+
+Possible later paid-model roles:
+
+- deeper long-context world analysis,
+- large-lore consistency review,
+- contradiction clustering,
+- rule-system review.
+
+Paid-model output remains advisory unless explicitly accepted by the author.
+
+## 24. Model Routing Notes And Cost / Budget Impact
+
+Any model-assisted Lore Card flow must preserve:
+
+- author approval where routing rules require it,
+- no silent paid or outbound work,
+- no silent truth mutation,
+- no certainty inflation,
+- no substitution of card views for accepted lore truth.
+
+## 25. Explicit-Content / Send-Package Handling, If Applicable
+
+If Lore Cards later participate in model-facing packaging, package handling must preserve:
+
+- masks and AI exclusion zones,
+- no raw excluded-text leakage,
+- clear distinction between local accepted lore, candidate summaries, and outbound package views.
+
+## 26. Privacy / Safety / Censor Behavior, If Applicable
+
+Privacy and safety rules must ensure:
+
+- hidden or deleted lore material does not leak into recall, summaries, or outbound work,
+- masked or excluded material stays protected,
+- advisory systems do not silently retain protected raw material as lore truth.
+
+## 27. Testing Requirements
+
+Minimum proof set:
+
+- accepted lore facts stay distinct from candidate or advisory material,
+- inferred lore suggestions do not become accepted truth without author action,
+- deleted, hidden, masked, or excluded material does not leak into lore summaries,
+- Story Unit or Outline links do not become the owner of lore truth,
+- `Memory Lab` and `Companion` use Lore Cards without turning recall into canon.
+
+## 28. Governance Rules And Risks
+
+Governance rules:
+
+- only explicit author acceptance can turn a lore candidate into author-owned truth,
+- Lore Cards may display truth but do not own it,
+- no shadow canon,
+- no silent truth mutation.
+
+Key risks:
+
+- candidate lore collapsing into accepted lore visually,
+- card views becoming a hidden canon tracker,
+- `Memory Lab` recall being mistaken for accepted lore,
+- `Companion` explanation being mistaken for accepted lore,
+- continuity or signals drifting into card-owned truth.
+
+## 29. Failure Modes
+
+Expected failure or degraded states:
+
+- duplicated or conflicting lore facts,
+- stale candidate material,
+- mismatched accepted versus advisory labels,
+- card clutter,
+- recall or signal bleed into accepted lore views.
+
+Containment rules:
+
+- preserve accepted lore boundaries,
+- surface conflicts instead of flattening them,
+- keep evidence and advisory material clearly labeled,
+- require explicit author action for truth mutation.
+
+## 30. v1 Boundary
+
+Minimum approved first version:
+
+- lore identity,
+- accepted fact display,
+- candidate or advisory fact display,
+- clear accepted-versus-candidate distinction,
+- bounded links to narrative, continuity, and support systems,
+- no AI dependency,
+- no truth ownership drift.
+
+## 31. v2 Boundary
+
+Next bounded extension:
+
+- stronger relationship links,
+- richer candidate review flows,
+- bounded local-model extraction,
+- heavier Command Center review support,
+- linked world-rule comparison views.
+
+## 32. Future-Only Boundary
+
+Future-only items:
+
+- automatic canonization of lore facts,
+- card-owned truth independent of accepted assertions or author decisions,
+- silent AI mutation of lore truth,
+- card systems that replace writing or assertions as the truth source.
+
+## 33. Pre-Rough Alignment Questionnaire
+
+### Fatal Questions
+
+- What exact authority model prevents Lore Cards from drifting into a hidden truth store separate from accepted assertions and explicit author decisions?
+
+### Critical Questions
+
+- What exact accepted lore versus candidate lore versus advisory inference state model is required?
+- Who may create, update, hide, delete, accept, or reject lore facts?
+- How must deleted, hidden, masked, or excluded material be protected from card views, recall, and summaries?
+
+### Major Questions
+
+- How should relationship, continuity, and world-rule links appear without cluttering the default card?
+- How should signals appear on Lore Cards without turning them into a signal dashboard?
+- How should Outline and Story Unit links appear without making structure the truth owner?
+
+### Minor Questions
+
+- Which default world fields are most useful first?
+- Which visual labels best distinguish accepted, candidate, and advisory lore material?
+
+### Answered / Superseded Questions
+
+- Lore Cards may organize world rules, places, objects, organizations, supernatural rules, history, and setting facts.
+- Lore Cards may display accepted lore and advisory or candidate lore, but they must clearly distinguish them.
+- Only explicit author acceptance can turn lore candidates into author-owned truth.
+- Lore Cards must not silently create, alter, or canonize lore truth.
+
+### Jason Decision Candidates
+
+- What smallest default accepted-lore view is useful without causing card clutter?
+- Which actions belong in `Writing Surface` versus `Command Center Surface` for lore review and acceptance?
+
+### Future Contract Needs
+
+- Exact accepted lore, candidate lore, and advisory inference contract.
+- Exact create, update, hide, delete, accept, and reject workflow contract.
+- Exact signal, continuity, Memory Lab, and Companion display contract for Lore Cards.
+- Exact protection contract for deleted, hidden, masked, and excluded material.
+
+### Deferred Questions
+
+- Rich comparison views across many world entities at once.
+- Deeper long-context AI-assisted world synthesis.
+
+## 34. Acceptance Criteria
+
+This dossier is acceptable only if it states explicitly that:
+
+- projection containers do not replace narrative foundation authority,
+- Story Units are not treated as a mandatory gate by default,
+- inferred, derived, or Companion output does not become authored truth without author action,
+- the system does not present fake certainty,
+- the system does not introduce story grading unless a future explicitly approved tool authorizes it,
+- the system does not create dashboard clutter as default behavior,
+- the system does not claim hidden runtime authority that the implementation does not actually own,
+- active questions live in the dossier instead of only in a giant standalone register,
+- active questions live only in the centralized `Pre-Rough Alignment Questionnaire`,
+- Fatal and Critical questions are not buried inside a generic open-question list,
+- the dossier remains a living investigation file rather than a locked milestone claim.

@@ -1,0 +1,398 @@
+# Character Cards
+
+## 1. Status Header
+
+- Dossier name: `Character Cards`
+- Status: `drafted`
+- Class: `Product`
+- Owner / review lane: `Phase 32 product-definition lane`
+- Last reviewed: `2026-06-09`
+- Depends on: `Narrative Insertion / Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`
+- Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Emotion Graph`, `Outline`
+- Runtime authority: `future`
+- Authority level: `advisory`
+- User-facing: `yes`
+- Hidden/background: `partial`
+
+## 2. Purpose
+
+Define Character Cards as an optional character-support system that organizes author-owned character truth, candidate facts, and advisory material without becoming a hidden truth owner or shadow canon.
+
+## 3. User Problem Solved
+
+The writer needs a stable way to inspect, compare, and update character-related information without scattering character truth across raw notes, memory fragments, or advisory systems that blur accepted facts and inferred guesses together.
+
+## 4. What The System Does
+
+Character Cards may:
+
+- organize character facts, traits, history, goals, relationships, status, and notes,
+- show accepted author-owned character truth,
+- show candidate or advisory character material when clearly labeled,
+- surface linked continuity or signal context,
+- provide quick cross-links into narrative, structure, and support systems,
+- help the author inspect character state without turning the card into canon by itself.
+
+## 5. What The System Does Not Do
+
+Character Cards do not:
+
+- replace `Narrative Insertion / Narrative Assertion` as the source of story truth,
+- silently create, alter, delete, or canonize character facts,
+- turn inferred analysis into accepted character truth automatically,
+- let `Memory Lab`, `Companion`, `Continuity`, or signals become hidden fact owners,
+- require card setup before writing,
+- become a dumping ground for all lore, critique, archive debris, or unrelated memory.
+
+## 6. User-Facing Behavior
+
+Visible behavior should emphasize:
+
+- clear separation between accepted facts and candidate or advisory material,
+- low-friction inspection of character status and links,
+- bounded updates under author control,
+- useful organization without replacing manuscript or assertion authority.
+
+## 7. Hidden/Background Behavior
+
+Background behavior may later include:
+
+- inferred candidate extraction from accepted assertions or manuscript evidence,
+- continuity-linked character warnings,
+- signal summaries,
+- Companion explanations,
+- Memory Lab recall suggestions.
+
+Background behavior must remain advisory and must not silently mutate accepted character truth.
+
+## 8. What Appears First
+
+What appears first should stay minimal:
+
+- character identity,
+- accepted high-value facts when they exist,
+- clearly labeled status or role cues,
+- small summaries of linked candidate or advisory issues when useful.
+
+## 9. What Is Summonable
+
+Summonable within or around Character Cards:
+
+- full accepted fact lists,
+- candidate facts,
+- advisory notes,
+- linked narrative assertions,
+- relationship links,
+- emotion or tension links,
+- continuity evidence,
+- signal detail,
+- Memory Lab recall,
+- Companion explanation.
+
+## 10. What Is Hidden Until Needed
+
+Hidden until needed:
+
+- dense continuity evidence,
+- old signal history,
+- deep recall trails,
+- critique-heavy character analysis,
+- archive references,
+- provenance-heavy change history,
+- raw investigative detail that would crowd the default card view.
+
+## 11. Inputs
+
+Character Card inputs may include:
+
+- accepted narrative assertions,
+- accepted character facts,
+- accepted continuity facts,
+- manuscript evidence,
+- author notes,
+- author-approved character updates,
+- advisory inferences,
+- signal summaries,
+- governed Memory Lab recall,
+- optional Outline or Story Unit links.
+
+## 12. Outputs
+
+Character Card outputs may include:
+
+- accepted character fact views,
+- candidate fact views,
+- advisory summaries,
+- relationship links,
+- emotion or status summaries,
+- bounded signal summaries,
+- cross-links into narrative, continuity, structure, or support surfaces.
+
+These outputs are support views, not author-owned truth by themselves.
+
+## 13. Which Other Systems Consume Those Outputs
+
+Likely consumers:
+
+- `Writing Surface`
+- `Command Center Surface`
+- `Continuity`
+- `Relationship Map`
+- `Emotion Graph`
+- `Companion`
+- `Memory Lab`
+- `Outline`
+
+Downstream systems must preserve accepted fact versus candidate versus advisory boundaries.
+
+## 14. What Gets Stored
+
+Eventually stored:
+
+- character identity,
+- accepted fact references,
+- candidate fact references,
+- role or status labels,
+- linked relationship references,
+- linked emotion references,
+- provenance,
+- author action history where needed,
+- visibility state for support views.
+
+## 15. What Remains Temporary
+
+Temporary or non-durable:
+
+- inferred character suggestions,
+- temporary fact candidates,
+- unresolved signals,
+- advisory summaries,
+- transient Companion explanations,
+- unsaved Memory Lab recall views.
+
+## 16. Relationship To Narrative Insertion / Assertion
+
+Character Cards may display character-related truth that comes from accepted assertions or other explicit author decisions.
+
+They do not replace `Narrative Insertion / Narrative Assertion` as the truth foundation.
+
+## 17. Relationship To Story Units
+
+Character Cards may reference Story Units when grouped work or revision focus is useful.
+
+Story Unit links remain optional and must not make structure the owner of character truth.
+
+## 18. Relationship To Prose / Scene Projection
+
+Character Cards may reference projected scenes or prose as evidence or navigation context.
+
+Projection remains support or display context rather than the source of character truth.
+
+## 19. Relationship To Writing Surface
+
+Character Cards may support the `Writing Surface` through bounded lookups, links, overlays, or support views.
+
+Direct writing must remain available without requiring card interaction.
+
+## 20. Relationship To Command Center Surface
+
+`Command Center Surface` may host heavier review, filtering, inspection, and candidate-acceptance workflows around Character Cards.
+
+That support must not turn the Command Center into the owner of character truth.
+
+## 21. GUI Placement Principles
+
+Placement rules:
+
+- cards should stay readable and bounded,
+- accepted facts should appear clearly distinguished from candidates or advisory material,
+- dense evidence and history should stay summonable,
+- card views should not become dashboard clutter,
+- support surfaces must not overwhelm writing flow.
+
+## 22. Local LLM Role
+
+Possible later local-model roles:
+
+- candidate fact extraction,
+- consistency hints,
+- trait clustering,
+- conflict spotting,
+- bounded summary generation.
+
+Local-model output remains advisory unless explicitly accepted by the author.
+
+## 23. Paid API Role
+
+Possible later paid-model roles:
+
+- deeper long-context character analysis,
+- large-cast comparison,
+- contradiction clustering,
+- archetype or motivation review.
+
+Paid-model output remains advisory unless explicitly accepted by the author.
+
+## 24. Model Routing Notes And Cost / Budget Impact
+
+Any model-assisted Character Card flow must preserve:
+
+- author approval where routing rules require it,
+- no silent paid or outbound work,
+- no silent truth mutation,
+- no certainty inflation,
+- no substitution of card views for accepted author-owned truth.
+
+## 25. Explicit-Content / Send-Package Handling, If Applicable
+
+If Character Cards later participate in model-facing packaging, package handling must preserve:
+
+- masks and AI exclusion zones,
+- no raw excluded-text leakage,
+- clear distinction between local accepted facts, candidate summaries, and outbound package views.
+
+## 26. Privacy / Safety / Censor Behavior, If Applicable
+
+Privacy and safety rules must ensure:
+
+- hidden or deleted character material does not leak into recall, summaries, or outbound work,
+- masked or excluded material stays protected,
+- advisory systems do not silently retain protected raw material as character truth.
+
+## 27. Testing Requirements
+
+Minimum proof set:
+
+- accepted character facts stay distinct from candidate or advisory material,
+- inferred character suggestions do not become accepted truth without author action,
+- deleted, hidden, masked, or excluded material does not leak into card summaries,
+- Story Unit or Outline links do not become the owner of character truth,
+- `Memory Lab` and `Companion` use Character Cards without turning recall into canon.
+
+## 28. Governance Rules And Risks
+
+Governance rules:
+
+- only explicit author acceptance can turn a character candidate into author-owned truth,
+- Character Cards may display truth but do not own it,
+- no shadow canon,
+- no silent truth mutation.
+
+Key risks:
+
+- candidate facts collapsing into accepted truth visually,
+- card views becoming a hidden canon tracker,
+- `Memory Lab` recall being mistaken for accepted fact,
+- `Companion` explanation being mistaken for accepted fact,
+- continuity or signals drifting into card-owned truth.
+
+## 29. Failure Modes
+
+Expected failure or degraded states:
+
+- duplicated or conflicting character facts,
+- stale candidate material,
+- mismatched accepted versus advisory labels,
+- card clutter,
+- recall or signal bleed into accepted fact views.
+
+Containment rules:
+
+- preserve accepted fact boundaries,
+- surface conflicts instead of flattening them,
+- keep evidence and advisory material clearly labeled,
+- require explicit author action for truth mutation.
+
+## 30. v1 Boundary
+
+Minimum approved first version:
+
+- character identity,
+- accepted fact display,
+- candidate or advisory fact display,
+- clear accepted-versus-candidate distinction,
+- bounded links to narrative, continuity, and support systems,
+- no AI dependency,
+- no truth ownership drift.
+
+## 31. v2 Boundary
+
+Next bounded extension:
+
+- stronger relationship links,
+- emotion-state support links,
+- richer candidate review flows,
+- bounded local-model extraction,
+- heavier Command Center review support.
+
+## 32. Future-Only Boundary
+
+Future-only items:
+
+- automatic canonization of character facts,
+- card-owned truth independent of accepted assertions or author decisions,
+- silent AI mutation of character truth,
+- card systems that replace writing or assertions as the truth source.
+
+## 33. Pre-Rough Alignment Questionnaire
+
+### Fatal Questions
+
+- What exact authority model prevents Character Cards from drifting into a hidden truth store separate from accepted assertions and explicit author decisions?
+
+### Critical Questions
+
+- What exact accepted fact versus candidate fact versus advisory inference state model is required?
+- Who may create, update, hide, delete, accept, or reject character facts?
+- How must deleted, hidden, masked, or excluded material be protected from card views, recall, and summaries?
+
+### Major Questions
+
+- How should relationship, emotion, and continuity links appear without cluttering the default card?
+- How should signals appear on Character Cards without turning them into a signal dashboard?
+- How should Outline and Story Unit links appear without making structure the truth owner?
+
+### Minor Questions
+
+- Which default fields are most useful first?
+- Which visual labels best distinguish accepted, candidate, and advisory material?
+
+### Answered / Superseded Questions
+
+- Character Cards may organize facts, traits, history, goals, relationships, status, and notes.
+- Character Cards may display accepted author-owned facts and advisory or candidate material, but they must clearly distinguish them.
+- Only explicit author acceptance can turn a character candidate or fact into author-owned truth.
+- Character Cards must not silently create, alter, or canonize character truth.
+
+### Jason Decision Candidates
+
+- What smallest default accepted-fact view is useful without causing card clutter?
+- Which actions belong in `Writing Surface` versus `Command Center Surface` for character-fact review and acceptance?
+
+### Future Contract Needs
+
+- Exact accepted fact, candidate fact, and advisory inference contract.
+- Exact create, update, hide, delete, accept, and reject workflow contract.
+- Exact signal, continuity, Memory Lab, and Companion display contract for Character Cards.
+- Exact protection contract for deleted, hidden, masked, and excluded material.
+
+### Deferred Questions
+
+- Rich comparison views across multiple characters at once.
+- Deeper long-context AI-assisted cast analysis.
+
+## 34. Acceptance Criteria
+
+This dossier is acceptable only if it states explicitly that:
+
+- projection containers do not replace narrative foundation authority,
+- Story Units are not treated as a mandatory gate by default,
+- inferred, derived, or Companion output does not become authored truth without author action,
+- the system does not present fake certainty,
+- the system does not introduce story grading unless a future explicitly approved tool authorizes it,
+- the system does not create dashboard clutter as default behavior,
+- the system does not claim hidden runtime authority that the implementation does not actually own,
+- active questions live in the dossier instead of only in a giant standalone register,
+- active questions live only in the centralized `Pre-Rough Alignment Questionnaire`,
+- Fatal and Critical questions are not buried inside a generic open-question list,
+- the dossier remains a living investigation file rather than a locked milestone claim.
