@@ -171,6 +171,11 @@ Current product-system planning has already completed these steps:
   Current posture: stable enough to pause current tightening while exact workflow, state, and interaction contract shaping continues later.
   Already shaped in this cluster: `Outline` as layered structural story map; flexible blobs, beats, scenes, chapters, and other containers; drag-and-drop planning movement; accepted-manuscript movement as preview or proposal only; projected order versus accepted manuscript order; mass, capacity, and word-pressure indicators without blocking writing; chronology versus telling or reading order; small default signal markers; `Signal Architecture` ownership of durable signal state; `Outline` as signal receiver or projector rather than signal owner; lightweight default Outline display; deeper hoverable, contextual, filterable, or summonable layers; prototype launcher behavior; safe prototype inputs; default-blocked prototype inputs; prototype outputs as advisory or generated planning artifacts; `Prose / Scene Projection` as view or projection rather than truth owner; `Story Unit` as optional flexible grouping or work container; smallest stable Story Unit payload; strongest lifecycle protection actions for delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material; and `Writing Surface`, `Outline`, and `Command Center Surface` action split.
 
+- Character / Lore / Relationship / Emotion cluster: `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact state, workflow, protection, and display contract shaping continues later.
+  Already shaped in this cluster: `Character Cards` showing accepted facts first by default; `Lore Cards` showing accepted lore or rules first by default; `Relationship Map` showing accepted or author-confirmed relationships first by default; `Emotion Graph` showing accepted or author-defined emotional intent first by default; candidate, advisory, or inferred material staying optional, hidden until needed, or visibly distinct; tiny candidate or signal indicators appearing without crowding default views; `Writing Surface` receiving small current-text actions such as show card, attach note, propose candidate, and view related facts; `Command Center Surface` receiving heavier review or management actions such as review candidates, accept or reject, bulk actions, unresolved candidates, conflicts, signals, and cleanup workflows; a shared state model distinguishing accepted author-owned fact or intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item; preserved source labels for candidate, advisory, or inferred items; direct small actions for create candidate, attach note, hide or dismiss advisory item, or open source; explicit confirmation requirements for accepting, updating, deleting, or restoring truth, exposing protected sources, converting advisory inference into accepted fact, bulk actions, and export or sync or publish; protection rules preventing deleted, hidden, masked, or AI-excluded material from appearing in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted and allowed by owning-system rules; `Character Cards` and `Lore Cards` holding accepted facts or lore only when explicitly author-accepted; `Relationship Map` and `Emotion Graph` remaining primarily projection or visualization surfaces whose accepted relationship or emotional-intent records still require explicit author acceptance; no shadow canon; and no silent truth mutation.
+
 #### Applied Routing / Resource Decisions
 
 - Jason's accepted routing or resource decisions are now applied in the active dossiers:
@@ -185,6 +190,7 @@ Current product-system planning has already completed these steps:
 
 - Next candidate Step 6 cluster: not selected in this planning-spine sync.
 - Current note: the previously listed structural story system cluster has now moved from next-candidate status into paused cluster status above.
+- Future note: run a dossier inventory or missing-dossier reconciliation pass before choosing the next major Step 6 bundle.
 
 #### Current Follow-On Contract Needs
 
@@ -250,6 +256,20 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `story_unit.md`, `narrative_insertion_assertion.md`, `signal_architecture.md`, and `memory_lab.md` where later relationship notes are needed.
 - Exact cross-surface interaction contract among `Writing Surface`, `Outline`, `Prose / Scene Projection`, `Story Unit`, and `Command Center Surface`
   Candidate homes: `writing_surface.md`, `outline.md`, `prose_scene_projection.md`, `story_unit.md`, `command_center_surface.md`, and `system_interaction_map.md` if a relationship note becomes necessary.
+- Exact item-state contract for `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`.
+- Exact source-label contract for `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, and `authorship_provenance_ai_visibility.md` if a shared provenance note later becomes necessary.
+- Exact create, update, hide, delete, accept, and reject workflow contracts for `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, and later relationship notes in `command_center_surface.md` or `writing_surface.md` when needed.
+- Exact default-view indicator, expansion, and clutter contracts for `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`.
+- Exact accepted-versus-inferred visual distinction and filter contracts for `Relationship Map` and `Emotion Graph`
+  Candidate homes: `relationship_map.md`, `emotion_graph.md`.
+- Exact `Writing Surface` versus `Command Center Surface` action-routing contract for the Character / Lore / Relationship / Emotion cluster
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, `writing_surface.md`, `command_center_surface.md`.
+- Exact protection and enforcement contract for deleted, hidden, masked, or AI-excluded material across views, recall, inference, prototypes, package previews, and outbound payloads
+  Candidate homes: `character_cards.md`, `lore_cards.md`, `relationship_map.md`, `emotion_graph.md`, `memory_lab.md`, `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, and `model_routing_and_budget_architecture.md` when needed.
 
 Rule for these needs:
 
