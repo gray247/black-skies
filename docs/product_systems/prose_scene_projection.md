@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Outline`
 - Feeds into: `Writing Surface`, `Story Unit`, `Outline`, `Continuity`, `Import / Export / Google Docs`, `Snapshots / Backup / Restore / History`
 - Runtime authority: `future`
@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define how prose and scene-like containers function as expression, presentation, grouping, and compatibility layers without becoming the narrative foundation of the salvage architecture.
+Define how prose and scene-like containers function as expression, presentation, projection, grouping, and compatibility layers without becoming the narrative foundation of the salvage architecture.
 
 ## 3. User Problem Solved
 
@@ -28,6 +28,8 @@ The writer needs visible prose and usable container structures for drafting, org
 - prose as the written expression and drafting output,
 - containers or views that can group visible writing,
 - optional scene-like compatibility surfaces,
+- projected views of prose, notes, or selected story material according to selected structure or order,
+- alternate telling-order and prototype comparison views,
 - eventual manuscript or export grouping,
 - a compatibility bridge for legacy scene-first projects,
 - a display or working layer that can present narrative foundations without owning them.
@@ -43,7 +45,9 @@ The writer needs visible prose and usable container structures for drafting, org
 - make Story Units mandatory,
 - make scene navigation the primary architecture,
 - convert projection state into authorial truth automatically,
-- promote Companion or inferred output into structural authority.
+- promote Companion or inferred output into structural authority,
+- silently rewrite accepted manuscript structure because projected order changed,
+- silently create accepted narrative assertion truth from projected text.
 
 ## 6. User-Facing Behavior
 
@@ -53,6 +57,8 @@ User-facing behavior may include:
 - visible scene or container views,
 - manuscript grouping,
 - projection switching,
+- projected rearrangement for experimentation,
+- prototype comparison,
 - export grouping,
 - compatibility views for existing projects.
 
@@ -65,6 +71,8 @@ Background behavior may later include:
 - mapping narrative insertions or assertions into visible prose regions,
 - compatibility translation for legacy projects,
 - export-ready grouping,
+- alternate arrangement previews,
+- prototype comparison preparation,
 - recovery or snapshot mapping,
 - import parsing handoff boundaries.
 
@@ -76,7 +84,8 @@ What appears first:
 
 - prose as visible writing,
 - a usable drafting expression layer,
-- only as much container structure as the current workflow needs.
+- only as much container structure as the current workflow needs,
+- no false claim that projected order is already accepted manuscript order.
 
 Direct prose remains valid even before deeper projection or grouping systems are populated.
 
@@ -86,6 +95,8 @@ Summonable later:
 
 - scene or container views,
 - manuscript structure views,
+- alternate telling-order views,
+- prototype comparison views,
 - export grouping previews,
 - compatibility mapping detail,
 - projection-level structural inspection.
@@ -98,6 +109,8 @@ Hidden until needed:
 - scene-like translation detail,
 - export grouping logic,
 - projection debug information,
+- projected-order comparison detail,
+- chronology-versus-telling-order comparison detail,
 - recovery linkage detail,
 - import reconciliation detail.
 
@@ -109,6 +122,8 @@ Inputs may include:
 - narrative insertions or assertions,
 - optional Story Unit grouping,
 - outline placement,
+- Outline-selected order,
+- prototype material,
 - continuity or critique references,
 - import material,
 - legacy project structures,
@@ -121,6 +136,9 @@ Outputs may include:
 
 - visible prose,
 - visible scene or container groupings,
+- projected order views,
+- alternate arrangement previews,
+- prototype comparison views,
 - compatibility views,
 - export-ready groupings,
 - manuscript segmentation,
@@ -148,6 +166,7 @@ Eventually stored:
 - prose drafts,
 - projection or container ids where needed,
 - grouping metadata,
+- selected projection order metadata where approved,
 - compatibility references,
 - export-facing structure,
 - recovery-compatible container references when approved.
@@ -161,7 +180,8 @@ Temporary or derived:
 - compatibility translations,
 - export packaging previews,
 - transient scene-like arrangements,
-- temporary grouping experiments.
+- temporary grouping experiments,
+- prototype comparison projections.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -169,6 +189,7 @@ Temporary or derived:
 `Prose / Scene Projection` expresses or groups that foundation.
 
 Projection should consume insertion or assertion identity rather than replace it.
+Inserted text, projected text, assertion candidates, accepted assertions, masked summaries, and package artifacts must remain distinguishable states.
 
 ## 17. Relationship To Story Units
 
@@ -190,6 +211,7 @@ The Writing Surface may show prose directly and may later show projection-backed
 That visible presentation does not make the projection layer the hidden owner of narrative meaning.
 
 The Writing Surface stays sovereign even when projection views are rich.
+Projection can show rearranged material without committing manuscript mutation.
 
 ## 20. Relationship To Command Center Surface
 
@@ -203,7 +225,8 @@ Placement rules:
 - prose is allowed to be front-and-center,
 - scene or container views may be useful but must not imply semantic supremacy,
 - projection controls should appear only when they help drafting, organization, compatibility, or export,
-- visible grouping should not mislead the user about where narrative truth actually lives.
+- visible grouping should not mislead the user about where narrative truth actually lives,
+- alternate arrangements or prototype comparisons should remain clearly summonable or reviewable rather than silently replacing the accepted manuscript view.
 
 ## 22. Local LLM Role
 
@@ -233,7 +256,8 @@ Projection-aware AI work should preserve:
 
 - a clear difference between visible arrangement and narrative truth,
 - author approval before meaningful structural remapping,
-- no automatic promotion of inferred structure into authored foundation.
+- no automatic promotion of inferred structure into authored foundation,
+- no automatic promotion of prototype or advisory projection text into accepted manuscript truth.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -241,7 +265,8 @@ Projection may later affect:
 
 - how explicit prose is grouped for outbound packaging,
 - how masked or summarized package views are assembled,
-- how local authored prose differs from outbound send packages.
+- how local authored prose differs from outbound send packages,
+- how author-approved package views and outbound payload views remain distinct from projected manuscript views.
 
 Projection should help package safely without rewriting foundation truth automatically.
 
@@ -251,7 +276,8 @@ Privacy and safety rules:
 
 - local prose may be richer than outbound projection packages,
 - compatibility or export grouping must not silently censor local authored meaning,
-- send-package transformations must be explicit and reviewable.
+- send-package transformations must be explicit and reviewable,
+- raw excluded text must not leak through projected previews, comparisons, or prototype views unless explicitly permitted by the author.
 
 ## 27. Testing Requirements
 
@@ -260,6 +286,8 @@ Future proof set should include:
 - projection-versus-foundation boundary tests,
 - prose-display tests,
 - container-grouping tests,
+- projected-order-versus-accepted-order tests,
+- prototype-comparison separation tests,
 - legacy-compatibility tests,
 - import-export projection tests,
 - recovery reference tests,
@@ -272,6 +300,8 @@ Key risks:
 
 - visible scenes being mistaken for narrative foundation,
 - projection order being treated as the only truth,
+- projected order being mistaken for accepted manuscript order,
+- prototype comparison being mistaken for manuscript truth,
 - compatibility layers hardening into permanent architecture authority,
 - Story Units or scenes becoming required before writing,
 - AI-generated grouping being mistaken for confirmed structure.
@@ -283,6 +313,7 @@ Failure modes include:
 - projection identity drift,
 - legacy compatibility becoming architecture lock-in,
 - prose and structure falling out of sync,
+- alternate arrangement views drifting from accepted manuscript state,
 - export grouping assuming false truth,
 - recovery using projection references as if they were foundational narrative ids,
 - users being misled into thinking container order alone resolves contradictions.
@@ -302,6 +333,8 @@ Failure modes include:
 `v2` may add:
 
 - richer scene or container projections,
+- alternate telling-order projections,
+- prototype comparison views,
 - manuscript grouping,
 - export grouping,
 - import reconciliation,
@@ -315,17 +348,48 @@ Future-only items:
 - projection systems that try to replace narrative foundations,
 - automatic contradiction resolution from grouping alone,
 - mandatory scene- or container-led workflows,
-- projection-driven truth claims from AI without author approval.
+- projection-driven truth claims from AI without author approval,
+- silent projected-order rewrite of accepted manuscript structure.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
+
+### Critical
+
+- Which projection remapping actions require preview, confirmation, and recovery before they can affect accepted manuscript order or export-facing structure?
+- Which projection comparisons belong in the `Writing Surface` first versus `Command Center Surface` or Outline summonable layers?
+- Which projected materials must remain visibly distinguished from accepted manuscript text at all times?
+
+### Major
 
 - What is the minimum projection structure that helps without confusing authority?
 - How should legacy scene-first projects be displayed without preserving scene-first architecture?
-- Which projection features belong in the Writing Surface versus the Command Center?
 - How much projection detail should export and recovery expose to the writer?
-- When should projection remapping require explicit author approval?
 
-## 34. Acceptance Criteria
+### Answered / Accepted Doctrine
+
+- Projected order may differ from accepted manuscript order.
+- Projection can show rearranged material without committing manuscript mutation.
+- Projection can support prototype comparison and alternate telling order.
+- Projection must distinguish draft, prototype, advisory, masked-summary, package-artifact, and accepted-manuscript states.
+- Projection does not own narrative truth and does not silently create truth or rewrite accepted manuscript structure.
+
+### Jason Decision Candidates
+
+- Which projection comparisons belong in the `Writing Surface` first versus surrounding support surfaces?
+- Which remapping actions are safe enough to expose before deeper workflow shaping?
+
+### Future Contract Needs
+
+- Exact projection remapping preview, confirmation, undo, and provenance contract.
+- Exact accepted-manuscript-versus-projected-view labeling contract.
+- Exact prototype comparison presentation contract.
+- Exact export, recovery, and compatibility projection contract.
+
+## 34. Current-Cluster Rough Stability
+
+This dossier remains rough, investigative, and blocked for implementation. The structural story system cluster is not yet stable enough to pause after this first connected-system tightening pass.
+
+## 35. Acceptance Criteria
 
 This dossier is acceptable only if it states explicitly that:
 
@@ -337,4 +401,6 @@ This dossier is acceptable only if it states explicitly that:
 - the Writing Surface may show projection without making projection the root authority,
 - projection does not own narrative truth, insertion or assertion identity, relationship truth, contradiction resolution, or Companion or inferred truth,
 - Story Units are not required before writing,
-- projection does not equal authority.
+- projection does not equal authority,
+- projected order does not silently become accepted manuscript order,
+- prototype comparison does not silently become accepted manuscript truth.

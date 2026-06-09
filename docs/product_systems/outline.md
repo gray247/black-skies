@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`, `Story Unit`, `Prose / Scene Projection`
 - Feeds into: `Timeline / Pacing / Pressure`, `Continuity`, `Draft Generation / Rewrite Loop`, `Import / Export`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define Outline as an optional planning, navigation, and structure support system that helps the writer shape work without taking ownership of narrative truth.
+Define Outline as an optional layered structural story map that helps the writer shape, compare, reorder, and project work without taking ownership of narrative truth.
 
 ## 3. User Problem Solved
 
@@ -30,13 +30,21 @@ The Outline system:
 - supports structure-first planning,
 - supports discovery-after-writing,
 - supports reorder planning,
-- supports progression from rough beats to richer structure,
-- provides a readable planning layer around narrative work.
+- supports progression from undefined blobs to richer structure,
+- provides a readable planning layer around narrative work,
+- acts as a visual planning surface,
+- acts as a progress or mass visualizer,
+- acts as a structural guide,
+- acts as a signal receiver or projector,
+- acts as a reorder surface,
+- acts as a prototype launcher,
+- acts as a quick context surface.
 
 ## 5. What The System Does Not Do
 
 The Outline system does not:
 
+- force a chapter-only outline model,
 - replace `Narrative Insertion / Narrative Assertion` as foundation,
 - become the manuscript itself,
 - own assertion identity,
@@ -44,7 +52,10 @@ The Outline system does not:
 - become a mandatory container list,
 - require outline setup before writing,
 - silently mutate authored structure because a suggestion exists,
-- convert planning alternatives into accepted narrative decisions automatically.
+- convert planning alternatives into accepted narrative decisions automatically,
+- own durable signal state,
+- bypass masks or AI exclusion zones,
+- silently launch paid, outbound, destructive, or truth-mutating work.
 
 ## 6. User-Facing Behavior
 
@@ -53,6 +64,8 @@ Visible behavior should emphasize:
 - optional planning,
 - lightweight structural navigation,
 - alternative-sequence thinking,
+- layered structural shape,
+- structural progress or pressure awareness,
 - bounded author control,
 - clear distinction between authored structure and proposed structure,
 - usefulness without forcing ritual.
@@ -65,6 +78,10 @@ Background behavior may later include:
 - label suggestions,
 - rough structure checks,
 - continuity-linked planning warnings,
+- small signal projection,
+- prototype launch preparation,
+- chronology-versus-telling-order comparison,
+- structural mass analysis,
 - import or export projection prep,
 - draft generation or rewrite loop packaging.
 
@@ -75,8 +92,10 @@ Background behavior must remain support behavior rather than hidden authority.
 What appears first should stay minimal:
 
 - the existence of outline as optional support,
-- current top-level planning context when it exists,
-- the current selected planning node when useful,
+- current top-level structural shape when it exists,
+- the current selected or current-location node when useful,
+- current mass or progress indicators when useful,
+- small signal marks when useful,
 - minimal cues that outline can be ignored if the writer wants direct prose first.
 
 ## 9. What Is Summonable
@@ -91,7 +110,17 @@ Summonable within or around Outline:
 - linked projection containers,
 - revision tasks,
 - planning alternatives,
-- future structure comparisons.
+- future structure comparisons,
+- signal detail,
+- `Memory Lab` recall,
+- provenance,
+- continuity evidence,
+- pacing analysis,
+- history,
+- prototype comparison,
+- chronology-versus-telling-order comparison,
+- structural density or mass analysis,
+- setup or payoff relationships.
 
 ## 10. What Is Hidden Until Needed
 
@@ -102,12 +131,18 @@ Hidden until needed:
 - AI-generated beat variants,
 - long-context comparison output,
 - dense continuity planning detail,
+- prototype comparison detail,
+- chronology-versus-telling-order detail,
+- pacing or density analysis,
 - export-shape inspection detail.
 
 ## 11. Inputs
 
 Outline inputs may include:
 
+- authored blobs,
+- authored beats,
+- authored parts, scenes, chapters, sections, arcs, or other author-defined containers,
 - authored planning nodes,
 - optional insertion or assertion links,
 - optional Story Unit links,
@@ -116,6 +151,9 @@ Outline inputs may include:
 - optional relationship links,
 - revision tasks,
 - author labels and ordering,
+- target word count or rough capacity,
+- selected signals,
+- prototype inputs or critique targets,
 - later AI or Companion suggestions that remain non-authoritative until accepted.
 
 ## 12. Outputs
@@ -123,10 +161,14 @@ Outline inputs may include:
 Outline outputs may include:
 
 - planned order,
+- projected order for display or experimentation,
 - planning node groupings,
 - reorder candidates,
 - structural alternatives,
 - navigation context,
+- mass or pressure indicators,
+- signal projection markers,
+- prototype launch context,
 - author-approved planning structure,
 - downstream packaging for rewrite or export preparation.
 
@@ -154,6 +196,8 @@ Eventually stored:
 - outline node identity,
 - label,
 - order,
+- optional chronology or telling-order metadata,
+- optional planned mass or target capacity,
 - optional insertion or assertion links,
 - optional Story Unit links,
 - optional gap links,
@@ -171,7 +215,9 @@ Temporary or non-durable:
 - temporary beat drafts,
 - Companion-generated planning alternatives,
 - derived comparison views,
-- transient structure warnings.
+- transient structure warnings,
+- prototype outputs,
+- projected-order experiments.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -191,6 +237,9 @@ Outline may reference prose or projection containers where that helps planning o
 
 Outline must not let projection structure become the hidden source of narrative authority.
 
+Projected writing order may differ from accepted manuscript order.
+Projection can support experimentation without silently rewriting accepted manuscript structure.
+
 ## 19. Relationship To Writing Surface
 
 The Writing Surface must remain usable without Outline.
@@ -199,6 +248,7 @@ Direct writing works without Outline.
 The writer may discover structure later and add planning afterward.
 
 Outline can support writing from the side or above, but it must not become a precondition for basic prose work.
+Outline may absorb some quick-check context that would otherwise clutter the manuscript pane, but it must not gate direct writing or crowd the default writing view.
 
 ## 20. Relationship To Command Center Surface
 
@@ -217,6 +267,7 @@ Placement rules:
 
 - outline context should appear where planning helps, not everywhere,
 - reorder tools should be explicit and reversible,
+- deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
 - Outline must not become a mandatory container list in disguise,
 - the Command Center must not accumulate permanent outline clutter without proof.
@@ -228,7 +279,9 @@ Possible later local-model roles:
 - simple outline cleanup,
 - beat grouping,
 - label suggestions,
-- rough structure checks.
+- rough structure checks,
+- lightweight structural comparison,
+- cheap structured-context assistance before deeper scans.
 
 Local-model output remains advisory until the writer accepts it.
 
@@ -239,7 +292,8 @@ Possible later paid-model roles:
 - complex structural review,
 - long-context outline versus manuscript comparison,
 - deep continuity-aware restructuring analysis,
-- alternative structure generation for author review.
+- alternative structure generation for author review,
+- deeper prototype comparisons.
 
 Paid-model output remains non-authoritative until accepted.
 
@@ -254,7 +308,8 @@ Outline-related model flows must preserve:
 - no silent rewrite,
 - cost visibility where relevant,
 - privacy-aware routing,
-- no fake certainty.
+- no fake certainty,
+- preference for cheap structured Outline context before deeper scans or paid or outbound work when appropriate.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -263,7 +318,8 @@ If outline or planning nodes later package explicit material for model review, p
 - author approval,
 - masking or summarized replacement when needed,
 - continuity preservation,
-- separation between planning output and authored prose truth.
+- separation between planning output and authored prose truth,
+- clear distinction between manuscript text, mask map, exclusion zone, author-approved package view, and outbound payload view.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -272,7 +328,8 @@ If outline content is routed through model systems later, privacy and safety rul
 - sensitive planning content is bounded,
 - explicit material is handled under later censor rules,
 - planning alternatives are not silently filtered into authorial truth,
-- the writer can understand when planning content leaves the local boundary.
+- the writer can understand when planning content leaves the local boundary,
+- raw excluded text does not leak through signal marks, summaries, previews, or prototype inputs unless explicitly permitted by the author.
 
 ## 27. Testing Requirements
 
@@ -282,8 +339,12 @@ Minimum proof set:
 - insertion or assertion works without Outline,
 - Outline node cannot overwrite assertion truth,
 - Outline reorder proposal does not mutate authored structure without action,
+- projected order does not silently become accepted manuscript order,
+- drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
 - inferred outline suggestions remain non-authoritative,
-- optional projection links do not promote projection containers into base authority.
+- optional projection links do not promote projection containers into base authority,
+- signal markers remain display-only and do not grant Outline ownership of durable signal state,
+- masks and exclusion zones prevent raw excluded-text leakage through outline previews or markers.
 
 ## 28. Governance Risks
 
@@ -292,6 +353,9 @@ Key risks:
 - Outline becoming a mandatory gate,
 - Outline becoming a mandatory container list in disguise,
 - Outline becoming source of truth,
+- Outline becoming a heavy dashboard by default,
+- Outline drag or drop being mistaken for accepted manuscript rewrite,
+- prototype output being mistaken for accepted truth,
 - AI-generated outline rewriting user intent silently,
 - export treating outline as manuscript truth before explicit projection rules exist,
 - planning convenience drifting into hidden runtime authority.
@@ -303,6 +367,9 @@ Expected failure or degraded states:
 - stale outline order after structural changes,
 - orphaned planning nodes,
 - conflicting planning alternatives,
+- chronology and telling-order confusion,
+- misleading mass or pressure indicators,
+- noisy or stale signal markers,
 - imported planning noise,
 - over-detailed planning clutter,
 - AI restructure proposals that overreach.
@@ -311,16 +378,21 @@ Containment rules:
 
 - keep authored structure untouched until explicit action,
 - preserve provenance on suggestions,
-- surface conflicts instead of rewriting silently.
+- surface conflicts instead of rewriting silently,
+- keep projected order distinct from accepted manuscript order,
+- keep prototype output and deeper analysis clearly advisory.
 
 ## 30. v1 Boundary
 
 Minimum approved first version:
 
-- optional outline nodes,
+- optional outline nodes or blobs,
 - labels,
 - order,
 - optional links to insertions, assertions, Story Units, gaps, or projection containers,
+- lightweight structural shape,
+- optional mass or progress indicators,
+- small signal marks,
 - clear distinction between authored nodes and proposed nodes,
 - no AI dependency,
 - no requirement to plan before writing.
@@ -330,8 +402,11 @@ Minimum approved first version:
 Next bounded extension:
 
 - reorder previews,
+- protected drag-and-drop for accepted manuscript or telling order,
 - linked revision tasks,
 - continuity-linked planning cues,
+- chronology-versus-telling-order views,
+- prototype launching from selected structure,
 - bounded local-model cleanup and grouping help,
 - draft generation or rewrite loop integration through explicit review boundaries.
 
@@ -342,25 +417,63 @@ Future-only items:
 - automatic outline authority over manuscript structure,
 - silent AI restructuring,
 - projection-container authority drift,
+- heavy outline dashboards by default,
+- silent prototype-to-truth promotion,
 - planning systems that force every writer through the same path,
 - export rules that treat outline as the manuscript before explicit projection rules are accepted.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-- What is the minimum useful node schema for v1?
-- How many structural levels are useful before Outline becomes clutter?
+### Critical
+
+- Which accepted manuscript or telling-order drag-and-drop operations require preview-only mode, confirmation, and recovery before author acceptance?
+- Which signal-marker categories are useful enough to surface by default without letting Outline become a signal dashboard?
+- Which prototype launch inputs are safe enough to expose from Outline first without turning Outline into a hidden routing or package launcher?
+
+### Major
+
+- How many structural levels remain useful before Outline becomes clutter?
 - When should Outline reference insertions directly versus Story Units?
-- Which reorder operations need preview-only mode before acceptance?
 - How should imported planning material be quarantined before it is accepted?
+- Which chronology-versus-telling-order comparisons belong in Outline first versus deeper summonable layers?
 
-## 34. Acceptance Criteria
+### Answered / Accepted Doctrine
+
+- Outline is a layered structural story map rather than a chapter-only outline.
+- Outline units may begin as flexible blobs and later become beats, scenes, chapters, sections, arcs, or other author-defined containers.
+- Outline may drive projected writing order for experimentation, but projected order is not automatically accepted manuscript order.
+- Outline may display small source-labeled signal markers while `Signal Architecture` retains ownership of durable signal state.
+- Outline default display stays lightweight, while deeper detail is hoverable, contextual, filterable, or summonable.
+- Outline may launch prototype runs as advisory planning artifacts only; prototype output does not become manuscript truth, accepted assertions, or continuity truth without explicit author action.
+- Outline may absorb some quick-check context to reduce manuscript clutter, but direct writing remains available and Outline does not gate the `Writing Surface`.
+
+### Jason Decision Candidates
+
+- Which signal-marker categories are strong enough for the lightweight default display?
+- Which accepted manuscript rearrangements are safe enough to expose from Outline before deeper workflow shaping?
+
+### Future Contract Needs
+
+- Exact drag-and-drop preview, confirmation, undo, and provenance contract.
+- Exact mass, capacity, and pressure indicator contract.
+- Exact chronology-versus-telling-order comparison contract.
+- Exact prototype launch, review, and conversion contract.
+- Exact signal-marker visibility, filtering, and hover-detail contract.
+
+## 34. Current-Cluster Rough Stability
+
+This dossier remains rough, investigative, and blocked for implementation. The structural story system cluster is not yet stable enough to pause after this first connected-system tightening pass.
+
+## 35. Acceptance Criteria
 
 This dossier is acceptable only if it states explicitly that:
 
 - projection containers do not replace narrative foundation authority,
 - Story Units are not treated as a mandatory gate by default,
 - inferred, derived, or Companion output does not become authored truth without author action,
+- prototype output does not become authored truth without author action,
 - the system does not present fake certainty,
 - the system does not introduce story grading unless a future explicitly approved tool authorizes it,
 - the system does not create dashboard clutter as default behavior,
-- the system does not claim hidden runtime authority that the implementation does not actually own.
+- the system does not claim hidden runtime authority that the implementation does not actually own,
+- drag-and-drop of accepted manuscript order does not silently rewrite manuscript truth.

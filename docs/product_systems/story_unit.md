@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-06`
+- Last reviewed: `2026-06-08`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Prose / Scene Projection`
 - Feeds into: `Outline`, `Continuity`, `Critique`, `Relationship Map`, `Memory Lab`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define Story Unit as an author-facing organization primitive that helps package work, cluster related narrative material, and provide durable working anchors without replacing the smaller narrative foundation.
+Define Story Unit as an optional flexible grouping and work-container system that helps package work, cluster related narrative material, and provide durable working anchors without replacing the smaller narrative foundation.
 
 ## 3. User Problem Solved
 
@@ -29,7 +29,9 @@ The Story Unit system:
 - groups or references related narrative material,
 - helps organize revisions, continuity review, and planning,
 - supports durable work packages that can survive reorder, split, merge, and promotion,
-- gives the writer a bounded structure for ongoing narrative work without claiming to be the smallest unit.
+- gives the writer a bounded structure for ongoing narrative work without claiming to be the smallest unit,
+- can group blobs, beats, scenes, chapters, sections, arcs, sequences, flashbacks, character threads, or revision work areas,
+- can support drag-and-drop organization, prototype inputs, signal grouping, and structural context.
 
 ## 5. What The System Does Not Do
 
@@ -41,7 +43,9 @@ The Story Unit system does not:
 - act as a default scene replacement,
 - become authorial truth merely because a grouping exists,
 - silently accept inferred grouping as authored structure,
-- convert the Command Center into a mandatory workflow gate.
+- convert the Command Center into a mandatory workflow gate,
+- silently mutate manuscript text, canon, or durable signal state,
+- become the hidden owner of structural authority.
 
 ## 6. User-Facing Behavior
 
@@ -50,6 +54,7 @@ Visible behavior should emphasize:
 - optional organization,
 - durable working anchors,
 - low-friction grouping,
+- flexible grouping shape,
 - clear links to narrative primitives,
 - clear authored-versus-proposed boundaries,
 - useful structure without setup ceremony.
@@ -62,7 +67,9 @@ Background behavior may later include:
 - provisional grouping suggestions,
 - linked continuity or critique refresh,
 - optional structure assistance,
-- future retrieval or memory preparation.
+- future retrieval or memory preparation,
+- prototype-input preparation,
+- grouped signal context.
 
 Background behavior must not silently claim that inferred grouping is authored truth.
 
@@ -106,6 +113,7 @@ Hidden until needed:
 
 Story Unit inputs may include:
 
+- authored blobs, beats, scenes, chapters, sections, arcs, sequences, flashbacks, or character-thread material,
 - authored narrative insertions or assertions,
 - optional gaps,
 - optional relationships,
@@ -124,6 +132,9 @@ Story Unit outputs may include:
 - durable work-group references,
 - grouped narrative context,
 - revision focus packages,
+- grouped structural context,
+- grouped signal context,
+- prototype input bundles,
 - linked planning context,
 - author-approved structural clusters,
 - bounded support signals for downstream systems.
@@ -179,6 +190,7 @@ They group, span, cluster, or package work around those smaller units.
 
 They do not replace insertion or assertion identity.
 They do not become the base narrative primitive.
+They do not turn grouped material into author-owned truth automatically.
 
 ## 17. Relationship To Story Units
 
@@ -196,6 +208,7 @@ Mandatory check outcome:
 Story Units may reference prose fragments or projection containers when useful, but projection layers remain downstream views or compatibility surfaces.
 
 Story Units are not a disguised projection container system and must not inherit projection authority as narrative truth.
+They may help Outline and `Prose / Scene Projection` organize material without becoming hidden manuscript authority.
 
 ## 19. Relationship To Writing Surface
 
@@ -224,7 +237,8 @@ Placement rules:
 - Story Unit views should not flood the default writing path,
 - lifecycle and grouping detail should stay readable and bounded,
 - the system must resist becoming a renamed scene tree,
-- the Command Center must not turn Story Units into dashboard clutter.
+- the Command Center must not turn Story Units into dashboard clutter,
+- grouped structural context should remain support context rather than a hidden canon layer.
 
 ## 22. Local LLM Role
 
@@ -234,7 +248,8 @@ Possible later local-model roles:
 - label suggestions,
 - split or merge candidates,
 - revision-package preparation,
-- continuity-linked clustering support.
+- continuity-linked clustering support,
+- cheap structured grouping context before deeper scans.
 
 All local-model output remains proposed structure until the writer accepts it.
 
@@ -245,7 +260,8 @@ Possible later paid-model roles:
 - large-context grouping review,
 - deeper structure analysis across many narrative primitives,
 - long-context clustering or split suggestions,
-- continuity-aware grouping comparisons.
+- continuity-aware grouping comparisons,
+- prototype-bundle comparison.
 
 Paid-model output remains advisory until accepted by the writer.
 
@@ -259,7 +275,8 @@ Any AI-assisted Story Unit flow must preserve:
 - clear provenance,
 - no silent commit,
 - no certainty inflation,
-- no default dependency on AI.
+- no default dependency on AI,
+- no silent mutation of manuscript, canon, or durable signal state.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -268,7 +285,8 @@ If Story Units later package explicit material for review or routing, package ha
 - author approval,
 - masking or redaction rules where relevant,
 - continuity preservation,
-- no silent rewrite of authored structure.
+- no silent rewrite of authored structure,
+- no leakage of raw excluded text through grouped previews, prototype bundles, or signal groupings unless explicitly permitted by the author.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -277,7 +295,8 @@ If Story Units participate in model-facing packaging later, privacy and safety r
 - explicit handling of sensitive passages,
 - bounded routing decisions,
 - no hidden censor authority over authored narrative,
-- clear user awareness when content leaves the local boundary.
+- clear user awareness when content leaves the local boundary,
+- masks and AI exclusion zones remain in force even when grouped work is reorganized.
 
 ## 27. Testing Requirements
 
@@ -289,7 +308,9 @@ Minimum proof set:
 - inferred Story Unit cannot claim authored truth,
 - split and merge preserve lineage,
 - promoted or archived lifecycle states preserve identity history,
-- Story Unit links do not replace insertion or assertion identity.
+- Story Unit links do not replace insertion or assertion identity,
+- grouped work does not silently become accepted manuscript structure,
+- grouped signals do not grant Story Unit ownership of durable signal state.
 
 ## 28. Governance Risks
 
@@ -298,6 +319,7 @@ Key risks:
 - Story Unit becoming a mandatory gate,
 - Story Unit replacing insertion or assertion foundation,
 - Story Unit becoming a disguised projection-container hierarchy,
+- Story Unit hardening into a hidden structural truth owner,
 - inferred grouping becoming authorial truth,
 - Command Center forcing Story Unit workflow before writing,
 - AI grouping acquiring more authority than the writer intended.
@@ -310,6 +332,7 @@ Expected failure or degraded states:
 - duplicate or overlapping grouping,
 - stale links after reorder or split,
 - over-clustered work packages,
+- grouping that obscures manuscript-order versus work-container purpose,
 - conflicting inferred grouping proposals,
 - lineage confusion after merge or promotion.
 
@@ -339,7 +362,9 @@ Next bounded extension:
 - split and merge lineage,
 - outline and continuity linkage,
 - optional revision-package workflows,
-- bounded local-model grouping suggestions.
+- bounded local-model grouping suggestions,
+- prototype-bundle preparation,
+- grouped signal review support.
 
 ## 32. Future-Only Boundary
 
@@ -349,17 +374,49 @@ Future-only items:
 - deep Memory Lab orchestration,
 - broad Companion-driven structural restructuring,
 - any workflow that makes Story Units the default mandatory shell,
-- any attempt to redefine Story Units as the base narrative primitive.
+- any attempt to redefine Story Units as the base narrative primitive,
+- any workflow that lets Story Units silently mutate manuscript truth or durable signal state.
 
-## 33. Open Questions
+## 33. Pre-Rough Alignment Questionnaire
 
-- What is the smallest useful authored Story Unit payload for v1?
-- Which lifecycle transitions need explicit author confirmation?
+### Critical
+
+- What is the smallest useful authored Story Unit payload for `v1` without turning Story Unit into a mandatory scene replacement or hidden truth owner?
+- Which lifecycle transitions require explicit author confirmation before they can affect grouped manuscript structure, prototype inputs, or signal grouping?
+- Which Story Unit actions belong in `Writing Surface` versus `Command Center Surface` first?
+
+### Major
+
 - How much grouping overlap should be allowed before UX becomes noisy?
 - When should a Story Unit promote into a stronger planning or revision container?
-- Which Story Unit actions belong in Writing Surface versus Command Center first?
+- Which grouped contexts are useful enough to surface by default versus summonable only?
 
-## 34. Acceptance Criteria
+### Answered / Accepted Doctrine
+
+- Story Unit is an optional flexible grouping or work container rather than a required narrative primitive.
+- Story Unit may group blobs, beats, scenes, chapters, sections, arcs, sequences, flashbacks, character threads, or revision work areas.
+- Story Unit may support drag-and-drop organization, prototype input preparation, signal grouping, and structural context.
+- Story Unit does not own narrative truth and must not silently mutate manuscript text, canon, or durable signal state.
+- Story Unit may help Outline and `Prose / Scene Projection` organize material without becoming a hidden authority layer.
+
+### Jason Decision Candidates
+
+- What is the smallest stable default Story Unit payload?
+- Which lifecycle transitions require explicit author confirmation first?
+- Which Story Unit actions belong in `Writing Surface` versus `Command Center Surface` first?
+
+### Future Contract Needs
+
+- Exact Story Unit payload and state contract.
+- Exact split, merge, archive, and promotion contract.
+- Exact grouped-signal and prototype-input contract.
+- Exact cross-surface interaction contract for `Writing Surface`, Outline, and `Command Center Surface`.
+
+## 34. Current-Cluster Rough Stability
+
+This dossier remains rough, investigative, and blocked for implementation. The structural story system cluster is not yet stable enough to pause after this first connected-system tightening pass.
+
+## 35. Acceptance Criteria
 
 This dossier is acceptable only if it states explicitly that:
 
@@ -369,4 +426,5 @@ This dossier is acceptable only if it states explicitly that:
 - the system does not present fake certainty,
 - the system does not introduce story grading unless a future explicitly approved tool authorizes it,
 - the system does not create dashboard clutter as default behavior,
-- the system does not claim hidden runtime authority that the implementation does not actually own.
+- the system does not claim hidden runtime authority that the implementation does not actually own,
+- Story Units do not silently mutate manuscript truth, canon, or durable signal state.
