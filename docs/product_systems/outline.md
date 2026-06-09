@@ -273,6 +273,7 @@ Placement rules:
 - outline context should appear where planning helps, not everywhere,
 - reorder tools should be explicit and reversible,
 - planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely,
+- non-accepted planning order may be rearranged freely,
 - accepted manuscript or telling-order rearrangement requires preview, confirmation, undo or recovery, and provenance,
 - deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
@@ -348,6 +349,7 @@ Minimum proof set:
 - Outline reorder proposal does not mutate authored structure without action,
 - projected order does not silently become accepted manuscript order,
 - planning blobs, rough beats, empty units, and prototype-only units can be rearranged without implying accepted manuscript rewrite,
+- non-accepted planning order can be rearranged without implying accepted manuscript rewrite,
 - drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
 - inferred outline suggestions remain non-authoritative,
 - optional projection links do not promote projection containers into base authority,
@@ -363,6 +365,7 @@ Key risks:
 - Outline becoming source of truth,
 - Outline becoming a heavy dashboard by default,
 - Outline drag or drop being mistaken for accepted manuscript rewrite,
+- accepted manuscript rearrangement being treated like casual blob movement,
 - prototype output being mistaken for accepted truth,
 - AI-generated outline rewriting user intent silently,
 - export treating outline as manuscript truth before explicit projection rules exist,
@@ -387,6 +390,7 @@ Containment rules:
 - keep authored structure untouched until explicit action,
 - preserve provenance on suggestions,
 - surface conflicts instead of rewriting silently,
+- keep accepted manuscript rearrangement distinct from casual planning movement,
 - keep projected order distinct from accepted manuscript order,
 - keep prototype output and deeper analysis clearly advisory.
 
@@ -454,8 +458,9 @@ Future-only items:
 - Outline default display stays lightweight, while deeper detail is hoverable, contextual, filterable, or summonable.
 - Outline may launch prototype runs as advisory planning artifacts only; prototype output does not become manuscript truth, accepted assertions, or continuity truth without explicit author action.
 - Outline may absorb some quick-check context to reduce manuscript clutter, but direct writing remains available and Outline does not gate the `Writing Surface`.
-- Planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely.
+- Planning blobs, rough beats, empty units, prototype-only units, projected order, and non-accepted planning order may be rearranged freely.
 - Accepted manuscript or telling-order changes require preview, confirmation, undo or recovery, and provenance or action record.
+- Accepted manuscript rearrangement remains cautious and must not be treated like casual blob movement.
 - Projection comparison lives first in Outline or other support surfaces; the `Writing Surface` shows one selected projection at a time, while heavier comparison and approval review belongs in `Command Center Surface`.
 
 ### Jason Decision Candidates

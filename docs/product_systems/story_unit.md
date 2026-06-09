@@ -252,6 +252,7 @@ Placement rules:
 - Story Unit views should not flood the default writing path,
 - low-risk planning changes may happen directly,
 - changes that affect accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation,
+- delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material require the strongest confirmation, undo or recovery, and provenance handling when they affect accepted manuscript, author-owned truth, retained memory, durable signal state, export or sync or publish, paid or outbound work, or deletion,
 - lifecycle and grouping detail should stay readable and bounded,
 - the system must resist becoming a renamed scene tree,
 - the Command Center must not turn Story Units into dashboard clutter,
@@ -329,7 +330,8 @@ Minimum proof set:
 - grouped work does not silently become accepted manuscript structure,
 - grouped signals do not grant Story Unit ownership of durable signal state,
 - smallest stable payload can be shown without turning Story Unit into a junk drawer,
-- high-risk lifecycle changes require explicit confirmation.
+- high-risk lifecycle changes require explicit confirmation,
+- delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material receive the strongest undo, recovery, and provenance handling.
 
 ## 29. Governance Risks
 
@@ -340,6 +342,7 @@ Key risks:
 - Story Unit becoming a disguised projection-container hierarchy,
 - Story Unit hardening into a hidden structural truth owner,
 - Story Unit becoming a junk drawer for memory, provenance, critique, or archive material,
+- strongest-risk lifecycle transitions being treated like casual low-risk planning actions,
 - inferred grouping becoming authorial truth,
 - Command Center forcing Story Unit workflow before writing,
 - AI grouping acquiring more authority than the writer intended.
@@ -354,6 +357,7 @@ Expected failure or degraded states:
 - over-clustered work packages,
 - grouping that obscures manuscript-order versus work-container purpose,
 - lifecycle changes applied without clear confirmation boundary,
+- strongest-risk lifecycle transitions applied without strong undo, recovery, or provenance handling,
 - conflicting inferred grouping proposals,
 - lineage confusion after merge or promotion.
 
@@ -407,7 +411,7 @@ Future-only items:
 
 ### Critical
 
-- Which lifecycle transitions need the strongest confirmation, undo, or recovery path beyond the rough doctrine boundary?
+- Which strongest-risk lifecycle transitions need the earliest exact workflow shaping beyond the rough doctrine boundary?
 
 ### Major
 
@@ -425,11 +429,12 @@ Future-only items:
 - The smallest stable Story Unit payload includes identity, type, status, order or grouping, attached material reference, mass or progress info, signal summary, and authority state.
 - Low-risk planning changes may happen directly.
 - Changes affecting accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation.
+- Delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material require the strongest confirmation, undo or recovery, and provenance handling when they affect protected manuscript, truth, memory, signal, export, spend, or deletion boundaries.
 - `Writing Surface` gets current-text actions, Outline gets structure and map actions, and `Command Center Surface` gets review, approval, bulk, routing, export, prototype, and other heavy workflow actions.
 
 ### Jason Decision Candidates
 
-- Which lifecycle transitions need the strongest undo, recovery, or provenance handling first?
+- Which strongest-risk lifecycle transitions need the earliest exact workflow shaping first?
 
 ### Future Contract Needs
 
@@ -437,7 +442,7 @@ Future-only items:
 - Exact split, merge, archive, and promotion contract.
 - Exact grouped-signal and prototype-input contract.
 - Exact cross-surface interaction contract for `Writing Surface`, Outline, and `Command Center Surface`.
-- Exact lifecycle confirmation, undo, and recovery contract.
+- Exact lifecycle confirmation, undo, recovery, and provenance contract.
 
 ## 35. Current-Cluster Rough Stability
 

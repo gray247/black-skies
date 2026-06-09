@@ -190,7 +190,7 @@ Temporary or derived:
 `Prose / Scene Projection` expresses or groups that foundation.
 
 Projection should consume insertion or assertion identity rather than replace it.
-Inserted text, projected text, assertion candidates, accepted assertions, masked summaries, and package artifacts must remain distinguishable states.
+Inserted text, projected text, prototype text, advisory text, assertion candidates, accepted assertions, masked summaries, remapped projection views, and package artifacts must remain distinguishable states.
 
 ## 17. Relationship To Story Units
 
@@ -230,6 +230,7 @@ Placement rules:
 - selected projection can appear in the `Writing Surface`,
 - detailed projection comparison belongs first in Outline or other support surfaces,
 - projection controls should appear only when they help drafting, organization, compatibility, or export,
+- projected, prototype, advisory, masked-summary, remapped, and package-context material must be visibly labeled rather than collapsing into accepted manuscript appearance,
 - visible grouping should not mislead the user about where narrative truth actually lives,
 - alternate arrangements or prototype comparisons should remain clearly summonable or reviewable rather than silently replacing the accepted manuscript view.
 
@@ -262,7 +263,8 @@ Projection-aware AI work should preserve:
 - a clear difference between visible arrangement and narrative truth,
 - author approval before meaningful structural remapping,
 - no automatic promotion of inferred structure into authored foundation,
-- no automatic promotion of prototype or advisory projection text into accepted manuscript truth.
+- no automatic promotion of prototype or advisory projection text into accepted manuscript truth,
+- visible distinction between projected, prototype, advisory, masked-summary, package-context, remapped, and accepted-manuscript material.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -294,6 +296,7 @@ Future proof set should include:
 - one-selected-projection display tests,
 - projected-order-versus-accepted-order tests,
 - prototype-comparison separation tests,
+- visible-labeling tests for projected, prototype, advisory, masked-summary, remapped, and package-context material,
 - legacy-compatibility tests,
 - import-export projection tests,
 - recovery reference tests,
@@ -308,6 +311,7 @@ Key risks:
 - projection order being treated as the only truth,
 - projected order being mistaken for accepted manuscript order,
 - prototype comparison being mistaken for manuscript truth,
+- advisory or remapped projection material being mistaken for accepted manuscript text,
 - compatibility layers hardening into permanent architecture authority,
 - Story Units or scenes becoming required before writing,
 - AI-generated grouping being mistaken for confirmed structure.
@@ -362,7 +366,6 @@ Future-only items:
 ### Critical
 
 - Which projection remapping actions require preview, confirmation, and recovery before they can affect accepted manuscript order or export-facing structure?
-- Which projected materials must remain visibly distinguished from accepted manuscript text at all times?
 
 ### Major
 
@@ -379,7 +382,7 @@ Future-only items:
 - The `Writing Surface` may show one selected projection at a time.
 - Detailed comparison should not crowd the manuscript.
 - `Command Center Surface` is used when comparison involves approval, bulk action, routing or spend, export, prototype review, or blocker review.
-- Projection must distinguish draft, prototype, advisory, masked-summary, package-artifact, and accepted-manuscript states.
+- Projection must visibly distinguish projected material, prototype text, advisory text, masked summaries, package or context artifacts, remapped projection views, assertion candidates, and accepted-manuscript states.
 - Projection does not own narrative truth and does not silently create truth or rewrite accepted manuscript structure.
 
 ### Jason Decision Candidates
@@ -391,6 +394,7 @@ Future-only items:
 - Exact projection remapping preview, confirmation, undo, and provenance contract.
 - Exact selected-projection switching and persistence contract.
 - Exact accepted-manuscript-versus-projected-view labeling contract.
+- Exact visible distinction contract for prototype, advisory, masked-summary, remapped, package-context, and assertion-candidate material.
 - Exact prototype comparison presentation contract.
 - Exact cross-surface comparison handoff contract across Outline, `Writing Surface`, and `Command Center Surface`.
 - Exact export, recovery, and compatibility projection contract.
