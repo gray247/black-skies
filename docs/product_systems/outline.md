@@ -163,6 +163,7 @@ Outline outputs may include:
 
 - planned order,
 - projected order for display or experimentation,
+- preview-only reordered accepted-unit proposals,
 - planning node groupings,
 - reorder candidates,
 - structural alternatives,
@@ -274,7 +275,10 @@ Placement rules:
 - reorder tools should be explicit and reversible,
 - planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely,
 - non-accepted planning order may be rearranged freely,
+- first exposed accepted-manuscript rearrangement is preview-only or proposal-only,
 - accepted manuscript or telling-order rearrangement requires preview, confirmation, undo or recovery, and provenance,
+- direct committed accepted-manuscript reorder is not exposed yet,
+- allowed early accepted-manuscript movement actions are preview reordered accepted units, duplicate accepted units into prototype or projection, create proposed move, send proposed move to `Command Center Surface` for review, and compare current order versus proposed order,
 - deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
 - Outline must not become a mandatory container list in disguise,
@@ -319,6 +323,9 @@ Outline-related model flows must preserve:
 - no fake certainty,
 - preference for cheap structured Outline context before deeper scans or paid or outbound work when appropriate.
 
+Prototype launch from Outline may use blobs, beats, attached author notes, selected order, word targets, accepted narrative assertions, accepted continuity facts, selected signal summaries, critique goals, and tone or style constraints.
+Prototype launch must not use raw excluded spans, deleted material, hidden material, unapproved `Memory Lab` recall, outbound payloads, or paid or outbound routes without the relevant approval and authority boundaries.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 If outline or planning nodes later package explicit material for model review, package handling must preserve:
@@ -350,7 +357,9 @@ Minimum proof set:
 - projected order does not silently become accepted manuscript order,
 - planning blobs, rough beats, empty units, and prototype-only units can be rearranged without implying accepted manuscript rewrite,
 - non-accepted planning order can be rearranged without implying accepted manuscript rewrite,
+- accepted manuscript rearrangement first appears as preview-only or proposal-only workflow,
 - drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
+- duplicate-to-prototype or duplicate-to-projection actions do not commit accepted manuscript reorder,
 - inferred outline suggestions remain non-authoritative,
 - optional projection links do not promote projection containers into base authority,
 - signal markers remain display-only and do not grant Outline ownership of durable signal state,
@@ -438,8 +447,8 @@ Future-only items:
 
 ### Critical
 
-- Which accepted manuscript or telling-order drag-and-drop operations require preview-only mode, confirmation, and recovery before author acceptance?
-- Which prototype launch inputs are safe enough to expose from Outline first without turning Outline into a hidden routing or package launcher?
+- What exact preview, proposal, review, and recovery mechanics govern accepted-manuscript rearrangement before any committed reorder workflow exists?
+- What exact approval and authority handoff is required when prototype launch requests protected or default-blocked inputs?
 
 ### Major
 
@@ -461,19 +470,22 @@ Future-only items:
 - Planning blobs, rough beats, empty units, prototype-only units, projected order, and non-accepted planning order may be rearranged freely.
 - Accepted manuscript or telling-order changes require preview, confirmation, undo or recovery, and provenance or action record.
 - Accepted manuscript rearrangement remains cautious and must not be treated like casual blob movement.
+- First exposed accepted-manuscript rearrangement is preview-only or proposal-only rather than direct committed reorder.
+- Allowed early accepted-manuscript movement actions are preview reordered accepted units, duplicate accepted units into prototype or projection, create proposed move, send proposed move to `Command Center Surface` for review, and compare current order versus proposed order.
 - Projection comparison lives first in Outline or other support surfaces; the `Writing Surface` shows one selected projection at a time, while heavier comparison and approval review belongs in `Command Center Surface`.
+- Outline prototype launch may use blobs, beats, attached author notes, selected order, word targets, accepted narrative assertions, accepted continuity facts, selected signal summaries, critique goals, and tone or style constraints.
+- Outline prototype launch must not use raw excluded spans, deleted material, hidden material, unapproved `Memory Lab` recall, outbound payloads, or paid or outbound routes without the relevant approval and authority boundaries.
 
 ### Jason Decision Candidates
-
-- Which accepted manuscript rearrangements are safe enough to expose from Outline before deeper workflow shaping?
 
 ### Future Contract Needs
 
 - Exact drag-and-drop preview, confirmation, undo, and provenance contract.
+- Exact accepted-manuscript preview-only and proposal-only workflow contract.
 - Exact default-versus-filtered signal-marker visibility contract.
 - Exact mass, capacity, and pressure indicator contract.
 - Exact chronology-versus-telling-order comparison contract.
-- Exact prototype launch, review, and conversion contract.
+- Exact prototype launch, review, conversion, and protected-input approval contract.
 - Exact projection-comparison placement and handoff contract across Outline, `Writing Surface`, and `Command Center Surface`.
 - Exact signal-marker visibility, filtering, and hover-detail contract.
 

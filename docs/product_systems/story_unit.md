@@ -411,7 +411,7 @@ Future-only items:
 
 ### Critical
 
-- Which strongest-risk lifecycle transitions need the earliest exact workflow shaping beyond the rough doctrine boundary?
+- What exact workflow mechanics, recovery paths, and provenance handling should be shaped first for delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material?
 
 ### Major
 
@@ -430,11 +430,10 @@ Future-only items:
 - Low-risk planning changes may happen directly.
 - Changes affecting accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation.
 - Delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material require the strongest confirmation, undo or recovery, and provenance handling when they affect protected manuscript, truth, memory, signal, export, spend, or deletion boundaries.
+- Exact workflow shaping should prioritize delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material before lower-risk lifecycle actions.
 - `Writing Surface` gets current-text actions, Outline gets structure and map actions, and `Command Center Surface` gets review, approval, bulk, routing, export, prototype, and other heavy workflow actions.
 
 ### Jason Decision Candidates
-
-- Which strongest-risk lifecycle transitions need the earliest exact workflow shaping first?
 
 ### Future Contract Needs
 
@@ -443,6 +442,7 @@ Future-only items:
 - Exact grouped-signal and prototype-input contract.
 - Exact cross-surface interaction contract for `Writing Surface`, Outline, and `Command Center Surface`.
 - Exact lifecycle confirmation, undo, recovery, and provenance contract.
+- Exact highest-risk workflow-priority shaping order and dependency contract.
 
 ## 35. Current-Cluster Rough Stability
 

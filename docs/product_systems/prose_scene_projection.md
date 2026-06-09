@@ -138,7 +138,9 @@ Outputs may include:
 - visible prose,
 - visible scene or container groupings,
 - projected order views,
+- current-versus-proposed order comparison views,
 - alternate arrangement previews,
+- accepted-unit duplication into prototype or projection views,
 - prototype comparison views,
 - compatibility views,
 - export-ready groupings,
@@ -214,6 +216,7 @@ That visible presentation does not make the projection layer the hidden owner of
 The Writing Surface stays sovereign even when projection views are rich.
 Projection can show rearranged material without committing manuscript mutation.
 The `Writing Surface` should show one selected projection at a time rather than detailed comparison views.
+Preview, proposal, duplication, and comparison views must not commit accepted-manuscript reorder.
 
 ## 20. Relationship To Command Center Surface
 
@@ -229,6 +232,8 @@ Placement rules:
 - scene or container views may be useful but must not imply semantic supremacy,
 - selected projection can appear in the `Writing Surface`,
 - detailed projection comparison belongs first in Outline or other support surfaces,
+- current-versus-proposed comparison may appear in support surfaces without committing accepted-manuscript reorder,
+- accepted units may be duplicated into prototype or projection views for comparison without committing accepted-manuscript reorder,
 - projection controls should appear only when they help drafting, organization, compatibility, or export,
 - projected, prototype, advisory, masked-summary, remapped, and package-context material must be visibly labeled rather than collapsing into accepted manuscript appearance,
 - visible grouping should not mislead the user about where narrative truth actually lives,
@@ -295,6 +300,8 @@ Future proof set should include:
 - container-grouping tests,
 - one-selected-projection display tests,
 - projected-order-versus-accepted-order tests,
+- preview-only and proposal-only accepted-manuscript comparison tests,
+- duplicate-to-prototype and duplicate-to-projection safety tests,
 - prototype-comparison separation tests,
 - visible-labeling tests for projected, prototype, advisory, masked-summary, remapped, and package-context material,
 - legacy-compatibility tests,
@@ -365,7 +372,7 @@ Future-only items:
 
 ### Critical
 
-- Which projection remapping actions require preview, confirmation, and recovery before they can affect accepted manuscript order or export-facing structure?
+- What exact preview, proposal, duplication, and comparison workflow mechanics govern accepted-manuscript projection experiments before any committed reorder workflow exists?
 
 ### Major
 
@@ -382,16 +389,18 @@ Future-only items:
 - The `Writing Surface` may show one selected projection at a time.
 - Detailed comparison should not crowd the manuscript.
 - `Command Center Surface` is used when comparison involves approval, bulk action, routing or spend, export, prototype review, or blocker review.
+- Accepted-manuscript rearrangement first appears through preview-only or proposal-only projection behavior rather than direct committed reorder.
+- Accepted units may be duplicated into prototype or projection views for comparison without committing accepted-manuscript reorder.
+- Current-versus-proposed order comparison may be shown without committing accepted-manuscript reorder.
 - Projection must visibly distinguish projected material, prototype text, advisory text, masked summaries, package or context artifacts, remapped projection views, assertion candidates, and accepted-manuscript states.
 - Projection does not own narrative truth and does not silently create truth or rewrite accepted manuscript structure.
 
 ### Jason Decision Candidates
 
-- Which remapping actions are safe enough to expose before deeper workflow shaping?
-
 ### Future Contract Needs
 
 - Exact projection remapping preview, confirmation, undo, and provenance contract.
+- Exact accepted-manuscript preview-only, proposal-only, and duplication workflow contract.
 - Exact selected-projection switching and persistence contract.
 - Exact accepted-manuscript-versus-projected-view labeling contract.
 - Exact visible distinction contract for prototype, advisory, masked-summary, remapped, package-context, and assertion-candidate material.
