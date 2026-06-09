@@ -241,6 +241,13 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 - None currently. Jason's doctrine resolves author authority over accepted or rewritten AI text; remaining questions are implementation-level provenance, storage, and export controls.
 
+Exact-contract classification note:
+
+- Jason decision candidates: none currently in this dossier after the latest accepted doctrine pass.
+- Future contract needs: exact provenance model, exact deletion or hiding or discard or export or sync workflow, and exact mask or exclusion or package-view provenance behavior.
+- Already answered by accepted doctrine: provenance is author-support metadata, not story truth; writing and export stay clean by default; provenance visibility is user-toggleable; raw excluded text must not be retained or exposed by default.
+- Still blocked for implementation: yes, until those exact provenance contracts are defined.
+
 ### Critical Questions
 
 - Future contract need: beyond the rough provenance and source fields above, what minimum provenance model is required for rendering, storage, and acceptance-state tracking across authored, suggested, generated, accepted, rejected, removed, masked, and censored text?

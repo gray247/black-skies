@@ -248,6 +248,13 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 - None currently. Jason's doctrine resolves continuity truth ownership; remaining questions are about exact storage shape, lifecycle, and purposeful advisory history.
 
+Exact-contract classification note:
+
+- Jason decision candidates: what narrative sources `Continuity` may observe directly, and which continuity outputs may hand off as signal candidates versus remain continuity-local.
+- Future contract needs: shared continuity state model beyond rough lifecycle vocabulary, and exact durable advisory history versus governed recall versus expiry boundaries.
+- Already answered by accepted doctrine: `Continuity` remains advisory; only explicit author acceptance creates author-owned continuity truth; some continuity outputs may become signal candidates; provenance records source/history without owning truth; archive references are not active doctrine.
+- Still blocked for implementation: yes, until continuity-source, handoff, state, and retention contracts are shaped.
+
 ### Critical Questions
 
 - Jason decision candidate: what narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?

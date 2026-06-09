@@ -239,6 +239,13 @@ Resolution flows, mute policies, and smarter grouping.
 
 - None currently. Jason's doctrine narrows signal authority: signals remain advisory, accepted truth lives elsewhere, and remaining questions are identity, lifecycle, and storage design.
 
+Exact-contract classification note:
+
+- Jason decision candidates: which upstream systems may emit first-class signals directly, and which accepted workflows besides direct author action may create durable signal-state changes.
+- Future contract needs: normalized signal-state contract, provenance/history storage contract, cross-surface transport rules, and durable-versus-expiring signal history rules.
+- Already answered by accepted doctrine: durable signal state belongs to `Signal Architecture`; accepted story truth does not live in the signal layer; temporary `Companion` highlights cannot become durable signal state directly; signal candidates must preserve rough provenance/source fields and respect mask/exclusion boundaries.
+- Still blocked for implementation: yes, until signal-state, storage, and transport contracts are shaped.
+
 ### Critical Questions
 
 - Jason decision candidate: which upstream systems may emit first-class signals directly, and which may only hand off candidate findings for normalization first, including whether temporary `Companion` highlights may only escalate as signal candidates?
