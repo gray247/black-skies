@@ -47,13 +47,16 @@ Current doctrine-under-review for visible UI treatment, not a locked build contr
 - purple = AI suggestion
 - red or strikeout = removed, masked, rejected, or censored text
 
-After explicit author action, visible difference is user-controlled rather than permanently forced.
+Writing view should stay clean by default.
+Detailed provenance overlays, badges, or history views are user-toggleable author-support views rather than permanently forced noise.
+After explicit author action, accepted AI-assisted text becomes authored manuscript text and visible difference is user-controlled rather than permanently forced.
 
 ## 7. Hidden/Background Behavior
 
-- provenance metadata,
+- provenance metadata kept local and private by default,
 - acceptance timestamps later,
-- tool-source attribution later.
+- tool-source attribution later,
+- masked or excluded range provenance may record that masking, exclusion, substitution, or an author-approved package summary existed without retaining raw excluded text by default,
 - Detached or reduced provenance may be allowed later when the author rewrites text into their own words.
 
 ## 8. What Appears First
@@ -81,7 +84,8 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - visible text-state distinctions,
 - provenance annotations,
 - acceptance-state markers,
-- user-controlled export and review visibility rules later.
+- user-controlled export and review visibility rules later,
+- clean-by-default export unless the author explicitly chooses a provenance, notes, or audit-history export mode later.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -97,7 +101,8 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - acceptance state later,
 - source-tool references later,
 - export or sync persistence behavior only after explicit rules exist,
-- private provenance metadata later when user settings keep history without forcing visible marks.
+- private provenance metadata later when user settings keep history without forcing visible marks,
+- author-approved masked or excluded package-summary references later without retaining raw excluded text by default.
 
 ## 15. What Remains Temporary
 
@@ -105,6 +110,7 @@ Low-level metadata, older suggestion history, and export-specific provenance tra
 - transient color or badge states,
 - unaccepted generated text,
 - masked outbound previews,
+- discarded provenance metadata that the author does not keep for an explicitly chosen workflow,
 - exact storage, export, and private-metadata treatment until explicitly approved.
 
 ## 16. Relationship To Narrative Insertion / Assertion
@@ -159,6 +165,7 @@ That must not silently alter the local authored manuscript.
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Masked-package visibility should explain transformation without leaking raw sensitive content outward.
+Hidden or discarded provenance must not leak into export, `Companion` context, `Memory Lab`, or outbound packages.
 
 ## 27. Testing Requirements
 
@@ -177,10 +184,13 @@ Governance rules:
 - AI tracking serves the author and must not become an undeletable scar,
 - no invisible AI authorship,
 - no automatic AI manuscript mutation,
+- provenance is private author-support metadata by default,
 - visible difference after acceptance may be toggleable by user setting,
 - export behavior is user-controlled,
 - provenance markers must not fake certainty,
-- authorship visibility must not collapse into invisible blending.
+- authorship visibility must not collapse into invisible blending,
+- clean-by-default writing views and clean-by-default exports are valid doctrine so long as the author can summon provenance when needed,
+- hidden or discarded provenance must not silently survive into export, `Companion`, `Memory Lab`, or outbound package context.
 
 Risks:
 
@@ -219,11 +229,9 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 
 ### Critical Questions
 
-- Jason decision candidate: what provenance records must be visible by default, and which visibility states may be user-toggleable across writing, review, and export views?
-- Jason decision candidate: after explicit acceptance or heavy rewrite, when must AI-origin output remain visibly marked, and when may the author hide that distinction without erasing provenance history?
 - Future contract need: what minimum provenance model is required for rendering, storage, and acceptance-state tracking across authored, suggested, generated, accepted, rejected, removed, masked, and censored text?
-- Future contract need: what deletion, hiding, export, and sync behavior must govern visible provenance records and private provenance metadata?
-- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views affect provenance records without leaking sensitive content or turning provenance into author-owned truth or an undeletable scar?
+- Future contract need: what exact deletion, hiding, discard, export, and sync workflow must govern visible provenance records and private provenance metadata once runtime surfaces exist?
+- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views affect provenance records without leaking sensitive content, retaining raw excluded text by default, or turning provenance into author-owned truth or an undeletable scar?
 
 ### Major Questions
 
@@ -250,6 +258,10 @@ Richer provenance history, acceptance lineage, and export-aware rendering.
 - Is visible difference after acceptance permanently required? Answered: no, it is user-controlled.
 - Is export behavior forced to preserve one visible provenance mode? Answered: no, export behavior is user-controlled.
 - Is provenance metadata the same thing as author-owned story truth? Answered: no. Provenance serves visibility, review, and author control; it does not become story truth on its own.
+- What provenance records must be visible by default, and which visibility states may be user-toggleable across writing, review, and export views? Answered: provenance is private author-support metadata by default; writing view stays clean by default and provenance overlays or details are user-toggleable.
+- After explicit acceptance or heavy rewrite, when must AI-origin output remain visibly marked, and when may the author hide that distinction without erasing provenance history? Answered: accepted AI-assisted text becomes authored manuscript text and need not remain visibly marked unless the author chooses that view.
+- How should export preserve, transform, or suppress provenance? Answered: exports should be clean by default, and provenance remains local or private unless the author explicitly chooses an export mode that includes provenance, notes, or audit history.
+- How should manual masking, AI exclusion zones, and author-approved package views affect provenance? Answered: provenance may record that masking, exclusion, substitution, or an author-approved package summary existed, but it must not retain or expose raw excluded text by default.
 
 ### Deferred Questions
 

@@ -27,6 +27,7 @@ Writers need a system that can read widely, cite evidence, hold investigative co
 - reads and compares narrative material,
 - builds investigative memory and evidence,
 - retains meaningful information when it supports continuity, memory, structure, investigation, or author decision support,
+- provides governed recall later for cited, tiered project memory, system knowledge, author preferences, and prior decisions,
 - produces findings, questions, and hypotheses,
 - supports multiple downstream systems.
 
@@ -40,6 +41,7 @@ Writers need a system that can read widely, cite evidence, hold investigative co
 ## 6. User-Facing Behavior
 
 Memory Lab may later appear as an inspectable investigative layer, report source, or evidence-backed assistant capability.
+Any later recall exposed through `Companion` should preserve memory type rather than flatten everything into apparent canon.
 
 ## 7. Hidden/Background Behavior
 
@@ -59,7 +61,8 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - investigations,
 - evidence bundles,
 - hypothesis review,
-- source-trace explanation.
+- source-trace explanation,
+- governed recall by memory type later.
 
 ## 10. What Is Hidden Until Needed
 
@@ -69,9 +72,10 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 
 ## 11. Inputs
 
-- narrative primitives,
-- prose and projection views,
+- explicit author-owned narrative primitives, notes, lore, character facts, narrative assertions, and manual continuity records by default,
+- prose and projection views later only within approved authority and privacy boundaries,
 - continuity findings,
+- user-approved summaries later,
 - accepted notes, lore, and character context later,
 - revision history and drafts later.
 
@@ -81,7 +85,8 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - evidence citations,
 - continuity and critique support,
 - downstream signal candidates,
-- Companion support material.
+- Companion support material,
+- governed recall records later with memory-type boundaries such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -94,13 +99,22 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 ## 14. What Gets Stored
 
 - indexed evidence later,
-- meaningful memory records later when they support continuity, memory, structure, investigation, or author decision support,
+- meaningful memory records later only when they are explicit author-owned truth or author-approved advisory memory that supports continuity, memory, structure, investigation, or author decision support,
+- memory-type boundaries later so recalled material remains labeled as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
 - retrieval structures later,
 - investigation traces later,
-- accepted memory boundaries later.
+- accepted memory boundaries later,
+- author-approved summaries of masked or excluded material later only when explicitly saved,
+- raw excluded spans later only under explicit local or private author choice.
 
 ## 15. What Remains Temporary
 
+- AI critique,
+- signal candidates,
+- continuity warnings,
+- Companion suggestions,
+- routing or package artifacts,
+- unaccepted model output,
 - unaccepted hypotheses,
 - working memory sets,
 - temporary investigations,
@@ -156,6 +170,8 @@ Memory Lab must respect local-only raw material rules and use transformed packag
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Memory Lab must not quietly preserve or transmit sensitive material outside approved boundaries.
+Memory Lab must not read raw AI-excluded manuscript spans, temporary package payloads, discarded or deleted material, raw historical archive debris, or hidden private metadata by default.
+Forgotten, deleted, or discarded material must not remain active advisory context for `Companion`, package construction, continuity suggestions, signal suggestions, or export.
 
 ## 27. Testing Requirements
 
@@ -174,7 +190,12 @@ Governance rules:
 - Memory Lab may never silently change prose, assertions, lore, or continuity facts,
 - Memory Lab must not become author, judge, or silent actor over story truth,
 - Memory Lab may retain meaningful information when it supports continuity, memory, structure, investigation, or author decision support,
-- Memory Lab must not hoard data that does not become information or serve a clear purpose.
+- Memory Lab must not hoard data that does not become information or serve a clear purpose,
+- Memory Lab may read explicit author-owned foundations, notes, lore, character facts, narrative assertions, manual continuity records, and user-approved summaries by default,
+- Memory Lab must not store masked or AI-excluded raw manuscript spans by default,
+- forgotten, deleted, or discarded material must not remain active advisory context,
+- governed recall used by `Companion` must preserve memory type rather than treating all recall as author-owned truth,
+- Memory Lab is governed recall, not canon.
 
 Risks:
 
@@ -213,10 +234,7 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 ### Critical Questions
 
-- Jason decision candidate: what narrative material may `Memory Lab` read by default, and what categories require explicit author save, approval, or later opt-in before they are remembered durably?
 - Future contract need: what remembered material must carry citation, source trace, and evidence quality markers before downstream systems rely on it?
-- Jason decision candidate: what must `Memory Lab` forget, delete, or discard by default, and what author controls govern later forgetting or removal?
-- Jason decision candidate: may masked or AI-excluded raw manuscript spans ever be stored, and if so under what local-only or explicit author-approved conditions?
 - Future contract need: what authority limits, retention tiers, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
 
 ### Major Questions
@@ -242,12 +260,17 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - May Memory Lab retain meaningful information that supports continuity, memory, structure, investigation, or author decision support? Answered: yes.
 - Should Memory Lab hoard data simply because data exists? Answered: no.
 - Is remembered material automatically author-owned truth or canon? Answered: no. `Memory Lab` remains advisory and evidence-bearing unless the author explicitly saves or accepts truth elsewhere.
+- What narrative material may `Memory Lab` read by default, and what categories require explicit author save, approval, or later opt-in before they are remembered durably? Answered: `Memory Lab` may read explicit author-owned foundations, notes, lore, character facts, narrative assertions, manual continuity records, and user-approved summaries by default. It must not read raw AI-excluded manuscript spans, temporary package payloads, discarded or deleted material, raw historical archive debris, or hidden private metadata by default.
+- What may `Memory Lab` durably remember by default? Answered: only explicit author-owned truth or author-approved advisory memory. AI critique, signal candidates, continuity warnings, Companion suggestions, routing or package artifacts, and unaccepted model output remain temporary unless explicitly saved.
+- What must `Memory Lab` forget, delete, or discard by default, and what author controls govern later forgetting or removal? Answered: forgotten, deleted, or discarded material must not remain active advisory context for `Companion`, package construction, continuity suggestions, signal suggestions, or export.
+- May masked or AI-excluded raw manuscript spans ever be stored? Answered: not by default. `Memory Lab` may store an author-approved summary only when explicitly saved, and raw excluded spans may be retained only under an explicit local or private author choice.
 
 ### Deferred Questions
 
 - Advanced investigation modes.
 - Public-facing shrink into `Companion` if Companion becomes the visible front-end for most interactions.
 - Does a reusable durable advisory history retention contract eventually need to exist across `Continuity`, `Signal Architecture`, and `Memory Lab`, or can the stabilized retention rules remain inside those dossiers?
+- Future workflow capability candidates, not implementation commitments: `Where was I?` or session re-entry, `Show me the source`, `Save this as advisory memory`, `Promote this to canon`, `Forget this`, `What changed since last session?`, and memory-backed `What needs attention?`
 
 ## 34. Acceptance Criteria
 

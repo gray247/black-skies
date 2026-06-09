@@ -28,6 +28,9 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - asks bounded questions,
 - summarizes evidence,
 - helps investigate when invited,
+- may use `Memory Lab` later to retrieve cited, tiered project memory, system knowledge, author preferences, and prior decisions,
+- answers product-system navigation and operational questions about Black Skies surfaces, menus, commands, workflows, and feature locations,
+- may create temporary non-destructive Writing Surface highlights or annotations when the author asks it to identify a gap, inconsistency, issue, or relevant passage,
 - may later run safe local or support actions if settings allow,
 - may later trigger tools under explicit user-action boundaries.
 
@@ -47,6 +50,10 @@ Companion may later:
 - question,
 - summarize,
 - investigate,
+- guide the author through Black Skies workflows,
+- provide system-navigation guidance,
+- offer safe local UI navigation support,
+- create temporary advisory highlights or annotations when asked,
 - point to evidence,
 - route into other tools with consent.
 
@@ -54,7 +61,8 @@ Companion may later:
 
 - waiting quietly,
 - preparing bounded context,
-- deferring to stronger systems for evidence.
+- deferring to stronger systems for evidence,
+- staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later.
 
 ## 8. What Appears First
 
@@ -66,7 +74,9 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 - investigation,
 - summary,
 - question prompts,
-- evidence walk-through.
+- evidence walk-through,
+- workflow guidance and safe panel-opening help later,
+- rough capability candidates under review, not implementation commitments: `Where was I?`, `Show me the source`, `Highlight the gap`, `Explain this warning`, `Open the right panel`, `Show package preview`, `Why is AI blocked?`, `Use my mask summary`, `Save this as advisory memory`, `Promote this to canon`, `Forget this`, `What changed since last session?`, `Clean stale signals`, `What needs attention?`, and `Show only things blocking writing`.
 
 ## 10. What Is Hidden Until Needed
 
@@ -77,6 +87,7 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 ## 11. Inputs
 
 - Memory Lab findings,
+- governed `Memory Lab` recall later with preserved memory type,
 - continuity signals,
 - critique outputs,
 - routing and budget policy,
@@ -87,8 +98,12 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 - bounded explanations,
 - questions,
 - summaries,
+- navigation guidance,
+- temporary Writing Surface highlights or annotations later,
+- manual or no-AI fallback options later,
 - evidence citations later,
-- tool-trigger requests later.
+- tool-trigger requests later,
+- signal candidates later when the author chooses to escalate a temporary highlight or concern.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -101,14 +116,17 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 
 - preferences later,
 - conversation boundaries later,
-- accepted tool-trigger records later.
+- accepted tool-trigger records later,
+- explicit author-approved manual notes or saved actions later.
 
 ## 15. What Remains Temporary
 
 - transient summaries,
 - unaccepted suggestions,
 - ephemeral conversational context,
-- one-off investigation prompts.
+- one-off investigation prompts,
+- temporary Writing Surface highlights or annotations,
+- `no-ai-route-available` explanations and fallback menus.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -126,10 +144,22 @@ Companion may reference projections and prose views, but projection is not story
 
 Companion must never gate the Writing Surface.
 Direct writing remains available first.
+Temporary Companion highlights or annotations are advisory UI overlays, not manuscript edits, not author-owned truth, and not durable signal state unless the author explicitly saves, converts, or accepts them.
 
 ## 20. Relationship To Command Center Surface
 
 The Command Center is the more natural default home for Companion interactions, but Companion may later surface contextually elsewhere.
+
+## 20A. Relationship To Memory Lab And System Ownership
+
+`Companion` may use `Memory Lab` for governed recall, but it does not own `Memory Lab`.
+`Companion` does not own the underlying systems it references.
+`Continuity` owns continuity truth boundaries.
+`Signal Architecture` owns durable signal state.
+`Memory Lab` owns governed recall.
+Routing owns route and spend permission.
+`LLM Package Construction Architecture` owns package assembly.
+The author owns final manuscript truth.
 
 ## 21. GUI Placement Principles
 
@@ -150,15 +180,21 @@ Paid API use must remain explicitly routed, justified, and visible when deeper r
 
 Companion must respect budget modes, avoid surprise spend, and stay quiet when routing policy says no.
 Companion may not silently spend money even if safe local or support actions later become available.
+Companion may suggest freely within local and advisory bounds.
+Companion may perform safe local support actions only when they are non-destructive, non-authoritative, non-spending, non-outbound, and do not mutate manuscript text or author-owned truth.
+Companion must require approval for paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, or explicit-content outbound actions.
+Companion must never silently bypass masks, exclusions, routing approval, or spend guardrails.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Companion must respect transformed-package rules and must not reveal masked raw content in its own voice.
 Companion must not send raw content without approval.
+Companion must honor AI exclusion zones and use only author-approved summaries or package views unless the author explicitly grants access to the raw excluded range.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Companion must not create the illusion that it knows more than the systems and evidence behind it can justify.
+Companion system knowledge and app navigation guidance is operational help, not manuscript authority.
 
 ## 27. Testing Requirements
 
@@ -176,7 +212,13 @@ Governance rules:
 - Companion is not author, judge, or silent actor,
 - Companion may question, summarize, investigate, and explain,
 - Companion may later run safe local or support actions if settings allow,
-- Companion must not silently spend, rewrite, send raw content, mutate story truth, or canonize facts without approval.
+- Companion may provide local navigation guidance and safe local UI navigation support when the action is non-destructive, non-spending, non-outbound, and does not mutate manuscript text or author-owned truth,
+- Companion may create temporary advisory highlights or annotations when asked, but durable signal state remains owned by `Signal Architecture`,
+- Companion may guide workflows and explain system state, but guided action is not system ownership,
+- recall used by `Companion` must preserve memory type such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
+- `Companion` must not treat recalled memory as author-owned truth unless the memory tier says it is author-owned truth,
+- Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
+- Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
 
 Risks:
 
@@ -215,12 +257,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 ### Critical Questions
 
-- Jason decision candidate: what visibility triggers and interruption rules allow `Companion` to appear uninvited, and when must it stay silent unless explicitly summoned?
-- Jason decision candidate: what permission model governs what `Companion` may suggest, what safe local or support actions it may execute, and what always requires explicit user action?
-- Jason decision candidate: what routing, spending, outbound, and tool-use approval boundaries govern `Companion` escalation from local advisory help to paid, outbound, or tool-using help?
 - Future contract need: what evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
-- Jason decision candidate: what should `Companion` do when `no-ai-route-available` occurs, and which manual or no-AI fallbacks may it offer without gating direct writing?
-- Future contract need: how must `Companion` handle masked or AI-excluded ranges so it does not reveal raw content, overstate unavailable evidence, or bypass package-boundary doctrine?
+- Future contract need: what exact lifecycle, visibility, dismissal, and handoff rules should govern temporary `Companion` Writing Surface highlights or annotations before they are dismissed, saved, converted, or offered as signal candidates?
 
 ### Major Questions
 
@@ -244,12 +282,18 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - May Companion eventually run safe local or support actions if settings allow? Answered: yes.
 - May Companion send raw content, mutate story truth, or canonize facts without approval? Answered: no.
 - Is `Companion` the same thing as `Memory Lab` or a proxy truth owner for it? Answered: no. `Companion` is a bounded interface layer over other systems and remains advisory.
+- What visibility triggers and interruption rules allow `Companion` to appear uninvited, and when must it stay silent unless explicitly summoned? Answered: `Companion` is silent and available by default and may interrupt only for user-requested watch conditions, approval gates, spending or outbound or tool-use decisions, blocked requested tasks, `no-ai-route-available`, or potentially destructive actions.
+- What permission model governs what `Companion` may suggest, what safe local or support actions it may execute, and what always requires explicit user action? Answered: `Companion` may suggest freely within local and advisory bounds and may perform safe local support actions only when they are non-destructive and non-authoritative. Paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, and explicit-content outbound actions require approval.
+- What routing, spending, outbound, and tool-use approval boundaries govern `Companion` escalation from local advisory help to paid, outbound, or tool-using help? Answered: `Companion` must respect routing, spend, mask, exclusion, and approval boundaries and may never silently bypass them.
+- What should `Companion` do when `no-ai-route-available` occurs, and which manual or no-AI fallbacks may it offer without gating direct writing? Answered: `Companion` should explain the route failure and offer manual or no-AI fallbacks such as continue writing, revise mask or summary, skip excluded ranges, run non-model local tools, save a manual note, create a manual signal or task, or cancel.
+- How must `Companion` handle masked or AI-excluded ranges so it does not reveal raw content, overstate unavailable evidence, or bypass package-boundary doctrine? Answered: `Companion` must honor AI exclusion zones and use only author-approved summaries or package views unless the author explicitly grants access to the raw excluded range.
 
 ### Deferred Questions
 
 - Advanced conversation memory.
 - Surface or tone consolidation from bridge docs after the Companion contract is stable.
 - Does the `no-ai-route-available` escalation contract eventually need a reusable Companion-facing artifact, or can the fallback explanation and manual or no-AI options remain split across routing, explicit-content, package construction, and Companion dossiers?
+- Workflow capability candidates remain rough product possibilities, not implementation commitments or build permission.
 
 ## 34. Acceptance Criteria
 
