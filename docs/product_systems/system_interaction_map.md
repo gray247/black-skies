@@ -35,6 +35,7 @@ This map is explanatory, not an implementation plan.
    - Continuity
    - Signal Architecture
    - Memory Lab
+   - Critique / Evaluation
    - Companion
 4. Routing, safety, and visibility systems
    - Authorship / Provenance / AI Visibility
@@ -50,7 +51,7 @@ This map is explanatory, not an implementation plan.
 - `Signal Architecture` normalizes and routes signal-shaped outputs across surfaces.
 - `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work, but it should retain only meaningful information that serves continuity, memory, structure, investigation, or author decision support.
 - `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems, and may later run safe local or support actions if settings allow.
-- `Critique` is a capability layer that evaluates evidence from other systems and produces advisory findings, but it is not the same thing as `Companion` or any single UI surface.
+- `Critique / Evaluation` is a capability layer that evaluates evidence from other systems and produces advisory findings, but it is not the same thing as `Companion` or any single UI surface.
 - `Author Intent / Story Setup` supplies goals, boundaries, and story parameters to `Outline`, `Draft Generation`, `Companion`, routing, and other systems, but it does not gate direct writing.
 - `Authorship / Provenance / AI Visibility` governs how AI contribution and transformation remain visible.
 - `Model Routing And Budget Architecture` governs whether local, manual, or paid-model paths are allowed.
@@ -138,7 +139,7 @@ Important boundary:
 - `Companion` is not `Memory Lab`.
 - `Companion` is not truth owner.
 - `Memory Lab` is not automatic truth owner.
-- `Critique` may feed `Companion`, `Command Center`, `Writing Surface`, `Draft Generation`, or manual author review, but Critique remains an evaluation capability rather than a universal surface.
+- `Critique / Evaluation` may feed `Companion`, `Command Center`, `Writing Surface`, `Draft Generation`, or manual author review, but Critique remains an evaluation capability rather than a universal surface.
 - `Companion` may route requests to other systems when the author is actually asking for Critique, Author Intent / Story Setup, Draft Generation / Rewrite Loop, Signal Architecture, Continuity, or Feedback Notes / Revision Resolution work.
 - `Companion` must not silently spend money, mutate story truth, rewrite prose, send raw content, or canonize facts without approval.
 

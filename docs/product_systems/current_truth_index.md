@@ -70,6 +70,7 @@ Current Black Skies doctrine is:
 - Memory Lab must not hoard data that does not become information or serve a clear purpose.
 - Companion is currently understood as a likely interface or personality layer over Memory Lab and other systems, not a build-ready runtime authority.
 - Companion may eventually run safe local or support actions if settings allow, but it must not silently spend money, rewrite prose, mutate story truth, send raw content, or canonize facts without approval.
+- Critique / Evaluation is currently understood as an advisory capability layer rather than a mandatory surface or truth owner.
 - Budget and model routing affect whether work runs silently, manually, locally, or through paid API.
 - Starting routing precedence is:
   - user approval or refusal
@@ -143,6 +144,7 @@ Current canonical repo-tracked sources include:
 - [prose_scene_projection.md](/C:/Dev/black-skies/docs/product_systems/prose_scene_projection.md)
 - [story_unit.md](/C:/Dev/black-skies/docs/product_systems/story_unit.md)
 - [outline.md](/C:/Dev/black-skies/docs/product_systems/outline.md)
+- [critique_evaluation.md](/C:/Dev/black-skies/docs/product_systems/critique_evaluation.md)
 - [pass220_modular_salvage_architecture_blueprint.md](/C:/Dev/black-skies/docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md)
 - [pass221_salvage_carry_forward_extraction_map.md](/C:/Dev/black-skies/docs/audits/phase32/pass221_salvage_carry_forward_extraction_map.md)
 - [authority_boundary_matrix.md](/C:/Dev/black-skies/docs/audits/phase29/authority_boundary_matrix.md)

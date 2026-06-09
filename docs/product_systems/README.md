@@ -69,7 +69,7 @@ The full dossier set is grouped into three classes:
 | 12 | Relationship Map | Intelligence | planned |
 | 13 | Emotion Graph | Intelligence | planned |
 | 14 | Continuity | Intelligence | planned |
-| 15 | Critique | Intelligence | planned |
+| 15 | [Critique / Evaluation](critique_evaluation.md) | Intelligence | planned |
 | 21 | [Senses Usage](senses_usage.md) | Intelligence | planned |
 | 22 | [Overused Words](overused_words.md) | Intelligence | planned |
 | 23 | [Cliche Detection](cliche_detection.md) | Intelligence | planned |
@@ -118,7 +118,8 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | File | Maps to registry target(s) | Current posture | Build-ready |
 | --- | --- | --- | --- |
 | `continuity.md` | `Continuity` | rough / exploring | no |
-| `signal_architecture.md` | `Continuity`, `Critique`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
+| `signal_architecture.md` | `Continuity`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
+| `critique_evaluation.md` | `Critique / Evaluation` | rough / exploring | no |
 | `authorship_provenance_ai_visibility.md` | `Writing Surface`, `Command Center Surface`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Import / Export / Google Docs` | rough / exploring | no |
 | `model_routing_and_budget_architecture.md` | `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails` | rough / exploring | no |
 | `llm_package_construction_architecture.md` | `Model Router / Provider Execution Policy`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Memory Lab` | rough / exploring | no |
@@ -135,7 +136,7 @@ Active questions belong inside the relevant dossier's centralized `Pre-Rough Ali
 The 2026-06-09 inventory batch created `23` placeholder dossiers so that every clearly derivable registry target has a dossier home, but placeholder creation is not dossier completion.
 All `23 / 23` placeholder dossiers have now received controlled question-intake review from the external archive source.
 That leaves `0` remaining unreviewed placeholder dossiers for this intake sweep.
-Registry coverage also still includes `6` bridge-backed systems rather than one-to-one dossier files; `Critique` and `Import / Export / Google Docs` are the strongest candidates for later one-to-one dossiers.
+Registry coverage also still includes `5` bridge-backed systems rather than one-to-one dossier files; `Import / Export / Google Docs` remains the strongest later one-to-one dossier candidate.
 `0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
 Question-intake review does not equal dossier completion, and all new dossiers remain rough, investigative, and not build-ready.
 The interaction map is explanatory only and does not imply runtime wiring, authority, or build readiness.
