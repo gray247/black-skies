@@ -205,6 +205,34 @@ Governance rules:
 - scheduled findings may become advisory findings, continuity candidates, or signal candidates later, but they must not silently become durable truth, durable signal state, deletion, or manuscript mutation,
 - scheduled work should be user-visible and controllable later through rough concepts such as enabled or disabled, run now, run overnight, run when idle, local-only, requires approval before applying results, show prepared findings, and discard prepared findings.
 
+Minimum rough memory evidence and source classes:
+
+- `author-owned truth`: explicit canon-bearing material such as accepted notes, lore, character facts, narrative assertions, or other explicit author decisions.
+- `author-approved advisory memory`: explicitly saved non-canon support material the author chose to retain for later reasoning.
+- `session context`: short-lived current-session context that may help immediate workflow but does not imply durable memory or canon.
+- `temporary task context`: bounded per-task context, working sets, or one-off investigative framing that should normally expire.
+- `system knowledge`: product or workflow knowledge about Black Skies behavior, surfaces, commands, and navigation.
+- `author preference`: settings, habits, or chosen working preferences that guide behavior without becoming manuscript truth.
+- `archive reference`: historical or discarded reference material that may explain provenance or history but must not be presented as current canon.
+- `AI suggestion`: unaccepted model output that remains advisory and temporary unless explicitly saved.
+- `signal candidate`: possible downstream signal material that is not durable signal state and not canon.
+- `continuity warning`: advisory continuity concern that remains non-canon unless the author explicitly accepts or saves resulting truth elsewhere.
+- `excluded or never-store`: material that must not be retained as active recall by default, including raw AI-excluded spans.
+
+Minimum rough retention tiers:
+
+- `durable author-owned truth`
+- `durable author-approved advisory memory`
+- `session memory`
+- `temporary task memory`
+- `scheduled or idle prepared finding`
+- `discarded or deleted`
+- `excluded or never-store`
+
+These are rough product-definition boundaries, not a final storage schema.
+`Memory Lab` must preserve the difference between canon, advisory memory, temporary context, and archive reference.
+Scheduled or idle prepared findings are advisory preparation only unless the author explicitly saves, converts, or approves durable use.
+
 Risks:
 
 - fake omniscience,
@@ -242,8 +270,8 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 ### Critical Questions
 
-- Future contract need: what remembered material must carry citation, source trace, and evidence quality markers before downstream systems rely on it?
-- Future contract need: what authority limits, retention tiers, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
+- Future contract need: beyond the rough evidence classes above, what exact citation, source-trace, and evidence-quality markers must remembered material carry before downstream systems rely on it?
+- Future contract need: beyond the rough retention tiers above, what authority limits, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
 
 ### Major Questions
 
@@ -272,6 +300,8 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - What may `Memory Lab` durably remember by default? Answered: only explicit author-owned truth or author-approved advisory memory. AI critique, signal candidates, continuity warnings, Companion suggestions, routing or package artifacts, and unaccepted model output remain temporary unless explicitly saved.
 - What must `Memory Lab` forget, delete, or discard by default, and what author controls govern later forgetting or removal? Answered: forgotten, deleted, or discarded material must not remain active advisory context for `Companion`, package construction, continuity suggestions, signal suggestions, or export.
 - May masked or AI-excluded raw manuscript spans ever be stored? Answered: not by default. `Memory Lab` may store an author-approved summary only when explicitly saved, and raw excluded spans may be retained only under an explicit local or private author choice.
+- What rough evidence and source classes should `Memory Lab` preserve? Answered: author-owned truth, author-approved advisory memory, session context, temporary task context, system knowledge, author preference, archive reference, AI suggestion, signal candidate, continuity warning, and excluded or never-store.
+- What rough retention tiers should `Memory Lab` preserve? Answered: durable author-owned truth, durable author-approved advisory memory, session memory, temporary task memory, scheduled or idle prepared finding, discarded or deleted, and excluded or never-store.
 
 ### Deferred Questions
 
@@ -282,6 +312,8 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - Future scheduled or idle local-work candidates, not implementation commitments: overnight local continuity scan, stale signal cleanup suggestions, Memory Lab citation or index refresh, local summary or index generation, non-outbound critique prep, project health scan, `What changed since last session?` preparation, advisory-history expiry candidate review, and local-only gap scan preparation.
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the `Memory Lab` and `Companion` cluster is stable enough to pause tightening after this pass and shift later attention to whichever adjacent dossiers still need contract-shaping.
 
 This rough dossier is acceptable only if:
 

@@ -225,6 +225,34 @@ Governance rules:
 - Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
 
+Minimum rough Companion source labels for investigative guidance:
+
+- `accepted continuity truth`
+- `author note`
+- `Memory Lab advisory memory`
+- `unresolved signal candidate`
+- `current manuscript text`
+- `system or navigation knowledge`
+- `routing or package state`
+- `scheduled or idle prepared finding`
+- `archive reference`
+
+Minimum rough temporary highlight or annotation lifecycle:
+
+- `suggested`
+- `visible`
+- `dismissed`
+- `snoozed`
+- `saved as advisory note`
+- `converted to signal candidate`
+- `promoted through owning system`
+- `expired`
+
+These are rough product-definition labels, not a final runtime state model.
+`Companion` should be able to answer `show me the source` and distinguish canon from advisory, temporary, scheduled, and archive material.
+Simple app-navigation answers may rely directly on system or navigation knowledge without pretending to be manuscript authority.
+Temporary highlights or annotations are advisory overlays, must respect masks and AI exclusion zones, must be dismissible, and must not leak raw excluded text.
+
 Risks:
 
 - over-personified authority,
@@ -262,8 +290,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 
 ### Critical Questions
 
-- Future contract need: what evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
-- Future contract need: what exact lifecycle, visibility, dismissal, and handoff rules should govern temporary `Companion` Writing Surface highlights or annotations before they are dismissed, saved, converted, or offered as signal candidates?
+- Future contract need: beyond the rough source labels above, what exact evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
+- Future contract need: beyond the rough highlight lifecycle above, what exact visibility, dismissal, snooze, expiry, and handoff rules should govern temporary `Companion` Writing Surface highlights or annotations before they are dismissed, saved, converted, or offered as signal candidates?
 
 ### Major Questions
 
@@ -292,6 +320,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - What routing, spending, outbound, and tool-use approval boundaries govern `Companion` escalation from local advisory help to paid, outbound, or tool-using help? Answered: `Companion` must respect routing, spend, mask, exclusion, and approval boundaries and may never silently bypass them.
 - What should `Companion` do when `no-ai-route-available` occurs, and which manual or no-AI fallbacks may it offer without gating direct writing? Answered: `Companion` should explain the route failure and offer manual or no-AI fallbacks such as continue writing, revise mask or summary, skip excluded ranges, run non-model local tools, save a manual note, create a manual signal or task, or cancel.
 - How must `Companion` handle masked or AI-excluded ranges so it does not reveal raw content, overstate unavailable evidence, or bypass package-boundary doctrine? Answered: `Companion` must honor AI exclusion zones and use only author-approved summaries or package views unless the author explicitly grants access to the raw excluded range.
+- What rough source labels should `Companion` preserve when presenting guidance? Answered: accepted continuity truth, author note, Memory Lab advisory memory, unresolved signal candidate, current manuscript text, system or navigation knowledge, routing or package state, scheduled or idle prepared finding, and archive reference.
+- What rough lifecycle states should temporary `Companion` highlights or annotations use? Answered: suggested, visible, dismissed, snoozed, saved as advisory note, converted to signal candidate, promoted through owning system, and expired.
 
 ### Deferred Questions
 
@@ -302,6 +332,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Future scheduled or idle local-service behavior remains a candidate contract area, not a selected implementation artifact.
 
 ## 34. Acceptance Criteria
+
+Current-cluster rough stability note: implementation remains blocked by open Critical questions, but the `Memory Lab` and `Companion` cluster is stable enough to pause tightening after this pass and shift later attention to whichever adjacent dossiers still need contract-shaping.
 
 This rough dossier is acceptable only if:
 
