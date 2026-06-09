@@ -49,6 +49,7 @@ Any later recall exposed through `Companion` should preserve memory type rather 
 - indexing,
 - comparison,
 - citation gathering,
+- preferring the cheapest safe context source first, moving from accepted doctrine and saved project state to governed recall, existing signals, and prepared findings before deeper analysis,
 - scheduled, idle, or overnight local preparation later when allowed,
 - long-context memory work later,
 - relevance filtering so Memory Lab does not hoard data just because it exists.
@@ -167,6 +168,10 @@ It should not assume deep paid runs by default.
 Retention policy must also respect relevance, performance, and storage-cost discipline.
 Some Memory Lab work may be better as scheduled, idle, or overnight local work when local analysis is slow but free.
 Any silent scheduled work must remain local-only, free, non-destructive, advisory, non-outbound, non-mutating, and mask or exclusion-safe.
+`Memory Lab` should prefer the cheapest safe source of context first: accepted doctrine, saved project metadata, governed recall, existing signals, then prepared findings before heavier scans.
+Rough workload tiers for later `Memory Lab` participation are: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
+No full-project, local-LLM, paid, outbound, destructive, or durable-state-changing `Memory Lab` work may run silently.
+No full-project scan should run on every save, and no heavier scan should run while the author is actively typing unless it is cheap, local, and non-disruptive.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -201,8 +206,11 @@ Governance rules:
 - forgotten, deleted, or discarded material must not remain active advisory context,
 - governed recall used by `Companion` must preserve memory type rather than treating all recall as author-owned truth,
 - Memory Lab is governed recall, not canon,
+- Memory Lab and `Companion` must prefer the cheapest safe source of truth or context first rather than jumping to deeper scans,
 - scheduled, cron, idle, or overnight local work is only a future candidate behavior, not a selected implementation artifact,
 - scheduled findings may become advisory findings, continuity candidates, or signal candidates later, but they must not silently become durable truth, durable signal state, deletion, or manuscript mutation,
+- scheduled or idle prepared findings are advisory preparation only until the author or owning system contract explicitly saves, converts, or approves durable use,
+- scheduled or idle work may prepare advisory findings, but it must not silently apply them and it must not bypass masks, AI exclusion zones, routing policy, or approval boundaries,
 - scheduled work should be user-visible and controllable later through rough concepts such as enabled or disabled, run now, run overnight, run when idle, local-only, requires approval before applying results, show prepared findings, and discard prepared findings.
 
 Minimum rough memory evidence and source classes:
@@ -302,6 +310,8 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - May masked or AI-excluded raw manuscript spans ever be stored? Answered: not by default. `Memory Lab` may store an author-approved summary only when explicitly saved, and raw excluded spans may be retained only under an explicit local or private author choice.
 - What rough evidence and source classes should `Memory Lab` preserve? Answered: author-owned truth, author-approved advisory memory, session context, temporary task context, system knowledge, author preference, archive reference, AI suggestion, signal candidate, continuity warning, and excluded or never-store.
 - What rough retention tiers should `Memory Lab` preserve? Answered: durable author-owned truth, durable author-approved advisory memory, session memory, temporary task memory, scheduled or idle prepared finding, discarded or deleted, and excluded or never-store.
+- What rough resource-governed assistance posture should `Memory Lab` follow before deeper analysis? Answered: prefer the cheapest safe source of context first, moving through accepted doctrine, saved project metadata, governed recall, existing signals, and prepared findings before heavier work.
+- What rough workload tiers should govern later `Memory Lab` assistance? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
 
 ### Deferred Questions
 

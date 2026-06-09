@@ -51,6 +51,7 @@ Working doctrine includes:
 
 - low-cost local observation when feasible and allowed,
 - routing preparation,
+- classifying work into rough effort tiers before deeper escalation,
 - blocked or deferred runs when policy forbids escalation.
 
 ## 8. What Appears First
@@ -152,9 +153,15 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - silent local observation is preferred when feasible,
 - manual run is the backup,
 - paid API is the later escalation path,
+- systems should prefer the cheapest safe source of truth or context first before escalating into heavier scans or provider work,
 - starting precedence is user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
 - silent runs are allowed only for local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation,
 - paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk,
+- full-project, local-LLM, paid, outbound, destructive, or durable-state-changing work may not run silently,
+- no full-project scan should run on every save,
+- no heavier scan should run while the user is actively typing unless it is cheap, local, and non-disruptive,
+- scheduled or idle local work may prepare advisory findings, but applying those findings still requires the owning-system contract and author approval where required,
+- no paid or outbound scheduled work may run without approval,
 - spending guardrails must stay visible and bounded,
 - exact spending thresholds remain unresolved.
 
@@ -167,7 +174,17 @@ Minimum rough routing and approval-state vocabulary:
 - `refused`: a route that was attempted or considered eligible but then declined by the provider, the system, or the user at approval time.
 - `no-ai-route-available`: all permitted AI routes for the task are unavailable, blocked, refused, or clearance-failed, and no allowed AI fallback remains.
 
+Minimum rough workload tiers:
+
+- `instant existing-context lookup`
+- `lightweight local scan`
+- `idle or deferred local analysis`
+- `scheduled or overnight local analysis`
+- `manual heavy scan`
+- `paid or outbound approved work`
+
 These are rough product-definition states, not a final runtime permission model.
+They are rough effort and approval labels, not exact scheduler, job, or hardware contracts.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -200,6 +217,7 @@ Governance rules:
 - no forced AI dependency,
 - direct writing stays available,
 - routing policy must stay subordinate to writer control,
+- routing and budget authority governs whether scheduled or idle work may remain local-only, must ask permission, or must stop,
 - routing precedence starts with user approval or refusal, then privacy or local-only rules, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
 - provider or model experimentation may evolve by genre, task, model strength, local-versus-paid path, and writing mode,
 - paid API remains the heavy, deep, or long-context escalation path rather than the default path.
@@ -273,6 +291,8 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Does outbound refusal or failure count as a manuscript failure? Answered: no. A refusal is treated as a route failure, not a manuscript failure.
 - What is the starting routing precedence? Answered: user approval or refusal -> privacy or local-only -> explicit-content restrictions -> no-money or budget limits -> project settings -> model quality preference -> convenience or automation.
 - What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling? Answered: rough doctrine uses those states with the meanings defined in this dossier; exact approval thresholds and enforcement remain unresolved.
+- What rough resource-governed assistance posture should routing enforce before systems escalate into heavier scans or provider work? Answered: systems should prefer the cheapest safe source of truth or context first and escalate into deeper analysis only when cost, privacy, mutation risk, and hardware impact permit.
+- What rough workload tiers should routing and budget policy recognize before runtime wiring? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
 
 ### Deferred Questions
 

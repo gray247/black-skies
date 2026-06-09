@@ -61,6 +61,7 @@ Companion may later:
 
 - waiting quietly,
 - preparing bounded context,
+- preferring the cheapest safe source of context first, starting with current UI state, accepted doctrine, saved project metadata, governed `Memory Lab` recall, existing signals, and prepared findings before offering deeper work,
 - deferring to stronger systems for evidence,
 - preparing explanations for scheduled, idle, or overnight local findings later without owning the underlying service,
 - staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later.
@@ -79,6 +80,14 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 - workflow guidance and safe panel-opening help later,
 - prepared findings from scheduled, idle, or overnight local work later,
 - rough capability candidates under review, not implementation commitments: `Where was I?`, `Show me the source`, `Highlight the gap`, `Explain this warning`, `Open the right panel`, `Show package preview`, `Why is AI blocked?`, `Use my mask summary`, `Save this as advisory memory`, `Promote this to canon`, `Forget this`, `What changed since last session?`, `Clean stale signals`, `What needs attention?`, and `Show only things blocking writing`.
+
+Rough workload guidance for those capability candidates:
+
+- `Where was I?` should normally use existing saved, session, or project state first.
+- `What changed since last session?` may have a quick existing-context answer and a deeper scheduled or idle analysis later.
+- `What needs attention?` should prefer known blockers, signals, and prepared findings before offering heavier scans.
+- `Highlight the gap` may be lightweight and current-scope or may require deeper manual or deferred analysis depending on requested scope.
+- `Clean stale signals` should prepare suggestions and never silently clean durable signal state.
 
 ## 10. What Is Hidden Until Needed
 
@@ -183,11 +192,17 @@ Paid API use must remain explicitly routed, justified, and visible when deeper r
 
 Companion must respect budget modes, avoid surprise spend, and stay quiet when routing policy says no.
 Companion may not silently spend money even if safe local or support actions later become available.
+`Companion` should answer from current UI state, accepted doctrine, saved project metadata, governed `Memory Lab` recall, existing signals, and prepared findings before offering heavier work.
+`Companion` should communicate when a request requires heavier work and offer cheaper alternatives when possible.
 Companion may suggest freely within local and advisory bounds.
 Companion may perform safe local support actions only when they are non-destructive, non-authoritative, non-spending, non-outbound, and do not mutate manuscript text or author-owned truth.
 Companion must require approval for paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, or explicit-content outbound actions.
 Companion must never silently bypass masks, exclusions, routing approval, or spend guardrails.
 Companion may explain or present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduler or silently apply resulting durable effects.
+No scan should run while the author is actively typing unless it is cheap, local, and non-disruptive.
+No full-project scan should run on every save.
+No paid or outbound scheduled work should run without approval.
+Direct writing remains available even when scans or jobs are blocked, deferred, refused, or unavailable.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -221,9 +236,19 @@ Governance rules:
 - Companion may guide workflows and explain system state, but guided action is not system ownership,
 - recall used by `Companion` must preserve memory type such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
 - `Companion` must not treat recalled memory as author-owned truth unless the memory tier says it is author-owned truth,
+- `Companion` and `Memory Lab` must prefer the cheapest safe source of truth or context first rather than jumping immediately to deeper scans,
 - Companion may present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduled service and must not silently apply results,
 - Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
+
+Minimum rough workload tiers for later `Companion` guidance:
+
+- `instant existing-context lookup`
+- `lightweight local scan`
+- `idle or deferred local analysis`
+- `scheduled or overnight local analysis`
+- `manual heavy scan`
+- `paid or outbound approved work`
 
 Minimum rough Companion source labels for investigative guidance:
 
@@ -322,6 +347,8 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - How must `Companion` handle masked or AI-excluded ranges so it does not reveal raw content, overstate unavailable evidence, or bypass package-boundary doctrine? Answered: `Companion` must honor AI exclusion zones and use only author-approved summaries or package views unless the author explicitly grants access to the raw excluded range.
 - What rough source labels should `Companion` preserve when presenting guidance? Answered: accepted continuity truth, author note, Memory Lab advisory memory, unresolved signal candidate, current manuscript text, system or navigation knowledge, routing or package state, scheduled or idle prepared finding, and archive reference.
 - What rough lifecycle states should temporary `Companion` highlights or annotations use? Answered: suggested, visible, dismissed, snoozed, saved as advisory note, converted to signal candidate, promoted through owning system, and expired.
+- What rough resource-governed assistance posture should `Companion` follow before offering deeper work? Answered: prefer current UI state, accepted doctrine, saved project metadata, governed `Memory Lab` recall, existing signals, and prepared findings first, then offer heavier scans as optional work.
+- What rough workload tiers should `Companion` communicate when help ranges from cheap lookup to expensive analysis? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.
 
 ### Deferred Questions
 
