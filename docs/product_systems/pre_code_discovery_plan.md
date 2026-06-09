@@ -161,6 +161,11 @@ Current product-system planning has already completed these steps:
   Current posture: stable enough to pause current tightening while exact future contract shaping continues later.
   Already shaped in this cluster: provenance as private author-support metadata; clean default writing and export behavior; `Memory Lab` as governed recall rather than canon; `Memory Lab` retention and source tiers; `Companion` as workflow guide rather than system owner; `Companion` system-navigation support; temporary Writing Surface highlights or annotations; `Companion` plus `Memory Lab` workflow capability candidates; scheduled, idle, or overnight local-service candidate behavior; and resource-governed assistance plus workload tiers.
 
+- Writing Cockpit cluster: `Writing Surface`, `Command Center Surface`, and `Narrative Insertion / Narrative Assertion`
+  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Current posture: stable enough to pause current tightening while exact future UI, state, and interaction contract shaping continues later.
+  Already shaped in this cluster: Writing Surface sovereignty; direct writing always available; minimal default Writing Surface context; contextual or summonable insertion or assertion references; clean default writing view; lightweight, contextual, dismissible inline overlay boundaries; heavier context in summonable side or support surfaces; heavy-action prompts without silent execution; author-controlled masks and AI exclusion zones; raw excluded-text no-leak boundaries; manuscript, mask, exclusion, package-view, and outbound-payload distinctions; smallest useful default Command Center; Command Center anti-junk-drawer doctrine; Command Center visibility levels of always-visible, contextual, and summonable; Command Center action-permission boundaries; Command Center attention or blocker ownership boundaries; conceptual split between `Narrative Insertion` and `Narrative Assertion`; insertion without automatic assertion truth; assertion candidates requiring explicit author accept, save, or convert; narrative state or provenance distinctions; and consumer-boundary doctrine for `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`, `Outline`, Scene, Story Unit, and `Command Center Surface`.
+
 #### Applied Routing / Resource Decisions
 
 - Jason's accepted routing or resource decisions are now applied in the active dossiers:
@@ -173,8 +178,8 @@ Current product-system planning has already completed these steps:
 
 #### Next Candidate Cluster
 
-- Next candidate Step 6 cluster: `Writing Surface`, `Command Center Surface`, and `Narrative Insertion / Narrative Assertion`.
-- Purpose of that next candidate cluster: confirm Writing Surface sovereignty, confirm direct writing remains always available, confirm Command Center supports writing without gating it, prevent Command Center from becoming a dashboard junk drawer, clarify how `Narrative Insertion / Narrative Assertion` anchors authored change, and clarify how Writing Surface, Command Center, `Companion`, signals, `Memory Lab`, and routing interact without shifting truth ownership away from the author.
+- Next candidate Step 6 cluster: `Outline`, `Prose / Scene Projection`, and `Story Unit`.
+- Purpose of that next candidate cluster: confirm `Outline` is optional and not narrative truth, confirm Scene is projection or container or view or legacy compatibility only, confirm Story Unit is optional grouping or work-container only, prevent structure tools from becoming hidden truth owners, and clarify how `Outline`, Scene, Story Unit, `Writing Surface`, `Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, and `Companion` interact without shifting truth ownership away from the author.
 
 #### Current Follow-On Contract Needs
 
@@ -196,6 +201,32 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`.
 - `no-ai-route-available` escalation contract
   Candidate homes: `model_routing_and_budget_architecture.md`, `explicit_content_architecture.md`, `llm_package_construction_architecture.md`, `companion.md`.
+- Writing Surface exact overlay mechanics
+  Candidate homes: `writing_surface.md`.
+- Writing Surface focus, shortcut, and persistence behavior
+  Candidate homes: `writing_surface.md`.
+- Writing Surface heavy-action interaction mechanics
+  Candidate homes: `writing_surface.md`, `model_routing_and_budget_architecture.md`, and `llm_package_construction_architecture.md` when needed.
+- Writing Surface mask, exclusion, and package-view interaction details
+  Candidate homes: `writing_surface.md`, `authorship_provenance_ai_visibility.md`, `explicit_content_architecture.md`, and `llm_package_construction_architecture.md`.
+- Command Center exact layout mechanics
+  Candidate homes: `command_center_surface.md`.
+- Command Center action-routing mechanics
+  Candidate homes: `command_center_surface.md`, `model_routing_and_budget_architecture.md`, and later owning-system dossiers as needed.
+- Command Center notification and persistence behavior
+  Candidate homes: `command_center_surface.md`, `signal_architecture.md`, and `memory_lab.md` if later needed.
+- Command Center detailed workflow behavior
+  Candidate homes: `command_center_surface.md`.
+- Narrative Insertion exact confirmation UX
+  Candidate homes: `narrative_insertion_assertion.md`.
+- Narrative Insertion exact state machine
+  Candidate homes: `narrative_insertion_assertion.md`.
+- Narrative Insertion exact provenance fields
+  Candidate homes: `narrative_insertion_assertion.md`, `authorship_provenance_ai_visibility.md`.
+- Narrative Insertion persistence behavior
+  Candidate homes: `narrative_insertion_assertion.md`.
+- Narrative Insertion consumer API or contract details
+  Candidate homes: `narrative_insertion_assertion.md`, with relationship notes later in `continuity.md`, `signal_architecture.md`, `memory_lab.md`, or structure dossiers if needed.
 
 Rule for these needs:
 
