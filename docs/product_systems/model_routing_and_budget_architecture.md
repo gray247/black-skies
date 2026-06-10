@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-10`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Companion`, `Memory Lab`
 - Feeds into: `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails`
 - Runtime authority: `future`
@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define how Black Skies decides between no-AI, local-only, and paid-model work without surprise spend or weak-machine collapse.
+Routing decides whether a model path may be used; it does not decide human file formats or Memory Lab durability rules.
 
 ## 3. User Problem Solved
 
@@ -36,6 +37,8 @@ Writers need useful intelligence help without hidden cost, lag, privacy surprise
 - it does not assume strong local hardware,
 - it does not define exact spending thresholds yet,
 - it does not make AI mandatory.
+- it does not choose document interchange formats,
+- it does not turn AI package experiments into settled human-export doctrine,
 
 ## 6. User-Facing Behavior
 
@@ -271,6 +274,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Future contract need: what exact spend-cap persistence, session-budget accounting, over-cap messaging, and cross-surface telemetry are required before paid routing can be implemented?
 - Future contract need: what exact enforcement and recovery behavior should govern `no-ai-route-available` across routing, package construction, explicit-content handling, and `Companion` explanation flows?
 - Future contract need: how is the accepted precedence enforced consistently when author authority, masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience collide across tools or surfaces?
+- Future contract need: how should routing treat AI package-format experiments so file or package format comparison stays separate from spend approval and separate from any human document export contract?
 
 ### Major Questions
 

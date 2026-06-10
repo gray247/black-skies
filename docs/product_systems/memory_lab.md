@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-10`
 - Depends on: `Continuity`, `Signal Architecture`, `Narrative Insertion / Assertion`, `Model Routing And Budget Architecture`
 - Feeds into: `Companion`, `Continuity`, `Critique`, `Relationship Map`, `Emotion Graph`
 - Runtime authority: `future`
@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define Memory Lab as Black Skies' likely narrative forensic intelligence or story-brain layer without letting it silently become truth owner.
+Memory Lab is not the normal human document export path, and temporary AI package payloads are not the same thing as durable Memory Lab memory.
 
 ## 3. User Problem Solved
 
@@ -30,6 +31,7 @@ Writers need a system that can read widely, cite evidence, hold investigative co
 - provides governed recall later for cited, tiered project memory, system knowledge, author preferences, and prior decisions,
 - produces findings, questions, and hypotheses,
 - supports multiple downstream systems.
+- distinguishes temporary package payloads from durable memory artifacts.
 
 ## 5. What The System Does Not Do
 
@@ -124,6 +126,7 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - temporary investigations,
 - provider-specific intermediate runs,
 - data points that do not become information or serve a clear purpose.
+- temporary AI package payloads that should not silently become durable memory.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -176,6 +179,7 @@ No full-project scan should run on every save, and no heavier scan should run wh
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Memory Lab must respect local-only raw material rules and use transformed packages outward when required.
+Temporary package payloads are not durable memory by default, and durable memory must still obey author-owned truth or author-approved advisory-memory rules.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -187,6 +191,7 @@ Forgotten, deleted, or discarded material must not remain active advisory contex
 
 - findings are evidence-backed,
 - Memory Lab does not silently mutate authored truth,
+- temporary package payloads do not silently become durable memory,
 - deleted or abandoned material is handled explicitly,
 - contradictions remain inspectable rather than silently resolved.
 
@@ -280,6 +285,8 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 - Future contract need: beyond the rough evidence classes above, what exact citation, source-trace, and evidence-quality markers must remembered material carry before downstream systems rely on it?
 - Future contract need: beyond the rough retention tiers above, what authority limits, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
+- Future contract need: what exact boundary keeps AI package payloads temporary while allowing only explicit author-owned truth or author-approved advisory memory to become durable Memory Lab material?
+- Future contract need: what format-comparison tests should Memory Lab participate in for token or context behavior, cost, fidelity, evidence quality, citation quality, routing effects, privacy, structure preservation, and failure modes without becoming a human export contract?
 
 ### Major Questions
 

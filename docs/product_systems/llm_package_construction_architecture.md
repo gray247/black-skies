@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-10`
 - Depends on: `Model Routing And Budget Architecture`, `Authorship Provenance AI Visibility`, `Explicit Content Architecture`
 - Feeds into: `Companion`, `Memory Lab`, `Continuity`, `Critique`, `Model Router / Provider Execution Policy`
 - Runtime authority: `future`
@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define how outbound and local model packages are assembled so Black Skies does not degrade into ad hoc prompt stuffing.
+This dossier is about AI-facing package construction, not normal human document export and not Memory Lab durability rules.
 
 ## 3. User Problem Solved
 
@@ -151,10 +152,12 @@ Paid API paths need stricter packaging, summaries, masking, and approval boundar
 - meaning, author intent, evidence scope, canon facts, and task purpose must remain controlled even when wrappers or schemas change,
 - package design matters as much as prompt wording,
 - exact schemas, chunking, compression, truncation, and provider-specific tuning remain unresolved.
+- This dossier does not decide whether raw text, structured JSON or markdown, `docx`, `pdf`, OCR text, or another format is best for AI use; that stays future comparison territory.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Package construction must cooperate with masking, summarization, and transformed-package rules without losing essential continuity.
+Package construction is not the same thing as human document interchange, even when the source material happens to come from a document.
 Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 Package construction should receive routing approval and explicit-content clearance before any outbound package is assembled, and it must not widen a blocked task into outbound-safe behavior on its own.
 Outbound package construction must use the author-approved redacted or package view, not excluded raw manuscript ranges, for masked or AI-excluded sections.
@@ -236,6 +239,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Future contract need: what invariant package contract must survive provider-specific wrappers, schemas, chunking, and model choice without changing mission or evidence scope?
 - Future contract need: how must raw manuscript, author redaction or mask map, AI exclusion zones, author-approved package view, and outbound payload view remain distinct through package assembly?
 - Future contract need: how must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
+- Future contract need: which file or package formats should AI systems receive, and how should later tests compare token or context behavior, cost, fidelity, evidence quality, citation quality, routing effects, privacy, structure preservation, and failure modes without confusing those studies with human export doctrine?
 
 ### Major Questions
 
