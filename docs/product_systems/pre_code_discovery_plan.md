@@ -216,7 +216,10 @@ Current product-system planning has already completed these steps:
   - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
   - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
 - `Critique / Evaluation` now has its own one-to-one dossier and is no longer only bridge-backed.
-- `Import / Export / Google Docs` remains the strongest later one-to-one dossier candidate even though provisional bridge coverage exists now.
+- Registry target `Import / Export / Google Docs` is now understood as over-broad shorthand.
+- Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey` rather than with document interchange.
+- The future one-to-one human document interchange dossier should likely be `import_export_document_interchange.md`, with Google Docs treated as one external source or destination inside that broader scope.
+- AI or memory transfer format questions remain future contract territory for `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and later document-interchange sections rather than settled doctrine now.
 - The Critique / Evaluation / Author Intent / Companion routing cluster has now been captured across the existing docs, with `Critique / Evaluation` now represented by its own dossier.
 - The external raw question-bank source currently lives at `C:\Dev\plan ideas\continuity\open_questions_register.md`.
 - That raw register remains archive, intake, or triage source only rather than active planning spine.
@@ -323,8 +326,12 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `writing_surface.md`, `command_center_surface.md`, related consumer dossiers, and `system_interaction_map.md` only when relationship notes are helpful.
 - Critique / Evaluation exact findings, evidence-bundle, ranking, and invocation contract
   Candidate homes: `critique_evaluation.md`.
-- Later bridge-backed dossier review for `Import / Export / Google Docs`
-  Candidate homes: future one-to-one dossier decision; do not create in this pass.
+- Autosave / instant-save feel and local persistence contract
+  Candidate homes: `writing_surface.md`, `snapshots_backup_restore_history.md`, `service_health_offline_degraded_mode.md`, `workflow_spine_author_journey.md`.
+- Future human document interchange dossier decision
+  Candidate homes: future `import_export_document_interchange.md`.
+- AI / memory transfer format contract
+  Candidate homes: `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and later sections inside future `import_export_document_interchange.md` if needed.
 
 Rule for these needs:
 

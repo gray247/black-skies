@@ -136,7 +136,11 @@ Active questions belong inside the relevant dossier's centralized `Pre-Rough Ali
 The 2026-06-09 inventory batch created `23` placeholder dossiers so that every clearly derivable registry target has a dossier home, but placeholder creation is not dossier completion.
 All `23 / 23` placeholder dossiers have now received controlled question-intake review from the external archive source.
 That leaves `0` remaining unreviewed placeholder dossiers for this intake sweep.
-Registry coverage also still includes `5` bridge-backed systems rather than one-to-one dossier files; `Import / Export / Google Docs` remains the strongest later one-to-one dossier candidate.
+Registry coverage also still includes `5` bridge-backed systems rather than one-to-one dossier files.
+Registry target `Import / Export / Google Docs` is now understood as over-broad planning shorthand rather than a settled one-to-one dossier name.
+Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey`, not with external document interchange.
+The future one-to-one human document interchange dossier should likely be `import_export_document_interchange.md`, with Google Docs treated as one external source or destination inside that broader scope.
+AI or memory transfer format questions remain provisional contract territory for `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, `Memory Lab`, and later document-interchange sections rather than settled doctrine now.
 `0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
 Question-intake review does not equal dossier completion, and all new dossiers remain rough, investigative, and not build-ready.
 The interaction map is explanatory only and does not imply runtime wiring, authority, or build readiness.

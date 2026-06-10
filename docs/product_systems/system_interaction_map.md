@@ -57,6 +57,9 @@ This map is explanatory, not an implementation plan.
 - `Model Routing And Budget Architecture` governs whether local, manual, or paid-model paths are allowed.
 - `LLM Package Construction Architecture` governs how model-facing packages are assembled.
 - `Explicit Content Architecture` governs how raw local prose and outbound transformed packages remain distinct.
+- `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey` collectively own local save-state, autosave feel, recovery, and degraded persistence posture rather than any future Google Docs transfer semantics.
+- A future one-to-one human document interchange dossier should likely own author-facing import and export contracts across `docx`, `pdf`, markdown, plain text, later publishing formats such as `ePub`, and Google Docs as one external source or destination rather than the whole scope.
+- `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, and `Memory Lab` remain the provisional homes for AI-facing format, package-shape, cost, fidelity, OCR-derived transfer experiments, and durable-memory-boundary questions until a later contract narrows them.
 
 ## Signal Flow
 
@@ -161,6 +164,9 @@ Important boundary:
 
 - exact signal severity, confidence, and resolution taxonomy,
 - exact provenance storage, sync, and private-metadata rules,
+- exact local save-state, autosave-feel, recovery, and degraded-persistence split across `Writing Surface`, snapshots, workflow, and service-health systems,
+- exact human document interchange contract across import, export, approval, format-loss, and Google Docs round-trip behavior,
+- exact AI or memory transfer-format effects on tokens, cost, fidelity, evidence quality, routing, and durable-memory boundaries,
 - exact routing thresholds and approval rules,
 - exact package schemas, chunking, and truncation rules,
 - exact explicit-content approval and refusal behavior,
