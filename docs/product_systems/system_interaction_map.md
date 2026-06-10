@@ -37,7 +37,9 @@ This map is explanatory, not an implementation plan.
    - Memory Lab
    - Critique / Evaluation
    - Companion
-4. Routing, safety, and visibility systems
+4. Transfer and interchange systems
+   - Document Interchange
+5. Routing, safety, and visibility systems
    - Authorship / Provenance / AI Visibility
    - Model Routing And Budget Architecture
    - LLM Package Construction Architecture
@@ -57,8 +59,11 @@ This map is explanatory, not an implementation plan.
 - `Model Routing And Budget Architecture` governs whether local, manual, or paid-model paths are allowed.
 - `LLM Package Construction Architecture` governs how model-facing packages are assembled.
 - `Explicit Content Architecture` governs how raw local prose and outbound transformed packages remain distinct.
+- `Document Interchange` owns author-facing human document import and export workflows, import destination classification, export preview and approval, format-loss warnings, round-trip and conflict posture, and Google Docs as one external source or destination.
 - `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey` collectively own local save-state, autosave feel, recovery, and degraded persistence posture rather than any future Google Docs transfer semantics.
-- A future one-to-one human document interchange dossier should likely own author-facing import and export contracts across `docx`, `pdf`, markdown, plain text, later publishing formats such as `ePub`, and Google Docs as one external source or destination rather than the whole scope.
+- `Binder / Project Library` supplies destination context for imported material and project organization, but it does not own transfer rules.
+- `File Manager / Asset Pane` supports file browsing and asset handling, but it does not own interchange authority.
+- `Document Interchange` must respect `Authorship / Provenance / AI Visibility`, `Explicit Content Architecture`, `Model Routing And Budget Architecture`, and `LLM Package Construction Architecture` without replacing them.
 - `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, and `Memory Lab` remain the provisional homes for AI-facing format, package-shape, cost, fidelity, OCR-derived transfer experiments, and durable-memory-boundary questions until a later contract narrows them.
 
 ## Signal Flow
@@ -165,7 +170,7 @@ Important boundary:
 - exact signal severity, confidence, and resolution taxonomy,
 - exact provenance storage, sync, and private-metadata rules,
 - exact local save-state, autosave-feel, recovery, and degraded-persistence split across `Writing Surface`, snapshots, workflow, and service-health systems,
-- exact human document interchange contract across import, export, approval, format-loss, and Google Docs round-trip behavior,
+- exact per-format import fidelity, export fidelity, and `v1` scope inside the rough document-interchange contract,
 - exact AI or memory transfer-format effects on tokens, cost, fidelity, evidence quality, routing, and durable-memory boundaries,
 - exact routing thresholds and approval rules,
 - exact package schemas, chunking, and truncation rules,

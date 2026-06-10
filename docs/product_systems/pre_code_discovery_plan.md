@@ -100,6 +100,7 @@ Current product-system planning has already completed these steps:
 - dossier inventory and missing-dossier reconciliation completed for the currently registered product-system set.
 - controlled question-intake review completed for all `23 / 23` placeholder dossiers created in that reconciliation sweep.
 - `Critique / Evaluation` now has a one-to-one dossier and is no longer only bridge-backed.
+- human document interchange now has a one-to-one dossier in `import_export_document_interchange.md`, with autosave and AI-format questions still owned elsewhere.
 
 ## 12-Step Pre-Code Roadmap
 
@@ -207,18 +208,17 @@ Current product-system planning has already completed these steps:
 - The current registry contains `42` registered or planned product systems.
 - `18` dossier files existed before the reconciliation pass for this sweep.
 - `23` missing one-to-one registered dossiers were created as placeholder dossiers in the reconciliation pass.
-- `42` dossier files now exist under `docs/product_systems/`.
+- `43` dossier files now exist under `docs/product_systems/`.
 - `0` registered systems remain fully unrepresented only if bridge-backed coverage counts as representation for this sweep.
-- `5` registry systems are currently represented by existing bridge or architecture dossiers rather than one-to-one filenames:
+- `4` registry systems are currently represented by existing bridge or architecture dossiers rather than one-to-one filenames:
   - `Explicit-Content Marker / Send-Package Censor` -> `explicit_content_architecture.md`
-  - `Import / Export / Google Docs` -> `explicit_content_architecture.md` and `authorship_provenance_ai_visibility.md`
   - `Local LLM vs Paid API Routing` -> `model_routing_and_budget_architecture.md`
   - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
   - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
 - `Critique / Evaluation` now has its own one-to-one dossier and is no longer only bridge-backed.
-- Registry target `Import / Export / Google Docs` is now understood as over-broad shorthand.
+- Registry target `Import / Export / Google Docs` is now represented by `import_export_document_interchange.md`, while the old registry wording remains over-broad shorthand.
 - Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey` rather than with document interchange.
-- The future one-to-one human document interchange dossier should likely be `import_export_document_interchange.md`, with Google Docs treated as one external source or destination inside that broader scope.
+- `import_export_document_interchange.md` treats Google Docs as one external source or destination inside broader human document interchange rather than the whole scope.
 - AI or memory transfer format questions remain future contract territory for `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and later document-interchange sections rather than settled doctrine now.
 - The Critique / Evaluation / Author Intent / Companion routing cluster has now been captured across the existing docs, with `Critique / Evaluation` now represented by its own dossier.
 - The external raw question-bank source currently lives at `C:\Dev\plan ideas\continuity\open_questions_register.md`.
@@ -328,8 +328,8 @@ Capture them inside the existing dossiers unless a later controlled batch proves
   Candidate homes: `critique_evaluation.md`.
 - Autosave / instant-save feel and local persistence contract
   Candidate homes: `writing_surface.md`, `snapshots_backup_restore_history.md`, `service_health_offline_degraded_mode.md`, `workflow_spine_author_journey.md`.
-- Future human document interchange dossier decision
-  Candidate homes: future `import_export_document_interchange.md`.
+- Human document interchange exact contract shaping
+  Candidate homes: `import_export_document_interchange.md`.
 - AI / memory transfer format contract
   Candidate homes: `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and later sections inside future `import_export_document_interchange.md` if needed.
 

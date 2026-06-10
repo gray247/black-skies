@@ -65,6 +65,9 @@ Current Black Skies doctrine is:
 - visible difference after acceptance is user-controlled rather than permanently forced,
 - export behavior for AI visibility and provenance is user-controlled,
 - exact provenance storage, private metadata, and sync behavior remain unresolved,
+- human document interchange is a separate capability from local save-state or autosave behavior,
+- Document Interchange governs human-readable import and export workflows, with Google Docs as one external source or destination rather than the whole scope,
+- AI or memory transfer-format doctrine remains provisional and is not settled by the document-interchange dossier,
 - Memory Lab is currently understood as a likely narrative intelligence or forensic layer, not a build-ready runtime authority.
 - Memory Lab may retain meaningful information when it supports continuity, memory, structure, investigation, or author decision support.
 - Memory Lab must not hoard data that does not become information or serve a clear purpose.
@@ -145,6 +148,7 @@ Current canonical repo-tracked sources include:
 - [story_unit.md](/C:/Dev/black-skies/docs/product_systems/story_unit.md)
 - [outline.md](/C:/Dev/black-skies/docs/product_systems/outline.md)
 - [critique_evaluation.md](/C:/Dev/black-skies/docs/product_systems/critique_evaluation.md)
+- [import_export_document_interchange.md](/C:/Dev/black-skies/docs/product_systems/import_export_document_interchange.md)
 - [pass220_modular_salvage_architecture_blueprint.md](/C:/Dev/black-skies/docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md)
 - [pass221_salvage_carry_forward_extraction_map.md](/C:/Dev/black-skies/docs/audits/phase32/pass221_salvage_carry_forward_extraction_map.md)
 - [authority_boundary_matrix.md](/C:/Dev/black-skies/docs/audits/phase29/authority_boundary_matrix.md)

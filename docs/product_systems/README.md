@@ -57,7 +57,7 @@ The full dossier set is grouped into three classes:
 | 29 | [Accessibility / Hotkeys / Large-Font Mode](accessibility_hotkeys_large_font_mode.md) | Product | planned |
 | 30 | [Settings / Preferences / Workspace Layout](settings_preferences_workspace_layout.md) | Product | planned |
 | 31 | [Splash / Startup Experience](splash_startup_experience.md) | Product | planned |
-| 32 | Import / Export / Google Docs | Product | planned |
+| 32 | [Import / Export / Google Docs](import_export_document_interchange.md) | Product | planned |
 | 34 | [File Manager / Asset Pane](file_manager_asset_pane.md) | Product | planned |
 
 ### B. Intelligence Dossiers
@@ -120,10 +120,11 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | `continuity.md` | `Continuity` | rough / exploring | no |
 | `signal_architecture.md` | `Continuity`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
 | `critique_evaluation.md` | `Critique / Evaluation` | rough / exploring | no |
-| `authorship_provenance_ai_visibility.md` | `Writing Surface`, `Command Center Surface`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Import / Export / Google Docs` | rough / exploring | no |
+| `authorship_provenance_ai_visibility.md` | `Writing Surface`, `Command Center Surface`, `Explicit-Content Marker / Send-Package Censor`, `Companion` | rough / exploring | no |
 | `model_routing_and_budget_architecture.md` | `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails` | rough / exploring | no |
 | `llm_package_construction_architecture.md` | `Model Router / Provider Execution Policy`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Memory Lab` | rough / exploring | no |
-| `explicit_content_architecture.md` | `Explicit-Content Marker / Send-Package Censor`, `Import / Export / Google Docs` | rough / exploring | no |
+| `explicit_content_architecture.md` | `Explicit-Content Marker / Send-Package Censor` | rough / exploring | no |
+| `import_export_document_interchange.md` | `Import / Export / Google Docs` | rough / exploring | no |
 | `memory_lab.md` | `Memory Lab` | rough / exploring | no |
 | `companion.md` | `Companion` | rough / exploring | no |
 | `system_interaction_map.md` | first-wave cross-dossier interaction map | rough / exploring | no |
@@ -136,10 +137,10 @@ Active questions belong inside the relevant dossier's centralized `Pre-Rough Ali
 The 2026-06-09 inventory batch created `23` placeholder dossiers so that every clearly derivable registry target has a dossier home, but placeholder creation is not dossier completion.
 All `23 / 23` placeholder dossiers have now received controlled question-intake review from the external archive source.
 That leaves `0` remaining unreviewed placeholder dossiers for this intake sweep.
-Registry coverage also still includes `5` bridge-backed systems rather than one-to-one dossier files.
-Registry target `Import / Export / Google Docs` is now understood as over-broad planning shorthand rather than a settled one-to-one dossier name.
+Registry coverage also still includes `4` bridge-backed systems rather than one-to-one dossier files.
+Registry target `Import / Export / Google Docs` is now represented by the human document interchange dossier `import_export_document_interchange.md`, with the old registry wording kept only as historical shorthand.
 Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey`, not with external document interchange.
-The future one-to-one human document interchange dossier should likely be `import_export_document_interchange.md`, with Google Docs treated as one external source or destination inside that broader scope.
+`import_export_document_interchange.md` treats Google Docs as one external source or destination inside broader human document interchange rather than the whole scope.
 AI or memory transfer format questions remain provisional contract territory for `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, `Memory Lab`, and later document-interchange sections rather than settled doctrine now.
 `0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
 Question-intake review does not equal dossier completion, and all new dossiers remain rough, investigative, and not build-ready.
