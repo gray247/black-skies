@@ -28,8 +28,9 @@ Document Interchange:
 
 - owns author-facing import workflow contracts,
 - owns author-facing export workflow contracts,
+- defines the human document import or export capability for common human-readable formats,
 - defines common human document format posture for `docx`, `pdf`, markdown, plain text, pasted text, later publishing formats such as `ePub`, and Google Docs as one external source or destination,
-- classifies where imported material lands, such as manuscript, source material, archive material, candidate material, notes, or binder material,
+- classifies where imported material lands, such as manuscript text, source material, archive material, candidate material, notes, or binder or project material,
 - distinguishes clean export from annotated or provenance-aware export,
 - provides author-controlled export preview and approval points,
 - surfaces format-loss, drift, and conflict warnings,
@@ -41,11 +42,15 @@ Document Interchange:
 Document Interchange does not:
 
 - own Google Docs-like autosave or instant-save feel,
-- own local save-state, snapshots, backup, restore, or crash recovery,
+- own local autosave,
+- own local save-state behavior,
+- own snapshots,
+- own backup or restore,
+- own crash recovery,
 - replace `File Manager / Asset Pane` as storage or browse authority,
 - replace `Binder / Project Library` as organization or destination context,
 - replace provenance doctrine, explicit-content policy, routing policy, package-construction policy, or `Memory Lab` durable-memory rules,
-- silently canonize imported text as accepted story truth,
+- silently canonize imported text as accepted story truth, accepted continuity truth, or author-owned story truth,
 - silently export raw manuscript, silently sync, or silently rewrite local manuscript state from an external document,
 - claim that any specific format path is build-ready.
 
@@ -59,7 +64,9 @@ Visible behavior should emphasize:
 - preview before export, sync, publish, or other external transfer,
 - explicit warnings when formatting, comments, metadata, or structure may be lost,
 - clear conflict, drift, permission-failure, and offline messaging,
-- author approval before any external document transfer mutates local project state.
+- author approval before any external document transfer mutates local project state,
+- Google Docs treated as one external source or destination rather than the whole feature,
+- no claim that future Google Docs sync is build-ready.
 
 ## 7. Hidden/Background Behavior
 
@@ -139,6 +146,17 @@ Outputs include:
 
 Outputs remain transfer artifacts or workflow state until the author explicitly accepts resulting local changes.
 
+Import destination classes are rough product-definition labels rather than final storage schema:
+
+- `manuscript text`
+- `source material`
+- `archive material`
+- `candidate material`
+- `notes`
+- `binder or project material`
+
+Imported material must not silently become accepted canon, accepted continuity truth, or author-owned story truth.
+
 ## 13. Which Other Systems Consume Those Outputs
 
 Likely downstream consumers:
@@ -179,12 +197,15 @@ Temporary or derived:
 - failed transfer attempts,
 - OCR-derived or other format experiments before any future doctrine explicitly preserves them.
 
+These temporary artifacts must not be mistaken for the approved human export payload, durable `Memory Lab` material, or final import-created project truth.
+
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Document Interchange may import material that later becomes candidate manuscript, notes, source material, or other author-reviewed input for `Narrative Insertion / Narrative Assertion`.
 It must not silently treat imported text as already accepted narrative truth.
 
 Export may use accepted manuscript text, prose projection, assertions, outline, or another selected view only when the export mode explicitly says so.
+Possible export sources still need tighter doctrine by mode and may include accepted manuscript text, prose projection, selected package view, outline-derived structure, assertions or accepted facts, or notes or signals or cards or lore only when explicitly included.
 No export view replaces narrative foundation authority.
 
 ## 17. Relationship To Story Units
@@ -234,6 +255,7 @@ Most local file import and local export paths should not require model routing.
 
 External transfer, provider-bound conversion, Google Docs sync, OCR-derived assistance, or AI-shaped export transformations must respect `Model Routing And Budget Architecture`.
 This dossier does not decide whether raw text, structured JSON or markdown, `docx`, `pdf`, OCR text, or another format is best for AI use.
+AI or memory transfer-format questions remain future contract or testing territory rather than settled human export doctrine in this dossier.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -244,10 +266,13 @@ Document Interchange must respect:
 - protected-content permissions,
 - provenance visibility settings,
 - AI exclusion zones,
-- masked, hidden, deleted, and protected range boundaries.
+- masked, hidden, deleted, and protected range boundaries,
+- author-controlled export preview,
+- no silent outbound transfer.
 
 No export or external transfer may silently widen beyond the approved view.
 Clean export, annotated export, provenance-aware export, emergency raw-prose export, and external sync must remain visibly distinct choices.
+Emergency raw-prose export, if later approved, must remain explicitly bounded and must not bypass masking, permissions, provenance choices, or other protection rules by accident.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
@@ -290,11 +315,14 @@ Governance rules:
 
 Risks:
 
-- imported text being mistaken for accepted truth,
+- messy imported text being mistaken for accepted truth or silently canonized,
 - projection, outline, assertions, or package views being exported as if they were the same thing,
-- format-loss hiding in a successful transfer,
-- Google Docs drift or conflict quietly overwriting local work,
+- round-trip formatting loss hiding content changes inside an apparently successful transfer,
+- Google Docs sync or drift quietly overwriting local work,
+- external document drift becoming local project truth,
 - protected or excluded material leaking through export or sync,
+- AI package-format decisions being confused with human export doctrine,
+- emergency raw-prose export bypassing protection rules,
 - dossier scope drifting into autosave, storage, or AI package doctrine.
 
 ## 29. Failure Modes
@@ -302,12 +330,14 @@ Risks:
 Failure modes include:
 
 - imported documents with unreliable structure,
+- messy imports being classified too aggressively as manuscript truth instead of source, archive, candidate, note, or binder material,
 - comments, headings, or metadata that cannot be mapped cleanly,
 - export preview not matching the final payload,
 - permission failure on external destinations,
 - offline or degraded reconnect mismatch,
 - duplicate or stale Google Docs identity links,
 - round-trip conflicts with no safe merge path,
+- content changes being hidden by format-loss or projection-loss,
 - user expectation that transfer history equals story truth.
 
 ## 30. v1 Boundary
@@ -350,13 +380,14 @@ Intake note:
 - external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
 - old questions merged: yes, selectively from import, export, Google Docs, provenance-export, degraded-mode, and build-order questions
 - stale or over-broad Google Docs-only framing removed: yes
-- remaining blocker summary: `3 Fatal`, `4 Critical`, `5 Major`
+- remaining blocker summary: `4 Fatal`, `6 Critical`, `6 Major`
 
 ### Fatal Questions
 
 - Future contract need: what exact local object or destination state does import create first for each intake path, including manuscript, source material, archive material, candidate material, notes, binder material, or staged review state, so imported text does not silently become accepted truth?
 - Future contract need: what exact source material may each export mode operate on, including accepted manuscript text, prose projection, assertions, outline, or selected package view, so export does not flatten different authority layers into one misleading output?
 - Future contract need: what rules prevent imported or externally edited documents, including future Google Docs sync flows, from silently canonizing text or rewriting local manuscript or project state?
+- Future contract need: what exact anti-canonization and anti-drift rules stop messy imports, external edits, reconnect events, or emergency transfer paths from becoming local project truth without explicit author approval?
 
 ### Critical Questions
 
@@ -364,6 +395,8 @@ Intake note:
 - Future contract need: what preview and approval steps are mandatory before export, publish, external transfer, or any sync mutation, especially when provenance visibility, explicit-content masking, or protected content is involved?
 - Future contract need: what document identity, diff, conflict, permission-failure, offline, reconnect, and drift rules are required before any Google Docs round-trip or sync claim can exist?
 - Future contract need: what safe failure and fallback paths must exist when import or export fails, including degraded mode, emergency raw-prose export, read-only fallback, or backup-export support?
+- Future contract need: what exact limits must govern emergency raw-prose export so it can serve recovery without bypassing masking, protected-content boundaries, provenance choices, or explicit author approval?
+- Future contract need: what exact format-loss handling contract is required when round-trip conversion drops comments, headings, structure, formatting, annotations, or provenance-visible distinctions?
 
 ### Major Questions
 
@@ -372,6 +405,7 @@ Intake note:
 - Major: which non-manuscript materials may export in which modes, including critique, signals, notes, lore, character data, relationship data, or card views, and what must stay excluded by default?
 - Major: should `Existing Google Doc first`, pasted-text-first, folder-of-notes-first, and fragmented-mess-first imports all use one shared intake workflow or diverge into different guided paths?
 - Future contract need: when `docx`, `pdf`, markdown, plain text, `ePub`, or later formats disagree in fidelity, what user-facing loss warnings, fallback choices, and recovery options are required?
+- Future contract need: what testing should compare raw text versus file transfer, structured JSON or markdown packages versus `docx` or `pdf`, OCR-derived experiments, token or cost effects, fidelity, evidence quality, routing effects, temporary package artifacts, and durable `Memory Lab` artifact rules without confusing those studies with human export doctrine?
 
 ### Minor Questions
 
