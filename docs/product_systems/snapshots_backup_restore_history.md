@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-10`
 - Depends on: `Writing Surface`, `Narrative Insertion / Narrative Assertion`
 - Feeds into: all storage-bearing systems
 - Runtime authority: `future`
@@ -36,11 +36,12 @@ The writer needs confidence that work can be recovered without losing clarity ab
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize recovery, comparison, and explicit restore choices.
+Visible behavior should emphasize recovery, comparison, explicit restore choices, and a clear distinction between current save state and historical recovery artifacts.
 
 ## 7. Hidden/Background Behavior
 
 Background snapshotting may exist, but must remain governed and recoverable.
+Snapshots support recovery and history, but they must not become a substitute for clear current save-state behavior.
 
 ## 8. What Appears First
 
@@ -104,7 +105,7 @@ Projection states may be recoverable but remain distinct from accepted manuscrip
 
 ## 19. Relationship To Writing Surface
 
-Recovery must preserve direct writing and avoid confusing restore previews with current text.
+Recovery must preserve direct writing, avoid confusing restore previews with current text, and support crash or restart recovery without turning recovery artifacts into hidden canon.
 
 ## 20. Relationship To Command Center Surface
 
@@ -141,12 +142,14 @@ Prove restore, undo, and history views preserve clear current-versus-historical 
 ## 28. Governance Rules And Risks
 
 - no history-as-canon,
+- no snapshots-as-save-state-authority,
 - no unsafe restore ambiguity,
 - no protected-data leakage.
 
 ## 29. Failure Modes
 
 If history fails, current work must remain safe and recoverable where possible.
+Recovery failure must not imply that snapshot artifacts become the new manuscript truth by default.
 
 ## 30. v1 Boundary
 
@@ -178,6 +181,7 @@ Intake note:
 - Critical: what does recovery restore across manuscript text, accepted assertions, projection state, Story Unit state, and support metadata, and what remains historical only?
 - Critical: which actions require a snapshot or backup first, especially import, sync, restore, or destructive operations that can damage current work?
 - Critical: what safe recovery path exists if snapshot restore fails, causes a crash loop, or can only reopen a project in read-only or repair-first mode?
+- Future contract need: what exact boundary separates current save state from snapshot or recovery history so authors can recover recent work after crash or restart without mistaking recovery artifacts for accepted story truth?
 
 ### Major Questions
 
@@ -193,6 +197,7 @@ Intake note:
 - Historical state is not automatic current truth.
 - Restore previews and history views must remain visibly distinct from current accepted state.
 - Protected-content boundaries still apply to snapshots, restore previews, and backup artifacts.
+- Snapshots support recovery and history, not Google Docs sync, cloud sync, or document-interchange authority.
 - Questions better owned elsewhere: exact import/export/sync behavior belongs primarily to the future import/export dossier.
 
 ### Deferred Questions

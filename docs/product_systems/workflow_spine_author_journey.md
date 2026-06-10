@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-10`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Companion`
 - Runtime authority: `future`
@@ -36,7 +36,7 @@ The writer needs coherent workflow guidance without being forced through rigid s
 
 ## 6. User-Facing Behavior
 
-Visible behavior should stay lightweight, writer-first, and optional.
+Visible behavior should stay lightweight, writer-first, optional, and free of manual-save ritual demands before writing can continue.
 
 ## 7. Hidden/Background Behavior
 
@@ -46,6 +46,7 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 
 - current writing path,
 - current blocker or next action when relevant,
+- confidence that the author can resume writing without hunting for hidden save steps,
 - clear return to direct writing.
 
 ## 9. What Is Summonable
@@ -113,6 +114,7 @@ Projection may support workflow context, but projection is not workflow authorit
 ## 19. Relationship To Writing Surface
 
 The workflow spine must support the sovereign Writing Surface without gating direct writing.
+It should reinforce a continuously saved feel for direct writing and safe resume or recovery entry after interruption without turning workflow status into save-state authority.
 
 ## 20. Relationship To Command Center Surface
 
@@ -187,6 +189,7 @@ Intake note:
 - Critical: what workflow state is durable versus session-only, especially for resume, last-used context, and workflow-progress markers?
 - Jason decision candidate: should workflow modes remain explicit user-chosen modes, lightweight context filters, or mostly invisible posture changes, and which visible tool changes are allowed when they switch?
 - Future contract need: how should Author Intent / Story Setup be represented as a living profile rather than a rigid startup wizard, and which fields may remain unknown, ask-later, inferred candidate, system-suggested, confirmed, or changed over time?
+- Future contract need: what exact resume and interruption contract should exist after crash, restart, degraded save state, or recovery-first entry so the author can continue writing without turning workflow markers into hidden canon or save authority?
 
 ### Major Questions
 
@@ -202,6 +205,7 @@ Intake note:
 - Direct writing must remain available.
 - Workflow support does not own truth.
 - Superseded by current doctrine: workflow support must not block typing or gate writing behind required setup.
+- Save confidence and resume confidence should come from local persistence and recovery support, not from manual-save ritual or Google Docs sync assumptions.
 - Questions better owned elsewhere: model-routing preferences, budget preferences, explicit-content send rules, and Google Docs entry flows belong primarily to routing, settings, or import/export dossiers.
 - Old Wizard is preserved only as a historical seed for Author Intent / Story Setup plus workflow guidance; it is not a required startup gate.
 

@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-10`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
 - Feeds into: `Command Center Surface`, `Outline`, `Story Unit`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Explicit-Content Marker / Send-Package Censor`, `Companion`
 - Runtime authority: `future`
@@ -56,8 +56,9 @@ Visible behavior should emphasize:
 - writer-first focus,
 - minimal clutter,
 - clear current-writing context,
+- a continuously saved feel for direct writing,
 - explicit control over when support signals or tool outputs are shown,
-- calm persistence of draft work without ritualized setup steps.
+- calm persistence of draft work without ritualized setup steps or manual-save ceremony.
 
 Default Writing Surface context should stay minimal:
 
@@ -76,13 +77,14 @@ Heavier context should open in summonable side or support surfaces rather than c
 
 Background behavior may later include:
 
-- draft autosave or recovery coordination,
+- local draft autosave, save-state, or recovery coordination,
 - continuity or critique refresh triggers,
 - explicit-content send-package checks,
 - local model or paid model routing preparation,
 - context packaging for future support systems.
 
 Background behavior must not silently claim authorship, certainty, or authority over writer intent.
+Google Docs-like instant-save feel belongs here as local persistence posture, not as Google Docs sync, cloud sync, or `Document Interchange`.
 Heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes must remain governed by the owning-system approval rules rather than Writing Surface authority.
 
 ## 8. What Appears First
@@ -184,6 +186,7 @@ Eventually stored:
 
 - prose drafts,
 - focus metadata,
+- local save-state or recovery markers later,
 - writer-approved structural references,
 - explicit user choices related to revision or send-package handling,
 - bounded view or placement preferences if they genuinely belong to the writing flow.
@@ -196,6 +199,7 @@ Temporary or derived:
 - ephemeral support prompts,
 - transient critique overlays,
 - transient continuity highlights,
+- pending-save or recoverable-write indicators,
 - derived projection views,
 - temporary AI suggestions not yet accepted by the writer.
 
@@ -230,6 +234,7 @@ This dossier defines the Writing Surface itself as the sovereign writing area.
 Sovereignty means:
 
 - direct writing remains available first,
+- persistence and recovery support direct writing rather than slowing it with manual save rituals,
 - support systems may assist but not take over,
 - authorial intent is expressed here first,
 - nothing outside the Writing Surface should make basic writing unavailable by default.
@@ -332,6 +337,7 @@ Future proof set should include:
 Key risks:
 
 - support systems crowding out direct writing,
+- local writing feeling unsafe unless the author performs manual save rituals,
 - AI suggestions being mistaken for authored truth,
 - projection containers acquiring hidden authority,
 - Companion becoming a required path instead of optional assistance,
@@ -353,6 +359,7 @@ Failure modes include:
 
 - writing path blocked by unavailable support systems,
 - clutter overload that slows basic drafting,
+- unclear save-state leaving the author unsure whether recent writing is safe, pending, degraded, recoverable, or at risk,
 - lost separation between prose and derived overlays,
 - unsafe AI output being blended into prose without approval,
 - send-package handling masking the wrong material,
@@ -403,6 +410,7 @@ Future-only items:
 - Future contract need: what exact inline versus off-surface display contract should govern signals, provenance overlays, `Companion` highlights, package previews, and warnings so writing flow stays primary and non-gated?
 - Future contract need: what exact approval and interaction contract should govern how the Writing Surface exposes heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes without becoming the owner of those actions?
 - Future contract need: how must manual masking, AI exclusion zones, and author-approved package views behave inside the Writing Surface so local direct writing remains available while excluded raw text does not leak through overlays, previews, or summaries?
+- Future contract need: what exact local save-state contract should govern continuously saved feel, pending-save visibility, degraded-save warnings, recoverable-write cues, and crash or restart recovery entry without turning Writing Surface into a hidden sync or history authority?
 
 ### Major Questions
 

@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-10`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Async Job Queue / Task Runner`
 - Feeds into: all runtime-dependent systems
 - Runtime authority: `future`
@@ -36,7 +36,7 @@ The writer needs the app to fail clearly and safely without losing access to loc
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize clear status, fallback paths, and continued local writing.
+Visible behavior should emphasize clear status, honest save-state cues, fallback paths, and continued local writing.
 
 ## 7. Hidden/Background Behavior
 
@@ -102,6 +102,7 @@ Projection support may degrade, but accepted text remains distinct.
 ## 19. Relationship To Writing Surface
 
 Direct writing must remain available during degraded or offline modes when local editing is possible.
+This dossier should help show whether writing is saved, pending, degraded, recoverable, or at risk without confusing those states with Google Docs sync or cloud availability.
 
 ## 20. Relationship To Command Center Surface
 
@@ -144,6 +145,7 @@ Prove offline and degraded states stay accurate and preserve direct writing.
 ## 29. Failure Modes
 
 If health reporting fails, the app should prefer safe local assumptions and preserve writing.
+Health ambiguity must not hide when recent writing is still pending or recovery-first.
 
 ## 30. v1 Boundary
 
@@ -176,6 +178,7 @@ Intake note:
 - Critical: which operations remain available in degraded mode, including direct writing, read-only project open, safe raw-prose copy, snapshot creation, backup export, and project repair?
 - Critical: which actions must be forbidden in degraded mode because they are destructive, truth-mutating, or likely to worsen recovery?
 - Future contract need: what safe-mode or startup-bypass paths are required when bad settings, bad projects, or broken subsystems cause crash loops or prevent normal recovery?
+- Future contract need: what exact saved, pending, degraded, recoverable, and at-risk state vocabulary should appear during offline or degraded writing so local persistence risk is honest without implying cloud or sync guarantees?
 
 ### Major Questions
 
@@ -192,6 +195,7 @@ Intake note:
 - Direct writing must remain available when local editing is still possible.
 - Superseded by current doctrine: degraded operation must not bypass explicit-content restrictions, privacy boundaries, or approval rules.
 - Health reporting must not create false-healthy state.
+- Google Docs-like instant-save expectation belongs to local persistence and recovery posture, not to cloud-sync success claims.
 
 ### Deferred Questions
 
