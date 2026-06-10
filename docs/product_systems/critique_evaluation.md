@@ -25,9 +25,9 @@ The writer needs bounded evaluation support that can identify issues, compare op
 ## 4. What The System Does
 
 - reads evidence from supported systems,
-- produces advisory findings, recommendations, evidence bundles, ranked issues, comparison notes, signal candidates, feedback-note candidates, and rewrite prompts,
+- produces advisory findings, ranked issues, evidence bundles, comparison notes, recommendation lists, signal candidates, feedback-note candidates, and rewrite-prompt candidates,
 - helps the author inspect writing, structure, continuity, tone, and related concerns,
-- may be invoked by Companion, Writing Surface, Command Center, Draft Generation / Rewrite Loop, or manual author action,
+- may be invoked by Companion, Writing Surface, Command Center, Draft Generation / Rewrite Loop, or direct manual author action,
 - can use Author Intent / Story Setup as a goal-and-boundary reference while that profile remains hosted in Workflow Spine / Author Journey.
 
 ## 5. What The System Does Not Do
@@ -37,19 +37,30 @@ The writer needs bounded evaluation support that can identify issues, compare op
 - it does not own manuscript truth,
 - it does not own author-owned canon,
 - it does not own durable signal state,
+- it does not own Feedback Notes workflow,
 - it does not own Memory Lab recall,
 - it does not own rewrite execution,
 - it does not own routing, spend, export, sync, or publish decisions,
 - it does not own explicit-content clearance or protected-content permissions,
+- it does not own final author decisions,
 - it does not replace Plugin / Rubric System, Feedback Notes / Revision Resolution, Signal Architecture, Draft Generation / Rewrite Loop, Continuity, or Companion.
 
 ## 6. User-Facing Behavior
 
 Visible behavior should stay optional, bounded, and clearly labeled as advisory evaluation.
 
+Invocation posture:
+
+- `Companion` may launch critique, explain critique findings, summarize critique outcomes, or help the author review them,
+- `Writing Surface` may show small current-text critique hints only when useful,
+- `Command Center Surface` may host heavier critique review, comparison, and cleanup workflows,
+- `Draft Generation / Rewrite Loop` may use critique findings to frame rewrite options,
+- the author may request critique directly without going through `Companion`.
+
 ## 7. Hidden/Background Behavior
 
 Background evaluation may assemble context, compare evidence, and prepare candidate findings, but it must remain advisory until explicitly accepted or converted through the owning system.
+It must not silently convert findings into canon, durable signal state, feedback workflow state, or rewrite execution.
 
 ## 8. What Appears First
 
@@ -66,7 +77,7 @@ Background evaluation may assemble context, compare evidence, and prepare candid
 - evidence bundles,
 - signal candidates,
 - feedback-note candidates,
-- rewrite prompts,
+- rewrite-prompt candidates,
 - direct launch from Companion, Writing Surface, Command Center, Draft Generation / Rewrite Loop, or manual author action.
 
 ## 10. What Is Hidden Until Needed
@@ -107,13 +118,13 @@ Critique / Evaluation may read:
 Critique / Evaluation may produce:
 
 - advisory findings,
-- recommendations,
-- evidence bundles,
 - ranked issues,
+- evidence bundles,
 - comparison notes,
+- recommendation lists,
 - signal candidates,
 - feedback-note candidates,
-- rewrite prompts,
+- rewrite-prompt candidates,
 - bounded explanation views for Companion or the owning surface.
 
 These outputs are advisory unless explicitly accepted or converted through the owning system.
@@ -142,6 +153,7 @@ Eventually stored, when explicitly retained:
 - comparison records,
 - source labels,
 - provenance,
+- critique result state,
 - author action history where needed,
 - optional links into feedback notes or signal candidates.
 
@@ -155,6 +167,17 @@ Temporary or non-durable:
 - provisional rankings,
 - review drafts,
 - candidate outputs not explicitly retained.
+
+Critique result states may later include:
+
+- `candidate`
+- `accepted by author`
+- `dismissed`
+- `ignored`
+- `deferred`
+- `stale`
+- `superseded`
+- `converted` through another owning system
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -172,7 +195,7 @@ Projection remains support context rather than truth authority.
 
 ## 19. Relationship To Writing Surface
 
-Writing Surface may show small current-text critique hints when useful, but it must not turn Critique into the default writing interface.
+Writing Surface may show small current-text critique hints when useful, but it must not turn Critique into the default writing interface or a constant report surface.
 
 ## 20. Relationship To Command Center Surface
 
@@ -252,8 +275,14 @@ Governance rules:
 - no shadow canon,
 - no silent truth mutation,
 - no hidden grading authority,
+- no hidden universal grader,
+- no alternate truth owner,
+- no silent Companion-to-canon conversion,
+- no silent critique-to-signal conversion outside `Signal Architecture` rules,
+- no silent critique-to-rewrite conversion without explicit author action,
 - no silent routing or spend expansion,
-- no protected-content bypass.
+- no protected-content bypass,
+- no use of protected, masked, deleted, hidden, or AI-excluded material without permission.
 
 Historical decomposition:
 
@@ -264,6 +293,10 @@ Risks:
 
 - Critique being mistaken for a universal surface,
 - evaluation output being mistaken for author truth,
+- Companion silently turning critique into canon,
+- critique findings becoming durable signals without `Signal Architecture` rules,
+- critique recommendations becoming rewrites without explicit author action,
+- critique reading protected, masked, deleted, hidden, or AI-excluded material without permission,
 - review output becoming a hidden critique police layer,
 - provider or routing changes leaking into authority.
 
@@ -274,7 +307,9 @@ Risks:
 - ranking disagreements,
 - overlong or over-dense reports,
 - evidence drift after source changes,
-- confusion between critique output and accepted prose.
+- confusion between critique output and accepted prose,
+- protected-content boundaries being misread during evaluation,
+- critique results remaining visible after they are stale or superseded.
 
 ## 30. v1 Boundary
 
@@ -314,8 +349,8 @@ Intake note:
 - external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
 - old questions merged: yes, mainly from critique / review / report / evidence / rewrite adjacency, with broad settings and personality questions filtered out when they were not safe for this dossier
 - stale placeholder questions removed or superseded: yes
-- active question count after merge: 8
-- remaining blocker summary: `0 Fatal`, `5 Critical`, `2 Major`, `1 Minor`
+- active question count after merge: 14
+- remaining blocker summary: `0 Fatal`, `11 Critical`, `2 Major`, `1 Minor`
 
 ### Fatal Questions
 
@@ -324,15 +359,21 @@ Intake note:
 ### Critical Questions
 
 - What exact authority model prevents Critique / Evaluation from becoming a hidden universal grader or alternate truth owner?
-- What exact output classes are permitted: advisory findings, recommendations, evidence bundles, ranked issues, comparison notes, signal candidates, feedback-note candidates, rewrite prompts, or a narrower subset?
+- What exact output classes are permitted: advisory findings, ranked issues, evidence bundles, comparison notes, recommendation lists, signal candidates, feedback-note candidates, rewrite-prompt candidates, or a narrower subset?
 - What exact evidence citation standard applies before Critique claims a finding or comparison is reliable guidance?
-- Which surfaces may invoke Critique directly, and which may only consume Critique outputs after a handoff?
-- What exact separation keeps Critique from overwriting Signal Architecture, Memory Lab, routing or spend, export or sync, or explicit-content permissions?
+- Which surfaces may invoke Critique directly, which may only consume Critique outputs after handoff, and what invocation language should each surface use?
+- What exact result-detail density belongs in Writing Surface hints versus Command Center review versus Companion explanation versus direct critique review?
+- What exact severity, confidence, and ranking model should Critique use before ranked issues appear across surfaces?
+- How do critique-derived signal candidates move into `Signal Architecture` without silently becoming durable signal state?
+- How do critique-derived note candidates move into `Feedback Notes / Revision Resolution` without silently becoming workflow state or accepted revision decisions?
+- How do critique-derived rewrite-prompt candidates move into `Draft Generation / Rewrite Loop` without silently becoming rewrite execution or accepted prose?
+- What protected-content, masked-content, hidden-content, deleted-content, and AI-excluded-content boundaries must Critique obey before it may inspect, summarize, rank, or cite material?
+- What exact local-versus-paid critique approval model applies before heavier critique may run, especially when scope expands, provider changes, or outbound package rules apply?
 
 ### Major Questions
 
-- How much result detail belongs in Writing Surface hints versus Command Center review versus Companion explanation?
-- What default result grouping is most useful first: findings, rankings, evidence bundles, comparison notes, rewrite prompts, or some other bounded presentation?
+- What default result grouping is most useful first: findings, rankings, evidence bundles, comparison notes, rewrite-prompt candidates, or some other bounded presentation?
+- Should accepted, dismissed, deferred, stale, superseded, and converted critique results remain visible as local critique history, or should some states expire by default?
 
 ### Minor Questions
 
@@ -343,7 +384,7 @@ Intake note:
 - Critique is not primarily a surface.
 - Companion may route into Critique but does not own it.
 - Critique outputs are advisory unless explicitly accepted or converted through the owning system.
-- Critique does not own manuscript truth, durable signal state, Memory Lab recall, rewrite execution, routing or spend, export or sync, or explicit-content clearance.
+- Critique does not own manuscript truth, accepted canon, durable signal state, Feedback Notes workflow, Memory Lab recall, rewrite execution, routing or spend, export or sync, explicit-content clearance, protected-content permissions, or final author decisions.
 - Plugin / Rubric System remains separate; Critique does not replace it.
 - Broad settings questions such as global-versus-project critique harshness are better owned by settings or future policy work, not by this dossier.
 
@@ -361,6 +402,7 @@ This dossier is acceptable only if it explicitly states that:
 - it is not Companion-owned,
 - it does not replace Plugin / Rubric System, Feedback Notes, Signal Architecture, Draft Generation, Continuity, or Companion,
 - it may be invoked by multiple surfaces without becoming a universal surface,
+- it does not silently turn critique into canon, durable signal state, feedback workflow state, or rewrite execution,
 - it does not silently mutate manuscript truth or protected content,
 - active questions live in the dossier instead of only in a giant standalone register,
 - active questions live only in the centralized `Pre-Rough Alignment Questionnaire`,
