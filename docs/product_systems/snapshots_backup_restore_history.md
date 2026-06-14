@@ -18,6 +18,8 @@
 
 Define recovery, backup, restore, and history support so the app can preserve user work and recover safely without turning system history into story truth authority.
 
+This dossier inherits recovery-mode and protection-preservation doctrine from `snapshot_protected_recovery_contract.md`, protected-content rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, degraded execution rules from `degraded_mode_execution_contract.md`, and ownership limits from `truth_and_state_ownership_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer needs confidence that work can be recovered without losing clarity about what content is current, accepted, deleted, or historical.
@@ -25,14 +27,15 @@ The writer needs confidence that work can be recovered without losing clarity ab
 ## 4. What The System Does
 
 - capture recoverable history,
-- support backup and restore,
+- support backup and governed restore modes such as preview-only, read-only, restore-as-copy, restore-as-candidate, restore-as-staged-object, and restore-as-current,
 - preserve bounded change history.
 
 ## 5. What The System Does Not Do
 
 - decide truth,
 - silently resurrect deleted truth as current canon,
-- blur current accepted state with historical snapshots.
+- blur current accepted state with historical snapshots,
+- silently recreate notes, signals, memory, or protected raw content just because it existed historically.
 
 ## 6. User-Facing Behavior
 
@@ -72,6 +75,7 @@ Snapshots support recovery and history, but they must not become a substitute fo
 
 - snapshots,
 - restore options,
+- preview, read-only, copy, candidate, staged, comparison, or current-restore paths when allowed,
 - history views,
 - recovery status.
 
@@ -130,10 +134,12 @@ None by default.
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Snapshots and backups must respect local-only and protected-content boundaries.
+Recovery does not erase `hidden`, `masked`, `deleted`, `discarded`, `forgotten`, `AI-excluded`, `local-only`, `export-blocked`, or `transfer-blocked` posture.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Deleted, hidden, masked, or excluded material requires careful recovery rules.
+Historical existence does not make those materials current again by default.
 
 ## 27. Testing Requirements
 
@@ -144,12 +150,15 @@ Prove restore, undo, and history views preserve clear current-versus-historical 
 - no history-as-canon,
 - no snapshots-as-save-state-authority,
 - no unsafe restore ambiguity,
-- no protected-data leakage.
+- no protected-data leakage,
+- restore-as-current is the highest-risk recovery action and requires governed approval,
+- historical evidence is not current truth authority.
 
 ## 29. Failure Modes
 
 If history fails, current work must remain safe and recoverable where possible.
 Recovery failure must not imply that snapshot artifacts become the new manuscript truth by default.
+Read-only, repair-first, comparison, or restore-as-copy fallback should be preferred over unsafe restore-as-current.
 
 ## 30. v1 Boundary
 
@@ -170,17 +179,18 @@ Intake note:
 - old questions merged: yes, mainly from recovery, sync-history, import, and crash-loop questions
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 8
-- remaining blocker summary: `1 Fatal`, `3 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `4 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what recovery rules govern deleted, hidden, masked, excluded, or AI-protected material so restore never silently exposes protected content or resurrects discarded truth as current canon?
+- None currently. The architecture suite now answers the prior cross-system Fatal question about protected recovery, historical-state authority, and restore-as-current governance. Remaining blockers are narrower implementation-shaping Critical and Future contract questions.
 
 ### Critical Questions
 
-- Critical: what does recovery restore across manuscript text, accepted assertions, projection state, Story Unit state, and support metadata, and what remains historical only?
-- Critical: which actions require a snapshot or backup first, especially import, sync, restore, or destructive operations that can damage current work?
-- Critical: what safe recovery path exists if snapshot restore fails, causes a crash loop, or can only reopen a project in read-only or repair-first mode?
+- Future contract need: what exact recoverable object bundles should early snapshots capture together versus separately across manuscript text, accepted assertions, projection state, Story Unit state, notes, signals, memory, and support metadata, and what remains historical only?
+- Critical: which actions require a snapshot or backup first, especially import, sync-like transfer, restore, or destructive operations that can damage current work?
+- Critical: what safe recovery path exists if snapshot restore fails, causes a crash loop, or can only reopen a project in read-only, repair-first, or recovery-first mode?
+- Critical: what anchor-repair rules must govern restored notes, signals, or other linked support objects when their original ranges are stale, deleted, or structurally changed?
 - Future contract need: what exact boundary separates current save state from snapshot or recovery history so authors can recover recent work after crash or restart without mistaking recovery artifacts for accepted story truth?
 
 ### Major Questions
@@ -197,6 +207,11 @@ Intake note:
 - Historical state is not automatic current truth.
 - Restore previews and history views must remain visibly distinct from current accepted state.
 - Protected-content boundaries still apply to snapshots, restore previews, and backup artifacts.
+- Answered / Superseded: snapshots are historical evidence and recovery support, not truth authority.
+- Answered / Superseded: restore-as-current is the highest-risk recovery path and requires explicit governed approval rather than silent replay.
+- Answered / Superseded: restore-as-copy, preview-only, read-only, candidate, staged, comparison, and evidence-oriented recovery are valid governed modes.
+- Answered / Superseded: hidden, masked, deleted, discarded, forgotten, AI-excluded, and local-only states survive recovery rather than being erased by historical presence.
+- Answered / Superseded: historical existence does not automatically recreate current truth, notes, signals, memory, or export eligibility.
 - Snapshots support recovery and history, not Google Docs sync, cloud sync, or document-interchange authority.
 - Questions better owned elsewhere: exact import/export/sync behavior belongs primarily to the future import/export dossier.
 
@@ -206,4 +221,5 @@ Intake note:
 
 ## 34. Acceptance Criteria
 
+Implementation remains blocked by open Critical and Future contract questions.
 This dossier is acceptable only if recovery remains safe, explicit, and non-authoritative.

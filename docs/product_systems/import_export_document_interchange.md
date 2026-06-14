@@ -18,6 +18,8 @@
 
 Define the author-facing human document interchange capability so Black Skies can import and export common document material without confusing transfer workflows with autosave, storage authority, AI package doctrine, or story truth.
 
+This dossier inherits source and destination rules from `document_interchange_source_destination_contract.md`, protection rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, execution limits from `degraded_mode_execution_contract.md`, handoff rules from `surface_to_owner_action_handoff_contract.md`, and truth or durable-state authority limits from `truth_and_state_ownership_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer needs to bring outside document material into Black Skies, send Black Skies material out to common human-readable formats, and review what will cross that boundary before transfer, loss, drift, or protected-content mistakes happen.
@@ -135,7 +137,7 @@ Inputs include:
 
 Outputs include:
 
-- imported material staged or placed into a chosen destination state,
+- imported material staged, reviewed, or converted through an owner-governed destination path,
 - export previews,
 - formatted output files or external-document payloads later,
 - format-loss warnings,
@@ -145,6 +147,9 @@ Outputs include:
 - author-visible clean or annotated export selections.
 
 Outputs remain transfer artifacts or workflow state until the author explicitly accepts resulting local changes.
+
+Imported material defaults to `import staging`, `review`, or other candidate-like intake states rather than accepted manuscript or accepted truth.
+Exported artifacts remain transfer artifacts rather than local truth authority.
 
 Import destination classes are rough product-definition labels rather than final storage schema:
 
@@ -204,9 +209,9 @@ These temporary artifacts must not be mistaken for the approved human export pay
 Document Interchange may import material that later becomes candidate manuscript, notes, source material, or other author-reviewed input for `Narrative Insertion / Narrative Assertion`.
 It must not silently treat imported text as already accepted narrative truth.
 
-Export may use accepted manuscript text, prose projection, assertions, outline, or another selected view only when the export mode explicitly says so.
-Possible export sources still need tighter doctrine by mode and may include accepted manuscript text, prose projection, selected package view, outline-derived structure, assertions or accepted facts, or notes or signals or cards or lore only when explicitly included.
-No export view replaces narrative foundation authority.
+Export may use accepted manuscript text, prose projection, assertions, outline, or another selected view only when the export mode explicitly declares that source object.
+Possible export sources are governed by source and destination doctrine by mode and may include accepted manuscript text, prose projection, selected package view, outline-derived structure, assertions or accepted facts, or notes or signals or cards or lore only when explicitly included.
+No export view replaces narrative foundation authority, and no exported artifact becomes local truth authority when it leaves Black Skies.
 
 ## 17. Relationship To Story Units
 
@@ -223,6 +228,7 @@ The Writing Surface remains the sovereign drafting surface.
 Document Interchange may bring material into or out of the Writing Surface context, but it does not own local persistence, autosave feel, save-state behavior, or crash recovery.
 
 Google Docs-like instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey`, not this dossier.
+Google Docs is an external source or destination only. It is not local truth authority, local autosave authority, or build-ready sync doctrine here.
 
 ## 20. Relationship To Command Center Surface
 
@@ -306,11 +312,14 @@ Future proof set should include:
 Governance rules:
 
 - imported text is not accepted canon by default,
+- imported material defaults to staging, review, or candidate-like intake rather than direct truth placement,
 - no silent outbound transfer,
 - no silent sync,
 - no silent raw-manuscript export,
 - no silent external-document drift rewriting local project state,
-- explicit-content, provenance, routing, and permission boundaries must be respected,
+- each export mode must declare its source object explicitly,
+- exported artifacts are transfer artifacts rather than local truth authority,
+- explicit-content, provenance, routing, degraded-mode, handoff, and permission boundaries must be respected,
 - final author decisions remain outside this dossier's authority.
 
 Risks:
@@ -380,17 +389,15 @@ Intake note:
 - external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
 - old questions merged: yes, selectively from import, export, Google Docs, provenance-export, degraded-mode, and build-order questions
 - stale or over-broad Google Docs-only framing removed: yes
-- remaining blocker summary: `4 Fatal`, `6 Critical`, `6 Major`
+- remaining blocker summary: `0 Fatal`, `6 Critical`, `6 Major`
 
 ### Fatal Questions
 
-- Future contract need: what exact local object or destination state does import create first for each intake path, including manuscript, source material, archive material, candidate material, notes, binder material, or staged review state, so imported text does not silently become accepted truth?
-- Future contract need: what exact source material may each export mode operate on, including accepted manuscript text, prose projection, assertions, outline, or selected package view, so export does not flatten different authority layers into one misleading output?
-- Future contract need: what rules prevent imported or externally edited documents, including future Google Docs sync flows, from silently canonizing text or rewriting local manuscript or project state?
-- Future contract need: what exact anti-canonization and anti-drift rules stop messy imports, external edits, reconnect events, or emergency transfer paths from becoming local project truth without explicit author approval?
+- None currently. The architecture suite now answers the prior cross-system Fatal questions about import default posture, export source declaration, anti-canonization, anti-drift doctrine, handoff authority, and protected-content inheritance. Remaining blockers are narrower implementation-shaping Critical and Future contract questions.
 
 ### Critical Questions
 
+- Future contract need: what exact import-created object map should each common intake path use first inside the already-governed staging, review, candidate, notes, source-material, archive-material, and binder-material postures?
 - Future contract need: how must imported comments, headings, formatting, metadata, unknown structures, and `pdf` extraction ambiguity be preserved, downgraded, or dropped with visible format-loss warnings?
 - Future contract need: what preview and approval steps are mandatory before export, publish, external transfer, or any sync mutation, especially when provenance visibility, explicit-content masking, or protected content is involved?
 - Future contract need: what document identity, diff, conflict, permission-failure, offline, reconnect, and drift rules are required before any Google Docs round-trip or sync claim can exist?
@@ -414,12 +421,18 @@ Intake note:
 
 ### Answered / Superseded Questions
 
+- Answered / Superseded: import defaults to staging, review, candidate, or other explicitly classified intake states rather than accepted manuscript or accepted truth.
+- Answered / Superseded: each export mode must declare its source object explicitly rather than flattening manuscript, assertions, outline, projection, package views, or support artifacts into one authority layer.
+- Answered / Superseded: imported material does not silently canonize, and externally edited material does not silently rewrite local manuscript or project truth.
+- Answered / Superseded: exported artifacts are transfer artifacts rather than local truth authority.
 - Answered / Superseded: Google Docs-like autosave or instant-save feel does not belong here. It belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey`.
 - Answered / Superseded: Google Docs is one external source or destination inside the broader document-interchange scope, not the whole scope.
+- Answered / Superseded: Google Docs is not truth authority, local autosave authority, or build-ready sync doctrine in this dossier.
 - Answered / Superseded: Story Units are not a mandatory gate for import or export.
 - Answered / Superseded: `Companion` may explain or route transfer requests, but it does not own transfer authority.
 - Answered / Superseded: clean export is valid by default, and provenance-aware export should be an author-controlled mode rather than a forced always-on export doctrine.
 - Answered / Superseded: `File Manager / Asset Pane` does not own import, export, sync, or transfer authority.
+- Answered / Superseded: protected-content, explicit-content, provenance, routing, and degraded-mode behavior inherit from the canonical governance contracts rather than being reinvented inside this dossier.
 
 ### Deferred Questions
 
@@ -430,7 +443,7 @@ Intake note:
 
 ## 34. Acceptance Criteria
 
-Implementation remains blocked by open Fatal and Critical questions.
+Implementation remains blocked by open Critical and Future contract questions.
 This dossier is rough, investigative, and not build-ready.
 
 This dossier is acceptable only if it states explicitly that:
