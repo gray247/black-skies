@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define file and asset support for project materials without letting asset containers become narrative truth owners.
+This dossier inherits asset, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `document_interchange_source_destination_contract.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -168,10 +169,11 @@ Intake note:
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 8
 - remaining blocker summary: `1 Fatal`, `3 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `3 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what rules prevent File Manager / Asset Pane from exposing hidden, deleted, masked, excluded, or AI-protected files through previews, attachments, asset links, or file operations?
+- None. Protected-content behavior for files and assets is governed by the protection matrix, provenance rules, and handoff contract.
 
 ### Critical Questions
 
@@ -192,6 +194,8 @@ Intake note:
 
 - Direct writing must remain valid.
 - File and asset containers do not own narrative truth.
+- Protected, local-only, or AI-excluded assets must not silently feed AI packages, diagnostics, export, memory, or search summaries.
+- Browse-only is the safest early scope unless attach/link is explicitly bounded.
 - Questions better owned elsewhere: exact import, export, sync, and Google Docs movement rules belong to the future `Import / Export / Google Docs` dossier.
 
 ### Deferred Questions

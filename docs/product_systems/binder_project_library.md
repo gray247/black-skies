@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define the Binder / Project Library as the organizational home for project contents without making the binder itself the owner of narrative truth.
+This dossier inherits library, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `document_interchange_source_destination_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -193,6 +194,8 @@ Intake note:
 ### Answered / Superseded Questions
 
 - Containers do not own narrative truth.
+- Library metadata is durable state, not canon.
+- Project organization does not imply story truth.
 - Binder navigation must not gate direct writing.
 - Questions better owned elsewhere: exact import, export, sync, and Google Docs behavior belong to the future `Import / Export / Google Docs` dossier.
 

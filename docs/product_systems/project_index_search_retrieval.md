@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define project search and retrieval as a bounded find-and-reference system that helps the author locate material without turning retrieval results into truth authority.
+This dossier inherits index, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -197,6 +198,8 @@ Intake note:
 - Retrieved material is not automatic canon.
 - Search and retrieval results are evidence or references, not truth.
 - Governed recall remains `Memory Lab` territory, not search authority.
+- Degraded indexing must not fake completeness.
+- Search snippets must not leak protected content.
 - Questions better owned elsewhere: exact `Memory Lab` retention and recall policy belongs primarily to `memory_lab.md`.
 
 ### Deferred Questions
