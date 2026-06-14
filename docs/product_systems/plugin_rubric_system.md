@@ -18,13 +18,15 @@
 
 Define plugin or rubric support as an extensibility layer for bounded analysis rules or review frameworks without allowing plugins to become hidden truth owners.
 
+This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, handoff rules from `surface_to_owner_action_handoff_contract.md`, AI approval and lifecycle rules from `ai_lifecycle_and_approval_matrix.md`, protection rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, degraded behavior from `degraded_mode_execution_contract.md`, and truth or durable-state ownership limits from `truth_and_state_ownership_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer may want customizable review lenses without hardcoding every rubric into the core product or confusing plugin output with accepted canon.
 
 ## 4. What The System Does
 
-- host optional review rubrics,
+- host internal review rubrics first,
 - run bounded plugin-like analyses,
 - surface advisory outputs.
 
@@ -32,7 +34,8 @@ The writer may want customizable review lenses without hardcoding every rubric i
 
 - override core authority rules,
 - create truth silently,
-- bypass routing, privacy, or spend governance.
+- bypass routing, privacy, or spend governance,
+- act as a free execution layer.
 
 ## 6. User-Facing Behavior
 
@@ -41,6 +44,7 @@ Visible behavior should emphasize opt-in use, clear labels, and bounded output.
 ## 7. Hidden/Background Behavior
 
 Background execution may exist later, but remains governed and non-authoritative.
+External or third-party plugins remain future or deferred unless explicitly promoted later.
 
 ## 8. What Appears First
 
@@ -72,6 +76,7 @@ Background execution may exist later, but remains governed and non-authoritative
 - rubric findings,
 - plugin findings,
 - signal candidates or support summaries.
+Plugin/rubric outputs remain advisory unless explicitly accepted through an owning system.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -84,6 +89,7 @@ Background execution may exist later, but remains governed and non-authoritative
 - rubric definitions when approved,
 - retained findings,
 - execution provenance where needed.
+Stored output remains support state only; it does not become truth or durable state by itself.
 
 ## 15. What Remains Temporary
 
@@ -126,6 +132,7 @@ Paid plugin paths remain optional and approval-governed.
 ## 24. Model Routing Notes And Cost / Budget Impact
 
 Plugin execution must obey routing, approval, and spend governance.
+No plugin or rubric may bypass routing, package, protection, provenance, degraded-mode, or handoff contracts.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -143,7 +150,8 @@ Prove plugin output stays advisory and bounded by core rules.
 
 - no plugin-as-authority,
 - no safety bypass,
-- no hidden paid or outbound execution.
+- no hidden paid or outbound execution,
+- no bypass of routing, package, protection, provenance, degraded-mode, or handoff contracts.
 
 ## 29. Failure Modes
 
@@ -168,17 +176,17 @@ Intake note:
 - old questions merged: yes, but critique and marketplace material was heavily filtered; only bounded rubric/extensibility questions safe for this dossier were retained
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 8
-- remaining blocker summary: `1 Fatal`, `3 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `3 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what hard boundaries prevent plugin or rubric output from bypassing core authority, privacy, routing, spend, masking, and protected-content rules?
+- None currently. The governance suite answers the prior bypass-boundary concern for internal rubric-first scope.
 
 ### Critical Questions
 
-- Critical: what execution classes are local-only, approval-gated, outbound-gated, or disallowed entirely for rubric or plugin runs?
-- Critical: what kinds of output may plugins or rubrics produce at all: local advisory notes, candidate findings, signal candidates, bounded comparisons, or only support summaries?
-- Critical: how should custom rubrics differ from a future one-to-one `Critique` dossier so Plugin / Rubric support does not become a hidden generic critique engine?
+- What exact execution classes are local-only, approval-gated, outbound-gated, or disallowed entirely for rubric or plugin runs?
+- What exact output classes are permitted for plugins or rubrics in the first safe slice?
+- How should custom rubrics differ from a future one-to-one `Critique` dossier so Plugin / Rubric support does not become a hidden generic critique engine?
 
 ### Major Questions
 
@@ -194,6 +202,8 @@ Intake note:
 - AI is advisory unless accepted.
 - Plugin or rubric output must remain advisory unless explicitly accepted through an owning system.
 - Broad critique questions about harshness, pass catalogs, report style, and critique personality are not safe to merge here and belong to a future one-to-one `Critique` dossier.
+- Early scope should be internal rubrics first unless explicitly deferred or expanded later.
+- Plugin/rubric output may produce advisory findings or candidates, not truth or durable state.
 
 ### Deferred Questions
 

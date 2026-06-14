@@ -18,6 +18,8 @@
 
 Define Relationship Map as an optional visualization and relationship-support system that projects accepted relationship truth, candidate relationship facts, and advisory relationship inferences without becoming a hidden truth owner or shadow canon.
 
+This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, signal boundaries from `signal_architecture.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer needs a way to inspect and compare relationships between people, places, groups, objects, lore entities, and structural work areas without forcing relationship meaning to live only in prose, memory, or inferred graphs.
@@ -31,7 +33,8 @@ Relationship Map may:
 - display accepted relationship facts,
 - display candidate or advisory relationship inferences when clearly labeled,
 - project relationship shape across narrative support systems,
-- help the author inspect relationship change without owning the underlying truth.
+- help the author inspect relationship change without owning the underlying truth,
+- produce relationship findings, observations, graph candidates, warnings, and recommendations.
 
 ## 5. What The System Does Not Do
 
@@ -42,7 +45,8 @@ Relationship Map does not:
 - let graph presence imply accepted fact,
 - turn signals, continuity, Memory Lab recall, or Companion summaries into relationship truth automatically,
 - require map interaction before writing,
-- become a hidden social-graph canon store.
+- become a hidden social-graph canon store,
+- own character truth, lore truth, Memory Lab, Signals, Notes, or export.
 
 ## 6. User-Facing Behavior
 
@@ -66,6 +70,7 @@ Background behavior may later include:
 - Companion explanation.
 
 Background behavior must remain advisory and must not silently mutate relationship truth.
+Inferred relationships are candidates only.
 
 ## 8. What Appears First
 
@@ -132,6 +137,7 @@ Relationship Map outputs may include:
 - cross-links into cards, narrative, continuity, and support surfaces.
 
 These outputs are support projections, not author-owned truth by themselves.
+Graph relationships are not accepted truth unless accepted through truth owners.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -161,6 +167,7 @@ Eventually stored:
 - optional provenance,
 - optional author action history,
 - visibility and filter state where needed.
+Relationship Map storage remains support state unless accepted through truth owners.
 
 ## 15. What Remains Temporary
 
@@ -172,6 +179,8 @@ Temporary or non-durable:
 - advisory summaries,
 - transient Companion explanations,
 - unsaved recall views.
+
+Candidate relationship material does not equal accepted truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -283,6 +292,9 @@ Governance rules:
 - Relationship Map may display or project relationships but does not own truth,
 - no shadow canon,
 - no silent truth mutation.
+- inferred relationships are candidates only,
+- Relationship Map does not own character truth, lore truth, Memory Lab, Signals, Notes, or export,
+- graph edges are advisory until accepted through truth owners.
 
 Key risks:
 
@@ -344,14 +356,14 @@ Future-only items:
 
 ### Fatal Questions
 
-- What exact authority model prevents Relationship Map from drifting into a hidden relationship canon separate from accepted assertions and explicit author decisions?
+- None currently. The governance suite answers the prior hidden-canon and hidden-authority concerns.
 
 ### Critical Questions
 
-- What exact accepted relationship fact versus candidate relationship versus advisory inference state model is required?
-- What exact item-state model is required for accepted truth, candidate, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
-- Who may create, update, hide, delete, accept, or reject relationship facts?
-- How must deleted, hidden, masked, or excluded material be protected from map views, recall, and summaries?
+- What exact graph data model should ship first?
+- What exact relationship evidence and confidence/severity model should govern candidate edges?
+- What exact stale-relationship handling and history visibility rules should apply?
+- What exact v1 relationship catalog should ship first?
 
 ### Major Questions
 
@@ -375,6 +387,9 @@ Future-only items:
 - Each Relationship Map item may distinguish accepted author-confirmed relationship fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
 - Every candidate, advisory, or inferred relationship item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
 - Accepted relationship records must still come from explicit author acceptance even when the map projects or visualizes them.
+- Candidate relationship material does not equal accepted truth.
+- Inferred relationships are candidates only.
+- Relationship Map does not own character truth, lore truth, Memory Lab, Signals, Notes, or export.
 
 ### Jason Decision Candidates
 

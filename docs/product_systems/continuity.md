@@ -18,6 +18,8 @@
 
 Define continuity as an advisory and signal-producing system instead of a truth owner.
 
+This dossier inherits truth ownership limits from `truth_and_state_ownership_matrix.md`, output vocabulary from `shared_output_vocabulary_contract.md`, signal handoff rules from `signal_architecture.md`, memory boundaries from `provenance_state_model.md` and `degraded_mode_execution_contract.md`, and protection rules from `protected_content_permission_matrix.md`.
+
 ## 3. User Problem Solved
 
 Help the writer notice contradiction, omission, drift, and causality pressure without turning continuity into automatic story law.
@@ -27,6 +29,7 @@ Help the writer notice contradiction, omission, drift, and causality pressure wi
 - observes narrative foundations and projections,
 - compares material across time and structure,
 - emits continuity findings, warnings, and evidence bundles,
+- emits continuity candidates and comparison results,
 - routes accepted continuity decisions back into author-owned story foundations instead of a shadow canon,
 - supports later acceptance, resolution, and traceability flows.
 
@@ -36,7 +39,8 @@ Help the writer notice contradiction, omission, drift, and causality pressure wi
 - it does not replace `Narrative Insertion / Narrative Assertion`,
 - it does not silently rewrite prose,
 - it does not make scene the base authority,
-- it does not become a mandatory gate before writing.
+- it does not become a mandatory gate before writing,
+- it does not own Memory Lab, Signal Architecture, Feedback Notes, or author-owned truth decisions.
 
 ## 6. User-Facing Behavior
 
@@ -50,6 +54,7 @@ Help the writer notice contradiction, omission, drift, and causality pressure wi
 - low-cost observation when affordable,
 - comparison passes that stay advisory,
 - deferred deep scans when the writer explicitly asks for more.
+Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded material must not leak through continuity summaries.
 
 ## 8. What Appears First
 
@@ -79,8 +84,10 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - unresolved-causality warnings,
 - evidence bundles,
 - continuity-derived signal candidates for `Signal Architecture`,
+- continuity-derived note candidates and memory candidates only through owning-system conversion,
 - accepted continuity notes later.
 - accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions created through explicit author acceptance or explicit save, convert, or update actions.
+Continuity outputs are advisory unless accepted through a truth owner or durable-state owner.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -99,6 +106,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - explicitly retained durable advisory history later when it helps explain story maturation or a resolved continuity outcome,
 - provenance for accepted findings and retained dismiss or suppress decisions later,
 - explicit suppress or ignore decisions later.
+Continuity candidates remain temporary until accepted, dismissed, suppressed, converted, or expired.
 
 ## 15. What Remains Temporary
 
@@ -110,6 +118,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - provisional hypotheses,
 - expensive deep-review outputs that have not been accepted,
 - noisy or irrelevant advisory history that does not become useful information.
+Continuity candidate does not equal accepted continuity truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -169,6 +178,7 @@ If continuity uses outbound packages later:
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Continuity must not leak raw manuscript content by default and must not silently widen visibility of sensitive material.
+Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded material must not leak through continuity summaries or evidence bundles.
 
 ## 27. Testing Requirements
 
@@ -188,7 +198,10 @@ Governance rules:
 - no scene-first authority drift,
 - no Story Unit gate,
 - no inferred finding becomes authored truth without user action,
-- durable advisory history must be purposeful and relevant rather than stored just because data exists.
+- durable advisory history must be purposeful and relevant rather than stored just because data exists,
+- continuity outputs are findings, warnings, evidence bundles, signal candidates, note candidates, memory candidates, and truth candidates only through owning-system conversion,
+- continuity does not own Memory Lab, Signal Architecture, Feedback Notes, or Narrative Insertion / Assertion,
+- continuity findings are advisory until accepted through an owner path.
 
 Minimum rough lifecycle vocabulary for continuity and signal handoff:
 
@@ -246,7 +259,7 @@ Accepted continuity notes, richer suppression rules, and stronger cross-system c
 
 ### Fatal Questions
 
-- None currently. Jason's doctrine resolves continuity truth ownership; remaining questions are about exact storage shape, lifecycle, and purposeful advisory history.
+- None currently. The governance suite answers the prior shadow-canon and authority concerns.
 
 Exact-contract classification note:
 
@@ -257,10 +270,10 @@ Exact-contract classification note:
 
 ### Critical Questions
 
-- Jason decision candidate: what narrative sources may Continuity observe directly before salvage carry-forward or runtime wiring is attempted?
-- Jason decision candidate: which continuity outputs may hand off to `Signal Architecture` as signal candidates, and which must remain continuity-local evidence, notes, author-owned truth updates, or non-durable provenance/history?
-- Future contract need: what minimum shared state model, beyond the rough lifecycle vocabulary above, is required for candidate, accepted, dismissed, suppressed, ignored, stale, or expired continuity outcomes before continuity UI, signal normalization, or storage wiring is attempted?
-- Future contract need: which continuity artifacts justify durable advisory history at all, which may become governed recall, and which must expire unless the writer explicitly accepts or explicitly keeps them?
+- What exact evidence grading, contradiction handling, severity, and confidence model should continuity use?
+- What exact scan scope belongs to continuity before it becomes too expensive or too noisy?
+- What exact v1 continuity catalog should ship first?
+- What exact storage and expiry rules should apply to continuity candidates, history, and accepted outcomes?
 
 ### Major Questions
 
@@ -285,6 +298,8 @@ Exact-contract classification note:
 - Is there a separate accepted-continuity kingdom or shadow canon? Answered: no.
 - What shared lifecycle or state vocabulary should `Continuity` and `Signal Architecture` use for candidate, accepted, dismissed, suppressed, ignored, stale, expired, converted, and resolved states? Answered: rough doctrine uses those terms with continuity-specific meanings in this dossier; exact runtime schema and storage contracts remain unresolved.
 - How do `Continuity`, `Signal Architecture`, provenance, `Memory Lab`, and `Companion` relate at rough doctrine level? Answered: `Continuity` may produce continuity-local advisory records and signal candidates, `Signal Architecture` owns durable signal state, provenance records source or action or history without owning truth, `Memory Lab` retains governed recall only under its retention rules, and `Companion` may explain and guide using cited source labels without owning the underlying systems.
+- Answered / Superseded: continuity outputs remain advisory unless accepted through a truth owner or durable-state owner.
+- Answered / Superseded: continuity candidate does not equal accepted continuity truth.
 
 ### Deferred Questions
 
@@ -306,4 +321,5 @@ This rough dossier is acceptable only if:
 - accepted continuity truth returns to author-owned foundations rather than a shadow canon,
 - no silent rewrite authority is implied,
 - Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
+- Critical and Future contract questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime build-readiness claim is made.

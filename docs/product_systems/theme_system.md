@@ -18,6 +18,8 @@
 
 Define Theme System as an optional thematic planning and inspection support tool that helps the author organize theme without turning inferred themes into story truth automatically.
 
+This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer may want to track and inspect theme intentionally without relying on vague memory or allowing AI inference to overclaim meaning.
@@ -26,13 +28,15 @@ The writer may want to track and inspect theme intentionally without relying on 
 
 - organize author-defined themes,
 - show theme-linked notes and references,
-- surface advisory thematic analysis when clearly labeled.
+- surface advisory thematic analysis when clearly labeled,
+- produce theme findings, observations, insights, recommendations, and candidates.
 
 ## 5. What The System Does Not Do
 
 - own truth,
 - grade the story automatically,
-- canonize inferred theme claims silently.
+- canonize inferred theme claims silently,
+- own Memory Lab, Signals, Notes, or export.
 
 ## 6. User-Facing Behavior
 
@@ -41,6 +45,7 @@ Visible behavior should emphasize author-defined theme first and advisory infere
 ## 7. Hidden/Background Behavior
 
 Background thematic hints may exist later, but they remain advisory.
+Inferred theme is not confirmed author intent.
 
 ## 8. What Appears First
 
@@ -72,7 +77,14 @@ Background thematic hints may exist later, but they remain advisory.
 
 - theme views,
 - theme-linked references,
-- advisory theme suggestions.
+- advisory theme suggestions,
+- theme findings,
+- observations,
+- insights,
+- recommendations,
+- candidates.
+
+Theme outputs are advisory unless accepted through a truth-owning or durable-state-owning system.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -86,6 +98,7 @@ Background thematic hints may exist later, but they remain advisory.
 - linked references,
 - candidate theme notes,
 - visibility state.
+Stored theme material remains support state or truth candidate material unless accepted elsewhere.
 
 ## 15. What Remains Temporary
 
@@ -136,6 +149,7 @@ Theme support must respect masking and send-package rules.
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Protected material must not leak through theme summaries or examples.
+Hidden, deleted, masked, local-only, or AI-excluded material must not leak through theme summaries or candidate views.
 
 ## 27. Testing Requirements
 
@@ -145,7 +159,9 @@ Prove advisory theme analysis does not become accepted truth silently.
 
 - no hidden thematic canon,
 - no fake certainty,
-- no automatic grading.
+- no automatic grading,
+- inferred theme is not confirmed author intent,
+- theme findings are advisory unless accepted through a truth-owning or durable-state-owning system.
 
 ## 29. Failure Modes
 
@@ -174,13 +190,14 @@ Intake note:
 
 ### Fatal Questions
 
-- None yet.
+- None currently. The governance suite answers the prior hidden-canon concerns.
 
 ### Critical Questions
 
-- Critical: what counts as accepted theme intent versus candidate theme note versus advisory theme inference?
-- Critical: who may create, update, hide, delete, or accept theme records, and what explicit author action turns a thematic interpretation into accepted author-owned intent?
-- Critical: how should the system distinguish theme evidence, motif linkage, tone resonance, and interpretive overreach so inferred meaning does not become shadow canon?
+- What exact theme taxonomy should ship first?
+- What exact evidence grading and confidence model should theme analysis use?
+- What exact distinction should exist between author-confirmed theme and inferred theme?
+- What exact visibility model should govern theme history and candidate material?
 
 ### Major Questions
 
@@ -197,6 +214,8 @@ Intake note:
 - Inferred output is not authored truth.
 - Theme support is optional and must not canonize inferred meaning silently.
 - Questions about visual themes, palette themes, and cosmetic UI theming belong elsewhere, not in this story-theme dossier.
+- Theme findings, observations, insights, recommendations, and candidates are advisory unless accepted through a truth-owning or durable-state-owning system.
+- Inferred theme is not confirmed author intent.
 
 ### Deferred Questions
 

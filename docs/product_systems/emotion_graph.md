@@ -18,6 +18,8 @@
 
 Define Emotion Graph as an optional emotion-support and visualization system that projects accepted emotional intent, candidate emotional interpretations, and advisory emotional analysis without becoming a hidden truth owner or shadow canon.
 
+This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, signal boundaries from `signal_architecture.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer needs a way to inspect emotional trajectory, tension, mood, intensity, and pacing-adjacent emotional shape without letting inferred emotional analysis silently replace accepted author intent or canonize interpretation.
@@ -30,7 +32,8 @@ Emotion Graph may:
 - display accepted or author-defined emotional intent,
 - display inferred or advisory emotional analysis when clearly labeled,
 - use manuscript evidence, author notes, accepted assertions, continuity facts, or advisory analysis,
-- help the author inspect emotional movement across narrative work without owning emotional truth.
+- help the author inspect emotional movement across narrative work without owning emotional truth,
+- produce emotion findings, emotional-arc observations, pressure or pacing candidates, warnings, and recommendations.
 
 ## 5. What The System Does Not Do
 
@@ -41,7 +44,8 @@ Emotion Graph does not:
 - let inferred emotional analysis become accepted intent automatically,
 - let signals, continuity, Memory Lab recall, or Companion summaries become emotional truth automatically,
 - require graph interaction before writing,
-- become a hidden canon tracker for mood or emotion.
+- become a hidden canon tracker for mood or emotion,
+- own character truth, author intent, Memory Lab, Signals, Notes, or export.
 
 ## 6. User-Facing Behavior
 
@@ -65,6 +69,7 @@ Background behavior may later include:
 - Companion explanation.
 
 Background behavior must remain advisory and must not silently mutate emotional truth.
+Inferred emotion is not confirmed author intent.
 
 ## 8. What Appears First
 
@@ -130,6 +135,7 @@ Emotion Graph outputs may include:
 - cross-links into cards, narrative, continuity, and support surfaces.
 
 These outputs are support projections, not author-owned truth by themselves.
+Emotion Graph findings are advisory unless accepted elsewhere.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -158,6 +164,7 @@ Eventually stored:
 - optional provenance,
 - optional author action history,
 - visibility and filter state where needed.
+Stored graph material remains support state or candidate material unless accepted elsewhere.
 
 ## 15. What Remains Temporary
 
@@ -169,6 +176,8 @@ Temporary or non-durable:
 - advisory summaries,
 - transient Companion explanations,
 - unsaved recall views.
+
+Candidate emotion material does not equal accepted emotional intent.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -280,6 +289,9 @@ Governance rules:
 - Emotion Graph may display or project emotion but does not own truth,
 - no shadow canon,
 - no silent truth mutation.
+- inferred emotion is not confirmed author intent,
+- Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export,
+- emotional findings are advisory unless accepted elsewhere.
 
 Key risks:
 
@@ -341,14 +353,14 @@ Future-only items:
 
 ### Fatal Questions
 
-- What exact authority model prevents Emotion Graph from drifting into a hidden emotional canon separate from accepted assertions and explicit author decisions?
+- None currently. The governance suite answers the prior hidden-canon and hidden-authority concerns.
 
 ### Critical Questions
 
-- What exact accepted emotional intent versus candidate interpretation versus advisory analysis state model is required?
-- What exact item-state model is required for accepted intent, candidate item, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
-- Who may create, update, hide, delete, accept, or reject emotional facts or intent?
-- How must deleted, hidden, masked, or excluded material be protected from graph views, recall, and summaries?
+- What exact emotion taxonomy should ship first?
+- What exact evidence and confidence/severity model should emotion analysis use?
+- What exact distinction should exist between author-confirmed emotional intent and inferred emotional analysis?
+- What exact visibility model should govern emotion history and candidate material?
 
 ### Major Questions
 
@@ -371,6 +383,9 @@ Future-only items:
 - Each Emotion Graph item may distinguish accepted author-defined intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
 - Every candidate, advisory, or inferred emotional item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
 - Accepted emotional-intent records must still come from explicit author acceptance even when the graph projects or visualizes them.
+- Candidate emotion material does not equal accepted emotional intent.
+- Inferred emotion is not confirmed author intent.
+- Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export.
 
 ### Jason Decision Candidates
 

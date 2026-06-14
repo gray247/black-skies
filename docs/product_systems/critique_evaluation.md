@@ -18,6 +18,8 @@
 
 Define Critique / Evaluation as an evaluation capability layer that reads evidence from other systems and turns that evidence into advisory findings without becoming a mandatory surface or a hidden truth owner.
 
+This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, AI approval and lifecycle rules from `ai_lifecycle_and_approval_matrix.md`, handoff rules from `surface_to_owner_action_handoff_contract.md`, protection rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, and truth or durable-state ownership limits from `truth_and_state_ownership_matrix.md`.
+
 ## 3. User Problem Solved
 
 The writer needs bounded evaluation support that can identify issues, compare options, and recommend next steps without silently replacing authorship, truth, or workflow ownership.
@@ -43,6 +45,7 @@ The writer needs bounded evaluation support that can identify issues, compare op
 - it does not own routing, spend, export, sync, or publish decisions,
 - it does not own explicit-content clearance or protected-content permissions,
 - it does not own final author decisions,
+- it does not own durable note state or durable memory,
 - it does not replace Plugin / Rubric System, Feedback Notes / Revision Resolution, Signal Architecture, Draft Generation / Rewrite Loop, Continuity, or Companion.
 
 ## 6. User-Facing Behavior
@@ -61,6 +64,7 @@ Invocation posture:
 
 Background evaluation may assemble context, compare evidence, and prepare candidate findings, but it must remain advisory until explicitly accepted or converted through the owning system.
 It must not silently convert findings into canon, durable signal state, feedback workflow state, or rewrite execution.
+Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded material must not leak through critique summaries.
 
 ## 8. What Appears First
 
@@ -122,12 +126,15 @@ Critique / Evaluation may produce:
 - evidence bundles,
 - comparison notes,
 - recommendation lists,
+- warnings,
 - signal candidates,
 - feedback-note candidates,
 - rewrite-prompt candidates,
+- comparison results,
 - bounded explanation views for Companion or the owning surface.
 
 These outputs are advisory unless explicitly accepted or converted through the owning system.
+Severity and ranking remain advisory unless converted through an owning system.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -156,6 +163,7 @@ Eventually stored, when explicitly retained:
 - critique result state,
 - author action history where needed,
 - optional links into feedback notes or signal candidates.
+Critique candidates are temporary until retained through an owning system.
 
 ## 15. What Remains Temporary
 
@@ -171,6 +179,7 @@ Temporary or non-durable:
 Critique result states may later include:
 
 - `candidate`
+- `reviewed`
 - `accepted by author`
 - `dismissed`
 - `ignored`
@@ -258,6 +267,7 @@ It may review author-approved summaries or package views only when the author an
 
 Critique must not leak protected material, and it must not treat excluded or masked material as public evidence.
 It must not bypass protected-content permissions.
+Protected-content summaries must stay redacted where required and must not expose raw AI-excluded or deleted material.
 
 ## 27. Testing Requirements
 
@@ -272,6 +282,7 @@ It must not bypass protected-content permissions.
 Governance rules:
 
 - advisory findings are not authored truth,
+- Critique outputs are advisory findings, warnings, recommendations, comparison results, signal candidates, feedback-note candidates, and rewrite candidates only,
 - no shadow canon,
 - no silent truth mutation,
 - no hidden grading authority,
@@ -350,25 +361,20 @@ Intake note:
 - old questions merged: yes, mainly from critique / review / report / evidence / rewrite adjacency, with broad settings and personality questions filtered out when they were not safe for this dossier
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 14
-- remaining blocker summary: `0 Fatal`, `11 Critical`, `2 Major`, `1 Minor`
+- remaining blocker summary: `0 Fatal`, `6 Critical`, `2 Major`, `1 Minor`
 
 ### Fatal Questions
 
-- None currently.
+- None currently. The governance suite answers the prior hidden-authority and conversion-path concerns.
 
 ### Critical Questions
 
-- What exact authority model prevents Critique / Evaluation from becoming a hidden universal grader or alternate truth owner?
-- What exact output classes are permitted: advisory findings, ranked issues, evidence bundles, comparison notes, recommendation lists, signal candidates, feedback-note candidates, rewrite-prompt candidates, or a narrower subset?
+- What exact output shape and ordering should be standard first for critique results?
 - What exact evidence citation standard applies before Critique claims a finding or comparison is reliable guidance?
-- Which surfaces may invoke Critique directly, which may only consume Critique outputs after handoff, and what invocation language should each surface use?
+- What exact severity, confidence, and evidence-grading model should Critique use before ranked issues appear across surfaces?
 - What exact result-detail density belongs in Writing Surface hints versus Command Center review versus Companion explanation versus direct critique review?
-- What exact severity, confidence, and ranking model should Critique use before ranked issues appear across surfaces?
-- How do critique-derived signal candidates move into `Signal Architecture` without silently becoming durable signal state?
-- How do critique-derived note candidates move into `Feedback Notes / Revision Resolution` without silently becoming workflow state or accepted revision decisions?
-- How do critique-derived rewrite-prompt candidates move into `Draft Generation / Rewrite Loop` without silently becoming rewrite execution or accepted prose?
-- What protected-content, masked-content, hidden-content, deleted-content, and AI-excluded-content boundaries must Critique obey before it may inspect, summarize, rank, or cite material?
-- What exact local-versus-paid critique approval model applies before heavier critique may run, especially when scope expands, provider changes, or outbound package rules apply?
+- What exact locality, routing, and approval policy applies before heavier critique may run, especially when provider changes or outbound package rules apply?
+- What exact v1 critique catalog should ship first versus remain deferred?
 
 ### Major Questions
 
@@ -387,6 +393,8 @@ Intake note:
 - Critique does not own manuscript truth, accepted canon, durable signal state, Feedback Notes workflow, Memory Lab recall, rewrite execution, routing or spend, export or sync, explicit-content clearance, protected-content permissions, or final author decisions.
 - Plugin / Rubric System remains separate; Critique does not replace it.
 - Broad settings questions such as global-versus-project critique harshness are better owned by settings or future policy work, not by this dossier.
+- Critique may produce warnings, comparison results, recommendations, signal candidates, feedback-note candidates, and rewrite candidates without owning the downstream conversion.
+- Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded material must not leak through critique summaries.
 
 ### Deferred Questions
 
@@ -406,5 +414,5 @@ This dossier is acceptable only if it explicitly states that:
 - it does not silently mutate manuscript truth or protected content,
 - active questions live in the dossier instead of only in a giant standalone register,
 - active questions live only in the centralized `Pre-Rough Alignment Questionnaire`,
-- Fatal and Critical questions are not buried inside a generic open-question list,
+- Critical and Future contract questions are not buried inside a generic open-question list,
 - the dossier remains rough, investigative, and not build-ready.
