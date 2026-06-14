@@ -19,6 +19,8 @@
 Define Memory Lab as Black Skies' likely narrative forensic intelligence or story-brain layer without letting it silently become truth owner.
 Memory Lab is not the normal human document export path, and temporary AI package payloads are not the same thing as durable Memory Lab memory.
 
+This dossier inherits durable-state ownership from `truth_and_state_ownership_matrix.md`, AI conversion and retention limits from `ai_lifecycle_and_approval_matrix.md`, protection rules from `protected_content_permission_matrix.md`, advisory vocabulary from `shared_output_vocabulary_contract.md`, provenance posture from `provenance_state_model.md`, degraded behavior from `degraded_mode_execution_contract.md`, recovery posture from `snapshot_protected_recovery_contract.md`, and document-boundary doctrine from `document_interchange_source_destination_contract.md`.
+
 ## 3. User Problem Solved
 
 Writers need a system that can read widely, cite evidence, hold investigative context, and surface deeper story memory without pretending to be canon.
@@ -33,12 +35,16 @@ Writers need a system that can read widely, cite evidence, hold investigative co
 - supports multiple downstream systems.
 - distinguishes temporary package payloads from durable memory artifacts.
 
+Memory Lab owns durable memory and governed recall only.
+
 ## 5. What The System Does Not Do
 
 - it is not simple storage,
 - it is not automatic truth owner,
 - it does not silently rewrite story material,
-- it does not replace author judgment.
+- it does not replace author judgment,
+- it does not let memory candidates silently become durable memory,
+- it does not own `Companion`, `Critique`, `Continuity`, `Signal Architecture`, `Feedback Notes`, or `Project Index / Search / Retrieval`.
 
 ## 6. User-Facing Behavior
 
@@ -55,6 +61,9 @@ Any later recall exposed through `Companion` should preserve memory type rather 
 - scheduled, idle, or overnight local preparation later when allowed,
 - long-context memory work later,
 - relevance filtering so Memory Lab does not hoard data just because it exists.
+
+`Project Index / Search / Retrieval` retrieves and indexes.
+`Memory Lab` recalls and interprets retained governed memory.
 
 ## 8. What Appears First
 
@@ -94,6 +103,9 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - prepared local-only findings later from scheduled, idle, or overnight work,
 - governed recall records later with memory-type boundaries such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store.
 
+Memory candidate does not equal durable memory.
+Memory remains governed recall rather than truth authority.
+
 ## 13. Which Other Systems Consume Those Outputs
 
 - `Companion`
@@ -113,6 +125,8 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - author-approved summaries of masked or excluded material later only when explicitly saved,
 - raw excluded spans later only under explicit local or private author choice.
 
+Forgotten, discarded, or deleted material may survive only as provenance-bounded historical residue rather than active recall by default.
+
 ## 15. What Remains Temporary
 
 - AI critique,
@@ -127,6 +141,8 @@ Likely nothing by default beyond downstream findings and evidence-backed outputs
 - provider-specific intermediate runs,
 - data points that do not become information or serve a clear purpose.
 - temporary AI package payloads that should not silently become durable memory.
+
+Raw model output, temporary package payloads, discarded material, forgotten material, raw AI-excluded spans, and protected raw content must not silently become durable memory.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -186,6 +202,7 @@ Temporary package payloads are not durable memory by default, and durable memory
 Memory Lab must not quietly preserve or transmit sensitive material outside approved boundaries.
 Memory Lab must not read raw AI-excluded manuscript spans, temporary package payloads, discarded or deleted material, raw historical archive debris, or hidden private metadata by default.
 Forgotten, deleted, or discarded material must not remain active advisory context for `Companion`, package construction, continuity suggestions, signal suggestions, or export.
+Protected, hidden, masked, local-only, deleted, discarded, forgotten, or AI-excluded material may remain provenance-bounded history where allowed, but not active recall by default.
 
 ## 27. Testing Requirements
 
@@ -206,16 +223,21 @@ Governance rules:
 - Memory Lab must not become author, judge, or silent actor over story truth,
 - Memory Lab may retain meaningful information when it supports continuity, memory, structure, investigation, or author decision support,
 - Memory Lab must not hoard data that does not become information or serve a clear purpose,
+- Memory Lab owns durable memory and governed recall only,
+- memory candidate does not equal durable memory,
 - Memory Lab may read explicit author-owned foundations, notes, lore, character facts, narrative assertions, manual continuity records, and user-approved summaries by default,
 - Memory Lab must not store masked or AI-excluded raw manuscript spans by default,
 - forgotten, deleted, or discarded material must not remain active advisory context,
+- forgotten, deleted, or discarded material may remain provenance-only or historical residue but not active recall by default,
 - governed recall used by `Companion` must preserve memory type rather than treating all recall as author-owned truth,
 - Memory Lab is governed recall, not canon,
+- `Project Index / Search / Retrieval` retrieves and indexes, while `Memory Lab` recalls and interprets retained governed memory,
 - Memory Lab and `Companion` must prefer the cheapest safe source of truth or context first rather than jumping to deeper scans,
 - scheduled, cron, idle, or overnight local work is only a future candidate behavior, not a selected implementation artifact,
 - scheduled findings may become advisory findings, continuity candidates, or signal candidates later, but they must not silently become durable truth, durable signal state, deletion, or manuscript mutation,
 - scheduled or idle prepared findings are advisory preparation only until the author or owning system contract explicitly saves, converts, or approves durable use,
 - scheduled or idle work may prepare advisory findings, but it must not silently apply them and it must not bypass masks, AI exclusion zones, routing policy, or approval boundaries,
+- no raw model output, temporary package payload, discarded material, forgotten material, raw AI-excluded span, or protected raw content may silently become durable memory,
 - scheduled work should be user-visible and controllable later through rough concepts such as enabled or disabled, run now, run overnight, run when idle, local-only, requires approval before applying results, show prepared findings, and discard prepared findings.
 
 Minimum rough memory evidence and source classes:
@@ -245,6 +267,8 @@ Minimum rough retention tiers:
 These are rough product-definition boundaries, not a final storage schema.
 `Memory Lab` must preserve the difference between canon, advisory memory, temporary context, and archive reference.
 Scheduled or idle prepared findings are advisory preparation only unless the author explicitly saves, converts, or approves durable use.
+
+Shared output and provenance vocabulary still govern created, reviewed, retained, dismissed, forgotten, expired, and superseded memory-adjacent artifacts.
 
 Risks:
 
@@ -285,8 +309,9 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 
 - Future contract need: beyond the rough evidence classes above, what exact citation, source-trace, and evidence-quality markers must remembered material carry before downstream systems rely on it?
 - Future contract need: beyond the rough retention tiers above, what authority limits, storage boundaries, routing rules, performance limits, and storage-cost boundaries are required before runtime wiring so purposeful memory does not become hoarding or shadow canon?
-- Future contract need: what exact boundary keeps AI package payloads temporary while allowing only explicit author-owned truth or author-approved advisory memory to become durable Memory Lab material?
-- Future contract need: what format-comparison tests should Memory Lab participate in for token or context behavior, cost, fidelity, evidence quality, citation quality, routing effects, privacy, structure preservation, and failure modes without becoming a human export contract?
+- Future contract need: what exact recall-versus-retrieval contract should separate `Memory Lab` governed recall from `Project Index / Search / Retrieval` indexing and retrieval behavior across local-only, degraded, and heavy-project cases?
+- Future contract need: what minimum durable-memory field set, forgetting rules, purge posture, and expiry posture are required before retained advisory memory can be safely wired?
+- Future contract need: what scheduled, idle, or overnight local-work boundaries are safe for retention prep, citation refresh, stale-memory review, and project-scale performance without widening into silent durable-state mutation?
 
 ### Major Questions
 
@@ -315,6 +340,9 @@ Bounded investigative workflows, explicit evidence inspection, and clearer downs
 - What may `Memory Lab` durably remember by default? Answered: only explicit author-owned truth or author-approved advisory memory. AI critique, signal candidates, continuity warnings, Companion suggestions, routing or package artifacts, and unaccepted model output remain temporary unless explicitly saved.
 - What must `Memory Lab` forget, delete, or discard by default, and what author controls govern later forgetting or removal? Answered: forgotten, deleted, or discarded material must not remain active advisory context for `Companion`, package construction, continuity suggestions, signal suggestions, or export.
 - May masked or AI-excluded raw manuscript spans ever be stored? Answered: not by default. `Memory Lab` may store an author-approved summary only when explicitly saved, and raw excluded spans may be retained only under an explicit local or private author choice.
+- Answered / Superseded: temporary package payloads are not durable memory by default.
+- Answered / Superseded: `Memory Lab` does not own `Companion`, `Critique`, `Continuity`, signals, notes, or `Project Index / Search / Retrieval`.
+- Answered / Superseded: forgotten, discarded, or deleted material may remain provenance-bounded history but not active recall by default.
 - What rough evidence and source classes should `Memory Lab` preserve? Answered: author-owned truth, author-approved advisory memory, session context, temporary task context, system knowledge, author preference, archive reference, AI suggestion, signal candidate, continuity warning, and excluded or never-store.
 - What rough retention tiers should `Memory Lab` preserve? Answered: durable author-owned truth, durable author-approved advisory memory, session memory, temporary task memory, scheduled or idle prepared finding, discarded or deleted, and excluded or never-store.
 - What rough resource-governed assistance posture should `Memory Lab` follow before deeper analysis? Answered: prefer the cheapest safe source of context first, moving through accepted doctrine, saved project metadata, governed recall, existing signals, and prepared findings before heavier work.
@@ -338,5 +366,5 @@ This rough dossier is acceptable only if:
 - its forensic role is clear,
 - retention remains relevance-driven rather than hoarding-driven,
 - tone references are kept separate from final UI claims,
-- Fatal and Critical questions remain open, so this dossier cannot be treated as build-ready,
+- Critical and Future contract questions remain open, so this dossier cannot be treated as build-ready,
 - no runtime implementation is implied.

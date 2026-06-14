@@ -18,12 +18,15 @@
 
 Define a bounded revision-note and resolution system that helps the writer review feedback and resolve it without turning notes into automatic edits or truth mutations.
 
+This dossier inherits durable-state ownership from `truth_and_state_ownership_matrix.md`, handoff rules from `surface_to_owner_action_handoff_contract.md`, AI-output and conversion limits from `ai_lifecycle_and_approval_matrix.md`, protection rules from `protected_content_permission_matrix.md`, advisory vocabulary from `shared_output_vocabulary_contract.md`, provenance posture from `provenance_state_model.md`, and degraded-mode limits from `degraded_mode_execution_contract.md`.
+
 ## 3. User Problem Solved
 
 The writer needs a place to track feedback and revision work without losing control over what changes actually become accepted prose or truth.
 
 ## 4. What The System Does
 
+- owns durable note and revision-note state only,
 - collect feedback notes,
 - organize revision candidates,
 - support explicit resolution workflows.
@@ -32,7 +35,8 @@ The writer needs a place to track feedback and revision work without losing cont
 
 - auto-apply edits,
 - auto-accept critique,
-- own manuscript truth.
+- own manuscript truth,
+- let note candidates silently become durable notes.
 
 ## 6. User-Facing Behavior
 
@@ -41,6 +45,7 @@ Visible behavior should emphasize review, choice, and explicit resolution.
 ## 7. Hidden/Background Behavior
 
 Background grouping or deduping may exist later, but it remains advisory.
+Any AI-origin note material remains candidate-only until explicitly accepted into durable note state.
 
 ## 8. What Appears First
 
@@ -64,15 +69,22 @@ Background grouping or deduping may exist later, but it remains advisory.
 ## 11. Inputs
 
 - author notes,
-- critique signals,
+- critique signals and critique-derived note candidates,
+- continuity, theme, relationship, emotion, or other advisory findings only when they become note candidates through owner-governed conversion,
 - Companion suggestions,
+- imported-editor notes later,
 - manuscript references.
 
 ## 12. Outputs
 
 - revision-note views,
+- durable note state,
+- note candidates,
 - resolution candidates,
 - accepted or dismissed note states.
+
+Notes remain advisory or workflow artifacts.
+They are not truth and not manuscript mutation authority.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -82,16 +94,19 @@ Background grouping or deduping may exist later, but it remains advisory.
 
 ## 14. What Gets Stored
 
-- notes,
+- durable note and revision-note state,
 - status labels,
 - source labels,
 - author resolution history.
 
 ## 15. What Remains Temporary
 
+- note candidates,
 - temporary suggested fixes,
 - transient clustering,
 - unresolved summaries.
+
+Note candidate does not equal durable note state.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -136,6 +151,7 @@ Revision help must respect masking and send-package boundaries.
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Protected content must not leak through revision-note context.
+Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded source material must not leak through note summaries, previews, or grouped history.
 
 ## 27. Testing Requirements
 
@@ -143,9 +159,34 @@ Prove notes do not silently mutate prose or truth.
 
 ## 28. Governance Rules And Risks
 
+Governance rules:
+
+- `Feedback Notes / Revision Resolution` owns durable note and revision-note state only,
+- notes are advisory or workflow artifacts rather than truth,
+- note candidate does not equal durable note,
 - no hidden auto-apply behavior,
 - no critique-as-canon,
-- no silent truth mutation.
+- no silent truth mutation,
+- note resolution does not mutate manuscript truth automatically,
+- note resolution does not resolve durable signals unless `Signal Architecture` does so through its own owner path,
+- critique, continuity, theme, relationship, emotion, `Companion`, and other advisory outputs may become note candidates only through owner-governed conversion,
+- midpoint scope is author-created and imported-editor notes first,
+- later AI-created note candidates may exist only with explicit author acceptance,
+- note summaries, history, and grouped views must preserve protection, provenance, and masking boundaries.
+
+Minimum rough lifecycle vocabulary for note intake and durable note state, inheriting the shared output vocabulary wherever possible:
+
+- `candidate`: a proposed note or revision artifact not yet accepted into durable note state.
+- `reviewed`: a note examined without becoming truth or manuscript mutation automatically.
+- `accepted`: a note accepted into durable note state or into a bounded author workflow.
+- `dismissed`: a note judged not worth active surfacing.
+- `parked`: a note intentionally left for later review without being treated as resolved truth.
+- `converted`: a note explicitly turned into another downstream artifact or action request without mutating truth on its own.
+- `resolved`: the note's review loop is closed for workflow purposes.
+- `expired`: a low-value or stale note removed from active surfacing.
+- `superseded`: an older note displaced by fresher evidence, newer notes, or later author action.
+
+Anchor drift remains a condition or repair problem, not a separate canonical shared lifecycle state.
 
 ## 29. Failure Modes
 
@@ -170,7 +211,7 @@ Intake note:
 - old questions merged: yes, mainly from `# 14. Feedback Notes / Revision Resolution Questions`
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 9
-- remaining blocker summary: `0 Fatal`, `4 Critical`, `3 Major`
+- remaining blocker summary: `0 Fatal`, `4 Critical`, `2 Major`
 
 ### Fatal Questions
 
@@ -178,16 +219,16 @@ Intake note:
 
 ### Critical Questions
 
-- Critical: what note states are durable, and what actions require explicit author confirmation, especially accept, reject, resolve, park, hide, expire, or convert-to-revision-task?
-- Critical: how are `Feedback Notes` separated from `Signal Architecture` signal state, from future `Critique` outputs, and from explicit author-owned revision decisions?
+- Future contract need: what minimum durable note-state contract, beyond the rough shared lifecycle vocabulary above, must each note carry for source, anchor, provenance, lifecycle state, visibility, and conversion history?
 - Critical: what source and anchor scopes may notes attach to, such as prose ranges, assertions, Story Units, Outline nodes, or full-project context, and what happens when those anchors are rewritten, deleted, or become stale?
-- Critical: what kinds of note outcomes may feed `Memory Lab`, `Companion`, or signal candidates, and which must remain local advisory notes only unless explicitly converted?
+- Future contract need: what exact boundaries govern later AI-note candidate scope, imported-editor note normalization, and note-to-signal or note-to-memory conversion paths without widening early `v1` scope?
+- Future contract need: which note history events should remain durably visible, which may expire, and which should remain local advisory residue only?
+- Future contract need: what exact visibility split belongs inline versus in `Command Center Surface` once the smallest useful current-text note interaction is chosen?
 
 ### Major Questions
 
-- Major: how much revision review belongs inline versus in `Command Center Surface`, and what is the smallest useful current-text note interaction in `Writing Surface`?
+- Major: what is the smallest useful current-text note interaction in `Writing Surface` once heavier review remains in `Command Center Surface`?
 - Major: should resolved or rejected notes remain searchable or visible in history, and if so, with what boundaries so they do not become clutter or shadow truth?
-- Jason decision candidate: should early support focus on author-created and imported-editor notes first, or also include bounded AI-created note forms from rewrite and support systems?
 
 ### Minor Questions
 
@@ -197,6 +238,11 @@ Intake note:
 
 - Advisory output does not become truth automatically.
 - Revision resolution must not silently mutate manuscript, truth, `Memory Lab`, or durable signal state.
+- Answered / Superseded: `Feedback Notes / Revision Resolution` owns durable note and revision-note state only.
+- Answered / Superseded: notes are advisory or workflow artifacts rather than truth.
+- Answered / Superseded: note candidate does not equal durable note state.
+- Answered / Superseded: critique, continuity, theme, and other advisory outputs may become note candidates only through owner-governed conversion.
+- Answered / Superseded: midpoint scope is author-created and imported-editor notes first; later AI-created note candidates require explicit author acceptance.
 - Questions better owned elsewhere: exact critique report shape belongs to a future one-to-one `Critique` dossier, and exact export/sync/comment transport belongs to the future `Import / Export / Google Docs` dossier.
 
 ### Deferred Questions
@@ -205,4 +251,5 @@ Intake note:
 
 ## 34. Acceptance Criteria
 
+Implementation remains blocked by open Critical and Future contract questions.
 This dossier is acceptable only if revision support remains advisory and explicit.
