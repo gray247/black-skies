@@ -9,6 +9,11 @@
 Explain how the first-wave systems relate to one another without implying that runtime wiring, persistence, provider routing, or tool execution already exists.
 
 This map is explanatory, not an implementation plan.
+Cross-system ownership, handoff, and AI lifecycle authority are governed by:
+
+- [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
+- [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)
+- [ai_lifecycle_and_approval_matrix.md](/C:/Dev/black-skies/docs/product_systems/ai_lifecycle_and_approval_matrix.md)
 
 ## Current Doctrine
 
@@ -26,7 +31,7 @@ This map is explanatory, not an implementation plan.
 
 1. `Narrative Insertion / Narrative Assertion`
    - smallest narrative foundation
-2. Projections and display surfaces
+2. Presentation and display surfaces
    - prose projection
    - scene projection as compatibility only
    - Writing Surface
@@ -39,7 +44,11 @@ This map is explanatory, not an implementation plan.
    - Companion
 4. Transfer and interchange systems
    - Document Interchange
-5. Routing, safety, and visibility systems
+5. Governance and policy systems
+   - Truth And State Ownership Matrix
+   - Surface-To-Owner Action Handoff Contract
+   - AI Lifecycle And Approval Matrix
+6. Routing, safety, and visibility systems
    - Authorship / Provenance / AI Visibility
    - Model Routing And Budget Architecture
    - LLM Package Construction Architecture
@@ -87,18 +96,21 @@ Important boundary:
 Rough doctrine flow:
 
 `task request`
+-> bounded request formation
+-> package construction and protection filtering
 -> `Model Routing And Budget Architecture`
--> if allowed, `LLM Package Construction Architecture`
--> local model, manual path, or paid API path later
--> outputs return as advisory material
--> `Authorship / Provenance / AI Visibility` governs how outputs are shown
+-> if allowed, local model, manual path, or paid API path later
+-> outputs return as classified advisory material
+-> owner-governed review, conversion, retention, export, and provenance paths
 
 Important boundary:
 
 - arrows do not imply runtime wiring exists,
 - arrows do not imply paid API is enabled,
+- arrows do not imply surface authority or automatic conversion,
 - routing precedence starts with user approval or refusal, then privacy or local-only, explicit-content restrictions, no-money or budget limits, project settings, model quality preference, and convenience or automation,
-- arrows do not imply silent paid spend is allowed.
+- arrows do not imply silent paid spend is allowed,
+- outputs do not become truth, durable signal state, durable note state, durable memory, or export automatically.
 
 ## Explicit-Content Package Flow
 
@@ -163,6 +175,7 @@ Important boundary:
 
 - `Writing Surface` may display authorship, continuity, and other bounded signals while staying sovereign and non-gated.
 - `Command Center` may host inspection, summaries, and tool entry points while remaining support-only.
+- Surface visibility does not grant mutation authority.
 - Neither surface turns advisory outputs into story truth automatically.
 
 ## Known Unknowns
@@ -185,6 +198,7 @@ Important boundary:
 - The arrows do not imply authority.
 - The arrows do not imply storage contracts already exist.
 - The arrows do not imply any system is build-ready.
+- The arrows do not bypass the ownership, handoff, or AI lifecycle contracts.
 - Signals remain advisory unless accepted or actioned.
 - `Memory Lab` may feed `Companion`, but `Companion` is not `Memory Lab`.
 - Model routing governs whether local, manual, or paid-model paths are allowed.

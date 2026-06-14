@@ -35,6 +35,7 @@ Without an explicit truth index, the project risks split-brain planning:
 6. Mirrored or copied docs are not new authorities.
 7. AI or inferred output is advisory unless explicitly accepted by the user.
 8. No continuity, critique, Companion, or projection layer may silently become authored truth.
+9. Architecture-governance contracts in `docs/product_systems/` constrain dossier interpretation before runtime code, tooling convenience, or old planning assumptions may claim authority.
 
 ## Current Product Doctrine Snapshot
 
@@ -49,6 +50,13 @@ Current Black Skies doctrine is:
 - Inferred output is not authored truth.
 - AI is advisory unless accepted by the user.
 - Author authority controls the final text decision.
+- Accepted truth ownership is governed by `truth_and_state_ownership_matrix.md`.
+- Durable support-state ownership is governed by `truth_and_state_ownership_matrix.md`.
+- Surface visibility does not grant execution authority; action exposure is governed by `surface_to_owner_action_handoff_contract.md`.
+- AI lifecycle, approval, conversion, retention, export, and provenance boundaries are governed by `ai_lifecycle_and_approval_matrix.md`.
+- No system may silently mutate accepted truth.
+- No system may silently create or mutate durable AI-origin memory, note, or signal state.
+- No system may silently export, sync, spend money, retain AI-origin durable memory, or transmit protected content.
 - Silent or subtle observation is preferred first.
 - Manual run is the backup.
 - Paid API is reserved for heavy, deep, or long-context work when quality or scale requires it.
@@ -141,6 +149,9 @@ Current canonical repo-tracked sources include:
 
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
 - [_dossier_template.md](/C:/Dev/black-skies/docs/product_systems/_dossier_template.md)
+- [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
+- [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)
+- [ai_lifecycle_and_approval_matrix.md](/C:/Dev/black-skies/docs/product_systems/ai_lifecycle_and_approval_matrix.md)
 - [writing_surface.md](/C:/Dev/black-skies/docs/product_systems/writing_surface.md)
 - [command_center_surface.md](/C:/Dev/black-skies/docs/product_systems/command_center_surface.md)
 - [narrative_insertion_assertion.md](/C:/Dev/black-skies/docs/product_systems/narrative_insertion_assertion.md)
