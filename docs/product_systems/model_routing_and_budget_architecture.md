@@ -18,6 +18,7 @@
 
 Define how Black Skies decides between no-AI, local-only, and paid-model work without surprise spend or weak-machine collapse.
 Routing decides whether a model path may be used; it does not decide human file formats or Memory Lab durability rules.
+This dossier inherits route, approval, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -275,6 +276,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - Future contract need: what exact enforcement and recovery behavior should govern `no-ai-route-available` across routing, package construction, explicit-content handling, and `Companion` explanation flows?
 - Future contract need: how is the accepted precedence enforced consistently when author authority, masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience collide across tools or surfaces?
 - Future contract need: how should routing treat AI package-format experiments so file or package format comparison stays separate from spend approval and separate from any human document export contract?
+- Future contract need: what exact T4 session scope, cap, and provider-switch rules should exist before repeated low-risk approval can be trusted?
 
 ### Major Questions
 
@@ -306,6 +308,11 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - What cost exposure must be visible before a task can leave the local boundary or consume paid tokens? Answered: estimated cost before paid work and visible session budget remaining.
 - Which failure combinations should transition directly to `no-ai-route-available`? Answered: when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, and no permitted fallback remains.
 - What is the starting routing precedence? Answered: author authority -> masks or AI exclusion zones -> privacy or outbound rules -> spend rules -> routing preference -> `Companion` convenience.
+- Is silent paid spend allowed? Answered: no.
+- Is silent outbound transfer allowed? Answered: no.
+- Does routing own truth, memory, signals, notes, package content, or export? Answered: no.
+- Is `no-ai-route-available` a route failure rather than a writing failure? Answered: yes.
+- Do route retries after refusal, failure, or protection change require revalidation instead of silent replay? Answered: yes.
 - What stable approval-class vocabulary should govern silent-local, session-approved, fresh-approval-required, blocked, refused, and `no-ai-route-available` states across routing, package construction, and explicit-content handling? Answered: rough doctrine uses those states with the meanings defined in this dossier; exact approval thresholds and enforcement remain unresolved.
 - What rough resource-governed assistance posture should routing enforce before systems escalate into heavier scans or provider work? Answered: systems should prefer the cheapest safe source of truth or context first and escalate into deeper analysis only when cost, privacy, mutation risk, and hardware impact permit.
 - What rough workload tiers should routing and budget policy recognize before runtime wiring? Answered: instant existing-context lookup, lightweight local scan, idle or deferred local analysis, scheduled or overnight local analysis, manual heavy scan, and paid or outbound approved work.

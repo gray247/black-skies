@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define how Black Skies handles explicit material safely without corrupting local authorship or continuity.
+This dossier inherits its marker, censor, routing, package, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `document_interchange_source_destination_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -261,6 +262,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 - Jason decision candidate: what preview and approval steps are mandatory before transformed explicit-content material is sent outward?
 - Future contract need: what exact state contract must distinguish raw manuscript, author redaction or mask map, author-approved package view, and outbound payload view before runtime wiring is attempted?
 - Jason decision candidate: which local-only raw analysis results may inform local advisory systems, and which must never cross into outbound raw-package behavior without a new author decision?
+- Future contract need: what marker taxonomy should v1 expose for explicit, protected, local-only, AI-excluded, and transformed-package states?
 
 ### Major Questions
 
@@ -287,6 +289,11 @@ Richer marker systems, per-project policy, and export-aware handling.
 - What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package? Answered: blocked or refused outbound explicit-content work must not block direct writing and should offer local-only handling, transform, mask, summarize options, manual continuation, route change where allowed, or cancel. If both local and outbound AI routes fail or refuse, the state becomes `no-ai-route-available`.
 - May the author manually mask, summarize, substitute, or exclude selected manuscript ranges before AI routing or outbound package construction? Answered: yes.
 - Does manual masking or exclusion alter the manuscript by default? Answered: no. It changes package or context artifacts unless the author explicitly saves the masked version into the manuscript.
+- Does explicit-content architecture own truth or local manuscript prose? Answered: no.
+- Does explicit-content architecture mutate authored text? Answered: no.
+- Does explicit/protected/local-only/AI-excluded state inherit from the protected-content matrix? Answered: yes.
+- Does outbound explicit-content require approval and may it block route or package creation? Answered: yes.
+- Are transformed packages accepted manuscript truth? Answered: no.
 
 ### Deferred Questions
 

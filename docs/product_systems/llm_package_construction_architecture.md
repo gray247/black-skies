@@ -18,6 +18,7 @@
 
 Define how outbound and local model packages are assembled so Black Skies does not degrade into ad hoc prompt stuffing.
 This dossier is about AI-facing package construction, not normal human document export and not Memory Lab durability rules.
+This dossier inherits its approval, protection, provenance, routing, and degraded-mode limits from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `document_interchange_source_destination_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -240,6 +241,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Future contract need: how must raw manuscript, author redaction or mask map, AI exclusion zones, author-approved package view, and outbound payload view remain distinct through package assembly?
 - Future contract need: how must masking notes, package summaries, and the actual outbound payload stay aligned so approval surfaces do not misdescribe what leaves the machine?
 - Future contract need: which file or package formats should AI systems receive, and how should later tests compare token or context behavior, cost, fidelity, evidence quality, citation quality, routing effects, privacy, structure preservation, and failure modes without confusing those studies with human export doctrine?
+- Future contract need: what provider wrappers or preview alignment rules are required before citations or source traceability become part of v1 package types?
 
 ### Major Questions
 
@@ -269,6 +271,12 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
 - Can package construction self-approve outbound work? Answered: no.
 - What happens if outbound clearance fails? Answered: package construction must stop or produce only local, non-outbound artifacts.
+- Are packages human export? Answered: no.
+- Are packages memory? Answered: no.
+- Are packages truth? Answered: no.
+- Does package construction widen task scope on its own? Answered: no.
+- Must package views respect masks, AI exclusion zones, local-only content, and protected states? Answered: yes.
+- Does stale package retry require revalidation after source or protection changes? Answered: yes.
 
 ### Deferred Questions
 
