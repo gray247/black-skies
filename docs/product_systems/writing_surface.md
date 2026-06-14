@@ -17,6 +17,8 @@
 
 Define the sovereign writer-facing surface where Black Skies writing begins and remains valid even when support systems are absent, incomplete, or deferred.
 
+This surface inherits its ownership and approval boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
+
 ## 3. User Problem Solved
 
 The writer needs a place to enter prose quickly, continue prose with low friction, and stay inside an uncluttered writing flow without being blocked by planning tools, Story Unit setup, or AI workflow ceremony.
@@ -408,8 +410,7 @@ Future-only items:
 ### Critical Questions
 
 - Future contract need: what exact inline versus off-surface display contract should govern signals, provenance overlays, `Companion` highlights, package previews, and warnings so writing flow stays primary and non-gated?
-- Future contract need: what exact approval and interaction contract should govern how the Writing Surface exposes heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes without becoming the owner of those actions?
-- Future contract need: how must manual masking, AI exclusion zones, and author-approved package views behave inside the Writing Surface so local direct writing remains available while excluded raw text does not leak through overlays, previews, or summaries?
+- Future contract need: what exact presentation and interaction contract should govern heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes without turning Writing Surface into the owner of those actions?
 - Future contract need: what exact local save-state contract should govern continuously saved feel, pending-save visibility, degraded-save warnings, recoverable-write cues, and crash or restart recovery entry without turning Writing Surface into a hidden sync or history authority?
 
 ### Major Questions
@@ -429,6 +430,7 @@ Future-only items:
 - May the Command Center, `Companion`, signals, `Memory Lab`, routing, package construction, or AI workflows gate basic writing? Answered: no.
 - Are temporary highlights or annotations manuscript edits, truth, or durable signal state by default? Answered: no. They are advisory overlays unless the author explicitly saves, converts, or accepts them through the owning system.
 - May manual masking or AI exclusion zones prevent local direct writing? Answered: no.
+- Do manual masking and AI exclusion zones change the Writing Surface into a hidden authority over protected content? Answered: no.
 - Do heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules? Answered: yes.
 - What is the minimum current-writing context that helps without slowing entry? Answered: project or story, current unit, save state, optional word or progress information, and a clear way to summon context or support.
 - When should insertion or assertion references become visible to the writer during active drafting? Answered: they should be contextual or summonable, not always-on, and may appear when requested, when cursor or selection context requires them, when a blocker affects the current passage, when advisory text is being accepted or inserted, or when provenance or context overlays are opened.

@@ -18,6 +18,8 @@
 
 Define the workflow spine as a writer-guidance layer that organizes movement through drafting, review, revision, and support actions without becoming a gate or a truth owner.
 
+This dossier inherits its authority and handoff limits from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `shared_output_vocabulary_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
+
 ## 3. User Problem Solved
 
 The writer needs coherent workflow guidance without being forced through rigid setup, dashboard ceremony, or hidden authority systems.
@@ -99,9 +101,10 @@ The workflow spine may guide work around narrative actions, but it does not repl
 ## 16A. Relationship To Author Intent / Story Setup
 
 The old Wizard concept is now treated as a historical seed for Author Intent / Story Setup rather than as a rigid startup gate.
-Author Intent / Story Setup may live inside the workflow spine for now as a living profile of goals, boundaries, preferences, and story parameters.
+Author Intent / Story Setup may live inside the workflow spine for now as a provisional living profile of goals, boundaries, preferences, and story parameters.
 Its values may be known now, unknown, ask-later, inferred candidate, system-suggested, confirmed by the author, or changed over time.
 It should supply guidance to Outline, Critique, Companion, Draft Generation, Routing, and related systems, but it must not block direct writing.
+If this posture later moves into its own dossier, the workflow spine remains the guide and not the truth owner.
 
 ## 17. Relationship To Story Units
 
@@ -186,7 +189,7 @@ Intake note:
 ### Critical Questions
 
 - Future contract need: which project starting points must reach direct writing without required setup, and which may pass through optional support setup first?
-- Critical: what workflow state is durable versus session-only, especially for resume, last-used context, and workflow-progress markers?
+- Future contract need: what workflow state is durable versus session-only, especially for resume, last-used context, and workflow-progress markers?
 - Jason decision candidate: should workflow modes remain explicit user-chosen modes, lightweight context filters, or mostly invisible posture changes, and which visible tool changes are allowed when they switch?
 - Future contract need: how should Author Intent / Story Setup be represented as a living profile rather than a rigid startup wizard, and which fields may remain unknown, ask-later, inferred candidate, system-suggested, confirmed, or changed over time?
 - Future contract need: what exact resume and interruption contract should exist after crash, restart, degraded save state, or recovery-first entry so the author can continue writing without turning workflow markers into hidden canon or save authority?

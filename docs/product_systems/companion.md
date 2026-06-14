@@ -18,6 +18,8 @@
 
 Define Companion as the likely interface or personality layer over Memory Lab and other systems without letting it become truth owner.
 
+This surface inherits its authority, approval, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `shared_output_vocabulary_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
+
 ## 3. User Problem Solved
 
 Writers need a bounded guide that can explain, question, summarize, and investigate without taking over authorship or workflow authority.
@@ -332,6 +334,7 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Future contract need: beyond the rough source labels above, what exact evidence citation expectations apply before `Companion` claims investigative support or presents downstream conclusions as reliable guidance?
 - Future contract need: beyond the rough highlight lifecycle above, what exact visibility, dismissal, snooze, expiry, and handoff rules should govern temporary `Companion` Writing Surface highlights or annotations before they are dismissed, saved, converted, or offered as signal candidates?
 - Future contract need: what exact routing language should Companion use when it tells the author a request belongs to Critique, Author Intent / Story Setup, Draft Generation / Rewrite Loop, Signal Architecture, Continuity, or Feedback Notes / Revision Resolution instead of Companion itself?
+- Future contract need: what v1 capability boundaries should keep Companion advisory while still useful for explanation, navigation, and safe local support?
 
 ### Major Questions
 

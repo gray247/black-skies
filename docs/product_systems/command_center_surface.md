@@ -17,6 +17,8 @@
 
 Define the separate support, planning, inspection, and orchestration workspace that surrounds writing without replacing or blocking the sovereign Writing Surface.
 
+This surface inherits action and ownership boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `shared_output_vocabulary_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
+
 ## 3. User Problem Solved
 
 The writer needs a place to inspect structure, review support signals, summon tools, and organize narrative work without crowding the main drafting area or turning every writing session into a setup ritual.
@@ -414,6 +416,7 @@ Future-only items:
 - Future contract need: what exact visibility contract should govern always-visible versus contextual versus summonable blockers, attention views, routing or spend state, memory or provenance summaries, and package or export controls?
 - Future contract need: what exact action-permission boundaries should govern surfaced blockers, prepared findings, routing prompts, and package or export controls so the Command Center never silently resolves durable signal state, mutates truth, spends, sends, deletes, or bypasses masks?
 - Future contract need: how should `What needs attention?` and `Show only things blocking writing` views relate to `Signal Architecture`, `Memory Lab`, routing or budget states, and author authority without becoming hidden truth ownership?
+- Future contract need: what v1 surface boundary should stay in the Command Center versus remain summonable only, especially for review workflows and dense status views?
 
 ### Major Questions
 
