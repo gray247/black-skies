@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define how Black Skies behaves when services are healthy, offline, degraded, refused, or partially unavailable without blocking direct writing.
+This dossier inherits degraded-mode and failure-state boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -167,18 +168,13 @@ Intake note:
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 10
 - remaining blocker summary: `0 Fatal`, `4 Critical`, `3 Major`
+- remaining blocker summary: `0 Fatal`, `0 Critical`, `3 Major`
 
 ### Fatal Questions
 
 - None yet.
 
 ### Critical Questions
-
-- Critical: how should route failure, approval denial, budget block, service outage, refused execution, and degraded capability be distinguished visibly so the app does not fake a single generic "offline" state?
-- Critical: which operations remain available in degraded mode, including direct writing, read-only project open, safe raw-prose copy, snapshot creation, backup export, and project repair?
-- Critical: which actions must be forbidden in degraded mode because they are destructive, truth-mutating, or likely to worsen recovery?
-- Future contract need: what safe-mode or startup-bypass paths are required when bad settings, bad projects, or broken subsystems cause crash loops or prevent normal recovery?
-- Future contract need: what exact saved, pending, degraded, recoverable, and at-risk state vocabulary should appear during offline or degraded writing so local persistence risk is honest without implying cloud or sync guarantees?
 
 ### Major Questions
 
@@ -193,12 +189,17 @@ Intake note:
 ### Answered / Superseded Questions
 
 - Direct writing must remain available when local editing is still possible.
+- Route failure, approval denial, budget block, service outage, refused execution, and degraded capability are distinct states governed by the degraded-mode execution contract rather than a single generic offline blob.
+- Degraded mode may keep direct writing, read-only open, safe copy, snapshot creation, backup export, and project repair available when the owning contracts permit it.
+- Destructive, truth-mutating, or recovery-worsening actions remain forbidden in degraded mode unless a separate governing contract explicitly allows them.
 - Superseded by current doctrine: degraded operation must not bypass explicit-content restrictions, privacy boundaries, or approval rules.
 - Health reporting must not create false-healthy state.
 - Google Docs-like instant-save expectation belongs to local persistence and recovery posture, not to cloud-sync success claims.
 
 ### Deferred Questions
 
+- Future contract need: what safe-mode or startup-bypass paths are required when bad settings, bad projects, or broken subsystems cause crash loops or prevent normal recovery?
+- Future contract need: what exact saved, pending, degraded, recoverable, and at-risk state vocabulary should appear during offline or degraded writing so local persistence risk is honest without implying cloud or sync guarantees?
 - Deferred: exact telemetry, heartbeat, and alert thresholds.
 
 ## 34. Acceptance Criteria

@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define bounded diagnostics and error visibility so failures can be understood without turning debug views into everyday workflow clutter or exposing protected content carelessly.
+This dossier inherits diagnostics, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -169,16 +170,13 @@ Intake note:
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 8
 - remaining blocker summary: `1 Fatal`, `3 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `0 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what diagnostic outputs are too sensitive for normal views, error bundles, or console surfaces because they may expose hidden, masked, excluded, deleted, or credential-bearing material?
+- None. Protected-content handling and evidence redaction are governed by the protection matrix and provenance rules.
 
 ### Critical Questions
-
-- Critical: what information must always be visible when work is blocked or failing so the user gets a truthful summary and next safe step even if deeper diagnostics fail?
-- Critical: when may diagnostics show source passages, raw logs, or evidence trails versus only protected summaries, and what boundaries stop protected content from leaking into everyday error visibility?
-- Critical: what makes a diagnostic artifact a witness or evidence bundle rather than proof or closure, and how do diagnostics avoid silently becoming truth or verification authority?
 
 ### Major Questions
 
@@ -195,10 +193,17 @@ Intake note:
 - The Command Center must not become a junk drawer by default.
 - Diagnostics should not crowd the Writing Surface by default.
 - Diagnostics and error visibility are witnesses, not proof.
+- Diagnostics do not own truth, memory, signals, notes, recovery, routing, or exports.
+- Diagnostics must not leak raw protected content, raw manuscript, AI-excluded text, package payloads, or private provenance by default.
+- Evidence bundles must be redacted or bounded unless explicitly approved.
+- Failed diagnostics cannot be hidden behind fake-green status.
 - Questions better owned elsewhere: exact degraded-mode transition policy belongs primarily to `service_health_offline_degraded_mode.md`, and exact verification claims belong primarily to `testing_harness_evidence_contract.md`.
 
 ### Deferred Questions
 
+- Future contract need: what information must always be visible when work is blocked or failing so the user gets a truthful summary and next safe step even if deeper diagnostics fail?
+- Future contract need: when may diagnostics show source passages, raw logs, or evidence trails versus only protected summaries, and what boundaries stop protected content from leaking into everyday error visibility?
+- Future contract need: what makes a diagnostic artifact a witness or evidence bundle rather than proof or closure, and how do diagnostics avoid silently becoming truth or verification authority?
 - Deferred: exact log-retention, evidence-export, and operator-access rules.
 
 ## 34. Acceptance Criteria

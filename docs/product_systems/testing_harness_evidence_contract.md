@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define the testing, harness, and evidence expectations that must exist before runtime behavior can be trusted or marked verified.
+This dossier inherits evidence, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -168,11 +169,11 @@ Intake note:
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 11
 - remaining blocker summary: `2 Fatal`, `4 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `4 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what proof is mandatory before a system can be called verified, safe, or ready for broader implementation work?
-- Fatal: what is the harness allowed to fake versus forbidden from faking, especially around local-model status, API output, project loading, snapshots, recovery, service health, budget state, and explicit-content packaging?
+- None. Reproducible evidence is mandatory, but exact thresholds and allowed fakes remain under active contract work.
 
 ### Critical Questions
 
@@ -196,6 +197,9 @@ Intake note:
 - Do not mark an issue verified without reproducible evidence.
 - Green tests do not equal closure by themselves.
 - Fake outputs must never be easy to confuse with live truth.
+- Harness success cannot override governance contracts.
+- Test fixtures must not silently become runtime truth.
+- Evidence labels must distinguish docs, runtime behavior, fixture behavior, degraded behavior, and live-service behavior.
 - Questions better owned elsewhere: exact runtime failure messaging belongs primarily to diagnostics and degraded-mode dossiers.
 
 ### Deferred Questions

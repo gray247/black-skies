@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define the job queue and task runner that support bounded background work without allowing silent paid, outbound, destructive, or truth-mutating actions.
+This dossier inherits routing, approval, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
 
@@ -171,17 +172,16 @@ Intake note:
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 9
 - remaining blocker summary: `1 Fatal`, `4 Critical`, `2 Major`
+- remaining blocker summary: `0 Fatal`, `2 Critical`, `2 Major`
 
 ### Fatal Questions
 
-- Fatal: what categories of job are never allowed to run silently, including paid, outbound, destructive, truth-mutating, protected-content, export, sync, publish, memory-retaining, or masked-raw-content-revealing work?
+- None. The never-silent categories are governed by routing, AI lifecycle, protected-content, and degraded-mode contracts.
 
 ### Critical Questions
 
 - Critical: what approval, block, queue, running, partial-success, failed, canceled, retryable, refused, expired, and review-complete states govern queued work?
 - Critical: what happens when a paid or hybrid job is canceled mid-run, partially succeeds, retries after spending begins, or would double cost if retried?
-- Critical: what result-review boundaries prevent queued findings or generated artifacts from auto-applying to manuscript text, truth, `Memory Lab`, or durable signal state?
-- Critical: which jobs may run in degraded or offline conditions, which must pause or fail closed, and what blocked-task messaging is required when the queue cannot safely continue?
 
 ### Major Questions
 
@@ -196,11 +196,16 @@ Intake note:
 
 - No silent paid API spend.
 - Async jobs must not silently perform paid, outbound, destructive, truth-mutating, protected-content, or export/sync/publish actions.
+- Queued work must preserve owner, approval tier, provenance, protection state, and degraded/failure state instead of becoming anonymous queue mush.
+- Retry after source, protection, or approval changes requires revalidation.
+- Pending work must not silently apply after restart if the risk profile changed.
 - Direct writing must remain available even when queued work is blocked or failing.
 - Questions better owned elsewhere: exact degraded execution fallback belongs partly to `service_health_offline_degraded_mode.md`, and exact evidence/verification claims belong primarily to `testing_harness_evidence_contract.md`.
 
 ### Deferred Questions
 
+- Future contract need: what result-review boundaries prevent queued findings or generated artifacts from auto-applying to manuscript text, truth, `Memory Lab`, or durable signal state?
+- Future contract need: which jobs may run in degraded or offline conditions, which must pause or fail closed, and what blocked-task messaging is required when the queue cannot safely continue?
 - Deferred: exact worker topology, scheduling fairness, and scaling behavior.
 
 ## 34. Acceptance Criteria
