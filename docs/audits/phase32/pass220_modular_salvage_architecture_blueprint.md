@@ -1,5 +1,18 @@
 # Pass 220 - Modular Salvage Architecture Blueprint
 
+> Status notice
+>
+> - Current classification: `lane-specific`
+> - Still provides: salvage-shell architecture evidence and historical
+>   boundary rules for the older salvage implementation lane.
+> - No longer authorizes: current product-discovery priorities, current
+>   product horizons, or implementation start by itself.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 ## Purpose
 
 This blueprint defines the modular architecture rules for the salvage shell before more code is added.

@@ -1,5 +1,18 @@
 # Pass 221 - Salvage Carry-Forward Extraction Map
 
+> Status notice
+>
+> - Current classification: `lane-specific`
+> - Still provides: historical carry-forward evidence and repository
+>   salvage boundaries for the older salvage implementation lane.
+> - No longer authorizes: current product-discovery priorities, current
+>   product scope, or implementation start by itself.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 ## Purpose
 
 This map identifies which existing Black Skies code and knowledge can be carried forward into the salvage shell, which items must wait, and which old files should remain reference-only.

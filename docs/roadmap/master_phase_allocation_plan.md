@@ -1,3 +1,18 @@
+# Master Phase Allocation Plan
+
+> Status notice
+>
+> - Current classification: `lane-specific`
+> - Still provides: historical phase and pass sequencing for the older
+>   runtime-governance and correction-block lane.
+> - No longer authorizes: the current product roadmap, current product
+>   priorities, or implementation start.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 Status: Accepted with exceptions
 Canonical role: Operational roadmap spine for future phase and pass sequencing, gates, and phase-level closure requirements.
 Scope: Convert the Phase 13 handoff trilogy and authority strategy into future phase structure, pass breakdowns, dependencies, gates, entry/exit criteria, and readiness boundaries for post-Phase-13 work.
@@ -7,8 +22,6 @@ Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skie
 Downstream dependencies: [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
 Last reviewed: 2026-05-20.
 Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
-
-# Master Phase Allocation Plan
 
 ## Purpose
 

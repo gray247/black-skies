@@ -1,3 +1,18 @@
+# Deferred Work Matrix
+
+> Status notice
+>
+> - Current classification: `lane-specific`
+> - Still provides: historical deferred-work allocation for the older
+>   runtime-governance and phase-based backlog lane.
+> - No longer authorizes: current product deferrals, current discovery
+>   priorities, or implementation planning.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 Status: Accepted with exceptions
 Canonical role: Canonical deferred and backlog allocation surface for stable roadmap IDs, source mapping, lifecycle state, and future phase/pass destinations.
 Scope: Convert Handoff Pass 2, Pass 26, tracker evidence, and relevant audit/spec findings into a stable deferred-work matrix with `RDM-*` IDs, lifecycle state, ownership, authority impact, runtime impact, and future allocation.
@@ -7,8 +22,6 @@ Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skie
 Downstream dependencies: No downstream roadmap artifact is required to exist for this pass; this matrix is expected to feed governance acceptance review and later Phase 14 slice mapping.
 Last reviewed: 2026-05-20.
 Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
-
-# Deferred Work Matrix
 
 ## Purpose
 

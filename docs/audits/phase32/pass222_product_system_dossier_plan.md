@@ -1,5 +1,18 @@
 # Pass 222 - Product System Dossier Plan
 
+> Status notice
+>
+> - Current classification: `superseded`
+> - Still provides: historical dossier-recovery input and early product
+>   system inventory thinking.
+> - No longer authorizes: the current dossier registry, current product
+>   roadmap, current discovery priorities, or implementation planning.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 ## Purpose
 
 This plan defines the document set needed to capture the target Black Skies product vision before major salvage implementation continues.
@@ -61,33 +74,33 @@ Future dossier set:
 9. `Continuity`
    - defines continuity checks, state, stored results, and how other systems consume them
 10. `Critique`
-   - defines critique inputs, outputs, boundaries, and where critique lives in the workflow
+    - defines critique inputs, outputs, boundaries, and where critique lives in the workflow
 11. `Lore Cards`
-   - defines lore capture, retrieval, display, and linkage to other systems
+    - defines lore capture, retrieval, display, and linkage to other systems
 12. `Character Cards`
-   - defines character state, traits, history, and relation to continuity and critique
+    - defines character state, traits, history, and relation to continuity and critique
 13. `Senses Usage`
-   - defines sensory-balance review, suggestion scope, and storage rules
+    - defines sensory-balance review, suggestion scope, and storage rules
 14. `Overused Words`
-   - defines repetition review behavior and non-authoritative guidance boundaries
+    - defines repetition review behavior and non-authoritative guidance boundaries
 15. `Cliche Detection`
-   - defines trope and phrase detection scope, false-positive handling, and UI role
+    - defines trope and phrase detection scope, false-positive handling, and UI role
 16. `Foreshadow / Payoff`
-   - defines signal and review behavior for setup, payoff, and unresolved setup tracking
+    - defines signal and review behavior for setup, payoff, and unresolved setup tracking
 17. `Explicit-Content Marker / Send-Package Censor`
-   - defines explicit-content handling, masking, summarization, approval, and safe package generation
+    - defines explicit-content handling, masking, summarization, approval, and safe package generation
 18. `Companion`
-   - defines what Companion is, what it is allowed to do, and where it is not allowed to act
+    - defines what Companion is, what it is allowed to do, and where it is not allowed to act
 19. `Memory Lab`
-   - defines memory workflows, storage, retrieval, privacy, and authorial-boundary controls
+    - defines memory workflows, storage, retrieval, privacy, and authorial-boundary controls
 20. `Theme System`
-   - defines theme handling as an actual product system rather than cosmetic garnish only
+    - defines theme handling as an actual product system rather than cosmetic garnish only
 21. `Splash / Startup Experience`
-   - defines startup intent, project-entry affordances, and what belongs before writing begins
+    - defines startup intent, project-entry affordances, and what belongs before writing begins
 22. `Import / Export / Google Docs`
-   - defines external document movement, compatibility, loss boundaries, and trust contracts
+    - defines external document movement, compatibility, loss boundaries, and trust contracts
 23. `Local LLM vs Paid API Routing`
-   - defines model routing, privacy, cost, capability, and failure boundaries across AI features
+    - defines model routing, privacy, cost, capability, and failure boundaries across AI features
 
 ## Required Dossier Template
 

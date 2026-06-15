@@ -1,5 +1,18 @@
 # Pass 212 - Rebuild vs Salvage Decision Record
 
+> Status notice
+>
+> - Current classification: `historical`
+> - Still provides: the historical decision record behind the salvage
+>   branch lineage and repository-preservation posture.
+> - No longer authorizes: the current product-development stage, current
+>   product priorities, build order, or implementation start.
+> - Current product discovery is governed by the active product-system
+>   spine in `docs/product_systems/`, especially
+>   `current_truth_index.md`, `current_product_roadmap.md`,
+>   `README.md`, `pre_code_discovery_plan.md`, and
+>   `capability_ownership_map.md`.
+
 ## Purpose
 
 This pass records a decision on whether Black Skies should continue evolving inside the current app or pivot to a salvage rebuild.
