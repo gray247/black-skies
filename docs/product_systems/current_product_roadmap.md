@@ -119,112 +119,251 @@ for the broader product roadmap.
 
 ## 5. Priority Classes
 
+This roadmap now treats remaining work by the depth actually required.
+Not every rough or partial dossier needs a full deep dive before a
+future implementation-planning review is even possible.
+
 ### Foundation-Critical
 
-This class is for unresolved work that could still change the truth
-model, narrative primitive, two-surface architecture, persistence or
-recovery posture, project structure, authority boundaries, or the
-primary writer workflow.
+This class is for the small set of remaining cross-system questions that
+can still materially change manuscript or durable truth boundaries,
+`Narrative Assertion` identity, the two-surface architecture,
+direct-writing availability, project structure, persistence or recovery,
+authority boundaries, or the writer's primary workflow.
 
-Current foundation-critical work:
+Current foundation-critical work is limited to:
 
-- `Author Intent / Story Setup`
-- save-state, recovery, and degraded-writing semantics across `Writing
-  Surface`, `Workflow Spine`, `Snapshots`, and `Service Health`
-- structural reconciliation among `Outline`, `Story Unit`, `Prose /
-  Scene Projection`, and `Scene Cards / Corkboard` where those decisions
-  still affect foundation boundaries or writer workflow
+- save-state and degraded-writing workflow
+  Unresolved product question: what should the writer honestly
+  understand about `saved`, `pending`, `recoverable`, `degraded`,
+  `at risk`, and `blocked` across `Writing Surface`, `Workflow Spine`,
+  `Snapshots`, `Service Health`, and startup or resume paths?
+  Why it can change the foundation: this work defines direct-writing
+  availability, persistence honesty, recovery posture, and startup or
+  interruption behavior.
+  Resolving artifact: a cross-system save-state and degraded-writing
+  workflow map.
+  Jason decision required: yes, for bounded startup or resume exposure
+  and how explicit degraded-state messaging should be.
+- `Outline / Story Unit / Prose / Scene Projection / Scene Cards /
+  Corkboard` reconciliation
+  Unresolved product question: which optional structural and projection
+  objects exist, what each one owns, how accepted-manuscript
+  rearrangement and projection comparison work, and how scene
+  terminology remains compatibility language rather than hidden
+  foundation?
+  Why it can change the foundation: this work still affects project
+  structure, authority boundaries, accepted-manuscript reorder
+  mechanics, and which surface carries structural review versus writing.
+  Resolving artifact: a connected structural reconciliation artifact
+  spanning those four systems.
+  Jason decision required: yes, mainly for user-facing terminology and
+  how visible scene compatibility should remain.
+- `Editorial Workflow` map
+  Unresolved product question: how do findings move from critique or
+  continuity to notes, signals, rewrite requests, approval, action, and
+  closure without re-creating a hidden monolith?
+  Why it can change the foundation: it still affects the writer's
+  primary revision workflow, cross-surface handoffs, and whether note,
+  signal, critique, rewrite, and Companion lanes stay distinct.
+  Resolving artifact: an end-to-end editorial workflow map.
+  Jason decision required: some, mostly around how much workflow
+  guidance should be visible by default versus remain summonable.
+
+These are the only remaining items currently treated as
+foundation-critical.
+`Author Intent / Story Setup` is now substantively accepted as its own
+dossier and is no longer the active foundation-critical mission.
+Residual `Narrative Insertion / Assertion` state questions remain
+important, but they are now embedded inside the structural, editorial,
+and save-state lanes rather than being treated as a separate major
+artifact.
 
 ### Roadmap-Sufficient
 
-This class is for systems and workflow lanes that need enough definition
-to establish purpose, ownership, dependencies, risks, and future
-placement now, but do not require a full deep dive in the current
-discovery cycle.
+This class is for systems and workflow lanes that still need stable
+purpose, ownership, dependencies, risks, and future placement, but do
+not require a full product deep dive before a later
+implementation-planning review may be considered.
 
 Current roadmap-sufficient work:
 
-- editorial workflow recovery as an end-to-end cross-system map
+- `Author Intent / Story Setup`
+  Minimum still needed: keep the bounded optional question set,
+  consumer limits, and non-gating posture stable.
+  Can remain intentionally unfinished: exact GUI, exact storage shape,
+  final questionnaire polish, and any wizard-like implementation.
 - `Ideation / Premise Discovery`
-- research or deep-research workflow classification
-- near-core support and analysis systems whose boundaries are mostly
-  known but whose workflow placement still needs clarification
-- later product-expansion systems that need stable ownership and future
-  placement more than immediate deep specification
+  Minimum still needed: decide whether it is a real user-facing system
+  or mostly a workflow posture, keep it distinct from `Author Intent`,
+  `Outline`, `Companion`, and notes, and define how seeds avoid
+  auto-becoming project truth.
+  Can remain intentionally unfinished: durable seed artifacts, AI-first
+  behavior, and exact prompts or worksheet depth.
+- `Binder / Project Library`, `File Manager / Asset Pane`, and
+  `Project Index / Search / Retrieval`
+  Minimum still needed: stable browse, retrieval, protection, and
+  organization boundaries so these systems do not become truth owners or
+  shadow `Memory Lab`.
+  Can remain intentionally unfinished: archive depth, file-preview
+  breadth, attach or link depth, semantic ranking, and fuzzy retrieval
+  polish.
+- `Critique / Evaluation`, `Feedback Notes / Revision Resolution`,
+  `Signal Architecture`, `Continuity`, `Draft Generation / Rewrite
+  Loop`, and `Companion`
+  Minimum still needed: stable owner boundaries, evidence and
+  conversion rules, and future placement inside the editorial lane.
+  Can remain intentionally unfinished: exact report shape, severity
+  polish, note taxonomy, `Companion` personality polish, and provider
+  tuning.
+- `Character Cards`, `Lore Cards`, `Theme System`, `Relationship Map`,
+  and `Emotion Graph`
+  Minimum still needed: keep accepted truth separate from advisory or
+  inferred material and keep consumer boundaries stable.
+  Can remain intentionally unfinished: taxonomies, visualization depth,
+  motif-linking detail, and full UI richness.
+- `Import / Export`, provenance, routing, package construction,
+  explicit-content, and related AI-governance lanes
+  Minimum still needed: keep human document interchange distinct from
+  local save-state and keep outbound package, routing, approval,
+  provenance, and protection boundaries stable.
+  Can remain intentionally unfinished: exact schemas, exact package
+  shapes, provider-specific tuning, and broader workflow polish.
 
 ### Research Or Deferred
 
-This class is for programs, future possibilities, and advanced lanes
-that should be preserved and classified now without pretending they need
-full present-cycle dossiers.
+This class is for lanes that need preservation, later research,
+validation, or more mature foundations rather than current detailed
+product definition.
 
 Current research or deferred work:
 
 - voice notes, dictation, transcription, and command-input possibilities
-- originality or similarity studies
-- model benchmarking and local-versus-API evaluation programs
-- narrative validation and stress-test programs
+  Why deferred: current workflow, routing, privacy, and degraded-mode
+  foundations are not yet stable enough.
+  Reopen when: direct-writing, save-state, and permission boundaries are
+  sharper.
 - advanced branching or what-if exploration
-- strong presentation-identity and delight work beyond current discovery
+  Why deferred: it is too easy to confuse branching with snapshots,
+  restore history, or accepted truth.
+  Reopen when: snapshot, restore, projection, and structural authority
+  boundaries are stable.
+- originality or similarity studies, model benchmarking, and
+  long-form or stress-test validation programs
+  Why deferred: these are research or validation programs, not current
+  product foundations.
+  Reopen when: critique, routing, package, and evaluation boundaries
+  are stable enough to support honest claims.
+- deep research workflow and broader citation-heavy source use
+  Why deferred: it still depends on stronger retrieval, provenance,
+  memory, and workflow boundaries.
+  Reopen when: search, governed recall, and export or provenance
+  distinctions are stable enough to support it.
+- full `Series Binder`, cross-story expansion, and strong product
+  identity or delight work
+  Why deferred: these lanes require a more settled core project,
+  workflow, and surface model first.
+  Reopen when: the foundation and near-core workflow posture are stable.
 
 Not every imperfect or shallow dossier is foundation-critical.
-The current goal is a disciplined roadmap, not universal deep closure.
+The current goal is a disciplined finite model, not universal deep
+closure.
 
-## 6. Current Controlled Mission
+## 6. Remaining Foundation-Changing Unknowns
 
-The approved next dossier mission is `Author Intent / Story Setup`.
+`Author Intent / Story Setup` has now moved out of the active mission
+slot and into the accepted current product posture.
+No new artifact is automatically authorized by that completion.
 
-Current mission constraints:
+The remaining foundation-changing unknowns are now concentrated in:
 
-- it is optional
-- it is skippable
-- it is editable
-- it cannot gate direct writing
-- it owns author-stated creative goals, preferences, boundaries,
-  unknowns, and non-assumptions
-- it does not own system permissions
-- it does not own protected-content policy
-- it does not own transfer policy
-- it does not own routing
-- it does not own spend
-- it does not own export controls
-- it does not own manuscript truth
-- it does not own canon
+- honest save-state vocabulary across `Writing Surface`, `Workflow
+  Spine`, `Snapshots`, `Service Health`, and startup or resume
+- the exact structural split among `Outline`, `Story Unit`,
+  `Prose / Scene Projection`, and `Scene Cards / Corkboard`
+- the exact finding-to-note-to-action-to-closure path across critique,
+  continuity, signals, notes, rewrite, and `Companion`
+- residual insertion, assertion, conversion, and provenance questions
+  that must be resolved inside those cross-system lanes rather than by
+  spawning a separate fourth major artifact
 
-Before any final questionnaire is proposed, the original eleven `Wizard`
-questions must be recovered and classified so the new artifact does not
-quietly inherit stale assumptions or lose useful seed material.
+These unknowns are still discovery work only.
+They do not authorize runtime, GUI, persistence, or implementation
+planning.
 
-This mission is discovery only.
-It does not authorize a startup wizard, a gating intake flow, or a new
-implementation surface.
+## 7. Pass 6 Candidate Comparison
 
-## 7. Candidate Later Missions
-
-These are ranked candidates for later discovery work after the current
-controlled mission.
-The ranking is current guidance, not binding authorization.
-It does not preselect the second major artifact as fixed.
+The remaining candidate missions are now compared by current product
+need rather than by placeholder rank.
 
 1. `Editorial Workflow` map
-   Product question: how does Black Skies move from finding to note to
-   signal to action to revision to closure without re-creating a
-   monolithic `Critique` system?
+   Product question: how do findings turn into notes, review, action,
+   rewrite, and closure across multiple owning systems?
+   Foundation impact: high for the writer's primary revision workflow,
+   but lower than save-state honesty and structural authority.
+   Writer-experience value: high for revision-heavy use and
+   cross-surface coherence.
+   Ownership risk: medium because it touches many systems, but most
+   underlying owners are already known.
+   Likely files affected: `workflow_spine_author_journey.md`,
+   `critique_evaluation.md`,
+   `feedback_notes_revision_resolution.md`,
+   `signal_architecture.md`, `continuity.md`,
+   `draft_generation_rewrite_loop.md`, `companion.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `yes`, but
+   not the strongest current choice.
 2. `Outline / Story Unit / Projection / Corkboard` reconciliation
-   Product question: which optional structural and projection objects
-   exist, how do they relate to `Narrative Insertion / Narrative
-   Assertion`, and how do they avoid becoming hidden foundation?
+   Product question: what structural objects exist, what do they own,
+   and how do projection and reorder workflows avoid hidden authority?
+   Foundation impact: high because it still shapes project structure,
+   accepted-manuscript rearrangement, and authority boundaries.
+   Writer-experience value: high for planning-heavy and structure-heavy
+   use, medium for direct drafting.
+   Ownership risk: high because it spans multiple overlapping systems
+   and could sprawl into a broad architecture pass.
+   Likely files affected: `outline.md`, `story_unit.md`,
+   `prose_scene_projection.md`, `scene_cards_corkboard.md`,
+   `writing_surface.md`, `command_center_surface.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `yes`, but
+   larger and riskier than the strongest current choice.
 3. save-state and degraded-writing workflow
-   Product question: what should the writer honestly understand about
-   `saved`, `pending`, `recoverable`, `degraded`, `at risk`, and
-   `blocked` across direct writing and recovery?
+   Product question: what should the writer believe about save, risk,
+   recovery, degraded operation, startup, and resume?
+   Foundation impact: very high because it directly affects
+   direct-writing availability, persistence honesty, recovery posture,
+   and trust in the core writing path.
+   Writer-experience value: very high for every writer, including users
+   who never touch deeper structure or intelligence lanes.
+   Ownership risk: medium-high, but more bounded than the structural or
+   editorial cross-system maps.
+   Likely files affected: `writing_surface.md`,
+   `workflow_spine_author_journey.md`,
+   `snapshots_backup_restore_history.md`,
+   `service_health_offline_degraded_mode.md`,
+   `splash_startup_experience.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `yes`, and
+   it is the strongest current choice.
 4. `Ideation / Premise Discovery` dossier
    Product question: what early creative-discovery support belongs in
-   Black Skies, what remains manual, and how do seeds or premise
-   candidates avoid auto-becoming project truth?
+   Black Skies, what remains manual, and how do seeds avoid
+   auto-becoming truth?
+   Foundation impact: lower than the other three candidates because it
+   does not currently threaten the truth model, two-surface split, or
+   save and recovery posture in the same way.
+   Writer-experience value: real, but narrower and more discretionary.
+   Ownership risk: medium because the lane is still ownerless and can
+   blur into `Author Intent`, `Outline`, `Companion`, and notes.
+   Likely files affected: a new ideation dossier, `Workflow Spine`,
+   `capability_ownership_map.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `no`, not
+   while more foundation-changing cross-system work remains open.
 
-The ordering may change if the current mission exposes a stronger
-foundation conflict than expected.
+Current recommendation for Pass 6:
+
+- save-state and degraded-writing workflow
+
+This recommendation is current planning guidance only.
+It is not Jason approval and it does not begin Pass 6 automatically.
 
 ## 8. Product Horizons
 
@@ -279,8 +418,23 @@ product-priority owner.
 
 ## 10. Transition-Review Conditions
 
-A future implementation-planning review may be justified only when all
-of the following are true:
+A future implementation-planning review may be justified only after the
+remaining discovery path is made finite and then satisfied.
+
+Current finite remaining discovery path:
+
+1. complete one final major foundation artifact in this thread; the
+   current recommendation is the save-state and degraded-writing
+   workflow
+2. either complete or consciously defer the remaining
+   foundation-critical cross-system artifacts without creating new
+   hidden owners
+3. keep roadmap-sufficient families partial but classified rather than
+   forcing universal deep closure
+4. document residual unresolved questions with explicit owners and
+   disposition
+
+After that, all of the following must also be true:
 
 - foundation-changing product questions are resolved or consciously
   deferred
@@ -303,14 +457,27 @@ change.
 The current discovery cycle does not need to finish all of the
 following:
 
-- every craft analyzer
+- every craft analyzer deep dive or analyzer catalog
+- full theme taxonomy, motif-link display, or visualization richness
+- full character, lore, relationship, or emotion-system polish
+- binder archive depth, file-preview breadth, or semantic search polish
+- critique severity polish, `Companion` personality polish, or rewrite
+  tuning depth
 - voice workflows
 - advanced branching
+- deep research workflow execution
 - the full `Series Binder`
 - originality research execution
 - model benchmarking execution
+- long-form validation program execution
 - complete historical archive migration
 - full GUI specification
 
 It also does not need to finish every downstream intelligence or product
 expansion lane before the roadmap is considered usable.
+Several systems should remain intentionally partial after this cycle,
+including `Critique`, `Continuity`, `Signal Architecture`,
+`Companion`, `Theme System`, `Character Cards`, `Lore Cards`,
+`Relationship Map`, `Emotion Graph`, and the broader AI-governance
+cluster, so long as their boundaries, purpose, dependencies, and future
+placement are stable enough for roadmap use.
