@@ -38,10 +38,11 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| direct prose entry and editing | `Writing Surface` plus `Narrative Insertion / Narrative Assertion` | `Workflow Spine`, `Service Health`, `Snapshots`, `Command Center` | current manuscript editing path only | `Command Center`, `Critique`, `Continuity`, `Companion`, `Draft Generation`, `Snapshots`, and `Import Export` do not own manuscript truth | existing dossier | mature enough for now | none | save-state honesty split across multiple support systems |
+| direct prose entry and editing | `Writing Surface` plus `Narrative Insertion / Narrative Assertion` | `Workflow Spine`, `Project Persistence / Local Save`, `Service Health`, `Snapshots`, `Command Center` | current manuscript editing path only | `Command Center`, `Critique`, `Continuity`, `Companion`, `Draft Generation`, `Snapshots`, and `Import Export` do not own manuscript truth | existing dossier | mature enough for now | none | save-state cues appear nearby but local-save confirmation is owned elsewhere |
 | accepted manuscript truth | `Narrative Insertion / Narrative Assertion` | `Writing Surface`, `Snapshots`, `Import Export` | accepted manuscript text | projections, notes, signals, memory, critique, continuity, and restore previews are non-owners | existing dossier | mature enough for now | none | import, restore, and rewrite flows can appear to compete with truth ownership |
 | accepted assertion truth | `Narrative Insertion / Narrative Assertion` | `Writing Surface`, `Command Center`, `Continuity`, `Outline` | accepted assertion truth | inserted prose, projections, critique, memory, and continuity findings are non-owners until explicitly accepted | existing dossier | mature enough for now | none | narrative truth can smear into cards, continuity, and projections |
-| direct-writing availability during degraded conditions | shared current ownership across `Writing Surface`, `Service Health / Offline / Degraded Mode`, `Workflow Spine`, and `Snapshots` | `Splash`, `Settings` | safe local writing posture and save-state cues | `Document Interchange` and any future sync path do not own local save-state doctrine | cross-system workflow | unresolved | none | degraded-state language can drift into startup, save, and recovery language |
+| durable local current-save confirmation | `Project Persistence / Local Save` | `Writing Surface`, `Workflow Spine`, `Splash`, `Command Center`, `Service Health`, `Snapshots` | authoritative local current-save truth, unresolved pending or failed local-save posture, and close-safety confidence for current unsaved work | snapshots, health, startup, workflow, diagnostics, and surfaces do not become owners by display or support role | existing dossier | drafted / narrow | final writer-facing terminology and prominence remain open | can sprawl into recovery, sync, or storage implementation if boundaries loosen |
+| direct-writing availability during degraded conditions | shared current ownership across `Writing Surface`, `Project Persistence / Local Save`, `Service Health / Offline / Degraded Mode`, `Workflow Spine`, and `Snapshots` | `Splash`, `Settings` | safe local writing posture and save-state cues | `Document Interchange` and any future sync path do not own local save-state doctrine | cross-system workflow | unresolved | none | degraded-state language can still drift into startup, save, and recovery language |
 
 ### 2.2 Story Foundation And Intent
 
@@ -132,6 +133,7 @@ Boundary reminder:
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | snapshots, backup, restore, and history | `Snapshots / Backup / Restore / History` | `Writing Surface`, `Service Health`, `Workflow Spine`, `Splash` | snapshot state and restore metadata | snapshots are historical state, not accepted truth | existing dossier | mature enough for now | none | overlap with save-state honesty and branching or what-if lanes |
+| current local-save authority | `Project Persistence / Local Save` | `Writing Surface`, `Workflow Spine`, `Splash`, `Service Health`, `Snapshots`, `Command Center` | durable local current-save confirmation and unresolved local-save risk posture | local-save authority is distinct from manuscript truth, snapshot history, recovery review, startup posture, and health history | existing dossier | drafted / narrow | prominence of at-risk and blocked cues, startup exposure, and close interruption threshold remain open | can be mistaken for snapshots or degraded health if copy and ownership stay loose |
 | health, offline, degraded, and blocked execution posture | `Service Health / Offline / Degraded Mode` | `Writing Surface`, `Diagnostics`, `Workflow Spine`, `Command Center` | health and degraded-state history | service health does not own manuscript truth or snapshots | existing dossier | mature enough for now | none | overlaps with startup, diagnostics, and save-state language |
 | startup recovery posture and safe resume | `Splash / Startup Experience` plus `Workflow Spine` | `Service Health`, `Snapshots`, `Binder` | startup entry posture only | splash does not own recovery truth, save-state, or project truth | existing dossier | shallow | none | startup, workflow, and degraded cues can compete |
 | settings-backed workspace persistence | `Settings / Preferences / Workspace Layout` | `Accessibility`, `Splash`, `Command Center` | settings and preferences state | settings do not override higher-risk approval or truth rules | existing dossier | mature enough for now | none | can absorb story setup or presentation identity accidentally |
@@ -210,7 +212,10 @@ The following do not currently have a single dossier owner, but that is now an i
 
 The strongest competing-owner conflicts are:
 
-- `Writing Surface`, `Snapshots`, `Service Health`, and `Workflow Spine` all contribute to save-state meaning.
+- `Project Persistence / Local Save`, `Writing Surface`, `Snapshots`,
+  `Service Health`, and `Workflow Spine` all touch save-state language,
+  but only `Project Persistence / Local Save` owns durable local
+  current-save confirmation.
 - `Workflow Spine` provisionally owns accepted project truth while also owning workflow state.
 - `Binder`, `File Manager`, and `Project Index / Search / Retrieval` all touch navigation, browse context, and discovery.
 - `Memory Lab` and `Project Index / Search / Retrieval` both use retrieval language but own different state categories.
@@ -273,7 +278,9 @@ The following are still real implementation-neutral product questions, but the l
 
 ## 10. Remaining Critical Discovery Risks
 
-- save-state honesty still spans `Writing Surface`, `Snapshots`, `Service Health`, and `Workflow Spine`, and the exact vocabulary remains unresolved
+- save-state display and workflow posture still span `Writing Surface`,
+  `Snapshots`, `Service Health`, `Workflow Spine`, and `Splash`, even
+  though durable local current-save confirmation now has a named owner
 - `Workflow Spine / Author Journey` still carries too much by holding workflow posture plus provisional accepted project truth
 - editorial workflow still lacks an end-to-end map even though its classification is now settled
 - research and source-use capabilities still lack a clean end-to-end flow and citation path map

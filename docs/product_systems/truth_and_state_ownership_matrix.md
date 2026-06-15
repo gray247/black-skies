@@ -103,6 +103,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 - `durable signal state`: signal lifecycle, provenance, mute, suppress, resolve, stale, expiry, and retained signal history
 - `durable memory`: retained advisory memory, governed recall structures, evidence traces, and allowed durable memory classes
 - `durable revision-note state`: note records, anchors, note history, resolution labels
+- `local current-save state`: authoritative confirmation or unresolved risk posture for current author-owned editable work persisted locally
 - `snapshot state`: restorable historical state, recovery metadata, restore markers
 - `provenance state`: authorship metadata, AI-origin metadata, acceptance metadata, mask or exclusion provenance
 - `workflow progress state`: resume markers, progress markers, workflow posture markers, provisional project-truth profile
@@ -120,6 +121,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 | `durable signal state` | `Signal Architecture` | `Writing Surface`, `Command Center`, `Outline`, `Companion`, `Continuity`, `Critique`, `Memory Lab` | only `Signal Architecture`, the author, or an explicitly accepted workflow may create durable signal-state changes | durable, provenance-bearing, non-truth, local/private unless a later owner rule says otherwise |
 | `durable memory` | `Memory Lab` | `Companion`, `Continuity`, `Critique`, later analytic systems | only `Memory Lab` may retain or delete memory under its retention rules; the author must explicitly save author-approved advisory memory or opt into raw excluded-span retention | durable only for allowed memory classes; must preserve memory type; must not collapse into canon |
 | `durable revision-note state` | `Feedback Notes / Revision Resolution` | `Writing Surface`, `Command Center`, `Narrative Insertion / Narrative Assertion`, `Companion`, `Critique` | note creation, status changes, and resolution history belong here; downstream systems may propose note candidates only | durable advisory workflow state, not truth, anchored and source-labeled |
+| `local current-save state` | `Project Persistence / Local Save` | `Writing Surface`, `Workflow Spine / Author Journey`, `Splash / Startup Experience`, `Command Center`, `Service Health / Offline / Degraded Mode`, `Snapshots / Backup / Restore / History` | only the local-save owner may confirm durable local current-save state or unresolved local-save risk posture; consumers may display or react, but not redefine ownership | durable operational state for current local-save truth, distinct from truth ownership, snapshot history, and health history |
 | `snapshot state` | `Snapshots / Backup / Restore / History` | all storage-bearing systems | only snapshots owner may create snapshot records and restore metadata; restoring current truth requires author approval plus the owning truth path | historical, recoverable, clearly separated from current truth |
 | `provenance state` | `Authorship Provenance AI Visibility` | `Writing Surface`, `Command Center`, `Companion`, `Critique`, `Document Interchange` | only provenance owner may persist provenance metadata; truth owners may emit source events that provenance records | local/private by default; not truth; must not leak masked or excluded raw content |
 | `workflow progress state` | `Workflow Spine / Author Journey` | `Writing Surface`, `Command Center`, `Companion` | workflow markers and resume markers mutate here; accepted project truth remains a provisional subset requiring explicit author confirmation | durable where useful, bounded, non-truth except provisional parked project-truth fields |
@@ -137,6 +139,9 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 ## 11. Durable State Non-Ownership Rules
 
 - `Writing Surface` may display notes, signals, provenance, memory recall, routing state, and workflow markers without owning them.
+- `Writing Surface`, `Workflow Spine`, `Splash`, `Command Center`,
+  `Service Health`, and `Snapshots` may display or consume local
+  current-save state without owning it.
 - `Command Center Surface` may aggregate state without becoming the owner of any aggregated category.
 - `Companion` may explain state without owning the underlying durable state.
 - `Continuity` and `Critique` may emit candidates and advisory records without owning signal state, note state, memory state, or truth state.
@@ -154,6 +159,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 ## 13. Dossiers Requiring Future Alignment
 
 - `workflow_spine_author_journey.md`
+- `project_persistence_local_save.md`
 - `narrative_insertion_assertion.md`
 - `memory_lab.md`
 - `signal_architecture.md`

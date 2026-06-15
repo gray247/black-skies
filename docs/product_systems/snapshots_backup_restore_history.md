@@ -45,6 +45,7 @@ Visible behavior should emphasize recovery, comparison, explicit restore choices
 
 Background snapshotting may exist, but must remain governed and recoverable.
 Snapshots support recovery and history, but they must not become a substitute for clear current save-state behavior.
+`Project Persistence / Local Save` owns confirmed current-save truth.
 
 ## 8. What Appears First
 
@@ -212,6 +213,9 @@ Intake note:
 - Answered / Superseded: restore-as-copy, preview-only, read-only, candidate, staged, comparison, and evidence-oriented recovery are valid governed modes.
 - Answered / Superseded: hidden, masked, deleted, discarded, forgotten, AI-excluded, and local-only states survive recovery rather than being erased by historical presence.
 - Answered / Superseded: historical existence does not automatically recreate current truth, notes, signals, memory, or export eligibility.
+- Answered / Superseded: `Project Persistence / Local Save` owns
+  confirmed current-save truth; snapshots may consume that state as
+  input but do not prove it.
 - Snapshots support recovery and history, not Google Docs sync, cloud sync, or document-interchange authority.
 - Questions better owned elsewhere: exact import/export/sync behavior belongs primarily to the future import/export dossier.
 

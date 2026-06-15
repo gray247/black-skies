@@ -33,7 +33,7 @@ The full dossier set is grouped into three classes:
 - `System`
   - systems that keep the app stable, bounded, recoverable, and operational
 
-## Full 43-Dossier List
+## Full 44-Dossier List
 
 ### A. Product Dossiers
 
@@ -88,6 +88,7 @@ The full dossier set is grouped into three classes:
 | ID | Dossier | Class | Initial status |
 | --- | --- | --- | --- |
 | 33 | [Snapshots / Backup / Restore / History](snapshots_backup_restore_history.md) | System | planned |
+| 44 | [Project Persistence / Local Save](project_persistence_local_save.md) | System | planned |
 | 38 | [Async Job Queue / Task Runner](async_job_queue_task_runner.md) | System | planned |
 | 39 | [Service Health / Offline / Degraded Mode](service_health_offline_degraded_mode.md) | System | planned |
 | 40 | [Diagnostics / Error Visibility / Debug Console](diagnostics_error_visibility_debug_console.md) | System | planned |
@@ -127,6 +128,7 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | `llm_package_construction_architecture.md` | `Model Router / Provider Execution Policy`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Memory Lab` | rough / exploring | no |
 | `explicit_content_architecture.md` | `Explicit-Content Marker / Send-Package Censor` | rough / exploring | no |
 | `import_export_document_interchange.md` | `Import / Export / Google Docs` | rough / exploring | no |
+| `project_persistence_local_save.md` | `Project Persistence / Local Save` | drafted / discovery | no |
 | `memory_lab.md` | `Memory Lab` | rough / exploring | no |
 | `companion.md` | `Companion` | rough / exploring | no |
 | `system_interaction_map.md` | first-wave cross-dossier interaction map | rough / exploring | no |
@@ -142,6 +144,8 @@ That leaves `0` remaining unreviewed placeholder dossiers for this intake sweep.
 Registry coverage also still includes `4` bridge-backed systems rather than one-to-one dossier files.
 Registry target `Import / Export / Google Docs` is now represented by the human document interchange dossier `import_export_document_interchange.md`, with the old registry wording kept only as historical shorthand.
 Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey`, not with external document interchange.
+`Project Persistence / Local Save` now owns the authoritative local
+current-save confirmation inside that broader save-state cluster.
 `import_export_document_interchange.md` treats Google Docs as one external source or destination inside broader human document interchange rather than the whole scope.
 AI or memory transfer format questions remain provisional contract territory for `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, `Memory Lab`, and later document-interchange sections rather than settled doctrine now.
 `0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
@@ -156,6 +160,9 @@ Dependency posture:
 - `Story Unit`, `Outline`, and timeline or pacing systems should not outrun the narrative-foundation dossiers.
 - intelligence systems should not become hidden runtime authority over authored truth.
 - system dossiers must exist early enough to constrain execution, evidence, storage, routing, and failure behavior before complex intelligence features expand.
+- `Project Persistence / Local Save` now owns durable local current-save
+  confirmation without replacing manuscript truth, snapshots, degraded
+  health, or startup posture.
 - `Command Center Surface` supports writing and organizes support systems, but it does not gate direct writing.
 - rough bridge dossiers may exist temporarily when they prevent question-bank sprawl, but they should later merge, shrink, split, or disappear once the permanent dossier boundaries are clearer.
 

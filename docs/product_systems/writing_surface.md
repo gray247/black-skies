@@ -79,14 +79,16 @@ Heavier context should open in summonable side or support surfaces rather than c
 
 Background behavior may later include:
 
-- local draft autosave, save-state, or recovery coordination,
+- local draft save-state display and recovery coordination,
 - continuity or critique refresh triggers,
 - explicit-content send-package checks,
 - local model or paid model routing preparation,
-- context packaging for future support systems.
+  - context packaging for future support systems.
 
 Background behavior must not silently claim authorship, certainty, or authority over writer intent.
 Google Docs-like instant-save feel belongs here as local persistence posture, not as Google Docs sync, cloud sync, or `Document Interchange`.
+`Project Persistence / Local Save` owns whether current editable work is
+actually confirmed saved locally.
 Heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes must remain governed by the owning-system approval rules rather than Writing Surface authority.
 
 ## 8. What Appears First
@@ -411,7 +413,12 @@ Future-only items:
 
 - Future contract need: what exact inline versus off-surface display contract should govern signals, provenance overlays, `Companion` highlights, package previews, and warnings so writing flow stays primary and non-gated?
 - Future contract need: what exact presentation and interaction contract should govern heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes without turning Writing Surface into the owner of those actions?
-- Future contract need: what exact local save-state contract should govern continuously saved feel, pending-save visibility, degraded-save warnings, recoverable-write cues, and crash or restart recovery entry without turning Writing Surface into a hidden sync or history authority?
+- Future contract need: what exact display contract should govern
+  `Project Persistence / Local Save` state inside the sovereign writing
+  view so continuously saved feel, pending-save visibility,
+  degraded-save warnings, recoverable-write cues, and crash or restart
+  recovery entry stay honest without turning Writing Surface into a
+  hidden sync or history authority?
 
 ### Major Questions
 

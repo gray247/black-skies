@@ -117,7 +117,11 @@ Projection may support workflow context, but projection is not workflow authorit
 ## 19. Relationship To Writing Surface
 
 The workflow spine must support the sovereign Writing Surface without gating direct writing.
-It should reinforce a continuously saved feel for direct writing and safe resume or recovery entry after interruption without turning workflow status into save-state authority.
+It should reinforce a continuously saved feel for direct writing and
+safe resume or recovery entry after interruption without turning
+workflow status into save-state authority.
+`Project Persistence / Local Save` owns current-save confirmation; the
+workflow spine only consumes and summarizes that state.
 
 ## 20. Relationship To Command Center Surface
 
@@ -208,7 +212,9 @@ Intake note:
 - Direct writing must remain available.
 - Workflow support does not own truth.
 - Superseded by current doctrine: workflow support must not block typing or gate writing behind required setup.
-- Save confidence and resume confidence should come from local persistence and recovery support, not from manual-save ritual or Google Docs sync assumptions.
+- Save confidence and resume confidence should come from
+  `Project Persistence / Local Save` plus recovery support, not from
+  manual-save ritual or Google Docs sync assumptions.
 - Questions better owned elsewhere: model-routing preferences, budget preferences, explicit-content send rules, and Google Docs entry flows belong primarily to routing, settings, or import/export dossiers.
 - Old Wizard is preserved only as a historical seed for Author Intent / Story Setup plus workflow guidance; it is not a required startup gate.
 

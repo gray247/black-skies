@@ -104,6 +104,9 @@ Projection support may degrade, but accepted text remains distinct.
 
 Direct writing must remain available during degraded or offline modes when local editing is possible.
 This dossier should help show whether writing is saved, pending, degraded, recoverable, or at risk without confusing those states with Google Docs sync or cloud availability.
+`Project Persistence / Local Save` owns whether the current editable
+work is actually confirmed saved locally; health consumes that state but
+does not create it.
 
 ## 20. Relationship To Command Center Surface
 
@@ -195,6 +198,9 @@ Intake note:
 - Superseded by current doctrine: degraded operation must not bypass explicit-content restrictions, privacy boundaries, or approval rules.
 - Health reporting must not create false-healthy state.
 - Google Docs-like instant-save expectation belongs to local persistence and recovery posture, not to cloud-sync success claims.
+- `Project Persistence / Local Save` owns durable local current-save
+  confirmation; health state may report degraded capability or blocked
+  persistence but does not prove that a write landed.
 
 ### Deferred Questions
 
