@@ -18,7 +18,7 @@ This artifact is subordinate to:
 
 Approved decisions applied in this map:
 
-- `Author Intent / Story Setup` is a new dossier candidate.
+- `Author Intent / Story Setup` is an approved independent dossier.
 - `Ideation / Premise Discovery` is a new optional dossier candidate.
 - `Editorial Workflow` is a named cross-system workflow, not a new authority-owning system.
 - `Branching / What-If` is an advanced roadmap lane and its dossier is deferred.
@@ -47,8 +47,8 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| accepted project goals, boundaries, and story setup | provisional project-truth owner: `Workflow Spine / Author Journey`; no current one-to-one dossier owner yet | `Companion`, `Critique`, `Outline`, `Draft Generation`, `Settings` | provisional accepted project truth only | must not become manuscript truth; must not gate writing; `Companion`, routing, critique, and settings are non-owners | new dossier candidate | unresolved | none | overlaps with startup, settings, workflow, and old `Wizard` |
-| optional setup questionnaire, likely 10 to 15 simple questions | no current dossier owner yet; intended future home is `Author Intent / Story Setup`, likely surfaced as an optional `Settings` section | `Workflow Spine`, `Settings`, `Splash` | no current authority; future optional project-profile state | skippable and editable; unknown, undecided, and blank remain valid; must not act as startup gate or hidden truth authority | new dossier candidate | unresolved | none | can blur into settings or onboarding rather than story foundation |
+| accepted project goals, boundaries, and story setup | `Author Intent / Story Setup` | `Workflow Spine`, `Companion`, `Critique`, `Outline`, `Draft Generation`, `Settings` | accepted project truth only | must not become manuscript truth; must not gate writing; `Companion`, routing, critique, and settings are non-owners | existing dossier | shallow | none | overlaps with startup, settings, workflow, and old `Wizard` |
+| optional setup questionnaire, likely 10 to 15 simple questions | `Author Intent / Story Setup`, likely surfaced as an optional `Settings` section | `Workflow Spine`, `Settings`, `Splash` | optional project-profile state only | skippable and editable; unknown, undecided, and blank remain valid; must not act as startup gate or hidden truth authority | existing dossier | unresolved | none | can blur into settings or onboarding rather than story foundation |
 
 ### 2.3 Ideation And Exploration
 
@@ -193,7 +193,6 @@ Boundary reminder:
 
 The following capabilities currently have no one-to-one dossier owner and still need a cleaner home:
 
-- optional setup questionnaire for `Author Intent / Story Setup`
 - premise discovery and brainstorming
 - exploratory prompt and seed capture as a distinct workflow
 
@@ -234,7 +233,7 @@ These are valid governance or system dossiers, but they are weak candidates for 
 ## 6. Dossiers That Own Too Much
 
 - `Workflow Spine / Author Journey`
-  It currently carries workflow posture, resume state, and provisional accepted project truth.
+  It currently carries workflow posture and resume state, and it still risks looking more authoritative than it is.
 - `Model Routing And Budget Architecture`
   It currently stands in for routing, provider policy, and budget or cost guardrails.
 - `Companion`

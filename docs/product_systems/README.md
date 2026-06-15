@@ -33,7 +33,7 @@ The full dossier set is grouped into three classes:
 - `System`
   - systems that keep the app stable, bounded, recoverable, and operational
 
-## Full 42-Dossier List
+## Full 43-Dossier List
 
 ### A. Product Dossiers
 
@@ -42,6 +42,7 @@ The full dossier set is grouped into three classes:
 | 1 | Writing Surface | Product | planned |
 | 2 | Command Center Surface | Product | planned |
 | 3 | [Workflow Spine / Author Journey](workflow_spine_author_journey.md) | Product | planned |
+| 43 | [Author Intent / Story Setup](author_intent_story_setup.md) | Product | planned |
 | 4 | [Binder / Project Library](binder_project_library.md) | Product | planned |
 | 5 | [Scene Cards / Corkboard](scene_cards_corkboard.md) | Product | planned |
 | 6 | Story Unit | Product | planned |
@@ -120,6 +121,7 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | `continuity.md` | `Continuity` | rough / exploring | no |
 | `signal_architecture.md` | `Continuity`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
 | `critique_evaluation.md` | `Critique / Evaluation` | rough / exploring | no |
+| `author_intent_story_setup.md` | `Author Intent / Story Setup` | drafted / discovery | no |
 | `authorship_provenance_ai_visibility.md` | `Writing Surface`, `Command Center Surface`, `Explicit-Content Marker / Send-Package Censor`, `Companion` | rough / exploring | no |
 | `model_routing_and_budget_architecture.md` | `Local LLM vs Paid API Routing`, `Model Router / Provider Execution Policy`, `Budget / Token / Cost Guardrails` | rough / exploring | no |
 | `llm_package_construction_architecture.md` | `Model Router / Provider Execution Policy`, `Explicit-Content Marker / Send-Package Censor`, `Companion`, `Memory Lab` | rough / exploring | no |
@@ -150,7 +152,7 @@ The interaction map is explanatory only and does not imply runtime wiring, autho
 
 Dependency posture:
 
-- `Writing Surface`, `Command Center Surface`, `Workflow Spine / Author Journey`, `Narrative Insertion / Assertion`, and `Prose / Scene Projection` are the primary foundation dossiers.
+- `Writing Surface`, `Command Center Surface`, `Workflow Spine / Author Journey`, `Author Intent / Story Setup`, `Narrative Insertion / Assertion`, and `Prose / Scene Projection` are the primary foundation dossiers.
 - `Story Unit`, `Outline`, and timeline or pacing systems should not outrun the narrative-foundation dossiers.
 - intelligence systems should not become hidden runtime authority over authored truth.
 - system dossiers must exist early enough to constrain execution, evidence, storage, routing, and failure behavior before complex intelligence features expand.
