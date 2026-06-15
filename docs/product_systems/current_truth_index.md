@@ -148,6 +148,7 @@ If two sources disagree, the higher item in this order wins unless a newer accep
 Current canonical repo-tracked sources include:
 
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
+- [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [_dossier_template.md](/C:/Dev/black-skies/docs/product_systems/_dossier_template.md)
 - [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
 - [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)
