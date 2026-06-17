@@ -23,6 +23,10 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 - Scene is projection, container, view, or legacy compatibility only.
 - Story Unit is optional.
 - Outline is optional.
+- `Story Unit` owns grouping and narrative-purpose state, not manuscript truth.
+- `Outline` owns planning structure, intended order, and named prototype arrangements.
+- `Prose / Scene Projection` may own chapter or scene organizational metadata without owning manuscript truth.
+- `Visual Arrangement View` owns no structural truth or durable narrative state.
 - AI is advisory unless accepted by the user.
 - Inferred output is not authored truth.
 - Author authority controls the final text decision.
@@ -57,6 +61,11 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 ## Main Relationships
 
 - `Narrative Insertion / Narrative Assertion` feeds projections, advisory systems, and later tool context.
+- `Narrative Insertion / Narrative Assertion` owns accepted manuscript content and authoritative manuscript order even when the same material appears in multiple planning, grouping, or projection views.
+- `Story Unit` groups narrative material by purpose or work package and may reference the same assertion from more than one unit without duplicating prose or changing manuscript order.
+- `Outline` owns planning structure, intended order, and named prototype arrangements; those arrangements may differ from manuscript order and remain advisory until explicitly applied through the manuscript truth owner.
+- `Prose / Scene Projection` renders prose and may hold durable chapter or scene organization, but moving or deleting a container does not directly mutate manuscript truth.
+- `Visual Arrangement View` may display outline items, Story Units, projection containers, manuscript structure, or prototype arrangements, but any drag or rearrangement request is interpreted by the active underlying owner rather than by the view itself.
 - `Continuity` inspects narrative foundations and projections, then emits advisory continuity findings.
 - Accepted continuity truth returns to author-owned foundations, notes, lore, character facts, or other explicit author decisions rather than a shadow canon.
 - `Signal Architecture` normalizes and routes signal-shaped outputs across surfaces.

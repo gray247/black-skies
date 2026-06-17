@@ -26,6 +26,7 @@ The writer needs a narrative unit small enough to support continuity, contradict
 `Narrative Insertion / Assertion` provides:
 
 - a paired foundation where `Narrative Insertion` handles manuscript text or change placement and `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision,
+- accepted manuscript content and authoritative manuscript order through the foundation rather than through planning or visual layers,
 - a durable narrative reference that can exist before or after prose,
 - a narrative fact, event, implication, or claim that can be linked, contradicted, reordered, or grouped,
 - a basis for continuity, critique, relationship mapping, gap modeling, memory, and later projection into prose or containers.
@@ -172,7 +173,8 @@ Eventually stored:
 - explicit relationships,
 - grouping references,
 - optional projection links,
-- optional placement references.
+- optional placement references,
+- authoritative manuscript placement references where needed.
 
 ## 15. What Remains Temporary
 
@@ -210,6 +212,8 @@ The author must explicitly accept, save, or convert an assertion candidate befor
 
 Story Units are optional higher-order groupings.
 They may collect, stage, or organize insertions or assertions, but they are not required in order for insertions or assertions to exist.
+Multiple Story Units may reference the same insertion or assertion.
+That shared reference does not duplicate prose and does not create multiple authoritative manuscript positions.
 
 Making Story Units mandatory would turn a higher-order organizational concept into an unwanted entry gate.
 
@@ -219,6 +223,7 @@ Making Story Units mandatory would turn a higher-order organizational concept in
 Projection does not define the insertion or assertion.
 
 Prose and scene may express or contain narrative insertions or assertions, but they do not own the underlying narrative truth or identity by default.
+The same insertion or assertion may appear in more than one planning, grouping, or projection view while still keeping one authoritative manuscript position.
 
 ## 19. Relationship To Writing Surface
 
@@ -304,6 +309,7 @@ Future proof set should include:
 - durable-id tests,
 - authored versus inferred provenance tests,
 - reorder stability tests,
+- multi-view reference tests,
 - contradiction coexistence tests,
 - relationship reference tests,
 - gap anchor tests,
@@ -437,6 +443,7 @@ This dossier is acceptable only if it states explicitly that:
 - durable identity is preserved,
 - authored and inferred boundaries remain explicit,
 - Story Units are not made mandatory,
+- planning, grouping, and projection views do not silently reorder accepted manuscript material,
 - AI or inferred output does not become fake authored truth.
 
 ## Examples

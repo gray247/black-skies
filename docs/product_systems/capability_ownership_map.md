@@ -70,10 +70,10 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| optional structural planning map | `Outline` | `Workflow Spine`, `Command Center`, `Writing Surface` | planning structure only | outline is not narrative truth and may not silently reorder accepted manuscript | existing dossier | shallow | none | overlap with `Story Unit`, `Scene Cards`, and projections |
-| prose and scene projection views | `Prose / Scene Projection` | `Outline`, `Story Unit`, `Writing Surface` | projection state only | projection is not accepted manuscript truth | existing dossier | shallow | none | projection can appear to own scene truth or order |
-| optional grouping and work containers | `Story Unit` | `Outline`, `Projection`, `Command Center` | grouping state only | Story Unit is optional and not mandatory foundation | existing dossier | shallow | none | overlap with outline structure and corkboard |
-| non-authoritative board view | `Scene Cards / Corkboard` | `Outline`, `Projection`, `Story Unit` | board or view state only | corkboard must not become hidden structure authority | existing dossier | shallow | none | duplicates outline navigation if boundaries stay vague |
+| optional structural planning map and named prototype arrangements | `Outline` | `Workflow Spine`, `Command Center`, `Writing Surface`, `Prose / Scene Projection` | planning structure, intended order, and bounded advisory prototype arrangements | outline is not narrative truth and may not silently reorder accepted manuscript | existing dossier | shallow | none | overlap with `Story Unit`, projection organization, and visual arrangement views |
+| prose rendering, chapter or scene organization, and compatibility projection views | `Prose / Scene Projection` | `Outline`, `Story Unit`, `Writing Surface` | projection state plus chapter or scene organizational metadata where supported | projection is not accepted manuscript truth or authoritative manuscript order | existing dossier | shallow | none | projection can appear to own scene truth or order if organization and truth boundaries blur |
+| optional grouping, narrative-purpose anchors, and bounded lifecycle work containers | `Story Unit` | `Outline`, `Projection`, `Command Center` | grouping and narrative-purpose state only | Story Unit is optional and not mandatory foundation, and it does not own manuscript truth or authoritative order | existing dossier | shallow | none | overlap with outline structure and projection containers if grouping purpose becomes vague |
+| reusable visual arrangement display and action-request layer | `Visual Arrangement View` | `Outline`, `Projection`, `Story Unit`, `Writing Surface`, `Command Center` | no structural truth or durable narrative state; display context and action requests only | view gestures do not determine mutation semantics; the active underlying owner does | existing dossier | shallow | none | can still duplicate outline navigation if underlying-owner cues stay vague |
 
 ### 2.6 Characters, Lore, Relationships, Emotion, And Theme
 
@@ -250,7 +250,7 @@ These are valid governance or system dossiers, but they are weak candidates for 
 
 - `Binder / Project Library` versus `File Manager / Asset Pane`
 - `Binder / Project Library` versus `Project Index / Search / Retrieval`
-- `Outline` versus `Story Unit` versus `Scene Cards / Corkboard`
+- `Outline` versus `Story Unit` versus `Prose / Scene Projection` versus `Visual Arrangement View`
 - `Critique / Evaluation` versus craft analyzers such as `Overused Words`, `Cliche Detection`, and `Senses Usage`
 - `Theme System` versus UI theming or presentation lanes
 - `Memory Lab` versus `Project Index / Search / Retrieval`

@@ -91,6 +91,7 @@ Summonable systems may eventually include:
 
 - `Outline`
 - `Story Unit`
+- `Visual Arrangement View`
 - `Narrative Insertion / Narrative Assertion`
 - `Gaps`
 - `Relationships`

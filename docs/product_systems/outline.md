@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-17`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`, `Story Unit`, `Prose / Scene Projection`
 - Feeds into: `Timeline / Pacing / Pressure`, `Continuity`, `Draft Generation / Rewrite Loop`, `Import / Export`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -37,6 +37,8 @@ The Outline system:
 - acts as a structural guide,
 - acts as a signal receiver or projector,
 - acts as a reorder surface,
+- may own named durable prototype arrangements for alternate planning
+  order, grouping, notes, gaps, and container placement,
 - acts as a prototype launcher,
 - acts as a quick context surface.
 
@@ -171,6 +173,7 @@ Outline outputs may include:
 - mass or pressure indicators,
 - signal projection markers limited by default to high-value story-shape and blocker signals,
 - prototype launch context,
+- named prototype arrangements,
 - author-approved planning structure,
 - downstream packaging for rewrite or export preparation.
 
@@ -205,6 +208,10 @@ Eventually stored:
 - optional gap links,
 - optional projection-container links,
 - optional relationship links,
+- optional named prototype arrangements that may store alternate order,
+  alternate grouping, planned gaps, short planning notes, Story Unit
+  references, chapter or scene placement, and references to existing
+  assertions,
 - status,
 - provenance.
 
@@ -240,6 +247,9 @@ Outline may reference prose or projection containers where that helps planning o
 Outline must not let projection structure become the hidden source of narrative authority.
 
 Projected writing order may differ from accepted manuscript order.
+Planning order may differ from manuscript order.
+That difference must remain visible and understandable rather than
+treated as an automatic error.
 Projection can support experimentation without silently rewriting accepted manuscript structure.
 Projection comparison belongs first in Outline or other support surfaces.
 
@@ -275,10 +285,16 @@ Placement rules:
 - reorder tools should be explicit and reversible,
 - planning blobs, rough beats, empty units, prototype-only units, and projected order may be rearranged freely,
 - non-accepted planning order may be rearranged freely,
+- named prototype arrangements may persist alternate order, grouping,
+  planned gaps, short notes, Story Unit references, chapter or scene
+  placement, and assertion references without becoming manuscript truth,
 - first exposed accepted-manuscript rearrangement is preview-only or proposal-only,
 - accepted manuscript or telling-order rearrangement requires preview, confirmation, undo or recovery, and provenance,
 - direct committed accepted-manuscript reorder is not exposed yet,
 - allowed early accepted-manuscript movement actions are preview reordered accepted units, duplicate accepted units into prototype or projection, create proposed move, send proposed move to `Command Center Surface` for review, and compare current order versus proposed order,
+- applying a named prototype to manuscript order remains an explicit
+  author-reviewed and author-confirmed action through the manuscript
+  truth owner,
 - deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
 - Outline must not become a mandatory container list in disguise,
@@ -360,6 +376,9 @@ Minimum proof set:
 - accepted manuscript rearrangement first appears as preview-only or proposal-only workflow,
 - drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
 - duplicate-to-prototype or duplicate-to-projection actions do not commit accepted manuscript reorder,
+- named prototype arrangements do not duplicate manuscript prose by
+  default, do not create alternate canon, and can render readable story
+  projections without mutating authoritative manuscript order,
 - inferred outline suggestions remain non-authoritative,
 - optional projection links do not promote projection containers into base authority,
 - signal markers remain display-only and do not grant Outline ownership of durable signal state,
@@ -376,6 +395,8 @@ Key risks:
 - Outline drag or drop being mistaken for accepted manuscript rewrite,
 - accepted manuscript rearrangement being treated like casual blob movement,
 - prototype output being mistaken for accepted truth,
+- prototype arrangements drifting into full branch or alternate-canon
+  behavior,
 - AI-generated outline rewriting user intent silently,
 - export treating outline as manuscript truth before explicit projection rules exist,
 - planning convenience drifting into hidden runtime authority.
@@ -462,6 +483,10 @@ Future-only items:
 - Outline is a layered structural story map rather than a chapter-only outline.
 - Outline units may begin as flexible blobs and later become beats, scenes, chapters, sections, arcs, or other author-defined containers.
 - Outline may drive projected writing order for experimentation, but projected order is not automatically accepted manuscript order.
+- Outline owns planning structure, intended order, and named durable
+  prototype arrangements as advisory planning state.
+- Planning order may differ from manuscript order without becoming an
+  automatic error.
 - Outline default signal markers are limited to contradiction, pacing, missing bridge or gap, continuity warning, over or under planned mass, and blocked author-action state.
 - Outline may display small source-labeled signal markers while `Signal Architecture` retains ownership of durable signal state.
 - Outline default display stays lightweight, while deeper detail is hoverable, contextual, filterable, or summonable.
@@ -475,6 +500,12 @@ Future-only items:
 - Projection comparison lives first in Outline or other support surfaces; the `Writing Surface` shows one selected projection at a time, while heavier comparison and approval review belongs in `Command Center Surface`.
 - Outline prototype launch may use blobs, beats, attached author notes, selected order, word targets, accepted narrative assertions, accepted continuity facts, selected signal summaries, critique goals, and tone or style constraints.
 - Outline prototype launch must not use raw excluded spans, deleted material, hidden material, unapproved `Memory Lab` recall, outbound payloads, or paid or outbound routes without the relevant approval and authority boundaries.
+- Named prototype arrangements may store alternate order, alternate
+  grouping, planned gaps, short planning notes, Story Unit references,
+  chapter or scene placement, and references to existing assertions.
+- Named prototype arrangements must not duplicate manuscript prose by
+  default, create alternate canon, become full branches, or retain
+  unlimited AI suggestions automatically.
 
 ### Jason Decision Candidates
 

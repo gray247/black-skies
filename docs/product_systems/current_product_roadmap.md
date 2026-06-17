@@ -145,20 +145,6 @@ Current foundation-critical work is limited to:
   workflow map.
   Jason decision required: yes, for bounded startup or resume exposure
   and how explicit degraded-state messaging should be.
-- `Outline / Story Unit / Prose / Scene Projection / Scene Cards /
-  Corkboard` reconciliation
-  Unresolved product question: which optional structural and projection
-  objects exist, what each one owns, how accepted-manuscript
-  rearrangement and projection comparison work, and how scene
-  terminology remains compatibility language rather than hidden
-  foundation?
-  Why it can change the foundation: this work still affects project
-  structure, authority boundaries, accepted-manuscript reorder
-  mechanics, and which surface carries structural review versus writing.
-  Resolving artifact: a connected structural reconciliation artifact
-  spanning those four systems.
-  Jason decision required: yes, mainly for user-facing terminology and
-  how visible scene compatibility should remain.
 - `Editorial Workflow` map
   Unresolved product question: how do findings move from critique or
   continuity to notes, signals, rewrite requests, approval, action, and
@@ -172,6 +158,15 @@ Current foundation-critical work is limited to:
 
 These are the only remaining items currently treated as
 foundation-critical.
+The structural reconciliation lane now has an approved product model:
+`Narrative Insertion / Narrative Assertion` owns manuscript truth and
+authoritative order, `Story Unit` owns grouping and narrative-purpose
+state, `Outline` owns planning structure plus named prototype
+arrangements, `Prose / Scene Projection` owns rendering plus chapter or
+scene organization where supported, and `Visual Arrangement View`
+remains display-only. Remaining questions in that lane are now bounded
+implementation-neutral details rather than foundation-changing owner
+questions.
 `Author Intent / Story Setup` is now substantively accepted as its own
 dossier and is no longer the active foundation-critical mission.
 Residual `Narrative Insertion / Assertion` state questions remain
@@ -279,8 +274,6 @@ The remaining foundation-changing unknowns are now concentrated in:
 
 - honest save-state vocabulary across `Writing Surface`, `Workflow
   Spine`, `Snapshots`, `Service Health`, and startup or resume
-- the exact structural split among `Outline`, `Story Unit`,
-  `Prose / Scene Projection`, and `Scene Cards / Corkboard`
 - the exact finding-to-note-to-action-to-closure path across critique,
   continuity, signals, notes, rewrite, and `Companion`
 - residual insertion, assertion, conversion, and provenance questions
@@ -312,20 +305,23 @@ need rather than by placeholder rank.
    `draft_generation_rewrite_loop.md`, `companion.md`, and this roadmap.
    Suitable as the one final major artifact in this thread: `yes`, but
    not the strongest current choice.
-2. `Outline / Story Unit / Projection / Corkboard` reconciliation
-   Product question: what structural objects exist, what do they own,
-   and how do projection and reorder workflows avoid hidden authority?
-   Foundation impact: high because it still shapes project structure,
-   accepted-manuscript rearrangement, and authority boundaries.
-   Writer-experience value: high for planning-heavy and structure-heavy
-   use, medium for direct drafting.
-   Ownership risk: high because it spans multiple overlapping systems
-   and could sprawl into a broad architecture pass.
-   Likely files affected: `outline.md`, `story_unit.md`,
-   `prose_scene_projection.md`, `scene_cards_corkboard.md`,
-   `writing_surface.md`, `command_center_surface.md`, and this roadmap.
-   Suitable as the one final major artifact in this thread: `yes`, but
-   larger and riskier than the strongest current choice.
+2. Structural reconciliation lane
+   Status: resolved at product-definition level by the approved model.
+   Resulting posture: manuscript truth and authoritative order remain in
+   `Narrative Insertion / Narrative Assertion`; `Story Unit` owns
+   grouping and narrative-purpose state; `Outline` owns planning
+   structure and named prototype arrangements; `Prose / Scene
+   Projection` owns rendering plus chapter or scene organization where
+   supported; `Visual Arrangement View` owns no structural truth or
+   durable narrative state.
+   Remaining work class: implementation-neutral workflow, confirmation,
+   and presentation details only.
+   Likely files affected by the reconciliation pass: `outline.md`,
+   `story_unit.md`, `prose_scene_projection.md`,
+   `scene_cards_corkboard.md`, `writing_surface.md`,
+   `command_center_surface.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `no`,
+   because it is no longer an unresolved candidate mission.
 3. save-state and degraded-writing workflow
    Product question: what should the writer believe about save, risk,
    recovery, degraded operation, startup, and resume?

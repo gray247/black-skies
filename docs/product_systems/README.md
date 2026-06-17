@@ -19,6 +19,7 @@ This registry exists to:
 - keep `Narrative Insertion / Narrative Assertion` as the smallest narrative foundation,
 - keep prose and scene as projection or compatibility concepts rather than base authority,
 - prevent Story Units from becoming a mandatory entry gate,
+- keep visual arrangement views non-owning,
 - ensure system and plumbing dossiers are documented alongside visible writer-facing tools,
 - stop product drift before it becomes runtime drift.
 
@@ -44,7 +45,7 @@ The full dossier set is grouped into three classes:
 | 3 | [Workflow Spine / Author Journey](workflow_spine_author_journey.md) | Product | planned |
 | 43 | [Author Intent / Story Setup](author_intent_story_setup.md) | Product | planned |
 | 4 | [Binder / Project Library](binder_project_library.md) | Product | planned |
-| 5 | [Scene Cards / Corkboard](scene_cards_corkboard.md) | Product | planned |
+| 5 | [Visual Arrangement View](scene_cards_corkboard.md) | Product | planned |
 | 6 | Story Unit | Product | planned |
 | 7 | Narrative Insertion / Assertion | Product | planned |
 | 8 | Prose / Scene Projection | Product | planned |
@@ -158,6 +159,7 @@ Dependency posture:
 
 - `Writing Surface`, `Command Center Surface`, `Workflow Spine / Author Journey`, `Author Intent / Story Setup`, `Narrative Insertion / Assertion`, and `Prose / Scene Projection` are the primary foundation dossiers.
 - `Story Unit`, `Outline`, and timeline or pacing systems should not outrun the narrative-foundation dossiers.
+- `Visual Arrangement View` must remain downstream of `Outline`, `Story Unit`, `Prose / Scene Projection`, or other explicit owners rather than reading like a peer structural authority.
 - intelligence systems should not become hidden runtime authority over authored truth.
 - system dossiers must exist early enough to constrain execution, evidence, storage, routing, and failure behavior before complex intelligence features expand.
 - `Project Persistence / Local Save` now owns durable local current-save

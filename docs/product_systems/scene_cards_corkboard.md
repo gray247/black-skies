@@ -1,124 +1,175 @@
-# Scene Cards / Corkboard
+# Visual Arrangement View
 
 ## 1. Status Header
 
-- Dossier name: `Scene Cards / Corkboard`
+- Dossier name: `Visual Arrangement View`
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
-- Depends on: `Outline`, `Prose / Scene Projection`, `Story Unit`
+- Last reviewed: `2026-06-17`
+- Depends on: `Narrative Insertion / Narrative Assertion`, `Outline`, `Prose / Scene Projection`, `Story Unit`
 - Feeds into: `Writing Surface`, `Outline`, `Command Center Surface`
 - Runtime authority: `future`
-- Authority level: `derived`
+- Authority level: `none`
 - User-facing: `yes`
 - Hidden/background: `partial`
 
 ## 2. Purpose
 
-Define Scene Cards / Corkboard as an optional planning and projection surface for scene-shaped material without making scene cards the owner of truth.
+Define Visual Arrangement View as a reusable card, board, or layout
+view that can display structural material from other systems without
+becoming an independent structural owner.
+
+This file keeps the existing filename temporarily for continuity with
+current references, but the dossier doctrine is now `Visual Arrangement
+View` rather than a peer structural system named `Scene Cards /
+Corkboard`.
 
 ## 3. User Problem Solved
 
-The writer may want a quick card-based planning view without being forced to treat scenes as the base authority layer.
+The writer may want a quick card-based or board-style way to compare,
+rearrange, and inspect structure without being forced to treat the view
+itself as the owner of manuscript truth, planning truth, or grouping
+truth.
 
 ## 4. What The System Does
 
-- display scene-shaped or card-shaped planning views,
-- support rearrangement of planning material,
-- link cards to projected prose or structural context.
+- display owner-backed structural material as cards, lanes, boards, or
+  compact arrangement views,
+- render Outline items, Story Units, chapter or scene containers,
+  manuscript structure, or a selected prototype arrangement,
+- request rearrangement actions against the active underlying owner,
+- support comparison, inspection, and planning review without owning the
+  underlying structure.
 
 ## 5. What The System Does Not Do
 
-- make scenes mandatory,
-- replace narrative foundations,
-- silently rewrite accepted manuscript order.
+- own manuscript truth,
+- own Story Unit grouping truth,
+- own Outline planning truth,
+- own durable narrative state,
+- decide on its own what dragging changes,
+- silently rewrite accepted manuscript order,
+- make scenes mandatory.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize optional planning, projection, and review.
+Visible behavior should emphasize optional comparison, planning, review,
+and quick visual understanding.
 
 ## 7. Hidden/Background Behavior
 
-Background card generation may exist later, but it remains advisory.
+Background card generation, labeling, or arrangement suggestions may
+exist later, but they remain advisory and do not become structural truth
+automatically.
 
 ## 8. What Appears First
 
-- scene-shaped cards when chosen,
-- basic labels,
-- clear structural context.
+- the currently selected owner-backed arrangement,
+- basic labels and structural context,
+- clear indication of whether the view is showing Outline, Story Units,
+  projection containers, manuscript structure, or a prototype
+  arrangement.
 
 ## 9. What Is Summonable
 
 - notes,
 - projected content,
-- signals,
+- owner detail,
+- comparison context,
 - support detail.
 
 ## 10. What Is Hidden Until Needed
 
 - deep history,
 - dense evidence,
-- bulk workflow actions.
+- heavy review actions,
+- apply or confirmation workflows owned elsewhere.
 
 ## 11. Inputs
 
-- projected prose,
-- outline order,
-- Story Unit links,
+- outline state,
+- Story Unit state,
+- projection containers,
+- manuscript structure references,
+- selected prototype arrangements,
 - author notes.
 
 ## 12. Outputs
 
-- card views,
-- projected arrangement views,
+- visual arrangement views,
+- comparison views,
+- action requests routed to the active owner,
 - optional planning cues.
 
 ## 13. Which Other Systems Consume Those Outputs
 
 - `Writing Surface`
 - `Outline`
+- `Prose / Scene Projection`
+- `Story Unit`
 - `Command Center Surface`
 
 ## 14. What Gets Stored
 
-- card metadata,
-- ordering preferences,
-- optional notes and labels.
+No structural truth or durable narrative state is owned here.
+If a later product version saves layout preferences, that preference
+state should remain subordinate to the relevant surface or settings
+owner rather than becoming Visual Arrangement View structural
+authority.
 
 ## 15. What Remains Temporary
 
-- projected arrangements,
-- unsaved card states,
+- displayed arrangements,
+- unsaved card layout state,
+- comparison state,
 - advisory suggestions.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
-Scene cards may point to truth-bearing narrative material but do not replace it.
+Visual Arrangement View may display truth-bearing manuscript structure,
+but authoritative manuscript content and order remain in
+`Narrative Insertion / Narrative Assertion`.
 
 ## 17. Relationship To Story Units
 
-Story Units may group cards, but Story Units remain optional.
+Story Units may be shown here, but Story Unit grouping and
+narrative-purpose meaning remain Story Unit-owned.
 
 ## 18. Relationship To Prose / Scene Projection
 
-This dossier depends on projection and compatibility rather than scene authority.
+Chapter or scene containers may be shown here through
+`Prose / Scene Projection`, but chapter or scene organization remains
+projection-owned rather than view-owned.
 
 ## 19. Relationship To Writing Surface
 
-Cards may support writing context, but the Writing Surface remains sovereign.
+The Writing Surface may show a bounded arrangement context when useful,
+but heavy comparison should not crowd direct writing.
 
 ## 20. Relationship To Command Center Surface
 
-Heavier review or bulk card workflows belong in the Command Center when needed.
+The Command Center is the more natural home for deeper visual-arrangement
+comparison, prototype review, and heavier structure inspection.
 
 ## 21. GUI Placement Principles
 
-Keep cards optional and avoid crowding the default writing experience.
+Keep visual arrangement optional, clearly labeled, and subordinate to
+its current owner.
+The active underlying owner must determine what dragging changes:
+
+- dragging Outline material changes planning structure or prototype
+  order,
+- dragging Story Units changes grouping or narrative-purpose context,
+- dragging projection containers changes projection organization or
+  creates movement proposals,
+- dragging manuscript structure may create preview-only or proposal-only
+  reorder requests unless a later explicit apply workflow is entered.
 
 ## 22. Local LLM Role
 
-Local AI may later assist with optional card suggestions only.
+Local AI may later assist with optional layout or labeling suggestions
+only.
 
 ## 23. Paid API Role
 
@@ -126,41 +177,47 @@ Paid AI, if ever used, remains optional and approval-governed.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
-Any AI-assisted card generation must follow routing and spend rules.
+Any AI-assisted arrangement suggestion must follow routing and spend
+rules.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-Projected or summarized card views must respect masking and exclusion rules.
+Projected or summarized arrangement views must respect masking and
+exclusion rules.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Hidden or excluded material must not leak through card previews.
+Hidden or excluded material must not leak through arrangement previews.
 
 ## 27. Testing Requirements
 
-Prove cards remain optional and do not commit accepted-manuscript changes silently.
+Prove the view remains optional, clearly owner-backed, and does not
+commit accepted-manuscript changes silently.
 
 ## 28. Governance Rules And Risks
 
 - no scene-first authority drift,
 - no silent manuscript mutation,
-- no card-as-canon behavior.
+- no visual-layout-as-canon behavior,
+- no confusion about which underlying owner a drag action affects.
 
 ## 29. Failure Modes
 
-If cards fail, writing and outline work should still continue.
+If the view fails, writing, outline, Story Unit, and projection work
+should still continue.
 
 ## 30. v1 Boundary
 
-Optional card projection and simple planning movement.
+Optional owner-backed arrangement display and simple action-request
+handoff.
 
 ## 31. v2 Boundary
 
-Richer filtering, notes, and comparison support.
+Richer filtering, notes, comparison support, and prototype review aids.
 
 ## 32. Future-Only Boundary
 
-Deep automated card generation and restructuring.
+Deep automated arrangement generation and restructuring.
 
 ## 33. Pre-Rough Alignment Questionnaire
 
@@ -177,23 +234,40 @@ Intake note:
 
 ### Critical Questions
 
-- Critical: is corkboard a layout of `Outline` or `Prose / Scene Projection`, a separate support surface, or a hybrid that must still avoid becoming structure authority?
-- Future contract need: what card actions affect only projection or planning order versus accepted-manuscript structure, and which require preview, confirmation, undo, and provenance?
+- Future contract need: what exact action labels, previews, and
+  confirmation cues should distinguish planning movement, grouping
+  movement, projection movement, and manuscript-order proposals?
+- Future contract need: what exact saved layout preferences, if any,
+  belong here versus in surface or settings ownership?
 
 ### Major Questions
 
-- Jason decision candidate: how much scene terminology should be exposed versus kept as compatibility language, including whether user-facing cards default to `scene`, `section`, `sequence`, `unit`, or user-defined labels?
-- Major: should corkboard views distinguish draft structure, accepted structure, and what-if planning structures explicitly?
+- Jason decision candidate: how much scene terminology should be exposed
+  versus kept as compatibility language, including whether user-facing
+  cards default to `scene`, `section`, `sequence`, `unit`, or
+  user-defined labels?
+- Major: how explicit should owner labels and apply-path cues be when
+  the same visual arrangement component is reused across different
+  structural owners?
 
 ### Minor Questions
 
-- Minor: should `Corkboard` remain user-facing branding, or should it be a layout name under a broader card surface?
+- Minor: should `Corkboard` survive as a user-facing layout label under
+  `Visual Arrangement View`, or disappear entirely from writer-facing
+  naming?
 
 ### Answered / Superseded Questions
 
 - Scene is projection, container, view, or compatibility only.
-- Superseded by current doctrine: scene cards must not recreate scene-first architecture or make scenes mandatory.
-- Questions better owned elsewhere: timeline layout, graph layout, and broad Outline signal policy belong primarily to `outline.md`.
+- The view owns no structural truth or durable narrative state.
+- The active underlying owner determines what a drag or reorder action
+  means.
+- Superseded by current doctrine: the old peer structural reading of
+  `Scene Cards / Corkboard` is replaced by `Visual Arrangement View`.
+- Questions better owned elsewhere: timeline layout, graph layout,
+  prototype ownership, and manuscript-order apply rules belong
+  primarily to `outline.md`, `prose_scene_projection.md`, and
+  `narrative_insertion_assertion.md`.
 
 ### Deferred Questions
 
@@ -201,4 +275,6 @@ Intake note:
 
 ## 34. Acceptance Criteria
 
-This dossier is acceptable only if scenes remain optional and non-authoritative.
+This dossier is acceptable only if the view remains optional,
+non-authoritative, and clearly downstream of explicit structural
+owners.

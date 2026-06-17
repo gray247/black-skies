@@ -47,6 +47,11 @@ Current Black Skies doctrine is:
 - Scene is projection, container, view, or legacy compatibility only.
 - Story Unit is optional.
 - Outline is optional.
+- Story Unit owns optional narrative-purpose and grouping state, not manuscript truth.
+- Outline owns planning structure, intended order, and named prototype arrangements.
+- Planning order may differ from manuscript order without becoming automatic error or truth mutation.
+- Chapters and scenes may have durable organizational identity in projection or compatibility layers without owning manuscript truth.
+- Visual Arrangement View is a reusable display and action-request layer, not a structural truth owner.
 - Inferred output is not authored truth.
 - AI is advisory unless accepted by the user.
 - Author authority controls the final text decision.

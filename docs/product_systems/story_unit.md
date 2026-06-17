@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-17`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Prose / Scene Projection`
 - Feeds into: `Outline`, `Continuity`, `Critique`, `Relationship Map`, `Memory Lab`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -72,6 +72,9 @@ Background behavior may later include:
 - grouped signal context.
 
 Background behavior must not silently claim that inferred grouping is authored truth.
+Conceptually, Story Unit lifecycle should remain bounded to `candidate`,
+`planned`, `grounded`, and `retired` states without turning those labels
+into a mandatory implementation enum in this pass.
 
 ## 8. What Appears First
 
@@ -171,6 +174,7 @@ Eventually stored:
 - mass or progress info,
 - signal summary,
 - authority state,
+- bounded lifecycle posture,
 - purpose,
 - linked insertion or assertion ids,
 - linked gap ids,
@@ -199,6 +203,9 @@ They group, span, cluster, or package work around those smaller units.
 They do not replace insertion or assertion identity.
 They do not become the base narrative primitive.
 They do not turn grouped material into author-owned truth automatically.
+Multiple Story Units may reference the same insertion or assertion.
+That many-to-many relationship does not duplicate manuscript prose and
+does not change authoritative manuscript order by itself.
 
 ## 17. Relationship To Story Units
 
@@ -251,6 +258,8 @@ Placement rules:
 - Story Unit controls should appear when organization helps current work,
 - Story Unit views should not flood the default writing path,
 - low-risk planning changes may happen directly,
+- Story Unit reorder changes grouping or narrative-purpose context unless
+  the writer explicitly enters a later manuscript-order apply path,
 - changes that affect accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation,
 - delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material require the strongest confirmation, undo or recovery, and provenance handling when they affect accepted manuscript, author-owned truth, retained memory, durable signal state, export or sync or publish, paid or outbound work, or deletion,
 - lifecycle and grouping detail should stay readable and bounded,
@@ -326,6 +335,8 @@ Minimum proof set:
 - inferred Story Unit cannot claim authored truth,
 - split and merge preserve lineage,
 - promoted or archived lifecycle states preserve identity history,
+- multiple Story Units may reference the same insertion or assertion
+  without duplicating prose or mutating manuscript order,
 - Story Unit links do not replace insertion or assertion identity,
 - grouped work does not silently become accepted manuscript structure,
 - grouped signals do not grant Story Unit ownership of durable signal state,
@@ -426,6 +437,11 @@ Future-only items:
 - Story Unit may support drag-and-drop organization, prototype input preparation, signal grouping, and structural context.
 - Story Unit does not own narrative truth and must not silently mutate manuscript text, canon, or durable signal state.
 - Story Unit may help Outline and `Prose / Scene Projection` organize material without becoming a hidden authority layer.
+- Story Unit lifecycle is conceptually bounded to `candidate`,
+  `planned`, `grounded`, and `retired`.
+- Multiple Story Units may reference the same insertion or assertion
+  without duplicating prose or creating more than one authoritative
+  manuscript position.
 - The smallest stable Story Unit payload includes identity, type, status, order or grouping, attached material reference, mass or progress info, signal summary, and authority state.
 - Low-risk planning changes may happen directly.
 - Changes affecting accepted manuscript, author-owned truth, deletion, export or sync or publish, durable signal state, retained memory, or paid or outbound work require explicit confirmation.

@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-17`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Command Center Surface`, `Outline`
 - Feeds into: `Writing Surface`, `Story Unit`, `Outline`, `Continuity`, `Import / Export / Google Docs`, `Snapshots / Backup / Restore / History`
 - Runtime authority: `future`
@@ -27,6 +27,8 @@ The writer needs visible prose and usable container structures for drafting, org
 
 - prose as the written expression and drafting output,
 - containers or views that can group visible writing,
+- chapter or scene containers with durable organizational identity and
+  familiar writer-facing names where that helps the writer,
 - optional scene-like compatibility surfaces,
 - projected views of prose, notes, or selected story material according to selected structure or order,
 - alternate telling-order and prototype comparison views,
@@ -168,8 +170,12 @@ Eventually stored:
 
 - prose drafts,
 - projection or container ids where needed,
+- chapter or scene container identity and organizational metadata where
+  supported,
 - grouping metadata,
 - selected projection order metadata where approved,
+- references to Story Units and narrative insertions or assertions where
+  approved,
 - compatibility references,
 - export-facing structure,
 - recovery-compatible container references when approved.
@@ -193,6 +199,8 @@ Temporary or derived:
 
 Projection should consume insertion or assertion identity rather than replace it.
 Inserted text, projected text, prototype text, advisory text, assertion candidates, accepted assertions, masked summaries, remapped projection views, and package artifacts must remain distinguishable states.
+One assertion may appear in more than one chapter, scene, or projection
+view while still keeping one authoritative manuscript position.
 
 ## 17. Relationship To Story Units
 
@@ -206,6 +214,8 @@ Key rule:
 
 - prose is expression and drafting output,
 - scene is a projection, container, view, or legacy compatibility structure,
+- chapter or scene containers may carry durable organizational metadata
+  without becoming manuscript-truth owners,
 - projection is not the base narrative primitive.
 
 ## 19. Relationship To Writing Surface
@@ -230,10 +240,17 @@ Placement rules:
 
 - prose is allowed to be front-and-center,
 - scene or container views may be useful but must not imply semantic supremacy,
+- visible scene language is allowed when it clearly refers to
+  organization, projection, or compatibility rather than manuscript
+  truth ownership,
 - selected projection can appear in the `Writing Surface`,
 - detailed projection comparison belongs first in Outline or other support surfaces,
 - current-versus-proposed comparison may appear in support surfaces without committing accepted-manuscript reorder,
 - accepted units may be duplicated into prototype or projection views for comparison without committing accepted-manuscript reorder,
+- deleting a chapter or scene container does not delete prose,
+- moving a chapter or scene container proposes movement of referenced
+  assertions, but authoritative manuscript order changes only through an
+  explicit apply path,
 - projection controls should appear only when they help drafting, organization, compatibility, or export,
 - projected, prototype, advisory, masked-summary, remapped, and package-context material must be visibly labeled rather than collapsing into accepted manuscript appearance,
 - visible grouping should not mislead the user about where narrative truth actually lives,
@@ -300,6 +317,8 @@ Future proof set should include:
 - container-grouping tests,
 - one-selected-projection display tests,
 - projected-order-versus-accepted-order tests,
+- chapter or scene container delete-does-not-delete-prose tests,
+- chapter or scene container move-is-proposal-only tests,
 - preview-only and proposal-only accepted-manuscript comparison tests,
 - duplicate-to-prototype and duplicate-to-projection safety tests,
 - prototype-comparison separation tests,
@@ -385,6 +404,8 @@ Future-only items:
 - Projected order may differ from accepted manuscript order.
 - Projection can show rearranged material without committing manuscript mutation.
 - Projection can support prototype comparison and alternate telling order.
+- Chapters and scenes may have durable organizational identity and
+  familiar writer-facing names without becoming truth owners.
 - Projection comparison lives first in Outline or other support surfaces.
 - The `Writing Surface` may show one selected projection at a time.
 - Detailed comparison should not crowd the manuscript.
@@ -392,6 +413,11 @@ Future-only items:
 - Accepted-manuscript rearrangement first appears through preview-only or proposal-only projection behavior rather than direct committed reorder.
 - Accepted units may be duplicated into prototype or projection views for comparison without committing accepted-manuscript reorder.
 - Current-versus-proposed order comparison may be shown without committing accepted-manuscript reorder.
+- Deleting a chapter or scene container does not delete prose.
+- Moving a chapter or scene container proposes movement of referenced
+  assertions, and authoritative manuscript order changes only through an
+  explicit apply path.
+- Legacy scene compatibility remains derived and read-only.
 - Projection must visibly distinguish projected material, prototype text, advisory text, masked summaries, package or context artifacts, remapped projection views, assertion candidates, and accepted-manuscript states.
 - Projection does not own narrative truth and does not silently create truth or rewrite accepted manuscript structure.
 
