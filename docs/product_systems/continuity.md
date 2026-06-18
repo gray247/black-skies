@@ -48,6 +48,10 @@ Help the writer notice contradiction, omission, drift, and causality pressure wi
 - inspectable findings with evidence,
 - later acceptance or dismissal controls,
 - bounded continuity notes rather than absolute verdicts.
+Temporary continuity findings may offer writer-facing actions such as
+`Save as Note`, `Flag for attention`, `Dismiss`, `Ignore`, and `Review
+source`, but those actions do not create durable state until the owning
+system accepts them.
 
 ## 7. Hidden/Background Behavior
 
@@ -105,7 +109,9 @@ Continuity outputs are advisory unless accepted through a truth owner or durable
 - accepted continuity truth in author-owned foundations, notes, lore, character facts, or explicit author decisions later only through explicit author save, convert, or update actions,
 - explicitly retained durable advisory history later when it helps explain story maturation or a resolved continuity outcome,
 - provenance for accepted findings and retained dismiss or suppress decisions later,
-- explicit suppress or ignore decisions later.
+- explicit suppress or ignore decisions later,
+- bounded recent completed-run history under the editorial-workflow
+  history posture when it remains useful and within trimming limits.
 Continuity candidates remain temporary until accepted, dismissed, suppressed, converted, or expired.
 
 ## 15. What Remains Temporary
@@ -117,7 +123,8 @@ Continuity candidates remain temporary until accepted, dismissed, suppressed, co
 - ephemeral comparison runs,
 - provisional hypotheses,
 - expensive deep-review outputs that have not been accepted,
-- noisy or irrelevant advisory history that does not become useful information.
+- noisy or irrelevant advisory history that does not become useful information,
+- unpinned temporary history that may later trim or expire honestly.
 Continuity candidate does not equal accepted continuity truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
@@ -214,6 +221,7 @@ Minimum rough lifecycle vocabulary for continuity and signal handoff:
 - `expired`: a stale or low-value advisory item that should stop surfacing and usually stop persisting.
 - `converted`: an advisory continuity outcome explicitly turned into another durable form, such as a signal handoff or an author-owned note or fact.
 - `resolved`: a continuity concern whose review loop is closed by dismissal, suppression, or explicit author action.
+- later re-evaluation may report `appears resolved`, `persists`, `changed form`, `insufficient evidence`, `blocked by protection`, or `possible recurrence`, but those outcomes do not close durable notes or durable signals automatically.
 
 These are rough product-definition terms, not a final runtime schema.
 Continuity may produce continuity-local advisory records, evidence bundles, and continuity candidates without making them durable signal history.

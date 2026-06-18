@@ -98,6 +98,7 @@ What appears first should stay minimal:
 - the current selected or current-location node when useful,
 - current mass or progress indicators when useful,
 - small signal marks when useful for contradiction, pacing, missing bridge or gap, continuity warning, over or under planned mass, or blocked author-action state,
+- linked icons or badges when useful for notes, signals, revision state, recurrence candidates, or blocked analysis,
 - minimal cues that outline can be ignored if the writer wants direct prose first.
 
 ## 9. What Is Summonable
@@ -115,6 +116,8 @@ Summonable within or around Outline:
 - planning alternatives,
 - future structure comparisons,
 - signal detail,
+- note detail,
+- recurrence-candidate detail,
 - `Memory Lab` recall,
 - provenance,
 - continuity evidence,
@@ -489,6 +492,7 @@ Future-only items:
   automatic error.
 - Outline default signal markers are limited to contradiction, pacing, missing bridge or gap, continuity warning, over or under planned mass, and blocked author-action state.
 - Outline may display small source-labeled signal markers while `Signal Architecture` retains ownership of durable signal state.
+- Outline may display linked icons or badges for notes, signals, revision state, recurrence candidates, or blocked analysis, but hiding or showing those indicators does not delete durable state and selecting one routes to the owning system.
 - Outline default display stays lightweight, while deeper detail is hoverable, contextual, filterable, or summonable.
 - Outline may launch prototype runs as advisory planning artifacts only; prototype output does not become manuscript truth, accepted assertions, or continuity truth without explicit author action.
 - Outline may absorb some quick-check context to reduce manuscript clutter, but direct writing remains available and Outline does not gate the `Writing Surface`.

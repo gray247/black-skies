@@ -51,6 +51,10 @@ The writer needs bounded evaluation support that can identify issues, compare op
 ## 6. User-Facing Behavior
 
 Visible behavior should stay optional, bounded, and clearly labeled as advisory evaluation.
+Temporary critique findings may offer writer-facing actions such as
+`Save as Note`, `Flag for attention`, `Dismiss`, `Ignore`, and `Review
+source`, but the visible choice remains only a request until the owning
+system accepts it.
 
 Invocation posture:
 
@@ -162,8 +166,11 @@ Eventually stored, when explicitly retained:
 - provenance,
 - critique result state,
 - author action history where needed,
-- optional links into feedback notes or signal candidates.
-Critique candidates are temporary until retained through an owning system.
+- optional links into feedback notes or signal candidates,
+- bounded recent completed-run history under the editorial-workflow
+  history posture when it is still useful and within trimming limits.
+Critique candidates are temporary until retained through an owning
+system.
 
 ## 15. What Remains Temporary
 
@@ -174,7 +181,8 @@ Temporary or non-durable:
 - scratch findings,
 - provisional rankings,
 - review drafts,
-- candidate outputs not explicitly retained.
+- candidate outputs not explicitly retained,
+- unpinned temporary history that may later expire or trim honestly.
 
 Critique result states may later include:
 
@@ -291,6 +299,7 @@ Governance rules:
 - no silent Companion-to-canon conversion,
 - no silent critique-to-signal conversion outside `Signal Architecture` rules,
 - no silent critique-to-rewrite conversion without explicit author action,
+- no silent critique-side closure of durable notes or durable signals,
 - no silent routing or spend expansion,
 - no protected-content bypass,
 - no use of protected, masked, deleted, hidden, or AI-excluded material without permission.

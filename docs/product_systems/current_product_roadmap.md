@@ -146,18 +146,18 @@ Current foundation-critical work is limited to:
   Jason decision required: yes, for bounded startup or resume exposure
   and how explicit degraded-state messaging should be.
 - `Editorial Workflow` map
-  Unresolved product question: how do findings move from critique or
-  continuity to notes, signals, rewrite requests, approval, action, and
-  closure without re-creating a hidden monolith?
-  Why it can change the foundation: it still affects the writer's
-  primary revision workflow, cross-surface handoffs, and whether note,
-  signal, critique, rewrite, and Companion lanes stay distinct.
-  Resolving artifact: an end-to-end editorial workflow map.
-  Jason decision required: some, mostly around how much workflow
-  guidance should be visible by default versus remain summonable.
+  Resolved artifact: [editorial_workflow.md](/C:/Dev/black-skies/docs/product_systems/editorial_workflow.md)
+  Resulting posture: findings remain advisory by default; `Feedback
+  Notes / Revision Resolution` owns durable revision items; `Signal
+  Architecture` owns durable attention state; `Draft Generation /
+  Rewrite Loop` owns rewrite candidates; `Narrative Insertion /
+  Narrative Assertion` owns accepted prose; recurrence creates linked
+  temporary candidates rather than silent reopen.
+  Remaining Jason decision required: some, mostly around default
+  visibility, closed-history prominence, and recurrence surfacing.
 
-These are the only remaining items currently treated as
-foundation-critical.
+Save-state and degraded-writing workflow is now the only remaining item
+currently treated as foundation-critical.
 The structural reconciliation lane now has an approved product model:
 `Narrative Insertion / Narrative Assertion` owns manuscript truth and
 authoritative order, `Story Unit` owns grouping and narrative-purpose
@@ -290,21 +290,21 @@ The remaining candidate missions are now compared by current product
 need rather than by placeholder rank.
 
 1. `Editorial Workflow` map
-   Product question: how do findings turn into notes, review, action,
-   rewrite, and closure across multiple owning systems?
-   Foundation impact: high for the writer's primary revision workflow,
-   but lower than save-state honesty and structural authority.
-   Writer-experience value: high for revision-heavy use and
-   cross-surface coherence.
-   Ownership risk: medium because it touches many systems, but most
-   underlying owners are already known.
-   Likely files affected: `workflow_spine_author_journey.md`,
-   `critique_evaluation.md`,
-   `feedback_notes_revision_resolution.md`,
+   Status: resolved at product-definition level by
+   `editorial_workflow.md`.
+   Resulting posture: cross-system workflow only; no new durable-state
+   owner; temporary findings, durable notes, durable signals, rewrite
+   candidates, and accepted prose now have distinct lanes.
+   Remaining work class: implementation-neutral visibility, retention,
+   and recurrence details only.
+   Likely files affected by the reconciliation pass:
+   `editorial_workflow.md`, `workflow_spine_author_journey.md`,
+   `critique_evaluation.md`, `feedback_notes_revision_resolution.md`,
    `signal_architecture.md`, `continuity.md`,
-   `draft_generation_rewrite_loop.md`, `companion.md`, and this roadmap.
-   Suitable as the one final major artifact in this thread: `yes`, but
-   not the strongest current choice.
+   `draft_generation_rewrite_loop.md`, `companion.md`, and this
+   roadmap.
+   Suitable as the one final major artifact in this thread: `no`,
+   because it is no longer an unresolved candidate mission.
 2. Structural reconciliation lane
    Status: resolved at product-definition level by the approved model.
    Resulting posture: manuscript truth and authoritative order remain in

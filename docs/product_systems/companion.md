@@ -57,7 +57,8 @@ Companion may later:
 - offer safe local UI navigation support,
 - create temporary advisory highlights or annotations when asked,
 - point to evidence,
-- route into other tools with consent.
+- route into other tools with consent,
+- help the author reach editorial work without becoming a required gate.
 
 ## 7. Hidden/Background Behavior
 
@@ -170,6 +171,8 @@ Companion may explain or help update those settings, but it does not own them an
 Companion must never gate the Writing Surface.
 Direct writing remains available first.
 Temporary Companion highlights or annotations are advisory UI overlays, not manuscript edits, not author-owned truth, and not durable signal state unless the author explicitly saves, converts, or accepts them.
+Companion is never required to access notes, signals, critique results,
+continuity findings, rewrite review, or source evidence.
 
 ## 20. Relationship To Command Center Surface
 
@@ -250,6 +253,7 @@ Governance rules:
 - Companion may provide local navigation guidance and safe local UI navigation support when the action is non-destructive, non-spending, non-outbound, and does not mutate manuscript text or author-owned truth,
 - Companion may create temporary advisory highlights or annotations when asked, but durable signal state remains owned by `Signal Architecture`,
 - Companion may guide workflows and explain system state, but guided action is not system ownership,
+- Companion may not close, reopen, convert, or mutate durable editorial artifacts silently,
 - recall used by `Companion` must preserve memory type such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
 - `Companion` must not treat recalled memory as author-owned truth unless the memory tier says it is author-owned truth,
 - `Companion` and `Memory Lab` must prefer the cheapest safe source of truth or context first rather than jumping immediately to deeper scans,

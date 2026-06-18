@@ -71,7 +71,9 @@ Background preparation may assemble context, but generation remains governed and
 
 - draft suggestions,
 - rewrite suggestions,
-- critique-adjacent notes.
+- critique-adjacent notes,
+- rewrite candidates that may optionally keep a source-concern link back
+  to the finding, note, or signal that framed the request.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -89,11 +91,17 @@ Background preparation may assemble context, but generation remains governed and
 
 - rejected variants,
 - transient candidates,
-- unsaved rewrite comparisons.
+- unsaved rewrite comparisons,
+- abandoned rewrite candidates that are not accepted into manuscript
+  truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Only explicit author acceptance may convert generated material into author-owned truth.
+Rewrite candidate closure is owner-specific: a candidate may be
+rejected, abandoned, or accepted into manuscript truth, but accepting
+or rejecting the rewrite does not silently close a durable note or
+durable signal.
 
 ## 17. Relationship To Story Units
 

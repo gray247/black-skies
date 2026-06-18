@@ -41,6 +41,9 @@ The writer needs a place to track feedback and revision work without losing cont
 ## 6. User-Facing Behavior
 
 Visible behavior should emphasize review, choice, and explicit resolution.
+Notes are the durable home for preserved concerns, comments, and
+revision items that the author wants to keep even when no signal is
+needed.
 
 ## 7. Hidden/Background Behavior
 
@@ -81,7 +84,9 @@ Any AI-origin note material remains candidate-only until explicitly accepted int
 - durable note state,
 - note candidates,
 - resolution candidates,
-- accepted or dismissed note states.
+- accepted or dismissed note states,
+- note-local revision posture such as `needs review`, `revision intended`,
+  `revision underway`, `ready for re-evaluation`, and `resolved`.
 
 Notes remain advisory or workflow artifacts.
 They are not truth and not manuscript mutation authority.
@@ -170,6 +175,7 @@ Governance rules:
 - note resolution does not mutate manuscript truth automatically,
 - note resolution does not resolve durable signals unless `Signal Architecture` does so through its own owner path,
 - critique, continuity, theme, relationship, emotion, `Companion`, and other advisory outputs may become note candidates only through owner-governed conversion,
+- a note does not require a signal unless elevated attention, blocking, or routing value is useful,
 - midpoint scope is author-created and imported-editor notes first,
 - later AI-created note candidates may exist only with explicit author acceptance,
 - note summaries, history, and grouped views must preserve protection, provenance, and masking boundaries.
@@ -185,6 +191,11 @@ Minimum rough lifecycle vocabulary for note intake and durable note state, inher
 - `resolved`: the note's review loop is closed for workflow purposes.
 - `expired`: a low-value or stale note removed from active surfacing.
 - `superseded`: an older note displaced by fresher evidence, newer notes, or later author action.
+
+Durable notes may conceptually carry editorial workflow posture such as
+`needs review`, `revision intended`, `revision underway`, `ready for
+re-evaluation`, and `resolved`, but those meanings should not be treated
+as a separate task-system contract.
 
 Anchor drift remains a condition or repair problem, not a separate canonical shared lifecycle state.
 

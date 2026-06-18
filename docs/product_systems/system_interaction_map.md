@@ -72,6 +72,7 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 - `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work, but it should retain only meaningful information that serves continuity, memory, structure, investigation, or author decision support.
 - `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems, and may later run safe local or support actions if settings allow.
 - `Critique / Evaluation` is a capability layer that evaluates evidence from other systems and produces advisory findings, but it is not the same thing as `Companion` or any single UI surface.
+- `Editorial Workflow` maps how temporary findings can be reviewed, converted into notes or signals, used to frame revision or rewrite work, re-evaluated later, and closed by the correct owner without creating a new durable-state system.
 - `Author Intent / Story Setup` supplies goals, boundaries, and story parameters to `Outline`, `Draft Generation`, `Companion`, routing, and other systems, but it does not gate direct writing.
 - `Authorship / Provenance / AI Visibility` governs how AI contribution and transformation remain visible.
 - `Model Routing And Budget Architecture` governs whether local, manual, or paid-model paths are allowed.

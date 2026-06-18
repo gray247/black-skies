@@ -30,6 +30,8 @@ Give the writer structured warnings, questions, and cues without turning signals
 - owns durable signal state only,
 - allows one signal to appear across multiple surfaces,
 - preserves provenance, confidence, and severity,
+- allows a signal to point to a related note when durable attention and
+  durable revision context should stay linked,
 - preserves the difference between advisory history and author-owned story truth,
 - separates signals from mutation authority.
 
@@ -193,6 +195,9 @@ Governance rules:
 - upstream systems create signal candidates first,
 - signal candidate does not equal durable signal,
 - candidate-only first is the active roadmap; trusted direct durable-signal privileges are later-only after narrower contracts exist,
+- signals are durable attention objects for urgency, blocking,
+  suppression, snooze, routing, or triage rather than the durable home
+  for every concern,
 - resolve, dismiss, suppress, convert, or expire actions mutate signal state only and do not mutate source truth.
 
 Minimum rough lifecycle vocabulary for signal handoff and durable signal state, inheriting the shared output vocabulary wherever possible:

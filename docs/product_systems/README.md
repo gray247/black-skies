@@ -133,6 +133,7 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | `memory_lab.md` | `Memory Lab` | rough / exploring | no |
 | `companion.md` | `Companion` | rough / exploring | no |
 | `system_interaction_map.md` | first-wave cross-dossier interaction map | rough / exploring | no |
+| `editorial_workflow.md` | editorial workflow as a cross-system journey map, not a new owner | drafted / discovery | no |
 
 Question migration is now dossier-centered.
 The raw question bank is archive or intake only and should not remain the main active planning spine.

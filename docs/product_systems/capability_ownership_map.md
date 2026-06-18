@@ -92,7 +92,7 @@ Boundary reminder:
 | critique and evaluation findings | `Critique / Evaluation` | `Continuity`, `Theme System`, `Memory Lab`, `Companion`, `Command Center` | advisory findings, evidence bundles, issue ranking | critique does not own truth, durable notes, or durable signals | existing dossier | product-light | none | overlaps with continuity, notes, signals, and rewrite prompts |
 | durable revision notes and note resolution | `Feedback Notes / Revision Resolution` | `Critique`, `Writing Surface`, `Command Center`, `Companion` | durable note state | notes are not accepted manuscript or accepted assertion truth | existing dossier | mature enough for now | none | overlap with signals and critique issue lists |
 | rewrite-generation support | `Draft Generation / Rewrite Loop` | `Critique`, `Companion`, `Writing Surface`, `Narrative Insertion / Assertion` | advisory rewrite outputs only | generated or rewritten text is non-authoritative until explicitly accepted | existing dossier | product-light | none | overlap with critique, companion, and manuscript truth path |
-| editorial end-to-end journey from finding to closure | no single dossier owner by decision; current anchors are `Critique / Evaluation` and `Workflow Spine / Author Journey` | `Feedback Notes`, `Signal Architecture`, `Continuity`, `Draft Generation`, `Companion` | no single owner by decision | editorial workflow is not a truth owner and should not become a new monolith | cross-system workflow | unresolved | exact future journey map from finding to note to action to closure | split systems currently fragment the broader editorial experience |
+| editorial end-to-end journey from finding to closure | no single durable-state owner by decision; workflow map defined in `editorial_workflow.md` | `Critique / Evaluation`, `Continuity`, `Feedback Notes`, `Signal Architecture`, `Draft Generation`, `Workflow Spine`, `Companion` | no durable state owned here; this is a cross-system journey map only | editorial workflow is not a truth owner and should not become a new monolith | cross-system workflow | drafted / mapped | default visibility, closed-history prominence, and recurrence surfacing remain open | split systems still require clear display and handoff cues, but the owner map is now explicit |
 
 ### 2.8 Continuity And Analysis
 
@@ -259,7 +259,6 @@ These should be treated as overlap risks, not automatic merge decisions.
 
 ## 8. Cross-System Workflows Missing An End-To-End Map
 
-- editorial workflow from finding to note to action to closure
 - research workflow from source intake to citation to use in writing
 - save-state and degraded-writing workflow from healthy to pending to recoverable to blocked
 - product-identity and personalization workflow across settings, startup, accessibility, and presentation
@@ -270,7 +269,6 @@ These should be treated as overlap risks, not automatic merge decisions.
 The following are still real implementation-neutral product questions, but the larger boundary decisions have already been made:
 
 - exact final question wording and grouping inside the future `Author Intent / Story Setup` optional questionnaire
-- exact future journey map for editorial workflow from finding to note to action to closure
 - whether later discovery keeps deep research as a workflow only or promotes it into a dedicated dossier
 - whether future voice scope, if ever activated, stays note-centric or also includes command input
 - eventual depth and form of branching or what-if work if that advanced lane is later promoted
@@ -282,13 +280,12 @@ The following are still real implementation-neutral product questions, but the l
   `Snapshots`, `Service Health`, `Workflow Spine`, and `Splash`, even
   though durable local current-save confirmation now has a named owner
 - `Workflow Spine / Author Journey` still carries too much by holding workflow posture plus provisional accepted project truth
-- editorial workflow still lacks an end-to-end map even though its classification is now settled
 - research and source-use capabilities still lack a clean end-to-end flow and citation path map
 - the AI roadmap cluster still reads as blurred from a product perspective across lifecycle, routing, package construction, provenance, and explicit-content boundaries
 
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.
-- The weakest areas are project-intent ownership, ideation, research workflow, editorial workflow, presentation identity, voice, and advanced branching.
+- The weakest areas are project-intent ownership, ideation, research workflow, presentation identity, voice, and advanced branching.
 - Several current conflicts are not missing-dossier problems. They are missing workflow-map problems.
 - The provisional `v1` boundary remains small and useful, but it does not authorize implementation planning or close the broader capability inventory.

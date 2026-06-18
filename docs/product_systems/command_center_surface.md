@@ -57,6 +57,8 @@ Visible behavior should emphasize:
 - author control,
 - clear tool boundaries,
 - signal display without truth inflation,
+- full review queues, grouping, and filtering when the writer enters
+  heavier editorial work,
 - summonability rather than clutter,
 - stable separation from the prose-drafting area.
 
@@ -128,7 +130,7 @@ Command Center visibility should stay bounded by three rough levels:
 
 - `always-visible`: only current blockers, urgent approval state, or active route failure when relevant
 - `contextual`: signals, prepared findings, routing or spend state, and package or export state related to the current task
-- `summonable`: full detail views, history, `Memory Lab` recall, provenance, older signals, and analytics-like summaries
+- `summonable`: full detail views, history, `Memory Lab` recall, provenance, older signals, notes, re-evaluation outcomes, and analytics-like summaries
 
 ## 11. Inputs
 
@@ -142,6 +144,8 @@ Likely inputs:
 - continuity signals,
 - critique outputs,
 - revision notes,
+- note and signal evidence,
+- re-evaluation outcomes,
 - lore and character context,
 - explicit-content status,
 - service state,

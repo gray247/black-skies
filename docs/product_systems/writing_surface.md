@@ -60,6 +60,10 @@ Visible behavior should emphasize:
 - clear current-writing context,
 - a continuously saved feel for direct writing,
 - explicit control over when support signals or tool outputs are shown,
+- quiet editorial indicators and requested highlights rather than
+  constant review chrome,
+- direct access to source and explanation when a prominent blocker or
+  warning does appear,
 - calm persistence of draft work without ritualized setup steps or manual-save ceremony.
 
 Default Writing Surface context should stay minimal:
@@ -116,6 +120,12 @@ Summonable later from the Writing Surface:
 - Companion assistance when explicitly invoked.
 
 These items should appear only when useful to the current writing task.
+Editorial support in the Writing Surface should stay quiet by default:
+
+- requested highlights are allowed,
+- prominent blockers may interrupt visually when necessary,
+- selecting a note, signal, or finding should lead to source and
+  explanation rather than hidden mutation.
 Temporary highlights, annotations, provenance overlays, package previews, and warnings remain advisory or inspectable support elements rather than manuscript edits, truth, or durable signal state unless the author explicitly saves, converts, or accepts them through the owning system.
 
 ## 10. What Is Hidden Until Needed

@@ -28,7 +28,8 @@ The writer needs coherent workflow guidance without being forced through rigid s
 
 - organize likely writing and revision paths,
 - suggest next useful actions,
-- coordinate handoffs among support systems.
+- coordinate handoffs among support systems,
+- summarize editorial progress without owning notes, signals, rewrite candidates, or accepted prose.
 
 ## 5. What The System Does Not Do
 
@@ -86,7 +87,8 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 
 - workflow preferences,
 - bounded progress state,
-- author-approved workflow markers.
+- author-approved workflow markers,
+- editorial progress summaries that point back to note, signal, or producer owners rather than replacing them.
 
 ## 15. What Remains Temporary
 
@@ -122,6 +124,10 @@ safe resume or recovery entry after interruption without turning
 workflow status into save-state authority.
 `Project Persistence / Local Save` owns current-save confirmation; the
 workflow spine only consumes and summarizes that state.
+It may summarize editorial posture such as `needs review`, `revision
+underway`, or `ready for re-evaluation`, but those durable concerns
+remain owned by `Feedback Notes / Revision Resolution` or
+`Signal Architecture`.
 
 ## 20. Relationship To Command Center Surface
 
