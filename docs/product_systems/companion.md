@@ -59,6 +59,10 @@ Companion may later:
 - point to evidence,
 - route into other tools with consent,
 - help the author reach editorial work without becoming a required gate.
+Companion may route the writer to `Binder / Project Library`,
+`File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
+`Memory Lab`, or the owning artifact, but it does not own navigation
+truth, retrieval results, files, or organization state.
 
 ## 7. Hidden/Background Behavior
 

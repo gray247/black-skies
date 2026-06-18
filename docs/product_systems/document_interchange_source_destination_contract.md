@@ -142,6 +142,9 @@ Imported material may initially become:
 - `notes`, only when explicitly classified as note intake
 - `project library` or `asset library` context, only when explicitly classified that way
 
+`project library` context here means visible navigation exposure only.
+It does not make `Binder / Project Library` the owner of staged content.
+
 ### 7.3 Automatic Creation Rules
 
 Imported material may automatically become:

@@ -26,18 +26,28 @@ The writer needs to browse and organize project contents without forcing all tru
 ## 4. What The System Does
 
 - organize project contents,
+- own project organization links, author-created collections, stable system-area navigation, hierarchy and placement metadata, and navigation preferences,
 - expose navigation and grouping views,
-- support access to writing and support materials.
+- support access to writing and support materials,
+- allow the same underlying artifact to appear in more than one Binder location by reference,
+- expose a distinct navigation area for staged imports without owning staged content.
 
 ## 5. What The System Does Not Do
 
 - own manuscript truth,
 - replace narrative foundations,
-- force one mandatory project shape.
+- force one mandatory project shape,
+- own `Narrative Assertions`,
+- own `Story Units`,
+- own `Feedback Notes`, `Signals`, `Lore`, `Character` truth, files, assets, search results, memory, or external-source availability,
+- become a filesystem,
+- become a universal storage owner,
+- become a master dashboard,
+- become a second `Outline`.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize clarity, retrieval, and light organization.
+Visible behavior should emphasize clarity, retrieval, light organization, recognizable system areas, and author collections.
 
 ## 7. Hidden/Background Behavior
 
@@ -46,6 +56,7 @@ Background indexing or sort preparation may exist, but it does not create truth.
 ## 8. What Appears First
 
 - current project contents,
+- stable system areas such as `Story`, `Planning`, `World`, `Editorial`, `Research and Assets`, `Imports / Staging`, and `Author Collections` as conceptual navigation lanes,
 - clear navigation,
 - current focus location when relevant.
 
@@ -53,7 +64,8 @@ Background indexing or sort preparation may exist, but it does not create truth.
 
 - alternate groupings,
 - history views,
-- support links.
+- support links,
+- multi-placement references to the same underlying artifact.
 
 ## 10. What Is Hidden Until Needed
 
@@ -66,13 +78,16 @@ Background indexing or sort preparation may exist, but it does not create truth.
 - project files,
 - narrative references,
 - structure references,
-- author organization choices.
+- author organization choices,
+- imported staging references exposed by `Import Export Document Interchange`,
+- file and asset references exposed by `File Manager / Asset Pane`.
 
 ## 12. Outputs
 
 - project-navigation views,
 - grouped references,
-- retrieval entry points.
+- retrieval entry points,
+- reference placements that point back to the owning artifact rather than replacing it.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -83,8 +98,11 @@ Background indexing or sort preparation may exist, but it does not create truth.
 ## 14. What Gets Stored
 
 - grouping state,
+- placement metadata,
 - navigation preferences,
-- project organization metadata.
+- project organization metadata,
+- stable system-area navigation metadata,
+- author-created collection membership by reference.
 
 ## 15. What Remains Temporary
 
@@ -95,10 +113,13 @@ Background indexing or sort preparation may exist, but it does not create truth.
 ## 16. Relationship To Narrative Insertion / Assertion
 
 The binder may point to accepted truth sources, but it does not replace them.
+Removing a Binder placement removes only that organizational reference.
+Deleting or mutating the underlying artifact still requires action through its owning system.
 
 ## 17. Relationship To Story Units
 
 Story Unit links may appear, but Story Units remain optional.
+Binder placement does not create, delete, or own Story Unit identity.
 
 ## 18. Relationship To Prose / Scene Projection
 
@@ -111,6 +132,20 @@ The binder supports navigation into writing while preserving direct writing.
 ## 20. Relationship To Command Center Surface
 
 The Command Center may expose higher-level project status without replacing binder navigation.
+Binder must not absorb Command Center review, routing, or dashboard posture.
+
+## 20A. Relationship To Import / Export Document Interchange
+
+`Import Export Document Interchange` owns staging and destination classification for imported material.
+Binder may expose `Imports / Staging` as a navigation area, but staged material remains owned by interchange until explicit handoff.
+
+## 20B. Relationship To File Manager / Asset Pane
+
+Binder may place references to files or assets in project organization, but it does not own file identity, availability, linked-versus-local distinction, or repair posture.
+
+## 20C. Relationship To Project Index / Search / Retrieval
+
+Binder may supply browse context and labels to search, but it does not own search results or retrieval ranking.
 
 ## 21. GUI Placement Principles
 
@@ -144,7 +179,10 @@ Prove navigation works without altering truth ownership.
 
 - no shadow canon through containers,
 - no hidden authority drift,
-- no forced workflow gate.
+- no forced workflow gate,
+- multi-placement is reference placement only, not multi-ownership,
+- removing a Binder placement must not silently delete manuscript, notes, lore, files, or other owned artifacts,
+- hidden, protected, local-only, or AI-excluded material must not leak through Binder labels, previews, or navigation summaries.
 
 ## 29. Failure Modes
 
@@ -177,14 +215,14 @@ Intake note:
 
 ### Critical Questions
 
-- Critical: what counts as binder-owned metadata versus truth-bearing project data, especially when imported manuscripts, notes, projections, Story Units, or support artifacts all appear side by side?
+- Critical: how visible should the distinction between project artifacts, imported sources, external linked files, local project copies, unavailable sources, and protected items be across navigation surfaces?
 - Critical: what project shapes must Binder support at intake, including blank projects, messy imported manuscripts, folders of notes, and mixed-support projects, without forcing one canonical container structure?
-- Critical: how should Binder distinguish accepted manuscript material, support notes, projection-compatible groupings, archive material, and hidden or protected items without becoming a truth owner?
+- Critical: how much author organizational freedom should Binder allow before it becomes clutter or a shadow workspace?
 
 ### Major Questions
 
 - Major: how much structure should Binder expose by default versus hide behind summonable views so project browsing stays useful without becoming a dashboard?
-- Major: which Binder actions are safe navigation or grouping actions only, and which heavier cleanup, repair, or organization actions belong in `Command Center Surface` instead?
+- Major: should Binder multi-placement be visible as one artifact in several locations everywhere, or only where inspection is explicitly requested?
 - Jason decision candidate: should `Binder` and `Project Library` remain one paired concept, or should one become the preferred writer-facing name?
 
 ### Minor Questions
@@ -197,6 +235,9 @@ Intake note:
 - Library metadata is durable state, not canon.
 - Project organization does not imply story truth.
 - Binder navigation must not gate direct writing.
+- The same underlying artifact may appear in multiple Binder locations as references.
+- Removing a Binder placement removes only that reference.
+- `Imports / Staging` may be exposed in Binder for navigation without making Binder the staging owner.
 - Questions better owned elsewhere: exact import, export, sync, and Google Docs behavior belong to the future `Import / Export / Google Docs` dossier.
 
 ### Deferred Questions

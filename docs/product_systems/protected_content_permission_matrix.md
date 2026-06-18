@@ -181,6 +181,12 @@ Legend:
 - Emergency raw-prose export remains separately bounded and does not bypass this matrix.
 - Required approval: `T2 + T6` minimum, `T3 + T6` for external transfer/high-risk modes
 
+### 8.5A Navigation And Retrieval Leakage Rules
+
+- Protected, masked, local-only, private, hidden, deleted, unavailable, or `AI-excluded` material must not leak through Binder labels, search snippets, asset metadata summaries, import-staging summaries, or Companion navigation summaries.
+- Unavailable-source placeholders may expose bounded repair-safe metadata only, not protected underlying content.
+- Local indexing does not override protection, outbound restrictions, or AI-exclusion rules.
+
 ### 8.6 May Protected Content Become Provenance?
 
 - Provenance may record that masking, exclusion, substitution, deletion, hiding, forgetting, or protected treatment occurred.

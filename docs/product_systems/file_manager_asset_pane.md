@@ -25,19 +25,23 @@ The writer needs access to supporting files and assets without losing focus or b
 
 ## 4. What The System Does
 
+- own file and asset identity, availability posture, metadata, preview references, linked-versus-local-copy distinction, missing-file and repair posture, and explicit detach or replacement actions,
 - organize assets,
 - support file browsing,
-- expose bounded asset references near writing.
+- expose bounded asset references near writing,
+- keep missing or unavailable files visible as repairable placeholders by default.
 
 ## 5. What The System Does Not Do
 
 - own narrative truth,
 - force asset workflows before writing,
-- leak protected files by default.
+- leak protected files by default,
+- decide manuscript, lore, note, signal, memory, or imported-source truth,
+- replace `Import Export Document Interchange` as import or transfer authority.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize lightweight access and clear file context.
+Visible behavior should emphasize lightweight access, clear file context, visible distinction between project artifacts and external files, and inspectable source status.
 
 ## 7. Hidden/Background Behavior
 
@@ -47,14 +51,19 @@ Background indexing or preview prep may exist, but remains operational.
 
 - relevant files,
 - clear asset categories,
-- current-project context.
+- current-project context,
+- visible linked-versus-local-copy posture where relevant,
+- unavailable sources as repairable placeholders rather than silent disappearance.
 
 ## 9. What Is Summonable
 
 - previews,
 - metadata,
 - related links,
-- heavier file operations.
+- heavier file operations,
+- affected references,
+- replacement or detach posture,
+- last-known source context for unavailable items.
 
 ## 10. What Is Hidden Until Needed
 
@@ -66,13 +75,16 @@ Background indexing or preview prep may exist, but remains operational.
 
 - project files,
 - author asset organization,
-- file metadata.
+- file metadata,
+- interchange-created asset placements,
+- availability and repair state.
 
 ## 12. Outputs
 
 - asset views,
 - file links,
-- project-context references.
+- project-context references,
+- file-status references such as linked, local copy, unavailable, protected, or repair-needed.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -83,17 +95,23 @@ Background indexing or preview prep may exist, but remains operational.
 
 - asset metadata,
 - organization preferences,
-- preview references.
+- preview references,
+- file and asset identity,
+- availability posture,
+- linked-versus-local-copy distinction,
+- missing-file and repair posture.
 
 ## 15. What Remains Temporary
 
 - transient previews,
 - temporary filters,
-- current selections.
+- current selections,
+- ephemeral preview caches or availability probes that do not redefine durable file state.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Files may support narrative work but do not replace narrative truth.
+Attaching, previewing, indexing, or placing a file does not make it manuscript truth.
 
 ## 17. Relationship To Story Units
 
@@ -110,6 +128,19 @@ The asset pane may support current-text work without crowding the manuscript by 
 ## 20. Relationship To Command Center Surface
 
 Heavier asset review or cleanup may belong in the Command Center.
+
+## 20A. Relationship To Binder / Project Library
+
+Binder may place file references in project organization, but it does not own file identity, file availability, or repair posture.
+
+## 20B. Relationship To Import / Export Document Interchange
+
+`Import Export Document Interchange` owns import classification and staged intake.
+`File Manager / Asset Pane` owns durable file and asset metadata after asset placement is explicitly chosen.
+
+## 20C. Relationship To Project Index / Search / Retrieval
+
+Search may index permitted asset metadata and references, but it does not own file identity or availability state.
 
 ## 21. GUI Placement Principles
 
@@ -143,7 +174,10 @@ Prove asset browsing does not leak protected material or block writing.
 
 - no file-container authority drift,
 - no protected-file leakage,
-- no writing gate through asset tooling.
+- no writing gate through asset tooling,
+- a missing file is not a deleted file,
+- losing or detaching a source file must not silently delete or decanonize manuscript, notes, lore, or other project artifacts derived from it,
+- protected, masked, local-only, private, or AI-excluded material must not leak through previews, metadata summaries, repair placeholders, or search-facing asset summaries.
 
 ## 29. Failure Modes
 
@@ -178,12 +212,13 @@ Intake note:
 ### Critical Questions
 
 - Critical: what file or asset states are visible by default versus protected, archive-only, summonable, or blocked entirely?
-- Critical: which file operations may happen here at all versus requiring explicit confirmation or future import/export review, especially attach, move, rename, delete, reveal, repair, or external-open actions?
+- Critical: how much of the linked-versus-local-copy distinction and unavailable-source posture should remain constantly visible versus inspectable on demand?
 - Critical: how should the system behave when project folders are on external drives, cloud-synced locations, protected folders, low-space environments, or paths with dangerous permissions or disconnect risks?
 
 ### Major Questions
 
 - Major: how much asset context belongs near drafting versus deeper asset browsing and cleanup in support surfaces?
+- Major: what exact repair and replacement language is most understandable when an external source is unavailable but the project reference remains?
 - Jason decision candidate: should early file support focus on browse-and-reference only, or may it include bounded attach/link workflows from day one?
 
 ### Minor Questions
@@ -196,6 +231,9 @@ Intake note:
 - File and asset containers do not own narrative truth.
 - Protected, local-only, or AI-excluded assets must not silently feed AI packages, diagnostics, export, memory, or search summaries.
 - Browse-only is the safest early scope unless attach/link is explicitly bounded.
+- Missing or unavailable files remain visible as repairable placeholders by default.
+- A missing file is not a deleted file.
+- Removing or losing a source file must not silently delete or decanonize derived project artifacts.
 - Questions better owned elsewhere: exact import, export, sync, and Google Docs movement rules belong to the future `Import / Export / Google Docs` dossier.
 
 ### Deferred Questions

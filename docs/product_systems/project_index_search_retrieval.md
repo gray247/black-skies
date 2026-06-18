@@ -26,18 +26,22 @@ The writer needs fast access to relevant project material without relying on mem
 ## 4. What The System Does
 
 - index project material,
-- support search and retrieval,
+- own local index state, retrieval references, source labels, search scope and filters, and index freshness or stale-state posture,
+- support unified project search and scoped retrieval,
 - expose relevant references and links.
 
 ## 5. What The System Does Not Do
 
 - own truth,
 - auto-promote found material,
-- leak hidden or excluded content by default.
+- leak hidden or excluded content by default,
+- become `Memory Lab`,
+- turn retrieval into governed recall,
+- canonize search hits because they are found.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize retrieval, source visibility, and bounded context.
+Visible behavior should emphasize unified project search by default, clear source visibility, grouped or labeled result types, bounded context, and easy widening from local scope to broader project scope.
 
 ## 7. Hidden/Background Behavior
 
@@ -47,33 +51,46 @@ Background indexing may exist, but retrieved results remain references, not trut
 
 - relevant results,
 - source labels,
-- clear project location.
+- clear project location,
+- source type and owning system,
+- visible freshness or stale-index posture when completeness is uncertain.
 
 ## 9. What Is Summonable
 
 - broader context,
 - related references,
 - deeper recall links,
-- search filters.
+- search filters,
+- explicit scopes such as manuscript, planning, notes, lore, characters, assets, and imports.
 
 ## 10. What Is Hidden Until Needed
 
 - deep provenance,
 - archive-heavy results,
-- AI inference layers.
+- AI inference layers,
+- deleted or archived material,
+- snapshots and recovery history,
+- unavailable external-file contents,
+- temporary analyzer history,
+- unclassified import staging content unless explicitly requested and permitted.
 
 ## 11. Inputs
 
 - project material,
 - author metadata,
 - accepted facts,
-- approved recall references.
+- approved recall references,
+- Binder labels and placement context,
+- permitted asset metadata,
+- current planning material and chapter or scene metadata where owned elsewhere.
 
 ## 12. Outputs
 
 - search results,
 - retrieval snippets,
-- source-linked references.
+- source-linked references,
+- grouped or labeled unified-project results,
+- freshness cues when index completeness is uncertain.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -86,17 +103,21 @@ Background indexing may exist, but retrieved results remain references, not trut
 - index data,
 - search preferences,
 - source labels,
-- retrieval references.
+- retrieval references,
+- scope and filter state,
+- freshness or stale-state metadata.
 
 ## 15. What Remains Temporary
 
 - current query state,
 - transient ranking,
-- temporary result sets.
+- temporary result sets,
+- per-launch local scopes that may widen to project search on request.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Search may find truth-bearing material, but retrieval does not create truth.
+Retrieval never promotes material into manuscript, lore, project truth, notes, or memory automatically.
 
 ## 17. Relationship To Story Units
 
@@ -109,10 +130,29 @@ Search may span projected material while keeping projected views distinct from a
 ## 19. Relationship To Writing Surface
 
 The Writing Surface may use quick retrieval without becoming a search dashboard.
+Search launched from a specific system may begin scoped there, with an option to widen to the project.
 
 ## 20. Relationship To Command Center Surface
 
 Broader retrieval management and conflict review may belong in the Command Center.
+
+## 20A. Relationship To Binder / Project Library
+
+Binder supplies browse context, labels, and placements, but Project Index owns search results and retrieval references.
+
+## 20B. Relationship To File Manager / Asset Pane
+
+Project Index may index permitted asset metadata and references, but file identity, availability, linked-versus-local distinction, and repair posture remain owned by `File Manager / Asset Pane`.
+
+## 20C. Relationship To Memory Lab
+
+`Project Index / Search / Retrieval` retrieves source-linked local project material.
+`Memory Lab` performs governed recall of approved memory.
+They may point to the same underlying source without collapsing into one owner or one result class.
+
+## 20D. Relationship To Import / Export Document Interchange
+
+Imported material may appear immediately in a distinct `Imports / Staging` search scope or result class where permitted, but unclassified staging content is excluded from default unified search unless explicitly requested.
 
 ## 21. GUI Placement Principles
 
@@ -146,7 +186,10 @@ Prove retrieval respects source, visibility, and protection boundaries.
 
 - no retrieval-as-canon,
 - no protected-content leakage,
-- no hidden authority drift.
+- no hidden authority drift,
+- default unified search covers current local project artifacts where permitted, not snapshots, deleted history, temporary analyzer history, or unclassified staging by default,
+- search snippets, previews, and labels must preserve source type and owning system,
+- degraded or stale indexing must fail honestly rather than pretending completeness.
 
 ## 29. Failure Modes
 
@@ -179,7 +222,7 @@ Intake note:
 
 ### Critical Questions
 
-- Critical: what result types may appear by default versus only on explicit summon, especially accepted manuscript text, notes, projections, archive material, deleted material, and governed recall references?
+- Critical: what exact default unified-search breadth is safest while still useful, especially around planning material, Binder labels, approved project-memory references, and asset metadata?
 - Critical: how should search and retrieval distinguish direct evidence, references, governed recall, and advisory inference so search results do not read like canon?
 - Critical: what protection rules block hidden, deleted, masked, excluded, or AI-protected material from leaking through snippets, previews, ranking, or `Companion` retrieval context?
 
@@ -200,6 +243,8 @@ Intake note:
 - Governed recall remains `Memory Lab` territory, not search authority.
 - Degraded indexing must not fake completeness.
 - Search snippets must not leak protected content.
+- Unified project search is the general default, with clear source labeling and scoped narrowing or widening.
+- Default unified search excludes snapshots, recovery history, deleted or archived material, temporary analyzer history, unavailable external-file contents, and unclassified import staging unless explicitly requested and permitted.
 - Questions better owned elsewhere: exact `Memory Lab` retention and recall policy belongs primarily to `memory_lab.md`.
 
 ### Deferred Questions

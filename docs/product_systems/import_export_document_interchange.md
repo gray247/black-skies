@@ -150,6 +150,9 @@ Outputs remain transfer artifacts or workflow state until the author explicitly 
 
 Imported material defaults to `import staging`, `review`, or other candidate-like intake states rather than accepted manuscript or accepted truth.
 Exported artifacts remain transfer artifacts rather than local truth authority.
+Binder may expose staged material in a distinct `Imports / Staging`
+navigation area, but staged content remains owned by interchange until
+explicit handoff.
 
 Import destination classes are rough product-definition labels rather than final storage schema:
 
@@ -340,6 +343,7 @@ Failure modes include:
 
 - imported documents with unreliable structure,
 - messy imports being classified too aggressively as manuscript truth instead of source, archive, candidate, note, or binder material,
+- staged import material being mistaken for ordinary Binder organization or search-default canon,
 - comments, headings, or metadata that cannot be mapped cleanly,
 - export preview not matching the final payload,
 - permission failure on external destinations,

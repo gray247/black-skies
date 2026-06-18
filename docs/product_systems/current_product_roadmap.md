@@ -197,9 +197,10 @@ Current roadmap-sufficient work:
   behavior, and exact prompts or worksheet depth.
 - `Binder / Project Library`, `File Manager / Asset Pane`, and
   `Project Index / Search / Retrieval`
-  Minimum still needed: stable browse, retrieval, protection, and
-  organization boundaries so these systems do not become truth owners or
-  shadow `Memory Lab`.
+  Minimum still needed: keep the approved reference-based Binder model,
+  file-identity and missing-source posture, unified local retrieval
+  model, import-staging separation, and `Memory Lab` boundary stable so
+  these systems do not become truth owners or shadow `Memory Lab`.
   Can remain intentionally unfinished: archive depth, file-preview
   breadth, attach or link depth, semantic ranking, and fuzzy retrieval
   polish.

@@ -64,6 +64,9 @@ Any later recall exposed through `Companion` should preserve memory type rather 
 
 `Project Index / Search / Retrieval` retrieves and indexes.
 `Memory Lab` recalls and interprets retained governed memory.
+The same underlying source may appear in both lanes, but search results
+must remain source-linked retrieval while Memory Lab output remains
+memory-type-governed recall.
 
 ## 8. What Appears First
 

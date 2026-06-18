@@ -116,7 +116,7 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| source-linked search and retrieval inside the project | `Project Index / Search / Retrieval` | `Binder`, `File Manager`, `Writing Surface`, `Command Center` | index state and retrieval metadata | retrieval does not own truth, memory, or note resolution | existing dossier | mature enough for now | none | overlap with `Memory Lab` recall and binder navigation |
+| source-linked search and retrieval inside the project | `Project Index / Search / Retrieval` | `Binder`, `File Manager`, `Writing Surface`, `Command Center` | local index state, source labels, retrieval references, scopes, and freshness posture | retrieval does not own truth, memory, or note resolution | existing dossier | mature enough for now | exact default breadth and semantic depth remain open | overlap with `Memory Lab` recall and binder navigation |
 | evidence citation and source-trace support | fragmented across `Project Index / Search / Retrieval`, `Memory Lab`, `Companion`, `Authorship Provenance AI Visibility` | `Critique`, `Signal Architecture` | no single owner today | citation traces do not auto-create truth or reliable guidance claims | cross-system workflow | unresolved | none | no clean end-to-end research flow exists yet |
 | deep research workflow from source intake to writer use | no single dossier owner by decision | `Project Index`, `Memory Lab`, `Import Export`, `Companion` | no single owner | research workflow is not yet a dedicated dossier and must not be inferred from memory or retrieval alone | cross-system workflow | unresolved | whether later discovery keeps this as a workflow only or promotes it into a dedicated dossier | overlaps with import, retrieval, memory, and provenance |
 
@@ -125,7 +125,7 @@ Boundary reminder:
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | human-readable import and export workflow | `Import Export Document Interchange` | `Binder`, `File Manager`, `Writing Surface`, `Command Center` | transfer history and interchange decisions | interchange does not own manuscript truth, save-state truth, or routing policy | existing dossier | mature enough for now | none | overlap with binder placement and file browsing |
-| import destination classification and staging | `Import Export Document Interchange` | `Narrative Insertion / Assertion`, `Feedback Notes`, `Binder` | staged import state and transfer metadata | import does not auto-canonize or auto-place truth | existing dossier | unresolved | none | current import object map remains a critical blocker |
+| import destination classification and staging | `Import Export Document Interchange` | `Narrative Insertion / Assertion`, `Feedback Notes`, `Binder`, `File Manager` | staged import state and transfer metadata | import does not auto-canonize or auto-place truth, and Binder only exposes staging for navigation | existing dossier | shallow | none | current import object map remains a critical blocker |
 | export protection, provenance visibility, and outbound distinctions | shared across `Import Export Document Interchange`, `Authorship Provenance AI Visibility`, and `Explicit Content Architecture` | `LLM Package Construction`, `Model Routing`, `Protected Content Permission Matrix` | transfer history, provenance state, and outbound masking decisions | raw local prose is distinct from outbound package material | cross-system workflow | product-light | none | export and outbound AI packaging remain easy to conflate |
 
 ### 2.12 Persistence, Recovery, And Degraded Operation
@@ -218,7 +218,7 @@ The strongest competing-owner conflicts are:
   current-save confirmation.
 - `Workflow Spine` provisionally owns accepted project truth while also owning workflow state.
 - `Binder`, `File Manager`, and `Project Index / Search / Retrieval` all touch navigation, browse context, and discovery.
-- `Memory Lab` and `Project Index / Search / Retrieval` both use retrieval language but own different state categories.
+- `Memory Lab` and `Project Index / Search / Retrieval` both use retrieval language but own different state categories; recall versus retrieval still needs clear writer-facing labeling.
 - `Critique`, `Feedback Notes`, `Signal Architecture`, `Continuity`, `Draft Generation`, and `Companion` all touch the editorial lane.
 - `Import Export Document Interchange`, `Authorship Provenance AI Visibility`, and `Explicit Content Architecture` all touch outbound behavior.
 - `Model Routing And Budget Architecture`, `LLM Package Construction Architecture`, and `AI Lifecycle And Approval Matrix` all govern different slices of AI behavior and can look like one blurred system from outside.

@@ -86,7 +86,11 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
   and `Snapshots / Backup / Restore / History` consume, display, or
   react to that save-state authority without owning it.
 - `Binder / Project Library` supplies destination context for imported material and project organization, but it does not own transfer rules.
-- `File Manager / Asset Pane` supports file browsing and asset handling, but it does not own interchange authority.
+- `Binder / Project Library` may place the same underlying artifact in more than one location by reference, and removing one placement removes only that reference.
+- `File Manager / Asset Pane` supports file browsing and asset handling, owns file identity and availability posture, and does not own interchange authority.
+- `Project Index / Search / Retrieval` owns local source-linked retrieval, scopes, and freshness posture, but it does not own truth, memory, or file identity.
+- `Memory Lab` recalls approved memory, while `Project Index / Search / Retrieval` retrieves indexed project material; the same source may appear in both lanes without collapsing them.
+- `Document Interchange` owns `Imports / Staging`; Binder may expose that area for navigation without owning staged content.
 - `Document Interchange` must respect `Authorship / Provenance / AI Visibility`, `Explicit Content Architecture`, `Model Routing And Budget Architecture`, and `LLM Package Construction Architecture` without replacing them.
 - `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, and `Memory Lab` remain the provisional homes for AI-facing format, package-shape, cost, fidelity, OCR-derived transfer experiments, and durable-memory-boundary questions until a later contract narrows them.
 
@@ -192,6 +196,7 @@ Important boundary:
 - `Command Center` may host inspection, summaries, and tool entry points while remaining support-only.
 - Surface visibility does not grant mutation authority.
 - Neither surface turns advisory outputs into story truth automatically.
+- Search launched from a specific system may begin scoped there, while unified project search remains the general default.
 
 ## Known Unknowns
 
