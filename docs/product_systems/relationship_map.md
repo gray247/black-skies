@@ -16,13 +16,13 @@
 
 ## 2. Purpose
 
-Define Relationship Map as an optional visualization and relationship-support system that projects accepted relationship truth, candidate relationship facts, and advisory relationship inferences without becoming a hidden truth owner or shadow canon.
+Define Relationship Map as an optional visualization and relationship-support system that projects accepted relationship facts from existing truth owners, planned relationship overlays, candidate relationship facts, and advisory relationship inferences without becoming a hidden truth owner or shadow canon.
 
 This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, signal boundaries from `signal_architecture.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
 
 ## 3. User Problem Solved
 
-The writer needs a way to inspect and compare relationships between people, places, groups, objects, lore entities, and structural work areas without forcing relationship meaning to live only in prose, memory, or inferred graphs.
+The writer needs a way to inspect and compare relationships between people, places, groups, objects, lore entities, and structural work areas without forcing relationship meaning to live only in prose, memory, or inferred graphs and without flattening actual, perceived, public, planned, and protected states into one edge.
 
 ## 4. What The System Does
 
@@ -30,9 +30,12 @@ Relationship Map may:
 
 - visualize relationships between characters, groups, places, objects, lore, and Story Units,
 - show emotional, factual, conflict, alliance, family, power, dependency, and timeline relationships,
-- display accepted relationship facts,
+- display accepted relationship facts from existing truth owners,
+- distinguish actual accepted relationship, perceived relationship, public or revealed relationship, planned relationship, and candidate or inferred relationship,
+- project asymmetric, secret, disputed, competing-account, time-bounded, or historically retired relationship states without flattening them into one undirected edge,
 - display candidate or advisory relationship inferences when clearly labeled,
 - project relationship shape across narrative support systems,
+- compare current accepted relationship state against selected story periods or prototype arrangements,
 - help the author inspect relationship change without owning the underlying truth,
 - produce relationship findings, observations, graph candidates, warnings, and recommendations.
 
@@ -43,6 +46,7 @@ Relationship Map does not:
 - silently create, alter, delete, or canonize relationship truth,
 - replace accepted assertions or explicit author decisions as relationship authority,
 - let graph presence imply accepted fact,
+- duplicate reciprocal accepted truth merely because the map displays both directions,
 - turn signals, continuity, Memory Lab recall, or Companion summaries into relationship truth automatically,
 - require map interaction before writing,
 - become a hidden social-graph canon store,
@@ -114,19 +118,22 @@ Relationship Map inputs may include:
 - accepted narrative assertions,
 - accepted character facts,
 - accepted lore facts,
-- accepted continuity facts,
+- accepted continuity facts saved elsewhere as truth or note context,
 - manuscript evidence,
 - author notes,
+- planned relationship material from `Character Cards`, `Lore Cards`, `Story Unit`, or `Outline` when the author has chosen to save that planning state,
 - candidate relationship inferences,
 - signal summaries,
 - governed Memory Lab recall,
-- optional Story Unit or Outline links.
+- optional Story Unit or Outline links,
+- selected story periods or selected prototype arrangements for comparison-only projection.
 
 ## 12. Outputs
 
 Relationship Map outputs may include:
 
 - accepted relationship views,
+- perceived, revealed, planned, or prototype-context relationship overlays,
 - candidate relationship views,
 - advisory relationship summaries,
 - signal-linked concern views,
@@ -159,10 +166,14 @@ Downstream systems must preserve accepted relationship fact versus candidate ver
 Eventually stored:
 
 - entity identities and references,
-- item state labels for accepted author-confirmed relationship fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- graph identity and scope,
+- layout, filters, visible layers, and saved presentation preferences,
+- selected story period or selected prototype context for projection,
+- item state labels for accepted author-confirmed relationship reference, perceived or revealed overlay, planned overlay, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
 - source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted relationship references,
 - candidate relationship references,
+- planning-overlay references,
 - relationship type labels,
 - optional provenance,
 - optional author action history,
@@ -184,7 +195,11 @@ Candidate relationship material does not equal accepted truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
-Durable relationship facts must come from accepted assertions or other explicit author decisions.
+Durable relationship facts must come from accepted assertions plus explicit author acceptance in the relevant truth owner.
+
+Character-centered accepted relationship facts belong to `Character Cards`.
+Lore-centered accepted relationship facts belong to `Lore Cards`.
+Cross-domain accepted relationship facts still require one explicit truth owner chosen by the primary subject of the accepted fact.
 
 The map may display or derive from that truth, but it does not replace `Narrative Insertion / Narrative Assertion` as authority.
 
@@ -206,7 +221,7 @@ Direct writing must remain available without requiring map interaction.
 
 ## 20. Relationship To Command Center Surface
 
-`Command Center Surface` may host heavier relationship inspection, filtering, candidate review, and blocker review workflows.
+`Command Center Surface` may host heavier relationship inspection, filtering, candidate review, time-bounded comparison, prototype comparison, and blocker review workflows.
 
 That support must not turn the Command Center into the owner of relationship truth.
 Explicit confirmation is required before accepted relationship truth is created, updated, deleted, restored, bulk accepted or rejected or deleted, or exported or synced or published through map workflows.
@@ -288,21 +303,27 @@ Minimum proof set:
 
 Governance rules:
 
-- durable relationship facts must come from accepted truth or explicit author acceptance,
+- durable relationship facts must come from accepted truth or explicit author acceptance in the relevant truth owner,
+- actual accepted relationship, perceived relationship, public or revealed relationship, planned relationship, candidate or inferred relationship, and protection or access state must remain distinct,
 - accepted relationship changes may reference accepted character or lore truth, but the map still does not become the owner of those character or lore facts,
+- reciprocal display does not create a second accepted truth record,
+- cross-domain accepted relationships require one explicit truth owner based on the primary subject of the accepted fact,
 - Relationship Map may display or project relationships but does not own truth,
 - no shadow canon,
-- no silent truth mutation.
+- no silent truth mutation,
 - inferred relationships are candidates only,
+- inferred relationship history remains bounded and temporary unless the author explicitly saves, converts, accepts, or dismisses it through an owner path,
 - Relationship Map does not own character truth, lore truth, Memory Lab, Signals, Notes, or export,
 - graph edges are advisory until accepted through truth owners.
 
 Key risks:
 
 - graph edges being mistaken for accepted fact,
+- asymmetric, secret, or falsely perceived relationships being flattened into one edge,
 - inferred relationship analysis collapsing into accepted truth visually,
 - default graph mixing accepted and inferred edges without clear distinction,
 - map views becoming a hidden canon tracker,
+- prototype timing or reveal-order projection being mistaken for canon change,
 - continuity or signals drifting into graph-owned truth.
 
 ## 29. Failure Modes
@@ -310,6 +331,7 @@ Key risks:
 Expected failure or degraded states:
 
 - duplicated or conflicting relationship edges,
+- stale period-specific or prototype-specific projections after revision,
 - stale candidate links,
 - mismatched accepted versus advisory labels,
 - layout clutter,
@@ -318,6 +340,7 @@ Expected failure or degraded states:
 Containment rules:
 
 - preserve accepted relationship boundaries,
+- surface staleness honestly when accepted facts, planning state, or manuscript evidence change,
 - surface conflicts instead of flattening them,
 - keep evidence and advisory material clearly labeled,
 - require explicit author action for truth mutation.
@@ -328,6 +351,7 @@ Minimum approved first version:
 
 - entity nodes,
 - accepted relationship display,
+- perceived, revealed, or planned relationship overlays when explicitly enabled,
 - candidate or advisory relationship display,
 - clear accepted-versus-candidate distinction,
 - bounded links to cards, narrative, continuity, and support systems,
@@ -382,9 +406,12 @@ Future-only items:
 - Relationship Map may visualize relationships between characters, groups, places, objects, lore, and Story Units.
 - It may show emotional, factual, conflict, alliance, family, power, dependency, and timeline relationships.
 - It displays or projects relationships but does not own truth.
-- Durable relationship facts must come from author-owned truth or explicit author acceptance.
+- Durable relationship facts must come from author-owned truth or explicit author acceptance in the relevant truth owner.
+- Character-centered relationship truth belongs to `Character Cards`; lore-centered relationship truth belongs to `Lore Cards`; cross-domain accepted facts still choose one explicit primary owner.
 - Relationship Map default view should show accepted or author-confirmed relationships first.
 - Inferred or advisory relationships must be optional, visibly distinct, and must not collapse into accepted relationship truth.
+- Actual accepted relationship, perceived relationship, public or revealed relationship, planned relationship, and candidate relationship remain distinct concepts even when the map shows them together.
+- Reciprocal visual edges do not create reciprocal accepted truth records automatically.
 - Each Relationship Map item may distinguish accepted author-confirmed relationship fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
 - Every candidate, advisory, or inferred relationship item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
 - Accepted relationship records must still come from explicit author acceptance even when the map projects or visualizes them.
@@ -396,12 +423,12 @@ Future-only items:
 
 ### Future Contract Needs
 
-- Exact accepted relationship, candidate relationship, and advisory inference contract.
+- Exact accepted relationship reference, planned overlay, candidate relationship, and advisory inference contract.
 - Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Relationship Map.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
-- Exact default-view, filter, and visual-distinction contract for accepted versus inferred relationships.
+- Exact default-view, filter, story-period, and visual-distinction contract for accepted versus inferred relationships.
 
 ### Deferred Questions
 

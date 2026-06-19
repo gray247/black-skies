@@ -39,6 +39,7 @@ assumed, without being forced to finish planning before writing.
 - holds author-stated creative goals,
 - holds author-stated preferences,
 - holds intended reader experience,
+- holds project-level tonal or reader-emotion targets when the author wants them saved as project intent,
 - holds tentative intentions,
 - holds deliberate unknowns,
 - holds creative boundaries,

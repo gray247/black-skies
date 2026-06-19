@@ -16,23 +16,27 @@
 
 ## 2. Purpose
 
-Define Emotion Graph as an optional emotion-support and visualization system that projects accepted emotional intent, candidate emotional interpretations, and advisory emotional analysis without becoming a hidden truth owner or shadow canon.
+Define Emotion Graph as an optional emotion-support and visualization system that projects manuscript-observed emotional movement, planned emotional targets from existing planning owners, accepted character emotional state references, and advisory emotional analysis without becoming a hidden truth owner or shadow canon.
 
 This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, signal boundaries from `signal_architecture.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
 
 ## 3. User Problem Solved
 
-The writer needs a way to inspect emotional trajectory, tension, mood, intensity, and pacing-adjacent emotional shape without letting inferred emotional analysis silently replace accepted author intent or canonize interpretation.
+The writer needs a way to inspect emotional trajectory, tension, mood, intensity, and pacing-adjacent emotional shape without letting inferred emotional analysis silently replace accepted author intent or canonize interpretation and without collapsing planned target, observed movement, character state, and reader effect into one line.
 
 ## 4. What The System Does
 
 Emotion Graph may:
 
 - visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape,
-- display accepted or author-defined emotional intent,
+- display manuscript-observed emotional movement as the ordinary default posture,
+- display planned emotional targets from `Author Intent / Story Setup`, `Story Unit`, `Outline`, or `Character Cards` as clearly labeled overlays,
+- display accepted structured character emotional condition when the author has accepted it into `Character Cards`,
+- display intended reader effect when the author has explicitly saved it in the relevant planning owner,
 - display inferred or advisory emotional analysis when clearly labeled,
 - use manuscript evidence, author notes, accepted assertions, continuity facts, or advisory analysis,
 - help the author inspect emotional movement across narrative work without owning emotional truth,
+- compare current movement against selected story periods or selected prototype arrangements,
 - produce emotion findings, emotional-arc observations, pressure or pacing candidates, warnings, and recommendations.
 
 ## 5. What The System Does Not Do
@@ -41,6 +45,7 @@ Emotion Graph does not:
 
 - silently create, alter, delete, or canonize emotional truth,
 - replace accepted assertions or explicit author decisions as emotional authority,
+- collapse planned emotional target, manuscript-observed movement, accepted character emotional state, intended reader effect, and advisory interpretation into one truth line,
 - let inferred emotional analysis become accepted intent automatically,
 - let signals, continuity, Memory Lab recall, or Companion summaries become emotional truth automatically,
 - require graph interaction before writing,
@@ -114,17 +119,24 @@ Emotion Graph inputs may include:
 - accepted continuity facts,
 - manuscript evidence,
 - author notes,
-- author-defined emotional intent,
+- project-level reader emotion or tonal intent from `Author Intent / Story Setup`,
+- Story Unit emotional purpose or target,
+- Outline-node emotional target or planning notes,
+- accepted character emotional condition from `Character Cards`,
 - candidate emotional inferences,
 - signal summaries,
 - governed Memory Lab recall,
-- optional Character Card, Relationship Map, Story Unit, or Outline links.
+- optional Character Card, Relationship Map, Story Unit, or Outline links,
+- selected story periods or selected prototype arrangements for comparison-only projection.
 
 ## 12. Outputs
 
 Emotion Graph outputs may include:
 
-- accepted emotional-intent views,
+- manuscript-observed emotional-movement views,
+- planned emotional-target overlays,
+- accepted character emotional-state references,
+- intended reader-effect overlays,
 - candidate emotional-interpretation views,
 - advisory emotional summaries,
 - signal-linked concern views,
@@ -157,9 +169,13 @@ Downstream systems must preserve accepted emotional intent versus candidate inte
 Eventually stored:
 
 - graph identity and scope,
-- item state labels for accepted author-defined intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- selected story period, selected order basis, or selected prototype context for projection,
+- visibility layers, filters, and saved presentation preferences,
+- item state labels for manuscript-observed movement reference, planned target overlay, accepted character-state reference, intended reader-effect overlay, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
 - source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
-- accepted emotional-intent references,
+- manuscript-observed movement references,
+- planned emotional-target references,
+- accepted character-state references,
 - candidate emotional-interpretation references,
 - optional provenance,
 - optional author action history,
@@ -181,13 +197,19 @@ Candidate emotion material does not equal accepted emotional intent.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
-Durable emotional intent or emotional truth must come from accepted assertions or other explicit author decisions when it is meant to become author-owned truth.
+Durable emotional planning or emotional truth must come from explicit existing owners when it is meant to become author-owned state.
+
+Project-level reader emotion or tonal intent belongs to `Author Intent / Story Setup`.
+Story Unit emotional purpose or target belongs to `Story Unit`.
+Structural or outline-node emotional target belongs to `Outline`.
+Accepted structured character emotional condition belongs to `Character Cards`.
+Manuscript-grounded emotional evidence belongs to accepted assertions.
 
 The graph may display or derive from that truth, but it does not replace `Narrative Insertion / Narrative Assertion` as authority.
 
 ## 17. Relationship To Story Units
 
-Emotion Graph may reference Story Units for grouped work context, but Story Unit links remain optional and must not make structure the owner of emotional truth.
+Emotion Graph may reference Story Units for grouped work context and planned emotional purpose, but Story Unit links remain optional and must not make structure the owner of manuscript truth or accepted character truth.
 
 ## 18. Relationship To Prose / Scene Projection
 
@@ -197,13 +219,13 @@ Projection remains support or display context rather than the source of emotiona
 
 ## 19. Relationship To Writing Surface
 
-Emotion Graph may support the `Writing Surface` through bounded overlays, links, or support views.
+Emotion Graph may support the `Writing Surface` through bounded overlays, quiet indicators, links, or summonable support views.
 
 Direct writing must remain available without requiring graph interaction.
 
 ## 20. Relationship To Command Center Surface
 
-`Command Center Surface` may host heavier emotional inspection, filtering, candidate review, and blocker review workflows.
+`Command Center Surface` may host heavier emotional inspection, filtering, prototype comparison, history review, candidate review, and blocker review workflows.
 
 That support must not turn the Command Center into the owner of emotional truth.
 Explicit confirmation is required before accepted emotional intent is created, updated, deleted, restored, bulk accepted or rejected or deleted, or exported or synced or published through graph workflows.
@@ -285,19 +307,24 @@ Minimum proof set:
 
 Governance rules:
 
-- accepted or author-defined emotional intent must stay distinct from inferred or advisory analysis,
+- planned emotional target, manuscript-observed emotional movement, accepted character emotional state, intended reader effect, and inferred or advisory analysis must stay distinct,
 - Emotion Graph may display or project emotion but does not own truth,
 - no shadow canon,
-- no silent truth mutation.
+- no silent truth mutation,
+- manuscript-observed movement is the default graph posture, while planned targets remain clearly labeled overlays,
+- differences between planned targets and observed movement are review opportunities rather than automatic errors,
 - inferred emotion is not confirmed author intent,
+- inferred relationship or emotion history remains bounded and temporary unless the author explicitly saves, converts, accepts, dismisses, or marks intentional ambiguity through the relevant owner path,
 - Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export,
-- emotional findings are advisory unless accepted elsewhere.
+- emotional findings and graph mismatches begin as temporary advisory findings unless accepted elsewhere.
 
 Key risks:
 
 - inferred emotion analysis being mistaken for accepted author intent,
-- default graph mixing accepted and inferred emotional analysis without clear distinction,
+- default graph hiding manuscript-observed movement behind planning overlays,
+- default graph mixing planned, observed, and inferred emotional analysis without clear distinction,
 - graph views becoming a hidden canon tracker,
+- prototype context being mistaken for canon change,
 - continuity or signals drifting into graph-owned truth,
 - advisory pacing analysis collapsing into accepted emotional truth visually.
 
@@ -306,6 +333,7 @@ Key risks:
 Expected failure or degraded states:
 
 - conflicting emotional analyses,
+- stale planned-versus-observed comparisons after revision or planning change,
 - stale candidate interpretations,
 - mismatched accepted versus advisory labels,
 - graph clutter,
@@ -313,7 +341,8 @@ Expected failure or degraded states:
 
 Containment rules:
 
-- preserve accepted emotional-intent boundaries,
+- preserve planned-versus-observed-versus-accepted-state boundaries,
+- surface staleness honestly when manuscript, planning, or accepted facts change,
 - surface conflicts instead of flattening them,
 - keep evidence and advisory material clearly labeled,
 - require explicit author action for truth mutation.
@@ -323,7 +352,8 @@ Containment rules:
 Minimum approved first version:
 
 - emotional shape display,
-- accepted or author-defined emotional intent display,
+- manuscript-observed emotional movement display,
+- planned emotional-target overlay display,
 - candidate or advisory emotional analysis display,
 - clear accepted-versus-candidate distinction,
 - bounded links to narrative, continuity, and support systems,
@@ -376,13 +406,14 @@ Future-only items:
 ### Answered / Superseded Questions
 
 - Emotion Graph may visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape.
-- It must distinguish accepted or author-defined emotional intent from inferred or advisory emotional analysis.
+- It must distinguish planned emotional target, manuscript-observed movement, accepted character emotional state, intended reader effect, and inferred or advisory emotional analysis.
 - It must not silently canonize emotional truth.
-- Emotion Graph default view should show accepted or author-defined emotional intent first.
+- Emotion Graph default view should emphasize manuscript-observed emotional movement first.
+- Planned emotional targets may appear as clearly labeled overlays rather than replacing observed movement.
 - Inferred emotional analysis must be optional, advisory, visibly labeled, and must not silently canonize emotional truth.
-- Each Emotion Graph item may distinguish accepted author-defined intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
+- Each Emotion Graph item may distinguish manuscript-observed movement reference, planned target overlay, accepted character-state reference, intended reader-effect overlay, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
 - Every candidate, advisory, or inferred emotional item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
-- Accepted emotional-intent records must still come from explicit author acceptance even when the graph projects or visualizes them.
+- Durable emotional planning remains in its existing owner by scope, even when the graph projects or visualizes it.
 - Candidate emotion material does not equal accepted emotional intent.
 - Inferred emotion is not confirmed author intent.
 - Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export.
@@ -391,12 +422,12 @@ Future-only items:
 
 ### Future Contract Needs
 
-- Exact accepted emotional intent, candidate interpretation, and advisory analysis contract.
+- Exact planned emotional target, observed movement, accepted character-state reference, intended reader-effect overlay, candidate interpretation, and advisory analysis contract.
 - Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
 - Exact signal, continuity, Memory Lab, and Companion display contract for Emotion Graph.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
-- Exact default-view, filter, and visual-distinction contract for accepted intent versus inferred analysis.
+- Exact default-view, filter, prototype-context, and visual-distinction contract for planned versus observed versus inferred analysis.
 
 ### Deferred Questions
 

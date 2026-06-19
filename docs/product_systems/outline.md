@@ -39,6 +39,7 @@ The Outline system:
 - acts as a reorder surface,
 - may own named durable prototype arrangements for alternate planning
   order, grouping, notes, gaps, and container placement,
+- may hold structural or node-level emotional targets as planning state,
 - acts as a prototype launcher,
 - acts as a quick context surface.
 
@@ -155,6 +156,7 @@ Outline inputs may include:
 - optional gap links,
 - optional projection-container links,
 - optional relationship links,
+- optional emotional targets,
 - revision tasks,
 - author labels and ordering,
 - target word count or rough capacity,
@@ -211,6 +213,7 @@ Eventually stored:
 - optional gap links,
 - optional projection-container links,
 - optional relationship links,
+- optional emotional targets,
 - optional named prototype arrangements that may store alternate order,
   alternate grouping, planned gaps, short planning notes, Story Unit
   references, chapter or scene placement, and references to existing

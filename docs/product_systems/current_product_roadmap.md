@@ -217,8 +217,10 @@ Current roadmap-sufficient work:
   Minimum still needed: keep `Character Cards` and `Lore Cards` as the
   owners of accepted structured truth on a fact-by-fact basis, keep
   accepted truth separate from planned, candidate, or advisory
-  material, and keep continuity, memory, map/graph, and consumer
-  boundaries stable.
+  material, keep `Relationship Map` and `Emotion Graph` derived and
+  support-only, route emotional planning to existing owners by scope,
+  and keep continuity, memory, map/graph, and consumer boundaries
+  stable.
   Can remain intentionally unfinished: taxonomies, visualization depth,
   motif-linking detail, merge/split mechanics, time-state display, and
   full UI richness.
