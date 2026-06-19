@@ -112,6 +112,10 @@ Registry rule:
 - it should not be treated as product authority until it is at least `reviewed`
 - `accepted` means the planning boundary is approved, not that runtime implementation is complete
 
+## Repository Checkpoints
+
+- [Orchestrator 8 Arc 4 Closure Checkpoint](orchestrator_8_arc4_closure_checkpoint.md)
+
 ## Current Rough Dossier Blanks
 
 The following rough dossiers now exist as first-wave `exploring` or `partial` working files.
