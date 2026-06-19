@@ -31,6 +31,8 @@ The Story Unit system:
 - supports durable work packages that can survive reorder, split, merge, and promotion,
 - gives the writer a bounded structure for ongoing narrative work without claiming to be the smallest unit,
 - can group blobs, beats, scenes, chapters, sections, arcs, sequences, flashbacks, character threads, or revision work areas,
+- may hold Story Unit-scoped pacing purpose or target as
+  narrative-purpose planning state,
 - may hold Story Unit-scoped emotional purpose or target as narrative-purpose planning state,
 - can support drag-and-drop organization, prototype inputs, signal grouping, and structural context.
 
@@ -129,6 +131,7 @@ Story Unit inputs may include:
 - continuity signals,
 - critique notes,
 - author-provided labels, purpose, or status,
+- optional pacing purpose or target,
 - optional emotional purpose or target,
 - later inferred grouping proposals that remain non-authoritative until accepted.
 
@@ -178,6 +181,7 @@ Eventually stored:
 - authority state,
 - bounded lifecycle posture,
 - purpose,
+- optional pacing purpose or target,
 - optional emotional purpose or target,
 - linked insertion or assertion ids,
 - linked gap ids,

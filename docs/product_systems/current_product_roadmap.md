@@ -226,6 +226,17 @@ Current roadmap-sufficient work:
   Can remain intentionally unfinished: taxonomies, visualization depth,
   motif-linking detail, setup/payoff vocabulary, merge/split mechanics,
   time-state display, and full UI richness.
+- `Timeline / Pacing / Pressure`
+  Minimum still needed: keep it support-only, split it clearly into
+  Timeline, Pacing, and Pressure modules, keep accepted time facts in
+  existing truth owners, route pacing intent to existing owners by
+  scope, keep pressure bounded to urgency, consequence, constraint, and
+  conflict pressure, and keep prototype, stale-state, and finding
+  behavior advisory.
+  Can remain intentionally unfinished: exact chronology vocabulary,
+  date or duration field shape, pacing metrics, pressure display,
+  history depth, recalculation triggers, and prototype comparison
+  presentation.
 - `Import / Export`, provenance, routing, package construction,
   explicit-content, and related AI-governance lanes
   Minimum still needed: keep human document interchange distinct from
