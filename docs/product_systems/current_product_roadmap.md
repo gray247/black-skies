@@ -237,6 +237,15 @@ Current roadmap-sufficient work:
   date or duration field shape, pacing metrics, pressure display,
   history depth, recalculation triggers, and prototype comparison
   presentation.
+- `Senses Usage`, `Overused Words`, and `Cliche Detection`
+  Minimum still needed: keep them separate writer-facing analyzers
+  under one shared craft-family contract, keep them advisory, normalize
+  exclusions, intentional-use markers, bounded history, recurrence, and
+  conversion rules, and keep Critique, Notes, Signals, and surface
+  boundaries stable.
+  Can remain intentionally unfinished: exact thresholds, dictionaries,
+  algorithms, finding visuals, filter defaults, rerun triggers, and any
+  future analyzer catalog.
 - `Import / Export`, provenance, routing, package construction,
   explicit-content, and related AI-governance lanes
   Minimum still needed: keep human document interchange distinct from

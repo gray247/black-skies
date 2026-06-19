@@ -134,6 +134,7 @@ Some are direct dossier targets from the master list, and some are bridge or arc
 | `companion.md` | `Companion` | rough / exploring | no |
 | `system_interaction_map.md` | first-wave cross-dossier interaction map | rough / exploring | no |
 | `editorial_workflow.md` | editorial workflow as a cross-system journey map, not a new owner | drafted / discovery | no |
+| `craft_analyzer_family_contract.md` | shared craft-family contract for `Senses Usage`, `Overused Words`, and `Cliche Detection` | drafted / discovery | no |
 
 Question migration is now dossier-centered.
 The raw question bank is archive or intake only and should not remain the main active planning spine.

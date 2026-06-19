@@ -18,6 +18,11 @@
 
 Define plugin or rubric support as an extensibility layer for bounded analysis rules or review frameworks without allowing plugins to become hidden truth owners.
 
+Future craft analyzers must either conform to the shared
+`craft_analyzer_family_contract.md` behavior or enter through this
+plugin/rubric review lane rather than appearing as ungoverned analyzer
+variants.
+
 This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, handoff rules from `surface_to_owner_action_handoff_contract.md`, AI approval and lifecycle rules from `ai_lifecycle_and_approval_matrix.md`, protection rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, degraded behavior from `degraded_mode_execution_contract.md`, and truth or durable-state ownership limits from `truth_and_state_ownership_matrix.md`.
 
 ## 3. User Problem Solved

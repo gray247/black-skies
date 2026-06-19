@@ -121,6 +121,11 @@ Critique / Evaluation may read:
 - `Signal Architecture` signal context,
 - Companion summaries when the author asks for routed explanation.
 
+When Critique consumes craft-analyzer findings, it must preserve source
+analyzer identity, source evidence, uncertainty posture, and temporary
+versus durable status rather than flattening those findings into a
+generic hidden critique voice.
+
 ## 12. Outputs
 
 Critique / Evaluation may produce:
