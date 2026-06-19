@@ -74,6 +74,8 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 - Manuscript wording does not silently create, overwrite, or delete accepted card truth, and card truth does not silently rewrite manuscript prose.
 - `Relationship Map` remains a derived support system. Accepted relationship truth still lands in `Character Cards`, `Lore Cards`, or another explicit truth owner chosen by the primary subject of the accepted fact.
 - `Emotion Graph` remains a derived support system. Project-level emotional intent belongs to `Author Intent / Story Setup`, Story Unit emotional purpose belongs to `Story Unit`, structural emotional targets belong to `Outline`, accepted character emotional state belongs to `Character Cards`, and manuscript-grounded emotional evidence belongs to accepted assertions.
+- Project-level thematic intent belongs to `Author Intent / Story Setup`, while `Theme System` remains support-only and may organize motifs, thematic threads, observed evidence, competing interpretations, and prototype-aware comparisons without creating a second accepted project-truth copy.
+- Planned setup/payoff purpose belongs to existing planning owners by scope, while `Foreshadow / Payoff` may store author-approved durable support links and temporary findings without owning prose, planning truth, or interpretation-as-fact.
 - `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work, but it should retain only meaningful information that serves continuity, memory, structure, investigation, or author decision support.
 - `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems, and may later run safe local or support actions if settings allow.
 - `Critique / Evaluation` is a capability layer that evaluates evidence from other systems and produces advisory findings, but it is not the same thing as `Companion` or any single UI surface.
@@ -192,6 +194,7 @@ Important boundary:
 - `Continuity` is a major producer of advisory continuity findings.
 - `Continuity` may compare manuscript evidence against accepted character or lore truth and surface contradiction candidates, stale-fact candidates, note candidates, or signal candidates, but it must not silently update cards or prose.
 - Relationship and emotion mismatches begin as temporary findings. They may be dismissed, marked intentional, saved as notes, elevated to signals, or used to revise planning, card truth, or prose, but they must not silently create durable editorial artifacts.
+- Theme mismatches, emergent-theme interpretations, unresolved setups, and stale setup/payoff links begin as temporary findings. They may be dismissed, marked intentional, saved as notes, elevated to signals, or used to revise planning, prose, support links, or `Author Intent / Story Setup`, but they must not silently create durable editorial artifacts.
 - `Signal Architecture` defines how those findings can become normalized signals for multiple consumers.
 - Accepted continuity truth belongs in author-owned story foundations or other explicit author decisions, not in Continuity or Signal as shadow canon.
 - `Continuity` does not own truth.

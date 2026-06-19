@@ -213,17 +213,19 @@ Current roadmap-sufficient work:
   polish, note taxonomy, `Companion` personality polish, and provider
   tuning.
 - `Character Cards`, `Lore Cards`, `Theme System`, `Relationship Map`,
-  and `Emotion Graph`
+  `Emotion Graph`, and `Foreshadow / Payoff`
   Minimum still needed: keep `Character Cards` and `Lore Cards` as the
   owners of accepted structured truth on a fact-by-fact basis, keep
   accepted truth separate from planned, candidate, or advisory
-  material, keep `Relationship Map` and `Emotion Graph` derived and
-  support-only, route emotional planning to existing owners by scope,
-  and keep continuity, memory, map/graph, and consumer boundaries
+  material, keep `Theme System`, `Relationship Map`, `Emotion Graph`,
+  and `Foreshadow / Payoff` derived and support-only, route
+  project-level thematic intent to `Author Intent / Story Setup`, route
+  emotional and setup/payoff planning to existing owners by scope, and
+  keep continuity, memory, support-link, and consumer boundaries
   stable.
   Can remain intentionally unfinished: taxonomies, visualization depth,
-  motif-linking detail, merge/split mechanics, time-state display, and
-  full UI richness.
+  motif-linking detail, setup/payoff vocabulary, merge/split mechanics,
+  time-state display, and full UI richness.
 - `Import / Export`, provenance, routing, package construction,
   explicit-content, and related AI-governance lanes
   Minimum still needed: keep human document interchange distinct from
