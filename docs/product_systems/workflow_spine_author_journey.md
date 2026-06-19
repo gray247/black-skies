@@ -16,7 +16,9 @@
 
 ## 2. Purpose
 
-Define the workflow spine as a writer-guidance layer that organizes movement through drafting, review, revision, and support actions without becoming a gate or a truth owner.
+Define the workflow spine as a writer-guidance layer that organizes
+movement through drafting, review, revision, re-entry, and support
+actions without becoming a gate or a truth owner.
 
 This dossier inherits its authority and handoff limits from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `shared_output_vocabulary_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
 
@@ -31,6 +33,8 @@ The writer needs coherent workflow guidance without being forced through rigid s
 - coordinate handoffs among support systems,
 - retain broader re-entry, return-path, and cross-surface handoff
   posture without owning workspace configuration,
+- provide bounded session re-entry help and on-demand `Where was I?`
+  posture using owner-labeled state,
 - summarize editorial progress without owning notes, signals, rewrite candidates, or accepted prose,
 - retain workflow and journey support state only, including re-entry posture, next-step guidance, approval checkpoints, and owner-labeled summaries.
 
@@ -42,6 +46,8 @@ The writer needs coherent workflow guidance without being forced through rigid s
 - maintain a competing authoritative copy of `Author Intent / Story Setup`,
 - convert workflow completion into project-truth acceptance,
 - infer project intent and store it as accepted,
+- prove current-save integrity, recovery safety, or workspace
+  restorability,
 - silently trigger heavy, paid, outbound, or destructive actions.
 
 ## 6. User-Facing Behavior
@@ -49,23 +55,31 @@ The writer needs coherent workflow guidance without being forced through rigid s
 Visible behavior should stay lightweight, writer-first, optional, and free of manual-save ritual demands before writing can continue.
 It may reference active surface workspaces and recent handoffs, but
 workflow posture remains distinct from workspace configuration.
+Known stored facts, surface view state, temporary session context, and
+generated summaries must remain distinguishable when workflow guidance
+helps the author resume.
 
 ## 7. Hidden/Background Behavior
 
-Background behavior may assemble workflow suggestions, but those suggestions remain advisory.
+Background behavior may assemble workflow suggestions and bounded
+re-entry summaries, but those suggestions remain advisory and do not
+silently mutate owner state.
 
 ## 8. What Appears First
 
 - current writing path,
 - current blocker or next action when relevant,
 - confidence that the author can resume writing without hunting for hidden save steps,
+- last safe return posture when known,
 - clear return to direct writing.
 
 ## 9. What Is Summonable
 
 - workflow history,
 - suggested next steps,
-- support-system entry points.
+- support-system entry points,
+- on-demand `Where was I?` using saved state, recent handoffs, and
+  owner-labeled summaries.
 
 ## 10. What Is Hidden Until Needed
 
@@ -78,13 +92,19 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 - current writing state,
 - accepted doctrine,
 - support-system status,
-- author actions.
+- author actions,
+- surface handoff markers,
+- owner-provided save and recovery posture,
+- active workspace references where available.
 
 ## 12. Outputs
 
 - workflow suggestions,
 - bounded status views,
 - action handoffs,
+- return-to-writing posture,
+- labeled re-entry summaries that distinguish stored state from
+  generated explanation,
 - bounded references or summaries of owner-controlled project truth with source owner and freshness posture preserved.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -102,13 +122,18 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 - references to active or last-used surface workspaces where useful for
   re-entry without owning their configuration,
 - references to `Author Intent / Story Setup`,
+- bounded re-entry posture such as last safe writing route, recent
+  support handoff, and whether a summary was generated versus directly
+  stored,
 - non-authoritative project-intent summaries that preserve source owner, freshness, and whether the referenced owner state is current, stale, missing, or under review.
 
 ## 15. What Remains Temporary
 
 - transient suggestions,
 - current-session prompts,
-- temporary next-step candidates.
+- temporary next-step candidates,
+- ephemeral recent-inspection context that should not become durable
+  truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -146,6 +171,8 @@ It may retain handoff and return posture that helps the author get back
 to the prior Writing Surface workspace or location, but it does not own
 the underlying workspace configuration, manuscript anchor mechanism, or
 displayed artifact state.
+Restored location and workflow confidence must not be framed as proof
+that the latest edits were durably saved.
 It may summarize editorial posture such as `needs review`, `revision
 underway`, or `ready for re-evaluation`, but those durable concerns
 remain owned by `Feedback Notes / Revision Resolution` or
@@ -158,10 +185,16 @@ Cross-surface handoffs may contribute to journey posture and later
 resume guidance, but those handoffs do not create truth, do not own the
 surfaces they connect, and do not turn workflow state into layout
 authority.
+Workflow may reference `Command Center` review context during re-entry
+or `Where was I?`, but it must preserve the distinction between support
+inspection and the prior writing position.
 
 ## 21. GUI Placement Principles
 
 Do not turn workflow support into a dashboard junk drawer.
+Ordinary session re-entry, on-demand orientation, and recovery-first
+entry must remain distinct even if workflow guidance contributes to all
+three.
 
 ## 22. Local LLM Role
 
@@ -178,32 +211,44 @@ Routing and spend remain governed outside this dossier.
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Workflow guidance must respect masking and package rules.
+Generated re-entry summaries must not leak protected or excluded content
+that the current surface or owner would not expose directly.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 No hidden workflow path may bypass privacy or safety rules.
+Missing, stale, blocked, or uncertain source state must be labeled as
+such rather than quietly normalized into a confident resume story.
 
 ## 27. Testing Requirements
 
-Prove that direct writing remains available and workflow guidance stays advisory.
+Prove that direct writing remains available, workflow guidance stays
+advisory, and re-entry summaries remain visibly distinct from owner
+truth.
 
 ## 28. Governance Rules And Risks
 
 - no shadow workflow authority,
 - no silent truth mutation,
-- no hidden action gating.
+- no hidden action gating,
+- no workflow-as-save-proof,
+- no summary-as-memory drift.
 
 ## 29. Failure Modes
 
 If workflow guidance fails, the writer still writes directly.
+Failure of `Where was I?`, re-entry summary, or handoff history must not
+block project open, workspace restore, or safe local writing.
 
 ## 30. v1 Boundary
 
-Minimal optional workflow guidance and support handoffs.
+Minimal optional workflow guidance, support handoffs, re-entry posture,
+and on-demand orientation.
 
 ## 31. v2 Boundary
 
-Richer author-controlled workflow views and history.
+Richer author-controlled workflow views, re-entry history, and bounded
+summary controls.
 
 ## 32. Future-Only Boundary
 

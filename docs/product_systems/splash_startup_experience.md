@@ -16,35 +16,53 @@
 
 ## 2. Purpose
 
-Define startup and opening experience so the writer can enter work quickly without the startup surface becoming a cluttered dashboard or a gate to writing.
+Define application startup and project-opening experience so the writer
+can enter work quickly without the startup surface becoming a cluttered
+dashboard, a hidden restore owner, or a gate to writing.
 
 ## 3. User Problem Solved
 
-The writer needs a fast, clear start path into work, especially when services are degraded or support systems are unavailable.
+The writer needs a fast, clear start path into work, especially when
+services are degraded, support systems are unavailable, or prior session
+state is uncertain.
 
 ## 4. What The System Does
 
-- open the app cleanly,
-- expose safe startup status,
-- route the writer quickly into active work.
+- establish basic application posture,
+- distinguish ordinary startup from project opening,
+- route the writer quickly into active work,
+- restore safe presentation and resume cues quietly when conditions are
+  healthy,
+- surface recovery-first or degraded entry only when risk, failure, or
+  uncertainty justifies it.
 
 ## 5. What The System Does Not Do
 
 - become a dashboard junk drawer,
 - force detours before writing,
+- own workspace state, save truth, workflow truth, or recovery
+  artifacts,
 - hide degraded-state warnings that matter.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize quick entry, clarity, and recovery from interruptions.
+Visible behavior should emphasize quick entry, clarity, and bounded
+re-entry help without treating every reopen as recovery.
 
 ## 7. Hidden/Background Behavior
 
-Background checks may prepare the app, but they must not gate direct writing unnecessarily.
+Background checks may prepare the app, project, and support systems, but
+they must not gate direct writing unnecessarily.
+Ordinary startup may restore a safe Writing Surface path, selected
+project, workspace posture, and bounded re-entry context quietly when
+those states are available and trustworthy.
+Crash, risk, repair, read-only, safe-mode, or recovery-first posture
+must remain separate from ordinary reopen behavior.
 
 ## 8. What Appears First
 
-- resume or open-work options,
+- direct return to the last safe writing path when available,
+- project-open choice when no safe direct return exists,
 - essential status when relevant,
 - clear path to direct writing.
 
@@ -52,24 +70,32 @@ Background checks may prepare the app, but they must not gate direct writing unn
 
 - deeper startup diagnostics,
 - recent projects,
-- optional support status.
+- optional support status,
+- bounded `Where was I?` or resume explanation when the author asks for
+  it.
 
 ## 10. What Is Hidden Until Needed
 
 - dense diagnostics,
 - full service detail,
-- heavy guidance panels.
+- heavy guidance panels,
+- recovery review detail when ordinary startup is still safe.
 
 ## 11. Inputs
 
 - last-session state,
 - project availability,
-- service health signals.
+- service health signals,
+- workspace-restoration posture,
+- save-risk posture,
+- recovery or degraded-entry posture when present.
 
 ## 12. Outputs
 
 - startup navigation,
 - resume cues,
+- ordinary project-opening route,
+- bounded re-entry summary when justified,
 - degraded-state messaging.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -81,16 +107,20 @@ Background checks may prepare the app, but they must not gate direct writing unn
 
 - last-opened project state,
 - startup preferences,
-- bounded resume metadata.
+- bounded resume metadata,
+- startup-entry posture markers that remain distinct from save truth and
+  recovery artifacts.
 
 ## 15. What Remains Temporary
 
 - transient startup warnings,
-- current-session prompts.
+- current-session prompts,
+- generated summaries shown only for the current reopening.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
-Startup experience does not change narrative authority.
+Startup experience does not change narrative authority and does not
+prove manuscript integrity.
 
 ## 17. Relationship To Story Units
 
@@ -98,23 +128,33 @@ Story Unit context may be resumable, but Story Units remain optional.
 
 ## 18. Relationship To Prose / Scene Projection
 
-Projection context may be resumed without becoming a startup authority layer.
+Projection context may be resumed without becoming a startup authority
+layer or proof that projected state is current.
 
 ## 19. Relationship To Writing Surface
 
 Startup should prefer a fast path into the sovereign Writing Surface.
+If prior layout, monitor, or support conditions cannot be restored
+safely, startup should fall back to a valid single-monitor posture with
+Writing Surface primary rather than forcing a broken arrangement.
 
 ## 20. Relationship To Command Center Surface
 
-Startup may expose support status without requiring the Command Center first.
+Startup may expose support status without requiring the Command Center
+first.
+Command Center remains support review, not a mandatory startup guide.
 
 ## 21. GUI Placement Principles
 
 Avoid turning startup into a dashboard or blocker.
+Ordinary startup, project opening, workspace restoration, session
+re-entry, unsaved-work disclosure, and crash or recovery restoration
+must remain visibly distinct lifecycles even when they cooperate.
 
 ## 22. Local LLM Role
 
 Not required for core startup behavior.
+AI unavailability must not block safe local startup into writing.
 
 ## 23. Paid API Role
 
@@ -123,36 +163,51 @@ Not required for core startup behavior.
 ## 24. Model Routing Notes And Cost / Budget Impact
 
 Startup must not silently trigger paid or heavy work.
+Generated summaries, if any, must be visibly summaries rather than
+claimed owner truth.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-Startup must not expose protected content inadvertently.
+Startup must not expose protected content inadvertently through startup,
+resume, summaries, or restore cues.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Private project cues must stay bounded.
+Unavailable, excluded, or protected content must degrade to safe
+absence, summary, or owner-routed explanation rather than silent
+leakage.
 
 ## 27. Testing Requirements
 
-Prove startup reaches writing quickly and handles degraded modes safely.
+Prove startup reaches writing quickly, keeps ordinary reopen distinct
+from recovery-first entry, and handles degraded modes safely.
 
 ## 28. Governance Rules And Risks
 
 - no startup junk drawer,
 - no hidden gating,
-- no silent expensive work.
+- no silent expensive work,
+- no recovery-language takeover during ordinary reopen,
+- no startup-as-save-authority.
 
 ## 29. Failure Modes
 
-If startup preparation fails, the app should degrade to a safe local entry path.
+If startup preparation fails, the app should degrade to a safe local
+entry path.
+If project open, workspace restoration, or recovery review cannot
+proceed normally, startup must expose the narrower posture honestly
+rather than pretending the ordinary reopen path succeeded.
 
 ## 30. v1 Boundary
 
-Basic open, resume, and degraded-state cues.
+Basic application startup, project-opening distinction, quiet workspace
+restoration, bounded re-entry cues, and degraded-state disclosure.
 
 ## 31. v2 Boundary
 
-Richer resume context and optional startup assistance.
+Richer re-entry context, on-demand `Where was I?`, and optional startup
+assistance.
 
 ## 32. Future-Only Boundary
 

@@ -68,6 +68,9 @@ Important non-ownership rules:
   restore metadata, not current-save confirmation.
 - green tests, fixtures, or harness runs are evidence only; they do not
   make work `saved` or `recovery verified`.
+- application startup, project opening, workspace restoration, session
+  re-entry, `Where was I?`, save-risk disclosure, and crash or recovery
+  restoration are cooperating but distinct lifecycles.
 
 ## 4. Core Doctrine
 
@@ -138,6 +141,7 @@ Current repo-truth clarification:
 - show startup or resume notices only when action or uncertainty matters
 - never use a snapshot badge, recovery offer, or resume cue as a fake
   `saved` badge
+- label generated summary as summary rather than restored fact
 - never make the writer perform manual-save rituals just to feel safe
 
 ## 8. End-To-End Workflow Cases
@@ -202,8 +206,18 @@ Recovery posture:
 Resume posture:
 
 - fast return to writing
+- restore safe location and workspace posture quietly when trustworthy
 - bounded summary only when recent uncertainty, degraded state, or
   recovery-first posture matters
+
+Session re-entry posture must remain distinct from:
+
+- application startup
+- project opening
+- workspace restoration
+- on-demand `Where was I?`
+- unsaved or at-risk disclosure
+- crash or recovery restoration
 
 ## 11. Unresolved Ownership Gaps
 

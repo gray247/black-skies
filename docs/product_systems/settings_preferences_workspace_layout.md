@@ -16,7 +16,9 @@
 
 ## 2. Purpose
 
-Define how Black Skies stores and presents user settings, preferences, and workspace layout choices without letting preference state become hidden truth authority.
+Define how Black Skies stores and presents user settings, preferences,
+workspace configuration, and layout choices without letting preference
+state become hidden truth authority.
 
 ## 3. User Problem Solved
 
@@ -31,6 +33,9 @@ The writer needs persistent control over workspace behavior without losing clari
 - allow workspace configuration to reference surface-local scope, open
   views, filters, referenced artifacts, last-viewed source, navigation
   posture, and resumable context where allowed,
+- restore safe workspace configuration when a project reopens without
+  implying that referenced artifacts, save truth, or workflow state are
+  current,
 - expose user-controlled behavioral settings.
 
 ## 5. What The System Does Not Do
@@ -41,28 +46,39 @@ The writer needs persistent control over workspace behavior without losing clari
 - own recovery artifacts,
 - become owner of opened artifacts merely because a workspace references
   them,
+- prove that prior windows, monitors, views, or sources can all be
+  reopened exactly as before,
 - silently override author approval rules,
 - hide risky automation behind obscure settings.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize clear control and bounded defaults.
+Visible behavior should emphasize clear control, bounded defaults, and
+safe degradation when prior layout or workspace assumptions no longer
+fit the current environment.
 
 ## 7. Hidden/Background Behavior
 
-Background persistence may exist, but settings do not create hidden system authority beyond approved scope.
+Background persistence may exist, but settings do not create hidden
+system authority beyond approved scope.
+Workspace restoration may reopen remembered surface-local presentation
+and context, but unsafe or impossible prior arrangements must fall back
+cleanly instead of being forced.
 
 ## 8. What Appears First
 
 - primary workspace preferences,
 - writing-relevant settings,
-- clear privacy and AI-control options when relevant.
+- clear privacy and AI-control options when relevant,
+- workspace-restoration controls or reset paths when needed.
 
 ## 9. What Is Summonable
 
 - advanced layout choices,
 - hotkeys,
-- deeper support settings.
+- deeper support settings,
+- bounded workspace recovery or reset choices when prior layout is not
+  usable.
 
 ## 10. What Is Hidden Until Needed
 
@@ -74,13 +90,15 @@ Background persistence may exist, but settings do not create hidden system autho
 - author choices,
 - device context,
 - project context where allowed,
-- bounded surface-local context references where allowed.
+- bounded surface-local context references where allowed,
+- monitor, view, or source availability where restore is attempted.
 
 ## 12. Outputs
 
 - persisted preferences,
 - workspace configuration,
 - layout state,
+- safe restoration posture for remembered workspaces,
 - user-visible control behavior.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -105,7 +123,9 @@ open at the product-definition level.
 - transient workspace states,
 - current-session overrides when applicable,
 - active focus or display context that remains surface-local rather than
-  settings-owned.
+  settings-owned,
+- unavailable monitor or view substitutions made only for the current
+  reopen.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -125,6 +145,8 @@ Writing Surface preferences must preserve sovereign direct writing.
 Workspace configuration may help reopen a Writing Surface workspace, but
 it does not own manuscript prose, manuscript order, or the displayed
 artifacts inside that workspace.
+If prior layout cannot be restored safely, settings should prefer a
+valid writing-first fallback over exact but broken reconstruction.
 
 ## 20. Relationship To Command Center Surface
 
@@ -132,10 +154,15 @@ Command Center layout preferences must not turn support into a required gate.
 Workspace configuration may help reopen a Command Center workspace, but
 it does not own the tools, notes, signals, cards, findings, or review
 artifacts shown there.
+Unavailable support views may degrade to safe absence, alternate view,
+or reset posture without claiming that the underlying owner state is
+gone.
 
 ## 21. GUI Placement Principles
 
 Keep settings understandable and avoid hiding high-risk controls.
+Workspace restoration should remain more than geometry alone and less
+than a durable domain restore system.
 
 ## 22. Local LLM Role
 
@@ -151,31 +178,41 @@ Settings may influence routing preference, not override approval, privacy, or sp
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-Settings may expose policy choices but must not weaken governing boundaries silently.
+Settings may expose policy choices but must not weaken governing
+boundaries silently.
+Workspace restoration must not reveal protected or excluded content
+through convenience reopen behavior.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 High-risk settings require clarity and must not hide protection state.
+Missing monitors, stale sources, or unavailable views must degrade to
+safe fallback rather than being misrepresented as successfully restored.
 
 ## 27. Testing Requirements
 
-Prove settings persist correctly and do not bypass higher-priority rules.
+Prove settings persist correctly, workspace restoration degrades safely,
+and restored configuration does not masquerade as owner truth.
 
 ## 28. Governance Rules And Risks
 
 - no hidden unsafe defaults,
 - no settings-led authority drift,
 - no workspace-definition drift into durable domain ownership,
-- no buried approval bypasses.
+- no buried approval bypasses,
+- no unsafe exact-restore fiction.
 
 ## 29. Failure Modes
 
 If settings persistence fails, the app should fall back safely.
+If prior workspace configuration is corrupt, impossible, or hostile to
+direct writing, settings should allow reset, narrower restore, or
+single-monitor fallback without blocking project open.
 
 ## 30. v1 Boundary
 
 Core settings, workspace configuration, preferences, and layout
-persistence.
+persistence plus safe restoration posture.
 
 ## 31. v2 Boundary
 

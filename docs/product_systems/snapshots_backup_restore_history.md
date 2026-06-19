@@ -39,19 +39,27 @@ The writer needs confidence that work can be recovered without losing clarity ab
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize recovery, comparison, explicit restore choices, and a clear distinction between current save state and historical recovery artifacts.
+Visible behavior should emphasize recovery, comparison, explicit restore
+choices, and a clear distinction between current save state and
+historical recovery artifacts.
+Ordinary session re-entry should not borrow recovery language unless
+recovery posture is actually active.
 
 ## 7. Hidden/Background Behavior
 
-Background snapshotting may exist, but must remain governed and recoverable.
-Snapshots support recovery and history, but they must not become a substitute for clear current save-state behavior.
+Background snapshotting may exist, but must remain governed and
+recoverable.
+Snapshots support recovery and history, but they must not become a
+substitute for clear current save-state behavior.
 `Project Persistence / Local Save` owns confirmed current-save truth.
 
 ## 8. What Appears First
 
 - current recovery status,
 - restore entry points when needed,
-- recent history only when relevant.
+- recent history only when relevant,
+- source, age, and confidence cues when recovery material is being
+  offered for review.
 
 ## 9. What Is Summonable
 
@@ -78,7 +86,9 @@ Snapshots support recovery and history, but they must not become a substitute fo
 - restore options,
 - preview, read-only, copy, candidate, staged, comparison, or current-restore paths when allowed,
 - history views,
-- recovery status.
+- recovery status,
+- recovery source, age, and confidence disclosure where the mode
+  requires review.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -111,14 +121,22 @@ Projection states may be recoverable but remain distinct from accepted manuscrip
 ## 19. Relationship To Writing Surface
 
 Recovery must preserve direct writing, avoid confusing restore previews with current text, and support crash or restart recovery without turning recovery artifacts into hidden canon.
+Recovery may help after crash or restart, but ordinary reopen and
+session re-entry should still prefer current owner state and safe resume
+posture before recovery language.
 
 ## 20. Relationship To Command Center Surface
 
 Heavier history and restore review may belong in the Command Center.
+Review before restoring a recovery artifact as current remains mandatory
+for risky restore paths.
 
 ## 21. GUI Placement Principles
 
-Keep recovery discoverable without making history the default writing surface.
+Keep recovery discoverable without making history the default writing
+surface.
+Recovery affordances should become prominent only when recovery is
+actually relevant.
 
 ## 22. Local LLM Role
 
@@ -139,12 +157,18 @@ Recovery does not erase `hidden`, `masked`, `deleted`, `discarded`, `forgotten`,
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Deleted, hidden, masked, or excluded material requires careful recovery rules.
-Historical existence does not make those materials current again by default.
+Deleted, hidden, masked, or excluded material requires careful recovery
+rules.
+Historical existence does not make those materials current again by
+default.
+Protected recovery must disclose limits without leaking the protected
+content itself.
 
 ## 27. Testing Requirements
 
-Prove restore, undo, and history views preserve clear current-versus-historical boundaries.
+Prove restore, undo, and history views preserve clear
+current-versus-historical boundaries and do not make ordinary session
+re-entry look like recovery by default.
 
 ## 28. Governance Rules And Risks
 
@@ -157,9 +181,14 @@ Prove restore, undo, and history views preserve clear current-versus-historical 
 
 ## 29. Failure Modes
 
-If history fails, current work must remain safe and recoverable where possible.
-Recovery failure must not imply that snapshot artifacts become the new manuscript truth by default.
-Read-only, repair-first, comparison, or restore-as-copy fallback should be preferred over unsafe restore-as-current.
+If history fails, current work must remain safe and recoverable where
+possible.
+Recovery failure must not imply that snapshot artifacts become the new
+manuscript truth by default.
+Read-only, repair-first, comparison, or restore-as-copy fallback should
+be preferred over unsafe restore-as-current.
+Unavailable or uncertain recovery should be disclosed as unavailable or
+uncertain rather than rebranded as successful restore.
 
 ## 30. v1 Boundary
 

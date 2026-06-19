@@ -43,6 +43,8 @@ This contract applies across:
 - `Command Center Surface`
 - `Companion`
 - later local-model and paid-API execution paths
+- ordinary startup, project opening, session re-entry, and recovery
+  entry posture when degraded execution affects them
 
 ## 3. Non-Goals
 
@@ -64,6 +66,8 @@ This contract applies across:
 - No blocked, refused, failed, or retried action may silently apply pending AI, export, restore, memory, note, or signal changes.
 - Retry is a governed action, not an invisible background convenience.
 - Recovery-first posture is honest about risk and availability; it is not normal mode with softer labels.
+- Requested analysis, routing, or support failure is not manuscript
+  failure by itself.
 
 ## 5. Execution State Vocabulary
 
@@ -189,6 +193,7 @@ Safe mode must:
 - expose that the app is not in normal mode
 - preserve direct writing if local editing is still safe
 - block risky background work and risky mutation paths
+- avoid being confused with ordinary startup or ordinary reopen
 
 ### 8.2 Recovery-First Entry
 
@@ -205,6 +210,8 @@ Recovery-first must:
 - avoid silent pending-action replay
 - show what is unavailable
 - not claim healthy save or sync posture falsely
+- remain overt enough that the author does not mistake it for routine
+  session resume
 
 ### 8.3 Read-Only Entry
 
@@ -219,6 +226,8 @@ Read-only must:
 - preserve inspection and comparison
 - block durable mutation through the affected path
 - offer copy, export-if-safe, or repair guidance only where separately allowed
+- explain the narrowed posture without flooding the author with
+  diagnostic noise
 
 ### 8.4 Crash-Loop Posture
 

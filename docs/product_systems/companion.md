@@ -36,6 +36,8 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - is primarily housed in Command Center for richer explanation,
   routing, review, and support while remaining contextually summonable
   from Writing Surface,
+- may answer on-demand orientation requests such as `Where was I?` by
+  using owner-labeled saved, surface, workflow, and session context,
 - may later run safe local or support actions if settings allow,
 - may later trigger tools under explicit user-action boundaries.
 
@@ -45,6 +47,7 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - it is not author, judge, or silent actor,
 - it does not silently commit story changes,
 - it does not replace Writing Surface sovereignty,
+- it does not own startup, workspace, save, or recovery state,
 - it does not become a mandatory gate before writing.
 
 ## 6. User-Facing Behavior
@@ -61,6 +64,8 @@ Companion may later:
 - create temporary advisory highlights or annotations when asked,
 - point to evidence,
 - route into other tools with consent,
+- explain what was restored, what is only summarized, and what remains
+  uncertain when re-entry help is requested,
 - help the author reach editorial work without becoming a required gate.
 Its richer default home should be Command Center, but that home does not
 make Companion mandatory, always visible, or the product's only
@@ -78,6 +83,8 @@ truth, retrieval results, files, or organization state.
 - deferring to stronger systems for evidence,
 - preparing explanations for scheduled, idle, or overnight local findings later without owning the underlying service,
 - staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later,
+- labeling stale, missing, blocked, generated, or owner-reported context
+  honestly instead of smoothing it into false certainty,
 - not stealing focus across surfaces just because it can explain a
   request or suggest a route.
 
@@ -99,6 +106,8 @@ Companion should appear only when invited, clearly relevant, or explicitly confi
 Rough workload guidance for those capability candidates:
 
 - `Where was I?` should normally use existing saved, session, or project state first.
+- `Where was I?` must distinguish persistent owner state, surface view
+  state, temporary session context, and generated summary.
 - `What changed since last session?` may have a quick existing-context answer and a deeper scheduled or idle analysis later.
 - `What needs attention?` should prefer known blockers, signals, and prepared findings before offering heavier scans.
 - `Highlight the gap` may be lightweight and current-scope or may require deeper manual or deferred analysis depending on requested scope.
@@ -118,6 +127,9 @@ Rough workload guidance for those capability candidates:
 - critique outputs,
 - routing and budget policy,
 - current writing context.
+- current writing context,
+- workflow re-entry posture,
+- save and recovery owner state as exposed by their owners.
 
 ## 12. Outputs
 
@@ -131,6 +143,8 @@ Rough workload guidance for those capability candidates:
 - evidence citations later,
 - tool-trigger requests later,
 - signal candidates later when the author chooses to escalate a temporary highlight or concern.
+- route-to-owner explanation when save, workspace, recovery, or startup
+  questions belong elsewhere.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -153,7 +167,9 @@ Rough workload guidance for those capability candidates:
 - ephemeral conversational context,
 - one-off investigation prompts,
 - temporary Writing Surface highlights or annotations,
-- `no-ai-route-available` explanations and fallback menus.
+- `no-ai-route-available` explanations and fallback menus,
+- temporary re-entry summaries that do not become durable memory or
+  owner truth by default.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -186,6 +202,9 @@ Temporary Companion highlights or annotations are advisory UI overlays, not manu
 Companion may be summoned from Writing Surface contextually, but it
 must not require automatic focus transfer into Command Center and must
 not replace the current writing location.
+It may help the author return to writing after support inspection, but
+it must preserve the distinction between opening support context,
+changing focus, and changing the active writing location.
 Companion is never required to access notes, signals, critique results,
 continuity findings, rewrite review, or source evidence.
 
@@ -195,6 +214,8 @@ The Command Center is the primary home for richer Companion
 interactions, but Companion may later surface contextually elsewhere.
 Command Center-homed does not mean Command Center-only, always visible,
 or mandatory before writing.
+It also does not mean that Companion owns Command Center startup,
+workspace restoration, or review state.
 
 ## 20A. Relationship To Memory Lab And System Ownership
 
@@ -246,21 +267,28 @@ Examples of routed requests include evaluation requests for Critique, story-setu
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-Companion must respect transformed-package rules and must not reveal masked raw content in its own voice.
+Companion must respect transformed-package rules and must not reveal
+masked raw content in its own voice.
 Companion must not send raw content without approval.
 Companion must honor AI exclusion zones and use only author-approved summaries or package views unless the author explicitly grants access to the raw excluded range.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Companion must not create the illusion that it knows more than the systems and evidence behind it can justify.
+Companion must not create the illusion that it knows more than the
+systems and evidence behind it can justify.
 Companion system knowledge and app navigation guidance is operational help, not manuscript authority.
+Protected, excluded, or unavailable content must degrade to safe
+absence, summary, or owner-routed explanation rather than leakage
+through helpful-sounding narration.
 
 ## 27. Testing Requirements
 
 - Companion remains advisory,
 - Companion does not silently trigger changes,
 - Companion cites evidence when claiming investigative support later,
-- Companion respects routing and budget boundaries.
+- Companion respects routing and budget boundaries,
+- Companion re-entry help distinguishes restored state from generated
+  summary.
 
 ## 28. Governance Rules And Risks
 

@@ -11,6 +11,8 @@ This artifact exists to answer:
 - which protection states survive recovery
 - how current state and historical state conflict
 - what provenance recovery must record
+- what recovery review must disclose before historical material can
+  replace current active state
 
 ## 2. Scope
 
@@ -195,6 +197,8 @@ Minimum recovery record:
 - approval tier used
 - requester or actor
 - current-vs-historical scope
+- source age or time context when available
+- recovery confidence or verification posture when available
 - protection states preserved
 - whether the result was previewed, copied, staged, accepted, rejected, blocked, abandoned, or failed
 

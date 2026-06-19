@@ -85,6 +85,8 @@ Visible behavior should emphasize:
   confirmed,
 - no fake reassurance from recovery offers, resume cues, or service
   health alone,
+- no claim that restored location or reopened project proves the latest
+  edits were durably persisted,
 - no need for manual-save ritual just to feel safe,
 - detail available when wanted without forcing `Companion`.
 
@@ -216,12 +218,18 @@ direct-writing surface.
 `Project Persistence / Local Save` owns whether current work is actually
 confirmed saved locally.
 `Writing Surface` does not gain that authority by display.
+Preserved writing location, return anchor, or workspace restoration may
+help the writer resume, but none of those cues replace save
+confirmation.
 
 ## 20. Relationship To Command Center Surface
 
 Heavier save-risk review and supporting detail may appear in
 `Command Center Surface`, but Command Center remains a consumer and
 support surface, not the owner.
+Startup and re-entry may surface save risk when it materially affects
+the author, but they remain consumers of this state rather than new
+save owners.
 
 ## 21. GUI Placement Principles
 
@@ -233,6 +241,9 @@ Placement rules:
 - do not turn save-state support into a dashboard,
 - do not force the writer through `Companion` or a support surface to
   understand whether work is safe.
+Ordinary healthy save posture should remain quiet at startup and
+re-entry; failed or at-risk posture must become prominent when recent
+work is not safely confirmed.
 
 ## 22. Local LLM Role
 
@@ -315,6 +326,12 @@ Containment rules:
 - blocked-for-safe-persistence posture must not be hidden,
 - return to calm confirmed-save posture happens only after the owner can
   truthfully confirm it.
+Project-open success, resume success, or workspace restoration success
+does not erase unresolved save risk.
+Save failure also does not automatically mean the project cannot open;
+safe inspection, safe local continuation, read-only review, or
+recovery-first posture may still remain available depending on owner and
+health state.
 
 ## 30. v1 Boundary
 
