@@ -33,7 +33,8 @@ The Command Center Surface:
 - organizes contextual tools,
 - shows bounded support state and narrative inspection,
 - may surface attention state, blocker state, routing or spend state, memory or provenance summaries, prepared findings, and package or export controls later when bounded,
-- provides a home for structured or analy­tical systems that do not belong in the main drafting area,
+- provides a home for structured or analytical systems that do not
+  belong in the main drafting area,
 - allows tool orchestration without making those tools the authorial source of truth.
 
 ## 5. What The System Does Not Do
