@@ -63,7 +63,7 @@ Boundary reminder:
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | project browsing and grouping | `Binder / Project Library` | `Workflow Spine`, `Splash`, `Project Index`, `File Manager` | project organization metadata | binder does not own manuscript truth, transfer authority, or file-state truth | existing dossier | mature enough for now | none | overlap with `File Manager` and `Project Index / Search / Retrieval` |
-| workflow entry and resume posture | `Workflow Spine / Author Journey` | `Splash`, `Writing Surface`, `Command Center` | workflow progress state | workflow posture does not own manuscript truth outside parked project-truth subset | existing dossier | mature enough for now | none | can absorb story setup, startup, and editorial flow too broadly |
+| workflow entry and resume posture | `Workflow Spine / Author Journey` | `Splash`, `Writing Surface`, `Command Center` | workflow progress state, re-entry posture, handoff state, and non-authoritative workflow summaries | workflow posture does not own manuscript truth or accepted project truth; workflow summaries and completion markers are references only | existing dossier | mature enough for now | none | can absorb story setup, startup, and editorial flow too broadly |
 | support-surface navigation and tool entry | `Command Center Surface` | `Workflow Spine`, `Project Index`, `Binder`, `Diagnostics` | no primary truth ownership; support visibility only | visibility does not grant mutation authority | existing dossier | mature enough for now | none | risk of turning into junk drawer or pseudo-owner |
 
 ### 2.5 Structure And Projection
@@ -216,7 +216,6 @@ The strongest competing-owner conflicts are:
   `Service Health`, and `Workflow Spine` all touch save-state language,
   but only `Project Persistence / Local Save` owns durable local
   current-save confirmation.
-- `Workflow Spine` provisionally owns accepted project truth while also owning workflow state.
 - `Binder`, `File Manager`, and `Project Index / Search / Retrieval` all touch navigation, browse context, and discovery.
 - `Memory Lab` and `Project Index / Search / Retrieval` both use retrieval language but own different state categories; recall versus retrieval still needs clear writer-facing labeling.
 - `Critique`, `Feedback Notes`, `Signal Architecture`, `Continuity`, `Draft Generation`, and `Companion` all touch the editorial lane.
@@ -279,13 +278,13 @@ The following are still real implementation-neutral product questions, but the l
 - save-state display and workflow posture still span `Writing Surface`,
   `Snapshots`, `Service Health`, `Workflow Spine`, and `Splash`, even
   though durable local current-save confirmation now has a named owner
-- `Workflow Spine / Author Journey` still carries too much by holding workflow posture plus provisional accepted project truth
+- `Workflow Spine / Author Journey` still carries too much if workflow posture, startup cues, and editorial wayfinding are not kept visibly distinct from owner-controlled story setup
 - research and source-use capabilities still lack a clean end-to-end flow and citation path map
 - the AI roadmap cluster still reads as blurred from a product perspective across lifecycle, routing, package construction, provenance, and explicit-content boundaries
 
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.
-- The weakest areas are project-intent ownership, ideation, research workflow, presentation identity, voice, and advanced branching.
+- The weakest areas are ideation, research workflow, presentation identity, voice, and advanced branching.
 - Several current conflicts are not missing-dossier problems. They are missing workflow-map problems.
 - The provisional `v1` boundary remains small and useful, but it does not authorize implementation planning or close the broader capability inventory.

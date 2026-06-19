@@ -29,12 +29,17 @@ The writer needs coherent workflow guidance without being forced through rigid s
 - organize likely writing and revision paths,
 - suggest next useful actions,
 - coordinate handoffs among support systems,
-- summarize editorial progress without owning notes, signals, rewrite candidates, or accepted prose.
+- summarize editorial progress without owning notes, signals, rewrite candidates, or accepted prose,
+- retain workflow and journey support state only, including re-entry posture, next-step guidance, approval checkpoints, and owner-labeled summaries.
 
 ## 5. What The System Does Not Do
 
 - gate direct writing,
 - own manuscript truth,
+- own accepted project truth,
+- maintain a competing authoritative copy of `Author Intent / Story Setup`,
+- convert workflow completion into project-truth acceptance,
+- infer project intent and store it as accepted,
 - silently trigger heavy, paid, outbound, or destructive actions.
 
 ## 6. User-Facing Behavior
@@ -75,7 +80,8 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 
 - workflow suggestions,
 - bounded status views,
-- action handoffs.
+- action handoffs,
+- bounded references or summaries of owner-controlled project truth with source owner and freshness posture preserved.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -88,7 +94,9 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 - workflow preferences,
 - bounded progress state,
 - author-approved workflow markers,
-- editorial progress summaries that point back to note, signal, or producer owners rather than replacing them.
+- editorial progress summaries that point back to note, signal, or producer owners rather than replacing them,
+- references to `Author Intent / Story Setup`,
+- non-authoritative project-intent summaries that preserve source owner, freshness, and whether the referenced owner state is current, stale, missing, or under review.
 
 ## 15. What Remains Temporary
 
@@ -104,9 +112,13 @@ The workflow spine may guide work around narrative actions, but it does not repl
 
 The old Wizard concept is now treated as a historical seed for Author Intent / Story Setup rather than as a rigid startup gate.
 Author Intent / Story Setup now exists as its own dossier.
+Accepted project truth belongs to `Author Intent / Story Setup` only.
 The workflow spine may invite, surface, summarize, or route into that profile, but it does not own it.
 Story Setup values may be known now, unknown, ask-later, tentative, confirmed by the author, or changed over time.
 They may supply guidance to Outline, Critique, Companion, Draft Generation, Routing, and related systems, but they must not block direct writing.
+Workflow completion, stage progression, and setup-step completion remain distinct from project-truth acceptance or project-truth change.
+The workflow spine may mark an intent-setting step complete because the author skipped, deferred, or reviewed it without creating accepted project truth.
+When workflow summaries and `Author Intent / Story Setup` disagree, `Author Intent / Story Setup` is authoritative.
 
 ## 17. Relationship To Story Units
 
@@ -217,6 +229,7 @@ Intake note:
 
 - Direct writing must remain available.
 - Workflow support does not own truth.
+- `Author Intent / Story Setup` owns accepted project truth; workflow support may only reference or summarize it.
 - Superseded by current doctrine: workflow support must not block typing or gate writing behind required setup.
 - Save confidence and resume confidence should come from
   `Project Persistence / Local Save` plus recovery support, not from

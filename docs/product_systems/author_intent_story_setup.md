@@ -39,6 +39,7 @@ assumed, without being forced to finish planning before writing.
 - holds author-stated creative goals,
 - holds author-stated preferences,
 - holds intended reader experience,
+- holds accepted project-level truth and creative intent as the sole owner for that truth class,
 - holds accepted project-level thematic intent, intended thematic
   questions, and intended reader meaning at project scope when the
   author wants them saved as project intent,
@@ -74,6 +75,11 @@ assumed, without being forced to finish planning before writing.
 
 Author ownership here does not make this state manuscript truth or
 story canon.
+Within current doctrine, it does make this dossier the singular owner of
+accepted project-level truth.
+`Workflow Spine / Author Journey`, `Companion`, `Writing Surface`,
+`Command Center Surface`, and other consumers may reference, summarize,
+or route into this state, but they do not own or mutate it.
 
 ## 5A. Historical Recovery Of Wizard / Story Setup Material
 
@@ -257,6 +263,8 @@ Consumers may read, summarize in bounded ways, or use the profile as
 guidance where approved.
 They may not silently edit it, reinterpret blanks as permission, or
 invent missing intent.
+Workflow summaries remain references only and must not become a
+competing authoritative copy.
 
 ## 14. What Gets Stored
 
@@ -313,6 +321,9 @@ the author can write.
 
 The Command Center may later provide a heavier review or edit path for
 Story Setup, but it must not make this profile a gate before writing.
+Any accepted project-truth change still requires explicit author action
+through this owner or an explicitly accepted workflow that writes into
+this owner.
 
 ## 21. GUI Placement Principles
 

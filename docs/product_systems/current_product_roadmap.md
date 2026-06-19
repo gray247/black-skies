@@ -185,7 +185,8 @@ Current roadmap-sufficient work:
 
 - `Author Intent / Story Setup`
   Minimum still needed: keep the bounded optional question set,
-  consumer limits, and non-gating posture stable.
+  singular accepted-project-truth ownership, consumer limits, and
+  non-gating posture stable.
   Can remain intentionally unfinished: exact GUI, exact storage shape,
   final questionnaire polish, and any wizard-like implementation.
 - `Ideation / Premise Discovery`

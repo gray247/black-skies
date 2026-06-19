@@ -62,7 +62,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 
 ## 6. Truth Sources, Consumers, Observers, Candidates
 
-- `Truth sources`: `Narrative Insertion / Narrative Assertion`, `Lore Cards`, `Character Cards`, provisional `Author Intent / Story Setup` inside `Workflow Spine / Author Journey`
+- `Truth sources`: `Narrative Insertion / Narrative Assertion`, `Lore Cards`, `Character Cards`, `Author Intent / Story Setup`
 - `Truth consumers`: `Writing Surface`, `Continuity`, `Critique`, `Memory Lab`, `Companion`, `Outline`, `Story Unit`, `Projection`, `Document Interchange`
 - `Truth observers`: `Continuity`, `Critique`, `Memory Lab`, `Companion`, `Project Index / Search / Retrieval`, later analytic systems
 - `Truth candidates`: AI output, imported material, critique findings, continuity findings, notes, signals, memory recall, projection output, outline suggestions, package artifacts, snapshot restore previews
@@ -96,7 +96,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 | `LLM Package Construction Architecture` | `No` | builds model packages only |
 | `Writing Surface` | `Yes, but only for manuscript truth through explicit author input` | surface may author or edit manuscript text because it is the direct author entry path; it may not mutate other truth classes on behalf of support systems |
 | `Narrative Insertion / Narrative Assertion` | `Yes` | foundation truth owner for accepted manuscript text and accepted assertion truth |
-| `Workflow Spine / Author Journey` | `Yes, provisionally for accepted project truth only` | limited to parked `Author Intent / Story Setup` decisions confirmed by the author; requires future alignment |
+| `Workflow Spine / Author Journey` | `No` | may summarize workflow posture, route the author to the correct owner, and request owner-governed review or update actions, but it does not own or directly mutate accepted truth |
 
 ## 9. Durable State Category Definitions
 
@@ -106,7 +106,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 - `local current-save state`: authoritative confirmation or unresolved risk posture for current author-owned editable work persisted locally
 - `snapshot state`: restorable historical state, recovery metadata, restore markers
 - `provenance state`: authorship metadata, AI-origin metadata, acceptance metadata, mask or exclusion provenance
-- `workflow progress state`: resume markers, progress markers, workflow posture markers, provisional project-truth profile
+- `workflow progress state`: resume markers, progress markers, workflow posture markers, bounded workflow summaries, and references to owner-controlled state
 - `preferences state`: global, project, or session preferences and layouts
 - `index state`: search indexes, retrieval metadata, source labels, query preferences
 - `project metadata`: organization metadata, grouping metadata, project-local browse state
@@ -124,7 +124,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 | `local current-save state` | `Project Persistence / Local Save` | `Writing Surface`, `Workflow Spine / Author Journey`, `Splash / Startup Experience`, `Command Center`, `Service Health / Offline / Degraded Mode`, `Snapshots / Backup / Restore / History` | only the local-save owner may confirm durable local current-save state or unresolved local-save risk posture; consumers may display or react, but not redefine ownership | durable operational state for current local-save truth, distinct from truth ownership, snapshot history, and health history |
 | `snapshot state` | `Snapshots / Backup / Restore / History` | all storage-bearing systems | only snapshots owner may create snapshot records and restore metadata; restoring current truth requires author approval plus the owning truth path | historical, recoverable, clearly separated from current truth |
 | `provenance state` | `Authorship Provenance AI Visibility` | `Writing Surface`, `Command Center`, `Companion`, `Critique`, `Document Interchange` | only provenance owner may persist provenance metadata; truth owners may emit source events that provenance records | local/private by default; not truth; must not leak masked or excluded raw content |
-| `workflow progress state` | `Workflow Spine / Author Journey` | `Writing Surface`, `Command Center`, `Companion` | workflow markers and resume markers mutate here; accepted project truth remains a provisional subset requiring explicit author confirmation | durable where useful, bounded, non-truth except provisional parked project-truth fields |
+| `workflow progress state` | `Workflow Spine / Author Journey` | `Writing Surface`, `Command Center`, `Companion` | workflow markers, resume markers, handoff state, and bounded workflow summaries mutate here; accepted project truth remains wholly owned by `Author Intent / Story Setup` | durable where useful, bounded, reference-based, and non-truth |
 | `settings and preferences state` | `Settings / Preferences / Workspace Layout` | all user-facing systems | settings owner only; no other system may silently persist high-risk preference changes | durable, user-controlled, subordinate to higher approval and privacy rules |
 | `index state` | `Project Index / Search / Retrieval` | `Writing Surface`, `Command Center`, `Companion` | index owner may build, refresh, and prune indexes; retrieval consumers may query but not redefine index ownership | durable local reference state, non-canon, source-labeled, freshness-aware, and protection-aware |
 | `outline planning and prototype state` | `Outline` | `Writing Surface`, `Command Center`, `Story Unit`, `Prose / Scene Projection`, `Draft Generation / Rewrite Loop` | only `Outline` may persist planning structure, intended order, and named prototype arrangements; applying a reorder or prototype to manuscript truth still requires the manuscript truth owner | durable planning metadata, advisory by default, may differ from manuscript order, not canon, not a branch, and no prose duplication by default |
@@ -152,7 +152,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 
 ## 12. Ownership Violations Discovered
 
-- `Workflow Spine / Author Journey` currently holds provisional `accepted project truth` while also being a workflow surface and durable-state owner. This is allowed for now, but it is not a clean long-term truth placement.
+- `Workflow Spine / Author Journey` still needs careful writer-facing language so workflow completion, workflow summaries, and project-intent references do not read like accepted project truth ownership.
 - `Memory Lab` and `Project Index / Search / Retrieval` both use indexing and retrieval language; state ownership is now split, but writer-facing labeling still needs to prevent recall versus retrieval drift.
 - `Command Center Surface` surfaces blockers, prepared findings, routing state, memory summaries, and package state. It must keep reading rights without becoming an owner.
 - `Document Interchange` still needs future alignment on import-created destination state before any import path can safely touch truth-bearing objects.
@@ -178,7 +178,7 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 
 - `Fatal` downgraded: no explicit Truth Layer contract -> now addressed at architecture-governance level by this artifact
 - `Fatal` downgraded: no explicit Durable State contract -> now addressed at architecture-governance level by this artifact
-- `Critical` remains: provisional `accepted project truth` still parked inside `Workflow Spine / Author Journey`
+- `Critical` resolved: accepted project truth is singularly owned by `Author Intent / Story Setup`, while `Workflow Spine / Author Journey` remains a workflow-state consumer and summarizer only
 - `Critical` remains: `Document Interchange` import destination truth paths are still unresolved at finer contract level
 - `Critical` remains: restore rules for protected, deleted, masked, or excluded material are still unresolved at finer contract level
 
