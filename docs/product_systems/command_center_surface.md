@@ -66,6 +66,9 @@ Visible behavior should emphasize:
   heavier editorial work,
 - summonability rather than clutter,
 - stable separation from the prose-drafting area.
+The Command Center is the natural host for review items, prepared
+findings, and deeper blocker detail, but it does not own the states it
+organizes.
 
 ## 7. Hidden/Background Behavior
 
@@ -147,6 +150,8 @@ Command Center visibility should stay bounded by three rough levels:
 - `always-visible`: only current blockers, urgent approval state, or active route failure when relevant
 - `contextual`: signals, prepared findings, routing or spend state, and package or export state related to the current task
 - `summonable`: full detail views, history, `Memory Lab` recall, provenance, older signals, notes, re-evaluation outcomes, and analytics-like summaries
+These levels should map cleanly onto the broader product attention
+hierarchy rather than invent a separate urgency language.
 
 ## 11. Inputs
 
@@ -182,6 +187,9 @@ Outputs may include:
 These outputs are support outputs, not automatic authored truth.
 They must also remain subordinate to `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority.
 The Command Center organizes attention, but it does not own blockers.
+Blocker views must distinguish what is blocked, which owner reports it,
+whether direct writing itself is blocked, what action is required, and
+whether fallback exists.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -252,6 +260,8 @@ It must preserve Writing Surface sovereignty and direct writing first.
 When the author arrives here through an explicit handoff from Writing
 Surface, Command Center review should preserve a return-to-writing path
 rather than overwriting the prior writing location.
+Opening a deeper review item here must not imply that the review item's
+owner changed.
 
 ## 20. Relationship To Command Center Surface
 
@@ -289,6 +299,9 @@ Tool visibility classes:
   - systems not yet bounded or approved for near-term use
 
 The default Command Center should remain the smallest useful attention or control surface rather than a dashboard junk drawer.
+Ordinary analyzer findings, stale analysis, graph changes, and planning
+gaps belong more naturally as review items or contextual support here
+than as interruptions in Writing Surface.
 
 ## 22. Local LLM Role
 
@@ -349,6 +362,9 @@ Privacy and safety behavior should include:
 - explicit user approval before destructive or masking transforms affect outbound content,
 - no false claim that a support system has verified truth or moral correctness,
 - surfaced blockers or prepared findings may guide attention, but they must not silently resolve durable signal state, mutate manuscript truth, or bypass masks and exclusions.
+- protected or unavailable source detail should degrade to bounded
+  labels, approved summaries, source type, restriction reason, or
+  owner-routed explanation.
 
 ## 27. Testing Requirements
 
@@ -380,6 +396,8 @@ Doctrine anchors for the current tightening pass:
 - it may organize attention, status, signals, workflow choices, routing or spend state, memory or provenance summaries, and package or export controls without becoming truth owner,
 - it may surface blockers and prepared findings, but it cannot silently resolve, mutate, spend, send, delete, canonize, or bypass masks,
 - capability ideas such as `What needs attention?` and `Show only things blocking writing` remain product candidates, not implementation commitments.
+- review collections, queues, and grouped blocker views remain display
+  structures rather than new durable owners.
 
 Ownership boundaries for organized attention:
 

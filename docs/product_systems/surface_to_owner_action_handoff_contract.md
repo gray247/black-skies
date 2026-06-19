@@ -39,6 +39,7 @@ This contract governs handoff for:
 
 - A surface may expose an action without owning the authority behind it.
 - UI visibility does not grant authority.
+- Shared attention posture does not grant authority either.
 - A visible button, menu item, inline chip, or suggested next step is only a request path until the owning system accepts it.
 - The owning system decides whether the action is allowed, blocked, downgraded, staged, or refused.
 - `Writing Surface` may expose inline actions, but it does not silently mutate hidden truth, protected material, or durable support state.
@@ -112,6 +113,21 @@ Rules:
 - Owners may tighten a tier for a narrower case, but they may not silently loosen a higher-risk class into a lower one.
 - `T4` never grants standing permission forever.
 
+Rough presentation hierarchy for surfaced owner state:
+
+- `invisible until requested`
+- `quiet status`
+- `local contextual cue`
+- `surface-level notice`
+- `Command Center review item`
+- `signal-level attention`
+- `blocking`, `approval-required`, `destructive`, or
+  `recovery-first` interruption
+
+This hierarchy is a shared presentation contract only.
+It does not create a new durable owner for failures, findings,
+approvals, or attention state.
+
 ## 7. Surface-To-Owner Handoff Rule
 
 For every user-visible action, the following contract applies:
@@ -134,6 +150,9 @@ For every user-visible action, the following contract applies:
 6. If the owner refuses, blocks, or downgrades the action, the surface must not simulate success.
 7. If the action mutates truth or durable state, the resulting state must be stored only in the owning layer.
 8. If the action is advisory, the surface must keep the result labeled as advisory until an owning conversion path accepts it.
+9. If the owner result affects attention posture, the surface may choose
+   an appropriate presentation level, but it must preserve the owner,
+   blocked scope, approval need, failure class, and fallback posture.
 
 Minimum handoff payload:
 
@@ -146,6 +165,7 @@ Minimum handoff payload:
 - `protection state`
 - `route state` when relevant
 - `fallback availability`
+- `requested attention consequence` when relevant
 
 ## 8. Action Family Matrix
 
@@ -210,6 +230,9 @@ Minimum handoff payload:
 - Snapshot failure must prefer preview, copy, read-only recovery, or repair-first posture over silent overwrite.
 - Protected-content or explicit-content refusal must fail closed for outbound work and fail open for local direct writing where possible.
 - Background or scheduled work must return review-ready results, blocked state, or refusal state; it must not auto-apply.
+- Informational findings, stale analysis, graph changes, and ordinary
+  service state should not be escalated into interruption merely because
+  a surface can display them.
 
 ## 11. Dossiers Requiring Future Alignment
 

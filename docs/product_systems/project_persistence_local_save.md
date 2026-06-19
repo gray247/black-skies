@@ -114,6 +114,8 @@ What appears first should usually be minimal:
 - calm confirmed-save posture when local persistence is healthy,
 - low-noise pending state only when it matters,
 - prominent risk posture only when work may not be safe.
+Healthy save should generally stay at quiet-status level rather than
+claiming surface attention on its own.
 
 ## 9. What Is Summonable
 
@@ -244,6 +246,8 @@ Placement rules:
 Ordinary healthy save posture should remain quiet at startup and
 re-entry; failed or at-risk posture must become prominent when recent
 work is not safely confirmed.
+Save risk must identify `Project Persistence / Local Save` as the owner
+rather than being diluted into generic health noise.
 
 ## 22. Local LLM Role
 
@@ -306,6 +310,8 @@ Key risks:
 - conflating `saved` with `recoverable`,
 - conflating degraded capability with failed local persistence,
 - letting workflow or startup cues masquerade as persistence proof,
+- letting save risk disappear into generic service unavailability or
+  generic offline copy,
 - letting implementation convenience decide product authority.
 
 ## 29. Failure Modes

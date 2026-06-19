@@ -68,6 +68,8 @@ This contract applies across:
 - Recovery-first posture is honest about risk and availability; it is not normal mode with softer labels.
 - Requested analysis, routing, or support failure is not manuscript
   failure by itself.
+- Not every degraded state deserves interruption; prominence should rise
+  only when the author must know, decide, protect work, or respond.
 
 ## 5. Execution State Vocabulary
 
@@ -281,6 +283,8 @@ When recent restore, settings, project state, or queue state causes repeated fai
 - `non-retryable`: rerun is unsafe or meaningless without material change
 
 These terms must not collapse into a generic `offline` blob.
+They also should not all collapse into one generic interruptive
+attention style.
 
 ## 12. Future Alignment Targets
 

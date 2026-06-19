@@ -38,6 +38,8 @@ The writer needs the app to fail clearly and safely without losing access to loc
 ## 6. User-Facing Behavior
 
 Visible behavior should emphasize clear status, honest save-state cues, fallback paths, and continued local writing.
+Degraded support state should identify the affected capability and
+available fallback without overstating project or manuscript failure.
 
 ## 7. Hidden/Background Behavior
 
@@ -48,17 +50,20 @@ Background checks may track service state, but health monitoring does not create
 - relevant availability state,
 - direct writing path,
 - actionable fallback cues when needed.
+Ordinary healthy service state should remain quiet or invisible.
 
 ## 9. What Is Summonable
 
 - deeper health detail,
 - failure history,
-- retry paths.
+- retry paths,
+- diagnostics detail when the author asks for deeper support evidence.
 
 ## 10. What Is Hidden Until Needed
 
 - dense diagnostics,
-- low-level service internals.
+- low-level service internals,
+- non-relevant service detail during ordinary writing.
 
 ## 11. Inputs
 
@@ -71,7 +76,8 @@ Background checks may track service state, but health monitoring does not create
 
 - health status,
 - degraded-mode cues,
-- blocked or fallback state.
+- blocked or fallback state,
+- bounded labels for affected capability, owner, and fallback posture.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -111,10 +117,14 @@ does not create it.
 ## 20. Relationship To Command Center Surface
 
 The Command Center may host deeper availability or blocker views without becoming mandatory for writing.
+Those views should clarify what capability is affected, whether writing
+itself is blocked, and what fallback remains.
 
 ## 21. GUI Placement Principles
 
 Keep availability state visible when relevant, not as permanent clutter.
+Generic `offline` language must not swallow route refusal, approval
+denial, blocked outbound work, or support-only degradation.
 
 ## 22. Local LLM Role
 
@@ -135,6 +145,8 @@ Degraded state must not bypass explicit-content restrictions.
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Fallback behavior must preserve privacy and protection boundaries.
+Health notices, degraded summaries, and fallback explanations must not
+leak protected source contents.
 
 ## 27. Testing Requirements
 
@@ -144,7 +156,8 @@ Prove offline and degraded states stay accurate and preserve direct writing.
 
 - no false-healthy state,
 - no writing gate through service failure,
-- no unsafe fallback.
+- no unsafe fallback,
+- no support failure presented as manuscript failure.
 
 ## 29. Failure Modes
 
@@ -170,7 +183,6 @@ Intake note:
 - old questions merged: yes, mainly from `## Degraded Mode` and failure-edge-case questions
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 10
-- remaining blocker summary: `0 Fatal`, `4 Critical`, `3 Major`
 - remaining blocker summary: `0 Fatal`, `0 Critical`, `3 Major`
 
 ### Fatal Questions

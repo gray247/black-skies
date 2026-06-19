@@ -69,6 +69,8 @@ Visible behavior should emphasize:
 - direct access to source and explanation when a prominent blocker or
   warning does appear,
 - calm persistence of draft work without ritualized setup steps or manual-save ceremony.
+Ordinary healthy or informational state should remain quiet or hidden
+until requested.
 
 Default Writing Surface context should stay minimal:
 
@@ -136,10 +138,13 @@ These items should appear only when useful to the current writing task.
 Editorial support in the Writing Surface should stay quiet by default:
 
 - requested highlights are allowed,
+- non-blocking findings may appear as local contextual cues rather than
+  as a wall of warnings,
 - prominent blockers may interrupt visually when necessary,
 - selecting a note, signal, or finding should lead to source and
   explanation rather than hidden mutation.
 Temporary highlights, annotations, provenance overlays, package previews, and warnings remain advisory or inspectable support elements rather than manuscript edits, truth, or durable signal state unless the author explicitly saves, converts, or accepts them through the owning system.
+Support failure must not masquerade as manuscript failure.
 
 ## 10. What Is Hidden Until Needed
 
@@ -152,6 +157,8 @@ Hidden until needed:
 - send-package masking or approval prompts,
 - Companion context panes,
 - any high-density inspection views that belong primarily to the Command Center.
+Healthy service state, deep diagnostics, full routing detail, and older
+review history should stay out of the default manuscript view.
 
 Heavier context includes:
 
@@ -328,6 +335,17 @@ Any AI-assisted writing path must keep:
 The Writing Surface may surface guidance, signals, provenance overlays, `Companion` highlights, package previews, or warnings only in ways that preserve writing flow and do not block local direct writing.
 The Writing Surface may surface heavy-action prompts, but it may not execute them silently.
 Actions may later include `Run`, `Review`, `Send`, `Approve`, `Open Command Center`, or `Defer`, but the owning system controls the approval rules.
+The shared attention hierarchy here should be applied roughly as:
+
+- quiet status for healthy save and ordinary healthy support posture,
+- local contextual cue for requested highlights or directly relevant
+  findings,
+- surface-level notice for prolonged pending save, current-task route
+  failure, approval relevant to the current task, or degraded support
+  needed for the requested action,
+- interrupting state for failed or at-risk save, destructive
+  confirmation, recovery-first posture, explicit approval before risky
+  mutation, or a genuine blocking signal.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -352,6 +370,9 @@ Privacy and safety rules:
 - author-controlled manual masking and AI exclusion zones must not prevent local direct writing,
 - masked or excluded ranges must not leak through advisory overlays, previews, or signal summaries.
 - raw excluded text must not leak into `Companion`, `Memory Lab`, outbound package previews, signals, or summaries unless explicitly permitted by the author.
+- blocked or restricted notices should prefer bounded labels, approved
+  summaries, source type, restriction reason, or owner-routed
+  explanation over raw protected content.
 
 ## 27. Testing Requirements
 
@@ -386,6 +407,8 @@ Doctrine anchors for the current tightening pass:
 - temporary highlights or annotations are advisory overlays, not manuscript edits, not truth, and not durable signal state unless explicitly saved, converted, or accepted,
 - manual masking and AI exclusion zones are author-controlled and must not block local direct writing,
 - heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules rather than Writing Surface authority.
+- interrupted writing posture should preserve safe writing whenever
+  possible and distinguish what is blocked from what remains writable.
 
 ## 29. Failure Modes
 

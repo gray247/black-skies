@@ -143,6 +143,8 @@ Current repo-truth clarification:
   `saved` badge
 - label generated summary as summary rather than restored fact
 - never make the writer perform manual-save rituals just to feel safe
+- keep save-risk posture distinct from generic service health, routing
+  refusal, or analyzer noise
 
 ## 8. End-To-End Workflow Cases
 
@@ -190,6 +192,15 @@ Degraded posture:
 - honest that some capability is narrowed
 - does not collapse `degraded`, `blocked`, `offline`, and `failed` into
   one blob
+
+Attention posture for this workflow should be:
+
+- quiet for healthy save and ordinary healthy restoration
+- low-noise contextual or surface notice for pending save only when it
+  lasts long enough to matter
+- prominent for `failed`, `at risk`, or persistence-blocked posture
+- interrupting for close-with-risk, recovery-first entry, or other cases
+  where the author must act to protect work
 
 Failure posture:
 

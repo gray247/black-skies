@@ -91,6 +91,8 @@ truth, retrieval results, files, or organization state.
 ## 8. What Appears First
 
 Companion should appear only when invited, clearly relevant, or explicitly configured later.
+Ordinary informational or advisory state should remain quiet unless the
+author asked for it or explicitly configured a watch condition.
 
 ## 9. What Is Summonable
 
@@ -112,6 +114,10 @@ Rough workload guidance for those capability candidates:
 - `What needs attention?` should prefer known blockers, signals, and prepared findings before offering heavier scans.
 - `Highlight the gap` may be lightweight and current-scope or may require deeper manual or deferred analysis depending on requested scope.
 - `Clean stale signals` should prepare suggestions and never silently clean durable signal state.
+Companion should distinguish informational, advisory, contextual,
+review-item, signal-level, blocking, approval-required, failed,
+at-risk, unavailable, degraded, and recovery-first posture when
+explaining product state.
 
 ## 10. What Is Hidden Until Needed
 
@@ -205,6 +211,9 @@ not replace the current writing location.
 It may help the author return to writing after support inspection, but
 it must preserve the distinction between opening support context,
 changing focus, and changing the active writing location.
+It may interrupt only for approved interruption categories or explicit
+author-defined watch conditions, not for ordinary findings or stale
+analysis.
 Companion is never required to access notes, signals, critique results,
 continuity findings, rewrite review, or source evidence.
 
@@ -260,6 +269,9 @@ Companion may explain or present prepared findings from scheduled, cron, idle, o
 No scan should run while the author is actively typing unless it is cheap, local, and non-disruptive.
 No full-project scan should run on every save.
 No paid or outbound scheduled work should run without approval.
+Route failure, spend block, package refusal, or protection conflict
+should become prominent only when relevant to a requested action or
+watch condition.
 Direct writing remains available even when scans or jobs are blocked, deferred, refused, or unavailable.
 
 Companion should explicitly tell the author when a request belongs to another system rather than pretending to absorb that work itself.
@@ -280,6 +292,8 @@ Companion system knowledge and app navigation guidance is operational help, not 
 Protected, excluded, or unavailable content must degrade to safe
 absence, summary, or owner-routed explanation rather than leakage
 through helpful-sounding narration.
+Companion may summarize urgency and source, but it may not convert
+ordinary findings into emergencies or durable signal state silently.
 
 ## 27. Testing Requirements
 
@@ -311,6 +325,9 @@ Governance rules:
 - `Companion` and `Memory Lab` must prefer the cheapest safe source of truth or context first rather than jumping immediately to deeper scans,
 - Companion may present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduled service and must not silently apply results,
 - Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
+- Companion must not escalate ordinary analyzer findings, stale
+  analysis, graph changes, or planning gaps into interruptive treatment
+  by default,
 - Companion must not steal keyboard focus or silently move the author
   across primary surfaces,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.

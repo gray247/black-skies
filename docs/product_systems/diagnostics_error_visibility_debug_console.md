@@ -38,6 +38,8 @@ The writer and operator need actionable failure visibility without losing writin
 ## 6. User-Facing Behavior
 
 Visible behavior should scale from simple actionable messages to deeper diagnostic views on demand.
+Routine diagnostics detail should remain summonable rather than always
+visible.
 
 ## 7. Hidden/Background Behavior
 
@@ -48,12 +50,14 @@ Background logging may exist, but it must stay bounded and privacy-aware.
 - clear actionable error state,
 - safe summary,
 - next recovery step when known.
+Ordinary healthy operation should not surface diagnostics chrome.
 
 ## 9. What Is Summonable
 
 - deeper diagnostics,
 - debug console,
-- evidence details.
+- evidence details,
+- owner-routed explanation when a deeper failure witness exists.
 
 ## 10. What Is Hidden Until Needed
 
@@ -114,7 +118,10 @@ The Command Center may expose support-level error visibility when appropriate.
 
 ## 21. GUI Placement Principles
 
-Keep routine error visibility actionable and bounded; reserve dense detail for summonable views.
+Keep routine error visibility actionable and bounded; reserve dense
+detail for summonable views.
+Diagnostics should support the shared attention hierarchy rather than
+inventing a separate warning system for ordinary operation.
 
 ## 22. Local LLM Role
 
@@ -135,6 +142,9 @@ Logs and evidence must respect protected-content rules.
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Diagnostics must avoid leaking hidden, masked, or excluded content casually.
+Where a message must stay bounded, diagnostics should prefer safe
+summary, source type, restriction reason, and next safe step over raw
+evidence.
 
 ## 27. Testing Requirements
 
@@ -144,7 +154,8 @@ Prove errors remain visible, actionable, and privacy-aware.
 
 - no hidden failure state,
 - no casual protected-data exposure,
-- no debug-clutter takeover.
+- no debug-clutter takeover,
+- no everyday diagnostics interruption for ordinary informational state.
 
 ## 29. Failure Modes
 
@@ -169,7 +180,6 @@ Intake note:
 - old questions merged: yes, but the raw source was thin and partially ambiguous; most useful intake came from degraded-mode and old-diagnostics questions
 - stale placeholder questions removed or superseded: yes
 - active question count after merge: 8
-- remaining blocker summary: `1 Fatal`, `3 Critical`, `2 Major`
 - remaining blocker summary: `0 Fatal`, `0 Critical`, `2 Major`
 
 ### Fatal Questions
@@ -189,7 +199,6 @@ Intake note:
 
 ### Answered / Superseded Questions
 
-- The Command Center must not become a junk drawer by default.
 - The Command Center must not become a junk drawer by default.
 - Diagnostics should not crowd the Writing Surface by default.
 - Diagnostics and error visibility are witnesses, not proof.

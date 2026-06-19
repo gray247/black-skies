@@ -28,6 +28,8 @@ Give the writer structured warnings, questions, and cues without turning signals
 
 - defines shared signal vocabulary,
 - owns durable signal state only,
+- owns durable attention posture such as routed concern, urgency,
+  blocking state, snooze, suppression, and triage state,
 - allows one signal to appear across multiple surfaces,
 - preserves provenance, confidence, and severity,
 - allows a signal to point to a related note when durable attention and
@@ -42,32 +44,42 @@ Give the writer structured warnings, questions, and cues without turning signals
 - it does not force action,
 - it does not silently resolve story problems,
 - it does not exist only in one surface,
+- it does not become a universal notification database for every status
+  event in the product,
 - it does not let signal candidates silently become durable signals.
 
 ## 6. User-Facing Behavior
 
-- subtle indicators,
+- signal-level attention when durable attention is warranted,
 - inspectable signal detail,
-- filters, muting, and later resolution controls.
+- filters, muting, and later resolution controls,
+- blocking posture only when the blocked work, the owner, and the
+  required action are clear.
 
 ## 7. Hidden/Background Behavior
 
 - background collection of signal candidates,
 - deduping,
 - severity routing,
-- expiration or staleness handling later.
+- expiration or staleness handling later,
+- attention routing into surfaces without changing source ownership.
 
 ## 8. What Appears First
 
-Low-friction signals with clear provenance and non-authoritative framing.
+Low-friction signals with clear provenance and non-authoritative
+framing.
+Informational or contextual findings should remain candidate-only,
+surface-local, or review-only until durable attention is justified.
 
 ## 9. What Is Summonable
 
-Expanded signal detail, evidence, and grouped views.
+Expanded signal detail, evidence, grouped views, and linked source or
+note context.
 
 ## 10. What Is Hidden Until Needed
 
-Heavy batch signal generation, advanced analytics, and historical diff views.
+Heavy batch signal generation, advanced analytics, historical diff
+views, and protected detail beyond the current viewer's allowed scope.
 
 ## 11. Inputs
 
@@ -85,12 +97,17 @@ Trusted direct durable-signal privileges are later-only after narrower contracts
 - normalized signal candidates and durable signal records,
 - provenance and source references,
 - severity and confidence labels,
+- durable attention posture such as `informational for review`,
+  `attention`, `urgent`, `blocking`, `snoozed`, or `suppressed` later,
 - display-safe summaries later,
 - author-action or accepted-workflow state-change candidates later,
 - mute, resolve, or stale-state candidates later.
 
 Signals remain attention objects.
 They are not truth, not manuscript mutation, and not source authority.
+Signal severity may shape durable attention posture, but it must not
+silently rewrite the source system's underlying finding severity,
+failure class, or truth status.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -109,7 +126,11 @@ They are not truth, not manuscript mutation, and not source authority.
 - explicitly retained durable advisory history later when it remains relevant,
 - never accepted story truth.
 
-Durable signal mutation belongs to `Signal Architecture` rather than to producer systems or consumer surfaces.
+Durable signal mutation belongs to `Signal Architecture` rather than to
+producer systems or consumer surfaces.
+Only the author or an accepted owner-governed workflow may durably
+create, resolve, dismiss, snooze, suppress, convert, or reopen a
+signal.
 
 ## 15. What Remains Temporary
 
@@ -138,18 +159,29 @@ Signals may surface on prose or scene projections without making those projectio
 
 ## 19. Relationship To Writing Surface
 
-Signals may appear in the Writing Surface, but writing stays primary and non-gated.
+Signals may appear in the Writing Surface, but writing stays primary and
+non-gated.
+Only blocking signals, required approvals, destructive confirmations,
+or comparable owner-governed interruption classes should interrupt the
+current writing flow.
 
 ## 20. Relationship To Command Center Surface
 
-The Command Center is a natural signal inspection surface, but it must not become a signal junk drawer.
+The Command Center is a natural signal inspection surface, but it must
+not become a signal junk drawer.
+Signal-heavy review belongs there more naturally than in the default
+Writing Surface view, but review presence does not change signal
+ownership.
 
 ## 21. GUI Placement Principles
 
 - subtle first,
 - inspect on demand,
 - consistent color and visibility rules,
-- no full-screen alert culture by default.
+- no full-screen alert culture by default,
+- durable signal attention should sit above ordinary review items and
+  below owner-governed destructive or recovery-first interruption unless
+  the signal is itself the owner-governed blocker.
 
 ## 22. Local LLM Role
 
@@ -173,6 +205,9 @@ Signal packaging must preserve provenance while respecting masked or summarized 
 
 Signals must not reveal masked or AI-excluded raw content through summaries or previews.
 Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded source material must not leak through signal summaries, grouped views, or recovery surfaces.
+Where a signal references protected source detail, it should fall back
+to bounded labels, approved summaries, source type, restriction reason,
+or owner-routed explanation.
 
 ## 27. Testing Requirements
 
@@ -198,6 +233,9 @@ Governance rules:
 - signals are durable attention objects for urgency, blocking,
   suppression, snooze, routing, or triage rather than the durable home
   for every concern,
+- informational findings do not become durable signals automatically,
+- recurrence or apparent reappearance does not silently reopen a closed
+  or resolved signal,
 - resolve, dismiss, suppress, convert, or expire actions mutate signal state only and do not mutate source truth.
 
 Minimum rough lifecycle vocabulary for signal handoff and durable signal state, inheriting the shared output vocabulary wherever possible:
@@ -225,12 +263,17 @@ Minimum rough signal provenance and handoff fields:
 - `mask`, `AI exclusion`, or `package-view` relationship
 - `deleted`, `forgotten`, or `discarded` status where relevant
 - `citation` or source-trace requirement
+- blocked action and blocked owner when the signal is blocking
+- fallback availability when the signal blocks requested work
 
 Temporary `Companion` highlights or annotations are advisory overlays.
 They are not manuscript edits, not author-owned truth, and not durable signal state.
 They may become signal candidates only through explicit author action or an accepted workflow.
 Durable signal state remains owned by `Signal Architecture`.
 Raw excluded text must not leak through highlight summaries, signal summaries, or previews.
+A blocking signal must identify what is blocked, which owner reports the
+block, whether direct writing is blocked or only a support action is
+blocked, and what fallback or review path remains if any.
 
 Risks:
 

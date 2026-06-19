@@ -44,6 +44,8 @@ Visible behavior should emphasize review, choice, and explicit resolution.
 Notes are the durable home for preserved concerns, comments, and
 revision items that the author wants to keep even when no signal is
 needed.
+Note existence alone does not determine urgency, interruption level, or
+surface prominence.
 
 ## 7. Hidden/Background Behavior
 
@@ -53,7 +55,7 @@ Any AI-origin note material remains candidate-only until explicitly accepted int
 ## 8. What Appears First
 
 - open notes,
-- current revision blockers,
+- current revision concerns,
 - clear link back to prose.
 
 ## 9. What Is Summonable
@@ -61,7 +63,8 @@ Any AI-origin note material remains candidate-only until explicitly accepted int
 - note history,
 - source evidence,
 - candidate resolutions,
-- signal detail.
+- signal detail when linked,
+- deeper review in Command Center when the note does not belong inline.
 
 ## 10. What Is Hidden Until Needed
 
@@ -90,6 +93,8 @@ Any AI-origin note material remains candidate-only until explicitly accepted int
 
 Notes remain advisory or workflow artifacts.
 They are not truth and not manuscript mutation authority.
+They own durable editorial concern state, not the product's durable
+attention hierarchy.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -102,7 +107,9 @@ They are not truth and not manuscript mutation authority.
 - durable note and revision-note state,
 - status labels,
 - source labels,
-- author resolution history.
+- author resolution history,
+- linked signal references where a separate durable attention object is
+  useful.
 
 ## 15. What Remains Temporary
 
@@ -127,11 +134,17 @@ Projection may help review affected material without replacing accepted text.
 
 ## 19. Relationship To Writing Surface
 
-The Writing Surface may show bounded current-text revision actions, not bulk review control.
+The Writing Surface may show bounded current-text revision actions, not
+bulk review control.
+Ordinary note presence should remain contextual or review-oriented
+rather than interruptive by default.
 
 ## 20. Relationship To Command Center Surface
 
-Heavier review, acceptance, cleanup, and conflict workflows belong in the Command Center.
+Heavier review, acceptance, cleanup, and conflict workflows belong in
+the Command Center.
+Command Center review of notes does not make Command Center their owner
+or convert notes into signal state automatically.
 
 ## 21. GUI Placement Principles
 
@@ -174,6 +187,12 @@ Governance rules:
 - no silent truth mutation,
 - note resolution does not mutate manuscript truth automatically,
 - note resolution does not resolve durable signals unless `Signal Architecture` does so through its own owner path,
+- notes may exist without any related signal,
+- signals may reference notes when separate durable attention is useful,
+- analyzer claims such as `appears resolved` remain advisory until the
+  author or owning workflow resolves the note,
+- recurrence remains a linked candidate until explicitly turned into new
+  note or signal state,
 - critique, continuity, theme, relationship, emotion, `Companion`, and other advisory outputs may become note candidates only through owner-governed conversion,
 - a note does not require a signal unless elevated attention, blocking, or routing value is useful,
 - midpoint scope is author-created and imported-editor notes first,
@@ -196,12 +215,16 @@ Durable notes may conceptually carry editorial workflow posture such as
 `needs review`, `revision intended`, `revision underway`, `ready for
 re-evaluation`, and `resolved`, but those meanings should not be treated
 as a separate task-system contract.
+Presentation prominence should depend on the shared attention posture
+and current context, not merely on the fact that a durable note exists.
 
 Anchor drift remains a condition or repair problem, not a separate canonical shared lifecycle state.
 
 ## 29. Failure Modes
 
 If revision support fails, the writer can still edit directly.
+Broken analyzer refresh, stale evidence, or apparent improvement must
+not silently close or reopen durable notes.
 
 ## 30. v1 Boundary
 
