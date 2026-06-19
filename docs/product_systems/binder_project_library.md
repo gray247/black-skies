@@ -57,6 +57,7 @@ Background indexing or sort preparation may exist, but it does not create truth.
 
 - current project contents,
 - stable system areas such as `Story`, `Planning`, `World`, `Editorial`, `Research and Assets`, `Imports / Staging`, and `Author Collections` as conceptual navigation lanes,
+- card references that may appear in more than one collection by reference without changing card ownership,
 - clear navigation,
 - current focus location when relevant.
 

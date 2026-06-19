@@ -82,6 +82,7 @@ Background analysis may generate signals or suggestions, but remains advisory.
 ## 14. What Gets Stored
 
 - accepted timeline references when author-owned,
+- timeline analysis may compare time-bounded character or lore facts without owning them,
 - advisory analysis state,
 - signal references.
 

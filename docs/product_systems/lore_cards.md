@@ -10,13 +10,13 @@
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Outline`, `Emotion Graph`
 - Runtime authority: `future`
-- Authority level: `advisory`
+- Authority level: `accepted structured lore truth plus advisory support`
 - User-facing: `yes`
 - Hidden/background: `partial`
 
 ## 2. Purpose
 
-Define Lore Cards as an optional world-support system that organizes accepted lore, candidate lore, and advisory world inferences without becoming a hidden truth owner or shadow canon.
+Define Lore Cards as an optional world-support system that owns accepted structured world truth on a fact-by-fact basis while also organizing candidate lore and advisory world inferences without becoming a hidden prose owner or shadow canon.
 
 ## 3. User Problem Solved
 
@@ -27,6 +27,7 @@ The writer needs a bounded way to inspect world rules, places, objects, organiza
 Lore Cards may:
 
 - organize world rules, places, objects, organizations, supernatural rules, history, and setting facts,
+- own accepted structured lore facts once the author explicitly accepts them,
 - show accepted lore,
 - show candidate or advisory lore when clearly labeled,
 - surface linked continuity or signal context,
@@ -38,7 +39,10 @@ Lore Cards may:
 Lore Cards do not:
 
 - replace accepted narrative assertions or explicit author decisions as lore authority,
+- own manuscript prose or authoritative manuscript order,
 - silently create, alter, delete, or canonize lore truth,
+- let manuscript wording silently create, overwrite, or delete accepted lore facts,
+- silently rewrite manuscript prose because lore truth changed,
 - turn world inference into accepted lore automatically,
 - let `Memory Lab`, `Companion`, `Continuity`, or signals become hidden lore owners,
 - require card creation before writing or world discovery can happen,
@@ -59,6 +63,7 @@ Visible behavior should emphasize:
 Background behavior may later include:
 
 - candidate lore extraction,
+- manuscript-derived lore suggestions that remain temporary until the author accepts, saves, or dismisses them,
 - continuity-linked world warnings,
 - grouped signal summaries,
 - Companion explanation,
@@ -136,7 +141,8 @@ Lore Card outputs may include:
 - bounded signal summaries,
 - cross-links into narrative, continuity, and support surfaces.
 
-These outputs are support views, not author-owned truth by themselves.
+Accepted lore fact views render owner-governed structured truth.
+Candidate, planned, disputed, stale, superseded, and other advisory views remain support outputs until explicitly accepted through the lore-truth owner path.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -158,6 +164,7 @@ Eventually stored:
 
 - lore identity,
 - item state labels for accepted author-owned fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- planning or review posture where needed for facts such as `planned`, `disputed`, `stale`, or `superseded`,
 - source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted fact references,
 - candidate fact references,
@@ -165,13 +172,15 @@ Eventually stored:
 - linked relationship references,
 - provenance,
 - author action history where needed,
-- visibility state for support views.
+- visibility state for support views,
+- effective story-period or time-bounded fact context where needed.
 
 ## 15. What Remains Temporary
 
 Temporary or non-durable:
 
 - inferred lore suggestions,
+- manuscript-derived temporary suggestions,
 - temporary lore candidates,
 - unresolved signals,
 - advisory summaries,
@@ -181,6 +190,7 @@ Temporary or non-durable:
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Lore Cards may display lore-related truth that comes from accepted assertions or other explicit author decisions.
+One accepted assertion may support several lore facts, and one accepted lore fact may be supported by several assertions.
 
 They do not replace `Narrative Insertion / Narrative Assertion` as the truth foundation.
 
@@ -269,6 +279,8 @@ If Lore Cards later participate in model-facing packaging, package handling must
 Privacy and safety rules must ensure:
 
 - hidden or deleted lore material does not leak into recall, summaries, or outbound work,
+- revelation posture such as unrevealed, partly revealed, revealed, false belief, or disputed knowledge may differ from protection posture such as private, protected, masked, or AI-excluded,
+- unrevealed lore truth may still be accepted structured truth without appearing in manuscript prose yet,
 - masked or excluded material stays protected,
 - advisory systems do not silently retain protected raw material as lore truth,
 - deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
@@ -288,10 +300,18 @@ Minimum proof set:
 
 Governance rules:
 
-- only explicit author acceptance can turn a lore candidate into author-owned truth,
-- Lore Cards may display truth but do not own it,
+- `Lore Cards` own accepted structured world truth on a fact-by-fact basis,
+- only explicit author acceptance can turn a lore candidate, manuscript-derived suggestion, Memory Lab recall, Companion suggestion, continuity finding, import, or AI inference into accepted lore truth,
+- creating or saving a card does not blanket-accept every fact on it,
+- selected facts may be accepted together, but that remains a reviewed fact-level action,
+- card-level lifecycle concerns world-entity identity or container state, while fact-level lifecycle concerns accepted, planned, candidate, advisory, disputed, stale, or superseded posture,
+- a retired card may still contain historically true accepted facts,
+- deleting a card must not delete manuscript prose,
+- removing one fact must not delete the card,
 - no shadow canon,
-- no silent truth mutation.
+- no silent truth mutation,
+- no silent prose overwrite from card changes,
+- duplicate-card merge or split requires explicit author review and must not silently flatten conflicting facts.
 
 Key risks:
 
@@ -307,6 +327,8 @@ Key risks:
 Expected failure or degraded states:
 
 - duplicated or conflicting lore facts,
+- stale accepted facts after manuscript revision,
+- intentional divergence that needs explanation rather than auto-repair,
 - stale candidate material,
 - mismatched accepted versus advisory labels,
 - card clutter,
@@ -325,6 +347,8 @@ Minimum approved first version:
 
 - lore identity,
 - accepted fact display,
+- planned, candidate, and advisory fact display with accepted truth still visually primary,
+- reviewed fact-level acceptance rather than blanket whole-card approval,
 - candidate or advisory fact display,
 - clear accepted-versus-candidate distinction,
 - bounded links to narrative, continuity, and support systems,
@@ -354,20 +378,21 @@ Future-only items:
 
 ### Fatal Questions
 
-- What exact authority model prevents Lore Cards from drifting into a hidden truth store separate from accepted assertions and explicit author decisions?
+- None currently.
 
 ### Critical Questions
 
-- What exact accepted lore versus candidate lore versus advisory inference state model is required?
-- What exact item-state model is required for accepted truth, candidate, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
-- Who may create, update, hide, delete, accept, or reject lore facts?
-- How must deleted, hidden, masked, or excluded material be protected from card views, recall, and summaries?
+- What exact default field grouping and review contract should govern accepted, planned, candidate, disputed, stale, and superseded fact posture without turning those meanings into noisy runtime enums?
+- Who may create, update, hide, delete, accept, reject, merge, split, retire, or restore lore facts or cards through explicit owner-governed review?
+- How must deleted, hidden, masked, unrevealed, or AI-excluded material be protected from card views, recall, retrieval, and summaries?
+- What exact time-bounded fact contract should govern changing world rules, locations, organizations, memberships, possessions, history states, and other story-period-sensitive lore truth?
 
 ### Major Questions
 
 - How should relationship, continuity, and world-rule links appear without cluttering the default card?
 - How should signals appear on Lore Cards without turning them into a signal dashboard?
 - How should Outline and Story Unit links appear without making structure the truth owner?
+- How should duplicate-card merge review preserve identity, aliases, accepted facts, planned facts, provenance, linked assertions, notes, signals, memory references, and historical identity without silently combining conflicts?
 
 ### Minor Questions
 
@@ -378,8 +403,12 @@ Future-only items:
 
 - Lore Cards may organize world rules, places, objects, organizations, supernatural rules, history, and setting facts.
 - Lore Cards may display accepted lore and advisory or candidate lore, but they must clearly distinguish them.
+- `Lore Cards` own accepted structured world truth once facts are explicitly author-accepted.
 - Only explicit author acceptance can turn lore candidates into author-owned truth.
+- Card creation or save does not automatically accept every field.
+- Manuscript-derived suggestions remain temporary until explicitly accepted, saved as planned or candidate material, or dismissed.
 - Lore Cards must not silently create, alter, or canonize lore truth.
+- Lore truth does not silently rewrite manuscript prose, and manuscript prose does not silently rewrite accepted lore truth.
 - Lore Cards default view should show accepted lore or rules only, plus tiny candidate or signal indicators.
 - Candidate lore, advisory inference, `Memory Lab` recall, `Companion` suggestions, and signal details must not crowd the default card view.
 - `Writing Surface` gets small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts`.

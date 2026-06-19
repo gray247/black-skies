@@ -214,10 +214,14 @@ Current roadmap-sufficient work:
   tuning.
 - `Character Cards`, `Lore Cards`, `Theme System`, `Relationship Map`,
   and `Emotion Graph`
-  Minimum still needed: keep accepted truth separate from advisory or
-  inferred material and keep consumer boundaries stable.
+  Minimum still needed: keep `Character Cards` and `Lore Cards` as the
+  owners of accepted structured truth on a fact-by-fact basis, keep
+  accepted truth separate from planned, candidate, or advisory
+  material, and keep continuity, memory, map/graph, and consumer
+  boundaries stable.
   Can remain intentionally unfinished: taxonomies, visualization depth,
-  motif-linking detail, and full UI richness.
+  motif-linking detail, merge/split mechanics, time-state display, and
+  full UI richness.
 - `Import / Export`, provenance, routing, package construction,
   explicit-content, and related AI-governance lanes
   Minimum still needed: keep human document interchange distinct from

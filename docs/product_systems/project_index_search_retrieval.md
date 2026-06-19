@@ -68,6 +68,7 @@ Background indexing may exist, but retrieved results remain references, not trut
 - deep provenance,
 - archive-heavy results,
 - AI inference layers,
+- retired-card and archived-card results unless explicitly requested,
 - deleted or archived material,
 - snapshots and recovery history,
 - unavailable external-file contents,
@@ -189,6 +190,8 @@ Prove retrieval respects source, visibility, and protection boundaries.
 - no hidden authority drift,
 - default unified search covers current local project artifacts where permitted, not snapshots, deleted history, temporary analyzer history, or unclassified staging by default,
 - search snippets, previews, and labels must preserve source type and owning system,
+- retired cards should be excluded from ordinary current search by default and available through explicit filtering,
+- protected, hidden, unrevealed, masked, or AI-excluded card material must not leak through snippets, labels, or previews,
 - degraded or stale indexing must fail honestly rather than pretending completeness.
 
 ## 29. Failure Modes

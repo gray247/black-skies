@@ -69,6 +69,9 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 - `Continuity` inspects narrative foundations and projections, then emits advisory continuity findings.
 - Accepted continuity truth returns to author-owned foundations, notes, lore, character facts, or other explicit author decisions rather than a shadow canon.
 - `Signal Architecture` normalizes and routes signal-shaped outputs across surfaces.
+- `Character Cards` own accepted structured character truth on a fact-by-fact basis, while manuscript prose and accepted assertions remain separate truth-bearing foundations and evidence sources.
+- `Lore Cards` own accepted structured world truth on a fact-by-fact basis, while manuscript prose and accepted assertions remain separate truth-bearing foundations and evidence sources.
+- Manuscript wording does not silently create, overwrite, or delete accepted card truth, and card truth does not silently rewrite manuscript prose.
 - `Memory Lab` may consume narrative material and signal-bearing findings for deeper forensic or investigative work, but it should retain only meaningful information that serves continuity, memory, structure, investigation, or author decision support.
 - `Companion` may present, explain, question, or summarize outputs from `Memory Lab`, `Continuity`, and other systems, and may later run safe local or support actions if settings allow.
 - `Critique / Evaluation` is a capability layer that evaluates evidence from other systems and produces advisory findings, but it is not the same thing as `Companion` or any single UI surface.
@@ -185,6 +188,7 @@ Important boundary:
 ## Continuity / Signal Relationship
 
 - `Continuity` is a major producer of advisory continuity findings.
+- `Continuity` may compare manuscript evidence against accepted character or lore truth and surface contradiction candidates, stale-fact candidates, note candidates, or signal candidates, but it must not silently update cards or prose.
 - `Signal Architecture` defines how those findings can become normalized signals for multiple consumers.
 - Accepted continuity truth belongs in author-owned story foundations or other explicit author decisions, not in Continuity or Signal as shadow canon.
 - `Continuity` does not own truth.

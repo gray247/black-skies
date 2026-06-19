@@ -85,6 +85,7 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 
 - continuity findings,
 - contradiction candidates,
+- stale-fact candidates for structured character or lore truth,
 - unresolved-causality warnings,
 - evidence bundles,
 - continuity-derived signal candidates for `Signal Architecture`,
@@ -207,6 +208,7 @@ Governance rules:
 - no inferred finding becomes authored truth without user action,
 - durable advisory history must be purposeful and relevant rather than stored just because data exists,
 - continuity outputs are findings, warnings, evidence bundles, signal candidates, note candidates, memory candidates, and truth candidates only through owning-system conversion,
+- intentional divergence such as unreliable narration, false belief, hidden truth, unrevealed truth, or deliberate ambiguity may remain valid after review and must not be collapsed into automatic error,
 - continuity does not own Memory Lab, Signal Architecture, Feedback Notes, or Narrative Insertion / Assertion,
 - continuity findings are advisory until accepted through an owner path.
 

@@ -10,13 +10,13 @@
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Emotion Graph`, `Outline`
 - Runtime authority: `future`
-- Authority level: `advisory`
+- Authority level: `accepted structured character truth plus advisory support`
 - User-facing: `yes`
 - Hidden/background: `partial`
 
 ## 2. Purpose
 
-Define Character Cards as an optional character-support system that organizes author-owned character truth, candidate facts, and advisory material without becoming a hidden truth owner or shadow canon.
+Define Character Cards as an optional character-support system that owns accepted structured character truth on a fact-by-fact basis while also organizing candidate facts and advisory material without becoming a hidden prose owner or shadow canon.
 
 ## 3. User Problem Solved
 
@@ -27,6 +27,7 @@ The writer needs a stable way to inspect, compare, and update character-related 
 Character Cards may:
 
 - organize character facts, traits, history, goals, relationships, status, and notes,
+- own accepted structured character facts once the author explicitly accepts them,
 - show accepted author-owned character truth,
 - show candidate or advisory character material when clearly labeled,
 - surface linked continuity or signal context,
@@ -38,7 +39,10 @@ Character Cards may:
 Character Cards do not:
 
 - replace `Narrative Insertion / Narrative Assertion` as the source of story truth,
+- own manuscript prose or authoritative manuscript order,
 - silently create, alter, delete, or canonize character facts,
+- let manuscript wording silently create, overwrite, or delete accepted character facts,
+- silently rewrite manuscript prose because card truth changed,
 - turn inferred analysis into accepted character truth automatically,
 - let `Memory Lab`, `Companion`, `Continuity`, or signals become hidden fact owners,
 - require card setup before writing,
@@ -59,6 +63,7 @@ Visible behavior should emphasize:
 Background behavior may later include:
 
 - inferred candidate extraction from accepted assertions or manuscript evidence,
+- manuscript-derived fact suggestions that remain temporary until the author accepts, saves, or dismisses them,
 - continuity-linked character warnings,
 - signal summaries,
 - Companion explanations,
@@ -137,7 +142,8 @@ Character Card outputs may include:
 - bounded signal summaries,
 - cross-links into narrative, continuity, structure, or support surfaces.
 
-These outputs are support views, not author-owned truth by themselves.
+Accepted character fact views render owner-governed structured truth.
+Candidate, planned, disputed, stale, superseded, and other advisory views remain support outputs until explicitly accepted through the character-truth owner path.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -160,6 +166,7 @@ Eventually stored:
 
 - character identity,
 - item state labels for accepted author-owned fact, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item,
+- planning or review posture where needed for facts such as `planned`, `disputed`, `stale`, or `superseded`,
 - source labels such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, and masked summary,
 - accepted fact references,
 - candidate fact references,
@@ -168,13 +175,15 @@ Eventually stored:
 - linked emotion references,
 - provenance,
 - author action history where needed,
-- visibility state for support views.
+- visibility state for support views,
+- effective story-period or time-bounded fact context where needed.
 
 ## 15. What Remains Temporary
 
 Temporary or non-durable:
 
 - inferred character suggestions,
+- manuscript-derived temporary suggestions,
 - temporary fact candidates,
 - unresolved signals,
 - advisory summaries,
@@ -184,6 +193,7 @@ Temporary or non-durable:
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Character Cards may display character-related truth that comes from accepted assertions or other explicit author decisions.
+One accepted assertion may support several character facts, and one accepted character fact may be supported by several assertions.
 
 They do not replace `Narrative Insertion / Narrative Assertion` as the truth foundation.
 
@@ -272,6 +282,8 @@ If Character Cards later participate in model-facing packaging, package handling
 Privacy and safety rules must ensure:
 
 - hidden or deleted character material does not leak into recall, summaries, or outbound work,
+- revelation posture such as unrevealed, partly revealed, revealed, false belief, or disputed knowledge may differ from protection posture such as private, protected, masked, or AI-excluded,
+- unrevealed character truth may still be accepted structured truth without appearing in manuscript prose yet,
 - masked or excluded material stays protected,
 - advisory systems do not silently retain protected raw material as character truth,
 - deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
@@ -291,10 +303,18 @@ Minimum proof set:
 
 Governance rules:
 
-- only explicit author acceptance can turn a character candidate into author-owned truth,
-- Character Cards may display truth but do not own it,
+- `Character Cards` own accepted structured character truth on a fact-by-fact basis,
+- only explicit author acceptance can turn a character candidate, manuscript-derived suggestion, Memory Lab recall, Companion suggestion, continuity finding, import, or AI inference into accepted character truth,
+- creating or saving a card does not blanket-accept every fact on it,
+- selected facts may be accepted together, but that remains a reviewed fact-level action,
+- card-level lifecycle concerns character identity or container state, while fact-level lifecycle concerns accepted, planned, candidate, advisory, disputed, stale, or superseded posture,
+- a retired card may still contain historically true accepted facts,
+- deleting a card must not delete manuscript prose,
+- removing one fact must not delete the card,
 - no shadow canon,
-- no silent truth mutation.
+- no silent truth mutation,
+- no silent prose overwrite from card changes,
+- duplicate-card merge or split requires explicit author review and must not silently flatten conflicting facts.
 
 Key risks:
 
@@ -310,6 +330,8 @@ Key risks:
 Expected failure or degraded states:
 
 - duplicated or conflicting character facts,
+- stale accepted facts after manuscript revision,
+- intentional divergence that needs explanation rather than auto-repair,
 - stale candidate material,
 - mismatched accepted versus advisory labels,
 - card clutter,
@@ -328,6 +350,8 @@ Minimum approved first version:
 
 - character identity,
 - accepted fact display,
+- planned, candidate, and advisory fact display with accepted truth still visually primary,
+- reviewed fact-level acceptance rather than blanket whole-card approval,
 - candidate or advisory fact display,
 - clear accepted-versus-candidate distinction,
 - bounded links to narrative, continuity, and support systems,
@@ -357,20 +381,21 @@ Future-only items:
 
 ### Fatal Questions
 
-- What exact authority model prevents Character Cards from drifting into a hidden truth store separate from accepted assertions and explicit author decisions?
+- None currently.
 
 ### Critical Questions
 
-- What exact accepted fact versus candidate fact versus advisory inference state model is required?
-- What exact item-state model is required for accepted truth, candidate, advisory inference, signal-linked concern, recall or reference, suggestion, hidden or suppressed, deleted or discarded, and masked or excluded-source states?
-- Who may create, update, hide, delete, accept, or reject character facts?
-- How must deleted, hidden, masked, or excluded material be protected from card views, recall, and summaries?
+- What exact default field grouping and review contract should govern accepted, planned, candidate, disputed, stale, and superseded fact posture without turning those meanings into noisy runtime enums?
+- Who may create, update, hide, delete, accept, reject, merge, split, retire, or restore character facts or cards through explicit owner-governed review?
+- How must deleted, hidden, masked, unrevealed, or AI-excluded material be protected from card views, recall, retrieval, and summaries?
+- What exact time-bounded fact contract should govern changes in age, condition, aliases, relationships, possessions, status, and other story-period-sensitive character truth?
 
 ### Major Questions
 
 - How should relationship, emotion, and continuity links appear without cluttering the default card?
 - How should signals appear on Character Cards without turning them into a signal dashboard?
 - How should Outline and Story Unit links appear without making structure the truth owner?
+- How should duplicate-card merge review preserve identity, aliases, accepted facts, planned facts, provenance, linked assertions, notes, signals, memory references, and historical identity without silently combining conflicts?
 
 ### Minor Questions
 
@@ -381,8 +406,12 @@ Future-only items:
 
 - Character Cards may organize facts, traits, history, goals, relationships, status, and notes.
 - Character Cards may display accepted author-owned facts and advisory or candidate material, but they must clearly distinguish them.
+- `Character Cards` own accepted structured character truth once facts are explicitly author-accepted.
 - Only explicit author acceptance can turn a character candidate or fact into author-owned truth.
+- Card creation or save does not automatically accept every field.
+- Manuscript-derived suggestions remain temporary until explicitly accepted, saved as planned or candidate material, or dismissed.
 - Character Cards must not silently create, alter, or canonize character truth.
+- Character truth does not silently rewrite manuscript prose, and manuscript prose does not silently rewrite accepted character truth.
 - Character Cards default view should show accepted facts only, plus tiny candidate or signal indicators.
 - Candidate facts, advisory inference, `Memory Lab` recall, `Companion` suggestions, and signal details must not crowd the default card view.
 - `Writing Surface` gets small current-text actions such as `show card`, `attach note`, `propose candidate`, and `view related facts`.

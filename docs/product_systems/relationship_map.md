@@ -289,6 +289,7 @@ Minimum proof set:
 Governance rules:
 
 - durable relationship facts must come from accepted truth or explicit author acceptance,
+- accepted relationship changes may reference accepted character or lore truth, but the map still does not become the owner of those character or lore facts,
 - Relationship Map may display or project relationships but does not own truth,
 - no shadow canon,
 - no silent truth mutation.
