@@ -75,6 +75,8 @@ surface-local, or review-only until durable attention is justified.
 
 Expanded signal detail, evidence, grouped views, and linked source or
 note context.
+Review collections may group signals, but grouped display does not
+change signal ownership.
 
 ## 10. What Is Hidden Until Needed
 
@@ -250,6 +252,15 @@ Minimum rough lifecycle vocabulary for signal handoff and durable signal state, 
 - `resolved`: a signal concern whose handling loop is closed for triage purposes, even though accepted story truth still lives elsewhere.
 - `superseded`: a prior signal instance displaced by fresher evidence, later analysis, or a newer signal record.
 
+Recurrence posture:
+
+- a later related finding may create a possible recurrence candidate
+  linked to the earlier signal
+- possible recurrence does not equal reopened signal state
+- reopening a signal requires explicit author or accepted
+  owner-governed action through `Signal Architecture`
+- a fresh signal may be created instead of reopening the earlier one
+
 `stale` remains a condition flag rather than a separate canonical shared lifecycle state.
 These are rough product-definition terms, not a final runtime schema or storage contract.
 
@@ -274,6 +285,9 @@ Raw excluded text must not leak through highlight summaries, signal summaries, o
 A blocking signal must identify what is blocked, which owner reports the
 block, whether direct writing is blocked or only a support action is
 blocked, and what fallback or review path remains if any.
+Trimmed, stale, protected, or unavailable source detail should remain
+labelled as such in signal review rather than being smoothed into false
+continuity.
 
 Risks:
 

@@ -72,6 +72,13 @@ Only the owning system may finalize the action outcome.
 
 An action that produces findings, candidates, suggestions, rankings, warnings, or comparisons without durable truth mutation by default.
 
+### 5.3A Review-Collection View
+
+A non-owning grouped display over findings, notes, signals, or other
+owner-controlled references.
+It may filter, sort, group, and route to source, but it does not gain
+durable authority over the items it displays.
+
 ### 5.4 Durable-State Action
 
 An action that creates, mutates, resolves, retains, discards, or restores durable non-truth state such as signals, notes, memory, provenance, routing history, queue history, or snapshots.
@@ -178,6 +185,8 @@ Minimum handoff payload:
 | `Command Center`, `Writing Surface` | Resolve, dismiss, or suppress signal | `Signal Architecture` | `T2 + T6` | durable signal lifecycle state | source truth, manuscript text, memory | signal id, source trace, reviewer action | leave signal unchanged and visible, or mark blocked | yes |
 | `Writing Surface`, `Command Center`, `Companion` | Create feedback note | `Feedback Notes / Revision Resolution` | `T1` for author note, `T2 + T6` for AI-derived note candidate acceptance | durable note state | durable signal state, truth, memory | note source, author/imported-editor origin | keep as transient annotation or candidate | yes |
 | `Writing Surface`, `Command Center` | Resolve, dismiss, or park feedback note | `Feedback Notes / Revision Resolution` | `T2 + T6` | durable note lifecycle state | signal state, story truth | note id and note provenance | leave note open | yes |
+| `Command Center`, `Companion` | Reopen prior note from recurrence candidate | `Feedback Notes / Revision Resolution` | `T2 + T6` | durable note lifecycle state | signal state, story truth | recurrence link, note id, source trace | create fresh note, leave closed, or dismiss candidate | yes |
+| `Command Center`, `Companion` | Reopen prior signal from recurrence candidate | `Signal Architecture` | `T2 + T6` | durable signal lifecycle state | manuscript truth, note state | recurrence link, signal id, source trace | create fresh signal, leave closed, or dismiss candidate | yes |
 | `Command Center`, `Companion` | Save advisory memory | `Memory Lab` | `T2 + T6` | durable author-approved advisory memory | accepted truth by implication, raw excluded spans by default | evidence class, memory type, source trace | leave in temporary context only | yes |
 | `Command Center`, `Companion` | Forget or discard memory | `Memory Lab` | `T2 + T6` | durable memory retention state | accepted truth objects, snapshot history | memory id, retention class, discard reason | hide from current recall only, or leave unchanged | yes |
 | `Writing Surface`, `Command Center`, `Companion` | Run critique | `Critique / Evaluation` | `T1` for local light run, `T4 + T6` for repeated approved bounded runs, `T3 + T6` if paid or outbound | temporary critique output | truth, durable signal state, durable notes, memory | scope, route state, protected-content permissions | refuse, downgrade to local-only, or defer | yes |
@@ -205,6 +214,7 @@ Minimum handoff payload:
 - A surface may not treat display state as owner state.
 - `Companion` may not accept, resolve, retain, forget, export, restore, delete, or send on behalf of another owner silently.
 - `Command Center Surface` may not convert visibility into authority because the heavier control appears there.
+- review collections may not convert grouped display into owner state.
 - `Writing Surface` may not auto-apply critique, signals, notes, memory, routing, export, or package outcomes.
 - `Critique / Evaluation` may not silently become truth, durable signal state, durable note state, durable memory, or rewrite execution.
 - `Continuity` may not silently canonize inferred continuity facts.
@@ -233,6 +243,9 @@ Minimum handoff payload:
 - Informational findings, stale analysis, graph changes, and ordinary
   service state should not be escalated into interruption merely because
   a surface can display them.
+- A later related finding may create an advisory recurrence candidate,
+  but reopening a durable note or durable signal still requires the
+  owning system's explicit mutation path.
 
 ## 11. Dossiers Requiring Future Alignment
 

@@ -99,6 +99,10 @@ Those workspaces may organize planning, analysis, review, project
 organization, and system-management contexts without changing ownership
 of the systems displayed inside them.
 It must not default to every `Memory Lab` item, every old signal, all archive or intake material, all AI suggestions, every workflow button, or giant analytics views.
+Review collections here are non-owning views over owner-controlled
+items. They may group prepared findings, unresolved notes, active
+signals, possible recurrences, stale analyses, and items awaiting
+author review without becoming a new inbox or queue owner.
 
 ## 9. What Is Summonable
 
@@ -232,7 +236,8 @@ Temporary or derived:
 - temporary summaries,
 - job progress state,
 - provider health warnings,
-- contextual selection state.
+- contextual selection state,
+- filtered or grouped review collections that remain view-only.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -398,6 +403,8 @@ Doctrine anchors for the current tightening pass:
 - capability ideas such as `What needs attention?` and `Show only things blocking writing` remain product candidates, not implementation commitments.
 - review collections, queues, and grouped blocker views remain display
   structures rather than new durable owners.
+- review collections must not silently convert findings, duplicate
+  durable state, redefine source severity, or reopen closed work.
 
 Ownership boundaries for organized attention:
 

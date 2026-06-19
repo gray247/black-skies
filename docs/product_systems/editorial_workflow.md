@@ -63,6 +63,36 @@ History rules:
 - trimming must be surfaced honestly
 - protection, masking, and AI-exclusion rules still apply
 - temporary finding history must not become shadow canon, a note archive, or a raw manuscript archive
+- pinned findings and findings converted into durable notes or durable
+  signals must remain preservable beyond ordinary trimming
+- review collections may reference trimmed or stale source history, but
+  they must label that condition honestly rather than pretending the
+  original finding is still fully available
+
+## 5A. Review Collection Model
+
+A review collection is a non-owning view over owner-controlled items.
+
+Command Center may group references such as:
+
+- prepared findings
+- unresolved notes
+- active signals
+- possible recurrences
+- stale analyses
+- items awaiting author review
+
+Review collection rules:
+
+- a collection owns no concern, urgency, truth, or manuscript state
+- a collection may filter, sort, group, and route to source
+- a collection must not become a universal inbox owner
+- a collection must not duplicate durable note or signal state
+- a collection must not redefine source severity or owner status
+- a collection must not silently convert, resolve, reopen, dismiss,
+  snooze, or escalate anything
+- collection membership is a display posture, not a durable editorial
+  mutation
 
 ## 6. Note Versus Signal
 
@@ -74,6 +104,7 @@ Boundary rules:
 
 - a signal may point to a note
 - a note does not require a signal unless elevated attention is useful
+- a signal may reference a source finding without any note existing
 - a temporary finding may offer `Save as Note`, `Flag for attention`, `Dismiss`, `Ignore`, and `Review source`
 - the visible action is only a request; the owning system performs the durable mutation
 
@@ -143,6 +174,37 @@ Recurrence rules:
 - the recurrence candidate should reference the earlier closed artifact
 - the author may reopen the original, create a new note, or dismiss the recurrence candidate
 
+Product-level recurrence distinctions:
+
+- `original finding`: temporary advisory output from the producer
+- `durable note`: preserved editorial concern owned by
+  `Feedback Notes / Revision Resolution`
+- `durable signal`: preserved attention posture owned by
+  `Signal Architecture`
+- `later related finding`: a new temporary advisory output that appears
+  related to earlier work
+- `possible recurrence`: an advisory linked candidate, not a durable
+  reopen
+- `confirmed recurrence`: an author-reviewed or owner-governed judgment
+  that the new finding meaningfully relates to the earlier concern
+- `reopened note or signal`: durable state reopened only through the
+  relevant owner path
+- `newly created note or signal`: a fresh durable artifact created
+  instead of reopening the original
+
+Transition rules:
+
+- a later related finding may become a possible recurrence
+  automatically as advisory display only
+- a possible recurrence may become confirmed only through explicit
+  review, not through silent analyzer confidence
+- reopening a note requires explicit note-owner action
+- reopening a signal requires explicit signal-owner action
+- creating a new note or signal remains a separate owner-governed
+  action, even when a previous artifact exists
+- confirmed recurrence does not force reopen; the author may still
+  dismiss it or create a fresh artifact instead
+
 ## 10. Re-Evaluation
 
 The original producer may re-evaluate revised material and report:
@@ -155,6 +217,26 @@ The original producer may re-evaluate revised material and report:
 - possible recurrence
 
 The producer does not own durable note closure or durable signal closure.
+Those outcomes remain advisory even when they are strong.
+
+## 10A. Trimmed, Stale, Protected, Or Unavailable Evidence
+
+Review collections, notes, signals, and Companion may need to reference
+source evidence that is no longer fully inspectable.
+
+Required posture:
+
+- `trimmed`: disclose that bounded history was trimmed and the source is
+  no longer fully available
+- `stale`: disclose that the finding or evidence may no longer match
+  current prose or current owner state
+- `protected`: fall back to bounded labels, approved summaries, source
+  type, or owner-routed explanation
+- `unavailable`: disclose that the source cannot currently be opened and
+  preserve any known owner, source type, and last-known relation
+
+These conditions may limit review depth, but they must not silently
+close, reopen, or mutate durable notes or signals.
 
 ## 11. Workflow Cases
 
@@ -173,6 +255,7 @@ The producer does not own durable note closure or durable signal closure.
 | concern explicitly closed | durable note or durable signal | current owner | resolve, dismiss, suppress, decline, or supersede | owner-specific closure state | none unless already revised | later rerun may create recurrence candidate | note owner or signal owner | closure silently mutating manuscript |
 | linked recurrence candidate | later analyzer or continuity run | none at first; may later point to note or signal owner | reopen original, create new note, or dismiss recurrence | only chosen owner mutates durable state | none until separate author action | future reruns continue through producer lane | chosen note or signal owner | automatic reopening of closed durable work |
 | protected or AI-excluded material limiting analysis | any producer | none unless separately converted | inspect source limits, adjust scope, use manual path, or do nothing | maybe bounded blocked-history record only | none | producer may later rerun with allowed evidence | no closure by visibility limit alone | blocked analysis silently exposing excluded text or closing concern |
+| trimmed or unavailable source evidence | prior producer history or reference | none by default; existing note or signal owner remains separate if linked | review bounded summary, inspect surviving metadata, reopen manually if justified, or do nothing | none unless explicit owner-governed action follows | none | rerun producer if possible; otherwise preserve honest absence | existing durable owner only if separate action occurs | trimmed history silently deleting durable concern or pretending evidence is still available |
 
 ## 12. Writer-Facing Meaning
 
@@ -185,6 +268,8 @@ The editorial journey should read as:
 5. the original producer may re-check the affected material
 6. durable concerns close only when their own owner records closure
 7. later recurrence creates a new linked candidate rather than silently reopening history
+8. review collections remain display-only groupings over those owner
+   states and temporary findings
 
 ## 13. Remaining Jason Decisions
 

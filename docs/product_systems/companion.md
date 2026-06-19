@@ -114,6 +114,9 @@ Rough workload guidance for those capability candidates:
 - `What needs attention?` should prefer known blockers, signals, and prepared findings before offering heavier scans.
 - `Highlight the gap` may be lightweight and current-scope or may require deeper manual or deferred analysis depending on requested scope.
 - `Clean stale signals` should prepare suggestions and never silently clean durable signal state.
+- `Show me why this is in review` should be able to distinguish
+  temporary finding, review collection membership, durable note, durable
+  signal, and recurrence candidate.
 Companion should distinguish informational, advisory, contextual,
 review-item, signal-level, blocking, approval-required, failed,
 at-risk, unavailable, degraded, and recovery-first posture when
@@ -294,6 +297,10 @@ absence, summary, or owner-routed explanation rather than leakage
 through helpful-sounding narration.
 Companion may summarize urgency and source, but it may not convert
 ordinary findings into emergencies or durable signal state silently.
+Companion may explain why an item appears in review, show the source,
+and route explicit conversion or reopening requests, but it may not
+silently create, close, reopen, dismiss, snooze, or escalate durable
+state.
 
 ## 27. Testing Requirements
 

@@ -51,6 +51,8 @@ surface prominence.
 
 Background grouping or deduping may exist later, but it remains advisory.
 Any AI-origin note material remains candidate-only until explicitly accepted into durable note state.
+Review collections may reference notes, but collection membership does
+not become note ownership.
 
 ## 8. What Appears First
 
@@ -116,7 +118,8 @@ attention hierarchy.
 - note candidates,
 - temporary suggested fixes,
 - transient clustering,
-- unresolved summaries.
+- unresolved summaries,
+- linked recurrence candidates before explicit note-owner action.
 
 Note candidate does not equal durable note state.
 
@@ -193,6 +196,8 @@ Governance rules:
   author or owning workflow resolves the note,
 - recurrence remains a linked candidate until explicitly turned into new
   note or signal state,
+- reopening a closed note requires explicit note-owner action even when
+  a later related finding appears,
 - critique, continuity, theme, relationship, emotion, `Companion`, and other advisory outputs may become note candidates only through owner-governed conversion,
 - a note does not require a signal unless elevated attention, blocking, or routing value is useful,
 - midpoint scope is author-created and imported-editor notes first,
@@ -225,6 +230,9 @@ Anchor drift remains a condition or repair problem, not a separate canonical sha
 If revision support fails, the writer can still edit directly.
 Broken analyzer refresh, stale evidence, or apparent improvement must
 not silently close or reopen durable notes.
+Trimmed, stale, protected, or unavailable source evidence may narrow
+what the note can show, but it must not silently delete the note or
+pretend the missing source is still fully inspectable.
 
 ## 30. v1 Boundary
 
