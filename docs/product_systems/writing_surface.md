@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-10`
+- Last reviewed: `2026-06-19`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
 - Feeds into: `Command Center Surface`, `Outline`, `Story Unit`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Explicit-Content Marker / Send-Package Censor`, `Companion`
 - Runtime authority: `future`
@@ -29,9 +29,13 @@ The Writing Surface:
 
 - provides direct entry into prose first,
 - provides the main drafting area for the current writing focus,
+- may expose multiple saved or named Writing Surface workspaces, with
+  only one workspace active per Writing Surface window at a time,
 - supports starting from a blank page,
 - supports starting from an idea or insertion,
 - supports continuing from existing prose,
+- preserves surface-local navigation posture and prior writing location
+  when support handoffs occur,
 - may later display projection or container views without making them the foundation,
 - eventually receives structured support from narrative, continuity, critique, revision, and censor systems while keeping the writer in control.
 
@@ -73,6 +77,13 @@ Default Writing Surface context should stay minimal:
 - save state,
 - optional word or progress information,
 - a clear way to summon context or support.
+
+Writing Surface workspace posture should stay prose-centered, quiet, and
+non-gating.
+A Writing Surface workspace is a saved, non-owning work environment
+inside this surface that may combine layout, open views, selected scope,
+filters, referenced artifacts, last-viewed source, local navigation
+posture, and resumable writing context without owning manuscript truth.
 
 It should not default to a full dashboard, all signals, all `Memory Lab` findings, all routing state, all provenance, full outline or tree state, or constant AI panels.
 Default writing view should stay clean.
@@ -117,6 +128,8 @@ Summonable later from the Writing Surface:
 - critique notes,
 - revision or feedback notes,
 - explicit-content send-package status,
+- explicit handoff into Command Center review without erasing Writing
+  Surface context,
 - Companion assistance when explicitly invoked.
 
 These items should appear only when useful to the current writing task.
@@ -200,6 +213,7 @@ Eventually stored:
 
 - prose drafts,
 - focus metadata,
+- surface-local resume context,
 - local save-state or recovery markers later,
 - writer-approved structural references,
 - explicit user choices related to revision or send-package handling,
@@ -258,6 +272,12 @@ Sovereignty means:
 The Writing Surface is distinct from the Command Center Surface.
 
 The Command Center may support, summarize, inspect, or orchestrate tools around writing, but the Writing Surface does not depend on it in order to begin or continue prose.
+Cross-surface movement from Writing Surface to Command Center should
+occur through explicit handoff rather than shared navigation history or
+silent synchronization.
+That handoff should preserve the current Writing Surface workspace, the
+prior writing location, and the active manuscript or assertion anchor
+where available, and it should provide an explicit return path.
 
 ## 21. GUI Placement Principles
 
@@ -450,10 +470,12 @@ Future-only items:
 - Do manual masking and AI exclusion zones change the Writing Surface into a hidden authority over protected content? Answered: no.
 - Do heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules? Answered: yes.
 - What is the minimum current-writing context that helps without slowing entry? Answered: project or story, current unit, save state, optional word or progress information, and a clear way to summon context or support.
+- May the Writing Surface contain multiple saved or named workspaces without those workspaces becoming a truth owner? Answered: yes. Multiple saved or named Writing Surface workspaces may exist, but only one is active per Writing Surface window at a time and workspace configuration does not own manuscript content or order.
 - When should insertion or assertion references become visible to the writer during active drafting? Answered: they should be contextual or summonable, not always-on, and may appear when requested, when cursor or selection context requires them, when a blocker affects the current passage, when advisory text is being accepted or inserted, or when provenance or context overlays are opened.
 - Should the default writing view stay clean, and when are inline overlays acceptable? Answered: yes. Inline overlays are allowed only when they are lightweight, contextual, dismissible, and directly relevant to the current text.
 - Should heavier context remain off the default manuscript view? Answered: yes. Provenance detail, signal detail, `Memory Lab` recall, `Companion` explanation, routing state, package previews, and broader context or history views belong in summonable side or support surfaces.
 - May the Writing Surface surface heavy-action prompts without silently executing them? Answered: yes. It may present actions such as `Run`, `Review`, `Send`, `Approve`, `Open Command Center`, or `Defer`, but the owning system controls approval and execution boundaries.
+- Does opening Command Center support overwrite the current Writing Surface location? Answered: no. Support handoff should preserve the local writing position, current workspace, and return path rather than replacing them.
 - How should package previews distinguish masked or excluded material? Answered: they should distinguish manuscript text, mask map, exclusion zone, author-approved package view, and outbound payload view.
 
 ### Deferred Questions

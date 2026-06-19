@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-10`
+- Last reviewed: `2026-06-19`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Companion`
 - Runtime authority: `future`
@@ -29,6 +29,8 @@ The writer needs coherent workflow guidance without being forced through rigid s
 - organize likely writing and revision paths,
 - suggest next useful actions,
 - coordinate handoffs among support systems,
+- retain broader re-entry, return-path, and cross-surface handoff
+  posture without owning workspace configuration,
 - summarize editorial progress without owning notes, signals, rewrite candidates, or accepted prose,
 - retain workflow and journey support state only, including re-entry posture, next-step guidance, approval checkpoints, and owner-labeled summaries.
 
@@ -45,6 +47,8 @@ The writer needs coherent workflow guidance without being forced through rigid s
 ## 6. User-Facing Behavior
 
 Visible behavior should stay lightweight, writer-first, optional, and free of manual-save ritual demands before writing can continue.
+It may reference active surface workspaces and recent handoffs, but
+workflow posture remains distinct from workspace configuration.
 
 ## 7. Hidden/Background Behavior
 
@@ -95,6 +99,8 @@ Background behavior may assemble workflow suggestions, but those suggestions rem
 - bounded progress state,
 - author-approved workflow markers,
 - editorial progress summaries that point back to note, signal, or producer owners rather than replacing them,
+- references to active or last-used surface workspaces where useful for
+  re-entry without owning their configuration,
 - references to `Author Intent / Story Setup`,
 - non-authoritative project-intent summaries that preserve source owner, freshness, and whether the referenced owner state is current, stale, missing, or under review.
 
@@ -136,6 +142,10 @@ safe resume or recovery entry after interruption without turning
 workflow status into save-state authority.
 `Project Persistence / Local Save` owns current-save confirmation; the
 workflow spine only consumes and summarizes that state.
+It may retain handoff and return posture that helps the author get back
+to the prior Writing Surface workspace or location, but it does not own
+the underlying workspace configuration, manuscript anchor mechanism, or
+displayed artifact state.
 It may summarize editorial posture such as `needs review`, `revision
 underway`, or `ready for re-evaluation`, but those durable concerns
 remain owned by `Feedback Notes / Revision Resolution` or
@@ -144,6 +154,10 @@ remain owned by `Feedback Notes / Revision Resolution` or
 ## 20. Relationship To Command Center Surface
 
 The Command Center may host heavier workflow review without becoming mandatory.
+Cross-surface handoffs may contribute to journey posture and later
+resume guidance, but those handoffs do not create truth, do not own the
+surfaces they connect, and do not turn workflow state into layout
+authority.
 
 ## 21. GUI Placement Principles
 
@@ -234,6 +248,7 @@ Intake note:
 - Save confidence and resume confidence should come from
   `Project Persistence / Local Save` plus recovery support, not from
   manual-save ritual or Google Docs sync assumptions.
+- Workflow Spine may reference active workspaces and handoff state for re-entry posture, but workspace configuration remains separate from workflow ownership.
 - Questions better owned elsewhere: model-routing preferences, budget preferences, explicit-content send rules, and Google Docs entry flows belong primarily to routing, settings, or import/export dossiers.
 - Old Wizard is preserved only as a historical seed for Author Intent / Story Setup plus workflow guidance; it is not a required startup gate.
 

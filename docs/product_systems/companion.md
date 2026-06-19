@@ -6,7 +6,7 @@
 - Status: `Exploring`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-19`
 - Depends on: `Memory Lab`, `Continuity`, `Signal Architecture`, `Model Routing And Budget Architecture`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Critique`, `Continuity`
 - Runtime authority: `future`
@@ -33,6 +33,9 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - may use `Memory Lab` later to retrieve cited, tiered project memory, system knowledge, author preferences, and prior decisions,
 - answers product-system navigation and operational questions about Black Skies surfaces, menus, commands, workflows, and feature locations,
 - may create temporary non-destructive Writing Surface highlights or annotations when the author asks it to identify a gap, inconsistency, issue, or relevant passage,
+- is primarily housed in Command Center for richer explanation,
+  routing, review, and support while remaining contextually summonable
+  from Writing Surface,
 - may later run safe local or support actions if settings allow,
 - may later trigger tools under explicit user-action boundaries.
 
@@ -59,6 +62,9 @@ Companion may later:
 - point to evidence,
 - route into other tools with consent,
 - help the author reach editorial work without becoming a required gate.
+Its richer default home should be Command Center, but that home does not
+make Companion mandatory, always visible, or the product's only
+navigation doorway.
 Companion may route the writer to `Binder / Project Library`,
 `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
 `Memory Lab`, or the owning artifact, but it does not own navigation
@@ -71,7 +77,9 @@ truth, retrieval results, files, or organization state.
 - preferring the cheapest safe source of context first, starting with current UI state, accepted doctrine, saved project metadata, governed `Memory Lab` recall, existing signals, and prepared findings before offering deeper work,
 - deferring to stronger systems for evidence,
 - preparing explanations for scheduled, idle, or overnight local findings later without owning the underlying service,
-- staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later.
+- staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later,
+- not stealing focus across surfaces just because it can explain a
+  request or suggest a route.
 
 ## 8. What Appears First
 
@@ -175,12 +183,18 @@ Companion may explain or help update those settings, but it does not own them an
 Companion must never gate the Writing Surface.
 Direct writing remains available first.
 Temporary Companion highlights or annotations are advisory UI overlays, not manuscript edits, not author-owned truth, and not durable signal state unless the author explicitly saves, converts, or accepts them.
+Companion may be summoned from Writing Surface contextually, but it
+must not require automatic focus transfer into Command Center and must
+not replace the current writing location.
 Companion is never required to access notes, signals, critique results,
 continuity findings, rewrite review, or source evidence.
 
 ## 20. Relationship To Command Center Surface
 
-The Command Center is the more natural default home for Companion interactions, but Companion may later surface contextually elsewhere.
+The Command Center is the primary home for richer Companion
+interactions, but Companion may later surface contextually elsewhere.
+Command Center-homed does not mean Command Center-only, always visible,
+or mandatory before writing.
 
 ## 20A. Relationship To Memory Lab And System Ownership
 
@@ -218,6 +232,9 @@ Companion may suggest freely within local and advisory bounds.
 Companion may perform safe local support actions only when they are non-destructive, non-authoritative, non-spending, non-outbound, and do not mutate manuscript text or author-owned truth.
 Companion must require approval for paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, or explicit-content outbound actions.
 Companion must never silently bypass masks, exclusions, routing approval, or spend guardrails.
+Companion does not own any Writing Surface or Command Center workspace
+and may not silently rewrite workspace state beyond bounded local UI
+help.
 Companion may explain or present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduler or silently apply resulting durable effects.
 No scan should run while the author is actively typing unless it is cheap, local, and non-disruptive.
 No full-project scan should run on every save.
@@ -258,12 +275,16 @@ Governance rules:
 - Companion may answer questions from accepted character or lore truth, identify uncertainty, show supporting assertions or prose, and suggest fact updates or card creation without becoming a truth owner,
 - Companion may create temporary advisory highlights or annotations when asked, but durable signal state remains owned by `Signal Architecture`,
 - Companion may guide workflows and explain system state, but guided action is not system ownership,
+- Companion may be primarily housed in Command Center while remaining
+  summonable from Writing Surface,
 - Companion may not close, reopen, convert, or mutate durable editorial artifacts silently,
 - recall used by `Companion` must preserve memory type such as author-owned truth, advisory memory, session context, preference, system knowledge, archive reference, or excluded or never-store,
 - `Companion` must not treat recalled memory as author-owned truth unless the memory tier says it is author-owned truth,
 - `Companion` and `Memory Lab` must prefer the cheapest safe source of truth or context first rather than jumping immediately to deeper scans,
 - Companion may present prepared findings from scheduled, cron, idle, or overnight local work, but it does not own the scheduled service and must not silently apply results,
 - Companion must interrupt only for user-requested watch conditions, approval gates, blocked requested tasks, `no-ai-route-available`, potentially destructive actions, or spending or outbound decisions,
+- Companion must not steal keyboard focus or silently move the author
+  across primary surfaces,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
 
 Minimum rough workload tiers for later `Companion` guidance:
@@ -364,10 +385,12 @@ Summonable explanation flows, bounded investigation runs, and better evidence-ba
 - Can Companion explain, question, summarize, and investigate with boundaries? Answered: yes.
 - May Companion silently spend, rewrite, or canonize? Answered: no.
 - Does Companion gate writing by default? Answered: no.
+- Is Companion primarily housed in Command Center while still available from Writing Surface? Answered: yes. Command Center is the primary home for richer Companion interaction, but Companion remains contextually summonable from Writing Surface and does not become mandatory.
 - May Companion eventually run safe local or support actions if settings allow? Answered: yes.
 - May Companion send raw content, mutate story truth, or canonize facts without approval? Answered: no.
 - Is `Companion` the same thing as `Memory Lab` or a proxy truth owner for it? Answered: no. `Companion` is a bounded interface layer over other systems and remains advisory.
 - What visibility triggers and interruption rules allow `Companion` to appear uninvited, and when must it stay silent unless explicitly summoned? Answered: `Companion` is silent and available by default and may interrupt only for user-requested watch conditions, approval gates, spending or outbound or tool-use decisions, blocked requested tasks, `no-ai-route-available`, or potentially destructive actions.
+- May Companion move focus or replace the current writing position just because it can explain a request? Answered: no. It may guide or summon context, but it must not steal focus, own workspace state, or replace the active writing location silently.
 - What permission model governs what `Companion` may suggest, what safe local or support actions it may execute, and what always requires explicit user action? Answered: `Companion` may suggest freely within local and advisory bounds and may perform safe local support actions only when they are non-destructive and non-authoritative. Paid, outbound, tool-using, truth-changing, memory-retaining, export or sync, deletion, and explicit-content outbound actions require approval.
 - What routing, spending, outbound, and tool-use approval boundaries govern `Companion` escalation from local advisory help to paid, outbound, or tool-using help? Answered: `Companion` must respect routing, spend, mask, exclusion, and approval boundaries and may never silently bypass them.
 - What should `Companion` do when `no-ai-route-available` occurs, and which manual or no-AI fallbacks may it offer without gating direct writing? Answered: `Companion` should explain the route failure and offer manual or no-AI fallbacks such as continue writing, revise mask or summary, skip excluded ranges, run non-model local tools, save a manual note, create a manual signal or task, or cancel.

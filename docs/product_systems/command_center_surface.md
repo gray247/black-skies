@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-08`
+- Last reviewed: `2026-06-19`
 - Depends on: `Writing Surface`, `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
 - Feeds into: `Outline`, `Story Unit`, `Relationship Map`, `Emotion Graph`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Lore Cards`, `Character Cards`, `Companion`, `Memory Lab`
 - Runtime authority: `future`
@@ -28,6 +28,8 @@ The writer needs a place to inspect structure, review support signals, summon to
 The Command Center Surface:
 
 - supports planning and inspection around writing,
+- may expose multiple saved or named Command Center workspaces, with
+  only one workspace active per Command Center window at a time,
 - organizes contextual tools,
 - shows bounded support state and narrative inspection,
 - may surface attention state, blocker state, routing or spend state, memory or provenance summaries, prepared findings, and package or export controls later when bounded,
@@ -41,6 +43,7 @@ The Command Center Surface does not:
 - gate writing,
 - replace the Writing Surface,
 - act as the primary authorial truth source,
+- become a universal super-system,
 - force Story Unit creation before writing,
 - force projection-led workflow before writing,
 - become a dashboard junk drawer,
@@ -54,6 +57,7 @@ Visible behavior should emphasize:
 
 - contextual command surface behavior,
 - planning and inspection,
+- saved or named support workspaces that remain non-owning,
 - author control,
 - clear tool boundaries,
 - signal display without truth inflation,
@@ -85,6 +89,11 @@ What appears first should be minimal:
 
 It may begin nearly empty if writing is already usable.
 The smallest stable default Command Center should stay limited to blockers, active signals needing author attention, relevant routing or spend or approval state, prepared findings waiting for review, and active package or export or sync state.
+Each Command Center workspace should organize support and review context
+without becoming a new durable owner of the artifacts it displays.
+Those workspaces may organize planning, analysis, review, project
+organization, and system-management contexts without changing ownership
+of the systems displayed inside them.
 It must not default to every `Memory Lab` item, every old signal, all archive or intake material, all AI suggestions, every workflow button, or giant analytics views.
 
 ## 9. What Is Summonable
@@ -111,6 +120,12 @@ Summonable systems may eventually include:
 - `Explicit-Content Marker / Send-Package Censor` status
 - `Companion`
 - `Memory Lab`
+
+Opening material on the other primary surface should remain an explicit
+handoff action.
+Selecting a source here, opening it on the Writing Surface, and moving
+keyboard focus are distinct actions and must not collapse into one
+implicit state change.
 
 ## 10. What Is Hidden Until Needed
 
@@ -194,6 +209,8 @@ Eventually stored:
 - explicitly created or edited support artifacts,
 - accepted planning changes,
 - acknowledged feedback or review state,
+- support-context references that remain source-linked and
+  owner-preserving,
 - remembered summonable-tool preferences where justified.
 
 ## 15. What Remains Temporary
@@ -231,6 +248,9 @@ The Command Center exists to support the Writing Surface.
 It should reduce clutter in the Writing Surface by hosting tools that are useful but not always needed there.
 
 It must preserve Writing Surface sovereignty and direct writing first.
+When the author arrives here through an explicit handoff from Writing
+Surface, Command Center review should preserve a return-to-writing path
+rather than overwriting the prior writing location.
 
 ## 20. Relationship To Command Center Surface
 
@@ -238,6 +258,11 @@ This dossier defines the Command Center Surface itself as the separate support, 
 
 Its identity is not "everything that is not prose."
 Its identity is a bounded, contextual command surface.
+It may contain multiple saved or named Command Center workspaces, but
+this dossier does not authorize multiple Command Center windows and only
+one workspace is active per Command Center window at a time.
+Companion's richer default home belongs here, but that does not make
+Companion mandatory, always visible, or the only path into support work.
 
 ## 21. GUI Placement Principles
 
@@ -446,7 +471,10 @@ Future-only items:
 - What is the smallest stable default Command Center that is still useful without becoming a dashboard junk drawer? Answered: blockers, active signals needing author attention, relevant routing or spend or approval state, prepared findings waiting for review, and active package or export or sync state.
 - What rough visibility levels should the Command Center use? Answered: `always-visible` for current blockers, urgent approval state, or active route failure when relevant; `contextual` for signals, prepared findings, routing or spend state, and package or export state tied to the current task; and `summonable` for full detail, history, governed recall, provenance, older signals, and analytics-like summaries.
 - Does the Command Center own blockers? Answered: no. It organizes attention, but ownership remains with the relevant system.
+- May the Command Center use multiple saved or named workspaces without becoming a new durable owner? Answered: yes. Multiple saved or named Command Center workspaces may exist, but only one is active per Command Center window at a time and displayed systems keep their own authority.
 - May the Command Center silently mutate manuscript, truth, signal state, memory, export or sync or publish state, routing spend, deletion, masks, or package output? Answered: no.
+- Are source selection, cross-surface opening, and focus movement the same action? Answered: no. They remain distinct and cross-surface movement should occur through explicit handoff.
+- Is Companion primarily housed here without becoming mandatory? Answered: yes. Command Center is the primary home for richer Companion interaction, but Companion remains optional and available elsewhere by contextual summon.
 
 ### Deferred Questions
 

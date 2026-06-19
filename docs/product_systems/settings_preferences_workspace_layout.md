@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Product`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-19`
 - Depends on: `Writing Surface`, `Command Center Surface`
 - Feeds into: all user-facing systems
 - Runtime authority: `future`
@@ -26,11 +26,21 @@ The writer needs persistent control over workspace behavior without losing clari
 
 - store user preferences,
 - manage workspace layout options,
+- own workspace configuration and presentation preferences for saved,
+  non-owning work environments within primary surfaces,
+- allow workspace configuration to reference surface-local scope, open
+  views, filters, referenced artifacts, last-viewed source, navigation
+  posture, and resumable context where allowed,
 - expose user-controlled behavioral settings.
 
 ## 5. What The System Does Not Do
 
 - own narrative truth,
+- own workflow progress,
+- own save truth,
+- own recovery artifacts,
+- become owner of opened artifacts merely because a workspace references
+  them,
 - silently override author approval rules,
 - hide risky automation behind obscure settings.
 
@@ -63,11 +73,13 @@ Background persistence may exist, but settings do not create hidden system autho
 
 - author choices,
 - device context,
-- project context where allowed.
+- project context where allowed,
+- bounded surface-local context references where allowed.
 
 ## 12. Outputs
 
 - persisted preferences,
+- workspace configuration,
 - layout state,
 - user-visible control behavior.
 
@@ -78,14 +90,22 @@ Background persistence may exist, but settings do not create hidden system autho
 ## 14. What Gets Stored
 
 - preferences,
+- workspace configuration and presentation preferences,
 - layouts,
 - control settings,
+- bounded workspace references to selected scope, filters, referenced
+  artifacts, last-viewed source, local navigation posture, and resumable
+  surface context where allowed,
 - privacy and routing preferences where allowed.
+Exact storage scope across global, project, and session layers remains
+open at the product-definition level.
 
 ## 15. What Remains Temporary
 
 - transient workspace states,
-- current-session overrides when applicable.
+- current-session overrides when applicable,
+- active focus or display context that remains surface-local rather than
+  settings-owned.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -102,10 +122,16 @@ Projection display may be configurable without changing authority.
 ## 19. Relationship To Writing Surface
 
 Writing Surface preferences must preserve sovereign direct writing.
+Workspace configuration may help reopen a Writing Surface workspace, but
+it does not own manuscript prose, manuscript order, or the displayed
+artifacts inside that workspace.
 
 ## 20. Relationship To Command Center Surface
 
 Command Center layout preferences must not turn support into a required gate.
+Workspace configuration may help reopen a Command Center workspace, but
+it does not own the tools, notes, signals, cards, findings, or review
+artifacts shown there.
 
 ## 21. GUI Placement Principles
 
@@ -139,6 +165,7 @@ Prove settings persist correctly and do not bypass higher-priority rules.
 
 - no hidden unsafe defaults,
 - no settings-led authority drift,
+- no workspace-definition drift into durable domain ownership,
 - no buried approval bypasses.
 
 ## 29. Failure Modes
@@ -147,7 +174,8 @@ If settings persistence fails, the app should fall back safely.
 
 ## 30. v1 Boundary
 
-Core settings, preferences, and layout persistence.
+Core settings, workspace configuration, preferences, and layout
+persistence.
 
 ## 31. v2 Boundary
 
@@ -189,6 +217,8 @@ Intake note:
 ### Answered / Superseded Questions
 
 - Settings do not own narrative truth.
+- Workspace is more than geometry alone and less than a durable domain owner.
+- Settings / Workspace Layout may own workspace configuration and presentation preferences without owning manuscript, project truth, notes, signals, save truth, recovery artifacts, or workflow progress.
 - Lower-priority convenience may not override higher-priority safety and approval rules.
 - Superseded by current doctrine: settings may influence behavior but must not silently override approval rules, privacy boundaries, or direct-writing sovereignty.
 - Questions better owned elsewhere: exact routing policy, budget policy, import/export sync policy, and explicit-content package policy belong primarily to their owning dossiers.

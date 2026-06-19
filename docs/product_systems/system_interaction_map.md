@@ -19,6 +19,10 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
 
 - Writing Surface is sovereign.
 - Command Center supports writing and does not gate it.
+- workspaces are saved, non-owning, surface-local contexts rather than
+  new durable owners.
+- each primary surface may have multiple saved or named workspaces, with
+  only one workspace active per surface window at a time.
 - `Narrative Insertion / Narrative Assertion` is the foundation.
 - Scene is projection, container, view, or legacy compatibility only.
 - Story Unit is optional.
@@ -94,6 +98,13 @@ Cross-system ownership, handoff, and AI lifecycle authority are governed by:
   `Splash / Startup Experience`, `Service Health / Offline / Degraded Mode`,
   and `Snapshots / Backup / Restore / History` consume, display, or
   react to that save-state authority without owning it.
+- `Settings / Preferences / Workspace Layout` owns workspace
+  configuration and presentation preferences for saved surface-local work
+  environments, but it does not own manuscript, project truth, notes,
+  signals, save truth, recovery artifacts, or workflow progress.
+- `Workflow Spine / Author Journey` may reference active workspaces,
+  re-entry posture, and cross-surface handoffs, but it does not own
+  workspace configuration or displayed artifacts.
 - `Binder / Project Library` supplies destination context for imported material and project organization, but it does not own transfer rules.
 - `Binder / Project Library` may place the same underlying artifact in more than one location by reference, and removing one placement removes only that reference.
 - `File Manager / Asset Pane` supports file browsing and asset handling, owns file identity and availability posture, and does not own interchange authority.
@@ -186,6 +197,9 @@ Important boundary:
 - `Memory Lab` may feed `Companion`.
 - `Companion` is not `Memory Lab`.
 - `Companion` is not truth owner.
+- `Companion` is primarily housed in `Command Center Surface` for
+  richer explanation, routing, review, and support, while remaining
+  contextually summonable from `Writing Surface`.
 - `Memory Lab` is not automatic truth owner.
 - `Critique / Evaluation` may feed `Companion`, `Command Center`, `Writing Surface`, `Draft Generation`, or manual author review, but Critique remains an evaluation capability rather than a universal surface.
 - `Companion` may route requests to other systems when the author is actually asking for Critique, Author Intent / Story Setup, Draft Generation / Rewrite Loop, Signal Architecture, Continuity, or Feedback Notes / Revision Resolution work.
@@ -209,6 +223,14 @@ Important boundary:
 - `Writing Surface` may display authorship, continuity, and other bounded signals while staying sovereign and non-gated.
 - `Writing Surface` may show quiet graph indicators or summonable graph context, but it is not a graph workspace.
 - `Command Center` may host inspection, summaries, graph comparison, prototype comparison, and tool entry points while remaining support-only.
+- navigation history is surface-local by default.
+- cross-surface movement should occur through explicit handoff rather
+  than automatic synchronization.
+- selecting a source, opening it on the other surface, and moving
+  keyboard focus are distinct actions.
+- explicit handoff from `Writing Surface` to `Command Center` should
+  preserve the prior Writing Surface workspace and return-to-writing
+  anchor where available.
 - Surface visibility does not grant mutation authority.
 - Neither surface turns advisory outputs into story truth automatically.
 - Search launched from a specific system may begin scoped there, while unified project search remains the general default.
@@ -237,6 +259,8 @@ Important boundary:
 - The arrows do not imply storage contracts already exist.
 - The arrows do not imply any system is build-ready.
 - The arrows do not bypass the ownership, handoff, or AI lifecycle contracts.
+- workspace does not become a new truth owner, durable-state owner, or
+  universal navigation owner.
 - Signals remain advisory unless accepted or actioned.
 - `Memory Lab` may feed `Companion`, but `Companion` is not `Memory Lab`.
 - Model routing governs whether local, manual, or paid-model paths are allowed.
