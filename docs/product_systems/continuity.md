@@ -93,6 +93,9 @@ Heavy long-context runs, export compatibility checks, and broad project-wide aud
 - accepted continuity notes later.
 - accepted continuity truth must live in author-owned narrative assertions, notes, lore, character facts, or other explicit author decisions created through explicit author acceptance or explicit save, convert, or update actions.
 Continuity outputs are advisory unless accepted through a truth owner or durable-state owner.
+Completed continuity runs remain advisory evidence rather than accepted
+continuity truth, durable note state, or durable signal closure by
+themselves.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -114,6 +117,15 @@ Continuity outputs are advisory unless accepted through a truth owner or durable
 - bounded recent completed-run history under the editorial-workflow
   history posture when it remains useful and within trimming limits.
 Continuity candidates remain temporary until accepted, dismissed, suppressed, converted, or expired.
+Pinned continuity evidence is preserved for review and provenance rather
+than promoted into accepted truth.
+Converted continuity evidence should remain linked to its durable
+destination where possible, such as a `Feedback Note`, `Signal`, or
+explicit author-owned truth update.
+If an old continuity run trims, surviving history should fall back to
+honest metadata, bounded summaries, provenance, and any pinned or
+converted evidence that remains preservable under the shared
+editorial-history posture.
 
 ## 15. What Remains Temporary
 
@@ -127,6 +139,51 @@ Continuity candidates remain temporary until accepted, dismissed, suppressed, co
 - noisy or irrelevant advisory history that does not become useful information,
 - unpinned temporary history that may later trim or expire honestly.
 Continuity candidate does not equal accepted continuity truth.
+Later continuity re-evaluation may report `appears resolved`,
+`persists`, `changed form`, `insufficient evidence`, or `possible
+recurrence`.
+Those outcomes remain advisory until explicit owner-governed action
+occurs.
+They must not silently repair, close, reopen, or rewrite durable notes,
+durable signals, accepted continuity truth, or manuscript truth.
+
+## 15A. History And Evidence Posture
+
+Continuity follows the shared bounded analyzer-history defaults:
+
+- roughly `30` recent completed runs per project
+- roughly `180 days` for unpinned history
+- oldest unpinned history trimmed first
+- pinned or converted evidence preserved
+- trimming disclosed honestly
+
+Evidence posture rules:
+
+- `current` means the latest still-available continuity evidence for the
+  inspected scope
+- `stale` means the finding or evidence may no longer match current
+  prose, current assertions, or current owner state
+- `trimmed detail` means the earlier run existed, but full inspectable
+  detail is no longer retained
+- `pinned` means preserved for review or provenance without becoming
+  accepted continuity truth
+- `converted` means explicitly linked to a durable downstream artifact
+  or truth-owner action, not automatically accepted by history alone
+- `protected` means raw source detail degrades to bounded labels,
+  approved summaries, source type, or owner-routed explanation
+- `unavailable` means the source cannot currently be opened and the
+  absence must be disclosed honestly
+- `superseded run` means a newer continuity run exists, while the older
+  run may still remain inspectable for comparison if available
+- `comparison-only` means an older run may support contradiction review
+  or drift comparison without claiming present correctness
+
+Comparison views may use stale or superseded continuity runs when that
+is useful, but they must label the limitation honestly rather than
+pretending the older run is current.
+If a durable `Feedback Note` or `Signal` outlives the source run that
+originally informed it, the durable artifact remains in force under its
+own owner until explicit owner-governed action changes it.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 

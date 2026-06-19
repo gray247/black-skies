@@ -107,6 +107,9 @@ Shared craft-analyzer lifecycle:
 
 Analyzers may recommend that an issue appears resolved.
 They may not silently close Notes or Signals.
+Rerunning analysis may refresh advisory findings or evidence, but it may
+not silently replace, resolve, reopen, or rewrite durable Notes,
+Signals, or manuscript truth.
 Later recurrence creates a linked candidate rather than automatically
 reopening durable work.
 Unchanged dismissed findings should not repeatedly nag the author.
@@ -189,6 +192,39 @@ Partial, interrupted, blocked, or protection-limited runs must remain
 visibly incomplete.
 This contract does not create a competing retention model.
 
+History and evidence posture:
+
+- completed runs remain advisory findings and evidence, not manuscript
+  truth or durable editorial work by themselves
+- review-collection membership does not create ownership
+- `pinned` evidence is preserved for review, provenance, or later
+  comparison without becoming accepted truth
+- `converted` evidence is evidence explicitly linked to a durable
+  `Feedback Note`, `Signal`, or other owner-governed destination where
+  possible
+- if an older run trims, surviving history should fall back to honest
+  metadata, bounded summaries, provenance, and any pinned or converted
+  evidence that remains preservable
+- loss of detailed source evidence must not silently erase a durable
+  Note or Signal that was previously linked from that analyzer history
+- stale, trimmed, protected, or unavailable source detail must be
+  labelled honestly rather than smoothed into false freshness
+- comparison views may use stale or superseded runs when useful, but
+  they must show that those runs are comparison-only rather than current
+
+Shared evidence labels may include:
+
+- `current`
+- `stale`
+- `trimmed detail`
+- `pinned`
+- `converted`
+- `protected`
+- `unavailable`
+- `superseded run`
+- `comparison-only`
+- `insufficient evidence`
+
 ## 11. Analyzer-Specific Boundaries
 
 ### Senses Usage
@@ -227,6 +263,7 @@ It must preserve:
 
 - source analyzer,
 - source evidence,
+- freshness and staleness posture,
 - uncertainty,
 - temporary versus durable posture.
 

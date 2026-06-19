@@ -176,6 +176,16 @@ Eventually stored, when explicitly retained:
   history posture when it is still useful and within trimming limits.
 Critique candidates are temporary until retained through an owning
 system.
+Completed critique history remains advisory evidence rather than
+editorial truth or durable workflow closure by itself.
+Pinned evidence is preserved for review and provenance rather than
+promoted into truth.
+Converted evidence should remain linked to its durable destination where
+possible, such as a `Feedback Note` or `Signal`.
+If an older run trims, surviving retained history should fall back to
+honest metadata, bounded summaries, provenance, and any pinned or
+converted evidence that remains preservable under the shared
+editorial-history posture.
 
 ## 15. What Remains Temporary
 
@@ -200,6 +210,50 @@ Critique result states may later include:
 - `stale`
 - `superseded`
 - `converted` through another owning system
+
+Rerunning critique may produce newer advisory findings, comparison
+results, or labels such as `appears resolved`, `persists`, `changed
+form`, `insufficient evidence`, or `possible recurrence`.
+Those outcomes remain advisory.
+They must not silently replace, resolve, reopen, or rewrite durable
+notes, durable signals, or manuscript truth.
+
+## 15A. History And Evidence Posture
+
+Critique follows the shared bounded analyzer-history defaults:
+
+- roughly `30` recent completed runs per project
+- roughly `180 days` for unpinned history
+- oldest unpinned history trimmed first
+- pinned or converted evidence preserved
+- trimming disclosed honestly
+
+Evidence posture rules:
+
+- `current` means the evidence came from the latest still-available run
+  for that scope
+- `stale` means the finding or evidence may no longer match current prose
+  or current owner state
+- `trimmed detail` means the earlier run existed, but full inspectable
+  detail is no longer retained
+- `pinned` means preserved for review or provenance without becoming
+  truth
+- `converted` means explicitly linked to a durable downstream artifact,
+  not automatically accepted as truth
+- `protected` means raw source detail degrades to bounded labels,
+  approved summaries, source type, or owner-routed explanation
+- `unavailable` means the source cannot currently be opened and the
+  absence must be disclosed honestly
+- `superseded run` means a newer critique run exists, but the older run
+  may still remain inspectable for comparison while available
+- `comparison-only` means an older run may support comparison view
+  without claiming present correctness
+
+Review collections and comparison views may reference stale or
+superseded critique runs when that is useful, but they must label the
+limitation honestly rather than implying that older evidence is current.
+Loss of detailed critique evidence must not silently erase any durable
+`Feedback Note` or `Signal` that was previously linked from it.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
