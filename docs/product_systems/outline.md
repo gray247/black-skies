@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define Outline as an optional layered structural story map that helps the writer shape, compare, reorder, and project work without taking ownership of narrative truth.
+Define Outline as an optional layered structural story map that helps the writer shape, compare, reorder, and project work without taking ownership of narrative truth. Outline is planning structure first, not manuscript truth.
 
 ## 3. User Problem Solved
 
@@ -61,6 +61,7 @@ The Outline system does not:
 - own durable signal state,
 - bypass masks or AI exclusion zones,
 - silently launch paid, outbound, destructive, or truth-mutating work.
+- silently apply a stale prototype arrangement to manuscript truth.
 
 ## 6. User-Facing Behavior
 
@@ -153,6 +154,7 @@ Outline inputs may include:
 - authored beats,
 - authored parts, scenes, chapters, sections, arcs, or other author-defined containers,
 - authored planning nodes,
+- empty planning nodes that are waiting for material,
 - optional insertion or assertion links,
 - optional Story Unit links,
 - optional gap links,
@@ -225,6 +227,20 @@ Eventually stored:
 - status,
 - provenance.
 
+Prototype arrangement lifecycle:
+
+- create when the writer wants an alternate plan or structure bundle,
+- name only when durable labeling is useful,
+- preview without mutating manuscript truth,
+- compare against current order or structure,
+- revise while the arrangement is still advisory,
+- dismiss when the proposal is no longer wanted,
+- expire when it becomes too stale to trust as-is,
+- become stale when the underlying manuscript changes,
+- apply only through explicit author confirmation,
+- partially apply only by preserving unapplied portions as advisory, dismissed, or stale,
+- abandon when the writer no longer wants the proposal tracked.
+
 ## 15. What Remains Temporary
 
 Temporary or non-durable:
@@ -243,6 +259,7 @@ Temporary or non-durable:
 Outline nodes may reference `Narrative Insertion / Narrative Assertion`, but they do not own those primitives and do not replace their identity.
 
 Planning structure can point at narrative work without becoming the narrative foundation itself.
+Nodes may reference assertions, describe intended material, or do both, but the plan remains planning until the author explicitly applies changes through the underlying truth owner.
 
 ## 17. Relationship To Story Units
 
@@ -262,6 +279,7 @@ That difference must remain visible and understandable rather than
 treated as an automatic error.
 Projection can support experimentation without silently rewriting accepted manuscript structure.
 Projection comparison belongs first in Outline or other support surfaces.
+Previewed or projected order is advisory until accepted, and any apply path must identify the exact proposed changes before the underlying truth owner mutates manuscript order.
 
 ## 19. Relationship To Writing Surface
 
@@ -298,17 +316,23 @@ Placement rules:
 - named prototype arrangements may persist alternate order, grouping,
   planned gaps, short notes, Story Unit references, chapter or scene
   placement, and assertion references without becoming manuscript truth,
-- first exposed accepted-manuscript rearrangement is preview-only or proposal-only,
-- accepted manuscript or telling-order rearrangement requires preview, confirmation, undo or recovery, and provenance,
-- direct committed accepted-manuscript reorder is not exposed yet,
+- Outline-originating accepted-manuscript rearrangement is preview-only or proposal-only,
+- accepted-manuscript reorder proposals from Outline, prototypes, or other advisory arrangements remain preview-only until the author explicitly applies them,
+- direct author movement or reorder inside the authoritative manuscript is itself an accepted order change and does not require a separate apply step,
+- direct committed accepted-manuscript reorder is not exposed as a proposal workflow for author edits already happening in the manuscript,
 - allowed early accepted-manuscript movement actions are preview reordered accepted units, duplicate accepted units into prototype or projection, create proposed move, send proposed move to `Command Center Surface` for review, and compare current order versus proposed order,
 - applying a named prototype to manuscript order remains an explicit
-  author-reviewed and author-confirmed action through the manuscript
-  truth owner,
+  author-applied action through the manuscript truth owner,
 - deeper context should be hoverable, contextual, filterable, or summonable rather than always-on,
 - dense planning detail should stay out of the default writing path unless summoned,
 - Outline must not become a mandatory container list in disguise,
 - the Command Center must not accumulate permanent outline clutter without proof.
+- preview never mutates manuscript truth,
+- an apply action must identify the exact proposed changes,
+- partial application preserves unapplied portions as advisory, dismissed, or stale rather than silently treating them as accepted,
+- stale prototypes after manuscript changes must be marked and handled explicitly rather than silently reapplied,
+- Outline reorder proposals remain preview-only until explicitly applied,
+- Outline reorder requests route through the underlying manuscript truth owner when they affect accepted order.
 
 ## 22. Local LLM Role
 
@@ -383,8 +407,8 @@ Minimum proof set:
 - projected order does not silently become accepted manuscript order,
 - planning blobs, rough beats, empty units, and prototype-only units can be rearranged without implying accepted manuscript rewrite,
 - non-accepted planning order can be rearranged without implying accepted manuscript rewrite,
-- accepted manuscript rearrangement first appears as preview-only or proposal-only workflow,
-- drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
+- Outline-originating accepted manuscript rearrangement first appears as preview-only or proposal-only workflow,
+- Outline-originating drag or drop of accepted manuscript or telling order requires preview, confirmation, and recovery,
 - duplicate-to-prototype or duplicate-to-projection actions do not commit accepted manuscript reorder,
 - named prototype arrangements do not duplicate manuscript prose by
   default, do not create alternate canon, and can render readable story
@@ -504,9 +528,9 @@ Future-only items:
 - Outline may launch prototype runs as advisory planning artifacts only; prototype output does not become manuscript truth, accepted assertions, or continuity truth without explicit author action.
 - Outline may absorb some quick-check context to reduce manuscript clutter, but direct writing remains available and Outline does not gate the `Writing Surface`.
 - Planning blobs, rough beats, empty units, prototype-only units, projected order, and non-accepted planning order may be rearranged freely.
-- Accepted manuscript or telling-order changes require preview, confirmation, undo or recovery, and provenance or action record.
-- Accepted manuscript rearrangement remains cautious and must not be treated like casual blob movement.
-- First exposed accepted-manuscript rearrangement is preview-only or proposal-only rather than direct committed reorder.
+- Outline-originating accepted-manuscript or telling-order proposals require preview, confirmation, undo or recovery, and provenance or action record.
+- Accepted manuscript rearrangement proposals remain cautious and must not be treated like casual blob movement.
+- Outline-originating accepted-manuscript rearrangement is preview-only or proposal-only rather than direct committed reorder.
 - Allowed early accepted-manuscript movement actions are preview reordered accepted units, duplicate accepted units into prototype or projection, create proposed move, send proposed move to `Command Center Surface` for review, and compare current order versus proposed order.
 - Projection comparison lives first in Outline or other support surfaces; the `Writing Surface` shows one selected projection at a time, while heavier comparison and approval review belongs in `Command Center Surface`.
 - Outline prototype launch may use blobs, beats, attached author notes, selected order, word targets, accepted narrative assertions, accepted continuity facts, selected signal summaries, critique goals, and tone or style constraints.

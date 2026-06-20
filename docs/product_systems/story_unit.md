@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define Story Unit as an optional flexible grouping and work-container system that helps package work, cluster related narrative material, and provide durable working anchors without replacing the smaller narrative foundation.
+Define Story Unit as an optional flexible grouping and work-container system that helps package work, cluster related narrative material, and provide durable working anchors without replacing the smaller narrative foundation or turning grouped material into manuscript truth.
 
 ## 3. User Problem Solved
 
@@ -28,7 +28,7 @@ The Story Unit system:
 - provides an author-facing grouping, span, cluster, work package, or anchor,
 - groups or references related narrative material,
 - helps organize revisions, continuity review, and planning,
-- supports durable work packages that can survive reorder, split, merge, and promotion,
+- supports durable work packages that can survive reorder, split, merge, and promotion without silently converting grouped material into assertion truth,
 - gives the writer a bounded structure for ongoing narrative work without claiming to be the smallest unit,
 - can group blobs, beats, scenes, chapters, sections, arcs, sequences, flashbacks, character threads, or revision work areas,
 - may hold Story Unit-scoped pacing purpose or target as
@@ -48,7 +48,9 @@ The Story Unit system does not:
 - silently accept inferred grouping as authored structure,
 - convert the Command Center into a mandatory workflow gate,
 - silently mutate manuscript text, canon, or durable signal state,
-- become the hidden owner of structural authority.
+- become the hidden owner of structural authority,
+- require the writer to create a Story Unit before there is anything to group,
+- delete underlying assertions when the grouping is removed.
 
 ## 6. User-Facing Behavior
 
@@ -67,6 +69,7 @@ Visible behavior should emphasize:
 Background behavior may later include:
 
 - split and merge lineage tracking,
+- archive and dissolve lineage tracking,
 - provisional grouping suggestions,
 - linked continuity or critique refresh,
 - optional structure assistance,
@@ -76,8 +79,7 @@ Background behavior may later include:
 
 Background behavior must not silently claim that inferred grouping is authored truth.
 Conceptually, Story Unit lifecycle should remain bounded to `candidate`,
-`planned`, `grounded`, and `retired` states without turning those labels
-into a mandatory implementation enum in this pass.
+`planned`, `grounded`, `archived`, `dissolved`, and `retired` states without turning those labels into a mandatory implementation enum in this pass.
 
 ## 8. What Appears First
 
@@ -91,6 +93,7 @@ What appears first should stay minimal:
 - clear status or lifecycle state when relevant.
 
 It must not appear as a prerequisite to start writing.
+A Story Unit may also exist empty until references are added.
 
 ## 9. What Is Summonable
 
@@ -189,7 +192,9 @@ Eventually stored:
 - optional projection fragment links,
 - outline links,
 - provenance,
-- lineage when split, merged, or promoted.
+- lineage when split, merged, archived, dissolved, or promoted,
+- inactive recoverable state when archived,
+- detached-reference state when dissolved.
 
 ## 15. What Remains Temporary
 
@@ -213,6 +218,7 @@ They do not turn grouped material into author-owned truth automatically.
 Multiple Story Units may reference the same insertion or assertion.
 That many-to-many relationship does not duplicate manuscript prose and
 does not change authoritative manuscript order by itself.
+Story Unit membership is reference semantics, not containment semantics for manuscript truth.
 
 ## 17. Relationship To Story Units
 
@@ -224,6 +230,12 @@ Mandatory check outcome:
 - Story Units are not the base narrative primitive.
 - Story Units must not be required before writing.
 - Story Units must not recreate a projection-container hierarchy under a new name.
+
+Removal semantics:
+
+- `Archive` preserves the Story Unit and its references in an inactive, recoverable state.
+- `Dissolve` removes the grouping and detaches its references while leaving all Narrative Assertions intact.
+- deleting assertions is a separate destructive Narrative Insertion / Assertion operation and is never implied by Story Unit removal.
 
 ## 18. Relationship To Prose / Scene Projection
 
@@ -245,6 +257,7 @@ Valid paths include:
 
 The Writing Surface stays sovereign regardless of whether a Story Unit exists.
 Current-text actions belong in the `Writing Surface`.
+When the author is editing authoritative manuscript truth directly, Story Unit does not add a second approval step; the editing action itself is the acceptance event.
 
 ## 20. Relationship To Command Center Surface
 

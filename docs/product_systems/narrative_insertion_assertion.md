@@ -15,7 +15,7 @@
 
 ## 2. Purpose
 
-Define the smallest narrative foundation used by Black Skies so the product can reason about narrative structure without forcing prose, scenes, or Story Units to act as the root semantic primitive.
+Define the smallest narrative foundation used by Black Skies so the product can reason about narrative structure without forcing prose, scenes, or Story Units to act as the root semantic primitive. The ordinary author-facing flow should treat insertion and assertion as one writing experience unless the writer needs the underlying distinction.
 
 ## 3. User Problem Solved
 
@@ -25,7 +25,7 @@ The writer needs a narrative unit small enough to support continuity, contradict
 
 `Narrative Insertion / Assertion` provides:
 
-- a paired foundation where `Narrative Insertion` handles manuscript text or change placement and `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision,
+- a paired foundation where `Narrative Insertion` is the action or workflow that introduces, places, or proposes narrative material and `Narrative Assertion` is the durable object produced, referenced, ordered, accepted, revised, or rejected,
 - accepted manuscript content and authoritative manuscript order through the foundation rather than through planning or visual layers,
 - a durable narrative reference that can exist before or after prose,
 - a narrative fact, event, implication, or claim that can be linked, contradicted, reordered, or grouped,
@@ -43,6 +43,7 @@ It allows Black Skies to retain narrative meaning even when the visible prose or
 - require the user to enter ontology data before writing,
 - claim that inferred or AI-produced structure is authored truth,
 - allow inserted prose to silently create accepted story truth,
+- force the writer to choose between two separate concepts during ordinary direct writing,
 - resolve contradictions automatically,
 - replace prose as the visible act of writing,
 - replace outline, Story Unit, critique note, or projection view with one flat concept.
@@ -61,7 +62,10 @@ User-facing behavior may later include:
 
 User-facing behavior must stay optional when it risks slowing direct writing.
 Insertion and assertion may be paired in workflows, but one must not silently create the other.
-Insertion can happen without creating assertion truth.
+Ordinary direct writing into the authoritative manuscript is non-gated.
+Direct author writing in the authoritative manuscript creates or revises accepted Narrative Assertions immediately; the writing action is the acceptance event and does not require a second approval step.
+Insertion can happen without creating assertion truth when the writer is intentionally working in a candidate, proposal, alternative, prototype, staging, planning, imported-review, or AI-proposal context.
+Pasted or imported material follows its destination: insertion by the author into authoritative manuscript truth is accepted through that insertion action, while placement into staging or review remains proposed.
 
 ## 7. Hidden/Background Behavior
 
@@ -176,6 +180,21 @@ Eventually stored:
 - optional placement references,
 - authoritative manuscript placement references where needed.
 
+Lifecycle and operations:
+
+- create may originate a candidate insertion or assertion record when the material is intentionally being staged as a proposal, alternative, prototype, planning item, imported-review item, or AI-proposed item,
+- revise preserves identity while updating the underlying authored content or accepted truth,
+- move changes proposal or manuscript placement without changing identity,
+- split creates new assertion identities while retaining source lineage and contributing-source references,
+- merge consolidates related material while preserving contributing-source lineage,
+- duplicate creates a distinct record with clear provenance rather than silently cloning authority,
+- detach removes a reference binding while leaving the underlying assertion intact,
+- archive preserves the assertion in a recoverable, inactive state,
+- restore returns archived material to active use without erasing lineage,
+- delete is a separate destructive assertion operation and must be explicit,
+- accepted order changes apply through the author's direct manuscript action when the author is editing authoritative manuscript truth,
+- proposed or stale order remains advisory until accepted, dismissed, or replaced.
+
 ## 15. What Remains Temporary
 
 Temporary or derived:
@@ -186,6 +205,9 @@ Temporary or derived:
 - ephemeral sequencing suggestions,
 - non-authoritative support overlays,
 - unaccepted Companion suggestions.
+- proposed order that has not been accepted,
+- stale or dismissed prototype and reorder proposals,
+- candidate assertions that have not been accepted into author-owned truth.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -205,8 +227,8 @@ Within that foundation, `Narrative Insertion` and `Narrative Assertion` should s
 - `Narrative Insertion` = manuscript text or change placement
 - `Narrative Assertion` = explicit author-confirmed story truth, fact, or decision
 
-Inserted prose may create an assertion candidate, but only explicit author action may save or accept it as author-owned truth.
-The author must explicitly accept, save, or convert an assertion candidate before it becomes author-owned truth.
+Inserted prose becomes accepted manuscript truth when the author writes it into the authoritative manuscript.
+Assertion candidate state is reserved for material intentionally created in a proposal, alternative, prototype, staging, planning, imported-review, or AI-proposal context.
 
 ## 17. Relationship To Story Units
 
@@ -234,6 +256,8 @@ The Writing Surface may:
 - continue writing without forcing explicit insertion or assertion manipulation.
 
 The foundation must support writing rather than obstruct it.
+Direct writing into the authoritative manuscript creates accepted assertion truth immediately.
+Candidate state is reserved for intentional proposal, alternative, prototype, staging, planning, imported-review, or AI-proposal contexts.
 
 ## 20. Relationship To Command Center Surface
 
@@ -421,7 +445,7 @@ Future-only items:
 - May Outline, Scene, Story Unit, `Companion`, or `Memory Lab` stand in as the narrative source of truth? Answered: no.
 - What is the best difference between an insertion and an assertion, if they split later? Answered: `Narrative Insertion` handles manuscript text or change placement, while `Narrative Assertion` handles explicit author-confirmed story truth, fact, or decision. They may pair in workflows, but one must not silently create the other.
 - May insertion happen without creating assertion truth? Answered: yes.
-- What must happen before an assertion candidate becomes author-owned truth? Answered: the author must explicitly accept, save, or convert it.
+- What must happen before an assertion candidate becomes author-owned truth? Answered: only material intentionally created in a proposal, alternative, prototype, staging, planning, imported-review, or AI-proposal context may exist as candidate state; direct writing into authoritative manuscript truth is already accepted.
 - What rough narrative states must remain distinct? Answered: draft text, accepted manuscript text, inserted advisory text, assertion candidate, accepted narrative assertion, continuity fact, advisory suggestion, masked summary, package or context artifact, and provenance record.
 - What are the rough consumer boundaries for accepted assertions? Answered: `Continuity` may use them as truth support, `Signal Architecture` may receive candidates or conflicts, `Memory Lab` may recall them under governed recall, `Companion` may explain or guide, and `Outline`, Scene, Story Unit, and Command Center may project or organize them. None may silently create, alter, or delete author-owned assertion truth.
 
