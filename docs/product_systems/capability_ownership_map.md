@@ -19,13 +19,20 @@ This artifact is subordinate to:
 Approved decisions applied in this map:
 
 - `Author Intent / Story Setup` is an approved independent dossier.
-- `Ideation / Premise Discovery` is a new optional dossier candidate.
+- `Ideation / Premise Discovery` remains unresolved pending
+  owner-boundary review; it is not approved as a separate dossier yet.
 - `Editorial Workflow` is a named cross-system workflow, not a new authority-owning system.
-- `Branching / What-If` is an advanced roadmap lane and its dossier is deferred.
-- `Research / Deep Research` is a cross-system workflow with a possible later dedicated dossier.
-- `Voice Notes`, `Dictation`, `Transcription`, and `Voice Commands` remain future possibilities only.
+- `Branching / What-If` is partially covered by prototype arrangements
+  and remains intentionally parked rather than promoted.
+- `Research / Deep Research` is rejected or non-authoritative historical
+  direction, not an active construction lane.
+- `Voice Notes`, `Dictation`, `Transcription`, and `Voice Commands` are
+  explicitly excluded from current scope and are preserved only as
+  historical or deferred evidence.
 - `Originality / Similarity` is a future research and validation program.
-- `UI Identity / Delight` is a cross-system experience lane, not a single dossier.
+- `UI Identity / Delight` is a cross-cutting experience doctrine or
+  quality concern, intentionally parked rather than promoted as a
+  standalone owner.
 
 Boundary reminder:
 
@@ -55,8 +62,8 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| premise discovery and brainstorming | no current dossier owner yet | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes` | no current owner | ideation output must not auto-become project truth or manuscript truth | new dossier candidate | unresolved | none | overlaps with `Author Intent`, `Outline`, and notes |
-| exploratory prompts and seed capture | no current dossier owner yet | `Feedback Notes`, future ideation support, `Workflow Spine` | no current owner | notes do not equal accepted project truth | new dossier candidate | unresolved | none | can disappear into manual notes without workflow clarity |
+| premise discovery and brainstorming | no current one-to-one dossier owner yet | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes` | no current owner | ideation output must not auto-become project truth or manuscript truth | unresolved classification pending owner-boundary review | unresolved | none | overlaps with `Author Intent`, `Outline`, and notes |
+| exploratory prompts and seed capture | no current one-to-one dossier owner yet | `Feedback Notes`, `Workflow Spine`, `Companion` | no current owner | notes do not equal accepted project truth | unresolved classification pending owner-boundary review | unresolved | none | can disappear into manual notes without workflow clarity |
 
 ### 2.4 Organization And Navigation
 
@@ -172,8 +179,8 @@ Boundary reminder:
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | accessibility baseline, hotkeys, and large-font support | `Accessibility / Hotkeys / Large-Font Mode` | `Settings`, `Writing Surface`, `Command Center`, `Splash` | accessibility preferences and interaction rules | accessibility does not bypass confirmation or truth boundaries | existing dossier | mature enough for now | none | overlap with settings and workspace layout |
-| voice notes, dictation, and transcription | no current dossier owner; preserved as a future possibility only | future `Feedback Notes`, `Workflow Spine`, `File Manager`, `Import Export` | no current owner | future voice support must not be smuggled into current scope | deferred possibility | product-light | none | overlap with notes, file assets, and AI routing |
-| voice commands or command input | no current dossier owner; preserved as a future possibility only | future accessibility or workflow support only | no current owner | not approved as a standalone current system | deferred possibility | product-light | whether future voice scope stays note-centric or also includes command input | can be confused with command metadata or palette history |
+| voice notes, dictation, and transcription | no current dossier owner; explicitly excluded from current scope | historical/deferred references only | no current owner | current scope must not revive voice support as a planned system | excluded / historical only | product-light | none | overlap with notes, file assets, and AI routing |
+| voice commands or command input | no current dossier owner; explicitly excluded from current scope | historical/deferred references only | no current owner | not approved as a standalone current system | excluded / historical only | product-light | none | can be confused with command metadata or palette history |
 
 ### 2.17 Interface Identity And Personalization
 
@@ -181,32 +188,36 @@ Boundary reminder:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | settings, preferences, and layout personalization | `Settings / Preferences / Workspace Layout` | `Accessibility`, `Splash`, `Command Center` | settings and preferences state | settings do not own story-theme support or story foundation | existing dossier | mature enough for now | none | overlap with story setup and UI identity lane |
 | startup feel and first-run posture | `Splash / Startup Experience` | `Settings`, `Workflow Spine`, `Accessibility` | startup presentation posture | splash is not product-truth owner or workflow gate | existing dossier | shallow | none | overlap with onboarding, workflow, and UI identity |
-| cross-system product identity and delight | no single dossier owner by decision; current fragments live in `Settings`, `Splash`, and `Accessibility` | `Command Center`, `Writing Surface`, historical GUI docs | no single owner today | this is an experience lane, not a single truth or state owner | cross-system workflow | unresolved | none | cosmetic theming can be confused with story `Theme System` |
+| cross-system product identity and delight | no single dossier owner by decision; current fragments live in `Settings`, `Splash`, and `Accessibility` | `Command Center`, `Writing Surface`, historical GUI docs | no single owner today | this is cross-cutting experience doctrine, not a product owner | cross-cutting experience doctrine / intentionally parked | unresolved | none | cosmetic theming can be confused with story `Theme System` |
 
 ### 2.18 Advanced Authoring, Branching, And Series Work
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| branching and what-if exploration | no singular current owner; nearest anchors are `Narrative Insertion / Assertion` and `Snapshots / Backup / Restore / History` | `Outline`, `Projection`, `Story Unit` | no settled current owner | advanced branching is deferred and must not be confused with snapshots | advanced roadmap lane | unresolved | whether branching becomes prose-level, structure-level, truth-level, or mixed | overlap with restore history, contradiction branches, and smart merge |
+| branching and what-if exploration | no singular current owner; nearest anchors are `Narrative Insertion / Assertion` and `Snapshots / Backup / Restore / History` | `Outline`, `Projection`, `Story Unit` | no settled current owner | prototype arrangements already cover bounded experimentation; broader branching remains parked | partially covered / intentionally parked | unresolved | whether branching becomes prose-level, structure-level, truth-level, or mixed | overlap with restore history, contradiction branches, and smart merge |
 | series grouping and cross-story linking | `Series Binder / Cross-Story Linking` | `Binder`, `Continuity`, `Theme System`, `Character Cards`, `Lore Cards` | series grouping and accepted-link support | series containers do not own canon | existing dossier | shallow | none | overlap with binder, continuity, and lore |
 | plugin or rubric extension analysis | `Plugin / Rubric System` | `Critique`, `Companion`, `Command Center` | plugin or rubric analysis support only | plugin paths do not own truth or critique authority by default | existing dossier | product-light | none | overlap with critique and companion workflows |
 
 ## 3. Capabilities Without A Current Dossier Owner
 
-The following capabilities currently have no one-to-one dossier owner and still need a cleaner home:
+The following capabilities do not currently have a one-to-one dossier
+owner and are not all active missing dossiers:
 
-- premise discovery and brainstorming
-- exploratory prompt and seed capture as a distinct workflow
-
-The following do not currently have a single dossier owner, but that is now an intentional classification rather than an ownership failure:
-
+- premise discovery and brainstorming, which remains unresolved pending
+  owner-boundary review
+- exploratory prompt and seed capture as a distinct workflow, which
+  remains unresolved pending owner-boundary review
 - editorial workflow as a cross-system workflow
-- research / deep research as a cross-system workflow
+- research / deep research as rejected or non-authoritative historical
+  direction
 - local-versus-API benchmarking as a research and validation program
 - originality and similarity study as a research and validation program
-- voice notes, dictation, transcription, and voice commands as deferred possibilities
-- cross-system product identity and delight as an experience lane
-- branching and what-if exploration as an advanced roadmap lane
+- voice notes, dictation, transcription, and voice commands as
+  explicitly excluded historical concepts
+- cross-system product identity and delight as a cross-cutting
+  experience doctrine that is intentionally parked
+- branching and what-if exploration as a partially covered concept that
+  remains intentionally parked
 
 ## 4. Competing-Owner Conflicts
 
@@ -258,20 +269,18 @@ These should be treated as overlap risks, not automatic merge decisions.
 
 ## 8. Cross-System Workflows Missing An End-To-End Map
 
-- research workflow from source intake to citation to use in writing
 - save-state and degraded-writing workflow from healthy to pending to recoverable to blocked
-- product-identity and personalization workflow across settings, startup, accessibility, and presentation
-- future voice workflow if it ever becomes a real capability
+- product-identity and personalization as a cross-cutting experience concern rather than a single owner
+- branching as a partially covered prototype-arrangement concern rather than a promoted active dossier
 
 ## 9. Remaining Discovery Decisions
 
 The following are still real implementation-neutral product questions, but the larger boundary decisions have already been made:
 
 - exact final question wording and grouping inside the future `Author Intent / Story Setup` optional questionnaire
-- whether later discovery keeps deep research as a workflow only or promotes it into a dedicated dossier
-- whether future voice scope, if ever activated, stays note-centric or also includes command input
 - eventual depth and form of branching or what-if work if that advanced lane is later promoted
 - whether later benchmarking work remains entirely internal or exposes limited comparison controls without overclaiming quality
+- whether Ideation / Premise Discovery should stay unresolved inside existing owners or be promoted later
 
 ## 10. Remaining Critical Discovery Risks
 
@@ -279,12 +288,12 @@ The following are still real implementation-neutral product questions, but the l
   `Snapshots`, `Service Health`, `Workflow Spine`, and `Splash`, even
   though durable local current-save confirmation now has a named owner
 - `Workflow Spine / Author Journey` still carries too much if workflow posture, startup cues, and editorial wayfinding are not kept visibly distinct from owner-controlled story setup
-- research and source-use capabilities still lack a clean end-to-end flow and citation path map
+- ideation remains unresolved and must not be prematurely assigned
 - the AI roadmap cluster still reads as blurred from a product perspective across lifecycle, routing, package construction, provenance, and explicit-content boundaries
 
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.
-- The weakest areas are ideation, research workflow, presentation identity, voice, and advanced branching.
+- The weakest areas are ideation, presentation identity, and advanced branching.
 - Several current conflicts are not missing-dossier problems. They are missing workflow-map problems.
 - The provisional `v1` boundary remains small and useful, but it does not authorize implementation planning or close the broader capability inventory.

@@ -153,6 +153,7 @@ If two sources disagree, the higher item in this order wins unless a newer accep
 Current canonical repo-tracked sources include:
 
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
+- [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [_dossier_template.md](/C:/Dev/black-skies/docs/product_systems/_dossier_template.md)
 - [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
@@ -175,6 +176,12 @@ Current canonical repo-tracked sources include:
 - [intelligence_surface_matrix.md](/C:/Dev/black-skies/docs/audits/phase29/intelligence_surface_matrix.md)
 
 These sources are canonical because they are repo-tracked, directly tied to the current salvage cleanup, and aligned to the product-system doctrine now being established.
+`dossier_maturity_inventory.md` is narrow planning authority only for
+dossier maturity, planning status, lane placement, and next-treatment
+sequencing.
+It does not override product doctrine, ownership doctrine, or
+system-specific behavior defined in current dossiers and governance
+matrices.
 
 ## Reference-Only External Planning Inputs
 

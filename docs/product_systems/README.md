@@ -116,6 +116,16 @@ Registry rule:
 
 - [Orchestrator 8 Arc 4 Closure Checkpoint](orchestrator_8_arc4_closure_checkpoint.md)
 
+## Canonical Inventory
+
+- [Dossier Maturity Inventory](dossier_maturity_inventory.md)
+
+This inventory owns the current maturity classification, coverage map,
+planning status, lane placement, and next-treatment sequencing for the
+planned-system set.
+It does not replace dossier doctrine, ownership doctrine, or the
+registry itself.
+
 ## Current Rough Dossier Blanks
 
 The following rough dossiers now exist as first-wave `exploring` or `partial` working files.

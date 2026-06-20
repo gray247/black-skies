@@ -49,6 +49,10 @@ questions have different owners.
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
   owns the dossier registry, dossier status model, and the full named
   product-system inventory.
+- [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+  owns the current maturity classification, planning status, lane
+  placement, and next-treatment sequencing across planned systems.
+  It does not override product doctrine inside current dossiers.
 - [pre_code_discovery_plan.md](/C:/Dev/black-skies/docs/product_systems/pre_code_discovery_plan.md)
   owns discovery procedure, batch discipline, stop conditions, and the
   planning-spine process.
@@ -263,11 +267,6 @@ product definition.
 
 Current research or deferred work:
 
-- voice notes, dictation, transcription, and command-input possibilities
-  Why deferred: current workflow, routing, privacy, and degraded-mode
-  foundations are not yet stable enough.
-  Reopen when: direct-writing, save-state, and permission boundaries are
-  sharper.
 - advanced branching or what-if exploration
   Why deferred: it is too easy to confuse branching with snapshots,
   restore history, or accepted truth.
@@ -279,16 +278,27 @@ Current research or deferred work:
   product foundations.
   Reopen when: critique, routing, package, and evaluation boundaries
   are stable enough to support honest claims.
-- deep research workflow and broader citation-heavy source use
-  Why deferred: it still depends on stronger retrieval, provenance,
-  memory, and workflow boundaries.
-  Reopen when: search, governed recall, and export or provenance
-  distinctions are stable enough to support it.
 - full `Series Binder`, cross-story expansion, and strong product
   identity or delight work
   Why deferred: these lanes require a more settled core project,
   workflow, and surface model first.
   Reopen when: the foundation and near-core workflow posture are stable.
+
+Planning-status correction:
+
+- voice notes, dictation, transcription, and command-input concepts are
+  explicitly excluded from the current Black Skies scope; preserve them
+  only as historical or deferred evidence
+- Research, citation, bibliography, source-capture, web-research, and
+  Deep Research directions are not active construction lanes and should
+  be treated as non-authoritative historical direction under current
+  planning control
+- branching remains intentionally parked and partially covered today by
+  existing structural-planning and prototype-arrangement doctrine rather
+  than promoted as a separate active dossier
+- product identity or delight remains a later cross-cutting
+  experience-quality concern rather than a standalone current
+  product-system dossier
 
 Not every imperfect or shallow dossier is foundation-critical.
 The current goal is a disciplined finite model, not universal deep
@@ -489,9 +499,7 @@ following:
 - binder archive depth, file-preview breadth, or semantic search polish
 - critique severity polish, `Companion` personality polish, or rewrite
   tuning depth
-- voice workflows
 - advanced branching
-- deep research workflow execution
 - the full `Series Binder`
 - originality research execution
 - model benchmarking execution

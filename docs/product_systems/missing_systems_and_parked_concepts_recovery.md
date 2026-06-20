@@ -18,6 +18,9 @@ It preserves ideas without claiming the product-system inventory is now complete
 [v1_foundation_scope_lock.md](/C:/Dev/black-skies/docs/product_systems/v1_foundation_scope_lock.md) is a provisional planning boundary only.
 It narrows v1 discussion to a small local-first writing foundation.
 It does not grant implementation approval, and it does not settle the missing-system inventory for later phases.
+Historical references in this artifact do not create a current product-system lane by themselves.
+Where the maturity inventory already classifies a concept, that inventory governs current disposition, maturity, and sequencing.
+This file preserves recovery evidence and parked concepts, but it does not promote them into active registry targets.
 
 ## 3. Candidate Recovery Matrix
 
@@ -29,10 +32,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: explicit field model, update lifecycle, author-confirmed versus unknown versus inferred candidate states, visibility rules, and a clean decision on whether this is a sub-system or a one-to-one dossier.
 - Overlap and duplicate risks: overlaps with `Workflow Spine`, `Companion`, startup flow, old `Wizard`, and any future project profile or settings concept.
 - Capability type: user-facing and cross-system.
-- Classification: `new dossier candidate`
-- Recommended current owner, if one exists: provisional owner is `Workflow Spine / Author Journey`.
-- Decisions that require Jason rather than Codex: whether this should stay parked inside `Workflow Spine`; whether setup should feel like profile, notebook, lightweight checklist, or optional guided flow; which fields matter enough to surface early.
-- Likely product version or discovery stage: discovery-stage priority now; likely needed before any broader non-v1 planning, even if v1 keeps it minimal or parked.
+- Classification: `current discovery candidate`
+- Recommended current owner, if one exists: provisional owner is `Workflow Spine / Author Journey`, with optional overlap into `Settings` and `Companion`.
+- Decisions that require Jason rather than Codex: whether this should stay parked inside `Workflow Spine`; whether setup should later become a dedicated dossier; which fields matter enough to surface early.
+- Likely product version or discovery stage: later discovery and boundary review; not an active missing dossier.
 
 ### 3.2 Ideation / Premise Discovery / Brainstorming
 
@@ -42,10 +45,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: no explicit ideation workflow, no artifact model for seeds or premise candidates, no relationship to direct writing, no connection to notes versus story truth, and no doctrine for how ideation output graduates into project truth.
 - Overlap and duplicate risks: overlaps with `Author Intent / Story Setup`, `Outline`, `Companion`, `Feedback Notes`, and future `Draft Generation`.
 - Capability type: user-facing.
-- Classification: `new dossier candidate`
-- Recommended current owner, if one exists: none yet; temporary adjacency is `Workflow Spine / Author Journey`.
-- Decisions that require Jason rather than Codex: whether ideation deserves a first-class product system; whether it should be manual-first, AI-assisted-later, or mostly a workflow posture rather than a persistent system.
-- Likely product version or discovery stage: discovery-stage follow-up after `Author Intent / Story Setup`; not part of the constrained v1 foundation.
+- Classification: `unresolved classification pending owner-boundary review`
+- Recommended current owner, if one exists: no settled owner yet; current adjacency remains `Workflow Spine / Author Journey`, `Author Intent / Story Setup`, `Outline`, and `Companion`.
+- Decisions that require Jason rather than Codex: whether ideation ever deserves a first-class product system; whether it remains a workflow posture, an optional surface, or a later bounded dossier.
+- Likely product version or discovery stage: unresolved; not an active missing dossier until owner boundaries are settled.
 
 ### 3.3 Originality / Similarity / Anti-Derivative Support
 
@@ -68,10 +71,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: no clear user workflow for source intake, citation storage, evidence review, source-to-claim linkage, or later reuse in drafting and critique.
 - Overlap and duplicate risks: overlaps with `Memory Lab`, `Project Index / Search / Retrieval`, `Document Interchange`, and any future browsing or web-research capability.
 - Capability type: cross-system and potentially user-facing.
-- Classification: `cross-system capability / roadmap lane`
-- Recommended current owner, if one exists: no single owner; current fragments live across `Project Index / Search / Retrieval`, `Memory Lab`, and provenance governance.
-- Decisions that require Jason rather than Codex: whether research is a first-class Black Skies activity or a later adjunct; whether external-source workflows should ever be central to the product.
-- Likely product version or discovery stage: post-foundation discovery lane; not v1.
+- Classification: `rejected or non-authoritative historical direction`
+- Recommended current owner, if one exists: no current product-system owner; current fragments remain historical evidence only.
+- Decisions that require Jason rather than Codex: none for current product planning; any future source-capture or research lane would need separate authority review.
+- Likely product version or discovery stage: historical only; not an active product-system construction lane.
 
 ### 3.5 Version Branching / Alternate Draft Lanes / What-If Exploration
 
@@ -81,10 +84,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: no user-facing branch model, no distinction between exploratory branches and safety snapshots, no authority rule for promoting a what-if branch into accepted prose or accepted truth, and no cross-surface vocabulary.
 - Overlap and duplicate risks: overlaps with `Snapshots`, `Outline`, `Prose / Scene Projection`, `Story Unit`, smart merge, and contradiction handling in narrative-object planning.
 - Capability type: user-facing and cross-system.
-- Classification: `cross-system capability / roadmap lane`
-- Recommended current owner, if one exists: no single owner; current anchors are `Narrative Insertion / Assertion` and `Snapshots / Backup / Restore / History`.
-- Decisions that require Jason rather than Codex: whether alternate drafts are a core authoring primitive or a later expert feature; whether branching happens at prose level, structure level, truth level, or all three.
-- Likely product version or discovery stage: later discovery lane after the v1 save-state and truth-ownership foundations are stable.
+- Classification: `partially covered / intentionally parked`
+- Recommended current owner, if one exists: no single owner; current anchors are `Narrative Insertion / Assertion`, `Snapshots / Backup / Restore / History`, and prototype arrangements.
+- Decisions that require Jason rather than Codex: whether alternate drafts ever become a core authoring primitive; what level branching should operate on if later promoted.
+- Likely product version or discovery stage: parked pending later boundary review; not an active missing dossier.
 
 ### 3.6 Narrative Validation / Stress Test Lab
 
@@ -120,10 +123,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: there is no reconciled product-system framing for whether voice input is note capture, drafting assistance, research capture, file management, or a separate modality; command input is especially undefined and should not be inferred from historical command-metadata work.
 - Overlap and duplicate risks: overlaps with `Feedback Notes`, `File Manager / Asset Pane`, `Workflow Spine`, `Import / Export Document Interchange`, `Companion`, and future AI routing if transcription is model-backed.
 - Capability type: user-facing.
-- Classification: `new dossier candidate`
-- Recommended current owner, if one exists: none in the current product-system registry; temporary adjacency is `Feedback Notes / Revision Resolution`.
-- Decisions that require Jason rather than Codex: whether voice belongs in Black Skies at all; whether it should be note-first versus drafting-first; whether command input is part of the same concept or should be left out entirely.
-- Likely product version or discovery stage: future discovery only; explicitly outside the constrained v1 foundation.
+- Classification: `explicitly excluded from current scope`
+- Recommended current owner, if one exists: none in the current product-system registry.
+- Decisions that require Jason rather than Codex: none for current planning; historical voice references remain deferred evidence only.
+- Likely product version or discovery stage: excluded from current planning; not an active missing dossier.
 
 ### 3.9 Editorial Workflow Recovery
 
@@ -136,7 +139,7 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - Classification: `cross-system capability / roadmap lane`
 - Recommended current owner, if one exists: no single owner; the best current anchors are `Critique / Evaluation` and `Workflow Spine / Author Journey`.
 - Decisions that require Jason rather than Codex: whether Black Skies should preserve a named editorial workflow concept above the split systems; how explicit that journey should be in the UI.
-- Likely product version or discovery stage: discovery-stage recovery now; any later implementation planning needs this lane reconciled first.
+- Likely product version or discovery stage: recovery and journey mapping only; the maturity inventory now governs whether and when it becomes a later construction lane.
 
 ### 3.10 UI Identity / Themes / Personalization / Polish / Delight
 
@@ -146,10 +149,10 @@ It does not grant implementation approval, and it does not settle the missing-sy
 - What is missing from the current treatment: no single discovery artifact distinguishes cosmetic UI theming from story-theme support, and no reconciled future lane defines identity, presentation rules, and delight concepts at the product level.
 - Overlap and duplicate risks: overlaps with settings, accessibility, startup, command-center density, and historical GUI-theme work; also risks confusion with the separate story `Theme System`.
 - Capability type: cross-system and user-facing.
-- Classification: `cross-system capability / roadmap lane`
+- Classification: `cross-cutting experience doctrine / intentionally parked`
 - Recommended current owner, if one exists: no single owner; current fragments are split among `Settings`, `Splash`, `Accessibility`, and historical GUI docs.
-- Decisions that require Jason rather than Codex: whether Black Skies wants a strong branded presentation layer versus a quieter utilitarian shell; how much delight matters before deeper writing systems are settled.
-- Likely product version or discovery stage: later roadmap lane after workflow and authority boundaries settle.
+- Decisions that require Jason rather than Codex: whether Black Skies wants a stronger branded presentation layer versus a quieter utilitarian shell.
+- Likely product version or discovery stage: parked as a cross-cutting concern until deeper writing systems settle.
 
 ## 4. Recovered Editorial Workflow
 
@@ -225,8 +228,8 @@ These belong to future validation programs unless and until Black Skies decides 
 
 Current distinction:
 
-- user-facing or likely user-facing systems: `Author Intent / Story Setup`, `Ideation / Premise Discovery / Brainstorming`, `Voice Notes / Dictation / Transcription`, and possibly later branching support.
-- cross-system roadmap lanes: research workflow, editorial workflow recovery, branching/what-if exploration, UI identity and personalization.
+- current discovery candidates: `Author Intent / Story Setup`, `Ideation / Premise Discovery / Brainstorming`, and possibly later branching support.
+- explicitly excluded or parked concepts: `Voice Notes / Dictation / Transcription`, research workflow, and standalone UI identity promotion.
 - internal validation programs: narrative stress testing, model benchmarking, local-versus-API evaluation, and originality or similarity studies for now.
 
 ## 7. Duplicate And Overlap Risks
@@ -235,29 +238,27 @@ Current distinction:
 - `Ideation` can blur into `Author Intent`, `Outline`, or `Companion` and disappear again.
 - `Editorial Workflow` can drift back toward a monolithic `Critique` surrogate.
 - `Branching / What-If` can be confused with safety snapshots or contradiction branches.
-- `Research Workflow` can be mistaken for `Memory Lab`, retrieval, or import/export rather than a writer task flow.
-- `Voice Notes` can over-expand into command palette, dictation, note capture, transcription, AI routing, and file management all at once.
+- `Research Workflow` can be mistaken for `Memory Lab`, retrieval, or import/export even though it is not currently an active planning lane.
+- `Voice Notes` can over-expand into command palette, dictation, note capture, transcription, AI routing, and file management all at once, which is why it remains excluded.
 - `Theme` is already split between story-theme support and cosmetic UI theming; that distinction must stay explicit.
 - `UI polish` can quietly borrow authority by making immature systems feel settled.
 
 ## 8. Provisional Recommendations
 
-### 8.1 New Dossier Candidates
+### 8.1 Current Discovery Candidates
 
 - `Author Intent / Story Setup`
 - `Ideation / Premise Discovery / Brainstorming`
-- `Voice Notes / Dictation / Transcription`
 
 ### 8.2 Existing Areas That Need Expansion Rather Than A New Dossier
 
-- none were classified as pure expansion-only in this pass; the strongest parked concepts are either new candidates or cross-system lanes
+- none were classified as pure expansion-only in this pass; the strongest parked concepts are either unresolved, excluded, or cross-system lanes
 
 ### 8.3 Cross-System Capability / Roadmap Lanes
 
-- `Research / Deep Research Workflow`
-- `Version Branching / Alternate Draft Lanes / What-If Exploration`
 - `Editorial Workflow Recovery`
-- `UI Identity / Themes / Personalization / Polish / Delight`
+- `Version Branching / Alternate Draft Lanes / What-If Exploration` as parked or partially covered
+- `UI Identity / Themes / Personalization / Polish / Delight` as a cross-cutting concern, not a standalone owner
 
 ### 8.4 Future Research Or Validation Programs
 
@@ -268,7 +269,7 @@ Current distinction:
 ### 8.5 Explicit Deferrals
 
 - none of the recovered concepts should enter the constrained v1 foundation by default
-- voice workflows remain explicitly deferred relative to the current v1 foundation boundary
+- voice workflows remain explicitly excluded relative to the current v1 foundation boundary
 - validation-program lanes remain deferred until product-system boundaries stabilize
 
 ### 8.6 Rejected As Separate Systems
@@ -284,10 +285,8 @@ Ranked decisions requiring Jason:
 2. Does Black Skies want a real ideation or premise-discovery capability, or should early creative discovery remain informal and manual?
 3. Should the product preserve a named editorial workflow concept above the split critique/note/signal/continuity/rewrite systems?
 4. Is branching or what-if exploration a core authoring primitive, or a later advanced lane after truth and save-state foundations mature?
-5. Is research a core writing workflow in Black Skies, or only support infrastructure around search, memory, and citations?
-6. Should voice notes be part of the product vision at all, and if so, are they note-first, dictation-first, or transcript-first?
-7. Does Black Skies ever want user-facing originality or similarity support, or should that remain an internal caution and research question only?
-8. How strong should the future presentation layer be: quiet utilitarian shell versus more opinionated identity and delight?
+5. Does Black Skies ever want user-facing originality or similarity support, or should that remain an internal caution and validation question only?
+6. How strong should the future presentation layer be: quiet utilitarian shell versus more opinionated identity and delight?
 
 ## 10. Critical Recovery Notes
 
