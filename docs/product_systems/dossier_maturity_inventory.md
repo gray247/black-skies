@@ -122,8 +122,8 @@ systems.
 - Category `0`: `0`
 - Category `1`: `0`
 - Category `2`: `5`
-- Category `3`: `26`
-- Category `4`: `13`
+- Category `3`: `21`
+- Category `4`: `18`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -134,6 +134,9 @@ systems.
   dossier-complete.
 - Recent convergence work primarily moved a defined subset of dossiers
   into category `4`, not category `5`.
+- Structural Manuscript Systems is closed with recorded convergence
+  items in
+  [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
 - Most remaining work is category `3` construction, not more generic
   hardening.
 - Product Experience and Surface Convergence is closed with recorded
@@ -163,11 +166,11 @@ systems.
 | 3 | Workflow Spine / Author Journey | `workflow_spine_author_journey.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final journey and summary detail | must stay narrow and non-owning | A |
 | 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 3 | yes | partial | partial | no | profile fields, lifecycle, presentation model | needs fuller construction before more generic hardening is useful | B |
 | 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 3 | yes | partial | partial | no | deeper browse, reference, and missing-source posture | depends on file and retrieval adjacency | B |
-| 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 3 | yes | partial | partial | no | owner handoffs and arrangement semantics | depends on outline, projection, and Story Unit maturity | B |
-| 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 3 | yes | partial | partial | no | payload, lifecycle, split or merge, promotion detail | structure cluster still needs construction | B |
-| 7 | Narrative Insertion / Assertion | `narrative_insertion_assertion.md` | `1:1` | `current` | 3 | yes | partial | partial | no | exact state, conversion, and provenance behavior | editorial and save-state adjacency still incomplete | B |
-| 8 | Prose / Scene Projection | `prose_scene_projection.md` | `1:1` | `current` | 3 | yes | partial | partial | no | projection labeling and workflow detail | depends on outline and Story Unit interactions | B |
-| 10 | Outline | `outline.md` | `1:1` | `current` | 3 | yes | partial | partial | no | reorder, prototype, and review workflow detail | depends on projection and Story Unit completion | B |
+| 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 4 | yes | yes | yes | no | owner handoffs and arrangement semantics | later dossier-completion wording and layout detail | A |
+| 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 4 | yes | yes | yes | no | payload, lifecycle, split or merge, promotion detail | later dossier-completion wording and grouping detail | A |
+| 7 | Narrative Insertion / Assertion | `narrative_insertion_assertion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | exact state, conversion, and provenance behavior | later dossier-completion wording and provenance detail | A |
+| 8 | Prose / Scene Projection | `prose_scene_projection.md` | `1:1` | `current` | 4 | yes | yes | yes | no | projection labeling and workflow detail | later dossier-completion wording and source-anchor detail | A |
+| 10 | Outline | `outline.md` | `1:1` | `current` | 4 | yes | yes | yes | no | reorder, prototype, and review workflow detail | later dossier-completion wording and proposal detail | A |
 | 16 | Feedback Notes / Revision Resolution | `feedback_notes_revision_resolution.md` | `1:1` | `current` | 4 | yes | yes | yes | no | note taxonomy and closed-history policy | mature enough for dossier completion work | A |
 | 17 | Lore Cards | `lore_cards.md` | `1:1` | `current` | 3 | yes | partial | partial | no | fact model, merge review, time-state behavior | depends on adjacent truth-support systems | B |
 | 18 | Character Cards | `character_cards.md` | `1:1` | `current` | 3 | yes | partial | partial | no | fact model, merge review, time-state behavior | depends on relationship and emotion adjacency | B |
@@ -278,6 +281,11 @@ These are current-authority dossiers that are already category `4`:
 - `Writing Surface`
 - `Command Center Surface`
 - `Workflow Spine / Author Journey`
+- `Narrative Insertion / Assertion`
+- `Story Unit`
+- `Outline`
+- `Prose / Scene Projection`
+- `Visual Arrangement View`
 - `Feedback Notes / Revision Resolution`
 - `Settings / Preferences / Workspace Layout`
 - `Splash / Startup Experience`
@@ -289,7 +297,7 @@ These are current-authority dossiers that are already category `4`:
 - `Service Health / Offline / Degraded Mode`
 - `Diagnostics / Error Visibility / Debug Console`
 
-Lane A count: `13`
+Lane A count: `18`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -299,23 +307,21 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. structural story systems
-   `Narrative Insertion / Assertion`, `Outline`, `Prose / Scene
-   Projection`, `Story Unit`, `Visual Arrangement View`
-2. truth-support cards and maps
-   `Character Cards`, `Lore Cards`, `Relationship Map`, `Emotion
-   Graph`, `Theme System`
-3. import, retrieval, and memory adjacency
+1. truth cards and support maps
+   `Author Intent / Story Setup`, `Character Cards`, `Lore Cards`,
+   `Relationship Map`, `Emotion Graph`, `Theme System`, `Timeline /
+   Pacing / Pressure`, `Foreshadow / Payoff`
+2. import, retrieval, and memory adjacency
    `Import Export Document Interchange`, `Binder / Project Library`,
    `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
    `Memory Lab`
-4. AI-governance bridge-backed systems
+3. AI-governance bridge-backed systems
    `Explicit Content`, routing, provider policy, and budget guardrails
-5. partial analyzer and extension systems
+4. partial analyzer and extension systems
    `Senses Usage`, `Overused Words`, `Cliche Detection`,
-   `Foreshadow / Payoff`, `Plugin / Rubric System`
+   `Plugin / Rubric System`
 
-Lane B count: `31`
+Lane B count: `26`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -339,9 +345,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `13` registry targets at category `4`.
+  Current answer: `18` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `31` registry targets at category `2` or `3`.
+  Current answer: `26` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

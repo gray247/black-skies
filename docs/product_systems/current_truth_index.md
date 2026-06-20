@@ -121,9 +121,11 @@ Current Black Skies doctrine is:
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
-- The next approved construction campaign is Structural Manuscript
-  Systems, but it begins only after that closure checkpoint is
-  committed.
+- Structural Manuscript Systems is closed with recorded convergence
+  items in
+  [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
+- The next planned construction campaign is Truth Cards and Support
+  Maps.
 
 ## Living Dossier Rule
 

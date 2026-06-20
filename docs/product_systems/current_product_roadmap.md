@@ -19,12 +19,16 @@ Current status:
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
-- The next approved construction campaign is Structural Manuscript
-  Systems, with initial scope:
-  `Narrative Insertion / Assertion`, `Story Unit`, `Outline`, `Prose /
-  Scene Projection`, and `Visual Arrangement View`.
-- That construction campaign begins only after the closure checkpoint is
-  committed.
+- Structural Manuscript Systems is closed with recorded convergence
+  items in
+  [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
+- The next planned construction campaign is Truth Cards and Support
+  Maps, with initial scope `Author Intent / Story Setup`, `Character
+  Cards`, `Lore Cards`, `Relationship Map`, `Emotion Graph`, `Theme
+  System`, `Timeline / Pacing / Pressure`, and `Foreshadow / Payoff`.
+- Save-state and degraded-writing workflow remains a standing
+  foundation dependency/reference rather than the next construction
+  campaign.
 
 Preparatory boundary artifacts for a later constrained foundation review
 already exist, but their presence does not mean implementation planning
@@ -144,7 +148,7 @@ can still materially change manuscript or durable truth boundaries,
 direct-writing availability, project structure, persistence or recovery,
 authority boundaries, or the writer's primary workflow.
 
-Current foundation-critical work is limited to:
+Current foundation-critical work is limited to one standing dependency/reference:
 
 - save-state and degraded-writing workflow
   Unresolved product question: what should the writer honestly
@@ -169,8 +173,9 @@ Current foundation-critical work is limited to:
   Remaining Jason decision required: some, mostly around default
   visibility, closed-history prominence, and recurrence surfacing.
 
-Save-state and degraded-writing workflow is now the only remaining item
-currently treated as foundation-critical.
+Save-state and degraded-writing workflow remains a standing foundation
+dependency/reference and the only remaining item currently treated as
+foundation-critical.
 The structural reconciliation lane now has an approved product model:
 `Narrative Insertion / Narrative Assertion` owns manuscript truth and
 authoritative order, `Story Unit` owns grouping and narrative-purpose
@@ -371,7 +376,24 @@ need rather than by placeholder rank.
    `command_center_surface.md`, and this roadmap.
    Suitable as the one final major artifact in this thread: `no`,
    because it is no longer an unresolved candidate mission.
-3. save-state and degraded-writing workflow
+3. Truth Cards and Support Maps
+   Product question: how should author intent, character facts, lore,
+   relationships, emotional structure, theme, pacing, pressure, and
+   foreshadow/payoff support each other without collapsing into one
+   owner?
+   Foundation impact: high because these systems underpin accepted
+   structured truth and the next major block of support-map work.
+   Writer-experience value: high for authors who need durable support
+   maps after the structural manuscript model is stable.
+   Ownership risk: medium, but the core authority model is already
+   settled enough to begin bounded construction.
+   Likely files affected: `author_intent_story_setup.md`,
+   `character_cards.md`, `lore_cards.md`, `relationship_map.md`,
+   `emotion_graph.md`, `theme_system.md`, `timeline_pacing_pressure.md`,
+   `foreshadow_payoff.md`, and this roadmap.
+   Suitable as the one final major artifact in this thread: `yes`, and
+   it is the current recommendation.
+4. save-state and degraded-writing workflow
    Product question: what should the writer believe about save, risk,
    recovery, degraded operation, startup, and resume?
    Foundation impact: very high because it directly affects
@@ -379,16 +401,17 @@ need rather than by placeholder rank.
    and trust in the core writing path.
    Writer-experience value: very high for every writer, including users
    who never touch deeper structure or intelligence lanes.
-   Ownership risk: medium-high, but more bounded than the structural or
-   editorial cross-system maps.
+   Ownership risk: medium-high, but it remains a standing dependency
+   and reference rather than the next construction campaign.
    Likely files affected: `writing_surface.md`,
    `workflow_spine_author_journey.md`,
    `snapshots_backup_restore_history.md`,
    `service_health_offline_degraded_mode.md`,
    `splash_startup_experience.md`, and this roadmap.
-   Suitable as the one final major artifact in this thread: `yes`, and
-   it is the strongest current choice.
-4. `Ideation / Premise Discovery` dossier
+   Suitable as the one final major artifact in this thread: `no`, not
+   while Truth Cards and Support Maps is the selected construction
+   campaign.
+5. `Ideation / Premise Discovery` dossier
    Product question: what early creative-discovery support belongs in
    Black Skies, what remains manual, and how do seeds avoid
    auto-becoming truth?
@@ -405,7 +428,7 @@ need rather than by placeholder rank.
 
 Current recommendation for Pass 6:
 
-- save-state and degraded-writing workflow
+- Truth Cards and Support Maps
 
 This recommendation is current planning guidance only.
 It is not Jason approval and it does not begin Pass 6 automatically.
@@ -469,8 +492,7 @@ remaining discovery path is made finite and then satisfied.
 Current finite remaining discovery path:
 
 1. complete one final major foundation artifact in this thread; the
-   current recommendation is the save-state and degraded-writing
-   workflow
+   current recommendation is Truth Cards and Support Maps
 2. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners
