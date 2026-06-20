@@ -118,6 +118,12 @@ Current Black Skies doctrine is:
 - Throwaway prototypes are allowed only if they are isolated, disposable, and not treated as architecture proof.
 - The raw 2,500-question register is archive or intake only. Active design questions must live in the relevant dossier.
 - Product dossiers are living investigation files, not locked milestone claims.
+- Product Experience and Surface Convergence is closed with recorded
+  convergence items in
+  [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
+- The next approved construction campaign is Structural Manuscript
+  Systems, but it begins only after that closure checkpoint is
+  committed.
 
 ## Living Dossier Rule
 

@@ -16,6 +16,15 @@ Current status:
 - runtime and GUI implementation remain blocked
 - meeting the roadmap criteria below does not automatically authorize
   implementation
+- Product Experience and Surface Convergence is closed with recorded
+  convergence items in
+  [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
+- The next approved construction campaign is Structural Manuscript
+  Systems, with initial scope:
+  `Narrative Insertion / Assertion`, `Story Unit`, `Outline`, `Prose /
+  Scene Projection`, and `Visual Arrangement View`.
+- That construction campaign begins only after the closure checkpoint is
+  committed.
 
 Preparatory boundary artifacts for a later constrained foundation review
 already exist, but their presence does not mean implementation planning

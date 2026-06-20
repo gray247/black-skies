@@ -136,6 +136,11 @@ systems.
   into category `4`, not category `5`.
 - Most remaining work is category `3` construction, not more generic
   hardening.
+- Product Experience and Surface Convergence is closed with recorded
+  convergence items in
+  [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
+- That closure does not change category `4` dossiers into category `5`
+  dossiers.
 
 ### 5.4 Outside-Registry Disposition Totals
 

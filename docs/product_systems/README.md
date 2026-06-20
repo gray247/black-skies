@@ -115,6 +115,7 @@ Registry rule:
 ## Repository Checkpoints
 
 - [Orchestrator 8 Arc 4 Closure Checkpoint](orchestrator_8_arc4_closure_checkpoint.md)
+- [Orchestrator 9 Product Experience and Surface Convergence Closure Checkpoint](orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md)
 
 ## Canonical Inventory
 
