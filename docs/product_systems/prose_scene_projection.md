@@ -121,24 +121,32 @@ Hidden until needed:
 
 Inputs may include:
 
+- accepted Narrative Assertions,
+- authoritative manuscript order,
 - prose authored in the Writing Surface,
-- narrative insertions or assertions,
-- optional Story Unit grouping,
-- outline placement,
-- Outline-selected order,
-- prototype material,
+- Story Unit references or grouping,
+- accepted structural choices,
+- scene or chapter container definitions,
+- protection and exclusion state,
+- author-selected filters or view posture,
 - continuity or critique references,
 - import material,
 - legacy project structures,
 - export requirements,
 - recovery state or snapshot context.
 
+Planning proposals and prototype arrangements are not accepted projection input unless they have already been explicitly applied through the owning system.
+
 ## 12. Outputs
 
 Outputs may include:
 
 - visible prose,
-- visible scene or container groupings,
+- continuous prose organization,
+- scene-like groupings,
+- chapter-like groupings,
+- container headings,
+- navigation anchors,
 - projected order views,
 - current-versus-proposed order comparison views,
 - alternate arrangement previews,
@@ -180,6 +188,15 @@ Eventually stored:
 - export-facing structure,
 - recovery-compatible container references when approved.
 
+Scene and chapter containers may have durable identity, but that identity
+does not make them the base manuscript unit. Containers may reference
+ranges, collections, or ordered assertions. Container changes must
+distinguish metadata and grouping changes from assertion-content or
+order changes. Removing or dissolving a container must not silently
+delete assertions. Empty containers may exist where useful for planning
+or organization, and assertions may remain valid without any scene or
+chapter assignment.
+
 ## 15. What Remains Temporary
 
 Temporary or derived:
@@ -192,6 +209,8 @@ Temporary or derived:
 - temporary grouping experiments,
 - prototype comparison projections.
 
+Advisory or preview projections remain noncanonical until applied.
+
 ## 16. Relationship To Narrative Insertion / Assertion
 
 `Narrative Insertion / Assertion` remains the underlying narrative foundation.
@@ -201,10 +220,12 @@ Projection should consume insertion or assertion identity rather than replace it
 Inserted text, projected text, prototype text, advisory text, assertion candidates, accepted assertions, masked summaries, remapped projection views, and package artifacts must remain distinguishable states.
 One assertion may appear in more than one chapter, scene, or projection
 view while still keeping one authoritative manuscript position.
+Direct prose editing in an authoritative manuscript projection routes to the owning `Narrative Assertion`, and the author’s direct authoritative edit is accepted immediately. Projection-local formatting or display changes do not mutate manuscript truth unless explicitly routed through the owner.
 
 ## 17. Relationship To Story Units
 
 Story Units may later group narrative foundations and may influence projection organization, but they are not required before writing and they do not replace projection or foundation rules.
+Story Unit or Outline references can change without changing manuscript truth, at which point the projection should refresh its grouping or display without silently rewriting source assertions.
 
 ## 18. Relationship To Prose / Scene Projection
 
@@ -218,6 +239,8 @@ Key rule:
   without becoming manuscript-truth owners,
 - projection is not the base narrative primitive.
 
+Read-only, comparison, recovery, and historical projections must not accept ordinary truth mutation without an explicit transition into the owning system.
+
 ## 19. Relationship To Writing Surface
 
 The Writing Surface may show prose directly and may later show projection-backed views.
@@ -227,12 +250,14 @@ The Writing Surface stays sovereign even when projection views are rich.
 Projection can show rearranged material without committing manuscript mutation.
 The `Writing Surface` should show one selected projection at a time rather than detailed comparison views.
 Preview, proposal, duplication, and comparison views must not commit accepted-manuscript reorder.
+When the author returns from a projection to source material, the prior writing position should be preserved where possible. If a source assertion, range, or container is missing, moved, split, merged, archived, or deleted, the projection should mark that source anchor as stale or unavailable rather than claiming restored location proves save integrity.
 
 ## 20. Relationship To Command Center Surface
 
 The Command Center may inspect or manipulate projection arrangement, compatibility views, or grouping state.
 It should not turn those projection concerns into the narrative foundation.
 `Command Center Surface` becomes the heavier comparison surface when projection review involves approval, bulk action, routing or spend state, export, prototype review, or blocker review.
+Projection convenience must respect hidden content, excluded content, protected spans, local-only material, never-send boundaries, and masked or approved-summary posture. It must not leak protected content through projected output, comparison, or recovery views.
 
 ## 21. GUI Placement Principles
 

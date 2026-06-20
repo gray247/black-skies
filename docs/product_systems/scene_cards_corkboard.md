@@ -36,8 +36,9 @@ truth.
 
 - display owner-backed structural material as cards, lanes, boards, or
   compact arrangement views,
-- render Outline items, Story Units, chapter or scene containers,
-  manuscript structure, or a selected prototype arrangement,
+- render Narrative Assertions, Story Units, Outline nodes, prototype
+  arrangements, scene or chapter projections, containers, notes or
+  signals where explicitly allowed, and owner-labeled metadata,
 - request rearrangement actions against the active underlying owner,
 - support comparison, inspection, and planning review without owning the
   underlying structure.
@@ -63,13 +64,21 @@ Background card generation, labeling, or arrangement suggestions may
 exist later, but they remain advisory and do not become structural truth
 automatically.
 
+Saved visual state may include card position, zoom, filters, grouping
+presentation, lane layout, collapsed or expanded state, selected
+references, workspace-local arrangement, or temporary comparison
+arrangement. Saved visual state must remain separate from accepted
+manuscript order, planning order, and Story Unit grouping.
+
 ## 8. What Appears First
 
 - the currently selected owner-backed arrangement,
 - basic labels and structural context,
 - clear indication of whether the view is showing Outline, Story Units,
   projection containers, manuscript structure, or a prototype
-  arrangement.
+  arrangement,
+- if useful, source labels that identify the owner of the displayed
+  material.
 
 ## 9. What Is Summonable
 
@@ -93,14 +102,16 @@ automatically.
 - projection containers,
 - manuscript structure references,
 - selected prototype arrangements,
-- author notes.
+- author notes,
+- source labels and owner metadata.
 
 ## 12. Outputs
 
 - visual arrangement views,
 - comparison views,
 - action requests routed to the active owner,
-- optional planning cues.
+- optional planning cues,
+- return-navigation hints back to the prior writing or planning location.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -117,13 +128,17 @@ If a later product version saves layout preferences, that preference
 state should remain subordinate to the relevant surface or settings
 owner rather than becoming Visual Arrangement View structural
 authority.
+Card position alone must not imply canonical order. Any saved visual
+state remains advisory unless an owning system explicitly applies a
+structural change.
 
 ## 15. What Remains Temporary
 
 - displayed arrangements,
 - unsaved card layout state,
 - comparison state,
-- advisory suggestions.
+- advisory suggestions,
+- temporary comparison arrangements.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -135,28 +150,57 @@ but authoritative manuscript content and order remain in
 
 Story Units may be shown here, but Story Unit grouping and
 narrative-purpose meaning remain Story Unit-owned.
+Story Unit archive or dissolve actions should be reflected as stale,
+inactive, or detached visual state rather than being silently converted
+into deleted assertions.
 
 ## 18. Relationship To Prose / Scene Projection
 
 Chapter or scene containers may be shown here through
 `Prose / Scene Projection`, but chapter or scene organization remains
 projection-owned rather than view-owned.
+The view may surface scene-like or chapter-like containers, but those
+containers are projections or compatibility views, not the base
+manuscript unit.
 
 ## 19. Relationship To Writing Surface
 
 The Writing Surface may show a bounded arrangement context when useful,
 but heavy comparison should not crowd direct writing.
+When the author is editing authoritative manuscript truth directly, the
+underlying owner accepts the edit immediately; the visual layer does not
+insert a second approval step.
 
 ## 20. Relationship To Command Center Surface
 
 The Command Center is the more natural home for deeper visual-arrangement
 comparison, prototype review, and heavier structure inspection.
+Handoffs should identify the source owner, affected item set, and return
+location, and they should preserve surface-local navigation history
+rather than stealing focus automatically.
 
 ## 21. GUI Placement Principles
 
 Keep visual arrangement optional, clearly labeled, and subordinate to
 its current owner.
 The active underlying owner must determine what dragging changes:
+
+- dragging a card may alter only visual layout unless the user chooses an
+  owner-routed structural action,
+- structural reorder proposals require preview,
+- preview identifies the owner state that would change,
+- direct author reorder in an authoritative manuscript projection remains
+  immediate and accepted,
+- Outline or Visual Arrangement proposals remain advisory until
+  explicitly applied,
+- applying changes routes through `Narrative Insertion / Narrative
+  Assertion`, `Story Unit`, `Outline`, or projection/container owners as
+  appropriate,
+- no generic visual-view mutation bypasses the owner.
+
+Canonical accepted state, advisory arrangement, temporary comparison,
+stale visual state, dismissed arrangement, saved workspace layout, and
+applied structural result must remain distinct.
 
 - dragging Outline material changes planning structure or prototype
   order,
