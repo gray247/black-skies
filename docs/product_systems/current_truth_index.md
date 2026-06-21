@@ -124,8 +124,16 @@ Current Black Skies doctrine is:
 - Structural Manuscript Systems is closed with recorded convergence
   items in
   [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
-- The next planned construction campaign is Truth Cards and Support
-  Maps.
+- Truth Cards and Support Maps is closed with recorded convergence
+  items in
+  [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
+- The next umbrella construction campaign is Organization, Retrieval,
+  Memory, and Interchange.
+- The next action should be a read-only campaign sequencing and
+  comparison audit, not construction.
+- Save-State and Degraded-Writing Workflow remains a standing
+  foundation dependency and reference, not the next construction
+  campaign.
 
 ## Living Dossier Rule
 
@@ -175,6 +183,7 @@ Current canonical repo-tracked sources include:
 - [outline.md](/C:/Dev/black-skies/docs/product_systems/outline.md)
 - [critique_evaluation.md](/C:/Dev/black-skies/docs/product_systems/critique_evaluation.md)
 - [import_export_document_interchange.md](/C:/Dev/black-skies/docs/product_systems/import_export_document_interchange.md)
+- [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md)
 - [pass220_modular_salvage_architecture_blueprint.md](/C:/Dev/black-skies/docs/audits/phase32/pass220_modular_salvage_architecture_blueprint.md)
 - [pass221_salvage_carry_forward_extraction_map.md](/C:/Dev/black-skies/docs/audits/phase32/pass221_salvage_carry_forward_extraction_map.md)
 - [authority_boundary_matrix.md](/C:/Dev/black-skies/docs/audits/phase29/authority_boundary_matrix.md)

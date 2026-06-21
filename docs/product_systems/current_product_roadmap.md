@@ -22,10 +22,17 @@ Current status:
 - Structural Manuscript Systems is closed with recorded convergence
   items in
   [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
-- The next planned construction campaign is Truth Cards and Support
-  Maps, with initial scope `Author Intent / Story Setup`, `Character
-  Cards`, `Lore Cards`, `Relationship Map`, `Emotion Graph`, `Theme
-  System`, `Timeline / Pacing / Pressure`, and `Foreshadow / Payoff`.
+- Truth Cards and Support Maps is closed with recorded convergence
+  items in
+  [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
+- The next umbrella construction campaign is Organization, Retrieval,
+  Memory, and Interchange. Candidate scope for the next read-only
+  sequencing and comparison audit includes `Binder / Project Library`,
+  `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
+  `Import / Export / Google Docs`, `Memory Lab`, and
+  `Series Binder / Cross-Story Linking`.
+- The final subcampaign split for Organization, Retrieval, Memory, and
+  Interchange is not decided in this roadmap update.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -202,7 +209,8 @@ implementation-planning review may be considered.
 Current roadmap-sufficient work:
 
 - `Author Intent / Story Setup`
-  Minimum still needed: keep the bounded optional question set,
+  Current treatment: category `4` after Truth Cards and Support Maps
+  closure. Keep the bounded optional question set,
   singular accepted-project-truth ownership, consumer limits, and
   non-gating posture stable.
   Can remain intentionally unfinished: exact GUI, exact storage shape,
@@ -233,7 +241,8 @@ Current roadmap-sufficient work:
   tuning.
 - `Character Cards`, `Lore Cards`, `Theme System`, `Relationship Map`,
   `Emotion Graph`, and `Foreshadow / Payoff`
-  Minimum still needed: keep `Character Cards` and `Lore Cards` as the
+  Current treatment: category `4` after Truth Cards and Support Maps
+  closure. Keep `Character Cards` and `Lore Cards` as the
   owners of accepted structured truth on a fact-by-fact basis, keep
   accepted truth separate from planned, candidate, or advisory
   material, keep `Theme System`, `Relationship Map`, `Emotion Graph`,
@@ -246,7 +255,8 @@ Current roadmap-sufficient work:
   motif-linking detail, setup/payoff vocabulary, merge/split mechanics,
   time-state display, and full UI richness.
 - `Timeline / Pacing / Pressure`
-  Minimum still needed: keep it support-only, split it clearly into
+  Current treatment: category `4` after Truth Cards and Support Maps
+  closure. Keep it support-only, split it clearly into
   Timeline, Pacing, and Pressure modules, keep accepted time facts in
   existing truth owners, route pacing intent to existing owners by
   scope, keep pressure bounded to urgency, consequence, constraint, and
@@ -292,8 +302,8 @@ Current research or deferred work:
   product foundations.
   Reopen when: critique, routing, package, and evaluation boundaries
   are stable enough to support honest claims.
-- full `Series Binder`, cross-story expansion, and strong product
-  identity or delight work
+- full cross-story expansion beyond the next sequencing audit and strong
+  product identity or delight work
   Why deferred: these lanes require a more settled core project,
   workflow, and surface model first.
   Reopen when: the foundation and near-core workflow posture are stable.
@@ -377,22 +387,19 @@ need rather than by placeholder rank.
    Suitable as the one final major artifact in this thread: `no`,
    because it is no longer an unresolved candidate mission.
 3. Truth Cards and Support Maps
-   Product question: how should author intent, character facts, lore,
-   relationships, emotional structure, theme, pacing, pressure, and
-   foreshadow/payoff support each other without collapsing into one
-   owner?
-   Foundation impact: high because these systems underpin accepted
-   structured truth and the next major block of support-map work.
-   Writer-experience value: high for authors who need durable support
-   maps after the structural manuscript model is stable.
-   Ownership risk: medium, but the core authority model is already
-   settled enough to begin bounded construction.
-   Likely files affected: `author_intent_story_setup.md`,
-   `character_cards.md`, `lore_cards.md`, `relationship_map.md`,
-   `emotion_graph.md`, `theme_system.md`, `timeline_pacing_pressure.md`,
-   `foreshadow_payoff.md`, and this roadmap.
-   Suitable as the one final major artifact in this thread: `yes`, and
-   it is the current recommendation.
+   Status: closed with recorded convergence items in
+   `orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md`.
+   Resulting posture: accepted project truth belongs to
+   `Author Intent / Story Setup`; accepted character and lore truth
+   belong to card owners; accepted manuscript truth and authoritative
+   order remain in `Narrative Insertion / Narrative Assertion`; support
+   maps, graphs, theme, timeline, pacing, pressure, and payoff systems
+   remain support-only or advisory unless an owner-routed action accepts
+   state elsewhere.
+   Remaining work class: taxonomies, presentation, merge or split
+   interfaces, bounded history depth, and later dossier-completion work.
+   Suitable as the next construction campaign: `no`, because this
+   campaign is now closed.
 4. save-state and degraded-writing workflow
    Product question: what should the writer believe about save, risk,
    recovery, degraded operation, startup, and resume?
@@ -409,8 +416,8 @@ need rather than by placeholder rank.
    `service_health_offline_degraded_mode.md`,
    `splash_startup_experience.md`, and this roadmap.
    Suitable as the one final major artifact in this thread: `no`, not
-   while Truth Cards and Support Maps is the selected construction
-   campaign.
+   while it remains a standing foundation dependency and reference
+   rather than the next construction campaign.
 5. `Ideation / Premise Discovery` dossier
    Product question: what early creative-discovery support belongs in
    Black Skies, what remains manual, and how do seeds avoid
@@ -425,13 +432,30 @@ need rather than by placeholder rank.
    `capability_ownership_map.md`, and this roadmap.
    Suitable as the one final major artifact in this thread: `no`, not
    while more foundation-changing cross-system work remains open.
+6. Organization, Retrieval, Memory, and Interchange
+   Product question: how should project organization, file and asset
+   handling, retrieval, import or export, Memory Lab, and series-level
+   linking support the writer without becoming truth owners or blurring
+   local save-state, interchange, memory, search, and organization?
+   Candidate scope for sequencing audit: `Binder / Project Library`,
+   `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
+   `Import / Export / Google Docs`, `Memory Lab`, and
+   `Series Binder / Cross-Story Linking`.
+   Foundation impact: high enough to require a read-only sequencing and
+   comparison audit before construction, especially around import,
+   retrieval, memory, and series boundaries.
+   Suitable as the next umbrella construction campaign: `yes`, after
+   the Truth Cards and Support Maps closure is committed.
 
-Current recommendation for Pass 6:
+Current recommendation for the next campaign:
 
-- Truth Cards and Support Maps
+- Organization, Retrieval, Memory, and Interchange
 
 This recommendation is current planning guidance only.
-It is not Jason approval and it does not begin Pass 6 automatically.
+It is not Jason approval, does not decide the final subcampaign split,
+and does not begin construction automatically.
+The next action should be a read-only campaign sequencing and
+comparison audit.
 
 ## 8. Product Horizons
 
@@ -491,14 +515,17 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. complete one final major foundation artifact in this thread; the
-   current recommendation is Truth Cards and Support Maps
+1. close Truth Cards and Support Maps with recorded convergence items
+   and preserve its category `4`, not category `5`, maturity effect
 2. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners
-3. keep roadmap-sufficient families partial but classified rather than
+3. sequence the next umbrella construction campaign, Organization,
+   Retrieval, Memory, and Interchange, through a read-only comparison
+   audit before construction
+4. keep roadmap-sufficient families partial but classified rather than
    forcing universal deep closure
-4. document residual unresolved questions with explicit owners and
+5. document residual unresolved questions with explicit owners and
    disposition
 
 After that, all of the following must also be true:
@@ -531,7 +558,7 @@ following:
 - critique severity polish, `Companion` personality polish, or rewrite
   tuning depth
 - advanced branching
-- the full `Series Binder`
+- full cross-story expansion beyond the next sequencing audit
 - originality research execution
 - model benchmarking execution
 - long-form validation program execution

@@ -122,8 +122,8 @@ systems.
 - Category `0`: `0`
 - Category `1`: `0`
 - Category `2`: `5`
-- Category `3`: `21`
-- Category `4`: `18`
+- Category `3`: `13`
+- Category `4`: `26`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -144,6 +144,11 @@ systems.
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
 - That closure does not change category `4` dossiers into category `5`
   dossiers.
+- Truth Cards and Support Maps is closed with recorded convergence
+  items in
+  [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
+- That closure promotes the eight campaign dossiers to category `4`;
+  it does not make any of them dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -164,7 +169,7 @@ systems.
 | 1 | Writing Surface | `writing_surface.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final interaction and display detail | adjacent dossier completion, not owner drift | A |
 | 2 | Command Center Surface | `command_center_surface.md` | `1:1` | `current` | 4 | yes | yes | yes | no | deeper workflow organization detail | adjacent dossier completion, not owner drift | A |
 | 3 | Workflow Spine / Author Journey | `workflow_spine_author_journey.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final journey and summary detail | must stay narrow and non-owning | A |
-| 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 3 | yes | partial | partial | no | profile fields, lifecycle, presentation model | needs fuller construction before more generic hardening is useful | B |
+| 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final questionnaire, presentation, and dossier-completion detail | Truth Cards closure settled project-truth ownership, lifecycle, consumer limits, protection, and non-gating posture | A |
 | 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 3 | yes | partial | partial | no | deeper browse, reference, and missing-source posture | depends on file and retrieval adjacency | B |
 | 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 4 | yes | yes | yes | no | owner handoffs and arrangement semantics | later dossier-completion wording and layout detail | A |
 | 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 4 | yes | yes | yes | no | payload, lifecycle, split or merge, promotion detail | later dossier-completion wording and grouping detail | A |
@@ -172,11 +177,11 @@ systems.
 | 8 | Prose / Scene Projection | `prose_scene_projection.md` | `1:1` | `current` | 4 | yes | yes | yes | no | projection labeling and workflow detail | later dossier-completion wording and source-anchor detail | A |
 | 10 | Outline | `outline.md` | `1:1` | `current` | 4 | yes | yes | yes | no | reorder, prototype, and review workflow detail | later dossier-completion wording and proposal detail | A |
 | 16 | Feedback Notes / Revision Resolution | `feedback_notes_revision_resolution.md` | `1:1` | `current` | 4 | yes | yes | yes | no | note taxonomy and closed-history policy | mature enough for dossier completion work | A |
-| 17 | Lore Cards | `lore_cards.md` | `1:1` | `current` | 3 | yes | partial | partial | no | fact model, merge review, time-state behavior | depends on adjacent truth-support systems | B |
-| 18 | Character Cards | `character_cards.md` | `1:1` | `current` | 3 | yes | partial | partial | no | fact model, merge review, time-state behavior | depends on relationship and emotion adjacency | B |
+| 17 | Lore Cards | `lore_cards.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final field grouping, merge review, and time-state presentation | Truth Cards closure settled accepted lore ownership, candidate boundaries, provenance, protection, and secondary-reference posture | A |
+| 18 | Character Cards | `character_cards.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final field grouping, merge review, and time-state presentation | Truth Cards closure settled accepted character ownership, candidate boundaries, provenance, protection, and secondary-reference posture | A |
 | 19 | Project Index / Search / Retrieval | `project_index_search_retrieval.md` | `1:1` | `current` | 3 | yes | partial | partial | no | retrieval depth and writer-facing labels | Memory Lab distinction and import-source adjacency still need construction | B |
 | 20 | Series Binder / Cross-Story Linking | `series_binder_cross_story_linking.md` | `1:1` | `current` | 2 | yes | no | no | no | real workflow model beyond skeleton | needs construction before hardening is useful | B |
-| 28 | Theme System | `theme_system.md` | `1:1` | `current` | 3 | yes | partial | partial | no | thematic lifecycle and support interactions | depends on character, lore, critique, and structure adjacency | B |
+| 28 | Theme System | `theme_system.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final theme taxonomy, motif vocabulary, and presentation detail | Truth Cards closure settled Story Theme support, detected-theme advisory posture, source evidence, protection, and UI-theme separation | A |
 | 29 | Accessibility / Hotkeys / Large-Font Mode | `accessibility_hotkeys_large_font_mode.md` | `1:1` | `current` | 2 | yes | no | no | no | cross-surface interaction model and rule depth | needs construction before hardening is useful | B |
 | 30 | Settings / Preferences / Workspace Layout | `settings_preferences_workspace_layout.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final storage-scope and restoration detail | mature enough for dossier completion work | A |
 | 31 | Splash / Startup Experience | `splash_startup_experience.md` | `1:1` | `current` | 4 | yes | yes | yes | no | startup polish and bounded disclosure detail | mature enough for dossier completion work | A |
@@ -188,15 +193,15 @@ systems.
 | ID | System | Home | Exists | Authority | Mat. | Own. | Rec. | Hard. | Done | Still missing | Main blocker | Lane |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 9 | Draft Generation / Rewrite Loop | `draft_generation_rewrite_loop.md` | `1:1` | `current` | 3 | yes | partial | partial | no | rewrite lifecycle and approval flow detail | depends on editorial and routing cluster completion | B |
-| 11 | Timeline / Pacing / Pressure | `timeline_pacing_pressure.md` | `1:1` | `current` | 3 | yes | partial | partial | no | taxonomy, defaults, and support-history depth | depends on structure, emotion, and continuity adjacency | B |
-| 12 | Relationship Map | `relationship_map.md` | `1:1` | `current` | 3 | yes | partial | partial | no | accepted-fact interaction model | depends on character and lore truth completion | B |
-| 13 | Emotion Graph | `emotion_graph.md` | `1:1` | `current` | 3 | yes | partial | partial | no | emotional-intent and projection detail | depends on character, theme, and structure adjacency | B |
+| 11 | Timeline / Pacing / Pressure | `timeline_pacing_pressure.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final chronology vocabulary, pacing metrics, pressure display, and history depth | Truth Cards closure settled the three-module support model, owner routing, chronology distinctions, advisory pacing and pressure, and bounded history posture | A |
+| 12 | Relationship Map | `relationship_map.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final relationship taxonomy, display defaults, and mixed-domain owner-selection detail | Truth Cards closure settled map non-ownership, secondary references, advisory inferences, owner transfer, protection, and stale-state posture | A |
+| 13 | Emotion Graph | `emotion_graph.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final emotion taxonomy, display defaults, and trajectory detail | Truth Cards closure settled accepted-source references, planned development, detected movement, intended reader effect, owner routing, and protection posture | A |
 | 14 | Continuity | `continuity.md` | `1:1` | `current` | 4 | yes | yes | yes | no | evidence grading and retained-history detail | mature enough for dossier completion work | A |
 | 15 | Critique / Evaluation | `critique_evaluation.md` | `1:1` | `current` | 4 | yes | yes | yes | no | finding shape, ranking, and citation density detail | mature enough for dossier completion work | A |
 | 21 | Senses Usage | `senses_usage.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
 | 22 | Overused Words | `overused_words.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
 | 23 | Cliche Detection | `cliche_detection.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
-| 24 | Foreshadow / Payoff | `foreshadow_payoff.md` | `1:1` | `current` | 3 | yes | partial | partial | no | support-link lifecycle and review triggers | depends on outline, continuity, and structure adjacency | B |
+| 24 | Foreshadow / Payoff | `foreshadow_payoff.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final setup/payoff vocabulary, review triggers, and presentation defaults | Truth Cards closure settled planned versus detected links, owner routing, quiet unresolved-link posture, protection, recurrence, and support-only state | A |
 | 25 | Explicit-Content Marker / Send-Package Censor | `explicit_content_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | user-facing workflow and package review detail | still embedded in a bridge dossier, not a final product model | B |
 | 26 | Companion | `companion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | capability-boundary detail and later personality polish | mature enough for dossier completion work | A |
 | 27 | Memory Lab | `memory_lab.md` | `1:1` | `current` | 3 | yes | partial | partial | no | retention classes and recall-versus-retrieval flow | retrieval and provenance distinctions still need construction | B |
@@ -287,6 +292,14 @@ These are current-authority dossiers that are already category `4`:
 - `Prose / Scene Projection`
 - `Visual Arrangement View`
 - `Feedback Notes / Revision Resolution`
+- `Author Intent / Story Setup`
+- `Character Cards`
+- `Lore Cards`
+- `Relationship Map`
+- `Emotion Graph`
+- `Theme System`
+- `Timeline / Pacing / Pressure`
+- `Foreshadow / Payoff`
 - `Settings / Preferences / Workspace Layout`
 - `Splash / Startup Experience`
 - `Continuity`
@@ -297,7 +310,7 @@ These are current-authority dossiers that are already category `4`:
 - `Service Health / Offline / Degraded Mode`
 - `Diagnostics / Error Visibility / Debug Console`
 
-Lane A count: `18`
+Lane A count: `26`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -307,21 +320,17 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. truth cards and support maps
-   `Author Intent / Story Setup`, `Character Cards`, `Lore Cards`,
-   `Relationship Map`, `Emotion Graph`, `Theme System`, `Timeline /
-   Pacing / Pressure`, `Foreshadow / Payoff`
-2. import, retrieval, and memory adjacency
+1. organization, retrieval, memory, and interchange
    `Import Export Document Interchange`, `Binder / Project Library`,
    `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
-   `Memory Lab`
-3. AI-governance bridge-backed systems
+   `Memory Lab`, `Series Binder / Cross-Story Linking`
+2. AI-governance bridge-backed systems
    `Explicit Content`, routing, provider policy, and budget guardrails
-4. partial analyzer and extension systems
+3. partial analyzer and extension systems
    `Senses Usage`, `Overused Words`, `Cliche Detection`,
    `Plugin / Rubric System`
 
-Lane B count: `26`
+Lane B count: `18`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -345,9 +354,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `18` registry targets at category `4`.
+  Current answer: `26` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `26` registry targets at category `2` or `3`.
+  Current answer: `18` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning
