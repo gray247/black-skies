@@ -225,6 +225,184 @@ by retention alone.
 - temporary findings,
 - unsaved prototype projections.
 
+## 17A. Event Model
+
+Timeline represents events as support records, not as a second truth
+store.
+
+An event may store:
+
+- event identity
+- event subject
+- story-world chronology
+- manuscript order
+- planning chronology
+- projected scene or chapter placement
+- absolute or relative time
+- uncertain dates
+- duration
+- overlap
+- simultaneity
+- causal order
+- historical status
+- future planned status
+- source anchors
+- accepted-fact versus proposed-event state
+- contradiction and uncertainty posture
+- hidden or secret chronology
+- character-known versus author-known timing
+- stale state after manuscript or card changes
+- archive, supersession, and deletion posture
+
+Accepted event facts route to the owning truth system for the domain:
+
+- character event facts -> `Character Cards`
+- lore or world event facts -> `Lore Cards`
+- manuscript occurrence or timing facts -> `Narrative Insertion / Narrative Assertion`
+- project-level structural intent -> `Author Intent / Story Setup` or
+  `Outline`, depending on whether the claim is intent or structure
+- planning-only future events -> `Outline`
+
+Timeline may reference and compare those facts, but it does not become
+the universal owner.
+
+## 17B. Chronology Distinctions
+
+Timeline must distinguish:
+
+- story-world chronology
+- authoritative manuscript order
+- Outline planning order
+- projected scene or chapter organization
+- event sequence
+- reader revelation order
+
+These are related but not identical.
+Chronology must not be collapsed into manuscript order, Outline order,
+or projection order.
+
+## 17C. Pacing Model
+
+Pacing is interpretive analysis over manuscript and structural evidence.
+
+Pacing may represent:
+
+- unit of analysis
+- source range
+- manuscript position
+- scene or chapter projection
+- Story Unit or Outline context
+- pace estimate
+- transition or change
+- density
+- delay
+- repetition
+- compression
+- expansion
+- reader-experience interpretation
+- author-intended pacing
+- detected pacing
+- uncertainty and evidence
+- historical analysis runs
+- stale findings
+- comparison between manuscript versions
+
+Pacing analysis remains advisory.
+Accepted pacing intent, where durable, routes to `Author Intent /
+Story Setup` for project-level intent or `Outline` for planning
+structure.
+Detected pacing does not become canonical pacing by being stored,
+compared, or shown.
+
+## 17D. Pressure Model
+
+Pressure is distinct from pacing and emotion.
+
+Pressure may represent:
+
+- narrative pressure
+- tension
+- urgency
+- stakes
+- unresolved demand
+- threat
+- deadline
+- emotional pressure
+- reader pressure versus character pressure
+- intended versus detected pressure
+- source evidence
+- intensity
+- timeframe
+- trajectory
+- uncertainty
+- stale findings
+- relationship to `Emotion Graph`, `Theme System`, `Outline`, and
+  `Author Intent / Story Setup`
+
+Pressure remains bounded support analysis. It does not own emotional
+truth or project truth.
+Accepted emotional facts remain with `Character Cards` or the
+appropriate existing owner. Accepted project-level pressure intent
+routes to `Author Intent / Story Setup`.
+
+## 17E. Time, History, And State
+
+Timeline / Pacing / Pressure may represent:
+
+- current chronological state
+- prior chronological state
+- proposed future state
+- bounded-period state
+- historical events
+- hidden or secret chronology
+- character-known versus author-known timing
+- historical snapshots
+- candidate support state
+- planned support state
+- detected support state
+- reviewed support state
+- accepted-through-owner reference state
+- dismissed support state
+- expired support state
+- stale support state
+- superseded support state
+- partially fulfilled support state
+- abandoned support state
+- archived support state
+- restored support state
+- detached support state
+- deleted support state
+
+A changed chronology or timing state is not automatically a contradiction.
+Deleting support state must not delete source truth.
+Stale state must be exposed rather than silently reconstructed as fresh
+analysis.
+
+## 17F. Shared Support State
+
+Timeline may store:
+
+- chronology views
+- pacing comparisons
+- pressure comparisons
+- order-basis comparisons
+- evidence references
+- selected story periods
+- simultaneity groupings
+- duration displays
+- uncertainty and dispute overlays
+- prototype-specific projection state
+- saved filters and presentation state
+
+These are support records, not accepted truth.
+Historical pacing or pressure comparison views are bounded, labeled,
+on-demand, and advisory. History does not create durable truth, Notes,
+Signals, or automatic recurrence.
+Findings do not automatically become Notes or Signals. Review
+collections remain non-owning, dismissal does not delete source truth,
+and recurrence creates a linked advisory candidate rather than reopening
+durable work automatically.
+
 ## 18. Timeline Module
 
 Timeline owns durable support state only.
@@ -443,15 +621,18 @@ Heavier analysis must respect routing and spend rules.
 
 ## 37. Explicit-Content / Send-Package Handling, If Applicable
 
-Any outbound analysis package must respect masking, AI-exclusion, and
-local-only rules.
+Any outbound analysis package must respect masking, AI-exclusion,
+never-send, approved-summary, and local-only rules.
 
 ## 38. Privacy / Safety / Censor Behavior, If Applicable
 
-Protected, private, masked, unrevealed, or AI-excluded events must not
-leak through timeline labels, pacing summaries, pressure views,
-Companion answers, Memory Lab recall, prototype projections, or AI
-packages.
+Protected, excluded, local-only, never-send, masked, unrevealed,
+author-known secret, character-known belief, reader-hidden, or
+AI-excluded events must not leak through timeline labels, pacing
+summaries, pressure views, Companion answers, Memory Lab recall,
+prototype projections, exports, previews, summaries, or AI packages.
+Use masks and approved summaries at reader-visible or recipient-visible
+boundaries.
 
 ## 39. Testing Requirements
 

@@ -111,6 +111,131 @@ relevant.
 - signal references,
 - view and filter state.
 
+## 14A. Setup / Payoff Object Model
+
+Foreshadow / Payoff tracks relationships among narrative support
+objects such as:
+
+- setup
+- clue
+- promise
+- plant
+- motif-linked setup
+- callback
+- reveal
+- consequence
+- resolution
+- payoff
+- partial payoff
+- deliberate non-payoff
+- subversion
+- abandoned setup
+- superseded plan
+
+An item may be planned, detected, saved, stale, abandoned, or
+partially fulfilled.
+
+It may store:
+
+- planned link state
+- detected link state
+- accepted upstream truth reference
+- manuscript evidence reference
+- advisory interpretation
+- display state
+- directionality
+- source anchors
+- evidence
+- confidence
+- timeframe
+- expected resolution window
+- primary truth owner
+- secondary references
+- accepted-reference or advisory-link state
+
+The map does not become a fact owner.
+
+## 14B. Lifecycle
+
+Foreshadow / Payoff lifecycle states include:
+
+- candidate
+- planned
+- detected
+- reviewed
+- accepted through owner
+- dismissed
+- expired
+- stale
+- superseded
+- partially fulfilled
+- abandoned
+- archived
+- restored
+- detached
+- deleted support state
+
+Deleting support state must not delete source truth.
+Stale state must be exposed rather than silently reconstructed as a new
+or still-current link.
+
+## 14C. Planned Versus Detected
+
+Planned support routes according to the claim being made:
+
+- project-level creative promise -> `Author Intent / Story Setup`
+- planned structural placement -> `Outline`
+- manuscript evidence -> `Narrative Insertion / Narrative Assertion`
+- character or lore fact connection -> the respective card owner
+- detected setup/payoff relationship -> advisory support
+
+Detected links remain advisory until explicitly routed through the
+correct owner.
+Acceptance of upstream truth does not make the detected relationship
+itself accepted truth.
+
+## 14D. Time, History, And Conflict
+
+Foreshadow / Payoff may represent:
+
+- planned versus detected connection
+- source anchors
+- directionality
+- evidence
+- confidence
+- timeframe
+- expected resolution window
+- stale or broken link
+- partially fulfilled payoff
+- superseded plan
+- abandoned setup
+- archive, dismissal, and deletion posture
+
+It may also represent deliberate non-payoff or subversion without
+treating that as a defect by default.
+
+## 14E. Shared Support State
+
+Foreshadow / Payoff may store:
+
+- author-approved durable support links
+- candidate link references
+- source and provenance references
+- saved support posture
+- signal references
+- view and filter state
+
+These are support records, not narrative truth.
+Unresolved or intentionally unresolved setup/payoff links remain quiet
+by default but summonable. They become prominent only when requested,
+when blocking a chosen workflow, or when explicitly promoted through the
+proper attention owner.
+
+Findings do not automatically become Notes or Signals. Review
+collections remain non-owning, dismissal does not delete source truth,
+and recurrence creates a linked advisory candidate rather than reopening
+durable work automatically.
+
 ## 15. What Remains Temporary
 
 - inferred links,
@@ -164,13 +289,18 @@ Heavier analysis must respect routing and spend rules.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-Any outbound analysis package must respect masking and package rules.
+Any outbound analysis package must respect masking, AI-exclusion,
+never-send, approved-summary, and local-only package rules.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Protected, private, masked, unrevealed, or AI-excluded material must
-not leak through evidence paths, labels, summaries, or prototype
-projections.
+Protected, excluded, local-only, never-send, masked, unrevealed,
+author-known secret, character-known belief, reader-hidden, or
+AI-excluded material must not leak through evidence paths, labels,
+summaries, previews, exports, Companion answers, prototype projections,
+or AI packages.
+Use masks and approved summaries at reader-visible or recipient-visible
+boundaries.
 
 ## 27. Testing Requirements
 
