@@ -180,6 +180,244 @@ Eventually stored:
 - visibility and filter state where needed.
 Relationship Map storage remains support state unless accepted through truth owners.
 
+## 14A. Node Model
+
+Nodes are representations or references to owner-controlled subjects,
+not duplicate truth records.
+
+Nodes may represent:
+
+- characters
+- organizations
+- locations
+- objects
+- factions
+- lore entities
+- project-level concepts where appropriate
+
+Each node may store:
+
+- durable display identity where useful
+- source owner
+- source reference
+- missing-source posture
+- archived-source posture
+- visibility restrictions
+- display metadata that differs from accepted source truth
+
+## 14B. Edge Model
+
+Edges represent relationships between represented subjects.
+
+An edge may store:
+
+- subject
+- target
+- directionality
+- relationship type
+- strength or intensity
+- timeframe or validity span
+- primary truth owner
+- secondary references
+- source anchors
+- provenance
+- uncertainty
+- contradiction posture
+- accepted-reference or advisory-inference state
+
+Not every edge needs every field.
+
+### Accepted Secondary Reference
+
+An accepted secondary reference is a map representation of an accepted
+relationship fact owned elsewhere.
+
+It may retain:
+
+- owner identity
+- source reference
+- approved display label
+- timeframe
+- visibility posture
+- provenance reference
+
+It must not become a second authoritative copy.
+
+### Advisory Inference
+
+An advisory inference is a detected, suggested, interpreted, or
+analytically inferred relationship.
+
+It may be reviewed, compared, revised, dismissed, expired, marked
+stale, or converted through an explicit owner-routed acceptance path.
+Conversion does not make Relationship Map the owner.
+
+### Planning Or Proposed Relationship
+
+A planning or proposed relationship is intentionally created for future
+story development and remains proposed until the correct owner accepts
+it.
+
+The owner is chosen by the claim being made:
+
+- `Author Intent / Story Setup` for project-level premises or creative
+  boundaries
+- `Character Cards` for character-centric claims
+- `Lore Cards` for lore or world-structure claims
+- `Outline` when the claim is part of structural planning rather than
+  accepted truth
+
+### Display-Only Connection
+
+A display-only connection is temporary visual support for exploration,
+filtering, comparison, or layout.
+
+It must not imply a fact or proposal.
+
+## 15. Lifecycle
+
+Relationship Map lifecycle states include:
+
+- create representation
+- link source
+- infer
+- propose
+- review
+- revise advisory state
+- dismiss
+- expire
+- mark stale
+- archive display state
+- restore display state
+- detach reference
+- remove from map
+- convert through owner
+- transfer primary ownership
+
+Removing a node or edge from the map must not delete the accepted fact
+or source artifact.
+
+Deleting an accepted relationship fact remains an owner-controlled
+operation.
+
+## 15A. Time And History
+
+Relationship Map may represent:
+
+- current relationships
+- former relationships
+- future planned relationships
+- bounded-period relationships
+- changing strength
+- changing direction
+- hidden or secret relationships
+- disputed relationships
+- false in-world beliefs
+- historical snapshots
+- manuscript-position-dependent state
+
+A former relationship is not automatically a contradiction.
+
+## 15B. Contradiction And Uncertainty
+
+The map distinguishes:
+
+- relationship changed over time
+- competing candidate interpretations
+- source-owner contradiction
+- manuscript evidence conflict
+- missing evidence
+- stale inference
+- uncertain strength or type
+- deliberate ambiguity
+
+Contradiction detection remains advisory.
+
+Relationship Map must not silently revise Character Cards, Lore Cards,
+Author Intent, or manuscript truth.
+
+## 15C. Owner Routing
+
+Owner-routed actions include:
+
+- accept inferred relationship
+- revise accepted relationship
+- transfer ownership
+- add or update a secondary reference
+- resolve contradiction
+- dismiss advisory inference
+- open source
+- show evidence
+- return to prior location
+
+Before acceptance or revision, the map should identify:
+
+- proposed claim
+- current primary owner
+- affected references
+- provenance
+- source evidence
+- state that will change
+
+## 15D. Owner Transfer
+
+The settled transfer rule is:
+
+- one primary owner at a time
+- transfer must be explicit
+- previous and new owner must be identified
+- provenance and lineage must survive
+- secondary references must remain connected or be deliberately updated
+- duplicate authoritative records must not be created
+- stale references must be marked rather than silently redirected where
+  confidence is insufficient
+
+## 15E. Notes, Signals, And Review Collections
+
+Advisory relationship findings do not automatically become Notes or
+Signals.
+
+Conversion to a durable `Feedback Note` or `Signal` requires the
+appropriate explicit workflow.
+
+Review collections may display relationship concerns but do not own
+them.
+
+Dismissal in a review view must not silently delete owner truth.
+
+Recurrence may create a linked advisory candidate rather than reopening
+durable work automatically.
+
+## 15F. Protection And Staleness
+
+Relationship Map must respect:
+
+- hidden content
+- excluded content
+- protected spans
+- local-only information
+- never-send restrictions
+- masked and approved-summary posture
+- author-known secrets
+- character-known beliefs
+- reader-visible information
+
+Secondary references inherit relevant restrictions.
+
+Map labels, summaries, previews, exports, Companion answers, and AI
+packages must not expose restricted source information.
+
+The map should mark references stale, unavailable, historical, or
+restricted rather than silently reconstructing truth when:
+
+- a Character Card or Lore Card fact changes
+- ownership transfers
+- a source is archived or restored
+- an assertion is split, merged, moved, archived, or deleted
+- a timeframe changes
+- a relationship inference loses supporting evidence
+- visibility restrictions change
+
 ## 15. What Remains Temporary
 
 Temporary or non-durable:
