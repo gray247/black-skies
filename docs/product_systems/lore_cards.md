@@ -187,12 +187,75 @@ Temporary or non-durable:
 - transient Companion explanations,
 - unsaved Memory Lab recall views.
 
+## 15A. Fact Lifecycle And Time-State
+
+Lore facts follow explicit author-governed lifecycle states:
+
+- candidate: a proposed lore fact, imported fact, advisory inference, or
+  AI suggestion that has not yet been accepted
+- accepted: the author has explicitly accepted the fact in this owner
+- revised: an accepted fact is updated by the author
+- superseded: a newer accepted fact replaces an older one while
+  retaining lineage
+- archive: the fact record or supporting container is retained in an
+  inactive state
+- restore: the archived record returns to review or active use
+- reject: a proposed fact is not accepted
+- delete: allowed only when the author explicitly removes the fact
+
+Lore facts may represent historical truth, current truth, regional
+variation, disputed belief, false in-world belief, secret truth,
+author-known truth, character-known belief, or uncertainty. The card
+must keep those states distinct instead of collapsing them into one
+accepted author truth line.
+
+Manuscript prose may support, contradict, or leave a lore fact
+uncertain, but it does not automatically rewrite the card. Contradictions
+remain advisory until the author accepts a durable fact change through
+this owner.
+
+## 15B. Primary Ownership, Secondary References, And Transfer
+
+Lore-to-lore or world-structure claims normally route to `Lore Cards`.
+
+Mixed character or lore claims route to the domain that principally
+asserts the claim. The non-primary domain keeps a secondary reference
+only.
+
+Owner transfer must be explicit, preserve provenance, preserve
+secondary references, avoid duplicate authoritative records, and
+identify the previous and new owner.
+
+## 15C. Contradiction And Review
+
+Factual contradiction detection is advisory.
+
+The card may show conflicting candidates, uncertain evidence, stale
+support, or superseded truth, but it must not auto-resolve them.
+Rejected or dismissed findings do not become durable fact state.
+Accepted resolutions route through the correct owner.
+
+## 15D. Provenance And Protection
+
+Provenance may include direct author entry, manuscript-derived evidence,
+imported material, AI suggestions, Continuity findings, Relationship
+Map suggestions, merged facts, owner transfer, or supersession history.
+
+Provenance supports explanation and review without displacing author
+ownership.
+
+Hidden, protected, excluded, local-only, never-send, and masked
+information remains bounded. Secondary references inherit visibility
+restrictions where required.
+
 ## 16. Relationship To Narrative Insertion / Assertion
 
 Lore Cards may display lore-related truth that comes from accepted assertions or other explicit author decisions.
 One accepted assertion may support several lore facts, and one accepted lore fact may be supported by several assertions.
 
 They do not replace `Narrative Insertion / Narrative Assertion` as the truth foundation.
+Accepted lore facts can also be referenced by other systems, but those
+systems do not become duplicate authoritative records.
 
 ## 17. Relationship To Story Units
 

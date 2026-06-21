@@ -289,6 +289,64 @@ Tentative, blank, abandoned, protected, and excluded answers should be
 treated conceptually as different conditions, but this dossier does not
 define implementation enums.
 
+## 15A. Lifecycle And Change Model
+
+Author intent follows explicit author-governed lifecycle states:
+
+- candidate: material intentionally created as a proposal, alternative,
+  staging item, planning note, imported review item, or AI proposal
+- accepted: explicit author action in this owner makes the intent
+  durable project truth
+- revised: an accepted intent is updated by the author
+- superseded: a newer accepted intent replaces an older accepted intent
+  while preserving history
+- rejected: a proposed intent is not accepted
+- archived: accepted or rejected history is retained for reference
+- restored: archived intent is brought back into active review or use
+- deleted: allowed only when the author explicitly removes the intent
+
+When accepted intent changes, downstream support systems may mark their
+references stale or needing review. They must not silently rewrite
+cards, projections, or manuscript prose.
+
+## 15B. Intent Versus Canon
+
+This dossier may hold creative intent, project rules, preferences,
+planning assumptions, and accepted project-level factual guidance when
+the author explicitly states them.
+
+It does not turn every preference into durable project truth.
+It does not absorb character facts, lore facts, or manuscript truth.
+Accepted manuscript truth stays in `Narrative Insertion / Narrative
+Assertion`. Character truth stays in `Character Cards`. Lore truth
+stays in `Lore Cards`.
+
+## 15C. Cross-Domain Ownership And Transfer
+
+Project-level relational premises and creative boundaries may belong
+here.
+
+If an accepted fact principally belongs to `Character Cards` or `Lore
+Cards`, that system remains the primary owner and this dossier keeps a
+secondary reference only.
+
+Owner transfer must be explicit, preserve provenance, preserve secondary
+references, avoid duplicate authoritative records, and identify the
+previous and new owner.
+
+## 15D. Provenance And Protection
+
+Provenance for this dossier may include direct author entry,
+manuscript evidence, imported material, AI suggestions, Continuity
+findings, or explicit owner-transfer records.
+
+Provenance explains why the intent exists. It does not replace author
+ownership.
+
+Protected, excluded, local-only, never-send, and masked material stays
+bounded when it is referenced here. Secondary references inherit the
+same visibility restrictions that apply to the source material.
+
 ## 16. Relationship To Narrative Insertion / Assertion
 
 `Author Intent / Story Setup` may guide narrative decisions, but it does
