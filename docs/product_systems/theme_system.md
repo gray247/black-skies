@@ -139,6 +139,139 @@ explicitly promoted through the correct owner path.
 Stored theme material remains support state unless explicitly promoted
 into the accepted project-truth owner.
 
+## 14A. Layer 1 - Author-Owned Thematic Intent
+
+Theme System may reference accepted Story Theme intent owned by
+`Author Intent / Story Setup`.
+
+Possible concepts include:
+
+- intended thematic question
+- intended thematic claim
+- creative thematic boundary
+- intended tension or contradiction
+- author-approved motif purpose
+
+Theme System may display and organize this intent but does not own it.
+
+## 14B. Layer 2 - Manuscript Evidence
+
+Theme evidence comes from `Narrative Insertion / Narrative Assertion`.
+
+Evidence may include:
+
+- passages
+- repeated situations
+- character choices
+- imagery
+- motifs
+- symbols
+- contrasts
+- consequences
+- setup and payoff evidence
+
+Evidence remains manuscript-owned.
+
+## 14C. Layer 3 - Advisory Detection And Interpretation
+
+Theme System may represent:
+
+- detected themes
+- candidate themes
+- inferred thematic claims
+- motif recurrence
+- symbol interpretation
+- thematic drift
+- competing readings
+- weak or contradictory evidence
+- confidence and uncertainty
+
+Detected themes remain advisory.
+
+## 14D. Layer 4 - Display And Trend State
+
+Theme System may store noncanonical presentation state such as:
+
+- recurrence counts
+- evidence clusters
+- progression views
+- strength trends
+- filters
+- visual grouping
+- selected theme comparisons
+- workspace-local display state
+
+Display state does not establish accepted thematic intent.
+
+## 14E. Identity And Lifecycle
+
+Theme lifecycle states include:
+
+- candidate
+- accepted intent reference
+- detected
+- reviewed
+- revised
+- dismissed
+- expired
+- stale
+- superseded
+- archived
+- restored
+- detached
+- converted through Author Intent
+
+Accepting a detected theme routes through `Author Intent / Story Setup`.
+Manuscript evidence remains linked rather than copied into a second
+truth store.
+Changes to Author Intent do not silently rewrite manuscript evidence.
+Changes to prose may stale evidence links or interpretations.
+
+## 14F. Contradiction And Uncertainty
+
+Theme System distinguishes:
+
+- change over time
+- competing interpretations
+- insufficient evidence
+- stale evidence
+- source-owner contradiction
+- planning-versus-manuscript divergence
+- intended-versus-detected effect
+- deliberate ambiguity
+- superseded support state
+
+Contradiction detection remains advisory.
+No automatic owner mutation is allowed.
+
+## 14G. Notes, Signals, And Review Collections
+
+Findings do not automatically become Notes or Signals.
+Explicit conversion is required.
+Review collections remain non-owning views.
+Dismissal in a review view does not delete source truth.
+Recurring concerns create linked candidates rather than automatically
+reopening durable work.
+Acceptance routes through `Author Intent`, `Outline`, or
+`Narrative Insertion / Narrative Assertion` as appropriate.
+
+## 14H. Protection And Visibility
+
+Theme System must respect:
+
+- hidden and protected content
+- excluded content
+- local-only material
+- never-send restrictions
+- masks and approved summaries
+- author-known secrets
+- character-known beliefs
+- reader-visible information
+- source-specific visibility restrictions
+
+Graphs, summaries, previews, exports, Companion answers, and AI
+packages must not leak restricted source information.
+
 ## 15. What Remains Temporary
 
 - inferred theme suggestions,

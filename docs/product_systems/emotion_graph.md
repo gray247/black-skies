@@ -182,6 +182,126 @@ Eventually stored:
 - visibility and filter state where needed.
 Stored graph material remains support state or candidate material unless accepted elsewhere.
 
+## 14A. Layer 1 - Accepted Source Truth
+
+Emotion Graph may reference accepted source state owned elsewhere.
+
+Those references may include:
+
+- accepted character emotional facts from `Character Cards`
+- project-level emotional intent from `Author Intent / Story Setup`
+- accepted manuscript evidence from `Narrative Insertion / Narrative Assertion`
+- accepted structural or planning context where relevant
+
+These are references, not duplicate authoritative records.
+
+## 14B. Layer 2 - Planned Emotional Development
+
+Planned emotional development represents proposed emotional beats or
+trajectories from `Outline`.
+
+It may store:
+
+- planned subject
+- proposed emotional state
+- intended transition
+- timeframe or structural position
+- source planning node
+- candidate or proposed state
+- stale posture after planning or manuscript changes
+
+Planned emotional development remains advisory until accepted by the
+relevant truth owner.
+
+## 14C. Layer 3 - Observed Or Detected Movement
+
+Observed or detected movement represents analytical observations rather
+than accepted truth.
+
+It may store:
+
+- detected emotional label
+- intensity
+- change or transition
+- source range
+- evidence
+- confidence
+- uncertainty
+- competing interpretations
+- manuscript-position context
+
+Detection does not establish character truth.
+
+## 14D. Layer 4 - Intended Reader Effect
+
+Intended reader effect is represented separately from character
+emotion.
+
+Distinguish:
+
+- author-intended reader effect
+- detected likely reader effect
+- actual character emotional state
+- manuscript tone or pressure
+- advisory interpretation
+
+Accepted reader-effect intent routes to `Author Intent / Story Setup`.
+
+## 14E. Identity And Lifecycle
+
+Emotion Graph lifecycle states include:
+
+- create support record
+- link source
+- propose
+- detect
+- compare
+- review
+- revise advisory state
+- accept through owner
+- dismiss
+- expire
+- become stale
+- supersede
+- archive
+- restore
+- detach
+- delete support state
+
+Deleting graph support state must not delete source truth.
+
+## 14F. Time And History
+
+Emotion Graph may represent:
+
+- current emotional state
+- prior emotional state
+- proposed future state
+- bounded-period state
+- emotional trajectory
+- abrupt change
+- unresolved ambiguity
+- hidden or suppressed emotion
+- character belief versus author-known state
+- historical snapshots
+
+A changed emotional state is not automatically a contradiction.
+
+## 14G. Staleness And Conflict
+
+The graph marks stale or unavailable support openly when:
+
+- source prose changes
+- assertions split, merge, move, archive, restore, or delete
+- Character Card facts change
+- Author Intent changes
+- Outline plans change
+- source anchors become unavailable
+- interpretation loses evidence
+- visibility restrictions change
+
+The graph must not silently reconstruct or promote stale support.
+
 ## 15. What Remains Temporary
 
 Temporary or non-durable:
