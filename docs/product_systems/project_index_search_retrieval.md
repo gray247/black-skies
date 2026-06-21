@@ -155,17 +155,297 @@ They may point to the same underlying source without collapsing into one owner o
 
 Imported material may appear immediately in a distinct `Imports / Staging` search scope or result class where permitted, but unclassified staging content is excluded from default unified search unless explicitly requested.
 
+## 20E. Indexed Object Model
+
+Project Index / Search / Retrieval may index references to permitted
+project material, including:
+
+- `Narrative Assertions`,
+- `Story Units` and `Outline` items,
+- scene or chapter projections,
+- `Author Intent / Story Setup`,
+- `Character Cards`,
+- `Lore Cards`,
+- Binder labels and placements,
+- File Manager metadata,
+- permitted Notes and Signals,
+- permitted asset metadata,
+- explicitly scoped import staging.
+
+Indexing does not copy truth into a new owner.
+Each indexed item remains controlled by its source owner.
+Search may preserve source labels, source anchors, scopes, freshness
+state, and permission state, but it must not become a second manuscript,
+card, Binder, File Manager, import, note, signal, or memory store.
+
+Search should distinguish:
+
+- `content indexing`, where searchable current text or accepted object
+  content is allowed by the source owner and protection state,
+- `metadata-only indexing`, where only labels, source type, owner,
+  location, status, or safe summaries may be searched,
+- `excluded or restricted indexing`, where the item is absent from
+  ordinary search or represented only by bounded restricted metadata,
+- archived, missing, deleted, or unavailable sources, which are excluded
+  from default current search unless the author explicitly opens an
+  allowed scope.
+
+Files and assets are not indexed as truth.
+For file-like sources, Project Index may index permitted metadata or
+approved text representations, but file identity, linked-versus-managed
+posture, availability, and repair state remain owned by
+`File Manager / Asset Pane`.
+
+## 20F. Index Lifecycle
+
+Index state should preserve honest lifecycle labels such as:
+
+- `indexed`,
+- `refreshed`,
+- `stale`,
+- `partial`,
+- `rebuilding`,
+- `unavailable`,
+- `failed`,
+- `restricted`,
+- `archived`,
+- `restored`,
+- `removed`.
+
+`indexed` means the source is represented in the current index for an
+allowed scope.
+`refreshed` means the index has been updated against the relevant source
+revision or owner state.
+`stale` means the index may no longer match current source state.
+`partial` means only some sources, fields, or scopes are represented.
+`rebuilding` means results may be incomplete while the index owner
+refreshes allowed references.
+`unavailable` means the source or source owner cannot currently be
+reached.
+`failed` means an indexing or query operation did not complete.
+`restricted` means protection or permission state prevents ordinary
+indexing or display.
+`archived`, `restored`, and `removed` reflect owner-reported source
+posture rather than search-owned truth.
+
+Source-revision mismatch should mark affected results or scopes stale
+instead of pretending completeness.
+Last-known results may remain visible only when clearly labeled as
+last-known, stale, unavailable, or tombstone references.
+Index failure, partial indexing, rebuilding, unavailable external
+sources, AI failure, or Memory Lab failure must not block safe local
+writing or manual navigation.
+
+## 20G. Search Posture And Default Scope
+
+The initial product posture is:
+
+- exact-text retrieval,
+- metadata retrieval,
+- structural retrieval.
+
+Semantic retrieval remains optional later support.
+It is not required for this construction pass and no ranking,
+embedding, fuzzy-match, vector, or semantic algorithm is defined here.
+
+Default unified search includes current permitted project material with
+clear source labels and owner labels.
+Default unified search excludes unless explicitly scoped and permitted:
+
+- deleted sources,
+- archived sources,
+- snapshots or recovery history,
+- unclassified import staging,
+- protected or excluded material unavailable to the current operation.
+
+Query scope and filters may narrow or widen source classes, owners,
+status labels, Binder contexts, file metadata classes, planning
+material, notes, signals, cards, assets, imports, or current manuscript
+material, but those filters do not alter source ownership.
+
+## 20H. Search Result Identity
+
+A search result is a reference record, not the source object.
+Where relevant, a result should carry:
+
+- result identity,
+- source identity,
+- source owner,
+- source type,
+- source anchor,
+- matched field or content class,
+- query scope,
+- freshness,
+- protection state,
+- duplicate or alias posture,
+- advisory ranking,
+- availability state.
+
+Result identity must not replace source identity.
+Multiple results may point to the same source object, especially when a
+source appears in multiple Binder placements, aliases, card sections,
+source anchors, or file references.
+Duplicate or alias posture should be visible enough to avoid implying
+duplicate truth.
+Result ranking is advisory presentation only; it is not source
+importance, truth priority, canon status, or owner authority.
+
+## 20I. Snippets And Previews
+
+Snippets and previews are bounded, source-labeled representations.
+They must:
+
+- respect protection and masks,
+- identify stale or unavailable state,
+- avoid exposing restricted filenames or metadata,
+- distinguish last-known content from current content,
+- never imply that a missing source is still authoritative.
+
+A snippet may show current permitted content, safe metadata, approved
+summary, masked representation, restriction reason, or no preview,
+depending on source owner and protection posture.
+Protected raw content must not leak through highlighted text, result
+titles, filenames, thumbnails, sort labels, summaries, previews, or
+Companion context.
+
+## 20J. Tombstones, Missing Sources, And Deleted Sources
+
+Search uses a tombstone-reference model for missing, deleted, detached,
+or unavailable sources.
+Ordinary current search excludes missing or deleted sources by default.
+Existing results, saved results, pinned results, or history references
+may become labeled tombstones when their source is no longer available
+as ordinary current material.
+
+Tombstones may preserve:
+
+- last-known source identity,
+- source owner,
+- source type,
+- source anchor where safe,
+- provenance or source-lineage reference,
+- affected search references,
+- protection state,
+- missing, deleted, unavailable, detached, or restricted posture.
+
+A dedicated `Missing and Recoverable` scope may expose allowed
+tombstones for review.
+Actions from tombstones route to the owning system, such as File Manager
+repair, restore, relink, replace, or reference removal.
+For non-file product objects, actions route to the relevant source owner
+or recovery owner.
+
+Search must not silently reconnect to a similar file, silently recreate
+deleted source state, invent replacement content, or treat a tombstone as
+current truth.
+
+## 20K. Retrieval Versus Memory Lab
+
+Retrieval is query-driven and source-linked.
+`Memory Lab` is durable, governed recall.
+The same source may appear in search results and memory references, but
+the result classes must remain distinct.
+
+Viewing, opening, pinning, or repeatedly retrieving a result does not
+create durable memory.
+Saving a result to Memory Lab requires an explicit Memory Lab workflow
+and the appropriate owner-governed approval.
+Any saved memory must preserve provenance, source labels, memory type,
+and protection labels.
+Source deletion, revision, owner change, or protection changes may stale,
+restrict, or invalidate a memory reference, but Search does not repair
+or delete durable memory on its own.
+
+## 20L. Companion And AI Boundary
+
+`Companion` may search, summarize permitted evidence, show source
+labels, explain result state, and route the author to source material.
+Companion does not own search results, source truth, source files, index
+state, query state, or durable memory.
+
+Companion summaries must preserve source labels and uncertainty.
+They must not reveal protected raw content through summaries, previews,
+or explanation.
+Outbound AI use of retrieved material must obey masks, approvals,
+routing, spend, local-only, never-send, and explicit-content
+restrictions.
+
+Search failure, AI failure, routing failure, and Memory Lab failure are
+distinct states.
+Search must not imply that an AI or Memory Lab failure means local
+indexed retrieval failed, and AI or Memory Lab must not imply that search
+results are canon because they were retrieved.
+
+## 20M. Handoffs And Return
+
+Search handoffs should preserve:
+
+- visible surface,
+- query scope,
+- result identity,
+- source identity,
+- source owner,
+- source type,
+- source anchor,
+- freshness and availability state,
+- protection state,
+- requested action,
+- return-to-prior-location anchor where available.
+
+Search may hand off to:
+
+- open in the source owner,
+- open in `Writing Surface`,
+- inspect in `Command Center Surface`,
+- open File Manager repair for file or asset source posture,
+- save through an explicit Memory Lab workflow,
+- return to the prior location.
+
+Opening a result, selecting its source, changing the active surface, and
+moving keyboard focus are distinct actions.
+Search must not steal focus across surfaces automatically.
+Writing Surface quick retrieval should preserve the current writing
+location and return path.
+Command Center inspection may show deeper result, provenance, conflict,
+or stale-source detail without becoming the source owner.
+
+If a source anchor is moved, stale, missing, or restricted, Search should
+label that state and route to the owner or repair path rather than
+guessing a replacement anchor.
+
+## 20N. Search History And Saved Retrieval State
+
+Search history, saved queries, filters, scoped searches, and pinned
+results may be durable convenience state owned by Project Index / Search
+/ Retrieval.
+They do not become truth owners, memory records, Notes, Signals, source
+objects, Binder placements, or File Manager records.
+
+Saved retrieval state should preserve enough source labels, freshness
+state, scope, and protection posture to avoid misleading reuse.
+When a source changes, is deleted, becomes protected, moves, or becomes
+unavailable, saved queries and pinned results should show stale,
+restricted, removed, archived, unavailable, or tombstone posture instead
+of silently reconstructing the old result.
+
+History depth, pruning, and final presentation limits remain future
+product-detail work, not implementation doctrine in this pass.
+
 ## 21. GUI Placement Principles
 
 Keep retrieval accessible and uncluttered.
 
 ## 22. Local LLM Role
 
-Local AI may later help with semantic retrieval summaries only.
+Local AI is not required for the initial exact-text, metadata, and
+structural retrieval posture.
+Local AI may later help with semantic retrieval summaries only when
+routing, protection, and approval rules allow it.
 
 ## 23. Paid API Role
 
-Paid retrieval help remains optional and approval-governed.
+Paid retrieval help remains optional, approval-governed, and outside the
+initial construction posture.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
@@ -197,6 +477,12 @@ Prove retrieval respects source, visibility, and protection boundaries.
 ## 29. Failure Modes
 
 If retrieval fails, direct writing and manual navigation remain available.
+If indexing is stale, partial, rebuilding, unavailable, restricted, or
+failed, the system must say so honestly.
+Search must not pretend completeness, silently widen scope, leak
+protected material, or invent replacement source content.
+Manual Binder navigation, owner-surface opening, File Manager inspection,
+and direct writing remain available where their owners allow them.
 
 ## 30. v1 Boundary
 
