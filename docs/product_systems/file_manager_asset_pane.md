@@ -142,6 +142,258 @@ Binder may place file references in project organization, but it does not own fi
 
 Search may index permitted asset metadata and references, but it does not own file identity or availability state.
 
+## 20D. File And Asset Identity Model
+
+`File Manager / Asset Pane` owns file and asset source posture.
+It may track product-relevant identity and status such as:
+
+- durable managed asset identity,
+- linked-source identity,
+- local managed-copy identity,
+- source filename and display name,
+- path or source locator,
+- content type,
+- availability,
+- size or other product-relevant metadata,
+- provenance,
+- protection posture,
+- project references.
+
+These are product semantics, not a database schema or file-system
+layout.
+A file may contain material that later becomes an accepted product
+object, but the file itself does not automatically become manuscript
+truth, project truth, lore truth, character truth, notes, signals, or
+memory.
+
+## 20E. Asset Classes
+
+The file manager should distinguish at least these classes:
+
+- managed local project file,
+- linked external file,
+- imported staged file,
+- accepted imported object,
+- generated export artifact,
+- temporary transfer artifact,
+- missing external source,
+- archived managed asset,
+- deleted or trashed asset,
+- unsupported or unreadable asset.
+
+`Import Export Document Interchange` owns import classification,
+staging, transfer history, export artifacts, and destination handoff.
+File Manager owns durable file and asset metadata after asset placement
+or source posture is explicitly chosen.
+
+## 20F. Linked External Asset
+
+A linked external asset is a reference to a source outside the managed
+project storage boundary.
+It retains:
+
+- external source identity,
+- source location or locator,
+- availability state,
+- last-known metadata where appropriate,
+- provenance,
+- protection posture,
+- broken-link or unavailable state.
+
+A linked asset must not silently become a managed copy.
+External source changes do not automatically mutate accepted project
+objects.
+If imported or parsed content is later accepted, that acceptance follows
+the relevant owner or interchange workflow rather than file ownership.
+
+## 20G. Managed Local Copy
+
+A managed local copy is a project-managed file or asset copy stored
+within the project's governed storage boundary.
+It retains:
+
+- managed identity,
+- origin provenance,
+- local availability state,
+- revision or replacement posture,
+- protection posture,
+- relationship to the original external source where relevant.
+
+A managed copy must not pretend to remain a live external link.
+Replacing or revising a managed copy does not silently rewrite accepted
+manuscript, project, character, lore, note, signal, or memory state.
+
+Conversion between linked and copied posture must be explicit and
+provenance-bearing.
+
+## 20H. File Manager Operations
+
+File Manager-owned operations include:
+
+- add linked asset,
+- import as managed copy,
+- replace source,
+- relink,
+- rename display label,
+- rename managed file,
+- move managed file,
+- archive,
+- restore,
+- remove project reference,
+- delete managed asset,
+- reveal source,
+- inspect provenance,
+- convert linked asset to managed copy,
+- create a new linked reference to an existing managed or external
+  asset where allowed.
+
+Non-destructive operations adjust references, labels, views, or
+availability posture without deleting source content.
+Destructive or high-risk operations include deleting a managed asset,
+overwriting or replacing a source, detaching all project references,
+restore-over-current, and any action that may reveal protected material
+or cross a local boundary.
+Those operations require owner-governed approval and must never be
+silent.
+
+Renaming a display label is not renaming the managed file.
+Renaming or moving a managed file is a file-owner action and should
+update dependent project references through governed repair or reference
+update posture.
+Moving a Binder reference is not moving or renaming the file.
+
+## 20I. Broken Links And Repair
+
+Broken-link and unavailable-source states include:
+
+- missing external source,
+- moved external source,
+- inaccessible source,
+- permission failure,
+- changed source identity,
+- corrupted or unreadable content,
+- stale metadata,
+- relink candidate,
+- deliberate detachment.
+
+Repair must be explicit.
+The system must not silently bind to a merely similar file, silently
+convert a linked asset into a managed copy, silently treat stale metadata
+as current content, or silently delete accepted product objects derived
+from the unavailable source.
+
+Relink candidates are advisory until the author chooses the intended
+source.
+When source identity is uncertain, destructive actions should be blocked
+or downgraded to inspection, copy, or repair-first paths.
+
+## 20J. Archive, Deletion, And Recovery
+
+The following states are distinct:
+
+- archiving a file or asset,
+- removing a Binder reference,
+- removing a project reference,
+- deleting a managed asset,
+- losing an external source,
+- restoring from project recovery or snapshot,
+- restoring only metadata,
+- restoring actual file content.
+
+Archiving a managed asset hides or lowers its prominence according to
+file-owner posture; it is not operating-system deletion.
+Removing a Binder reference removes project organization only.
+Removing a project reference detaches the asset from that project
+context without necessarily deleting the underlying managed file.
+Deleting a managed asset is destructive and must preserve any required
+provenance or recovery posture.
+Losing an external source creates unavailable or broken-link posture,
+not deletion.
+
+Recovery from snapshot or project recovery is governed by
+`Snapshots / Backup / Restore / History` and recovery contracts.
+Metadata-only recovery must not imply that actual file content was
+restored.
+Actual file-content recovery must preserve protection posture and
+source lineage.
+
+## 20K. Protection And Local-Only Behavior
+
+File Manager must enforce:
+
+- protected and excluded files,
+- local-only assets,
+- never-send restrictions,
+- masked or approved-summary posture,
+- outbound-package exclusion,
+- restricted previews and thumbnails,
+- safe metadata display,
+- author-known and reader-visible distinctions where relevant.
+
+A filename, preview, thumbnail, summary, repair placeholder, search-facing
+asset summary, or metadata field must not leak restricted content merely
+because the underlying file is hidden or unavailable.
+Local-only assets remain local-only after linking, copying, archiving,
+relinking, recovery, or Binder placement unless an explicit later owner
+path reclassifies them.
+
+## 20L. Provenance And Source Lineage
+
+File Manager provenance should distinguish:
+
+- linked external asset creation,
+- copied or imported asset creation,
+- renamed or moved managed file,
+- replaced source,
+- relinked source,
+- conversion from link to managed copy,
+- recovery-restored asset,
+- asset used to create an accepted project object.
+
+Provenance explains origin and changes.
+It does not become truth ownership, export permission, Memory Lab
+retention permission, or proof that derived accepted product objects
+should update.
+
+## 20M. Handoffs
+
+File Manager handoffs should preserve:
+
+- visible surface,
+- file or asset identity,
+- linked-versus-managed-copy posture,
+- source label and locator where permitted,
+- availability and protection state,
+- affected project references,
+- provenance or lineage reference,
+- requested action,
+- return-to-prior-location anchor where available.
+
+File Manager may hand off to:
+
+- `Binder / Project Library` for organization references,
+- `Import Export Document Interchange` for import, staging, parsing, or
+  transfer workflows,
+- `Project Index / Search / Retrieval` for permitted metadata and
+  source labels,
+- `Snapshots / Backup / Restore / History` for recovery inspection,
+- `Writing Surface` or `Command Center Surface` for task-appropriate
+  opening or inspection.
+
+The receiving system does not gain file ownership by consuming the
+handoff.
+If the owner blocks, downgrades, or refuses the requested action, the
+surface must render the result honestly.
+
+## 20N. Series Boundary
+
+File Manager / Asset Pane is a project file and asset support system.
+Series-scale sharing, cross-story exposure, or cross-project asset
+meaning belongs to later `Series Binder / Cross-Story Linking` doctrine
+or another explicit owner.
+Single-project file support must not silently become a series truth
+owner or cross-project permission broker.
+
 ## 21. GUI Placement Principles
 
 Keep asset access lightweight and avoid turning it into a dashboard.
@@ -182,6 +434,12 @@ Prove asset browsing does not leak protected material or block writing.
 ## 29. Failure Modes
 
 If asset support fails, writing should continue and files should remain safely local.
+Unavailable assets, broken links, failed previews, parsing failures,
+indexing failures, external-drive disconnects, permission failures, and
+support-service failures must not block unrelated manuscript editing.
+File Manager must label uncertainty honestly.
+Repair suggestions remain advisory until explicitly chosen.
+Destructive operations remain blocked when source identity is uncertain.
 
 ## 30. v1 Boundary
 

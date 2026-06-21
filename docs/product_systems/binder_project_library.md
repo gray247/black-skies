@@ -148,6 +148,172 @@ Binder may place references to files or assets in project organization, but it d
 
 Binder may supply browse context and labels to search, but it does not own search results or retrieval ranking.
 
+## 20D. Organized Object Model
+
+Binder is a non-owning project organization system.
+It may organize references to:
+
+- `Narrative Assertions`,
+- `Story Units`,
+- `Outline` nodes or plans,
+- scene or chapter projections,
+- `Character Cards`,
+- `Lore Cards`,
+- notes and Signals where the owning systems allow them to be shown,
+- research or reference assets,
+- imported or linked documents,
+- project folders or author-created organizational groupings,
+- project-local tools or views where appropriate.
+
+Binder placement does not change the underlying object's truth owner,
+durable-state owner, source identity, protection state, or acceptance
+status.
+One source object may appear in multiple Binder locations as separate
+placements or aliases without duplicating the source object.
+
+## 20E. Binder Entry Identity
+
+A Binder entry represents organization around a source-object reference,
+not the source object itself.
+Binder entry identity may include:
+
+- Binder entry id or placement identity,
+- source-object reference,
+- display label,
+- parent grouping,
+- ordering within a grouping,
+- alias or secondary-placement posture where allowed,
+- missing-source, stale-reference, or unavailable-source posture,
+- archived-source or archived-grouping posture,
+- visibility and protection posture inherited from the referenced object.
+
+The display label may differ from the source object's title, filename,
+or owner-facing name.
+Renaming a Binder label does not rename the source artifact, file, card,
+assertion, note, signal, or imported item.
+
+## 20F. Binder Operations
+
+Binder-owned operations are organizational only:
+
+- add a reference to an existing source object,
+- create a grouping,
+- rename a Binder entry or grouping,
+- reorder entries within a grouping,
+- move a Binder reference between groupings,
+- duplicate a reference to create another placement,
+- create an alias or secondary placement where allowed,
+- remove a reference,
+- archive a grouping,
+- restore a grouping,
+- delete a grouping,
+- reveal the source object,
+- open the source object in its owner surface,
+- repair a missing reference by choosing the intended source.
+
+These operations must not silently mutate source identity.
+Moving a Binder reference is not moving an underlying file.
+Renaming a Binder grouping is not renaming a managed asset folder.
+Removing a Binder entry removes only the organizational placement unless
+the author separately invokes an owner-governed destructive action.
+
+## 20G. Missing, Deleted, And Restricted Sources
+
+When a referenced object is moved, renamed, archived, restored, deleted,
+unavailable, protected, excluded, or detached from the project, Binder
+should preserve the reference posture honestly.
+The entry should be marked with a bounded state such as:
+
+- `stale`,
+- `unavailable`,
+- `archived`,
+- `restricted`,
+- `missing`,
+- `detached`.
+
+Binder must not silently recreate deleted source state, silently bind to
+a merely similar source, silently unarchive material, or silently widen
+visibility.
+Dismissal or removal of the Binder reference does not delete source
+truth or source files.
+If the source was a protected, excluded, local-only, never-send, or
+masked object, Binder labels, previews, summaries, and navigation
+context must preserve that boundary.
+
+## 20H. Workspace And Surface Boundary
+
+Binder is project organization, not a workspace.
+Workspaces may display filtered, selected, or remembered Binder state,
+but workspace configuration remains owned by
+`Settings / Preferences / Workspace Layout` and surface-local posture.
+
+`Writing Surface` and `Command Center Surface` may present Binder views
+appropriate to their tasks.
+Changing a workspace does not mutate Binder structure.
+Moving through Binder does not automatically steal focus across
+surfaces.
+Opening a Binder item on another surface, selecting its source, and
+moving keyboard focus are distinct handoff actions.
+
+Surface-local navigation history remains separate from Binder
+organization.
+Direct writing remains available even when Binder views, source
+resolution, previews, indexing, or support services fail.
+
+## 20I. Binder And File Manager Boundary
+
+Binder owns organization and navigation references.
+`File Manager / Asset Pane` owns file and asset identity, availability,
+linked-versus-managed-copy posture, metadata, and repair state.
+
+Binder reference identity is not file identity.
+Removing a Binder entry does not delete a file.
+Deleting a managed file through the file owner leaves Binder references
+stale or missing until deliberately repaired or removed.
+Renaming a Binder display label does not rename a file.
+Renaming or moving a managed file must update references only through
+the file owner's governed path.
+Movement of a linked external source creates missing or broken-source
+posture rather than automatic guessing.
+
+## 20J. Provenance And Handoffs
+
+Binder may preserve provenance about organization events such as
+reference creation, alias creation, grouping changes, archive or restore
+of groupings, and missing-reference repair.
+That provenance explains organization history; it does not become truth
+ownership or file ownership.
+
+Binder handoffs should preserve:
+
+- visible surface,
+- source-object reference,
+- Binder entry or grouping context,
+- source label and owner,
+- affected object or scope,
+- protection state,
+- return-to-prior-location anchor where available.
+
+Binder may hand off to:
+
+- the source object's owning system,
+- `File Manager / Asset Pane` for file or asset source posture,
+- `Import Export Document Interchange` for staged import navigation,
+- `Project Index / Search / Retrieval` as browse context,
+- `Writing Surface` or `Command Center Surface` for task-appropriate
+  opening or inspection.
+
+If the owner blocks, downgrades, or refuses the requested action, Binder
+must render that result honestly rather than simulating success.
+
+## 20K. Single-Project And Series Boundary
+
+Binder / Project Library is single-project organization.
+`Series Binder / Cross-Story Linking` remains a separate later system.
+Single-project Binder must not silently become a series truth owner,
+series canon store, or cross-project permission broker.
+Cross-project references require later explicit series-level doctrine.
+
 ## 21. GUI Placement Principles
 
 Keep binder navigation useful without turning it into a cluttered control center.
@@ -188,6 +354,12 @@ Prove navigation works without altering truth ownership.
 ## 29. Failure Modes
 
 If binder views fail, direct project access and writing should still work.
+Binder may show last-known references when a source is unavailable, but
+it must label uncertainty honestly.
+Destructive actions remain blocked when source identity is uncertain.
+Repair suggestions remain advisory until the author chooses an
+owner-governed repair path.
+Unavailable support material must not block unrelated local writing.
 
 ## 30. v1 Boundary
 
