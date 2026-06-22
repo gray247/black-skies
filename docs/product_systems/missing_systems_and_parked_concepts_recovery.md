@@ -41,14 +41,25 @@ This file preserves recovery evidence and parked concepts, but it does not promo
 
 - User problem or creative purpose: the writer needs support for finding a premise, pressure-testing ideas, and moving from fragments or mood into a usable story direction before or alongside drafting.
 - Evidence already present in repository documentation: [phase18_hidden_gui_activation_plan.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_hidden_gui_activation_plan.md) records a deferred `Ideation mode transition`; [decision_checklist.md](/C:/Dev/black-skies/docs/decision_checklist.md) contains premise, aboutness, genre, and theme prompts; [black_skies_docs_cleanup_checklist.md](/C:/Dev/black-skies/docs/black_skies_docs_cleanup_checklist.md) still references planning changes, brainstorming, and new ideas as a later lane.
-- Current dossier or system where it is parked: weakly parked across `Workflow Spine`, old `Wizard` history, `Companion`, and informal legacy docs.
-- What is missing from the current treatment: no explicit ideation workflow, no artifact model for seeds or premise candidates, no relationship to direct writing, no connection to notes versus story truth, and no doctrine for how ideation output graduates into project truth.
+- Current dossier or system where it is parked: canonical dossier now
+  exists in
+  [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md),
+  with older references preserved as recovery evidence only.
+- What is missing from the current treatment: full construction of the
+  ideation object model, lifecycle, workflow detail, and explicit
+  owner-routed promotion behavior remains for later staged passes.
 - Overlap and duplicate risks: overlaps with `Author Intent / Story Setup`, `Outline`, `Companion`, `Feedback Notes`, and future `Draft Generation`.
 - Capability type: user-facing.
-- Classification: `unresolved classification pending owner-boundary review`
-- Recommended current owner, if one exists: no settled owner yet; current adjacency remains `Workflow Spine / Author Journey`, `Author Intent / Story Setup`, `Outline`, and `Companion`.
-- Decisions that require Jason rather than Codex: whether ideation ever deserves a first-class product system; whether it remains a workflow posture, an optional surface, or a later bounded dossier.
-- Likely product version or discovery stage: unresolved; not an active missing dossier until owner boundaries are settled.
+- Classification: `moved into canonical dossier construction`
+- Recommended current owner, if one exists: `Ideation / Premise
+  Discovery`, with adjacency to `Workflow Spine / Author Journey`,
+  `Author Intent / Story Setup`, `Outline`, `Companion`, and
+  `Memory Lab`.
+- Decisions that require Jason rather than Codex: exact later split
+  between core ideation construction and deferred adjacent workflows.
+- Likely product version or discovery stage: admitted category `2`
+  dossier with staged construction next; no longer an unresolved
+  recovery candidate.
 
 ### 3.3 Originality / Similarity / Anti-Derivative Support
 
@@ -228,14 +239,18 @@ These belong to future validation programs unless and until Black Skies decides 
 
 Current distinction:
 
-- current discovery candidates: `Author Intent / Story Setup`, `Ideation / Premise Discovery / Brainstorming`, and possibly later branching support.
+- current discovery candidates: `Author Intent / Story Setup`, with
+  later branching support still parked and `Ideation / Premise
+  Discovery` moved into canonical dossier construction.
 - explicitly excluded or parked concepts: `Voice Notes / Dictation / Transcription`, research workflow, and standalone UI identity promotion.
 - internal validation programs: narrative stress testing, model benchmarking, local-versus-API evaluation, and originality or similarity studies for now.
 
 ## 7. Duplicate And Overlap Risks
 
 - `Author Intent / Story Setup` can collapse into `Workflow Spine` so completely that it never gets defined.
-- `Ideation` can blur into `Author Intent`, `Outline`, or `Companion` and disappear again.
+- `Ideation` can still blur into `Author Intent`, `Outline`, or
+  `Companion` if later construction does not keep object ownership and
+  promotion boundaries explicit.
 - `Editorial Workflow` can drift back toward a monolithic `Critique` surrogate.
 - `Branching / What-If` can be confused with safety snapshots or contradiction branches.
 - `Research Workflow` can be mistaken for `Memory Lab`, retrieval, or import/export even though it is not currently an active planning lane.
@@ -248,7 +263,6 @@ Current distinction:
 ### 8.1 Current Discovery Candidates
 
 - `Author Intent / Story Setup`
-- `Ideation / Premise Discovery / Brainstorming`
 
 ### 8.2 Existing Areas That Need Expansion Rather Than A New Dossier
 
@@ -282,7 +296,7 @@ Current distinction:
 Ranked decisions requiring Jason:
 
 1. Should `Author Intent / Story Setup` become a first-class dossier, or should it remain a bounded sub-system inside `Workflow Spine / Author Journey`?
-2. Does Black Skies want a real ideation or premise-discovery capability, or should early creative discovery remain informal and manual?
+2. How broad should later Ideation / Premise Discovery construction become beyond the fragment-centered core and deferred adjacent workflows?
 3. Should the product preserve a named editorial workflow concept above the split critique/note/signal/continuity/rewrite systems?
 4. Is branching or what-if exploration a core authoring primitive, or a later advanced lane after truth and save-state foundations mature?
 5. Does Black Skies ever want user-facing originality or similarity support, or should that remain an internal caution and validation question only?

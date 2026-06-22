@@ -72,7 +72,7 @@ systems.
 
 ## 3. Inventory Rules
 
-- The base set is the current `44` registry targets in
+- The base set is the current `45` registry targets in
   [README.md](/C:/Dev/black-skies/docs/product_systems/README.md).
 - Bridge-backed current authority counts as dossier existence for
   maturity purposes, but it is not the same as a one-to-one dossier.
@@ -112,8 +112,8 @@ systems.
 
 ### 5.1 Registry Coverage
 
-- Registry targets: `44`
-- One-to-one current dossier files: `40`
+- Registry targets: `45`
+- One-to-one current dossier files: `41`
 - Bridge-backed current dossier targets: `4`
 - Fully unrepresented registry targets: `0`
 
@@ -121,7 +121,7 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `4`
+- Category `2`: `5`
 - Category `3`: `8`
 - Category `4`: `32`
 - Category `5`: `0`
@@ -155,6 +155,9 @@ systems.
   [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
 - That closure promotes the six campaign dossiers to category `4`; it
   does not make any of them dossier-complete.
+- `Ideation / Premise Discovery` is now admitted as a canonical
+  category `2` dossier with author discovery complete and staged
+  construction next.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -164,7 +167,7 @@ systems.
 - `covered elsewhere and intentionally parked`: `1`
 - `cross-cutting experience doctrine and intentionally parked concept`:
   `1`
-- `unresolved classification pending owner-boundary review`: `1`
+- `unresolved classification pending owner-boundary review`: `0`
 
 ## 6. Registry Inventory
 
@@ -176,6 +179,7 @@ systems.
 | 2 | Command Center Surface | `command_center_surface.md` | `1:1` | `current` | 4 | yes | yes | yes | no | deeper workflow organization detail | adjacent dossier completion, not owner drift | A |
 | 3 | Workflow Spine / Author Journey | `workflow_spine_author_journey.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final journey and summary detail | must stay narrow and non-owning | A |
 | 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final questionnaire, presentation, and dossier-completion detail | Truth Cards closure settled project-truth ownership, lifecycle, consumer limits, protection, and non-gating posture | A |
+| 45 | Ideation / Premise Discovery | `ideation_premise_discovery.md` | `1:1` | `current` | 2 | yes | no | no | no | full object model, lifecycle, promotion boundaries, and adjacent workflow split | canonical admission only; staged construction remains ahead in Pass 1 and Pass 2 | B |
 | 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 4 | yes | yes | yes | no | later dossier-completion browse, archive, and reference presentation detail | campaign closure settled non-owning organization, missing-source posture, file boundary, and handoffs | A |
 | 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 4 | yes | yes | yes | no | owner handoffs and arrangement semantics | later dossier-completion wording and layout detail | A |
 | 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 4 | yes | yes | yes | no | payload, lifecycle, split or merge, promotion detail | later dossier-completion wording and grouping detail | A |
@@ -255,13 +259,12 @@ current authority rather than one-to-one dossier files.
 
 ## 9. Outside-Registry Concept Dispositions
 
-These concepts are not counted inside the `44` registry targets above.
+These concepts are not counted inside the `45` registry targets above.
 They are tracked here so planning status is explicit, but they are not
 all active missing dossiers.
 
 | Concept | Current evidence home | Disposition | Authority | Why not active missing dossier | Next treatment |
 | --- | --- | --- | --- | --- | --- |
-| Ideation / Premise Discovery | `missing_systems_and_parked_concepts_recovery.md`, `capability_ownership_map.md` | unresolved classification pending owner-boundary review | mixed planning evidence; no current owner settlement | current authority does not settle whether this belongs with `Author Intent / Story Setup`, `Outline`, `Companion`, or startup or onboarding posture | keep outside the registry and revisit only when the owner boundary is chosen |
 | Voice Notes / Dictation / Transcription | deferred legacy docs plus historical planning references | excluded from current Black Skies scope | historical or deferred evidence only | current planning status does not authorize or await a voice dossier, and current scope should not revive it | preserve historical references only; do not promote |
 | Research / Deep Research Workflow | historical planning traces and older parked references | rejected or non-authoritative historical direction | non-authoritative historical direction under current planning control | current planning status must not revive research, citation, bibliography, source-capture, or Deep Research work as an active construction lane | preserve only as historical evidence; do not promote |
 | Branching / What-If Exploration | `Outline` prototype-arrangement doctrine plus deferred structural planning references | covered elsewhere and intentionally parked | current doctrine partially covers bounded experimentation through prototype arrangements; broader branching remains parked | current authority does not justify a separate active dossier, and the concept is still easy to confuse with snapshots or accepted truth | keep parked outside the registry pending later structural-boundary review |
@@ -269,14 +272,14 @@ all active missing dossiers.
 
 ### 9.1 Outside-Registry Disposition Count Check
 
-- total outside-registry concepts tracked here: `5`
+- total outside-registry concepts tracked here: `4`
 - active missing dossiers among them: `0`
 - excluded from current scope: `1`
 - rejected or non-authoritative historical direction: `1`
 - covered elsewhere and intentionally parked: `1`
 - cross-cutting experience doctrine and intentionally parked concept:
   `1`
-- unresolved classification pending owner-boundary review: `1`
+- unresolved classification pending owner-boundary review: `0`
 
 These remain different from research or validation programs such as
 originality or similarity study, model benchmarking, or stress-test
@@ -326,17 +329,15 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. organization, retrieval, memory, and interchange
-   `Import Export Document Interchange`, `Binder / Project Library`,
-   `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
-   `Memory Lab`, `Series Binder / Cross-Story Linking`
+1. ideation and premise discovery
+   `Ideation / Premise Discovery`
 2. AI-governance bridge-backed systems
    `Explicit Content`, routing, provider policy, and budget guardrails
 3. partial analyzer and extension systems
    `Senses Usage`, `Overused Words`, `Cliche Detection`,
    `Plugin / Rubric System`
 
-Lane B count: `18`
+Lane B count: `13`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -349,7 +350,7 @@ It captures outside-registry concepts that are currently:
 - intentionally parked,
 - or still unresolved in classification.
 
-Lane C count: `5` outside-registry concepts, with `0` active missing
+Lane C count: `4` outside-registry concepts, with `0` active missing
 dossiers.
 
 ## 11. Work-Queue Conclusions
@@ -362,12 +363,12 @@ Use this inventory to answer the next planning questions:
   cross-dossier validation?"
   Current answer: `26` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `18` registry targets at category `2` or `3`.
+  Current answer: `13` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning
   disposition?"
-  Current answer: `5`, but those are now split among excluded,
+  Current answer: `4`, but those are now split among excluded,
   rejected, covered-elsewhere, intentionally parked, and unresolved
   classifications rather than treated as five active missing dossiers.
 

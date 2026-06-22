@@ -34,7 +34,7 @@ The full dossier set is grouped into three classes:
 - `System`
   - systems that keep the app stable, bounded, recoverable, and operational
 
-## Full 44-Dossier List
+## Full 45-Dossier List
 
 ### A. Product Dossiers
 
@@ -44,6 +44,7 @@ The full dossier set is grouped into three classes:
 | 2 | Command Center Surface | Product | planned |
 | 3 | [Workflow Spine / Author Journey](workflow_spine_author_journey.md) | Product | planned |
 | 43 | [Author Intent / Story Setup](author_intent_story_setup.md) | Product | planned |
+| 45 | [Ideation / Premise Discovery](ideation_premise_discovery.md) | Product | planned |
 | 4 | [Binder / Project Library](binder_project_library.md) | Product | planned |
 | 5 | [Visual Arrangement View](scene_cards_corkboard.md) | Product | planned |
 | 6 | Story Unit | Product | planned |

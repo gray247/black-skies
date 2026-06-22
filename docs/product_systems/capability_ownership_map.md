@@ -19,8 +19,9 @@ This artifact is subordinate to:
 Approved decisions applied in this map:
 
 - `Author Intent / Story Setup` is an approved independent dossier.
-- `Ideation / Premise Discovery` remains unresolved pending
-  owner-boundary review; it is not approved as a separate dossier yet.
+- `Ideation / Premise Discovery` is now admitted as a canonical
+  category `2` dossier; construction is staged, but the owner boundary
+  is no longer unresolved.
 - `Editorial Workflow` is a named cross-system workflow, not a new authority-owning system.
 - `Branching / What-If` is partially covered by prototype arrangements
   and remains intentionally parked rather than promoted.
@@ -62,8 +63,8 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| premise discovery and brainstorming | no current one-to-one dossier owner yet | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes` | no current owner | ideation output must not auto-become project truth or manuscript truth | unresolved classification pending owner-boundary review | unresolved | none | overlaps with `Author Intent`, `Outline`, and notes |
-| exploratory prompts and seed capture | no current one-to-one dossier owner yet | `Feedback Notes`, `Workflow Spine`, `Companion` | no current owner | notes do not equal accepted project truth | unresolved classification pending owner-boundary review | unresolved | none | can disappear into manual notes without workflow clarity |
+| premise discovery and brainstorming | `Ideation / Premise Discovery` | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes`, `Memory Lab` | `Idea Seeds`, `Exploration Branches`, `Premise Versions`, premise-testing state, and source-to-promotion provenance | ideation output must not auto-become project truth or manuscript truth | existing dossier | ownership-defined | none | overlaps with `Author Intent`, `Outline`, and notes if promotion boundaries blur |
+| exploratory prompts, seed capture, and idea-library state | `Ideation / Premise Discovery` | `Feedback Notes`, `Workflow Spine`, `Companion`, `Memory Lab` | seed relationships and `Idea Library` state | notes and memory references do not equal accepted project truth | existing dossier | ownership-defined | none | can disappear into manual notes or memory without workflow clarity |
 
 ### 2.4 Organization And Navigation
 
@@ -203,10 +204,6 @@ Boundary reminder:
 The following capabilities do not currently have a one-to-one dossier
 owner and are not all active missing dossiers:
 
-- premise discovery and brainstorming, which remains unresolved pending
-  owner-boundary review
-- exploratory prompt and seed capture as a distinct workflow, which
-  remains unresolved pending owner-boundary review
 - editorial workflow as a cross-system workflow
 - research / deep research as rejected or non-authoritative historical
   direction
@@ -280,7 +277,8 @@ The following are still real implementation-neutral product questions, but the l
 - exact final question wording and grouping inside the future `Author Intent / Story Setup` optional questionnaire
 - eventual depth and form of branching or what-if work if that advanced lane is later promoted
 - whether later benchmarking work remains entirely internal or exposes limited comparison controls without overclaiming quality
-- whether Ideation / Premise Discovery should stay unresolved inside existing owners or be promoted later
+- exact later split between core Ideation construction and deferred
+  adjacent intake or reimagining workflows
 
 ## 10. Remaining Critical Discovery Risks
 
@@ -288,12 +286,14 @@ The following are still real implementation-neutral product questions, but the l
   `Snapshots`, `Service Health`, `Workflow Spine`, and `Splash`, even
   though durable local current-save confirmation now has a named owner
 - `Workflow Spine / Author Journey` still carries too much if workflow posture, startup cues, and editorial wayfinding are not kept visibly distinct from owner-controlled story setup
-- ideation remains unresolved and must not be prematurely assigned
+- ideation now has a canonical owner, but later construction must keep
+  it from sprawling into adjacent truth, planning, or memory systems
 - the AI roadmap cluster still reads as blurred from a product perspective across lifecycle, routing, package construction, provenance, and explicit-content boundaries
 
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.
-- The weakest areas are ideation, presentation identity, and advanced branching.
+- The weakest areas are newly admitted ideation construction,
+  presentation identity, and advanced branching.
 - Several current conflicts are not missing-dossier problems. They are missing workflow-map problems.
 - The provisional `v1` boundary remains small and useful, but it does not authorize implementation planning or close the broader capability inventory.

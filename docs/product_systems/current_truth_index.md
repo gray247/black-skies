@@ -132,10 +132,10 @@ Current Black Skies doctrine is:
   [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
 - The next candidate campaign indicated by current sequencing is
   `Ideation / Premise Discovery`.
-- The next action should be a short campaign classification and
-  author-discovery review to determine whether
-  `Ideation / Premise Discovery` requires reconciliation, guided
-  shaping, or full product discovery.
+- Current Ideation authority now lives in
+  [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
+- Author discovery for `Ideation / Premise Discovery` is complete, and
+  staged dossier construction is next.
 - Save-State and Degraded-Writing Workflow remains a standing
   foundation dependency and reference, not the next construction
   campaign.

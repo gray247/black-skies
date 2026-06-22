@@ -30,10 +30,10 @@ Current status:
   [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
 - The next candidate campaign indicated by current sequencing is
   `Ideation / Premise Discovery`.
-- The next action should be a short campaign classification and
-  author-discovery review to determine whether
-  `Ideation / Premise Discovery` requires reconciliation, guided
-  shaping, or full product discovery.
+- Current Ideation authority now lives in
+  [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
+- Author discovery for `Ideation / Premise Discovery` is complete, and
+  staged dossier construction is next.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -217,12 +217,15 @@ Current roadmap-sufficient work:
   Can remain intentionally unfinished: exact GUI, exact storage shape,
   final questionnaire polish, and any wizard-like implementation.
 - `Ideation / Premise Discovery`
-  Minimum still needed: decide whether it is a real user-facing system
-  or mostly a workflow posture, keep it distinct from `Author Intent`,
-  `Outline`, `Companion`, and notes, and define how seeds avoid
-  auto-becoming project truth.
-  Can remain intentionally unfinished: durable seed artifacts, AI-first
-  behavior, and exact prompts or worksheet depth.
+  Current treatment: canonical category `2` dossier admitted with
+  author discovery complete.
+  Minimum still needed: construct the core ideation model for seeds,
+  branches, premise versions, findings, library state, lifecycle, and
+  explicit promotion boundaries while keeping it distinct from
+  `Author Intent`, `Outline`, `Companion`, notes, and manuscript truth.
+  Can remain intentionally unfinished: final workflow detail, final UI,
+  exact prompts, exact storage shape, and adjacent intake or
+  reimagining workflows.
 - `Binder / Project Library`, `File Manager / Asset Pane`, and
   `Project Index / Search / Retrieval`
   Minimum still needed: keep the approved reference-based Binder model,
@@ -437,9 +440,12 @@ need rather than by placeholder rank.
    does not currently threaten the truth model, two-surface split, or
    save and recovery posture in the same way.
    Writer-experience value: real, but narrower and more discretionary.
-   Ownership risk: medium because the lane is still ownerless and can
-   blur into `Author Intent`, `Outline`, `Companion`, and notes.
-   Likely files affected: a new ideation dossier, `Workflow Spine`,
+   Ownership risk: medium because the new dossier still needs
+   construction to keep idea seeds, branches, premise versions, and
+   findings distinct from `Author Intent`, `Outline`, `Companion`, and
+   notes.
+   Likely files affected: `ideation_premise_discovery.md`,
+   `Workflow Spine`,
    `capability_ownership_map.md`, and this roadmap.
    Suitable as the one final major artifact in this thread: `no`, not
    while more foundation-changing cross-system work remains open.
@@ -468,10 +474,9 @@ Current recommendation for the next candidate campaign:
 
 This recommendation is current planning guidance only.
 It is not Jason approval and does not begin construction automatically.
-The next action should be a short campaign classification and
-author-discovery review to determine whether
-`Ideation / Premise Discovery` requires reconciliation, guided shaping,
-or full product discovery.
+The next action should be staged dossier construction for
+`Ideation / Premise Discovery`, beginning with canonical object and
+boundary shaping before later workflow expansion.
 
 ## 8. Product Horizons
 
@@ -531,18 +536,15 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. close Organization, Retrieval, Memory, and Interchange with
-   recorded convergence items and preserve its category `4`, not
-   category `5`, maturity effect
-2. run a short campaign classification and author-discovery review
-   for `Ideation / Premise Discovery` to determine whether that lane
-   requires reconciliation, guided shaping, or full product discovery
-3. either complete or consciously defer the remaining
+1. perform staged dossier construction for `Ideation / Premise
+   Discovery` now that author discovery is complete and canonical
+   admission is recorded
+2. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners
-4. keep roadmap-sufficient families partial but classified rather
+3. keep roadmap-sufficient families partial but classified rather
    than forcing universal deep closure
-5. document residual unresolved questions with explicit owners and
+4. document residual unresolved questions with explicit owners and
    disposition
 
 After that, all of the following must also be true:
