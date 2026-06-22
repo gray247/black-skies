@@ -118,6 +118,7 @@ Registry rule:
 - [Orchestrator 9 Product Experience and Surface Convergence Closure Checkpoint](orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md)
 - [Orchestrator 9 Structural Manuscript Systems Closure Checkpoint](orchestrator_9_structural_manuscript_systems_closure_checkpoint.md)
 - [Orchestrator 9 Truth Cards and Support Maps Closure Checkpoint](orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md)
+- [Orchestrator 9 Organization, Retrieval, Memory, and Interchange Closure Checkpoint](orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md)
 
 ## Canonical Inventory
 
@@ -129,13 +130,18 @@ planned-system set.
 It does not replace dossier doctrine, ownership doctrine, or the
 registry itself.
 
-## Current Rough Dossier Blanks
+## First-Wave Rough Dossier Origins
 
-The following rough dossiers now exist as first-wave `exploring` or `partial` working files.
-They are not build-ready.
-Some are direct dossier targets from the master list, and some are bridge or architecture dossiers that may later merge, shrink, or split back into the master list.
+The following files entered the repo as first-wave `exploring` or
+`partial` working files.
+Their current maturity may now be higher; see
+[Dossier Maturity Inventory](dossier_maturity_inventory.md).
+They are still not build-ready.
+Some are direct dossier targets from the master list, and some are
+bridge or architecture dossiers that may later merge, shrink, or split
+back into the master list.
 
-| File | Maps to registry target(s) | Current posture | Build-ready |
+| File | Maps to registry target(s) | Initial posture at intake | Build-ready |
 | --- | --- | --- | --- |
 | `continuity.md` | `Continuity` | rough / exploring | no |
 | `signal_architecture.md` | `Continuity`, `Companion`, `Command Center Surface`, `Writing Surface` | rough / exploring | no |
@@ -169,7 +175,8 @@ current-save confirmation inside that broader save-state cluster.
 `import_export_document_interchange.md` treats Google Docs as one external source or destination inside broader human document interchange rather than the whole scope.
 AI or memory transfer format questions remain provisional contract territory for `LLM Package Construction Architecture`, `Model Routing And Budget Architecture`, `Memory Lab`, and later document-interchange sections rather than settled doctrine now.
 `0` systems remain fully unrepresented only if bridge-backed systems count as representation for the current registry sweep.
-Question-intake review does not equal dossier completion, and all new dossiers remain rough, investigative, and not build-ready.
+Question-intake review does not equal dossier completion, and these
+newer dossiers remain uneven in maturity and not build-ready.
 The interaction map is explanatory only and does not imply runtime wiring, authority, or build readiness.
 
 ## Dependency Notes

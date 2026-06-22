@@ -127,10 +127,15 @@ Current Black Skies doctrine is:
 - Truth Cards and Support Maps is closed with recorded convergence
   items in
   [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
-- The next umbrella construction campaign is Organization, Retrieval,
-  Memory, and Interchange.
-- The next action should be a read-only campaign sequencing and
-  comparison audit, not construction.
+- Organization, Retrieval, Memory, and Interchange is closed with
+  recorded convergence items in
+  [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
+- The next candidate campaign indicated by current sequencing is
+  `Ideation / Premise Discovery`.
+- The next action should be a short campaign classification and
+  author-discovery review to determine whether
+  `Ideation / Premise Discovery` requires reconciliation, guided
+  shaping, or full product discovery.
 - Save-State and Degraded-Writing Workflow remains a standing
   foundation dependency and reference, not the next construction
   campaign.

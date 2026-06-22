@@ -25,14 +25,15 @@ Current status:
 - Truth Cards and Support Maps is closed with recorded convergence
   items in
   [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
-- The next umbrella construction campaign is Organization, Retrieval,
-  Memory, and Interchange. Candidate scope for the next read-only
-  sequencing and comparison audit includes `Binder / Project Library`,
-  `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
-  `Import / Export / Google Docs`, `Memory Lab`, and
-  `Series Binder / Cross-Story Linking`.
-- The final subcampaign split for Organization, Retrieval, Memory, and
-  Interchange is not decided in this roadmap update.
+- Organization, Retrieval, Memory, and Interchange is closed with
+  recorded convergence items in
+  [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
+- The next candidate campaign indicated by current sequencing is
+  `Ideation / Premise Discovery`.
+- The next action should be a short campaign classification and
+  author-discovery review to determine whether
+  `Ideation / Premise Discovery` requires reconciliation, guided
+  shaping, or full product discovery.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -231,6 +232,16 @@ Current roadmap-sufficient work:
   Can remain intentionally unfinished: archive depth, file-preview
   breadth, attach or link depth, semantic ranking, and fuzzy retrieval
   polish.
+- `Import / Export / Google Docs`, `Memory Lab`, and
+  `Series Binder / Cross-Story Linking`
+  Current treatment: category `4` after Organization, Retrieval,
+  Memory, and Interchange closure. Keep governed staging and explicit
+  owner routing, combined governed memory with scoped sharing, and
+  cross-project structure with non-owning lineage stable.
+  Can remain intentionally unfinished: format-specific interchange
+  fidelity, retention and series-inspection presentation, shared-fact
+  conflict presentation, manuscript comparison, detailed reimagining or
+  splitting workflow, and runtime mechanics.
 - `Critique / Evaluation`, `Feedback Notes / Revision Resolution`,
   `Signal Architecture`, `Continuity`, `Draft Generation / Rewrite
   Loop`, and `Companion`
@@ -433,29 +444,34 @@ need rather than by placeholder rank.
    Suitable as the one final major artifact in this thread: `no`, not
    while more foundation-changing cross-system work remains open.
 6. Organization, Retrieval, Memory, and Interchange
-   Product question: how should project organization, file and asset
-   handling, retrieval, import or export, Memory Lab, and series-level
-   linking support the writer without becoming truth owners or blurring
-   local save-state, interchange, memory, search, and organization?
-   Candidate scope for sequencing audit: `Binder / Project Library`,
-   `File Manager / Asset Pane`, `Project Index / Search / Retrieval`,
-   `Import / Export / Google Docs`, `Memory Lab`, and
-   `Series Binder / Cross-Story Linking`.
-   Foundation impact: high enough to require a read-only sequencing and
-   comparison audit before construction, especially around import,
-   retrieval, memory, and series boundaries.
-   Suitable as the next umbrella construction campaign: `yes`, after
-   the Truth Cards and Support Maps closure is committed.
+   Status: closed with recorded convergence items in
+   `orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md`.
+   Resulting posture: `Binder / Project Library` owns single-project
+   organization by reference; `File Manager / Asset Pane` owns file and
+   asset identity and repair posture; `Project Index / Search /
+   Retrieval` owns source-linked index and retrieval state;
+   `Import Export Document Interchange` owns governed staging and
+   outbound artifact state; `Memory Lab` owns governed durable memory;
+   `Series Binder / Cross-Story Linking` owns cross-project structure,
+   Story Chains, shared identity shells, visibility boundaries, and
+   lineage.
+   Remaining work class: writer-facing recall-versus-retrieval
+   terminology, preview and presentation depth, export, provenance, and
+   protection convergence, detailed project reimagining workflow,
+   dossier-completion work, and later cross-dossier validation.
+   Suitable as the next construction campaign: `no`, because this
+   campaign is now closed.
 
-Current recommendation for the next campaign:
+Current recommendation for the next candidate campaign:
 
-- Organization, Retrieval, Memory, and Interchange
+- `Ideation / Premise Discovery`
 
 This recommendation is current planning guidance only.
-It is not Jason approval, does not decide the final subcampaign split,
-and does not begin construction automatically.
-The next action should be a read-only campaign sequencing and
-comparison audit.
+It is not Jason approval and does not begin construction automatically.
+The next action should be a short campaign classification and
+author-discovery review to determine whether
+`Ideation / Premise Discovery` requires reconciliation, guided shaping,
+or full product discovery.
 
 ## 8. Product Horizons
 
@@ -515,16 +531,17 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. close Truth Cards and Support Maps with recorded convergence items
-   and preserve its category `4`, not category `5`, maturity effect
-2. either complete or consciously defer the remaining
+1. close Organization, Retrieval, Memory, and Interchange with
+   recorded convergence items and preserve its category `4`, not
+   category `5`, maturity effect
+2. run a short campaign classification and author-discovery review
+   for `Ideation / Premise Discovery` to determine whether that lane
+   requires reconciliation, guided shaping, or full product discovery
+3. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners
-3. sequence the next umbrella construction campaign, Organization,
-   Retrieval, Memory, and Interchange, through a read-only comparison
-   audit before construction
-4. keep roadmap-sufficient families partial but classified rather than
-   forcing universal deep closure
+4. keep roadmap-sufficient families partial but classified rather
+   than forcing universal deep closure
 5. document residual unresolved questions with explicit owners and
    disposition
 

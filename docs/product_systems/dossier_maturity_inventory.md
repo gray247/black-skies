@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `5`
-- Category `3`: `13`
-- Category `4`: `26`
+- Category `2`: `4`
+- Category `3`: `8`
+- Category `4`: `32`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -137,8 +137,9 @@ systems.
 - Structural Manuscript Systems is closed with recorded convergence
   items in
   [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
-- Most remaining work is category `3` construction, not more generic
-  hardening.
+- Remaining work is now split between a smaller category `3`
+  construction set and broader category `4` dossier-completion and
+  cross-dossier-validation work.
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
@@ -149,6 +150,11 @@ systems.
   [orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md).
 - That closure promotes the eight campaign dossiers to category `4`;
   it does not make any of them dossier-complete.
+- Organization, Retrieval, Memory, and Interchange is closed with
+  recorded convergence items in
+  [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
+- That closure promotes the six campaign dossiers to category `4`; it
+  does not make any of them dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -170,7 +176,7 @@ systems.
 | 2 | Command Center Surface | `command_center_surface.md` | `1:1` | `current` | 4 | yes | yes | yes | no | deeper workflow organization detail | adjacent dossier completion, not owner drift | A |
 | 3 | Workflow Spine / Author Journey | `workflow_spine_author_journey.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final journey and summary detail | must stay narrow and non-owning | A |
 | 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final questionnaire, presentation, and dossier-completion detail | Truth Cards closure settled project-truth ownership, lifecycle, consumer limits, protection, and non-gating posture | A |
-| 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 3 | yes | partial | partial | no | deeper browse, reference, and missing-source posture | depends on file and retrieval adjacency | B |
+| 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 4 | yes | yes | yes | no | later dossier-completion browse, archive, and reference presentation detail | campaign closure settled non-owning organization, missing-source posture, file boundary, and handoffs | A |
 | 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 4 | yes | yes | yes | no | owner handoffs and arrangement semantics | later dossier-completion wording and layout detail | A |
 | 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 4 | yes | yes | yes | no | payload, lifecycle, split or merge, promotion detail | later dossier-completion wording and grouping detail | A |
 | 7 | Narrative Insertion / Assertion | `narrative_insertion_assertion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | exact state, conversion, and provenance behavior | later dossier-completion wording and provenance detail | A |
@@ -179,14 +185,14 @@ systems.
 | 16 | Feedback Notes / Revision Resolution | `feedback_notes_revision_resolution.md` | `1:1` | `current` | 4 | yes | yes | yes | no | note taxonomy and closed-history policy | mature enough for dossier completion work | A |
 | 17 | Lore Cards | `lore_cards.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final field grouping, merge review, and time-state presentation | Truth Cards closure settled accepted lore ownership, candidate boundaries, provenance, protection, and secondary-reference posture | A |
 | 18 | Character Cards | `character_cards.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final field grouping, merge review, and time-state presentation | Truth Cards closure settled accepted character ownership, candidate boundaries, provenance, protection, and secondary-reference posture | A |
-| 19 | Project Index / Search / Retrieval | `project_index_search_retrieval.md` | `1:1` | `current` | 3 | yes | partial | partial | no | retrieval depth and writer-facing labels | Memory Lab distinction and import-source adjacency still need construction | B |
-| 20 | Series Binder / Cross-Story Linking | `series_binder_cross_story_linking.md` | `1:1` | `current` | 2 | yes | no | no | no | real workflow model beyond skeleton | needs construction before hardening is useful | B |
+| 19 | Project Index / Search / Retrieval | `project_index_search_retrieval.md` | `1:1` | `current` | 4 | yes | yes | yes | no | writer-facing retrieval terminology, history depth, and optional semantic retrieval detail | campaign closure settled index ownership, source-linked results, tombstones, handoffs, and Memory Lab separation | A |
+| 20 | Series Binder / Cross-Story Linking | `series_binder_cross_story_linking.md` | `1:1` | `current` | 4 | yes | yes | yes | no | series-level owner surfaces, shared-fact conflict presentation, manuscript comparison, and detailed reimagining workflow | campaign closure settled Story Chains, shared identities, lineage, visibility boundaries, and Memory Lab separation | A |
 | 28 | Theme System | `theme_system.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final theme taxonomy, motif vocabulary, and presentation detail | Truth Cards closure settled Story Theme support, detected-theme advisory posture, source evidence, protection, and UI-theme separation | A |
 | 29 | Accessibility / Hotkeys / Large-Font Mode | `accessibility_hotkeys_large_font_mode.md` | `1:1` | `current` | 2 | yes | no | no | no | cross-surface interaction model and rule depth | needs construction before hardening is useful | B |
 | 30 | Settings / Preferences / Workspace Layout | `settings_preferences_workspace_layout.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final storage-scope and restoration detail | mature enough for dossier completion work | A |
 | 31 | Splash / Startup Experience | `splash_startup_experience.md` | `1:1` | `current` | 4 | yes | yes | yes | no | startup polish and bounded disclosure detail | mature enough for dossier completion work | A |
-| 32 | Import / Export / Google Docs | `import_export_document_interchange.md` | `1:1` | `current` | 3 | yes | partial | partial | no | import object map and outbound intersections | depends on provenance, routing, and protection cluster completion | B |
-| 34 | File Manager / Asset Pane | `file_manager_asset_pane.md` | `1:1` | `current` | 3 | yes | partial | partial | no | preview, repair, and availability workflow depth | depends on binder, search, and interchange adjacency | B |
+| 32 | Import / Export / Google Docs | `import_export_document_interchange.md` | `1:1` | `current` | 4 | yes | yes | yes | no | format-specific fidelity, endpoint depth, and export-provenance presentation detail | campaign closure settled governed staging, explicit owner routing, reimport posture, Google Docs manual boundary, and outbound artifact model | A |
+| 34 | File Manager / Asset Pane | `file_manager_asset_pane.md` | `1:1` | `current` | 4 | yes | yes | yes | no | preview breadth, richer repair UX, and later attach-or-link depth | campaign closure settled file identity, linked-versus-managed posture, recovery distinctions, and handoffs | A |
 
 ### 6.2 Intelligence Systems
 
@@ -204,7 +210,7 @@ systems.
 | 24 | Foreshadow / Payoff | `foreshadow_payoff.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final setup/payoff vocabulary, review triggers, and presentation defaults | Truth Cards closure settled planned versus detected links, owner routing, quiet unresolved-link posture, protection, recurrence, and support-only state | A |
 | 25 | Explicit-Content Marker / Send-Package Censor | `explicit_content_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | user-facing workflow and package review detail | still embedded in a bridge dossier, not a final product model | B |
 | 26 | Companion | `companion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | capability-boundary detail and later personality polish | mature enough for dossier completion work | A |
-| 27 | Memory Lab | `memory_lab.md` | `1:1` | `current` | 3 | yes | partial | partial | no | retention classes and recall-versus-retrieval flow | retrieval and provenance distinctions still need construction | B |
+| 27 | Memory Lab | `memory_lab.md` | `1:1` | `current` | 4 | yes | yes | yes | no | retention, expiry, purge, performance, and series-inspection presentation detail | campaign closure settled memory classes, scoped sharing, routed canon-like memory, forgetting distinctions, and AI-package preview posture | A |
 | 35 | Local LLM vs Paid API Routing | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | route classes and user-facing defaults | shared bridge dossier still overloaded | B |
 | 36 | Model Router / Provider Execution Policy | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | cleaner provider-policy split and execution detail | bridge-backed governance remains overloaded | B |
 | 37 | Budget / Token / Cost Guardrails | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | approval persistence and budget UX detail | bridge-backed governance remains overloaded | B |
