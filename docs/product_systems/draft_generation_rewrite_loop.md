@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-23`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Model Routing And Budget Architecture`, `LLM Package Construction Architecture`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Feedback Notes / Revision Resolution`
 - Runtime authority: `future`
@@ -83,17 +83,191 @@ Background preparation may assemble context, but generation remains governed and
 
 ## 14. What Gets Stored
 
-- generated artifacts only when explicitly retained,
+- generated artifacts only when explicitly retained or when bounded
+  review history is needed,
 - provenance,
-- author action history where needed.
+- author action history where needed,
+- candidate-state transitions where needed for honest review posture.
 
 ## 15. What Remains Temporary
 
-- rejected variants,
+- all draft and rewrite candidates until explicit acceptance,
+- rejected variants unless the author deliberately preserves them,
 - transient candidates,
 - unsaved rewrite comparisons,
+- parked rewrite candidates,
 - abandoned rewrite candidates that are not accepted into manuscript
-  truth.
+  truth,
+- stale candidates whose source changed after request start.
+
+## 15A. Candidate Lifecycle State Model
+
+Draft Generation owns temporary candidate lifecycle only.
+It does not own accepted manuscript truth, durable notes, durable
+signals, critique findings, AI-governance policy, protected-package
+routing, or author-approval doctrine.
+
+Candidate states:
+
+- `generated`
+  Meaning: output exists as fresh advisory text that has not yet entered
+  active review.
+  May do: appear as a labeled candidate with provenance, request
+  purpose, and source link where relevant.
+  May not do: mutate manuscript truth, close notes, close signals, or
+  create memory.
+- `reviewing`
+  Meaning: the writer is actively inspecting, comparing, or considering
+  the candidate.
+  May do: surface comparisons, warnings, source context, and related
+  request details.
+  May not do: silently accept any text or silently convert concern
+  state.
+- `accepted`
+  Meaning: the writer explicitly accepts the full selected candidate
+  into manuscript truth through the truth-owner path.
+  May do: create accepted manuscript change through
+  `Narrative Insertion / Narrative Assertion`.
+  May not do: silently close durable notes, durable signals, or create
+  accepted project truth elsewhere.
+- `partially accepted`
+  Meaning: only a bounded subset of the candidate is accepted, while
+  the full candidate remains not fully adopted.
+  May do: apply only the explicitly accepted portion through the
+  truth-owner path and preserve that the remainder stayed advisory.
+  May not do: treat the untouched remainder as accepted truth.
+- `rejected`
+  Meaning: the writer explicitly declines the candidate.
+  May do: preserve bounded rejected-history posture if policy allows.
+  May not do: remain active context, future model context, memory,
+  note, signal, or truth by default.
+- `parked`
+  Meaning: the writer wants to keep the candidate available for later
+  reconsideration without accepting it now.
+  May do: stay visible in a bounded preserved queue with provenance and
+  source relation.
+  May not do: act as accepted truth, active note closure, or automatic
+  future-model context.
+- `abandoned`
+  Meaning: the candidate is no longer under active review and is not
+  intentionally preserved as a live alternative.
+  May do: remain only in bounded history if retained.
+  May not do: surface as current draft guidance by default.
+- `stale` or `source changed`
+  Meaning: the relevant source text, scope, or governing context changed
+  after the request began or after the candidate was produced.
+  May do: remain inspectable with an honest stale label and route to
+  comparison or rerun.
+  May not do: present itself as current-fit text or silently reattach
+  to changed prose.
+
+State-transition doctrine:
+
+- `generated` normally moves to `reviewing`, `rejected`, `parked`, or
+  `stale`.
+- `reviewing` may move to `accepted`, `partially accepted`, `rejected`,
+  `parked`, `abandoned`, or `stale`.
+- `parked` may later return to `reviewing`, become `rejected`, or
+  become `abandoned`.
+- `stale` may return to `reviewing` only after explicit author review;
+  otherwise it may be parked, rejected, or abandoned.
+- only `accepted` and `partially accepted` may mutate manuscript truth,
+  and only through explicit truth-owner acceptance.
+
+## 15B. Partial Accept Behavior
+
+Partial acceptance means the writer may accept only a selected portion
+of a candidate without accepting the whole output.
+
+Required posture:
+
+- the accepted portion becomes manuscript truth only through explicit
+  acceptance into `Narrative Insertion / Narrative Assertion`
+- the unaccepted remainder stays advisory
+- the original full candidate remains provenance-visible as the source
+  of the accepted subset
+- partial acceptance does not silently convert the remaining text into a
+  parked alternative, memory, note, or signal
+- later review may still reject, park, or abandon the unaccepted
+  remainder
+- partial acceptance must remain distinguishable from full acceptance in
+  history and review posture
+
+## 15C. Comparison Posture
+
+Side-by-side comparison is:
+
+- mandatory for rewrite output that proposes direct alteration of
+  accepted manuscript text
+- mandatory when source text changed and a stale candidate is still
+  being considered
+- recommended when warnings indicate canon drift, voice drift,
+  foreshadow or payoff damage, continuity risk, or explicit-content
+  sensitivity
+- optional for blank-page drafting, small bounded continuations, or
+  exploratory alternates that do not overwrite existing accepted prose
+
+Comparison remains advisory display.
+It does not perform acceptance, truth mutation, or note or signal
+closure by itself.
+
+## 15D. Mandatory Warning Classes Before Acceptance
+
+Before accepting a candidate, the system must be able to surface
+relevant warnings such as:
+
+- `canon drift risk`
+- `voice drift risk`
+- `foreshadow or payoff damage risk`
+- `continuity risk`
+- `explicit-content or protected-package risk`
+- `source-staleness risk`
+
+Warning doctrine:
+
+- warnings are advisory review aids, not automatic refusal by
+  themselves
+- warnings must not silently rewrite, suppress, or auto-correct the
+  candidate
+- acceptance with warnings still requires explicit author action
+- protected-content and outbound-package risks must respect the
+  existing AI-governance authorities rather than inventing local policy
+
+## 15E. Rejected-Output Retention And Visibility
+
+Rejected output is not retained as active writing context by default.
+
+Required posture:
+
+- rejected candidates may remain in bounded local review history
+- rejected candidates must stay clearly labeled as rejected
+- rejected candidates must be excluded from ordinary `Memory Lab`
+  transfer, durable signals, durable notes, and future model context by
+  default
+- rejected candidates must not be treated as accepted truth, preferred
+  draft, or approved summary
+- the author may deliberately preserve rejected output as a manual
+  retained artifact for later comparison or reconsideration
+- deliberate preservation does not change its rejected status unless the
+  author later re-enters review and explicitly accepts some or all of it
+
+## 15F. Stale-Result Reattachment
+
+If source text changes after the request starts, the candidate becomes
+`stale` rather than silently reattaching to the changed passage.
+
+Required posture:
+
+- preserve the original source relation and last-known scope honestly
+- mark the candidate `stale` or `source changed`
+- offer explicit review paths such as compare against current source,
+  park, rerun, reject, or abandon
+- do not silently bind the candidate to similar nearby text
+- do not silently apply the candidate to a changed location
+- if the writer still wants to accept text from a stale candidate, the
+  stale condition must remain visible during review
+- partial acceptance from a stale candidate remains allowed only through
+  explicit author review
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -113,15 +287,45 @@ Projection may host draft comparisons without becoming truth.
 
 ## 19. Relationship To Writing Surface
 
-The Writing Surface may host small current-text generation actions but not hide approval boundaries.
+The Writing Surface may host:
+
+- small current-text generation or rewrite requests,
+- quick review of the current candidate,
+- explicit accept, partial accept, reject, park, or dismiss actions,
+- mandatory side-by-side comparison when direct accepted-prose rewrite
+  is under review,
+- quiet warning exposure when risk is relevant.
+
+The Writing Surface may not hide approval boundaries, deep protection
+warnings, or stale-source posture.
 
 ## 20. Relationship To Command Center Surface
 
-Heavier review, routing, package, and bulk comparison workflows belong in the Command Center.
+The Command Center Surface owns heavier support flow such as:
+
+- bulk candidate review,
+- richer side-by-side comparison,
+- alternate-variant comparison,
+- request history and provenance inspection,
+- package, routing, and approval detail,
+- stale-source reconciliation,
+- preserved rejected or parked candidate review.
+
+This does not make Command Center a truth owner.
 
 ## 21. GUI Placement Principles
 
 Keep generation support bounded and avoid crowding default writing.
+
+Surface split:
+
+- `Writing Surface`: fast request, current candidate review,
+  explicit acceptance decisions, and minimal high-value warnings
+- support flow: comparison, source explanation, and summonable context
+  that expands only when needed
+- `Command Center Surface`: multi-candidate review, rich history,
+  package and routing inspection, stale reconciliation, and preserved
+  alternatives
 
 ## 22. Local LLM Role
 
@@ -157,6 +361,9 @@ Prove generated or rewritten text never becomes accepted truth silently.
 
 If generation fails, writing still proceeds directly.
 
+If source changes during a run, the result must surface as stale rather
+than silently current.
+
 ## 30. v1 Boundary
 
 Bounded generation and rewrite suggestions with explicit acceptance.
@@ -184,15 +391,16 @@ Intake note:
 
 ### Critical Questions
 
-- Future contract need: what exact accept, reject, keep, discard, park, partial-accept, and compare states govern draft and rewrite outputs?
-- Critical: should every AI rewrite create side-by-side comparison by default, or only certain rewrite classes?
-- Critical: what warnings are mandatory when rewrite output changes canon, voice, foreshadowing, explicit-content risk, or other accepted story-support boundaries?
-- Critical: should rejected rewrite output be stored at all, and if stored, must it remain hidden from `Memory Lab`, downstream signals, and future model context by default?
+- Future contract need: what final writer-facing language should name
+  states such as `parked`, `abandoned`, and `partially accepted`
+  without blurring them together?
 
 ### Major Questions
 
-- Major: which generation or rewrite paths belong inline in `Writing Surface` versus support surfaces versus `Command Center Surface` review flows?
-- Major: how should late, partial, or stale rewrite output reattach when the underlying passage moved or changed after the run began?
+- Major: how much rejected-history depth should remain visible before it
+  becomes clutter rather than useful evidence?
+- Major: which warning classes should be quiet badges versus forced
+  acknowledgement at review time?
 
 ### Minor Questions
 
@@ -202,6 +410,20 @@ Intake note:
 
 - AI is advisory unless accepted by the user.
 - Superseded by current doctrine: generated or rewritten text must remain untrusted until explicit author acceptance, and no rewrite may silently mutate accepted truth.
+- Resolved here: candidate lifecycle states are `generated`,
+  `reviewing`, `accepted`, `partially accepted`, `rejected`, `parked`,
+  `abandoned`, and `stale` or `source changed`.
+- Resolved here: side-by-side comparison is mandatory for direct
+  accepted-prose rewrite and stale-source review, recommended for
+  higher-risk rewrite cases, and optional for bounded drafting cases.
+- Resolved here: warning classes include canon drift, voice drift,
+  foreshadow or payoff damage, continuity risk, explicit-content or
+  protected-package risk, and source-staleness risk.
+- Resolved here: rejected output may remain in bounded local review
+  history but is excluded from ordinary `Memory Lab`, signal, note, and
+  future-model context by default.
+- Resolved here: stale output does not silently reattach; it must stay
+  visibly stale and route through explicit review.
 - Questions better owned elsewhere: whether rewrite output updates signals, assertions, Outline, Story Units, or Memory Lab belongs partly to those owning-system dossiers.
 
 ### Deferred Questions
