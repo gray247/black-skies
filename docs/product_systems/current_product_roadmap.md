@@ -31,9 +31,12 @@ Current status:
 - Ideation / Premise Discovery is closed with recorded convergence
   items in
   [orchestrator_9_ideation_premise_discovery_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ideation_premise_discovery_closure_checkpoint.md).
+- AI Governance, Routing, and Protected Package Reconciliation is
+  closed with recorded convergence items in
+  [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The next planning action is a short campaign-selection and
+- The next planning action is a fresh campaign-selection and
   classification review using the updated maturity inventory and
   roadmap.
 - Save-state and degraded-writing workflow remains a standing
@@ -294,11 +297,16 @@ Current roadmap-sufficient work:
   future analyzer catalog.
 - `Import / Export`, provenance, routing, package construction,
   explicit-content, and related AI-governance lanes
-  Minimum still needed: keep human document interchange distinct from
-  local save-state and keep outbound package, routing, approval,
-  provenance, and protection boundaries stable.
-  Can remain intentionally unfinished: exact schemas, exact package
-  shapes, provider-specific tuning, and broader workflow polish.
+  Current treatment: category `4` after AI Governance, Routing, and
+  Protected Package Reconciliation closure. Keep human document
+  interchange distinct from local save-state, keep route mode separate
+  from provider policy, keep package-preview ownership distinct from
+  approval and provenance owners, and keep outbound package,
+  approval, provenance, and protection boundaries stable.
+  Can remain intentionally unfinished: exact schemas, provider-neutral
+  package-contract detail, session-approval scope and presentation,
+  stale-summary detection presentation, provider-specific tuning, and
+  broader workflow polish.
 
 ### Research Or Deferred
 
@@ -473,7 +481,7 @@ need rather than by placeholder rank.
 
 Current recommendation for the next planning step:
 
-- run a short campaign-selection and classification review
+- run a fresh campaign-selection and classification review
 
 This recommendation is current planning guidance only.
 It is not Jason approval and does not begin another campaign
@@ -540,9 +548,10 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. run a short campaign-selection and classification review now that
-   `Ideation / Premise Discovery` has reached category `4` and its
-   closure checkpoint is recorded
+1. run a fresh campaign-selection and classification review now that
+   `Ideation / Premise Discovery` and AI Governance, Routing, and
+   Protected Package Reconciliation have reached category `4` closure
+   checkpoints
 2. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners

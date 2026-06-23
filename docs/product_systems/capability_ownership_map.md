@@ -22,6 +22,11 @@ Approved decisions applied in this map:
 - `Ideation / Premise Discovery` is now a closed category `4` campaign
   with reconciled owned objects, reviewed promotion posture, and
   explicit non-owner boundaries.
+- AI Governance, Routing, and Protected Package Reconciliation is now a
+  closed category `4` campaign with settled route modes, provider
+  policy split, package-preview ownership, explicit-content protection,
+  approval-contract boundaries, and non-owning request-timeline
+  posture.
 - `Editorial Workflow` is a named cross-system workflow, not a new authority-owning system.
 - `Branching / What-If` is partially covered by prototype arrangements
   and remains intentionally parked rather than promoted.
@@ -159,10 +164,10 @@ Boundary reminder:
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AI lifecycle, approval, conversion, and retention rules | `AI Lifecycle And Approval Matrix` | all AI-adjacent dossiers | lifecycle and approval doctrine | no requesting surface or AI-producing system may bypass owner-governed conversion | existing dossier | mature enough for now | none | multiple AI-capable systems can imply unauthorized shortcuts |
-| model routing, budget, and provider permission | `Model Routing And Budget Architecture` | `LLM Package Construction`, `Companion`, `Explicit Content`, `Service Health` | routing history and spend or refusal posture | routing does not own truth, package content, or surface authority | existing dossier | product-light | none | routing, provider policy, and budget are packed into one dossier |
-| model-facing package assembly | `LLM Package Construction Architecture` | `Model Routing`, `Explicit Content`, `Companion`, `Memory Lab` | package construction rules | package construction does not own export doctrine or manuscript truth | existing dossier | product-light | none | package assembly overlaps with export and explicit-content outbound rules |
-| explicit-content outbound masking and raw-versus-transformed distinction | `Explicit Content Architecture` | `Protected Content Permission Matrix`, `Package Construction`, `Routing`, `Document Interchange` | outbound content-classification rules | explicit-content transforms outbound packages, not local manuscript truth | existing dossier | product-light | none | overlap with provenance, export, and AI package rules |
-| authorship and provenance visibility | `Authorship Provenance AI Visibility` | `Writing Surface`, `Command Center`, `Document Interchange`, `Companion` | provenance state | provenance visibility is not automatic truth acceptance | existing dossier | product-light | none | overlap with export, AI lifecycle, and writing-surface display |
+| model routing, budget, and provider permission | `Model Routing And Budget Architecture` | `LLM Package Construction`, `Companion`, `Explicit Content`, `Service Health` | route preferences, provider-policy eligibility, cost estimates, budget modes, refusals, fallbacks, route/run records, and routing approval records | routing does not own package contents, explicit-content policy, provenance, destination acceptance, or manuscript truth | existing dossier | mature enough for now | none | routing, provider policy, and budget still share one bridge-backed artifact by design |
+| model-facing package assembly | `LLM Package Construction Architecture` | `Model Routing`, `Explicit Content`, `Companion`, `Memory Lab` | selected package contents, context assembly, package summaries, the composed preview artifact, and package-build-time linked approval snapshots | package construction does not own routing policy, explicit-content policy, approval decisions, export doctrine, or manuscript truth | existing dossier | mature enough for current bridge role | none | package assembly still overlaps with export and explicit-content outbound rules, but the current owner split is now explicit |
+| explicit-content outbound masking and raw-versus-transformed distinction | `Explicit Content Architecture` | `Protected Content Permission Matrix`, `Package Construction`, `Routing`, `Document Interchange` | outbound eligibility, masks, exclusions, local-only and never-send posture, approved summaries, and protected-package approval records | explicit-content transforms outbound packages, not local manuscript truth, routing policy, or destination acceptance | existing dossier | mature enough for now | none | overlap with provenance, export, and AI package rules remains bounded rather than ownerless |
+| authorship and provenance visibility | `Authorship Provenance AI Visibility` | `Writing Surface`, `Command Center`, `Document Interchange`, `Companion` | source, transformation, and provider-response provenance | provenance visibility is not automatic truth acceptance and does not own approval decisions | existing dossier | product-light | none | overlap with export, AI lifecycle, and writing-surface display |
 | async execution and queued job state | `Async Job Queue / Task Runner` | `Command Center`, `Routing`, `Service Health` | job queue state | queue state is not product truth or critique authority | existing dossier | product-light | none | closest system to implementation plumbing rather than writer-facing product |
 
 ### 2.15 Validation And Benchmarking
@@ -288,12 +293,14 @@ The following are still real implementation-neutral product questions, but the l
 - `Workflow Spine / Author Journey` still carries too much if workflow posture, startup cues, and editorial wayfinding are not kept visibly distinct from owner-controlled story setup
 - ideation now has a canonical owner, but later construction must keep
   it from sprawling into adjacent truth, planning, or memory systems
-- the AI roadmap cluster still reads as blurred from a product perspective across lifecycle, routing, package construction, provenance, and explicit-content boundaries
+- the AI roadmap cluster now has an explicit owner split, but later
+  dossier-completion work must keep lifecycle, routing, package,
+  provenance, and explicit-content surfaces visibly distinct
 
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.
-- The weakest areas are newly admitted ideation construction,
-  presentation identity, and advanced branching.
+- The weakest areas are presentation identity, advanced branching, and
+  research-only validation lanes.
 - Several current conflicts are not missing-dossier problems. They are missing workflow-map problems.
 - The provisional `v1` boundary remains small and useful, but it does not authorize implementation planning or close the broader capability inventory.

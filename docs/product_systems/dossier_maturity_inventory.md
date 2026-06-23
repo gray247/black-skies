@@ -122,8 +122,8 @@ systems.
 - Category `0`: `0`
 - Category `1`: `0`
 - Category `2`: `4`
-- Category `3`: `8`
-- Category `4`: `33`
+- Category `3`: `4`
+- Category `4`: `37`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -160,6 +160,11 @@ systems.
   [orchestrator_9_ideation_premise_discovery_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ideation_premise_discovery_closure_checkpoint.md).
 - That closure promotes the dossier to category `4`; it does not make
   it dossier-complete.
+- AI Governance, Routing, and Protected Package Reconciliation is
+  closed with recorded convergence items in
+  [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
+- That closure promotes the four bridge-backed registry targets to
+  category `4`; it does not make any of them dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -214,12 +219,12 @@ systems.
 | 22 | Overused Words | `overused_words.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
 | 23 | Cliche Detection | `cliche_detection.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
 | 24 | Foreshadow / Payoff | `foreshadow_payoff.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final setup/payoff vocabulary, review triggers, and presentation defaults | Truth Cards closure settled planned versus detected links, owner routing, quiet unresolved-link posture, protection, recurrence, and support-only state | A |
-| 25 | Explicit-Content Marker / Send-Package Censor | `explicit_content_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | user-facing workflow and package review detail | still embedded in a bridge dossier, not a final product model | B |
+| 25 | Explicit-Content Marker / Send-Package Censor | `explicit_content_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | final explicit-content marker taxonomy and approval-presentation detail | AI-governance closure settled outbound eligibility, masks, approved-summary lifecycle, protected-package approval ownership, and fallback order | A |
 | 26 | Companion | `companion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | capability-boundary detail and later personality polish | mature enough for dossier completion work | A |
 | 27 | Memory Lab | `memory_lab.md` | `1:1` | `current` | 4 | yes | yes | yes | no | retention, expiry, purge, performance, and series-inspection presentation detail | campaign closure settled memory classes, scoped sharing, routed canon-like memory, forgetting distinctions, and AI-package preview posture | A |
-| 35 | Local LLM vs Paid API Routing | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | route classes and user-facing defaults | shared bridge dossier still overloaded | B |
-| 36 | Model Router / Provider Execution Policy | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | cleaner provider-policy split and execution detail | bridge-backed governance remains overloaded | B |
-| 37 | Budget / Token / Cost Guardrails | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 3 | yes | partial | partial | no | approval persistence and budget UX detail | bridge-backed governance remains overloaded | B |
+| 35 | Local LLM vs Paid API Routing | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | session-approval scope and later writer-facing spend presentation detail | AI-governance closure settled route modes, default posture, provider-policy separation, and routing approval-record ownership | A |
+| 36 | Model Router / Provider Execution Policy | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | later dossier-completion decision on whether bridge-backed provider policy should split one-to-one | AI-governance closure settled provider-policy boundaries, package-preview ownership, linked approval-status snapshots, and non-owning request-timeline posture | A |
+| 37 | Budget / Token / Cost Guardrails | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | actual-versus-estimated spend telemetry and cross-surface budget presentation detail | AI-governance closure settled cost estimate ownership, budget modes, distinct approval classes, refusal posture, and no-silent-spend doctrine | A |
 | 41 | Plugin / Rubric System | `plugin_rubric_system.md` | `1:1` | `current` | 2 | yes | no | no | no | extension lifecycle and trust model | needs construction before hardening is useful | B |
 
 ### 6.3 System Dossiers
@@ -254,10 +259,10 @@ current authority rather than one-to-one dossier files.
 
 | Registry target | Current bridge home | Current bridge posture | Evidence | Likely next treatment |
 | --- | --- | --- | --- | --- |
-| `Explicit-Content Marker / Send-Package Censor` | `explicit_content_architecture.md` | intentionally durable current bridge | the registry already treats the target name as historical shorthand while the architecture dossier defines the live boundary set | keep bridge-backed unless later dossier completion proves a clearer product-facing one-to-one split is necessary |
-| `Local LLM vs Paid API Routing` | `model_routing_and_budget_architecture.md` | temporarily overloaded | the routing dossier explicitly feeds routing, provider-policy, and budget targets at once | keep bridge-backed for now, but complete the overloaded dossier before deciding on separation |
-| `Model Router / Provider Execution Policy` | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | likely to require one-to-one separation during dossier completion | provider-policy boundaries are currently split across routing and package-construction artifacts | revisit during dossier completion; this is the strongest separation candidate of the four |
-| `Budget / Token / Cost Guardrails` | `model_routing_and_budget_architecture.md` | temporarily overloaded | cost, approval, and budget posture are still bundled with routing modes and provider-policy concerns | keep bridge-backed for now, but finish the overloaded parent dossier before deciding whether a separate dossier is warranted |
+| `Explicit-Content Marker / Send-Package Censor` | `explicit_content_architecture.md` | reconciled durable current bridge | closure settled outbound eligibility, masks, approved summaries, protected-package approvals, and fallback doctrine without requiring a one-to-one dossier | keep bridge-backed unless later dossier completion proves a clearer product-facing one-to-one split is necessary |
+| `Local LLM vs Paid API Routing` | `model_routing_and_budget_architecture.md` | reconciled current bridge inside a shared governance artifact | closure settled writer-facing route modes, defaults, refusal posture, and routing approval-record ownership | keep bridge-backed for now while later dossier completion decides whether the shared routing artifact still needs separation |
+| `Model Router / Provider Execution Policy` | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | reconciled split bridge across routing and package artifacts | closure settled provider-policy boundaries and preview-link ownership, but later dossier completion may still justify one-to-one separation | revisit during dossier completion; this remains the strongest separation candidate of the four |
+| `Budget / Token / Cost Guardrails` | `model_routing_and_budget_architecture.md` | reconciled current bridge inside a shared governance artifact | closure settled cost estimate, budget-mode, approval-class, and refusal posture while keeping routing and provider policy distinct | keep bridge-backed for now, but revisit during dossier completion if budget posture needs a cleaner one-to-one home |
 
 ## 9. Outside-Registry Concept Dispositions
 
@@ -297,15 +302,19 @@ These are current-authority dossiers that are already category `4`:
 - `Writing Surface`
 - `Command Center Surface`
 - `Workflow Spine / Author Journey`
+- `Author Intent / Story Setup`
+- `Ideation / Premise Discovery`
+- `Binder / Project Library`
 - `Narrative Insertion / Assertion`
 - `Story Unit`
 - `Outline`
 - `Prose / Scene Projection`
 - `Visual Arrangement View`
 - `Feedback Notes / Revision Resolution`
-- `Author Intent / Story Setup`
 - `Character Cards`
 - `Lore Cards`
+- `Project Index / Search / Retrieval`
+- `Series Binder / Cross-Story Linking`
 - `Relationship Map`
 - `Emotion Graph`
 - `Theme System`
@@ -313,15 +322,22 @@ These are current-authority dossiers that are already category `4`:
 - `Foreshadow / Payoff`
 - `Settings / Preferences / Workspace Layout`
 - `Splash / Startup Experience`
+- `Import / Export / Google Docs`
+- `File Manager / Asset Pane`
 - `Continuity`
 - `Critique / Evaluation`
 - `Companion`
+- `Memory Lab`
 - `Snapshots / Backup / Restore / History`
 - `Project Persistence / Local Save`
 - `Service Health / Offline / Degraded Mode`
 - `Diagnostics / Error Visibility / Debug Console`
+- `Explicit-Content Marker / Send-Package Censor`
+- `Local LLM vs Paid API Routing`
+- `Model Router / Provider Execution Policy`
+- `Budget / Token / Cost Guardrails`
 
-Lane A count: `27`
+Lane A count: `37`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -331,17 +347,15 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. AI-governance bridge-backed systems
-   `Explicit Content`, routing, provider policy, and budget guardrails
-2. partial analyzer and extension systems
+1. partial analyzer and extension systems
    `Senses Usage`, `Overused Words`, `Cliche Detection`,
    `Plugin / Rubric System`
-3. remaining product and system construction targets
+2. remaining product and system construction targets
    `Accessibility / Hotkeys / Large-Font Mode`,
    `Async Job Queue / Task Runner`, and
    `Testing / Harness / Evidence Contract`
 
-Lane B count: `12`
+Lane B count: `8`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -365,9 +379,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `27` registry targets at category `4`.
+  Current answer: `37` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `12` registry targets at category `2` or `3`.
+  Current answer: `8` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

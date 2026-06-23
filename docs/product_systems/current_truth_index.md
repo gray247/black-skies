@@ -58,7 +58,13 @@ Current Black Skies doctrine is:
 - Accepted truth ownership is governed by `truth_and_state_ownership_matrix.md`.
 - Durable support-state ownership is governed by `truth_and_state_ownership_matrix.md`.
 - Surface visibility does not grant execution authority; action exposure is governed by `surface_to_owner_action_handoff_contract.md`.
-- AI lifecycle, approval, conversion, retention, export, and provenance boundaries are governed by `ai_lifecycle_and_approval_matrix.md`.
+- AI route, provider-policy, package-construction, explicit-content,
+  approval-contract, and provenance boundaries are governed jointly by
+  `model_routing_and_budget_architecture.md`,
+  `llm_package_construction_architecture.md`,
+  `explicit_content_architecture.md`,
+  `ai_lifecycle_and_approval_matrix.md`, and
+  `authorship_provenance_ai_visibility.md`.
 - No system may silently mutate accepted truth.
 - No system may silently create or mutate durable AI-origin memory, note, or signal state.
 - No system may silently export, sync, spend money, retain AI-origin durable memory, or transmit protected content.
@@ -92,11 +98,14 @@ Current Black Skies doctrine is:
   - user approval or refusal
   - privacy or local-only restrictions
   - explicit-content restrictions
-  - no-money or budget limits
+  - route mode, budget policy, and spend limits
   - project settings
   - model quality preference
   - convenience or automation
-- Current working budget and routing modes include weak PC mode, no-money mode, local-only mode, selective API mode, and deep API mode.
+- Current writer-facing route modes are `Local Only`,
+  `Privacy Preferred`, `Free Only`, `Balanced`, and
+  `Best Within Budget`.
+- `Ask Before Paid` remains a separate approval policy.
 - LLM package construction matters as much as prompt wording:
   - first tokens carry mission and hard rules
   - middle tokens carry supporting context
@@ -133,9 +142,12 @@ Current Black Skies doctrine is:
 - Ideation / Premise Discovery is closed with recorded convergence
   items in
   [orchestrator_9_ideation_premise_discovery_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ideation_premise_discovery_closure_checkpoint.md).
+- AI Governance, Routing, and Protected Package Reconciliation is
+  closed with recorded convergence items in
+  [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The next planning action is a short campaign-selection and
+- The next planning action is a fresh campaign-selection and
   classification review using the updated maturity inventory and
   roadmap.
 - Save-State and Degraded-Writing Workflow remains a standing
