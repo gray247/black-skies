@@ -36,9 +36,13 @@ Current status:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The next planning action is a fresh campaign-selection and
-  classification review using the updated maturity inventory and
-  roadmap.
+- The immediate product-definition objective remains bringing all known
+  category `2` and category `3` targets to category `4`.
+- `Draft Generation / Rewrite Loop` is the current selected
+  product-definition campaign.
+- Its next action is guided author shaping.
+- This selection remains current unless Jason explicitly changes the
+  lane.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -146,6 +150,54 @@ The roadmap therefore does not collapse into
 [v1_foundation_scope_lock.md](/C:/Dev/black-skies/docs/product_systems/v1_foundation_scope_lock.md).
 That scope lock is a narrow future boundary reference, not a replacement
 for the broader product roadmap.
+
+### Current Product-Definition Horizon
+
+Current sequencing remains:
+
+- bring all known category `2` and category `3` targets to category `4`
+- keep implementation blocked throughout the remaining dossier work
+- continue with `Draft Generation / Rewrite Loop` as the currently
+  selected campaign
+- begin that campaign through guided author shaping rather than
+  implementation planning
+
+This horizon is active now.
+It is not superseded by the later architecture sequence.
+
+### Post-Category-4 Architecture Horizon
+
+Only after all known inventory targets reach category `4`, the later
+architecture sequence is:
+
+1. `System Constellation Audit`
+2. `Cross-System Workflow Proofs`
+3. `Missing Connector Review`
+4. `Fatal Question Review`
+5. `Architecture Readiness Contract`
+6. `Vertical Slice Plan`
+7. implementation
+
+Reaching category `4` across the inventory does not authorize
+implementation.
+It activates the System Constellation and Architecture Readiness
+sequence.
+
+Category `4` means reconciled and hardened.
+It does not mean dossier-complete, build-ready, or
+implementation-ready.
+
+### Later Architecture Hypothesis
+
+The current audit hypothesis for that later architecture sequence is:
+
+`One shared narrative substrate, distributed domain ownership, many analyses, many views, and many projections.`
+
+This is a later audit hypothesis, not settled final architecture.
+Any shared substrate must support identity, evidence, provenance,
+lineage, chronology references, revision awareness, typed
+relationships, and projection inputs without replacing domain ownership
+or becoming a universal truth owner.
 
 ## 5. Priority Classes
 
@@ -479,16 +531,14 @@ need rather than by placeholder rank.
    Suitable as the next construction campaign: `no`, because this
    campaign is now closed.
 
-Current recommendation for the next planning step:
+Current selected planning step:
 
-- run a fresh campaign-selection and classification review
+- continue with `Draft Generation / Rewrite Loop`
+- begin through guided author shaping
 
-This recommendation is current planning guidance only.
-It is not Jason approval and does not begin another campaign
-automatically.
-That review should use the updated maturity inventory and roadmap to
-determine whether the selected lane requires reconciliation, guided
-shaping, or full product discovery.
+This is current planning guidance only.
+It is not implementation authorization, and it does not make Draft
+Generation permanently privileged over later lanes.
 
 ## 8. Product Horizons
 
@@ -548,15 +598,14 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. run a fresh campaign-selection and classification review now that
-   `Ideation / Premise Discovery` and AI Governance, Routing, and
-   Protected Package Reconciliation have reached category `4` closure
-   checkpoints
-2. either complete or consciously defer the remaining
-   foundation-critical cross-system artifacts without creating new
-   hidden owners
-3. keep roadmap-sufficient families partial but classified rather
-   than forcing universal deep closure
+1. bring all known category `2` and category `3` targets to category
+   `4` while keeping implementation blocked
+2. complete or consciously defer the remaining foundation-critical
+   cross-system artifacts without creating new hidden owners
+3. run the post-category-4 architecture sequence in this order:
+   `System Constellation Audit` -> `Cross-System Workflow Proofs` ->
+   `Missing Connector Review` -> `Fatal Question Review` ->
+   `Architecture Readiness Contract` -> `Vertical Slice Plan`
 4. document residual unresolved questions with explicit owners and
    disposition
 

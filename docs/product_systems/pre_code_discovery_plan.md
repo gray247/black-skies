@@ -102,6 +102,115 @@ Current product-system planning has already completed these steps:
 - `Critique / Evaluation` now has a one-to-one dossier and is no longer only bridge-backed.
 - human document interchange now has a one-to-one dossier in `import_export_document_interchange.md`, with autosave and AI-format questions still owned elsewhere.
 
+## Current Horizon And Later Readiness Gates
+
+The planning spine now preserves two horizons.
+
+### Current Product-Definition Horizon
+
+Current sequencing remains:
+
+- bring all known category `2` and category `3` targets to category `4`
+- keep implementation blocked throughout remaining dossier work
+- continue with `Draft Generation / Rewrite Loop` as the current
+  selected campaign
+- begin that campaign through guided author shaping
+
+This selection remains current unless Jason explicitly changes the
+lane.
+
+### Post-Category-4 Architecture Horizon
+
+Implementation requires completion of:
+
+1. category `4` inventory coverage across all known category `2` and
+   category `3` targets
+2. `System Constellation Audit`
+3. `Cross-System Workflow Proofs`
+4. `Missing Connector Review`
+5. `Fatal Question Review`
+6. accepted `Architecture Readiness Contract`
+7. approved `Vertical Slice Plan`
+
+Reaching category `4` across the inventory does not authorize
+implementation.
+It activates the System Constellation and Architecture Readiness
+sequence.
+
+### Architecture Questions To Test Later
+
+The later architecture sequence should test, not canonize:
+
+- shared narrative substrate versus distributed ownership
+- owner systems versus analyzers, projections, views, coordinators,
+  and contracts
+- evidence anchors and revision survival
+- accepted versus inferred relationships
+- chronology and arrangement ownership
+- stale-analysis handling
+- `Companion`-created views and workspaces without hidden durable state
+
+### Local Runtime Hypotheses
+
+The current planning spine preserves these later runtime hypotheses:
+
+- local-first writing
+- cached intelligence
+- scheduled or overnight analysis
+- optional API escalation
+- manual truth approval
+- tools own workflows
+- models perform bounded tasks
+- providers remain replaceable adapters
+- `Ollama` is one adapter, not product authority
+
+### Later AI Readiness Artifacts
+
+Later AI-readiness work should use:
+
+- `AI Model Capability Matrix`
+- task-based evaluation fixtures
+- measured routing decisions rather than permanent model-to-tool
+  ownership
+
+### Layered Memory Hypothesis
+
+Later architecture review should test this layered-memory hypothesis:
+
+- domain-owned accepted project records
+- `Source Text Index`
+- `Narrative Graph`
+- `Episodic / Session Memory`
+- `Procedural Memory`
+- `Analysis Cache`
+- vector search as one retrieval method
+
+Boundary reminders:
+
+- RAG is not the memory system
+- vector search is not the memory system
+- persistence does not replace domain ownership
+- graph relationships do not automatically become canon
+- cached analysis remains advisory
+
+### Future Architecture Tests
+
+Future architecture tests may include:
+
+- `Story DNA`
+- `Narrative X-Ray`
+- `Emotional Terrain`
+- `Narrative Physics`
+- `Story Simulation`
+
+These are later tests, not current implementation commitments.
+
+### First-Slice Boundary Reminder
+
+[v1_foundation_scope_lock.md](/C:/Dev/black-skies/docs/product_systems/v1_foundation_scope_lock.md)
+remains provisional evidence for first-slice thinking only.
+It is not the final vertical-slice plan.
+
 ## 12-Step Pre-Code Roadmap
 
 ### 1. Authority Anchor
@@ -155,33 +264,45 @@ Current product-system planning has already completed these steps:
 
 #### Current Cluster Progress
 
+These cluster notes are preserved as shaping history and partial
+contract evidence.
+They are no longer the main current sequencing authority.
+Current sequencing is governed by the roadmap, the maturity inventory,
+and the active Draft Generation campaign.
+
 - Continuity / Signal / Routing / Package / Explicit-content cluster
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact future contract shaping and Jason decision follow-up continue later where applicable.
   Already shaped in this cluster: continuity truth boundaries; signal candidate versus durable signal-state boundaries; routing approval and spend guardrails; package and outbound clearance boundaries; explicit-content masking, exclusion, and fallback boundaries; rough `no-ai-route-available` doctrine; and resource-governed workload tier doctrine where routing touches it.
 
 - Provenance / Memory Lab / Companion cluster
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact future contract shaping continues later.
   Already shaped in this cluster: provenance as private author-support metadata; clean default writing and export behavior; `Memory Lab` as governed recall rather than canon; `Memory Lab` retention and source tiers; `Companion` as workflow guide rather than system owner; `Companion` system-navigation support; temporary Writing Surface highlights or annotations; `Companion` plus `Memory Lab` workflow capability candidates; scheduled, idle, or overnight local-service candidate behavior; and resource-governed assistance plus workload tiers.
 
 - Writing Cockpit cluster: `Writing Surface`, `Command Center Surface`, and `Narrative Insertion / Narrative Assertion`
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact future UI, state, and interaction contract shaping continues later.
   Already shaped in this cluster: Writing Surface sovereignty; direct writing always available; minimal default Writing Surface context; contextual or summonable insertion or assertion references; clean default writing view; lightweight, contextual, dismissible inline overlay boundaries; heavier context in summonable side or support surfaces; heavy-action prompts without silent execution; author-controlled masks and AI exclusion zones; raw excluded-text no-leak boundaries; manuscript, mask, exclusion, package-view, and outbound-payload distinctions; smallest useful default Command Center; Command Center anti-junk-drawer doctrine; Command Center visibility levels of always-visible, contextual, and summonable; Command Center action-permission boundaries; Command Center attention or blocker ownership boundaries; conceptual split between `Narrative Insertion` and `Narrative Assertion`; insertion without automatic assertion truth; assertion candidates requiring explicit author accept, save, or convert; narrative state or provenance distinctions; and consumer-boundary doctrine for `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`, `Outline`, Scene, Story Unit, and `Command Center Surface`.
 
 - Structural Story System cluster: `Outline`, `Prose / Scene Projection`, and `Story Unit`
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact workflow, state, and interaction contract shaping continues later.
   Already shaped in this cluster: `Outline` as layered structural story map; flexible blobs, beats, scenes, chapters, and other containers; drag-and-drop planning movement; accepted-manuscript movement as preview or proposal only; projected order versus accepted manuscript order; mass, capacity, and word-pressure indicators without blocking writing; chronology versus telling or reading order; small default signal markers; `Signal Architecture` ownership of durable signal state; `Outline` as signal receiver or projector rather than signal owner; lightweight default Outline display; deeper hoverable, contextual, filterable, or summonable layers; prototype launcher behavior; safe prototype inputs; default-blocked prototype inputs; prototype outputs as advisory or generated planning artifacts; `Prose / Scene Projection` as view or projection rather than truth owner; `Story Unit` as optional flexible grouping or work container; smallest stable Story Unit payload; strongest lifecycle protection actions for delete, merge, split, promote-to-truth, accepted-manuscript reorder, and archive-with-material; and `Writing Surface`, `Outline`, and `Command Center Surface` action split.
 
 - Character / Lore / Relationship / Emotion cluster: `Character Cards`, `Lore Cards`, `Relationship Map`, and `Emotion Graph`
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact state, workflow, protection, and display contract shaping continues later.
   Already shaped in this cluster: `Character Cards` showing accepted facts first by default; `Lore Cards` showing accepted lore or rules first by default; `Relationship Map` showing accepted or author-confirmed relationships first by default; `Emotion Graph` showing accepted or author-defined emotional intent first by default; candidate, advisory, or inferred material staying optional, hidden until needed, or visibly distinct; tiny candidate or signal indicators appearing without crowding default views; `Writing Surface` receiving small current-text actions such as show card, attach note, propose candidate, and view related facts; `Command Center Surface` receiving heavier review or management actions such as review candidates, accept or reject, bulk actions, unresolved candidates, conflicts, signals, and cleanup workflows; a shared state model distinguishing accepted author-owned fact or intent, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item; preserved source labels for candidate, advisory, or inferred items; direct small actions for create candidate, attach note, hide or dismiss advisory item, or open source; explicit confirmation requirements for accepting, updating, deleting, or restoring truth, exposing protected sources, converting advisory inference into accepted fact, bulk actions, and export or sync or publish; protection rules preventing deleted, hidden, masked, or AI-excluded material from appearing in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted and allowed by owning-system rules; `Character Cards` and `Lore Cards` holding accepted facts or lore only when explicitly author-accepted; `Relationship Map` and `Emotion Graph` remaining primarily projection or visualization surfaces whose accepted relationship or emotional-intent records still require explicit author acceptance; no shadow canon; and no silent truth mutation.
 
 - Critique / Evaluation / Author Intent / Companion routing cluster
-  Status: paused, still blocked for implementation, and still rough or investigative or not build-ready.
+  Status: historical shaping summary; implementation remains blocked and
+  later dossier-completion work remains open.
   Current posture: stable enough to pause current tightening while exact routing, intake, and capability-boundary contract shaping continues later.
   Already shaped in this cluster: `Companion` routing requests to the owning system instead of absorbing every task; `Critique` treated as an evaluation capability rather than a universal surface; `Author Intent / Story Setup` treated as a living goal-and-boundary profile rather than a rigid startup gate; old `Wizard` concept preserved as a historical seed for `Author Intent / Story Setup` plus `Workflow Spine / Author Journey`; and old `Critique` concept preserved as a historical seed for `Critique`, `Feedback Notes`, `Signal Architecture`, `Draft Generation`, `Plugin / Rubric System`, `Continuity`, and `Companion` explanation.
 
@@ -197,44 +318,35 @@ Current product-system planning has already completed these steps:
 
 #### Next Candidate Cluster
 
-- Next candidate Step 6 cluster: not selected in this planning-spine sync.
-- Current note: the previously listed structural story system cluster has now moved from next-candidate status into paused cluster status above.
-- Future note: run a dossier inventory or missing-dossier reconciliation pass before choosing the next major Step 6 bundle.
-- `Critique / Evaluation` now has a one-to-one dossier and is no longer only bridge-backed.
-- Future note: `Author Intent / Story Setup` may remain inside `Workflow Spine / Author Journey` for now, with later review for whether it needs its own dossier.
+- Current selected campaign: `Draft Generation / Rewrite Loop`
+- Current next action: guided author shaping
+- Sequencing authority: `current_product_roadmap.md` together with
+  `dossier_maturity_inventory.md`
+- Remaining objective before later architecture review: bring all known
+  category `2` and category `3` targets to category `4`
 
 #### Dossier Inventory / Reconciliation Note
 
-- The current registry contains `42` registered or planned product systems.
-- `18` dossier files existed before the reconciliation pass for this sweep.
-- `23` missing one-to-one registered dossiers were created as placeholder dossiers in the reconciliation pass.
-- `43` dossier files now exist under `docs/product_systems/`.
-- `0` registered systems remain fully unrepresented only if bridge-backed coverage counts as representation for this sweep.
-- `4` registry systems are currently represented by existing bridge or architecture dossiers rather than one-to-one filenames:
+- The current registry contains `45` registered product systems.
+- `41` one-to-one current dossier files exist under
+  `docs/product_systems/`.
+- `4` registry systems are currently represented by existing bridge or
+  architecture dossiers rather than one-to-one filenames:
   - `Explicit-Content Marker / Send-Package Censor` -> `explicit_content_architecture.md`
   - `Local LLM vs Paid API Routing` -> `model_routing_and_budget_architecture.md`
   - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
   - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
-- `Critique / Evaluation` now has its own one-to-one dossier and is no longer only bridge-backed.
-- Registry target `Import / Export / Google Docs` is now represented by `import_export_document_interchange.md`, while the old registry wording remains over-broad shorthand.
-- Google Docs-like autosave or instant-save behavior belongs with `Writing Surface`, `Snapshots / Backup / Restore / History`, `Service Health / Offline / Degraded Mode`, and `Workflow Spine / Author Journey` rather than with document interchange.
-- `import_export_document_interchange.md` treats Google Docs as one external source or destination inside broader human document interchange rather than the whole scope.
-- AI or memory transfer format questions remain future contract territory for `llm_package_construction_architecture.md`, `model_routing_and_budget_architecture.md`, `memory_lab.md`, and later document-interchange sections rather than settled doctrine now.
-- The Critique / Evaluation / Author Intent / Companion routing cluster has now been captured across the existing docs, with `Critique / Evaluation` now represented by its own dossier.
-- The external raw question-bank source currently lives at `C:\Dev\plan ideas\continuity\open_questions_register.md`.
-- That raw register remains archive, intake, or triage source only rather than active planning spine.
-- Active questions still belong inside the relevant dossier `Pre-Rough Alignment Questionnaire`.
-- All `23 / 23` placeholder dossiers created in the inventory batch have now received controlled question-intake review across five intake batches:
-  - Batch 1: workflow, scene, draft, timeline, and foreshadow or payoff
-  - Batch 2: settings, snapshots, service health, diagnostics, and testing or harness
-  - Batch 3: senses, overused words, cliche, theme, and plugin or rubric
-  - Batch 4: binder, search or retrieval, series binder, file manager, and accessibility
-  - Batch 5: feedback notes, splash or startup, and async job queue
-- `0` placeholder dossiers remain unreviewed for this intake sweep.
-- `Critique / Evaluation` now has a one-to-one dossier and is no longer only bridge-backed.
-- Dossier creation and question-intake review are not dossier completion.
-- All new dossiers remain rough, investigative, and not build-ready.
-- Implementation remains blocked or not build-ready.
+- Live maturity totals are now:
+  - category `2`: `4`
+  - category `3`: `4`
+  - category `4`: `37`
+  - category `5`: `0`
+  - category `6`: `0`
+  - total registry targets: `45`
+- `0` registry targets remain fully unrepresented.
+- Dossier creation and question-intake review were intermediate steps,
+  not dossier completion or implementation readiness.
+- Implementation remains blocked.
 
 #### Current Follow-On Contract Needs
 
@@ -458,10 +570,7 @@ Expected clean state:
 
 ## Current Next Action
 
-After this doc is created and committed, run a Pre-Handover Audit to verify:
-
-- fatal decisions are reflected,
-- the plan doc matches current docs,
-- no loose roadmap claims exist,
-- no new docs are required before handover,
-- the next thread can continue safely.
+Continue with `Draft Generation / Rewrite Loop` as the current selected
+campaign.
+Its next action is guided author shaping.
+That lane remains current unless Jason explicitly changes it.

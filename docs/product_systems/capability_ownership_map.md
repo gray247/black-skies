@@ -297,6 +297,37 @@ The following are still real implementation-neutral product questions, but the l
   dossier-completion work must keep lifecycle, routing, package,
   provenance, and explicit-content surfaces visibly distinct
 
+## 10A. Later Constellation Audit Classification Note
+
+The later constellation audit should classify current systems and
+artifacts as one or more of:
+
+- truth, intent, fact, or state owner
+- workflow owner
+- evidence producer
+- analyzer
+- projection
+- coordinator
+- policy or contract
+- infrastructure
+- retrieval or index layer
+- surface
+- view or workspace definition
+
+Connector hypotheses for that later audit are:
+
+- `Evidence Anchor Contract`
+- `Character State Timeline`
+- `Arrangement State Contract`
+- `Surface Session Contract`
+
+These remain audit hypotheses only.
+They are not admitted systems or new owners.
+
+The proposed `AI Clearance Contract` already appears substantially
+distributed across existing AI-governance authorities and must not be
+admitted automatically as a new owner.
+
 ## 11. Discovery-Level Takeaways
 
 - The ownership map is strongest around manuscript truth, accepted assertion truth, durable note state, durable signal state, snapshot state, and routing or provenance governance.

@@ -133,6 +133,21 @@ planned-system set.
 It does not replace dossier doctrine, ownership doctrine, or the
 registry itself.
 
+## Governance / Orchestrator Required Reading
+
+For a new Governance / Orchestrator thread, start with:
+
+1. [Current Truth Index](current_truth_index.md)
+2. [Current Product Roadmap](current_product_roadmap.md)
+3. [Dossier Maturity Inventory](dossier_maturity_inventory.md)
+4. [Capability Ownership Map](capability_ownership_map.md)
+5. [System Interaction Map](system_interaction_map.md)
+6. the current active campaign dossier named by the truth index
+
+Keep this list short.
+Do not treat historical audit passes as mandatory current-authority
+reading unless the truth index explicitly promotes them.
+
 ## First-Wave Rough Dossier Origins
 
 The following files entered the repo as first-wave `exploring` or

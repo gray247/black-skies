@@ -36,6 +36,10 @@ Without an explicit truth index, the project risks split-brain planning:
 7. AI or inferred output is advisory unless explicitly accepted by the user.
 8. No continuity, critique, Companion, or projection layer may silently become authored truth.
 9. Architecture-governance contracts in `docs/product_systems/` constrain dossier interpretation before runtime code, tooling convenience, or old planning assumptions may claim authority.
+10. Category `4` completion does not authorize implementation.
+11. Sequencing authority belongs to
+    `current_product_roadmap.md`; detailed readiness-gate authority
+    belongs to `pre_code_discovery_plan.md`.
 
 ## Current Product Doctrine Snapshot
 
@@ -127,6 +131,14 @@ Current Black Skies doctrine is:
 - Throwaway prototypes are allowed only if they are isolated, disposable, and not treated as architecture proof.
 - The raw 2,500-question register is archive or intake only. Active design questions must live in the relevant dossier.
 - Product dossiers are living investigation files, not locked milestone claims.
+- `current_product_roadmap.md` is the sequencing authority for the
+  active campaign and the later post-category-4 architecture sequence.
+- `pre_code_discovery_plan.md` is the detailed readiness-gate
+  authority.
+- `system_interaction_map.md` is rough cross-system and constellation
+  evidence, not sequencing authority.
+- `capability_ownership_map.md` is the owner, bridge, projection, and
+  workflow-classification authority.
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
@@ -147,8 +159,13 @@ Current Black Skies doctrine is:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The next planning action is a fresh campaign-selection and
-  classification review using the updated maturity inventory and
+- `Draft Generation / Rewrite Loop` is the current selected
+  product-definition campaign.
+- Its next action is guided author shaping unless Jason explicitly
+  changes the lane.
+- Category-4 completion does not authorize implementation.
+- Reaching category `4` across the inventory activates the System
+  Constellation and Architecture Readiness sequence defined by the
   roadmap.
 - Save-State and Degraded-Writing Workflow remains a standing
   foundation dependency and reference, not the next construction
@@ -169,6 +186,23 @@ That means:
 - active questions should live inside the relevant dossier rather than only in a giant standalone register,
 - raw question banks remain archive or intake sources only,
 - answered questions should be marked `resolved` or `superseded` instead of being recopied forever.
+
+## Current Governance / Orchestrator Required Reading
+
+Mandatory current-authority reading for a new Governance / Orchestrator
+thread:
+
+1. [current_truth_index.md](/C:/Dev/black-skies/docs/product_systems/current_truth_index.md)
+2. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+3. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+4. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+5. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+6. [draft_generation_rewrite_loop.md](/C:/Dev/black-skies/docs/product_systems/draft_generation_rewrite_loop.md)
+
+The truth index identifies the current active campaign dossier.
+Historical pass documents, old readiness drafts, salvage-lane
+architecture artifacts, and prototype memory specifications remain
+evidence only unless current authority explicitly promotes them.
 
 ## Canonical Document Order
 
