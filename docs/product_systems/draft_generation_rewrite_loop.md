@@ -107,6 +107,29 @@ It does not own accepted manuscript truth, durable notes, durable
 signals, critique findings, AI-governance policy, protected-package
 routing, or author-approval doctrine.
 
+Final writer-facing lifecycle language:
+
+- `generated` = `New Candidate`
+- `reviewing` = `In Review`
+- `accepted` = `Accepted into Manuscript`
+- `partially accepted` = `Partially Accepted`
+- `rejected` = `Rejected`
+- `parked` = `Parked for Later`
+- `abandoned` = `Abandoned`
+- `stale` or `source changed` = `Out of Date`
+
+Distinction rules:
+
+- `Rejected` means the writer explicitly declines the candidate.
+- `Parked for Later` means the writer deliberately keeps it available
+  for later reconsideration.
+- `Abandoned` means the candidate is no longer under active
+  consideration and is not being intentionally preserved as a live
+  alternative.
+- `Out of Date` means the source, scope, or governing context changed,
+  so the candidate may still be inspectable but cannot present itself as
+  current-fit text.
+
 Candidate states:
 
 - `generated`
@@ -233,12 +256,35 @@ Warning doctrine:
 - protected-content and outbound-package risks must respect the
   existing AI-governance authorities rather than inventing local policy
 
+Final warning acknowledgement posture:
+
+| Warning class | Default acknowledgement posture | Meaning |
+| --- | --- | --- |
+| `canon drift risk` | `explicit acknowledgement required` | the candidate may alter accepted facts, accepted implications, or accepted story-support truth in a materially important way |
+| `voice drift risk` | `review warning` | the candidate may sound unlike the intended author or project voice, but the risk does not automatically block acceptance |
+| `foreshadow or payoff damage risk` | `review warning` | the candidate may weaken setup, payoff, or narrative support links and should be consciously reviewed before acceptance |
+| `continuity risk` | `explicit acknowledgement required` | the candidate may conflict with accepted manuscript, card, or support-system continuity and must not be accepted casually |
+| `explicit-content or protected-package risk` | `explicit acknowledgement required` | the candidate may affect masked, protected, local-only, never-send, or outbound-sensitive material and must stay under AI-governance protection doctrine |
+| `source-staleness risk` | `explicit acknowledgement required` | the candidate was produced against source material or governing context that has changed since the run began |
+
+Informational-badge posture:
+
+- a quiet informational badge is sufficient only when a warning class is
+  not currently triggered
+- once triggered, the class uses the acknowledgement posture listed
+  above
+- badge-only display must not be used for canon drift, continuity,
+  explicit-content, or staleness risk once the system believes the
+  condition is relevant
+
 ## 15E. Rejected-Output Retention And Visibility
 
 Rejected output is not retained as active writing context by default.
 
 Required posture:
 
+- default visibility is hidden from ordinary inline writing flow after
+  rejection
 - rejected candidates may remain in bounded local review history
 - rejected candidates must stay clearly labeled as rejected
 - rejected candidates must be excluded from ordinary `Memory Lab`
@@ -250,6 +296,36 @@ Required posture:
   retained artifact for later comparison or reconsideration
 - deliberate preservation does not change its rejected status unless the
   author later re-enters review and explicitly accepts some or all of it
+
+Retained-history depth:
+
+- use bounded local review history rather than an open-ended archive
+- align ordinary unpinned rejected-history retention with the editorial
+  temporary-history posture:
+  roughly `30` recent completed runs per project and roughly `180 days`
+  of unpinned history
+- trim oldest unpinned rejected-history items first
+- preserve manually retained or deliberately preserved rejected
+  candidates beyond ordinary trimming when feasible
+
+Summonable-history behavior:
+
+- rejected history should be summonable from support flow or
+  `Command Center Surface`, not surfaced as default active writing
+  context
+- summonable history may show provenance, request purpose, source
+  relation, warnings, and rejection status
+- summonable history must stay clearly separated from current candidate
+  review and from accepted manuscript truth
+
+Clutter-prevention posture:
+
+- ordinary writing should not surface long rejected-history lists by
+  default
+- the most recent or deliberately preserved items may remain reachable,
+  but stale or low-value rejected history should trim honestly
+- preserved rejected history is for comparison and forensic review, not
+  for passive re-injection into writing flow
 
 ## 15F. Stale-Result Reattachment
 
@@ -391,20 +467,19 @@ Intake note:
 
 ### Critical Questions
 
-- Future contract need: what final writer-facing language should name
-  states such as `parked`, `abandoned`, and `partially accepted`
-  without blurring them together?
+- None at this dossier level.
 
 ### Major Questions
 
-- Major: how much rejected-history depth should remain visible before it
-  becomes clutter rather than useful evidence?
-- Major: which warning classes should be quiet badges versus forced
-  acknowledgement at review time?
+- Major: exact final visible copy for labels such as `New Candidate`,
+  `Parked for Later`, and `Out of Date` may still evolve during later
+  dossier-completion work without changing doctrine.
 
 ### Minor Questions
 
-- Minor: what user-facing language best distinguishes generate, rewrite, edit, suggestion, revision task, and branch or version states?
+- Minor: exact surrounding microcopy for `generate`, `rewrite`,
+  `suggestion`, and `revision` may still evolve during later
+  dossier-completion work.
 
 ### Answered / Superseded Questions
 
@@ -419,9 +494,17 @@ Intake note:
 - Resolved here: warning classes include canon drift, voice drift,
   foreshadow or payoff damage, continuity risk, explicit-content or
   protected-package risk, and source-staleness risk.
+- Resolved here: canon drift, continuity risk, explicit-content or
+  protected-package risk, and source-staleness risk require explicit
+  acknowledgement when triggered; voice drift and foreshadow or payoff
+  damage use review-warning posture.
 - Resolved here: rejected output may remain in bounded local review
   history but is excluded from ordinary `Memory Lab`, signal, note, and
   future-model context by default.
+- Resolved here: rejected history is hidden from ordinary writing flow,
+  summonable from support flow or `Command Center Surface`, and bounded
+  by the editorial temporary-history posture unless deliberately
+  preserved.
 - Resolved here: stale output does not silently reattach; it must stay
   visibly stale and route through explicit review.
 - Questions better owned elsewhere: whether rewrite output updates signals, assertions, Outline, Story Units, or Memory Lab belongs partly to those owning-system dossiers.
@@ -432,4 +515,23 @@ Intake note:
 
 ## 34. Acceptance Criteria
 
-This dossier is acceptable only if generated text remains advisory until explicitly accepted.
+This dossier is acceptable only if all of the following are true:
+
+- generated text remains advisory until explicitly accepted
+- only explicit acceptance through
+  `Narrative Insertion / Narrative Assertion` may mutate manuscript
+  truth
+- candidate lifecycle states remain distinct and writer-visible
+- partial acceptance preserves the accepted subset without promoting the
+  untouched remainder
+- stale-source posture remains honest and never silently reattaches
+  output
+- rejected output remains excluded from ordinary memory, signal, note,
+  and future-model context by default
+- warning acknowledgement posture remains explicit for canon drift,
+  continuity risk, explicit-content or protected-package risk, and
+  source-staleness risk
+- `Writing Surface` and `Command Center Surface` remain support and
+  review layers rather than hidden truth owners
+- no rewrite acceptance, rejection, or review gesture silently closes a
+  durable note or durable signal
