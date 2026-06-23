@@ -28,6 +28,7 @@ Writers need trustworthy, bounded model interactions that preserve mission, cont
 
 - defines package structure,
 - orders hard rules, context, and output instructions,
+- owns selected package contents, context assembly, package summaries, provider-rendered payloads, and the composed final preview artifact,
 - defines input and output expectations for packaged work,
 - governs chunking, masking, summaries, and model/provider differences,
 - helps preserve evidence and provenance boundaries.
@@ -58,6 +59,7 @@ Nothing by default beyond safe, honest tool behavior.
 
 - package summaries,
 - package approval previews later,
+- composed final preview artifact later,
 - send-path explanation later.
 
 ## 10. What Is Hidden Until Needed
@@ -79,6 +81,7 @@ Nothing by default beyond safe, honest tool behavior.
 
 - structured model packages after routing and explicit-content clearance later,
 - package summaries later,
+- composed final preview artifacts later,
 - truncation or masking notes later,
 - author-approved redacted or package views later,
 - blocked-assembly reasons later,
@@ -97,11 +100,13 @@ Nothing by default beyond safe, honest tool behavior.
 - templates or schemas later,
 - package policy versions later,
 - approved package summaries later,
+- package-summary history later,
 - author-approved redaction or mask-view references later.
 
 ## 15. What Remains Temporary
 
 - per-run packages,
+- per-run composed previews,
 - raw-manuscript, redaction-map, and outbound-package-view distinctions before any saved conversion later,
 - chunk decisions,
 - token estimates,
@@ -155,6 +160,34 @@ Paid API paths need stricter packaging, summaries, masking, and approval boundar
 - exact schemas, chunking, compression, truncation, and provider-specific tuning remain unresolved.
 - This dossier does not decide whether raw text, structured JSON or markdown, `docx`, `pdf`, OCR text, or another format is best for AI use; that stays future comparison territory.
 
+Package Construction owns the composed final preview artifact.
+That preview may include governed contributions from other owners, but it does not absorb their state:
+
+- `Explicit Content Architecture` contributes masks, exclusions, approved summaries, blocked material, and package-view clearance,
+- `Model Routing And Budget Architecture` contributes selected route, eligible provider, fallback posture, estimated cost, and budget status,
+- `AI Lifecycle And Approval Matrix` contributes required approvals, approval results, and advisory-until-accepted posture,
+- `Authorship Provenance AI Visibility` contributes source identity, transformation trace, and retained provenance references.
+
+The composed preview remains a package artifact.
+It does not become a universal request record, approval record, or provenance record.
+Where relevant, the composed preview may show:
+
+- selected source material,
+- request purpose,
+- package contents,
+- exclusions and masks,
+- approved summaries,
+- blocked material,
+- selected route,
+- provider eligibility or selected provider,
+- estimated cost and budget status,
+- required approvals,
+- approval owner and current result,
+- provenance references.
+
+The preview owns only the preview artifact and its snapshot of linked approval status at package-build time.
+It does not own provider permissions, spend approvals, protected-package approvals, summary approvals, destination acceptance, or transfer approvals.
+
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Package construction must cooperate with masking, summarization, and transformed-package rules without losing essential continuity.
@@ -162,12 +195,15 @@ Package construction is not the same thing as human document interchange, even w
 Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 Package construction should receive routing approval and explicit-content clearance before any outbound package is assembled, and it must not widen a blocked task into outbound-safe behavior on its own.
 Outbound package construction must use the author-approved redacted or package view, not excluded raw manuscript ranges, for masked or AI-excluded sections.
+If a package uses an author-approved summary, the composed preview must show that use before outbound execution wherever preview is required.
+Package approval must not silently approve a different summary candidate or a newly generated summary that the author has not approved.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 Packages must respect privacy, censorship, and explicit-content boundaries before any provider call.
 Package construction must not override local-only, never-send, or refusal states handed down by routing or explicit-content policy.
 Package construction must preserve the distinction between raw manuscript, author redaction or mask map, and outbound package view.
+It must also keep package-summary history separate from route or run history, route-approval history, provider-permission history, spend-approval history, protected-package approval history, approved-summary history, provenance history, and human interchange or export history.
 
 Minimum rough package-boundary vocabulary:
 
@@ -176,6 +212,7 @@ Minimum rough package-boundary vocabulary:
 - `AI exclusion zone`: a range or artifact barred from routing, package assembly, previews, summaries, and outbound payloads unless the author later authorizes a different treatment.
 - `author-approved package view`: the redacted, summarized, substituted, or otherwise prepared AI-facing context the author has approved for the task.
 - `outbound payload view`: the actual provider-bound payload rendered from the approved package view plus task wrapper, safety wrapper, and provider-specific formatting.
+- `composed final preview artifact`: the reviewable package-facing preview assembled from package contents plus governed routing, approval, protection, and provenance contributions before execution where preview is required.
 
 These are rough product-definition boundaries, not a final implementation schema.
 Raw excluded ranges must not leak into outbound package construction, package previews, or package summaries, and downstream systems must rely on the approved package view rather than silently reaching back to raw excluded text.
@@ -193,6 +230,7 @@ Governance rules:
 
 - package construction is not casual prompt stuffing,
 - no silent package widening,
+- no silent preview mutation after approval,
 - provider-specific packaging may evolve, but it must not silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose,
 - starting never-send or raw outbound categories are real doctrine, but the list may evolve,
 - evidence and output rules must survive packaging.
@@ -210,6 +248,7 @@ Risks:
 - hard rules fall out of the package,
 - late instructions override mission,
 - chunking breaks continuity,
+- preview shows one route, summary, or protection state while the payload uses another,
 - summaries misdescribe the real package.
 
 ## 30. v1 Boundary
@@ -266,6 +305,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Do last tokens repeat mission and output rules? Answered: yes.
 - Is casual prompt stuffing acceptable? Answered: no.
 - What routing approval state and explicit-content clearance must exist before outbound package assembly may begin? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards.
+- Who owns the final composed preview? Answered: `LLM Package Construction Architecture` owns the composed final preview artifact while routing, explicit-content, lifecycle, and provenance contribute governed non-owning state.
 - May provider-specific packaging evolve by genre, task, model strength, local-versus-paid path, and writing mode? Answered: yes.
 - May provider-specific packaging silently change mission, meaning, author intent, evidence scope, canon facts, or task purpose? Answered: no.
 - Are there starting never-send or raw outbound categories? Answered: yes, as rough doctrine that may evolve.
@@ -276,6 +316,7 @@ Provider-specific schemas, compression policies, and better evidence citation pa
 - Are packages truth? Answered: no.
 - Does package construction widen task scope on its own? Answered: no.
 - Must package views respect masks, AI exclusion zones, local-only content, and protected states? Answered: yes.
+- Must package approval silently approve a different summary candidate than the one shown in preview? Answered: no.
 - Does stale package retry require revalidation after source or protection changes? Answered: yes.
 
 ### Deferred Questions

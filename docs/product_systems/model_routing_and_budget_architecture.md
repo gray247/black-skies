@@ -27,7 +27,9 @@ Writers need useful intelligence help without hidden cost, lag, privacy surprise
 ## 4. What The System Does
 
 - defines routing and budget posture,
-- names practical budget modes,
+- defines author-facing route modes and approval-aware spend posture,
+- defines provider eligibility and execution policy constraints behind those route modes,
+- owns request route selection, refusal, fallback, and route/run history,
 - bounds silent versus manual runs,
 - preserves user control over cost and privacy.
 
@@ -43,18 +45,22 @@ Writers need useful intelligence help without hidden cost, lag, privacy surprise
 
 ## 6. User-Facing Behavior
 
-Working doctrine includes:
+Front-door route doctrine includes:
 
-- weak PC mode,
-- no-money mode,
-- local-only mode,
-- selective API mode,
-- deep API mode.
+- `Local Only`,
+- `Privacy Preferred`,
+- `Free Only`,
+- `Balanced`,
+- `Best Within Budget`.
+
+`Ask Before Paid` is a separate paid-use approval policy that may apply to any route mode capable of paid execution.
+Default posture is `Privacy Preferred` with `Ask Before Paid` enabled.
 
 ## 7. Hidden/Background Behavior
 
 - low-cost local observation when feasible and allowed,
 - routing preparation,
+- provider-policy evaluation,
 - classifying work into rough effort tiers before deeper escalation,
 - blocked or deferred runs when policy forbids escalation.
 
@@ -68,24 +74,31 @@ Manual runs, route approvals, and deeper analysis requests.
 
 ## 10. What Is Hidden Until Needed
 
-Heavy long-context or expensive provider escalation.
+Heavy long-context or expensive provider escalation, provider allow or deny detail, and advanced fallback restrictions.
 
 ## 11. Inputs
 
 - task type,
-- user budget preferences,
+- route default and paid-use policy,
+- provider allow or deny rules,
 - project privacy rules,
 - hardware limits,
+- provider availability and capability limits,
 - context size,
+- per-request provider pinning where explicitly chosen,
 - urgency and depth requirements.
 
 ## 12. Outputs
 
 - route decisions,
+- eligible provider or local execution class later,
 - local-only, blocked, or outbound-eligible status later,
+- estimated cost and budget-status messaging later,
 - `no-ai-route-available` state later when no permitted AI route remains,
 - manual approval prompts later,
+- named refusal reason later,
 - blocked or downgraded run outcomes,
+- fallback posture later,
 - package-assembly allowed or denied status later,
 - visible mode status later.
 
@@ -100,10 +113,18 @@ Heavy long-context or expensive provider escalation.
 
 ## 14. What Gets Stored
 
-- user mode preferences later,
+- route defaults later,
+- paid-use policy later,
+- allowed or blocked provider preferences later,
 - budget caps later,
 - routing policy selections later,
-- explicit approval history later,
+- route-approval history later,
+- provider-permission history later,
+- paid-use approval history later,
+- spend-approval history later,
+- request-specific route-override history later,
+- provider-pinning history later,
+- fallback-permission history later,
 - run history summaries later.
 
 ## 15. What Remains Temporary
@@ -112,6 +133,7 @@ Heavy long-context or expensive provider escalation.
 - transient cost estimates,
 - fallback warnings,
 - one-off manual approvals,
+- per-request provider pinning or provider-switch candidates,
 - provider refusal states before retry, local fallback, or abandonment.
 
 ## 16. Relationship To Narrative Insertion / Assertion
@@ -158,6 +180,11 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - manual run is the backup,
 - paid API is the later escalation path,
 - systems should prefer the cheapest safe source of truth or context first before escalating into heavier scans or provider work,
+- route mode is the author-facing policy intent,
+- provider policy applies the advanced allow or deny, capability, availability, privacy, context, cost, and fallback constraints needed to satisfy the route,
+- ordinary writing should not require provider selection,
+- provider details belong primarily in advanced settings, Command Center, diagnostics, package preview, and route or run history,
+- the author may pin a provider for a request, but no silent fallback may choose a less private or paid provider contrary to route mode and approval policy,
 - starting precedence is author authority, then masks or AI exclusion zones, privacy or outbound rules, spend rules, routing preference, and `Companion` convenience,
 - silent runs are allowed only for local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation,
 - paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk,
@@ -174,6 +201,17 @@ Paid API is reserved for heavy, deep, or long-context work when quality or scale
 - lower-priority convenience may not override author, masking, privacy, outbound, or spend boundaries,
 - exact spending thresholds above the cap floor remain unresolved.
 
+Route modes are distinct from provider policy:
+
+- `Local Only`: only genuinely local execution paths are eligible.
+- `Privacy Preferred`: prefer local or higher-privacy eligible paths and avoid outbound use unless the route still permits it and approval clears it.
+- `Free Only`: allow only zero-cost eligible paths even if a paid route would be stronger.
+- `Balanced`: allow the best reasonable eligible route within privacy, protection, and spend policy.
+- `Best Within Budget`: allow the strongest eligible route that stays inside protection, privacy, and spend constraints.
+
+`Ask Before Paid` is not a route mode.
+It is an approval policy layered over any route mode that may otherwise permit paid execution.
+
 Minimum rough routing and approval-state vocabulary:
 
 - `silent-local`: local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
@@ -182,6 +220,10 @@ Minimum rough routing and approval-state vocabulary:
 - `blocked`: work policy disallows before execution because privacy, explicit-content, budget, project, or user rules forbid the route.
 - `refused`: a route that was attempted or considered eligible but then declined by the provider, the system, or the user at approval time.
 - `no-ai-route-available`: the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, and no permitted AI fallback remains.
+
+Route and run history remain this dossier's operational history.
+They must stay separate from package-summary history, provenance history, interchange or export history, and from the other qualified approval-record histories owned by their governing policy systems.
+The Command Center may later show a non-owning linked request timeline, but routing is not a universal history owner.
 
 Minimum rough workload tiers:
 
@@ -205,14 +247,14 @@ At rough doctrine level, `no-ai-route-available` appears when the local route is
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
-Routing must honor privacy mode, explicit-content boundaries, and no-money or local-only constraints without silently overriding them or silently reclassifying a blocked task as outbound-safe.
+Routing must honor privacy mode, explicit-content boundaries, and `Free Only`, `Local Only`, or another applicable non-paid route constraint without silently overriding them or silently reclassifying a blocked task as outbound-safe.
 Routing must also honor author-controlled masks, summaries, substitutions, and AI exclusion zones before any outbound package path is considered.
 
 ## 27. Testing Requirements
 
-- local-only mode blocks paid API use,
-- selective API mode requires explicit policy boundaries,
-- weak PC mode does not freeze the writer experience,
+- `Local Only` blocks paid and remote provider use,
+- `Privacy Preferred` does not silently fall back to a less private provider,
+- `Ask Before Paid` prevents silent paid execution across otherwise eligible routes,
 - silent local observation does not become silent paid observation.
 
 ## 28. Governance Rules And Risks
@@ -282,25 +324,24 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 
 - What exact spending thresholds should exist?
 - How should per-project versus global modes work?
-- How should mode changes behave mid-project, especially local-only to API?
+- How should route-mode changes behave mid-project?
 - How should API findings be reconciled with local findings when they contradict each other?
 - What should happen when a local model is too weak for the requested task?
 
 ### Minor Questions
 
-- What polished mode names should replace or refine the working labels?
 - What budget-status presentation avoids both hidden spend and panic noise?
 
 ### Answered / Superseded Questions
 
 - Does the budget monster matter? Answered: yes.
-- Do weak PC, no-money, local-only, selective API, and deep API modes matter? Answered: yes.
+- Do front-door route modes matter? Answered: yes. Starting writer-facing modes are `Local Only`, `Privacy Preferred`, `Free Only`, `Balanced`, and `Best Within Budget`, with `Ask Before Paid` as a separate approval policy.
 - Is silent local observation preferred when feasible? Answered: yes.
 - Is paid API the default path? Answered: no, it is for heavy, deep, or long-context work.
 - Is silent paid API spend allowed? Answered: no.
 - Which task classes may run silently? Answered: only local-only, free, non-destructive, advisory work with no outbound transfer, no paid spend, no manuscript mutation, and no truth mutation.
 - Which task classes require approval? Answered: paid, outbound, destructive, truth-changing, export or sync, explicit-content outbound, or tool-using work requires session approval or fresh approval depending on risk.
-- Can any system escalate from local or no-money modes to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
+- Can any system escalate from `Local Only`, `Free Only`, or another applicable non-paid route mode to paid API without explicit approval? Answered: no; any exception would require a separate decision pass.
 - Which route outcomes must block outbound package assembly entirely, and which may still allow local-only execution without provider calls? Answered: outbound package assembly requires approved routing, approved budget or spend state, valid user approval, explicit-content outbound clearance, and provider-neutral package safeguards. If clearance fails, package assembly must stop or produce only local, non-outbound artifacts.
 - Does outbound refusal or failure count as a manuscript failure? Answered: no. A refusal is treated as a route failure, not a manuscript failure.
 - What approval classes may rely on session approval, and which must require fresh approval? Answered: session approval may cover bounded paid critique, bounded outbound model help, scheduled local-only jobs, and repeated low-risk approved workflow actions. Fresh approval is required for first outbound manuscript transfer, explicit-content outbound package, spend above cap, provider switch after refusal, exporting or syncing or publishing, deletion, truth mutation, raw excluded-span retention, and tool use outside safe local UI.
@@ -308,6 +349,7 @@ Per-system routing profiles, project-scoped routing policy, and richer cost prev
 - What cost exposure must be visible before a task can leave the local boundary or consume paid tokens? Answered: estimated cost before paid work and visible session budget remaining.
 - Which failure combinations should transition directly to `no-ai-route-available`? Answered: when the local route is unavailable or refused, the outbound route is blocked or refused, masking or substitution is still insufficient, required approval is denied, the budget cap blocks the task, and no permitted fallback remains.
 - What is the starting routing precedence? Answered: author authority -> masks or AI exclusion zones -> privacy or outbound rules -> spend rules -> routing preference -> `Companion` convenience.
+- Is route mode the same thing as provider policy? Answered: no. Route mode is the author-facing policy intent; provider policy applies advanced allow or deny, capability, availability, privacy, context, cost, pinning, and fallback constraints to satisfy that route.
 - Is silent paid spend allowed? Answered: no.
 - Is silent outbound transfer allowed? Answered: no.
 - Does routing own truth, memory, signals, notes, package content, or export? Answered: no.

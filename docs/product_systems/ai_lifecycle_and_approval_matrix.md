@@ -103,7 +103,7 @@ This contract applies across:
 
 - Owner: `LLM Package Construction Architecture`
 - Inputs: approved task intent, allowed scope, allowed source material, owning-system boundaries, package invariants
-- Outputs: package artifact, package summary, scope declaration, package-view candidate
+- Outputs: package artifact, package summary, scope declaration, package-view candidate, composed final preview artifact
 - Approvals: `T1` for silent-local eligible packaging; `T2 + T6` or `T3 + T6` when approval is required by route, scope, or protection class
 - Prohibited behavior: no silent package widening, no source substitution that changes mission or evidence scope, no raw excluded-span inclusion, no truth mutation
 - Downstream destinations: `Stage 3 Protection Filtering`, `Stage 4 Routing Decision`
@@ -112,7 +112,7 @@ This contract applies across:
 
 - Owner: `Explicit Content Architecture` with provenance cooperation from `Authorship Provenance AI Visibility`
 - Inputs: raw manuscript candidates, mask maps, AI exclusion zones, local-only rules, protected-content rules, package artifact
-- Outputs: local-only classification, outbound-blocked classification, transform-required classification, author-approved package view candidate, protected summary candidate
+- Outputs: local-only classification, outbound-blocked classification, transform-required classification, author-approved package view candidate, summary candidate, author-approved summary, approved package use candidate
 - Approvals: `T1` for local non-outbound classification; `T3 + T6` for transformed outbound package approval; `T5` where no permitted route exists yet
 - Prohibited behavior: no silent censorship of local manuscript, no silent outward leakage of raw excluded content, no silent truth mutation, no silent raw-content persistence in provenance
 - Downstream destinations: `Stage 4 Routing Decision`, `Stage 11 Export / Transfer`, block or refusal states
@@ -120,8 +120,8 @@ This contract applies across:
 ### Stage 4. Routing Decision
 
 - Owner: `Model Routing And Budget Architecture`
-- Inputs: protected package class, route eligibility, local-only constraints, budget caps, explicit-content state, user approval state, requesting system priority
-- Outputs: route decision, approval-needed state, blocked state, refused state, downgraded local-only path, `no-ai-route-available`
+- Inputs: protected package class, route mode, provider policy, route eligibility, local-only constraints, budget caps, explicit-content state, user approval state, requesting system priority
+- Outputs: route decision, provider eligibility result, approval-needed state, blocked state, refused state, downgraded local-only path, `no-ai-route-available`, named fallback posture
 - Approvals: `T1` only for `silent-local` eligible work; `T4 + T6` for repeated session-approved bounded work; `T3 + T6` for paid, outbound, provider-switch, or widened tasks
 - Prohibited behavior: no silent paid spend, no silent outbound escalation, no silent provider-switch retry, no silent destructive route, no truth mutation
 - Downstream destinations: `Stage 5 Model Execution`, fallback or block messaging
@@ -193,10 +193,25 @@ This contract applies across:
 
 - Owner: `Authorship Provenance AI Visibility` plus relevant operational owner for route or transfer history
 - Inputs: source trace, classification, acceptance action, retention action, export mode, masking or exclusion relationship
-- Outputs: provenance metadata, acceptance lineage, route history, transfer history, bounded audit trace
+- Outputs: provenance metadata, acceptance lineage, linked approval-lifecycle references, route or run history reference, package-summary history reference, transfer history reference, bounded audit trace
 - Approvals: `T1` for owner recording of required provenance; `T2 + T6` for retention beyond default bounded history where later contracts demand it
 - Prohibited behavior: no raw excluded text retention by default, no provenance laundering, no story-truth substitution, no undeletable punitive scar
 - Downstream destinations: summonable author review, export-aware rendering, bounded diagnostics, future evidence workflows
+
+History ownership remains split:
+
+- route or run history belongs to `Model Routing And Budget Architecture`,
+- route-approval history, provider-permission history, spend-approval history, request-specific route-override history, and provider-pinning or fallback-permission history belong to `Model Routing And Budget Architecture`,
+- protected-package approval history, approved-summary history, and mask or protected-package-view approval history belong to `Explicit Content Architecture`,
+- destination-acceptance history belongs to the destination owner,
+- transfer-approval history belongs to `Import Export Document Interchange`,
+- package-summary history belongs to `LLM Package Construction Architecture`,
+- provenance history belongs to `Authorship Provenance AI Visibility`,
+- transfer history belongs to `Import Export Document Interchange`.
+
+The Command Center may later compose a non-owning request timeline across these records.
+This contract does not create a universal history owner.
+It owns the approval contract, approval vocabulary, approval-state definitions, revalidation rules, and the linked approval-lifecycle view rather than every concrete approval decision record.
 
 ## 7. Output Classes
 
@@ -312,10 +327,21 @@ This contract reuses:
 | overnight or background AI execution | `T4 + T6` only for bounded local advisory prep; otherwise `T3 + T6` |
 | destructive AI-adjacent actions such as delete, overwrite, restore-over-current, forget durable memory | `T2 + T6` or `T3 + T6` depending on risk |
 
+Approval classes remain distinct and must not collapse into one generic approval:
+
+- provider permission,
+- paid-use permission,
+- spend-threshold approval,
+- protected-package approval,
+- destination truth acceptance.
+
 ### 10.3 What May Be Pre-Approved
 
 - Nothing may be globally pre-approved across all future AI behavior.
 - Only local, free, non-destructive, advisory, non-outbound, non-retaining, non-truth-mutating work may later qualify for silent-local or bounded session approval.
+- This contract owns the approval-state vocabulary plus the expiry, revocation, and revalidation doctrine that governing policy owners must follow when recording concrete approval decisions.
+- Persistent preferences may include allowed providers, blocked providers, route default, paid-use policy, and an ordinary spend ceiling.
+- Request-specific approval remains required when spend exceeds the persistent ceiling, protected or summarized content is newly included, provider or privacy posture changes, a stale approved summary is used, or destination truth mutation is requested.
 
 ### 10.4 What May Be Session-Approved
 
@@ -330,6 +356,7 @@ This contract reuses:
 - provider switch after refusal
 - outbound package transmission
 - explicit-content transform-required outbound work
+- newly included approved summary or stale approved summary reuse
 - export, sync, publish, or external transfer
 - raw excluded-span retention
 - destructive conversion or overwrite
@@ -369,6 +396,7 @@ This contract reuses:
 | durable advisory memory | durable memory | `Memory Lab` | no, requires retention approval |
 | accepted truth used by AI | truth remains truth in its own owner; may also be cited in provenance | truth owner | already durable as truth, not because AI touched it |
 | package artifact | temporary by default; bounded summary later | `LLM Package Construction Architecture` | no |
+| author-approved summary | bounded approved package artifact | `Explicit Content Architecture` | no |
 | approved package view reference | provenance-bounded reference only | `Authorship Provenance AI Visibility` | no by default |
 | outbound payload trace | bounded route or transfer history | route or transfer owner | yes only as operational history, not content truth |
 | provenance metadata | durable local/private metadata | `Authorship Provenance AI Visibility` | yes when required by doctrine, but not as truth |

@@ -81,8 +81,11 @@ Nothing should block direct writing by default.
 
 - marker states later,
 - local-only, outbound-blocked, or transform-required classifications later,
+- summary candidates later,
+- author-approved summaries later,
 - author-approved redacted or package views later,
 - masked or summarized outbound packages,
+- approved package use records later,
 - approval prompts later,
 - refusal or fallback states later,
 - `no-ai-route-available` state later,
@@ -100,7 +103,12 @@ Nothing should block direct writing by default.
 
 - explicit-content preferences later,
 - marker metadata later,
-- approval and refusal history later,
+- approved summaries later,
+- approved-summary scope, purpose, reuse posture, and stale or expired or superseded or revoked approval state later,
+- protected-package approval history later,
+- approved-summary history later,
+- mask and protected-package-view approval history later,
+- refusal history later,
 - author redaction or mask maps later,
 - transformed-package audit records later,
 - local-only lock decisions later.
@@ -108,7 +116,9 @@ Nothing should block direct writing by default.
 ## 15. What Remains Temporary
 
 - one-off transformed packages,
+- summary candidates awaiting review,
 - masked summaries or substitutions used only as package or context artifacts unless explicitly saved or converted by the author,
+- per-package approved-summary use instances before they land in other owners' histories,
 - masking previews,
 - ephemeral safety summaries,
 - pre-send warnings,
@@ -150,7 +160,6 @@ Local models may help with raw local analysis later if allowed and bounded.
 ## 23. Paid API Role
 
 Paid API must never receive raw local explicit story content unless future rules explicitly allow it.
-Exact refusal and fallback behavior remains unresolved.
 Starting never-send or raw outbound categories include explicit sexual content, extreme violence or gore, minor-related sensitive content, private author notes marked local-only, deleted drafts marked archived or private, raw manuscript text from local-only projects, and anything the user marks never-send.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
@@ -182,11 +191,31 @@ These are rough product-definition states, not a final implementation workflow.
 - explicit-content handling must hand a clear local-only, transform-required, or outbound-blocked state to routing and package construction before any provider call,
 - outbound package construction must use the author-approved redacted or package view rather than excluded raw manuscript ranges.
 
+Summary lifecycle remains distinct:
+
+- `Summary Candidate`: generated or drafted wording awaiting author review. It may not be transmitted externally.
+- `Author-Approved Summary`: reviewed wording approved for a defined source scope, allowed purpose, project or content scope, and one-time or reusable posture. Relevant source changes or author reversal may mark it stale, superseded, expired, revoked, or otherwise no longer safe to reuse silently.
+- `Approved Package Use`: a specific package includes the approved summary. The preview must show that use before outbound execution wherever preview is required.
+
+Package approval must not silently approve a different `Summary Candidate` than the one shown in preview.
+Automatic summary generation followed by automatic transmission is forbidden.
+
+Fallback order is:
+
+1. use an existing author-approved summary when permitted and previewed
+2. offer manual mask or summary preparation
+3. refuse outbound execution when no valid package can be produced
+
+An alternative genuinely local route may still be offered when eligible.
+Direct local writing must remain available even when every AI route is blocked.
+
 Minimum rough package-boundary vocabulary:
 
 - `raw manuscript`: the author's original prose before any masking, substitution, summary, or exclusion for AI use.
 - `author redaction or mask map`: the author's explicit range-level instructions for hiding, summarizing, substituting, or excluding content for a task.
 - `AI exclusion zone`: any marked range that AI routing, package construction, previews, summaries, or outbound payloads must not use unless the author later grants a different authorization.
+- `Summary Candidate`: generated or drafted summary wording that is not yet approved for outbound use.
+- `Author-Approved Summary`: reviewed summary wording approved for a defined scope and purpose.
 - `author-approved package view`: the prepared AI-facing version the author approves for the task after masking, substitution, summary, or exclusion.
 - `outbound payload view`: the actual provider-bound content rendered from the approved package view plus task-specific wrapping.
 
@@ -199,6 +228,7 @@ These are rough product-definition boundaries, not a final implementation schema
 - no silent censorship of the local manuscript,
 - AI exclusion zones must be honored by routing, package construction, Continuity, Signal Architecture, Memory Lab, Companion, and any outbound package preview,
 - raw excluded ranges must not leak into signal summaries, previews, Memory Lab behavior, Companion behavior, or outbound payload construction unless the author explicitly authorizes a different treatment,
+- local-only and never-send restrictions remain explicit-content ownership for outbound eligibility and may not be silently relaxed by routing or package construction,
 - preserve meaning where possible,
 - surface uncertainty when masking damages context.
 
@@ -217,6 +247,7 @@ Governance rules:
 - outbound transformation must be explicit,
 - marker, censor, and package behavior must not collapse into one hidden system,
 - starting never-send or raw outbound categories are real doctrine, but the list may evolve,
+- approved summaries are explicit protected-package artifacts, not automatic provider-safe substitutes,
 - no silent author-text mutation.
 
 Risks:
@@ -233,6 +264,7 @@ At rough doctrine level, `no-ai-route-available` appears when the local route is
 
 - masking breaks continuity,
 - transformed packages misrepresent the story,
+- stale approved summary is reused as if still current,
 - user cannot tell what left the machine,
 - explicit-content markers become noisy clutter.
 
@@ -259,9 +291,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 ### Critical Questions
 
 - Future contract need: what minimum transformation contract is required before any outbound explicit-content package is assembled?
-- Jason decision candidate: what preview and approval steps are mandatory before transformed explicit-content material is sent outward?
 - Future contract need: what exact state contract must distinguish raw manuscript, author redaction or mask map, author-approved package view, and outbound payload view before runtime wiring is attempted?
-- Jason decision candidate: which local-only raw analysis results may inform local advisory systems, and which must never cross into outbound raw-package behavior without a new author decision?
 - Future contract need: what marker taxonomy should v1 expose for explicit, protected, local-only, AI-excluded, and transformed-package states?
 
 ### Major Questions
@@ -270,7 +300,7 @@ Richer marker systems, per-project policy, and export-aware handling.
 - How should the system warn when masking removes essential causal evidence?
 - How should local-only analysis interact with later export?
 - How should imported explicit-content metadata be reconciled with local policy?
-- Which retry order is most understandable before the app declares `no-ai-route-available`?
+- What exact stale-summary detection and reuse messaging is required before runtime wiring?
 
 ### Minor Questions
 
@@ -288,11 +318,13 @@ Richer marker systems, per-project policy, and export-aware handling.
 - What local-only, transform-required, or outbound-blocked classification must explicit-content handling hand to routing and package construction before any provider call is allowed? Answered: explicit-content handling must hand one of those clearance states before any provider call is allowed.
 - What refusal and fallback behavior is allowed when explicit-content policy blocks an API path or the provider refuses the transformed package? Answered: blocked or refused outbound explicit-content work must not block direct writing and should offer local-only handling, transform, mask, summarize options, manual continuation, route change where allowed, or cancel. If both local and outbound AI routes fail or refuse, the state becomes `no-ai-route-available`.
 - May the author manually mask, summarize, substitute, or exclude selected manuscript ranges before AI routing or outbound package construction? Answered: yes.
+- What distinct summary states must exist? Answered: `Summary Candidate`, `Author-Approved Summary`, and `Approved Package Use` are distinct, and a generated summary candidate may not be transmitted externally until it becomes an author-approved summary.
 - Does manual masking or exclusion alter the manuscript by default? Answered: no. It changes package or context artifacts unless the author explicitly saves the masked version into the manuscript.
 - Does explicit-content architecture own truth or local manuscript prose? Answered: no.
 - Does explicit-content architecture mutate authored text? Answered: no.
 - Does explicit/protected/local-only/AI-excluded state inherit from the protected-content matrix? Answered: yes.
 - Does outbound explicit-content require approval and may it block route or package creation? Answered: yes.
+- What fallback order applies when raw content cannot leave the machine? Answered: use an existing author-approved summary when permitted and previewed, otherwise offer manual mask or summary preparation, otherwise refuse outbound execution while preserving local/manual fallback.
 - Are transformed packages accepted manuscript truth? Answered: no.
 
 ### Deferred Questions
