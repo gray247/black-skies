@@ -28,12 +28,14 @@ Current status:
 - Organization, Retrieval, Memory, and Interchange is closed with
   recorded convergence items in
   [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
-- The next candidate campaign indicated by current sequencing is
-  `Ideation / Premise Discovery`.
+- Ideation / Premise Discovery is closed with recorded convergence
+  items in
+  [orchestrator_9_ideation_premise_discovery_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ideation_premise_discovery_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- Author discovery for `Ideation / Premise Discovery` is complete, and
-  staged dossier construction is next.
+- The next planning action is a short campaign-selection and
+  classification review using the updated maturity inventory and
+  roadmap.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -217,15 +219,16 @@ Current roadmap-sufficient work:
   Can remain intentionally unfinished: exact GUI, exact storage shape,
   final questionnaire polish, and any wizard-like implementation.
 - `Ideation / Premise Discovery`
-  Current treatment: canonical category `2` dossier admitted with
-  author discovery complete.
-  Minimum still needed: construct the core ideation model for seeds,
-  branches, premise versions, findings, library state, lifecycle, and
-  explicit promotion boundaries while keeping it distinct from
-  `Author Intent`, `Outline`, `Companion`, notes, and manuscript truth.
-  Can remain intentionally unfinished: final workflow detail, final UI,
-  exact prompts, exact storage shape, and adjacent intake or
-  reimagining workflows.
+  Current treatment: category `4` after Ideation closure. Keep the
+  governed seed, branch, premise-version, finding, `Idea Library`,
+  protection, recovery, and reviewed-promotion model stable while
+  preserving explicit non-ownership of project truth, manuscript
+  truth, notes, and durable memory.
+  Can remain intentionally unfinished: final writer-facing naming,
+  final archive/recovery/readiness wording, exact downstream
+  relationship/timeline/theme candidate surfaces, final UI, exact
+  prompts, exact storage shape, and adjacent intake or reimagining
+  workflows.
 - `Binder / Project Library`, `File Manager / Asset Pane`, and
   `Project Index / Search / Retrieval`
   Minimum still needed: keep the approved reference-based Binder model,
@@ -468,15 +471,16 @@ need rather than by placeholder rank.
    Suitable as the next construction campaign: `no`, because this
    campaign is now closed.
 
-Current recommendation for the next candidate campaign:
+Current recommendation for the next planning step:
 
-- `Ideation / Premise Discovery`
+- run a short campaign-selection and classification review
 
 This recommendation is current planning guidance only.
-It is not Jason approval and does not begin construction automatically.
-The next action should be staged dossier construction for
-`Ideation / Premise Discovery`, beginning with canonical object and
-boundary shaping before later workflow expansion.
+It is not Jason approval and does not begin another campaign
+automatically.
+That review should use the updated maturity inventory and roadmap to
+determine whether the selected lane requires reconciliation, guided
+shaping, or full product discovery.
 
 ## 8. Product Horizons
 
@@ -536,9 +540,9 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. perform staged dossier construction for `Ideation / Premise
-   Discovery` now that author discovery is complete and canonical
-   admission is recorded
+1. run a short campaign-selection and classification review now that
+   `Ideation / Premise Discovery` has reached category `4` and its
+   closure checkpoint is recorded
 2. either complete or consciously defer the remaining
    foundation-critical cross-system artifacts without creating new
    hidden owners

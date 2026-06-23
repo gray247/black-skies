@@ -19,9 +19,9 @@ This artifact is subordinate to:
 Approved decisions applied in this map:
 
 - `Author Intent / Story Setup` is an approved independent dossier.
-- `Ideation / Premise Discovery` is now admitted as a canonical
-  category `2` dossier; construction is staged, but the owner boundary
-  is no longer unresolved.
+- `Ideation / Premise Discovery` is now a closed category `4` campaign
+  with reconciled owned objects, reviewed promotion posture, and
+  explicit non-owner boundaries.
 - `Editorial Workflow` is a named cross-system workflow, not a new authority-owning system.
 - `Branching / What-If` is partially covered by prototype arrangements
   and remains intentionally parked rather than promoted.
@@ -63,8 +63,8 @@ Boundary reminder:
 
 | Capability | Current owner | Supporting systems | Authority or state owned | Explicit non-owner boundaries | Lifecycle stage | Maturity | Unresolved Jason decision | Important overlap or duplication risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| premise discovery and brainstorming | `Ideation / Premise Discovery` | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes`, `Memory Lab` | `Idea Seeds`, `Exploration Branches`, `Premise Versions`, premise-testing state, and source-to-promotion provenance | ideation output must not auto-become project truth or manuscript truth | existing dossier | ownership-defined | none | overlaps with `Author Intent`, `Outline`, and notes if promotion boundaries blur |
-| exploratory prompts, seed capture, and idea-library state | `Ideation / Premise Discovery` | `Feedback Notes`, `Workflow Spine`, `Companion`, `Memory Lab` | seed relationships and `Idea Library` state | notes and memory references do not equal accepted project truth | existing dossier | ownership-defined | none | can disappear into manual notes or memory without workflow clarity |
+| premise discovery and brainstorming | `Ideation / Premise Discovery` | `Workflow Spine`, `Companion`, `Outline`, `Feedback Notes`, `Memory Lab` | `Idea Seeds`, `Exploration Branches`, `Premise Versions`, premise-testing state, and source-to-promotion provenance | ideation output must not auto-become project truth or manuscript truth | existing dossier | mature enough for now | none | overlaps with `Author Intent`, `Outline`, and notes if promotion boundaries blur |
+| exploratory prompts, seed capture, and idea-library state | `Ideation / Premise Discovery` | `Feedback Notes`, `Workflow Spine`, `Companion`, `Memory Lab` | seed relationships and `Idea Library` state | notes and memory references do not equal accepted project truth | existing dossier | mature enough for now | none | can disappear into manual notes or memory without workflow clarity |
 
 ### 2.4 Organization And Navigation
 

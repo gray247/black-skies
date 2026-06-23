@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `5`
+- Category `2`: `4`
 - Category `3`: `8`
-- Category `4`: `32`
+- Category `4`: `33`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -155,9 +155,11 @@ systems.
   [orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md).
 - That closure promotes the six campaign dossiers to category `4`; it
   does not make any of them dossier-complete.
-- `Ideation / Premise Discovery` is now admitted as a canonical
-  category `2` dossier with author discovery complete and staged
-  construction next.
+- `Ideation / Premise Discovery` is closed with recorded convergence
+  items in
+  [orchestrator_9_ideation_premise_discovery_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ideation_premise_discovery_closure_checkpoint.md).
+- That closure promotes the dossier to category `4`; it does not make
+  it dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -179,7 +181,7 @@ systems.
 | 2 | Command Center Surface | `command_center_surface.md` | `1:1` | `current` | 4 | yes | yes | yes | no | deeper workflow organization detail | adjacent dossier completion, not owner drift | A |
 | 3 | Workflow Spine / Author Journey | `workflow_spine_author_journey.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final journey and summary detail | must stay narrow and non-owning | A |
 | 43 | Author Intent / Story Setup | `author_intent_story_setup.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final questionnaire, presentation, and dossier-completion detail | Truth Cards closure settled project-truth ownership, lifecycle, consumer limits, protection, and non-gating posture | A |
-| 45 | Ideation / Premise Discovery | `ideation_premise_discovery.md` | `1:1` | `current` | 2 | yes | no | no | no | full object model, lifecycle, promotion boundaries, and adjacent workflow split | canonical admission only; staged construction remains ahead in Pass 1 and Pass 2 | B |
+| 45 | Ideation / Premise Discovery | `ideation_premise_discovery.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final writer-facing naming, final archive/recovery/readiness wording, and exact downstream support-surface treatment for relationship, timeline, and theme candidates | Ideation closure settled owned objects, `Idea Library`, premise testing, combination posture, surfaces, protection, recovery, and reviewed promotion boundaries while keeping adjacent intake and reimagining workflows deferred | A |
 | 4 | Binder / Project Library | `binder_project_library.md` | `1:1` | `current` | 4 | yes | yes | yes | no | later dossier-completion browse, archive, and reference presentation detail | campaign closure settled non-owning organization, missing-source posture, file boundary, and handoffs | A |
 | 5 | Visual Arrangement View | `scene_cards_corkboard.md` | `1:1` | `current` | 4 | yes | yes | yes | no | owner handoffs and arrangement semantics | later dossier-completion wording and layout detail | A |
 | 6 | Story Unit | `story_unit.md` | `1:1` | `current` | 4 | yes | yes | yes | no | payload, lifecycle, split or merge, promotion detail | later dossier-completion wording and grouping detail | A |
@@ -319,7 +321,7 @@ These are current-authority dossiers that are already category `4`:
 - `Service Health / Offline / Degraded Mode`
 - `Diagnostics / Error Visibility / Debug Console`
 
-Lane A count: `26`
+Lane A count: `27`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -329,15 +331,17 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. ideation and premise discovery
-   `Ideation / Premise Discovery`
-2. AI-governance bridge-backed systems
+1. AI-governance bridge-backed systems
    `Explicit Content`, routing, provider policy, and budget guardrails
-3. partial analyzer and extension systems
+2. partial analyzer and extension systems
    `Senses Usage`, `Overused Words`, `Cliche Detection`,
    `Plugin / Rubric System`
+3. remaining product and system construction targets
+   `Accessibility / Hotkeys / Large-Font Mode`,
+   `Async Job Queue / Task Runner`, and
+   `Testing / Harness / Evidence Contract`
 
-Lane B count: `13`
+Lane B count: `12`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -361,9 +365,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `26` registry targets at category `4`.
+  Current answer: `27` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `13` registry targets at category `2` or `3`.
+  Current answer: `12` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

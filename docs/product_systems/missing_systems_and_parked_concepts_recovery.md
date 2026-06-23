@@ -45,21 +45,24 @@ This file preserves recovery evidence and parked concepts, but it does not promo
   exists in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md),
   with older references preserved as recovery evidence only.
-- What is missing from the current treatment: full construction of the
-  ideation object model, lifecycle, workflow detail, and explicit
-  owner-routed promotion behavior remains for later staged passes.
+- What is missing from the current treatment: final writer-facing
+  naming, final archive or recovery or readiness presentation wording,
+  exact downstream support surfaces for relationship, timeline, and
+  theme candidates, and later adjacent intake or reimagining workflows
+  remain deferred after closure.
 - Overlap and duplicate risks: overlaps with `Author Intent / Story Setup`, `Outline`, `Companion`, `Feedback Notes`, and future `Draft Generation`.
 - Capability type: user-facing.
-- Classification: `moved into canonical dossier construction`
+- Classification: `closed canonical dossier with recorded convergence
+  items`
 - Recommended current owner, if one exists: `Ideation / Premise
   Discovery`, with adjacency to `Workflow Spine / Author Journey`,
   `Author Intent / Story Setup`, `Outline`, `Companion`, and
   `Memory Lab`.
 - Decisions that require Jason rather than Codex: exact later split
   between core ideation construction and deferred adjacent workflows.
-- Likely product version or discovery stage: admitted category `2`
-  dossier with staged construction next; no longer an unresolved
-  recovery candidate.
+- Likely product version or discovery stage: closed category `4`
+  dossier with later convergence work preserved; no longer an
+  unresolved recovery candidate.
 
 ### 3.3 Originality / Similarity / Anti-Derivative Support
 
@@ -240,8 +243,9 @@ These belong to future validation programs unless and until Black Skies decides 
 Current distinction:
 
 - current discovery candidates: `Author Intent / Story Setup`, with
-  later branching support still parked and `Ideation / Premise
-  Discovery` moved into canonical dossier construction.
+  later branching support still parked; `Ideation / Premise
+  Discovery` is now closed as a canonical category `4` dossier with
+  deferred adjacent workflows preserved separately.
 - explicitly excluded or parked concepts: `Voice Notes / Dictation / Transcription`, research workflow, and standalone UI identity promotion.
 - internal validation programs: narrative stress testing, model benchmarking, local-versus-API evaluation, and originality or similarity studies for now.
 

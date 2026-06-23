@@ -120,6 +120,7 @@ Registry rule:
 - [Orchestrator 9 Structural Manuscript Systems Closure Checkpoint](orchestrator_9_structural_manuscript_systems_closure_checkpoint.md)
 - [Orchestrator 9 Truth Cards and Support Maps Closure Checkpoint](orchestrator_9_truth_cards_and_support_maps_closure_checkpoint.md)
 - [Orchestrator 9 Organization, Retrieval, Memory, and Interchange Closure Checkpoint](orchestrator_9_organization_retrieval_memory_interchange_closure_checkpoint.md)
+- [Orchestrator 9 Ideation Premise Discovery Closure Checkpoint](orchestrator_9_ideation_premise_discovery_closure_checkpoint.md)
 
 ## Canonical Inventory
 
