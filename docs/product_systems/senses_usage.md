@@ -22,6 +22,10 @@ Define `Senses Usage` as advisory craft analysis that helps the writer
 inspect sensory presence, grounding, balance, and range without turning
 descriptive heuristics into story law.
 
+The analyzer uses a stable core sensory taxonomy with optional
+project-defined categories and describes presence, distribution,
+concentration, and change rather than enforcing quotas.
+
 This dossier inherits shared family behavior from
 `craft_analyzer_family_contract.md`.
 
@@ -34,6 +38,8 @@ become.
 ## 4. What The System Does
 
 - inspect sensory presence, balance, grounding, and range,
+- describe sensory distribution, concentration, and change across the
+  current scope,
 - surface advisory cues and source-linked examples,
 - support targeted craft review,
 - support analyzer-specific exclusions, intentional-use markers, and
@@ -44,12 +50,16 @@ become.
 - rewrite prose automatically,
 - grade the story as canon,
 - silently modify accepted text,
-- enforce mechanical sensory quotas.
+- enforce mechanical sensory quotas,
+- treat missing-sense absence as an automatic defect.
 
 ## 6. User-Facing Behavior
 
 Visible behavior should emphasize optional craft support, bounded cues,
 and direct source explanation.
+Low-confidence findings should stay out of ordinary inline warning flow
+by default and appear only as subtle aggregate or optional indicators
+unless the author asks for broader review.
 
 ## 7. Hidden/Background Behavior
 
@@ -80,14 +90,19 @@ handoffs, but it remains advisory.
 
 - manuscript text,
 - accepted narrative context,
+- viewpoint, setting, genre, and narrative purpose when known,
 - author goals when provided,
+- deliberate sensory restraint or restriction when known,
 - analyzer-specific project settings and exclusions.
 
 ## 12. Outputs
 
 - sensory findings,
 - advisory summaries,
+- source-linked evidence and method-provenance labels,
 - example-linked notes,
+- descriptive comparisons of presence, distribution, concentration, or
+  change,
 - note candidates and signal candidates only through owner-governed
   conversion.
 
@@ -105,6 +120,8 @@ Outputs remain temporary by default.
 - analysis-scope defaults,
 - sensitivity preferences,
 - display and filter preferences,
+- stable core category mapping and any project-defined sensory
+  categories,
 - project-specific exclusions,
 - intentional-use markers,
 - suppression rules,
@@ -143,11 +160,14 @@ authority.
 The Writing Surface may show small current-text cues, requested
 highlights, and direct source explanation only.
 It must not become a constant craft-policing surface.
+Low-confidence findings should not create ordinary inline warnings by
+default.
 
 ## 20. Relationship To Command Center Surface
 
 Broader review, grouped findings, history, exclusions, intentional-use
-review, and reruns belong in the Command Center.
+review, reruns, confidence framing, evidence detail, and method detail
+belong in the Command Center.
 
 ## 21. GUI Placement Principles
 
@@ -157,7 +177,8 @@ intentional.
 ## 22. Local LLM Role
 
 Local AI may later assist with deeper sensory analysis only within the
-family contract.
+family contract and should degrade gracefully when unavailable rather
+than blocking writing.
 
 ## 23. Paid API Role
 
@@ -168,6 +189,8 @@ Paid analysis remains optional and approval-governed.
 Heavier craft analysis must respect routing and spend rules.
 Silent lightweight local analysis is allowed only under the family
 contract's enablement and safety posture.
+Model assistance is optional, advisory, and should not be required for
+the core sensory scan.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -184,8 +207,13 @@ Local execution does not override protected or AI-excluded boundaries.
 Prove:
 
 - craft analysis remains advisory and bounded,
+- stable core and project-defined categories remain compatible,
+- absence is treated as low presence or deliberate restraint rather
+  than an automatic defect,
 - intentional restraint and exclusions stop repetitive warnings within
   approved scope,
+- low-confidence findings stay out of ordinary inline warnings by
+  default,
 - findings do not mutate prose, Notes, or Signals,
 - stale markers surface honestly after material source change.
 
@@ -195,6 +223,8 @@ Prove:
 - no silent rewrite,
 - no false certainty,
 - no mechanical sensory quota enforcement,
+- no automatic missing-sense defect,
+- descriptive evidence before judgment,
 - intentional minimalism, POV restriction, sparse style, genre
   restraint, and deliberate coldness must remain valid,
 - findings, dismissals, suppressions, and intentional-use markers follow
@@ -252,6 +282,10 @@ Deep stylistic coaching or auto-rewrite behavior.
 - Style or craft warnings must not block direct writing.
 - Durable signal state belongs to `Signal Architecture`, not to this
   dossier.
+- Sensory absence may be low presence, concentrated mode, deliberate
+  restraint, or insufficient scope rather than an error.
+- Stable core sensory categories remain extensible through
+  project-defined categories.
 
 ### Deferred Questions
 
@@ -261,4 +295,10 @@ Deep stylistic coaching or auto-rewrite behavior.
 ## 34. Acceptance Criteria
 
 This dossier is acceptable only if sensory analysis stays advisory,
-non-authoritative, and compliant with the shared craft family contract.
+non-authoritative, descriptive before judgmental, and compliant with
+the shared craft family contract.
+
+This dossier is acceptable only if stable core sensory categories remain
+available while project-defined categories can be custom or
+intentionally unclassified, and missing-sense absence is never treated
+as an automatic defect.

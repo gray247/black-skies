@@ -22,6 +22,11 @@ Define `Cliche Detection` as advisory craft analysis that flags
 potentially stale phrasing or familiar patterns without claiming
 objective literary verdict authority.
 
+The broad author-facing label is `possible familiar phrasing`, with
+more specific evidence labels such as `possible cliché`, `common
+idiom`, `familiar image`, `genre convention`, and `repeated stock
+phrasing`.
+
 This dossier inherits shared family behavior from
 `craft_analyzer_family_contract.md`.
 
@@ -33,8 +38,12 @@ without being forced into a single taste model.
 ## 4. What The System Does
 
 - flag possible cliches,
+- flag phrase-list, heuristic, or model-assisted matches,
 - show examples and context,
 - support explicit review, dismissal, and intentional-use handling,
+- route replacement or rewrite requests to `Draft Generation / Rewrite
+  Loop` or a bounded `Companion` workflow rather than analyzer-owned
+  rewriting,
 - support analyzer-specific exclusions, intentional-use markers, and
   suppression within the family contract.
 
@@ -43,12 +52,15 @@ without being forced into a single taste model.
 - decide literary value absolutely,
 - rewrite text silently,
 - auto-reject authorial style,
-- collapse genre convention or parody into automatic defect.
+- collapse genre convention, idiom, allusion, satire, or regional
+  speech into automatic defect.
 
 ## 6. User-Facing Behavior
 
 Visible behavior should emphasize possibility, context, source
 explanation, and dismissibility.
+Low-confidence findings should stay out of ordinary inline warning flow
+by default and appear mainly in Command Center review.
 
 ## 7. Hidden/Background Behavior
 
@@ -80,12 +92,15 @@ handoffs, but it remains advisory.
 - manuscript text,
 - author preferences,
 - optional genre context,
+- cultural or regional voice context when known,
 - analyzer-specific project settings and exclusions.
 
 ## 12. Outputs
 
 - possible-cliche findings,
 - advisory summaries,
+- source-linked evidence and method-provenance labels,
+- visible confidence framing,
 - example-linked notes,
 - note candidates and signal candidates only through owner-governed
   conversion.
@@ -105,6 +120,7 @@ Outputs remain temporary by default.
 - sensitivity preferences,
 - display and filter preferences,
 - custom term or phrase exclusions,
+- project exclusions for deliberate cliché or intentional style,
 - intentional-use markers,
 - suppression rules,
 - bounded run history,
@@ -141,11 +157,14 @@ Projection may support review without becoming authority.
 The Writing Surface may host small contextual cues, requested
 highlights, and direct source explanation only.
 It must not become a constant taste-policing surface.
+Low-confidence findings should not create ordinary inline warnings by
+default.
 
 ## 20. Relationship To Command Center Surface
 
 Broader pattern review, history, exclusions, intentional-use review,
-comparison, and reruns belong in the Command Center.
+comparison, reruns, confidence framing, evidence detail, method detail,
+and cultural or regional context belong in the Command Center.
 
 ## 21. GUI Placement Principles
 
@@ -154,7 +173,8 @@ Keep cues light and avoid turning taste into constant interruption.
 ## 22. Local LLM Role
 
 Local AI may later assist with bounded pattern explanation only within
-the family contract.
+the family contract and should degrade gracefully when unavailable
+rather than blocking writing.
 
 ## 23. Paid API Role
 
@@ -165,6 +185,8 @@ Paid analysis remains optional and approval-governed.
 Any AI-assisted pattern analysis must respect routing and spend rules.
 Silent lightweight local analysis is allowed only under the family
 contract's enablement and safety posture.
+Model assistance is optional, advisory, and should not be required for
+the core cliche scan.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -184,6 +206,8 @@ Prove:
   scope,
 - genre convention, voice, homage, parody, pulp register, and
   deliberate cliche remain distinguishable from weak default language,
+- source-list and model-assisted findings remain distinguishable,
+- unsupported model judgment is insufficient by itself,
 - stale markers surface honestly after source change.
 
 ## 28. Governance Rules And Risks
@@ -192,6 +216,7 @@ Prove:
 - no silent rewrite,
 - no false certainty,
 - no automatic defect verdict from detection,
+- familiarity is not automatically a defect,
 - findings, dismissals, suppressions, and intentional-use markers follow
   the shared family contract.
 
@@ -246,6 +271,8 @@ Deep stylistic taste modeling.
 - Cliche support must remain advisory, optional, and dismissible.
 - Broad critique personality and report-shape questions belong to
   `Critique / Evaluation`, not here.
+- The broad family label is `possible familiar phrasing`, with more
+  specific evidence labels allowed underneath it.
 
 ### Deferred Questions
 
@@ -255,4 +282,5 @@ Deep stylistic taste modeling.
 ## 34. Acceptance Criteria
 
 This dossier is acceptable only if cliche support stays advisory,
-non-prescriptive, and compliant with the shared craft family contract.
+non-prescriptive, descriptive before judgmental, and compliant with the
+shared craft family contract.

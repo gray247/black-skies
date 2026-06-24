@@ -84,7 +84,10 @@ Shared outputs may include:
 - source-linked examples,
 - bounded comparison views,
 - note candidates,
-- signal candidates.
+- signal candidates,
+- method-provenance labels,
+- confidence framing,
+- rewrite-routing hints.
 
 These outputs remain advisory unless explicitly converted through the
 owning system.
@@ -152,6 +155,17 @@ settings override them.
 Every exclusion must preserve visible scope and remain reviewable and
 removable.
 
+Intentional-use scope precedence is:
+
+- exact occurrence,
+- selected passage or `Narrative Assertion`,
+- phrase or term,
+- character voice,
+- project-wide rule.
+
+Narrower markers override broader markers.
+Markers do not mutate source text or unrelated analyzer families.
+
 ## 9. Intentional-Use Markers
 
 Intentional-use markers are durable analyzer support state.
@@ -177,6 +191,9 @@ Markers must:
 - become stale if source text changes materially.
 
 They do not alter manuscript truth or automatically create Notes.
+
+Markers may be scoped to an exact occurrence, selected passage, phrase
+or pattern, character voice, or project-wide rule.
 
 ## 10. History
 
@@ -306,6 +323,10 @@ There is no durable cross-analyzer truth class.
 - direct source explanation,
 - easy dismissal and mark-intentional actions,
 - no constant policing or manuscript gating.
+- low-confidence findings do not create ordinary inline warnings by
+  default; they may contribute only to a subtle aggregate or optional
+  indicator, while high-confidence findings may still use subtle
+  indicators.
 
 ### Command Center
 
@@ -317,6 +338,7 @@ There is no durable cross-analyzer truth class.
 - rerun controls,
 - exclusions and intentional-use review,
 - cross-analyzer patterns,
+- confidence, evidence, method, and limitation detail,
 - conversion to Notes or Signals.
 
 Surfaces display and request actions.
@@ -355,6 +377,20 @@ Local execution does not override protected, masked, or
 excluded-content rules.
 Unavailable routes, budget refusal, or analyzer failure must not block
 writing.
+
+## 16A. Shared Analysis Posture
+
+Findings should carry method provenance such as source-list match,
+deterministic or heuristic match, or model-assisted interpretation.
+
+Model-assisted findings remain advisory and must show source anchors,
+visible explanation, confidence framing, and protection or package
+compliance.
+
+Replacement prose or rewrite suggestions belong to
+`Draft Generation / Rewrite Loop`, or to a bounded
+`Companion`-assisted drafting or explanation workflow.
+Craft analyzers do not own replacement prose or a rewrite lifecycle.
 
 ## 17. Future Analyzer Boundary
 

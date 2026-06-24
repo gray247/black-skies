@@ -22,6 +22,12 @@ Define `Overused Words` as advisory prose-inspection tooling that helps
 the author notice distracting repetition and repeated word patterns
 without turning heuristic detection into story verdict.
 
+The analyzer distinguishes exact repetition, lemma or inflection
+families, repeated phrases, nearby clusters, broad manuscript
+frequency, narration versus dialogue, character-specific diction,
+proper nouns, function words, motifs, deliberate repetition, and
+project exclusions or stop lists.
+
 This dossier inherits shared family behavior from
 `craft_analyzer_family_contract.md`.
 
@@ -33,6 +39,8 @@ receiving hidden authority about which wording is correct.
 ## 4. What The System Does
 
 - inspect repeated word patterns,
+- describe repetition as evidence before it becomes an advisory
+  concern,
 - surface advisory cues and source-linked examples,
 - support explicit revision review,
 - support analyzer-specific exclusions, intentional-use markers, and
@@ -43,12 +51,16 @@ receiving hidden authority about which wording is correct.
 - rewrite text automatically,
 - silently apply replacements,
 - treat heuristics as final judgment,
-- flatten voice, refrain, or motif into automatic defect.
+- flatten voice, refrain, motif, or deliberate repetition into
+  automatic defect.
 
 ## 6. User-Facing Behavior
 
 Visible behavior should emphasize optional craft cues, easy dismissal,
 and clear source evidence.
+Low-confidence findings should stay out of ordinary inline warning flow
+by default and appear only as subtle aggregate or optional indicators
+unless the author asks for broader review.
 
 ## 7. Hidden/Background Behavior
 
@@ -79,6 +91,8 @@ handoffs, but they remain advisory.
 
 - manuscript text,
 - current passage context,
+- project baseline or character baseline when available,
+- narration versus dialogue context when available,
 - optional author preferences,
 - analyzer-specific project settings and exclusions.
 
@@ -86,6 +100,8 @@ handoffs, but they remain advisory.
 
 - repetition findings,
 - summary lists,
+- source-linked evidence and method-provenance labels,
+- descriptive counts or comparisons,
 - example-linked notes,
 - note candidates and signal candidates only through owner-governed
   conversion.
@@ -105,6 +121,7 @@ Outputs remain temporary by default.
 - sensitivity preferences,
 - display and filter preferences,
 - custom term exclusions,
+- project or character baseline references,
 - intentional-use markers,
 - suppression rules,
 - bounded run history,
@@ -126,6 +143,8 @@ editorial truth.
 
 Word-use analysis reads prose and accepted narrative context but does
 not affect truth ownership.
+Short scopes require caution, and project and character baselines may
+matter more than general-language frequency when judging repetition.
 
 ## 17. Relationship To Story Units
 
@@ -141,11 +160,14 @@ Projection may support review but is not authority.
 The Writing Surface may host small current-text cues, requested
 highlights, and direct source explanation only.
 It must not become a constant repetition-policing surface.
+Low-confidence findings should not create ordinary inline warnings by
+default.
 
 ## 20. Relationship To Command Center Surface
 
 Broader pattern review, history, exclusions, intentional-use review,
-comparison, and reruns belong in the Command Center.
+comparison, reruns, confidence framing, evidence detail, and method
+detail belong in the Command Center.
 
 ## 21. GUI Placement Principles
 
@@ -154,7 +176,8 @@ Keep repetition cues lightweight, dismissible, and visibly advisory.
 ## 22. Local LLM Role
 
 Local AI may later help with grouped explanations only within the family
-contract.
+contract and should degrade gracefully when unavailable rather than
+blocking writing.
 
 ## 23. Paid API Role
 
@@ -165,6 +188,8 @@ Paid analysis is not required for the core early slice.
 Any AI-assisted word analysis remains optional and route-governed.
 Silent lightweight local analysis is allowed only under the family
 contract's enablement and safety posture.
+Model assistance is optional, advisory, and should not be required for
+the core repetition scan.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -185,6 +210,9 @@ Prove:
   scope,
 - motif, refrain, dialogue habit, ritual language, and incantation can
   remain intentional,
+- project and character baselines may refine repetition judgment,
+- replacement prose is routed to Draft Generation / Rewrite Loop or a
+  bounded Companion-assisted path rather than analyzer ownership,
 - stale markers surface honestly after source change.
 
 ## 28. Governance Rules And Risks
@@ -192,6 +220,7 @@ Prove:
 - no silent rewrite,
 - no fake certainty,
 - no clutter overload,
+- no universal general-language baseline authority over author voice,
 - accidental overuse must stay distinct from voice, refrain, motif,
   rhythm, dialogue habit, ritual language, and incantation,
 - findings, dismissals, suppressions, and intentional-use markers follow
@@ -249,6 +278,8 @@ Deep stylistic automation.
 - Overused-word support is advisory and must not silently rewrite
   prose.
 - Craft warnings must remain dismissible and non-authoritative.
+- Project and character baselines may matter more than a general
+  language baseline.
 
 ### Deferred Questions
 
@@ -258,4 +289,5 @@ Deep stylistic automation.
 ## 34. Acceptance Criteria
 
 This dossier is acceptable only if repetition support remains advisory,
-non-destructive, and compliant with the shared craft family contract.
+non-destructive, descriptive before judgmental, and compliant with the
+shared craft family contract.
