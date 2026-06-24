@@ -122,8 +122,8 @@ systems.
 - Category `0`: `0`
 - Category `1`: `0`
 - Category `2`: `4`
-- Category `3`: `4`
-- Category `4`: `37`
+- Category `3`: `3`
+- Category `4`: `38`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -209,7 +209,7 @@ systems.
 
 | ID | System | Home | Exists | Authority | Mat. | Own. | Rec. | Hard. | Done | Still missing | Main blocker | Lane |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 9 | Draft Generation / Rewrite Loop | `draft_generation_rewrite_loop.md` | `1:1` | `current` | 3 | yes | partial | partial | no | rewrite lifecycle and approval flow detail | depends on editorial and routing cluster completion | B |
+| 9 | Draft Generation / Rewrite Loop | `draft_generation_rewrite_loop.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final writer-facing terminology and dossier-completion polish | category-4 hardening now settled candidate lifecycle, partial acceptance, warning acknowledgement, stale-source handling, rejected-history posture, and editorial review boundary | A |
 | 11 | Timeline / Pacing / Pressure | `timeline_pacing_pressure.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final chronology vocabulary, pacing metrics, pressure display, and history depth | Truth Cards closure settled the three-module support model, owner routing, chronology distinctions, advisory pacing and pressure, and bounded history posture | A |
 | 12 | Relationship Map | `relationship_map.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final relationship taxonomy, display defaults, and mixed-domain owner-selection detail | Truth Cards closure settled map non-ownership, secondary references, advisory inferences, owner transfer, protection, and stale-state posture | A |
 | 13 | Emotion Graph | `emotion_graph.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final emotion taxonomy, display defaults, and trajectory detail | Truth Cards closure settled accepted-source references, planned development, detected movement, intended reader effect, owner routing, and protection posture | A |
@@ -320,6 +320,7 @@ These are current-authority dossiers that are already category `4`:
 - `Theme System`
 - `Timeline / Pacing / Pressure`
 - `Foreshadow / Payoff`
+- `Draft Generation / Rewrite Loop`
 - `Settings / Preferences / Workspace Layout`
 - `Splash / Startup Experience`
 - `Import / Export / Google Docs`
@@ -337,7 +338,7 @@ These are current-authority dossiers that are already category `4`:
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `37`
+Lane A count: `38`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -355,7 +356,7 @@ Highest-value Lane B construction clusters:
    `Async Job Queue / Task Runner`, and
    `Testing / Harness / Evidence Contract`
 
-Lane B count: `8`
+Lane B count: `7`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -379,9 +380,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `37` registry targets at category `4`.
+  Current answer: `38` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `8` registry targets at category `2` or `3`.
+  Current answer: `7` registry targets at category `2` or `3`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

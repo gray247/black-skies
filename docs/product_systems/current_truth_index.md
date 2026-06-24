@@ -38,7 +38,8 @@ Without an explicit truth index, the project risks split-brain planning:
 9. Architecture-governance contracts in `docs/product_systems/` constrain dossier interpretation before runtime code, tooling convenience, or old planning assumptions may claim authority.
 10. Category `4` completion does not authorize implementation.
 11. Sequencing authority belongs to
-    `current_product_roadmap.md`; detailed readiness-gate authority
+    `current_product_roadmap.md`; maturity authority belongs to
+    `dossier_maturity_inventory.md`; detailed readiness-gate authority
     belongs to `pre_code_discovery_plan.md`.
 
 ## Current Product Doctrine Snapshot
@@ -159,10 +160,11 @@ Current Black Skies doctrine is:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- `Draft Generation / Rewrite Loop` is the current selected
-  product-definition campaign.
-- Its next action is guided author shaping unless Jason explicitly
-  changes the lane.
+- `Draft Generation / Rewrite Loop` is category `4` and its campaign is
+  complete.
+- No product-definition campaign is currently selected.
+- The next planning action is a fresh bounded campaign-selection
+  review.
 - Category-4 completion does not authorize implementation.
 - Reaching category `4` across the inventory activates the System
   Constellation and Architecture Readiness sequence defined by the
@@ -197,9 +199,13 @@ thread:
 3. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 4. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
 5. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-6. [draft_generation_rewrite_loop.md](/C:/Dev/black-skies/docs/product_systems/draft_generation_rewrite_loop.md)
+6. the current active campaign dossier, when a campaign is active.
 
-The truth index identifies the current active campaign dossier.
+When a campaign is active, its dossier is mandatory reading.
+When no campaign is active, `current_product_roadmap.md` identifies the
+next selection action.
+Historical campaign context remains
+[draft_generation_rewrite_loop.md](/C:/Dev/black-skies/docs/product_systems/draft_generation_rewrite_loop.md).
 Historical pass documents, old readiness drafts, salvage-lane
 architecture artifacts, and prototype memory specifications remain
 evidence only unless current authority explicitly promotes them.

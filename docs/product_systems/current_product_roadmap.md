@@ -38,11 +38,14 @@ Current status:
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
 - The immediate product-definition objective remains bringing all known
   category `2` and category `3` targets to category `4`.
-- `Draft Generation / Rewrite Loop` is the current selected
-  product-definition campaign.
-- Its next action is guided author shaping.
-- This selection remains current unless Jason explicitly changes the
-  lane.
+- `Draft Generation / Rewrite Loop` has completed its guided-shaping
+  and hardening campaign.
+- It is now category `4` in the canonical inventory.
+- It is no longer the active campaign.
+- Seven targets remain below category `4`.
+- The next action is a fresh bounded campaign-selection review among
+  the remaining below-category-`4` targets.
+- No next campaign is selected in this pass.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -157,10 +160,10 @@ Current sequencing remains:
 
 - bring all known category `2` and category `3` targets to category `4`
 - keep implementation blocked throughout the remaining dossier work
-- continue with `Draft Generation / Rewrite Loop` as the currently
-  selected campaign
-- begin that campaign through guided author shaping rather than
-  implementation planning
+- treat `Draft Generation / Rewrite Loop` as complete and category `4`
+- run a bounded campaign-selection review among the remaining
+  below-category-`4` targets
+- do not treat this promotion as implementation authorization
 
 This horizon is active now.
 It is not superseded by the later architecture sequence.
@@ -531,14 +534,18 @@ need rather than by placeholder rank.
    Suitable as the next construction campaign: `no`, because this
    campaign is now closed.
 
-Current selected planning step:
+Current immediate planning posture:
 
-- continue with `Draft Generation / Rewrite Loop`
-- begin through guided author shaping
+- `Draft Generation / Rewrite Loop` is complete and category `4`
+- no product-definition campaign is currently selected
+- continue the remaining category `2` and category `3` coverage toward
+  category `4`
+- use a separate bounded campaign-selection review before any later
+  lane is selected
 
 This is current planning guidance only.
-It is not implementation authorization, and it does not make Draft
-Generation permanently privileged over later lanes.
+It is not implementation authorization, and it does not select a new
+lane.
 
 ## 8. Product Horizons
 
@@ -602,7 +609,11 @@ Current finite remaining discovery path:
    `4` while keeping implementation blocked
 2. complete or consciously defer the remaining foundation-critical
    cross-system artifacts without creating new hidden owners
-3. run the post-category-4 architecture sequence in this order:
+3. run a bounded campaign-selection review among the remaining
+   below-category-`4` targets without selecting a next campaign in this
+   pass
+4. run the post-category-4 architecture sequence only after all known
+   targets reach category `4`, in this order:
    `System Constellation Audit` -> `Cross-System Workflow Proofs` ->
    `Missing Connector Review` -> `Fatal Question Review` ->
    `Architecture Readiness Contract` -> `Vertical Slice Plan`
