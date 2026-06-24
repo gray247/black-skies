@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `4`
+- Category `2`: `3`
 - Category `3`: `0`
-- Category `4`: `41`
+- Category `4`: `42`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -199,7 +199,7 @@ systems.
 | 19 | Project Index / Search / Retrieval | `project_index_search_retrieval.md` | `1:1` | `current` | 4 | yes | yes | yes | no | writer-facing retrieval terminology, history depth, and optional semantic retrieval detail | campaign closure settled index ownership, source-linked results, tombstones, handoffs, and Memory Lab separation | A |
 | 20 | Series Binder / Cross-Story Linking | `series_binder_cross_story_linking.md` | `1:1` | `current` | 4 | yes | yes | yes | no | series-level owner surfaces, shared-fact conflict presentation, manuscript comparison, and detailed reimagining workflow | campaign closure settled Story Chains, shared identities, lineage, visibility boundaries, and Memory Lab separation | A |
 | 28 | Theme System | `theme_system.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final theme taxonomy, motif vocabulary, and presentation detail | Truth Cards closure settled Story Theme support, detected-theme advisory posture, source evidence, protection, and UI-theme separation | A |
-| 29 | Accessibility / Hotkeys / Large-Font Mode | `accessibility_hotkeys_large_font_mode.md` | `1:1` | `current` | 2 | yes | no | no | no | cross-surface interaction model and rule depth | needs construction before hardening is useful | B |
+| 29 | Accessibility / Hotkeys / Large-Font Mode | `accessibility_hotkeys_large_font_mode.md` | `1:1` | `current` | 4 | yes | yes | yes | no | cross-surface interaction model and rule depth | mature enough for dossier completion work | A |
 | 30 | Settings / Preferences / Workspace Layout | `settings_preferences_workspace_layout.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final storage-scope and restoration detail | mature enough for dossier completion work | A |
 | 31 | Splash / Startup Experience | `splash_startup_experience.md` | `1:1` | `current` | 4 | yes | yes | yes | no | startup polish and bounded disclosure detail | mature enough for dossier completion work | A |
 | 32 | Import / Export / Google Docs | `import_export_document_interchange.md` | `1:1` | `current` | 4 | yes | yes | yes | no | format-specific fidelity, endpoint depth, and export-provenance presentation detail | campaign closure settled governed staging, explicit owner routing, reimport posture, Google Docs manual boundary, and outbound artifact model | A |
@@ -341,7 +341,7 @@ These are current-authority dossiers that are already category `4`:
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `41`
+Lane A count: `42`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -351,13 +351,11 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. remaining surface and workflow construction target
-   `Accessibility / Hotkeys / Large-Font Mode`
-2. extension, execution, and verification construction targets
+1. extension, execution, and verification construction targets
    `Plugin / Rubric System`, `Async Job Queue / Task Runner`, and
    `Testing / Harness / Evidence Contract`
 
-Lane B count: `4`
+Lane B count: `3`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -381,9 +379,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `41` registry targets at category `4`.
+  Current answer: `42` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `4` registry targets at category `2`.
+  Current answer: `3` registry targets at category `2`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

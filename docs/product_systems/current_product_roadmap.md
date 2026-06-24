@@ -38,6 +38,9 @@ Current status:
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
 - The immediate product-definition objective remains bringing all known
   category `2` targets to category `4`.
+- `Accessibility / Hotkeys / Large-Font Mode` has completed its
+  guided-shaping and hardening campaign.
+- It is now category `4` in the canonical inventory.
 - `Draft Generation / Rewrite Loop` has completed its guided-shaping
   and hardening campaign.
 - It is now category `4` in the canonical inventory.
@@ -46,7 +49,7 @@ Current status:
 - `Senses Usage`, `Overused Words`, and `Cliche Detection` are now
   category `4`.
 - It is no longer the active campaign.
-- Four targets remain below category `4`, and all of them are category
+- Three targets remain below category `4`, and all of them are category
   `2`.
 - The next action is a fresh bounded campaign-selection review among
   the remaining below-category-`4` targets.
@@ -165,6 +168,8 @@ Current sequencing remains:
 
 - bring all known category `2` and category `3` targets to category `4`
 - keep implementation blocked throughout the remaining dossier work
+- treat `Accessibility / Hotkeys / Large-Font Mode` as complete and
+  category `4`
 - treat `Draft Generation / Rewrite Loop` as complete and category `4`
 - run a bounded campaign-selection review among the remaining
   below-category-`4` targets

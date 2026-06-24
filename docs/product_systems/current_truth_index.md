@@ -160,6 +160,10 @@ Current Black Skies doctrine is:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
+- `Accessibility / Hotkeys / Large-Font Mode` is category `4` and its
+  guided-shaping campaign is complete.
+- The unresolved user-facing umbrella name remains a bounded wording
+  question and does not reverse the maturity promotion.
 - `Draft Generation / Rewrite Loop` is category `4` and its campaign is
   complete.
 - `Craft Analyzer Family Reconciliation` is complete; `Senses Usage`,
