@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `3`
+- Category `2`: `2`
 - Category `3`: `0`
-- Category `4`: `42`
+- Category `4`: `43`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -165,6 +165,8 @@ systems.
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - That closure promotes the four bridge-backed registry targets to
   category `4`; it does not make any of them dossier-complete.
+- `Testing / Harness / Evidence Contract` is now category `4`; it does
+  not make it dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -236,7 +238,7 @@ systems.
 | 38 | Async Job Queue / Task Runner | `async_job_queue_task_runner.md` | `1:1` | `current` | 2 | yes | no | no | no | product role beyond control skeleton | needs construction before hardening is useful | B |
 | 39 | Service Health / Offline / Degraded Mode | `service_health_offline_degraded_mode.md` | `1:1` | `current` | 4 | yes | yes | yes | no | degraded-state terminology polish | mature enough for dossier completion work | A |
 | 40 | Diagnostics / Error Visibility / Debug Console | `diagnostics_error_visibility_debug_console.md` | `1:1` | `current` | 4 | yes | yes | yes | no | support UX and evidence-bundle detail | mature enough for dossier completion work | A |
-| 42 | Testing / Harness / Evidence Contract | `testing_harness_evidence_contract.md` | `1:1` | `current` | 2 | yes | no | no | no | validation taxonomy and system-coverage detail | needs later convergence targets before hardening helps | B |
+| 42 | Testing / Harness / Evidence Contract | `testing_harness_evidence_contract.md` | `1:1` | `current` | 4 | yes | yes | yes | no | validation taxonomy and system-coverage detail | mature enough for dossier completion work | A |
 
 ## 7. Bridge And Governance Artifacts That Affect Maturity
 
@@ -330,6 +332,7 @@ These are current-authority dossiers that are already category `4`:
 - `Senses Usage`
 - `Overused Words`
 - `Cliche Detection`
+- `Testing / Harness / Evidence Contract`
 - `Companion`
 - `Memory Lab`
 - `Snapshots / Backup / Restore / History`
@@ -341,7 +344,7 @@ These are current-authority dossiers that are already category `4`:
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `42`
+Lane A count: `43`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -352,10 +355,9 @@ structure instead of finishing the actual product model.
 Highest-value Lane B construction clusters:
 
 1. extension, execution, and verification construction targets
-   `Plugin / Rubric System`, `Async Job Queue / Task Runner`, and
-   `Testing / Harness / Evidence Contract`
+   `Plugin / Rubric System` and `Async Job Queue / Task Runner`
 
-Lane B count: `3`
+Lane B count: `2`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -379,9 +381,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `42` registry targets at category `4`.
+  Current answer: `43` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `3` registry targets at category `2`.
+  Current answer: `2` registry targets at category `2`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

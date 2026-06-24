@@ -113,7 +113,8 @@ Current sequencing remains:
 - no product-definition campaign is active
 - `Draft Generation / Rewrite Loop`, `Craft Analyzer Family`, and
   `Accessibility / Hotkeys / Large-Font Mode` are complete
-- three category `2` targets remain
+- `Testing / Harness / Evidence Contract` is complete
+- two category `2` targets remain
 - keep implementation blocked throughout remaining dossier work
 - the next action is a bounded campaign-selection review
 - no next campaign is selected by this cleanup

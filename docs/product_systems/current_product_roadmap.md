@@ -48,9 +48,11 @@ Current status:
   contract campaign.
 - `Senses Usage`, `Overused Words`, and `Cliche Detection` are now
   category `4`.
+- `Testing / Harness / Evidence Contract` has completed its evidence-
+  contract campaign.
+- It is now category `4` in the canonical inventory.
 - It is no longer the active campaign.
-- Three targets remain below category `4`, and all of them are category
-  `2`.
+- Two targets remain below category `4`, and both are category `2`.
 - The next action is a fresh bounded campaign-selection review among
   the remaining below-category-`4` targets.
 - No next campaign is selected in this pass.

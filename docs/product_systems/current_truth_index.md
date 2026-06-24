@@ -168,9 +168,11 @@ Current Black Skies doctrine is:
   complete.
 - `Craft Analyzer Family Reconciliation` is complete; `Senses Usage`,
   `Overused Words`, and `Cliche Detection` are category `4`.
+- `Testing / Harness / Evidence Contract` is category `4` and its
+  construction campaign is complete.
 - No product-definition campaign is currently active.
 - The next planning action is a fresh bounded campaign-selection
-  review.
+  review among the remaining two category `2` targets.
 - Reaching Category `4` across the inventory does not authorize
   implementation.
 - Reaching Category `4` across the inventory activates the System
