@@ -122,8 +122,8 @@ systems.
 - Category `0`: `0`
 - Category `1`: `0`
 - Category `2`: `4`
-- Category `3`: `3`
-- Category `4`: `38`
+- Category `3`: `0`
+- Category `4`: `41`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -137,7 +137,7 @@ systems.
 - Structural Manuscript Systems is closed with recorded convergence
   items in
   [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
-- Remaining work is now split between a smaller category `3`
+- Remaining work is now split between a smaller category `2`
   construction set and broader category `4` dossier-completion and
   cross-dossier-validation work.
 - Product Experience and Surface Convergence is closed with recorded
@@ -215,9 +215,9 @@ systems.
 | 13 | Emotion Graph | `emotion_graph.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final emotion taxonomy, display defaults, and trajectory detail | Truth Cards closure settled accepted-source references, planned development, detected movement, intended reader effect, owner routing, and protection posture | A |
 | 14 | Continuity | `continuity.md` | `1:1` | `current` | 4 | yes | yes | yes | no | evidence grading and retained-history detail | mature enough for dossier completion work | A |
 | 15 | Critique / Evaluation | `critique_evaluation.md` | `1:1` | `current` | 4 | yes | yes | yes | no | finding shape, ranking, and citation density detail | mature enough for dossier completion work | A |
-| 21 | Senses Usage | `senses_usage.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
-| 22 | Overused Words | `overused_words.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
-| 23 | Cliche Detection | `cliche_detection.md` | `1:1` | `current` | 3 | yes | partial | partial | no | analyzer-specific behavior beyond shared family contract | needs family posture propagated into individual dossier | B |
+| 21 | Senses Usage | `senses_usage.md` | `1:1` | `current` | 4 | yes | yes | yes | no | analyzer-specific behavior beyond shared family contract | mature enough for dossier completion work | A |
+| 22 | Overused Words | `overused_words.md` | `1:1` | `current` | 4 | yes | yes | yes | no | analyzer-specific behavior beyond shared family contract | mature enough for dossier completion work | A |
+| 23 | Cliche Detection | `cliche_detection.md` | `1:1` | `current` | 4 | yes | yes | yes | no | analyzer-specific behavior beyond shared family contract | mature enough for dossier completion work | A |
 | 24 | Foreshadow / Payoff | `foreshadow_payoff.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final setup/payoff vocabulary, review triggers, and presentation defaults | Truth Cards closure settled planned versus detected links, owner routing, quiet unresolved-link posture, protection, recurrence, and support-only state | A |
 | 25 | Explicit-Content Marker / Send-Package Censor | `explicit_content_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | final explicit-content marker taxonomy and approval-presentation detail | AI-governance closure settled outbound eligibility, masks, approved-summary lifecycle, protected-package approval ownership, and fallback order | A |
 | 26 | Companion | `companion.md` | `1:1` | `current` | 4 | yes | yes | yes | no | capability-boundary detail and later personality polish | mature enough for dossier completion work | A |
@@ -327,6 +327,9 @@ These are current-authority dossiers that are already category `4`:
 - `File Manager / Asset Pane`
 - `Continuity`
 - `Critique / Evaluation`
+- `Senses Usage`
+- `Overused Words`
+- `Cliche Detection`
 - `Companion`
 - `Memory Lab`
 - `Snapshots / Backup / Restore / History`
@@ -338,25 +341,23 @@ These are current-authority dossiers that are already category `4`:
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `38`
+Lane A count: `41`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
-These are the category `2` and `3` registry targets.
+These are the category `2` registry targets.
 They already exist, but more hardening now would mostly polish partial
 structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. partial analyzer and extension systems
-   `Senses Usage`, `Overused Words`, `Cliche Detection`,
-   `Plugin / Rubric System`
-2. remaining product and system construction targets
-   `Accessibility / Hotkeys / Large-Font Mode`,
-   `Async Job Queue / Task Runner`, and
+1. remaining surface and workflow construction target
+   `Accessibility / Hotkeys / Large-Font Mode`
+2. extension, execution, and verification construction targets
+   `Plugin / Rubric System`, `Async Job Queue / Task Runner`, and
    `Testing / Harness / Evidence Contract`
 
-Lane B count: `7`
+Lane B count: `4`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -380,9 +381,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `38` registry targets at category `4`.
+  Current answer: `41` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `7` registry targets at category `2` or `3`.
+  Current answer: `4` registry targets at category `2`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning

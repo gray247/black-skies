@@ -37,12 +37,17 @@ Current status:
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
 - The immediate product-definition objective remains bringing all known
-  category `2` and category `3` targets to category `4`.
+  category `2` targets to category `4`.
 - `Draft Generation / Rewrite Loop` has completed its guided-shaping
   and hardening campaign.
 - It is now category `4` in the canonical inventory.
+- `Craft Analyzer Family Reconciliation` has completed its shared-
+  contract campaign.
+- `Senses Usage`, `Overused Words`, and `Cliche Detection` are now
+  category `4`.
 - It is no longer the active campaign.
-- Seven targets remain below category `4`.
+- Four targets remain below category `4`, and all of them are category
+  `2`.
 - The next action is a fresh bounded campaign-selection review among
   the remaining below-category-`4` targets.
 - No next campaign is selected in this pass.

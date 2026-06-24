@@ -36,7 +36,7 @@ Without an explicit truth index, the project risks split-brain planning:
 7. AI or inferred output is advisory unless explicitly accepted by the user.
 8. No continuity, critique, Companion, or projection layer may silently become authored truth.
 9. Architecture-governance contracts in `docs/product_systems/` constrain dossier interpretation before runtime code, tooling convenience, or old planning assumptions may claim authority.
-10. Category `4` completion does not authorize implementation.
+10. Reaching Category `4` across the inventory does not authorize implementation.
 11. Sequencing authority belongs to
     `current_product_roadmap.md`; maturity authority belongs to
     `dossier_maturity_inventory.md`; detailed readiness-gate authority
@@ -162,11 +162,14 @@ Current Black Skies doctrine is:
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
 - `Draft Generation / Rewrite Loop` is category `4` and its campaign is
   complete.
-- No product-definition campaign is currently selected.
+- `Craft Analyzer Family Reconciliation` is complete; `Senses Usage`,
+  `Overused Words`, and `Cliche Detection` are category `4`.
+- No product-definition campaign is currently active.
 - The next planning action is a fresh bounded campaign-selection
   review.
-- Category-4 completion does not authorize implementation.
-- Reaching category `4` across the inventory activates the System
+- Reaching Category `4` across the inventory does not authorize
+  implementation.
+- Reaching Category `4` across the inventory activates the System
   Constellation and Architecture Readiness sequence defined by the
   roadmap.
 - Save-State and Degraded-Writing Workflow remains a standing
