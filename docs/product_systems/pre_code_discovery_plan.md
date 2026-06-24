@@ -110,14 +110,16 @@ The planning spine now preserves two horizons.
 
 Current sequencing remains:
 
-- bring all known category `2` and category `3` targets to category `4`
+- no product-definition campaign is active
+- `Draft Generation / Rewrite Loop`, `Craft Analyzer Family`, and
+  `Accessibility / Hotkeys / Large-Font Mode` are complete
+- three category `2` targets remain
 - keep implementation blocked throughout remaining dossier work
-- continue with `Draft Generation / Rewrite Loop` as the current
-  selected campaign
-- begin that campaign through guided author shaping
+- the next action is a bounded campaign-selection review
+- no next campaign is selected by this cleanup
 
-This selection remains current unless Jason explicitly changes the
-lane.
+This current-state wording remains in force unless Jason explicitly
+changes the lane.
 
 ### Post-Category-4 Architecture Horizon
 
@@ -268,7 +270,7 @@ These cluster notes are preserved as shaping history and partial
 contract evidence.
 They are no longer the main current sequencing authority.
 Current sequencing is governed by the roadmap, the maturity inventory,
-and the active Draft Generation campaign.
+and the completed Draft Generation campaign history.
 
 - Continuity / Signal / Routing / Package / Explicit-content cluster
   Status: historical shaping summary; implementation remains blocked and
@@ -318,12 +320,12 @@ and the active Draft Generation campaign.
 
 #### Next Candidate Cluster
 
-- Current selected campaign: `Draft Generation / Rewrite Loop`
-- Current next action: guided author shaping
+- Current selected campaign: none
+- Current next action: bounded campaign-selection review
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
-- Remaining objective before later architecture review: bring all known
-  category `2` and category `3` targets to category `4`
+- Remaining objective before later architecture review: bring the
+  remaining category `2` targets to category `4`
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -570,7 +572,6 @@ Expected clean state:
 
 ## Current Next Action
 
-Continue with `Draft Generation / Rewrite Loop` as the current selected
-campaign.
-Its next action is guided author shaping.
-That lane remains current unless Jason explicitly changes it.
+No product-definition campaign is currently active.
+The next action is a bounded campaign-selection review.
+No next campaign is selected by this cleanup.
