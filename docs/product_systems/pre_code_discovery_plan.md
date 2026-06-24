@@ -114,7 +114,9 @@ Current sequencing remains:
 - `Draft Generation / Rewrite Loop`, `Craft Analyzer Family`, and
   `Accessibility / Hotkeys / Large-Font Mode` are complete
 - `Testing / Harness / Evidence Contract` is complete
-- two category `2` targets remain
+- `Plugin / Rubric System` is complete
+- one category `2` target remains:
+  `Async Job Queue / Task Runner`
 - keep implementation blocked throughout remaining dossier work
 - the next action is a bounded campaign-selection review
 - no next campaign is selected by this cleanup

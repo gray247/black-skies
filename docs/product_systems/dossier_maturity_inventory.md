@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `2`
+- Category `2`: `1`
 - Category `3`: `0`
-- Category `4`: `43`
+- Category `4`: `44`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -167,6 +167,8 @@ systems.
   category `4`; it does not make any of them dossier-complete.
 - `Testing / Harness / Evidence Contract` is now category `4`; it does
   not make it dossier-complete.
+- `Plugin / Rubric System` is now category `4`; it does not make it
+  dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -227,7 +229,7 @@ systems.
 | 35 | Local LLM vs Paid API Routing | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | session-approval scope and later writer-facing spend presentation detail | AI-governance closure settled route modes, default posture, provider-policy separation, and routing approval-record ownership | A |
 | 36 | Model Router / Provider Execution Policy | `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | later dossier-completion decision on whether bridge-backed provider policy should split one-to-one | AI-governance closure settled provider-policy boundaries, package-preview ownership, linked approval-status snapshots, and non-owning request-timeline posture | A |
 | 37 | Budget / Token / Cost Guardrails | `model_routing_and_budget_architecture.md` | `bridge` | `current bridge` | 4 | yes | yes | yes | no | actual-versus-estimated spend telemetry and cross-surface budget presentation detail | AI-governance closure settled cost estimate ownership, budget modes, distinct approval classes, refusal posture, and no-silent-spend doctrine | A |
-| 41 | Plugin / Rubric System | `plugin_rubric_system.md` | `1:1` | `current` | 2 | yes | no | no | no | extension lifecycle and trust model | needs construction before hardening is useful | B |
+| 41 | Plugin / Rubric System | `plugin_rubric_system.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final writer-facing terminology and management detail | mature enough for dossier completion work | A |
 
 ### 6.3 System Dossiers
 
@@ -344,7 +346,7 @@ These are current-authority dossiers that are already category `4`:
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `43`
+Lane A count: `44`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
@@ -354,10 +356,10 @@ structure instead of finishing the actual product model.
 
 Highest-value Lane B construction clusters:
 
-1. extension, execution, and verification construction targets
-   `Plugin / Rubric System` and `Async Job Queue / Task Runner`
+1. extension, execution, and verification construction target
+   `Async Job Queue / Task Runner`
 
-Lane B count: `2`
+Lane B count: `1`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 

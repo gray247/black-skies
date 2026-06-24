@@ -170,9 +170,12 @@ Current Black Skies doctrine is:
   `Overused Words`, and `Cliche Detection` are category `4`.
 - `Testing / Harness / Evidence Contract` is category `4` and its
   construction campaign is complete.
+- `Plugin / Rubric System` is category `4` and its construction
+  campaign is complete.
 - No product-definition campaign is currently active.
 - The next planning action is a fresh bounded campaign-selection
-  review among the remaining two category `2` targets.
+  review for the remaining category `2` target:
+  `Async Job Queue / Task Runner`.
 - Reaching Category `4` across the inventory does not authorize
   implementation.
 - Reaching Category `4` across the inventory activates the System

@@ -36,8 +36,8 @@ Current status:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The immediate product-definition objective remains bringing all known
-  category `2` targets to category `4`.
+- The immediate product-definition objective remains bringing the
+  remaining category `2` target to category `4`.
 - `Accessibility / Hotkeys / Large-Font Mode` has completed its
   guided-shaping and hardening campaign.
 - It is now category `4` in the canonical inventory.
@@ -51,10 +51,13 @@ Current status:
 - `Testing / Harness / Evidence Contract` has completed its evidence-
   contract campaign.
 - It is now category `4` in the canonical inventory.
+- `Plugin / Rubric System` has completed its internal-rubric campaign.
+- It is now category `4` in the canonical inventory.
 - It is no longer the active campaign.
-- Two targets remain below category `4`, and both are category `2`.
-- The next action is a fresh bounded campaign-selection review among
-  the remaining below-category-`4` targets.
+- One target remains below category `4`, and it is category `2`:
+  `Async Job Queue / Task Runner`.
+- The next action is a fresh bounded campaign-selection review for
+  the remaining below-category-`4` target.
 - No next campaign is selected in this pass.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
