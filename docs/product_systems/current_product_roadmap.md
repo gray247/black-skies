@@ -188,20 +188,47 @@ It is not superseded by the later architecture sequence.
 ### Post-Category-4 Architecture Horizon
 
 Only after all known inventory targets reach category `4`, the later
-architecture sequence is:
+professional pre-code sequence is:
 
-1. `System Constellation Audit`
-2. `Cross-System Workflow Proofs`
-3. `Missing Connector Review`
-4. `Fatal Question Review`
-5. `Architecture Readiness Contract`
-6. `Vertical Slice Plan`
-7. implementation
+1. `Complete System Constellation Audit`
+2. `System Composition and Emergent Capability Audit`
+3. `Dossier Regression and Doctrine Propagation Audit`
+4. `Capability Ceiling and Breadth Audit`
+5. `External Deep-Research Challenge Audit`
+6. `Cross-System Workflow Proofs`
+7. `Missing Connector Review`
+8. `Front-Facing System and Message-Burden Audit`
+9. `Product Experience and GUI Architecture Program`
+10. `Data, Security, Performance, Accessibility, Packaging, and Operational Readiness Audits`
+11. `Fatal Question Review`
+12. `Architecture Readiness Contract`
+13. `Salvage Completion Plan`
+14. `Salvage Execution and Verification`
+15. `Current-versus-Historical Separation`
+16. `Repository Cleanup and Archive Milestone`
+17. `Vertical Slice Plan`
+18. `Final Pre-Code Build Readiness Review`
+19. `Implementation`
 
 Reaching category `4` across the inventory does not authorize
 implementation.
-It activates the System Constellation and Architecture Readiness
-sequence.
+It does not automatically authorize implementation through the
+`Architecture Readiness Contract` or the `Vertical Slice Plan`.
+Every earlier stage must close or explicitly transfer unresolved
+blockers before the later stages proceed.
+
+The salvage subsequence is ordered:
+
+1. `Salvage Completion Plan`
+2. `Salvage Execution and Verification`
+3. `Current-versus-Historical Separation`
+4. `Repository Cleanup and Archive Milestone`
+
+Separation and cleanup do not occur before salvage verification.
+Repository cleanup and archive creation occur only after verified
+salvage.
+The archive milestone must support local backup and upload into the
+Black Skies project folder.
 
 Category `4` means reconciled and hardened.
 It does not mean dossier-complete, build-ready, or
@@ -621,19 +648,43 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. keep implementation blocked after reaching category `4` coverage
-   across all known targets
-2. complete or consciously defer the remaining foundation-critical
-   cross-system artifacts without creating new hidden owners
-3. begin the post-category-`4` architecture sequence with
-   `System Constellation Audit`
-4. continue the remaining post-category-`4` architecture sequence in
-   this order:
-   `System Constellation Audit` -> `Cross-System Workflow Proofs` ->
-   `Missing Connector Review` -> `Fatal Question Review` ->
-   `Architecture Readiness Contract` -> `Vertical Slice Plan`
-5. document residual unresolved questions with explicit owners and
-   disposition
+1. `Complete System Constellation Audit`
+2. `System Composition and Emergent Capability Audit`
+3. `Dossier Regression and Doctrine Propagation Audit`
+4. `Capability Ceiling and Breadth Audit`
+5. `External Deep-Research Challenge Audit`
+6. `Cross-System Workflow Proofs`
+7. `Missing Connector Review`
+8. `Front-Facing System and Message-Burden Audit`
+9. `Product Experience and GUI Architecture Program`
+10. `Data, Security, Performance, Accessibility, Packaging, and Operational Readiness Audits`
+11. `Fatal Question Review`
+12. `Architecture Readiness Contract`
+13. `Salvage Completion Plan`
+14. `Salvage Execution and Verification`
+15. `Current-versus-Historical Separation`
+16. `Repository Cleanup and Archive Milestone`
+17. `Vertical Slice Plan`
+18. `Final Pre-Code Build Readiness Review`
+19. `Implementation`
+
+Implementation is not automatically authorized by category `4`.
+Implementation is not automatically authorized by the
+`Architecture Readiness Contract` or the `Vertical Slice Plan`.
+Every earlier stage must close or explicitly transfer unresolved
+blockers before the later stages proceed.
+The salvage subsequence is ordered:
+
+1. `Salvage Completion Plan`
+2. `Salvage Execution and Verification`
+3. `Current-versus-Historical Separation`
+4. `Repository Cleanup and Archive Milestone`
+
+Separation and cleanup do not occur before salvage verification.
+Repository cleanup and archive creation occur only after verified
+salvage.
+The archive milestone must support local backup and upload into the
+Black Skies project folder.
 
 After that, all of the following must also be true:
 

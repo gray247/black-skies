@@ -124,6 +124,96 @@ Current sequencing remains:
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
 
+### Expanded Professional Pre-Code Sequence
+
+The sequence below is the current controlling pre-code order.
+It supersedes the older 12-step roadmap section that follows.
+
+1. Complete System Constellation Audit
+2. System Composition and Emergent Capability Audit
+3. Dossier Regression and Doctrine Propagation Audit
+4. Capability Ceiling and Breadth Audit
+5. External Deep-Research Challenge Audit
+6. Cross-System Workflow Proofs
+7. Missing Connector Review
+8. Front-Facing System and Message-Burden Audit
+9. Product Experience and GUI Architecture Program
+10. Data, Security, Performance, Accessibility, Packaging, and Operational Readiness Audits
+11. Fatal Question Review
+12. Architecture Readiness Contract
+13. Salvage Completion Plan
+14. Salvage Execution and Verification
+15. Current-versus-Historical Separation
+16. Repository Cleanup and Archive Milestone
+17. Vertical Slice Plan
+18. Final Pre-Code Build Readiness Review
+19. Implementation
+
+Implementation is not automatically authorized by Category `4`.
+Implementation is not automatically authorized by the
+`Architecture Readiness Contract`.
+Implementation is not automatically authorized by the
+`Vertical Slice Plan`.
+Every earlier stage must close or explicitly transfer unresolved
+blockers before later stages proceed.
+The salvage subsequence is ordered:
+
+1. `Salvage Completion Plan`
+2. `Salvage Execution and Verification`
+3. `Current-versus-Historical Separation`
+4. `Repository Cleanup and Archive Milestone`
+
+Separation and cleanup must not occur before salvage verification.
+Repository cleanup and archive creation occur only after verified
+salvage.
+The milestone archive must support local backup and upload into the
+Black Skies project folder.
+
+### Governance/Orchestrator 10 Execution Horizon
+
+GO10 is expected to attempt completion and reconciliation of:
+
+1. `Complete System Constellation Audit`
+2. `System Composition and Emergent Capability Audit`
+3. `Dossier Regression and Doctrine Propagation Audit`
+4. `Capability Ceiling and Breadth Audit`
+5. `External Deep-Research Challenge Audit`
+
+This is a working governance horizon, not permission to force
+completion despite blocking evidence.
+
+After Stage 3, run a `Post-Regression Scope Assessment`.
+It must determine whether:
+
+- category `4` dossiers remain valid
+- dossiers must be reopened or demoted
+- late doctrine caused material propagation failures
+- stages `4` and `5` remain correctly sequenced
+- an earlier handoff is safer
+
+Outcomes:
+
+- minor findings -> continue
+- bounded dossier reopening -> correct and reassess
+- major invalidation -> stop and prepare an earlier handoff
+
+The intended GO10 handoff point is after Stage 5 and a
+`Pre-Workflow-Proof Readiness Review`.
+Governance/Orchestrator 11 should begin with Stage 6, Cross-System
+Workflow Proofs, unless the Post-Regression Scope Assessment changes
+the boundary.
+The handoff must include:
+
+- current authority state
+- findings ledger
+- open deferrals
+- reopened dossiers
+- workflow-proof candidates
+- loose-thread review
+- exact next eligible action
+
+Stage 6 remains inactive in this pass.
+
 ### Post-Category-4 Architecture Horizon
 
 Implementation requires completion of:
@@ -579,3 +669,5 @@ Expected clean state:
 No product-definition campaign is currently active.
 The next eligible planning action is `System Constellation Audit`.
 This planning spine does not perform the `System Constellation Audit`.
+Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
+Every remaining constellation pass must update that ledger.
