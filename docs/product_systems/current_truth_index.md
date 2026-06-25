@@ -176,7 +176,9 @@ Current Black Skies doctrine is:
   construction campaign is complete.
 - Category `4` coverage is complete across all `45` registry targets.
 - No product-definition campaign is currently active.
-- The next eligible planning action is `System Constellation Audit`.
+- Stage 1 is complete; the next eligible planning action is Stage 2 —
+  `System Composition and Emergent Capability Audit`.
+- Stage 2 has not begun.
 - `Cross-System Workflow Proofs`, `Missing Connector Review`,
   `Fatal Question Review`, `Architecture Readiness Contract`, and
   `Vertical Slice Plan` remain sequenced after it.

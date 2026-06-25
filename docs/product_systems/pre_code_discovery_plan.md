@@ -118,8 +118,10 @@ Current sequencing remains:
 - `Async Job Queue / Task Runner` is complete
 - category `4` coverage is complete across all `45` registry targets
 - keep implementation blocked throughout remaining dossier work
-- the next eligible planning action is `System Constellation Audit`
-- this cleanup does not perform the `System Constellation Audit`
+- Stage 1 — System Constellation Audit is complete.
+- the next eligible planning action is Stage 2 —
+  `System Composition and Emergent Capability Audit`
+- this cleanup does not perform Stage 2
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -185,7 +187,7 @@ GO10 did not complete Character Dynamics, constellation
 consolidation, Stage 1 closure, or Stages 2 through 5.
 GO11 completed Character Dynamics and the read-only constellation
 consolidation.
-Stage 1 remains active pending authority correction and formal closure.
+Stage 1 — System Constellation Audit is complete.
 Stages 2 through 5 remain unstarted.
 Stage 6 remains the later Cross-System Workflow Proofs stage after
 Stages 2 through 5.
@@ -423,7 +425,8 @@ and the completed Draft Generation campaign history.
 #### Next Candidate Cluster
 
 - Current selected campaign: none
-- Current next eligible planning action: `System Constellation Audit`
+- Current next eligible planning action: Stage 2 —
+  `System Composition and Emergent Capability Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
 - Remaining objective before later architecture review: preserve full
@@ -676,7 +679,13 @@ Expected clean state:
 ## Current Next Action
 
 No product-definition campaign is currently active.
-The next eligible planning action is `System Constellation Audit`.
-This planning spine does not perform the `System Constellation Audit`.
+Stage 1 — System Constellation Audit is complete.
+The next eligible planning action is Stage 2 —
+`System Composition and Emergent Capability Audit`.
+Stage 2 has not begun.
+Beginning Stage 2 requires explicit author approval.
+Stage 2 does not admit connectors.
+Stage 2 does not unblock implementation.
+This planning spine does not perform Stage 2.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.

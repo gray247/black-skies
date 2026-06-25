@@ -58,8 +58,9 @@ Current status:
 - It is now category `4` in the canonical inventory.
 - No dossier remains below category `4`.
 - No product-definition campaign is currently active.
-- The next eligible planning action is `System Constellation Audit`.
-- This pass does not perform the `System Constellation Audit`.
+- Stage 1 is complete; the next eligible planning action is Stage 2 —
+  `System Composition and Emergent Capability Audit`.
+- Stage 2 has not begun.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -178,8 +179,8 @@ Current sequencing remains:
   category `4`
 - treat `Draft Generation / Rewrite Loop` as complete and category `4`
 - treat `Async Job Queue / Task Runner` as complete and category `4`
-- recognize `System Constellation Audit` as the next eligible planning
-  action
+- recognize Stage 2 — `System Composition and Emergent Capability Audit`
+  as the next eligible planning action
 - do not treat this promotion as implementation authorization
 
 This horizon is active now.
@@ -584,7 +585,8 @@ Current immediate planning posture:
 - `Async Job Queue / Task Runner` is complete and category `4`
 - no product-definition campaign is currently selected
 - category `4` coverage is complete across all known targets
-- the next eligible planning action is `System Constellation Audit`
+- Stage 1 is complete; the next eligible planning action is Stage 2 —
+  `System Composition and Emergent Capability Audit`
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new
