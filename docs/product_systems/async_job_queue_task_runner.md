@@ -6,7 +6,7 @@
 - Status: `drafted`
 - Class: `System`
 - Owner / review lane: `Phase 32 product-definition lane`
-- Last reviewed: `2026-06-09`
+- Last reviewed: `2026-06-24`
 - Depends on: `Model Routing And Budget Architecture`, `Companion`, `Memory Lab`
 - Feeds into: background-capable systems
 - Runtime authority: `future`
@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define the job queue and task runner that support bounded background work without allowing silent paid, outbound, destructive, or truth-mutating actions.
+This first-safe scope covers local, advisory, protection-safe, project-bound, reviewable jobs only.
 This dossier inherits routing, approval, protection, provenance, and degraded-mode boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, `degraded_mode_execution_contract.md`, and `snapshot_protected_recovery_contract.md`.
 
 ## 3. User Problem Solved
@@ -25,36 +26,51 @@ The writer needs heavier work to be schedulable or deferrable without background
 
 ## 4. What The System Does
 
-- queue work,
-- defer work,
-- run allowed background tasks,
-- report job state.
+- coordinate allowed background execution,
+- queue approved local advisory jobs,
+- defer bounded work until safe conditions exist,
+- report queue and run state,
+- preserve bounded run history and revalidation posture,
+- surface reviewable advisory results without silently converting them.
 
 ## 5. What The System Does Not Do
 
+- own manuscript truth,
+- own accepted project truth,
+- own `Notes`,
+- own `Signals`,
+- own `Memory Lab` retention,
+- own critique authority,
+- own destination acceptance,
 - silently spend money,
 - silently send protected content,
-- silently mutate truth or manuscript state.
+- silently mutate truth or manuscript state,
+- silently continue risky work after restart, project change, or failed revalidation,
+- silently convert queued output into durable accepted state.
 
 ## 6. User-Facing Behavior
 
-Visible behavior should emphasize queued state, approvals, and reviewable results.
+Visible behavior should emphasize queued state, approvals, blocked conditions, and reviewable advisory results.
+The queue should feel governed rather than ambient or autonomous.
 
 ## 7. Hidden/Background Behavior
 
 Background execution is the core role, but it remains bounded by approvals and owning-system contracts.
+Safe local work may wait, run, resume after revalidation, or return stale warnings without interrupting ordinary writing.
 
 ## 8. What Appears First
 
 - relevant job state,
 - current blocker or failure state,
-- reviewable outputs when available.
+- review-required outputs when available.
 
 ## 9. What Is Summonable
 
 - deeper job history,
 - queue detail,
-- execution diagnostics.
+- execution diagnostics,
+- stale or superseded explanation,
+- provenance and limitation detail.
 
 ## 10. What Is Hidden Until Needed
 
@@ -64,16 +80,21 @@ Background execution is the core role, but it remains bounded by approvals and o
 
 ## 11. Inputs
 
-- approved tasks,
-- routing state,
-- privacy and masking state,
-- author approvals.
+- approved local advisory tasks,
+- current project identity,
+- source scope and source revision,
+- routing and execution-class state,
+- privacy, masking, and protection state,
+- author approvals and approval references,
+- restart or recovery posture when relevant.
 
 ## 12. Outputs
 
 - queued job state,
-- job results,
-- failure or approval-needed state.
+- reviewable advisory job results,
+- partial advisory artifacts,
+- failure, blocked, stale, superseded, or approval-needed state,
+- bounded provenance and limitation records.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -86,13 +107,16 @@ Background execution is the core role, but it remains bounded by approvals and o
 - queue state,
 - execution records,
 - approval references,
-- bounded job history.
+- bounded job history,
+- stale and superseded status,
+- bounded result provenance.
 
 ## 15. What Remains Temporary
 
 - transient worker state,
 - intermediate job artifacts,
-- in-flight results before review.
+- in-flight results before review,
+- temporary partial artifacts that are never accepted automatically.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -108,106 +132,282 @@ Projection tasks may be queued, but queued projection work remains non-authorita
 
 ## 19. Relationship To Writing Surface
 
-No heavy queued work should disrupt active typing or gate direct writing.
+The `Writing Surface` remains available while queued work runs, fails, blocks, or waits for approval.
+It should show only light, nonblocking queue status when relevant.
+The queue must not turn the Writing Surface into a background-job console.
 
 ## 20. Relationship To Command Center Surface
 
-The Command Center is the likely home for queued-job review, approval, and failure state.
+`Command Center Surface` is the home for queue management, approval review, blocked and failed state, retry and cancel actions, partial-result review, and stale or superseded explanation.
+Visibility there does not grant ownership of results or destination acceptance.
 
 ## 21. GUI Placement Principles
 
 Keep queue state visible when relevant, not always-on clutter.
+Queue visibility should become heavier only in `Command Center Surface`.
 
 ## 22. Local LLM Role
 
-Local-model jobs are a likely background use case when approved and safe.
+Local-model jobs are within the first-safe scope only when they remain local, advisory, protection-safe, project-bound, and reviewable.
+Local execution remains subject to approval, routing, degraded-mode, and provenance rules.
 
 ## 23. Paid API Role
 
-Paid jobs require explicit approval and spend governance.
+Paid API, outbound, and hybrid jobs are deferred.
+They are not part of the first-safe Category-4 scope for this dossier.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
 All queued AI work must obey routing, approval, spend, and fallback rules.
+Within the first-safe scope, queued execution is limited to local advisory work only.
+The queue must not silently widen a local-safe job into a paid, outbound, or hybrid route.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
 Queued work must not bypass masking, package, or explicit-content boundaries.
+If a safe local advisory job later no longer satisfies the required protection posture, it must block, cancel, or remain parked rather than continue.
 
 ## 26. Privacy / Safety / Censor Behavior, If Applicable
 
 No background job may bypass masks or exclusion zones.
+Protected content must not leak through results, logs, previews, or queue history.
 
-## 27. Testing Requirements
+## 27. Ownership And Non-Ownership
 
-Prove blocked tasks stay blocked and reviewed findings do not auto-apply.
+The queue may own:
 
-## 28. Governance Rules And Risks
+- execution coordination,
+- queue state,
+- run status,
+- approval references,
+- bounded run history,
+- stale and superseded status.
+
+The queue must not own:
+
+- manuscript truth,
+- accepted project truth,
+- `Notes`,
+- `Signals`,
+- `Memory Lab` retention,
+- critique authority,
+- destination acceptance.
+
+Destination systems own durable conversion and acceptance.
+Queue review does not become destination-owner review by implication.
+
+## 28. First-Safe Execution Scope
+
+The first-safe scope allows only jobs that are:
+
+- local,
+- advisory,
+- protection-safe,
+- project-bound,
+- reviewable.
+
+The first-safe scope does not define:
+
+- paid execution,
+- outbound execution,
+- API execution,
+- hybrid local-plus-API execution,
+- autonomous multi-stage orchestration.
+
+## 29. Minimum Lifecycle
+
+The minimum queue lifecycle is:
+
+- `approval required`
+- `queued`
+- `blocked`
+- `running`
+- `completed, review required`
+- `partial, review required`
+- `failed`
+- `cancelled`
+- `stale`
+- `superseded`
+
+This dossier intentionally avoids richer queue-state vocabulary until later planning.
+The queue should stay explicit enough to govern behavior without turning into a taxonomy project.
+
+## 30. Revalidation
+
+Queued work must be revalidated when relevant conditions change, including:
+
+- source revision,
+- source scope,
+- project identity,
+- protection or masking state,
+- route or execution class,
+- requested action,
+- approval scope,
+- restart or recovery posture.
+
+A job must not resume merely because it existed before restart.
+If revalidation fails, the job must cancel, park, or remain blocked instead of silently continuing.
+
+## 31. Restart And Project Boundaries
+
+Safe local advisory jobs may survive restart only when revalidation passes.
+
+Jobs remain tied to their original project.
+They must not silently migrate across project boundaries, adopt a different source project, or continue after unsafe project-context change.
+
+On project close, deletion, unsafe context change, or failed revalidation, jobs must cancel, park, or remain blocked rather than silently continue.
+Returned results based on older revisions must be marked `stale` or `superseded`.
+
+## 32. Retry And Cancellation
+
+Automatic retry is allowed only for narrowly safe local advisory jobs where:
+
+- no spend occurred,
+- no outbound transfer occurred,
+- no durable mutation occurred,
+- source and approval conditions still match,
+- protection posture still matches.
+
+All other retries require explicit review.
+Cancellation must not hide partial results, side effects, or failure context.
+Cancelled work that already produced bounded output may still surface that output as partial advisory material with explicit warnings.
+
+## 33. Partial Results
+
+Partial results may remain visible only as clearly labeled advisory artifacts.
+They must identify:
+
+- incomplete scope,
+- source revision,
+- completed portion,
+- missing portion,
+- limitations,
+- failure or cancellation cause when known.
+
+Partial artifacts do not become accepted truth, durable notes, durable signals, or durable memory by virtue of being visible.
+
+## 34. Surface Posture
+
+### Writing Surface
+
+- light status only,
+- nonblocking,
+- ordinary writing remains available.
+
+### Command Center Surface
+
+- queue list,
+- approvals,
+- blocked and failed jobs,
+- retry and cancel,
+- partial-result review,
+- stale and superseded status,
+- provenance and limitations.
+
+### Companion
+
+`Companion` may explain queue state, result status, fallback, and limitations.
+It does not own scheduling, approval, or results.
+
+## 35. Protection And Provenance
+
+Execution must remain protection-aware.
+No protected-content leakage may occur through results, logs, previews, or history.
+
+The queue should preserve bounded provenance for:
+
+- job identity,
+- project identity,
+- source scope,
+- source revision,
+- execution method,
+- execution route,
+- relevant timestamps,
+- limitations.
+
+Provenance remains evidence, not truth authority.
+
+## 36. Testing Requirements
+
+Prove:
+
+- blocked tasks stay blocked,
+- reviewed findings do not auto-apply,
+- restart revalidation is required before job continuation,
+- stale or superseded results are labeled honestly,
+- partial results remain visibly incomplete,
+- protected-content boundaries survive queueing, failure, cancellation, restart, and history review.
+
+## 37. Governance Rules And Risks
+
+Governance rules:
 
 - no silent paid or outbound work,
 - no silent truth mutation,
-- no hidden bypass of masks or approvals.
+- no hidden bypass of masks or approvals,
+- no silent project-crossing execution,
+- no silent background continuation after restart without revalidation,
+- no silent conversion of queue results into durable owner state.
 
-## 29. Failure Modes
+Risks:
+
+- stale results presented as current,
+- hidden queue continuation after project or revision drift,
+- partial-result overclaiming,
+- queue history leaking protected material,
+- local-safe posture silently widening into a riskier route.
+
+## 38. Failure Modes
 
 If the queue fails, direct writing and manual actions remain available.
+If a queued result becomes stale, the queue must say so instead of presenting it as current.
+If approval, source, project, or protection posture changes, the queue must block, cancel, or park work rather than quietly proceeding.
 
-## 30. v1 Boundary
+## 39. v1 Boundary
 
-Basic queued-state handling for approved local or bounded jobs.
+Basic queued-state handling for approved local advisory jobs with explicit review, revalidation, stale handling, and bounded restart survival.
 
-## 31. v2 Boundary
+## 40. v2 Boundary
 
-Richer deferred and scheduled workflows with clearer review paths.
+Richer local deferred and scheduled workflows with clearer review paths and better project-facing status explanation.
 
-## 32. Future-Only Boundary
+## 41. Future-Only Boundary
 
-Broad autonomous orchestration.
+Broad autonomous orchestration, API jobs, outbound jobs, paid jobs, hybrid jobs, and richer queue-state language.
 
-## 33. Pre-Rough Alignment Questionnaire
+## 42. Deferrals
 
-Intake note:
-- external question source reviewed: `C:\Dev\plan ideas\continuity\open_questions_register.md`
-- old questions merged: yes, mainly from cancel, retry, paid-job, hybrid-job, and queued-review questions
-- stale placeholder questions removed or superseded: yes
-- active question count after merge: 9
-- remaining blocker summary: `1 Fatal`, `4 Critical`, `2 Major`
-- remaining blocker summary: `0 Fatal`, `2 Critical`, `2 Major`
+- Deferred: API and hybrid jobs.
+  - Why deferred: they introduce approval, spend, outbound, and partial-side-effect complexity beyond the first-safe local scope.
+  - Resolution stage: `Cross-System Workflow Proofs`
+  - Reopening trigger: when the repository is ready to define end-to-end approved multi-stage execution without violating route, package, protection, or approval doctrine.
+- Deferred: richer queue-state vocabulary.
+  - Why deferred: the current dossier needs a compact lifecycle more than a dense state taxonomy.
+  - Resolution stage: `Vertical Slice Plan`
+  - Reopening trigger: when a concrete first-slice workflow needs tighter user-facing wording or state distinctions than the compact lifecycle can support.
+- Deferred: worker topology.
+  - Why deferred: depends on final execution boundaries, reliability requirements, and deployment assumptions.
+  - Resolution stage: `Architecture Readiness Contract`
+  - Reopening trigger: when architecture readiness must define required execution roles and isolation boundaries.
+- Deferred: scheduling fairness.
+  - Why deferred: depends on workload classes, priority rules, cancellation expectations, and resource limits.
+  - Resolution stage: `Architecture Readiness Contract`
+  - Reopening trigger: when readiness must define minimum queue behavior under competing jobs.
+- Deferred: scaling strategy.
+  - Why deferred: depends on validated workload, hardware limits, concurrency expectations, and version-one scope.
+  - Resolution stage: `Architecture Readiness Contract`
+  - Reopening trigger: when readiness must state the minimum supported workload and concurrency posture.
+- Deferred: background-service architecture.
+  - Why deferred: depends on restart, persistence, recovery, process-isolation, and desktop-runtime requirements.
+  - Resolution stage: `Architecture Readiness Contract`
+  - Reopening trigger: when readiness must define whether background execution requires a distinct service or process boundary.
+- Deferred: storage implementation.
+  - Why deferred: depends on queue lifecycle, recovery requirements, history retention, project isolation, and persistence boundaries.
+  - Resolution stage: `Architecture Readiness Contract`
+  - Reopening trigger: when readiness must define persistence requirements before the `Vertical Slice Plan` selects a bounded implementation.
 
-### Fatal Questions
-
-- None. The never-silent categories are governed by routing, AI lifecycle, protected-content, and degraded-mode contracts.
-
-### Critical Questions
-
-- Critical: what approval, block, queue, running, partial-success, failed, canceled, retryable, refused, expired, and review-complete states govern queued work?
-- Critical: what happens when a paid or hybrid job is canceled mid-run, partially succeeds, retries after spending begins, or would double cost if retried?
-
-### Major Questions
-
-- Major: how much queue state belongs in `Command Center Surface` versus lighter status cues in `Writing Surface`, `Companion`, or startup/resume contexts?
-- Jason decision candidate: should early async support focus on bounded local preparation and review-ready jobs only, or also include deferred multi-stage hybrid jobs that cross local and API steps?
-
-### Minor Questions
-
-- Minor: what user-facing vocabulary best distinguishes queue, task, run, scheduled work, blocked work, retry, and review-ready result states?
-
-### Answered / Superseded Questions
-
-- No silent paid API spend.
-- Async jobs must not silently perform paid, outbound, destructive, truth-mutating, protected-content, or export/sync/publish actions.
-- Queued work must preserve owner, approval tier, provenance, protection state, and degraded/failure state instead of becoming anonymous queue mush.
-- Retry after source, protection, or approval changes requires revalidation.
-- Pending work must not silently apply after restart if the risk profile changed.
-- Direct writing must remain available even when queued work is blocked or failing.
-- Questions better owned elsewhere: exact degraded execution fallback belongs partly to `service_health_offline_degraded_mode.md`, and exact evidence/verification claims belong primarily to `testing_harness_evidence_contract.md`.
-
-### Deferred Questions
-
-- Future contract need: what result-review boundaries prevent queued findings or generated artifacts from auto-applying to manuscript text, truth, `Memory Lab`, or durable signal state?
-- Future contract need: which jobs may run in degraded or offline conditions, which must pause or fail closed, and what blocked-task messaging is required when the queue cannot safely continue?
-- Deferred: exact worker topology, scheduling fairness, and scaling behavior.
-
-## 34. Acceptance Criteria
+## 43. Acceptance Criteria
 
 This dossier is acceptable only if background work remains bounded, reviewable, and governed.
+Category 4 for this dossier means ownership, lifecycle, revalidation, restart, result, and surface behavior are coherent for the first-safe local advisory scope.
+It does not authorize implementation, API execution, hybrid jobs, or post-Category-4 architecture work.
