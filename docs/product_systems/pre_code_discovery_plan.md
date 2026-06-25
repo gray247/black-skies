@@ -115,11 +115,11 @@ Current sequencing remains:
   `Accessibility / Hotkeys / Large-Font Mode` are complete
 - `Testing / Harness / Evidence Contract` is complete
 - `Plugin / Rubric System` is complete
-- one category `2` target remains:
-  `Async Job Queue / Task Runner`
+- `Async Job Queue / Task Runner` is complete
+- category `4` coverage is complete across all `45` registry targets
 - keep implementation blocked throughout remaining dossier work
-- the next action is a bounded campaign-selection review
-- no next campaign is selected by this cleanup
+- the next eligible planning action is `System Constellation Audit`
+- this cleanup does not perform the `System Constellation Audit`
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -324,11 +324,12 @@ and the completed Draft Generation campaign history.
 #### Next Candidate Cluster
 
 - Current selected campaign: none
-- Current next action: bounded campaign-selection review
+- Current next eligible planning action: `System Constellation Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
-- Remaining objective before later architecture review: bring the
-  remaining category `2` targets to category `4`
+- Remaining objective before later architecture review: preserve full
+  category `4` coverage while beginning the post-category-`4`
+  architecture sequence in order
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -342,9 +343,9 @@ and the completed Draft Generation campaign history.
   - `Model Router / Provider Execution Policy` -> `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md`
   - `Budget / Token / Cost Guardrails` -> `model_routing_and_budget_architecture.md`
 - Live maturity totals are now:
-  - category `2`: `4`
-  - category `3`: `4`
-  - category `4`: `37`
+  - category `2`: `0`
+  - category `3`: `0`
+  - category `4`: `45`
   - category `5`: `0`
   - category `6`: `0`
   - total registry targets: `45`
@@ -576,5 +577,5 @@ Expected clean state:
 ## Current Next Action
 
 No product-definition campaign is currently active.
-The next action is a bounded campaign-selection review.
-No next campaign is selected by this cleanup.
+The next eligible planning action is `System Constellation Audit`.
+This planning spine does not perform the `System Constellation Audit`.

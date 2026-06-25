@@ -172,10 +172,14 @@ Current Black Skies doctrine is:
   construction campaign is complete.
 - `Plugin / Rubric System` is category `4` and its construction
   campaign is complete.
+- `Async Job Queue / Task Runner` is category `4` and its
+  construction campaign is complete.
+- Category `4` coverage is complete across all `45` registry targets.
 - No product-definition campaign is currently active.
-- The next planning action is a fresh bounded campaign-selection
-  review for the remaining category `2` target:
-  `Async Job Queue / Task Runner`.
+- The next eligible planning action is `System Constellation Audit`.
+- `Cross-System Workflow Proofs`, `Missing Connector Review`,
+  `Fatal Question Review`, `Architecture Readiness Contract`, and
+  `Vertical Slice Plan` remain sequenced after it.
 - Reaching Category `4` across the inventory does not authorize
   implementation.
 - Reaching Category `4` across the inventory activates the System
@@ -215,7 +219,7 @@ thread:
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
-next selection action.
+next eligible planning action.
 Historical campaign context remains
 [draft_generation_rewrite_loop.md](/C:/Dev/black-skies/docs/product_systems/draft_generation_rewrite_loop.md).
 Historical pass documents, old readiness drafts, salvage-lane

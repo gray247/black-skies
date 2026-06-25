@@ -36,8 +36,8 @@ Current status:
   [orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_ai_governance_routing_protected_package_closure_checkpoint.md).
 - Current Ideation authority now lives in
   [ideation_premise_discovery.md](/C:/Dev/black-skies/docs/product_systems/ideation_premise_discovery.md).
-- The immediate product-definition objective remains bringing the
-  remaining category `2` target to category `4`.
+- Category-`4` coverage is now complete across all known registry
+  targets.
 - `Accessibility / Hotkeys / Large-Font Mode` has completed its
   guided-shaping and hardening campaign.
 - It is now category `4` in the canonical inventory.
@@ -53,12 +53,13 @@ Current status:
 - It is now category `4` in the canonical inventory.
 - `Plugin / Rubric System` has completed its internal-rubric campaign.
 - It is now category `4` in the canonical inventory.
-- It is no longer the active campaign.
-- One target remains below category `4`, and it is category `2`:
-  `Async Job Queue / Task Runner`.
-- The next action is a fresh bounded campaign-selection review for
-  the remaining below-category-`4` target.
-- No next campaign is selected in this pass.
+- `Async Job Queue / Task Runner` has completed its bounded
+  construction campaign.
+- It is now category `4` in the canonical inventory.
+- No dossier remains below category `4`.
+- No product-definition campaign is currently active.
+- The next eligible planning action is `System Constellation Audit`.
+- This pass does not perform the `System Constellation Audit`.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -171,13 +172,14 @@ for the broader product roadmap.
 
 Current sequencing remains:
 
-- bring all known category `2` and category `3` targets to category `4`
+- category `4` coverage across all known targets is complete
 - keep implementation blocked throughout the remaining dossier work
 - treat `Accessibility / Hotkeys / Large-Font Mode` as complete and
   category `4`
 - treat `Draft Generation / Rewrite Loop` as complete and category `4`
-- run a bounded campaign-selection review among the remaining
-  below-category-`4` targets
+- treat `Async Job Queue / Task Runner` as complete and category `4`
+- recognize `System Constellation Audit` as the next eligible planning
+  action
 - do not treat this promotion as implementation authorization
 
 This horizon is active now.
@@ -552,11 +554,10 @@ need rather than by placeholder rank.
 Current immediate planning posture:
 
 - `Draft Generation / Rewrite Loop` is complete and category `4`
+- `Async Job Queue / Task Runner` is complete and category `4`
 - no product-definition campaign is currently selected
-- continue the remaining category `2` and category `3` coverage toward
-  category `4`
-- use a separate bounded campaign-selection review before any later
-  lane is selected
+- category `4` coverage is complete across all known targets
+- the next eligible planning action is `System Constellation Audit`
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new
@@ -620,19 +621,18 @@ remaining discovery path is made finite and then satisfied.
 
 Current finite remaining discovery path:
 
-1. bring all known category `2` and category `3` targets to category
-   `4` while keeping implementation blocked
+1. keep implementation blocked after reaching category `4` coverage
+   across all known targets
 2. complete or consciously defer the remaining foundation-critical
    cross-system artifacts without creating new hidden owners
-3. run a bounded campaign-selection review among the remaining
-   below-category-`4` targets without selecting a next campaign in this
-   pass
-4. run the post-category-4 architecture sequence only after all known
-   targets reach category `4`, in this order:
+3. begin the post-category-`4` architecture sequence with
+   `System Constellation Audit`
+4. continue the remaining post-category-`4` architecture sequence in
+   this order:
    `System Constellation Audit` -> `Cross-System Workflow Proofs` ->
    `Missing Connector Review` -> `Fatal Question Review` ->
    `Architecture Readiness Contract` -> `Vertical Slice Plan`
-4. document residual unresolved questions with explicit owners and
+5. document residual unresolved questions with explicit owners and
    disposition
 
 After that, all of the following must also be true:

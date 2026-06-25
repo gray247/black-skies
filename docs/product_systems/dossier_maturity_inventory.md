@@ -121,9 +121,9 @@ systems.
 
 - Category `0`: `0`
 - Category `1`: `0`
-- Category `2`: `1`
+- Category `2`: `0`
 - Category `3`: `0`
-- Category `4`: `44`
+- Category `4`: `45`
 - Category `5`: `0`
 - Category `6`: `0`
 
@@ -137,9 +137,8 @@ systems.
 - Structural Manuscript Systems is closed with recorded convergence
   items in
   [orchestrator_9_structural_manuscript_systems_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_structural_manuscript_systems_closure_checkpoint.md).
-- Remaining work is now split between a smaller category `2`
-  construction set and broader category `4` dossier-completion and
-  cross-dossier-validation work.
+- Remaining work is now entirely in category `4`
+  dossier-completion and later cross-dossier-validation work.
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
@@ -169,6 +168,8 @@ systems.
   not make it dossier-complete.
 - `Plugin / Rubric System` is now category `4`; it does not make it
   dossier-complete.
+- `Async Job Queue / Task Runner` is now category `4`; it does not
+  make it dossier-complete.
 
 ### 5.4 Outside-Registry Disposition Totals
 
@@ -237,7 +238,7 @@ systems.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 33 | Snapshots / Backup / Restore / History | `snapshots_backup_restore_history.md` | `1:1` | `current` | 4 | yes | yes | yes | no | restore detail and branch distinction | mature enough for dossier completion work | A |
 | 44 | Project Persistence / Local Save | `project_persistence_local_save.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final writer-facing terms and interruption thresholds | mature enough for dossier completion work | A |
-| 38 | Async Job Queue / Task Runner | `async_job_queue_task_runner.md` | `1:1` | `current` | 2 | yes | no | no | no | product role beyond control skeleton | needs construction before hardening is useful | B |
+| 38 | Async Job Queue / Task Runner | `async_job_queue_task_runner.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final queue terminology, review defaults, and dossier-completion detail | mature enough for dossier completion work | A |
 | 39 | Service Health / Offline / Degraded Mode | `service_health_offline_degraded_mode.md` | `1:1` | `current` | 4 | yes | yes | yes | no | degraded-state terminology polish | mature enough for dossier completion work | A |
 | 40 | Diagnostics / Error Visibility / Debug Console | `diagnostics_error_visibility_debug_console.md` | `1:1` | `current` | 4 | yes | yes | yes | no | support UX and evidence-bundle detail | mature enough for dossier completion work | A |
 | 42 | Testing / Harness / Evidence Contract | `testing_harness_evidence_contract.md` | `1:1` | `current` | 4 | yes | yes | yes | no | validation taxonomy and system-coverage detail | mature enough for dossier completion work | A |
@@ -341,25 +342,19 @@ These are current-authority dossiers that are already category `4`:
 - `Project Persistence / Local Save`
 - `Service Health / Offline / Degraded Mode`
 - `Diagnostics / Error Visibility / Debug Console`
+- `Async Job Queue / Task Runner`
 - `Explicit-Content Marker / Send-Package Censor`
 - `Local LLM vs Paid API Routing`
 - `Model Router / Provider Execution Policy`
 - `Budget / Token / Cost Guardrails`
 
-Lane A count: `44`
+Lane A count: `45`
 
 ### Lane B: Existing Dossiers That Need Construction Before More Generic Hardening
 
-These are the category `2` registry targets.
-They already exist, but more hardening now would mostly polish partial
-structure instead of finishing the actual product model.
+There are currently no category `2` registry targets.
 
-Highest-value Lane B construction clusters:
-
-1. extension, execution, and verification construction target
-   `Async Job Queue / Task Runner`
-
-Lane B count: `1`
+Lane B count: `0`
 
 ### Lane C: Outside-Registry Concepts With Non-Promotion Or Parking Dispositions
 
@@ -383,9 +378,9 @@ Use this inventory to answer the next planning questions:
   Current answer: `0` registry targets at category `5` or `6`.
 - "How many are ready for dossier completion and later
   cross-dossier validation?"
-  Current answer: `43` registry targets at category `4`.
+  Current answer: `45` registry targets at category `4`.
 - "How many are partial and need construction first?"
-  Current answer: `2` registry targets at category `2`.
+  Current answer: `0` registry targets at category `2`.
 - "How many active missing dossiers sit outside the current registry?"
   Current answer: `0`.
 - "How many outside-registry concepts still need an explicit planning
