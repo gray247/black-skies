@@ -171,13 +171,29 @@ Black Skies project folder.
 
 ### Governance/Orchestrator 10 Execution Horizon
 
-GO10 is expected to attempt completion and reconciliation of:
+GO10 originally intended to attempt Stages 1 through 5.
 
 1. `Complete System Constellation Audit`
 2. `System Composition and Emergent Capability Audit`
 3. `Dossier Regression and Doctrine Propagation Audit`
 4. `Capability Ceiling and Breadth Audit`
 5. `External Deep-Research Challenge Audit`
+
+GO10 ended early during Stage 1 as a continuity decision.
+GO10 completed only the constellation work recorded before handoff.
+GO10 did not complete Character Dynamics, constellation
+consolidation, Stage 1 closure, or Stages 2 through 5.
+GO11 completed Character Dynamics and the read-only constellation
+consolidation.
+Stage 1 remains active pending authority correction and formal closure.
+Stages 2 through 5 remain unstarted.
+Stage 6 remains the later Cross-System Workflow Proofs stage after
+Stages 2 through 5.
+Stage 6 candidates are tested according to their documented workflow
+cases and reopening triggers.
+All 45 dossiers remain recorded at Category `4`.
+Category `4` is not build readiness.
+Implementation remains blocked.
 
 This is a working governance horizon, not permission to force
 completion despite blocking evidence.
@@ -197,11 +213,6 @@ Outcomes:
 - bounded dossier reopening -> correct and reassess
 - major invalidation -> stop and prepare an earlier handoff
 
-The intended GO10 handoff point is after Stage 5 and a
-`Pre-Workflow-Proof Readiness Review`.
-Governance/Orchestrator 11 should begin with Stage 6, Cross-System
-Workflow Proofs, unless the Post-Regression Scope Assessment changes
-the boundary.
 The handoff must include:
 
 - current authority state
@@ -211,8 +222,6 @@ The handoff must include:
 - workflow-proof candidates
 - loose-thread review
 - exact next eligible action
-
-Stage 6 remains inactive in this pass.
 
 ### Post-Category-4 Architecture Horizon
 
