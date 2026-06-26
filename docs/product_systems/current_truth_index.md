@@ -186,9 +186,14 @@ Current Black Skies doctrine is:
 - No substantive dossier reopening is required.
 - No unresolved Stage 3 finding remains.
 - No connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible stage.
-- Stage 4 has not begun.
-- Beginning Stage 4 requires explicit author approval.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is active.
+- Stage 4 began through explicit author approval.
+- The initial Stage 4 read-only breadth inventory is complete.
+- CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` are the controlling Stage 4 findings.
+- The four author breadth decisions are resolved.
+- Bounded breadth propagation into affected dossiers remains pending.
+- Stage 4 is not complete.
+- Stage 5 has not begun.
 - Stage 4 does not admit connectors.
 - Stage 4 does not unblock implementation.
 - Capability breadth questions, external challenge questions, and cross-system workflow proofs remain deferred to Stages 4, 5, and 6 respectively.

@@ -132,10 +132,16 @@ Current sequencing remains:
 - no substantive dossier reopening is required.
 - no unresolved Stage 3 finding remains.
 - no connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible
-  stage.
-- Stage 4 has not begun.
-- beginning Stage 4 requires explicit author approval.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is active.
+- Stage 4 began through explicit author approval.
+- the initial Stage 4 read-only breadth inventory is complete.
+- CB-01 through CB-07 in
+  `docs/product_systems/capability_ceiling_breadth_audit_findings.md`
+  are the controlling Stage 4 findings.
+- the four author breadth decisions are resolved.
+- bounded breadth propagation into affected dossiers remains pending.
+- Stage 4 is not complete.
+- Stage 5 has not begun.
 - Stage 4 does not admit connectors.
 - Stage 4 does not unblock implementation.
 
@@ -217,13 +223,18 @@ No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 3 finding remains.
 No connector has been admitted.
-Stage 4 — Capability Ceiling and Breadth Audit is the next eligible
-stage.
-Stage 4 has not begun.
-Beginning Stage 4 requires explicit author approval.
+Stage 4 — Capability Ceiling and Breadth Audit is active.
+Stage 4 began through explicit author approval.
+The initial Stage 4 read-only breadth inventory is complete.
+CB-01 through CB-07 in
+`docs/product_systems/capability_ceiling_breadth_audit_findings.md`
+are the controlling Stage 4 findings.
+The four author breadth decisions are resolved.
+Bounded breadth propagation into affected dossiers remains pending.
+Stage 4 is not complete.
+Stage 5 remains unstarted.
 Stage 4 does not admit connectors.
 Stage 4 does not unblock implementation.
-Stage 5 remains unstarted.
 Stage 6 remains the later Cross-System Workflow Proofs stage after
 Stages 4 and 5.
 Stage 6 candidates are tested according to their documented workflow
@@ -459,12 +470,12 @@ and the completed Draft Generation campaign history.
 
 #### Next Candidate Cluster
 
-- Current next eligible campaign: Stage 4 —
-  `Capability Ceiling and Breadth Audit`, not begun
+- Current active campaign: Stage 4 —
+  `Capability Ceiling and Breadth Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
-- Remaining objective before later architecture review: preserve full
-  category `4` coverage while Stage 4 awaits explicit author approval
+- Remaining objective before later architecture review: complete bounded
+  breadth propagation while preserving full category `4` coverage
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -725,16 +736,22 @@ No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 3 finding remains.
 No connector has been admitted.
-Stage 4 — Capability Ceiling and Breadth Audit is the next eligible
-stage.
-Stage 4 has not begun.
-Beginning Stage 4 requires explicit author approval.
+Stage 4 — Capability Ceiling and Breadth Audit is active.
+Stage 4 began through explicit author approval.
+The initial Stage 4 read-only breadth inventory is complete.
+CB-01 through CB-07 in
+`docs/product_systems/capability_ceiling_breadth_audit_findings.md`
+are the controlling Stage 4 findings.
+The four author breadth decisions are resolved.
+Bounded breadth propagation into affected dossiers remains pending.
+Stage 4 is not complete.
+Stage 5 has not begun.
 Stage 4 does not admit connectors.
 Stage 4 does not unblock implementation.
 Implementation, GUI implementation, architecture selection, salvage
 execution, current-versus-historical separation, and repository cleanup
 remain blocked.
-This planning spine records closed Stage 3 status without beginning
-Stage 4.
+This planning spine records active Stage 4 status without beginning
+Stage 5.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.

@@ -66,9 +66,13 @@ Current status:
 - No substantive dossier reopening is required.
 - No unresolved Stage 3 finding remains.
 - No connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible stage.
-- Stage 4 has not begun.
-- Beginning Stage 4 requires explicit author approval.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is active but incomplete.
+- Stage 4 began through explicit author approval.
+- The initial Stage 4 read-only breadth inventory is complete.
+- CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` are the controlling Stage 4 findings.
+- The four author breadth decisions are resolved.
+- Affected dossier breadth corrections remain pending.
+- Stage 5 remains later and unstarted.
 - Stage 4 does not admit connectors.
 - Stage 4 does not unblock implementation.
 - Capability breadth questions, external challenge questions, and
@@ -607,8 +611,10 @@ Current immediate planning posture:
 - Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
   complete and closed
 - DR-01 through DR-06 were completed at doctrine level
-- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible
-  stage but has not begun
+- Stage 4 — `Capability Ceiling and Breadth Audit` is active but
+  incomplete
+- CB-01 through CB-07 control pending bounded breadth propagation
+- the four author breadth decisions are resolved
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new
