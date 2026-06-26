@@ -174,7 +174,51 @@ Minimum handoff payload:
 - `fallback availability`
 - `requested attention consequence` when relevant
 
-## 8. Action Family Matrix
+## 8. Result Vocabulary
+
+Surface-visible result language must preserve actual ownership,
+destination, approval boundary, and mutation effect.
+The result vocabulary distinguishes:
+
+- `requested`: the surface has captured intent, but no owner has accepted
+  execution,
+- `routed`: the request has been sent to the responsible owner or route,
+- `staged`: prepared for review, but not applied or accepted,
+- `blocked`: the action cannot proceed under current conditions,
+- `refused`: the responsible system explicitly declined the action,
+- `downgraded`: the requested operation was replaced by a narrower safe
+  operation,
+- `interrupted`: execution did not complete and must not be shown as
+  complete,
+- `completed by executing system`: the executing system finished its
+  owned work, without implying destination acceptance,
+- `restored through owner`: recovery completed through the restore owner,
+  without automatically becoming accepted-current state,
+- `reviewed by destination owner`: the destination owner inspected the
+  result without necessarily accepting it,
+- `accepted by destination owner`: the destination owner explicitly
+  accepted the relevant mutation,
+- `rejected by destination owner`: the destination owner explicitly
+  rejected the proposed mutation,
+- `partially accepted`: accepted and unaccepted portions are identified
+  separately,
+- `superseded`: a later owner state or decision replaced the result,
+- `stale`: the result no longer reflects current owner state,
+- `unavailable`: the responsible owner, route, source, or capability is
+  not available.
+
+Surface acknowledgment is not owner completion.
+Execution completion is not destination acceptance.
+Queue completion is not truth mutation.
+Restore completion is not automatically accepted-current state.
+Surfaces must not collapse different owner results into one generic
+success, failure, approved, complete, or ready state.
+Owner-specific result classes may remain domain-specific; this vocabulary
+is not a universal lifecycle, workflow engine, approval authority,
+clearance contract, connector, global state machine, or master result
+owner.
+
+## 9. Action Family Matrix
 
 | Visible surface | Action label / intent | Owning system | Tier | Permitted mutation target | Forbidden mutation target | Required provenance / evidence | Fallback if owner blocks or refuses | Direct writing remains available |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -209,7 +253,7 @@ Minimum handoff payload:
 | `Writing Surface`, `Command Center` | Attach or link file asset | `File Manager / Asset Pane` for bounded reference only | `T2 + T6` now; `T5` for heavier attach semantics not yet contracted | bounded reference or link state | import authority, export authority, hidden file exposure | file visibility state, target context, protection status | browse only or cancel | yes |
 | `Command Center`, error prompts | Run diagnostics or create evidence bundle | `Diagnostics / Error Visibility / Debug Console` with evidence expectations from `Testing / Harness / Evidence Contract` | `T2 + T6` | diagnostic artifact, evidence bundle, error visibility state | narrative truth, verification claims by default, protected raw content leakage | error context, privacy class, included scope | show summary only, block bundle, or redact | yes |
 
-## 9. Forbidden Shortcuts
+## 10. Forbidden Shortcuts
 
 - A surface may not treat display state as owner state.
 - `Companion` may not accept, resolve, retain, forget, export, restore, delete, or send on behalf of another owner silently.
@@ -228,7 +272,7 @@ Minimum handoff payload:
 - `Explicit Content Architecture` may not censor local manuscript truth by default and may not leak raw excluded spans through previews, packages, summaries, diagnostics, or memory.
 - `Async Job Queue / Task Runner` may not silently run paid, outbound, destructive, truth-mutating, memory-retaining, export, sync, publish, or protected-content-revealing jobs.
 
-## 10. Failure And Refusal Behavior
+## 11. Failure And Refusal Behavior
 
 - If an owner blocks an action, the surface must show the block honestly.
 - If an owner refuses an action, the surface must not show a completed or half-applied success state.
@@ -247,7 +291,7 @@ Minimum handoff payload:
   but reopening a durable note or durable signal still requires the
   owning system's explicit mutation path.
 
-## 11. Dossiers Requiring Future Alignment
+## 12. Dossiers Requiring Future Alignment
 
 - `writing_surface.md`
 - `command_center_surface.md`
@@ -271,7 +315,7 @@ Minimum handoff payload:
 - `service_health_offline_degraded_mode.md`
 - `diagnostics_error_visibility_debug_console.md`
 
-## 12. Remaining Fatal And Critical Questions
+## 13. Remaining Fatal And Critical Questions
 
 ### Fatal Still Outside This Pass
 
@@ -288,7 +332,7 @@ Minimum handoff payload:
 - What exact degraded-mode behavior should block, pause, downgrade, or allow retries for queue, routing, restore, export, and diagnostics actions?
 - What exact attachment or link behavior is safe for early `File Manager / Asset Pane` scope?
 
-## 13. Acceptance Criteria
+## 14. Acceptance Criteria
 
 This contract is acceptable only if:
 

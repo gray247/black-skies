@@ -40,6 +40,8 @@ truth.
   arrangements, scene or chapter projections, containers, notes or
   signals where explicitly allowed, and owner-labeled metadata,
 - request rearrangement actions against the active underlying owner,
+- identify the active owning system, mutation target, and result posture
+  for drag, reorder, regroup, move, compare, or preview requests,
 - support comparison, inspection, and planning review without owning the
   underlying structure.
 
@@ -51,6 +53,9 @@ truth.
 - own durable narrative state,
 - decide on its own what dragging changes,
 - silently rewrite accepted manuscript order,
+- turn displayed order or card position into accepted Narrative
+  Assertion truth,
+- turn grouped cards into Story Unit or Outline ownership,
 - make scenes mandatory.
 
 ## 6. User-Facing Behavior
@@ -189,6 +194,10 @@ The active underlying owner must determine what dragging changes:
   owner-routed structural action,
 - structural reorder proposals require preview,
 - preview identifies the owner state that would change,
+- every drag, reorder, regroup, move, compare, or preview action must
+  identify the active owner, mutation target, whether it is
+  arrangement-only or an accepted-manuscript proposal, and whether the
+  result is previewed, staged, applied, rejected, stale, or superseded,
 - direct author reorder in an authoritative manuscript projection remains
   immediate and accepted,
 - Outline or Visual Arrangement proposals remain advisory until
@@ -196,11 +205,18 @@ The active underlying owner must determine what dragging changes:
 - applying changes routes through `Narrative Insertion / Narrative
   Assertion`, `Story Unit`, `Outline`, or projection/container owners as
   appropriate,
+- applying an accepted-manuscript reorder requires the proper owner and
+  explicit acceptance path,
 - no generic visual-view mutation bypasses the owner.
 
 Canonical accepted state, advisory arrangement, temporary comparison,
 stale visual state, dismissed arrangement, saved workspace layout, and
 applied structural result must remain distinct.
+Preview, staged proposal, and applied state must remain visibly distinct.
+Restoring a prior arrangement restores arrangement or support state only;
+it does not automatically restore accepted manuscript truth.
+Conflicting owner states must remain visible rather than being silently
+reconciled by the visual layer.
 
 - dragging Outline material changes planning structure or prototype
   order,

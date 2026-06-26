@@ -36,6 +36,11 @@ The writer needs visible prose and usable container structures for drafting, org
 - a compatibility bridge for legacy scene-first projects,
 - a display or working layer that can present narrative foundations without owning them.
 
+Accepted manuscript state, selected projection, remapped view, restored
+anchor, stale anchor, unavailable anchor, detached anchor, projected
+material, projection preview, and accepted change must remain
+distinguishable.
+
 ## 5. What The System Does Not Do
 
 `Prose / Scene Projection` does not:
@@ -49,6 +54,7 @@ The writer needs visible prose and usable container structures for drafting, org
 - convert projection state into authorial truth automatically,
 - promote Companion or inferred output into structural authority,
 - silently rewrite accepted manuscript structure because projected order changed,
+- silently create, delete, reorder, or accept `Narrative Assertions`,
 - silently create accepted narrative assertion truth from projected text.
 
 ## 6. User-Facing Behavior
@@ -221,6 +227,8 @@ Inserted text, projected text, prototype text, advisory text, assertion candidat
 One assertion may appear in more than one chapter, scene, or projection
 view while still keeping one authoritative manuscript position.
 Direct prose editing in an authoritative manuscript projection routes to the owning `Narrative Assertion`, and the author’s direct authoritative edit is accepted immediately. Projection-local formatting or display changes do not mutate manuscript truth unless explicitly routed through the owner.
+Projection-derived changes that would create, delete, reorder, or accept
+assertions require the correct owner and explicit acceptance path.
 
 ## 17. Relationship To Story Units
 
@@ -248,9 +256,19 @@ That visible presentation does not make the projection layer the hidden owner of
 
 The Writing Surface stays sovereign even when projection views are rich.
 Projection can show rearranged material without committing manuscript mutation.
+Projection selection changes the view, not manuscript truth.
+Remapping changes organization or presentation, not what has been
+accepted.
 The `Writing Surface` should show one selected projection at a time rather than detailed comparison views.
 Preview, proposal, duplication, and comparison views must not commit accepted-manuscript reorder.
 When the author returns from a projection to source material, the prior writing position should be preserved where possible. If a source assertion, range, or container is missing, moved, split, merged, archived, or deleted, the projection should mark that source anchor as stale or unavailable rather than claiming restored location proves save integrity.
+A restored anchor may point to historical or recovered state without
+becoming current truth. Restored view state, restored content preview,
+and accepted-current manuscript state remain separate.
+Stale, missing, detached, or unavailable anchors remain visible as such.
+Projection failure does not imply manuscript corruption or project-load
+failure; fallback behavior should preserve access to accepted manuscript
+content when a projection is unavailable.
 
 ## 20. Relationship To Command Center Surface
 
