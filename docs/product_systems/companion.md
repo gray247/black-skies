@@ -279,6 +279,15 @@ The author owns final manuscript truth.
 - avoid dashboard clutter,
 - do not interrupt the writer gratuitously.
 
+Stage 4 breadth pressure:
+
+- concise explanation comes first,
+- source and authority detail should be available on demand,
+- re-entry summaries must remain bounded,
+- Companion must not create constant interruption or conversational
+  clutter,
+- final presentation remains deferred to Stage 9.
+
 ## 22. Local LLM Role
 
 Local models may support lightweight explanation or bounded questioning when routing permits.
@@ -447,16 +456,55 @@ Risks:
 
 Doctrine only plus visibility, evidence, and interruption boundaries.
 
+First release must support:
+
+- explanation of surfaced information,
+- source-type identification,
+- source-owner identification,
+- supporting-source visibility,
+- authority-status explanation,
+- routing to the real owner,
+- blocked or no-route explanation,
+- bounded re-entry help.
+
+Bounded re-entry help may summarize current project identity,
+author-visible working location or context, recent relevant owner state,
+unresolved author-visible items, and safe routes back into work.
+
+Bounded re-entry help must not choose the author's next task, resolve
+conflicts, approve changes, mutate truth, create workflow authority,
+present hidden background inference as accepted state, or replace the
+`Writing Surface` or `Command Center Surface`.
+
+First release should not require autonomous planning, universal
+cross-project intelligence, continuous unsolicited intervention,
+automatic conflict resolution, approval authority, truth ownership, or
+memory ownership.
+
 ## 31. v2 Boundary
 
 Summonable explanation flows, bounded investigation runs, and better evidence-backed dialogue.
+
+Mature ceiling may later include bounded investigation, cross-system
+comparison, guided review, explanation of conflicting owner state, and
+safe local support.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated need that
+cannot be met through bounded explanation and routing.
 
 ## 32. Future-Only Boundary
 
 - automatic mutation authority,
 - always-on interruption,
 - silent paid deep-reasoning loops,
-- personality-first behavior without evidence discipline.
+- personality-first behavior without evidence discipline,
+- approval ownership,
+- truth ownership,
+- workflow ownership,
+- universal assistant authority,
+- autonomous novel management,
+- replacement of owner systems.
 
 ## 33. Pre-Rough Alignment Questionnaire
 

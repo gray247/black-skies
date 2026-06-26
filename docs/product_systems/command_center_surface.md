@@ -333,6 +333,13 @@ Ordinary analyzer findings, stale analysis, graph changes, and planning
 gaps belong more naturally as review items or contextual support here
 than as interruptions in Writing Surface.
 
+Stage 4 breadth pressure:
+
+- actionable summary comes first,
+- detail should appear through drill-down or summonable views,
+- default posture should stay quiet,
+- final layout and GUI behavior remain deferred to Stage 9.
+
 ## 22. Local LLM Role
 
 Possible local-model roles:
@@ -475,10 +482,30 @@ Failure modes include:
 
 - a clearly separate Command Center Surface,
 - minimal contextual support behavior,
+- blockers,
+- active Signals,
+- prepared findings,
+- pending author decisions,
+- AI job state,
+- route state,
+- budget state,
+- package state,
+- export state,
 - no writing gate,
 - no requirement to use Story Units,
 - no dense tool clutter,
 - explicit support-only identity.
+
+The default remains compact and action-oriented. Detailed evidence,
+history, secondary analytics, and inactive material remain summonable.
+Grouped content remains owner-linked. Default visibility does not create
+ownership, queue or route status does not create approval, and completed
+jobs do not equal accepted destination state.
+
+First release should not require every available analytic panel,
+permanent project-health dashboards, dense historical charts, universal
+workflow visualization, universal approval state, or master queue
+ownership.
 
 ## 31. v2 Boundary
 
@@ -492,6 +519,14 @@ Failure modes include:
 - bounded explicit-content status,
 - bounded Companion summonability.
 
+Mature ceiling may later include richer filtering and comparison, review
+history, project-health summaries, broader owner-linked aggregation, and
+configurable review collections.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated coordination
+need not met by current owner-linked collections.
+
 ## 32. Future-Only Boundary
 
 Future-only items:
@@ -501,7 +536,15 @@ Future-only items:
 - dense graph editing,
 - always-on AI copiloting,
 - large dashboard-style operational surfaces,
-- any behavior that would weaken Writing Surface sovereignty.
+- any behavior that would weaken Writing Surface sovereignty,
+- universal dashboard behavior,
+- master queue ownership,
+- workflow-engine ownership,
+- universal `ready`, `approved`, `complete`, `failed`, or `blocked`
+  state,
+- accepted-truth ownership,
+- replacement of the Writing Surface,
+- default wall of analytics.
 
 ## 33. Pre-Rough Alignment Questionnaire
 

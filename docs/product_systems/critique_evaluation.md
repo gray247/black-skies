@@ -312,6 +312,13 @@ Critique is not a hidden generic rubric engine, and Plugin / Rubric output is no
 - summonable from the surfaces that need it,
 - optional on default writing flow.
 
+Stage 4 breadth pressure:
+
+- concise findings come first,
+- evidence and comparison detail should be available through drill-down,
+- default dense scoring dashboards should be avoided,
+- final presentation remains deferred to Stage 9.
+
 ## 22. Local LLM Role
 
 Local models may later assist with bounded evaluation, comparison, or ranking when routing permits.
@@ -396,10 +403,28 @@ Minimum approved first version:
 
 - advisory evaluation summaries,
 - bounded evidence-backed findings,
+- category,
+- severity,
+- confidence or uncertainty,
+- supporting passage or source,
+- concise explanation,
+- affected manuscript or project location,
+- advisory status,
 - clear separation from authoritative truth,
 - launchable from Companion, Writing Surface, Command Center, Draft Generation, or manual action,
 - no automatic mutation,
 - no mandatory startup gate.
+
+Severity is not a universal quality score, and confidence is not truth.
+Findings remain advisory. Critique does not automatically create Notes,
+Signals, rewrite candidates, or truth. Routing into Notes, Signals,
+comparison, or a rewrite request requires the relevant owner path.
+Rewrite candidates remain a separate explicitly requested action.
+
+First release should not require automatic rewrites, giant numerical
+scorecards, one universal manuscript grade, mandatory rubric selection,
+automatic acceptance of critique, hidden ranking of author intent, or
+autonomous editorial control.
 
 ## 31. v2 Boundary
 
@@ -409,7 +434,18 @@ Next bounded extension:
 - optional ranking workflows,
 - better evidence grouping,
 - deeper local-model support,
-- heavier Command Center review support.
+- heavier Command Center review support,
+- rubrics,
+- comparison history,
+- author-specific preferences,
+- repeated-pattern tracking,
+- richer evidence bundles,
+- grouped or cross-draft findings,
+- bounded evaluation fixtures.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated critique
+need unmet by bounded evidence-backed findings.
 
 ## 32. Future-Only Boundary
 
@@ -420,7 +456,12 @@ Future-only items:
 - critique-owned truth,
 - silent rewrite execution,
 - hidden provider switching,
-- critique as a replacement for owning systems.
+- critique as a replacement for owning systems,
+- grading authority,
+- rewrite ownership,
+- universal quality model,
+- automatic conversion of findings into author obligations,
+- silent mutation of Notes, Signals, or manuscript state.
 
 ## 33. Pre-Rough Alignment Questionnaire
 

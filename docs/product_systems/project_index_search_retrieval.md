@@ -434,6 +434,11 @@ product-detail work, not implementation doctrine in this pass.
 ## 21. GUI Placement Principles
 
 Keep retrieval accessible and uncluttered.
+Clear result type and source come first.
+Deeper evidence, history, and metadata should appear through drill-down.
+Narrowing should be easy without requiring users to understand the full
+project model.
+Final search interface remains deferred to Stage 9.
 
 ## 22. Local LLM Role
 
@@ -488,13 +493,53 @@ and direct writing remain available where their owners allow them.
 
 Basic search, retrieval, and source-linked results.
 
+First release uses project-wide search across the current local project,
+including manuscript, outline and planning material, `Character Cards`,
+`Lore Cards`, `Notes`, imported source text, and approved memory
+references.
+
+First release requires strong source-type labels, source-owner
+visibility, easy narrowing and filtering, current-versus-historical
+distinction, stale or unavailable source visibility, and source-linked
+results.
+
+Retrieval is not memory. Retrieval is not canon. Ranking is not evidence
+quality. Project-wide search does not own project information. Approved
+memory references remain memory-linked references rather than source
+evidence.
+
+Generated candidates, rejected material, deleted material, archives,
+historical states, and superseded material require explicit filters or
+scopes and must not silently mix into ordinary current results.
+
+First release should not require semantic search across every possible
+artifact, automatic canon ranking, universal relevance scoring,
+cross-project search, silent search across deleted or private material,
+or automatic conversion of search results into memory or truth.
+
 ## 31. v2 Boundary
 
 Richer filters, semantic retrieval, and cross-system links.
 
+Mature ceiling may later include semantic retrieval, richer source
+filters, evidence bundles, conflict discovery, comparison across source
+classes, and bounded historical search.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated retrieval
+failures that bounded filters cannot solve.
+
 ## 32. Future-Only Boundary
 
 Fully automated deep-recall orchestration.
+
+Explicit exclusions:
+
+- no memory ownership,
+- no canon ownership,
+- no universal information owner,
+- no hidden mixing of current and historical state,
+- no ranking treated as confidence or truth.
 
 ## 33. Pre-Rough Alignment Questionnaire
 
