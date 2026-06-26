@@ -119,9 +119,15 @@ Current sequencing remains:
 - category `4` coverage is complete across all `45` registry targets
 - keep implementation blocked throughout remaining dossier work
 - Stage 1 — System Constellation Audit is complete.
-- the next eligible planning action is Stage 2 —
-  `System Composition and Emergent Capability Audit`
-- this cleanup does not perform Stage 2
+- Stage 2 — System Composition and Emergent Capability Audit is
+  complete.
+- the next eligible planning action is Stage 3 —
+  `Dossier Regression and Doctrine Propagation Audit`
+- Stage 3 has not begun.
+- Beginning Stage 3 requires explicit author approval.
+- Stage 3 does not admit connectors.
+- Stage 3 does not unblock implementation.
+- this cleanup does not perform Stage 3
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -188,9 +194,12 @@ consolidation, Stage 1 closure, or Stages 2 through 5.
 GO11 completed Character Dynamics and the read-only constellation
 consolidation.
 Stage 1 — System Constellation Audit is complete.
-Stages 2 through 5 remain unstarted.
+Stage 2 — System Composition and Emergent Capability Audit is
+complete.
+Stage 3 is the next eligible stage and has not begun.
+Stages 4 and 5 remain unstarted.
 Stage 6 remains the later Cross-System Workflow Proofs stage after
-Stages 2 through 5.
+Stages 3 through 5.
 Stage 6 candidates are tested according to their documented workflow
 cases and reopening triggers.
 All 45 dossiers remain recorded at Category `4`.
@@ -425,8 +434,8 @@ and the completed Draft Generation campaign history.
 #### Next Candidate Cluster
 
 - Current selected campaign: none
-- Current next eligible planning action: Stage 2 —
-  `System Composition and Emergent Capability Audit`
+- Current next eligible planning action: Stage 3 —
+  `Dossier Regression and Doctrine Propagation Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
 - Remaining objective before later architecture review: preserve full
@@ -680,12 +689,16 @@ Expected clean state:
 
 No product-definition campaign is currently active.
 Stage 1 — System Constellation Audit is complete.
-The next eligible planning action is Stage 2 —
-`System Composition and Emergent Capability Audit`.
-Stage 2 has not begun.
-Beginning Stage 2 requires explicit author approval.
-Stage 2 does not admit connectors.
-Stage 2 does not unblock implementation.
-This planning spine does not perform Stage 2.
+Stage 2 — System Composition and Emergent Capability Audit is
+complete.
+The next eligible planning action is Stage 3 —
+`Dossier Regression and Doctrine Propagation Audit`.
+Stage 3 has not begun.
+Beginning Stage 3 requires explicit author approval.
+Stage 3 does not admit connectors.
+Stage 3 does not unblock implementation.
+Implementation, GUI implementation, architecture selection, salvage
+execution, separation, and cleanup remain blocked.
+This planning spine does not perform Stage 3.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.

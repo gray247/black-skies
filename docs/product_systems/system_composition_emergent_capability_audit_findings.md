@@ -2,10 +2,15 @@
 
 ## Status
 
-- Stage 2 active
+- Stage 2 complete
 - initial read-only composition pass complete
-- implementation blocked
 - no connector admitted
+- Stage 3 is the next eligible stage
+- Stage 3 has not begun
+- Beginning Stage 3 requires explicit author approval
+- Stage 3 does not admit connectors
+- Stage 3 does not unblock implementation
+- implementation remains blocked
 
 ## Confirmed composed capabilities
 
@@ -17,7 +22,7 @@
 - memory-supported retrieval and investigation
 - Companion-assisted explanation and routing
 
-These are composed capabilities formed by existing dossier interactions, not new owners.
+These are product-level outcomes formed by existing dossier interactions, not new systems, assets, connectors, or owners.
 
 ## Findings
 
@@ -104,8 +109,17 @@ Stage 2 does not justify:
 
 ## Close Status
 
-- initial Stage 2 pass complete
-- Stage 2 not yet closed
+- Stage 2 complete
+- Stage 2 closed
+- SC-01 through SC-06 remain the controlling Stage 2 findings
 - bounded findings record created
 - no connector admitted
-- no implementation authorization
+- Stage 3 is the next eligible stage
+- Stage 3 has not begun
+- Beginning Stage 3 requires explicit author approval
+- Stage 3 does not admit connectors
+- Stage 3 does not unblock implementation
+- capability breadth questions remain deferred to Stage 4
+- external expectation challenges remain deferred to Stage 5
+- cross-system workflow proofs remain deferred to Stage 6
+- implementation, GUI implementation, architecture selection, salvage execution, separation, and cleanup remain blocked

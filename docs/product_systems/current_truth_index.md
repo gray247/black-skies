@@ -176,12 +176,22 @@ Current Black Skies doctrine is:
   construction campaign is complete.
 - Category `4` coverage is complete across all `45` registry targets.
 - No product-definition campaign is currently active.
-- Stage 1 is complete; the next eligible planning action is Stage 2 —
-  `System Composition and Emergent Capability Audit`.
-- Stage 2 has not begun.
-- `Cross-System Workflow Proofs`, `Missing Connector Review`,
+- Stage 1 is complete; Stage 2 — `System Composition and Emergent Capability Audit` is complete.
+- SC-01 through SC-06 remain the controlling Stage 2 findings.
+- The identified composed capabilities are product-level outcomes, not new systems, assets, connectors, or owners.
+- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is the next eligible planning action.
+- Stage 3 has not begun.
+- Beginning Stage 3 requires explicit author approval.
+- Stage 3 does not admit connectors.
+- Stage 3 does not unblock implementation.
+- Capability breadth questions, external challenge questions, and cross-system workflow proofs remain deferred to Stages 4, 5, and 6 respectively.
+- `Capability Ceiling and Breadth Audit`,
+  `External Deep-Research Challenge Audit`,
+  `Cross-System Workflow Proofs`, `Missing Connector Review`,
   `Fatal Question Review`, `Architecture Readiness Contract`, and
   `Vertical Slice Plan` remain sequenced after it.
+- Implementation, GUI implementation, architecture selection,
+  salvage execution, separation, and cleanup remain blocked.
 - Reaching Category `4` across the inventory does not authorize
   implementation.
 - Reaching Category `4` across the inventory activates the System

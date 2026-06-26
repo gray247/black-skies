@@ -58,9 +58,17 @@ Current status:
 - It is now category `4` in the canonical inventory.
 - No dossier remains below category `4`.
 - No product-definition campaign is currently active.
-- Stage 1 is complete; the next eligible planning action is Stage 2 —
-  `System Composition and Emergent Capability Audit`.
-- Stage 2 has not begun.
+- Stage 1 is complete; Stage 2 — `System Composition and Emergent Capability Audit` is complete.
+- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is the next eligible planning action.
+- Stage 3 has not begun.
+- Beginning Stage 3 requires explicit author approval.
+- Stage 3 does not admit connectors.
+- Stage 3 does not unblock implementation.
+- Capability breadth questions, external challenge questions, and
+  cross-system workflow proofs remain deferred to Stages 4, 5, and 6
+  respectively.
+- Implementation, GUI implementation, architecture selection,
+  salvage execution, separation, and cleanup remain blocked.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -180,7 +188,8 @@ Current sequencing remains:
 - treat `Draft Generation / Rewrite Loop` as complete and category `4`
 - treat `Async Job Queue / Task Runner` as complete and category `4`
 - recognize Stage 2 — `System Composition and Emergent Capability Audit`
-  as the next eligible planning action
+  as complete and Stage 3 — `Dossier Regression and Doctrine
+  Propagation Audit` as the next eligible planning action
 - do not treat this promotion as implementation authorization
 
 This horizon is active now.
@@ -585,8 +594,10 @@ Current immediate planning posture:
 - `Async Job Queue / Task Runner` is complete and category `4`
 - no product-definition campaign is currently selected
 - category `4` coverage is complete across all known targets
-- Stage 1 is complete; the next eligible planning action is Stage 2 —
-  `System Composition and Emergent Capability Audit`
+- Stage 1 is complete; Stage 2 — `System Composition and Emergent
+  Capability Audit` is complete
+- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is the
+  next eligible planning action
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new
