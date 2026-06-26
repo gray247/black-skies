@@ -122,18 +122,22 @@ Current sequencing remains:
 - Stage 2 — System Composition and Emergent Capability Audit is
   complete.
 - Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
-  active.
-- Stage 3 began through explicit author approval.
-- the initial Stage 3 read-only regression inventory is complete.
+  complete and closed.
+- the initial Stage 3 read-only regression inventory was completed.
 - DR-01 through DR-06 in
   `docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
-  are the controlling Stage 3 findings.
-- six bounded doctrine-propagation corrections are pending.
-- no Category-4 demotion is currently recommended.
-- no substantive dossier reopening is currently required.
+  were completed at doctrine level.
+- the six bounded dossier corrections were performed and reviewed.
+- no Category-4 demotion is required.
+- no substantive dossier reopening is required.
+- no unresolved Stage 3 finding remains.
 - no connector has been admitted.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible
+  stage.
 - Stage 4 has not begun.
-- Stage 3 does not unblock implementation.
+- beginning Stage 4 requires explicit author approval.
+- Stage 4 does not admit connectors.
+- Stage 4 does not unblock implementation.
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -202,20 +206,26 @@ consolidation.
 Stage 1 — System Constellation Audit is complete.
 Stage 2 — System Composition and Emergent Capability Audit is
 complete.
-Stage 3 — Dossier Regression and Doctrine Propagation Audit is active.
-Stage 3 began through explicit author approval.
-The initial Stage 3 read-only regression inventory is complete.
+Stage 3 — Dossier Regression and Doctrine Propagation Audit is complete
+and closed.
+The initial Stage 3 read-only regression inventory was completed.
 DR-01 through DR-06 in
 `docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
-are the controlling Stage 3 findings.
-Six bounded doctrine-propagation corrections are pending.
-No Category-4 demotion is currently recommended.
-No substantive dossier reopening is currently required.
+were completed at doctrine level.
+The six bounded dossier corrections were performed and reviewed.
+No Category-4 demotion is required.
+No substantive dossier reopening is required.
+No unresolved Stage 3 finding remains.
 No connector has been admitted.
+Stage 4 — Capability Ceiling and Breadth Audit is the next eligible
+stage.
 Stage 4 has not begun.
+Beginning Stage 4 requires explicit author approval.
+Stage 4 does not admit connectors.
+Stage 4 does not unblock implementation.
 Stage 5 remains unstarted.
 Stage 6 remains the later Cross-System Workflow Proofs stage after
-Stages 3 through 5.
+Stages 4 and 5.
 Stage 6 candidates are tested according to their documented workflow
 cases and reopening triggers.
 All 45 dossiers remain recorded at Category `4`.
@@ -449,13 +459,12 @@ and the completed Draft Generation campaign history.
 
 #### Next Candidate Cluster
 
-- Current selected campaign: Stage 3 —
-  `Dossier Regression and Doctrine Propagation Audit`
+- Current next eligible campaign: Stage 4 —
+  `Capability Ceiling and Breadth Audit`, not begun
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
 - Remaining objective before later architecture review: preserve full
-  category `4` coverage while completing the active Stage 3 bounded
-  doctrine-propagation corrections in order
+  category `4` coverage while Stage 4 awaits explicit author approval
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -705,21 +714,27 @@ Expected clean state:
 Stage 1 — System Constellation Audit is complete.
 Stage 2 — System Composition and Emergent Capability Audit is
 complete.
-Stage 3 — Dossier Regression and Doctrine Propagation Audit is active.
-Stage 3 began through explicit author approval.
-The initial Stage 3 read-only regression inventory is complete.
+Stage 3 — Dossier Regression and Doctrine Propagation Audit is complete
+and closed.
+The initial Stage 3 read-only regression inventory was completed.
 DR-01 through DR-06 in
 `docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
-are the controlling Stage 3 findings.
-Six bounded doctrine-propagation corrections are pending.
-No Category-4 demotion is currently recommended.
-No substantive dossier reopening is currently required.
+were completed at doctrine level.
+The six bounded dossier corrections were performed and reviewed.
+No Category-4 demotion is required.
+No substantive dossier reopening is required.
+No unresolved Stage 3 finding remains.
 No connector has been admitted.
+Stage 4 — Capability Ceiling and Breadth Audit is the next eligible
+stage.
 Stage 4 has not begun.
-Stage 3 does not unblock implementation.
+Beginning Stage 4 requires explicit author approval.
+Stage 4 does not admit connectors.
+Stage 4 does not unblock implementation.
 Implementation, GUI implementation, architecture selection, salvage
-execution, separation, and cleanup remain blocked.
-This planning spine records active Stage 3 status without performing the
-bounded dossier corrections.
+execution, current-versus-historical separation, and repository cleanup
+remain blocked.
+This planning spine records closed Stage 3 status without beginning
+Stage 4.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.

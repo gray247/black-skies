@@ -58,21 +58,25 @@ Current status:
 - It is now category `4` in the canonical inventory.
 - No dossier remains below category `4`.
 - Stage 1 is complete; Stage 2 — `System Composition and Emergent Capability Audit` is complete.
-- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is active.
-- Stage 3 began through explicit author approval.
-- The initial Stage 3 read-only regression inventory is complete.
-- DR-01 through DR-06 in `docs/product_systems/dossier_regression_doctrine_propagation_findings.md` are the controlling Stage 3 findings.
-- Six bounded doctrine-propagation corrections are pending.
-- No Category-4 demotion is currently recommended.
-- No substantive dossier reopening is currently required.
+- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is complete and closed.
+- The initial Stage 3 read-only regression inventory was completed.
+- DR-01 through DR-06 in `docs/product_systems/dossier_regression_doctrine_propagation_findings.md` were completed at doctrine level.
+- The six bounded dossier corrections were performed and reviewed.
+- No Category-4 demotion is required.
+- No substantive dossier reopening is required.
+- No unresolved Stage 3 finding remains.
 - No connector has been admitted.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible stage.
 - Stage 4 has not begun.
-- Stage 3 does not unblock implementation.
+- Beginning Stage 4 requires explicit author approval.
+- Stage 4 does not admit connectors.
+- Stage 4 does not unblock implementation.
 - Capability breadth questions, external challenge questions, and
   cross-system workflow proofs remain deferred to Stages 4, 5, and 6
   respectively.
 - Implementation, GUI implementation, architecture selection,
-  salvage execution, separation, and cleanup remain blocked.
+  salvage execution, current-versus-historical separation, and
+  repository cleanup remain blocked.
 - Save-state and degraded-writing workflow remains a standing
   foundation dependency/reference rather than the next construction
   campaign.
@@ -193,8 +197,8 @@ Current sequencing remains:
 - treat `Async Job Queue / Task Runner` as complete and category `4`
 - recognize Stage 2 — `System Composition and Emergent Capability Audit`
   as complete and Stage 3 — `Dossier Regression and Doctrine
-  Propagation Audit` as active, with DR-01 through DR-06 controlling
-  bounded doctrine-propagation corrections
+  Propagation Audit` as complete and closed, with DR-01 through DR-06
+  completed at doctrine level
 - do not treat this promotion as implementation authorization
 
 This horizon is active now.
@@ -601,9 +605,10 @@ Current immediate planning posture:
 - Stage 1 is complete; Stage 2 — `System Composition and Emergent
   Capability Audit` is complete
 - Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
-  active but incomplete
-- DR-01 through DR-06 control the pending bounded
-  doctrine-propagation corrections
+  complete and closed
+- DR-01 through DR-06 were completed at doctrine level
+- Stage 4 — `Capability Ceiling and Breadth Audit` is the next eligible
+  stage but has not begun
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new

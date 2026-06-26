@@ -2,12 +2,17 @@
 
 ## Status
 
-* Stage 3 active
+* Stage 3 complete
+* Stage 3 closed
 * initial read-only regression inventory complete
+* DR-01 through DR-06 completed at doctrine level
+* all six closure conditions satisfied at doctrine level
 * no Category-4 demotions recommended
 * no substantive dossier reopenings
+* no unresolved Stage 3 finding remains
 * no connector admitted
 * implementation remains blocked
+* GUI implementation, architecture selection, salvage execution, current-versus-historical separation, and repository cleanup remain blocked
 
 ## No-regression result
 
@@ -178,8 +183,8 @@ Every surface action preserves the actual owner, result class, approval boundary
 
 * no dossier currently requires Category-4 demotion
 * no dossier requires substantive reopening
-* the six corrections are bounded doctrine propagation
-* Stage 3 may still reassess this conclusion if an edit review exposes a deeper ownership or lifecycle gap
+* the six corrections were bounded doctrine propagation and were completed at doctrine level
+* no remaining Stage 3 work is required
 
 ## Stage 4 deferrals
 
@@ -220,5 +225,10 @@ A concrete end-to-end workflow must prove that the corrected dossier doctrine pr
 
 * no connector admitted
 * implementation remains blocked
+* GUI implementation, architecture selection, salvage execution, current-versus-historical separation, and repository cleanup remain blocked
+* Stage 4 is the next eligible stage
 * Stage 4 has not begun
-* no dossier edits performed by this task
+* beginning Stage 4 requires explicit author approval
+* Stage 4 does not admit connectors
+* Stage 4 does not unblock implementation
+* Stage 6 workflow-proof inputs remain deferred
