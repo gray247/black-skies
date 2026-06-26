@@ -186,17 +186,24 @@ Current Black Skies doctrine is:
 - No substantive dossier reopening is required.
 - No unresolved Stage 3 finding remains.
 - No connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is active.
+- Stage 4 — `Capability Ceiling and Breadth Audit` is complete and closed.
 - Stage 4 began through explicit author approval.
-- The initial Stage 4 read-only breadth inventory is complete.
-- CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` are the controlling Stage 4 findings.
-- The four author breadth decisions are resolved.
-- Bounded breadth propagation into affected dossiers remains pending.
-- Stage 4 is not complete.
+- The initial Stage 4 read-only breadth inventory was completed.
+- CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` were completed at doctrine level.
+- The four approved author breadth decisions were propagated.
+- Both bounded breadth-propagation batches were performed and reviewed.
+- The risk-based coverage sampling pass was completed.
+- No missed material breadth gap was found.
+- No additional propagation or sampling pass is required.
+- No Category-4 demotion is required.
+- No substantive dossier reopening is required.
+- No unresolved Stage 4 finding remains.
+- Stage 5 — `External Deep-Research Challenge Audit` is the next eligible stage.
 - Stage 5 has not begun.
-- Stage 4 does not admit connectors.
-- Stage 4 does not unblock implementation.
-- Capability breadth questions, external challenge questions, and cross-system workflow proofs remain deferred to Stages 4, 5, and 6 respectively.
+- Beginning Stage 5 requires explicit author approval.
+- Stage 5 does not admit connectors automatically.
+- Stage 5 does not unblock implementation.
+- External challenge questions, cross-system workflow proofs, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 6, 9, and 10 respectively.
 - `Capability Ceiling and Breadth Audit`,
   `External Deep-Research Challenge Audit`,
   `Cross-System Workflow Proofs`, `Missing Connector Review`,

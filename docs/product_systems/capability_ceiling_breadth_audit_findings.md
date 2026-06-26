@@ -2,15 +2,19 @@
 
 ## Status
 
-* Stage 4 active
+* Stage 4 complete
 * initial read-only breadth inventory complete
 * no capability classified as materially overbroad
 * no Category-4 demotion recommended
 * no connector admitted
 * implementation remains blocked
 * author breadth decisions resolved
-* bounded breadth propagation into affected dossiers remains pending
-* Stage 4 is not complete
+* all approved author decisions propagated
+* both bounded breadth-propagation batches completed and reviewed
+* risk-based coverage sampling pass complete
+* no missed material breadth gap found
+* no further Stage 4 propagation or sampling pass required
+* Stage 4 is closed
 * Stage 5 has not begun
 
 ## No-breadth-regression result
@@ -313,6 +317,7 @@ Defer external challenge of:
 * Command Center scope
 * critique depth
 * unified-search expectations
+* evidence and confidence depth expected by professional writers
 
 First resolution stage:
 
@@ -327,8 +332,37 @@ Preserve workflow-proof inputs for:
 * distributed AI-path presentation
 * blocked, refused, degraded, and no-route presentation
 * evidence conversion into Signals, Notes, candidates, or accepted truth
+* owner-routed mutation workflows
 
 These workflows are not proven.
+
+## Stage 9 inputs
+
+Preserve presentation inputs for:
+
+* GUI density
+* drill-down behavior
+* default visibility
+* dashboard clutter
+* startup presentation
+* provenance display
+* accessibility presentation
+
+These presentation decisions are not resolved here.
+
+## Stage 10 inputs
+
+Preserve operational-readiness inputs for:
+
+* snapshot readiness
+* local-save readiness
+* degraded-mode behavior
+* async queue operation
+* diagnostics
+* persistence requirements
+* recovery failure handling
+
+These operational-readiness questions are not resolved here.
 
 ## Guardrails
 
@@ -338,4 +372,7 @@ These workflows are not proven.
 * no implementation authorized
 * Stage 5 not begun
 * Stage 6 workflow proofs remain deferred
-* bounded dossier propagation is the next Stage 4 task
+* Stage 5 is the next eligible stage
+* Stage 5 requires explicit author approval to begin
+* Stage 5 does not admit connectors automatically
+* Stage 5 does not unblock implementation
