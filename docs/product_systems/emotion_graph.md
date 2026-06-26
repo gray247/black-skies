@@ -362,6 +362,16 @@ Placement rules:
 - graph views should not become default clutter,
 - support surfaces must not overwhelm writing flow.
 
+Stage 4 breadth pressure:
+
+- simple trajectory comes first,
+- deeper confidence, history, and evidence should remain available
+  through drill-down,
+- the optional reader-effect lane should be collapsed or absent unless
+  used,
+- final graph type, layout, charting treatment, and GUI behavior remain
+  deferred to Stage 9.
+
 ## 22. Local LLM Role
 
 Possible later local-model roles:
@@ -471,14 +481,39 @@ Containment rules:
 
 Minimum approved first version:
 
-- emotional shape display,
-- manuscript-observed emotional movement display,
-- planned emotional-target overlay display,
+- character emotional state,
+- optional reader-effect target lane,
+- observed state,
+- planned state,
+- accepted character-state reference or author-accepted emotional intent owned elsewhere,
+- intended state,
+- inferred state,
+- narrative position or relevant story location,
+- supporting source references,
+- bounded intensity, movement, or directional change,
 - candidate or advisory emotional analysis display,
 - clear accepted-versus-candidate distinction,
 - bounded links to narrative, continuity, and support systems,
 - no AI dependency,
 - no truth ownership drift.
+
+The reader-effect lane is optional, no project must use it, and it
+remains non-owning. Author intention and model inference remain
+distinct. Emotional analysis does not become emotional truth, and
+disagreement or uncertainty remains visible.
+
+First release should use a small, practical default vocabulary or
+flexible author labels rather than requiring one universal psychological
+taxonomy.
+
+First release should not require:
+
+- dense multi-axis psychological modeling,
+- mandatory confidence numbers,
+- multi-character overlays by default,
+- automatic emotion canonization,
+- psychiatric diagnosis,
+- universal scoring of emotional success.
 
 ## 31. v2 Boundary
 
@@ -488,7 +523,16 @@ Next bounded extension:
 - character and relationship overlays,
 - bounded local-model extraction,
 - heavier Command Center review support,
-- broader multi-arc comparison support.
+- broader multi-arc comparison support,
+- intended-versus-observed comparison,
+- confidence and uncertainty history,
+- pacing or pressure overlays,
+- change-over-time comparison,
+- richer reader-effect analysis.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated need that
+cannot be met through the existing bounded graph capability.
 
 ## 32. Future-Only Boundary
 
@@ -497,7 +541,10 @@ Future-only items:
 - automatic canonization of inferred emotional facts,
 - graph-owned truth independent of accepted assertions or author decisions,
 - silent AI mutation of emotional truth,
-- graph systems that replace writing or assertions as the truth source.
+- graph systems that replace writing or assertions as the truth source,
+- mandatory reader-effect targets,
+- mandatory universal psychological taxonomy,
+- mature-ceiling richness treated as a first-release obligation.
 
 ## 33. Pre-Rough Alignment Questionnaire
 

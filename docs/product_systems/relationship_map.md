@@ -476,6 +476,14 @@ Placement rules:
 - map views should not become default clutter,
 - support surfaces must not overwhelm writing flow.
 
+Stage 4 breadth pressure:
+
+- default view should not expose every edge, source, and history layer
+  simultaneously,
+- deeper evidence and history may be revealed through drill-down,
+- final graph layout, animation, interaction mechanics, and GUI treatment
+  remain deferred to Stage 9.
+
 ## 22. Local LLM Role
 
 Possible later local-model roles:
@@ -588,13 +596,31 @@ Containment rules:
 Minimum approved first version:
 
 - entity nodes,
-- accepted relationship display,
+- accepted or author-confirmed relationship display,
+- candidate or inferred relationship display,
+- relationship type,
+- direction where relevant,
+- supporting source references,
+- source-owner visibility,
+- confirmed, candidate, conflicted, and stale posture,
+- basic filtering by character, entity, relationship type, or status,
 - perceived, revealed, or planned relationship overlays when explicitly enabled,
-- candidate or advisory relationship display,
 - clear accepted-versus-candidate distinction,
 - bounded links to cards, narrative, continuity, and support systems,
 - no AI dependency,
 - no truth ownership drift.
+
+Relationship edges may reference `Character Cards` truth, `Lore Cards`
+truth, manuscript evidence, planning material, analysis, or candidate
+interpretation. Those source classes must remain visibly distinct.
+
+First release should remain useful without:
+
+- a large universal relationship taxonomy,
+- mandatory numeric confidence scoring,
+- animated history,
+- automatic relationship discovery across every source,
+- automatic canonization.
 
 ## 31. v2 Boundary
 
@@ -604,7 +630,15 @@ Next bounded extension:
 - emotion-state link overlays,
 - bounded local-model extraction,
 - heavier Command Center review support,
-- broader multi-entity comparison support.
+- broader multi-entity comparison support,
+- relationship change history,
+- evidence disagreement,
+- confidence or uncertainty history,
+- broader non-character entity relationships.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated need that
+cannot be met through the existing bounded map capability.
 
 ## 32. Future-Only Boundary
 
@@ -613,7 +647,12 @@ Future-only items:
 - automatic canonization of inferred relationship facts,
 - graph-owned truth independent of accepted assertions or author decisions,
 - silent AI mutation of relationship truth,
-- map systems that replace writing or assertions as the truth source.
+- map systems that replace writing or assertions as the truth source,
+- graph position or edge presence creating accepted truth,
+- a universal entity database,
+- automatic resolution of contradictory evidence.
+
+Mature-ceiling features do not belong automatically in first release.
 
 ## 33. Pre-Rough Alignment Questionnaire
 

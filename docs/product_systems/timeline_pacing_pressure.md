@@ -605,6 +605,10 @@ workflows.
 
 Keep default cues light and non-dominating.
 Show heavier comparisons only when requested or clearly relevant.
+Default view should remain readable.
+Detailed chronology, uncertainty, pressure, and pacing layers may be
+summonable.
+Final presentation remains deferred to Stage 9.
 
 ## 34. Local LLM Role
 
@@ -733,15 +737,77 @@ planning manually.
 Basic advisory chronology, pacing, and pressure comparisons with saved
 support state, prototype-aware projections, and bounded findings.
 
+First release includes:
+
+- event references,
+- chronology comparison,
+- chronology conflict identification,
+- observed pacing movement,
+- bounded pacing observations,
+- bounded pressure flags,
+- planned-versus-observed distinction,
+- supporting source references,
+- uncertainty or incomplete-evidence visibility.
+
+Timeline remains support-only and must not become the accepted
+event-truth owner. Accepted event truth remains with `Narrative
+Insertion / Narrative Assertion` and relevant domain owners. Timeline may
+reference accepted events but does not own them.
+
+Chronology comparison, pacing analysis, and pressure analysis are
+advisory. A slow section is not automatically defective. Pressure is not
+one universal score. Absence of pressure is not automatically a flaw.
+Chronology uncertainty must not be hidden.
+
+First release should not require:
+
+- universal event taxonomy,
+- universal pacing score,
+- universal pressure scale,
+- automatic story restructuring,
+- automatic canonization of inferred events,
+- exhaustive historical simulation,
+- a mandatory timeline for every project.
+
 ## 46. v2 Boundary
 
 Richer chronology uncertainty handling, deeper pacing comparison, and
 stronger pressure support.
 
+Mature ceiling may later include:
+
+- deeper chronology uncertainty handling,
+- richer pacing comparison,
+- richer pressure analysis,
+- planned-versus-observed history,
+- relationship or emotion overlays,
+- alternative-order comparison,
+- source disagreement analysis.
+
+Later expansion requires repeated author demand, Stage 5 external
+challenge findings, Stage 6 workflow proof, or demonstrated need that
+cannot be met through existing bounded chronology, pacing, or pressure
+support.
+
 ## 47. Future-Only Boundary
 
 Deep automated chronology reasoning, repair suggestions, or universal
 tension scoring.
+
+Explicit exclusions:
+
+- no accepted event-truth ownership,
+- no automatic manuscript reorder,
+- no universal quality score,
+- no requirement that every narrative use conventional pacing,
+- no replacement for `Outline`, `Continuity`, `Emotion Graph`, or
+  `Narrative Insertion / Narrative Assertion`,
+- mature-ceiling features do not automatically enter first release.
+
+Stage 6 workflow-proof needs remain open for reorder preview and
+application, chronology conflict handling, planned-versus-observed
+comparison, and owner-routed acceptance of changes derived from Timeline
+analysis. These workflows are not proven here.
 
 ## 48. Pre-Rough Alignment Questionnaire
 
