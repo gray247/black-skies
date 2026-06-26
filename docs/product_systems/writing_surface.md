@@ -51,6 +51,11 @@ The Writing Surface does not:
 - act as a dashboard,
 - become a clone of the Command Center,
 - treat projections or containers as narrative foundation authority,
+- treat projected, remapped, restored, generated, or package-preview
+  material as accepted manuscript content by display alone,
+- treat save success, recovery availability, restored preview, and
+  accepted-current manuscript state as the same state,
+- treat support-system failure as manuscript failure,
 - convert inferred or AI-generated material into authored truth automatically.
 
 ## 6. User-Facing Behavior
@@ -106,6 +111,9 @@ Background behavior must not silently claim authorship, certainty, or authority 
 Google Docs-like instant-save feel belongs here as local persistence posture, not as Google Docs sync, cloud sync, or `Document Interchange`.
 `Project Persistence / Local Save` owns whether current editable work is
 actually confirmed saved locally.
+Save success, pending save, degraded save, recovery availability,
+restore preview, restored copy, and accepted-current manuscript state
+must remain visibly separate when surfaced.
 Heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes must remain governed by the owning-system approval rules rather than Writing Surface authority.
 
 ## 8. What Appears First
@@ -145,6 +153,11 @@ Editorial support in the Writing Surface should stay quiet by default:
   explanation rather than hidden mutation.
 Temporary highlights, annotations, provenance overlays, package previews, and warnings remain advisory or inspectable support elements rather than manuscript edits, truth, or durable signal state unless the author explicitly saves, converts, or accepts them through the owning system.
 Support failure must not masquerade as manuscript failure.
+Blocked, refused, unavailable, interrupted, stale, conflicted, partial,
+superseded, restored, or out-of-date support state should identify the
+responsible owner or unavailable capability where relevant.
+Blocked support functions should preserve direct-writing fallback where
+the owning doctrine allows it.
 
 ## 10. What Is Hidden Until Needed
 
@@ -186,6 +199,8 @@ Current or future inputs:
 - feedback or revision notes,
 - explicit-content marker status,
 - Companion suggestions when explicitly summoned later.
+- generated candidates when explicitly requested and still clearly
+  separated from accepted manuscript content.
 
 ## 12. Outputs
 
@@ -198,6 +213,10 @@ Outputs include:
 - explicit human decisions about whether support output is accepted or ignored.
 
 Outputs must remain subordinate to author control.
+Accepted manuscript content, projected or remapped material, advisory
+overlays, generated candidates, AI package previews, save state,
+recovery or restore state, and blocked or unavailable support features
+must remain distinct output or display classes.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -236,6 +255,8 @@ Temporary or derived:
 - transient continuity highlights,
 - pending-save or recoverable-write indicators,
 - derived projection views,
+- remapped or restored previews,
+- package previews,
 - temporary AI suggestions not yet accepted by the writer.
 
 ## 16. Relationship To Narrative Insertion / Assertion
@@ -258,6 +279,10 @@ The Writing Surface must remain valid when Story Units are absent, incomplete, o
 
 The Writing Surface may display prose directly and may later display projection or container views.
 Those views remain downstream projections or compatibility surfaces rather than base narrative authority.
+Projected, remapped, or restored content must not silently replace
+accepted manuscript truth.
+Any replacement or accepted-current transition must route through the
+owning manuscript or recovery path.
 
 Projection display is allowed.
 Projection-led foundation drift is not.
@@ -273,6 +298,9 @@ Sovereignty means:
 - support systems may assist but not take over,
 - authorial intent is expressed here first,
 - nothing outside the Writing Surface should make basic writing unavailable by default.
+- Companion, Command Center, AI, retrieval, analysis, and routing
+  systems are optional support paths for direct writing rather than
+  prerequisites.
 
 ## 20. Relationship To Command Center Surface
 
@@ -335,6 +363,10 @@ Any AI-assisted writing path must keep:
 The Writing Surface may surface guidance, signals, provenance overlays, `Companion` highlights, package previews, or warnings only in ways that preserve writing flow and do not block local direct writing.
 The Writing Surface may surface heavy-action prompts, but it may not execute them silently.
 Actions may later include `Run`, `Review`, `Send`, `Approve`, `Open Command Center`, or `Defer`, but the owning system controls the approval rules.
+Package preview is not route approval, execution approval, package
+approval, destination acceptance, or manuscript acceptance.
+Advisory overlays and generated candidates cannot mutate manuscript
+truth by appearing inline.
 The shared attention hierarchy here should be applied roughly as:
 
 - quiet status for healthy save and ordinary healthy support posture,
@@ -405,6 +437,14 @@ Doctrine anchors for the current tightening pass:
 - direct writing must always be available,
 - AI, `Companion`, signals, `Memory Lab`, routing, package construction, and Command Center support must not gate basic writing,
 - temporary highlights or annotations are advisory overlays, not manuscript edits, not truth, and not durable signal state unless explicitly saved, converted, or accepted,
+- accepted manuscript content, projected material, remapped or restored
+  previews, advisory overlays, generated candidates, package previews,
+  save state, recovery state, and blocked-support posture must stay
+  visibly distinct,
+- blocked support state should name the responsible owner or unavailable
+  capability and preserve direct-writing fallback where doctrine allows,
+- save success, recovery availability, restored preview, and
+  accepted-current manuscript state are separate claims,
 - manual masking and AI exclusion zones are author-controlled and must not block local direct writing,
 - heavy scans, paid work, outbound work, truth mutation, export or sync, deletion, or durable state changes require the owning-system approval rules rather than Writing Surface authority.
 - interrupted writing posture should preserve safe writing whenever

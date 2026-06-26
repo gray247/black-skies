@@ -31,6 +31,12 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - summarizes evidence,
 - helps investigate when invited,
 - may use `Memory Lab` later to retrieve cited, tiered project memory, system knowledge, author preferences, and prior decisions,
+- preserves source type, source owner, memory class, evidence quality,
+  limitation, conflict, stale posture, and missing-support posture when
+  explaining or summarizing material from other systems,
+- distinguishes source text, project truth, memory, retrieval,
+  analysis, candidate output, Notes, Signals, and provenance rather
+  than flattening them into one answer,
 - answers product-system navigation and operational questions about Black Skies surfaces, menus, commands, workflows, and feature locations,
 - may create temporary non-destructive Writing Surface highlights or annotations when the author asks it to identify a gap, inconsistency, issue, or relevant passage,
 - is primarily housed in Command Center for richer explanation,
@@ -48,6 +54,13 @@ Writers need a bounded guide that can explain, question, summarize, and investig
 - it does not silently commit story changes,
 - it does not replace Writing Surface sovereignty,
 - it does not own startup, workspace, save, or recovery state,
+- it does not convert memory into evidence,
+- it does not convert retrieval into memory,
+- it does not resolve conflicts merely by summarizing them,
+- it does not make Notes, Signals, candidates, temporary highlights, or
+  provenance records into accepted truth,
+- it does not own approval, workflow completion, queue completion, or
+  destination acceptance,
 - it does not become a mandatory gate before writing.
 
 ## 6. User-Facing Behavior
@@ -85,6 +98,8 @@ truth, retrieval results, files, or organization state.
 - staying silent by default unless a user-requested watch condition, approval gate, blocked requested task, `no-ai-route-available`, outbound or spending decision, or potentially destructive action requires interruption later,
 - labeling stale, missing, blocked, generated, or owner-reported context
   honestly instead of smoothing it into false certainty,
+- preserving whether an action is explanation, routing, proposal,
+  preview, or accepted owner change before offering or describing it,
 - not stealing focus across surfaces just because it can explain a
   request or suggest a route.
 
@@ -152,7 +167,8 @@ explaining product state.
 - evidence citations later,
 - tool-trigger requests later,
 - signal candidates later when the author chooses to escalate a temporary highlight or concern.
-- route-to-owner explanation when save, workspace, recovery, or startup
+- route-to-owner explanation when save, workspace, recovery, approval,
+  destination acceptance, or startup
   questions belong elsewhere.
 
 ## 13. Which Other Systems Consume Those Outputs
@@ -179,6 +195,15 @@ explaining product state.
 - `no-ai-route-available` explanations and fallback menus,
 - temporary re-entry summaries that do not become durable memory or
   owner truth by default.
+
+Temporary highlights remain temporary.
+They do not silently become Notes, Signals, memory, candidates, or
+accepted truth.
+Promotion into any owned object requires the destination owner's
+explicit path.
+Dismissal, snooze, or expiration of a temporary highlight does not
+delete source evidence, source text, retrieval results, memory records,
+Notes, Signals, candidates, provenance, or other owner state.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -233,11 +258,18 @@ workspace restoration, or review state.
 
 `Companion` may use `Memory Lab` for governed recall, but it does not own `Memory Lab`.
 `Companion` does not own the underlying systems it references.
+It must preserve whether referenced material comes from source text,
+project truth, memory, retrieval, analysis, candidate output, Note,
+Signal, provenance, or another owner-held state.
 `Continuity` owns continuity truth boundaries.
 `Signal Architecture` owns durable signal state.
 `Memory Lab` owns governed recall.
+`Project Index / Search / Retrieval` owns retrieval references and
+source-linked results.
+`Feedback Notes / Revision Resolution` owns durable note state.
 Routing owns route and spend permission.
 `LLM Package Construction Architecture` owns package assembly.
+Destination owners own destination review and acceptance.
 The author owns final manuscript truth.
 
 ## 21. GUI Placement Principles
@@ -324,6 +356,12 @@ Governance rules:
 - Companion may answer questions from accepted character or lore truth, identify uncertainty, show supporting assertions or prose, and suggest fact updates or card creation without becoming a truth owner,
 - Companion may create temporary advisory highlights or annotations when asked, but durable signal state remains owned by `Signal Architecture`,
 - Companion may guide workflows and explain system state, but guided action is not system ownership,
+- Companion explanations must preserve source type, source owner,
+  memory class and status where relevant, evidence quality,
+  limitations, conflicts, staleness, missing support, and destination
+  owner rather than presenting a single flattened authority state,
+- Companion must distinguish explanation, routing, proposal, preview,
+  and accepted owner change when describing an action path,
 - Companion may be primarily housed in Command Center while remaining
   summonable from Writing Surface,
 - Companion may not close, reopen, convert, or mutate durable editorial artifacts silently,
@@ -338,6 +376,9 @@ Governance rules:
 - Companion must not steal keyboard focus or silently move the author
   across primary surfaces,
 - Companion must not silently spend, rewrite, send raw content, mutate story truth, retain memory, export or sync, delete, or canonize facts without approval.
+- Companion must not own approval, workflow completion, queue
+  completion, or destination acceptance, and it must not present those
+  states as one universal clearance.
 
 Minimum rough workload tiers for later `Companion` guidance:
 
@@ -350,9 +391,19 @@ Minimum rough workload tiers for later `Companion` guidance:
 
 Minimum rough Companion source labels for investigative guidance:
 
+- `source text`
+- `project truth`
 - `accepted continuity truth`
 - `author note`
+- `Feedback Note`
+- `Signal`
 - `Memory Lab advisory memory`
+- `Memory Lab owner-reference memory`
+- `temporary session context`
+- `Project Index retrieval result`
+- `analysis output`
+- `candidate output`
+- `provenance record`
 - `unresolved signal candidate`
 - `current manuscript text`
 - `system or navigation knowledge`
@@ -375,6 +426,8 @@ These are rough product-definition labels, not a final runtime state model.
 `Companion` should be able to answer `show me the source` and distinguish canon from advisory, temporary, scheduled, and archive material.
 Simple app-navigation answers may rely directly on system or navigation knowledge without pretending to be manuscript authority.
 Temporary highlights or annotations are advisory overlays, must respect masks and AI exclusion zones, must be dismissible, and must not leak raw excluded text.
+Their dismissal or expiration removes only the temporary overlay posture;
+it does not delete source evidence or mutate source-owner state.
 
 Risks:
 

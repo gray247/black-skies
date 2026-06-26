@@ -36,6 +36,9 @@ The Command Center Surface:
 - provides a home for structured or analytical systems that do not
   belong in the main drafting area,
 - allows tool orchestration without making those tools the authorial source of truth.
+- aggregates, compares, filters, routes, and explains owner state while
+  preserving the underlying owner, source state, approval boundary, and
+  destination owner.
 
 ## 5. What The System Does Not Do
 
@@ -48,6 +51,8 @@ The Command Center Surface does not:
 - force Story Unit creation before writing,
 - force projection-led workflow before writing,
 - become a dashboard junk drawer,
+- become a universal queue, workflow engine, approval authority, or
+  truth owner,
 - turn AI output into truth because it appears in a side surface,
 - accumulate every support system as always-on clutter,
 - silently resolve, mutate, spend, send, delete, canonize, or bypass masks on behalf of other systems.
@@ -69,6 +74,9 @@ Visible behavior should emphasize:
 The Command Center is the natural host for review items, prepared
 findings, and deeper blocker detail, but it does not own the states it
 organizes.
+Grouped views are owner-linked collections, not sovereign records.
+They must retain links to source owners, source evidence, and
+conflicting states where those states matter.
 
 ## 7. Hidden/Background Behavior
 
@@ -103,6 +111,10 @@ Review collections here are non-owning views over owner-controlled
 items. They may group prepared findings, unresolved notes, active
 signals, possible recurrences, stale analyses, and items awaiting
 author review without becoming a new inbox or queue owner.
+Grouped review state, blocker state, routing state, package state,
+route approval, package approval, queue execution or completion,
+provenance record, destination-owner review, destination acceptance,
+and accepted project truth must remain visibly distinct.
 
 ## 9. What Is Summonable
 
@@ -190,10 +202,19 @@ Outputs may include:
 
 These outputs are support outputs, not automatic authored truth.
 They must also remain subordinate to `Signal Architecture` ownership of durable signal state, `Memory Lab` governed recall, routing or budget approval boundaries, and author authority.
+They must also remain subordinate to package ownership, provenance
+ownership, queue ownership, note ownership, destination-owner review,
+and destination acceptance boundaries where those are involved.
 The Command Center organizes attention, but it does not own blockers.
 Blocker views must distinguish what is blocked, which owner reports it,
 whether direct writing itself is blocked, what action is required, and
 whether fallback exists.
+A blocker summary does not become the blocker's owner.
+Queue completion does not mean destination acceptance.
+Route approval does not mean package approval.
+Package approval does not mean acceptance into manuscript or project
+truth.
+Provenance visibility does not mean truth acceptance.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -238,6 +259,10 @@ Temporary or derived:
 - provider health warnings,
 - contextual selection state,
 - filtered or grouped review collections that remain view-only.
+Temporary grouped state must not collapse stale, conflicted,
+superseded, partial, blocked, refused, unavailable, interrupted,
+restored, or out-of-date source posture into a single finished or
+failed state.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
@@ -345,6 +370,11 @@ Routing notes should support:
 
 Command Center routing or spend visibility must not turn the surface into infrastructure clutter or imply permission to override owning-system approval rules.
 The Command Center may present actions, but it cannot silently mutate manuscript text, truth, signal state, memory, export or sync or publish state, routing spend, deletion state, masks, or package output.
+Routing state, route approval, package state, package approval, queue
+execution, provenance record, destination-owner review, and destination
+acceptance must stay distinct when shown together.
+The Command Center must not flatten multiple owner states into one
+universal `ready`, `approved`, `complete`, or `failed` state.
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
@@ -405,6 +435,14 @@ Doctrine anchors for the current tightening pass:
   structures rather than new durable owners.
 - review collections must not silently convert findings, duplicate
   durable state, redefine source severity, or reopen closed work.
+- grouped reviews must retain source-owner links and conflicting
+  source states.
+- queue completion, route approval, package approval, destination-owner
+  review, destination acceptance, provenance visibility, and accepted
+  project truth remain separate owner-governed states.
+- Command Center summaries must not imply one universal clearance,
+  workflow owner, readiness state, approval state, completion state, or
+  failure state.
 
 Ownership boundaries for organized attention:
 
@@ -414,6 +452,10 @@ Ownership boundaries for organized attention:
 - `Continuity` owns continuity candidates and continuity-truth support.
 - `LLM Package Construction Architecture` owns package assembly.
 - `Explicit Content Architecture` owns clearance and masking constraints.
+- `Async Job Queue / Task Runner` owns queue execution state.
+- `Authorship Provenance AI Visibility` owns provenance records.
+- `Feedback Notes / Revision Resolution` owns durable note state.
+- destination owners own destination review and acceptance.
 - the author owns final truth and manuscript.
 
 ## 29. Failure Modes
