@@ -121,13 +121,19 @@ Current sequencing remains:
 - Stage 1 — System Constellation Audit is complete.
 - Stage 2 — System Composition and Emergent Capability Audit is
   complete.
-- the next eligible planning action is Stage 3 —
-  `Dossier Regression and Doctrine Propagation Audit`
-- Stage 3 has not begun.
-- Beginning Stage 3 requires explicit author approval.
-- Stage 3 does not admit connectors.
+- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
+  active.
+- Stage 3 began through explicit author approval.
+- the initial Stage 3 read-only regression inventory is complete.
+- DR-01 through DR-06 in
+  `docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
+  are the controlling Stage 3 findings.
+- six bounded doctrine-propagation corrections are pending.
+- no Category-4 demotion is currently recommended.
+- no substantive dossier reopening is currently required.
+- no connector has been admitted.
+- Stage 4 has not begun.
 - Stage 3 does not unblock implementation.
-- this cleanup does not perform Stage 3
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -196,8 +202,18 @@ consolidation.
 Stage 1 — System Constellation Audit is complete.
 Stage 2 — System Composition and Emergent Capability Audit is
 complete.
-Stage 3 is the next eligible stage and has not begun.
-Stages 4 and 5 remain unstarted.
+Stage 3 — Dossier Regression and Doctrine Propagation Audit is active.
+Stage 3 began through explicit author approval.
+The initial Stage 3 read-only regression inventory is complete.
+DR-01 through DR-06 in
+`docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
+are the controlling Stage 3 findings.
+Six bounded doctrine-propagation corrections are pending.
+No Category-4 demotion is currently recommended.
+No substantive dossier reopening is currently required.
+No connector has been admitted.
+Stage 4 has not begun.
+Stage 5 remains unstarted.
 Stage 6 remains the later Cross-System Workflow Proofs stage after
 Stages 3 through 5.
 Stage 6 candidates are tested according to their documented workflow
@@ -433,14 +449,13 @@ and the completed Draft Generation campaign history.
 
 #### Next Candidate Cluster
 
-- Current selected campaign: none
-- Current next eligible planning action: Stage 3 —
+- Current selected campaign: Stage 3 —
   `Dossier Regression and Doctrine Propagation Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
 - Remaining objective before later architecture review: preserve full
-  category `4` coverage while beginning the post-category-`4`
-  architecture sequence in order
+  category `4` coverage while completing the active Stage 3 bounded
+  doctrine-propagation corrections in order
 
 #### Dossier Inventory / Reconciliation Note
 
@@ -687,18 +702,24 @@ Expected clean state:
 
 ## Current Next Action
 
-No product-definition campaign is currently active.
 Stage 1 — System Constellation Audit is complete.
 Stage 2 — System Composition and Emergent Capability Audit is
 complete.
-The next eligible planning action is Stage 3 —
-`Dossier Regression and Doctrine Propagation Audit`.
-Stage 3 has not begun.
-Beginning Stage 3 requires explicit author approval.
-Stage 3 does not admit connectors.
+Stage 3 — Dossier Regression and Doctrine Propagation Audit is active.
+Stage 3 began through explicit author approval.
+The initial Stage 3 read-only regression inventory is complete.
+DR-01 through DR-06 in
+`docs/product_systems/dossier_regression_doctrine_propagation_findings.md`
+are the controlling Stage 3 findings.
+Six bounded doctrine-propagation corrections are pending.
+No Category-4 demotion is currently recommended.
+No substantive dossier reopening is currently required.
+No connector has been admitted.
+Stage 4 has not begun.
 Stage 3 does not unblock implementation.
 Implementation, GUI implementation, architecture selection, salvage
 execution, separation, and cleanup remain blocked.
-This planning spine does not perform Stage 3.
+This planning spine records active Stage 3 status without performing the
+bounded dossier corrections.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.
