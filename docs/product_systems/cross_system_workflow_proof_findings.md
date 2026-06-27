@@ -36,7 +36,23 @@
 * WP-07 and WP-08 remain folded into WP-06
 * the Stage 6 portion of WP-12 remains folded into WP-06
 * Stage 10 retains WP-12 operational qualification and retirement work
-* Batch 3 has not begun
+* Batch 3 proof drafting is complete
+* WP-09 and WP-10 individual proof files now exist
+* Batch 3 review is complete
+* WP-09 result: Passed with Bounded Follow-up
+* WP-10 result: Passed with Bounded Follow-up
+* no Batch 3 proof remains In Proof
+* no Batch 3 proof is Blocked or Failed
+* no product-dossier correction is required
+* no author decision is required
+* bounded follow-ups are routed to Stage 9 and Stage 10
+* Batch 3 is complete
+* Batch 1 remains complete
+* Batch 2 remains complete
+* all eight primary proofs now have official results
+* all eight results are Passed with Bounded Follow-up
+* restored-copy identity remains a bounded later question, not a Stage 6 blocker
+* Stage 6 closure assessment is next
 * Stage 6 remains active and unclosed
 * Stage 7 is not eligible
 * connectors remain gated
@@ -343,7 +359,5 @@ It does not authorize implementation, architecture selection, GUI finalization, 
 
 ## Remaining Stage 6 work
 
-* Prepare Batch 3 proof packages.
-* Review Batch 3 proof packages and record official outcomes.
-* Execute remaining proof batches in dependency order.
+* Conduct Stage 6 closure assessment.
 * Route Stage 9 and Stage 10 consequences to their later stages.

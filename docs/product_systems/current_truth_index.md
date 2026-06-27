@@ -228,7 +228,17 @@ Current Black Skies doctrine is:
 - No author decision is required.
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 2 is complete.
-- Batch 3 has not begun.
+- Batch 3 review is complete.
+- WP-09 result: Passed with Bounded Follow-up.
+- WP-10 result: Passed with Bounded Follow-up.
+- No Batch 3 proof remains In Proof.
+- No Batch 3 proof is Blocked or Failed.
+- No product-dossier correction is required.
+- No author decision is required.
+- Bounded follow-ups are routed to Stage 9 and Stage 10.
+- Batch 3 is complete.
+- All eight primary proofs are Passed with Bounded Follow-up.
+- Stage 6 closure assessment is next.
 - Stage 6 remains active and unclosed.
 - Stage 7 is not eligible.
 - Connectors remain gated.
