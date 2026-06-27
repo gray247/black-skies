@@ -147,14 +147,16 @@ Current sequencing remains:
 - no Category-4 demotion is required.
 - no substantive dossier reopening is required.
 - no unresolved Stage 4 finding remains.
-- Stage 5 — `External Deep-Research Challenge Audit` is active.
+- Stage 5 — `External Deep-Research Challenge Audit` is complete and
+  closed.
 - Stage 5 began through explicit author approval.
 - external research Passes A through D were completed.
 - findings were recorded in
   `docs/product_systems/external_deep_research_challenge_findings.md`.
-- bounded doctrine propagation remains pending.
-- Stage 5 is not closed.
-- Stage 6 is not yet eligible.
+- all ER findings have final dispositions.
+- bounded doctrine propagation is complete.
+- Stage 6 is next eligible but not begun.
+- explicit author approval is required before Stage 6 begins.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - Stage 5 external challenge inputs remain preserved.
@@ -252,14 +254,16 @@ No additional propagation or sampling pass is required.
 No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 4 finding remains.
-Stage 5 — External Deep-Research Challenge Audit is active.
+Stage 5 — External Deep-Research Challenge Audit is complete and
+closed.
 Stage 5 began through explicit author approval.
 External research Passes A through D were completed.
 Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
-Bounded doctrine propagation remains pending.
-Stage 5 is not closed.
-Stage 6 is not yet eligible.
+All ER findings have final dispositions.
+Bounded doctrine propagation is complete.
+Stage 6 is next eligible but not begun.
+Explicit author approval is required before Stage 6 begins.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
@@ -779,14 +783,16 @@ No additional propagation or sampling pass is required.
 No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 4 finding remains.
-Stage 5 — External Deep-Research Challenge Audit is active.
+Stage 5 — External Deep-Research Challenge Audit is complete and
+closed.
 Stage 5 began through explicit author approval.
 External research Passes A through D were completed.
 Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
-Bounded doctrine propagation remains pending.
-Stage 5 is not closed.
-Stage 6 is not yet eligible.
+All ER findings have final dispositions.
+Bounded doctrine propagation is complete.
+Stage 6 is next eligible but not begun.
+Explicit author approval is required before Stage 6 begins.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
@@ -794,6 +800,7 @@ Stage 6, Stage 9, and Stage 10 deferrals remain preserved.
 Implementation, GUI implementation, architecture selection, salvage
 execution, current-versus-historical separation, and repository cleanup
 remain blocked.
-This planning spine records Stage 5 as active without closing it.
+This planning spine records Stage 5 as complete and closed without
+changing its active planning-spine status.
 Findings ledger: [system_constellation_audit_findings_ledger.md](/C:/Dev/black-skies/docs/product_systems/system_constellation_audit_findings_ledger.md).
 Every remaining constellation pass must update that ledger.

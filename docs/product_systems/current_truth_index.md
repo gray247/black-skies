@@ -198,13 +198,15 @@ Current Black Skies doctrine is:
 - No Category-4 demotion is required.
 - No substantive dossier reopening is required.
 - No unresolved Stage 4 finding remains.
-- Stage 5 — `External Deep-Research Challenge Audit` is active.
+- Stage 5 — `External Deep-Research Challenge Audit` is complete and closed.
 - Stage 5 began through explicit author approval.
 - External research Passes A through D were completed.
 - Findings were recorded in `docs/product_systems/external_deep_research_challenge_findings.md`.
-- Bounded doctrine propagation remains pending.
-- Stage 5 is not closed.
-- Stage 6 is not yet eligible.
+- All ER findings were disposed with final Stage 5 dispositions.
+- Bounded doctrine propagation is complete.
+- No unresolved Stage 5 finding remains.
+- Stage 6 is next eligible but not begun.
+- Explicit author approval is required before Stage 6 begins.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - External challenge questions, cross-system workflow proofs, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 6, 9, and 10 respectively.

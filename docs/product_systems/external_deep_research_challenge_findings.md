@@ -2,12 +2,13 @@
 
 ## Status
 
-* Stage 5 active
+* Stage 5 complete
+* Stage 5 closed
 * external research Passes A through D complete at evidence-gathering level
 * findings recorded
-* bounded doctrine propagation remains pending
-* Stage 5 not closed
-* Stage 6 not yet eligible
+* bounded doctrine propagation complete
+* Stage 6 next eligible but not begun
+* explicit author approval still required
 * no connector admitted
 * implementation remains blocked
 
@@ -436,6 +437,9 @@ Representative source register:
 
 ## Remaining Stage 5 work
 
-* bounded doctrine propagation from ER-01 through ER-18 remains pending
-* final Stage 5 closure review remains pending
-* Stage 5 remains active
+* no remaining Stage 5 research
+* no remaining Stage 5 propagation
+* no remaining Stage 5 author decision
+* closure synchronization completed
+* Stage 6 next eligible but not begun
+* explicit author approval still required
