@@ -28,9 +28,14 @@ The writer needs bounded evaluation support that can identify issues, compare op
 
 - reads evidence from supported systems,
 - produces advisory findings, ranked issues, evidence bundles, comparison notes, recommendation lists, signal candidates, feedback-note candidates, and rewrite-prompt candidates,
+- provides a concise priority synthesis alongside individually anchored findings when useful,
 - helps the author inspect writing, structure, continuity, tone, and related concerns,
 - may be invoked by Companion, Writing Surface, Command Center, Draft Generation / Rewrite Loop, or direct manual author action,
 - can use Author Intent / Story Setup as a goal-and-boundary reference while that profile remains hosted in Workflow Spine / Author Journey.
+  When available, critique may use visible author-provided context such as intended genre, intended audience, current draft stage, author-declared goals, deliberate structural or stylistic departures, and the requested review posture.
+  Missing context must be disclosed honestly, and critique must not silently invent author intent.
+  Author-provided context remains author-owned guidance.
+  Direct writing and critique without a complete context profile must remain possible.
 
 ## 5. What The System Does Not Do
 
@@ -46,6 +51,9 @@ The writer needs bounded evaluation support that can identify issues, compare op
 - it does not own explicit-content clearance or protected-content permissions,
 - it does not own final author decisions,
 - it does not own durable note state or durable memory,
+- it does not silently standardize dialect, multilingual writing, code-switching, culturally specific language, experimental voice, fragmented or stylized prose, or explicit content into one correct style,
+- it does not treat provider refusal as manuscript failure,
+- it does not treat deliberate departures from genre convention as defects merely because they differ from convention,
 - it does not replace Plugin / Rubric System, Feedback Notes / Revision Resolution, Signal Architecture, Draft Generation / Rewrite Loop, Continuity, or Companion.
 
 ## 6. User-Facing Behavior
@@ -55,6 +63,14 @@ Temporary critique findings may offer writer-facing actions such as
 `Save as Note`, `Flag for attention`, `Dismiss`, `Ignore`, and `Review
 source`, but the visible choice remains only a request until the owning
 system accepts it.
+Critique output should distinguish observation, interpretation, predicted reader effect, author-facing question, and suggested route.
+Observation is a source-linked description of what appears in the manuscript or project material.
+Interpretation is a bounded explanation of what the observed pattern may imply.
+Predicted reader effect is an uncertain prediction about how some readers or an intended audience may respond.
+An author-facing question is a prompt intended to help the author clarify intent or evaluate a tradeoff.
+A suggested route is a non-owning direction to the relevant owner, such as inspecting source passages, creating or updating a Note through the Notes owner, raising a Signal through the Signal owner, requesting a rewrite candidate through the rewrite workflow, comparing planning and manuscript sources, or leaving the finding unresolved.
+Observation is not interpretation, interpretation is not manuscript truth, predicted reader effect is not universal audience fact, a question is not a finding of failure, and a suggested route is not approval, acceptance, or automatic mutation.
+Critique must not silently convert any result into Notes, Signals, candidates, rewrites, or accepted truth.
 
 Invocation posture:
 
@@ -97,6 +113,7 @@ Protected, hidden, deleted, discarded, forgotten, local-only, or AI-excluded mat
 - low-value history,
 - protected or excluded raw content,
 - implementation-heavy execution detail.
+Deliberate ambiguity, unresolved meaning, unreliable narration, withholding, and unconventional structure may be productive and should be described with uncertainty when intent cannot be safely inferred.
 
 ## 11. Inputs
 
@@ -131,6 +148,7 @@ generic hidden critique voice.
 Critique / Evaluation may produce:
 
 - advisory findings,
+- concise priority synthesis,
 - ranked issues,
 - evidence bundles,
 - comparison notes,
@@ -141,6 +159,10 @@ Critique / Evaluation may produce:
 - rewrite-prompt candidates,
 - comparison results,
 - bounded explanation views for Companion or the owning surface.
+
+Priority synthesis must identify the small number of issues likely to have the greatest revision impact, explain why they are prioritized, identify the manuscript scope affected, and show uncertainty or competing interpretations.
+Priority is not a universal manuscript score, a hidden grading formula, a declaration that other findings are false, an obligation to revise, or accepted truth.
+Individual findings retain category, severity, confidence or uncertainty, supporting passage or source, concise explanation, affected manuscript or project location, and advisory status.
 
 These outputs are advisory unless explicitly accepted or converted through the owning system.
 Severity and ranking remain advisory unless converted through an owning system.
@@ -217,6 +239,7 @@ form`, `insufficient evidence`, or `possible recurrence`.
 Those outcomes remain advisory.
 They must not silently replace, resolve, reopen, or rewrite durable
 notes, durable signals, or manuscript truth.
+Later workflow and presentation work may need to support grouping related findings, representative evidence, intentional/dismissed/disputed marking, and recurrence control without deleting evidence.
 
 ## 15A. History And Evidence Posture
 
@@ -518,6 +541,8 @@ This dossier is acceptable only if it explicitly states that:
 - it remains advisory until explicitly accepted or converted through an owning system,
 - it is not Companion-owned,
 - it does not replace Plugin / Rubric System, Feedback Notes, Signal Architecture, Draft Generation, Continuity, or Companion,
+- it preserves explicit distinction among observation, interpretation, predicted reader effect, author-facing question, and suggested route,
+- it does not silently standardize dialect, multilingual writing, code-switching, culturally specific language, experimental voice, fragmented or stylized prose, or explicit content into one correct style,
 - it may be invoked by multiple surfaces without becoming a universal surface,
 - it does not silently turn critique into canon, durable signal state, feedback workflow state, or rewrite execution,
 - it does not silently mutate manuscript truth or protected content,
