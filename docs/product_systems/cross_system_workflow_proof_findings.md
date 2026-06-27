@@ -22,7 +22,15 @@
 * no author decision is required
 * bounded follow-ups are routed to Stage 9
 * Batch 1 is complete
-* Batch 2 has not begun
+* Batch 2 proof drafting is complete
+* WP-05 and WP-06 individual proof files now exist
+* official proof results remain pending review
+* WP-05 remains In Proof
+* WP-06 remains In Proof
+* WP-07 and WP-08 remain folded into WP-06
+* the Stage 6 portion of WP-12 remains folded into WP-06
+* Stage 10 retains WP-12 operational qualification and retirement work
+* Batch 3 has not begun
 * Stage 6 is not complete or closed
 * Stage 7 is not eligible
 * connectors remain gated
@@ -159,7 +167,18 @@ The eight primary proofs are:
 * no author decision is required.
 * bounded follow-ups are routed to Stage 9.
 * Batch 1 is complete.
-* Batch 2 has not begun.
+
+## Batch 2 Drafting
+
+* Batch 2 proof drafting is complete.
+* WP-05 and WP-06 individual proof files now exist.
+* official proof results remain pending review.
+* WP-05 remains In Proof.
+* WP-06 remains In Proof.
+* WP-07 and WP-08 remain folded into WP-06.
+* the Stage 6 portion of WP-12 remains folded into WP-06.
+* Stage 10 retains WP-12 operational qualification and retirement work.
+* Batch 3 has not begun.
 
 ## Non-primary candidate disposition
 
@@ -312,7 +331,7 @@ It does not authorize implementation, architecture selection, GUI finalization, 
 
 ## Remaining Stage 6 work
 
-* Draft Batch 2 proof packages.
-* Execute the proof batches in dependency order.
-* Record proof outcomes without collapsing them into universal status.
+* Review Batch 2 proof packages and record official outcomes.
+* Prepare Batch 3 proof packages after Batch 2 review completes.
+* Execute remaining proof batches in dependency order.
 * Route Stage 9 and Stage 10 consequences to their later stages.
