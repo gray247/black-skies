@@ -84,13 +84,19 @@ Current status:
 - Findings were recorded in `docs/product_systems/external_deep_research_challenge_findings.md`.
 - All ER findings were disposed with final Stage 5 dispositions.
 - Bounded doctrine propagation is complete.
-- Stage 6 is next eligible but not begun.
-- Explicit author approval is required before Stage 6 begins.
-- Stage 5 does not admit connectors automatically.
+- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 began through explicit author approval.
+- The initial read-only workflow-proof planning pass is complete.
+- The central Stage 6 proof program has been recorded.
+- Eight primary proofs are selected.
+- Three proof batches are planned.
+- Individual proof-package drafting remains pending.
+- Stage 6 is not complete or closed.
+- Stage 7 is not eligible.
+- Connectors remain gated.
 - Stage 5 does not unblock implementation.
-- External challenge questions, cross-system workflow proofs, GUI
-  presentation work, and operational-readiness work remain deferred to
-  Stages 5, 6, 9, and 10 respectively.
+- Stage 6 does not unblock implementation.
+- External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
 - Implementation, GUI implementation, architecture selection,
   salvage execution, current-versus-historical separation, and
   repository cleanup remain blocked.
@@ -634,7 +640,16 @@ Current immediate planning posture:
 - Stage 5 — `External Deep-Research Challenge Audit` is complete and
   closed; external research Passes A through D are complete, findings
   are recorded, and all ER findings have final dispositions
-- Stage 6 is next eligible but not begun.
+- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 began through explicit author approval.
+- The initial read-only workflow-proof planning pass is complete.
+- The central Stage 6 proof program has been recorded.
+- Eight primary proofs are selected.
+- Three proof batches are planned.
+- Individual proof-package drafting remains pending.
+- Stage 6 is not complete or closed.
+- Stage 7 is not eligible.
+- Connectors remain gated.
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new

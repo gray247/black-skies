@@ -155,12 +155,19 @@ Current sequencing remains:
   `docs/product_systems/external_deep_research_challenge_findings.md`.
 - all ER findings have final dispositions.
 - bounded doctrine propagation is complete.
-- Stage 6 is next eligible but not begun.
-- explicit author approval is required before Stage 6 begins.
+- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 began through explicit author approval.
+- the initial read-only workflow-proof planning pass is complete.
+- the central Stage 6 proof program has been recorded.
+- eight primary proofs are selected.
+- three proof batches are planned.
+- individual proof-package drafting remains pending.
+- Stage 6 is not complete or closed.
+- Stage 7 is not eligible.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - Stage 5 external challenge inputs remain preserved.
-- Stage 6, Stage 9, and Stage 10 deferrals remain preserved.
+- Stage 9 and Stage 10 deferrals remain preserved.
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -262,15 +269,27 @@ Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
 All ER findings have final dispositions.
 Bounded doctrine propagation is complete.
-Stage 6 is next eligible but not begun.
-Explicit author approval is required before Stage 6 begins.
+Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 began through explicit author approval.
+the initial read-only workflow-proof planning pass is complete.
+the central Stage 6 proof program has been recorded.
+eight primary proofs are selected.
+three proof batches are planned.
+individual proof-package drafting remains pending.
+Stage 6 is not complete or closed.
+Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
-Stage 6 remains the later Cross-System Workflow Proofs stage after
-Stage 5.
-Stage 6 candidates are tested according to their documented workflow
-cases and reopening triggers.
+Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 began through explicit author approval.
+the initial read-only workflow-proof planning pass is complete.
+the central Stage 6 proof program has been recorded.
+eight primary proofs are selected.
+three proof batches are planned.
+individual proof-package drafting remains pending.
+Stage 6 is not complete or closed.
+Stage 7 is not eligible.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
 Category `4` is not build readiness.
@@ -791,12 +810,19 @@ Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
 All ER findings have final dispositions.
 Bounded doctrine propagation is complete.
-Stage 6 is next eligible but not begun.
-Explicit author approval is required before Stage 6 begins.
+Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 began through explicit author approval.
+the initial read-only workflow-proof planning pass is complete.
+the central Stage 6 proof program has been recorded.
+eight primary proofs are selected.
+three proof batches are planned.
+individual proof-package drafting remains pending.
+Stage 6 is not complete or closed.
+Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
-Stage 6, Stage 9, and Stage 10 deferrals remain preserved.
+Stage 9 and Stage 10 deferrals remain preserved.
 Implementation, GUI implementation, architecture selection, salvage
 execution, current-versus-historical separation, and repository cleanup
 remain blocked.

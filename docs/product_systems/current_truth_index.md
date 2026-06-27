@@ -205,11 +205,19 @@ Current Black Skies doctrine is:
 - All ER findings were disposed with final Stage 5 dispositions.
 - Bounded doctrine propagation is complete.
 - No unresolved Stage 5 finding remains.
-- Stage 6 is next eligible but not begun.
-- Explicit author approval is required before Stage 6 begins.
-- Stage 5 does not admit connectors automatically.
+- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 began through explicit author approval.
+- The initial read-only workflow-proof planning pass is complete.
+- The central Stage 6 proof program has been recorded.
+- Eight primary proofs are selected.
+- Three proof batches are planned.
+- Individual proof-package drafting remains pending.
+- Stage 6 is not complete or closed.
+- Stage 7 is not eligible.
+- Connectors remain gated.
 - Stage 5 does not unblock implementation.
-- External challenge questions, cross-system workflow proofs, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 6, 9, and 10 respectively.
+- Stage 6 does not unblock implementation.
+- External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
 - `Capability Ceiling and Breadth Audit`,
   `External Deep-Research Challenge Audit`,
   `Cross-System Workflow Proofs`, `Missing Connector Review`,
