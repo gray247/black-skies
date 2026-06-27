@@ -19,7 +19,9 @@
 Define the author-facing human document interchange capability so Black
 Skies can import and export common document material without confusing
 transfer workflows with autosave, storage authority, AI package doctrine,
-or story truth.
+or story truth. Publication export, portable project archive, and Black
+Skies application backup are distinct concepts with different purposes
+and later-stage routing.
 
 This dossier inherits source and destination rules from
 `document_interchange_source_destination_contract.md`, protection rules
@@ -48,6 +50,8 @@ Document Interchange:
 - owns transfer history and external-document linkage metadata,
 - defines bounded human document import and export capability for common
   human-readable formats,
+- distinguishes publication export, portable project archive, and
+  Black Skies application backup,
 - defines posture for `docx`, `pdf`, markdown, plain text, pasted text,
   later publishing formats such as `ePub`, and Google Docs as one
   external source or destination,
@@ -68,6 +72,9 @@ Document Interchange does not:
 - own accepted character truth,
 - own accepted lore truth,
 - own notes, signals, or durable memory,
+- own portable project archive schema, versioning, or recovery
+  guarantees,
+- own Black Skies application backup policy or restore verification,
 - own Google Docs-like autosave or instant-save feel,
 - own local autosave,
 - own local save-state behavior,
@@ -237,6 +244,10 @@ Eventually stored:
 - author-approved external-document linkage metadata.
 
 Stored transfer metadata does not become manuscript truth by itself.
+Publication export records remain outward-facing transfer artifacts,
+portable project archive records remain durable escape-oriented
+packages, and application backup records remain recovery-oriented
+copies; none of them automatically becomes accepted truth.
 
 ## 15. What Remains Temporary
 
@@ -470,6 +481,9 @@ lore, or project-intent objects.
 
 Export is an outbound artifact workflow, not save-state, persistence,
 synchronization, or truth ownership.
+Publication export, portable project archive, and Black Skies
+application backup remain distinct outbound or recovery roles even when
+they share some source material.
 
 An export job should carry:
 
@@ -778,6 +792,9 @@ Failure modes include:
 exists:
 
 - bounded human-readable import and export,
+- publication export first-release floor remains bounded,
+- portable project archive remains a meaningful requirement, but its
+  exact first-release placement stays subject to later planning,
 - explicit import-session staging and classification,
 - visible destination classification,
 - visible duplicate, drift, and format-loss warnings,

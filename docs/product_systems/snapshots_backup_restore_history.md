@@ -17,6 +17,7 @@
 ## 2. Purpose
 
 Define recovery, backup, restore, and history support so the app can preserve user work and recover safely without turning system history into story truth authority.
+Snapshots, application backup, portable project archive, and publication export are distinct concepts with different purposes and different later-stage routes.
 
 This dossier inherits recovery-mode and protection-preservation doctrine from `snapshot_protected_recovery_contract.md`, protected-content rules from `protected_content_permission_matrix.md`, provenance posture from `provenance_state_model.md`, degraded execution rules from `degraded_mode_execution_contract.md`, and ownership limits from `truth_and_state_ownership_matrix.md`.
 
@@ -28,6 +29,7 @@ The writer needs confidence that work can be recovered without losing clarity ab
 
 - capture recoverable history,
 - support backup and governed restore modes such as preview-only, read-only, restore-as-copy, restore-as-candidate, restore-as-staged-object, and restore-as-current,
+- distinguish snapshots, history, application backup, portable project archive, publication export, current saved state, and restored state,
 - preserve bounded change history.
 
 ## 5. What The System Does Not Do
@@ -35,6 +37,7 @@ The writer needs confidence that work can be recovered without losing clarity ab
 - decide truth,
 - silently resurrect deleted truth as current canon,
 - blur current accepted state with historical snapshots,
+- collapse backup, archive, export, snapshot, and restore into one role,
 - silently recreate notes, signals, memory, or protected raw content just because it existed historically.
 
 ## 6. User-Facing Behavior
@@ -42,6 +45,8 @@ The writer needs confidence that work can be recovered without losing clarity ab
 Visible behavior should emphasize recovery, comparison, explicit restore
 choices, and a clear distinction between current save state and
 historical recovery artifacts.
+It should also keep application backup, portable project archive, and
+publication export visibly separate from one another.
 Ordinary session re-entry should not borrow recovery language unless
 recovery posture is actually active.
 
@@ -51,6 +56,9 @@ Background snapshotting may exist, but must remain governed and
 recoverable.
 Snapshots support recovery and history, but they must not become a
 substitute for clear current save-state behavior.
+Application backup is for Black Skies recovery, portable project archive
+is for durable project escape and inspection, and publication export is
+for manuscript interchange or publishing.
 `Project Persistence / Local Save` owns confirmed current-save truth.
 
 ## 8. What Appears First
@@ -108,7 +116,9 @@ substitute for clear current save-state behavior.
 
 ## 16. Relationship To Narrative Insertion / Assertion
 
-Snapshots preserve prior state but do not define current accepted truth by themselves.
+Snapshots preserve prior state but do not define current accepted truth
+by themselves. Application backup, portable project archive, and
+publication export also do not become current accepted truth.
 
 ## 17. Relationship To Story Units
 
@@ -124,6 +134,8 @@ Recovery must preserve direct writing, avoid confusing restore previews with cur
 Recovery may help after crash or restart, but ordinary reopen and
 session re-entry should still prefer current owner state and safe resume
 posture before recovery language.
+Restore-as-current, restore-as-copy, and re-entry remain Stage 6
+workflow questions.
 
 ## 20. Relationship To Command Center Surface
 
@@ -137,6 +149,8 @@ Keep recovery discoverable without making history the default writing
 surface.
 Recovery affordances should become prominent only when recovery is
 actually relevant.
+Labels must distinguish snapshot, history, backup, archive, export, and
+restore rather than collapsing them into one generic saved state.
 
 ## 22. Local LLM Role
 
@@ -169,6 +183,8 @@ content itself.
 Prove restore, undo, and history views preserve clear
 current-versus-historical boundaries and do not make ordinary session
 re-entry look like recovery by default.
+Backup, archive, export, and restore workflows need separate verification
+paths.
 
 ## 28. Governance Rules And Risks
 
@@ -176,6 +192,7 @@ re-entry look like recovery by default.
 - no snapshots-as-save-state-authority,
 - no unsafe restore ambiguity,
 - no protected-data leakage,
+- no archive-as-universal-source-of-truth,
 - restore-as-current is the highest-risk recovery action and requires governed approval,
 - historical evidence is not current truth authority.
 
@@ -192,7 +209,9 @@ uncertain rather than rebranded as successful restore.
 
 ## 30. v1 Boundary
 
-Basic snapshots, restore, and bounded history.
+Basic snapshots, restore, and bounded history. Application backup,
+portable project archive, and publication export remain distinct and
+may be staged separately.
 
 ## 31. v2 Boundary
 
@@ -222,6 +241,7 @@ Intake note:
 - Critical: what safe recovery path exists if snapshot restore fails, causes a crash loop, or can only reopen a project in read-only, repair-first, or recovery-first mode?
 - Critical: what anchor-repair rules must govern restored notes, signals, or other linked support objects when their original ranges are stale, deleted, or structurally changed?
 - Future contract need: what exact boundary separates current save state from snapshot or recovery history so authors can recover recent work after crash or restart without mistaking recovery artifacts for accepted story truth?
+- Future contract need: what exact contents and fidelity rules govern portable project archives versus application backups and publication exports?
 
 ### Major Questions
 
@@ -246,6 +266,7 @@ Intake note:
   confirmed current-save truth; snapshots may consume that state as
   input but do not prove it.
 - Snapshots support recovery and history, not Google Docs sync, cloud sync, or document-interchange authority.
+- Publication export, portable project archive, and application backup are distinct roles, not one blended recovery object.
 - Questions better owned elsewhere: exact import/export/sync behavior belongs primarily to the future import/export dossier.
 
 ### Deferred Questions
