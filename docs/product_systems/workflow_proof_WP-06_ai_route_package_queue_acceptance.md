@@ -2,10 +2,10 @@
 
 ## Status
 
-Status: In Proof
+Status: Passed with Bounded Follow-up
 - Draft complete
-- Official result pending review
-- Provisional assessment recommends likely Passed with Bounded Follow-up
+- Official result recorded
+- Bounded follow-up routed to Stage 9 and Stage 10
 
 ## Author Goal
 
@@ -282,7 +282,7 @@ The workflow boundary is well defined if:
 - prior accepted text survives model changes,
 - provenance survives reruns and fallbacks.
 
-## Provisional assessment
+## Official Result
 
-Likely Passed with Bounded Follow-up.
-The ownership and mutation boundary is proved, while route labeling, cost disclosure, and result-density presentation remain Stage 9 work and model qualification remains Stage 10 work.
+Passed with Bounded Follow-up.
+The ownership and mutation boundary is proved, bounded follow-up remains routed to Stage 9 for route and model labels, privacy and transmission disclosure presentation, simple versus advanced cost presentation, queue and execution-state presentation, fallback warnings, partial-result presentation, stale-result presentation, provenance visibility at decision time, and the distinction among route approval, package approval, and destination acceptance, and to Stage 10 for task-specific model qualification, task fixtures, provider-policy monitoring, retention-policy monitoring, model-retirement monitoring, migration and replacement reliability, hardware qualification, exact cost accounting, retry and operational failure reliability, exact package and route implementation, and operational comparison of replacement-model results.

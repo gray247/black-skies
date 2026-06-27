@@ -2,10 +2,10 @@
 
 ## Status
 
-Status: In Proof
+Status: Passed with Bounded Follow-up
 - Draft complete
-- Official result pending review
-- Provisional assessment recommends likely Passed with Bounded Follow-up
+- Official result recorded
+- Bounded follow-up routed to Stage 9 and Stage 10
 
 ## Author Goal
 
@@ -242,7 +242,7 @@ The workflow boundary is well defined if:
 - selected routes return control to the proper owner,
 - Companion never becomes the workflow owner.
 
-## Provisional assessment
+## Official Result
 
-Likely Passed with Bounded Follow-up.
-The non-ownership boundary is proved, and summary density plus re-entry presentation remain Stage 9 work while large-project performance and recovery behavior remain Stage 10 work.
+Passed with Bounded Follow-up.
+The non-ownership boundary is proved, bounded follow-up remains routed to Stage 9 for summary density, visibility, interruption, quiet presentation, source labels, currentness, uncertainty, dismissal, keyboard, focus, and route-suggestion presentation, and to Stage 10 for large-project re-entry performance, cache freshness, source-unavailable behavior, local-model qualification if used, reliability fixtures, recovery fixtures, and stale-summary detection.

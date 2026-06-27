@@ -169,8 +169,17 @@ Current sequencing remains:
 - No author decision is required.
 - Bounded follow-ups are routed to Stage 9.
 - Batch 1 is complete.
-- Batch 2 has not begun.
-- Stage 6 is not complete or closed.
+- Batch 2 review is complete.
+- WP-05 result: Passed with Bounded Follow-up.
+- WP-06 result: Passed with Bounded Follow-up.
+- No Batch 2 proof remains In Proof.
+- No Batch 2 proof is Blocked or Failed.
+- No product-dossier correction is required.
+- No author decision is required.
+- Bounded follow-ups are routed to Stage 9 and Stage 10.
+- Batch 2 is complete.
+- Batch 3 has not begun.
+- Stage 6 remains active and unclosed.
 - Stage 7 is not eligible.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
@@ -291,8 +300,17 @@ No product-dossier correction is required.
 No author decision is required.
 Bounded follow-ups are routed to Stage 9.
 Batch 1 is complete.
-Batch 2 has not begun.
-Stage 6 is not complete or closed.
+Batch 2 review is complete.
+WP-05 result: Passed with Bounded Follow-up.
+WP-06 result: Passed with Bounded Follow-up.
+No Batch 2 proof remains In Proof.
+No Batch 2 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9 and Stage 10.
+Batch 2 is complete.
+Batch 3 has not begun.
+Stage 6 remains active and unclosed.
 Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
@@ -311,8 +329,17 @@ No product-dossier correction is required.
 No author decision is required.
 Bounded follow-ups are routed to Stage 9.
 Batch 1 is complete.
-Batch 2 has not begun.
-Stage 6 is not complete or closed.
+Batch 2 review is complete.
+WP-05 result: Passed with Bounded Follow-up.
+WP-06 result: Passed with Bounded Follow-up.
+No Batch 2 proof remains In Proof.
+No Batch 2 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9 and Stage 10.
+Batch 2 is complete.
+Batch 3 has not begun.
+Stage 6 remains active and unclosed.
 Stage 7 is not eligible.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
@@ -848,8 +875,17 @@ No product-dossier correction is required.
 No author decision is required.
 Bounded follow-ups are routed to Stage 9.
 Batch 1 is complete.
-Batch 2 has not begun.
-Stage 6 is not complete or closed.
+Batch 2 review is complete.
+WP-05 result: Passed with Bounded Follow-up.
+WP-06 result: Passed with Bounded Follow-up.
+No Batch 2 proof remains In Proof.
+No Batch 2 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9 and Stage 10.
+Batch 2 is complete.
+Batch 3 has not begun.
+Stage 6 remains active and unclosed.
 Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.

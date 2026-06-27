@@ -24,14 +24,20 @@
 * Batch 1 is complete
 * Batch 2 proof drafting is complete
 * WP-05 and WP-06 individual proof files now exist
-* official proof results remain pending review
-* WP-05 remains In Proof
-* WP-06 remains In Proof
+* Batch 2 review is complete
+* WP-05 result: Passed with Bounded Follow-up
+* WP-06 result: Passed with Bounded Follow-up
+* no Batch 2 proof remains In Proof
+* no Batch 2 proof is Blocked or Failed
+* no product-dossier correction is required
+* no author decision is required
+* bounded follow-ups are routed to Stage 9 and Stage 10
+* Batch 2 is complete
 * WP-07 and WP-08 remain folded into WP-06
 * the Stage 6 portion of WP-12 remains folded into WP-06
 * Stage 10 retains WP-12 operational qualification and retirement work
 * Batch 3 has not begun
-* Stage 6 is not complete or closed
+* Stage 6 remains active and unclosed
 * Stage 7 is not eligible
 * connectors remain gated
 * implementation remains blocked
@@ -168,13 +174,19 @@ The eight primary proofs are:
 * bounded follow-ups are routed to Stage 9.
 * Batch 1 is complete.
 
-## Batch 2 Drafting
+## Batch 2 Results
 
 * Batch 2 proof drafting is complete.
 * WP-05 and WP-06 individual proof files now exist.
-* official proof results remain pending review.
-* WP-05 remains In Proof.
-* WP-06 remains In Proof.
+* Batch 2 review is complete.
+* WP-05 result: Passed with Bounded Follow-up.
+* WP-06 result: Passed with Bounded Follow-up.
+* no Batch 2 proof remains In Proof.
+* no Batch 2 proof is Blocked or Failed.
+* no product-dossier correction is required.
+* no author decision is required.
+* bounded follow-ups are routed to Stage 9 and Stage 10.
+* Batch 2 is complete.
 * WP-07 and WP-08 remain folded into WP-06.
 * the Stage 6 portion of WP-12 remains folded into WP-06.
 * Stage 10 retains WP-12 operational qualification and retirement work.
@@ -331,7 +343,7 @@ It does not authorize implementation, architecture selection, GUI finalization, 
 
 ## Remaining Stage 6 work
 
-* Review Batch 2 proof packages and record official outcomes.
-* Prepare Batch 3 proof packages after Batch 2 review completes.
+* Prepare Batch 3 proof packages.
+* Review Batch 3 proof packages and record official outcomes.
 * Execute remaining proof batches in dependency order.
 * Route Stage 9 and Stage 10 consequences to their later stages.
