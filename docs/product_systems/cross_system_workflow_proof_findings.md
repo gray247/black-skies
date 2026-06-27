@@ -8,8 +8,21 @@
 * the central Stage 6 proof program has been recorded
 * eight primary proofs are selected
 * three proof batches are planned
-* individual proof-package drafting remains pending
-* no workflow has yet been proved
+* Stage 6 remains active and unclosed
+* Batch 1 proof drafting is complete
+* Batch 1 review is complete
+* WP-01 through WP-04 individual proof files now exist
+* WP-01 result: Passed with Bounded Follow-up
+* WP-02 result: Passed with Bounded Follow-up
+* WP-03 result: Passed with Bounded Follow-up
+* WP-04 result: Passed with Bounded Follow-up
+* no Batch 1 proof remains In Proof
+* no Batch 1 proof is Blocked or Failed
+* no product-dossier correction is required
+* no author decision is required
+* bounded follow-ups are routed to Stage 9
+* Batch 1 is complete
+* Batch 2 has not begun
 * Stage 6 is not complete or closed
 * Stage 7 is not eligible
 * connectors remain gated
@@ -131,6 +144,22 @@ The eight primary proofs are:
 6. WP-05 - Companion re-entry without workflow ownership
 7. WP-09 - Restore, restore-as-copy, and recovery re-entry
 8. WP-10 - Publication export versus portable project archive
+
+## Batch 1 Results
+
+* Batch 1 drafting is complete.
+* Batch 1 review is complete.
+* WP-01 result: Passed with Bounded Follow-up.
+* WP-02 result: Passed with Bounded Follow-up.
+* WP-03 result: Passed with Bounded Follow-up.
+* WP-04 result: Passed with Bounded Follow-up.
+* no Batch 1 proof remains In Proof.
+* no Batch 1 proof is Blocked or Failed.
+* no product-dossier correction is required.
+* no author decision is required.
+* bounded follow-ups are routed to Stage 9.
+* Batch 1 is complete.
+* Batch 2 has not begun.
 
 ## Non-primary candidate disposition
 
@@ -283,7 +312,7 @@ It does not authorize implementation, architecture selection, GUI finalization, 
 
 ## Remaining Stage 6 work
 
-* Draft individual proof packages.
+* Draft Batch 2 proof packages.
 * Execute the proof batches in dependency order.
 * Record proof outcomes without collapsing them into universal status.
 * Route Stage 9 and Stage 10 consequences to their later stages.

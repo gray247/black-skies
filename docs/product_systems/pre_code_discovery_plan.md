@@ -161,7 +161,15 @@ Current sequencing remains:
 - the central Stage 6 proof program has been recorded.
 - eight primary proofs are selected.
 - three proof batches are planned.
-- individual proof-package drafting remains pending.
+- Batch 1 review is complete.
+- WP-01 through WP-04 passed with bounded follow-up.
+- No Batch 1 proof remains In Proof.
+- No Batch 1 proof is Blocked or Failed.
+- No product-dossier correction is required.
+- No author decision is required.
+- Bounded follow-ups are routed to Stage 9.
+- Batch 1 is complete.
+- Batch 2 has not begun.
 - Stage 6 is not complete or closed.
 - Stage 7 is not eligible.
 - Stage 5 does not admit connectors automatically.
@@ -275,7 +283,15 @@ the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
 three proof batches are planned.
-individual proof-package drafting remains pending.
+Batch 1 review is complete.
+WP-01 through WP-04 passed with bounded follow-up.
+No Batch 1 proof remains In Proof.
+No Batch 1 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9.
+Batch 1 is complete.
+Batch 2 has not begun.
 Stage 6 is not complete or closed.
 Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
@@ -287,7 +303,15 @@ the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
 three proof batches are planned.
-individual proof-package drafting remains pending.
+Batch 1 review is complete.
+WP-01 through WP-04 passed with bounded follow-up.
+No Batch 1 proof remains In Proof.
+No Batch 1 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9.
+Batch 1 is complete.
+Batch 2 has not begun.
 Stage 6 is not complete or closed.
 Stage 7 is not eligible.
 Stage 9 and Stage 10 deferrals remain preserved.
@@ -816,7 +840,15 @@ the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
 three proof batches are planned.
-individual proof-package drafting remains pending.
+Batch 1 review is complete.
+WP-01 through WP-04 passed with bounded follow-up.
+No Batch 1 proof remains In Proof.
+No Batch 1 proof is Blocked or Failed.
+No product-dossier correction is required.
+No author decision is required.
+Bounded follow-ups are routed to Stage 9.
+Batch 1 is complete.
+Batch 2 has not begun.
 Stage 6 is not complete or closed.
 Stage 7 is not eligible.
 Stage 5 does not admit connectors automatically.
