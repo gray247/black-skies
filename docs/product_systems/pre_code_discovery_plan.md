@@ -188,8 +188,12 @@ Current sequencing remains:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 7 is next eligible but has not begun.
-- Stage 7 requires explicit author approval.
+- Stage 7 - `Missing Connector Review` is active and unclosed.
+- Stage 7 began through explicit author approval.
+- The read-only planning pass is complete.
+- Three review batches are planned.
+- No connector has been admitted.
+- Stage 8 is not eligible.
 - Stage 7 does not automatically admit connectors or unblock implementation.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
@@ -329,8 +333,12 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 3 is complete.
 All eight primary proofs are Passed with Bounded Follow-up.
-Stage 7 is next eligible but has not begun.
-Stage 7 requires explicit author approval.
+Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 began through explicit author approval.
+The read-only planning pass is complete.
+Three review batches are planned.
+No connector has been admitted.
+Stage 8 is not eligible.
 Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
@@ -359,7 +367,12 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
 Batch 3 is complete.
-Stage 7 requires explicit author approval.
+Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 began through explicit author approval.
+The read-only planning pass is complete.
+Three review batches are planned.
+No connector has been admitted.
+Stage 8 is not eligible.
 Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
@@ -905,7 +918,12 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
 Batch 3 is complete.
-Stage 7 requires explicit author approval.
+Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 began through explicit author approval.
+The read-only planning pass is complete.
+Three review batches are planned.
+No connector has been admitted.
+Stage 8 is not eligible.
 Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
