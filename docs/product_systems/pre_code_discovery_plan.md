@@ -1,4 +1,4 @@
-# Pre-Code Discovery Plan
+﻿# Pre-Code Discovery Plan
 
 ## Status
 
@@ -118,10 +118,10 @@ Current sequencing remains:
 - `Async Job Queue / Task Runner` is complete
 - category `4` coverage is complete across all `45` registry targets
 - keep implementation blocked throughout remaining dossier work
-- Stage 1 — System Constellation Audit is complete.
-- Stage 2 — System Composition and Emergent Capability Audit is
+- Stage 1 â€” System Constellation Audit is complete.
+- Stage 2 â€” System Composition and Emergent Capability Audit is
   complete.
-- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
+- Stage 3 â€” `Dossier Regression and Doctrine Propagation Audit` is
   complete and closed.
 - the initial Stage 3 read-only regression inventory was completed.
 - DR-01 through DR-06 in
@@ -132,7 +132,7 @@ Current sequencing remains:
 - no substantive dossier reopening is required.
 - no unresolved Stage 3 finding remains.
 - no connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is complete and
+- Stage 4 â€” `Capability Ceiling and Breadth Audit` is complete and
   closed.
 - Stage 4 began through explicit author approval.
 - the initial Stage 4 read-only breadth inventory was completed.
@@ -147,7 +147,7 @@ Current sequencing remains:
 - no Category-4 demotion is required.
 - no substantive dossier reopening is required.
 - no unresolved Stage 4 finding remains.
-- Stage 5 — `External Deep-Research Challenge Audit` is complete and
+- Stage 5 â€” `External Deep-Research Challenge Audit` is complete and
   closed.
 - Stage 5 began through explicit author approval.
 - external research Passes A through D were completed.
@@ -155,12 +155,12 @@ Current sequencing remains:
   `docs/product_systems/external_deep_research_challenge_findings.md`.
 - all ER findings have final dispositions.
 - bounded doctrine propagation is complete.
-- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 - Stage 6 began through explicit author approval.
 - the initial read-only workflow-proof planning pass is complete.
 - the central Stage 6 proof program has been recorded.
 - eight primary proofs are selected.
-- three proof batches are planned.
+- three proof batches are complete.
 - Batch 1 review is complete.
 - WP-01 through WP-04 passed with bounded follow-up.
 - No Batch 1 proof remains In Proof.
@@ -188,9 +188,9 @@ Current sequencing remains:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 6 closure assessment is next.
-- Stage 6 remains active and unclosed.
-- Stage 7 is not eligible.
+- Stage 7 is next eligible but has not begun.
+- Stage 7 requires explicit author approval.
+- Stage 7 does not automatically admit connectors or unblock implementation.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - Stage 5 external challenge inputs remain preserved.
@@ -260,10 +260,10 @@ GO10 did not complete Character Dynamics, constellation
 consolidation, Stage 1 closure, or Stages 2 through 5.
 GO11 completed Character Dynamics and the read-only constellation
 consolidation.
-Stage 1 — System Constellation Audit is complete.
-Stage 2 — System Composition and Emergent Capability Audit is
+Stage 1 â€” System Constellation Audit is complete.
+Stage 2 â€” System Composition and Emergent Capability Audit is
 complete.
-Stage 3 — Dossier Regression and Doctrine Propagation Audit is complete
+Stage 3 â€” Dossier Regression and Doctrine Propagation Audit is complete
 and closed.
 The initial Stage 3 read-only regression inventory was completed.
 DR-01 through DR-06 in
@@ -274,7 +274,7 @@ No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 3 finding remains.
 No connector has been admitted.
-Stage 4 — Capability Ceiling and Breadth Audit is complete and closed.
+Stage 4 â€” Capability Ceiling and Breadth Audit is complete and closed.
 Stage 4 began through explicit author approval.
 The initial Stage 4 read-only breadth inventory was completed.
 CB-01 through CB-07 in
@@ -288,7 +288,7 @@ No additional propagation or sampling pass is required.
 No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 4 finding remains.
-Stage 5 — External Deep-Research Challenge Audit is complete and
+Stage 5 â€” External Deep-Research Challenge Audit is complete and
 closed.
 Stage 5 began through explicit author approval.
 External research Passes A through D were completed.
@@ -296,12 +296,12 @@ Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
 All ER findings have final dispositions.
 Bounded doctrine propagation is complete.
-Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 Stage 6 began through explicit author approval.
 the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
-three proof batches are planned.
+three proof batches are complete.
 Batch 1 review is complete.
 WP-01 through WP-04 passed with bounded follow-up.
 No Batch 1 proof remains In Proof.
@@ -329,18 +329,18 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 3 is complete.
 All eight primary proofs are Passed with Bounded Follow-up.
-Stage 6 closure assessment is next.
-Stage 6 remains active and unclosed.
-Stage 7 is not eligible.
+Stage 7 is next eligible but has not begun.
+Stage 7 requires explicit author approval.
+Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
-Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 Stage 6 began through explicit author approval.
 the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
-three proof batches are planned.
+three proof batches are complete.
 Batch 1 review is complete.
 WP-01 through WP-04 passed with bounded follow-up.
 No Batch 1 proof remains In Proof.
@@ -358,9 +358,9 @@ No product-dossier correction is required.
 No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
-Batch 3 has not begun.
-Stage 6 remains active and unclosed.
-Stage 7 is not eligible.
+Batch 3 is complete.
+Stage 7 requires explicit author approval.
+Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
 Category `4` is not build readiness.
@@ -593,7 +593,7 @@ and the completed Draft Generation campaign history.
 
 #### Next Candidate Cluster
 
-- Current active campaign: Stage 4 —
+- Current active campaign: Stage 4 â€”
   `Capability Ceiling and Breadth Audit`
 - Sequencing authority: `current_product_roadmap.md` together with
   `dossier_maturity_inventory.md`
@@ -845,10 +845,10 @@ Expected clean state:
 
 ## Current Next Action
 
-Stage 1 — System Constellation Audit is complete.
-Stage 2 — System Composition and Emergent Capability Audit is
+Stage 1 â€” System Constellation Audit is complete.
+Stage 2 â€” System Composition and Emergent Capability Audit is
 complete.
-Stage 3 — Dossier Regression and Doctrine Propagation Audit is complete
+Stage 3 â€” Dossier Regression and Doctrine Propagation Audit is complete
 and closed.
 The initial Stage 3 read-only regression inventory was completed.
 DR-01 through DR-06 in
@@ -859,7 +859,7 @@ No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 3 finding remains.
 No connector has been admitted.
-Stage 4 — Capability Ceiling and Breadth Audit is complete and closed.
+Stage 4 â€” Capability Ceiling and Breadth Audit is complete and closed.
 Stage 4 began through explicit author approval.
 The initial Stage 4 read-only breadth inventory was completed.
 CB-01 through CB-07 in
@@ -873,7 +873,7 @@ No additional propagation or sampling pass is required.
 No Category-4 demotion is required.
 No substantive dossier reopening is required.
 No unresolved Stage 4 finding remains.
-Stage 5 — External Deep-Research Challenge Audit is complete and
+Stage 5 â€” External Deep-Research Challenge Audit is complete and
 closed.
 Stage 5 began through explicit author approval.
 External research Passes A through D were completed.
@@ -881,12 +881,12 @@ Findings were recorded in
 `docs/product_systems/external_deep_research_challenge_findings.md`.
 All ER findings have final dispositions.
 Bounded doctrine propagation is complete.
-Stage 6 — `Cross-System Workflow Proofs` is active.
+Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 Stage 6 began through explicit author approval.
 the initial read-only workflow-proof planning pass is complete.
 the central Stage 6 proof program has been recorded.
 eight primary proofs are selected.
-three proof batches are planned.
+three proof batches are complete.
 Batch 1 review is complete.
 WP-01 through WP-04 passed with bounded follow-up.
 No Batch 1 proof remains In Proof.
@@ -904,9 +904,9 @@ No product-dossier correction is required.
 No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
-Batch 3 has not begun.
-Stage 6 remains active and unclosed.
-Stage 7 is not eligible.
+Batch 3 is complete.
+Stage 7 requires explicit author approval.
+Stage 7 does not automatically admit connectors or unblock implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.

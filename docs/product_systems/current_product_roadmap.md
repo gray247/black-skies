@@ -1,4 +1,4 @@
-# Current Product Roadmap
+﻿# Current Product Roadmap
 
 ## 1. Status And Authority
 
@@ -57,8 +57,8 @@ Current status:
   construction campaign.
 - It is now category `4` in the canonical inventory.
 - No dossier remains below category `4`.
-- Stage 1 is complete; Stage 2 — `System Composition and Emergent Capability Audit` is complete.
-- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is complete and closed.
+- Stage 1 is complete; Stage 2 â€” `System Composition and Emergent Capability Audit` is complete.
+- Stage 3 â€” `Dossier Regression and Doctrine Propagation Audit` is complete and closed.
 - The initial Stage 3 read-only regression inventory was completed.
 - DR-01 through DR-06 in `docs/product_systems/dossier_regression_doctrine_propagation_findings.md` were completed at doctrine level.
 - The six bounded dossier corrections were performed and reviewed.
@@ -66,7 +66,7 @@ Current status:
 - No substantive dossier reopening is required.
 - No unresolved Stage 3 finding remains.
 - No connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is complete and closed.
+- Stage 4 â€” `Capability Ceiling and Breadth Audit` is complete and closed.
 - Stage 4 began through explicit author approval.
 - The initial Stage 4 read-only breadth inventory was completed.
 - CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` were completed at doctrine level.
@@ -78,18 +78,18 @@ Current status:
 - No Category-4 demotion is required.
 - No substantive dossier reopening is required.
 - No unresolved Stage 4 finding remains.
-- Stage 5 — `External Deep-Research Challenge Audit` is complete.
+- Stage 5 â€” `External Deep-Research Challenge Audit` is complete.
 - Stage 5 began through explicit author approval.
 - External research Passes A through D were completed.
 - Findings were recorded in `docs/product_systems/external_deep_research_challenge_findings.md`.
 - All ER findings were disposed with final Stage 5 dispositions.
 - Bounded doctrine propagation is complete.
-- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 â€” `Cross-System Workflow Proofs` is active.
 - Stage 6 began through explicit author approval.
 - The initial read-only workflow-proof planning pass is complete.
 - The central Stage 6 proof program has been recorded.
 - Eight primary proofs are selected.
-- Three proof batches are planned.
+- Three proof batches are complete.
 - Batch 1 review is complete.
 - WP-01 through WP-04 passed with bounded follow-up.
 - No Batch 1 proof remains In Proof.
@@ -117,12 +117,13 @@ Current status:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 6 closure assessment is next.
-- Stage 6 remains active and unclosed.
-- Stage 7 is not eligible.
+- Stage 7 is next eligible but has not begun.
+- Stage 7 requires explicit author approval.
+- Stage 7 does not automatically admit connectors or unblock implementation.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
+- Repository remains not build-ready.
 - External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
 - Implementation, GUI implementation, architecture selection,
   salvage execution, current-versus-historical separation, and
@@ -245,8 +246,8 @@ Current sequencing remains:
   category `4`
 - treat `Draft Generation / Rewrite Loop` as complete and category `4`
 - treat `Async Job Queue / Task Runner` as complete and category `4`
-- recognize Stage 2 — `System Composition and Emergent Capability Audit`
-  as complete and Stage 3 — `Dossier Regression and Doctrine
+- recognize Stage 2 â€” `System Composition and Emergent Capability Audit`
+  as complete and Stage 3 â€” `Dossier Regression and Doctrine
   Propagation Audit` as complete and closed, with DR-01 through DR-06
   completed at doctrine level
 - do not treat this promotion as implementation authorization
@@ -652,27 +653,27 @@ Current immediate planning posture:
 - `Draft Generation / Rewrite Loop` is complete and category `4`
 - `Async Job Queue / Task Runner` is complete and category `4`
 - category `4` coverage is complete across all known targets
-- Stage 1 is complete; Stage 2 — `System Composition and Emergent
+- Stage 1 is complete; Stage 2 â€” `System Composition and Emergent
   Capability Audit` is complete
-- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is
+- Stage 3 â€” `Dossier Regression and Doctrine Propagation Audit` is
   complete and closed
 - DR-01 through DR-06 were completed at doctrine level
-- Stage 4 — `Capability Ceiling and Breadth Audit` is complete and
+- Stage 4 â€” `Capability Ceiling and Breadth Audit` is complete and
   closed
 - CB-01 through CB-07 were completed at doctrine level
 - the four approved author breadth decisions were propagated
 - both bounded breadth-propagation batches were performed and reviewed
 - the risk-based coverage sampling pass was completed
 - no missed material breadth gap was found
-- Stage 5 — `External Deep-Research Challenge Audit` is complete and
+- Stage 5 â€” `External Deep-Research Challenge Audit` is complete and
   closed; external research Passes A through D are complete, findings
   are recorded, and all ER findings have final dispositions
-- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 â€” `Cross-System Workflow Proofs` is active.
 - Stage 6 began through explicit author approval.
 - The initial read-only workflow-proof planning pass is complete.
 - The central Stage 6 proof program has been recorded.
 - Eight primary proofs are selected.
-- Three proof batches are planned.
+- Three proof batches are complete.
 - Batch 1 review is complete.
 - WP-01 through WP-04 passed with bounded follow-up.
 - No Batch 1 proof remains In Proof.
@@ -700,9 +701,9 @@ Current immediate planning posture:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 6 closure assessment is next.
-- Stage 6 remains active and unclosed.
-- Stage 7 is not eligible.
+- Stage 7 is next eligible but has not begun.
+- Stage 7 requires explicit author approval.
+- Stage 7 does not automatically admit connectors or unblock implementation.
 - Connectors remain gated.
 
 This is current planning guidance only.

@@ -1,4 +1,4 @@
-# Current Truth Index
+﻿# Current Truth Index
 
 ## Purpose
 
@@ -175,10 +175,10 @@ Current Black Skies doctrine is:
 - `Async Job Queue / Task Runner` is category `4` and its
   construction campaign is complete.
 - Category `4` coverage is complete across all `45` registry targets.
-- Stage 1 is complete; Stage 2 — `System Composition and Emergent Capability Audit` is complete.
+- Stage 1 is complete; Stage 2 â€” `System Composition and Emergent Capability Audit` is complete.
 - SC-01 through SC-06 remain the controlling Stage 2 findings.
 - The identified composed capabilities are product-level outcomes, not new systems, assets, connectors, or owners.
-- Stage 3 — `Dossier Regression and Doctrine Propagation Audit` is complete and closed.
+- Stage 3 â€” `Dossier Regression and Doctrine Propagation Audit` is complete and closed.
 - The initial Stage 3 read-only regression inventory was completed.
 - DR-01 through DR-06 in `docs/product_systems/dossier_regression_doctrine_propagation_findings.md` were completed at doctrine level.
 - The six bounded dossier corrections were performed and reviewed.
@@ -186,7 +186,7 @@ Current Black Skies doctrine is:
 - No substantive dossier reopening is required.
 - No unresolved Stage 3 finding remains.
 - No connector has been admitted.
-- Stage 4 — `Capability Ceiling and Breadth Audit` is complete and closed.
+- Stage 4 â€” `Capability Ceiling and Breadth Audit` is complete and closed.
 - Stage 4 began through explicit author approval.
 - The initial Stage 4 read-only breadth inventory was completed.
 - CB-01 through CB-07 in `docs/product_systems/capability_ceiling_breadth_audit_findings.md` were completed at doctrine level.
@@ -198,19 +198,19 @@ Current Black Skies doctrine is:
 - No Category-4 demotion is required.
 - No substantive dossier reopening is required.
 - No unresolved Stage 4 finding remains.
-- Stage 5 — `External Deep-Research Challenge Audit` is complete and closed.
+- Stage 5 â€” `External Deep-Research Challenge Audit` is complete and closed.
 - Stage 5 began through explicit author approval.
 - External research Passes A through D were completed.
 - Findings were recorded in `docs/product_systems/external_deep_research_challenge_findings.md`.
 - All ER findings were disposed with final Stage 5 dispositions.
 - Bounded doctrine propagation is complete.
 - No unresolved Stage 5 finding remains.
-- Stage 6 — `Cross-System Workflow Proofs` is active.
+- Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 - Stage 6 began through explicit author approval.
 - The initial read-only workflow-proof planning pass is complete.
 - The central Stage 6 proof program has been recorded.
 - Eight primary proofs are selected.
-- Three proof batches are planned.
+- Three proof batches are complete.
 - Batch 1 review is complete.
 - WP-01 through WP-04 passed with bounded follow-up.
 - No Batch 1 proof remains In Proof.
@@ -238,12 +238,13 @@ Current Black Skies doctrine is:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 6 closure assessment is next.
-- Stage 6 remains active and unclosed.
-- Stage 7 is not eligible.
+- Stage 7 is next eligible but has not begun.
+- Stage 7 requires explicit author approval.
+- Stage 7 does not automatically admit connectors or unblock implementation.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
+- Repository remains not build-ready.
 - External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
 - `Capability Ceiling and Breadth Audit`,
   `External Deep-Research Challenge Audit`,
