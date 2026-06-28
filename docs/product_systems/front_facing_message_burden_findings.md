@@ -146,7 +146,42 @@ Batch 1 complete.
 - Stage 9 owns labeling, ordering, visibility, warnings, focus, dismissal, and accessibility presentation.
 - Stage 10 owns reliability, stale/partial behavior under stress, recovery verification, and provider/queue robustness.
 - Stage 12 is reserved for any later true architecture or ownership question.
-- Batch 2 is next but unstarted.
+- Batch 2 is complete.
+
+## Batch 2 findings
+Batch 2 complete.
+
+| Object or message | Owner | Audit label | Why visible | Required action | Surface |
+| --- | --- | --- | --- | --- | --- |
+| Critique findings and evidence | Critique / Evaluation | review queue | Show why a revision concern exists without turning it into truth | Review, dismiss, or route through the owner path | Both |
+| Continuity conflicts and uncertainty | Continuity | review queue | Keep conflicting sources visible without deciding canon | Review, route, or leave unresolved | Both |
+| Rewrite candidates and partial-acceptance comparison | Draft Generation / Rewrite Loop | review queue | Keep the candidate distinct from accepted prose | Accept, reject, park, or abandon | Both |
+| Reorder previews and applied order | Outline / Timeline / Pacing / Pressure | review queue | Show proposed order without mutating accepted order | Accept, reject, or defer | Both |
+| AI task request and route recommendation | Model Routing And Budget Architecture | review queue | Expose route choice before any transmission | Review or reject | Command Center |
+| Route approval, package approval, and destination acceptance | Routing / package / destination owners | blocking decision | Separate the choices that most affect privacy, spend, and truth mutation | Approve or decline through the correct owner path | Command Center |
+| Privacy, transmission, and cost disclosure | Model Routing And Budget Architecture / LLM Package Construction Architecture / Authorship Provenance AI Visibility | essential immediate | Make spend and transmission consequences legible before use | Inspect before approving | Both |
+| Queue and execution state | Async Job Queue / Task Runner | background status | Show work in flight without equating it with acceptance | Watch, cancel, or wait | Command Center |
+| Provider refusal, service failure, fallback, and substitution | Model Routing And Budget Architecture / Service Health / Offline / Degraded Mode | exceptional warning / recoverable failure | Keep the responsible system and safe next step visible | Approve fallback, continue manually, or dismiss | Both |
+| Partial, stale, cancelled, and failed results | Task owner systems | review queue / recoverable failure | Prevent completion from being mistaken for acceptance or success | Review, rerun, or accept only through the owner path | Both |
+| Provenance and model identity | Authorship Provenance AI Visibility | contextual detail | Preserve source identity and model traceability at decision time | Inspect on demand | Both |
+
+- Critique and continuity findings remain advisory.
+- Rewrite candidates remain temporary until explicit acceptance.
+- Partial acceptance keeps accepted and unaccepted portions distinct.
+- Reorder preview is not applied order.
+- Task request, route approval, package approval, execution, result, and destination acceptance remain distinct.
+- Queue completion is not destination acceptance.
+- Provider refusal is not manuscript failure.
+- Fallback or substitution is never silent.
+- Local failure cannot silently cause cloud transmission.
+- Stale and partial results remain visible.
+- Destination owners control acceptance.
+- Provenance and model identity must stay visible at decision time without dominating ordinary review.
+- No dossier corrections or author decisions are required for Batch 2.
+- Stage 9 owns labels, ordering, visibility, warnings, focus, dismissal, and accessibility presentation for these burdens.
+- Stage 10 owns reliability, retry behavior, provider and queue robustness, and recovery behavior under stress.
+- Stage 12 is reserved for any later true architecture or ownership question.
+- Batch 3 is next but unstarted.
 
 ## Stage 9 routing
 Labels, ordering, visibility, warnings, disclosure density, focus, dismissal, accessibility presentation, and interaction architecture.
@@ -164,6 +199,6 @@ None identified at planning pass.
 None required at planning pass.
 
 ## Remaining Stage 8 work
-- Batch 2 is next but unstarted.
+- Batch 3 is next but unstarted.
 - Reassess any surfaced burden and route it to Stage 9, Stage 10, or Stage 12 as appropriate.
 - Keep GUI design, exact interaction mechanics, and architecture selection deferred.
