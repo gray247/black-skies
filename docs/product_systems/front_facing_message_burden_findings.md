@@ -1,14 +1,15 @@
 # Front-Facing System and Message-Burden Findings
 
 ## Status
-- Stage 8 is active and unclosed.
-- Stage 8 began through explicit author approval.
-- The read-only planning pass is complete.
-- Stage 7 — Missing Connector Review is complete and closed.
-- The central Stage 8 audit program has been recorded.
-- Three audit batches are planned.
-- Stage 9 is not eligible.
-- No GUI or interaction architecture has been selected.
+- Stage 8 is complete and closed.
+- The planning pass and all three audit batches are complete.
+- No product-dossier correction is required.
+- No author decision is required now.
+- No additional Stage 8 audit or research is required.
+- No GUI or interaction architecture was selected.
+- Stage 9 — Product Experience and GUI Architecture Program is next eligible but has not begun.
+- Stage 9 requires explicit author approval.
+- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
 - Implementation remains blocked.
 - The 19-stage sequence is unchanged.
 
@@ -199,9 +200,11 @@ None identified at planning pass.
 None required at planning pass.
 
 ## Remaining Stage 8 work
-- Batch 3 is next but unstarted.
-- Reassess any surfaced burden and route it to Stage 9, Stage 10, or Stage 12 as appropriate.
-- Keep GUI design, exact interaction mechanics, and architecture selection deferred.
+- No remaining Stage 8 work.
+- Stage 9 is next eligible but has not begun.
+- Stage 9 requires explicit author approval.
+- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+- Implementation remains blocked.
 
 ## Batch 3 findings
 Batch 3 complete.
@@ -251,6 +254,9 @@ Batch 3 complete.
 - Stage 10 owns reliability, retries, offline behavior, verification, security, privacy, performance, and conflict testing under stress.
 - Stage 12 is reserved for any later true architecture or ownership question.
 - All three batches are complete.
-- Stage 8 remains active and unclosed pending closure assessment.
-- Stage 9 is not eligible.
+- Stage 8 is complete and closed.
+- No remaining Stage 8 work.
+- Stage 9 is next eligible but has not begun.
+- Stage 9 requires explicit author approval.
+- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
 - Implementation remains blocked.

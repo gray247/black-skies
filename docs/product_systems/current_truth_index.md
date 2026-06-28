@@ -248,18 +248,19 @@ Current Black Skies doctrine is:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 7 review or research is required.
-- Stage 8 is active and unclosed.
-- Stage 8 began through explicit author approval.
-- The read-only planning pass is complete.
-- The central Stage 8 audit program has been recorded.
-- Three audit batches are planned.
-- No GUI or interaction architecture has been selected.
-- No dossier correction is required.
-- No author decision is required.
-- Stage 9 is not eligible.
+- Stage 8 is complete and closed.
+- The planning pass and all three audit batches are complete.
+- No product-dossier correction is required.
+- No author decision is required now.
+- No additional Stage 8 audit or research is required.
+- No GUI or interaction architecture was selected.
+- Stage 9 is next eligible but has not begun.
+- Stage 9 requires explicit author approval.
+- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
+- Stage 8 does not unblock implementation.
 - The 19-stage sequence is unchanged.
 - Repository remains not build-ready.
 - External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
