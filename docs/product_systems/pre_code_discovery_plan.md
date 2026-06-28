@@ -203,15 +203,19 @@ Current sequencing remains:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 8 audit or research is required.
-- No GUI or interaction architecture was selected.
-- Stage 9 is next eligible but has not begun.
-- Stage 9 requires explicit author approval.
-- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+- Stage 9 is complete and closed.
+- The five Stage 9 architecture files are the current Stage 9 records.
+- Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+- Restored-copy identity remains deferred to Stage 12.
+- Stage 10 is next eligible but has not begun.
+- Stage 10 requires explicit author approval.
+- Stage 10 may handle operational-readiness work but cannot authorize implementation.
 - The 19-stage sequence is unchanged.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - Stage 5 external challenge inputs remain preserved.
-- Stage 9 and Stage 10 deferrals remain preserved.
+- Stage 10 deferrals remain preserved.
+- Implementation remains blocked.
 
 This current-state wording remains in force unless Jason explicitly
 changes the lane.
@@ -361,13 +365,17 @@ The planning pass and all three audit batches are complete.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 8 audit or research is required.
-No GUI or interaction architecture was selected.
-Stage 9 is next eligible but has not begun.
-Stage 9 requires explicit author approval.
-Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+Stage 9 is complete and closed.
+The five Stage 9 architecture files are the current Stage 9 records.
+Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+Restored-copy identity remains deferred to Stage 12.
+Stage 10 is next eligible but has not begun.
+Stage 10 requires explicit author approval.
+Stage 10 may handle operational-readiness work but cannot authorize implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
+Implementation remains blocked.
 Stage 6 â€” `Cross-System Workflow Proofs` is complete and closed.
 Stage 6 began through explicit author approval.
 the initial read-only workflow-proof planning pass is complete.
@@ -407,11 +415,15 @@ The planning pass and all three audit batches are complete.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 8 audit or research is required.
-No GUI or interaction architecture was selected.
-Stage 9 is next eligible but has not begun.
-Stage 9 requires explicit author approval.
-Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
-Stage 9 and Stage 10 deferrals remain preserved.
+Stage 9 is complete and closed.
+The five Stage 9 architecture files are the current Stage 9 records.
+Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+Restored-copy identity remains deferred to Stage 12.
+Stage 10 is next eligible but has not begun.
+Stage 10 requires explicit author approval.
+Stage 10 may handle operational-readiness work but cannot authorize implementation.
+Stage 10 deferrals remain preserved.
+Implementation remains blocked.
 All 45 dossiers remain recorded at Category `4`.
 Category `4` is not build readiness.
 Implementation remains blocked.
@@ -970,14 +982,18 @@ The planning pass and all three audit batches are complete.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 8 audit or research is required.
-No GUI or interaction architecture was selected.
-Stage 9 is next eligible but has not begun.
-Stage 9 requires explicit author approval.
-Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+Stage 9 is complete and closed.
+The five Stage 9 architecture files are the current Stage 9 records.
+Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+Restored-copy identity remains deferred to Stage 12.
+Stage 10 is next eligible but has not begun.
+Stage 10 requires explicit author approval.
+Stage 10 may handle operational-readiness work but cannot authorize implementation.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
-Stage 9 and Stage 10 deferrals remain preserved.
+Stage 10 deferrals remain preserved.
+Implementation remains blocked.
 Implementation, GUI implementation, architecture selection, salvage
 execution, current-versus-historical separation, and repository cleanup
 remain blocked.

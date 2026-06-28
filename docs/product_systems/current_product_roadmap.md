@@ -132,16 +132,20 @@ Current status:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 8 audit or research is required.
-- No GUI or interaction architecture was selected.
-- Stage 9 is next eligible but has not begun.
-- Stage 9 requires explicit author approval.
-- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+- Stage 9 is complete and closed.
+- The five Stage 9 architecture files are the current Stage 9 records.
+- Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+- Restored-copy identity remains deferred to Stage 12.
+- Stage 10 is next eligible but has not begun.
+- Stage 10 requires explicit author approval.
+- Stage 10 may handle operational-readiness work but cannot authorize implementation.
 - Connectors remain gated.
+- Implementation remains blocked.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
 - Repository remains not build-ready.
 - The 19-stage sequence is unchanged.
-- External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
+- External challenge questions remain deferred to Stage 5, GUI presentation and interaction work is recorded in the Stage 9 architecture files, and operational-readiness work remains deferred to Stage 10.
 - Implementation, GUI implementation, architecture selection,
   salvage execution, current-versus-historical separation, and
   repository cleanup remain blocked.
@@ -733,11 +737,15 @@ Current immediate planning posture:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 8 audit or research is required.
-- No GUI or interaction architecture was selected.
-- Stage 9 is next eligible but has not begun.
-- Stage 9 requires explicit author approval.
-- Stage 9 may design presentation and interaction architecture but cannot authorize implementation.
+- Stage 9 is complete and closed.
+- The five Stage 9 architecture files are the current Stage 9 records.
+- Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
+- Restored-copy identity remains deferred to Stage 12.
+- Stage 10 is next eligible but has not begun.
+- Stage 10 requires explicit author approval.
+- Stage 10 may handle operational-readiness work but cannot authorize implementation.
 - Connectors remain gated.
+- Implementation remains blocked.
 
 This is current planning guidance only.
 It is not implementation authorization, and it does not select a new
