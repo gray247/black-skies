@@ -119,6 +119,35 @@ Audit what the author must see, understand, decide, dismiss, recover from, or ac
 2. Advisory and AI workflow burden: critique, continuity, rewrite and partial acceptance, reorder previews, AI route, privacy, cost, package, queue, fallback, results, and acceptance.
 3. Recovery, interchange, and cross-cutting burden: save and degraded mode, snapshots, backup, restore, and verification; export, archive, import, and external provenance; warnings, failures, stale and partial results; onboarding, accessibility, focus, dismissal, and nontechnical terminology.
 
+## Batch 1 findings
+Batch 1 complete.
+
+| Object or message | Owner | Audit label | Why visible | Required action | Surface |
+| --- | --- | --- | --- | --- | --- |
+| Direct writing and manuscript editing | Writing Surface | essential noninterrupting | Keep the author moving without dashboard friction | None unless support is summoned | Writing Surface |
+| Writing Surface quiet-by-default cues | Writing Surface | background status | Keep the primary surface obvious without noise | None | Writing Surface |
+| Command Center summaries, blockers, and routed findings | Command Center | review queue | Help the author review attention without owning it | Review, route, or dismiss | Command Center |
+| Companion summaries and suggestions | Companion | contextual detail | Reduce re-entry cost without becoming mandatory | Dismiss, inspect, or follow up | Both |
+| Notes and Signals | owner systems | review queue / exceptional warning | Preserve distinct attention objects | Review or route through the owning workflow | Both |
+| Critique, continuity, and rewrite previews | owner systems | review queue | Show why a change is suggested | Accept, reject, or defer through owner paths | Both |
+| Accepted manuscript truth | Narrative Assertion / truth owner | essential immediate | Durable authored state | None unless the author changes it | Writing Surface |
+| Accepted planning truth | planning owner | contextual detail | Helpful planning state distinct from manuscript truth | Inspect or route | Command Center or both |
+| History and provenance | history / provenance owners | background status / contextual detail | Make currentness and source identity reachable on demand | Inspect on demand | Both |
+| Search and memory-derived context | search / memory owners | hidden by default | Useful only when summoned and may be stale | Inspect on demand | Both |
+
+- Writing Surface remains the obvious primary action and stays quiet by default.
+- Command Center supports review and routing, but it owns none of the routed objects.
+- Companion is optional and contextual; it should not own task selection or workflow.
+- Notes, Signals, findings, candidates, accepted truth, history, and provenance remain distinct.
+- Accepted manuscript truth and accepted planning truth remain distinct.
+- Search and memory context must remain subordinate to current owner state.
+- Direct writing remains the primary action even when support surfaces are visible.
+- No dossier corrections or author decisions are required for Batch 1.
+- Stage 9 owns labeling, ordering, visibility, warnings, focus, dismissal, and accessibility presentation.
+- Stage 10 owns reliability, stale/partial behavior under stress, recovery verification, and provider/queue robustness.
+- Stage 12 is reserved for any later true architecture or ownership question.
+- Batch 2 is next but unstarted.
+
 ## Stage 9 routing
 Labels, ordering, visibility, warnings, disclosure density, focus, dismissal, accessibility presentation, and interaction architecture.
 
@@ -135,6 +164,6 @@ None identified at planning pass.
 None required at planning pass.
 
 ## Remaining Stage 8 work
-- Execute the three planned batches.
+- Batch 2 is next but unstarted.
 - Reassess any surfaced burden and route it to Stage 9, Stage 10, or Stage 12 as appropriate.
 - Keep GUI design, exact interaction mechanics, and architecture selection deferred.
