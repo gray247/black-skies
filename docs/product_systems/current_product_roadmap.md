@@ -127,9 +127,15 @@ Current status:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 7 review or research is required.
-- Stage 8 is next eligible but has not begun.
-- Stage 8 requires explicit author approval.
-- Stage 8 changes no connector decision.
+- Stage 8 is active and unclosed.
+- Stage 8 began through explicit author approval.
+- The read-only planning pass is complete.
+- The central Stage 8 audit program has been recorded.
+- Three audit batches are planned.
+- No GUI or interaction architecture has been selected.
+- No dossier correction is required.
+- No author decision is required.
+- Stage 9 is not eligible.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
@@ -722,9 +728,15 @@ Current immediate planning posture:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 7 review or research is required.
-- Stage 8 is next eligible but has not begun.
-- Stage 8 requires explicit author approval.
-- Stage 8 changes no connector decision.
+- Stage 8 is active and unclosed.
+- Stage 8 began through explicit author approval.
+- The read-only planning pass is complete.
+- The central Stage 8 audit program has been recorded.
+- Three audit batches are planned.
+- No GUI or interaction architecture has been selected.
+- No dossier correction is required.
+- No author decision is required.
+- Stage 9 is not eligible.
 - Connectors remain gated.
 
 This is current planning guidance only.

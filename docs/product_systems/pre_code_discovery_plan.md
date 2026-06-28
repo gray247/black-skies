@@ -198,9 +198,15 @@ Current sequencing remains:
 - No product-dossier correction is required.
 - No author decision is required now.
 - No additional Stage 7 review or research is required.
-- Stage 8 is next eligible but has not begun.
-- Stage 8 requires explicit author approval.
-- Stage 8 changes no connector decision.
+- Stage 8 is active and unclosed.
+- Stage 8 began through explicit author approval.
+- The read-only planning pass is complete.
+- The central Stage 8 audit program has been recorded.
+- Three audit batches are planned.
+- No GUI or interaction architecture has been selected.
+- No dossier correction is required.
+- No author decision is required.
+- Stage 9 is not eligible.
 - The 19-stage sequence is unchanged.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
@@ -350,9 +356,15 @@ No individual connector dossier is required.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 7 review or research is required.
-Stage 8 is next eligible but has not begun.
-Stage 8 requires explicit author approval.
-Stage 8 changes no connector decision.
+Stage 8 is active and unclosed.
+Stage 8 began through explicit author approval.
+The read-only planning pass is complete.
+The central Stage 8 audit program has been recorded.
+Three audit batches are planned.
+No GUI or interaction architecture has been selected.
+No dossier correction is required.
+No author decision is required.
+Stage 9 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
@@ -390,9 +402,15 @@ No individual connector dossier is required.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 7 review or research is required.
-Stage 8 is next eligible but has not begun.
-Stage 8 requires explicit author approval.
-Stage 8 changes no connector decision.
+Stage 8 is active and unclosed.
+Stage 8 began through explicit author approval.
+The read-only planning pass is complete.
+The central Stage 8 audit program has been recorded.
+Three audit batches are planned.
+No GUI or interaction architecture has been selected.
+No dossier correction is required.
+No author decision is required.
+Stage 9 is not eligible.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
 Category `4` is not build readiness.
@@ -947,9 +965,15 @@ No individual connector dossier is required.
 No product-dossier correction is required.
 No author decision is required now.
 No additional Stage 7 review or research is required.
-Stage 8 is next eligible but has not begun.
-Stage 8 requires explicit author approval.
-Stage 8 changes no connector decision.
+Stage 8 is active and unclosed.
+Stage 8 began through explicit author approval.
+The read-only planning pass is complete.
+The central Stage 8 audit program has been recorded.
+Three audit batches are planned.
+No GUI or interaction architecture has been selected.
+No dossier correction is required.
+No author decision is required.
+Stage 9 is not eligible.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
