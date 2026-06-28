@@ -7,10 +7,12 @@
 - The read-only planning pass is complete.
 - No connector has been admitted.
 - Three review batches are planned.
+- Batch 1 review is complete.
+- Batch 2 review is complete.
+- Batch 3 is next but has not begun.
 - Stage 8 is not eligible.
 - Stage 7 does not automatically admit connectors or unblock implementation.
 - Implementation remains blocked.
-- Batch 1 review is complete.
 
 ## Scope
 
@@ -50,7 +52,7 @@ This review distinguishes:
 - Manual interchange or product feature, not connector
 - Manual handoff already sufficient
 - Future connector-dependent
-- External service boundary, not connector
+- External execution boundary, not connector
 - Unsupported current scope
 - Requires author decision
 - Not needed
@@ -73,21 +75,24 @@ This review distinguishes:
 | Comments and tracked changes import | Manual interchange or product feature, not connector | 1 | Defer |
 | Comments and tracked changes live synchronization | Future connector-dependent | 3 | Deeper review |
 | Email package handoff | Manual interchange or product feature, not connector | 1 | Defer |
-| Model providers and API routes | External service boundary, not connector | 2 | Defer |
-| Local model runners | External service boundary, not connector | 2 | Defer |
+| Model providers and API routes | External execution boundary, not connector | 2 | Defer |
+| Local model runners | External execution boundary, not connector | 2 | Defer |
+| Provider substitution and fallback | External execution boundary, not connector | 2 | Defer |
+| Manual web/file intake | Manual handoff already sufficient | 2 | Defer |
 | Manual research or web-source intake | Manual handoff already sufficient | 2 | Defer |
 | Automated research or web-source intake | Future connector-dependent | 2 | Deeper review |
 | Manual citation or reference-manager exchange | Manual handoff already sufficient | 2 | Defer |
 | Citation or reference-manager auto sync | Future connector-dependent | 2 | Deeper review |
+| External grammar or style tools | Unsupported current scope | 2 | Reject now |
+| External search or index services | Unsupported current scope | 2 | Reject now |
+| Audiobook or text-to-speech systems | Unsupported current scope | 2 | Reject now |
+| Image or cover-generation systems | Unsupported current scope | 2 | Reject now |
+| Other external AI utilities in doctrine | No action required | 2 | Defer |
 | Version-control or Git export | Unsupported current scope | 1 | Reject now |
 | Third-party plugins | Unsupported current scope | 3 | Reject now |
 | Mobile or companion clients | Unsupported current scope | 3 | Reject now |
 | External task/project-management tools | Unsupported current scope | 3 | Reject now |
 | External calendar or deadline tools | Unsupported current scope | 3 | Reject now |
-| External grammar or style tools | Unsupported current scope | 3 | Reject now |
-| External search or index services | Unsupported current scope | 3 | Reject now |
-| Audiobook or text-to-speech systems | Unsupported current scope | 3 | Reject now |
-| Image or cover-generation systems | Unsupported current scope | 3 | Reject now |
 | Real-time collaboration | Future connector-dependent | 3 | Deeper review |
 | Automated round-trip synchronization | Future connector-dependent | 3 | Deeper review |
 
@@ -137,6 +142,48 @@ Batch 1 review is complete.
 - No true ownership or truth-boundary gap was found.
 - No product-dossier correction is required.
 - Conditional author decisions remain only if a future scope is reopened for connector-dependent items.
+
+## Batch 2 Review
+
+Batch 2 review is complete.
+
+### External execution boundaries
+
+- Hosted model providers and API routes are external execution boundaries, not product connectors.
+- Local model runners are external execution boundaries, not product connectors.
+- Provider substitution and fallback stay inside routing doctrine and are not connector boundaries.
+
+### Manual intake sufficient
+
+- Manual web/file intake is sufficient today.
+- Manual research or web-source intake is sufficient today.
+- Manual citation or reference-manager exchange is sufficient today.
+
+### Future connector-dependent
+
+- Automated research or web-source intake remains future connector-dependent.
+- Citation or reference-manager auto sync remains future connector-dependent.
+
+### Unsupported current scope
+
+- External grammar or style tools remain unsupported current scope.
+- External search or index services remain unsupported current scope.
+- Audiobook or text-to-speech systems remain unsupported current scope.
+- Image or cover-generation systems remain unsupported current scope.
+- Other external AI utilities already covered by package or routing doctrine do not require connector admission.
+
+### Review result
+
+- Provider routes, local runners, and provider substitution or fallback are external execution boundaries, not connectors.
+- Provider outage is not project-load failure.
+- Local failure must not silently trigger cloud transmission.
+- Manual web/file intake, manual research intake, and manual citation exchange are sufficient today.
+- Automated web/research intake and citation auto sync remain future connector-dependent.
+- External grammar/style, search/index, TTS, image/cover, and similar external AI utilities remain outside current scope.
+- No provider-specific connector dossier is justified.
+- No true ownership or truth-boundary gap was found.
+- No product-dossier correction is required.
+- Conditional author decisions remain only if future connector-dependent scope is later reopened.
 
 ## Manual-interchange boundaries
 
@@ -195,6 +242,9 @@ Image and cover generation remain outside current Black Skies scope, not merely 
 - Partial, stale, failed, or excluded transfer results must remain visible.
 - Privacy and transmission consequences must remain visible.
 - Providers own no workflow or destination object.
+- Provider outage is not project-load failure.
+- Local failure must not silently trigger cloud transmission.
+- Route approval, package approval, and destination acceptance remain distinct.
 - No silent platform or provider substitution is allowed.
 - Connector-adjacent work must not collapse manual interchange into live synchronization.
 
@@ -252,6 +302,7 @@ These are not current Stage 7 blockers.
 - One central findings file is sufficient for Stage 7.
 - Individual connector dossiers are not justified yet.
 - Candidate filenames for individual connector dossiers are deferred until a specific connector boundary is reopened.
+- Batch 3 remains unstarted.
 
 ## Remaining Stage 7 work
 
