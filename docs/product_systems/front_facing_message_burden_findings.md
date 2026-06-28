@@ -202,3 +202,55 @@ None required at planning pass.
 - Batch 3 is next but unstarted.
 - Reassess any surfaced burden and route it to Stage 9, Stage 10, or Stage 12 as appropriate.
 - Keep GUI design, exact interaction mechanics, and architecture selection deferred.
+
+## Batch 3 findings
+Batch 3 complete.
+
+| Object or message | Owner | Audit label | Why visible | Required action | Surface |
+| --- | --- | --- | --- | --- | --- |
+| Save state and persistence status | Project Persistence / Local Save | background status | Tell the author whether current work is actually safe locally | Inspect only if risk or pending state matters | Writing Surface |
+| Offline or degraded operation | Service Health / Offline / Degraded Mode | exceptional warning / recoverable failure | Distinguish narrowed capability from project failure | Continue, inspect, or use fallback | Both |
+| Snapshot and history availability | Snapshots / Backup / Restore / History | contextual detail | Make recoverable history discoverable without turning it into current truth | Inspect or restore through owner path | Both |
+| Backup status | Snapshots / Backup / Restore / History | background status | Keep backup distinct from current save and archive | Inspect or wait | Command Center |
+| Recovery candidates | Snapshots / Backup / Restore / History | review queue | Make candidate recovery paths visible before any destructive action | Review, compare, or dismiss | Command Center |
+| Restore-as-current | Snapshots / Backup / Restore / History | blocking decision | Warn that destructive replacement is a governed choice | Approve or cancel explicitly | Command Center |
+| Restore-as-copy | Snapshots / Backup / Restore / History | review queue | Offer non-destructive recovery without replacing current work | Inspect, keep, or discard | Both |
+| Verification success or failure | Snapshots / Backup / Restore / History | recoverable failure | Distinguish checked recovery from assumed recovery | Review outcome and next safe step | Both |
+| Partial or failed restoration | Snapshots / Backup / Restore / History | recoverable failure | Prevent incomplete recovery from looking complete | Continue, rerun, or stop | Both |
+| Publication export | Import Export Document Interchange | contextual detail | Explain what leaves the project as publication-focused interchange | Export, inspect, or stop | Command Center |
+| Portable project archive | Import Export Document Interchange | contextual detail | Separate durable project escape from backup and publication export | Inspect or create through owner path | Command Center |
+| Import and external provenance | Import Export Document Interchange / Authorship Provenance AI Visibility | contextual detail | Preserve source identity and transfer meaning | Inspect, route, or accept through owner path | Both |
+| Stale, partial, failed, cancelled, conflicting, or excluded results | owning systems | review queue / recoverable failure | Keep transfer and recovery limitations honest | Review, rerun, or dismiss | Both |
+| Repeated warnings and warning fatigue | governing system or owner | redundant or mergeable / exceptional warning | Reduce clutter without hiding serious failure | Acknowledge, group, or inspect | Both |
+| Onboarding and nontechnical terminology | Stage 8 audit burden | hidden by default | Keep the burden understandable to ordinary authors | None unless wording blocks understanding | Both |
+| Accessibility, focus, keyboard readability, and dismissal burden | Stage 8 audit burden | essential immediate / exceptional warning | Ensure safe action remains usable | Inspect, dismiss, or act | Both |
+
+- Saving is not snapshot creation.
+- Snapshot is not backup.
+- Backup is not portable archive.
+- Publication export is not project archive.
+- Inspection is not restore.
+- Copying is not verification.
+- Restore-as-copy is not restore-as-current.
+- Restore does not create new manuscript truth.
+- Import does not automatically accept external material.
+- System or service failure is not manuscript failure.
+- Partial or failed work is not reported as complete.
+- Destructive restoration requires explicit approval.
+- External provenance remains visible.
+- No universal recovery, warning, status, or interchange owner is created.
+- Normal save feedback should stay quiet; degraded or off-line messages must distinguish affected capability from project health.
+- Verification success must not be mistaken for total recovery.
+- Partial restore must leave an understandable next safe action.
+- Export/import completion must not be confused with truth acceptance.
+- Provenance and inclusion/exclusion detail must remain available without dominating ordinary transfer.
+- Repeated service warnings may be grouped or escalated, but unresolved partial failure, privacy or transmission approval, loss of current work, and verification failure must not be suppressed.
+- Keyboard and focus burden matters for safe action.
+- No dossier corrections or author decisions are required for Batch 3.
+- Stage 9 owns labels, warnings, approval display, provenance display, accessibility presentation, and interaction architecture.
+- Stage 10 owns reliability, retries, offline behavior, verification, security, privacy, performance, and conflict testing under stress.
+- Stage 12 is reserved for any later true architecture or ownership question.
+- All three batches are complete.
+- Stage 8 remains active and unclosed pending closure assessment.
+- Stage 9 is not eligible.
+- Implementation remains blocked.
