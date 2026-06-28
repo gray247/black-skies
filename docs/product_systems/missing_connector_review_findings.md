@@ -6,10 +6,11 @@
 - Stage 7 began through explicit author approval.
 - The read-only planning pass is complete.
 - No connector has been admitted.
-- Three review batches are planned.
+- Three review batches are complete.
 - Batch 1 review is complete.
 - Batch 2 review is complete.
-- Batch 3 is next but has not begun.
+- Batch 3 review is complete.
+- Stage 7 remains active and unclosed pending closure assessment.
 - Stage 8 is not eligible.
 - Stage 7 does not automatically admit connectors or unblock implementation.
 - Implementation remains blocked.
@@ -72,6 +73,9 @@ This review distinguishes:
 | Cloud backup synchronization | Future connector-dependent | 3 | Deeper review |
 | External editor or collaborator handoff | Manual handoff already sufficient | 1 | Defer |
 | External editor live shared editing | Future connector-dependent | 3 | Deeper review |
+| Live multi-author collaboration | Future connector-dependent | 3 | Deeper review |
+| Shared document editing | Future connector-dependent | 3 | Deeper review |
+| Connected comments or suggestions | Future connector-dependent | 3 | Deeper review |
 | Comments and tracked changes import | Manual interchange or product feature, not connector | 1 | Defer |
 | Comments and tracked changes live synchronization | Future connector-dependent | 3 | Deeper review |
 | Email package handoff | Manual interchange or product feature, not connector | 1 | Defer |
@@ -90,11 +94,16 @@ This review distinguishes:
 | Other external AI utilities in doctrine | No action required | 2 | Defer |
 | Version-control or Git export | Unsupported current scope | 1 | Reject now |
 | Third-party plugins | Unsupported current scope | 3 | Reject now |
+| Extensions | Unsupported current scope | 3 | Reject now |
 | Mobile or companion clients | Unsupported current scope | 3 | Reject now |
+| Remote Companion clients | Unsupported current scope | 3 | Reject now |
 | External task/project-management tools | Unsupported current scope | 3 | Reject now |
 | External calendar or deadline tools | Unsupported current scope | 3 | Reject now |
 | Real-time collaboration | Future connector-dependent | 3 | Deeper review |
 | Automated round-trip synchronization | Future connector-dependent | 3 | Deeper review |
+| External task/calendar synchronization | Future connector-dependent | 3 | Deeper review |
+| Scheduled external monitoring | Future connector-dependent | 3 | Deeper review |
+| Automation across external systems | Future connector-dependent | 3 | Deeper review |
 
 ## Batch 1 Review
 
@@ -185,6 +194,54 @@ Batch 2 review is complete.
 - No product-dossier correction is required.
 - Conditional author decisions remain only if future connector-dependent scope is later reopened.
 
+## Batch 3 Review
+
+Batch 3 review is complete.
+
+### Collaboration and synchronization
+
+- Manual package and DOCX handoff remains sufficient for current doctrine.
+- Live multi-author collaboration, shared document editing, Google Docs live synchronization, connected comments or suggestions, automated round-trip synchronization, cloud-folder synchronization, cloud backup synchronization, and direct publishing-platform push remain future connector-dependent.
+- Shared editing does not create a second manuscript-truth owner.
+- Connected synchronization remains distinct from manual import/export.
+- Live collaboration is not silently treated as approved.
+- Imported comments, suggestions, or edits retain external provenance.
+- No remote edit is automatically accepted.
+- Cloud-folder use by the author is not Black Skies synchronization.
+
+### Plugins and extensions
+
+- Third-party plugins and extensions remain unsupported current scope.
+- Internal rubrics stay project-local and may use deterministic rules plus bounded local AI.
+- No universal plugin or integration owner is created.
+- No missing plugin dossier is required.
+
+### Mobile and remote clients
+
+- Mobile clients and remote Companion clients remain unsupported current scope.
+- No approved mobile product surface exists.
+- Companion does not become a remote sovereign client.
+- Later reconsideration requires explicit author approval.
+
+### External automation
+
+- External task/calendar synchronization, scheduled external monitoring, and automation across external systems remain future connector-dependent.
+- Local queueing is not external automation.
+- Direct publishing-platform push remains distinct from publication export.
+- Cloud backup synchronization remains distinct from local backup.
+- External systems own no Black Skies truth or workflow.
+- Partial, failed, stale, conflicting, cancelled, and duplicated actions remain visible.
+- No silent retry or mutation is allowed.
+
+### Review result
+
+- Manual package and DOCX handoff remains sufficient.
+- No connector is admitted.
+- No true ownership or truth-boundary gap was found.
+- No product-dossier correction is required.
+- No author decision is required now.
+- Conditional author decisions remain only if future connector-dependent scope is later reopened.
+
 ## Manual-interchange boundaries
 
 DOCX, Markdown, plain text, publication export, bounded EPUB export if later retained, email/package handoff, manual external-editor handoff, manually imported comments or tracked changes, one-way Google Docs import/export, and local backup destinations stay inside bounded manual exchange until a later approval says otherwise.
@@ -258,20 +315,21 @@ No individual connector dossier is justified yet.
 
 ## Stage 9 routing
 
-- Presentation labels for manual interchange, product features, connector-dependent capabilities, and unsupported scope
+- Presentation labels for collaboration, synchronization, plugin, mobile, automation, manual interchange, product features, connector-dependent capabilities, and unsupported scope
 - Inclusion/exclusion wording for exported, imported, or handoff material
 - Partial, failed, and stale transfer visibility
 - Privacy and transmission disclosure presentation
-- Warning copy for automatic sync, live collaboration, and platform push
+- Warning copy for automatic sync, live collaboration, connected comments, platform push, and remote-client access
 
 ## Stage 10 routing
 
 - Reliability of provider routes and local runners
-- Failure and partial-result handling for external services
+- Failure, retry, and partial-result handling for external services and automations
 - Integrity and corruption handling for transfer packages
 - Retention and policy monitoring where providers are involved
+- Offline behavior, conflict handling, and stale-state recovery
 - Security and privacy of packaged material
-- Cost accounting for external execution paths
+- Performance and cost accounting for external execution paths
 
 ## Stage 12 routing
 
@@ -283,13 +341,21 @@ Stage 12 must resolve connector shape, ownership, persistence, and lifecycle bou
 
 Decisions are only required if a scope is later reopened for:
 
+- live multi-author collaboration
 - live collaboration
+- shared document editing
 - automated round-trip synchronization
+- connected comments or suggestions
 - Google Docs beyond one-way interchange
 - cloud backup or cloud-folder synchronization
 - direct publishing-platform push
 - third-party plugins
+- extensions
 - mobile or companion clients
+- remote Companion clients
+- external task/calendar synchronization
+- scheduled external monitoring
+- automation across external systems
 - automated web intake
 - citation or reference-manager auto sync
 
@@ -302,7 +368,7 @@ These are not current Stage 7 blockers.
 - One central findings file is sufficient for Stage 7.
 - Individual connector dossiers are not justified yet.
 - Candidate filenames for individual connector dossiers are deferred until a specific connector boundary is reopened.
-- Batch 3 remains unstarted.
+- All three review batches are complete.
 
 ## Remaining Stage 7 work
 
@@ -311,3 +377,4 @@ These are not current Stage 7 blockers.
 - Route presentation issues to Stage 9, operational issues to Stage 10, and approved connector architecture to Stage 12.
 - Stop before connector design or architecture selection.
 - Keep implementation blocked.
+- Stage 7 remains active and unclosed pending closure assessment.
