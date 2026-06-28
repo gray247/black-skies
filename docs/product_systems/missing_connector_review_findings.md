@@ -2,18 +2,25 @@
 
 ## Status
 
-- Stage 7 - Missing Connector Review is active and unclosed.
+- Stage 7 - Missing Connector Review is complete and closed.
 - Stage 7 began through explicit author approval.
 - The read-only planning pass is complete.
-- No connector has been admitted.
+- No connector was admitted.
 - Three review batches are complete.
 - Batch 1 review is complete.
 - Batch 2 review is complete.
 - Batch 3 review is complete.
-- Stage 7 remains active and unclosed pending closure assessment.
-- Stage 8 is not eligible.
-- Stage 7 does not automatically admit connectors or unblock implementation.
+- No first-release connector is required.
+- No individual connector dossier is required.
+- No product-dossier correction is required.
+- No author decision is required now.
+- No additional Stage 7 review or research is required.
+- Stage 8 is next eligible but has not begun.
+- Stage 8 requires explicit author approval.
+- Stage 8 changes no connector decision.
+- Connectors remain gated.
 - Implementation remains blocked.
+- The 19-stage sequence is unchanged.
 
 ## Scope
 
@@ -369,6 +376,13 @@ These are not current Stage 7 blockers.
 - Individual connector dossiers are not justified yet.
 - Candidate filenames for individual connector dossiers are deferred until a specific connector boundary is reopened.
 - All three review batches are complete.
+- No first-release connector is required.
+- No product-dossier correction is required.
+- No author decision is required now.
+- Stage 8 is next eligible but has not begun.
+- Stage 8 requires explicit author approval.
+- Stage 8 changes no connector decision.
+- The 19-stage sequence is unchanged.
 
 ## Remaining Stage 7 work
 
@@ -377,4 +391,7 @@ These are not current Stage 7 blockers.
 - Route presentation issues to Stage 9, operational issues to Stage 10, and approved connector architecture to Stage 12.
 - Stop before connector design or architecture selection.
 - Keep implementation blocked.
-- Stage 7 remains active and unclosed pending closure assessment.
+- No remaining Stage 7 review or research is required.
+- Stage 7 is complete and closed.
+- Stage 8 is next eligible but has not begun.
+- Stage 8 requires explicit author approval.

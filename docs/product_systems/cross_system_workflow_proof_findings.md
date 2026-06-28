@@ -52,11 +52,13 @@
 * all eight primary proofs now have official results
 * all eight results are Passed with Bounded Follow-up
 * restored-copy identity remains unresolved, does not block closure, and is deferred to Stage 12 — Architecture Readiness Contract
-* Stage 7 is next eligible but has not begun
-* Stage 7 requires explicit author approval
-* Stage 7 does not automatically admit connectors or unblock implementation
+* Stage 7 was subsequently completed and closed
+* Stage 8 is next eligible but not begun
+* Stage 8 requires explicit author approval
+* Stage 8 changes no connector decision
 * connectors remain gated
 * implementation remains blocked
+* the 19-stage sequence is unchanged
 
 ## Scope
 
@@ -362,5 +364,6 @@ It does not authorize implementation, architecture selection, GUI finalization, 
 * No remaining Stage 6 proof work.
 * No remaining Stage 6 author decision.
 * No remaining Stage 6 correction.
-* Stage 7 is next eligible but has not begun.
-* Explicit author approval is required.
+* Stage 6 remains complete and closed.
+* Stage 7 was subsequently completed and closed.
+* Stage 8 is next eligible but not begun.

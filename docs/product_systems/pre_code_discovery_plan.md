@@ -188,13 +188,20 @@ Current sequencing remains:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 7 - `Missing Connector Review` is active and unclosed.
+- Stage 7 - `Missing Connector Review` is complete and closed.
 - Stage 7 began through explicit author approval.
 - The read-only planning pass is complete.
-- Three review batches are planned.
-- No connector has been admitted.
-- Stage 8 is not eligible.
-- Stage 7 does not automatically admit connectors or unblock implementation.
+- Three review batches are complete.
+- No connector was admitted.
+- No first-release connector is required.
+- No individual connector dossier is required.
+- No product-dossier correction is required.
+- No author decision is required now.
+- No additional Stage 7 review or research is required.
+- Stage 8 is next eligible but has not begun.
+- Stage 8 requires explicit author approval.
+- Stage 8 changes no connector decision.
+- The 19-stage sequence is unchanged.
 - Stage 5 does not admit connectors automatically.
 - Stage 5 does not unblock implementation.
 - Stage 5 external challenge inputs remain preserved.
@@ -333,13 +340,19 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 3 is complete.
 All eight primary proofs are Passed with Bounded Follow-up.
-Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 - `Missing Connector Review` is complete and closed.
 Stage 7 began through explicit author approval.
 The read-only planning pass is complete.
-Three review batches are planned.
-No connector has been admitted.
-Stage 8 is not eligible.
-Stage 7 does not automatically admit connectors or unblock implementation.
+Three review batches are complete.
+No connector was admitted.
+No first-release connector is required.
+No individual connector dossier is required.
+No product-dossier correction is required.
+No author decision is required now.
+No additional Stage 7 review or research is required.
+Stage 8 is next eligible but has not begun.
+Stage 8 requires explicit author approval.
+Stage 8 changes no connector decision.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
@@ -367,13 +380,19 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
 Batch 3 is complete.
-Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 - `Missing Connector Review` is complete and closed.
 Stage 7 began through explicit author approval.
 The read-only planning pass is complete.
-Three review batches are planned.
-No connector has been admitted.
-Stage 8 is not eligible.
-Stage 7 does not automatically admit connectors or unblock implementation.
+Three review batches are complete.
+No connector was admitted.
+No first-release connector is required.
+No individual connector dossier is required.
+No product-dossier correction is required.
+No author decision is required now.
+No additional Stage 7 review or research is required.
+Stage 8 is next eligible but has not begun.
+Stage 8 requires explicit author approval.
+Stage 8 changes no connector decision.
 Stage 9 and Stage 10 deferrals remain preserved.
 All 45 dossiers remain recorded at Category `4`.
 Category `4` is not build readiness.
@@ -918,13 +937,19 @@ No author decision is required.
 Bounded follow-ups are routed to Stage 9 and Stage 10.
 Batch 2 is complete.
 Batch 3 is complete.
-Stage 7 - `Missing Connector Review` is active and unclosed.
+Stage 7 - `Missing Connector Review` is complete and closed.
 Stage 7 began through explicit author approval.
 The read-only planning pass is complete.
-Three review batches are planned.
-No connector has been admitted.
-Stage 8 is not eligible.
-Stage 7 does not automatically admit connectors or unblock implementation.
+Three review batches are complete.
+No connector was admitted.
+No first-release connector is required.
+No individual connector dossier is required.
+No product-dossier correction is required.
+No author decision is required now.
+No additional Stage 7 review or research is required.
+Stage 8 is next eligible but has not begun.
+Stage 8 requires explicit author approval.
+Stage 8 changes no connector decision.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.

@@ -238,16 +238,23 @@ Current Black Skies doctrine is:
 - Bounded follow-ups are routed to Stage 9 and Stage 10.
 - Batch 3 is complete.
 - All eight primary proofs are Passed with Bounded Follow-up.
-- Stage 7 - `Missing Connector Review` is active and unclosed.
+- Stage 7 - `Missing Connector Review` is complete and closed.
 - Stage 7 began through explicit author approval.
 - The read-only planning pass is complete.
-- Three review batches are planned.
-- No connector has been admitted.
-- Stage 8 is not eligible.
-- Stage 7 does not automatically admit connectors or unblock implementation.
+- Three review batches are complete.
+- No connector was admitted.
+- No first-release connector is required.
+- No individual connector dossier is required.
+- No product-dossier correction is required.
+- No author decision is required now.
+- No additional Stage 7 review or research is required.
+- Stage 8 is next eligible but has not begun.
+- Stage 8 requires explicit author approval.
+- Stage 8 changes no connector decision.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
+- The 19-stage sequence is unchanged.
 - Repository remains not build-ready.
 - External challenge questions, GUI presentation work, and operational-readiness work remain deferred to Stages 5, 9, and 10 respectively.
 - `Capability Ceiling and Breadth Audit`,
