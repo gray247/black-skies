@@ -10,6 +10,7 @@
 - Stage 8 is not eligible.
 - Stage 7 does not automatically admit connectors or unblock implementation.
 - Implementation remains blocked.
+- Batch 1 review is complete.
 
 ## Scope
 
@@ -89,6 +90,53 @@ This review distinguishes:
 | Image or cover-generation systems | Unsupported current scope | 3 | Reject now |
 | Real-time collaboration | Future connector-dependent | 3 | Deeper review |
 | Automated round-trip synchronization | Future connector-dependent | 3 | Deeper review |
+
+## Batch 1 Review
+
+Batch 1 review is complete.
+
+### Manual doctrine sufficient
+
+- DOCX interchange - planned product feature, not connector
+- Markdown and plain-text interchange - planned product feature, not connector
+- bounded EPUB export - planned product feature, not connector
+- one-way Google Docs export - planned product feature, not connector
+- one-way Google Docs import - planned product feature, not connector
+- manual Google Docs round trip - manual handoff sufficient
+- comments and suggestions import - planned product feature, not connector
+- manual external-editor handoff - manual handoff sufficient
+- comments and tracked-changes import - planned product feature, not connector
+- email/package handoff - manual handoff sufficient
+- manual citation/reference exchange - manual handoff sufficient
+- publication-platform handoff - manual handoff sufficient
+- local backup destinations - manual handoff sufficient
+- manual cloud-folder placement - manual handoff sufficient
+
+### Future connector-dependent
+
+- Google Docs live synchronization
+- Google Docs shared editing
+- Google Docs automated round-trip synchronization
+- cloud-folder synchronization
+- cloud backup synchronization
+- direct publishing-platform push
+- citation/reference-manager auto sync
+
+### Unsupported current scope
+
+- Git/version-control export
+
+### Review result
+
+- Manual doctrine is sufficient for the manual items above.
+- External-editor return material, whether DOCX, comments, or tracked changes, stays external until explicitly routed by the author.
+- Local backup destinations are governed without a connector.
+- User-managed cloud-folder placement is not Black Skies synchronization.
+- Automatic cloud-folder sync and automatic cloud backup sync remain future connector-dependent capabilities.
+- Git is not a Black Skies product export feature.
+- No true ownership or truth-boundary gap was found.
+- No product-dossier correction is required.
+- Conditional author decisions remain only if a future scope is reopened for connector-dependent items.
 
 ## Manual-interchange boundaries
 
