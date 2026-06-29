@@ -10,8 +10,9 @@ It covers current-save confidence, persistence risk, recovery modes, interruptio
 ## Classification Key
 
 - doctrine resolved: the repository already states the boundary.
-- existing operational evidence: the repository contains evidence that the boundary was exercised or witnessed.
-- missing evidence: the repository does not yet show direct operational proof.
+- existing operational evidence: bounded observed runtime, harness, packaged-application, or test execution evidence that directly verifies the claimed behavior.
+- workflow-boundary proof: doctrine-backed workflow-proof evidence that establishes a boundary without proving live runtime, harness, packaged-application, or test execution.
+- missing operational evidence: required live operational evidence that does not yet exist in the current record.
 - genuine author decision: the boundary needs product choice, not more evidence.
 - Stage 11 Fatal Question input: the boundary exposes unresolved risk that should be carried into Fatal Question Review.
 - Stage 12 dependency: the boundary is really an architecture-identity question that Stage 10 should not settle.
@@ -26,15 +27,15 @@ It covers current-save confidence, persistence risk, recovery modes, interruptio
 | snapshots and history | doctrine resolved | `snapshots_backup_restore_history.md` keeps snapshots as historical evidence, not current truth. |
 | backup | doctrine resolved | backups are separate from current save, snapshots, archive, and export. |
 | restore-as-copy | Stage 12 dependency | restored-copy identity is explicitly deferred; Stage 10 records the evidence gap, not the identity choice. |
-| restore-as-current | existing operational evidence | WP-09 proves the boundary in workflow form, but the live implementation remains unverified. |
-| verification | missing evidence | the repo defines verification as evidence-bearing, but Stage 10 still needs direct operational verification evidence for live recovery paths. |
-| interruption safety | missing evidence | no live operational record yet shows interruption-safe restore behavior. |
-| partial and failed recovery | missing evidence | doctrine distinguishes them, but operational proof is still absent. |
+| restore-as-current | workflow-boundary proof | WP-09 provides workflow-boundary proof that restore-as-current is distinct and approval-gated, but the live implementation remains unverified. |
+| verification | missing operational evidence | the repo defines verification as evidence-bearing, but Stage 10 still needs direct operational verification evidence for live recovery paths. |
+| interruption safety | missing operational evidence | no live operational record yet shows interruption-safe restore behavior. |
+| partial and failed recovery | missing operational evidence | doctrine distinguishes them, but operational proof is still absent. |
 | rollback reliability | later implementation proof | this is likely measured during implementation-ready work, not settled by Stage 10 doctrine. |
 | retention and pruning | genuine author decision | the repository has not fixed an operational retention policy boundary for every recovery class. |
 | migration compatibility | Stage 11 Fatal Question input | migration failure could silently corrupt or discard truth, so unresolved migration risk must be carried forward. |
-| portable archive boundary | existing operational evidence | WP-10 proves archive/export/backup distinctions and keeps ownership boundaries intact. |
-| publication export boundary | existing operational evidence | WP-10 proves publication export is distinct from backup and archive. |
+| portable archive boundary | workflow-boundary proof | WP-10 provides workflow-boundary proof that archive/export/backup distinctions and ownership boundaries remain separate. |
+| publication export boundary | workflow-boundary proof | WP-10 provides workflow-boundary proof that publication export is distinct from backup and archive. |
 | owner and failure visibility | doctrine resolved | ownership and failure disclosure requirements are already stated in the governing dossiers. |
 
 ## Existing Evidence
@@ -45,16 +46,16 @@ It covers current-save confidence, persistence risk, recovery modes, interruptio
 - `docs/product_systems/service_health_offline_degraded_mode.md` distinguishes degraded capability from project failure.
 - `docs/product_systems/protected_content_permission_matrix.md` requires fail-closed handling for transfer, restore, and diagnostics exposure.
 - `docs/product_systems/testing_harness_evidence_contract.md` requires evidence to identify what was actually observed and not overclaim readiness.
-- `docs/product_systems/workflow_proof_WP-09_restore_copy_reentry.md` proves inspection is non-mutating, restore modes remain distinct, explicit approval is required for restore-as-current, and provenance survives recovery.
-- `docs/product_systems/workflow_proof_WP-10_export_vs_portable_archive.md` proves export, archive, and backup remain distinct and that manual handoff does not require a connector.
+- `docs/product_systems/workflow_proof_WP-09_restore_copy_reentry.md` provides workflow-boundary proof that inspection is non-mutating, restore modes remain distinct, explicit approval is required for restore-as-current, and provenance survives recovery.
+- `docs/product_systems/workflow_proof_WP-10_export_vs_portable_archive.md` provides workflow-boundary proof that export, archive, and backup remain distinct and that manual handoff does not require a connector.
 
-## Missing Evidence
+## Missing Operational Evidence
 
-- no live operational proof yet shows interruption-safe restore execution under failure.
-- no live operational proof yet shows partial recovery handling after a broken restore.
-- no live operational proof yet shows rollback reliability for interrupted recovery.
-- no live operational proof yet shows migration compatibility against real project mutation.
-- no live operational proof yet shows retention/pruning behavior for the only recoverable copy.
+- no live operational evidence yet shows interruption-safe restore execution under failure.
+- no live operational evidence yet shows partial recovery handling after a broken restore.
+- no live operational evidence yet shows rollback reliability for interrupted recovery.
+- no live operational evidence yet shows migration compatibility against real project mutation.
+- no live operational evidence yet shows retention/pruning behavior for the only recoverable copy.
 - no packaging or Windows deployment evidence file exists in the repository for release-readiness claims.
 - no direct operational evidence yet shows how durable recovery verification is surfaced in an implementation environment.
 
@@ -134,4 +135,3 @@ This file does not:
 - begin Stage 12,
 - authorize implementation,
 - or admit connectors.
-
