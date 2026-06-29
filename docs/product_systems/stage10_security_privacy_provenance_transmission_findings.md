@@ -16,7 +16,7 @@ Doctrine and workflow proof remain doctrine and workflow proof, not automatic pr
 
 - doctrine resolved: the governing docs already state the boundary.
 - **Existing operational evidence** — bounded observed runtime, harness, packaged-application, or test execution evidence that directly verifies the claimed behavior.
-- missing evidence: the boundary is not yet directly evidenced in a live operational sense.
+- missing operational evidence: the boundary is not yet directly evidenced in a live operational sense.
 - genuine author decision: the boundary needs a product choice, not more evidence.
 - Program Stage 11 Fatal Question input: the boundary exposes unresolved risk that should be carried into Fatal Question Review.
 - Stage 12 dependency: the boundary is really an architecture identity or ownership question that Stage 10 should not settle.
@@ -33,7 +33,7 @@ Doctrine and workflow proof remain doctrine and workflow proof, not automatic pr
 | provider and model identity | workflow-boundary proof | `workflow_proof_WP-06_ai_route_package_queue_acceptance.md` preserves provider/model replacement visibility; `model_routing_and_budget_architecture.md` and `llm_package_construction_architecture.md` keep route and package roles distinct. This is workflow-boundary evidence, not live runtime evidence. |
 | provenance creation and preservation | workflow-boundary proof | `authorship_provenance_ai_visibility.md`, `workflow_proof_WP-06_ai_route_package_queue_acceptance.md`, and `workflow_proof_WP-10_export_vs_portable_archive.md` show provenance as evidence that survives routing and transfer. This is workflow-boundary evidence, not live runtime evidence. |
 | excluded-content handling | doctrine resolved | `protected_content_permission_matrix.md`, `import_export_document_interchange.md`, and `degraded_mode_execution_contract.md` already require fail-closed handling for excluded, hidden, local-only, and AI-excluded content. |
-| diagnostic and evidence-export privacy | missing evidence | `diagnostics_error_visibility_debug_console.md`, `testing_harness_evidence_contract.md`, and `protected_content_permission_matrix.md` define the boundary, but the repo does not yet show live operational evidence for diagnostic bundle/export privacy under real failure conditions. |
+| diagnostic and evidence-export privacy | missing operational evidence | `diagnostics_error_visibility_debug_console.md`, `testing_harness_evidence_contract.md`, and `protected_content_permission_matrix.md` define the boundary, but the repo does not yet show live operational evidence for diagnostic bundle/export privacy under real failure conditions. |
 | transfer and export restrictions | workflow-boundary proof | `workflow_proof_WP-10_export_vs_portable_archive.md` proves export, archive, backup, and manual handoff remain distinct; `import_export_document_interchange.md` keeps export from becoming acceptance or synchronization. This is workflow-boundary evidence, not live runtime evidence. |
 | retention and deletion disclosure | genuine author decision | the governing docs define state classes, but the exact disclosure depth for retention, deletion, and deletion-history messaging is still a product-choice question. |
 | provider-policy monitoring | Program Stage 11 Fatal Question input | provider-policy changes can invalidate earlier assumptions without changing doctrine, so the unresolved monitoring risk should be escalated to Fatal Question Review. |
@@ -41,7 +41,7 @@ Doctrine and workflow proof remain doctrine and workflow proof, not automatic pr
 | sensitive-material inclusion and exclusion | doctrine resolved | `protected_content_permission_matrix.md` already defines AI-excluded, local-only, hidden, masked, deleted, and protected states and keeps inclusion/exclusion fail-closed. |
 | auditability of approvals and transmission | workflow-boundary proof | `workflow_proof_WP-06_ai_route_package_queue_acceptance.md` records route approval, package approval, external-transmission approval, and approval checkpoints. This is workflow-boundary evidence, not live runtime evidence. |
 | failure before transmission | workflow-boundary proof | `degraded_mode_execution_contract.md` and `workflow_proof_WP-06_ai_route_package_queue_acceptance.md` keep refusal, approval denial, budget block, and protection failure distinct before any outbound action. This is workflow-boundary evidence, not live runtime evidence. |
-| failure after transmission | missing evidence | the repository does not yet show live operational evidence for post-transmission failure handling, recovery, or rollback behavior under real outbound conditions. |
+| failure after transmission | missing operational evidence | the repository does not yet show live operational evidence for post-transmission failure handling, recovery, or rollback behavior under real outbound conditions. |
 
 ## Existing Evidence
 
@@ -59,7 +59,7 @@ Doctrine and workflow proof remain doctrine and workflow proof, not automatic pr
 - `docs/product_systems/workflow_proof_WP-06_ai_route_package_queue_acceptance.md` provides doctrine-backed workflow-boundary proof for route, package, queue, fallback, model change, privacy disclosure, approval, and destination-acceptance boundaries.
 - `docs/product_systems/workflow_proof_WP-10_export_vs_portable_archive.md` provides doctrine-backed workflow-boundary proof for export, archive, backup, provenance, inclusion/exclusion, and manual handoff boundaries.
 
-## Missing Evidence
+## Missing Operational Evidence
 
 - no live operational record yet shows diagnostic bundle or debug-console behavior against protected content on a real runtime path.
 - no live operational record yet shows post-transmission failure handling after actual outbound release or handoff.
