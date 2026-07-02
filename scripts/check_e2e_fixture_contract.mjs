@@ -254,6 +254,39 @@ function validateAliasParity(outlineValidations, snapshotValidations) {
   return issues;
 }
 
+function summarizeSnapshotValidationFailures(snapshotValidations) {
+  const missingReceiptEntries = snapshotValidations
+    .filter((entry) => !entry.verification_exists)
+    .map((entry) => ({
+      label: entry.label,
+      verification_path: entry.verification_path,
+      project_path: entry.project_path,
+    }));
+
+  const receiptIssues = [];
+  for (const entry of missingReceiptEntries) {
+    receiptIssues.push(
+      `${entry.label} canonical verification receipt missing at ${JSON.stringify(entry.verification_path)}`,
+    );
+  }
+  if (missingReceiptEntries.length > 1) {
+    receiptIssues.push(
+      'both canonical verification receipts are missing; alias parity was not reached because prerequisite receipt validation failed first',
+    );
+  } else if (missingReceiptEntries.length === 1) {
+    receiptIssues.push(
+      'alias parity was not reached because prerequisite receipt validation failed first',
+    );
+  }
+
+  return {
+    classification:
+      missingReceiptEntries.length > 0 ? 'stale retained evidence' : 'invalid sample snapshot fixtures',
+    receipt_issues: receiptIssues,
+    snapshot_validations: snapshotValidations,
+  };
+}
+
 async function probeAnalytics(baseUrl, projectId) {
   const endpoints = [
     `/api/v1/analytics/summary?project_id=${encodeURIComponent(projectId)}`,
@@ -301,8 +334,9 @@ async function main() {
   );
   const failedSnapshotValidations = snapshotValidations.filter((entry) => !entry.valid_snapshot_schema);
   if (failedSnapshotValidations.length > 0) {
+    const snapshotFailureSummary = summarizeSnapshotValidationFailures(failedSnapshotValidations);
     throw new Error(
-      `[fixtures] invalid sample snapshot fixtures: ${JSON.stringify(failedSnapshotValidations)}`,
+      `[fixtures] invalid sample snapshot fixtures: ${JSON.stringify(snapshotFailureSummary)}`,
     );
   }
 
