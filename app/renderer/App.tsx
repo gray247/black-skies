@@ -1709,7 +1709,16 @@ export default function App(): JSX.Element {
         drafts: Object.keys(project.drafts).length,
         preserveSceneId: options?.preserveSceneId ?? null,
       });
-      const projectId = project.projectId ?? deriveProjectIdFromPath(project.path);
+      const projectId = project.projectId;
+      if (!projectId) {
+        pushToast({
+          tone: "warning",
+          title: "Project identity missing",
+          description: "Activation was rejected because project identity is missing.",
+        });
+        return false;
+      }
+      updateLastProjectPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
 
       const projectWithId: TrackedLoadedProject = { ...project, projectId };
@@ -1754,6 +1763,7 @@ export default function App(): JSX.Element {
         unitIds,
       });
       void fetchRecoveryStatus(projectId);
+      return true;
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -1764,6 +1774,8 @@ export default function App(): JSX.Element {
       setDraftEdits,
       setProjectDrafts,
       setProjectSummary,
+      pushToast,
+      updateLastProjectPath,
     ],
   );
 
@@ -1782,8 +1794,8 @@ export default function App(): JSX.Element {
         return;
       }
       if (response.ok) {
-        activateProject(response.project, { preserveSceneId: activeSceneId });
-        if (preserveDrafts && Object.keys(preserveDrafts).length > 0) {
+        const activated = activateProject(response.project, { preserveSceneId: activeSceneId });
+        if (activated && preserveDrafts && Object.keys(preserveDrafts).length > 0) {
           setProjectDrafts((previous) => {
             const nextDrafts = { ...previous, ...preserveDrafts };
             projectDraftsRef.current = nextDrafts;
@@ -2196,7 +2208,6 @@ export default function App(): JSX.Element {
         }
 
         if ((status === "loaded" || status === "init") && project) {
-          updateLastProjectPath(project.path);
           activateProject(project);
           return;
         }
@@ -2209,7 +2220,6 @@ export default function App(): JSX.Element {
         }
 
         if (project) {
-          updateLastProjectPath(project.path);
           activateProject(project);
           return;
         }
@@ -2219,7 +2229,6 @@ export default function App(): JSX.Element {
         return;
       }
 
-      updateLastProjectPath(payload.path);
       if (!isPlaywrightEnv) {
         console.info("[App] handleProjectLoaded(direct)", {
           path: payload.path,
@@ -2774,17 +2783,20 @@ export default function App(): JSX.Element {
     const activeSceneIdValue = activeSceneId ?? "";
     const activeSceneTitleValue = activeScene?.title ?? null;
     const sceneIds = currentProjectRef.current?.scenes?.map((scene) => scene.id) ?? [];
-    const loaded = pathValue.length > 0 ? "1" : "0";
-    target.dataset.projectLoaded = loaded;
-    if (html && html !== target) {
-      html.dataset.projectLoaded = loaded;
-    }
     if (pathValue) {
+      target.dataset.projectLoaded = "1";
+      if (html && html !== target) {
+        html.dataset.projectLoaded = "1";
+      }
       target.dataset.projectPath = pathValue;
       if (html && html !== target) {
         html.dataset.projectPath = pathValue;
       }
     } else {
+      delete target.dataset.projectLoaded;
+      if (html && html !== target) {
+        delete html.dataset.projectLoaded;
+      }
       delete target.dataset.projectPath;
       if (html && html !== target) {
         delete html.dataset.projectPath;
@@ -2835,7 +2847,7 @@ export default function App(): JSX.Element {
           };
         }
       ).__testProjectState = {
-        loaded: loaded === "1",
+        loaded: Boolean(pathValue),
         path: pathValue || null,
         projectId: projectIdValue || null,
         activeSceneId: activeSceneIdValue || null,
@@ -2844,7 +2856,7 @@ export default function App(): JSX.Element {
         label: projectLabel,
       };
       const committedProjectState = {
-        loaded: loaded === "1",
+        loaded: Boolean(pathValue),
         path: pathValue || null,
         projectId: projectIdValue || null,
         activeSceneId: activeSceneIdValue || null,

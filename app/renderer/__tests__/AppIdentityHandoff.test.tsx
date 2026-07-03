@@ -1,4 +1,4 @@
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { useEffect, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -27,6 +27,7 @@ declare global {
 }
 
 let mockLoadedProject: LoadedProject;
+let projectHomeLoadCallback: ((payload: LoadedProject | null) => void) | null = null;
 
 function buildLoadedProject(overrides: Partial<LoadedProject>): LoadedProject {
   return {
@@ -77,10 +78,20 @@ function ProjectHomeMock({
       return;
     }
     bootstrappedRef.current = true;
+    projectHomeLoadCallback = onProjectLoaded ?? null;
     onProjectLoaded?.(mockLoadedProject);
   }, [onProjectLoaded]);
 
   return <div data-testid="project-home-mock" data-project-path={mockLoadedProject.path} />;
+}
+
+function emitProjectLoaded(payload: LoadedProject): void {
+  if (!projectHomeLoadCallback) {
+    throw new Error('ProjectHome mock callback was not initialized');
+  }
+  act(() => {
+    projectHomeLoadCallback?.(payload);
+  });
 }
 
 vi.mock('../components/ProjectHome', () => ({
@@ -352,6 +363,7 @@ describe('App identity handoff witnesses', () => {
     delete window.__blackskiesDebugProjectState;
     delete window.__serviceHealthRetry;
     delete window.__runtimeConfigOverride;
+    projectHomeLoadCallback = null;
     delete document.body.dataset.projectLoaded;
     delete document.documentElement.dataset.projectLoaded;
     delete document.body.dataset.projectPath;
@@ -362,35 +374,64 @@ describe('App identity handoff witnesses', () => {
     delete document.documentElement.dataset.activeSceneId;
   });
 
-  it('adopts a basename-derived fallback when the supplied loaded project has no projectId', async () => {
+  it('rejects a missing projectId before activating any project state when no project is active', async () => {
     mockLoadedProject = buildLoadedProject({
       path: '/projects/missing-id-story',
       name: 'Missing Identity Story',
       projectId: undefined,
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_missing',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_missing',
+            order: 1,
+            title: 'Missing Identity Scene',
+            chapter_id: 'ch_missing',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_missing',
+          title: 'Missing Identity Scene',
+          order: 1,
+          purpose: 'setup',
+          emotion_tag: 'uncertain',
+          word_target: 650,
+        },
+      ],
+      drafts: {
+        sc_missing: 'Rejected draft content should never activate.',
+      },
     });
 
     render(<App />);
 
-    await waitFor(() =>
-      expect((services.getRecoveryStatus as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith({
-        projectId: 'missing-id-story',
-      }),
-    );
+    await screen.findByText(/Project identity missing/i);
+    await screen.findByText(/Activation was rejected because project identity is missing\./i);
 
     await waitFor(() =>
       expect(window.__testProjectState).toMatchObject({
-        loaded: true,
-        path: '/projects/missing-id-story',
-        projectId: 'missing-id-story',
+        loaded: false,
+        path: null,
+        projectId: null,
+        activeSceneId: null,
       }),
     );
 
-    expect(document.documentElement.dataset.projectLoaded).toBe('1');
-    expect(document.body.dataset.projectLoaded).toBe('1');
-    expect(document.documentElement.dataset.projectPath).toBe('/projects/missing-id-story');
-    expect(document.body.dataset.projectPath).toBe('/projects/missing-id-story');
-    expect(document.documentElement.dataset.projectId).toBe('missing-id-story');
-    expect(document.body.dataset.projectId).toBe('missing-id-story');
+    expect(services.getRecoveryStatus).not.toHaveBeenCalled();
+    expect(document.documentElement.dataset.projectLoaded).toBeUndefined();
+    expect(document.body.dataset.projectLoaded).toBeUndefined();
+    expect(document.documentElement.dataset.projectPath).toBeUndefined();
+    expect(document.body.dataset.projectPath).toBeUndefined();
+    expect(document.documentElement.dataset.projectId).toBeUndefined();
+    expect(document.body.dataset.projectId).toBeUndefined();
+    expect(document.documentElement.dataset.activeSceneId).toBeUndefined();
+    expect(document.body.dataset.activeSceneId).toBeUndefined();
     expect(services.restoreSnapshot).not.toHaveBeenCalled();
   });
 
@@ -425,6 +466,119 @@ describe('App identity handoff witnesses', () => {
     expect(document.body.dataset.projectId).toBe('proj_alpha');
     expect(document.documentElement.dataset.projectId).not.toBe('path-beta');
     expect(document.body.dataset.projectId).not.toBe('path-beta');
+    expect(services.restoreSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('preserves the prior valid project when a later missing-ID activation is rejected', async () => {
+    mockLoadedProject = buildLoadedProject({
+      path: '/projects/existing-alpha',
+      name: 'Existing Valid Project',
+      projectId: 'proj_existing',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_existing',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_existing',
+            order: 1,
+            title: 'Existing Scene',
+            chapter_id: 'ch_existing',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_existing',
+          title: 'Existing Scene',
+          order: 1,
+          purpose: 'setup',
+          emotion_tag: 'steady',
+          word_target: 700,
+        },
+      ],
+      drafts: {
+        sc_existing: 'Existing project draft content.',
+      },
+    });
+
+    render(<App />);
+
+    await waitFor(() =>
+      expect((services.getRecoveryStatus as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith({
+        projectId: 'proj_existing',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(window.__testProjectState).toMatchObject({
+        loaded: true,
+        path: '/projects/existing-alpha',
+        projectId: 'proj_existing',
+        activeSceneId: 'sc_existing',
+      }),
+    );
+
+    const priorProjectState = { ...window.__testProjectState! };
+
+    emitProjectLoaded(
+      buildLoadedProject({
+        path: '/projects/rejected-missing',
+        name: 'Rejected Missing Identity Project',
+        projectId: undefined,
+        outline: {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'out_rejected',
+          acts: [],
+          chapters: [],
+          scenes: [
+            {
+              id: 'sc_rejected',
+              order: 1,
+              title: 'Rejected Scene',
+              chapter_id: 'ch_rejected',
+              beat_refs: [],
+            },
+          ],
+        },
+        scenes: [
+          {
+            id: 'sc_rejected',
+            title: 'Rejected Scene',
+            order: 1,
+            purpose: 'setup',
+            emotion_tag: 'blocked',
+            word_target: 500,
+          },
+        ],
+        drafts: {
+          sc_rejected: 'Rejected draft content should not replace the active project.',
+        },
+      }),
+    );
+
+    await screen.findByText(/Project identity missing/i);
+    await screen.findByText(/Activation was rejected because project identity is missing\./i);
+
+    expect((services.getRecoveryStatus as ReturnType<typeof vi.fn>)).toHaveBeenCalledTimes(1);
+    expect((services.getRecoveryStatus as ReturnType<typeof vi.fn>)).toHaveBeenLastCalledWith({
+      projectId: 'proj_existing',
+    });
+    expect(window.__testProjectState).toEqual(priorProjectState);
+    expect(document.documentElement.dataset.projectLoaded).toBe('1');
+    expect(document.body.dataset.projectLoaded).toBe('1');
+    expect(document.documentElement.dataset.projectPath).toBe('/projects/existing-alpha');
+    expect(document.body.dataset.projectPath).toBe('/projects/existing-alpha');
+    expect(document.documentElement.dataset.projectId).toBe('proj_existing');
+    expect(document.body.dataset.projectId).toBe('proj_existing');
+    expect(document.documentElement.dataset.activeSceneId).toBe('sc_existing');
+    expect(document.body.dataset.activeSceneId).toBe('sc_existing');
+    expect(document.documentElement.dataset.projectId).not.toBe('rejected-missing');
+    expect(document.body.dataset.projectId).not.toBe('rejected-missing');
+    expect(document.documentElement.dataset.projectPath).not.toBe('/projects/rejected-missing');
+    expect(document.body.dataset.projectPath).not.toBe('/projects/rejected-missing');
     expect(services.restoreSnapshot).not.toHaveBeenCalled();
   });
 });
