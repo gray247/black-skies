@@ -867,9 +867,14 @@ export default function ProjectHome({
           outcome: nextSceneId === previousSceneId ? 'skip' : 'apply',
           skipReason: nextSceneId === previousSceneId ? 'same-scene' : null,
         });
-        upsertRecent(response.project);
-        persistLastProjectPath(response.project.path);
-        setStoredLastProjectPath(response.project.path);
+        const canRememberProjectPath =
+          typeof response.project.projectId === 'string' &&
+          response.project.projectId.trim().length > 0;
+        if (canRememberProjectPath) {
+          upsertRecent(response.project);
+          persistLastProjectPath(response.project.path);
+          setStoredLastProjectPath(response.project.path);
+        }
         onProjectLoaded?.({
           status: 'loaded',
           project: response.project,

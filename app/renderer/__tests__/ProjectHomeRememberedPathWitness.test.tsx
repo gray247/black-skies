@@ -46,6 +46,43 @@ function createMissingIdProject(): LoadedProject {
   };
 }
 
+function createValidIdProject(): LoadedProject {
+  const outline: OutlineFile = {
+    schema_version: 'OutlineSchema v1',
+    outline_id: 'out_valid_id_story',
+    acts: [],
+    chapters: [],
+    scenes: [
+      {
+        id: 'sc_valid',
+        order: 1,
+        title: 'Valid Identity Scene',
+        chapter_id: 'ch_valid',
+        beat_refs: [],
+      },
+    ],
+  };
+
+  return {
+    path: '/projects/valid-id-story',
+    name: 'Valid Identity Story',
+    projectId: 'proj_valid_id_story',
+    outline,
+    scenes: [
+      {
+        id: 'sc_valid',
+        title: 'Valid Identity Scene',
+        order: 1,
+        chapter_id: 'ch_valid',
+      },
+    ],
+    drafts: {
+      sc_valid: '# Valid Identity Scene',
+    },
+    bootstrapState: 'empty',
+  };
+}
+
 describe('ProjectHome missing-ID remembered-path witness', () => {
   let projectLoader: ProjectLoaderApi;
   let onToast: ReturnType<typeof vi.fn>;
@@ -73,7 +110,7 @@ describe('ProjectHome missing-ID remembered-path witness', () => {
     delete window.projectLoader;
   });
 
-  it('persists recents and last-project state for a missing-ID loader success before any App validation', async () => {
+  it('does not persist remembered-path state for a missing-ID loader success before any App validation', async () => {
     const project = createMissingIdProject();
     projectLoader.openProjectDialog = vi
       .fn()
@@ -107,27 +144,18 @@ describe('ProjectHome missing-ID remembered-path witness', () => {
       });
     });
 
-    const storedRecents = JSON.parse(
-      window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
-    ) as Array<{ path: string; name: string }>;
-    expect(storedRecents).toHaveLength(1);
-    expect(storedRecents[0]).toMatchObject({
-      path: project.path,
-      name: project.name,
-    });
-
-    expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
-    expect(await screen.findByRole('button', { name: /Missing Identity Story/i })).toBeInTheDocument();
+    expect(window.localStorage.getItem('blackskies.recent-projects')).toBeNull();
+    expect(window.localStorage.getItem('blackskies.last-project')).toBeNull();
+    expect(screen.queryByRole('button', { name: /Missing Identity Story/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /show diagnostics/i }));
     const diagnostics = await screen.findByLabelText(/Story snapshot details/i);
     const diagnosticsValue = (diagnostics as HTMLTextAreaElement).value;
-    expect(diagnosticsValue).toContain(`"storedLastProjectPath": "${project.path}"`);
+    expect(diagnosticsValue).toContain('"storedLastProjectPath": null');
     expect(diagnosticsValue).toContain(`"activeProjectPath": "${project.path}"`);
-    expect(diagnosticsValue).toContain(`"path": "${project.path}"`);
   });
 
-  it('accepts the same missing-ID path through the bounded reopenRequest seam and reports success', async () => {
+  it('accepts the same missing-ID path through reopenRequest without storing remembered-path state', async () => {
     const project = createMissingIdProject();
     const onReopenConsumed = vi.fn();
     projectLoader.loadProject = vi.fn().mockResolvedValue({
@@ -160,13 +188,106 @@ describe('ProjectHome missing-ID remembered-path witness', () => {
       targetPath: project.path,
       lastOpenedPath: project.path,
     });
-    expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
+    expect(window.localStorage.getItem('blackskies.recent-projects')).toBeNull();
+    expect(window.localStorage.getItem('blackskies.last-project')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /show diagnostics/i }));
+    const diagnostics = await screen.findByLabelText(/Story snapshot details/i);
+    const diagnosticsValue = (diagnostics as HTMLTextAreaElement).value;
+    expect(diagnosticsValue).toContain('"storedLastProjectPath": null');
+    expect(diagnosticsValue).toContain(`"activeProjectPath": "${project.path}"`);
+  });
+
+  it('preserves remembered-path persistence and reopen behavior for a valid explicit-ID project', async () => {
+    const project = createValidIdProject();
+    const onReopenConsumed = vi.fn();
+    projectLoader.openProjectDialog = vi
+      .fn()
+      .mockResolvedValue({ canceled: false, filePath: project.path });
+    projectLoader.loadProject = vi.fn().mockResolvedValue({
+      ok: true,
+      project,
+      issues: [],
+    });
+
+    const { rerender } = render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={onToast}
+        onProjectLoaded={onProjectLoaded}
+        onReopenConsumed={onReopenConsumed}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /open project/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: project.path });
+    });
+
+    await waitFor(() => {
+      expect(onProjectLoaded).toHaveBeenCalledWith({
+        status: 'loaded',
+        project,
+        targetPath: project.path,
+        lastOpenedPath: project.path,
+      });
+    });
+
     const storedRecents = JSON.parse(
       window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
     ) as Array<{ path: string; name: string }>;
+    expect(storedRecents).toHaveLength(1);
     expect(storedRecents[0]).toMatchObject({
       path: project.path,
       name: project.name,
     });
+
+    expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
+
+    fireEvent.click(screen.getByRole('button', { name: /show diagnostics/i }));
+    let diagnostics = await screen.findByLabelText(/Story snapshot details/i);
+    let diagnosticsValue = (diagnostics as HTMLTextAreaElement).value;
+    expect(diagnosticsValue).toContain(`"storedLastProjectPath": "${project.path}"`);
+    expect(diagnosticsValue).toContain(`"activeProjectPath": "${project.path}"`);
+
+    rerender(
+      <ProjectHome
+        suppressBootstrap
+        onToast={onToast}
+        onProjectLoaded={onProjectLoaded}
+        onReopenConsumed={onReopenConsumed}
+        reopenRequest={{ path: project.path, requestId: 9 }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledTimes(2);
+    });
+
+    await waitFor(() => {
+      expect(onReopenConsumed).toHaveBeenCalledWith({ requestId: 9, status: 'success' });
+    });
+
+    const latestOnProjectLoadedCall = onProjectLoaded.mock.calls.at(-1);
+    expect(latestOnProjectLoadedCall?.[0]).toEqual({
+      status: 'loaded',
+      project,
+      targetPath: project.path,
+      lastOpenedPath: project.path,
+    });
+
+    const recentsAfterReopen = JSON.parse(
+      window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
+    ) as Array<{ path: string; name: string }>;
+    expect(recentsAfterReopen[0]).toMatchObject({
+      path: project.path,
+      name: project.name,
+    });
+    expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
+
+    diagnostics = await screen.findByLabelText(/Story snapshot details/i);
+    diagnosticsValue = (diagnostics as HTMLTextAreaElement).value;
+    expect(diagnosticsValue).toContain(`"storedLastProjectPath": "${project.path}"`);
   });
 });
