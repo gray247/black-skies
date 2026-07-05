@@ -1517,6 +1517,12 @@ export default function ProjectHome({
                   </p>
                 </div>
                 <dl className="project-home__stats">
+                  {activeProject.projectId ? (
+                    <div>
+                      <dt>Project ID</dt>
+                      <dd>{activeProject.projectId}</dd>
+                    </div>
+                  ) : null}
                   <div>
                     <dt>Acts</dt>
                     <dd>{activeProject.outline.acts.length}</dd>

@@ -43,6 +43,43 @@ function createDivergentProject(): LoadedProject {
   };
 }
 
+function createMatchingIdentityProject(): LoadedProject {
+  const outline: OutlineFile = {
+    schema_version: 'OutlineSchema v1',
+    outline_id: 'out_proj_alpha_matching',
+    acts: [],
+    chapters: [],
+    scenes: [
+      {
+        id: 'sc_match',
+        order: 1,
+        title: 'Matching Identity Scene',
+        chapter_id: 'ch_match',
+        beat_refs: [],
+      },
+    ],
+  };
+
+  return {
+    path: '/projects/proj_alpha',
+    name: 'Matching Identity Story',
+    projectId: 'proj_alpha',
+    outline,
+    scenes: [
+      {
+        id: 'sc_match',
+        title: 'Matching Identity Scene',
+        order: 1,
+        chapter_id: 'ch_match',
+      },
+    ],
+    drafts: {
+      sc_match: '# Matching Identity Scene',
+    },
+    bootstrapState: 'empty',
+  };
+}
+
 describe('ProjectHome divergence visibility witness', () => {
   let onToast: ReturnType<typeof vi.fn>;
 
@@ -67,7 +104,7 @@ describe('ProjectHome divergence visibility witness', () => {
     delete window.projectLoader;
   });
 
-  it('shows path and name, hides canonical id, persists path-based recents, and preserves divergent handoff', async () => {
+  it('shows canonical id in ProjectHome details for a divergent valid-ID project while preserving path-based recents and handoff', async () => {
     const project = createDivergentProject();
     const onProjectLoaded = vi.fn();
 
@@ -98,8 +135,8 @@ describe('ProjectHome divergence visibility witness', () => {
 
     expect(screen.getAllByText(project.name).length).toBeGreaterThan(0);
     expect(screen.getAllByText(project.path).length).toBeGreaterThan(0);
-    expect(screen.queryByText(project.projectId ?? '')).not.toBeInTheDocument();
-    expect(screen.queryByText(/project id/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Project ID')).toBeInTheDocument();
+    expect(screen.getByText(project.projectId ?? '')).toBeInTheDocument();
     expect(screen.queryByText(/mismatch/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/divergence/i)).not.toBeInTheDocument();
 
@@ -129,6 +166,46 @@ describe('ProjectHome divergence visibility witness', () => {
     expect(diagnosticsValue).not.toContain(project.projectId ?? '');
     expect(diagnosticsValue).not.toContain('mismatch');
     expect(diagnosticsValue).not.toContain('divergence');
+  });
+
+  it('shows canonical id for a non-divergent valid-ID project without adding a false divergence warning', async () => {
+    const project = createMatchingIdentityProject();
+    const onProjectLoaded = vi.fn();
+
+    window.projectLoader.openProjectDialog = vi
+      .fn()
+      .mockResolvedValue({ canceled: false, filePath: project.path });
+    window.projectLoader.loadProject = vi.fn().mockResolvedValue({
+      ok: true,
+      project,
+      issues: [],
+    });
+
+    render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={onToast}
+        onProjectLoaded={onProjectLoaded}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /open project/i }));
+
+    await waitFor(() => {
+      expect(onProjectLoaded).toHaveBeenCalledWith({
+        status: 'loaded',
+        project,
+        targetPath: project.path,
+        lastOpenedPath: project.path,
+      });
+    });
+
+    expect(screen.getAllByText(project.name).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(project.path).length).toBeGreaterThan(0);
+    expect(screen.getByText('Project ID')).toBeInTheDocument();
+    expect(screen.getByText(project.projectId ?? '')).toBeInTheDocument();
+    expect(screen.queryByText(/mismatch/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/divergence/i)).not.toBeInTheDocument();
 
   });
 });
