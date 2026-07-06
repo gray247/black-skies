@@ -75,8 +75,8 @@ class DraftAcceptService:
         scene_write_started = perf_counter()
         try:
             await run_in_threadpool(
-                self._persistence.write_scene,
-                request.project_id,
+                self._persistence.write_scene_at_root,
+                project_root,
                 updated_front_matter,
                 normalized_text,
                 durable=durable_writes,

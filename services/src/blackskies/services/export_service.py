@@ -61,10 +61,11 @@ class ProjectExportService:
         self,
         *,
         project_id: str,
+        project_root: Path | None = None,
         format: ExportFormat,
         include_meta_header: bool = False,
     ) -> ProjectExportResult:
-        project_root = self._settings.project_base_dir / project_id
+        project_root = project_root or self._settings.project_base_dir / project_id
         if not project_root.exists():
             raise FileNotFoundError(project_root)
 

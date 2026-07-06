@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 from time import perf_counter
 
@@ -35,6 +37,75 @@ from ...operations.draft_accept import (
 )
 
 
+def _resolve_requested_project_root(
+    *,
+    requested_path: str | None,
+    project_id: str,
+    settings: ServiceSettings,
+    diagnostics: DiagnosticLogger,
+) -> Path:
+    if not requested_path:
+        project_root = settings.project_base_dir / project_id
+        if not project_root.exists():
+            raise_validation_error(
+                message="Project root is missing.",
+                details={"project_id": project_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
+        return project_root
+
+    try:
+        project_root = Path(requested_path).resolve()
+        base_root = settings.project_base_dir.resolve()
+    except OSError as exc:
+        raise_validation_error(
+            message="Project path is invalid.",
+            details={"project_id": project_id, "project_path": requested_path, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    if not project_root.is_dir():
+        raise_validation_error(
+            message="Project root is missing.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    try:
+        project_root.relative_to(base_root)
+    except ValueError:
+        raise_validation_error(
+            message="Project path is outside the configured project workspace.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    project_json = project_root / "project.json"
+    try:
+        metadata = json.loads(project_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise_validation_error(
+            message="Project metadata is invalid.",
+            details={"project_id": project_id, "project_path": requested_path, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    if not isinstance(metadata, dict) or metadata.get("project_id") != project_id:
+        raise_validation_error(
+            message="Project path does not match requested project identity.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    return project_root
+
+
 @router.post("/accept")
 async def accept_draft(
     payload: dict[str, Any],
@@ -49,8 +120,11 @@ async def accept_draft(
     timings: dict[str, float] = {}
 
     validation_started = perf_counter()
+    project_path = payload.get("project_path") if isinstance(payload, dict) else None
+    validation_payload = dict(payload)
+    validation_payload.pop("project_path", None)
     try:
-        request_model = DraftAcceptRequest.model_validate(payload)
+        request_model = DraftAcceptRequest.model_validate(validation_payload)
     except ValidationError as exc:
         project_id = payload.get("project_id") if isinstance(payload, dict) else None
         project_root = (
@@ -65,14 +139,12 @@ async def accept_draft(
     timings["request_validation_ms"] = (perf_counter() - validation_started) * 1000.0
 
     lookup_started = perf_counter()
-    resolved_project_root = settings.project_base_dir / request_model.project_id
-    if not resolved_project_root.exists():
-        raise_validation_error(
-            message="Project root is missing.",
-            details={"project_id": request_model.project_id},
-            diagnostics=diagnostics,
-            project_root=None,
-        )
+    resolved_project_root = _resolve_requested_project_root(
+        requested_path=project_path if isinstance(project_path, str) else None,
+        project_id=request_model.project_id,
+        settings=settings,
+        diagnostics=diagnostics,
+    )
 
     try:
         _, front_matter, current_body = read_scene_document(

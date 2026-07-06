@@ -2104,6 +2104,7 @@ export default function App(): JSX.Element {
     try {
       const response = await exportApi({
         projectId,
+        projectPath: projectSummary.path,
         format: exportFormat,
       });
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, status
@@ -22,6 +24,7 @@ class ProjectExportRequest(BaseModel):
     """Request body for project exports."""
 
     project_id: str
+    project_path: str | None = None
     format: ExportFormat = ExportFormat.MD
     include_meta_header: bool = False
 
@@ -29,6 +32,75 @@ class ProjectExportRequest(BaseModel):
     @classmethod
     def _validate_project_id(cls, value: str) -> str:
         return validate_project_id(value)
+
+
+def _resolve_requested_project_root(
+    *,
+    requested_path: str | None,
+    project_id: str,
+    settings: ServiceSettings,
+    diagnostics: DiagnosticLogger,
+) -> Path:
+    if not requested_path:
+        project_root = settings.project_base_dir / project_id
+        if not project_root.exists():
+            raise_validation_error(
+                message="Project root is missing.",
+                details={"project_id": project_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
+        return project_root
+
+    try:
+        project_root = Path(requested_path).resolve()
+        base_root = settings.project_base_dir.resolve()
+    except OSError as exc:
+        raise_validation_error(
+            message="Project path is invalid.",
+            details={"project_id": project_id, "project_path": requested_path, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    if not project_root.is_dir():
+        raise_validation_error(
+            message="Project root is missing.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    try:
+        project_root.relative_to(base_root)
+    except ValueError:
+        raise_validation_error(
+            message="Project path is outside the configured project workspace.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    project_json = project_root / "project.json"
+    try:
+        metadata = json.loads(project_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise_validation_error(
+            message="Project metadata is invalid.",
+            details={"project_id": project_id, "project_path": requested_path, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    if not isinstance(metadata, dict) or metadata.get("project_id") != project_id:
+        raise_validation_error(
+            message="Project path does not match requested project identity.",
+            details={"project_id": project_id, "project_path": requested_path},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    return project_root
 
 
 class ProjectExportResponse(BaseModel):
@@ -62,14 +134,12 @@ async def export_project(
             project_root=None,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
-    if not project_root.exists():
-        raise_validation_error(
-            message="Project root is missing.",
-            details={"project_id": request_model.project_id},
-            diagnostics=diagnostics,
-            project_root=None,
-        )
+    project_root = _resolve_requested_project_root(
+        requested_path=request_model.project_path,
+        project_id=request_model.project_id,
+        settings=settings,
+        diagnostics=diagnostics,
+    )
 
     export_service = ProjectExportService(
         settings=settings,
@@ -79,6 +149,7 @@ async def export_project(
     try:
         result = await export_service.export(
             project_id=request_model.project_id,
+            project_root=project_root,
             format=request_model.format,
             include_meta_header=request_model.include_meta_header,
         )

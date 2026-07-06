@@ -83,6 +83,21 @@ class DraftPersistence:
         durable: bool | None = None,
     ) -> Path:
         project_root = self.ensure_project_root(project_id)
+        return self.write_scene_at_root(
+            project_root,
+            front_matter,
+            body,
+            durable=durable,
+        )
+
+    def write_scene_at_root(
+        self,
+        project_root: Path,
+        front_matter: dict[str, Any],
+        body: str,
+        *,
+        durable: bool | None = None,
+    ) -> Path:
         drafts_dir = project_root / "drafts"
         drafts_dir.mkdir(parents=True, exist_ok=True)
 

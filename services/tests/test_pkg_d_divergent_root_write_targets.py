@@ -32,9 +32,14 @@ def _write_outline(project_root: Path) -> None:
     (project_root / "outline.json").write_text(json.dumps(outline, indent=2), encoding="utf-8")
 
 
-def _write_project_json(project_root: Path, *, name: str) -> None:
+def _write_project_json(
+    project_root: Path,
+    *,
+    name: str,
+    project_id: str = PROJECT_ID,
+) -> None:
     payload = {
-        "project_id": PROJECT_ID,
+        "project_id": project_id,
         "name": name,
         "budget": {"soft": 5.0, "hard": 10.0, "spent_usd": 0.0},
     }
@@ -78,7 +83,7 @@ def _export_files(project_root: Path) -> list[Path]:
     return sorted(path for path in exports_dir.iterdir() if path.is_file())
 
 
-def test_export_writes_to_project_id_derived_root_when_active_path_diverges(tmp_path: Path) -> None:
+def test_export_writes_to_active_root_when_active_path_diverges(tmp_path: Path) -> None:
     active_root = _seed_project_root(
         tmp_path,
         ACTIVE_ROOT_NAME,
@@ -95,7 +100,11 @@ def test_export_writes_to_project_id_derived_root_when_active_path_diverges(tmp_
     with _client_for(tmp_path) as client:
         response = client.post(
             f"{API_PREFIX}/export",
-            json={"project_id": PROJECT_ID, "format": "txt"},
+            json={
+                "project_id": PROJECT_ID,
+                "project_path": str(active_root),
+                "format": "txt",
+            },
         )
 
     assert response.status_code == 200, response.text
@@ -104,15 +113,43 @@ def test_export_writes_to_project_id_derived_root_when_active_path_diverges(tmp_
 
     project_id_exports = _export_files(project_id_root)
     active_root_exports = _export_files(active_root)
-    assert len(project_id_exports) == 1
-    assert active_root_exports == []
+    assert project_id_exports == []
+    assert len(active_root_exports) == 1
 
-    exported_text = project_id_exports[0].read_text(encoding="utf-8")
-    assert "PROJECT ID ROOT EXPORT BODY" in exported_text
-    assert "ACTIVE ROOT EXPORT BODY" not in exported_text
+    exported_text = active_root_exports[0].read_text(encoding="utf-8")
+    assert "ACTIVE ROOT EXPORT BODY" in exported_text
+    assert "PROJECT ID ROOT EXPORT BODY" not in exported_text
 
 
-def test_draft_acceptance_writes_to_project_id_derived_root_when_active_path_diverges(
+def test_export_rejects_active_root_outside_project_workspace(tmp_path: Path) -> None:
+    project_id_root = _seed_project_root(
+        tmp_path,
+        PROJECT_ID,
+        name="Project ID Root Project",
+        body="PROJECT ID ROOT EXPORT BODY",
+    )
+    outside_root = tmp_path.parent / f"{tmp_path.name}_outside_project"
+    outside_root.mkdir(parents=True, exist_ok=True)
+    _write_project_json(outside_root, name="Outside Project")
+    _write_outline(outside_root)
+    _write_scene(outside_root, title="Outside Project", body="OUTSIDE EXPORT BODY")
+
+    with _client_for(tmp_path) as client:
+        response = client.post(
+            f"{API_PREFIX}/export",
+            json={
+                "project_id": PROJECT_ID,
+                "project_path": str(outside_root),
+                "format": "txt",
+            },
+        )
+
+    assert response.status_code == 400
+    assert _export_files(project_id_root) == []
+    assert _export_files(outside_root) == []
+
+
+def test_draft_acceptance_writes_to_active_root_when_active_path_diverges(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
@@ -153,20 +190,21 @@ def test_draft_acceptance_writes_to_project_id_derived_root_when_active_path_div
         fake_create_accept_snapshot,
     )
 
-    _, _, project_id_body = read_scene_document(project_id_root, SCENE_ID)
-    previous_sha256 = _compute_sha256(project_id_body)
+    _, _, active_body = read_scene_document(active_root, SCENE_ID)
+    previous_sha256 = _compute_sha256(active_body)
 
     with _client_for(tmp_path) as client:
         response = client.post(
             f"{API_PREFIX}/draft/accept",
             json={
                 "project_id": PROJECT_ID,
+                "project_path": str(active_root),
                 "draft_id": "dr_pkg_d_001",
                 "unit_id": SCENE_ID,
                 "unit": {
                     "id": SCENE_ID,
                     "previous_sha256": previous_sha256,
-                    "text": "PROJECT ID ROOT UPDATED BODY",
+                    "text": "ACTIVE ROOT UPDATED BODY",
                     "meta": {},
                     "estimated_cost_usd": 0.01,
                 },
@@ -178,7 +216,50 @@ def test_draft_acceptance_writes_to_project_id_derived_root_when_active_path_div
 
     _, _, active_body_after = read_scene_document(active_root, SCENE_ID)
     _, _, project_id_body_after = read_scene_document(project_id_root, SCENE_ID)
-    assert active_body_after.strip() == "ACTIVE ROOT ACCEPT BODY"
-    assert project_id_body_after.strip() == "PROJECT ID ROOT UPDATED BODY"
+    assert active_body_after.strip() == "ACTIVE ROOT UPDATED BODY"
+    assert project_id_body_after.strip() == "PROJECT ID ROOT ACCEPT BODY"
     assert not (active_root / "history" / "snapshots").exists()
     assert not (project_id_root / "history" / "snapshots").exists()
+
+
+def test_draft_acceptance_rejects_active_root_with_mismatched_project_identity(
+    tmp_path: Path,
+) -> None:
+    active_root = _seed_project_root(
+        tmp_path,
+        ACTIVE_ROOT_NAME,
+        name="Active Path Project",
+        body="ACTIVE ROOT ACCEPT BODY",
+    )
+    project_id_root = _seed_project_root(
+        tmp_path,
+        PROJECT_ID,
+        name="Project ID Root Project",
+        body="PROJECT ID ROOT ACCEPT BODY",
+    )
+    _write_project_json(active_root, name="Mismatched Active Path Project", project_id="proj_other")
+
+    with _client_for(tmp_path) as client:
+        response = client.post(
+            f"{API_PREFIX}/draft/accept",
+            json={
+                "project_id": PROJECT_ID,
+                "project_path": str(active_root),
+                "draft_id": "dr_pkg_d_002",
+                "unit_id": SCENE_ID,
+                "unit": {
+                    "id": SCENE_ID,
+                    "previous_sha256": "0" * 64,
+                    "text": "SHOULD NOT WRITE",
+                    "meta": {},
+                    "estimated_cost_usd": 0.01,
+                },
+                "message": "Reject mismatched active-root witness draft.",
+            },
+        )
+
+    assert response.status_code == 400
+    _, _, active_body_after = read_scene_document(active_root, SCENE_ID)
+    _, _, project_id_body_after = read_scene_document(project_id_root, SCENE_ID)
+    assert active_body_after.strip() == "ACTIVE ROOT ACCEPT BODY"
+    assert project_id_body_after.strip() == "PROJECT ID ROOT ACCEPT BODY"

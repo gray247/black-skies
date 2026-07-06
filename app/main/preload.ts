@@ -1672,6 +1672,7 @@ function serializeCritiqueRequest({
 
 function serializeAcceptRequest({
   projectId,
+  projectPath,
   draftId,
   unitId,
   unit,
@@ -1694,6 +1695,7 @@ function serializeAcceptRequest({
     unit: unitPayload,
   };
 
+  setOptionalString(payload, 'project_path', projectPath);
   setOptionalString(payload, 'message', message);
   setOptionalString(payload, 'snapshot_label', snapshotLabel);
 
@@ -1881,6 +1883,7 @@ export const serviceApi = {
   exportProject: (request: ProjectExportBridgeRequest) =>
     makeServiceCall<ProjectExportBridgeResponse>('export', 'POST', {
       project_id: request.projectId,
+      ...(request.projectPath ? { project_path: request.projectPath } : {}),
       ...(request.format ? { format: request.format } : {}),
       include_meta_header: Boolean(request.includeMetaHeader),
     }),

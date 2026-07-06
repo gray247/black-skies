@@ -404,6 +404,7 @@ export interface DraftAcceptUnitPayload {
 
 export interface DraftAcceptBridgeRequest {
   projectId: string;
+  projectPath?: string | null;
   draftId: string;
   unitId: string;
   unit: DraftAcceptUnitPayload;
@@ -513,6 +514,7 @@ export interface AnalyticsBridgeRequest {
 
 export interface ProjectExportBridgeRequest {
   projectId: string;
+  projectPath?: string | null;
   format?: ExportFormat;
   includeMetaHeader?: boolean;
 }
