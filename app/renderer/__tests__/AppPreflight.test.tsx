@@ -2299,6 +2299,7 @@ describe('App preflight integration', () => {
       expect(services.exportProject).toHaveBeenCalledWith({
         format: 'md',
         projectId: 'proj_split_command',
+        projectPath: '/projects/demo',
       });
     });
   });
