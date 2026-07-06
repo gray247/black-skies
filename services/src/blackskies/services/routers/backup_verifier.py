@@ -128,14 +128,12 @@ async def run_backup_verifier(
         latest_only=latest_only,
     )
     report_payload = json.dumps(report, indent=2)
-    report_roots = _project_report_roots(settings, validated_id) or [project_root]
-    for report_root in report_roots:
-        report_dir = report_root / SNAPSHOT_DIR_NAME
-        report_dir.mkdir(parents=True, exist_ok=True)
-        (report_dir / "last_verification.json").write_text(
-            report_payload,
-            encoding="utf-8",
-        )
+    report_dir = project_root / SNAPSHOT_DIR_NAME
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "last_verification.json").write_text(
+        report_payload,
+        encoding="utf-8",
+    )
     return report
 
 
