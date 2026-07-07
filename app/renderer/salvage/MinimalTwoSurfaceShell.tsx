@@ -14,6 +14,9 @@ export default function MinimalTwoSurfaceShell() {
     MINIMAL_SALVAGE_SHELL_MODEL.sceneList.find(
       (scene) => scene.id === MINIMAL_SALVAGE_SHELL_MODEL.selectedSceneId,
     ) ?? MINIMAL_SALVAGE_SHELL_MODEL.sceneList[0];
+  const syntheticProjectId = "project_signal_house_draft";
+  const saveStateLabel = "Save-state: Local draft ready";
+  const saveStateDetail = "Bounded status only. No runtime persistence, recovery, or restore wiring.";
 
   return (
     <main
@@ -43,7 +46,14 @@ export default function MinimalTwoSurfaceShell() {
             <h3>Current Project Context</h3>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
+            <p>Active project identity: {syntheticProjectId}</p>
             <p>Selected scene: {MINIMAL_SALVAGE_SHELL_MODEL.currentSceneLabel}</p>
+          </section>
+
+          <section aria-label="Save-state status framing">
+            <h3>Save-State Status</h3>
+            <p>{saveStateLabel}</p>
+            <p>{saveStateDetail}</p>
           </section>
 
           <nav aria-label="Minimal scene navigation">
@@ -87,6 +97,7 @@ export default function MinimalTwoSurfaceShell() {
             <h3>Project Status</h3>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
+            <p>{saveStateLabel}</p>
           </section>
 
           <section aria-label="Static scene list">
