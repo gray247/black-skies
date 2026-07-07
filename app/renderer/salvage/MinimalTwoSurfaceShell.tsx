@@ -15,6 +15,7 @@ export default function MinimalTwoSurfaceShell() {
       (scene) => scene.id === MINIMAL_SALVAGE_SHELL_MODEL.selectedSceneId,
     ) ?? MINIMAL_SALVAGE_SHELL_MODEL.sceneList[0];
   const syntheticProjectId = "project_signal_house_draft";
+  const syntheticProjectContextLabel = "Synthetic active project context";
   const saveStateLabel = "Save-state: Local draft ready";
   const saveStateDetail = "Bounded status only. No runtime persistence, recovery, or restore wiring.";
 
@@ -31,6 +32,16 @@ export default function MinimalTwoSurfaceShell() {
         </p>
       </header>
 
+      <section aria-label="Synthetic project frame" data-testid="synthetic-project-frame">
+        <h2>{syntheticProjectContextLabel}</h2>
+        <p>
+          This shell is attached to one synthetic/minimal active project context so first-slice UI
+          behavior can stay explicit without real project loading.
+        </p>
+        <p>Active project title: {MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
+        <p>Active project identity: {syntheticProjectId}</p>
+      </section>
+
       <div data-testid="minimal-two-surface-shell-layout">
         <section
           aria-label="Writing Surface"
@@ -46,7 +57,7 @@ export default function MinimalTwoSurfaceShell() {
             <h3>Current Project Context</h3>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
-            <p>Active project identity: {syntheticProjectId}</p>
+            <p>Active project identity matches the synthetic project frame: {syntheticProjectId}</p>
             <p>Selected scene: {MINIMAL_SALVAGE_SHELL_MODEL.currentSceneLabel}</p>
           </section>
 

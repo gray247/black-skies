@@ -33,13 +33,27 @@ describe("MinimalTwoSurfaceShell", () => {
   it("renders static project context and keeps the Writing Surface available first", () => {
     render(<MinimalTwoSurfaceShell />);
 
+    const syntheticProjectFrame = screen.getByTestId("synthetic-project-frame");
     const writingSurface = screen.getByTestId("writing-surface");
     const editor = screen.getByLabelText("Writing Surface editor");
 
+    expect(within(syntheticProjectFrame).getByRole("heading", { name: "Synthetic active project context" })).toBeInTheDocument();
+    expect(
+      within(syntheticProjectFrame).getByText(
+        "This shell is attached to one synthetic/minimal active project context so first-slice UI behavior can stay explicit without real project loading.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(syntheticProjectFrame).getByText("Active project title: Signal House Draft")).toBeInTheDocument();
+    expect(within(syntheticProjectFrame).getByText("Active project identity: project_signal_house_draft")).toBeInTheDocument();
     expect(within(writingSurface).getByRole("heading", { name: "Writing Surface" })).toBeInTheDocument();
     expect(within(writingSurface).getByText("Direct writing remains available first.")).toBeInTheDocument();
     expect(within(writingSurface).getByLabelText("Current project context")).toBeInTheDocument();
     expect(within(writingSurface).getByText("Signal House Draft")).toBeInTheDocument();
+    expect(
+      within(writingSurface).getByText(
+        "Active project identity matches the synthetic project frame: project_signal_house_draft",
+      ),
+    ).toBeInTheDocument();
     expect(within(writingSurface).getByText("Selected scene: Scene 02 - Hallway Argument")).toBeInTheDocument();
     expect(within(writingSurface).getByLabelText("Minimal scene navigation")).toBeInTheDocument();
     expect(editor).toBeInTheDocument();
