@@ -219,7 +219,13 @@ Current sequencing remains:
 - Stage 9 is complete and closed.
 - The five Stage 9 architecture files are the current Stage 9 records.
 - Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
-- Restored-copy identity remains deferred to Stage 12.
+- Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Home status: `not yet authorized`.
+  Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+  Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+  Review visibility: visible during Stage 16 entry review.
+  Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 - Stage 10 is complete and closed.
 - Stage 10 completed the operational-readiness audit.
 - Stage 10 did not establish implementation or release readiness.
@@ -232,7 +238,13 @@ Current sequencing remains:
 - Stage 11 has not begun.
 - Stage 11 requires explicit author approval.
 - Stage 12 Architecture Readiness Contract remains after Stage 11.
-- Restored-copy identity remains deferred to Stage 12.
+- Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Home status: `not yet authorized`.
+  Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+  Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+  Review visibility: visible during Stage 16 entry review.
+  Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 - Stage 11 inputs remain preserved.
 - The 19-stage sequence is unchanged.
 - Stage 5 does not admit connectors automatically.
@@ -397,7 +409,13 @@ No additional Stage 8 audit or research is required.
 Stage 9 is complete and closed.
 The five Stage 9 architecture files are the current Stage 9 records.
 Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 10 is complete and closed.
 Stage 10 completed the operational-readiness audit.
 Stage 10 did not establish implementation or release readiness.
@@ -410,7 +428,13 @@ Program Stage 11 Fatal Question Review is next eligible.
 Stage 11 has not begun.
 Stage 11 requires explicit author approval.
 Stage 12 Architecture Readiness Contract remains after Stage 11.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
 Stage 5 external challenge inputs remain preserved.
@@ -457,7 +481,13 @@ No additional Stage 8 audit or research is required.
 Stage 9 is complete and closed.
 The five Stage 9 architecture files are the current Stage 9 records.
 Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 10 is complete and closed.
 Stage 10 completed the operational-readiness audit.
 Stage 10 did not establish implementation or release readiness.
@@ -470,7 +500,13 @@ Program Stage 11 Fatal Question Review is next eligible.
 Stage 11 has not begun.
 Stage 11 requires explicit author approval.
 Stage 12 Architecture Readiness Contract remains after Stage 11.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 11 inputs remain preserved.
 Implementation remains blocked.
 All 45 dossiers remain recorded at Category `4`.
@@ -1048,7 +1084,13 @@ No additional Stage 8 audit or research is required.
 Stage 9 is complete and closed.
 The five Stage 9 architecture files are the current Stage 9 records.
 Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 10 is complete and closed.
 Stage 10 completed the operational-readiness audit.
 Stage 10 did not establish implementation or release readiness.
@@ -1061,7 +1103,13 @@ Program Stage 11 Fatal Question Review is next eligible.
 Stage 11 has not begun.
 Stage 11 requires explicit author approval.
 Stage 12 Architecture Readiness Contract remains after Stage 11.
-Restored-copy identity remains deferred to Stage 12.
+Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
+Current position: after Stage 15 closure, before Stage 16 authorization.
+Home status: `not yet authorized`.
+Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
+Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
+Review visibility: visible during Stage 16 entry review.
+Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
 Stage 11 inputs remain preserved.
 Stage 5 does not admit connectors automatically.
 Stage 5 does not unblock implementation.
