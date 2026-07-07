@@ -287,12 +287,12 @@ Current Black Skies doctrine is:
 - The five Stage 9 architecture files are the current Stage 9 records.
 - Stage 9 did not choose layouts, components, schemas, APIs, runtime classes, or implementation mechanics.
 - Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
-  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Current position: after Stage 16 closure, before Stage 17 Vertical Slice Plan authorization.
   Home status: `not yet authorized`.
-  Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
-  Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
-  Review visibility: visible during Stage 16 entry review.
-  Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
+  Next required review: Stage 17 `Vertical Slice Plan` slice-impact check.
+  Stage 17 consequence: if slice-relevant, resolve or scope the validation lane before Stage 17 closure or block closure; if not slice-relevant, exclude from Stage 17 with rationale.
+  Stage 18 obligation: confirm any Stage 17 exclusion remains valid before `Final Pre-Code Build Readiness Review` closure.
+  Stage 19 consequence: implementation blocked if restore/import identity remains slice-relevant and unresolved.
 - Stage 10 is complete and closed.
 - Stage 10 completed the operational-readiness audit.
 - Stage 10 did not establish implementation or release readiness.
@@ -306,12 +306,12 @@ Current Black Skies doctrine is:
 - Stage 11 requires explicit author approval.
 - Stage 12 Architecture Readiness Contract remains after Stage 11.
 - Restored-copy identity now carries the forward home `later explicitly authorized Restore/Import Identity Validation lane`.
-  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Current position: after Stage 16 closure, before Stage 17 Vertical Slice Plan authorization.
   Home status: `not yet authorized`.
-  Promotion trigger: Jason authorizes restore/import identity validation or Stage 16 finds the issue affects cleanup/archive traceability.
-  Blocking rationale: non-blocking for Stage 16 unless cleanup/archive classification depends on restored-copy identity authority.
-  Review visibility: visible during Stage 16 entry review.
-  Reassignment path: if Stage 16 only needs traceability, carry visibility but do not resolve restore/import identity substance.
+  Next required review: Stage 17 `Vertical Slice Plan` slice-impact check.
+  Stage 17 consequence: if slice-relevant, resolve or scope the validation lane before Stage 17 closure or block closure; if not slice-relevant, exclude from Stage 17 with rationale.
+  Stage 18 obligation: confirm any Stage 17 exclusion remains valid before `Final Pre-Code Build Readiness Review` closure.
+  Stage 19 consequence: implementation blocked if restore/import identity remains slice-relevant and unresolved.
 - Connectors remain gated.
 - Stage 5 does not unblock implementation.
 - Stage 6 does not unblock implementation.
@@ -320,12 +320,12 @@ Current Black Skies doctrine is:
 - The 19-stage sequence is unchanged.
 - Repository remains not build-ready.
 - External challenge questions now carry the forward home `later explicitly authorized External Challenge Follow-Up / Current Validation lane`.
-  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Current position: after Stage 16 closure, before Stage 17 Vertical Slice Plan authorization.
   Home status: `not yet authorized`.
-  Promotion trigger: Jason authorizes renewed external challenge/current validation review.
-  Blocking rationale: non-blocking for Stage 16 authorization unless Stage 16 discovers these records are needed for cleanup/archive traceability.
-  Review visibility: visible during Stage 16 entry review if encountered.
-  Reassignment path: if the issue becomes cleanup/archive relevant, Stage 16 may carry visibility but must not resolve external challenge substance.
+  Next required review: Stage 17 lightweight slice-impact check.
+  Stage 17 consequence: if slice impact exists, promote into Stage 17 decision scope; if no slice impact exists, promote to Stage 18 required review.
+  Stage 18 obligation: full required review during `Final Pre-Code Build Readiness Review` unless Stage 17 promotes earlier.
+  Stage 19 consequence: implementation blocked if required current validation remains unresolved at Stage 18 closure.
   GUI presentation and interaction work is recorded in the Stage 9 architecture files, and operational-readiness work is complete and closed in Stage 10.
 - `Capability Ceiling and Breadth Audit`,
   `External Deep-Research Challenge Audit`,

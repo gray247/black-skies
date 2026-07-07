@@ -119,7 +119,7 @@ Specific Stage 17 rule:
 
 ### 6.3 Retained sample-root/current-vs-historical classification
 
-- current home: `Stage 16 Repository Cleanup and Archive Milestone readiness gate`, with reassignment to a later explicitly authorized current-versus-historical classification follow-up lane if Stage 16 cannot safely classify it
+- current home: Stage 17 `Vertical Slice Plan` entry obligation, with the Stage 16 scope/readiness gate preserved as historical source and with reassignment to a later explicitly authorized current-versus-historical classification follow-up lane if Stage 17 cannot safely classify it
 - Stage 17 entry obligation: decide whether the first vertical slice uses sample-root, retained evidence-root, or related protected-evidence paths, and record the resulting evidence-boundary posture
 - Stage 18 obligation: if Stage 17 excludes sample-root usage from the slice, Stage 18 must confirm that implementation readiness still preserves the exclusion and evidence boundary
 - slice-impact check required: yes
@@ -139,7 +139,7 @@ Specific Stage 17 rule:
 
 ### 6.4 Unsafe-to-classify traceability records
 
-- current home: carried Stage 16 `unsafe to classify` bucket for records whose movement or compression could hide current-authority or historical-evidence traceability
+- current home: Stage 17 `Vertical Slice Plan` entry obligation to split unsafe-to-classify traceability material into named records or categories, with the carried Stage 16 bucket preserved as historical source
 - Stage 17 entry obligation: split the bucket into named records or named categories that are slice-relevant, or state that no specific unsafe-to-classify record is slice-relevant to the first vertical slice
 - Stage 18 obligation: any non-slice-relevant unsafe-to-classify traceability concern that still matters for implementation readiness must be promoted to Stage 18 as a required review item
 - slice-impact check required: yes
