@@ -326,10 +326,26 @@ The salvage subsequence is ordered:
 4. `Repository Cleanup and Archive Milestone`
 
 Separation and cleanup do not occur before salvage verification.
+Stage 15 `Current-versus-Historical Separation` is governance,
+classification, doctrine propagation, and traceability preservation
+work. It does not authorize cleanup or archive execution.
 Repository cleanup and archive creation occur only after verified
 salvage.
+Stage 16 `Repository Cleanup and Archive Milestone` requires separate
+Jason authorization before any cleanup or archive action.
 The archive milestone must support local backup and upload into the
 Black Skies project folder.
+Across both stages:
+
+- no unresolved issue may be deferred to a completed stage or closed
+  package
+- every residual must keep a concrete named home, home status,
+  promotion trigger, blocking or non-blocking rationale, review
+  visibility, and reassignment path if its natural home is closed
+- vague homes such as `later`, `future polish`, and
+  `post-cleanup maybe` are invalid
+- protected evidence remains protected
+- current-versus-historical separation must preserve traceability
 
 Category `4` means reconciled and hardened.
 It does not mean dossier-complete, build-ready, or
@@ -862,10 +878,16 @@ The salvage subsequence is ordered:
 4. `Repository Cleanup and Archive Milestone`
 
 Separation and cleanup do not occur before salvage verification.
+Stage 15 does not authorize cleanup or archive execution.
 Repository cleanup and archive creation occur only after verified
 salvage.
+Stage 16 requires separate Jason authorization before any cleanup or
+archive action.
 The archive milestone must support local backup and upload into the
 Black Skies project folder.
+Residual handling across these stages must preserve concrete homes,
+review visibility, and reassignment discipline rather than hiding open
+work in closed stages or vague later buckets.
 
 After that, all of the following must also be true:
 

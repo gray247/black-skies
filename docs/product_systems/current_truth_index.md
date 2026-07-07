@@ -41,6 +41,20 @@ Without an explicit truth index, the project risks split-brain planning:
     `current_product_roadmap.md`; maturity authority belongs to
     `dossier_maturity_inventory.md`; detailed readiness-gate authority
     belongs to `pre_code_discovery_plan.md`.
+12. No unresolved issue may be deferred to a completed stage or closed package.
+13. Every residual must carry current position, concrete named home,
+    home status, promotion trigger, blocking or non-blocking rationale,
+    review visibility, and reassignment path if the natural home is
+    closed.
+14. Vague homes such as `later`, `future polish`, and
+    `post-cleanup maybe` are invalid.
+15. Stage 15 `Current-versus-Historical Separation` does not authorize
+    cleanup or archive execution.
+16. Stage 16 `Repository Cleanup and Archive Milestone` requires
+    separate Jason authorization before any cleanup or archive action.
+17. Protected evidence remains protected unless a later explicit record
+    authorizes otherwise.
+18. Current-versus-historical separation must preserve traceability.
 
 ## Current Product Doctrine Snapshot
 
@@ -136,6 +150,22 @@ Current Black Skies doctrine is:
   active campaign and the later post-category-4 architecture sequence.
 - `pre_code_discovery_plan.md` is the detailed readiness-gate
   authority.
+- current-versus-historical separation is governance and classification
+  work first; it does not imply movement, cleanup, archive creation, or
+  repository normalization.
+- no unresolved issue may be deferred to a completed stage or closed
+  package.
+- every residual requires a concrete named home, home status,
+  promotion trigger, blocking or non-blocking rationale, review
+  visibility, and reassignment path if its natural home is closed.
+- vague deferral homes such as `later`, `future polish`, and
+  `post-cleanup maybe` are invalid.
+- Stage 16 is the cleanup/archive milestone and requires separate Jason
+  authorization before any execution.
+- protected evidence remains protected throughout Stage 15 and Stage 16
+  until later explicit authorization says otherwise.
+- current-versus-historical separation must preserve evidence and
+  residual traceability.
 - `system_interaction_map.md` is rough cross-system and constellation
   evidence, not sequencing authority.
 - `capability_ownership_map.md` is the owner, bridge, projection, and
@@ -455,6 +485,9 @@ Update this index when:
 - a salvage architecture doc supersedes an older planning artifact,
 - external continuity planning is promoted into the repo,
 - a major doctrine correction changes foundation, surface authority, or routing rules,
+- residual-deferral doctrine, protected-evidence posture, or
+  current-versus-historical separation governance receives accepted
+  permanent-carry updates,
 - a mirrored or derivative source creates renewed conflict risk.
 
 ## Acceptance Criteria

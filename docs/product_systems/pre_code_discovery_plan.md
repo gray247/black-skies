@@ -42,6 +42,19 @@ Current doctrine for pre-code discovery is:
 - Memory Lab must not hoard data just because data exists.
 - No silent paid API spend.
 - Old code is evidence, not product authority.
+- No unresolved issue may be deferred to a completed stage or closed
+  package.
+- Every residual needs a concrete named home, home status, promotion
+  trigger, blocking or non-blocking rationale, review visibility, and
+  reassignment path if the natural home is closed.
+- Vague homes such as `later`, `future polish`, and
+  `post-cleanup maybe` are invalid.
+- Stage 15 `Current-versus-Historical Separation` does not authorize
+  cleanup or archive execution.
+- Stage 16 `Repository Cleanup and Archive Milestone` requires separate
+  Jason authorization before any cleanup or archive action.
+- Protected evidence remains protected.
+- Current-versus-historical separation must preserve traceability.
 
 ## Batch Stop Rule
 
@@ -270,10 +283,16 @@ The salvage subsequence is ordered:
 4. `Repository Cleanup and Archive Milestone`
 
 Separation and cleanup must not occur before salvage verification.
+Stage 15 does not authorize cleanup or archive execution.
 Repository cleanup and archive creation occur only after verified
 salvage.
+Stage 16 requires separate Jason authorization before any cleanup or
+archive action.
 The milestone archive must support local backup and upload into the
 Black Skies project folder.
+Residual handling across Stage 15 and Stage 16 must preserve concrete
+homes, review visibility, protected-evidence exclusions, and
+traceability.
 
 ### Governance/Orchestrator 10 Execution Horizon
 
@@ -916,6 +935,20 @@ Stop and hand over when:
 - unresolved blockers are listed,
 - the next safe batch is named,
 - no untracked logs, raw dumps, or planning folders remain.
+
+Residual-governance discipline for later stages:
+
+- do not defer unresolved issues to completed stages or closed packages
+- do not use vague homes such as `later`, `future polish`, or
+  `post-cleanup maybe`
+- preserve concrete named homes, home status, promotion trigger,
+  blocking or non-blocking rationale, review visibility, and
+  reassignment path when natural homes are closed
+- preserve protected evidence and traceability during
+  current-versus-historical separation and later cleanup/archive work
+
+Stage 15 governance work and Stage 16 cleanup/archive execution remain
+separate. Stage 16 requires separate Jason authorization.
 
 ## Next-Thread Handover Header
 
