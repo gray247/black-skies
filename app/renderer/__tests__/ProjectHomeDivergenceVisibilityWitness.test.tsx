@@ -104,7 +104,7 @@ describe('ProjectHome divergence visibility witness', () => {
     delete window.projectLoader;
   });
 
-  it('shows canonical id in ProjectHome details for a divergent valid-ID project while preserving path-based recents and handoff', async () => {
+  it('shows canonical id in ProjectHome details and active recents for a divergent valid-ID project while preserving path-based handoff storage', async () => {
     const project = createDivergentProject();
     const onProjectLoaded = vi.fn();
 
@@ -144,7 +144,7 @@ describe('ProjectHome divergence visibility witness', () => {
       name: new RegExp(project.name, 'i'),
     });
     expect(recentProjectButton).toBeInTheDocument();
-    expect(recentProjectButton).not.toHaveTextContent(project.projectId ?? '');
+    expect(recentProjectButton).toHaveTextContent(`Project ID: ${project.projectId}`);
 
     const storedRecentsRaw = window.localStorage.getItem('blackskies.recent-projects');
     expect(storedRecentsRaw).not.toBeNull();
@@ -206,6 +206,10 @@ describe('ProjectHome divergence visibility witness', () => {
     expect(screen.getByText(project.projectId ?? '')).toBeInTheDocument();
     expect(screen.queryByText(/mismatch/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/divergence/i)).not.toBeInTheDocument();
+    const recentProjectButton = await screen.findByRole('button', {
+      name: new RegExp(project.name, 'i'),
+    });
+    expect(recentProjectButton).toHaveTextContent(`Project ID: ${project.projectId}`);
 
   });
 });

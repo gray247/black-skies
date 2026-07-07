@@ -236,14 +236,19 @@ describe('ProjectHome missing-ID remembered-path witness', () => {
 
     const storedRecents = JSON.parse(
       window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
-    ) as Array<{ path: string; name: string }>;
+    ) as Array<Record<string, unknown>>;
     expect(storedRecents).toHaveLength(1);
     expect(storedRecents[0]).toMatchObject({
       path: project.path,
       name: project.name,
     });
+    expect(storedRecents[0]).not.toHaveProperty('projectId');
 
     expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
+    const recentProjectButton = await screen.findByRole('button', {
+      name: new RegExp(project.name, 'i'),
+    });
+    expect(recentProjectButton).toHaveTextContent(`Project ID: ${project.projectId}`);
 
     fireEvent.click(screen.getByRole('button', { name: /show diagnostics/i }));
     let diagnostics = await screen.findByLabelText(/Story snapshot details/i);
@@ -279,12 +284,16 @@ describe('ProjectHome missing-ID remembered-path witness', () => {
 
     const recentsAfterReopen = JSON.parse(
       window.localStorage.getItem('blackskies.recent-projects') ?? '[]',
-    ) as Array<{ path: string; name: string }>;
+    ) as Array<Record<string, unknown>>;
     expect(recentsAfterReopen[0]).toMatchObject({
       path: project.path,
       name: project.name,
     });
+    expect(recentsAfterReopen[0]).not.toHaveProperty('projectId');
     expect(window.localStorage.getItem('blackskies.last-project')).toBe(project.path);
+    expect(
+      await screen.findByRole('button', { name: new RegExp(project.name, 'i') }),
+    ).toHaveTextContent(`Project ID: ${project.projectId}`);
 
     diagnostics = await screen.findByLabelText(/Story snapshot details/i);
     diagnosticsValue = (diagnostics as HTMLTextAreaElement).value;

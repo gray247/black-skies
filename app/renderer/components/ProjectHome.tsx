@@ -1476,6 +1476,12 @@ export default function ProjectHome({
               <ul className="project-home__recent-list" data-testid={TID.recentList}>
                 {sortedRecents.map((entry) => {
                   const isActive = activeProject?.path === entry.path;
+                  const activeRecentProjectId =
+                    isActive &&
+                    typeof activeProject?.projectId === 'string' &&
+                    activeProject.projectId.trim().length > 0
+                      ? activeProject.projectId
+                      : null;
                   return (
                     <li key={entry.path}>
                       <button
@@ -1487,6 +1493,11 @@ export default function ProjectHome({
                       >
                         <span className="project-home__recent-name">{entry.name}</span>
                         <span className="project-home__recent-path">{entry.path}</span>
+                        {activeRecentProjectId ? (
+                          <span className="project-home__recent-identity">
+                            Project ID: {activeRecentProjectId}
+                          </span>
+                        ) : null}
                       </button>
                     </li>
                   );
