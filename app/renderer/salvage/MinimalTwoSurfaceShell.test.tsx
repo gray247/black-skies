@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import MinimalTwoSurfaceShell from "./MinimalTwoSurfaceShell";
@@ -98,6 +98,39 @@ describe("MinimalTwoSurfaceShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("supports a narrow local-only prose editing flow with bounded save-state framing", () => {
+    render(<MinimalTwoSurfaceShell />);
+
+    const writingSurface = screen.getByTestId("writing-surface");
+    const commandCenter = screen.getByTestId("command-center-surface");
+    const editor = screen.getByLabelText("Writing Surface editor");
+
+    expect(editor).toHaveValue("The selected scene opens mid-conflict. Draft prose begins here.");
+    expect(within(writingSurface).getByText("Save-state: Local draft ready")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("Save-state: Local draft ready")).toBeInTheDocument();
+
+    fireEvent.change(editor, { target: { value: "A narrower local draft line." } });
+
+    expect(editor).toHaveValue("A narrower local draft line.");
+    expect(within(writingSurface).getByText("Save-state: Unsaved local edits")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("Save-state: Unsaved local edits")).toBeInTheDocument();
+    expect(
+      within(writingSurface).getByText(
+        "Edits exist only in local synthetic state. No runtime persistence, recovery, or restore wiring.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(writingSurface).getByText(
+        "Synthetic/local only editing flow. No persistence or project loading is connected.",
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Mark local draft as reviewed" }));
+
+    expect(within(writingSurface).getByText("Save-state: Local draft ready")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("Save-state: Local draft ready")).toBeInTheDocument();
+  });
+
   it("stays isolated from runtime wiring, file IO, and non-salvage dependencies", () => {
     const shellSource = readScaffoldSource();
     const modelSource = readModelSource();
@@ -107,6 +140,7 @@ describe("MinimalTwoSurfaceShell", () => {
       .filter((line) => line.startsWith("import "));
 
     expect(shellImportLines).toEqual([
+      'import { useState } from "react";',
       'import { MINIMAL_SALVAGE_SHELL_MODEL } from "./salvageShellModel";',
     ]);
     expect(shellSource).not.toMatch(/\b(?:window\.|localStorage|sessionStorage|indexedDB)\b/);

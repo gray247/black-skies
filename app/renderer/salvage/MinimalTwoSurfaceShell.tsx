@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { MINIMAL_SALVAGE_SHELL_MODEL } from "./salvageShellModel";
 
 const FUTURE_COMMAND_CENTER_AREAS = [
@@ -14,10 +16,14 @@ export default function MinimalTwoSurfaceShell() {
     MINIMAL_SALVAGE_SHELL_MODEL.sceneList.find(
       (scene) => scene.id === MINIMAL_SALVAGE_SHELL_MODEL.selectedSceneId,
     ) ?? MINIMAL_SALVAGE_SHELL_MODEL.sceneList[0];
+  const [draftText, setDraftText] = useState(MINIMAL_SALVAGE_SHELL_MODEL.prosePlaceholder);
+  const [isSaved, setIsSaved] = useState(true);
   const syntheticProjectId = "project_signal_house_draft";
   const syntheticProjectContextLabel = "Synthetic active project context";
-  const saveStateLabel = "Save-state: Local draft ready";
-  const saveStateDetail = "Bounded status only. No runtime persistence, recovery, or restore wiring.";
+  const saveStateLabel = isSaved ? "Save-state: Local draft ready" : "Save-state: Unsaved local edits";
+  const saveStateDetail = isSaved
+    ? "Bounded status only. No runtime persistence, recovery, or restore wiring."
+    : "Edits exist only in local synthetic state. No runtime persistence, recovery, or restore wiring.";
 
   return (
     <main
@@ -77,9 +83,19 @@ export default function MinimalTwoSurfaceShell() {
             <textarea
               id="minimal-writing-surface-editor"
               aria-label="Writing Surface editor"
-              defaultValue={MINIMAL_SALVAGE_SHELL_MODEL.prosePlaceholder}
+              value={draftText}
+              onChange={(event) => {
+                setDraftText(event.target.value);
+                setIsSaved(false);
+              }}
               rows={10}
             />
+            <div aria-label="Local edit controls">
+              <button type="button" onClick={() => setIsSaved(true)}>
+                Mark local draft as reviewed
+              </button>
+              <p>Synthetic/local only editing flow. No persistence or project loading is connected.</p>
+            </div>
             <p>Story Units are optional later and are not required before writing begins.</p>
             {selectedScene ? <p>Current writing focus: {selectedScene.label}</p> : null}
           </section>
