@@ -7,11 +7,14 @@ import WorkspaceHeader from '../components/WorkspaceHeader';
 
 function ActiveWritingShellHarness(): JSX.Element {
   const [draft, setDraft] = useState('# Scene One');
+  const hasLocalEdit = draft !== '# Scene One';
+  const draftSessionStateLabel = hasLocalEdit ? 'persisted, dirty, unsaved' : 'persisted';
 
   return (
     <div data-testid="pkg-b-writing-shell">
       <WorkspaceHeader
         projectLabel="Witness Project"
+        draftSessionStateLabel={draftSessionStateLabel}
         serviceStatus="online"
         serviceReason="online"
         onRetry={vi.fn().mockResolvedValue(undefined)}
@@ -47,7 +50,7 @@ function ActiveWritingShellHarness(): JSX.Element {
 }
 
 describe('PKG-B active writing save-state witness', () => {
-  it('keeps workflow controls visible after a local edit without surfacing ProjectHome-style save-state truth', () => {
+  it('keeps workflow controls visible after a local edit while surfacing active-writing save-state truth', () => {
     render(<ActiveWritingShellHarness />);
 
     fireEvent.click(screen.getByRole('button', { name: /apply local edit/i }));
@@ -62,15 +65,16 @@ describe('PKG-B active writing save-state witness', () => {
       screen.getByRole('button', { name: /Create snapshot/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Draft editor/i })).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: /Active draft state/i })).toHaveTextContent(
+      'Draft/session state: persisted, dirty, unsaved',
+    );
 
     const shellText = screen.getByTestId('pkg-b-writing-shell').textContent ?? '';
-    expect(shellText).not.toMatch(/Draft\/session state:/i);
-    expect(shellText).not.toMatch(/Lifecycle state:/i);
+    expect(shellText).toMatch(/Draft\/session state:/i);
+    expect(shellText).toMatch(/\bpersisted\b/i);
+    expect(shellText).toMatch(/\bdirty\b/i);
+    expect(shellText).toContain('unsaved');
     expect(shellText).not.toMatch(/Signal classification:/i);
-    expect(shellText).not.toMatch(/\bpersisted\b/i);
-    expect(shellText).not.toMatch(/\bdirty\b/i);
-    expect(shellText).not.toMatch(/\bunsaved\b/i);
-    expect(shellText).not.toMatch(/\bpartial\b/i);
     expect(shellText).not.toMatch(/\bstale\b/i);
     expect(shellText).not.toMatch(/recovery-required/i);
   });

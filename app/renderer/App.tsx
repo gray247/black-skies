@@ -3364,8 +3364,18 @@ export default function App(): JSX.Element {
     disableExport || verifying || !services?.runBackupVerification;
   const disableSnapshots =
     showSnapshotsPanel || !services?.listProjectSnapshots;
+  const activeSceneHasDraftOverride =
+    activeSceneId !== null && Object.prototype.hasOwnProperty.call(draftEdits, activeSceneId);
+  const activeDraftSessionStateLabel = useMemo(() => {
+    const classifications = [currentProject ? "persisted" : "runtime-only"];
+    if (activeSceneHasDraftOverride) {
+      classifications.push("dirty", "unsaved");
+    }
+    return classifications.join(", ");
+  }, [activeSceneHasDraftOverride, currentProject]);
   const headerDeps = [
     projectLabel,
+    activeDraftSessionStateLabel,
     projectSummary?.projectId,
     effectiveServiceStatus,
     effectiveServiceReason,
@@ -3402,6 +3412,7 @@ export default function App(): JSX.Element {
   const workspaceHeaderProps = useMemo(
     () => ({
       projectLabel,
+      draftSessionStateLabel: activeDraftSessionStateLabel,
       serviceStatus: effectiveServiceStatus,
       serviceReason: effectiveServiceReason,
       onRetry: visualHomeRetry,
