@@ -94,8 +94,7 @@ Current residual-home posture remains:
 - later explicitly authorized backend-root/write-target audit lane
 - later explicitly authorized recovery/restore safety lane
 - later explicitly authorized diagnostic/visibility polish lane
-- later explicitly authorized current-versus-historical classification
-  lane or separate Stage 16 readiness handoff only if later needed
+- Stage 16 Repository Cleanup and Archive Milestone readiness gate
 
 These homes remain concrete enough for current governance visibility and
 none was replaced by a closed or vague destination.

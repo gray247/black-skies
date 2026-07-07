@@ -155,7 +155,14 @@ Current status:
 - Stage 6 does not unblock implementation.
 - Repository remains not build-ready.
 - The 19-stage sequence is unchanged.
-- External challenge questions remain deferred to Stage 5, GUI presentation and interaction work is recorded in the Stage 9 architecture files, and operational-readiness work is complete and closed in Stage 10.
+- External challenge questions now carry the forward home `later explicitly authorized External Challenge Follow-Up / Current Validation lane`.
+  Current position: after Stage 15 closure, before Stage 16 authorization.
+  Home status: `not yet authorized`.
+  Promotion trigger: Jason authorizes renewed external challenge/current validation review.
+  Blocking rationale: non-blocking for Stage 16 authorization unless Stage 16 discovers these records are needed for cleanup/archive traceability.
+  Review visibility: visible during Stage 16 entry review if encountered.
+  Reassignment path: if the issue becomes cleanup/archive relevant, Stage 16 may carry visibility but must not resolve external challenge substance.
+  GUI presentation and interaction work is recorded in the Stage 9 architecture files, and operational-readiness work is complete and closed in Stage 10.
 - Implementation, GUI implementation, architecture selection,
   salvage execution, current-versus-historical separation, and
   repository cleanup remain blocked.
