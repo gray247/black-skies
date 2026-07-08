@@ -11,6 +11,13 @@ const FUTURE_COMMAND_CENTER_AREAS = [
   "Outline / Lore / Character Tools",
 ] as const;
 
+const FIRST_SLICE_BOUNDARIES = [
+  "No manuscript truth mutation from the Command Center",
+  "No restore/import or project loading",
+  "No AI, routing, critique, rewrite, export, or connectors",
+  "No persistence, recovery, or protected-evidence access",
+] as const;
+
 export default function MinimalTwoSurfaceShell() {
   const selectedScene =
     MINIMAL_SALVAGE_SHELL_MODEL.sceneList.find(
@@ -106,6 +113,7 @@ export default function MinimalTwoSurfaceShell() {
           data-testid="command-center-surface"
           data-surface-role="supporting"
           data-gating="non-blocking"
+          data-mutation-authority="advisory-only"
         >
           <header>
             <h2>Command Center Surface</h2>
@@ -124,7 +132,18 @@ export default function MinimalTwoSurfaceShell() {
             <h3>Project Status</h3>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectTitle}</p>
             <p>{MINIMAL_SALVAGE_SHELL_MODEL.projectStatusText}</p>
+            <p>Active project identity: {syntheticProjectId}</p>
             <p>{saveStateLabel}</p>
+          </section>
+
+          <section aria-label="Command Center authority boundary">
+            <h3>First-Slice Boundary</h3>
+            <p>Advisory and status-only. This surface must not mutate manuscript truth.</p>
+            <ul>
+              {FIRST_SLICE_BOUNDARIES.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </section>
 
           <section aria-label="Static scene list">

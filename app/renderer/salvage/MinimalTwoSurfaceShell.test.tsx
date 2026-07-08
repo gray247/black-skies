@@ -70,6 +70,13 @@ describe("MinimalTwoSurfaceShell", () => {
     expect(within(commandCenter).getByRole("heading", { name: "Command Center Surface" })).toBeInTheDocument();
     expect(within(commandCenter).getByText("Supports planning and inspection. It does not gate writing.")).toBeInTheDocument();
     expect(within(commandCenter).getByLabelText("Project status")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("Active project identity: project_signal_house_draft")).toBeInTheDocument();
+    expect(within(commandCenter).getByLabelText("Command Center authority boundary")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("Advisory and status-only. This surface must not mutate manuscript truth.")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("No manuscript truth mutation from the Command Center")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("No restore/import or project loading")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("No AI, routing, critique, rewrite, export, or connectors")).toBeInTheDocument();
+    expect(within(commandCenter).getByText("No persistence, recovery, or protected-evidence access")).toBeInTheDocument();
     expect(within(commandCenter).getByLabelText("Static scene list")).toBeInTheDocument();
     expect(within(commandCenter).getByText("Scene 01 - Arrival at Signal House")).toBeInTheDocument();
     expect(within(commandCenter).getByText("Scene 02 - Hallway Argument")).toBeInTheDocument();
@@ -77,6 +84,7 @@ describe("MinimalTwoSurfaceShell", () => {
     expect(within(commandCenter).getByText("Selected")).toBeInTheDocument();
     expect(within(commandCenter).getByLabelText("Future Command Center tools")).toBeInTheDocument();
     expect(commandCenter).toHaveAttribute("data-gating", "non-blocking");
+    expect(commandCenter).toHaveAttribute("data-mutation-authority", "advisory-only");
     expect(editor).toBeEnabled();
   });
 
