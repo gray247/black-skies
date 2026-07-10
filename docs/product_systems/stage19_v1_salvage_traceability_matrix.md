@@ -1,69 +1,98 @@
 # Stage 19 V1.0 Salvage Traceability Matrix
 
-## 1. Status and interpretation
+## 1. Package 19.7 status
 
-This is the initial non-protected inventory at the Package `19.6` planning
-boundary. Presence of a file or test earns no capability credit. Ratings remain
-provisional until Package `19.7` traces the executable production path and
-records baseline results. No protected evidence was inspected.
+This matrix records non-protected repository evidence at starting commit
+`818f75e`. File presence is not capability acceptance. No subsystem has manual
+acceptance. Protected evidence was neither opened nor used.
 
-Classification vocabulary: `accepted and reusable`, `reusable with repair`,
-`partially implemented`, `disconnected`, `duplicated`, `obsolete`,
-`historical only`, `unsafe`, or `absent`.
+Classifications may remain `absent`, `disconnected`, `duplicated`, `obsolete`,
+`unsafe`, or `historical only` when the evidence supports them.
 
-## 2. Initial matrix
+## 2. Authoritative production path
 
-| Capability / subsystem | Current implementation evidence | Initial classification | Automated evidence | Manual evidence | Required action/home |
-| --- | --- | --- | --- | --- | --- |
-| Electron main entry | `app/main/main.ts` plus service/project/IPC registration seams | partially implemented | main-focused tests exist | none | 19.7 trace entry; 19.8 host proof |
-| legacy Electron path | `app/electron/projectLoader.ts`, `app/electron/preload.ts` alongside `app/main/*` | duplicated / possibly historical | unclassified | none | 19.7 ownership decision |
-| preload and shared IPC | `app/main/preload.ts`, `app/shared/ipc/*` | reusable with repair pending full audit | project/split-command contract tests | none | 19.7 trace; 19.8 contract gate |
-| renderer production entry | `app/renderer/index.tsx` -> `App.tsx` | partially implemented | renderer tests/build evidence | none | 19.7 trace; 19.8 packaged-host proof |
-| Foundation Spine synthetic shell | `MinimalTwoSurfaceShell.tsx` | synthetic / historical proof | focused component test | none | retain as evidence, not production authority |
-| integrated two-surface shell | `SplitCommandWorkspace.tsx` and App path | reusable with repair | 19.2 focused tests | none | 19.8 actual-host acceptance |
-| Writing Surface/editor | `ProjectHome.tsx`, `DraftEditor.tsx` | partially implemented | component/save tests | none | 19.8-19.11 integration and acceptance |
-| Command Center/status | split workspace and status components | partially implemented | focused authority/status tests | none | 19.13 truth/integrity gate |
-| project loader/identity | `projectLoaderIpc.ts`, `projectBootstrap.ts`, shared project contract | reusable with repair | temporary-project identity/load tests | none | 19.9 lifecycle/schema/isolation |
-| project creation | no accepted production creation flow established by Foundation Spine | absent or disconnected | unclassified | none | 19.7 locate; 19.9 implement if absent |
-| explicit scene save | dedicated main save gate and preload/renderer flow | reusable with repair | atomic/stale/invalid/re-entry tests | none | 19.10 full durability/failure/manual gate |
-| multi-unit binder/outline | `StoryNavigationPanel.tsx`, story-unit utilities, Corkboard/other surfaces | disconnected / partially implemented | component/utility tests exist | none | 19.7 authority trace; 19.11 bounded binder |
-| history/snapshots | `SnapshotsPanel.tsx`, snapshot utilities and related tests | disconnected / unaccepted | tests exist | none | 19.12 decide durable owner and scope |
-| recovery | `useRecovery.ts`, `RecoveryBanner.tsx`, actions and tests | disconnected / unaccepted | component/hook tests exist | none | 19.12 project-scoped interruption proof |
-| Markdown export | no accepted V1.0 manuscript export path identified | absent or disconnected | none credited | none | 19.15 implement and compare output |
-| service startup/offline | service resolution/health hooks and banners | reusable with repair | service/offline tests exist | none | 19.7/19.8 prove optional services non-gating |
-| AI critique/drafting | critique hooks/modal and service seams | optional, disconnected from locked core | tests exist | none | 19.14 decide defer or bounded gate |
-| budget/routing | budget indicators and runtime/service seams | optional / partially implemented | focused tests exist | none | 19.14 only if AI retained |
-| docking/window layout | DockWorkspace, layout IPC, presets/hotkeys | optional / partially implemented | layout/dock tests exist | none | 19.16 window/accessibility audit |
-| analytics/signals | analytics dashboard, story insights, narrative evaluators | optional / disconnected | many component/utility tests | none | defer unless scope decision admits |
-| logging/diagnostics | main logging, debug utilities, diagnostic IPC | reusable with repair | focused tests exist | none | 19.16 security/privacy/language audit |
-| test harness | Vitest plus Electron E2E fixture/launcher | reusable with repair | focused Stage 19 matrix passed | none | 19.7 baseline; 19.17 reliable layered gate |
-| renderer-wide type gate | repository TypeScript configuration | unsafe as release claim due known backlog | targeted main no-emit and renderer build pass | none | 19.7 classify; 19.16/19.17 resolve gate |
-| production builds | Vite renderer, main tsconfig, Electron builder config | partially implemented | renderer build and main no-emit pass | none | 19.7 baseline; 19.19 reproducible build |
-| packaging/install | `electron-builder.yml` and package scripts exist | partially implemented, unaccepted | full build hit generated-file lock | none | 19.16 lock ownership; 19.19 install proof |
-| configuration/secrets | shared runtime config and service configuration seams | reusable with repair | partial tests | none | 19.16 security/privacy audit |
-| Windows two-monitor workflow | dock/layout mechanisms present | partially implemented | layout tests only | none | 19.18 manual two-monitor receipt |
+```text
+app/package.json main
+-> app/dist-electron/main/main.js
+-> app/main/main.ts
+-> app/main/preload.ts
+-> app/shared/ipc/*
+-> app/dist/index.html
+-> app/renderer/index.tsx
+-> app/renderer/App.tsx
+-> app/renderer/components/ProjectHome.tsx
+-> App workspace selection
+-> app/renderer/components/workspace/SplitCommandWorkspace.tsx (flagged)
+```
 
-## 3. Foundation Spine evidence classification
+`App.tsx` renders `ProjectHome` on the normal renderer path. The intended
+split-command host wraps the writing workspace only when
+`ui.experimentalSplitCommandWorkspace` is true. The committed runtime default
+is false and `config/runtime.yaml` does not enable it, so the Foundation Spine
+two-surface host is not production-reachable by default.
 
-- `19.1`: synthetic first-slice proof only.
-- `19.2`: integrated renderer authority/identity behavior with automated tests;
-  no manual host acceptance.
-- `19.3`: implemented narrow save contract with automated tests; no manual
+## 3. Completed subsystem inventory
+
+| Subsystem | Authoritative files | Production reachability | Classification | Automated evidence | Failure / uncertainty | Owner | Blocks 19.8? |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| package/startup | root/app `package.json`, `electron-builder.yml` | app main points to `dist-electron/main/main.js` | reusable with repair | build scripts present | emitted main build locked; version mismatch root/app `1.0.0-rc1` vs builder `0.1.0` | 19.7/19.19 | yes: main build lock |
+| Electron main | `app/main/main.ts` | authoritative compiled entry | reusable with repair | main tests; no-emit pass | waits for services before window; optional-service failure can block core shell; `sandbox:false` | 19.8/19.16 | yes |
+| main/preload duplicate | `app/electron/projectLoader.ts`, `app/electron/preload.ts` | excluded from `tsconfig.main.json`; not referenced by package main | historical only / duplicated | no credited production proof | contains older loader/sample seams | 19.7 disposition complete | no |
+| preload | `app/main/preload.ts` | loaded by `PRELOAD_PATH` | reusable with repair | preload/service/IPC tests | very broad bridge and test hooks require later security audit | 19.8/19.16 | yes: contract proof |
+| IPC contracts | `app/shared/ipc/*` | imported by main/preload/renderer | accepted as current seam, not release-accepted | Foundation contract tests pass | broad optional-service surface unaccepted | 19.8/19.16 | yes |
+| renderer entry | `app/renderer/index.tsx`, `App.tsx` | normal Vite entry | reusable with repair | renderer tests/build pass | App is very large; lint error and hook warnings | 19.8/19.16 | yes |
+| active project host | `App.tsx`, `ProjectHome.tsx` | reachable normally | partially implemented | ProjectHome/App identity tests | manual host proof absent | 19.8/19.9 | yes |
+| Writing Surface | `ProjectHome.tsx`, `DraftEditor.tsx`, App draft state | reachable in stable workspace | partially implemented | editor/save tests | no host/manual acceptance; multi-unit lifecycle incomplete | 19.8/19.10/19.11 | yes |
+| Command Center | `SplitCommandWorkspace.tsx` | gated off by default | disconnected from default production config | focused component tests | intended surface not visible by normal config | 19.8/19.13 | yes |
+| project creation | `ProjectHome.tsx`, `projectLoaderIpc.ts`, `projectBootstrap.ts` | reachable through current preload | reusable with repair | bootstrap/loader tests | lifecycle edge cases and manual isolation absent | 19.9 | no |
+| project open/identity/schema | `projectLoaderIpc.ts`, `projectBootstrap.ts`, shared loader contract | reachable | reusable with repair | temporary-project load/identity tests | compatibility, unknown-version, concurrent/duplicate identity decisions incomplete | 19.9 | no |
+| manuscript save | App/ProjectHome save flow, `projectLoaderIpc.ts` | reachable for loaded scenes | reusable with repair | atomic/stale/invalid/re-entry tests | failure/manual/large/rapid-edit/unsaved-close coverage incomplete | 19.10 | no |
+| outline/binder/navigation | `StoryNavigationPanel.tsx`, ProjectHome scene list, story-unit utilities, Corkboard | portions reachable; ownership fragmented | partially implemented / duplicated presentation | component/utility tests | create/reorder/delete durable unit flow unaccepted | 19.11 | no |
+| snapshots/history | `SnapshotsPanel.tsx`, snapshot utilities, service bridge | service-dependent and UI reachable in some modes | disconnected from locked recovery authority | component/service tests | persistence owner and isolation unproven | 19.12 | no |
+| recovery | `useRecovery.ts`, `RecoveryBanner.tsx`, service bridge | reachable but service-dependent/test modes complicate path | partially implemented / unaccepted | hook/App recovery tests | real interruption, durable recovery, isolation, accept/reject manual proof absent | 19.12 | no |
+| export | App export UI, preload service API | service-dependent reachable seam | partially implemented / unaccepted | mocked renderer/service tests | no authoritative ordered Markdown output or manual comparison | 19.15 | no |
+| service startup/offline | `main.ts`, runtime config, health hooks/banners | service starts before main window | unsafe for offline-core promise | service/health tests | missing Python/service can prevent window creation | 19.8 | yes |
+| optional AI/critique | App, critique hooks/modal, service bridge | reachable optional UI | partially implemented, optional | component/service tests | isolation/acceptance/budget trust not release-proven | 19.14 | no |
+| budget/routing | budget hooks/components, runtime/service config | reachable optional UI | partially implemented, optional | focused tests | not required for core; routing evidence absent | 19.14 | no |
+| docking/window | DockWorkspace, layout IPC, presets/hotkeys, split secondary window | docking enabled; split secondary gated | partially implemented | layout/dock/main tests | no manual two-monitor/off-screen/DPI proof | 19.16/19.18 | no |
+| logging/configuration | main logging, debug log, runtime config | reachable | reusable with repair | focused tests | raw/developer detail and redaction need audit | 19.16 | no |
+| test harness | Vitest offline runner, Playwright Electron fixtures | reachable tooling | reusable with repair | Foundation matrix 78/78 | several tests reference protected-path strings/snapshot seams; no protected content used here | 19.17 | no |
+| lint gate | app ESLint runner | supported | failing | command executed | 2 errors, 6 warnings; deprecated eslintrc warning | 19.16/19.17 | no, but blocks RC |
+| TypeScript gates | `tsconfig.main.json`; renderer via Vite/lint | main supported; no dedicated renderer no-emit script | partially implemented | main no-emit pass | known renderer-wide backlog; exact clean renderer type gate absent | 19.16/19.17 | no, but blocks RC |
+| renderer production build | Vite config/scripts | supported | reusable | pass | generated ignored `dist` only | 19.17/19.19 | no |
+| main production build | TypeScript emit + commonjs script | supported in scripts | blocked | no-emit passes | `EPERM` on `runtimeSessionTruth.js` and map | 19.8 prerequisite / 19.19 | yes |
+| packaging | builder config/scripts | configured, not accepted | unsafe / partially implemented | none credited | includes `sample_project` in `extraResources`, portable despite scope, version mismatch, no install proof | 19.19 | no for 19.8; release blocker |
+
+## 4. Foundation Spine evidence
+
+- `19.1`: synthetic proof only.
+- `19.2`: automated renderer integration evidence; no default-host/manual proof.
+- `19.3`: narrow durable-save implementation and automated evidence; no manual
   failure acceptance.
-- `19.4`: generated-temporary-project normal re-entry evidence only.
-- `19.5`: automated integrated verification; no manual, packaging, install,
-  RC, or release evidence.
+- `19.4`: generated-temporary-project normal re-entry evidence.
+- `19.5`: automated integrated verification only.
 
-Nothing in the group is classified as manually accepted.
+No Foundation Spine package is manually accepted, release-ready, or packaging
+evidence.
 
-## 4. Package 19.7 completion obligations
+## 5. Baseline summary
 
-Package `19.7` must replace provisional, `possibly historical`, and
-`unclassified` findings with evidence-backed classifications. Final
-classifications may remain `absent`, `disconnected`, `duplicated`, `obsolete`,
-`unsafe`, or `historical only` when repository evidence supports them. It must
-trace the authoritative launch-to-render path;
-record baseline build/test/static commands and failures; classify duplicate
-entry paths; and identify the precise Package `19.8` file and behavior boundary.
+- app lint: fail, 2 errors and 6 warnings.
+- main TypeScript no-emit: pass.
+- focused Foundation Spine matrix: 11 files and 78 tests pass.
+- renderer production build: pass.
+- main emitted build: fail with `EPERM` on two generated runtime-session-truth
+  outputs.
+- tracked/unexpected controlled output: none; status remained clean after each
+  baseline command.
 
-PZ_CONTINUE: Initial V1.0 salvage traceability recorded; Package 19.7 must complete executable-path and baseline classification
+## 6. Next boundary
+
+Package `19.8` may address only real-host reachability: make the intended
+Writing Surface/Command Center shell the normal app path, keep project identity
+honest, allow core writing UI to launch when optional services are unavailable,
+and prove main/preload/renderer integration. It must not absorb lifecycle,
+persistence, recovery, export, AI, packaging, protected-evidence, or unrelated
+lint/type repair.
+
+PZ_CONTINUE: Package 19.7 traceability matrix completed; real-host integration gaps assigned to Package 19.8
