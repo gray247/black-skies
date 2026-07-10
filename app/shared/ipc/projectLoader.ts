@@ -4,6 +4,7 @@ export const PROJECT_LOADER_CHANNELS = {
   openDialog: 'project-loader:open-dialog',
   loadProject: 'project-loader:load-project',
   createProject: 'project-loader:create-project',
+  saveDraft: 'project-loader:save-draft',
   getSamplePath: 'project-loader:get-sample-path',
   setDevProjectPath: 'project-loader:set-dev-project-path',
 } as const;
@@ -139,6 +140,41 @@ export interface ProjectBootstrapFailure {
 
 export type ProjectBootstrapResponse = ProjectBootstrapSuccess | ProjectBootstrapFailure;
 
+export interface ProjectDraftSaveRequest {
+  projectPath: string;
+  projectId: string;
+  sceneId: string;
+  expectedMarkdown: string;
+  markdown: string;
+}
+
+export interface ProjectDraftSaveSuccess {
+  ok: true;
+  projectPath: string;
+  projectId: string;
+  sceneId: string;
+  markdown: string;
+}
+
+export interface ProjectDraftSaveFailure {
+  ok: false;
+  error: {
+    code:
+      | 'INVALID_REQUEST'
+      | 'PROJECT_NOT_FOUND'
+      | 'PROJECT_INVALID'
+      | 'PROJECT_ID_MISMATCH'
+      | 'SCENE_NOT_FOUND'
+      | 'SCENE_INVALID'
+      | 'STALE_DRAFT'
+      | 'SAVE_FAILED'
+      | 'UNKNOWN';
+    message: string;
+  };
+}
+
+export type ProjectDraftSaveResponse = ProjectDraftSaveSuccess | ProjectDraftSaveFailure;
+
 export interface ProjectDialogResult {
   canceled: boolean;
   filePath?: string;
@@ -148,5 +184,6 @@ export interface ProjectLoaderApi {
   openProjectDialog: () => Promise<ProjectDialogResult>;
   loadProject: (request: ProjectLoadRequest) => Promise<ProjectLoadResponse>;
   createProject?: (request: ProjectBootstrapRequest) => Promise<ProjectBootstrapResponse>;
+  saveDraft?: (request: ProjectDraftSaveRequest) => Promise<ProjectDraftSaveResponse>;
   getSampleProjectPath?: () => Promise<string | null>;
 }

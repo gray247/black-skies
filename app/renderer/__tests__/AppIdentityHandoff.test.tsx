@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -69,8 +69,14 @@ function buildLoadedProject(overrides: Partial<LoadedProject>): LoadedProject {
 
 function ProjectHomeMock({
   onProjectLoaded,
+  onDraftChange,
+  onDraftSave,
+  draftSaveState,
 }: {
   onProjectLoaded?: (payload: LoadedProject | null) => void;
+  onDraftChange?: (sceneId: string, draft: string) => void;
+  onDraftSave?: (sceneId: string) => Promise<void>;
+  draftSaveState?: { sceneId: string | null; status: string; message: string | null };
 }): JSX.Element {
   const bootstrappedRef = useRef(false);
 
@@ -83,7 +89,26 @@ function ProjectHomeMock({
     onProjectLoaded?.(mockLoadedProject);
   }, [onProjectLoaded]);
 
-  return <div data-testid="project-home-mock" data-project-path={mockLoadedProject.path} />;
+  const sceneId = mockLoadedProject.scenes[0]?.id ?? 'sc_0001';
+  return (
+    <div data-testid="project-home-mock" data-project-path={mockLoadedProject.path}>
+      <button
+        type="button"
+        onClick={() =>
+          onDraftChange?.(
+            sceneId,
+            `---\nid: ${sceneId}\ntitle: Arrival\norder: 1\n---\nManually edited scene.\n`,
+          )
+        }
+      >
+        Edit mock draft
+      </button>
+      <button type="button" onClick={() => void onDraftSave?.(sceneId)}>
+        Save mock draft
+      </button>
+      <span data-testid="mock-save-state">{draftSaveState?.status ?? 'none'}</span>
+    </div>
+  );
 }
 
 function emitProjectLoaded(payload: LoadedProject): void {
@@ -506,6 +531,74 @@ describe('App identity handoff witnesses', () => {
     );
     expect(document.body.dataset.projectId).toBe('proj_integrated_alpha');
     expect(services.restoreSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('moves a manual scene edit through dirty, saving, and saved durable state', async () => {
+    mockLoadedProject = buildLoadedProject({ projectId: 'proj_save_flow' });
+    const saveDraft = vi.fn(async (request: {
+      projectPath: string;
+      projectId: string;
+      sceneId: string;
+      expectedMarkdown: string;
+      markdown: string;
+    }) => ({
+      ok: true as const,
+      projectPath: request.projectPath,
+      projectId: request.projectId,
+      sceneId: request.sceneId,
+      markdown: request.markdown,
+    }));
+    window.projectLoader = { saveDraft };
+
+    render(<App />);
+    await screen.findByTestId('project-home-mock');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit mock draft' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('workspace-draft-state')).toHaveTextContent(
+        'persisted, dirty, unsaved',
+      ),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save mock draft' }));
+
+    await waitFor(() => expect(saveDraft).toHaveBeenCalledTimes(1));
+    expect(saveDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectPath: '/projects/demo',
+        projectId: 'proj_save_flow',
+        sceneId: 'sc_0001',
+        expectedMarkdown: 'A single witness scene draft.',
+        markdown: expect.stringContaining('Manually edited scene.'),
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('workspace-draft-state')).toHaveTextContent('persisted, saved'),
+    );
+    expect(screen.getByTestId('mock-save-state')).toHaveTextContent('saved');
+  });
+
+  it('keeps a manual edit dirty and unsaved when durable save fails', async () => {
+    mockLoadedProject = buildLoadedProject({ projectId: 'proj_save_failure' });
+    window.projectLoader = {
+      saveDraft: vi.fn().mockResolvedValue({
+        ok: false,
+        error: { code: 'STALE_DRAFT', message: 'Reload before saving.' },
+      }),
+    };
+
+    render(<App />);
+    await screen.findByTestId('project-home-mock');
+    fireEvent.click(screen.getByRole('button', { name: 'Edit mock draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save mock draft' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('workspace-draft-state')).toHaveTextContent(
+        'persisted, dirty, unsaved, save-failed',
+      ),
+    );
+    expect(screen.getByTestId('mock-save-state')).toHaveTextContent('error');
+    expect(await screen.findByText('Reload before saving.')).toBeInTheDocument();
   });
 
   it('preserves the prior valid project when a later missing-ID activation is rejected', async () => {

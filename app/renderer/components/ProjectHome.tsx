@@ -45,6 +45,14 @@ export interface ActiveScenePayload {
   draft: string;
 }
 
+export type DraftSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+export interface DraftSaveState {
+  sceneId: string | null;
+  status: DraftSaveStatus;
+  message: string | null;
+}
+
 type SceneWriteWriterKind =
   | 'user_selection'
   | 'project_switch'
@@ -69,6 +77,8 @@ export interface ProjectHomeProps {
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null, meta?: SceneWriteTraceMeta) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  onDraftSave?: (sceneId: string) => Promise<void>;
+  draftSaveState?: DraftSaveState;
   requestedActiveSceneId?: string | null;
   paneMode?: 'docked' | 'floating' | 'standalone';
   relocationNotifyEnabled?: boolean;
@@ -296,6 +306,8 @@ export default function ProjectHome({
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
+  onDraftSave,
+  draftSaveState,
   requestedActiveSceneId,
   paneMode = 'standalone',
   relocationNotifyEnabled = true,
@@ -412,6 +424,27 @@ export default function ProjectHome({
     }
     return 'fallback';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  const activeSceneIsDirty = Boolean(
+    activeSceneId && Object.prototype.hasOwnProperty.call(draftOverrides ?? {}, activeSceneId),
+  );
+  const activeDraftSaveState =
+    activeSceneId && draftSaveState?.sceneId === activeSceneId ? draftSaveState : null;
+  const activeDraftSaveMessage = (() => {
+    if (activeDraftSaveState?.status === 'saving') {
+      return 'Saving scene…';
+    }
+    if (activeDraftSaveState?.status === 'error') {
+      return activeDraftSaveState.message ?? 'Save failed; changes remain unsaved.';
+    }
+    if (activeSceneIsDirty) {
+      return 'Unsaved changes';
+    }
+    if (activeDraftSaveState?.status === 'saved') {
+      return 'Saved to disk';
+    }
+    return 'Loaded from disk';
+  })();
 
   const commitActiveSceneSelection = useCallback(
     (sceneId: string) => {
@@ -1628,6 +1661,25 @@ export default function ProjectHome({
                   </span>
                 </div>
               )}
+              {activeScene ? (
+                <div className="project-home__draft-save-controls">
+                  <button
+                    type="button"
+                    data-testid={TID.saveBtn}
+                    disabled={
+                      !onDraftSave ||
+                      !activeSceneIsDirty ||
+                      activeDraftSaveState?.status === 'saving'
+                    }
+                    onClick={() => void onDraftSave?.(activeScene.id)}
+                  >
+                    {activeDraftSaveState?.status === 'saving' ? 'Saving…' : 'Save scene'}
+                  </button>
+                  <span role="status" data-testid="scene-save-status">
+                    {activeDraftSaveMessage}
+                  </span>
+                </div>
+              ) : null}
             </div>
             <div className="project-home__draft-editor">
               {activeScene ? (

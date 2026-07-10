@@ -1,4 +1,5 @@
 ﻿import { app, dialog, ipcMain } from 'electron';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
@@ -7,6 +8,9 @@ import {
   ProjectBootstrapRequest,
   ProjectBootstrapResponse,
   ProjectDialogResult,
+  ProjectDraftSaveFailure,
+  ProjectDraftSaveRequest,
+  ProjectDraftSaveResponse,
   ProjectIssue,
   ProjectLoadRequest,
   ProjectLoadResponse,
@@ -44,6 +48,7 @@ export function registerProjectLoaderIpc(): void {
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.openDialog);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.loadProject);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.createProject);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.saveDraft);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.getSamplePath);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.setDevProjectPath);
 
@@ -171,6 +176,29 @@ export function registerProjectLoaderIpc(): void {
       return samplePath;
     },
   );
+
+  ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.saveDraft,
+    async (_event, request: ProjectDraftSaveRequest): Promise<ProjectDraftSaveResponse> => {
+      try {
+        return await saveProjectDraft(request);
+      } catch (error) {
+        if (error instanceof ProjectDraftSaveError) {
+          return {
+            ok: false,
+            error: { code: error.code, message: error.message },
+          };
+        }
+        return {
+          ok: false,
+          error: {
+            code: 'UNKNOWN',
+            message: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
+    },
+  );
 }
 
 class ProjectLoaderAggregateError extends Error {
@@ -182,6 +210,160 @@ class ProjectLoaderAggregateError extends Error {
     super(message);
     this.name = 'ProjectLoaderAggregateError';
   }
+}
+
+type ProjectDraftSaveErrorCode = Exclude<
+  ProjectDraftSaveFailure['error']['code'],
+  'UNKNOWN'
+>;
+
+export class ProjectDraftSaveError extends Error {
+  constructor(
+    message: string,
+    readonly code: ProjectDraftSaveErrorCode,
+  ) {
+    super(message);
+    this.name = 'ProjectDraftSaveError';
+  }
+}
+
+function normalizeSavedMarkdown(markdown: string): string {
+  const normalized = markdown.replace(/\r\n/g, '\n');
+  return normalized.endsWith('\n') ? normalized : `${normalized}\n`;
+}
+
+function validateDraftSaveMarkdown(sceneId: string, markdown: string): void {
+  const frontMatter = extractFrontMatter(markdown);
+  if (!frontMatter) {
+    throw new ProjectDraftSaveError('Scene Markdown is missing front matter.', 'SCENE_INVALID');
+  }
+  const submittedId = ensureString(frontMatter.id);
+  const title = ensureString(frontMatter.title);
+  const order = Number(frontMatter.order);
+  if (submittedId !== sceneId) {
+    throw new ProjectDraftSaveError(
+      'Scene identity does not match the save target.',
+      'SCENE_INVALID',
+    );
+  }
+  if (!title || Number.isNaN(order)) {
+    throw new ProjectDraftSaveError(
+      'Scene front matter must retain title and numeric order.',
+      'SCENE_INVALID',
+    );
+  }
+}
+
+export async function saveProjectDraft(
+  request: ProjectDraftSaveRequest,
+): Promise<Extract<ProjectDraftSaveResponse, { ok: true }>> {
+  const projectPath = typeof request?.projectPath === 'string' ? request.projectPath.trim() : '';
+  const projectId = typeof request?.projectId === 'string' ? request.projectId.trim() : '';
+  const sceneId = typeof request?.sceneId === 'string' ? request.sceneId.trim() : '';
+  if (
+    !projectPath ||
+    !projectId ||
+    !sceneId ||
+    typeof request.expectedMarkdown !== 'string' ||
+    typeof request.markdown !== 'string'
+  ) {
+    throw new ProjectDraftSaveError(
+      'Project, scene, baseline, and Markdown are required.',
+      'INVALID_REQUEST',
+    );
+  }
+  if (!/^[A-Za-z0-9_-]+$/.test(sceneId)) {
+    throw new ProjectDraftSaveError(
+      'Scene identity contains invalid filename characters.',
+      'SCENE_INVALID',
+    );
+  }
+
+  let resolvedProjectPath: string;
+  try {
+    resolvedProjectPath = (await resolveProjectRootPath(projectPath)).projectPath;
+  } catch (error) {
+    if (error instanceof ProjectLoaderAggregateError) {
+      throw new ProjectDraftSaveError(error.message, 'PROJECT_NOT_FOUND');
+    }
+    throw error;
+  }
+  if (path.resolve(projectPath) !== resolvedProjectPath) {
+    throw new ProjectDraftSaveError(
+      'Draft saves require the canonical project root.',
+      'PROJECT_INVALID',
+    );
+  }
+
+  let metadata: Awaited<ReturnType<typeof readProjectMetadata>>;
+  try {
+    metadata = await readProjectMetadata(resolvedProjectPath);
+  } catch (error) {
+    if (error instanceof ProjectLoaderAggregateError) {
+      throw new ProjectDraftSaveError(error.message, 'PROJECT_INVALID');
+    }
+    throw error;
+  }
+  if (!metadata.projectId || metadata.projectId !== projectId) {
+    throw new ProjectDraftSaveError(
+      'Loaded project identity no longer matches the save request.',
+      'PROJECT_ID_MISMATCH',
+    );
+  }
+
+  const targetPath = path.join(resolvedProjectPath, 'drafts', `${sceneId}.md`);
+  let currentMarkdown: string;
+  try {
+    currentMarkdown = await fs.readFile(targetPath, 'utf8');
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException)?.code;
+    throw new ProjectDraftSaveError(
+      code === 'ENOENT'
+        ? 'The selected scene draft no longer exists.'
+        : 'Unable to read the selected scene draft.',
+      code === 'ENOENT' ? 'SCENE_NOT_FOUND' : 'SAVE_FAILED',
+    );
+  }
+  if (currentMarkdown !== request.expectedMarkdown) {
+    throw new ProjectDraftSaveError(
+      'The scene changed on disk after it was loaded. Reload before saving.',
+      'STALE_DRAFT',
+    );
+  }
+
+  const normalizedMarkdown = normalizeSavedMarkdown(request.markdown);
+  validateDraftSaveMarkdown(sceneId, normalizedMarkdown);
+
+  const tempPath = path.join(
+    path.dirname(targetPath),
+    `.${path.basename(targetPath)}.${randomUUID()}.tmp`,
+  );
+  let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
+  try {
+    handle = await fs.open(tempPath, 'wx');
+    await handle.writeFile(normalizedMarkdown, { encoding: 'utf8' });
+    await handle.sync();
+    await handle.close();
+    handle = null;
+    await fs.rename(tempPath, targetPath);
+  } catch (error) {
+    await handle?.close().catch(() => undefined);
+    await fs.rm(tempPath, { force: true }).catch(() => undefined);
+    throw new ProjectDraftSaveError(
+      error instanceof Error
+        ? `Unable to save scene draft: ${error.message}`
+        : 'Unable to save scene draft.',
+      'SAVE_FAILED',
+    );
+  }
+
+  return {
+    ok: true,
+    projectPath: resolvedProjectPath,
+    projectId,
+    sceneId,
+    markdown: normalizedMarkdown,
+  };
 }
 
 function mapSystemErrorCode(code?: string): ProjectLoadErrorCode {

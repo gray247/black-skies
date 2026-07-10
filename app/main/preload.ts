@@ -607,6 +607,8 @@ import {
   type ProjectBootstrapRequest,
   type ProjectBootstrapResponse,
   type ProjectDialogResult,
+  type ProjectDraftSaveRequest,
+  type ProjectDraftSaveResponse,
   type ProjectLoadRequest,
   type ProjectLoadResponse,
   type ProjectLoaderApi,
@@ -1933,6 +1935,10 @@ const projectLoaderApi: ProjectLoaderApi = {
   async createProject(request: ProjectBootstrapRequest): Promise<ProjectBootstrapResponse> {
     const response = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.createProject, request);
     return response as ProjectBootstrapResponse;
+  },
+  async saveDraft(request: ProjectDraftSaveRequest): Promise<ProjectDraftSaveResponse> {
+    const response = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.saveDraft, request);
+    return response as ProjectDraftSaveResponse;
   },
   async getSampleProjectPath(): Promise<string | null> {
     if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {

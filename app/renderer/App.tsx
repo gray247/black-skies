@@ -6,6 +6,7 @@ import { useLayoutEffect } from "react";
 
 import ProjectHome, {
   type ActiveScenePayload,
+  type DraftSaveState,
   type ProjectHomeProps,
   type ProjectLoadEvent,
 } from "./components/ProjectHome";
@@ -1062,6 +1063,12 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const [draftSaveState, setDraftSaveState] = useState<DraftSaveState>({
+    sceneId: null,
+    status: 'idle',
+    message: null,
+  });
+  const draftEditGenerationRef = useRef(0);
   const sceneWriteOrderRef = useRef(0);
   const projectSwitchGenerationRef = useRef(0);
   const draftPreviewHydrationGenerationRef = useRef(0);
@@ -1728,6 +1735,8 @@ export default function App(): JSX.Element {
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
       setDraftEdits({});
+      draftEditGenerationRef.current += 1;
+      setDraftSaveState({ sceneId: null, status: 'idle', message: null });
       projectDraftsRef.current = canonicalDrafts;
 
       const nextScene = resolveStartupScene(project, options?.preserveSceneId ?? null);
@@ -2397,6 +2406,8 @@ export default function App(): JSX.Element {
   );
 
   const handleDraftChange = useCallback((sceneId: string, draft: string) => {
+    draftEditGenerationRef.current += 1;
+    setDraftSaveState({ sceneId, status: 'idle', message: null });
     setDraftEdits((previous) => {
       const baselineDraft =
         projectDraftsRef.current[sceneId] ?? currentProjectRef.current?.drafts[sceneId] ?? '';
@@ -2414,6 +2425,81 @@ export default function App(): JSX.Element {
       return { ...previous, [sceneId]: draft };
     });
   }, []);
+
+  const handleDraftSave = useCallback(
+    async (sceneId: string) => {
+      const project = currentProjectRef.current;
+      const loader = window.projectLoader;
+      const editedMarkdown = draftEdits[sceneId];
+      const expectedMarkdown = projectDraftsRef.current[sceneId] ?? project?.drafts[sceneId];
+      if (
+        !project?.projectId ||
+        !project.path ||
+        !loader?.saveDraft ||
+        typeof editedMarkdown !== 'string' ||
+        typeof expectedMarkdown !== 'string'
+      ) {
+        const message = 'This scene cannot be saved through the bounded local save path.';
+        setDraftSaveState({ sceneId, status: 'error', message });
+        pushToast({ tone: 'error', title: 'Scene save unavailable', description: message });
+        return;
+      }
+
+      const editGeneration = draftEditGenerationRef.current;
+      setDraftSaveState({ sceneId, status: 'saving', message: null });
+
+      try {
+        const response = await loader.saveDraft({
+          projectPath: project.path,
+          projectId: project.projectId,
+          sceneId,
+          expectedMarkdown,
+          markdown: editedMarkdown,
+        });
+        if (!response.ok) {
+          throw new Error(response.error.message);
+        }
+
+        projectDraftsRef.current = {
+          ...projectDraftsRef.current,
+          [sceneId]: response.markdown,
+        };
+        setProjectDrafts((previous) => ({ ...previous, [sceneId]: response.markdown }));
+        setCurrentProject((previous) =>
+          previous && previous.projectId === response.projectId
+            ? { ...previous, drafts: { ...previous.drafts, [sceneId]: response.markdown } }
+            : previous,
+        );
+        setDraftEdits((previous) => {
+          if (previous[sceneId] !== editedMarkdown) {
+            return previous;
+          }
+          const next = { ...previous };
+          delete next[sceneId];
+          return next;
+        });
+        setDraftSaveState(
+          draftEditGenerationRef.current === editGeneration
+            ? { sceneId, status: 'saved', message: null }
+            : { sceneId, status: 'idle', message: null },
+        );
+        pushToast({
+          tone: 'success',
+          title: 'Scene saved',
+          description: `Saved ${sceneId} to the active local project.`,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setDraftSaveState({ sceneId, status: 'error', message });
+        pushToast({
+          tone: 'error',
+          title: 'Scene save failed',
+          description: message,
+        });
+      }
+    },
+    [draftEdits, pushToast],
+  );
 
   const handleOutlineReady = useCallback(
     (projectId: string, sceneIds: string[]) => {
@@ -3012,8 +3098,10 @@ export default function App(): JSX.Element {
       reopenRequest,
       onReopenConsumed: handleReopenConsumed,
       draftOverrides: draftEdits,
+      draftSaveState,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
+      onDraftSave: handleDraftSave,
       requestedActiveSceneId: activeSceneId,
       paneMode: isFloatingHost ? "floating" : dockingEnabled ? "docked" : "standalone",
       relocationNotifyEnabled,
@@ -3027,8 +3115,10 @@ export default function App(): JSX.Element {
     [
       autoSnapEnabled,
       draftEdits,
+      draftSaveState,
       handleActiveSceneChange,
       handleDraftChange,
+      handleDraftSave,
       handleProjectLoaded,
       handleReopenConsumed,
       pushToast,
@@ -3371,8 +3461,17 @@ export default function App(): JSX.Element {
     if (activeSceneHasDraftOverride) {
       classifications.push("dirty", "unsaved");
     }
+    if (draftSaveState.sceneId === activeSceneId) {
+      if (draftSaveState.status === 'saving') {
+        classifications.push('saving');
+      } else if (draftSaveState.status === 'saved') {
+        classifications.push('saved');
+      } else if (draftSaveState.status === 'error') {
+        classifications.push('save-failed');
+      }
+    }
     return classifications.join(", ");
-  }, [activeSceneHasDraftOverride, currentProject]);
+  }, [activeSceneHasDraftOverride, activeSceneId, currentProject, draftSaveState]);
   const headerDeps = [
     projectLabel,
     activeDraftSessionStateLabel,
