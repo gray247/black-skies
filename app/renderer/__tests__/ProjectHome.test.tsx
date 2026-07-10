@@ -23,6 +23,7 @@ function createSampleProject(path: string): LoadedProject {
 
   return {
     path,
+    projectId: 'proj_sample_project',
     name: 'Sample Project',
     outline,
     scenes: [
