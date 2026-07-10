@@ -112,7 +112,7 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
   ui: {
     enableDocking: false,
     defaultPreset: "standard",
-    experimentalSplitCommandWorkspace: false,
+    experimentalSplitCommandWorkspace: true,
     hotkeys: {
       enablePresetHotkeys: true,
       focusCycleOrder: DEFAULT_FOCUS_CYCLE_ORDER,

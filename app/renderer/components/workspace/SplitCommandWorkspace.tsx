@@ -8,6 +8,7 @@ import { deriveActiveOutline } from "../../utils/storyUnits";
 import StoryNavigationPanel from "./StoryNavigationPanel";
 
 interface SplitCommandWorkspaceProps {
+  readonly windowRole?: "primary" | "secondary" | "combined";
   readonly project: LoadedProject | null;
   readonly activeSceneId: string | null;
   readonly onSelectScene?: (sceneId: string) => void;
@@ -387,6 +388,7 @@ function IntelligenceReadinessPanel({
 }
 
 export default function SplitCommandWorkspace({
+  windowRole = "combined",
   project,
   activeSceneId,
   onSelectScene,
@@ -403,11 +405,13 @@ export default function SplitCommandWorkspace({
     <div
       className={`split-command${
         commandCenterCollapsed ? " split-command--condensed" : ""
-      }`}
+      }${windowRole !== "combined" ? " split-command--dedicated" : ""}`}
       data-testid="split-command-workspace"
+      data-window-role={windowRole}
+      data-primary-scroll-owner={windowRole !== "combined" ? "workspace-body" : undefined}
       data-command-center-state={commandCenterCollapsed ? "condensed" : "full"}
     >
-      <aside
+      {windowRole !== "primary" ? <aside
         className="split-command__zone split-command__zone--command"
         aria-label="Command Center"
         data-surface-role="supporting"
@@ -485,9 +489,9 @@ export default function SplitCommandWorkspace({
             </div>
           </div>
         </div>
-      </aside>
+      </aside> : null}
 
-      <section
+      {windowRole !== "secondary" ? <section
         className="split-command__zone split-command__zone--writing"
         aria-label="Writing Studio"
         data-surface-role="sovereign"
@@ -520,7 +524,7 @@ export default function SplitCommandWorkspace({
           </div>
           <div className="split-command__writing-frame">{writingStudio}</div>
         </div>
-      </section>
+      </section> : null}
     </div>
   );
 }

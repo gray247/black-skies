@@ -73,6 +73,7 @@ draft_synthesizer:
     per_order: 40
 ui:
   enable_docking: true
+  experimental_split_command_workspace: true
   default_preset: standard
   hotkeys:
     enable_preset_hotkeys: true

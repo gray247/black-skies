@@ -417,6 +417,37 @@ button:disabled {
   grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr);
 }
 
+.split-command[data-window-role="primary"],
+.split-command[data-window-role="secondary"] {
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+}
+
+.split-command[data-window-role="primary"] .split-command__zone--writing,
+.split-command[data-window-role="secondary"] .split-command__zone--command {
+  width: 100%;
+  max-width: none;
+}
+
+.split-command[data-window-role="secondary"] .split-command__panel-stack {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  align-items: start;
+}
+
+.split-command[data-window-role="secondary"] .split-command__panel-cluster {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+
+.split-command[data-window-role="secondary"] .split-command__panel-cluster--tertiary {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.split-command[data-window-role="primary"] .split-command__writing-support {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
 .split-command__zone {
   position: relative;
   display: flex;
@@ -1130,6 +1161,47 @@ button:disabled {
   .split-command__overview,
   .split-command__tools {
     grid-column: 1 / -1;
+  }
+}
+
+.app-shell--dedicated-window .app-shell__workspace-body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.app-shell--dedicated-window .split-command--dedicated {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+}
+
+.app-shell--dedicated-window .split-command__zone--command,
+.app-shell--dedicated-window .split-command__zone--writing,
+.app-shell--dedicated-window .split-command__writing-surface,
+.app-shell--dedicated-window .split-command__writing-frame {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.app-shell--dedicated-window .split-command__story-list,
+.app-shell--dedicated-window .split-command--condensed .split-command__story-list {
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 900px) {
+  .app-shell--dedicated-window .split-command--dedicated {
+    overflow: visible;
+  }
+
+  .app-shell--dedicated-window .split-command__zone--command,
+  .app-shell--dedicated-window .split-command__zone--writing {
+    min-height: 0;
+    max-height: none;
   }
 }
 

@@ -2593,6 +2593,9 @@ export default function App(): JSX.Element {
   );
   const splitCommandModeRequested =
     splitCommandWorkspaceEnabled && !isFloatingHost && !isStableHomeMode;
+  const splitCommandWindowRole = window.splitCommand?.windowRole ?? "combined";
+  const dedicatedSplitCommandWindow =
+    splitCommandModeRequested && splitCommandWindowRole !== "combined";
   const appShellMode: AppShellMode = splitCommandModeRequested ? "split-command" : "stable-gui";
 
   useEffect(() => {
@@ -3108,7 +3111,8 @@ export default function App(): JSX.Element {
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
       onAutoSnapChange: setAutoSnapEnabled,
-      suppressBootstrap: isStableHomeMode || testMode.isVisualHome(),
+      suppressBootstrap:
+        isStableHomeMode || testMode.isVisualHome() || dedicatedSplitCommandWindow,
       suppressWelcome: testMode.isVisualHome(),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3132,6 +3136,7 @@ export default function App(): JSX.Element {
       isVisualHomeMode,
       isFloatingHost,
       dockingEnabled,
+      dedicatedSplitCommandWindow,
     ],
   );
 
@@ -3341,6 +3346,7 @@ export default function App(): JSX.Element {
 
   const workspaceBody = splitCommandModeRequested ? (
     <SplitCommandWorkspace
+      windowRole={splitCommandWindowRole}
       project={currentProject}
       activeSceneId={activeSceneId}
       onSelectScene={handleSplitCommandSceneSelect}
@@ -3592,7 +3598,9 @@ export default function App(): JSX.Element {
       data-split-command-layout={splitCommandModeRequested ? splitCommandLayoutMode : undefined}
       className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
         isFloatingHost ? " app-shell--floating" : ""
-      }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}`}
+      }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}${
+        dedicatedSplitCommandWindow ? " app-shell--dedicated-window" : ""
+      }`}
     >
       {!dockingEnabled && !isFloatingHost && !splitCommandWorkspaceEnabled && (
         <aside className="app-shell__dock" aria-label="Wizard dock">
@@ -3605,12 +3613,19 @@ export default function App(): JSX.Element {
       )}
 
       <div className="app-shell__workspace">
-        {workspaceHeaderElement}
+        {!dedicatedSplitCommandWindow ? workspaceHeaderElement : null}
 
-        <main className="app-shell__workspace-body">{workspaceBody}</main>
+        <main
+          className="app-shell__workspace-body"
+          data-primary-scroll-container={dedicatedSplitCommandWindow ? "true" : undefined}
+          aria-label={dedicatedSplitCommandWindow ? `${splitCommandWindowRole === "primary" ? "Writing Studio" : "Command Center"} content` : undefined}
+          tabIndex={dedicatedSplitCommandWindow ? 0 : undefined}
+        >
+          {workspaceBody}
+        </main>
       </div>
 
-      {!isStableHomeMode && (
+      {!isStableHomeMode && !dedicatedSplitCommandWindow && (
         <CompanionOverlay
           open={companionOpen}
           onClose={closeCompanion}

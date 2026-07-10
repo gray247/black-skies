@@ -86,7 +86,7 @@ class BrowserWindowMock {
 
   focus(): void {}
 
-  show(): void {}
+  show = vi.fn();
 
   destroy(): void {
     if (this.destroyed) {
@@ -118,6 +118,16 @@ vi.mock('electron', () => ({
   },
   shell: {
     openPath: vi.fn(),
+  },
+  screen: {
+    getPrimaryDisplay: vi.fn(() => ({
+      id: 1,
+      workArea: { x: 0, y: 0, width: 1920, height: 1040 },
+    })),
+    getAllDisplays: vi.fn(() => [
+      { id: 1, workArea: { x: 0, y: 0, width: 1920, height: 1040 } },
+      { id: 2, workArea: { x: 1920, y: 0, width: 1920, height: 1040 } },
+    ]),
   },
 }));
 
@@ -276,7 +286,23 @@ describe('main split command launch hook', () => {
         '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
       ]),
     );
+    expect(primaryWindow.options).toMatchObject({
+      title: 'Black Skies — Writing Studio',
+      x: 0,
+      y: 0,
+      width: 1920,
+      height: 1040,
+    });
     expect(secondaryWindow.options.show).toBe(false);
+    expect(secondaryWindow.options).toMatchObject({
+      title: 'Black Skies — Command Center',
+      x: 1920,
+      y: 0,
+      width: 1920,
+      height: 1040,
+    });
+    secondaryWindow.emit('ready-to-show');
+    expect(secondaryWindow.show).toHaveBeenCalledTimes(1);
     expect(secondaryWindow.options.webPreferences.additionalArguments).toEqual(
       expect.arrayContaining([
         '--blackskies-split-command-role=secondary',

@@ -1,5 +1,6 @@
 ﻿import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
+import { screen } from 'electron';
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
@@ -46,6 +47,8 @@ import {
 } from '../shared/splitCommandAuthority.js';
 import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
 import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
+import { startOptionalServicesForCoreShell } from './optionalServiceStartup.js';
+import { deriveSplitCommandInitialPlacement, type InitialWindowBounds } from './splitCommandWindowPlacement.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -714,13 +717,16 @@ function registerDiagnosticsIpc(): void {
   );
 }
 
-async function createMainWindow(): Promise<BrowserWindow> {
+async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<BrowserWindow> {
   console.log('[main] Creating main window. projectRoot=', projectRoot);
   const windowOptions = {
-    width: 1280,
-    height: 840,
-    minWidth: 960,
-    minHeight: 640,
+    title: 'Black Skies — Writing Studio',
+    width: initialBounds?.width ?? 1280,
+    height: initialBounds?.height ?? 840,
+    x: initialBounds?.x,
+    y: initialBounds?.y,
+    minWidth: 640,
+    minHeight: 560,
     show: false,
     autoHideMenuBar: true,
     env: { ...process.env, PLAYWRIGHT: '1' },
@@ -811,13 +817,17 @@ async function createMainWindow(): Promise<BrowserWindow> {
 
 async function createSplitCommandSecondaryWindow(
   contract: SplitCommandSecondaryLaunchContract,
+  initialBounds?: InitialWindowBounds,
 ): Promise<BrowserWindow> {
   console.log('[main] Creating split command secondary window. projectRoot=', projectRoot);
   const windowOptions = {
-    width: 1280,
-    height: 840,
-    minWidth: 960,
-    minHeight: 640,
+    title: 'Black Skies — Command Center',
+    width: initialBounds?.width ?? 1280,
+    height: initialBounds?.height ?? 840,
+    x: initialBounds?.x,
+    y: initialBounds?.y,
+    minWidth: 640,
+    minHeight: 560,
     show: false,
     autoHideMenuBar: true,
     env: { ...process.env, PLAYWRIGHT: '1' },
@@ -832,6 +842,9 @@ async function createSplitCommandSecondaryWindow(
   const window = new BrowserWindow(windowOptions);
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  window.on('ready-to-show', () => {
+    window.show();
+  });
   window.webContents.on('render-process-gone', (_event, details) => {
     console.error('[main] Split command secondary renderer gone', details);
     noteSplitCommandSecondaryLoss('crashed', details);
@@ -1011,8 +1024,18 @@ async function bootstrap(): Promise<void> {
   }
 
   try {
-    await startServices();
-    const window = await createMainWindow();
+    await startOptionalServicesForCoreShell(startServices, ({ message }) => {
+      servicesProcess = null;
+      servicesPort = null;
+      delete process.env.BLACKSKIES_SERVICES_PORT;
+      ensureMainLogger().warn('Optional services unavailable; continuing with core writing shell', {
+        error: message,
+      });
+    });
+    const initialPlacement = splitCommandLifecycleSeam
+      ? deriveSplitCommandInitialPlacement(screen.getAllDisplays(), screen.getPrimaryDisplay())
+      : null;
+    const window = await createMainWindow(initialPlacement?.writingStudio);
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
     recordSplitCommandFocusOwnership('primary');
     mainWindow = window;
@@ -1027,6 +1050,7 @@ async function bootstrap(): Promise<void> {
         });
         const secondaryWindow = await createSplitCommandSecondaryWindow(
           splitCommandSecondaryLaunchContract,
+          initialPlacement?.commandCenter,
         );
         try {
           splitCommandLifecycleSeam.registry.registerSecondaryWindow();

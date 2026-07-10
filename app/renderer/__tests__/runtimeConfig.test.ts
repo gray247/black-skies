@@ -64,8 +64,8 @@ describe('loadRuntimeConfig caching and validation', () => {
     expect(config).toBe(DEFAULT_RUNTIME_CONFIG);
   });
 
-  it('defaults the experimental Split Command workspace off', () => {
-    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(false);
+  it('defaults the Split Command workspace on for the production host', () => {
+    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(true);
   });
 
   it('normalizes the experimental Split Command workspace flag from YAML', () => {

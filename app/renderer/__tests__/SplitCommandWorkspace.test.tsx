@@ -118,6 +118,56 @@ function createProjectWithScenes(count: number): LoadedProject {
 }
 
 describe("SplitCommandWorkspace", () => {
+  it("separates writing and command authority by production window role", () => {
+    const { rerender } = render(
+      <SplitCommandWorkspace
+        windowRole="primary"
+        project={PROJECT}
+        activeSceneId="sc_0001"
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByTestId("split-command-workspace")).toHaveAttribute(
+      "data-window-role",
+      "primary",
+    );
+    expect(screen.getByTestId("split-command-workspace")).toHaveClass(
+      "split-command--dedicated",
+    );
+    expect(screen.getByTestId("split-command-workspace")).toHaveAttribute(
+      "data-primary-scroll-owner",
+      "workspace-body",
+    );
+    expect(screen.getByLabelText("Writing Studio")).toHaveAttribute(
+      "data-surface-role",
+      "sovereign",
+    );
+    expect(screen.getByTestId("stable-writing-surface")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Command Center")).not.toBeInTheDocument();
+
+    rerender(
+      <SplitCommandWorkspace
+        windowRole="secondary"
+        project={PROJECT}
+        activeSceneId="sc_0001"
+        onSelectScene={vi.fn()}
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByTestId("split-command-workspace")).toHaveAttribute(
+      "data-window-role",
+      "secondary",
+    );
+    expect(screen.getByLabelText("Command Center")).toHaveAttribute(
+      "data-mutation-authority",
+      "advisory-only",
+    );
+    expect(screen.queryByLabelText("Writing Studio")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("stable-writing-surface")).not.toBeInTheDocument();
+  });
+
   it("renders command and writing zones without replacing the wrapped writing surface", () => {
     const onSelectScene = vi.fn();
     render(

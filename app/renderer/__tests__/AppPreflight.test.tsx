@@ -1835,8 +1835,8 @@ describe('App preflight integration', () => {
     expect(await screen.findByText('snap-new')).toBeInTheDocument();
   });
 
-  it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {
-    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(false);
+  it('uses Split Command as the default application host', async () => {
+    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(true);
     const App = loadAppWithServices(services);
 
     render(<App />);
