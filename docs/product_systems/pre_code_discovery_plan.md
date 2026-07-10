@@ -2,10 +2,14 @@
 
 ## Status
 
-- Status: `Active` / `Planning Spine` / `Not Build Ready`
-- Lifecycle: active during pre-code discovery
-- Retirement rule: archive or supersede after `build_order.md`, `v1_scope_lock.md`, and implementation planning docs exist
-- Scope: product or system planning only; no runtime permission
+- Status: `Superseded Planning Spine` / `Stage 19 Open` / `No Automatic Runtime Permission`
+- Lifecycle: pre-code discovery and readiness are complete; Stage 19 implementation and acceptance continue toward Black Skies V1.0
+- Preservation rule: retain for traceability until a separately authorized current-versus-historical or archive decision moves it
+- Scope: historical pre-code planning/readiness evidence plus a pointer to current Stage 19 authority; no implementation package is authorized here
+- Current sequencing authority: `current_product_roadmap.md` together with `stage19_v1_authority_alignment_decision.md`
+- Packages `19.1` through `19.5` are the `Foundation Spine` package group; they are only the initial bounded local writing-spine sequence and do not close Stage 19 or prove V1.0
+- Current forward planning lives in the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix
+- Embedded statements below that describe an earlier stage as active or next eligible are retained historical snapshots and are superseded for current sequencing
 
 ## Purpose
 

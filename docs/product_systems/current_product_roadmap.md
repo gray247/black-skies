@@ -9,13 +9,14 @@ implementation-planning review.
 
 Current status:
 
-- product discovery remains active
+- Stage 19 is open and is the governed implementation and acceptance program intended to culminate in Black Skies V1.0
+- V1.0 is the product milestone reached through Stage 19, not a competing stage system
+- Packages `19.1` through `19.5` are the `Foundation Spine` package group; they complete, or await final package acceptance for, only the initial bounded local project-open/save/re-entry sequence and do not close Stage 19 or prove V1.0
+- the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and initial salvage traceability matrix now define the planning boundary; Package `19.7` is the only selected next package and remains docs/read-only baseline work
+- further implementation remains blocked until separately bounded and authorized as a Stage 19 package
+- any older embedded statement below that names Stage 11 or another completed stage as next eligible, says implementation planning has not started, or describes Stage 19 only as the initial spine is retained historical status text and is superseded for current sequencing by this status block and `stage19_v1_authority_alignment_decision.md`
 - capability reconciliation is substantially developed
-- roadmap reconstruction remains active
-- implementation planning has not started
-- runtime and GUI implementation remain blocked
-- meeting the roadmap criteria below does not automatically authorize
-  implementation
+- meeting the roadmap criteria below does not automatically authorize an implementation package
 - Product Experience and Surface Convergence is closed with recorded
   convergence items in
   [orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md](/C:/Dev/black-skies/docs/product_systems/orchestrator_9_product_experience_surface_convergence_closure_checkpoint.md).
