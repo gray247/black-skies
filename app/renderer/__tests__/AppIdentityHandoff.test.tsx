@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
 
+import { DEFAULT_RUNTIME_CONFIG } from '../../shared/config/runtime';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type { ServicesBridge } from '../../shared/ipc/services';
 
@@ -466,6 +467,44 @@ describe('App identity handoff witnesses', () => {
     expect(document.body.dataset.projectId).toBe('proj_alpha');
     expect(document.documentElement.dataset.projectId).not.toBe('path-beta');
     expect(document.body.dataset.projectId).not.toBe('path-beta');
+    expect(services.restoreSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('shows authoritative project identity and bounded session state in the integrated split-command path', async () => {
+    window.__runtimeConfigOverride = {
+      ...DEFAULT_RUNTIME_CONFIG,
+      ui: {
+        ...DEFAULT_RUNTIME_CONFIG.ui,
+        experimentalSplitCommandWorkspace: true,
+      },
+    };
+    mockLoadedProject = buildLoadedProject({
+      path: '/projects/integrated-alpha',
+      name: 'Integrated Alpha Story',
+      projectId: 'proj_integrated_alpha',
+    });
+
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-project-identity')).toHaveTextContent(
+      'Active project identity: proj_integrated_alpha',
+    );
+    expect(screen.getByLabelText('Writing Studio')).toHaveAttribute(
+      'data-surface-role',
+      'sovereign',
+    );
+    expect(screen.getByLabelText('Command Center')).toHaveAttribute(
+      'data-mutation-authority',
+      'advisory-only',
+    );
+    expect(screen.getByLabelText('Command Center')).toHaveAttribute(
+      'data-gating',
+      'non-blocking',
+    );
+    expect(screen.getByTestId('workspace-draft-state')).toHaveTextContent(
+      'Draft/session state: persisted',
+    );
+    expect(document.body.dataset.projectId).toBe('proj_integrated_alpha');
     expect(services.restoreSnapshot).not.toHaveBeenCalled();
   });
 

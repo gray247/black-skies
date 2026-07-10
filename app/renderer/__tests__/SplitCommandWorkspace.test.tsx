@@ -130,8 +130,15 @@ describe("SplitCommandWorkspace", () => {
     );
 
     expect(screen.getByTestId("split-command-workspace")).toBeInTheDocument();
-    expect(screen.getByLabelText("Command Center")).toBeInTheDocument();
-    expect(screen.getByLabelText("Writing Studio")).toBeInTheDocument();
+    expect(screen.getByLabelText("Command Center")).toHaveAttribute(
+      "data-mutation-authority",
+      "advisory-only",
+    );
+    expect(screen.getByLabelText("Command Center")).toHaveAttribute("data-gating", "non-blocking");
+    expect(screen.getByLabelText("Writing Studio")).toHaveAttribute("data-surface-role", "sovereign");
+    expect(screen.getByTestId("split-command-project-identity")).toHaveTextContent(
+      "Active project identity: proj_demo",
+    );
     expect(screen.getByLabelText("Writing Studio contract")).toBeInTheDocument();
     expect(screen.getByLabelText("Writing Studio surfaces")).toBeInTheDocument();
     expect(screen.getByLabelText("Writing Workspace snapshot")).toBeInTheDocument();

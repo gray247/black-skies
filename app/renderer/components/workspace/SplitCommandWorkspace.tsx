@@ -410,6 +410,9 @@ export default function SplitCommandWorkspace({
       <aside
         className="split-command__zone split-command__zone--command"
         aria-label="Command Center"
+        data-surface-role="supporting"
+        data-gating="non-blocking"
+        data-mutation-authority="advisory-only"
       >
         <div className="split-command__zone-header">
           <span className="split-command__eyebrow">Command Center</span>
@@ -487,6 +490,7 @@ export default function SplitCommandWorkspace({
       <section
         className="split-command__zone split-command__zone--writing"
         aria-label="Writing Studio"
+        data-surface-role="sovereign"
       >
         <div className="split-command__zone-header split-command__zone-header--writing">
           <span className="split-command__eyebrow">Writing Studio</span>
@@ -495,6 +499,12 @@ export default function SplitCommandWorkspace({
             {activeUnit
               ? `Active scene: ${activeUnit.title}`
               : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}
+          </p>
+          <p
+            className="split-command__panel-note"
+            data-testid="split-command-project-identity"
+          >
+            Active project identity: {project?.projectId ?? "Unavailable"}
           </p>
         </div>
         <div className="split-command__writing-surface">
