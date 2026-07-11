@@ -34,7 +34,6 @@ import {
   type ServicePortRange,
 } from '../shared/config/runtime.js';
 import { resolveConfiguredServicePort } from './serviceResolution.js';
-import { randomUUID } from 'node:crypto';
 import {
   createSplitCommandLifecycleSeam,
   buildSplitCommandOwnershipSyncMessage,
@@ -49,6 +48,17 @@ import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
 import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 import { startOptionalServicesForCoreShell } from './optionalServiceStartup.js';
 import { deriveSplitCommandInitialPlacement, type InitialWindowBounds } from './splitCommandWindowPlacement.js';
+import { PROJECT_SPINE_CHANNELS, type ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
+import {
+  getProjectSpineSnapshot,
+  registerProjectSpineIpc,
+} from './projectSpineIpc.js';
+import {
+  clearPendingCloseRequest,
+  consumeCoordinatedCloseAllowance,
+  createPendingCloseRequest,
+  hasPendingCloseRequest,
+} from './closeConfirmationCoordinator.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -124,6 +134,11 @@ const PYTHON_EXECUTABLE = resolvePythonExecutable();
 
 let mainWindow: BrowserWindow | null = null;
 let splitCommandSecondaryWindow: BrowserWindow | null = null;
+const projectSpineWindows = new Map<
+  number,
+  { readonly role: ProjectSpineWindowRole; readonly window: BrowserWindow }
+>();
+
 let splitCommandPairTeardownInProgress = false;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 
@@ -245,6 +260,71 @@ function getSplitCommandWindowForRole(windowRole: SplitCommandWindowRole): Brows
     return mainWindow;
   }
   return splitCommandSecondaryWindow;
+}
+
+function registerProjectSpineWindow(
+  window: BrowserWindow,
+  role: ProjectSpineWindowRole,
+): void {
+  projectSpineWindows.set(window.webContents.id, { role, window });
+}
+
+function unregisterProjectSpineWindow(window: BrowserWindow): void {
+  projectSpineWindows.delete(window.webContents.id);
+}
+
+function resolveProjectSpineWindowRole(webContentsId: number): ProjectSpineWindowRole | null {
+  return projectSpineWindows.get(webContentsId)?.role ?? null;
+}
+
+function publishProjectSpineSession(): void {
+  for (const [webContentsId, registration] of projectSpineWindows) {
+    if (
+      registration.window.isDestroyed() ||
+      registration.window.webContents.isDestroyed()
+    ) {
+      continue;
+    }
+    registration.window.webContents.send(
+      PROJECT_SPINE_CHANNELS.sessionChanged,
+      getProjectSpineSnapshot(registration.role),
+    );
+  }
+}
+
+function installUnsavedCloseGuard(window: BrowserWindow): void {
+  window.webContents.on('will-prevent-unload', (event) => {
+    if (consumeCoordinatedCloseAllowance()) {
+      event.preventDefault();
+      return;
+    }
+    const snapshot = getProjectSpineSnapshot('writing');
+    const writingStudio = mainWindow;
+    if (
+      !snapshot.project?.projectId ||
+      snapshot.dirtyUnitIds.length === 0 ||
+      !writingStudio ||
+      writingStudio.isDestroyed() ||
+      writingStudio.webContents.isDestroyed()
+    ) {
+      return;
+    }
+    if (hasPendingCloseRequest()) return;
+    const request = createPendingCloseRequest(
+      snapshot.project.projectId,
+      snapshot.generation,
+      writingStudio.webContents.id,
+    );
+    if (!request) return;
+    try {
+      writingStudio.webContents.send(PROJECT_SPINE_CHANNELS.closeConfirmationRequest, request);
+    } catch (error) {
+      clearPendingCloseRequest();
+      ensureMainLogger().warn('Unable to dispatch close confirmation to Writing Studio', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
 }
 
 function buildSplitCommandOwnershipSyncForRole(
@@ -741,6 +821,8 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
+  registerProjectSpineWindow(window, 'writing');
+  installUnsavedCloseGuard(window);
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
@@ -775,6 +857,7 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
   });
 
   window.on('closed', () => {
+    unregisterProjectSpineWindow(window);
     noteSplitCommandPrimaryCollapse('closed');
     if (mainWindow === window) {
       mainWindow = null;
@@ -840,6 +923,7 @@ async function createSplitCommandSecondaryWindow(
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
+  registerProjectSpineWindow(window, 'command');
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.on('ready-to-show', () => {
@@ -853,6 +937,7 @@ async function createSplitCommandSecondaryWindow(
     console.error('[main] Split command secondary BrowserWindow became unresponsive.');
   });
   window.on('closed', () => {
+    unregisterProjectSpineWindow(window);
     if (splitCommandPairTeardownInProgress) {
       if (splitCommandSecondaryWindow === window) {
         splitCommandSecondaryWindow = null;
@@ -1156,6 +1241,10 @@ if (!hasSingleInstanceLock) {
       await initializeMainLogging(app);
       registerRendererLogSink();
       registerProjectLoaderIpc();
+      registerProjectSpineIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        publishSession: publishProjectSpineSession,
+      });
       registerDiagnosticsIpc();
       registerSplitCommandOwnershipIpc();
       registerLayoutIpc({
@@ -1181,3 +1270,4 @@ if (!hasSingleInstanceLock) {
       app.quit();
     });
 }
+import { randomUUID } from 'node:crypto';

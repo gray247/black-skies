@@ -359,7 +359,12 @@ async function closeElectronApplicationSafely(
   application: ElectronApplication,
   timeoutMs = 15_000,
 ): Promise<{ forcedKill: boolean }> {
-  const appProcess = application.process();
+  let appProcess: ReturnType<ElectronApplication['process']>;
+  try {
+    appProcess = application.process();
+  } catch {
+    return { forcedKill: false };
+  }
   const isProcessAlive = () =>
     Boolean(appProcess && appProcess.exitCode === null && appProcess.signalCode === null);
   const waitForProcessExit = async (waitMs: number): Promise<boolean> => {
@@ -734,7 +739,9 @@ export const test = base.extend<Fixtures>({
       null,
       { timeout: 30000 },
     );
-    await baseExpect(window.getByTestId('app-root')).toBeVisible({ timeout: 30000 });
+    await baseExpect(
+      window.locator('[data-testid="app-root"], [data-stage19-role]'),
+    ).toBeVisible({ timeout: 30000 });
     const baselineFlags = await captureBaselineFlags(window);
     await resetMutableHarnessState(window, baselineFlags);
 

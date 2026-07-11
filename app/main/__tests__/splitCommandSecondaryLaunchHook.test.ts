@@ -1,12 +1,20 @@
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
+import { PROJECT_SPINE_CHANNELS } from '../../shared/ipc/projectSpine';
 
 const browserWindowState = {
   instances: [] as BrowserWindowMock[],
   failOnInstance: 0,
 };
 const ipcHandlers = new Map<string, (...args: unknown[]) => unknown>();
+const projectSpineMocks = vi.hoisted(() => ({
+  getProjectSpineSnapshot: vi.fn(() => ({
+    project: null,
+    generation: 0,
+    dirtyUnitIds: [],
+  })),
+}));
 
 const logger = {
   info: vi.fn(),
@@ -16,6 +24,7 @@ const logger = {
 };
 
 let experimentalSplitCommandWorkspace = false;
+const showMessageBoxSync = vi.fn(() => 0);
 
 class BrowserWindowMock {
   static fromWebContents = vi.fn((webContents: { owner?: BrowserWindowMock } | null) =>
@@ -24,6 +33,7 @@ class BrowserWindowMock {
 
   readonly options: BrowserWindowConstructorOptions;
   readonly webContents = {
+    id: browserWindowState.instances.length + 1,
     owner: undefined as BrowserWindowMock | undefined,
     setWindowOpenHandler: vi.fn(),
     on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
@@ -38,6 +48,7 @@ class BrowserWindowMock {
       }
     },
     openDevTools: vi.fn(),
+    isDestroyed: vi.fn(() => false),
   };
 
   private readonly listeners = new Map<string, Array<(...args: unknown[]) => void>>();
@@ -109,6 +120,7 @@ vi.mock('electron', () => ({
   BrowserWindow: BrowserWindowMock,
   dialog: {
     showErrorBox: vi.fn(),
+    showMessageBoxSync,
   },
   ipcMain: {
     handle: vi.fn((channel: string, listener: (...args: unknown[]) => unknown) => {
@@ -155,6 +167,11 @@ vi.mock('../logging.js', () => ({
 
 vi.mock('../projectLoaderIpc.js', () => ({
   registerProjectLoaderIpc: vi.fn(),
+}));
+
+vi.mock('../projectSpineIpc.js', () => ({
+  getProjectSpineSnapshot: projectSpineMocks.getProjectSpineSnapshot,
+  registerProjectSpineIpc: vi.fn(),
 }));
 
 vi.mock('../layoutIpc.js', () => ({
@@ -214,6 +231,24 @@ async function loadMainModule(): Promise<void> {
   await new Promise((resolve) => setImmediate(resolve));
 }
 
+async function closeCoordinator() {
+  return import('../closeConfirmationCoordinator');
+}
+
+function activeDirtySnapshot(projectId = 'project-close-guard', generation = 19) {
+  return {
+    project: { projectId },
+    generation,
+    dirtyUnitIds: ['unit-1'],
+  };
+}
+
+function closeConfirmationMessages(window: BrowserWindowMock): unknown[][] {
+  return vi
+    .mocked(window.webContents.send)
+    .mock.calls.filter(([channel]) => channel === PROJECT_SPINE_CHANNELS.closeConfirmationRequest);
+}
+
 function getOwnershipSyncPayloads(window: BrowserWindowMock): unknown[] {
   return vi
     .mocked(window.webContents.send)
@@ -236,13 +271,22 @@ describe('main split command launch hook', () => {
     browserWindowState.failOnInstance = 0;
     ipcHandlers.clear();
     experimentalSplitCommandWorkspace = false;
+    showMessageBoxSync.mockReset();
+    showMessageBoxSync.mockReturnValue(0);
+    projectSpineMocks.getProjectSpineSnapshot.mockReset();
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue({
+      project: null,
+      generation: 0,
+      dirtyUnitIds: [],
+    });
     process.env.PLAYWRIGHT = '1';
     delete process.env.BLACKSKIES_FORCE_SERVICES;
     delete process.env.BLACKSKIES_SERVICES_PORT;
     delete process.env.BLACKSKIES_CONFIG_PATH;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    (await closeCoordinator()).resetCloseConfirmationState();
     delete process.env.PLAYWRIGHT;
     delete process.env.BLACKSKIES_FORCE_SERVICES;
     delete process.env.BLACKSKIES_SERVICES_PORT;
@@ -265,6 +309,118 @@ describe('main split command launch hook', () => {
     expect(logger.info).not.toHaveBeenCalledWith(
       'Split command mutation ownership classified',
       expect.anything(),
+    );
+  });
+
+  it('dispatches one correlated close-confirmation request only to Writing Studio', async () => {
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeDirtySnapshot('project-a4a', 42));
+    experimentalSplitCommandWorkspace = true;
+    await loadMainModule();
+
+    const [writingStudio, commandCenter] = browserWindowState.instances;
+    const event = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', event);
+
+    const messages = closeConfirmationMessages(writingStudio);
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toEqual([
+      PROJECT_SPINE_CHANNELS.closeConfirmationRequest,
+      expect.objectContaining({
+        correlationId: expect.any(String),
+        projectId: 'project-a4a',
+        generation: 42,
+        writingWebContentsId: writingStudio.webContents.id,
+      }),
+    ]);
+    expect(closeConfirmationMessages(commandCenter)).toHaveLength(0);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(true);
+    expect(showMessageBoxSync).not.toHaveBeenCalled();
+  });
+
+  it('consumes the coordinated-close allowance once and does not bypass the next dirty close', async () => {
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeDirtySnapshot());
+    (await closeCoordinator()).grantCoordinatedCloseAllowance();
+    await loadMainModule();
+
+    const [writingStudio] = browserWindowState.instances;
+    const allowedEvent = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', allowedEvent);
+    expect(allowedEvent.preventDefault).toHaveBeenCalledTimes(1);
+    expect(closeConfirmationMessages(writingStudio)).toHaveLength(0);
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(false);
+    expect((await closeCoordinator()).consumeCoordinatedCloseAllowance()).toBe(false);
+
+    const dirtyEvent = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', dirtyEvent);
+    expect(dirtyEvent.preventDefault).not.toHaveBeenCalled();
+    expect(closeConfirmationMessages(writingStudio)).toHaveLength(1);
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(true);
+  });
+
+  it('keeps the original correlation active when close is attempted again', async () => {
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeDirtySnapshot());
+    await loadMainModule();
+
+    const [writingStudio] = browserWindowState.instances;
+    const firstEvent = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', firstEvent);
+    const [[, originalRequest]] = closeConfirmationMessages(writingStudio);
+    const duplicateEvent = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', duplicateEvent);
+
+    expect(closeConfirmationMessages(writingStudio)).toHaveLength(1);
+    expect((closeConfirmationMessages(writingStudio)[0][1] as { correlationId: string }).correlationId)
+      .toBe((originalRequest as { correlationId: string }).correlationId);
+    expect(firstEvent.preventDefault).not.toHaveBeenCalled();
+    expect(duplicateEvent.preventDefault).not.toHaveBeenCalled();
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(true);
+  });
+
+  it.each([
+    ['missing active project', () => ({ project: null, generation: 19, dirtyUnitIds: ['unit-1'] }), () => {}],
+    ['empty project ID', () => activeDirtySnapshot('', 19), () => {}],
+    ['no authoritative dirty units', () => ({ ...activeDirtySnapshot(), dirtyUnitIds: [] }), () => {}],
+    ['missing Writing Studio window', () => activeDirtySnapshot(), (window: BrowserWindowMock) => window.emit('closed')],
+    ['destroyed Writing Studio window', () => activeDirtySnapshot(), (window: BrowserWindowMock) => window.isDestroyed = () => true],
+    ['destroyed Writing Studio webContents', () => activeDirtySnapshot(), (window: BrowserWindowMock) => window.webContents.isDestroyed.mockReturnValue(true)],
+  ])('fails closed for %s', async (_condition, snapshotFactory, alterWindow) => {
+    const snapshot = snapshotFactory();
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(snapshot);
+    await loadMainModule();
+
+    const [writingStudio] = browserWindowState.instances;
+    alterWindow(writingStudio);
+    const event = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', event);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(closeConfirmationMessages(writingStudio)).toHaveLength(0);
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(false);
+    expect(snapshot.dirtyUnitIds).toEqual(snapshotFactory().dirtyUnitIds);
+  });
+
+  it('clears a partially created request and logs boundedly when close IPC dispatch throws', async () => {
+    const snapshot = activeDirtySnapshot();
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(snapshot);
+    await loadMainModule();
+
+    const [writingStudio] = browserWindowState.instances;
+    writingStudio.webContents.send.mockImplementation((channel: string) => {
+      if (channel === PROJECT_SPINE_CHANNELS.closeConfirmationRequest) {
+        throw new Error('IPC unavailable');
+      }
+    });
+    const event = { preventDefault: vi.fn() };
+    writingStudio.webContents.emit('will-prevent-unload', event);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(false);
+    expect(snapshot.dirtyUnitIds).toEqual(['unit-1']);
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Unable to dispatch close confirmation to Writing Studio',
+      { error: 'IPC unavailable' },
     );
   });
 

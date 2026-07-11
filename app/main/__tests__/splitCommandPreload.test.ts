@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SplitCommandOwnershipSyncMessage } from '../../shared/splitCommandAuthority';
 import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
+import type { ProjectSpineBridge } from '../../shared/ipc/projectSpine';
 
 const contextBridgeMock = vi.hoisted(() => ({
   exposeInMainWorld: vi.fn(),
@@ -124,6 +125,13 @@ function getSplitCommandBridge():
     | undefined;
 }
 
+function getProjectSpineBridge(): ProjectSpineBridge | undefined {
+  const exposeCalls = vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls;
+  return exposeCalls.find(([key]) => key === 'projectSpine')?.[1] as
+    | ProjectSpineBridge
+    | undefined;
+}
+
 describe('splitCommand preload bridge', () => {
   beforeEach(async () => {
     vi.resetModules();
@@ -243,6 +251,13 @@ describe('splitCommand preload bridge', () => {
     const bridge = getSplitCommandBridge();
     expect(bridge).toBeDefined();
     expect(bridge?.windowRole).toBe('secondary');
+    const projectSpine = getProjectSpineBridge();
+    expect(projectSpine?.windowRole).toBe('command');
+    expect(projectSpine?.saveUnit).toBeUndefined();
+    expect(projectSpine?.createUnit).toBeUndefined();
+    expect(projectSpine?.renameUnit).toBeUndefined();
+    expect(projectSpine?.reorderUnits).toBeUndefined();
+    expect(projectSpine?.deleteUnit).toBeUndefined();
     const requested = await bridge!.requestOwnershipSync();
     expect(requested).toEqual(sampleMessage);
     expect(bridge!.readOwnershipSync()).toEqual(sampleMessage);
@@ -269,5 +284,23 @@ describe('splitCommand preload bridge', () => {
     }
 
     expect(bridge!.readOwnershipSync()).toEqual(sampleMessage);
+  });
+
+  it('exposes manuscript mutation methods only to the primary Writing Studio role', async () => {
+    setArgv([
+      '--blackskies-split-command-role=primary',
+      '--blackskies-split-command-pair-id=split-command:session-writing',
+      '--blackskies-split-command-session-generation=session-writing',
+    ]);
+
+    await import('../preload');
+
+    const projectSpine = getProjectSpineBridge();
+    expect(projectSpine?.windowRole).toBe('writing');
+    expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
+    expect(projectSpine?.createUnit).toEqual(expect.any(Function));
+    expect(projectSpine?.renameUnit).toEqual(expect.any(Function));
+    expect(projectSpine?.reorderUnits).toEqual(expect.any(Function));
+    expect(projectSpine?.deleteUnit).toEqual(expect.any(Function));
   });
 });

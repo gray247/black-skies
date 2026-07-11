@@ -238,7 +238,6 @@ function validateDraftSaveMarkdown(sceneId: string, markdown: string): void {
     throw new ProjectDraftSaveError('Scene Markdown is missing front matter.', 'SCENE_INVALID');
   }
   const submittedId = ensureString(frontMatter.id);
-  const title = ensureString(frontMatter.title);
   const order = Number(frontMatter.order);
   if (submittedId !== sceneId) {
     throw new ProjectDraftSaveError(
@@ -246,7 +245,11 @@ function validateDraftSaveMarkdown(sceneId: string, markdown: string): void {
       'SCENE_INVALID',
     );
   }
-  if (!title || Number.isNaN(order)) {
+  if (
+    !Object.prototype.hasOwnProperty.call(frontMatter, 'title') ||
+    typeof frontMatter.title !== 'string' ||
+    Number.isNaN(order)
+  ) {
     throw new ProjectDraftSaveError(
       'Scene front matter must retain title and numeric order.',
       'SCENE_INVALID',
@@ -830,7 +833,12 @@ async function parseSceneFile(
   const orderValue = meta.order;
   const order = typeof orderValue === 'number' ? orderValue : Number(orderValue);
 
-  if (!id || !title || Number.isNaN(order)) {
+  if (
+    !id ||
+    !Object.prototype.hasOwnProperty.call(meta, 'title') ||
+    typeof meta.title !== 'string' ||
+    Number.isNaN(order)
+  ) {
     throw new Error('Front matter missing required fields (id, title, order).');
   }
 

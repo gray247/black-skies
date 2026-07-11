@@ -1,4 +1,5 @@
 import type { ProjectLoaderApi } from '../../shared/ipc/projectLoader';
+import type { ProjectSpineBridge } from '../../shared/ipc/projectSpine';
 import type { ServicesBridge } from '../../shared/ipc/services';
 import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type { LayoutBridge } from '../../shared/ipc/layout';
@@ -57,6 +58,7 @@ type ElectronApi = {
 declare global {
   interface Window {
     projectLoader?: ProjectLoaderApi;
+    projectSpine?: ProjectSpineBridge;
     services?: ServicesBridge;
     diagnostics?: DiagnosticsBridge;
     runtimeConfig?: RuntimeConfig;

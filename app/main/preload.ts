@@ -1,5 +1,6 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
 import { randomUUID } from 'node:crypto';
+import type { IpcRendererEvent } from 'electron';
 import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import * as modePolicy from '../shared/modePolicy';
@@ -613,6 +614,24 @@ import {
   type ProjectLoadResponse,
   type ProjectLoaderApi,
 } from '../shared/ipc/projectLoader.js';
+import {
+  PROJECT_SPINE_CHANNELS,
+  type CreateManuscriptUnitRequest,
+  type CreateProjectRequest as ProjectSpineCreateProjectRequest,
+  type DeleteManuscriptUnitRequest,
+  type OpenProjectRequest as ProjectSpineOpenProjectRequest,
+  type ProjectSpineBridge,
+  type ProjectSpineCloseConfirmationRequest,
+  type ProjectSpineCloseConfirmationResponse,
+  type ProjectSpineResult,
+  type ProjectSpineSessionSnapshot,
+  type RemoveRecentProjectRequest,
+  type RenameManuscriptUnitRequest,
+  type ReorderManuscriptUnitsRequest,
+  type SaveManuscriptUnitRequest,
+  type SelectManuscriptUnitRequest,
+  type SetManuscriptUnitDirtyRequest,
+} from '../shared/ipc/projectSpine.js';
 import {
   DIAGNOSTICS_CHANNELS,
   type DiagnosticsBridge,
@@ -1954,6 +1973,112 @@ const projectLoaderApi: ProjectLoaderApi = {
   },
 };
 
+function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnapshot | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const snapshot = value as Partial<ProjectSpineSessionSnapshot>;
+  if (
+    snapshot.schemaVersion !== 1 ||
+    (snapshot.role !== 'writing' && snapshot.role !== 'command') ||
+    typeof snapshot.generation !== 'number' ||
+    typeof snapshot.revision !== 'number' ||
+    !Array.isArray(snapshot.recentProjects) ||
+    !Array.isArray(snapshot.dirtyUnitIds) ||
+    !snapshot.saveState
+  ) {
+    return null;
+  }
+  return snapshot as ProjectSpineSessionSnapshot;
+}
+
+const projectSpineWindowRole =
+  splitCommandLaunchContext?.windowRole === 'secondary' ? 'command' : 'writing';
+
+const projectSpineBaseBridge: ProjectSpineBridge = {
+  windowRole: projectSpineWindowRole,
+  async chooseDirectory() {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.chooseDirectory) as Promise<{
+      canceled: boolean;
+      path?: string;
+    }>;
+  },
+  async openProject(request: ProjectSpineOpenProjectRequest) {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.openProject, request) as Promise<
+      ProjectSpineResult<{ activation: 'activated' | 'already-active' }>
+    >;
+  },
+  async createProject(request: ProjectSpineCreateProjectRequest) {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.createProject, request) as Promise<
+      ProjectSpineResult<{ activation: 'activated' }>
+    >;
+  },
+  async getSession() {
+    const snapshot = normalizeProjectSpineSnapshot(
+      await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.getSession),
+    );
+    if (!snapshot) {
+      throw new Error('Project session bridge returned an invalid snapshot.');
+    }
+    return snapshot;
+  },
+  async removeRecent(request: RemoveRecentProjectRequest) {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.removeRecent, request) as Promise<
+      ProjectSpineResult
+    >;
+  },
+  async selectUnit(request: SelectManuscriptUnitRequest) {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.selectUnit, request) as Promise<
+      ProjectSpineResult
+    >;
+  },
+  subscribeSession(listener: (snapshot: ProjectSpineSessionSnapshot) => void) {
+    const handler = (_event: IpcRendererEvent, value: unknown) => {
+      const snapshot = normalizeProjectSpineSnapshot(value);
+      if (snapshot && snapshot.role === projectSpineWindowRole) {
+        listener(snapshot);
+      }
+    };
+    ipcRenderer.on(PROJECT_SPINE_CHANNELS.sessionChanged, handler);
+    return () => {
+      ipcRenderer.removeListener(PROJECT_SPINE_CHANNELS.sessionChanged, handler);
+    };
+  },
+};
+
+const projectSpineBridge: ProjectSpineBridge =
+  projectSpineWindowRole === 'writing'
+    ? {
+        ...projectSpineBaseBridge,
+        setUnitDirty: (request: SetManuscriptUnitDirtyRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, request) as Promise<ProjectSpineResult>,
+        saveUnit: (request: SaveManuscriptUnitRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.saveUnit, request) as Promise<ProjectSpineResult>,
+        createUnit: (request: CreateManuscriptUnitRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.createUnit, request) as Promise<
+            ProjectSpineResult<{ unitId: string }>
+          >,
+        renameUnit: (request: RenameManuscriptUnitRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.renameUnit, request) as Promise<ProjectSpineResult>,
+        reorderUnits: (request: ReorderManuscriptUnitsRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.reorderUnits, request) as Promise<ProjectSpineResult>,
+        deleteUnit: (request: DeleteManuscriptUnitRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.deleteUnit, request) as Promise<ProjectSpineResult>,
+        onCloseConfirmationRequest: (
+          listener: (request: ProjectSpineCloseConfirmationRequest) => void,
+        ) => {
+          const handler = (_event: IpcRendererEvent, request: ProjectSpineCloseConfirmationRequest) => {
+            listener(request);
+          };
+          ipcRenderer.on(PROJECT_SPINE_CHANNELS.closeConfirmationRequest, handler);
+          return () => ipcRenderer.removeListener(PROJECT_SPINE_CHANNELS.closeConfirmationRequest, handler);
+        },
+        respondToCloseConfirmation: async (response: ProjectSpineCloseConfirmationResponse) => {
+          await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, response);
+        },
+      }
+    : projectSpineBaseBridge;
+
 const diagnosticsBridge: DiagnosticsBridge = {
   async openDiagnosticsFolder(): Promise<DiagnosticsOpenResult> {
     try {
@@ -2152,6 +2277,7 @@ const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunc
 registerConsoleForwarding();
 
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
+contextBridge.exposeInMainWorld('projectSpine', projectSpineBridge);
 contextBridge.exposeInMainWorld('services', servicesBridge);
 contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
 contextBridge.exposeInMainWorld('layout', layoutBridge);
