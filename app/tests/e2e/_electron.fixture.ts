@@ -1,7 +1,6 @@
 import { _electron as electron, test as base, expect as baseExpect } from '@playwright/test';
 import type { TestInfo } from '@playwright/test';
 import type { ConsoleMessage, ElectronApplication, Page } from 'playwright';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SERVICE_PORT } from './servicePort';
 import { startServiceStubs, stopServiceStubs } from './utils/serviceStubs';
 import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
+import { killElectronProcessTree, waitForProcessIdsToExit } from './stage19-electron-support';
 
 type Fixtures = {
   splitCommandRuntimeConfig: boolean;
@@ -96,63 +96,6 @@ function waitForTimeout(timeoutMs: number): Promise<void> {
     const timeoutHandle = setTimeout(() => resolve(), timeoutMs);
     timeoutHandle.unref?.();
   });
-}
-
-function collectProcessTreePids(rootPid: number): number[] {
-  if (process.platform !== 'linux') {
-    return [];
-  }
-  const psResult = spawnSync('ps', ['-eo', 'pid=,ppid='], { encoding: 'utf8' });
-  if (psResult.status !== 0 || !psResult.stdout) {
-    return [];
-  }
-  const parentByPid = new Map<number, number>();
-  for (const line of psResult.stdout.split('\n')) {
-    const match = line.trim().match(/^(\d+)\s+(\d+)$/);
-    if (!match) {
-      continue;
-    }
-    parentByPid.set(Number.parseInt(match[1] ?? '', 10), Number.parseInt(match[2] ?? '', 10));
-  }
-  const descendants: number[] = [];
-  const queue = [rootPid];
-  const visited = new Set<number>(queue);
-  while (queue.length > 0) {
-    const parentPid = queue.shift() ?? rootPid;
-    for (const [pid, ppid] of parentByPid) {
-      if (ppid !== parentPid || visited.has(pid)) {
-        continue;
-      }
-      visited.add(pid);
-      descendants.push(pid);
-      queue.push(pid);
-    }
-  }
-  return descendants;
-}
-
-function killElectronProcessTree(pid: number): { descendantPids: number[] } {
-  const descendantPids = collectProcessTreePids(pid);
-  for (const childPid of [...descendantPids].reverse()) {
-    try {
-      process.kill(childPid, 'SIGKILL');
-    } catch {
-      // Best-effort fallback for stuck Electron teardown.
-    }
-  }
-  if (process.platform === 'linux') {
-    try {
-      process.kill(-pid, 'SIGKILL');
-    } catch {
-      // Best-effort fallback for Linux process groups.
-    }
-  }
-  try {
-    process.kill(pid, 'SIGKILL');
-  } catch {
-    // Best-effort fallback for stuck Electron teardown.
-  }
-  return { descendantPids };
 }
 
 async function bestEffortPageTeardownStep(
@@ -422,16 +365,17 @@ async function closeElectronApplicationSafely(
   }
 
   if (appProcess?.pid !== null && appProcess?.pid !== undefined) {
-    try {
-      const tree = killElectronProcessTree(appProcess.pid);
-      console.warn('[electron.teardown] kill fallback dispatched', {
-        pid: appProcess.pid,
-        descendantCount: tree.descendantPids.length,
-        descendantPids: tree.descendantPids.slice(0, 10),
-      });
-    } catch {
-      // best effort fallback for stuck Electron teardown
-    }
+    const tree = killElectronProcessTree(appProcess.pid);
+    await waitForProcessIdsToExit(
+      [appProcess.pid, ...tree.descendantPids],
+      5_000,
+      'Electron fixture forced cleanup',
+    );
+    console.warn('[electron.teardown] kill fallback dispatched', {
+      pid: appProcess.pid,
+      descendantCount: tree.descendantPids.length,
+      descendantPids: tree.descendantPids.slice(0, 10),
+    });
   }
 
   await waitForProcessExit(5_000);

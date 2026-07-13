@@ -1,92 +1,21 @@
-import { mkdtemp, rm } from 'node:fs/promises';
-import fs from 'node:fs';
+import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
+import { join } from 'node:path';
+import type { Page } from '@playwright/test';
 import { expect, markElectronApplicationExitedCleanly, test } from './_electron.fixture';
+import {
+  closeLaunchedApplicationBestEffort,
+  getStage19Windows,
+  launchStage19BuiltApplication,
+  removeTemporaryDirectory,
+  requestWritingStudioClose,
+  waitForCleanElectronApplicationExit,
+  type LaunchedStage19Application,
+} from './stage19-electron-support';
 
 // This test uses only synthetic temporary directories. It drives the production
 // preload bridge directly because native directory pickers are OS-owned.
 test.use({ splitCommandRuntimeConfig: true });
-
-async function requestWritingStudioClose(electronApp: ElectronApplication): Promise<void> {
-  await electronApp.evaluate(async ({ BrowserWindow }) => {
-    const candidates = await Promise.all(
-      BrowserWindow.getAllWindows()
-        .filter((window) => !window.isDestroyed())
-        .map(async (window) => ({
-          window,
-          role: await window.webContents.executeJavaScript(
-            "document.querySelector('[data-stage19-role=\"writing\"]') ? 'writing' : document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'unknown'",
-          ),
-        })),
-    );
-    const writingWindows = candidates.filter((candidate) => candidate.role === 'writing');
-    const commandWindows = candidates.filter((candidate) => candidate.role === 'command');
-    if (writingWindows.length !== 1) {
-      throw new Error(`Expected exactly one Writing Studio BrowserWindow; found ${writingWindows.length}.`);
-    }
-    if (commandWindows.length !== 1 || commandWindows[0].window.id === writingWindows[0].window.id) {
-      throw new Error(`Expected exactly one distinct Command Center BrowserWindow; found ${commandWindows.length}.`);
-    }
-    writingWindows[0].window.close();
-  });
-}
-
-type ElectronProcess = NonNullable<ReturnType<ElectronApplication['process']>>;
-
-async function getStage19Windows(
-  electronApp: ElectronApplication,
-  fixturePage?: Page,
-): Promise<{ writing: Page; command: Page }> {
-  await expect.poll(async () => {
-    const roles = await Promise.all(electronApp.windows().map(async (candidate) => ({
-      writing: await candidate.locator('[data-stage19-role="writing"]').count(),
-      command: await candidate.locator('[data-stage19-role="command"]').count(),
-    })));
-    return roles.filter((role) => role.writing > 0).length === 1 &&
-      roles.filter((role) => role.command > 0).length === 1;
-  }, { timeout: 30_000 }).toBe(true);
-
-  const candidates = fixturePage
-    ? [fixturePage, ...electronApp.windows().filter((candidate) => candidate !== fixturePage)]
-    : electronApp.windows();
-  const identified = await Promise.all(candidates.map(async (candidate) => ({
-    candidate,
-    writing: await candidate.locator('[data-stage19-role="writing"]').count(),
-    command: await candidate.locator('[data-stage19-role="command"]').count(),
-  })));
-  const writing = identified.find((entry) => entry.writing > 0)?.candidate;
-  const command = identified.find((entry) => entry.command > 0)?.candidate;
-  if (!writing || !command || writing === command) {
-    throw new Error('Stage 19 did not expose one distinct Writing Studio and Command Center.');
-  }
-  return { writing, command };
-}
-
-async function removeTemporaryDirectory(directory: string): Promise<void> {
-  let lastError: unknown;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    try {
-      await rm(directory, { recursive: true, force: true });
-      return;
-    } catch (error) {
-      lastError = error;
-      const code = (error as NodeJS.ErrnoException).code;
-      if (!['EBUSY', 'EPERM', 'ENOTEMPTY'].includes(code ?? '') || attempt === 3) {
-        throw error;
-      }
-      console.warn('[stage19.cleanup] temporary directory remained busy; retrying', {
-        directory,
-        attempt,
-        code,
-      });
-      await new Promise((resolve) => setTimeout(resolve, attempt * 100));
-    }
-  }
-  throw lastError;
-}
 
 function observeElectronBeforeUnload(page: Page): {
   stop: () => void;
@@ -106,68 +35,6 @@ function observeElectronBeforeUnload(page: Page): {
     unexpectedTypes,
     stop: () => page.off('dialog', handleDialog),
   };
-}
-
-function waitForCleanElectronExit(
-  electronProcess: ElectronProcess | undefined,
-  timeoutMs = 15_000,
-): Promise<{ code: number; signal: null }> {
-  if (!electronProcess) {
-    return Promise.reject(new Error('Electron child process was unavailable before shutdown.'));
-  }
-  const completedExit = (): { code: number; signal: null } | null => {
-    if (electronProcess.signalCode) {
-      throw new Error(`Electron exited by signal ${electronProcess.signalCode}, not a clean exit.`);
-    }
-    return typeof electronProcess.exitCode === 'number'
-      ? { code: electronProcess.exitCode, signal: null }
-      : null;
-  };
-  try {
-    const exit = completedExit();
-    if (exit) return Promise.resolve(exit);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-  return new Promise((resolve, reject) => {
-    let timeoutHandle: NodeJS.Timeout | null = null;
-    const cleanup = () => {
-      if (timeoutHandle) clearTimeout(timeoutHandle);
-      electronProcess.off('exit', onExit);
-      electronProcess.off('error', onError);
-    };
-    const onExit = (code: number | null, signal: NodeJS.Signals | null) => {
-      cleanup();
-      if (signal || code === null) {
-        reject(new Error(`Electron exited by signal ${signal ?? 'unknown'}, not a clean exit.`));
-        return;
-      }
-      resolve({ code, signal: null });
-    };
-    const onError = (error: Error) => {
-      cleanup();
-      reject(error);
-    };
-    electronProcess.once('exit', onExit);
-    electronProcess.once('error', onError);
-    try {
-      const exit = completedExit();
-      if (exit) {
-        cleanup();
-        resolve(exit);
-        return;
-      }
-    } catch (error) {
-      cleanup();
-      reject(error);
-      return;
-    }
-    timeoutHandle = setTimeout(() => {
-      cleanup();
-      reject(new Error(`Timed out after ${timeoutMs}ms waiting for Electron to exit.`));
-    }, timeoutMs);
-    timeoutHandle.unref?.();
-  });
 }
 
 test('Stage 19 dedicated windows reach stable startup', async ({ electronApp, page }) => {
@@ -231,7 +98,7 @@ test.describe('C1 unsaved close flow', () => {
 
       await writing.keyboard.press('Control+S');
       await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-      const cleanExit = waitForCleanElectronExit(electronProcess);
+      const cleanExit = waitForCleanElectronApplicationExit(electronApp);
       await requestWritingStudioClose(electronApp);
       await expect.poll(() => electronApp.windows().length).toBe(0);
       expect(await cleanExit).toEqual({ code: 0, signal: null });
@@ -271,7 +138,7 @@ test.describe('C1 unsaved close flow', () => {
       const dialog = writing.getByRole('dialog', { name: 'Unsaved manuscript changes' });
       await expect(dialog).toBeVisible();
       await expect(command.getByRole('dialog')).toHaveCount(0);
-      const cleanExit = waitForCleanElectronExit(electronProcess);
+      const cleanExit = waitForCleanElectronApplicationExit(electronApp);
       await writing.getByRole('button', { name: 'Discard changes' }).click();
       await expect.poll(() => electronApp.windows().length).toBe(0);
       const exit = await cleanExit;
@@ -288,9 +155,7 @@ test.describe('C1 unsaved close flow', () => {
 
 test('saved project closes, relaunches, and restores durable manuscript state', async ({ electronApp, page }) => {
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-stage19-c2-'));
-  const relaunchUserData = await mkdtemp(join(tmpdir(), 'black-skies-stage19-c2-userdata-'));
-  const relaunchRuntime = await mkdtemp(join(tmpdir(), 'black-skies-stage19-c2-runtime-'));
-  let relaunched: Awaited<ReturnType<typeof electron.launch>> | null = null;
+  let relaunched: LaunchedStage19Application | null = null;
   let relaunchedExitedCleanly = false;
   try {
     const { writing, command } = await getStage19Windows(electronApp, page);
@@ -319,18 +184,14 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     }
     await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await expect(writing.getByRole('dialog')).toHaveCount(0);
-    const firstProcess = electronApp.process();
-    const firstExit = waitForCleanElectronExit(firstProcess);
+    const firstExit = waitForCleanElectronApplicationExit(electronApp);
     await requestWritingStudioClose(electronApp);
     await expect.poll(() => electronApp.windows().length).toBe(0);
     expect(await firstExit).toEqual({ code: 0, signal: null });
     markElectronApplicationExitedCleanly(electronApp);
 
-    const appDir = resolve(process.cwd());
-    const runtimeConfigPath = join(relaunchRuntime, 'runtime.yaml');
-    fs.writeFileSync(runtimeConfigPath, 'ui:\n  enable_docking: false\n  experimental_split_command_workspace: true\n', 'utf8');
-    relaunched = await electron.launch({ args: [`--user-data-dir=${relaunchUserData}`, resolve(appDir, 'dist-electron', 'main', 'main.js')], env: { ...process.env, PLAYWRIGHT: '1', BLACKSKIES_CONFIG_PATH: runtimeConfigPath, ELECTRON_RENDERER_URL: pathToFileURL(resolve(appDir, 'dist', 'index.html')).toString() } });
-    const { writing: reWriting, command: reCommand } = await getStage19Windows(relaunched);
+    relaunched = await launchStage19BuiltApplication('black-skies-stage19-c2-');
+    const { writing: reWriting, command: reCommand } = await getStage19Windows(relaunched.application);
     const reopened = await reWriting.evaluate(async (projectPath) => {
       const result = await window.projectSpine!.openProject({ path: projectPath, operationId: 'c2-reopen' });
       if (!result.ok) throw new Error(result.error.message);
@@ -349,16 +210,17 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     }
     await expect(reWriting.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await expect(reCommand.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-    const secondProcess = relaunched.process();
-    const secondExit = waitForCleanElectronExit(secondProcess);
-    await requestWritingStudioClose(relaunched);
-    await expect.poll(() => relaunched?.windows().length ?? 0).toBe(0);
+    const secondExit = waitForCleanElectronApplicationExit(relaunched.application);
+    await requestWritingStudioClose(relaunched.application);
+    await expect.poll(() => relaunched?.application.windows().length ?? 0).toBe(0);
     expect(await secondExit).toEqual({ code: 0, signal: null });
     relaunchedExitedCleanly = true;
   } finally {
-    if (relaunched && !relaunchedExitedCleanly) await relaunched.close().catch(() => undefined);
+    if (relaunched && !relaunchedExitedCleanly) await closeLaunchedApplicationBestEffort(relaunched);
+    else if (relaunched) {
+      await removeTemporaryDirectory(relaunched.userDataDirectory);
+      await removeTemporaryDirectory(relaunched.runtimeDirectory);
+    }
     await removeTemporaryDirectory(parent);
-    await removeTemporaryDirectory(relaunchUserData);
-    await removeTemporaryDirectory(relaunchRuntime);
   }
 });
