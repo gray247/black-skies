@@ -93,17 +93,16 @@ risk, blocker, acceptance, or closure boundaries.
 
 ## 6. Exactly one selected next package
 
-Only Package `19.7`, **Salvage Inventory and Executable Baseline**, is selected
-next. It is read-only/docs-only with respect to product code and tests. It must
-inspect non-protected implementation and execute safe baseline commands,
-complete the traceability matrix, identify the single authoritative production
-path, classify duplicates/historical paths and all failures, and propose the
-bounded Package `19.8` charter.
+Package `19.12`, **history/recovery/interruption safety**, is the selected next
+package for governed review after the formal closure of Packages `19.9` through
+`19.11` by commit `d780f52`. It retains the dependencies and exit gate in the
+program sequence above. Selection identifies the next package only; Package
+`19.12` requires separate Jason authorization before work begins.
 
-Package `19.7` does not authorize code repair, dependency changes, test repair,
-fixture regeneration, protected evidence, packaging mutation, or Package
-`19.8`. Any command that would mutate controlled evidence or product behavior
-is out of scope.
+Runtime work never begins by inference. No Package `19.12` implementation or
+runtime mutation is authorized by this status update. One-package-at-a-time
+governance remains in force, and the approved Packages `19.12` through `19.22`
+sequence is unchanged.
 
 ## 7. Closure rule
 
@@ -112,4 +111,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Stage 19 V1.0 master program defined; Package 19.7 salvage inventory and executable baseline selected as the only next package
+PZ_CONTINUE: Packages 19.9-19.11 closed; Stage 19 remains open; Package 19.12 selected next for governed review and eligible only for separate authorization

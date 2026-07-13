@@ -14,7 +14,10 @@ It does not finalize the entire product vision.
 - V1.0 is the product milestone, not a separate or competing stage system
 - Packages `19.1` through `19.5` are the `Foundation Spine` package group; they cover only the initial bounded local writing-spine sequence and do not close Stage 19, prove V1.0, or establish release readiness
 - Package `19.5` awaits final package acceptance through its narrowed verification record
-- the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and initial salvage traceability matrix are the current planning controls; Package `19.7` is the only selected next package and authorizes no runtime mutation
+- Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827`; its read-only baseline and Package `19.8` boundary preceded the later host and Project Spine work
+- Packages `19.9` through `19.11` are formally closed by commit `d780f52`; Stage 19 remains open
+- Package `19.12`, `history/recovery/interruption safety`, is the next package in the approved sequence and is eligible only for separate authorization; no Package `19.12` implementation or runtime mutation is authorized
+- the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix remain the current planning controls
 - every later implementation package requires its own bounded authorization
 - protected evidence and excluded systems retain their controlling governance; this alignment authorizes neither
 - older embedded stage-progress statements are retained historical snapshots and do not override `current_product_roadmap.md` or `stage19_v1_authority_alignment_decision.md`

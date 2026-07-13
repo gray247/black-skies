@@ -12,7 +12,10 @@ Current status:
 - Stage 19 is open and is the governed implementation and acceptance program intended to culminate in Black Skies V1.0
 - V1.0 is the product milestone reached through Stage 19, not a competing stage system
 - Packages `19.1` through `19.5` are the `Foundation Spine` package group; they complete, or await final package acceptance for, only the initial bounded local project-open/save/re-entry sequence and do not close Stage 19 or prove V1.0
-- the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and initial salvage traceability matrix now define the planning boundary; Package `19.7` is the only selected next package and remains docs/read-only baseline work
+- Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
+- Packages `19.9` through `19.11` are formally closed by commit `d780f52`; this package-horizon closure does not close Stage 19 or complete V1.0
+- Package `19.12`, `history/recovery/interruption safety`, is the next eligible package in the unchanged approved `19.12`-`19.22` sequence; eligibility is not authorization, and no Package `19.12` implementation or runtime mutation is authorized
+- the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix continue to define the planning boundary
 - further implementation remains blocked until separately bounded and authorized as a Stage 19 package
 - any older embedded statement below that names Stage 11 or another completed stage as next eligible, says implementation planning has not started, or describes Stage 19 only as the initial spine is retained historical status text and is superseded for current sequencing by this status block and `stage19_v1_authority_alignment_decision.md`
 - capability reconciliation is substantially developed
