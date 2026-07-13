@@ -34,7 +34,11 @@ function candidate(
   unitId = 'unit_1',
   overrides: Partial<ProjectSpineRecoveryCandidate> = {},
 ): ProjectSpineRecoveryCandidate {
-  const baseline = unitId === 'unit_2' ? 'Durable two' : 'Durable one';
+  const baseline = unitId === 'unit_2'
+    ? 'Durable two'
+    : unitId === 'unit_3'
+      ? 'Durable three'
+      : 'Durable one';
   return {
     schemaVersion: PROJECT_SPINE_RECOVERY_SCHEMA_VERSION,
     projectId: 'proj_recovery',
@@ -80,6 +84,7 @@ function validationContext(
     durableBaselineFingerprintByUnit: {
       unit_1: createRecoveryContentFingerprint('Durable one'),
       unit_2: createRecoveryContentFingerprint('Durable two'),
+      unit_3: createRecoveryContentFingerprint('Durable three'),
     },
     ...overrides,
   };
@@ -446,6 +451,44 @@ describe('ProjectSpineRecoveryRepository', () => {
       expect(result.data.envelope.updatedAt).toBe(DELETION_AT);
       expect(result.data.envelope.candidates).toEqual([untouchedBefore]);
     }
+  });
+
+  it('atomically deletes an exactly correlated candidate set and preserves untouched candidates', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new ProjectSpineRecoveryRepository(projectPath, { now: () => DELETION_AT });
+    const first = candidate(projectPath, 'unit_1');
+    const second = candidate(projectPath, 'unit_2');
+    const untouched = candidate(projectPath, 'unit_3', { candidateVersion: 9, prose: 'Untouched' });
+    await writeEnvelope(repository, envelope(projectPath, [first, second, untouched]));
+    const untouchedBefore = structuredClone(untouched);
+
+    await expect(repository.deleteCandidates([
+      deletionRequest(first),
+      deletionRequest(second),
+    ])).resolves.toEqual({
+      ok: true,
+      data: { deleted: true, remainingCandidates: 1 },
+    });
+    const result = await repository.read();
+    expect(result).toMatchObject({ ok: true, data: { status: 'present' } });
+    if (result.ok && result.data.status === 'present') {
+      expect(result.data.envelope.candidates).toEqual([untouchedBefore]);
+    }
+  });
+
+  it('does not partially delete when any bulk correlation is stale', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new ProjectSpineRecoveryRepository(projectPath);
+    const first = candidate(projectPath, 'unit_1');
+    const second = candidate(projectPath, 'unit_2');
+    await writeEnvelope(repository, envelope(projectPath, [first, second]));
+    const before = await artifactBytes(repository);
+
+    await expect(repository.deleteCandidates([
+      deletionRequest(first),
+      deletionRequest(second, { originSessionId: 'stale-session' }),
+    ])).resolves.toMatchObject({ ok: false, error: { code: 'CANDIDATE_NOT_FOUND' } });
+    await expect(artifactBytes(repository)).resolves.toBe(before);
   });
 
   it('removes the artifact when the exact final candidate is deleted', async () => {

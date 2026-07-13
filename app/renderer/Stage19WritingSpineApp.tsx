@@ -15,6 +15,21 @@ interface DraftEnvelope {
   readonly body: string;
 }
 
+interface PendingRecoveryCheckpoint {
+  readonly generation: number;
+  readonly unitId: string;
+  readonly prose: string;
+  readonly editRevision: number;
+}
+
+interface RecoveryCheckpointSubmission {
+  readonly ok: boolean;
+  readonly editRevision: number;
+}
+
+const RECOVERY_CHECKPOINT_DELAY_MS = 750;
+const RECOVERY_NOTICE_PREFIX = 'Recovery protection';
+
 function operationId(prefix: string): string {
   const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
   return `${prefix}:${suffix}`;
@@ -233,11 +248,13 @@ export function useCloseConfirmationRequest({
   bridge,
   projectId,
   generation,
+  beforeResponse,
 }: {
   readonly windowRole: ProjectSpineWindowRole;
   readonly bridge?: ProjectSpineBridge;
   readonly projectId: string | null;
   readonly generation: number;
+  readonly beforeResponse?: (decision: ProjectSpineCloseConfirmationDecision) => Promise<void>;
 }): CloseConfirmationRequestState {
   const [activeRequest, setActiveRequest] = useState<ProjectSpineCloseConfirmationRequest | null>(null);
   const [responseSubmitting, setResponseSubmitting] = useState(false);
@@ -285,6 +302,7 @@ export function useCloseConfirmationRequest({
     setResponseSubmitting(true);
     setResponseError(null);
     try {
+      await beforeResponse?.(decision);
       const result = await bridge.respondToCloseConfirmation({ ...request, decision });
       if (!result.ok) {
         setResponseError(result.error.message || 'We could not send your choice. Please try again.');
@@ -299,7 +317,7 @@ export function useCloseConfirmationRequest({
       responseSubmittingRef.current = false;
       setResponseSubmitting(false);
     }
-  }, [bridge]);
+  }, [beforeResponse, bridge]);
 
   return {
     activeRequest,
@@ -331,12 +349,25 @@ export default function Stage19WritingSpineApp({
   const editRevisionRef = useRef<Record<string, number>>({});
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
   const appliedGenerationRef = useRef(0);
+  const pendingRecoveryCheckpointsRef = useRef(new Map<string, PendingRecoveryCheckpoint>());
+  const recoveryCheckpointTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const recoveryCheckpointPromisesRef = useRef(
+    new Map<string, Promise<RecoveryCheckpointSubmission>>(),
+  );
+  const recoveryCheckpointMountedRef = useRef(true);
+  const submitRecoveryCheckpointRef = useRef<
+    (unitId: string) => Promise<RecoveryCheckpointSubmission>
+  >(
+    async () => ({ ok: false, editRevision: -1 }),
+  );
+  const flushBeforeCloseResponseRef = useRef<() => Promise<void>>(async () => undefined);
 
   const closeConfirmation = useCloseConfirmationRequest({
     windowRole,
     bridge,
     projectId: snapshot.project?.projectId ?? null,
     generation: snapshot.generation,
+    beforeResponse: async () => flushBeforeCloseResponseRef.current(),
   });
 
   useEffect(() => {
@@ -392,6 +423,10 @@ export default function Stage19WritingSpineApp({
       return updated;
     });
     if (generationChanged) {
+      for (const timer of recoveryCheckpointTimersRef.current.values()) clearTimeout(timer);
+      recoveryCheckpointTimersRef.current.clear();
+      pendingRecoveryCheckpointsRef.current.clear();
+      recoveryCheckpointPromisesRef.current.clear();
       editRevisionRef.current = {};
       reportedDirtyRef.current = {};
     } else {
@@ -452,10 +487,127 @@ export default function Stage19WritingSpineApp({
     setRenameTitle(activeUnit?.title ?? '');
   }, [activeUnit?.id, activeUnit?.title]);
 
+  const submitRecoveryCheckpoint = useCallback(async (
+    unitId: string,
+  ): Promise<RecoveryCheckpointSubmission> => {
+    const existingPromise = recoveryCheckpointPromisesRef.current.get(unitId);
+    if (existingPromise) return existingPromise;
+    const pending = pendingRecoveryCheckpointsRef.current.get(unitId);
+    if (!pending) return { ok: true, editRevision: -1 };
+    pendingRecoveryCheckpointsRef.current.delete(unitId);
+    const timer = recoveryCheckpointTimersRef.current.get(unitId);
+    if (timer) clearTimeout(timer);
+    recoveryCheckpointTimersRef.current.delete(unitId);
+
+    const submission = (async () => {
+      if (snapshotRef.current.generation !== pending.generation) {
+        return { ok: true, editRevision: pending.editRevision };
+      }
+      const binding = bindingFor(snapshotRef.current, 'recovery-checkpoint');
+      const api = bridge?.captureRecoveryCheckpoint;
+      if (!binding || !api || windowRole !== 'writing') {
+        return { ok: false, editRevision: pending.editRevision };
+      }
+      try {
+        const result = await api({ ...binding, unitId, prose: pending.prose });
+        if (snapshotRef.current.generation !== pending.generation) {
+          return { ok: true, editRevision: pending.editRevision };
+        }
+        if (!result.ok) {
+          const newer = pendingRecoveryCheckpointsRef.current.get(unitId);
+          if (!newer || newer.editRevision < pending.editRevision) {
+            pendingRecoveryCheckpointsRef.current.set(unitId, pending);
+          }
+          if (recoveryCheckpointMountedRef.current) {
+            setNotice(
+              `${RECOVERY_NOTICE_PREFIX} is unavailable for the latest prose. ${result.error.message} Your live manuscript remains unsaved; save or keep editing to retry.`,
+            );
+          }
+          return { ok: false, editRevision: pending.editRevision };
+        }
+        if (recoveryCheckpointMountedRef.current) {
+          setNotice((current) => current?.startsWith(RECOVERY_NOTICE_PREFIX) ? null : current);
+        }
+        return { ok: true, editRevision: pending.editRevision };
+      } catch {
+        const newer = pendingRecoveryCheckpointsRef.current.get(unitId);
+        if (!newer || newer.editRevision < pending.editRevision) {
+          pendingRecoveryCheckpointsRef.current.set(unitId, pending);
+        }
+        if (
+          recoveryCheckpointMountedRef.current &&
+          snapshotRef.current.generation === pending.generation
+        ) {
+          setNotice(
+            `${RECOVERY_NOTICE_PREFIX} could not reach the application service. Your live manuscript remains unsaved; save or keep editing to retry.`,
+          );
+        }
+        return { ok: false, editRevision: pending.editRevision };
+      }
+    })();
+    recoveryCheckpointPromisesRef.current.set(unitId, submission);
+    try {
+      return await submission;
+    } finally {
+      if (recoveryCheckpointPromisesRef.current.get(unitId) === submission) {
+        recoveryCheckpointPromisesRef.current.delete(unitId);
+      }
+    }
+  }, [bridge, windowRole]);
+  submitRecoveryCheckpointRef.current = submitRecoveryCheckpoint;
+
+  const scheduleRecoveryCheckpoint = useCallback((checkpoint: PendingRecoveryCheckpoint) => {
+    pendingRecoveryCheckpointsRef.current.set(checkpoint.unitId, checkpoint);
+    const previousTimer = recoveryCheckpointTimersRef.current.get(checkpoint.unitId);
+    if (previousTimer) clearTimeout(previousTimer);
+    const timer = setTimeout(() => {
+      recoveryCheckpointTimersRef.current.delete(checkpoint.unitId);
+      void submitRecoveryCheckpointRef.current(checkpoint.unitId).then((submission) => {
+        const pending = pendingRecoveryCheckpointsRef.current.get(checkpoint.unitId);
+        if (pending && pending.editRevision > submission.editRevision) {
+          void submitRecoveryCheckpointRef.current(checkpoint.unitId);
+        }
+      });
+    }, RECOVERY_CHECKPOINT_DELAY_MS);
+    recoveryCheckpointTimersRef.current.set(checkpoint.unitId, timer);
+  }, []);
+
+  const flushRecoveryCheckpoint = useCallback(async (unitId: string): Promise<boolean> => {
+    const timer = recoveryCheckpointTimersRef.current.get(unitId);
+    if (timer) clearTimeout(timer);
+    recoveryCheckpointTimersRef.current.delete(unitId);
+    const inFlight = recoveryCheckpointPromisesRef.current.get(unitId);
+    if (inFlight) await inFlight;
+    return (await submitRecoveryCheckpointRef.current(unitId)).ok;
+  }, []);
+
+  const flushAllRecoveryCheckpoints = useCallback(async (): Promise<boolean> => {
+    const unitIds = new Set([
+      ...pendingRecoveryCheckpointsRef.current.keys(),
+      ...recoveryCheckpointPromisesRef.current.keys(),
+    ]);
+    const results = await Promise.all([...unitIds].map((unitId) => flushRecoveryCheckpoint(unitId)));
+    return results.every(Boolean);
+  }, [flushRecoveryCheckpoint]);
+  flushBeforeCloseResponseRef.current = async () => {
+    await flushAllRecoveryCheckpoints();
+  };
+
+  useEffect(() => {
+    recoveryCheckpointMountedRef.current = true;
+    return () => {
+      recoveryCheckpointMountedRef.current = false;
+      for (const timer of recoveryCheckpointTimersRef.current.values()) clearTimeout(timer);
+      recoveryCheckpointTimersRef.current.clear();
+      pendingRecoveryCheckpointsRef.current.clear();
+    };
+  }, []);
+
   const runLifecycleRequest = useCallback(
     async (
       request: (discardUnsaved: boolean) => Promise<ProjectSpineResult<unknown>>,
     ): Promise<void> => {
+      await flushAllRecoveryCheckpoints();
       let discardUnsaved = false;
       if (hasLocalUnsaved || snapshotRef.current.saveState.status === 'save-failed') {
         const discard = window.confirm(
@@ -481,7 +633,7 @@ export default function Stage19WritingSpineApp({
       applySnapshot(result.snapshot);
       setNotice(result.ok === false ? result.error.message : null);
     },
-    [applySnapshot, hasLocalUnsaved],
+    [applySnapshot, flushAllRecoveryCheckpoints, hasLocalUnsaved],
   );
 
   const handleOpenProject = useCallback(async () => {
@@ -546,13 +698,15 @@ export default function Stage19WritingSpineApp({
   const handleSelectUnit = useCallback(
     async (unitId: string) => {
       if (!bridge) return;
+      const previousUnitId = snapshotRef.current.activeUnitId;
+      if (previousUnitId) await flushRecoveryCheckpoint(previousUnitId);
       const binding = bindingFor(snapshotRef.current, 'select-unit');
       if (!binding) return;
       const result = await bridge.selectUnit({ ...binding, unitId });
       applySnapshot(result.snapshot);
       setNotice(resultMessage(result));
     },
-    [applySnapshot, bridge],
+    [applySnapshot, bridge, flushRecoveryCheckpoint],
   );
 
   const reportDirty = useCallback(
@@ -579,46 +733,91 @@ export default function Stage19WritingSpineApp({
       setBuffers(buffersRef.current);
       const durableBody = splitDraft(snapshotRef.current.project?.drafts?.[unitId] ?? '').body;
       reportDirty(unitId, body !== durableBody);
+      scheduleRecoveryCheckpoint({
+        generation: snapshotRef.current.generation,
+        unitId,
+        prose: body,
+        editRevision: editRevisionRef.current[unitId],
+      });
     },
-    [reportDirty],
+    [reportDirty, scheduleRecoveryCheckpoint],
   );
 
   const saveUnit = useCallback(
     async (unitId: string) => {
       const current = snapshotRef.current;
-      const binding = bindingFor(current, 'save-unit');
       const api = bridge?.saveUnit;
-      const expectedMarkdown = current.project?.drafts?.[unitId];
       const body = buffersRef.current[unitId];
-      if (!binding || !api || typeof expectedMarkdown !== 'string' || typeof body !== 'string') {
+      if (!current.project || !api || typeof body !== 'string') {
         setNotice('This manuscript unit cannot be saved in the current session.');
         return;
       }
       const startingGeneration = current.generation;
       const startingEditRevision = editRevisionRef.current[unitId] ?? 0;
+      const checkpointReady = await flushRecoveryCheckpoint(unitId);
+      if (!checkpointReady) {
+        reportDirty(unitId, true);
+        setNotice((currentNotice) => currentNotice?.startsWith(RECOVERY_NOTICE_PREFIX)
+          ? currentNotice
+          : `${RECOVERY_NOTICE_PREFIX} is unavailable for the latest prose. Save was not started; keep editing or try Save again.`);
+        return;
+      }
+      const saveSnapshot = snapshotRef.current;
+      const binding = bindingFor(saveSnapshot, 'save-unit');
+      const expectedMarkdown = saveSnapshot.project?.drafts?.[unitId];
+      if (
+        saveSnapshot.generation !== startingGeneration ||
+        !binding ||
+        typeof expectedMarkdown !== 'string'
+      ) {
+        return;
+      }
       const markdown = composeDraft(splitDraft(expectedMarkdown), body);
-      const result = await api({
-        ...binding,
-        unitId,
-        expectedMarkdown,
-        markdown,
-      });
+      let result: Awaited<ReturnType<NonNullable<ProjectSpineBridge['saveUnit']>>>;
+      try {
+        result = await api({
+          ...binding,
+          unitId,
+          expectedMarkdown,
+          markdown,
+          submittedProse: body,
+        });
+      } catch {
+        reportDirty(unitId, true);
+        setNotice('The manuscript could not reach durable storage. Your prose and recovery checkpoint remain available; try Save again.');
+        return;
+      }
       if (snapshotRef.current.generation !== startingGeneration) {
         return;
       }
       applySnapshot(result.snapshot);
+      let newerCheckpointFailed = false;
       if (result.ok) {
         if ((editRevisionRef.current[unitId] ?? 0) !== startingEditRevision) {
           reportDirty(unitId, true);
+          newerCheckpointFailed = !(await flushRecoveryCheckpoint(unitId));
         } else {
+          const pending = pendingRecoveryCheckpointsRef.current.get(unitId);
+          if (pending && pending.editRevision <= startingEditRevision) {
+            pendingRecoveryCheckpointsRef.current.delete(unitId);
+          }
+          const timer = recoveryCheckpointTimersRef.current.get(unitId);
+          if (timer) clearTimeout(timer);
+          recoveryCheckpointTimersRef.current.delete(unitId);
           const confirmedBody = splitDraft(result.snapshot.project?.drafts?.[unitId] ?? markdown).body;
           buffersRef.current = { ...buffersRef.current, [unitId]: confirmedBody };
           setBuffers(buffersRef.current);
         }
       }
-      setNotice(resultMessage(result));
+      if (!newerCheckpointFailed) {
+        setNotice(
+          result.ok && result.data.recovery?.status === 'degraded'
+            ? result.data.recovery.message
+            : resultMessage(result),
+        );
+      }
     },
-    [applySnapshot, bridge, reportDirty],
+    [applySnapshot, bridge, flushRecoveryCheckpoint, reportDirty],
   );
 
   useEffect(() => {
@@ -645,6 +844,12 @@ export default function Stage19WritingSpineApp({
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [hasLocalUnsaved, windowRole]);
+
+  useEffect(() => {
+    if (windowRole === 'writing' && closeConfirmation.activeRequest) {
+      void flushAllRecoveryCheckpoints();
+    }
+  }, [closeConfirmation.activeRequest, flushAllRecoveryCheckpoints, windowRole]);
 
   const handleCreateUnit = useCallback(async () => {
     const binding = bindingFor(snapshotRef.current, 'create-unit');
@@ -683,19 +888,21 @@ export default function Stage19WritingSpineApp({
   );
 
   const handleDeleteUnit = useCallback(async () => {
-    const current = snapshotRef.current;
-    const unitId = current.activeUnitId;
-    const unit = current.project?.units.find((candidate) => candidate.id === unitId);
-    const binding = bindingFor(current, 'delete-unit');
-    if (!binding || !unitId || !unit || !bridge?.deleteUnit) return;
+    const initial = snapshotRef.current;
+    const unitId = initial.activeUnitId;
+    const unit = initial.project?.units.find((candidate) => candidate.id === unitId);
+    if (!unitId || !unit || !bridge?.deleteUnit) return;
     const confirmed = window.confirm(
       `Delete “${unit.displayTitle}” from the manuscript? This action cannot be undone in this package.`,
     );
     if (!confirmed) return;
+    await flushRecoveryCheckpoint(unitId);
+    const binding = bindingFor(snapshotRef.current, 'delete-unit');
+    if (!binding) return;
     const result = await bridge.deleteUnit({ ...binding, unitId, confirmNonEmpty: true });
     applySnapshot(result.snapshot);
     setNotice(resultMessage(result));
-  }, [applySnapshot, bridge]);
+  }, [applySnapshot, bridge, flushRecoveryCheckpoint]);
 
   if (loading) {
     return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;

@@ -6,6 +6,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import type { LoadedProject, OutlineFile, SceneDraftMetadata } from '../shared/ipc/projectLoader';
 import {
   PROJECT_SPINE_CHANNELS,
+  type CaptureRecoveryCheckpointRequest,
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest,
   type DeleteManuscriptUnitRequest,
@@ -20,6 +21,7 @@ import {
   type RenameManuscriptUnitRequest,
   type ReorderManuscriptUnitsRequest,
   type SaveManuscriptUnitRequest,
+  type SaveManuscriptUnitResultData,
   type SelectManuscriptUnitRequest,
   type SetManuscriptUnitDirtyRequest,
 } from '../shared/ipc/projectSpine';
@@ -44,6 +46,12 @@ import {
   resetCloseConfirmationState,
   validateCloseConfirmationResponse,
 } from './closeConfirmationCoordinator';
+import {
+  extractRecoveryProse,
+  ProjectSpineRecoveryCheckpointError,
+  ProjectSpineRecoveryCheckpointService,
+  type ProjectSpineRecoveryCheckpointContext,
+} from './projectSpineRecoveryCheckpoints';
 
 const RECENT_STORE_SCHEMA_VERSION = 1;
 const RECENT_STORE_FILENAME = 'black-skies-recent-projects-v1.json';
@@ -52,12 +60,14 @@ const UNSUPPORTED_CONTROL_CHARACTERS = new RegExp(`[${CONTROL_CHARACTER_CLASS}]`
 const UNSUPPORTED_CONTROL_CHARACTERS_GLOBAL = new RegExp(`[${CONTROL_CHARACTER_CLASS}]`, 'g');
 
 export interface RegisterProjectSpineIpcOptions {
+  readonly originSessionId: string;
   readonly resolveWindowRole?: (webContentsId: number) => ProjectSpineWindowRole | null;
   readonly publishSession?: (sourceWebContentsId?: number) => void;
   readonly recentStorePath?: string;
   readonly coordinator?: ProjectSessionCoordinator;
   readonly loadProject?: (projectPath: string) => Promise<LoadedProject>;
   readonly initiateCoordinatedShutdown?: () => void;
+  readonly recoveryCheckpoints?: ProjectSpineRecoveryCheckpointService;
 }
 
 interface ProjectMetadataV1 {
@@ -67,7 +77,8 @@ interface ProjectMetadataV1 {
 }
 
 let coordinator = new ProjectSessionCoordinator();
-let registrationOptions: RegisterProjectSpineIpcOptions = {};
+let registrationOptions: Partial<RegisterProjectSpineIpcOptions> = {};
+let recoveryCheckpoints: ProjectSpineRecoveryCheckpointService | null = null;
 let recentStorePath: string | null = null;
 let recentStoreReady: Promise<void> = Promise.resolve();
 let latestLifecycleOperationId: string | null = null;
@@ -118,13 +129,20 @@ function failure<T>(
   targetPath?: string,
 ): ProjectSpineResult<T> {
   const normalized = mapProjectSpineError(error);
-  if (normalized.code !== 'STALE_SESSION' && normalized.code !== 'WRONG_WINDOW_ROLE') {
+  if (
+    normalized.code !== 'STALE_SESSION' &&
+    normalized.code !== 'WRONG_WINDOW_ROLE' &&
+    !normalized.code.startsWith('RECOVERY_')
+  ) {
     coordinator.noteFailure(normalized, targetPath);
   }
   return { ok: false, error: normalized, snapshot: coordinator.snapshot(role) };
 }
 
 function mapProjectSpineError(error: unknown): ProjectSpineError {
+  if (error instanceof ProjectSpineRecoveryCheckpointError) {
+    return { code: error.code, message: error.message };
+  }
   if (error instanceof ProjectDraftSaveError) {
     const code = error.code === 'STALE_DRAFT'
       ? 'STALE_DRAFT'
@@ -512,6 +530,69 @@ export function projectSpineHasUnsavedWork(): boolean {
   return coordinator.hasUnsavedWork();
 }
 
+function requireRecoveryCheckpoints(): ProjectSpineRecoveryCheckpointService {
+  if (!recoveryCheckpoints) {
+    throw new ProjectSessionError('RECOVERY_UNAVAILABLE', 'Recovery protection is not available.');
+  }
+  return recoveryCheckpoints;
+}
+
+function recoveryContextFor(
+  binding: {
+    readonly projectId: string;
+    readonly projectPath: string;
+    readonly generation: number;
+    readonly operationId: string;
+  },
+  unitId?: string,
+): ProjectSpineRecoveryCheckpointContext {
+  return coordinator.getRecoveryCheckpointContext(binding, unitId);
+}
+
+function activeRecoveryContext(operationId: string, unitId?: string): ProjectSpineRecoveryCheckpointContext {
+  const active = coordinator.getActiveProject();
+  if (!active?.projectId) {
+    throw new ProjectSessionError('STALE_SESSION', 'No active project is available for recovery cleanup.');
+  }
+  return recoveryContextFor({
+    projectId: active.projectId,
+    projectPath: active.path,
+    generation: coordinator.getGeneration(),
+    operationId,
+  }, unitId);
+}
+
+function recoveryCanonicalPathKey(value: string): string {
+  const resolved = path.resolve(value);
+  return process.platform === 'win32' ? resolved.toLocaleLowerCase('en-US') : resolved;
+}
+
+async function activateProjectWithRecoveryCleanup(
+  project: LoadedProject,
+  discardUnsaved: boolean,
+  operationId: string,
+): Promise<ReturnType<ProjectSessionCoordinator['activateProject']>> {
+  const active = coordinator.getActiveProject();
+  const sameActiveProject = Boolean(
+    active?.projectId &&
+    project.projectId === active.projectId &&
+    recoveryCanonicalPathKey(project.path) === recoveryCanonicalPathKey(active.path),
+  );
+  if (!discardUnsaved || !active?.projectId || sameActiveProject) {
+    return coordinator.activateProject(project, discardUnsaved);
+  }
+  return requireRecoveryCheckpoints().withIntentionalCleanup(
+    () => activeRecoveryContext(`project-switch:${operationId}`),
+    null,
+    async () => {
+      if (latestLifecycleOperationId !== operationId) {
+        throw new ProjectSessionError('STALE_SESSION', 'A newer project lifecycle request superseded this result.');
+      }
+      return coordinator.activateProject(project, true);
+    },
+  );
+}
+
 export function resetProjectSpineForTests(nextCoordinator = new ProjectSessionCoordinator()): void {
   resetCloseConfirmationState();
   coordinator = nextCoordinator;
@@ -519,11 +600,17 @@ export function resetProjectSpineForTests(nextCoordinator = new ProjectSessionCo
   recentStorePath = null;
   recentStoreReady = Promise.resolve();
   registrationOptions = {};
+  recoveryCheckpoints = null;
 }
 
-export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions = {}): void {
+export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions): void {
+  if (!options.originSessionId?.trim()) {
+    throw new TypeError('A Project Spine recovery origin session id is required.');
+  }
   registrationOptions = options;
   coordinator = options.coordinator ?? coordinator;
+  recoveryCheckpoints = options.recoveryCheckpoints
+    ?? new ProjectSpineRecoveryCheckpointService(options.originSessionId);
   recentStorePath = options.recentStorePath ?? path.join(app.getPath('userData'), RECENT_STORE_FILENAME);
   recentStoreReady = prepareRecentStore();
 
@@ -565,16 +652,25 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
         clearPendingCloseRequest();
         return success(role, {});
       }
-      const discarded = coordinator.discardUnsavedBuffers(typedResponse.projectId, typedResponse.generation);
-      grantCoordinatedCloseAllowance();
+      await requireRecoveryCheckpoints().withIntentionalCleanup(
+        () => activeRecoveryContext(`close-discard:${typedResponse.correlationId}`),
+        null,
+        async () => {
+          const discarded = coordinator.discardUnsavedBuffers(
+            typedResponse.projectId,
+            typedResponse.generation,
+          );
+          grantCoordinatedCloseAllowance();
+          try {
+            registrationOptions.initiateCoordinatedShutdown?.();
+          } catch (shutdownError) {
+            revokeCoordinatedCloseAllowance();
+            coordinator.restoreDiscardedUnsavedBuffers(discarded);
+            throw shutdownError;
+          }
+        },
+      );
       clearPendingCloseRequest();
-      try {
-        registrationOptions.initiateCoordinatedShutdown?.();
-      } catch (shutdownError) {
-        revokeCoordinatedCloseAllowance();
-        coordinator.restoreDiscardedUnsavedBuffers(discarded);
-        throw shutdownError;
-      }
       return success(role, {});
     } catch (error) {
       return failure(role, error);
@@ -597,7 +693,11 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
       if (latestLifecycleOperationId !== operationId) {
         throw new ProjectSessionError('STALE_SESSION', 'A newer project-open request superseded this result.');
       }
-      const activation = coordinator.activateProject(project, request.discardUnsaved === true);
+      const activation = await activateProjectWithRecoveryCleanup(
+        project,
+        request.discardUnsaved === true,
+        operationId,
+      );
       await persistRecentStore();
       publish(event.sender.id);
       return success(role, { activation: activation.activation });
@@ -637,7 +737,11 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
       if (latestLifecycleOperationId !== operationId) {
         throw new ProjectSessionError('STALE_SESSION', 'A newer project lifecycle request superseded this result.');
       }
-      coordinator.activateProject(project, request.discardUnsaved === true);
+      await activateProjectWithRecoveryCleanup(
+        project,
+        request.discardUnsaved === true,
+        operationId,
+      );
       await persistRecentStore();
       publish(event.sender.id);
       return success(role, { activation: 'activated' as const });
@@ -697,10 +801,44 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
     }
   });
 
+  ipcMain.handle(
+    PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint,
+    async (event, request: CaptureRecoveryCheckpointRequest) => {
+      const role = requireWritingRole(event);
+      try {
+        requireOperationId(request?.operationId);
+        if (!request || typeof request.prose !== 'string' || typeof request.unitId !== 'string') {
+          throw new ProjectSessionError('INVALID_REQUEST', 'A manuscript recovery checkpoint is required.');
+        }
+        const data = await requireRecoveryCheckpoints().capture(
+          () => recoveryContextFor(request, request.unitId),
+          request.unitId,
+          request.prose,
+        );
+        return success(role, data);
+      } catch (error) {
+        return failure(role, error);
+      }
+    },
+  );
+
   ipcMain.handle(PROJECT_SPINE_CHANNELS.saveUnit, async (event, request: SaveManuscriptUnitRequest) => {
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginSave']> | null = null;
     try {
+      if (typeof request?.submittedProse !== 'string') {
+        throw new ProjectSessionError('INVALID_REQUEST', 'The exact submitted manuscript prose is required.');
+      }
+      const normalizedSubmittedProse = request.submittedProse.replace(/\r\n/g, '\n');
+      const serializedSubmittedProse = normalizedSubmittedProse.endsWith('\n')
+        ? normalizedSubmittedProse
+        : `${normalizedSubmittedProse}\n`;
+      if (extractRecoveryProse(request.markdown) !== serializedSubmittedProse) {
+        throw new ProjectSessionError(
+          'INVALID_REQUEST',
+          'The submitted manuscript prose does not match the durable save payload.',
+        );
+      }
       token = coordinator.beginSave(request, request.unitId);
       publish();
       const saved = await saveProjectDraft({
@@ -712,7 +850,12 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
       });
       coordinator.completeSave(token, saved.markdown);
       publish();
-      return success(role, {});
+      const recovery = await requireRecoveryCheckpoints().reconcileSuccessfulSave(
+        () => recoveryContextFor(request, request.unitId),
+        request.unitId,
+        request.submittedProse,
+      );
+      return success<SaveManuscriptUnitResultData>(role, { recovery });
     } catch (error) {
       if (token) {
         coordinator.failSave(token, mapProjectSpineError(error).message);
@@ -779,10 +922,16 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
     try {
-      token = coordinator.beginStructureMutation(request);
-      const active = coordinator.getActiveProject()!;
-      const deleted = await deleteManuscriptUnit(active, request.unitId, request.confirmNonEmpty);
-      coordinator.completeStructureMutation(token, deleted.project, deleted.nextActiveUnitId);
+      await requireRecoveryCheckpoints().withIntentionalCleanup(
+        () => recoveryContextFor(request, request.unitId),
+        [request.unitId],
+        async () => {
+          token = coordinator.beginStructureMutation(request);
+          const active = coordinator.getActiveProject()!;
+          const deleted = await deleteManuscriptUnit(active, request.unitId, request.confirmNonEmpty);
+          coordinator.completeStructureMutation(token, deleted.project, deleted.nextActiveUnitId);
+        },
+      );
       publish();
       return success(role, {});
     } catch (error) {

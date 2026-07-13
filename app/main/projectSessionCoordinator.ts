@@ -39,6 +39,12 @@ export interface ProjectActivationResult {
   readonly generation: number;
 }
 
+export interface ProjectRecoveryCheckpointContext {
+  readonly project: LoadedProject & { readonly projectId: string };
+  readonly generation: number;
+  readonly revision: number;
+}
+
 export interface DiscardedUnsavedBuffers {
   readonly projectId: string;
   readonly generation: number;
@@ -140,6 +146,23 @@ export class ProjectSessionCoordinator {
 
   getGeneration(): number {
     return this.generation;
+  }
+
+  getRecoveryCheckpointContext(
+    binding: ProjectSpineBinding,
+    unitId?: string,
+  ): ProjectRecoveryCheckpointContext {
+    this.assertBinding(binding);
+    if (unitId !== undefined && !this.activeProject?.scenes.some((unit) => unit.id === unitId)) {
+      throw new ProjectSessionError('UNIT_NOT_FOUND', 'The manuscript unit no longer exists.');
+    }
+    return {
+      project: cloneProject(this.activeProject as LoadedProject & { projectId: string }) as LoadedProject & {
+        projectId: string;
+      },
+      generation: this.generation,
+      revision: this.revision,
+    };
   }
 
   hasUnsavedWork(): boolean {

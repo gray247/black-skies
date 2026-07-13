@@ -6,6 +6,7 @@ export const PROJECT_SPINE_CHANNELS = {
   removeRecent: 'project-spine:remove-recent',
   selectUnit: 'project-spine:select-unit',
   setUnitDirty: 'project-spine:set-unit-dirty',
+  captureRecoveryCheckpoint: 'project-spine:capture-recovery-checkpoint',
   saveUnit: 'project-spine:save-unit',
   createUnit: 'project-spine:create-unit',
   renameUnit: 'project-spine:rename-unit',
@@ -100,6 +101,9 @@ export type ProjectSpineErrorCode =
   | 'UNIT_NOT_FOUND'
   | 'UNIT_INVALID'
   | 'UNIT_NOT_EMPTY'
+  | 'RECOVERY_UNAVAILABLE'
+  | 'RECOVERY_WRITE_FAILED'
+  | 'RECOVERY_CLEANUP_FAILED'
   | 'SAVE_FAILED'
   | 'STRUCTURE_WRITE_FAILED'
   | 'UNKNOWN';
@@ -159,10 +163,28 @@ export interface SetManuscriptUnitDirtyRequest extends ProjectSpineBinding {
   readonly dirty: boolean;
 }
 
+export interface CaptureRecoveryCheckpointRequest extends ProjectSpineBinding {
+  readonly unitId: string;
+  readonly prose: string;
+}
+
+export interface RecoveryCheckpointResultData {
+  readonly status: 'stored' | 'cleared';
+  readonly candidateVersion: number | null;
+}
+
+export interface SaveManuscriptUnitResultData {
+  readonly recovery: {
+    readonly status: 'retired' | 'rebased' | 'not-present' | 'degraded';
+    readonly message: string | null;
+  };
+}
+
 export interface SaveManuscriptUnitRequest extends ProjectSpineBinding {
   readonly unitId: string;
   readonly expectedMarkdown: string;
   readonly markdown: string;
+  readonly submittedProse: string;
 }
 
 export interface CreateManuscriptUnitRequest extends ProjectSpineBinding {
@@ -203,7 +225,13 @@ export interface ProjectSpineBridge {
   /** Writing Studio only. Omitted from the Command Center bridge. */
   setUnitDirty?(request: SetManuscriptUnitDirtyRequest): Promise<ProjectSpineResult>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
-  saveUnit?(request: SaveManuscriptUnitRequest): Promise<ProjectSpineResult>;
+  captureRecoveryCheckpoint?(
+    request: CaptureRecoveryCheckpointRequest,
+  ): Promise<ProjectSpineResult<RecoveryCheckpointResultData>>;
+  /** Writing Studio only. Omitted from the Command Center bridge. */
+  saveUnit?(
+    request: SaveManuscriptUnitRequest,
+  ): Promise<ProjectSpineResult<SaveManuscriptUnitResultData>>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
   createUnit?(request: CreateManuscriptUnitRequest): Promise<ProjectSpineResult<{ unitId: string }>>;
   /** Writing Studio only. Omitted from the Command Center bridge. */

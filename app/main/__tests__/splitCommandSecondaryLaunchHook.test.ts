@@ -337,6 +337,9 @@ describe('main split command launch hook', () => {
     const [primaryWindow] = browserWindowState.instances;
     expect(primaryWindow.options.webPreferences.additionalArguments).toEqual([]);
     expect(getOwnershipSyncPayloads(primaryWindow)).toHaveLength(0);
+    expect(projectSpineMocks.registerProjectSpineIpc).toHaveBeenCalledWith(
+      expect.objectContaining({ originSessionId: expect.any(String) }),
+    );
     expect(logger.info).not.toHaveBeenCalledWith(
       'Split command focus ownership classified',
       expect.anything(),
@@ -554,6 +557,16 @@ describe('main split command launch hook', () => {
         '--blackskies-split-command-stale-secondary-resurrection-forbidden=true',
       ]),
     );
+    const recoveryOriginSessionId = (
+      projectSpineMocks.registerProjectSpineIpc.mock.calls.at(-1)?.[0] as {
+        originSessionId: string;
+      }
+    ).originSessionId;
+    const splitSessionArgument = primaryWindow.options.webPreferences.additionalArguments.find(
+      (argument: string) => argument.startsWith('--blackskies-split-command-session-generation='),
+    );
+    expect(recoveryOriginSessionId).toBeTruthy();
+    expect(splitSessionArgument?.endsWith(recoveryOriginSessionId)).toBe(false);
     expect(getOwnershipSyncPayloads(primaryWindow)).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

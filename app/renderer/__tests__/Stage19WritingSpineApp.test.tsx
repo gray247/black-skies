@@ -128,6 +128,10 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
             };
             return ok({}, current);
           }),
+          captureRecoveryCheckpoint: vi.fn(async () => ok({
+            status: 'stored' as const,
+            candidateVersion: 1,
+          })),
           saveUnit: vi.fn(async (request: { unitId: string; markdown: string }) => {
             current = {
               ...current,
@@ -141,7 +145,9 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
               dirtyUnitIds: current.dirtyUnitIds.filter((id) => id !== request.unitId),
               saveState: { status: 'saved' as const, unitId: request.unitId, message: null },
             };
-            return ok({}, current);
+            return ok({
+              recovery: { status: 'retired' as const, message: null },
+            }, current);
           }),
           createUnit: vi.fn(async () => ok({ unitId: 'unit_new' })),
           renameUnit: vi.fn(async () => ok({})),
@@ -196,6 +202,7 @@ function CloseRequestHarness({
 }
 
 afterEach(() => {
+  vi.useRealTimers();
   delete window.projectSpine;
   delete document.body.dataset.stage19Spine;
 });
@@ -424,6 +431,186 @@ describe('Stage19WritingSpineApp', () => {
     });
   });
 
+  it('coalesces prose checkpoints for 750 ms and preserves empty content', async () => {
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    vi.useFakeTimers();
+
+    fireEvent.change(editor, { target: { value: 'First' } });
+    fireEvent.change(editor, { target: { value: 'Second' } });
+    fireEvent.change(editor, { target: { value: '' } });
+    await act(async () => { vi.advanceTimersByTime(749); });
+    expect(harness.bridge.captureRecoveryCheckpoint).not.toHaveBeenCalled();
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+      await Promise.resolve();
+    });
+
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledTimes(1);
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'proj_a',
+        generation: 1,
+        unitId: 'unit_a',
+        prose: '',
+      }),
+    );
+  });
+
+  it('force-flushes the submitted buffer before Save', async () => {
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Flush before save' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }));
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledWith(
+      expect.objectContaining({ prose: 'Flush before save', unitId: 'unit_a' }),
+    );
+    expect(vi.mocked(harness.bridge.captureRecoveryCheckpoint!).mock.invocationCallOrder[0])
+      .toBeLessThan(vi.mocked(harness.bridge.saveUnit!).mock.invocationCallOrder[0]);
+  });
+
+  it('does not start Save when the forced recovery checkpoint fails', async () => {
+    const harness = createBridge(snapshot('writing'));
+    vi.mocked(harness.bridge.captureRecoveryCheckpoint!).mockResolvedValue({
+      ok: false,
+      error: { code: 'RECOVERY_WRITE_FAILED', message: 'Checkpoint storage is unavailable.' },
+      snapshot: harness.current,
+    });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Keep this prose live' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }));
+
+    await waitFor(() => expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledTimes(1));
+    expect(harness.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(editor).toHaveValue('Keep this prose live');
+    expect(await screen.findByText('1 unsaved unit')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Checkpoint storage is unavailable');
+  });
+
+  it('force-flushes pending prose before submitting a guarded-close decision', async () => {
+    const harness = createBridge(snapshot('writing'), { closeConfirmations: true });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Final prose before close' } });
+    act(() => harness.emitCloseConfirmation({
+      correlationId: 'checkpoint-before-close',
+      projectId: 'proj_a',
+      generation: 1,
+    }));
+    await screen.findByRole('dialog', { name: 'Unsaved manuscript changes' });
+    fireEvent.click(screen.getByRole('button', { name: 'Keep editing' }));
+
+    await waitFor(() => expect(harness.bridge.respondToCloseConfirmation).toHaveBeenCalledTimes(1));
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledWith(
+      expect.objectContaining({ prose: 'Final prose before close' }),
+    );
+    expect(vi.mocked(harness.bridge.captureRecoveryCheckpoint!).mock.invocationCallOrder[0])
+      .toBeLessThan(vi.mocked(harness.bridge.respondToCloseConfirmation!).mock.invocationCallOrder[0]);
+  });
+
+  it('preserves dirty prose after checkpoint failure and retries on a later edit', async () => {
+    const harness = createBridge(snapshot('writing'));
+    vi.mocked(harness.bridge.captureRecoveryCheckpoint!)
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { code: 'RECOVERY_WRITE_FAILED', message: 'The checkpoint could not be stored.' },
+        snapshot: harness.current,
+      })
+      .mockResolvedValue({
+        ok: true,
+        data: { status: 'stored', candidateVersion: 2 },
+        snapshot: harness.current,
+      });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    vi.useFakeTimers();
+
+    fireEvent.change(editor, { target: { value: 'Still live after failure' } });
+    await act(async () => {
+      vi.advanceTimersByTime(750);
+      await Promise.resolve();
+    });
+    expect(editor).toHaveValue('Still live after failure');
+    expect(screen.getByRole('alert')).toHaveTextContent('Recovery protection is unavailable');
+
+    fireEvent.change(editor, { target: { value: 'Retry this prose' } });
+    await act(async () => {
+      vi.advanceTimersByTime(750);
+      await Promise.resolve();
+    });
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledTimes(2);
+    expect(editor).toHaveValue('Retry this prose');
+  });
+
+  it('submits a later edit after an earlier in-flight checkpoint fails', async () => {
+    const harness = createBridge(snapshot('writing'));
+    let failEarlierCheckpoint!: (result: ProjectSpineResult<{
+      status: 'stored' | 'cleared';
+      candidateVersion: number | null;
+    }>) => void;
+    vi.mocked(harness.bridge.captureRecoveryCheckpoint!)
+      .mockImplementationOnce(() => new Promise((resolve) => {
+        failEarlierCheckpoint = resolve;
+      }))
+      .mockResolvedValue({
+        ok: true,
+        data: { status: 'stored', candidateVersion: 2 },
+        snapshot: harness.current,
+      });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    vi.useFakeTimers();
+
+    fireEvent.change(editor, { target: { value: 'Earlier in flight' } });
+    await act(async () => {
+      vi.advanceTimersByTime(750);
+      await Promise.resolve();
+    });
+    fireEvent.change(editor, { target: { value: 'Newest pending prose' } });
+    await act(async () => {
+      vi.advanceTimersByTime(750);
+      failEarlierCheckpoint({
+        ok: false,
+        error: { code: 'RECOVERY_WRITE_FAILED', message: 'Earlier checkpoint failed.' },
+        snapshot: harness.current,
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledTimes(2);
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenLastCalledWith(
+      expect.objectContaining({ prose: 'Newest pending prose', unitId: 'unit_a' }),
+    );
+    expect(editor).toHaveValue('Newest pending prose');
+  });
+
+  it('cancels pending checkpoints when the authoritative project generation changes', async () => {
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    vi.useFakeTimers();
+    fireEvent.change(editor, { target: { value: 'Project A pending prose' } });
+    act(() => harness.emit(snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      generation: 2,
+      units: [{ id: 'unit_b', title: 'Project B Unit', order: 1, body: 'B durable' }],
+    })));
+    await act(async () => {
+      vi.advanceTimersByTime(750);
+      await Promise.resolve();
+    });
+
+    expect(harness.bridge.captureRecoveryCheckpoint).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: Project B Unit' })).toHaveValue('B durable\n');
+  });
+
   it('routes Ctrl+S through the generation-bound durable save contract', async () => {
     const user = userEvent.setup();
     const harness = createBridge(snapshot('writing'));
@@ -490,6 +677,23 @@ describe('Stage19WritingSpineApp', () => {
     expect((screen.getByRole('textbox', {
       name: 'Manuscript editor: First Unit',
     }) as HTMLTextAreaElement).value).toContain('retained after failure');
+  });
+
+  it('preserves the checkpointed dirty buffer when Save transport rejects', async () => {
+    const harness = createBridge(snapshot('writing'));
+    vi.mocked(harness.bridge.saveUnit!).mockRejectedValueOnce(new Error('transport unavailable'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Transport-safe prose' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }));
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
+    expect(harness.bridge.captureRecoveryCheckpoint).toHaveBeenCalledWith(
+      expect.objectContaining({ prose: 'Transport-safe prose' }),
+    );
+    expect(editor).toHaveValue('Transport-safe prose');
+    expect(await screen.findByText('1 unsaved unit')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('try Save again');
   });
 
   it('requires explicit discard confirmation before a dirty project switch', async () => {

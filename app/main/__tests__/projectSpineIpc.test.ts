@@ -38,6 +38,8 @@ import {
   resetProjectSpineForTests,
 } from '../projectSpineIpc';
 import { ProjectSessionCoordinator } from '../projectSessionCoordinator';
+import { ProjectSpineRecoveryCheckpointService } from '../projectSpineRecoveryCheckpoints';
+import { ProjectSpineRecoveryRepository } from '../projectSpineRecoveryRepository';
 import {
   consumeCoordinatedCloseAllowance,
   createPendingCloseRequest,
@@ -88,6 +90,7 @@ describe('project-spine IPC', () => {
     testCoordinator = new ProjectSessionCoordinator();
     resetProjectSpineForTests(testCoordinator);
     registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
       coordinator: testCoordinator,
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
@@ -174,6 +177,7 @@ describe('project-spine IPC', () => {
       true,
     );
     registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
       coordinator: testCoordinator,
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
@@ -192,6 +196,86 @@ describe('project-spine IPC', () => {
       project: { projectId: project.projectId },
       generation: 1,
       dirtyUnitIds: ['unit_keep'],
+    });
+  });
+
+  it('keeps the close decision pending when exact recovery cleanup fails', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Cleanup Failure' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Cleanup Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-cleanup-failure',
+    });
+    const binding = {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      unitId: withUnit.unitId,
+    };
+    await invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, 1, {
+      ...binding,
+      operationId: 'dirty-cleanup-failure',
+      dirty: true,
+    });
+    await invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...binding,
+      operationId: 'checkpoint-cleanup-failure',
+      prose: 'Protected cleanup prose',
+    });
+    const keepRequest = createPendingCloseRequest(created.projectId, opened.snapshot.generation, 1)!;
+    expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, {
+      ...keepRequest,
+      decision: 'keep-editing',
+    })).toMatchObject({ ok: true });
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: { status: 'present', envelope: { candidates: [expect.objectContaining({ prose: 'Protected cleanup prose' })] } },
+    });
+    const initiateCoordinatedShutdown = vi.fn();
+    electronMocks.handlers.clear();
+    registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      initiateCoordinatedShutdown,
+      recoveryCheckpoints: new ProjectSpineRecoveryCheckpointService('test-origin-session', {
+        repositoryFactory: (root) => new ProjectSpineRecoveryRepository(root, {
+          deleteArtifact: vi.fn(async () => { throw new Error('cleanup unavailable'); }),
+        }),
+      }),
+    });
+    const request = createPendingCloseRequest(created.projectId, opened.snapshot.generation, 1)!;
+
+    expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, {
+      ...request,
+      decision: 'discard',
+    })).toMatchObject({ ok: false, error: { code: 'RECOVERY_CLEANUP_FAILED' } });
+    expect(initiateCoordinatedShutdown).not.toHaveBeenCalled();
+    expect(hasPendingCloseRequest()).toBe(true);
+    expect(testCoordinator.snapshot('writing').dirtyUnitIds).toEqual([withUnit.unitId]);
+
+    electronMocks.handlers.clear();
+    registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      initiateCoordinatedShutdown,
+    });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, {
+      ...request,
+      decision: 'discard',
+    })).toMatchObject({ ok: true });
+    expect(initiateCoordinatedShutdown).toHaveBeenCalledTimes(1);
+    expect(hasPendingCloseRequest()).toBe(false);
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toEqual({
+      ok: true,
+      data: { status: 'missing', envelope: null },
     });
   });
 
@@ -252,6 +336,7 @@ describe('project-spine IPC', () => {
     resetProjectSpineForTests(new ProjectSessionCoordinator());
     electronMocks.handlers.clear();
     registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
       coordinator: new ProjectSessionCoordinator(),
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
@@ -316,6 +401,7 @@ describe('project-spine IPC', () => {
         unitId: 'unit_1',
         expectedMarkdown: '',
         markdown: '',
+        submittedProse: '',
       }),
     ).rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
 
@@ -352,6 +438,7 @@ describe('project-spine IPC', () => {
     resetProjectSpineForTests(new ProjectSessionCoordinator());
     electronMocks.handlers.clear();
     registerProjectSpineIpc({
+      originSessionId: 'restart-origin-session',
       coordinator: new ProjectSessionCoordinator(),
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
@@ -406,6 +493,7 @@ describe('project-spine IPC', () => {
       unitId: withUnit.unitId,
       expectedMarkdown,
       markdown: acceptedMarkdown,
+      submittedProse: 'Exact accepted prose.',
     });
     expect(saved).toMatchObject({
       ok: true,
@@ -414,6 +502,170 @@ describe('project-spine IPC', () => {
     expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
       acceptedMarkdown,
     );
+  });
+
+  it('captures prose only from Writing Studio and retires the matching candidate after Save', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Recovery Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Recovery Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-recovery-project',
+    });
+    const binding = {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+    };
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 2, {
+      ...binding,
+      operationId: 'command-checkpoint',
+      unitId: withUnit.unitId,
+      prose: 'Command must not write',
+    })).rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
+    const captured = await invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...binding,
+      operationId: 'writing-checkpoint',
+      unitId: withUnit.unitId,
+      prose: 'Protected prose',
+    });
+    expect(captured).toMatchObject({
+      ok: true,
+      data: { status: 'stored', candidateVersion: 1 },
+    });
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        status: 'present',
+        envelope: {
+          projectId: created.projectId,
+          candidates: [expect.objectContaining({
+            unitId: withUnit.unitId,
+            originSessionId: 'test-origin-session',
+            prose: 'Protected prose',
+          })],
+        },
+      },
+    });
+
+    const expectedMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    await expect(invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      ...binding,
+      operationId: 'mismatched-recovery-prose',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      markdown: `${expectedMarkdown}Protected prose\n`,
+      submittedProse: 'Different prose',
+    })).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
+    const saved = await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      ...binding,
+      operationId: 'save-protected-prose',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      markdown: `${expectedMarkdown}Protected prose\n`,
+      submittedProse: 'Protected prose',
+    });
+    expect(saved).toMatchObject({
+      ok: true,
+      data: { recovery: { status: 'retired', message: null } },
+    });
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toEqual({
+      ok: true,
+      data: { status: 'missing', envelope: null },
+    });
+  });
+
+  it('rejects stale and deleted-unit checkpoints without creating recovery evidence', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Stale Recovery' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Transient Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-stale-recovery',
+    });
+    const request = {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'stale-checkpoint',
+      unitId: withUnit.unitId,
+      prose: 'Must not land',
+    };
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...request,
+      generation: request.generation + 1,
+    })).resolves.toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...request,
+      operationId: 'valid-before-delete',
+    })).resolves.toMatchObject({ ok: true, data: { status: 'stored' } });
+    await invoke(PROJECT_SPINE_CHANNELS.deleteUnit, 1, {
+      ...request,
+      operationId: 'delete-transient',
+      confirmNonEmpty: true,
+    });
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, request)).resolves.toMatchObject({
+      ok: false,
+      error: { code: 'UNIT_NOT_FOUND' },
+    });
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toEqual({
+      ok: true,
+      data: { status: 'missing', envelope: null },
+    });
+  });
+
+  it('retires current-session evidence before a discard-authorized project switch', async () => {
+    const parent = await temporaryRoot();
+    const createdA = await bootstrapFreshProject({ parentPath: parent, title: 'Recovery A' });
+    const createdB = await bootstrapFreshProject({ parentPath: parent, title: 'Recovery B' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(createdA.projectPath),
+      'Project A Unit',
+    );
+    const openedA = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: createdA.projectPath,
+      operationId: 'open-recovery-a',
+    });
+    const bindingA = {
+      projectId: createdA.projectId,
+      projectPath: createdA.projectPath,
+      generation: openedA.snapshot.generation,
+      unitId: withUnit.unitId,
+    };
+    await invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, 1, {
+      ...bindingA,
+      operationId: 'dirty-recovery-a',
+      dirty: true,
+    });
+    await invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...bindingA,
+      operationId: 'checkpoint-recovery-a',
+      prose: 'Project A unsaved prose',
+    });
+
+    const switched = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: createdB.projectPath,
+      operationId: 'switch-recovery-b',
+      discardUnsaved: true,
+    });
+    expect(switched).toMatchObject({ ok: true, snapshot: { project: { projectId: createdB.projectId } } });
+    await expect(new ProjectSpineRecoveryRepository(createdA.projectPath).read()).resolves.toEqual({
+      ok: true,
+      data: { status: 'missing', envelope: null },
+    });
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...bindingA,
+      operationId: 'late-project-a-checkpoint',
+      prose: 'Late A prose',
+    })).resolves.toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
   });
 
   it('never reports saved after a stale-source conflict', async () => {
@@ -444,7 +696,8 @@ describe('project-spine IPC', () => {
       operationId: 'save-conflict-unit',
       unitId: withUnit.unitId,
       expectedMarkdown: 'stale baseline',
-      markdown: 'replacement that must not land',
+      markdown: 'replacement that must not land\n',
+      submittedProse: 'replacement that must not land',
     });
     expect(conflicted).toMatchObject({
       ok: false,

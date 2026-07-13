@@ -616,6 +616,7 @@ import {
 } from '../shared/ipc/projectLoader.js';
 import {
   PROJECT_SPINE_CHANNELS,
+  type CaptureRecoveryCheckpointRequest,
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest as ProjectSpineCreateProjectRequest,
   type DeleteManuscriptUnitRequest,
@@ -624,11 +625,13 @@ import {
   type ProjectSpineCloseConfirmationRequest,
   type ProjectSpineCloseConfirmationResponse,
   type ProjectSpineResult,
+  type RecoveryCheckpointResultData,
   type ProjectSpineSessionSnapshot,
   type RemoveRecentProjectRequest,
   type RenameManuscriptUnitRequest,
   type ReorderManuscriptUnitsRequest,
   type SaveManuscriptUnitRequest,
+  type SaveManuscriptUnitResultData,
   type SelectManuscriptUnitRequest,
   type SetManuscriptUnitDirtyRequest,
 } from '../shared/ipc/projectSpine.js';
@@ -2052,8 +2055,15 @@ const projectSpineBridge: ProjectSpineBridge =
         ...projectSpineBaseBridge,
         setUnitDirty: (request: SetManuscriptUnitDirtyRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, request) as Promise<ProjectSpineResult>,
+        captureRecoveryCheckpoint: (request: CaptureRecoveryCheckpointRequest) =>
+          ipcRenderer.invoke(
+            PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint,
+            request,
+          ) as Promise<ProjectSpineResult<RecoveryCheckpointResultData>>,
         saveUnit: (request: SaveManuscriptUnitRequest) =>
-          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.saveUnit, request) as Promise<ProjectSpineResult>,
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.saveUnit, request) as Promise<
+            ProjectSpineResult<SaveManuscriptUnitResultData>
+          >,
         createUnit: (request: CreateManuscriptUnitRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.createUnit, request) as Promise<
             ProjectSpineResult<{ unitId: string }>

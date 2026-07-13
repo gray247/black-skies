@@ -118,6 +118,22 @@ describe('ProjectSessionCoordinator', () => {
     expect(coordinator.snapshot('writing')).toMatchObject({ dirtyUnitIds: [], saveState: { status: 'saved' } });
   });
 
+  it('provides recovery context only for the exact active project, generation, path, and unit', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_recovery', 'C:\\projects\\recovery');
+    coordinator.activateProject(active);
+    const exact = binding(coordinator, active, 'checkpoint');
+
+    expect(coordinator.getRecoveryCheckpointContext(exact, 'unit_1')).toMatchObject({
+      project: { projectId: 'proj_recovery', path: active.path },
+      generation: 1,
+    });
+    expect(() => coordinator.getRecoveryCheckpointContext({ ...exact, generation: 0 }, 'unit_1'))
+      .toThrowError(expect.objectContaining({ code: 'STALE_SESSION' }));
+    expect(() => coordinator.getRecoveryCheckpointContext(exact, 'unit_missing'))
+      .toThrowError(expect.objectContaining({ code: 'UNIT_NOT_FOUND' }));
+  });
+
   it('rejects late save completion after the bound session changes', () => {
     const coordinator = new ProjectSessionCoordinator();
     const projectA = project('proj_a', 'C:\\projects\\a');

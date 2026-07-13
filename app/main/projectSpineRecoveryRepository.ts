@@ -391,38 +391,51 @@ export class ProjectSpineRecoveryRepository {
   async deleteCandidate(
     request: ProjectSpineRecoveryDeletionRequest,
   ): Promise<ProjectSpineRecoveryDeleteResult> {
+    return this.deleteCandidates([request]);
+  }
+
+  async deleteCandidates(
+    requests: readonly ProjectSpineRecoveryDeletionRequest[],
+  ): Promise<ProjectSpineRecoveryDeleteResult> {
     const readResult = await this.read();
     if (!readResult.ok) return readResult;
     if (readResult.data.status === 'missing') {
       return success({ deleted: false, remainingCandidates: 0 });
     }
     const envelope = readResult.data.envelope;
-    if (request.projectId !== envelope.projectId) {
-      return failure('PROJECT_MISMATCH', 'The deletion request belongs to a different project.');
+    if (!Array.isArray(requests) || requests.length === 0) {
+      return success({ deleted: false, remainingCandidates: envelope.candidates.length });
     }
-    if (
-      !isNonemptyString(request.projectPath) ||
-      !path.isAbsolute(request.projectPath) ||
-      !sameCanonicalPath(request.projectPath, this.projectPath) ||
-      !sameCanonicalPath(envelope.projectPath, this.projectPath)
-    ) {
-      return failure('PATH_MISMATCH', 'The deletion request belongs to a different project path.');
+    const candidateIndexes = new Set<number>();
+    for (const request of requests) {
+      if (!request || request.projectId !== envelope.projectId) {
+        return failure('PROJECT_MISMATCH', 'The deletion request belongs to a different project.');
+      }
+      if (
+        !isNonemptyString(request.projectPath) ||
+        !path.isAbsolute(request.projectPath) ||
+        !sameCanonicalPath(request.projectPath, this.projectPath) ||
+        !sameCanonicalPath(envelope.projectPath, this.projectPath)
+      ) {
+        return failure('PATH_MISMATCH', 'The deletion request belongs to a different project path.');
+      }
+
+      const candidateIndex = envelope.candidates.findIndex(
+        (candidate) =>
+          candidate.projectId === request.projectId &&
+          sameCanonicalPath(candidate.projectPath, request.projectPath) &&
+          candidate.unitId === request.unitId &&
+          candidate.originSessionId === request.originSessionId &&
+          candidate.candidateVersion === request.candidateVersion &&
+          candidate.durableBaselineFingerprint === request.durableBaselineFingerprint,
+      );
+      if (candidateIndex < 0 || candidateIndexes.has(candidateIndex)) {
+        return failure('CANDIDATE_NOT_FOUND', 'No recovery candidate matches the deletion request.');
+      }
+      candidateIndexes.add(candidateIndex);
     }
 
-    const candidateIndex = envelope.candidates.findIndex(
-      (candidate) =>
-        candidate.projectId === request.projectId &&
-        sameCanonicalPath(candidate.projectPath, request.projectPath) &&
-        candidate.unitId === request.unitId &&
-        candidate.originSessionId === request.originSessionId &&
-        candidate.candidateVersion === request.candidateVersion &&
-        candidate.durableBaselineFingerprint === request.durableBaselineFingerprint,
-    );
-    if (candidateIndex < 0) {
-      return failure('CANDIDATE_NOT_FOUND', 'No recovery candidate matches the deletion request.');
-    }
-
-    const remainingCandidates = envelope.candidates.filter((_, index) => index !== candidateIndex);
+    const remainingCandidates = envelope.candidates.filter((_, index) => !candidateIndexes.has(index));
     if (remainingCandidates.length === 0) {
       try {
         await this.deleteArtifact(this.artifactPath);

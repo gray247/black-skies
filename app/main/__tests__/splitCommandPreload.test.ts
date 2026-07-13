@@ -254,6 +254,7 @@ describe('splitCommand preload bridge', () => {
     const projectSpine = getProjectSpineBridge();
     expect(projectSpine?.windowRole).toBe('command');
     expect(projectSpine?.saveUnit).toBeUndefined();
+    expect(projectSpine?.captureRecoveryCheckpoint).toBeUndefined();
     expect(projectSpine?.createUnit).toBeUndefined();
     expect(projectSpine?.renameUnit).toBeUndefined();
     expect(projectSpine?.reorderUnits).toBeUndefined();
@@ -298,6 +299,7 @@ describe('splitCommand preload bridge', () => {
     const projectSpine = getProjectSpineBridge();
     expect(projectSpine?.windowRole).toBe('writing');
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
+    expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
     expect(projectSpine?.createUnit).toEqual(expect.any(Function));
     expect(projectSpine?.renameUnit).toEqual(expect.any(Function));
     expect(projectSpine?.reorderUnits).toEqual(expect.any(Function));

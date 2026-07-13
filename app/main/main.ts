@@ -96,6 +96,7 @@ const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
+const projectSpineOriginSessionId = randomUUID();
 const splitCommandLifecycleSeam: SplitCommandLifecycleSeam | null =
   createSplitCommandLifecycleSeam({
     experimentalEnabled: runtimeConfig.ui.experimentalSplitCommandWorkspace,
@@ -1312,6 +1313,7 @@ if (!hasSingleInstanceLock) {
       registerRendererLogSink();
       registerProjectLoaderIpc();
       registerProjectSpineIpc({
+        originSessionId: projectSpineOriginSessionId,
         resolveWindowRole: resolveProjectSpineWindowRole,
         publishSession: publishProjectSpineSession,
         initiateCoordinatedShutdown: initiateCoordinatedCloseShutdown,
