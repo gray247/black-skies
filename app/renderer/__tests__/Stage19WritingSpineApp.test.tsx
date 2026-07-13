@@ -6,6 +6,7 @@ import type {
   ProjectSpineBridge,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
+  ProjectSpineWritingRecoveryState,
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
 import Stage19WritingSpineApp, { useCloseConfirmationRequest } from '../Stage19WritingSpineApp';
@@ -16,17 +17,20 @@ vi.mock('../DraftEditor', () => ({
     onChange,
     ariaLabel,
     placeholder,
+    readOnly,
   }: {
     value: string;
     onChange?: (value: string) => void;
     ariaLabel?: string | null;
     placeholder?: string;
+    readOnly?: boolean;
   }) => (
     <textarea
       aria-label={ariaLabel ?? 'Draft editor'}
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange?.(event.target.value)}
+      readOnly={readOnly}
     />
   ),
 }));
@@ -44,6 +48,8 @@ function snapshot(
     activeUnitId?: string | null;
     units?: Array<{ id: string; title: string; order: number; body: string }>;
     generation?: number;
+    revision?: number;
+    recovery?: ProjectSpineWritingRecoveryState;
   } = {},
 ): ProjectSpineSessionSnapshot {
   const units = options.units ?? [
@@ -54,7 +60,7 @@ function snapshot(
     schemaVersion: 1,
     role,
     generation: options.generation ?? 1,
-    revision: 1,
+    revision: options.revision ?? 1,
     project: {
       projectId: options.projectId ?? 'proj_a',
       path: options.path ?? 'C:\\projects\\a',
@@ -79,6 +85,9 @@ function snapshot(
     dirtyUnitIds: [],
     saveState: { status: 'clean', unitId: null, message: null },
     lastError: null,
+    ...(role === 'writing'
+      ? { recovery: options.recovery ?? { status: 'none' as const, candidates: [] } }
+      : {}),
   };
 }
 
@@ -132,6 +141,18 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
             status: 'stored' as const,
             candidateVersion: 1,
           })),
+          acceptRecoveryCandidate: vi.fn(async () => ok({
+            decision: 'accepted' as const,
+            resolution: 'decisions-remaining' as const,
+            unitId: 'unit_a',
+            remainingDecisionCount: 1,
+          })),
+          rejectRecoveryCandidate: vi.fn(async () => ok({
+            decision: 'rejected' as const,
+            resolution: 'decisions-remaining' as const,
+            unitId: 'unit_a',
+            remainingDecisionCount: 1,
+          })),
           saveUnit: vi.fn(async (request: { unitId: string; markdown: string }) => {
             current = {
               ...current,
@@ -174,6 +195,28 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
     },
     get current() { return current; },
   };
+}
+
+function recoveryCandidate(
+  unitId: string,
+  prose: string,
+  decision: 'available' | 'accept-selected' | 'accepted-pending-save' = 'available',
+) {
+  return {
+    projectId: 'proj_a',
+    projectPath: 'C:\\projects\\a',
+    unitId,
+    unitTitle: unitId === 'unit_a' ? 'First Unit' : '',
+    unitOrder: unitId === 'unit_a' ? 1 : 2,
+    originSessionId: decision === 'accepted-pending-save' ? 'origin-current' : 'origin-prior',
+    priorSessionGeneration: 1,
+    priorSessionRevision: 3,
+    durableBaselineFingerprint: 'a'.repeat(64),
+    candidateVersion: 1,
+    updatedAt: '2026-07-13T00:00:00.000Z',
+    prose,
+    decision,
+  } as const;
 }
 
 let closeRequestState: ReturnType<typeof useCloseConfirmationRequest>;
@@ -357,6 +400,110 @@ describe('Stage19WritingSpineApp', () => {
       'data-primary-scroll-container',
       'true',
     );
+  });
+
+  it('blocks editing while showing full prior-session prose and sends exact recovery decisions', async () => {
+    const current = snapshot('writing', {
+      recovery: {
+        status: 'decision-required',
+        candidates: [
+          recoveryCandidate('unit_a', 'Recovered full prose'),
+          recoveryCandidate('unit_b', ''),
+        ],
+      },
+    });
+    const harness = createBridge(current);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    expect(await screen.findByText('Recovered full prose')).toBeVisible();
+    expect(screen.getByText('(Empty manuscript prose)')).toBeVisible();
+    expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveAttribute('readonly');
+    expect(screen.getByRole('button', { name: 'Create unit' })).toBeDisabled();
+    await userEvent.click(screen.getAllByRole('button', { name: 'Recover this prose' })[0]);
+    expect(harness.bridge.acceptRecoveryCandidate).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a',
+      projectPath: 'C:\\projects\\a',
+      generation: 1,
+      unitId: 'unit_a',
+      originSessionId: 'origin-prior',
+      candidateVersion: 1,
+      durableBaselineFingerprint: 'a'.repeat(64),
+    }));
+  });
+
+  it('ignores a delayed recovery decision completion after a project generation transition', async () => {
+    const current = snapshot('writing', {
+      recovery: {
+        status: 'decision-required',
+        candidates: [recoveryCandidate('unit_a', 'Project A recovery')],
+      },
+    });
+    const harness = createBridge(current);
+    let resolveOldDecision: ((result: ProjectSpineResult) => void) | null = null;
+    vi.mocked(harness.bridge.acceptRecoveryCandidate!).mockImplementationOnce(
+      () => new Promise<ProjectSpineResult>((resolve) => {
+        resolveOldDecision = resolve;
+      }),
+    );
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Recover this prose' }));
+    const nextProject = snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 2,
+      revision: 2,
+      recovery: {
+        status: 'decision-required',
+        candidates: [{
+          ...recoveryCandidate('unit_a', 'Project B recovery'),
+          projectId: 'proj_b',
+          projectPath: 'C:\\projects\\b',
+        }],
+      },
+    });
+    act(() => harness.emit(nextProject));
+    expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Recover this prose' })).toBeEnabled();
+
+    await act(async () => {
+      resolveOldDecision!({
+        ok: false,
+        error: { code: 'RECOVERY_WRITE_FAILED', message: 'Old decision failed.' },
+        snapshot: current,
+      });
+      await Promise.resolve();
+    });
+    expect(screen.queryByText('Old decision failed.')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
+    expect(screen.getByText('Project B recovery')).toBeVisible();
+  });
+
+  it('applies accepted prose once and preserves a newer local edit across later snapshots', async () => {
+    const accepted = snapshot('writing', {
+      recovery: {
+        status: 'accepted-pending-save',
+        candidates: [recoveryCandidate('unit_a', 'Recovered prose', 'accepted-pending-save')],
+      },
+    });
+    const harness = createBridge(accepted);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByLabelText('Manuscript editor: First Unit');
+    expect(editor).toHaveValue('Recovered prose');
+
+    fireEvent.change(editor, { target: { value: 'Newer local prose' } });
+    act(() => harness.emit(snapshot('writing', {
+      revision: 2,
+      recovery: {
+        status: 'accepted-pending-save',
+        candidates: [{
+          ...recoveryCandidate('unit_a', 'Older completed checkpoint', 'accepted-pending-save'),
+          candidateVersion: 2,
+        }],
+      },
+    })));
+    expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveValue('Newer local prose');
   });
 
   it('routes create, title, reorder, and delete actions through Writing-only bindings', async () => {

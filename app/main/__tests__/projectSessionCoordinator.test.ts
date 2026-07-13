@@ -134,6 +134,79 @@ describe('ProjectSessionCoordinator', () => {
       .toThrowError(expect.objectContaining({ code: 'UNIT_NOT_FOUND' }));
   });
 
+  it('projects recovery only to Writing Studio and preserves accepted evidence through discard compensation', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_recovery', 'C:\\projects\\recovery');
+    coordinator.activateProject(active);
+    const sessionBinding = binding(coordinator, active, 'detect');
+    const priorCandidate = {
+      projectId: active.projectId!,
+      projectPath: active.path,
+      unitId: 'unit_1',
+      unitTitle: 'Unit 1',
+      unitOrder: 1,
+      originSessionId: 'origin-prior',
+      priorSessionGeneration: 1,
+      priorSessionRevision: 2,
+      durableBaselineFingerprint: 'a'.repeat(64),
+      candidateVersion: 1,
+      updatedAt: '2026-07-13T00:00:00.000Z',
+      prose: 'Recovered prose',
+      decision: 'available' as const,
+    };
+    coordinator.installRecoveryState(sessionBinding, {
+      status: 'decision-required',
+      candidates: [priorCandidate],
+    });
+
+    expect(coordinator.snapshot('writing').recovery).toMatchObject({ status: 'decision-required' });
+    expect(coordinator.snapshot('command')).not.toHaveProperty('recovery');
+    expect(() => coordinator.assertRecoveryMutationAllowed(sessionBinding)).toThrowError(
+      expect.objectContaining({ code: 'RECOVERY_UNAVAILABLE' }),
+    );
+
+    const token = coordinator.beginRecoveryDecision(
+      { ...sessionBinding, operationId: 'accept' },
+      'unit_1',
+    );
+    const rawPrior = {
+      schemaVersion: 1 as const,
+      projectId: priorCandidate.projectId,
+      projectPath: priorCandidate.projectPath,
+      unitId: priorCandidate.unitId,
+      originSessionId: priorCandidate.originSessionId,
+      priorSessionGeneration: priorCandidate.priorSessionGeneration,
+      priorSessionRevision: priorCandidate.priorSessionRevision,
+      durableBaselineFingerprint: priorCandidate.durableBaselineFingerprint,
+      prose: priorCandidate.prose,
+      candidateVersion: priorCandidate.candidateVersion,
+      createdAt: priorCandidate.updatedAt,
+      updatedAt: priorCandidate.updatedAt,
+    };
+    expect(coordinator.selectRecoveryCandidate(token, rawPrior)).toMatchObject({
+      remainingDecisionCount: 0,
+      acceptedCandidates: [expect.objectContaining({ unitId: 'unit_1' })],
+    });
+    coordinator.completeRecoveryAcceptance(token, [{
+      ...rawPrior,
+      originSessionId: 'origin-current',
+      candidateVersion: 2,
+    }]);
+    coordinator.finishRecoveryDecision(token);
+    expect(coordinator.snapshot('writing')).toMatchObject({
+      dirtyUnitIds: ['unit_1'],
+      recovery: {
+        status: 'accepted-pending-save',
+        candidates: [{ prose: 'Recovered prose', originSessionId: 'origin-current', candidateVersion: 2 }],
+      },
+    });
+
+    const discarded = coordinator.discardUnsavedBuffers(active.projectId!, coordinator.getGeneration());
+    expect(coordinator.snapshot('writing').recovery).toEqual({ status: 'none', candidates: [] });
+    coordinator.restoreDiscardedUnsavedBuffers(discarded);
+    expect(coordinator.snapshot('writing').recovery).toMatchObject({ status: 'accepted-pending-save' });
+  });
+
   it('rejects late save completion after the bound session changes', () => {
     const coordinator = new ProjectSessionCoordinator();
     const projectA = project('proj_a', 'C:\\projects\\a');

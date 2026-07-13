@@ -4,6 +4,7 @@ import type {
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBinding,
   ProjectSpineBridge,
+  ProjectSpineRecoveryCandidateProjection,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
   ProjectSpineWindowRole,
@@ -125,6 +126,7 @@ function emptySnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapsho
     dirtyUnitIds: [],
     saveState: { status: 'clean', unitId: null, message: null },
     lastError: null,
+    ...(role === 'writing' ? { recovery: { status: 'none' as const, candidates: [] } } : {}),
   };
 }
 
@@ -344,11 +346,17 @@ export default function Stage19WritingSpineApp({
   const [newUnitTitle, setNewUnitTitle] = useState('');
   const [renameTitle, setRenameTitle] = useState('');
   const [buffers, setBuffers] = useState<Record<string, string>>({});
+  const [recoveryDecisionUnitId, setRecoveryDecisionUnitId] = useState<string | null>(null);
   const snapshotRef = useRef(snapshot);
   const buffersRef = useRef(buffers);
   const editRevisionRef = useRef<Record<string, number>>({});
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
   const appliedGenerationRef = useRef(0);
+  const appliedRecoveryUnitsRef = useRef(new Set<string>());
+  const recoveryDecisionSubmissionRef = useRef<{
+    readonly id: string;
+    readonly generation: number;
+  } | null>(null);
   const pendingRecoveryCheckpointsRef = useRef(new Map<string, PendingRecoveryCheckpoint>());
   const recoveryCheckpointTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const recoveryCheckpointPromisesRef = useRef(
@@ -398,12 +406,20 @@ export default function Stage19WritingSpineApp({
     }
     const generationChanged = next.generation !== previousSnapshot.generation;
     appliedGenerationRef.current = next.generation;
+    if (generationChanged) {
+      appliedRecoveryUnitsRef.current.clear();
+      recoveryDecisionSubmissionRef.current = null;
+      setRecoveryDecisionUnitId(null);
+    }
     setSnapshot(next);
     snapshotRef.current = next;
     if (windowRole !== 'writing') {
       return;
     }
     const durableDrafts = next.project?.drafts ?? {};
+    const acceptedRecoveryCandidates = next.recovery?.status === 'accepted-pending-save'
+      ? new Map(next.recovery.candidates.map((candidate) => [candidate.unitId, candidate]))
+      : new Map<string, ProjectSpineRecoveryCandidateProjection>();
     const nextUnitIds = new Set(next.project?.units.map((unit) => unit.id) ?? []);
     setBuffers((previous) => {
       const updated: Record<string, string> = {};
@@ -417,7 +433,15 @@ export default function Stage19WritingSpineApp({
           !generationChanged &&
           typeof previousBody === 'string' &&
           previousBody !== previousDurableBody;
-        updated[unitId] = locallyDirty ? previousBody : durableBody;
+        const acceptedCandidate = acceptedRecoveryCandidates.get(unitId);
+        const appliedUnitKey = `${next.generation}\n${unitId}`;
+        if (acceptedCandidate && !appliedRecoveryUnitsRef.current.has(appliedUnitKey)) {
+          updated[unitId] = acceptedCandidate.prose;
+          appliedRecoveryUnitsRef.current.add(appliedUnitKey);
+          editRevisionRef.current[unitId] = (editRevisionRef.current[unitId] ?? 0) + 1;
+        } else {
+          updated[unitId] = locallyDirty ? previousBody : durableBody;
+        }
       }
       buffersRef.current = updated;
       return updated;
@@ -482,6 +506,7 @@ export default function Stage19WritingSpineApp({
   const dirtyUnitIds = useMemo(() => deriveDirtyUnitIds(snapshot, buffers), [buffers, snapshot]);
   const hasLocalUnsaved = dirtyUnitIds.size > 0;
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
+  const recoveryBlocksEditing = snapshot.recovery?.status === 'decision-required' || snapshot.recovery?.status === 'degraded';
 
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
@@ -709,6 +734,46 @@ export default function Stage19WritingSpineApp({
     [applySnapshot, bridge, flushRecoveryCheckpoint],
   );
 
+  const submitRecoveryDecision = useCallback(async (
+    candidate: ProjectSpineRecoveryCandidateProjection,
+    decision: 'accept' | 'reject',
+  ) => {
+    const binding = bindingFor(snapshotRef.current, `recovery-${decision}`);
+    const api = decision === 'accept'
+      ? bridge?.acceptRecoveryCandidate
+      : bridge?.rejectRecoveryCandidate;
+    if (!binding || !api || recoveryDecisionSubmissionRef.current) return;
+    const submission = { id: binding.operationId, generation: binding.generation };
+    recoveryDecisionSubmissionRef.current = submission;
+    setRecoveryDecisionUnitId(candidate.unitId);
+    try {
+      const result = await api({
+        ...binding,
+        unitId: candidate.unitId,
+        originSessionId: candidate.originSessionId,
+        candidateVersion: candidate.candidateVersion,
+        durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+      });
+      if (
+        recoveryDecisionSubmissionRef.current?.id !== submission.id ||
+        snapshotRef.current.generation !== submission.generation
+      ) return;
+      applySnapshot(result.snapshot);
+      setNotice(resultMessage(result));
+    } catch (error) {
+      if (
+        recoveryDecisionSubmissionRef.current?.id !== submission.id ||
+        snapshotRef.current.generation !== submission.generation
+      ) return;
+      setNotice(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (recoveryDecisionSubmissionRef.current?.id === submission.id) {
+        recoveryDecisionSubmissionRef.current = null;
+        setRecoveryDecisionUnitId(null);
+      }
+    }
+  }, [applySnapshot, bridge]);
+
   const reportDirty = useCallback(
     (unitId: string, dirty: boolean) => {
       if (!bridge?.setUnitDirty || reportedDirtyRef.current[unitId] === dirty) return;
@@ -825,6 +890,7 @@ export default function Stage19WritingSpineApp({
     const handler = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
+        if (snapshotRef.current.recovery?.status === 'decision-required' || snapshotRef.current.recovery?.status === 'degraded') return;
         const unitId = snapshotRef.current.activeUnitId;
         if (unitId) void saveUnit(unitId);
       }
@@ -999,6 +1065,49 @@ export default function Stage19WritingSpineApp({
       {notice || snapshot.lastError ? (
         <p className="stage19-spine__notice" role="alert">{notice ?? snapshot.lastError?.message}</p>
       ) : null}
+      {snapshot.recovery?.status === 'decision-required' ? (
+        <section className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
+          <h2 id="stage19-recovery-title">Recover unsaved Writing Studio prose</h2>
+          <p>Review every candidate. Recovered prose remains unsaved until you use the normal Save action.</p>
+          {snapshot.recovery.candidates.map((candidate) => {
+            const allSelected = snapshot.recovery?.status === 'decision-required' &&
+              snapshot.recovery.candidates.every((entry) => entry.decision === 'accept-selected');
+            const submitting = recoveryDecisionUnitId !== null;
+            return (
+              <article key={`${candidate.unitId}:${candidate.originSessionId}:${candidate.candidateVersion}`}>
+                <h3>{candidate.unitTitle.trim() || 'Untitled'}</h3>
+                <pre aria-label={`Recovered prose for ${candidate.unitTitle.trim() || 'Untitled'}`}>
+                  {candidate.prose === '' ? '(Empty manuscript prose)' : candidate.prose}
+                </pre>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => void submitRecoveryDecision(candidate, 'accept')}
+                    disabled={submitting || (candidate.decision === 'accept-selected' && !allSelected)}
+                  >
+                    {candidate.decision === 'accept-selected'
+                      ? allSelected ? 'Retry accepted recovery' : 'Accepted — finish remaining choices'
+                      : 'Recover this prose'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void submitRecoveryDecision(candidate, 'reject')}
+                    disabled={submitting}
+                  >Reject and delete candidate</button>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      ) : snapshot.recovery?.status === 'degraded' ? (
+        <section className="stage19-spine__card stage19-spine__recovery" role="alert">
+          <h2>Recovery evidence needs attention</h2>
+          <p>{snapshot.recovery.message}</p>
+          <p>Editing is blocked and the recovery artifact has not been deleted. Open another project or close Writing Studio to preserve it.</p>
+        </section>
+      ) : snapshot.recovery?.status === 'accepted-pending-save' ? (
+        <p className="stage19-spine__notice" role="status">Recovered prose is applied and remains unsaved. Use Save for each recovered unit to make it durable.</p>
+      ) : null}
       <section className="stage19-spine__lifecycle" aria-label="Project lifecycle">
         <p className="stage19-spine__lifecycle-help">Open: select the actual Black Skies project folder containing <code>project.json</code>.</p>
         <button type="button" onClick={() => void handleOpenProject()} disabled={!bridge}>Open project…</button>
@@ -1023,9 +1132,10 @@ export default function Stage19WritingSpineApp({
                   value={newUnitTitle}
                   onChange={(event) => setNewUnitTitle(event.target.value)}
                   placeholder="Untitled"
+                  disabled={recoveryBlocksEditing}
                 />
               </label>
-              <button type="button" onClick={() => void handleCreateUnit()}>Create unit</button>
+              <button type="button" onClick={() => void handleCreateUnit()} disabled={recoveryBlocksEditing}>Create unit</button>
             </div>
             {snapshot.project.units.length > 0 ? (
               <ol className="stage19-spine__unit-list">
@@ -1036,6 +1146,7 @@ export default function Stage19WritingSpineApp({
                       className={unit.id === snapshot.activeUnitId ? 'is-active' : ''}
                       onClick={() => void handleSelectUnit(unit.id)}
                       aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined}
+                      disabled={recoveryBlocksEditing}
                     >
                       <span>{String(unit.order).padStart(2, '0')}</span>
                       <strong>{unit.displayTitle}</strong>
@@ -1049,14 +1160,14 @@ export default function Stage19WritingSpineApp({
               <div className="stage19-spine__unit-actions">
                 <label>
                   <span>Selected unit title</span>
-                  <input value={renameTitle} onChange={(event) => setRenameTitle(event.target.value)} placeholder="Untitled" />
+                  <input value={renameTitle} onChange={(event) => setRenameTitle(event.target.value)} placeholder="Untitled" disabled={recoveryBlocksEditing} />
                 </label>
-                <button type="button" onClick={() => void handleRenameUnit()}>Update title</button>
+                <button type="button" onClick={() => void handleRenameUnit()} disabled={recoveryBlocksEditing}>Update title</button>
                 <div className="stage19-spine__reorder-actions">
-                  <button type="button" onClick={() => void moveActiveUnit(-1)} disabled={activeUnit.order <= 1}>Move up</button>
-                  <button type="button" onClick={() => void moveActiveUnit(1)} disabled={activeUnit.order >= snapshot.project.units.length}>Move down</button>
+                  <button type="button" onClick={() => void moveActiveUnit(-1)} disabled={recoveryBlocksEditing || activeUnit.order <= 1}>Move up</button>
+                  <button type="button" onClick={() => void moveActiveUnit(1)} disabled={recoveryBlocksEditing || activeUnit.order >= snapshot.project.units.length}>Move down</button>
                 </div>
-                <button type="button" className="stage19-spine__danger" onClick={() => void handleDeleteUnit()}>Delete unit…</button>
+                <button type="button" className="stage19-spine__danger" onClick={() => void handleDeleteUnit()} disabled={recoveryBlocksEditing}>Delete unit…</button>
               </div>
             ) : null}
           </aside>
@@ -1068,7 +1179,7 @@ export default function Stage19WritingSpineApp({
                   <button
                     type="button"
                     onClick={() => void saveUnit(activeUnit.id)}
-                    disabled={!activeDirty || snapshot.saveState.status === 'saving'}
+                    disabled={recoveryBlocksEditing || !activeDirty || snapshot.saveState.status === 'saving'}
                   >
                     {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
                   </button>
@@ -1078,6 +1189,7 @@ export default function Stage19WritingSpineApp({
                   <DraftEditor
                     value={activeBuffer}
                     onChange={(body) => handleBufferChange(activeUnit.id, body)}
+                    readOnly={recoveryBlocksEditing}
                     placeholder="Start writing…"
                     ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
                   />

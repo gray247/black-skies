@@ -4,10 +4,16 @@ import type {
   ProjectSpineBinding,
   ProjectSpineError,
   ProjectSpineErrorCode,
+  ProjectSpineRecoveryCandidateProjection,
   ProjectSpineSessionSnapshot,
+  ProjectSpineWritingRecoveryState,
   ProjectSpineWindowRole,
   RecentProjectReference,
 } from '../shared/ipc/projectSpine';
+import type {
+  ProjectSpineRecoveryCandidate,
+  ProjectSpineRecoveryDeletionRequest,
+} from './projectSpineRecoveryRepository';
 
 export class ProjectSessionError extends Error {
   constructor(
@@ -34,6 +40,10 @@ export interface ProjectStructureToken {
   readonly operationId: string;
 }
 
+export interface ProjectRecoveryDecisionToken extends ProjectStructureToken {
+  readonly unitId: string;
+}
+
 export interface ProjectActivationResult {
   readonly activation: 'activated' | 'already-active';
   readonly generation: number;
@@ -50,6 +60,7 @@ export interface DiscardedUnsavedBuffers {
   readonly generation: number;
   readonly dirtyUnitIds: readonly string[];
   readonly saveState: ProjectSpineSessionSnapshot['saveState'];
+  readonly recoveryState: ProjectSpineWritingRecoveryState;
 }
 
 function canonicalPathKey(value: string): string {
@@ -110,6 +121,34 @@ function normalizeRecentReferences(
   return normalized.sort((left, right) => right.lastOpened - left.lastOpened).slice(0, 10);
 }
 
+function cloneRecoveryState(state: ProjectSpineWritingRecoveryState): ProjectSpineWritingRecoveryState {
+  if (state.status === 'degraded') return { ...state, candidates: [] };
+  return { ...state, candidates: state.candidates.map((candidate) => ({ ...candidate })) } as ProjectSpineWritingRecoveryState;
+}
+
+function recoveryCorrelation(candidate: ProjectSpineRecoveryCandidateProjection): ProjectSpineRecoveryDeletionRequest {
+  return {
+    projectId: candidate.projectId,
+    projectPath: candidate.projectPath,
+    unitId: candidate.unitId,
+    originSessionId: candidate.originSessionId,
+    candidateVersion: candidate.candidateVersion,
+    durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+  };
+}
+
+function sameRecoveryCandidate(
+  candidate: ProjectSpineRecoveryCandidateProjection,
+  raw: ProjectSpineRecoveryCandidate,
+): boolean {
+  return candidate.projectId === raw.projectId &&
+    canonicalPathKey(candidate.projectPath) === canonicalPathKey(raw.projectPath) &&
+    candidate.unitId === raw.unitId &&
+    candidate.originSessionId === raw.originSessionId &&
+    candidate.candidateVersion === raw.candidateVersion &&
+    candidate.durableBaselineFingerprint === raw.durableBaselineFingerprint;
+}
+
 export class ProjectSessionCoordinator {
   private activeProject: LoadedProject | null = null;
   private activeUnitId: string | null = null;
@@ -127,6 +166,8 @@ export class ProjectSessionCoordinator {
   private readonly projectIdByPath = new Map<string, string>();
   private activeSaveToken: ProjectSaveToken | null = null;
   private activeStructureToken: ProjectStructureToken | null = null;
+  private activeRecoveryDecisionToken: ProjectRecoveryDecisionToken | null = null;
+  private recoveryState: ProjectSpineWritingRecoveryState = { status: 'none', candidates: [] };
 
   constructor(recentProjects: readonly RecentProjectReference[] = []) {
     this.recentProjects = normalizeRecentReferences(recentProjects);
@@ -166,7 +207,169 @@ export class ProjectSessionCoordinator {
   }
 
   hasUnsavedWork(): boolean {
-    return this.dirtyUnitIds.size > 0 || this.saveState.status === 'save-failed';
+    return this.dirtyUnitIds.size > 0 ||
+      this.saveState.status === 'save-failed' ||
+      (this.recoveryState.status === 'accepted-pending-save' && this.recoveryState.candidates.length > 0);
+  }
+
+  installRecoveryState(binding: ProjectSpineBinding, state: ProjectSpineWritingRecoveryState): void {
+    this.assertBinding(binding);
+    this.recoveryState = cloneRecoveryState(state);
+    this.revision += 1;
+  }
+
+  assertRecoveryMutationAllowed(binding: ProjectSpineBinding): void {
+    this.assertBinding(binding);
+    if (this.recoveryState.status === 'decision-required' || this.recoveryState.status === 'degraded') {
+      throw new ProjectSessionError(
+        'RECOVERY_UNAVAILABLE',
+        'Resolve the Writing Studio recovery decision before editing this project.',
+      );
+    }
+  }
+
+  beginRecoveryDecision(binding: ProjectSpineBinding, unitId: string): ProjectRecoveryDecisionToken {
+    this.assertBinding(binding);
+    if (this.activeSaveToken || this.activeStructureToken || this.activeRecoveryDecisionToken) {
+      throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project operation is already in progress.');
+    }
+    if (this.recoveryState.status !== 'decision-required') {
+      throw new ProjectSessionError('RECOVERY_UNAVAILABLE', 'No recovery decision is currently required.');
+    }
+    const token = { ...binding, projectPath: path.resolve(binding.projectPath), unitId };
+    this.activeRecoveryDecisionToken = token;
+    return token;
+  }
+
+  selectRecoveryCandidate(
+    token: ProjectRecoveryDecisionToken,
+    candidate: ProjectSpineRecoveryCandidate,
+  ): { readonly remainingDecisionCount: number; readonly acceptedCandidates?: readonly ProjectSpineRecoveryDeletionRequest[] } {
+    this.assertRecoveryDecisionToken(token);
+    if (this.recoveryState.status !== 'decision-required') {
+      throw new ProjectSessionError('RECOVERY_UNAVAILABLE', 'No recovery decision is currently required.');
+    }
+    const index = this.recoveryState.candidates.findIndex((entry) => sameRecoveryCandidate(entry, candidate));
+    if (index < 0) throw new ProjectSessionError('STALE_SESSION', 'The recovery candidate decision is stale.');
+    const candidates = this.recoveryState.candidates.map((entry, candidateIndex) =>
+      candidateIndex === index ? { ...entry, decision: 'accept-selected' as const } : entry,
+    );
+    this.recoveryState = { status: 'decision-required', candidates };
+    this.revision += 1;
+    const remainingDecisionCount = candidates.filter((entry) => entry.decision === 'available').length;
+    return {
+      remainingDecisionCount,
+      ...(remainingDecisionCount === 0
+        ? { acceptedCandidates: candidates.map(recoveryCorrelation) }
+        : {}),
+    };
+  }
+
+  rejectRecoveryCandidate(
+    token: ProjectRecoveryDecisionToken,
+    candidate: ProjectSpineRecoveryCandidate,
+  ): { readonly remainingDecisionCount: number; readonly acceptedCandidates?: readonly ProjectSpineRecoveryDeletionRequest[] } {
+    this.assertRecoveryDecisionToken(token);
+    if (this.recoveryState.status !== 'decision-required') {
+      throw new ProjectSessionError('RECOVERY_UNAVAILABLE', 'No recovery decision is currently required.');
+    }
+    const candidates = this.recoveryState.candidates.filter((entry) => !sameRecoveryCandidate(entry, candidate));
+    if (candidates.length === this.recoveryState.candidates.length) {
+      throw new ProjectSessionError('STALE_SESSION', 'The recovery candidate decision is stale.');
+    }
+    this.recoveryState = candidates.length > 0
+      ? { status: 'decision-required', candidates }
+      : { status: 'none', candidates: [] };
+    this.revision += 1;
+    const remainingDecisionCount = candidates.filter((entry) => entry.decision === 'available').length;
+    return {
+      remainingDecisionCount,
+      ...(remainingDecisionCount === 0 && candidates.length > 0
+        ? { acceptedCandidates: candidates.map(recoveryCorrelation) }
+        : {}),
+    };
+  }
+
+  completeRecoveryAcceptance(
+    token: ProjectRecoveryDecisionToken,
+    candidates: readonly ProjectSpineRecoveryCandidate[],
+  ): void {
+    this.assertRecoveryDecisionToken(token);
+    if (this.recoveryState.status !== 'decision-required') {
+      throw new ProjectSessionError('RECOVERY_UNAVAILABLE', 'Recovery acceptance state is no longer current.');
+    }
+    const priorByUnit = new Map(this.recoveryState.candidates.map((candidate) => [candidate.unitId, candidate]));
+    const projected = candidates.map((candidate) => {
+      const prior = priorByUnit.get(candidate.unitId);
+      if (!prior) throw new ProjectSessionError('STALE_SESSION', 'Accepted recovery candidates changed before completion.');
+      return {
+        ...prior,
+        originSessionId: candidate.originSessionId,
+        priorSessionGeneration: candidate.priorSessionGeneration,
+        priorSessionRevision: candidate.priorSessionRevision,
+        candidateVersion: candidate.candidateVersion,
+        updatedAt: candidate.updatedAt,
+        prose: candidate.prose,
+        decision: 'accepted-pending-save' as const,
+      };
+    }).sort((left, right) => left.unitOrder - right.unitOrder);
+    this.recoveryState = { status: 'accepted-pending-save', candidates: projected };
+    for (const candidate of projected) this.dirtyUnitIds.add(candidate.unitId);
+    this.saveState = projected.length > 0
+      ? { status: 'dirty', unitId: projected[0].unitId, message: null }
+      : { status: 'clean', unitId: null, message: null };
+    this.revision += 1;
+  }
+
+  finishRecoveryDecision(token: ProjectRecoveryDecisionToken): void {
+    this.assertRecoveryDecisionToken(token);
+    this.activeRecoveryDecisionToken = null;
+  }
+
+  failRecoveryDecision(token: ProjectRecoveryDecisionToken): void {
+    if (this.matchesRecoveryDecisionToken(token)) this.activeRecoveryDecisionToken = null;
+  }
+
+  noteRecoveryCheckpoint(
+    binding: ProjectSpineBinding,
+    unitId: string,
+    candidate: ProjectSpineRecoveryCandidate | null,
+  ): void {
+    this.assertBinding(binding);
+    if (this.recoveryState.status !== 'accepted-pending-save') return;
+    const existing = this.recoveryState.candidates.find((entry) => entry.unitId === unitId);
+    if (!existing) return;
+    const candidates = candidate
+      ? this.recoveryState.candidates.map((entry) => entry.unitId === unitId
+          ? {
+              ...entry,
+              originSessionId: candidate.originSessionId,
+              priorSessionGeneration: candidate.priorSessionGeneration,
+              priorSessionRevision: candidate.priorSessionRevision,
+              durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+              candidateVersion: candidate.candidateVersion,
+              updatedAt: candidate.updatedAt,
+              prose: candidate.prose,
+            }
+          : entry)
+      : this.recoveryState.candidates.filter((entry) => entry.unitId !== unitId);
+    this.recoveryState = candidates.length > 0
+      ? { status: 'accepted-pending-save', candidates }
+      : { status: 'none', candidates: [] };
+    this.revision += 1;
+  }
+
+  noteRecoverySaveReconciliation(
+    binding: ProjectSpineBinding,
+    unitId: string,
+    status: 'retired' | 'rebased' | 'not-present',
+    candidate: ProjectSpineRecoveryCandidate | null,
+  ): void {
+    if (status === 'rebased' && candidate) {
+      this.noteRecoveryCheckpoint(binding, unitId, candidate);
+    } else if (status === 'retired' || status === 'not-present') {
+      this.noteRecoveryCheckpoint(binding, unitId, null);
+    }
   }
 
   discardUnsavedBuffers(projectId: string, generation: number): DiscardedUnsavedBuffers {
@@ -175,9 +378,16 @@ export class ProjectSessionCoordinator {
     }
     if (this.hasOperationInFlight()) throw new ProjectSessionError('SAVE_IN_PROGRESS', 'A project operation is still in progress.');
     if (!this.hasUnsavedWork()) throw new ProjectSessionError('UNSAVED_CHANGES', 'There are no unsaved manuscript changes to discard.');
-    const discarded = { projectId, generation, dirtyUnitIds: [...this.dirtyUnitIds], saveState: { ...this.saveState } };
+    const discarded = {
+      projectId,
+      generation,
+      dirtyUnitIds: [...this.dirtyUnitIds],
+      saveState: { ...this.saveState },
+      recoveryState: cloneRecoveryState(this.recoveryState),
+    };
     this.dirtyUnitIds.clear();
     this.saveState = { status: 'clean', unitId: null, message: null };
+    this.recoveryState = { status: 'none', candidates: [] };
     this.lastError = null;
     this.revision += 1;
     return discarded;
@@ -188,11 +398,12 @@ export class ProjectSessionCoordinator {
     this.dirtyUnitIds.clear();
     for (const unitId of discarded.dirtyUnitIds) this.dirtyUnitIds.add(unitId);
     this.saveState = { ...discarded.saveState };
+    this.recoveryState = cloneRecoveryState(discarded.recoveryState);
     this.revision += 1;
   }
 
   hasOperationInFlight(): boolean {
-    return this.activeSaveToken !== null || this.activeStructureToken !== null;
+    return this.activeSaveToken !== null || this.activeStructureToken !== null || this.activeRecoveryDecisionToken !== null;
   }
 
   activateProject(project: LoadedProject, allowDiscardUnsaved = false): ProjectActivationResult {
@@ -247,6 +458,8 @@ export class ProjectSessionCoordinator {
     this.dirtyUnitIds.clear();
     this.activeSaveToken = null;
     this.activeStructureToken = null;
+    this.activeRecoveryDecisionToken = null;
+    this.recoveryState = { status: 'none', candidates: [] };
     this.saveState = { status: 'clean', unitId: null, message: null };
     this.lastError = null;
     this.activeUnitId = [...normalizedProject.scenes]
@@ -460,6 +673,7 @@ export class ProjectSessionCoordinator {
       dirtyUnitIds,
       saveState: { ...this.saveState },
       lastError: this.lastError ? { ...this.lastError } : null,
+      ...(role === 'writing' ? { recovery: cloneRecoveryState(this.recoveryState) } : {}),
     };
   }
 
@@ -539,6 +753,24 @@ export class ProjectSessionCoordinator {
         'STALE_SESSION',
         'Structural result belongs to a stale project session.',
       );
+    }
+  }
+
+  private matchesRecoveryDecisionToken(token: ProjectRecoveryDecisionToken): boolean {
+    return Boolean(
+      this.activeRecoveryDecisionToken &&
+      this.activeRecoveryDecisionToken.operationId === token.operationId &&
+      this.activeRecoveryDecisionToken.unitId === token.unitId &&
+      this.activeRecoveryDecisionToken.generation === token.generation &&
+      this.generation === token.generation &&
+      this.activeProject?.projectId === token.projectId &&
+      canonicalPathKey(this.activeProject.path) === canonicalPathKey(token.projectPath),
+    );
+  }
+
+  private assertRecoveryDecisionToken(token: ProjectRecoveryDecisionToken): void {
+    if (!this.matchesRecoveryDecisionToken(token)) {
+      throw new ProjectSessionError('STALE_SESSION', 'Recovery decision result belongs to a stale project session.');
     }
   }
 }

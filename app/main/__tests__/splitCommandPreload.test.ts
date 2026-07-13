@@ -9,11 +9,12 @@ const contextBridgeMock = vi.hoisted(() => ({
 }));
 
 const ipcListeners = vi.hoisted(() => new Map<string, Array<(...args: unknown[]) => void>>());
+const ipcRendererInvokeMock = vi.hoisted(() => vi.fn());
 
 vi.mock('electron', () => ({
   contextBridge: contextBridgeMock,
   ipcRenderer: {
-    invoke: vi.fn(),
+    invoke: ipcRendererInvokeMock,
     on: vi.fn((channel: string, listener: (...args: unknown[]) => void) => {
       const handlers = ipcListeners.get(channel) ?? [];
       handlers.push(listener);
@@ -255,6 +256,8 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.windowRole).toBe('command');
     expect(projectSpine?.saveUnit).toBeUndefined();
     expect(projectSpine?.captureRecoveryCheckpoint).toBeUndefined();
+    expect(projectSpine?.acceptRecoveryCandidate).toBeUndefined();
+    expect(projectSpine?.rejectRecoveryCandidate).toBeUndefined();
     expect(projectSpine?.createUnit).toBeUndefined();
     expect(projectSpine?.renameUnit).toBeUndefined();
     expect(projectSpine?.reorderUnits).toBeUndefined();
@@ -300,9 +303,32 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.windowRole).toBe('writing');
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
     expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
+    expect(projectSpine?.acceptRecoveryCandidate).toEqual(expect.any(Function));
+    expect(projectSpine?.rejectRecoveryCandidate).toEqual(expect.any(Function));
     expect(projectSpine?.createUnit).toEqual(expect.any(Function));
     expect(projectSpine?.renameUnit).toEqual(expect.any(Function));
     expect(projectSpine?.reorderUnits).toEqual(expect.any(Function));
     expect(projectSpine?.deleteUnit).toEqual(expect.any(Function));
+
+    const degradedSnapshot = {
+      schemaVersion: 1 as const,
+      role: 'writing' as const,
+      generation: 3,
+      revision: 7,
+      project: null,
+      activeUnitId: null,
+      recentProjects: [],
+      dirtyUnitIds: [],
+      saveState: { status: 'clean' as const, unitId: null, message: null },
+      lastError: null,
+      recovery: {
+        status: 'degraded' as const,
+        reason: 'corrupt-artifact' as const,
+        message: 'Typed recovery warning',
+        candidates: [],
+      },
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce(degradedSnapshot);
+    await expect(projectSpine?.getSession()).resolves.toEqual(degradedSnapshot);
   });
 });

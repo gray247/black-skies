@@ -17,6 +17,8 @@ import {
   type ProjectSpineSessionSnapshot,
   type ProjectSpineWindowRole,
   type RecentProjectReference,
+  type RecoveryCandidateDecisionRequest,
+  type RecoveryCandidateDecisionResultData,
   type RemoveRecentProjectRequest,
   type RenameManuscriptUnitRequest,
   type ReorderManuscriptUnitsRequest,
@@ -82,6 +84,10 @@ let recoveryCheckpoints: ProjectSpineRecoveryCheckpointService | null = null;
 let recentStorePath: string | null = null;
 let recentStoreReady: Promise<void> = Promise.resolve();
 let latestLifecycleOperationId: string | null = null;
+let recoveryDetectionReady: {
+  readonly generation: number;
+  readonly promise: Promise<void>;
+} | null = null;
 
 function roleForEvent(event: IpcMainInvokeEvent): ProjectSpineWindowRole {
   const resolved = registrationOptions.resolveWindowRole?.(event.sender.id);
@@ -593,10 +599,48 @@ async function activateProjectWithRecoveryCleanup(
   );
 }
 
+function activeBinding(operationId: string): {
+  readonly projectId: string;
+  readonly projectPath: string;
+  readonly generation: number;
+  readonly operationId: string;
+} {
+  const active = coordinator.getActiveProject();
+  if (!active?.projectId) throw new ProjectSessionError('STALE_SESSION', 'No active project is available.');
+  return {
+    projectId: active.projectId,
+    projectPath: active.path,
+    generation: coordinator.getGeneration(),
+    operationId,
+  };
+}
+
+async function detectRecoveryAfterActivation(
+  activation: ReturnType<ProjectSessionCoordinator['activateProject']>,
+  operationId: string,
+): Promise<void> {
+  if (activation.activation === 'already-active') {
+    if (recoveryDetectionReady?.generation === activation.generation) {
+      await recoveryDetectionReady.promise;
+    }
+    return;
+  }
+  const binding = activeBinding(`recovery-detect:${operationId}`);
+  const promise = (async () => {
+    const state = await requireRecoveryCheckpoints().detectPriorSessionRecovery(
+      () => recoveryContextFor(binding),
+    );
+    coordinator.installRecoveryState(binding, state);
+  })();
+  recoveryDetectionReady = { generation: activation.generation, promise };
+  await promise;
+}
+
 export function resetProjectSpineForTests(nextCoordinator = new ProjectSessionCoordinator()): void {
   resetCloseConfirmationState();
   coordinator = nextCoordinator;
   latestLifecycleOperationId = null;
+  recoveryDetectionReady = null;
   recentStorePath = null;
   recentStoreReady = Promise.resolve();
   registrationOptions = {};
@@ -698,6 +742,10 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         request.discardUnsaved === true,
         operationId,
       );
+      await detectRecoveryAfterActivation(activation, operationId);
+      if (latestLifecycleOperationId !== operationId) {
+        throw new ProjectSessionError('STALE_SESSION', 'A newer project-open request superseded this result.');
+      }
       await persistRecentStore();
       publish(event.sender.id);
       return success(role, { activation: activation.activation });
@@ -737,11 +785,15 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       if (latestLifecycleOperationId !== operationId) {
         throw new ProjectSessionError('STALE_SESSION', 'A newer project lifecycle request superseded this result.');
       }
-      await activateProjectWithRecoveryCleanup(
+      const activation = await activateProjectWithRecoveryCleanup(
         project,
         request.discardUnsaved === true,
         operationId,
       );
+      await detectRecoveryAfterActivation(activation, operationId);
+      if (latestLifecycleOperationId !== operationId) {
+        throw new ProjectSessionError('STALE_SESSION', 'A newer project lifecycle request superseded this result.');
+      }
       await persistRecentStore();
       publish(event.sender.id);
       return success(role, { activation: 'activated' as const });
@@ -782,6 +834,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
   ipcMain.handle(PROJECT_SPINE_CHANNELS.selectUnit, async (event, request: SelectManuscriptUnitRequest) => {
     const role = roleForEvent(event);
     try {
+      if (role === 'writing') coordinator.assertRecoveryMutationAllowed(request);
       coordinator.selectUnit(request, request?.unitId ?? null);
       publish(event.sender.id);
       return success(role, {});
@@ -793,6 +846,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
   ipcMain.handle(PROJECT_SPINE_CHANNELS.setUnitDirty, async (event, request: SetManuscriptUnitDirtyRequest) => {
     const role = requireWritingRole(event);
     try {
+      coordinator.assertRecoveryMutationAllowed(request);
       coordinator.setUnitDirty(request, request.unitId, request.dirty);
       publish(event.sender.id);
       return success(role, {});
@@ -810,14 +864,68 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         if (!request || typeof request.prose !== 'string' || typeof request.unitId !== 'string') {
           throw new ProjectSessionError('INVALID_REQUEST', 'A manuscript recovery checkpoint is required.');
         }
+        coordinator.assertRecoveryMutationAllowed(request);
         const data = await requireRecoveryCheckpoints().capture(
           () => recoveryContextFor(request, request.unitId),
           request.unitId,
           request.prose,
+          (candidate) => coordinator.noteRecoveryCheckpoint(request, request.unitId, candidate),
         );
         return success(role, data);
       } catch (error) {
         return failure(role, error);
+      }
+    },
+  );
+
+  ipcMain.handle(
+    PROJECT_SPINE_CHANNELS.acceptRecoveryCandidate,
+    async (event, request: RecoveryCandidateDecisionRequest) => {
+      const role = requireWritingRole(event);
+      let token: ReturnType<ProjectSessionCoordinator['beginRecoveryDecision']> | null = null;
+      try {
+        requireOperationId(request?.operationId);
+        token = coordinator.beginRecoveryDecision(request, request?.unitId);
+        const activeToken = token;
+        const data = await requireRecoveryCheckpoints().acceptPriorSessionCandidate(
+          () => recoveryContextFor(request, request.unitId),
+          request,
+          (candidate) => coordinator.selectRecoveryCandidate(activeToken, candidate),
+          (candidates) => coordinator.completeRecoveryAcceptance(activeToken, candidates),
+        );
+        coordinator.finishRecoveryDecision(activeToken);
+        publish(event.sender.id);
+        return success<RecoveryCandidateDecisionResultData>(role, data);
+      } catch (error) {
+        if (token) coordinator.failRecoveryDecision(token);
+        publish(event.sender.id);
+        return failure<RecoveryCandidateDecisionResultData>(role, error);
+      }
+    },
+  );
+
+  ipcMain.handle(
+    PROJECT_SPINE_CHANNELS.rejectRecoveryCandidate,
+    async (event, request: RecoveryCandidateDecisionRequest) => {
+      const role = requireWritingRole(event);
+      let token: ReturnType<ProjectSessionCoordinator['beginRecoveryDecision']> | null = null;
+      try {
+        requireOperationId(request?.operationId);
+        token = coordinator.beginRecoveryDecision(request, request?.unitId);
+        const activeToken = token;
+        const data = await requireRecoveryCheckpoints().rejectPriorSessionCandidate(
+          () => recoveryContextFor(request, request.unitId),
+          request,
+          (candidate) => coordinator.rejectRecoveryCandidate(activeToken, candidate),
+          (candidates) => coordinator.completeRecoveryAcceptance(activeToken, candidates),
+        );
+        coordinator.finishRecoveryDecision(activeToken);
+        publish(event.sender.id);
+        return success<RecoveryCandidateDecisionResultData>(role, data);
+      } catch (error) {
+        if (token) coordinator.failRecoveryDecision(token);
+        publish(event.sender.id);
+        return failure<RecoveryCandidateDecisionResultData>(role, error);
       }
     },
   );
@@ -829,6 +937,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       if (typeof request?.submittedProse !== 'string') {
         throw new ProjectSessionError('INVALID_REQUEST', 'The exact submitted manuscript prose is required.');
       }
+      coordinator.assertRecoveryMutationAllowed(request);
       const normalizedSubmittedProse = request.submittedProse.replace(/\r\n/g, '\n');
       const serializedSubmittedProse = normalizedSubmittedProse.endsWith('\n')
         ? normalizedSubmittedProse
@@ -854,7 +963,13 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         () => recoveryContextFor(request, request.unitId),
         request.unitId,
         request.submittedProse,
+        (status, candidate) => {
+          if (status !== 'degraded') {
+            coordinator.noteRecoverySaveReconciliation(request, request.unitId, status, candidate);
+          }
+        },
       );
+      publish();
       return success<SaveManuscriptUnitResultData>(role, { recovery });
     } catch (error) {
       if (token) {
@@ -869,6 +984,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
     try {
+      coordinator.assertRecoveryMutationAllowed(request);
       token = coordinator.beginStructureMutation(request);
       const active = coordinator.getActiveProject()!;
       const created = await createManuscriptUnit(active, request.title);
@@ -888,6 +1004,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
     try {
+      coordinator.assertRecoveryMutationAllowed(request);
       token = coordinator.beginStructureMutation(request);
       const active = coordinator.getActiveProject()!;
       const updated = await renameManuscriptUnit(active, request.unitId, request.title);
@@ -905,6 +1022,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
     try {
+      coordinator.assertRecoveryMutationAllowed(request);
       token = coordinator.beginStructureMutation(request);
       const active = coordinator.getActiveProject()!;
       const updated = await reorderManuscriptUnits(active, request.orderedUnitIds);
@@ -922,6 +1040,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     const role = requireWritingRole(event);
     let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
     try {
+      coordinator.assertRecoveryMutationAllowed(request);
       await requireRecoveryCheckpoints().withIntentionalCleanup(
         () => recoveryContextFor(request, request.unitId),
         [request.unitId],

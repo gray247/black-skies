@@ -7,6 +7,8 @@ export const PROJECT_SPINE_CHANNELS = {
   selectUnit: 'project-spine:select-unit',
   setUnitDirty: 'project-spine:set-unit-dirty',
   captureRecoveryCheckpoint: 'project-spine:capture-recovery-checkpoint',
+  acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
+  rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
   saveUnit: 'project-spine:save-unit',
   createUnit: 'project-spine:create-unit',
   renameUnit: 'project-spine:rename-unit',
@@ -82,7 +84,53 @@ export interface ProjectSpineSessionSnapshot {
   readonly dirtyUnitIds: readonly string[];
   readonly saveState: ProjectSpineSaveState;
   readonly lastError: ProjectSpineError | null;
+  /** Present only in the Writing Studio projection. */
+  readonly recovery?: ProjectSpineWritingRecoveryState;
 }
+
+export type ProjectSpineRecoveryDegradedReason =
+  | 'read-failed'
+  | 'corrupt-artifact'
+  | 'unsupported-schema'
+  | 'project-mismatch'
+  | 'path-mismatch'
+  | 'unknown-unit'
+  | 'baseline-mismatch'
+  | 'stale-candidate'
+  | 'active-session-candidate';
+
+export interface ProjectSpineRecoveryCandidateProjection {
+  readonly projectId: string;
+  readonly projectPath: string;
+  readonly unitId: string;
+  readonly unitTitle: string;
+  readonly unitOrder: number;
+  readonly originSessionId: string;
+  readonly priorSessionGeneration: number;
+  readonly priorSessionRevision: number;
+  readonly durableBaselineFingerprint: string;
+  readonly candidateVersion: number;
+  readonly updatedAt: string;
+  readonly prose: string;
+  readonly decision: 'available' | 'accept-selected' | 'accepted-pending-save';
+}
+
+export type ProjectSpineWritingRecoveryState =
+  | { readonly status: 'none'; readonly candidates: readonly [] }
+  | {
+      readonly status: 'decision-required';
+      readonly candidates: readonly ProjectSpineRecoveryCandidateProjection[];
+    }
+  | {
+      readonly status: 'accepted-pending-save';
+      readonly candidates: readonly ProjectSpineRecoveryCandidateProjection[];
+    }
+  | {
+      readonly status: 'degraded';
+      readonly reason: ProjectSpineRecoveryDegradedReason;
+      readonly message: string;
+      readonly candidates: readonly [];
+    };
 
 export type ProjectSpineErrorCode =
   | 'INVALID_REQUEST'
@@ -173,6 +221,23 @@ export interface RecoveryCheckpointResultData {
   readonly candidateVersion: number | null;
 }
 
+export interface RecoveryCandidateDecisionRequest extends ProjectSpineBinding {
+  readonly unitId: string;
+  readonly originSessionId: string;
+  readonly candidateVersion: number;
+  readonly durableBaselineFingerprint: string;
+}
+
+export interface RecoveryCandidateDecisionResultData {
+  readonly decision: 'accepted' | 'rejected';
+  readonly resolution:
+    | 'decisions-remaining'
+    | 'accepted-ready-to-apply'
+    | 'resolved-without-recovery';
+  readonly unitId: string;
+  readonly remainingDecisionCount: number;
+}
+
 export interface SaveManuscriptUnitResultData {
   readonly recovery: {
     readonly status: 'retired' | 'rebased' | 'not-present' | 'degraded';
@@ -228,6 +293,14 @@ export interface ProjectSpineBridge {
   captureRecoveryCheckpoint?(
     request: CaptureRecoveryCheckpointRequest,
   ): Promise<ProjectSpineResult<RecoveryCheckpointResultData>>;
+  /** Writing Studio only. Omitted from the Command Center bridge. */
+  acceptRecoveryCandidate?(
+    request: RecoveryCandidateDecisionRequest,
+  ): Promise<ProjectSpineResult<RecoveryCandidateDecisionResultData>>;
+  /** Writing Studio only. Omitted from the Command Center bridge. */
+  rejectRecoveryCandidate?(
+    request: RecoveryCandidateDecisionRequest,
+  ): Promise<ProjectSpineResult<RecoveryCandidateDecisionResultData>>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
   saveUnit?(
     request: SaveManuscriptUnitRequest,

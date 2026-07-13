@@ -56,6 +56,267 @@ function context(active: LoadedProject & { projectId: string }, revision = 4): P
 }
 
 describe('ProjectSpineRecoveryCheckpointService', () => {
+  it('detects ordered prior-session candidates and preserves corrupt evidence as degraded', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_2', 'Prior two');
+    await prior.capture(() => context(active), 'unit_1', '');
+
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current');
+    await expect(current.detectPriorSessionRecovery(() => context(active))).resolves.toMatchObject({
+      status: 'decision-required',
+      candidates: [
+        { unitId: 'unit_1', prose: '', decision: 'available' },
+        { unitId: 'unit_2', prose: 'Prior two', decision: 'available' },
+      ],
+    });
+
+    const repository = new ProjectSpineRecoveryRepository(projectPath);
+    await writeFile(repository.artifactPath, '{not-json', 'utf8');
+    await expect(current.detectPriorSessionRecovery(() => context(active))).resolves.toEqual({
+      status: 'degraded',
+      reason: 'corrupt-artifact',
+      message: 'The recovery artifact does not contain valid JSON.',
+      candidates: [],
+    });
+    await expect(readFile(repository.artifactPath, 'utf8')).resolves.toBe('{not-json');
+  });
+
+  it('preserves a mixed-origin envelope as degraded instead of inventing mixed-session authority', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_1', 'Prior one');
+    await prior.capture(() => context(active), 'unit_2', 'Prior two');
+    const repository = new ProjectSpineRecoveryRepository(projectPath);
+    const read = await repository.read();
+    if (!read.ok || read.data.status !== 'present') throw new Error('Expected recovery evidence.');
+    await writeFile(repository.artifactPath, `${JSON.stringify({
+      ...read.data.envelope,
+      candidates: [
+        read.data.envelope.candidates[0],
+        { ...read.data.envelope.candidates[1], originSessionId: 'origin-other-prior' },
+      ],
+    }, null, 2)}\n`, 'utf8');
+    const before = await readFile(repository.artifactPath, 'utf8');
+
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current');
+    await expect(current.detectPriorSessionRecovery(() => context(active))).resolves.toEqual({
+      status: 'degraded',
+      reason: 'corrupt-artifact',
+      message: 'The recovery artifact combines candidates from multiple origin sessions.',
+      candidates: [],
+    });
+    await expect(readFile(repository.artifactPath, 'utf8')).resolves.toBe(before);
+  });
+
+  it('rebinds the complete accepted set atomically to the current session with advanced versions', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_1', 'Prior one');
+    await prior.capture(() => context(active), 'unit_2', 'Prior two');
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current');
+    const detected = await current.detectPriorSessionRecovery(() => context(active));
+    expect(detected.status).toBe('decision-required');
+    if (detected.status !== 'decision-required') return;
+    const selected: Array<{
+      projectId: string;
+      projectPath: string;
+      unitId: string;
+      originSessionId: string;
+      candidateVersion: number;
+      durableBaselineFingerprint: string;
+    }> = [];
+    const requestFor = (index: number) => ({
+      projectId: active.projectId,
+      projectPath,
+      generation: 1,
+      operationId: `accept-${index}`,
+      unitId: detected.candidates[index].unitId,
+      originSessionId: detected.candidates[index].originSessionId,
+      candidateVersion: detected.candidates[index].candidateVersion,
+      durableBaselineFingerprint: detected.candidates[index].durableBaselineFingerprint,
+    });
+
+    await expect(current.acceptPriorSessionCandidate(
+      () => context(active),
+      requestFor(0),
+      (candidate) => {
+        selected.push({
+          projectId: candidate.projectId,
+          projectPath: candidate.projectPath,
+          unitId: candidate.unitId,
+          originSessionId: candidate.originSessionId,
+          candidateVersion: candidate.candidateVersion,
+          durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+        });
+        return { remainingDecisionCount: 1 };
+      },
+      vi.fn(),
+    )).resolves.toMatchObject({ resolution: 'decisions-remaining' });
+    const rebound = vi.fn();
+    await expect(current.acceptPriorSessionCandidate(
+      () => context(active, 7),
+      requestFor(1),
+      (candidate) => {
+        selected.push({
+          projectId: candidate.projectId,
+          projectPath: candidate.projectPath,
+          unitId: candidate.unitId,
+          originSessionId: candidate.originSessionId,
+          candidateVersion: candidate.candidateVersion,
+          durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+        });
+        return { remainingDecisionCount: 0, acceptedCandidates: selected };
+      },
+      rebound,
+    )).resolves.toMatchObject({ resolution: 'accepted-ready-to-apply' });
+
+    expect(rebound).toHaveBeenCalledOnce();
+    const read = await new ProjectSpineRecoveryRepository(projectPath).read();
+    expect(read).toMatchObject({
+      ok: true,
+      data: {
+        status: 'present',
+        envelope: {
+          candidates: [
+            { unitId: 'unit_1', originSessionId: 'origin-current', candidateVersion: 2, prose: 'Prior one' },
+            { unitId: 'unit_2', originSessionId: 'origin-current', candidateVersion: 2, prose: 'Prior two' },
+          ],
+        },
+      },
+    });
+  });
+
+  it('rejects only an exact six-field candidate and leaves stale requests fail-closed', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_1', 'Prior one');
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current');
+    const detected = await current.detectPriorSessionRecovery(() => context(active));
+    if (detected.status !== 'decision-required') throw new Error('Expected recovery candidates.');
+    const candidate = detected.candidates[0];
+    const request = {
+      projectId: active.projectId,
+      projectPath,
+      generation: 1,
+      operationId: 'reject',
+      unitId: candidate.unitId,
+      originSessionId: candidate.originSessionId,
+      candidateVersion: candidate.candidateVersion,
+      durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+    };
+    const onDeleted = vi.fn(() => ({ remainingDecisionCount: 0 }));
+    const onRebound = vi.fn();
+
+    await expect(current.rejectPriorSessionCandidate(
+      () => context(active),
+      { ...request, candidateVersion: request.candidateVersion + 1 },
+      onDeleted,
+      onRebound,
+    )).rejects.toMatchObject({ code: 'RECOVERY_UNAVAILABLE' });
+    expect(onDeleted).not.toHaveBeenCalled();
+    await expect(current.rejectPriorSessionCandidate(
+      () => context(active), request, onDeleted, onRebound,
+    )).resolves.toMatchObject({ resolution: 'resolved-without-recovery' });
+    await expect(new ProjectSpineRecoveryRepository(projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: { status: 'missing' },
+    });
+  });
+
+  it('finalizes selected accepts when the last remaining decision is a rejection', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_1', 'Keep one');
+    await prior.capture(() => context(active), 'unit_2', 'Reject two');
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current');
+    const detected = await current.detectPriorSessionRecovery(() => context(active));
+    if (detected.status !== 'decision-required') throw new Error('Expected recovery candidates.');
+    const correlation = (index: number) => ({
+      projectId: active.projectId,
+      projectPath,
+      generation: 1,
+      operationId: `mixed-${index}`,
+      unitId: detected.candidates[index].unitId,
+      originSessionId: detected.candidates[index].originSessionId,
+      candidateVersion: detected.candidates[index].candidateVersion,
+      durableBaselineFingerprint: detected.candidates[index].durableBaselineFingerprint,
+    });
+    const acceptedCorrelation = {
+      projectId: active.projectId,
+      projectPath,
+      unitId: detected.candidates[0].unitId,
+      originSessionId: detected.candidates[0].originSessionId,
+      candidateVersion: detected.candidates[0].candidateVersion,
+      durableBaselineFingerprint: detected.candidates[0].durableBaselineFingerprint,
+    };
+    await current.acceptPriorSessionCandidate(
+      () => context(active),
+      correlation(0),
+      () => ({ remainingDecisionCount: 1 }),
+      vi.fn(),
+    );
+    const onRebound = vi.fn();
+    await expect(current.rejectPriorSessionCandidate(
+      () => context(active, 8),
+      correlation(1),
+      () => ({ remainingDecisionCount: 0, acceptedCandidates: [acceptedCorrelation] }),
+      onRebound,
+    )).resolves.toMatchObject({ resolution: 'accepted-ready-to-apply' });
+    expect(onRebound).toHaveBeenCalledWith([
+      expect.objectContaining({ unitId: 'unit_1', originSessionId: 'origin-current', prose: 'Keep one' }),
+    ]);
+    await expect(new ProjectSpineRecoveryRepository(projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        status: 'present',
+        envelope: { candidates: [{ unitId: 'unit_1', originSessionId: 'origin-current' }] },
+      },
+    });
+  });
+
+  it('keeps the prior-session envelope intact when atomic accepted-set rebinding fails', async () => {
+    const projectPath = await temporaryProject();
+    const active = project(projectPath);
+    const prior = new ProjectSpineRecoveryCheckpointService('origin-prior');
+    await prior.capture(() => context(active), 'unit_1', 'Protected prior prose');
+    const repository = new ProjectSpineRecoveryRepository(projectPath);
+    const before = await readFile(repository.artifactPath, 'utf8');
+    const current = new ProjectSpineRecoveryCheckpointService('origin-current', {
+      repositoryFactory: (root) => new ProjectSpineRecoveryRepository(root, {
+        replaceFile: vi.fn(async () => { throw new Error('atomic replace unavailable'); }),
+      }),
+    });
+    const detected = await current.detectPriorSessionRecovery(() => context(active));
+    if (detected.status !== 'decision-required') throw new Error('Expected recovery candidates.');
+    const candidate = detected.candidates[0];
+    const accepted = {
+      projectId: candidate.projectId,
+      projectPath: candidate.projectPath,
+      unitId: candidate.unitId,
+      originSessionId: candidate.originSessionId,
+      candidateVersion: candidate.candidateVersion,
+      durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+    };
+
+    await expect(current.acceptPriorSessionCandidate(
+      () => context(active),
+      {
+        ...accepted,
+        generation: 1,
+        operationId: 'failed-rebind',
+      },
+      () => ({ remainingDecisionCount: 0, acceptedCandidates: [accepted] }),
+      vi.fn(),
+    )).rejects.toMatchObject({ code: 'RECOVERY_WRITE_FAILED' });
+    await expect(readFile(repository.artifactPath, 'utf8')).resolves.toBe(before);
+  });
+
   it('captures empty prose and multiple units with main-assigned monotonic versions', async () => {
     const projectPath = await temporaryProject();
     const active = project(projectPath);

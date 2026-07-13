@@ -304,6 +304,68 @@ describe('project-spine IPC', () => {
     expect(duplicate.snapshot.project.path).toBe(created.projectPath);
   });
 
+  it('waits for first-activation recovery detection before a concurrent already-active open publishes', async () => {
+    const active = syntheticProject('proj_detect', 'C:\\projects\\detect');
+    let resolveDetection: ((state: {
+      status: 'degraded';
+      reason: 'read-failed';
+      message: string;
+      candidates: [];
+    }) => void) | null = null;
+    const detection = new Promise<{
+      status: 'degraded';
+      reason: 'read-failed';
+      message: string;
+      candidates: [];
+    }>((resolve) => {
+      resolveDetection = resolve;
+    });
+    const recoveryCheckpoints = new ProjectSpineRecoveryCheckpointService('test-origin-session');
+    const detect = vi.spyOn(recoveryCheckpoints, 'detectPriorSessionRecovery')
+      .mockImplementationOnce(() => detection);
+    electronMocks.handlers.clear();
+    registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      loadProject: vi.fn(async () => active),
+      recoveryCheckpoints,
+    });
+
+    const first = invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: active.path,
+      operationId: 'open-detect-first',
+    });
+    await vi.waitFor(() => expect(detect).toHaveBeenCalledTimes(1));
+    const second = invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: active.path,
+      operationId: 'open-detect-second',
+    });
+    resolveDetection!({
+      status: 'degraded',
+      reason: 'read-failed',
+      message: 'Detection completed before publication.',
+      candidates: [],
+    });
+
+    await expect(first).resolves.toMatchObject({
+      ok: false,
+      error: { code: 'STALE_SESSION' },
+    });
+    await expect(second).resolves.toMatchObject({
+      ok: true,
+      data: { activation: 'already-active' },
+      snapshot: {
+        recovery: {
+          status: 'degraded',
+          message: 'Detection completed before publication.',
+        },
+      },
+    });
+    expect(detect).toHaveBeenCalledTimes(1);
+  });
+
   it('preserves the valid active project after a missing recent path fails', async () => {
     const parent = await temporaryRoot();
     const created = await bootstrapFreshProject({ parentPath: parent, title: 'Still Active' });
@@ -576,6 +638,74 @@ describe('project-spine IPC', () => {
     await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toEqual({
       ok: true,
       data: { status: 'missing', envelope: null },
+    });
+  });
+
+  it('detects prior-session prose only after activation and atomically hands accepted prose to Writing Studio', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Recovered Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Recovered Unit',
+    );
+    const prior = new ProjectSpineRecoveryCheckpointService('prior-origin');
+    await prior.capture(
+      () => ({ project: withUnit.project as LoadedProject & { projectId: string }, generation: 9, revision: 11 }),
+      withUnit.unitId,
+      'Recovered prior prose',
+    );
+
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-prior-recovery',
+    });
+    expect(opened).toMatchObject({
+      ok: true,
+      snapshot: {
+        dirtyUnitIds: [],
+        recovery: {
+          status: 'decision-required',
+          candidates: [{
+            unitId: withUnit.unitId,
+            originSessionId: 'prior-origin',
+            prose: 'Recovered prior prose',
+          }],
+        },
+      },
+    });
+    const command = await invoke(PROJECT_SPINE_CHANNELS.getSession, 2);
+    expect(command).not.toHaveProperty('recovery');
+    const candidate = opened.snapshot.recovery.candidates[0];
+    const request = {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'accept-prior-recovery',
+      unitId: candidate.unitId,
+      originSessionId: candidate.originSessionId,
+      candidateVersion: candidate.candidateVersion,
+      durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+    };
+    await expect(invoke(PROJECT_SPINE_CHANNELS.acceptRecoveryCandidate, 2, request))
+      .rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
+    const accepted = await invoke(PROJECT_SPINE_CHANNELS.acceptRecoveryCandidate, 1, request);
+    expect(accepted).toMatchObject({
+      ok: true,
+      data: { resolution: 'accepted-ready-to-apply' },
+      snapshot: {
+        dirtyUnitIds: [withUnit.unitId],
+        recovery: {
+          status: 'accepted-pending-save',
+          candidates: [{ originSessionId: 'test-origin-session', prose: 'Recovered prior prose' }],
+        },
+      },
+    });
+    await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        status: 'present',
+        envelope: { candidates: [{ originSessionId: 'test-origin-session', candidateVersion: 2 }] },
+      },
     });
   });
 

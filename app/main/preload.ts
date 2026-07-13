@@ -625,6 +625,8 @@ import {
   type ProjectSpineCloseConfirmationRequest,
   type ProjectSpineCloseConfirmationResponse,
   type ProjectSpineResult,
+  type RecoveryCandidateDecisionRequest,
+  type RecoveryCandidateDecisionResultData,
   type RecoveryCheckpointResultData,
   type ProjectSpineSessionSnapshot,
   type RemoveRecentProjectRequest,
@@ -1992,6 +1994,52 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
   ) {
     return null;
   }
+  if (snapshot.role === 'command' && Object.prototype.hasOwnProperty.call(snapshot, 'recovery')) {
+    return null;
+  }
+  if (snapshot.role === 'writing') {
+    const recovery = snapshot.recovery;
+    if (!recovery || !Array.isArray(recovery.candidates)) return null;
+    if (recovery.status === 'degraded') {
+      const degradedReasons = new Set([
+        'read-failed', 'corrupt-artifact', 'unsupported-schema', 'project-mismatch',
+        'path-mismatch', 'unknown-unit', 'baseline-mismatch', 'stale-candidate',
+        'active-session-candidate',
+      ]);
+      if (!degradedReasons.has(recovery.reason) || typeof recovery.message !== 'string' || recovery.candidates.length !== 0) {
+        return null;
+      }
+    } else if (
+      recovery.status !== 'none' &&
+      recovery.status !== 'decision-required' &&
+      recovery.status !== 'accepted-pending-save'
+    ) {
+      return null;
+    }
+    if ((recovery.status === 'none' && recovery.candidates.length !== 0) || recovery.candidates.some((candidate) =>
+      !candidate ||
+      typeof candidate !== 'object' ||
+      typeof candidate.projectId !== 'string' ||
+      typeof candidate.projectPath !== 'string' ||
+      typeof candidate.unitId !== 'string' ||
+      typeof candidate.unitTitle !== 'string' ||
+      !Number.isInteger(candidate.unitOrder) ||
+      typeof candidate.originSessionId !== 'string' ||
+      !Number.isInteger(candidate.priorSessionGeneration) ||
+      !Number.isInteger(candidate.priorSessionRevision) ||
+      typeof candidate.durableBaselineFingerprint !== 'string' ||
+      typeof candidate.prose !== 'string' ||
+      !Number.isInteger(candidate.candidateVersion) ||
+      typeof candidate.updatedAt !== 'string' ||
+      (recovery.status === 'decision-required'
+        ? candidate.decision !== 'available' && candidate.decision !== 'accept-selected'
+        : recovery.status === 'accepted-pending-save' && candidate.decision !== 'accepted-pending-save')
+    )) return null;
+    if (
+      (recovery.status === 'decision-required' || recovery.status === 'accepted-pending-save') &&
+      recovery.candidates.length === 0
+    ) return null;
+  }
   return snapshot as ProjectSpineSessionSnapshot;
 }
 
@@ -2060,6 +2108,16 @@ const projectSpineBridge: ProjectSpineBridge =
             PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint,
             request,
           ) as Promise<ProjectSpineResult<RecoveryCheckpointResultData>>,
+        acceptRecoveryCandidate: (request: RecoveryCandidateDecisionRequest) =>
+          ipcRenderer.invoke(
+            PROJECT_SPINE_CHANNELS.acceptRecoveryCandidate,
+            request,
+          ) as Promise<ProjectSpineResult<RecoveryCandidateDecisionResultData>>,
+        rejectRecoveryCandidate: (request: RecoveryCandidateDecisionRequest) =>
+          ipcRenderer.invoke(
+            PROJECT_SPINE_CHANNELS.rejectRecoveryCandidate,
+            request,
+          ) as Promise<ProjectSpineResult<RecoveryCandidateDecisionResultData>>,
         saveUnit: (request: SaveManuscriptUnitRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.saveUnit, request) as Promise<
             ProjectSpineResult<SaveManuscriptUnitResultData>

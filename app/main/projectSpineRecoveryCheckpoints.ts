@@ -2,6 +2,11 @@ import path from 'node:path';
 import type { LoadedProject } from '../shared/ipc/projectLoader';
 import type {
   ProjectSpineErrorCode,
+  ProjectSpineRecoveryCandidateProjection,
+  ProjectSpineRecoveryDegradedReason,
+  ProjectSpineWritingRecoveryState,
+  RecoveryCandidateDecisionRequest,
+  RecoveryCandidateDecisionResultData,
   RecoveryCheckpointResultData,
   SaveManuscriptUnitResultData,
 } from '../shared/ipc/projectSpine';
@@ -82,6 +87,64 @@ function deletionRequest(candidate: ProjectSpineRecoveryCandidate): ProjectSpine
   };
 }
 
+function sameDeletionCorrelation(
+  left: ProjectSpineRecoveryDeletionRequest,
+  right: ProjectSpineRecoveryDeletionRequest,
+): boolean {
+  return left.projectId === right.projectId &&
+    sameCanonicalPath(left.projectPath, right.projectPath) &&
+    left.unitId === right.unitId &&
+    left.originSessionId === right.originSessionId &&
+    left.candidateVersion === right.candidateVersion &&
+    left.durableBaselineFingerprint === right.durableBaselineFingerprint;
+}
+
+function hasSingleOriginSession(envelope: ProjectSpineRecoveryEnvelope): boolean {
+  return new Set(envelope.candidates.map((candidate) => candidate.originSessionId)).size <= 1;
+}
+
+function candidateProjection(
+  context: ProjectSpineRecoveryCheckpointContext,
+  candidate: ProjectSpineRecoveryCandidate,
+  decision: ProjectSpineRecoveryCandidateProjection['decision'],
+): ProjectSpineRecoveryCandidateProjection {
+  const unit = context.project.scenes.find((entry) => entry.id === candidate.unitId)!;
+  return {
+    projectId: candidate.projectId,
+    projectPath: candidate.projectPath,
+    unitId: candidate.unitId,
+    unitTitle: unit.title,
+    unitOrder: unit.order,
+    originSessionId: candidate.originSessionId,
+    priorSessionGeneration: candidate.priorSessionGeneration,
+    priorSessionRevision: candidate.priorSessionRevision,
+    durableBaselineFingerprint: candidate.durableBaselineFingerprint,
+    candidateVersion: candidate.candidateVersion,
+    updatedAt: candidate.updatedAt,
+    prose: candidate.prose,
+    decision,
+  };
+}
+
+function degradedReason(code: string): ProjectSpineRecoveryDegradedReason {
+  switch (code) {
+    case 'CORRUPT_ARTIFACT': return 'corrupt-artifact';
+    case 'UNSUPPORTED_SCHEMA': return 'unsupported-schema';
+    case 'PROJECT_MISMATCH': return 'project-mismatch';
+    case 'PATH_MISMATCH': return 'path-mismatch';
+    case 'UNKNOWN_UNIT': return 'unknown-unit';
+    case 'BASELINE_MISMATCH': return 'baseline-mismatch';
+    case 'STALE_CANDIDATE': return 'stale-candidate';
+    case 'ACTIVE_SESSION_CANDIDATE': return 'active-session-candidate';
+    default: return 'read-failed';
+  }
+}
+
+export interface ProjectSpineRecoveryAcceptSelection {
+  readonly remainingDecisionCount: number;
+  readonly acceptedCandidates?: readonly ProjectSpineRecoveryDeletionRequest[];
+}
+
 export class ProjectSpineRecoveryCheckpointService {
   private readonly repositoryFactory: (projectPath: string) => ProjectSpineRecoveryRepository;
   private readonly now: () => string;
@@ -103,6 +166,7 @@ export class ProjectSpineRecoveryCheckpointService {
     resolveContext: () => ProjectSpineRecoveryCheckpointContext,
     unitId: string,
     prose: string,
+    onStored?: (candidate: ProjectSpineRecoveryCandidate | null) => void,
   ): Promise<RecoveryCheckpointResultData> {
     return this.enqueue(async () => {
       if (!unitId?.trim() || typeof prose !== 'string') {
@@ -130,7 +194,10 @@ export class ProjectSpineRecoveryCheckpointService {
       const durableProse = extractRecoveryProse(context.project.drafts[unitId] ?? '');
 
       if (prose === durableProse) {
-        if (!existing) return { status: 'cleared', candidateVersion: null };
+        if (!existing) {
+          onStored?.(null);
+          return { status: 'cleared', candidateVersion: null };
+        }
         const deleted = await repository.deleteCandidate(deletionRequest(existing));
         if (!deleted.ok) {
           throw new ProjectSpineRecoveryCheckpointError(
@@ -138,6 +205,7 @@ export class ProjectSpineRecoveryCheckpointService {
             'Recovery protection could not clear the obsolete manuscript checkpoint. Save your work and try again.',
           );
         }
+        onStored?.(null);
         return { status: 'cleared', candidateVersion: null };
       }
 
@@ -182,7 +250,127 @@ export class ProjectSpineRecoveryCheckpointService {
         );
       }
       this.commitCandidateVersion(context, unitId, candidateVersion);
+      onStored?.(candidate);
       return { status: 'stored', candidateVersion };
+    });
+  }
+
+  detectPriorSessionRecovery(
+    resolveContext: () => ProjectSpineRecoveryCheckpointContext,
+  ): Promise<ProjectSpineWritingRecoveryState> {
+    return this.enqueue(async () => {
+      const initialContext = resolveContext();
+      const repository = this.repositoryFactory(initialContext.project.path);
+      const readResult = await repository.read();
+      const context = resolveContext();
+      if (!readResult.ok) {
+        return {
+          status: 'degraded',
+          reason: degradedReason(readResult.error.code),
+          message: readResult.error.message,
+          candidates: [],
+        };
+      }
+      if (readResult.data.status === 'missing' || readResult.data.envelope.candidates.length === 0) {
+        return { status: 'none', candidates: [] };
+      }
+      const validated = repository.validate(readResult.data.envelope, {
+        mode: 'prior-session-recovery',
+        projectId: context.project.projectId,
+        projectPath: context.project.path,
+        activeSessionId: this.originSessionId,
+        durableBaselineFingerprintByUnit: baselineFingerprintByUnit(context),
+      });
+      if (!validated.ok) {
+        return {
+          status: 'degraded',
+          reason: degradedReason(validated.error.code),
+          message: validated.error.message,
+          candidates: [],
+        };
+      }
+      if (!hasSingleOriginSession(validated.data.envelope)) {
+        return {
+          status: 'degraded',
+          reason: 'corrupt-artifact',
+          message: 'The recovery artifact combines candidates from multiple origin sessions.',
+          candidates: [],
+        };
+      }
+      const candidates = validated.data.envelope.candidates
+        .map((candidate) => candidateProjection(context, candidate, 'available'))
+        .sort((left, right) => left.unitOrder - right.unitOrder);
+      return { status: 'decision-required', candidates };
+    });
+  }
+
+  acceptPriorSessionCandidate(
+    resolveContext: () => ProjectSpineRecoveryCheckpointContext,
+    request: RecoveryCandidateDecisionRequest,
+    onVerified: (candidate: ProjectSpineRecoveryCandidate) => ProjectSpineRecoveryAcceptSelection,
+    onRebound: (candidates: readonly ProjectSpineRecoveryCandidate[]) => void,
+  ): Promise<RecoveryCandidateDecisionResultData> {
+    return this.enqueue(async () => {
+      const { context, repository, envelope } = await this.readPriorSessionEnvelope(resolveContext);
+      const candidate = this.requireExactCandidate(envelope, request);
+      const selection = onVerified(candidate);
+      if (selection.remainingDecisionCount > 0) {
+        return {
+          decision: 'accepted',
+          resolution: 'decisions-remaining',
+          unitId: candidate.unitId,
+          remainingDecisionCount: selection.remainingDecisionCount,
+        };
+      }
+      const accepted = selection.acceptedCandidates ?? [];
+      await this.rebindAcceptedEnvelope(context, repository, envelope, accepted, onRebound);
+      return {
+        decision: 'accepted',
+        resolution: 'accepted-ready-to-apply',
+        unitId: candidate.unitId,
+        remainingDecisionCount: 0,
+      };
+    });
+  }
+
+  rejectPriorSessionCandidate(
+    resolveContext: () => ProjectSpineRecoveryCheckpointContext,
+    request: RecoveryCandidateDecisionRequest,
+    onDeleted: (candidate: ProjectSpineRecoveryCandidate) => ProjectSpineRecoveryAcceptSelection,
+    onRebound: (candidates: readonly ProjectSpineRecoveryCandidate[]) => void,
+  ): Promise<RecoveryCandidateDecisionResultData> {
+    return this.enqueue(async () => {
+      const { repository, envelope } = await this.readPriorSessionEnvelope(resolveContext);
+      const candidate = this.requireExactCandidate(envelope, request);
+      const deleted = await repository.deleteCandidate(deletionRequest(candidate));
+      if (!deleted.ok || !deleted.data.deleted) {
+        throw new ProjectSpineRecoveryCheckpointError(
+          'RECOVERY_CLEANUP_FAILED',
+          'The rejected recovery candidate could not be removed. Editing remains blocked; try rejecting again.',
+        );
+      }
+      resolveContext();
+      const selection = onDeleted(candidate);
+      if (selection.remainingDecisionCount === 0 && (selection.acceptedCandidates?.length ?? 0) > 0) {
+        const remaining = await this.readPriorSessionEnvelope(resolveContext);
+        await this.rebindAcceptedEnvelope(
+          remaining.context,
+          remaining.repository,
+          remaining.envelope,
+          selection.acceptedCandidates!,
+          onRebound,
+        );
+      }
+      return {
+        decision: 'rejected',
+        resolution: selection.remainingDecisionCount > 0
+          ? 'decisions-remaining'
+          : (selection.acceptedCandidates?.length ?? 0) > 0
+            ? 'accepted-ready-to-apply'
+            : 'resolved-without-recovery',
+        unitId: candidate.unitId,
+        remainingDecisionCount: selection.remainingDecisionCount,
+      };
     });
   }
 
@@ -190,6 +378,10 @@ export class ProjectSpineRecoveryCheckpointService {
     resolveContext: () => ProjectSpineRecoveryCheckpointContext,
     unitId: string,
     submittedProse: string,
+    onReconciled?: (
+      status: SaveManuscriptUnitResultData['recovery']['status'],
+      candidate: ProjectSpineRecoveryCandidate | null,
+    ) => void,
   ): Promise<SaveManuscriptUnitResultData['recovery']> {
     return this.enqueue(async () => {
       try {
@@ -198,11 +390,15 @@ export class ProjectSpineRecoveryCheckpointService {
         const repository = this.repositoryFactory(context.project.path);
         const envelope = await this.readCurrentSessionEnvelope(repository, context, fingerprints, unitId);
         const existing = envelope?.candidates.find((candidate) => candidate.unitId === unitId);
-        if (!existing) return { status: 'not-present', message: null };
+        if (!existing) {
+          onReconciled?.('not-present', null);
+          return { status: 'not-present', message: null };
+        }
 
         if (existing.prose === submittedProse) {
           const deleted = await repository.deleteCandidate(deletionRequest(existing));
           if (!deleted.ok) throw new Error(deleted.error.message);
+          onReconciled?.('retired', null);
           return { status: 'retired', message: null };
         }
 
@@ -232,6 +428,7 @@ export class ProjectSpineRecoveryCheckpointService {
         });
         if (!written.ok) throw new Error(written.error.message);
         this.commitCandidateVersion(context, unitId, candidateVersion);
+        onReconciled?.('rebased', rebased);
         return { status: 'rebased', message: null };
       } catch (error) {
         return {
@@ -310,6 +507,125 @@ export class ProjectSpineRecoveryCheckpointService {
     const run = this.queue.then(operation, operation);
     this.queue = run.then(() => undefined, () => undefined);
     return run;
+  }
+
+  private async readPriorSessionEnvelope(
+    resolveContext: () => ProjectSpineRecoveryCheckpointContext,
+  ): Promise<{
+    readonly context: ProjectSpineRecoveryCheckpointContext;
+    readonly repository: ProjectSpineRecoveryRepository;
+    readonly envelope: ProjectSpineRecoveryEnvelope;
+  }> {
+    const initialContext = resolveContext();
+    const repository = this.repositoryFactory(initialContext.project.path);
+    const readResult = await repository.read();
+    const context = resolveContext();
+    if (!readResult.ok || readResult.data.status !== 'present') {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_UNAVAILABLE',
+        readResult.ok
+          ? 'The recovery candidate is no longer available.'
+          : `The recovery artifact cannot be inspected safely. (${readResult.error.message})`,
+      );
+    }
+    const validated = repository.validate(readResult.data.envelope, {
+      mode: 'prior-session-recovery',
+      projectId: context.project.projectId,
+      projectPath: context.project.path,
+      activeSessionId: this.originSessionId,
+      durableBaselineFingerprintByUnit: baselineFingerprintByUnit(context),
+    });
+    if (!validated.ok) {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_UNAVAILABLE',
+        `The recovery artifact cannot be used safely. (${validated.error.message})`,
+      );
+    }
+    if (!hasSingleOriginSession(validated.data.envelope)) {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_UNAVAILABLE',
+        'The recovery artifact combines candidates from multiple origin sessions.',
+      );
+    }
+    return { context, repository, envelope: validated.data.envelope };
+  }
+
+  private requireExactCandidate(
+    envelope: ProjectSpineRecoveryEnvelope,
+    request: RecoveryCandidateDecisionRequest,
+  ): ProjectSpineRecoveryCandidate {
+    const requested: ProjectSpineRecoveryDeletionRequest = {
+      projectId: request?.projectId,
+      projectPath: request?.projectPath,
+      unitId: request?.unitId,
+      originSessionId: request?.originSessionId,
+      candidateVersion: request?.candidateVersion,
+      durableBaselineFingerprint: request?.durableBaselineFingerprint,
+    };
+    const candidate = envelope.candidates.find((entry) =>
+      sameDeletionCorrelation(deletionRequest(entry), requested),
+    );
+    if (!candidate) {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_UNAVAILABLE',
+        'The recovery choice is stale or does not match the authoritative candidate.',
+      );
+    }
+    return candidate;
+  }
+
+  private async rebindAcceptedEnvelope(
+    context: ProjectSpineRecoveryCheckpointContext,
+    repository: ProjectSpineRecoveryRepository,
+    envelope: ProjectSpineRecoveryEnvelope,
+    accepted: readonly ProjectSpineRecoveryDeletionRequest[],
+    onRebound: (candidates: readonly ProjectSpineRecoveryCandidate[]) => void,
+  ): Promise<void> {
+    if (
+      accepted.length === 0 ||
+      accepted.length !== envelope.candidates.length ||
+      envelope.candidates.some((entry) =>
+        !accepted.some((correlation) => sameDeletionCorrelation(deletionRequest(entry), correlation)),
+      )
+    ) {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_UNAVAILABLE',
+        'Recovery choices no longer match the authoritative recovery artifact.',
+      );
+    }
+    const timestamp = this.now();
+    const reboundCandidates = envelope.candidates.map((entry) => {
+      const candidateVersion = this.nextCandidateVersion(context, entry.unitId, entry.candidateVersion);
+      return {
+        ...entry,
+        originSessionId: this.originSessionId,
+        priorSessionGeneration: context.generation,
+        priorSessionRevision: context.revision,
+        candidateVersion,
+        updatedAt: timestamp,
+      };
+    });
+    const written = await repository.write({
+      ...envelope,
+      updatedAt: timestamp,
+      candidates: reboundCandidates,
+    }, {
+      mode: 'checkpoint-write',
+      projectId: context.project.projectId,
+      projectPath: context.project.path,
+      activeSessionId: this.originSessionId,
+      durableBaselineFingerprintByUnit: baselineFingerprintByUnit(context),
+    });
+    if (!written.ok) {
+      throw new ProjectSpineRecoveryCheckpointError(
+        'RECOVERY_WRITE_FAILED',
+        'Accepted recovery candidates could not be rebound safely. Editing remains blocked; try the recovery choice again.',
+      );
+    }
+    for (const rebound of reboundCandidates) {
+      this.commitCandidateVersion(context, rebound.unitId, rebound.candidateVersion);
+    }
+    onRebound(reboundCandidates);
   }
 
   private async readCurrentSessionEnvelope(
