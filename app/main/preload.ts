@@ -2074,7 +2074,10 @@ const projectSpineBridge: ProjectSpineBridge =
           return () => ipcRenderer.removeListener(PROJECT_SPINE_CHANNELS.closeConfirmationRequest, handler);
         },
         respondToCloseConfirmation: async (response: ProjectSpineCloseConfirmationResponse) => {
-          await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, response);
+          return ipcRenderer.invoke(
+            PROJECT_SPINE_CHANNELS.closeConfirmationResponse,
+            response,
+          ) as Promise<ProjectSpineResult>;
         },
       }
     : projectSpineBaseBridge;

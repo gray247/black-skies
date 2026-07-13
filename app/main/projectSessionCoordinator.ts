@@ -39,6 +39,13 @@ export interface ProjectActivationResult {
   readonly generation: number;
 }
 
+export interface DiscardedUnsavedBuffers {
+  readonly projectId: string;
+  readonly generation: number;
+  readonly dirtyUnitIds: readonly string[];
+  readonly saveState: ProjectSpineSessionSnapshot['saveState'];
+}
+
 function canonicalPathKey(value: string): string {
   const normalized = path.resolve(value);
   return process.platform === 'win32' ? normalized.toLocaleLowerCase('en-US') : normalized;
@@ -137,6 +144,28 @@ export class ProjectSessionCoordinator {
 
   hasUnsavedWork(): boolean {
     return this.dirtyUnitIds.size > 0 || this.saveState.status === 'save-failed';
+  }
+
+  discardUnsavedBuffers(projectId: string, generation: number): DiscardedUnsavedBuffers {
+    if (!this.activeProject || this.activeProject.projectId !== projectId || this.generation !== generation) {
+      throw new ProjectSessionError('STALE_SESSION', 'The close request belongs to a different project session.');
+    }
+    if (this.hasOperationInFlight()) throw new ProjectSessionError('SAVE_IN_PROGRESS', 'A project operation is still in progress.');
+    if (!this.hasUnsavedWork()) throw new ProjectSessionError('UNSAVED_CHANGES', 'There are no unsaved manuscript changes to discard.');
+    const discarded = { projectId, generation, dirtyUnitIds: [...this.dirtyUnitIds], saveState: { ...this.saveState } };
+    this.dirtyUnitIds.clear();
+    this.saveState = { status: 'clean', unitId: null, message: null };
+    this.lastError = null;
+    this.revision += 1;
+    return discarded;
+  }
+
+  restoreDiscardedUnsavedBuffers(discarded: DiscardedUnsavedBuffers): void {
+    if (!this.activeProject || this.activeProject.projectId !== discarded.projectId || this.generation !== discarded.generation) return;
+    this.dirtyUnitIds.clear();
+    for (const unitId of discarded.dirtyUnitIds) this.dirtyUnitIds.add(unitId);
+    this.saveState = { ...discarded.saveState };
+    this.revision += 1;
   }
 
   hasOperationInFlight(): boolean {

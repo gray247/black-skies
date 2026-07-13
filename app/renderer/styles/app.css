@@ -4745,6 +4745,90 @@ body[data-stage19-spine] {
   text-transform: uppercase;
 }
 
+.stage19-close-confirmation {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.stage19-close-confirmation__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.56);
+}
+
+.stage19-close-confirmation__dialog {
+  position: relative;
+  width: min(100%, 34rem);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid #cbd5e1;
+  border-radius: 0.9rem;
+  background: #f8fafc;
+  box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.3);
+  color: #1e293b;
+}
+
+.stage19-close-confirmation__dialog h2 {
+  margin: 0 0 0.75rem;
+  color: #0f172a;
+}
+
+.stage19-close-confirmation__dialog p {
+  margin: 0 0 1rem;
+  line-height: 1.55;
+}
+
+.stage19-close-confirmation__error {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #dc2626;
+  border-radius: 0.55rem;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.stage19-close-confirmation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.stage19-close-confirmation__actions button {
+  min-width: 9rem;
+  border: 1px solid #64748b;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.stage19-close-confirmation__actions button:first-child {
+  border-color: #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.stage19-close-confirmation__actions button:focus-visible {
+  outline: 3px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+.stage19-close-confirmation__actions button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+@media (max-width: 34rem) {
+  .stage19-close-confirmation__actions button {
+    width: 100%;
+  }
+}
+
 .stage19-spine__facts dd {
   overflow-wrap: anywhere;
   margin: 0.25rem 0 0;

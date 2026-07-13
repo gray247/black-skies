@@ -199,7 +199,7 @@ export interface ProjectSpineBridge {
   /** Writing Studio only. Omitted from the Command Center bridge. */
   respondToCloseConfirmation?(
     response: ProjectSpineCloseConfirmationResponse,
-  ): Promise<void>;
+  ): Promise<ProjectSpineResult>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
   setUnitDirty?(request: SetManuscriptUnitDirtyRequest): Promise<ProjectSpineResult>;
   /** Writing Studio only. Omitted from the Command Center bridge. */

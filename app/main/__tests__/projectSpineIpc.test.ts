@@ -47,6 +47,7 @@ import {
 
 const temporaryRoots: string[] = [];
 let testRecentStorePath = '';
+let testCoordinator: ProjectSessionCoordinator;
 
 async function temporaryRoot(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'black-skies-project-spine-ipc-'));
@@ -84,9 +85,10 @@ describe('project-spine IPC', () => {
     electronMocks.showOpenDialog.mockReset();
     const root = await temporaryRoot();
     testRecentStorePath = join(root, 'recents.json');
-    resetProjectSpineForTests(new ProjectSessionCoordinator());
+    testCoordinator = new ProjectSessionCoordinator();
+    resetProjectSpineForTests(testCoordinator);
     registerProjectSpineIpc({
-      coordinator: new ProjectSessionCoordinator(),
+      coordinator: testCoordinator,
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
       publishSession: vi.fn(),
@@ -123,7 +125,15 @@ describe('project-spine IPC', () => {
     expect(hasPendingCloseRequest()).toBe(false);
     expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, valid)).toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
 
-    const discard = createPendingCloseRequest('proj_b', 8, 1)!;
+    const discardProject: LoadedProject = {
+      ...syntheticProject('proj_b', 'C:\\projects\\b'),
+      outline: { ...syntheticProject('proj_b', 'C:\\projects\\b').outline, scenes: [{ id: 'unit_b', order: 1, title: 'Unit B', beat_refs: [] }] },
+      scenes: [{ id: 'unit_b', order: 1, title: 'Unit B' }],
+      drafts: { unit_b: 'durable' },
+    };
+    testCoordinator.activateProject(discardProject);
+    testCoordinator.setUnitDirty({ projectId: 'proj_b', projectPath: 'C:\\projects\\b', generation: 1, operationId: 'dirty' }, 'unit_b', true);
+    const discard = createPendingCloseRequest('proj_b', 1, 1)!;
     expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, { ...discard, decision: 'discard' })).toMatchObject({ ok: true });
     expect(consumeCoordinatedCloseAllowance()).toBe(true);
     expect(consumeCoordinatedCloseAllowance()).toBe(false);
@@ -143,6 +153,46 @@ describe('project-spine IPC', () => {
     expect(consumeCoordinatedCloseAllowance()).toBe(true);
     resetProjectSpineForTests(new ProjectSessionCoordinator());
     expect(hasPendingCloseRequest()).toBe(false);
+  });
+
+  it('keeps editing without granting a close allowance, initiating shutdown, or changing dirty session state', async () => {
+    const initiateCoordinatedShutdown = vi.fn();
+    electronMocks.handlers.clear();
+    const project: LoadedProject = {
+      ...syntheticProject('proj_keep', 'C:\\projects\\keep'),
+      outline: {
+        ...syntheticProject('proj_keep', 'C:\\projects\\keep').outline,
+        scenes: [{ id: 'unit_keep', order: 1, title: 'Keep unit', beat_refs: [] }],
+      },
+      scenes: [{ id: 'unit_keep', order: 1, title: 'Keep unit' }],
+      drafts: { unit_keep: 'durable' },
+    };
+    testCoordinator.activateProject(project);
+    testCoordinator.setUnitDirty(
+      { projectId: project.projectId, projectPath: project.path, generation: 1, operationId: 'dirty-keep' },
+      'unit_keep',
+      true,
+    );
+    registerProjectSpineIpc({
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      initiateCoordinatedShutdown,
+    });
+    const request = createPendingCloseRequest(project.projectId, 1, 1)!;
+
+    expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, {
+      ...request,
+      decision: 'keep-editing',
+    })).toMatchObject({ ok: true });
+    expect(hasPendingCloseRequest()).toBe(false);
+    expect(consumeCoordinatedCloseAllowance()).toBe(false);
+    expect(initiateCoordinatedShutdown).not.toHaveBeenCalled();
+    expect(testCoordinator.snapshot('writing')).toMatchObject({
+      project: { projectId: project.projectId },
+      generation: 1,
+      dirtyUnitIds: ['unit_keep'],
+    });
   });
 
   it('protects same-project duplicate open and fails closed on a copied duplicate identity', async () => {

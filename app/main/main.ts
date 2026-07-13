@@ -1,6 +1,7 @@
 ﻿import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { screen } from 'electron';
+import { randomUUID } from 'node:crypto';
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
@@ -41,6 +42,7 @@ import {
   type SplitCommandSecondaryLossReason,
   type SplitCommandSecondaryLaunchContract,
   type SplitCommandLifecycleSeam,
+  type SplitCommandPairFallbackState,
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority.js';
@@ -59,6 +61,10 @@ import {
   createPendingCloseRequest,
   hasPendingCloseRequest,
 } from './closeConfirmationCoordinator.js';
+
+if (process.env.PLAYWRIGHT === '1') {
+  app.disableHardwareAcceleration();
+}
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -105,22 +111,24 @@ const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
 const PRELOAD_PATH = join(__dirname, 'preload.js');
 
-const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
-const isDev = !app.isPackaged;
+const explicitRendererUrl =
+  process.env.VITE_DEV_SERVER_URL?.trim() || process.env.ELECTRON_RENDERER_URL?.trim() || null;
+const isDev = Boolean(explicitRendererUrl?.startsWith('http://') || explicitRendererUrl?.startsWith('https://'));
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
 const START_URL = getStartUrl();
 
 function getStartUrl(): string {
-  const override = process.env.ELECTRON_RENDERER_URL;
-  if (typeof override === 'string' && override.length > 0) {
-    return override;
+  if (explicitRendererUrl) {
+    return explicitRendererUrl;
   }
-  const packaged = pathToFileURL(rendererIndexFile).toString();
-  if (app.isPackaged || process.env.PLAYWRIGHT === '1') {
-    return packaged;
+  if (existsSync(rendererIndexFile)) {
+    return pathToFileURL(rendererIndexFile).toString();
   }
-  return DEV_SERVER_URL;
+  throw new Error(
+    `Built renderer entry is unavailable at ${rendererIndexFile}. ` +
+      'Run the renderer build or set VITE_DEV_SERVER_URL explicitly for development.',
+  );
 }
 
 const SERVICES_HOST = '127.0.0.1';
@@ -145,6 +153,7 @@ type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 let servicesProcess: ServicesProcess | null = null;
 let servicesPort: number | null = null;
 let shuttingDown = false;
+let coordinatedCloseShutdownInProgress = false;
 let mainLogger: Logger | null = null;
 let servicesSuppressed = false;
 
@@ -265,12 +274,17 @@ function getSplitCommandWindowForRole(windowRole: SplitCommandWindowRole): Brows
 function registerProjectSpineWindow(
   window: BrowserWindow,
   role: ProjectSpineWindowRole,
-): void {
-  projectSpineWindows.set(window.webContents.id, { role, window });
-}
-
-function unregisterProjectSpineWindow(window: BrowserWindow): void {
-  projectSpineWindows.delete(window.webContents.id);
+): () => boolean {
+  const webContentsId = window.webContents.id;
+  projectSpineWindows.set(webContentsId, { role, window });
+  let registered = true;
+  return () => {
+    if (!registered) {
+      return false;
+    }
+    registered = false;
+    return projectSpineWindows.delete(webContentsId);
+  };
 }
 
 function resolveProjectSpineWindowRole(webContentsId: number): ProjectSpineWindowRole | null {
@@ -296,6 +310,9 @@ function installUnsavedCloseGuard(window: BrowserWindow): void {
   window.webContents.on('will-prevent-unload', (event) => {
     if (consumeCoordinatedCloseAllowance()) {
       event.preventDefault();
+      return;
+    }
+    if (coordinatedCloseShutdownInProgress) {
       return;
     }
     const snapshot = getProjectSpineSnapshot('writing');
@@ -821,7 +838,7 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
-  registerProjectSpineWindow(window, 'writing');
+  const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'writing');
   installUnsavedCloseGuard(window);
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -829,7 +846,7 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
   const allowedOrigins = new Set<string>();
   if (isDev) {
     try {
-      allowedOrigins.add(new URL(DEV_SERVER_URL).origin);
+      allowedOrigins.add(new URL(START_URL).origin);
     } catch (error) {
       ensureMainLogger().warn('Failed to parse development server URL', {
         error: error instanceof Error ? error.message : String(error),
@@ -857,10 +874,26 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
   });
 
   window.on('closed', () => {
-    unregisterProjectSpineWindow(window);
-    noteSplitCommandPrimaryCollapse('closed');
-    if (mainWindow === window) {
-      mainWindow = null;
+    console.log('[main] Writing Studio closed', {
+      hasSplitCommandLifecycleSeam: Boolean(splitCommandLifecycleSeam),
+      secondaryWindowId: splitCommandSecondaryWindow?.id ?? null,
+      secondaryWindowDestroyed: splitCommandSecondaryWindow?.isDestroyed() ?? null,
+    });
+    try {
+      noteSplitCommandPrimaryCollapse('closed');
+    } catch (error) {
+      console.error('[main] Writing Studio pair cleanup failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      unregisterProjectSpineWindow();
+      console.log('[main] Writing Studio pair cleanup completed', {
+        secondaryWindowId: splitCommandSecondaryWindow?.id ?? null,
+        secondaryWindowDestroyed: splitCommandSecondaryWindow?.isDestroyed() ?? null,
+      });
+      if (mainWindow === window) {
+        mainWindow = null;
+      }
     }
   });
   window.webContents.on('render-process-gone', (_event, details) => {
@@ -923,7 +956,7 @@ async function createSplitCommandSecondaryWindow(
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
-  registerProjectSpineWindow(window, 'command');
+  const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'command');
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.on('ready-to-show', () => {
@@ -937,7 +970,7 @@ async function createSplitCommandSecondaryWindow(
     console.error('[main] Split command secondary BrowserWindow became unresponsive.');
   });
   window.on('closed', () => {
-    unregisterProjectSpineWindow(window);
+    unregisterProjectSpineWindow();
     if (splitCommandPairTeardownInProgress) {
       if (splitCommandSecondaryWindow === window) {
         splitCommandSecondaryWindow = null;
@@ -946,7 +979,13 @@ async function createSplitCommandSecondaryWindow(
       splitCommandLifecycleSeam?.registry.releaseSecondaryWindow();
       return;
     }
-    noteSplitCommandSecondaryLoss('closed');
+    try {
+      noteSplitCommandSecondaryLoss('closed');
+    } catch (error) {
+      console.error('[main] Command Center loss diagnostics failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   });
 
   console.log('[main] loading split command secondary', START_URL);
@@ -1018,28 +1057,33 @@ function noteSplitCommandPrimaryCollapse(
   reason: SplitCommandPrimaryCollapseReason,
   details?: unknown,
 ): void {
-  if (!splitCommandLifecycleSeam) {
-    return;
-  }
-
-  if (splitCommandLifecycleSeam.registry.fallbackState.pairHealthStatus === 'primary-lost') {
-    return;
-  }
-
   splitCommandPairTeardownInProgress = true;
-  const fallbackState = splitCommandLifecycleSeam.registry.markPrimaryCollapsed(reason);
-  ensureMainLogger().warn('Split command primary window collapsed', {
-    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
-    reason,
-    fallbackState,
-    details,
-  });
+  try {
+    const lifecycleSeam = splitCommandLifecycleSeam;
+    let fallbackState: SplitCommandPairFallbackState | null = null;
+    if (lifecycleSeam && lifecycleSeam.registry.fallbackState.pairHealthStatus !== 'primary-lost') {
+      fallbackState = lifecycleSeam.registry.markPrimaryCollapsed(reason);
+    }
 
-  publishSplitCommandOwnershipSync(['secondary']);
-  recordSplitCommandFocusOwnership('primary', details);
-  clearSplitCommandPairRuntimeReferences();
+    // Command Center is subordinate to Writing Studio and has no mutation authority.
+    // Tear it down before nonessential ownership diagnostics so no primary collapse
+    // can leave an orphaned secondary window.
+    clearSplitCommandPairRuntimeReferences();
 
-  splitCommandPairTeardownInProgress = false;
+    if (lifecycleSeam) {
+      if (fallbackState) {
+        ensureMainLogger().warn('Split command primary window collapsed', {
+          pairId: lifecycleSeam.registry.pairIdentity.pairId,
+          reason,
+          fallbackState,
+          details,
+        });
+      }
+      recordSplitCommandFocusOwnership('primary', details);
+    }
+  } finally {
+    splitCommandPairTeardownInProgress = false;
+  }
 }
 
 function clearSplitCommandPairRuntimeReferences(): void {
@@ -1048,7 +1092,33 @@ function clearSplitCommandPairRuntimeReferences(): void {
   const secondaryWindow = splitCommandSecondaryWindow;
   splitCommandSecondaryWindow = null;
   if (secondaryWindow && !secondaryWindow.isDestroyed()) {
-    secondaryWindow.destroy();
+    console.log('[main] Split Command secondary cleanup requested', {
+      secondaryWindowId: secondaryWindow.id,
+      method: 'destroy',
+    });
+    try {
+      secondaryWindow.destroy();
+    } finally {
+      console.log('[main] Split Command secondary cleanup returned', {
+        secondaryWindowId: secondaryWindow.id,
+        destroyed: secondaryWindow.isDestroyed(),
+      });
+    }
+  }
+}
+
+function initiateCoordinatedCloseShutdown(): void {
+  if (coordinatedCloseShutdownInProgress) {
+    return;
+  }
+  coordinatedCloseShutdownInProgress = true;
+  const secondaryWindow = splitCommandSecondaryWindow;
+  if (secondaryWindow && !secondaryWindow.isDestroyed()) {
+    secondaryWindow.close();
+  }
+  const writingStudio = mainWindow;
+  if (writingStudio && !writingStudio.isDestroyed()) {
+    writingStudio.close();
   }
 }
 
@@ -1244,6 +1314,7 @@ if (!hasSingleInstanceLock) {
       registerProjectSpineIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         publishSession: publishProjectSpineSession,
+        initiateCoordinatedShutdown: initiateCoordinatedCloseShutdown,
       });
       registerDiagnosticsIpc();
       registerSplitCommandOwnershipIpc();
@@ -1270,4 +1341,3 @@ if (!hasSingleInstanceLock) {
       app.quit();
     });
 }
-import { randomUUID } from 'node:crypto';

@@ -69,8 +69,33 @@ function saveStatusLabel(snapshot: ProjectSpineSessionSnapshot): string {
     case 'save-failed':
       return `Save failed${snapshot.saveState.message ? `: ${snapshot.saveState.message}` : ''}`;
     default:
-      return 'All changes saved';
+      return snapshot.project ? 'Saved durably' : 'All changes saved';
   }
+}
+
+export function deriveDirtyUnitIds(
+  snapshot: ProjectSpineSessionSnapshot,
+  buffers: Readonly<Record<string, string>>,
+): ReadonlySet<string> {
+  const dirty = new Set(snapshot.dirtyUnitIds);
+  const drafts = snapshot.project?.drafts;
+  if (!drafts) return dirty;
+  for (const unit of snapshot.project?.units ?? []) {
+    const durable = splitDraft(drafts[unit.id] ?? '').body;
+    if (Object.prototype.hasOwnProperty.call(buffers, unit.id) && buffers[unit.id] !== durable) {
+      dirty.add(unit.id);
+    } else if (Object.prototype.hasOwnProperty.call(buffers, unit.id)) {
+      dirty.delete(unit.id);
+    }
+  }
+  return dirty;
+}
+
+function saveSummaryLabel(snapshot: ProjectSpineSessionSnapshot, dirtyUnitIds: ReadonlySet<string>): string {
+  if (dirtyUnitIds.size > 0 && snapshot.saveState.status !== 'saving') {
+    return `${dirtyUnitIds.size} unsaved unit${dirtyUnitIds.size === 1 ? '' : 's'}`;
+  }
+  return saveStatusLabel(snapshot);
 }
 
 function emptySnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapshot {
@@ -95,8 +120,102 @@ function resultMessage(result: ProjectSpineResult<unknown>): string | null {
 interface CloseConfirmationRequestState {
   readonly activeRequest: ProjectSpineCloseConfirmationRequest | null;
   readonly responseSubmitting: boolean;
+  readonly responseError: string | null;
   readonly keepEditing: () => Promise<void>;
   readonly discardChanges: () => Promise<void>;
+}
+
+interface CloseConfirmationDialogProps extends CloseConfirmationRequestState {
+  readonly windowRole: ProjectSpineWindowRole;
+}
+
+export function CloseConfirmationDialog({
+  windowRole,
+  activeRequest,
+  responseSubmitting,
+  responseError,
+  keepEditing,
+  discardChanges,
+}: CloseConfirmationDialogProps): JSX.Element | null {
+  const keepEditingRef = useRef<HTMLButtonElement>(null);
+  const discardChangesRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const keepEditingCallbackRef = useRef(keepEditing);
+  const responseSubmittingRef = useRef(responseSubmitting);
+  keepEditingCallbackRef.current = keepEditing;
+  responseSubmittingRef.current = responseSubmitting;
+
+  useEffect(() => {
+    if (windowRole !== 'writing' || !activeRequest) {
+      return;
+    }
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    keepEditingRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (responseSubmittingRef.current) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        void keepEditingCallbackRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      event.preventDefault();
+      (event.shiftKey ? discardChangesRef : keepEditingRef).current?.focus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, [activeRequest, windowRole]);
+
+  if (windowRole !== 'writing' || !activeRequest) {
+    return null;
+  }
+
+  return (
+    <div className="stage19-close-confirmation" role="presentation">
+      <div className="stage19-close-confirmation__backdrop" aria-hidden="true" />
+      <section
+        className="stage19-close-confirmation__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="stage19-close-confirmation-title"
+        aria-describedby="stage19-close-confirmation-description"
+      >
+        <h2 id="stage19-close-confirmation-title">Unsaved manuscript changes</h2>
+        <p id="stage19-close-confirmation-description">
+          This project has manuscript changes that have not been saved. Keep editing to return to your work, or discard the unsaved changes and close Black Skies.
+        </p>
+        {responseError ? (
+          <p className="stage19-close-confirmation__error" role="alert">
+            We could not send your choice. Please try again.
+          </p>
+        ) : null}
+        {responseSubmitting ? <p role="status">Sending your choice…</p> : null}
+        <div className="stage19-close-confirmation__actions">
+          <button
+            ref={keepEditingRef}
+            type="button"
+            onClick={() => void keepEditing()}
+            disabled={responseSubmitting}
+          >
+            Keep editing
+          </button>
+          <button
+            ref={discardChangesRef}
+            type="button"
+            onClick={() => void discardChanges()}
+            disabled={responseSubmitting}
+          >
+            Discard changes
+          </button>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function sameCloseConfirmationRequest(
@@ -122,6 +241,7 @@ export function useCloseConfirmationRequest({
 }): CloseConfirmationRequestState {
   const [activeRequest, setActiveRequest] = useState<ProjectSpineCloseConfirmationRequest | null>(null);
   const [responseSubmitting, setResponseSubmitting] = useState(false);
+  const [responseError, setResponseError] = useState<string | null>(null);
   const sessionRef = useRef({ projectId, generation });
   const activeRequestRef = useRef(activeRequest);
   const responseSubmittingRef = useRef(false);
@@ -151,6 +271,7 @@ export function useCloseConfirmationRequest({
       if (current && sameCloseConfirmationRequest(current, request)) {
         return;
       }
+      setResponseError(null);
       setActiveRequest(request);
     });
   }, [bridge, windowRole]);
@@ -162,11 +283,18 @@ export function useCloseConfirmationRequest({
     }
     responseSubmittingRef.current = true;
     setResponseSubmitting(true);
+    setResponseError(null);
     try {
-      await bridge.respondToCloseConfirmation({ ...request, decision });
+      const result = await bridge.respondToCloseConfirmation({ ...request, decision });
+      if (!result.ok) {
+        setResponseError(result.error.message || 'We could not send your choice. Please try again.');
+        return;
+      }
       if (sameCloseConfirmationRequest(activeRequestRef.current ?? request, request)) {
         setActiveRequest(null);
       }
+    } catch (error) {
+      setResponseError(error instanceof Error ? error.message : String(error));
     } finally {
       responseSubmittingRef.current = false;
       setResponseSubmitting(false);
@@ -176,6 +304,7 @@ export function useCloseConfirmationRequest({
   return {
     activeRequest,
     responseSubmitting,
+    responseError,
     keepEditing: () => submitResponse('keep-editing'),
     discardChanges: () => submitResponse('discard'),
   };
@@ -203,7 +332,7 @@ export default function Stage19WritingSpineApp({
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
   const appliedGenerationRef = useRef(0);
 
-  useCloseConfirmationRequest({
+  const closeConfirmation = useCloseConfirmationRequest({
     windowRole,
     bridge,
     projectId: snapshot.project?.projectId ?? null,
@@ -315,22 +444,9 @@ export default function Stage19WritingSpineApp({
   const activeDurableBody = splitDraft(activeDurableMarkdown).body;
   const activeBuffer = activeUnit ? buffers[activeUnit.id] ?? activeDurableBody : '';
   const activeDirty = Boolean(activeUnit && activeBuffer !== activeDurableBody);
-  const hasLocalUnsaved = useMemo(() => {
-    if (!snapshot.project?.drafts) return false;
-    return snapshot.project.units.some((unit) =>
-      (buffers[unit.id] ?? splitDraft(snapshot.project!.drafts![unit.id] ?? '').body) !==
-      splitDraft(snapshot.project!.drafts![unit.id] ?? '').body,
-    );
-  }, [buffers, snapshot.project]);
-  const writingSaveSummary = hasLocalUnsaved && snapshot.saveState.status !== 'saving'
-    ? `${snapshot.project?.units.filter((unit) => {
-        const durableBody = splitDraft(snapshot.project?.drafts?.[unit.id] ?? '').body;
-        return (buffers[unit.id] ?? durableBody) !== durableBody;
-      }).length ?? 0} unsaved unit${(snapshot.project?.units.filter((unit) => {
-        const durableBody = splitDraft(snapshot.project?.drafts?.[unit.id] ?? '').body;
-        return (buffers[unit.id] ?? durableBody) !== durableBody;
-      }).length ?? 0) === 1 ? '' : 's'}`
-    : saveStatusLabel(snapshot);
+  const dirtyUnitIds = useMemo(() => deriveDirtyUnitIds(snapshot, buffers), [buffers, snapshot]);
+  const hasLocalUnsaved = dirtyUnitIds.size > 0;
+  const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
 
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
@@ -491,8 +607,14 @@ export default function Stage19WritingSpineApp({
         return;
       }
       applySnapshot(result.snapshot);
-      if (result.ok && (editRevisionRef.current[unitId] ?? 0) !== startingEditRevision) {
-        reportDirty(unitId, true);
+      if (result.ok) {
+        if ((editRevisionRef.current[unitId] ?? 0) !== startingEditRevision) {
+          reportDirty(unitId, true);
+        } else {
+          const confirmedBody = splitDraft(result.snapshot.project?.drafts?.[unitId] ?? markdown).body;
+          buffersRef.current = { ...buffersRef.current, [unitId]: confirmedBody };
+          setBuffers(buffersRef.current);
+        }
       }
       setNotice(resultMessage(result));
     },
@@ -595,7 +717,7 @@ export default function Stage19WritingSpineApp({
             <p>Navigation, project status, and durable save truth. Manuscript mutation is unavailable here.</p>
           </div>
           <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">
-            {saveStatusLabel(snapshot)}
+            {saveSummaryLabel(snapshot, dirtyUnitIds)}
           </span>
         </header>
         {notice || snapshot.lastError ? (
@@ -634,7 +756,7 @@ export default function Stage19WritingSpineApp({
             </section>
             <section className="stage19-spine__card">
               <h2>Writing state</h2>
-              <p>{saveStatusLabel(snapshot)}</p>
+              <p>{saveSummaryLabel(snapshot, dirtyUnitIds)}</p>
               <p>{snapshot.activeUnitId ? `Selected unit: ${activeUnit?.displayTitle ?? snapshot.activeUnitId}` : 'No unit selected'}</p>
               <p className="stage19-spine__mutability-note">Advisory/status/navigation only. No prose editor or structural mutation controls are exposed.</p>
             </section>
@@ -710,7 +832,7 @@ export default function Stage19WritingSpineApp({
                     >
                       <span>{String(unit.order).padStart(2, '0')}</span>
                       <strong>{unit.displayTitle}</strong>
-                      {snapshot.dirtyUnitIds.includes(unit.id) ? <em>Unsaved</em> : null}
+          {dirtyUnitIds.has(unit.id) ? <em>Unsaved</em> : null}
                     </button>
                   </li>
                 ))}
@@ -782,6 +904,7 @@ export default function Stage19WritingSpineApp({
           </section>
         </div>
       )}
+      <CloseConfirmationDialog windowRole={windowRole} {...closeConfirmation} />
     </main>
   );
 }

@@ -2,12 +2,13 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
+  ProjectSpineCloseConfirmationRequest,
   ProjectSpineBridge,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
-import Stage19WritingSpineApp from '../Stage19WritingSpineApp';
+import Stage19WritingSpineApp, { useCloseConfirmationRequest } from '../Stage19WritingSpineApp';
 
 vi.mock('../DraftEditor', () => ({
   default: ({
@@ -81,9 +82,10 @@ function snapshot(
   };
 }
 
-function createBridge(initial: ProjectSpineSessionSnapshot) {
+function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConfirmations?: boolean } = {}) {
   let current = initial;
   const listeners = new Set<(next: ProjectSpineSessionSnapshot) => void>();
+  const closeConfirmationListeners = new Set<(request: ProjectSpineCloseConfirmationRequest) => void>();
   const emit = (next: ProjectSpineSessionSnapshot) => {
     current = next;
     for (const listener of listeners) listener(next);
@@ -145,11 +147,52 @@ function createBridge(initial: ProjectSpineSessionSnapshot) {
           renameUnit: vi.fn(async () => ok({})),
           reorderUnits: vi.fn(async () => ok({})),
           deleteUnit: vi.fn(async () => ok({})),
+          ...(options.closeConfirmations
+            ? {
+                onCloseConfirmationRequest: vi.fn((listener: (request: ProjectSpineCloseConfirmationRequest) => void) => {
+                  closeConfirmationListeners.add(listener);
+                  return () => closeConfirmationListeners.delete(listener);
+                }),
+                respondToCloseConfirmation: vi.fn(async () => ({ ok: true, data: {}, snapshot: current })),
+              }
+            : {}),
         }
       : {}),
   } as unknown as ProjectSpineBridge;
 
-  return { bridge, emit, get current() { return current; } };
+  return {
+    bridge,
+    emit,
+    emitCloseConfirmation: (request: ProjectSpineCloseConfirmationRequest) => {
+      for (const listener of closeConfirmationListeners) listener(request);
+    },
+    get current() { return current; },
+  };
+}
+
+let closeRequestState: ReturnType<typeof useCloseConfirmationRequest>;
+
+function CloseRequestHarness({
+  bridge,
+  current,
+  windowRole,
+}: {
+  readonly bridge: ProjectSpineBridge;
+  readonly current: ProjectSpineSessionSnapshot;
+  readonly windowRole: ProjectSpineWindowRole;
+}): JSX.Element {
+  closeRequestState = useCloseConfirmationRequest({
+    bridge,
+    windowRole,
+    projectId: current.project?.projectId ?? null,
+    generation: current.generation,
+  });
+  return (
+    <div
+      data-testid="close-request-state"
+      data-correlation-id={closeRequestState.activeRequest?.correlationId ?? ''}
+    />
+  );
 }
 
 afterEach(() => {
@@ -183,6 +226,100 @@ beforeEach(() => {
 });
 
 describe('Stage19WritingSpineApp', () => {
+  it.each(['writing', 'command'] as const)(
+    'renders a restored canonical clean project as saved immediately in %s',
+    async (windowRole) => {
+      const harness = createBridge(snapshot(windowRole));
+      render(<Stage19WritingSpineApp windowRole={windowRole} bridge={harness.bridge} />);
+
+      expect(await screen.findByRole('status')).toHaveTextContent('Saved durably');
+      expect(screen.queryByText('Unsaved')).not.toBeInTheDocument();
+    },
+  );
+
+  it('subscribes only in Writing Studio and unsubscribes on unmount', () => {
+    const writing = createBridge(snapshot('writing'), { closeConfirmations: true });
+    const command = createBridge(snapshot('command'));
+    const { unmount } = render(
+      <CloseRequestHarness bridge={writing.bridge} current={writing.current} windowRole="writing" />,
+    );
+
+    expect(writing.bridge.onCloseConfirmationRequest).toHaveBeenCalledTimes(1);
+    unmount();
+    writing.emitCloseConfirmation({ correlationId: 'after-unmount', projectId: 'proj_a', generation: 1 });
+    expect(closeRequestState.activeRequest).toBeNull();
+
+    render(<CloseRequestHarness bridge={command.bridge} current={command.current} windowRole="command" />);
+    expect(command.bridge.onCloseConfirmationRequest).toBeUndefined();
+    expect(command.bridge.respondToCloseConfirmation).toBeUndefined();
+  });
+
+  it('keeps one current-session close request and ignores duplicates or stale requests', async () => {
+    const harness = createBridge(snapshot('writing'), { closeConfirmations: true });
+    render(<CloseRequestHarness bridge={harness.bridge} current={harness.current} windowRole="writing" />);
+    const first = { correlationId: 'close-1', projectId: 'proj_a', generation: 1 };
+
+    act(() => harness.emitCloseConfirmation(first));
+    await waitFor(() => expect(closeRequestState.activeRequest).toEqual(first));
+    act(() => harness.emitCloseConfirmation(first));
+    expect(closeRequestState.activeRequest).toEqual(first);
+
+    act(() => harness.emitCloseConfirmation({ correlationId: 'wrong-project', projectId: 'proj_b', generation: 1 }));
+    act(() => harness.emitCloseConfirmation({ correlationId: 'wrong-generation', projectId: 'proj_a', generation: 2 }));
+    expect(closeRequestState.activeRequest).toEqual(first);
+
+    const replacement = { correlationId: 'close-2', projectId: 'proj_a', generation: 1 };
+    act(() => harness.emitCloseConfirmation(replacement));
+    await waitFor(() => expect(closeRequestState.activeRequest).toEqual(replacement));
+  });
+
+  it.each([
+    ['keepEditing', 'keep-editing'],
+    ['discardChanges', 'discard'],
+  ] as const)('submits %s with the active correlation and clears only after success', async (callback, decision) => {
+    const harness = createBridge(snapshot('writing'), { closeConfirmations: true });
+    render(<CloseRequestHarness bridge={harness.bridge} current={harness.current} windowRole="writing" />);
+    const request = { correlationId: `close-${decision}`, projectId: 'proj_a', generation: 1 };
+    act(() => harness.emitCloseConfirmation(request));
+    await waitFor(() => expect(closeRequestState.activeRequest).toEqual(request));
+
+    await act(async () => closeRequestState[callback]());
+    expect(harness.bridge.respondToCloseConfirmation).toHaveBeenCalledWith({ ...request, decision });
+    expect(closeRequestState.activeRequest).toBeNull();
+  });
+
+  it('preserves a failed close response for retry and prevents duplicate submission', async () => {
+    const harness = createBridge(snapshot('writing'), { closeConfirmations: true });
+    let resolveResponse: ((result: ProjectSpineResult) => void) | undefined;
+    vi.mocked(harness.bridge.respondToCloseConfirmation!).mockImplementation(
+      () => new Promise<ProjectSpineResult>((resolve) => { resolveResponse = resolve; }),
+    );
+    render(<CloseRequestHarness bridge={harness.bridge} current={harness.current} windowRole="writing" />);
+    const request = { correlationId: 'close-retry', projectId: 'proj_a', generation: 1 };
+    act(() => harness.emitCloseConfirmation(request));
+    await waitFor(() => expect(closeRequestState.activeRequest).toEqual(request));
+
+    let firstSubmission: Promise<void>;
+    act(() => {
+      firstSubmission = closeRequestState.keepEditing();
+    });
+    await waitFor(() => expect(closeRequestState.responseSubmitting).toBe(true));
+    await closeRequestState.keepEditing();
+    expect(harness.bridge.respondToCloseConfirmation).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolveResponse?.({ ok: true, data: {}, snapshot: harness.current });
+      await firstSubmission!;
+    });
+    await waitFor(() => expect(closeRequestState.activeRequest).toBeNull());
+
+    vi.mocked(harness.bridge.respondToCloseConfirmation!).mockRejectedValueOnce(new Error('response unavailable'));
+    act(() => harness.emitCloseConfirmation(request));
+    await waitFor(() => expect(closeRequestState.activeRequest).toEqual(request));
+    await act(async () => closeRequestState.discardChanges());
+    expect(closeRequestState.activeRequest).toEqual(request);
+    expect(closeRequestState.responseError).toBe('response unavailable');
+  });
+
   it('renders a role-projected Command Center with no prose or structural mutation controls', async () => {
     const harness = createBridge(snapshot('command'));
     render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
@@ -348,7 +485,8 @@ describe('Stage19WritingSpineApp', () => {
       await user.click(screen.getByRole('button', { name: /^Save$/ }));
     });
 
-    expect(await screen.findByText(/Save failed: Disk is read-only/)).toBeVisible();
+    expect(await screen.findByText('1 unsaved unit')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Disk is read-only.');
     expect((screen.getByRole('textbox', {
       name: 'Manuscript editor: First Unit',
     }) as HTMLTextAreaElement).value).toContain('retained after failure');

@@ -7,6 +7,10 @@ const browserWindowState = {
   instances: [] as BrowserWindowMock[],
   failOnInstance: 0,
 };
+const electronAppState = vi.hoisted(() => ({ isPackaged: false }));
+const fileSystemMocks = vi.hoisted(() => ({
+  existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
+}));
 const ipcHandlers = new Map<string, (...args: unknown[]) => unknown>();
 const projectSpineMocks = vi.hoisted(() => ({
   getProjectSpineSnapshot: vi.fn(() => ({
@@ -14,6 +18,7 @@ const projectSpineMocks = vi.hoisted(() => ({
     generation: 0,
     dirtyUnitIds: [],
   })),
+  registerProjectSpineIpc: vi.fn(),
 }));
 
 const logger = {
@@ -32,7 +37,7 @@ class BrowserWindowMock {
   );
 
   readonly options: BrowserWindowConstructorOptions;
-  readonly webContents = {
+  private readonly webContentsValue = {
     id: browserWindowState.instances.length + 1,
     owner: undefined as BrowserWindowMock | undefined,
     setWindowOpenHandler: vi.fn(),
@@ -64,8 +69,15 @@ class BrowserWindowMock {
     }
 
     this.options = options;
-    this.webContents.owner = this;
+    this.webContentsValue.owner = this;
     browserWindowState.instances.push(this);
+  }
+
+  get webContents(): typeof this.webContentsValue {
+    if (this.destroyed) {
+      throw new TypeError('Object has been destroyed');
+    }
+    return this.webContentsValue;
   }
 
   on(event: string, handler: (...args: unknown[]) => void): this {
@@ -81,9 +93,9 @@ class BrowserWindowMock {
     }
   }
 
-  async loadURL(): Promise<void> {}
+  loadURL = vi.fn(async (_url: string): Promise<void> => {});
 
-  async loadFile(): Promise<void> {}
+  loadFile = vi.fn(async (_path: string): Promise<void> => {});
 
   isDestroyed(): boolean {
     return this.destroyed;
@@ -110,7 +122,10 @@ class BrowserWindowMock {
 
 vi.mock('electron', () => ({
   app: {
-    isPackaged: false,
+    get isPackaged() {
+      return electronAppState.isPackaged;
+    },
+    disableHardwareAcceleration: vi.fn(),
     whenReady: vi.fn(() => Promise.resolve()),
     on: vi.fn(),
     quit: vi.fn(),
@@ -145,12 +160,12 @@ vi.mock('electron', () => ({
 
 vi.mock('node:fs', () => ({
   default: {
-    existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
+    existsSync: fileSystemMocks.existsSync,
     statSync: vi.fn(() => ({
       isFile: () => true,
     })),
   },
-  existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
+  existsSync: fileSystemMocks.existsSync,
   statSync: vi.fn(() => ({
     isFile: () => true,
   })),
@@ -171,7 +186,7 @@ vi.mock('../projectLoaderIpc.js', () => ({
 
 vi.mock('../projectSpineIpc.js', () => ({
   getProjectSpineSnapshot: projectSpineMocks.getProjectSpineSnapshot,
-  registerProjectSpineIpc: vi.fn(),
+  registerProjectSpineIpc: projectSpineMocks.registerProjectSpineIpc,
 }));
 
 vi.mock('../layoutIpc.js', () => ({
@@ -264,25 +279,45 @@ function getSplitCommandRequestHandler():
     | undefined;
 }
 
+function resolveRegisteredProjectSpineRole(webContentsId: number): 'writing' | 'command' | null {
+  const registration = projectSpineMocks.registerProjectSpineIpc.mock.calls.at(-1)?.[0] as
+    | { resolveWindowRole?: (id: number) => 'writing' | 'command' | null }
+    | undefined;
+  if (!registration?.resolveWindowRole) {
+    throw new Error('Project Spine IPC role resolver was not registered.');
+  }
+  return registration.resolveWindowRole(webContentsId);
+}
+
 describe('main split command launch hook', () => {
   beforeEach(() => {
     vi.resetModules();
     browserWindowState.instances = [];
     browserWindowState.failOnInstance = 0;
+    electronAppState.isPackaged = false;
+    fileSystemMocks.existsSync.mockReset();
+    fileSystemMocks.existsSync.mockImplementation((path: string) =>
+      String(path).replace(/\\/g, '/').includes('/dist/index.html'),
+    );
     ipcHandlers.clear();
     experimentalSplitCommandWorkspace = false;
     showMessageBoxSync.mockReset();
     showMessageBoxSync.mockReturnValue(0);
     projectSpineMocks.getProjectSpineSnapshot.mockReset();
+    projectSpineMocks.registerProjectSpineIpc.mockReset();
     projectSpineMocks.getProjectSpineSnapshot.mockReturnValue({
       project: null,
       generation: 0,
       dirtyUnitIds: [],
     });
     process.env.PLAYWRIGHT = '1';
+    delete process.env.VITE_DEV_SERVER_URL;
+    delete process.env.ELECTRON_RENDERER_URL;
     delete process.env.BLACKSKIES_FORCE_SERVICES;
     delete process.env.BLACKSKIES_SERVICES_PORT;
     delete process.env.BLACKSKIES_CONFIG_PATH;
+    delete process.env.VITE_DEV_SERVER_URL;
+    delete process.env.ELECTRON_RENDERER_URL;
   });
 
   afterEach(async () => {
@@ -312,12 +347,60 @@ describe('main split command launch hook', () => {
     );
   });
 
+  it('loads an explicitly configured Vite development server in both dedicated windows', async () => {
+    process.env.VITE_DEV_SERVER_URL = 'http://127.0.0.1:4173/';
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    for (const window of browserWindowState.instances) {
+      expect(window.loadURL).toHaveBeenCalledWith('http://127.0.0.1:4173/');
+      expect(window.loadFile).not.toHaveBeenCalled();
+    }
+  });
+
+  it('loads the built renderer in both unpackaged windows when no dev URL is configured', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    for (const window of browserWindowState.instances) {
+      expect(window.loadURL).toHaveBeenCalledWith(expect.stringMatching(/^file:\/\/\/.*\/dist\/index\.html$/));
+      expect(window.loadURL).not.toHaveBeenCalledWith(expect.stringContaining('127.0.0.1:5173'));
+      expect(window.loadFile).not.toHaveBeenCalled();
+    }
+  });
+
+  it('preserves built-renderer loading for packaged launches', async () => {
+    electronAppState.isPackaged = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
+    expect(browserWindowState.instances[0].loadURL).toHaveBeenCalledWith(
+      expect.stringMatching(/^file:\/\/\/.*\/dist\/index\.html$/),
+    );
+  });
+
+  it('fails clearly instead of inventing a localhost URL when the built renderer is missing', async () => {
+    fileSystemMocks.existsSync.mockReturnValue(false);
+
+    await expect(loadMainModule()).rejects.toThrow(
+      /Built renderer entry is unavailable.*Run the renderer build or set VITE_DEV_SERVER_URL explicitly/s,
+    );
+    expect(browserWindowState.instances).toHaveLength(0);
+  });
+
   it('dispatches one correlated close-confirmation request only to Writing Studio', async () => {
     projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeDirtySnapshot('project-a4a', 42));
     experimentalSplitCommandWorkspace = true;
     await loadMainModule();
 
     const [writingStudio, commandCenter] = browserWindowState.instances;
+    const writingWebContentsId = writingStudio.webContents.id;
+    const commandWebContentsId = commandCenter.webContents.id;
     const event = { preventDefault: vi.fn() };
     writingStudio.webContents.emit('will-prevent-unload', event);
 
@@ -336,6 +419,8 @@ describe('main split command launch hook', () => {
     expect(event.preventDefault).not.toHaveBeenCalled();
     expect((await closeCoordinator()).hasPendingCloseRequest()).toBe(true);
     expect(showMessageBoxSync).not.toHaveBeenCalled();
+    expect(resolveRegisteredProjectSpineRole(writingWebContentsId)).toBe('writing');
+    expect(resolveRegisteredProjectSpineRole(commandWebContentsId)).toBe('command');
   });
 
   it('consumes the coordinated-close allowance once and does not bypass the next dirty close', async () => {
@@ -615,8 +700,10 @@ describe('main split command launch hook', () => {
 
     expect(browserWindowState.instances).toHaveLength(2);
     const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+    const primaryWebContentsId = primaryWindow.webContents.id;
+    const secondaryWebContentsId = secondaryWindow.webContents.id;
 
-    secondaryWindow.emit('closed');
+    expect(() => secondaryWindow.destroy()).not.toThrow();
 
     expect(logger.warn).toHaveBeenCalledWith(
       'Split command secondary window lost',
@@ -677,6 +764,10 @@ describe('main split command launch hook', () => {
     expect(primaryWindow.isDestroyed()).toBe(false);
     expect(secondaryWindow.isDestroyed()).toBe(true);
     expect(browserWindowState.instances).toHaveLength(2);
+    expect(resolveRegisteredProjectSpineRole(primaryWebContentsId)).toBe('writing');
+    expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
+    expect(() => secondaryWindow.emit('closed')).not.toThrow();
+    expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
   });
 
   it('marks the pair degraded when the secondary renderer crashes', async () => {
@@ -749,8 +840,10 @@ describe('main split command launch hook', () => {
 
     expect(browserWindowState.instances).toHaveLength(2);
     const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+    const primaryWebContentsId = primaryWindow.webContents.id;
+    const secondaryWebContentsId = secondaryWindow.webContents.id;
 
-    primaryWindow.destroy();
+    expect(() => primaryWindow.destroy()).not.toThrow();
 
     expect(logger.warn).toHaveBeenCalledWith(
       'Split command primary window collapsed',
@@ -801,6 +894,26 @@ describe('main split command launch hook', () => {
     );
     expect(primaryWindow.isDestroyed()).toBe(true);
     expect(secondaryWindow.isDestroyed()).toBe(true);
+    expect(resolveRegisteredProjectSpineRole(primaryWebContentsId)).toBeNull();
+    expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
+  });
+
+  it('destroys the secondary even when primary-collapse diagnostics throw', async () => {
+    experimentalSplitCommandWorkspace = true;
+    await loadMainModule();
+
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+    const primaryWebContentsId = primaryWindow.webContents.id;
+    const secondaryWebContentsId = secondaryWindow.webContents.id;
+    logger.warn.mockImplementationOnce(() => {
+      throw new Error('primary-collapse diagnostics failed');
+    });
+
+    expect(() => primaryWindow.destroy()).not.toThrow();
+    expect(primaryWindow.isDestroyed()).toBe(true);
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+    expect(resolveRegisteredProjectSpineRole(primaryWebContentsId)).toBeNull();
+    expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
   });
 
   it('marks the pair stale when the primary renderer crashes and prevents reuse', async () => {

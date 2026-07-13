@@ -40,6 +40,7 @@ import {
 import {
   clearPendingCloseRequest,
   grantCoordinatedCloseAllowance,
+  revokeCoordinatedCloseAllowance,
   resetCloseConfirmationState,
   validateCloseConfirmationResponse,
 } from './closeConfirmationCoordinator';
@@ -56,6 +57,7 @@ export interface RegisterProjectSpineIpcOptions {
   readonly recentStorePath?: string;
   readonly coordinator?: ProjectSessionCoordinator;
   readonly loadProject?: (projectPath: string) => Promise<LoadedProject>;
+  readonly initiateCoordinatedShutdown?: () => void;
 }
 
 interface ProjectMetadataV1 {
@@ -559,8 +561,20 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions 
       if (!validateCloseConfirmationResponse(typedResponse, event.sender.id)) {
         throw new ProjectSessionError('STALE_SESSION', 'The close-confirmation response is stale or unsolicited.');
       }
-      if (typedResponse.decision === 'discard') grantCoordinatedCloseAllowance();
+      if (typedResponse.decision === 'keep-editing') {
+        clearPendingCloseRequest();
+        return success(role, {});
+      }
+      const discarded = coordinator.discardUnsavedBuffers(typedResponse.projectId, typedResponse.generation);
+      grantCoordinatedCloseAllowance();
       clearPendingCloseRequest();
+      try {
+        registrationOptions.initiateCoordinatedShutdown?.();
+      } catch (shutdownError) {
+        revokeCoordinatedCloseAllowance();
+        coordinator.restoreDiscardedUnsavedBuffers(discarded);
+        throw shutdownError;
+      }
       return success(role, {});
     } catch (error) {
       return failure(role, error);

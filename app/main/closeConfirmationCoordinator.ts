@@ -38,6 +38,7 @@ export function validateCloseConfirmationResponse(
 }
 
 export function grantCoordinatedCloseAllowance(): void { coordinatedCloseAllowance = true; }
+export function revokeCoordinatedCloseAllowance(): void { coordinatedCloseAllowance = false; }
 export function consumeCoordinatedCloseAllowance(): boolean {
   if (!coordinatedCloseAllowance) return false;
   coordinatedCloseAllowance = false;

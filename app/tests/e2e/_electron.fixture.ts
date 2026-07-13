@@ -12,6 +12,8 @@ import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
 
 type Fixtures = {
   splitCommandRuntimeConfig: boolean;
+  skipPageCloseTeardown: boolean;
+  skipFailureScreenshotAfterVerifiedExit: boolean;
   electronApp: ElectronApplication;
   page: Page;
 };
@@ -47,6 +49,15 @@ type ElectronLaunchContext = {
 };
 
 const launchContextByApp = new WeakMap<ElectronApplication, ElectronLaunchContext>();
+const cleanlyExitedApplications = new WeakSet<ElectronApplication>();
+
+export function markElectronApplicationExitedCleanly(application: ElectronApplication): void {
+  cleanlyExitedApplications.add(application);
+}
+
+function hasElectronApplicationExitedCleanly(application: ElectronApplication): boolean {
+  return cleanlyExitedApplications.has(application);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -365,6 +376,9 @@ async function closeElectronApplicationSafely(
   } catch {
     return { forcedKill: false };
   }
+  if (!appProcess || appProcess.exitCode !== null || appProcess.signalCode !== null) {
+    return { forcedKill: false };
+  }
   const isProcessAlive = () =>
     Boolean(appProcess && appProcess.exitCode === null && appProcess.signalCode === null);
   const waitForProcessExit = async (waitMs: number): Promise<boolean> => {
@@ -426,6 +440,8 @@ async function closeElectronApplicationSafely(
 
 export const test = base.extend<Fixtures>({
   splitCommandRuntimeConfig: [false, { option: true }],
+  skipPageCloseTeardown: [false, { option: true }],
+  skipFailureScreenshotAfterVerifiedExit: [false, { option: true }],
 
   electronApp: async ({ splitCommandRuntimeConfig }, use, testInfo) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
@@ -500,6 +516,7 @@ export const test = base.extend<Fixtures>({
     const application = await electron.launch({
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+        '--disable-gpu',
         `--user-data-dir=${userDataDir}`,
         entryPoint,
       ],
@@ -513,6 +530,9 @@ export const test = base.extend<Fixtures>({
     const pushChunk = (target: string[], raw: unknown) => {
       const text = String(raw);
       target.push(text.length > maxChunkChars ? text.slice(-maxChunkChars) : text);
+      if (text.includes('[main] Writing Studio') || text.includes('[main] Split Command secondary cleanup')) {
+        console.log('[electron.main]', text.trim());
+      }
       while (target.join('').length > maxJoinedChars && target.length > 1) {
         target.shift();
       }
@@ -572,26 +592,28 @@ export const test = base.extend<Fixtures>({
       await use(application);
     } finally {
       launchContextByApp.delete(application);
-      const teardownResult = await closeElectronApplicationSafely(application);
-      if (teardownResult.forcedKill) {
-        const launchOutput = launchContext.getOutput();
-        await testInfo.attach('electron-teardown-diagnostics.json', {
-          body: Buffer.from(
-            `${JSON.stringify(
-              {
-                forcedKill: true,
-                process: launchContext.getProcessState(),
-                launchEnv: launchContext.launchEnv,
-                stdoutTail: launchOutput.stdout.slice(-10_000),
-                stderrTail: launchOutput.stderr.slice(-10_000),
-              },
-              null,
-              2,
-            )}\n`,
-            'utf-8',
-          ),
-          contentType: 'application/json',
-        });
+      if (!hasElectronApplicationExitedCleanly(application)) {
+        const teardownResult = await closeElectronApplicationSafely(application);
+        if (teardownResult.forcedKill) {
+          const launchOutput = launchContext.getOutput();
+          await testInfo.attach('electron-teardown-diagnostics.json', {
+            body: Buffer.from(
+              `${JSON.stringify(
+                {
+                  forcedKill: true,
+                  process: launchContext.getProcessState(),
+                  launchEnv: launchContext.launchEnv,
+                  stdoutTail: launchOutput.stdout.slice(-10_000),
+                  stderrTail: launchOutput.stderr.slice(-10_000),
+                },
+                null,
+                2,
+              )}\n`,
+              'utf-8',
+            ),
+            contentType: 'application/json',
+          });
+        }
       }
       if (!useExternalService) {
         await stopServiceStubs();
@@ -605,7 +627,7 @@ export const test = base.extend<Fixtures>({
     }
   },
 
-  page: async ({ electronApp }, use, testInfo) => {
+  page: async ({ electronApp, skipPageCloseTeardown, skipFailureScreenshotAfterVerifiedExit }, use, testInfo) => {
     const launchContext = launchContextByApp.get(electronApp);
     const firstWindowTimeoutMs = 30_000;
     const processState = launchContext?.getProcessState();
@@ -715,25 +737,6 @@ export const test = base.extend<Fixtures>({
     } catch (error) {
       console.warn('[electron] domcontentloaded wait timed out; continuing to app-ready check', error);
     }
-    try {
-      const screenshotPath = testInfo.outputPath('boot.png');
-      const screenshotBuffer = await window.screenshot();
-      await fs.promises.mkdir(path.dirname(screenshotPath), { recursive: true });
-      await fs.promises.writeFile(screenshotPath, screenshotBuffer);
-      console.log('[boot.screenshot]', screenshotPath);
-
-      // Playwright auto-attaches files created via `page.screenshot({ path })` to the currently
-      // running fixture step, but the attach event can fire after the fixture step completes,
-      // which is what led to "Internal error: step id not found: fixture@NN". Attach manually
-      // while the fixture is alive so the attachment is tied to a `test.attach` step instead.
-      await testInfo.attach('boot screenshot', {
-        body: screenshotBuffer,
-        contentType: 'image/png',
-      });
-    } catch {
-      // best effort screenshot
-    }
-
     await window.waitForFunction(
       () => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true,
       null,
@@ -750,27 +753,32 @@ export const test = base.extend<Fixtures>({
     } finally {
       window.off('console', handleConsole);
       window.off('pageerror', handlePageError);
-      await bestEffortPageTeardownStep(
-        testInfo,
-        'resetMutableHarnessState',
-        async () => {
-          await resetMutableHarnessState(window, baselineFlags);
-        },
-      );
+      const applicationExitedCleanly = hasElectronApplicationExitedCleanly(electronApp);
+      if (!applicationExitedCleanly) {
       let allowBudget402Noise = false;
-      await bestEffortPageTeardownStep(
-        testInfo,
-        'readAllowBudget402Noise',
-        async () => {
-          allowBudget402Noise = await window.evaluate(
-            () =>
-              Boolean(
-                (window as typeof window & { __allowBudget402Noise?: boolean })
-                  .__allowBudget402Noise,
-              ),
-          );
-        },
-      );
+      const pageClosed = window.isClosed();
+      if (!pageClosed) {
+        await bestEffortPageTeardownStep(
+          testInfo,
+          'resetMutableHarnessState',
+          async () => {
+            await resetMutableHarnessState(window, baselineFlags);
+          },
+        );
+        await bestEffortPageTeardownStep(
+          testInfo,
+          'readAllowBudget402Noise',
+          async () => {
+            allowBudget402Noise = await window.evaluate(
+              () =>
+                Boolean(
+                  (window as typeof window & { __allowBudget402Noise?: boolean })
+                    .__allowBudget402Noise,
+                ),
+            );
+          },
+        );
+      }
       const combinedErrors = [
         ...runtimeDiagnostics.pageErrors,
         ...runtimeDiagnostics.consoleErrors.map((entry) => entry.text),
@@ -821,6 +829,38 @@ export const test = base.extend<Fixtures>({
         );
       }
       if (testInfo.status === 'passed') {
+        if (!pageClosed && !skipPageCloseTeardown) {
+          await bestEffortPageTeardownStep(
+            testInfo,
+            'closeWindow',
+            async () => {
+              await window.close();
+            },
+          );
+        }
+        return;
+      }
+      // Capture failure screenshots while the page fixture step is still active so that the
+      // attachment can be associated with a valid step and avoid "step id not found: fixture@NN".
+      if (skipFailureScreenshotAfterVerifiedExit && hasElectronApplicationExitedCleanly(electronApp)) {
+        console.log('[electron.page.fixture] screenshot unavailable because application exited');
+      } else if (!window.isClosed()) {
+        try {
+          const failureScreenshot = await window.screenshot();
+          await testInfo.attach('failure screenshot', {
+            body: failureScreenshot,
+            contentType: 'image/png',
+          });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (/Target page, context or browser has been closed|Page closed/i.test(message)) {
+            console.log('[electron.page.fixture] screenshot unavailable because application exited');
+          } else {
+            throw error;
+          }
+        }
+      }
+      if (!pageClosed && !skipPageCloseTeardown) {
         await bestEffortPageTeardownStep(
           testInfo,
           'closeWindow',
@@ -828,26 +868,8 @@ export const test = base.extend<Fixtures>({
             await window.close();
           },
         );
-        return;
       }
-      // Capture failure screenshots while the page fixture step is still active so that the
-      // attachment can be associated with a valid step and avoid "step id not found: fixture@NN".
-      try {
-        const failureScreenshot = await window.screenshot();
-        await testInfo.attach('failure screenshot', {
-          body: failureScreenshot,
-          contentType: 'image/png',
-        });
-      } catch (error) {
-        console.warn('[electron.fixture] failed to capture failure screenshot', error);
       }
-      await bestEffortPageTeardownStep(
-        testInfo,
-        'closeWindow',
-        async () => {
-          await window.close();
-        },
-      );
     }
   },
 });
