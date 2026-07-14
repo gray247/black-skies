@@ -91,18 +91,28 @@ acceptance plan, blocker register, packaging/RC plan, known limitations, and
 final closure review. Package records are created only at meaningful scope,
 risk, blocker, acceptance, or closure boundaries.
 
-## 6. Exactly one selected next package
+## 6. Current package position
 
-Package `19.12`, **history/recovery/interruption safety**, is the selected next
-package for governed review after the formal closure of Packages `19.9` through
-`19.11` by commit `d780f52`. It retains the dependencies and exit gate in the
-program sequence above. Selection identifies the next package only; Package
-`19.12` requires separate Jason authorization before work begins.
+Package `19.12`, **history/recovery/interruption safety**, followed the formal
+closure of Packages `19.9` through `19.11` by commit `d780f52`. Its original
+selection and scope records required separate Jason authorization and did not
+themselves authorize runtime work. Jason later authorized each bounded mutation
+during active orchestration. The independently reviewed, accepted sequence is
+`3253a00` (recovery candidate repository), `0f5280b` (prose recovery checkpoint
+capture), `60a8ec7` (explicit prose recovery decisions), and `67e250b` (recovery
+interruption acceptance).
 
-Runtime work never begins by inference. No Package `19.12` implementation or
-runtime mutation is authorized by this status update. One-package-at-a-time
-governance remains in force, and the approved Packages `19.12` through `19.22`
-sequence is unchanged.
+Package `19.12` automated and manual acceptance is complete. Formal Package
+`19.12` closure remains pending its closure record, so Stage 19 remains open.
+`stage19_package_19_12_authorization_reconciliation.md` records the distinction
+between the earlier non-authorizing scope record and the later separately issued
+human authorizations.
+
+Runtime work never begins by inference. Package `19.13`, **Command Center
+integrity**, is next only after formal Package `19.12` closure and separate Jason
+authorization. No Package `19.13` implementation is authorized. One-package-at-
+a-time governance remains in force, and the approved Packages `19.12` through
+`19.22` sequence is unchanged.
 
 ## 7. Closure rule
 
@@ -111,4 +121,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Packages 19.9-19.11 closed; Stage 19 remains open; Package 19.12 selected next for governed review and eligible only for separate authorization
+PZ_CONTINUE: Package 19.12 implementation and acceptance complete; formal closure pending; Stage 19 remains open; Package 19.13 requires Package 19.12 closure and separate Jason authorization

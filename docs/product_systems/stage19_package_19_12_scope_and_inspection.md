@@ -10,6 +10,17 @@ Authority synchronization: `0ad5768 docs(product): synchronize Stage 19 current 
 
 This scope-and-inspection record does not authorize Package 19.12 runtime mutation.
 
+Later status note (2026-07-14): Jason subsequently authorized each bounded
+Package 19.12 mutation during active orchestration. The accepted sequence is
+`3253a00`, `0f5280b`, `60a8ec7`, and `67e250b`; each mutation was independently
+reviewed before commit. Package 19.12 automated and manual acceptance is
+complete, while formal closure remains pending its closure record. The separate
+`stage19_package_19_12_authorization_reconciliation.md` synchronizes repository
+authority with those later human decisions. This note does not convert this
+scope record into runtime authorization. Stage 19 remains open, and Package
+19.13 remains unauthorized unless Package 19.12 first closes formally and Jason
+then grants separate authorization.
+
 ## 1. Purpose and planning opinion
 
 Package 19.12 must establish the minimum trustworthy V1 recovery floor for interrupted unsaved writing without creating a second Project Spine, weakening durable-save authority, or expanding into general history, backup, restore, or version control.
@@ -252,7 +263,7 @@ Full history browsing, multi-version retention, diff/merge UI, backup management
 
 ## 12. Package 19.13 handoff boundary
 
-Package 19.13 remains separately authorized and projection-only. Planning the shared horizon does not combine Package 19.12 and Package 19.13 implementation or closure.
+Package 19.13 remains unauthorized and, if separately authorized after formal Package 19.12 closure, projection-only. Planning the shared horizon does not combine Package 19.12 and Package 19.13 implementation or closure.
 
 Before Package 19.13 begins, Package 19.12 must have a main-authored, read-only recovery projection contract suitable for later inclusion in role-specific session snapshots. The minimum contract should communicate availability, candidate count or affected unit identities, freshness/version, current lifecycle state, and honest stale/degraded/failure state. It should not include recovered prose unless a later explicit privacy and presentation decision requires it.
 
