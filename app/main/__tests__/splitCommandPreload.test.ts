@@ -133,6 +133,25 @@ function getProjectSpineBridge(): ProjectSpineBridge | undefined {
     | undefined;
 }
 
+function getExposedGlobal(key: string): unknown {
+  return vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls.find(([name]) => name === key)?.[1];
+}
+
+function getExposedGlobalNames(): string[] {
+  return vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls.map(([key]) => String(key));
+}
+
+const originalPlaywright = process.env.PLAYWRIGHT;
+const originalHarnessHooks = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
+
+function restoreEnvironmentVariable(key: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[key];
+    return;
+  }
+  process.env[key] = value;
+}
+
 describe('splitCommand preload bridge', () => {
   beforeEach(async () => {
     vi.resetModules();
@@ -141,19 +160,36 @@ describe('splitCommand preload bridge', () => {
     ipcListeners.clear();
     setContextIsolation(true);
     setArgv([]);
+    delete process.env.PLAYWRIGHT;
+    delete process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
   });
 
   afterEach(() => {
     setContextIsolation(false);
     setArgv([]);
+    restoreEnvironmentVariable('PLAYWRIGHT', originalPlaywright);
+    restoreEnvironmentVariable('BLACKSKIES_ENABLE_HARNESS_HOOKS', originalHarnessHooks);
   });
 
-  it('keeps the stable path free of split command bridge exposure', async () => {
+  it('preserves the stable Writing Studio preload globals without split command exposure', async () => {
     await import('../preload');
 
-    expect(
-      vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls.map(([key]) => key),
-    ).not.toContain('splitCommand');
+    expect(getExposedGlobalNames().sort()).toEqual(
+      [
+        '__electronApi',
+        '__phase4MockFlowEnabled',
+        '__testEnv',
+        'diagnostics',
+        'layout',
+        'projectLoader',
+        'projectSpine',
+        'runtimeConfig',
+        'services',
+      ].sort(),
+    );
+    expect(getExposedGlobal('projectLoader')).toBeDefined();
+    expect(getExposedGlobal('services')).toBeDefined();
+    expect(getExposedGlobal('__electronApi')).toBeDefined();
   });
 
   it('exposes split command ownership sync only for experimental launch args', async () => {
@@ -246,14 +282,27 @@ describe('splitCommand preload bridge', () => {
       '--blackskies-split-command-pair-id=split-command:session-123',
       '--blackskies-split-command-session-generation=session-123',
     ]);
+    process.env.PLAYWRIGHT = '1';
+    process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS = '1';
 
     await import('../preload');
 
+    expect(getExposedGlobalNames().sort()).toEqual(['projectSpine', 'splitCommand']);
     const bridge = getSplitCommandBridge();
     expect(bridge).toBeDefined();
     expect(bridge?.windowRole).toBe('secondary');
+    expect(Object.keys(bridge!).sort()).toEqual(
+      ['readOwnershipSync', 'requestOwnershipSync', 'subscribeOwnershipSync', 'windowRole'].sort(),
+    );
     const projectSpine = getProjectSpineBridge();
     expect(projectSpine?.windowRole).toBe('command');
+    expect(Object.keys(projectSpine!).sort()).toEqual(
+      ['getSession', 'selectUnit', 'subscribeSession', 'windowRole'].sort(),
+    );
+    expect(projectSpine?.chooseDirectory).toBeUndefined();
+    expect(projectSpine?.openProject).toBeUndefined();
+    expect(projectSpine?.createProject).toBeUndefined();
+    expect(projectSpine?.removeRecent).toBeUndefined();
     expect(projectSpine?.saveUnit).toBeUndefined();
     expect(projectSpine?.captureRecoveryCheckpoint).toBeUndefined();
     expect(projectSpine?.acceptRecoveryCandidate).toBeUndefined();
@@ -262,6 +311,31 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.renameUnit).toBeUndefined();
     expect(projectSpine?.reorderUnits).toBeUndefined();
     expect(projectSpine?.deleteUnit).toBeUndefined();
+    expect(projectSpine?.onCloseConfirmationRequest).toBeUndefined();
+    expect(projectSpine?.respondToCloseConfirmation).toBeUndefined();
+    expect(getExposedGlobal('projectLoader')).toBeUndefined();
+    expect(getExposedGlobal('services')).toBeUndefined();
+    expect(getExposedGlobal('__electronApi')).toBeUndefined();
+    expect(getExposedGlobal('__test')).toBeUndefined();
+    expect(getExposedGlobal('__dev')).toBeUndefined();
+    expect(getExposedGlobal('__testInsights')).toBeUndefined();
+    expect(getExposedGlobal('testMode')).toBeUndefined();
+    ipcRendererInvokeMock.mockResolvedValueOnce({
+      schemaVersion: 1,
+      role: 'writing',
+      generation: 1,
+      revision: 1,
+      project: null,
+      activeUnitId: null,
+      recentProjects: [],
+      dirtyUnitIds: [],
+      saveState: { status: 'clean', unitId: null, message: null },
+      lastError: null,
+      recovery: { status: 'none', candidates: [] },
+    });
+    await expect(projectSpine!.getSession()).rejects.toThrow(
+      'Project session bridge returned an invalid snapshot.',
+    );
     const requested = await bridge!.requestOwnershipSync();
     expect(requested).toEqual(sampleMessage);
     expect(bridge!.readOwnershipSync()).toEqual(sampleMessage);
@@ -299,8 +373,45 @@ describe('splitCommand preload bridge', () => {
 
     await import('../preload');
 
+    expect(getExposedGlobalNames().sort()).toEqual(
+      [
+        '__electronApi',
+        '__phase4MockFlowEnabled',
+        '__testEnv',
+        'diagnostics',
+        'layout',
+        'projectLoader',
+        'projectSpine',
+        'runtimeConfig',
+        'services',
+        'splitCommand',
+      ].sort(),
+    );
     const projectSpine = getProjectSpineBridge();
     expect(projectSpine?.windowRole).toBe('writing');
+    expect(Object.keys(projectSpine!).sort()).toEqual(
+      [
+        'acceptRecoveryCandidate',
+        'captureRecoveryCheckpoint',
+        'chooseDirectory',
+        'createProject',
+        'createUnit',
+        'deleteUnit',
+        'getSession',
+        'onCloseConfirmationRequest',
+        'openProject',
+        'rejectRecoveryCandidate',
+        'removeRecent',
+        'renameUnit',
+        'reorderUnits',
+        'respondToCloseConfirmation',
+        'saveUnit',
+        'selectUnit',
+        'setUnitDirty',
+        'subscribeSession',
+        'windowRole',
+      ].sort(),
+    );
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
     expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
     expect(projectSpine?.acceptRecoveryCandidate).toEqual(expect.any(Function));
@@ -330,5 +441,41 @@ describe('splitCommand preload bridge', () => {
     };
     ipcRendererInvokeMock.mockResolvedValueOnce(degradedSnapshot);
     await expect(projectSpine?.getSession()).resolves.toEqual(degradedSnapshot);
+  });
+
+  it.each([
+    ['incomplete secondary arguments', ['--blackskies-split-command-role=secondary']],
+    [
+      'an unknown role value',
+      [
+        '--blackskies-split-command-role=unknown',
+        '--blackskies-split-command-pair-id=split-command:session-unknown',
+        '--blackskies-split-command-session-generation=session-unknown',
+      ],
+    ],
+    [
+      'conflicting duplicate role values',
+      [
+        '--blackskies-split-command-role=primary',
+        '--blackskies-split-command-role=secondary',
+        '--blackskies-split-command-pair-id=split-command:session-duplicate',
+        '--blackskies-split-command-session-generation=session-duplicate',
+      ],
+    ],
+  ])('fails closed for %s', async (_label, args) => {
+    setArgv(args);
+
+    await import('../preload');
+
+    expect(getSplitCommandBridge()).toBeUndefined();
+    expect(getExposedGlobalNames()).toEqual(['projectSpine']);
+    const projectSpine = getProjectSpineBridge();
+    expect(projectSpine?.windowRole).toBe('command');
+    expect(Object.keys(projectSpine!).sort()).toEqual(
+      ['getSession', 'selectUnit', 'subscribeSession', 'windowRole'].sort(),
+    );
+    expect(getExposedGlobal('projectLoader')).toBeUndefined();
+    expect(getExposedGlobal('services')).toBeUndefined();
+    expect(getExposedGlobal('__electronApi')).toBeUndefined();
   });
 });

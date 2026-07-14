@@ -34,17 +34,22 @@ function readSplitCommandLaunchContextFromArgv():
       readonly sessionGeneration: string;
     }
   | null {
-  const roleArg = process.argv.find((entry) => entry.startsWith('--blackskies-split-command-role='));
-  const pairIdArg = process.argv.find((entry) =>
+  const roleArgs = process.argv.filter((entry) =>
+    entry.startsWith('--blackskies-split-command-role='),
+  );
+  const pairIdArgs = process.argv.filter((entry) =>
     entry.startsWith('--blackskies-split-command-pair-id='),
   );
-  const generationArg = process.argv.find((entry) =>
+  const generationArgs = process.argv.filter((entry) =>
     entry.startsWith('--blackskies-split-command-session-generation='),
   );
 
-  if (!roleArg || !pairIdArg || !generationArg) {
+  if (roleArgs.length !== 1 || pairIdArgs.length !== 1 || generationArgs.length !== 1) {
     return null;
   }
+  const [roleArg] = roleArgs;
+  const [pairIdArg] = pairIdArgs;
+  const [generationArg] = generationArgs;
 
   const windowRole = roleArg.split('=', 2)[1] as SplitCommandWindowRole | undefined;
   const pairId = pairIdArg.split('=', 2)[1] ?? '';
@@ -60,7 +65,17 @@ function readSplitCommandLaunchContextFromArgv():
   };
 }
 
+const hasSplitCommandLaunchArguments = process.argv.some((entry) =>
+  [
+    '--blackskies-split-command-role=',
+    '--blackskies-split-command-pair-id=',
+    '--blackskies-split-command-session-generation=',
+  ].some((prefix) => entry.startsWith(prefix)),
+);
 const splitCommandLaunchContext = readSplitCommandLaunchContextFromArgv();
+const isCommandCenterPreload =
+  splitCommandLaunchContext?.windowRole === 'secondary' ||
+  (hasSplitCommandLaunchArguments && !splitCommandLaunchContext);
 let splitCommandOwnershipSync: SplitCommandOwnershipSyncMessage | null = null;
 const splitCommandOwnershipSyncListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
 
@@ -196,13 +211,17 @@ const electronFsApi = {
     };
   },
 };
-safeExpose('__electronApi', { fs: electronFsApi });
+if (!isCommandCenterPreload) {
+  safeExpose('__electronApi', { fs: electronFsApi });
+}
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const harnessHooksEnabled = modePolicy.isHarnessEnabled();
 const forceRecoveryInHarness = process.env.BLACKSKIES_TEST_NEEDS_RECOVERY === '1';
 const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
-safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
+if (!isCommandCenterPreload) {
+  safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
+}
 const setPlaywrightTestAttribute = (): void => {
   if (typeof document === 'undefined') {
     return;
@@ -277,7 +296,9 @@ const ensureForceStateAttrsWithRetry = (): void => {
   }
 };
 ensureForceStateAttrsWithRetry();
-safeExpose('__testEnv', { isPlaywright });
+if (!isCommandCenterPreload) {
+  safeExpose('__testEnv', { isPlaywright });
+}
 
 if (typeof window !== 'undefined' && harnessHooksEnabled) {
   const setHarnessFlag = (
@@ -557,7 +578,7 @@ const devApi: {
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
 // opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
-if (isPlaywright || harnessHooksEnabled) {
+if (!isCommandCenterPreload && (isPlaywright || harnessHooksEnabled)) {
   safeExpose('__test', {
     markBoot: () => console.log('[boot] renderer mounted'),
   });
@@ -2043,8 +2064,7 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
   return snapshot as ProjectSpineSessionSnapshot;
 }
 
-const projectSpineWindowRole =
-  splitCommandLaunchContext?.windowRole === 'secondary' ? 'command' : 'writing';
+const projectSpineWindowRole = isCommandCenterPreload ? 'command' : 'writing';
 
 const projectSpineBaseBridge: ProjectSpineBridge = {
   windowRole: projectSpineWindowRole,
@@ -2068,7 +2088,7 @@ const projectSpineBaseBridge: ProjectSpineBridge = {
     const snapshot = normalizeProjectSpineSnapshot(
       await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.getSession),
     );
-    if (!snapshot) {
+    if (!snapshot || snapshot.role !== projectSpineWindowRole) {
       throw new Error('Project session bridge returned an invalid snapshot.');
     }
     return snapshot;
@@ -2097,7 +2117,19 @@ const projectSpineBaseBridge: ProjectSpineBridge = {
   },
 };
 
-const projectSpineBridge: ProjectSpineBridge =
+type CommandProjectSpineBridge = Pick<
+  ProjectSpineBridge,
+  'windowRole' | 'getSession' | 'selectUnit' | 'subscribeSession'
+>;
+
+const projectSpineCommandBridge: CommandProjectSpineBridge = {
+  windowRole: projectSpineBaseBridge.windowRole,
+  getSession: projectSpineBaseBridge.getSession,
+  selectUnit: projectSpineBaseBridge.selectUnit,
+  subscribeSession: projectSpineBaseBridge.subscribeSession,
+};
+
+const projectSpineBridge: ProjectSpineBridge | CommandProjectSpineBridge =
   projectSpineWindowRole === 'writing'
     ? {
         ...projectSpineBaseBridge,
@@ -2148,7 +2180,7 @@ const projectSpineBridge: ProjectSpineBridge =
           ) as Promise<ProjectSpineResult>;
         },
       }
-    : projectSpineBaseBridge;
+    : projectSpineCommandBridge;
 
 const diagnosticsBridge: DiagnosticsBridge = {
   async openDiagnosticsFolder(): Promise<DiagnosticsOpenResult> {
@@ -2347,12 +2379,16 @@ const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunc
 
 registerConsoleForwarding();
 
-contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
+if (!isCommandCenterPreload) {
+  contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
+}
 contextBridge.exposeInMainWorld('projectSpine', projectSpineBridge);
-contextBridge.exposeInMainWorld('services', servicesBridge);
-contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
-contextBridge.exposeInMainWorld('layout', layoutBridge);
-contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+if (!isCommandCenterPreload) {
+  contextBridge.exposeInMainWorld('services', servicesBridge);
+  contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
+  contextBridge.exposeInMainWorld('layout', layoutBridge);
+  contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+}
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);
 }
