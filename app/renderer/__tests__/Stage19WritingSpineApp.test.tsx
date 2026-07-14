@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBridge,
+  ProjectSpineCommandStatusProjection,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
   ProjectSpineWritingRecoveryState,
@@ -50,6 +51,10 @@ function snapshot(
     generation?: number;
     revision?: number;
     recovery?: ProjectSpineWritingRecoveryState;
+    dirtyUnitIds?: string[];
+    saveState?: ProjectSpineSessionSnapshot['saveState'];
+    lastError?: ProjectSpineSessionSnapshot['lastError'];
+    commandStatus?: Partial<ProjectSpineCommandStatusProjection>;
   } = {},
 ): ProjectSpineSessionSnapshot {
   const units = options.units ?? [
@@ -82,12 +87,23 @@ function snapshot(
     },
     activeUnitId: options.activeUnitId === undefined ? units[0]?.id ?? null : options.activeUnitId,
     recentProjects: [],
-    dirtyUnitIds: [],
-    saveState: { status: 'clean', unitId: null, message: null },
-    lastError: null,
+    dirtyUnitIds: options.dirtyUnitIds ?? [],
+    saveState: options.saveState ?? { status: 'clean', unitId: null, message: null },
+    lastError: options.lastError ?? null,
     ...(role === 'writing'
       ? { recovery: options.recovery ?? { status: 'none' as const, candidates: [] } }
-      : {}),
+      : {
+          commandStatus: {
+            schemaVersion: 1 as const,
+            projectId: options.projectId ?? 'proj_a',
+            generation: options.generation ?? 1,
+            revision: options.revision ?? 1,
+            lifecycle: 'active' as const,
+            recovery: 'none' as const,
+            save: options.saveState?.status ?? 'clean' as const,
+            ...options.commandStatus,
+          },
+        }),
   };
 }
 
@@ -385,6 +401,224 @@ describe('Stage19WritingSpineApp', () => {
       'data-primary-scroll-container',
       'true',
     );
+  });
+
+  it.each([
+    [
+      'decision-required',
+      'clean',
+      [],
+      'Recovery decision required in Writing Studio',
+    ],
+    [
+      'accepted-pending-save',
+      'dirty',
+      ['unit_a'],
+      'Recovered work is unsaved and pending normal Save',
+    ],
+    [
+      'degraded',
+      'clean',
+      [],
+      'Recovery evidence is degraded or unavailable',
+    ],
+  ] as const)(
+    'renders prose-free Command recovery status %s',
+    async (recovery, saveState, dirtyUnitIds, label) => {
+      const current = snapshot('command', {
+        dirtyUnitIds: [...dirtyUnitIds],
+        saveState: { status: saveState, unitId: dirtyUnitIds[0] ?? null, message: null },
+        commandStatus: {
+          recovery,
+          save: recovery === 'accepted-pending-save'
+            ? 'accepted-recovery-pending-save'
+            : saveState,
+        },
+      });
+      const harness = createBridge(current);
+      render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+      expect((await screen.findAllByText(label)).length).toBeGreaterThan(0);
+      expect(screen.queryByText('Recovered full prose')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Recover this prose/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    ['dirty', ['unit_a'], '1 unsaved unit'],
+    ['saving', ['unit_a'], 'Savingâ€¦'],
+    ['saved', [], 'Saved durably'],
+    ['save-failed', ['unit_a'], 'Save failed in Writing Studio'],
+  ] as const)('renders authoritative Command Save status %s', async (save, dirtyUnitIds, label) => {
+    const current = snapshot('command', {
+      dirtyUnitIds: [...dirtyUnitIds],
+      saveState: {
+        status: save,
+        unitId: dirtyUnitIds[0] ?? null,
+        message: save === 'save-failed' ? 'Sensitive durable path detail' : null,
+      },
+      lastError: save === 'save-failed'
+        ? { code: 'SAVE_FAILED', message: 'Sensitive durable path detail' }
+        : null,
+      commandStatus: { save },
+    });
+    const harness = createBridge(current);
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+    expect((await screen.findAllByText(label)).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Sensitive durable path detail')).not.toBeInTheDocument();
+  });
+
+  it('keeps accepted recovery visible while giving Save failure precedence', async () => {
+    const current = snapshot('command', {
+      dirtyUnitIds: ['unit_a'],
+      saveState: { status: 'save-failed', unitId: 'unit_a', message: 'Private path detail' },
+      lastError: { code: 'SAVE_FAILED', message: 'Private path detail' },
+      commandStatus: { recovery: 'accepted-pending-save', save: 'save-failed' },
+    });
+    const harness = createBridge(current);
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+    expect((await screen.findAllByText('Save failed in Writing Studio')).length).toBeGreaterThan(0);
+    expect(screen.getByText('Recovered work is unsaved and pending normal Save')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Durable Save failed in Writing Studio');
+    expect(screen.queryByText('Private path detail')).not.toBeInTheDocument();
+  });
+
+  it('renders no-project status without a saved claim', async () => {
+    const active = snapshot('command');
+    const noProject: ProjectSpineSessionSnapshot = {
+      ...active,
+      project: null,
+      activeUnitId: null,
+      commandStatus: {
+        ...active.commandStatus!,
+        projectId: null,
+        lifecycle: 'operation-failed',
+      },
+      lastError: { code: 'PROJECT_INVALID', message: 'Private project failure detail' },
+    };
+    const harness = createBridge(noProject);
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+    expect(await screen.findByRole('heading', { name: 'No active project' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('No active project');
+    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
+  });
+
+  it('replaces Project A recovery status on switch and rejects stale snapshots', async () => {
+    const projectA = snapshot('command', {
+      generation: 2,
+      revision: 5,
+      dirtyUnitIds: ['unit_a'],
+      saveState: { status: 'dirty', unitId: 'unit_a', message: null },
+      commandStatus: {
+        recovery: 'accepted-pending-save',
+        save: 'accepted-recovery-pending-save',
+      },
+    });
+    const harness = createBridge(projectA);
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+    expect((await screen.findAllByText('Recovered work is unsaved and pending normal Save')).length)
+      .toBeGreaterThan(0);
+
+    const projectB = snapshot('command', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 3,
+      revision: 2,
+    });
+    act(() => harness.emit(projectB));
+    expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+    expect(screen.getByText('No recovery action required')).toBeVisible();
+
+    act(() => harness.emit({
+      ...projectA,
+      revision: 99,
+      commandStatus: { ...projectA.commandStatus!, revision: 99 },
+    }));
+    act(() => harness.emit(snapshot('command', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 3,
+      revision: 1,
+      commandStatus: { recovery: 'degraded' },
+    })));
+    expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
+    expect(screen.getByText('No recovery action required')).toBeVisible();
+    expect(screen.queryByText('Recovery evidence is degraded or unavailable')).not.toBeInTheDocument();
+  });
+
+  it('renders failed and unavailable Command status without claiming saved truth', async () => {
+    const failed = snapshot('command', {
+      lastError: { code: 'PROJECT_INVALID', message: 'Sensitive project detail' },
+      commandStatus: { lifecycle: 'operation-failed' },
+    });
+    const failedHarness = createBridge(failed);
+    const { unmount } = render(
+      <Stage19WritingSpineApp windowRole="command" bridge={failedHarness.bridge} />,
+    );
+    expect(await screen.findByText('Project operation failed')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'A Writing Studio project operation failed. Current project identity is preserved.',
+    );
+    expect(screen.queryByText('Sensitive project detail')).not.toBeInTheDocument();
+    unmount();
+
+    const unavailableHarness = createBridge(snapshot('command'));
+    vi.mocked(unavailableHarness.bridge.getSession).mockRejectedValueOnce(
+      new Error('authoritative bridge unavailable'),
+    );
+    render(<Stage19WritingSpineApp windowRole="command" bridge={unavailableHarness.bridge} />);
+    expect(await screen.findByRole('status')).toHaveTextContent('Status unavailable');
+    expect(screen.getByRole('heading', { name: 'Project status unavailable' })).toBeVisible();
+    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
+
+    act(() => unavailableHarness.emit(snapshot('command', { generation: 2, revision: 1 })));
+    expect(await screen.findByRole('heading', { name: 'Project A' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Saved durably');
+    expect(screen.queryByText('Project status unavailable')).not.toBeInTheDocument();
+  });
+
+  it('ignores an older initial-read failure after a valid subscription snapshot arrives', async () => {
+    const harness = createBridge(snapshot('command'));
+    let rejectInitialRead!: (reason: Error) => void;
+    const initialRead = new Promise<ProjectSpineSessionSnapshot>((_resolve, reject) => {
+      rejectInitialRead = reject;
+    });
+    vi.mocked(harness.bridge.getSession).mockReturnValueOnce(initialRead);
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+    act(() => harness.emit(snapshot('command', { generation: 2, revision: 1 })));
+    expect(await screen.findByRole('heading', { name: 'Project A' })).toBeVisible();
+
+    await act(async () => {
+      rejectInitialRead(new Error('obsolete initial read failure'));
+      await initialRead.catch(() => undefined);
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('Project status unavailable')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Saved durably');
+  });
+
+  it('fails closed when the initial Command snapshot lacks authoritative status', async () => {
+    const initial = snapshot('command');
+    const harness = createBridge(initial);
+    vi.mocked(harness.bridge.getSession).mockResolvedValueOnce({
+      ...initial,
+      commandStatus: undefined,
+    });
+    render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
+
+    expect(await screen.findByRole('heading', { name: 'Project status unavailable' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Status unavailable');
+    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
   });
 
   it('renders Writing Studio as the only prose-editing and structural authority', async () => {

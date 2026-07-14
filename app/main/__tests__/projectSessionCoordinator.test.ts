@@ -38,6 +38,24 @@ function binding(coordinator: ProjectSessionCoordinator, active: LoadedProject, 
 }
 
 describe('ProjectSessionCoordinator', () => {
+  it('projects a truthful prose-free no-project Command source state', () => {
+    const coordinator = new ProjectSessionCoordinator();
+
+    expect(coordinator.snapshot('command')).toMatchObject({
+      project: null,
+      activeUnitId: null,
+      dirtyUnitIds: [],
+      saveState: { status: 'clean', unitId: null, message: null },
+      commandStatus: {
+        projectId: null,
+        lifecycle: 'no-active-project',
+        recovery: 'none',
+        save: 'clean',
+      },
+    });
+    expect(coordinator.snapshot('writing')).not.toHaveProperty('commandStatus');
+  });
+
   it('activates one canonical project and produces role-projected snapshots', () => {
     const coordinator = new ProjectSessionCoordinator();
     const active = project('proj_a', 'C:\\projects\\a', 'Project A');
@@ -50,7 +68,18 @@ describe('ProjectSessionCoordinator', () => {
     expect(writing.project?.drafts).toEqual(active.drafts);
     expect(command.project).toMatchObject({ projectId: 'proj_a', title: 'Project A' });
     expect(command.project?.drafts).toBeUndefined();
+    expect(command.commandStatus).toEqual({
+      schemaVersion: 1,
+      projectId: 'proj_a',
+      generation: command.generation,
+      revision: command.revision,
+      lifecycle: 'active',
+      recovery: 'none',
+      save: 'clean',
+    });
+    expect(JSON.stringify(command.commandStatus)).not.toContain('Body');
     expect(writing.activeUnitId).toBe('unit_1');
+    expect(writing).not.toHaveProperty('commandStatus');
   });
 
   it('treats opening the exact active identity and path as an idempotent no-op', () => {
@@ -89,6 +118,7 @@ describe('ProjectSessionCoordinator', () => {
     );
     expect(coordinator.snapshot('writing').project?.projectId).toBe('proj_a');
 
+    coordinator.noteFailure({ code: 'PROJECT_INVALID', message: 'Project A detail' });
     coordinator.activateProject(project('proj_b', 'C:\\projects\\b'), true);
     expect(coordinator.snapshot('writing')).toMatchObject({
       generation: 2,
@@ -96,6 +126,14 @@ describe('ProjectSessionCoordinator', () => {
       saveState: { status: 'clean' },
       project: { projectId: 'proj_b' },
     });
+    expect(coordinator.snapshot('command').commandStatus).toMatchObject({
+      projectId: 'proj_b',
+      generation: 2,
+      lifecycle: 'active',
+      recovery: 'none',
+      save: 'clean',
+    });
+    expect(coordinator.snapshot('command').lastError).toBeNull();
   });
 
   it('advances revisions for dirty, save, and selection state so renderers can reject stale snapshots', () => {
@@ -160,6 +198,9 @@ describe('ProjectSessionCoordinator', () => {
     });
 
     expect(coordinator.snapshot('writing').recovery).toMatchObject({ status: 'decision-required' });
+    expect(coordinator.snapshot('command')).toMatchObject({
+      commandStatus: { recovery: 'decision-required', save: 'clean' },
+    });
     expect(coordinator.snapshot('command')).not.toHaveProperty('recovery');
     expect(() => coordinator.assertRecoveryMutationAllowed(sessionBinding)).toThrowError(
       expect.objectContaining({ code: 'RECOVERY_UNAVAILABLE' }),
@@ -200,11 +241,91 @@ describe('ProjectSessionCoordinator', () => {
         candidates: [{ prose: 'Recovered prose', originSessionId: 'origin-current', candidateVersion: 2 }],
       },
     });
+    expect(coordinator.snapshot('command')).toMatchObject({
+      dirtyUnitIds: ['unit_1'],
+      commandStatus: {
+        projectId: 'proj_recovery',
+        recovery: 'accepted-pending-save',
+        save: 'accepted-recovery-pending-save',
+      },
+    });
 
     const discarded = coordinator.discardUnsavedBuffers(active.projectId!, coordinator.getGeneration());
     expect(coordinator.snapshot('writing').recovery).toEqual({ status: 'none', candidates: [] });
     coordinator.restoreDiscardedUnsavedBuffers(discarded);
     expect(coordinator.snapshot('writing').recovery).toMatchObject({ status: 'accepted-pending-save' });
+
+    const saveToken = coordinator.beginSave(
+      { ...sessionBinding, operationId: 'save-recovered' },
+      'unit_1',
+    );
+    expect(coordinator.snapshot('command').commandStatus).toMatchObject({
+      recovery: 'accepted-pending-save',
+      save: 'saving',
+    });
+    coordinator.failSave(saveToken, 'First durable Save failed');
+    expect(coordinator.snapshot('command').commandStatus).toMatchObject({
+      lifecycle: 'active',
+      recovery: 'accepted-pending-save',
+      save: 'save-failed',
+    });
+
+    const retryToken = coordinator.beginSave(
+      { ...sessionBinding, operationId: 'save-recovered-retry' },
+      'unit_1',
+    );
+    coordinator.completeSave(retryToken, active.drafts.unit_1);
+    expect(coordinator.snapshot('command').commandStatus).toMatchObject({
+      recovery: 'none',
+      save: 'saved',
+    });
+    coordinator.noteRecoverySaveReconciliation(
+      { ...sessionBinding, operationId: 'retire-recovered' },
+      'unit_1',
+      'retired',
+      null,
+    );
+    expect(coordinator.snapshot('command').commandStatus).toMatchObject({
+      recovery: 'none',
+      save: 'saved',
+    });
+  });
+
+  it('maps degraded evidence and operation failure to prose-free Command status', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_degraded', 'C:\\projects\\degraded');
+    coordinator.activateProject(active);
+    coordinator.installRecoveryState(binding(coordinator, active, 'detect-degraded'), {
+      status: 'degraded',
+      reason: 'corrupt-artifact',
+      message: 'Artifact contained secret implementation detail.',
+      candidates: [],
+    });
+
+    const degraded = coordinator.snapshot('command');
+    expect(degraded.commandStatus).toMatchObject({
+      projectId: 'proj_degraded',
+      lifecycle: 'active',
+      recovery: 'degraded',
+      save: 'clean',
+    });
+    expect(JSON.stringify(degraded.commandStatus)).not.toContain('secret');
+
+    const degradedRevision = degraded.revision;
+    coordinator.noteFailure({ code: 'PROJECT_INVALID', message: 'Sensitive path detail' });
+    const failed = coordinator.snapshot('command');
+    expect(failed.revision).toBeGreaterThan(degradedRevision);
+    expect(failed.commandStatus).toMatchObject({
+      projectId: 'proj_degraded',
+      lifecycle: 'operation-failed',
+      recovery: 'degraded',
+    });
+    expect(JSON.stringify(failed.commandStatus)).not.toContain('Sensitive');
+
+    coordinator.activateProject(active);
+    const cleared = coordinator.snapshot('command');
+    expect(cleared.revision).toBeGreaterThan(failed.revision);
+    expect(cleared.commandStatus?.lifecycle).toBe('active');
   });
 
   it('rejects late save completion after the bound session changes', () => {

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SplitCommandOwnershipSyncMessage } from '../../shared/splitCommandAuthority';
 import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
-import type { ProjectSpineBridge } from '../../shared/ipc/projectSpine';
+import { PROJECT_SPINE_CHANNELS, type ProjectSpineBridge } from '../../shared/ipc/projectSpine';
 
 const contextBridgeMock = vi.hoisted(() => ({
   exposeInMainWorld: vi.fn(),
@@ -336,6 +336,129 @@ describe('splitCommand preload bridge', () => {
     await expect(projectSpine!.getSession()).rejects.toThrow(
       'Project session bridge returned an invalid snapshot.',
     );
+    const commandSnapshot = {
+      schemaVersion: 1 as const,
+      role: 'command' as const,
+      generation: 2,
+      revision: 3,
+      project: null,
+      activeUnitId: null,
+      recentProjects: [],
+      dirtyUnitIds: [],
+      saveState: { status: 'clean' as const, unitId: null, message: null },
+      lastError: null,
+      commandStatus: {
+        schemaVersion: 1 as const,
+        projectId: null,
+        generation: 2,
+        revision: 3,
+        lifecycle: 'no-active-project' as const,
+        recovery: 'none' as const,
+        save: 'clean' as const,
+      },
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce(commandSnapshot);
+    await expect(projectSpine!.getSession()).resolves.toEqual(commandSnapshot);
+    const activeCommandSnapshot = {
+      ...commandSnapshot,
+      project: {
+        projectId: 'proj_a',
+        path: 'C:\\projects\\a',
+        title: 'Project A',
+        schemaVersion: 'ProjectMetadataSchema v1' as const,
+        units: [{ id: 'unit_a', title: 'Unit A', displayTitle: 'Unit A', order: 1 }],
+      },
+      activeUnitId: 'unit_a',
+      commandStatus: {
+        ...commandSnapshot.commandStatus,
+        projectId: 'proj_a',
+        lifecycle: 'active' as const,
+      },
+    };
+    const invalidSnapshots: unknown[] = [
+      (({ commandStatus: _omitted, ...rest }) => rest)(commandSnapshot),
+      { ...commandSnapshot, role: 'writing', recovery: { status: 'none', candidates: [] } },
+      { ...commandSnapshot, prose: 'must not cross' },
+      { ...commandSnapshot, candidates: [] },
+      { ...commandSnapshot, recovery: { status: 'none', candidates: [] } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, prose: 'must not cross' } },
+      { ...commandSnapshot, schemaVersion: 2 },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, schemaVersion: 2 } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, projectId: 'proj_other' } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, generation: 1 } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, revision: 1 } },
+      {
+        ...commandSnapshot,
+        generation: -1,
+        commandStatus: { ...commandSnapshot.commandStatus, generation: -1 },
+      },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, lifecycle: 'active' } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, recovery: 'unexpected' } },
+      { ...commandSnapshot, commandStatus: { ...commandSnapshot.commandStatus, save: 'unexpected' } },
+      {
+        ...activeCommandSnapshot,
+        project: { ...activeCommandSnapshot.project, drafts: { unit_a: 'private prose' } },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: { ...activeCommandSnapshot.project, artifactPath: 'C:\\private\\artifact' },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: {
+          ...activeCommandSnapshot.project,
+          units: [{ ...activeCommandSnapshot.project.units[0], prose: 'private prose' }],
+        },
+      },
+      {
+        ...activeCommandSnapshot,
+        dirtyUnitIds: [],
+        saveState: { status: 'clean', unitId: null, message: null },
+        commandStatus: {
+          ...activeCommandSnapshot.commandStatus,
+          recovery: 'accepted-pending-save',
+          save: 'accepted-recovery-pending-save',
+        },
+      },
+      {
+        ...activeCommandSnapshot,
+        dirtyUnitIds: ['unit_a'],
+        saveState: { status: 'clean', unitId: null, message: null },
+      },
+      {
+        ...activeCommandSnapshot,
+        dirtyUnitIds: [],
+        saveState: { status: 'dirty', unitId: 'unit_a', message: null },
+        commandStatus: { ...activeCommandSnapshot.commandStatus, save: 'dirty' },
+      },
+      {
+        ...activeCommandSnapshot,
+        saveState: { status: 'clean', unitId: null, message: null, prose: 'private prose' },
+      },
+      {
+        ...activeCommandSnapshot,
+        lastError: { code: 'PROJECT_INVALID', message: 'failed', artifactPath: 'C:\\private' },
+      },
+    ];
+    for (const invalidSnapshot of invalidSnapshots) {
+      ipcRendererInvokeMock.mockResolvedValueOnce(invalidSnapshot);
+      await expect(projectSpine!.getSession()).rejects.toThrow(
+        'Project session bridge returned an invalid snapshot.',
+      );
+    }
+    ipcRendererInvokeMock.mockResolvedValueOnce(activeCommandSnapshot);
+    await expect(projectSpine!.getSession()).resolves.toEqual(activeCommandSnapshot);
+    const sessionListener = vi.fn();
+    const unsubscribeSession = projectSpine!.subscribeSession(sessionListener);
+    for (const listener of ipcListeners.get(PROJECT_SPINE_CHANNELS.sessionChanged) ?? []) {
+      listener({}, { ...commandSnapshot, prose: 'must not cross through subscription' });
+    }
+    expect(sessionListener).not.toHaveBeenCalled();
+    for (const listener of ipcListeners.get(PROJECT_SPINE_CHANNELS.sessionChanged) ?? []) {
+      listener({}, commandSnapshot);
+    }
+    expect(sessionListener).toHaveBeenCalledWith(commandSnapshot);
+    unsubscribeSession();
     const requested = await bridge!.requestOwnershipSync();
     expect(requested).toEqual(sampleMessage);
     expect(bridge!.readOwnershipSync()).toEqual(sampleMessage);

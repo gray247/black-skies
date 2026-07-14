@@ -2,6 +2,7 @@ import path from 'node:path';
 import type { LoadedProject } from '../shared/ipc/projectLoader';
 import type {
   ProjectSpineBinding,
+  ProjectSpineCommandStatusProjection,
   ProjectSpineError,
   ProjectSpineErrorCode,
   ProjectSpineRecoveryCandidateProjection,
@@ -416,7 +417,7 @@ export class ProjectSessionCoordinator {
 
     if (currentPathKey === nextPathKey && currentProjectId === nextProjectId) {
       this.upsertRecent(project, false);
-      this.lastError = null;
+      this.clearError();
       return { activation: 'already-active', generation: this.generation };
     }
 
@@ -469,6 +470,9 @@ export class ProjectSessionCoordinator {
   }
 
   noteFailure(error: ProjectSpineError, targetPath?: string): void {
+    if (this.lastError?.code !== error.code || this.lastError.message !== error.message) {
+      this.revision += 1;
+    }
     this.lastError = { ...error };
     if (targetPath && error.code === 'PROJECT_NOT_FOUND') {
       this.markRecentStale(targetPath);
@@ -476,6 +480,9 @@ export class ProjectSessionCoordinator {
   }
 
   clearError(): void {
+    if (this.lastError) {
+      this.revision += 1;
+    }
     this.lastError = null;
   }
 
@@ -502,7 +509,7 @@ export class ProjectSessionCoordinator {
     }
     this.activeUnitId = unitId;
     this.revision += 1;
-    this.lastError = null;
+    this.clearError();
   }
 
   setUnitDirty(binding: ProjectSpineBinding, unitId: string, dirty: boolean): void {
@@ -527,7 +534,7 @@ export class ProjectSessionCoordinator {
     if (wasDirty !== dirty) {
       this.revision += 1;
     }
-    this.lastError = null;
+    this.clearError();
   }
 
   beginSave(binding: ProjectSpineBinding, unitId: string): ProjectSaveToken {
@@ -652,6 +659,25 @@ export class ProjectSessionCoordinator {
     const dirtyUnitIds = orderedUnits
       .map((unit) => unit.id)
       .filter((unitId) => this.dirtyUnitIds.has(unitId));
+    const acceptedRecoveryPendingSave = this.recoveryState.status === 'accepted-pending-save'
+      && this.recoveryState.candidates.some((candidate) => dirtyUnitIds.includes(candidate.unitId));
+    const commandStatus = {
+      schemaVersion: 1,
+      projectId: project?.projectId ?? null,
+      generation: this.generation,
+      revision: this.revision,
+      lifecycle: this.lastError && this.saveState.status !== 'save-failed'
+        ? 'operation-failed'
+        : project
+          ? 'active'
+          : 'no-active-project',
+      recovery: this.recoveryState.status === 'accepted-pending-save' && !acceptedRecoveryPendingSave
+        ? 'none'
+        : this.recoveryState.status,
+      save: acceptedRecoveryPendingSave && this.saveState.status === 'dirty'
+        ? 'accepted-recovery-pending-save'
+        : this.saveState.status,
+    } satisfies ProjectSpineCommandStatusProjection;
 
     return {
       schemaVersion: 1,
@@ -673,7 +699,9 @@ export class ProjectSessionCoordinator {
       dirtyUnitIds,
       saveState: { ...this.saveState },
       lastError: this.lastError ? { ...this.lastError } : null,
-      ...(role === 'writing' ? { recovery: cloneRecoveryState(this.recoveryState) } : {}),
+      ...(role === 'writing'
+        ? { recovery: cloneRecoveryState(this.recoveryState) }
+        : { commandStatus }),
     };
   }
 

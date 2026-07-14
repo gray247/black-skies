@@ -1999,6 +1999,12 @@ const projectLoaderApi: ProjectLoaderApi = {
   },
 };
 
+function hasExactOwnKeys(value: unknown, expectedKeys: readonly string[]): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const keys = Object.keys(value);
+  return keys.length === expectedKeys.length && keys.every((key) => expectedKeys.includes(key));
+}
+
 function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnapshot | null {
   if (!value || typeof value !== 'object') {
     return null;
@@ -2015,10 +2021,129 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
   ) {
     return null;
   }
-  if (snapshot.role === 'command' && Object.prototype.hasOwnProperty.call(snapshot, 'recovery')) {
-    return null;
+  if (snapshot.role === 'command') {
+    const commandSnapshotKeys = [
+      'schemaVersion',
+      'role',
+      'generation',
+      'revision',
+      'project',
+      'activeUnitId',
+      'recentProjects',
+      'dirtyUnitIds',
+      'saveState',
+      'lastError',
+      'commandStatus',
+    ];
+    const projectKeys = ['projectId', 'path', 'title', 'schemaVersion', 'units'];
+    const unitKeys = ['id', 'title', 'displayTitle', 'order'];
+    const recentProjectKeys = ['path', 'title', 'lastOpened', 'stale'];
+    const saveStateKeys = ['status', 'unitId', 'message'];
+    const lastErrorKeys = ['code', 'message'];
+    if (
+      !hasExactOwnKeys(snapshot, commandSnapshotKeys) ||
+      !Number.isInteger(snapshot.generation) ||
+      snapshot.generation < 0 ||
+      !Number.isInteger(snapshot.revision) ||
+      snapshot.revision < 0 ||
+      (snapshot.activeUnitId !== null && typeof snapshot.activeUnitId !== 'string') ||
+      snapshot.dirtyUnitIds.some((unitId) => typeof unitId !== 'string') ||
+      new Set(snapshot.dirtyUnitIds).size !== snapshot.dirtyUnitIds.length ||
+      !hasExactOwnKeys(snapshot.saveState, saveStateKeys) ||
+      (snapshot.saveState.unitId !== null && typeof snapshot.saveState.unitId !== 'string') ||
+      (snapshot.saveState.message !== null && typeof snapshot.saveState.message !== 'string') ||
+      (snapshot.lastError !== null && (
+        !hasExactOwnKeys(snapshot.lastError, lastErrorKeys) ||
+        typeof snapshot.lastError.code !== 'string' ||
+        typeof snapshot.lastError.message !== 'string'
+      )) ||
+      snapshot.recentProjects.some((recent) =>
+        !hasExactOwnKeys(recent, recentProjectKeys) ||
+        typeof recent.path !== 'string' ||
+        typeof recent.title !== 'string' ||
+        !Number.isFinite(recent.lastOpened) ||
+        typeof recent.stale !== 'boolean') ||
+      (snapshot.project !== null && (
+        !hasExactOwnKeys(snapshot.project, projectKeys) ||
+        typeof snapshot.project.projectId !== 'string' ||
+        typeof snapshot.project.path !== 'string' ||
+        typeof snapshot.project.title !== 'string' ||
+        snapshot.project.schemaVersion !== 'ProjectMetadataSchema v1' ||
+        !Array.isArray(snapshot.project.units) ||
+        snapshot.project.units.some((unit) =>
+          !hasExactOwnKeys(unit, unitKeys) ||
+          typeof unit.id !== 'string' ||
+          typeof unit.title !== 'string' ||
+          typeof unit.displayTitle !== 'string' ||
+          !Number.isInteger(unit.order))
+      ))
+    ) {
+      return null;
+    }
+    const commandStatus = snapshot.commandStatus;
+    const lifecycleStatuses = new Set(['no-active-project', 'active', 'operation-failed']);
+    const recoveryStatuses = new Set([
+      'none',
+      'decision-required',
+      'accepted-pending-save',
+      'degraded',
+    ]);
+    const saveStatuses = new Set([
+      'clean',
+      'dirty',
+      'saving',
+      'saved',
+      'save-failed',
+      'accepted-recovery-pending-save',
+    ]);
+    const projectSaveStatuses = new Set(['clean', 'dirty', 'saving', 'saved', 'save-failed']);
+    const commandStatusKeys = [
+      'schemaVersion',
+      'projectId',
+      'generation',
+      'revision',
+      'lifecycle',
+      'recovery',
+      'save',
+    ];
+    const projectedProjectId = snapshot.project?.projectId ?? null;
+    const acceptedRecoveryPendingSave = commandStatus?.recovery === 'accepted-pending-save';
+    const projectedSaveStatus = acceptedRecoveryPendingSave && snapshot.saveState.status === 'dirty'
+      ? 'accepted-recovery-pending-save'
+      : snapshot.saveState.status;
+    const hasDirtyUnits = snapshot.dirtyUnitIds.length > 0;
+    if (
+      !hasExactOwnKeys(commandStatus, commandStatusKeys) ||
+      commandStatus.schemaVersion !== 1 ||
+      (commandStatus.projectId !== null && typeof commandStatus.projectId !== 'string') ||
+      commandStatus.projectId !== projectedProjectId ||
+      commandStatus.generation !== snapshot.generation ||
+      commandStatus.revision !== snapshot.revision ||
+      !lifecycleStatuses.has(commandStatus.lifecycle) ||
+      !recoveryStatuses.has(commandStatus.recovery) ||
+      !saveStatuses.has(commandStatus.save) ||
+      !projectSaveStatuses.has(snapshot.saveState.status) ||
+      commandStatus.save !== projectedSaveStatus ||
+      (commandStatus.lifecycle === 'active' && projectedProjectId === null) ||
+      (commandStatus.lifecycle === 'no-active-project' && projectedProjectId !== null) ||
+      (snapshot.activeUnitId !== null && !snapshot.project?.units.some((unit) => unit.id === snapshot.activeUnitId)) ||
+      snapshot.dirtyUnitIds.some((unitId) => !snapshot.project?.units.some((unit) => unit.id === unitId)) ||
+      (['dirty', 'save-failed'].includes(snapshot.saveState.status) && !hasDirtyUnits) ||
+      (['clean', 'saved'].includes(snapshot.saveState.status) && hasDirtyUnits) ||
+      (acceptedRecoveryPendingSave && (!hasDirtyUnits || !['dirty', 'saving', 'save-failed'].includes(snapshot.saveState.status))) ||
+      (projectedProjectId === null && (
+        commandStatus.recovery !== 'none' ||
+        commandStatus.save !== 'clean' ||
+        snapshot.saveState.status !== 'clean' ||
+        snapshot.activeUnitId !== null ||
+        hasDirtyUnits
+      ))
+    ) {
+      return null;
+    }
   }
   if (snapshot.role === 'writing') {
+    if (Object.prototype.hasOwnProperty.call(snapshot, 'commandStatus')) return null;
     const recovery = snapshot.recovery;
     if (!recovery || !Array.isArray(recovery.candidates)) return null;
     if (recovery.status === 'degraded') {

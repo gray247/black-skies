@@ -4,6 +4,7 @@ import type {
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBinding,
   ProjectSpineBridge,
+  ProjectSpineCommandStatusProjection,
   ProjectSpineRecoveryCandidateProjection,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
@@ -114,8 +115,69 @@ function saveSummaryLabel(snapshot: ProjectSpineSessionSnapshot, dirtyUnitIds: R
   return saveStatusLabel(snapshot);
 }
 
+function commandLifecycleLabel(status: ProjectSpineCommandStatusProjection): string {
+  switch (status.lifecycle) {
+    case 'active':
+      return 'Active and available';
+    case 'operation-failed':
+      return 'Project operation failed';
+    default:
+      return 'No active project';
+  }
+}
+
+function commandRecoveryLabel(status: ProjectSpineCommandStatusProjection): string {
+  switch (status.recovery) {
+    case 'decision-required':
+      return 'Recovery decision required in Writing Studio';
+    case 'accepted-pending-save':
+      return 'Recovered work is unsaved and pending normal Save';
+    case 'degraded':
+      return 'Recovery evidence is degraded or unavailable';
+    default:
+      return 'No recovery action required';
+  }
+}
+
+function commandSaveLabel(
+  snapshot: ProjectSpineSessionSnapshot,
+  status: ProjectSpineCommandStatusProjection,
+): string {
+  if (status.save === 'save-failed') {
+    return 'Save failed in Writing Studio';
+  }
+  if (status.save === 'saving') {
+    return 'Savingâ€¦';
+  }
+  if (status.recovery === 'decision-required' || status.recovery === 'degraded') {
+    return commandRecoveryLabel(status);
+  }
+  if (status.save === 'accepted-recovery-pending-save') {
+    return 'Recovered work pending Save';
+  }
+  if (!snapshot.project) {
+    return 'No active project';
+  }
+  switch (status.save) {
+    case 'dirty':
+      return `${snapshot.dirtyUnitIds.length} unsaved unit${snapshot.dirtyUnitIds.length === 1 ? '' : 's'}`;
+    default:
+      return 'Saved durably';
+  }
+}
+
+function commandStatusMatchesSnapshot(snapshot: ProjectSpineSessionSnapshot): boolean {
+  const status = snapshot.commandStatus;
+  return Boolean(
+    status &&
+    status.projectId === (snapshot.project?.projectId ?? null) &&
+    status.generation === snapshot.generation &&
+    status.revision === snapshot.revision,
+  );
+}
+
 function emptySnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapshot {
-  return {
+  const snapshot: ProjectSpineSessionSnapshot = {
     schemaVersion: 1,
     role,
     generation: 0,
@@ -128,6 +190,7 @@ function emptySnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapsho
     lastError: null,
     ...(role === 'writing' ? { recovery: { status: 'none' as const, candidates: [] } } : {}),
   };
+  return snapshot;
 }
 
 function resultMessage(result: ProjectSpineResult<unknown>): string | null {
@@ -341,6 +404,7 @@ export default function Stage19WritingSpineApp({
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
+  const [projectionUnavailable, setProjectionUnavailable] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [projectTitle, setProjectTitle] = useState('Untitled Project');
   const [newUnitTitle, setNewUnitTitle] = useState('');
@@ -348,6 +412,7 @@ export default function Stage19WritingSpineApp({
   const [buffers, setBuffers] = useState<Record<string, string>>({});
   const [recoveryDecisionUnitId, setRecoveryDecisionUnitId] = useState<string | null>(null);
   const snapshotRef = useRef(snapshot);
+  const hasAuthoritativeSnapshotRef = useRef(false);
   const buffersRef = useRef(buffers);
   const editRevisionRef = useRef<Record<string, number>>({});
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
@@ -397,6 +462,9 @@ export default function Stage19WritingSpineApp({
     if (next.role !== windowRole) {
       return;
     }
+    if (windowRole === 'command' && !commandStatusMatchesSnapshot(next)) {
+      return;
+    }
     const previousSnapshot = snapshotRef.current;
     if (
       next.generation < previousSnapshot.generation ||
@@ -405,6 +473,8 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const generationChanged = next.generation !== previousSnapshot.generation;
+    hasAuthoritativeSnapshotRef.current = true;
+    setProjectionUnavailable(false);
     appliedGenerationRef.current = next.generation;
     if (generationChanged) {
       appliedRecoveryUnitsRef.current.clear();
@@ -466,7 +536,11 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     if (!bridge) {
       setLoading(false);
-      setNotice('The authoritative project-session bridge is unavailable.');
+      if (windowRole === 'command') {
+        setProjectionUnavailable(true);
+      } else {
+        setNotice('The authoritative project-session bridge is unavailable.');
+      }
       return;
     }
     let cancelled = false;
@@ -482,7 +556,15 @@ export default function Stage19WritingSpineApp({
         if (!cancelled) applySnapshot(next);
       })
       .catch((error: unknown) => {
-        if (!cancelled) setNotice(error instanceof Error ? error.message : String(error));
+        if (!cancelled) {
+          if (windowRole === 'command') {
+            if (!hasAuthoritativeSnapshotRef.current) {
+              setProjectionUnavailable(true);
+            }
+          } else {
+            setNotice(error instanceof Error ? error.message : String(error));
+          }
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -975,6 +1057,43 @@ export default function Stage19WritingSpineApp({
   }
 
   if (windowRole === 'command') {
+    const commandStatus = snapshot.commandStatus;
+    if (projectionUnavailable || !commandStatus) {
+      return (
+        <main
+          className="stage19-spine stage19-spine--command"
+          data-stage19-role="command"
+          data-primary-scroll-container="true"
+          role="region"
+          aria-label="Command Center"
+        >
+          <header className="stage19-spine__header">
+            <div>
+              <span className="stage19-spine__eyebrow">Command Center</span>
+              <h1>Command status unavailable</h1>
+              <p>Writing Studio authority could not be reached. No saved or recovery claim is shown.</p>
+            </div>
+            <span className="stage19-spine__save-state stage19-spine__save-state--save-failed" role="status">
+              Status unavailable
+            </span>
+          </header>
+          <p className="stage19-spine__notice" role="alert">
+            The authoritative project-session bridge is unavailable.
+          </p>
+          <section className="stage19-spine__empty-state">
+            <h2>Project status unavailable</h2>
+            <p>Continue in Writing Studio and wait for Command Center synchronization.</p>
+          </section>
+        </main>
+      );
+    }
+    const commandAlert = notice ?? (
+      commandStatus.lifecycle === 'operation-failed'
+        ? 'A Writing Studio project operation failed. Current project identity is preserved.'
+        : commandStatus.save === 'save-failed'
+          ? 'Durable Save failed in Writing Studio. Unsaved local content remains.'
+          : null
+    );
     return (
       <main
         className="stage19-spine stage19-spine--command"
@@ -989,13 +1108,11 @@ export default function Stage19WritingSpineApp({
             <h1>{snapshot.project?.title ?? 'No project open'}</h1>
             <p>Navigation, project status, and durable save truth. Manuscript mutation is unavailable here.</p>
           </div>
-          <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">
-            {saveSummaryLabel(snapshot, dirtyUnitIds)}
+          <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">
+            {commandSaveLabel(snapshot, commandStatus)}
           </span>
         </header>
-        {notice || snapshot.lastError ? (
-          <p className="stage19-spine__notice" role="alert">{notice ?? snapshot.lastError?.message}</p>
-        ) : null}
+        {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
         {snapshot.project ? (
           <div className="stage19-spine__command-grid">
             <section className="stage19-spine__card">
@@ -1029,7 +1146,9 @@ export default function Stage19WritingSpineApp({
             </section>
             <section className="stage19-spine__card">
               <h2>Writing state</h2>
-              <p>{saveSummaryLabel(snapshot, dirtyUnitIds)}</p>
+              <p><strong>Project:</strong> {commandLifecycleLabel(commandStatus)}</p>
+              <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
+              <p><strong>Save:</strong> {commandSaveLabel(snapshot, commandStatus)}</p>
               <p>{snapshot.activeUnitId ? `Selected unit: ${activeUnit?.displayTitle ?? snapshot.activeUnitId}` : 'No unit selected'}</p>
               <p className="stage19-spine__mutability-note">Advisory/status/navigation only. No prose editor or structural mutation controls are exposed.</p>
             </section>
@@ -1038,6 +1157,7 @@ export default function Stage19WritingSpineApp({
           <section className="stage19-spine__empty-state">
             <h2>No active project</h2>
             <p>Create or open a project in Writing Studio. Command Center will synchronize automatically.</p>
+            <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
           </section>
         )}
       </main>

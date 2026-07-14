@@ -545,6 +545,11 @@ describe('project-spine IPC', () => {
     expect(commandDirty).toMatchObject({
       dirtyUnitIds: [withUnit.unitId],
       saveState: { status: 'dirty', unitId: withUnit.unitId },
+      commandStatus: {
+        projectId: created.projectId,
+        recovery: 'none',
+        save: 'dirty',
+      },
     });
 
     const expectedMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
@@ -564,6 +569,13 @@ describe('project-spine IPC', () => {
     expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
       acceptedMarkdown,
     );
+    expect(await invoke(PROJECT_SPINE_CHANNELS.getSession, 2)).toMatchObject({
+      commandStatus: {
+        projectId: created.projectId,
+        recovery: 'none',
+        save: 'saved',
+      },
+    });
   });
 
   it('captures prose only from Writing Studio and retires the matching candidate after Save', async () => {
@@ -675,6 +687,14 @@ describe('project-spine IPC', () => {
     });
     const command = await invoke(PROJECT_SPINE_CHANNELS.getSession, 2);
     expect(command).not.toHaveProperty('recovery');
+    expect(command.project).not.toHaveProperty('drafts');
+    expect(command.commandStatus).toMatchObject({
+      projectId: created.projectId,
+      generation: opened.snapshot.generation,
+      recovery: 'decision-required',
+      save: 'clean',
+    });
+    expect(JSON.stringify(command.commandStatus)).not.toContain('Recovered prior prose');
     const candidate = opened.snapshot.recovery.candidates[0];
     const request = {
       projectId: created.projectId,
@@ -698,6 +718,14 @@ describe('project-spine IPC', () => {
           status: 'accepted-pending-save',
           candidates: [{ originSessionId: 'test-origin-session', prose: 'Recovered prior prose' }],
         },
+      },
+    });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.getSession, 2)).toMatchObject({
+      dirtyUnitIds: [withUnit.unitId],
+      commandStatus: {
+        projectId: created.projectId,
+        recovery: 'accepted-pending-save',
+        save: 'accepted-recovery-pending-save',
       },
     });
     await expect(new ProjectSpineRecoveryRepository(created.projectPath).read()).resolves.toMatchObject({
@@ -840,5 +868,14 @@ describe('project-spine IPC', () => {
     expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
       withUnit.project.drafts[withUnit.unitId],
     );
+    expect(await invoke(PROJECT_SPINE_CHANNELS.getSession, 2)).toMatchObject({
+      dirtyUnitIds: [withUnit.unitId],
+      commandStatus: {
+        projectId: created.projectId,
+        lifecycle: 'active',
+        recovery: 'none',
+        save: 'save-failed',
+      },
+    });
   });
 });

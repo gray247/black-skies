@@ -73,6 +73,32 @@ export interface ProjectSpineSaveState {
   readonly message: string | null;
 }
 
+export type ProjectSpineCommandLifecycleStatus =
+  | 'no-active-project'
+  | 'active'
+  | 'operation-failed';
+
+export type ProjectSpineCommandRecoveryStatus =
+  | 'none'
+  | 'decision-required'
+  | 'accepted-pending-save'
+  | 'degraded';
+
+export type ProjectSpineCommandSaveStatus =
+  | ProjectSpineSaveStatus
+  | 'accepted-recovery-pending-save';
+
+/** Prose-free, main-authored status projected only to Command Center. */
+export interface ProjectSpineCommandStatusProjection {
+  readonly schemaVersion: 1;
+  readonly projectId: string | null;
+  readonly generation: number;
+  readonly revision: number;
+  readonly lifecycle: ProjectSpineCommandLifecycleStatus;
+  readonly recovery: ProjectSpineCommandRecoveryStatus;
+  readonly save: ProjectSpineCommandSaveStatus;
+}
+
 export interface ProjectSpineSessionSnapshot {
   readonly schemaVersion: 1;
   readonly role: ProjectSpineWindowRole;
@@ -84,6 +110,8 @@ export interface ProjectSpineSessionSnapshot {
   readonly dirtyUnitIds: readonly string[];
   readonly saveState: ProjectSpineSaveState;
   readonly lastError: ProjectSpineError | null;
+  /** Present only in the Command Center projection. */
+  readonly commandStatus?: ProjectSpineCommandStatusProjection;
   /** Present only in the Writing Studio projection. */
   readonly recovery?: ProjectSpineWritingRecoveryState;
 }
