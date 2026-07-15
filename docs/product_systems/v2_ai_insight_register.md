@@ -520,6 +520,305 @@ Allowed authority classifications are `CURRENT_AUTHORITY`,
 - **Expected resolution stage:** V2 AI discovery, before V2 implementation.
 - **Supersession history:** Initial synthesis entry.
 
+### V2-AI-017 — Local runtime capability receipt (2026-07-15)
+
+- **Finding:** Direct local inspection established Ollama client/server version
+  `0.13.0`. Both Qwen candidates are installed, use `Q4_K_M` quantization, and
+  advertise `completion`, `tools`, and `thinking` capabilities. The installed
+  runtime explicitly supports `--think true|false|high|medium|low` and JSON
+  formatting. Direct local API requests accepted `think:false` and a JSON
+  Schema `format` object.
+- **Evidence source:** 2026-07-15 `ollama --version`, `ollama list`, `ollama
+  show`, `ollama help run`, direct loopback API behavior, and installed manifests.
+- **Exact runtime/model/version:** Ollama `0.13.0`; `qwen3:4b` model layer
+  `sha256:3e4cb14174460404e7a233e531675303b2fbf7749c02f91864fe311ab6344e4f`,
+  2.326 GiB manifest layer, 4.0B parameters, 262144 context, Q4_K_M;
+  `qwen3:8b` model layer
+  `sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f`,
+  4.867 GiB manifest layer, 8.2B parameters, 40960 context, Q4_K_M.
+- **Authority classification:** `ACTIVE_BUT_INCOMPLETE` evidence; not provider
+  selection authority.
+- **V1 disposition:** At most one exact local route may later be qualified.
+  Neither tag is selected by this receipt.
+- **V2 relevance:** Establishes reproducible candidate identities and supported
+  reduced-thinking/structured-output controls for later experiments.
+- **Confidence:** High for installed metadata and accepted local request fields;
+  not evidence of output quality across tasks.
+- **Unresolved questions:** Full server-side structured-schema enforcement,
+  model digest stability across future installations, and capability behavior
+  under other task contracts.
+- **Required experiment:** Repeat inventory and schema conformance using the
+  selected model/runtime at any later qualification gate.
+- **Dependencies:** Installed runtime, local-only synthetic fixtures, and no
+  model update between receipt and later experiment.
+- **Packaging implications:** Ollama and both model layers remain separately
+  installed rather than bundled product dependencies.
+- **Exact reopening trigger:** A bounded V1 local-route qualification or V2
+  model-evaluation authorization names one exact tag and digest.
+- **Expected resolution stage:** V1 local qualification or V2 runtime inventory.
+- **Supersession history:** Adds dated detail to V2-AI-001; V2-AI-001 remains
+  immutable installed-inventory evidence.
+
+### V2-AI-018 — Qwen 4B direct selected-prose feasibility receipt
+
+- **Finding:** Under representative busy-machine load, direct Ollama
+  `think:false` requests completed all three frozen synthetic critique fixtures
+  without transport failure, timeout, empty response, or truncation. Two of
+  three passed the shared strict schema and verbatim-evidence validation; the
+  mixed-defect fixture failed because evidence was not verbatim. Real fixture
+  elapsed times were 139.55 s, 120.34 s, and 61.28 s; generation rates were
+  7.65, 8.02, and 8.19 tokens/s.
+- **Evidence source:** 2026-07-15 direct loopback Ollama feasibility harness;
+  frozen fixture IDs `exposition-pacing` (`9660f2b8…eaa3f74`),
+  `intentional-fragments` (`75774e46…345f6d32`), and
+  `mixed-unsupported-backstory` (`f8338dba…2a219ab9`); temporary raw responses
+  were not copied into the repository.
+- **Exact runtime/model/version:** Ollama `0.13.0`; `qwen3:4b`; model layer
+  `sha256:3e4cb14174460404e7a233e531675303b2fbf7749c02f91864fe311ab6344e4f`;
+  `think:false`; temperature 0, top-p 1, top-k 1, seed 19, 1600 output-token
+  ceiling, direct `POST /api/generate` with the Package 19.14 critique
+  instruction and schema.
+- **Authority classification:** `ACTIVE_BUT_INCOMPLETE` feasibility evidence.
+- **V1 disposition:** `DEFER_WITHOUT_DELETION`; not an interactive V1 candidate
+  until strict-contract reliability and latency improve or are remeasured.
+- **V2 relevance:** Preserves a small-model CPU baseline and a specific
+  evidence-grounding failure mode.
+- **Confidence:** High for the six measured fields and two-of-three validity;
+  low for literary quality because no human scoring occurred.
+- **Unresolved questions:** Whether the invalid evidence arose from output
+  variability, prompt/schema tuning, or busy-machine timing; whether lower load
+  materially improves the two longer runs.
+- **Required experiment:** Only after authorization, repeat the same frozen
+  corpus at controlled low load and require repeated strict-valid results before
+  any model decision.
+- **Dependencies:** Same model digest, isolated local runtime, synthetic-only
+  corpus, human scoring plan, and explicit qualification authority.
+- **Packaging implications:** Its 2.326 GiB layer is smaller, but CPU generation
+  latency and strict-output reliability remain material product constraints.
+- **Exact reopening trigger:** A later local-route qualification authorizes a
+  repeated low-load or prompt-contract experiment.
+- **Expected resolution stage:** V1 local-route qualification or V2 local-model
+  baseline evaluation.
+- **Supersession history:** Adds direct feasibility evidence after the historical
+  long-form invalid-output entry V2-AI-003; it does not rewrite that evidence.
+
+### V2-AI-019 — Qwen 8B direct selected-prose feasibility receipt
+
+- **Finding:** Under the same representative load and `think:false` settings,
+  direct Ollama `qwen3:8b` completed all three real fixtures without timeout,
+  empty response, truncation, or transport failure. All three passed strict
+  schema and verbatim-evidence validation and each contained at least one
+  fixture-grounded priority. Real fixture elapsed times were 150.48 s, 166.50 s,
+  and 163.08 s; generation rates were 4.99, 4.96, and 4.94 tokens/s. Warm-up
+  took 239.54 s, including 118.23 s model-load duration.
+- **Evidence source:** 2026-07-15 direct loopback Ollama feasibility harness;
+  the same three frozen fixture IDs and hashes recorded in V2-AI-018; temporary
+  raw responses were not copied into the repository.
+- **Exact runtime/model/version:** Ollama `0.13.0`; `qwen3:8b`; model layer
+  `sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f`;
+  `think:false`; identical deterministic options, instruction, schema, and
+  output ceiling to V2-AI-018.
+- **Authority classification:** `ACTIVE_BUT_INCOMPLETE` feasibility evidence.
+- **V1 disposition:** `DEFER_WITHOUT_DELETION`; provisional
+  `BORDERLINE_INTERACTIVE` under representative load, not a current interactive
+  V1 selection.
+- **V2 relevance:** Preserves a higher-validity, slower local-model baseline
+  for later task-specific and hardware-class qualification.
+- **Confidence:** High for timing and structural validity; low for literary
+  usefulness, factual-invention assessment, or broad task generalization.
+- **Unresolved questions:** Whether memory pressure is the dominant cause of
+  latency, whether an exact lower-load receipt materially changes latency, and
+  whether quality warrants its interactive delay.
+- **Required experiment:** A separately authorized controlled low-load rerun is
+  justified only if its purpose is to isolate memory pressure; full qualification
+  still requires repeated runs and human scoring.
+- **Dependencies:** Same digest, an explicitly documented machine state,
+  synthetic fixtures, human reviewers, and local runtime availability.
+- **Packaging implications:** Its 4.867 GiB layer and observed 6.5 GiB loaded
+  residency make optional-install and memory guidance necessary if ever shipped.
+- **Exact reopening trigger:** Jason authorizes a controlled local-route
+  qualification or a hardware-class feasibility rerun.
+- **Expected resolution stage:** V1 local qualification or V2 hardware/local
+  model evaluation.
+- **Supersession history:** Adds direct selected-prose evidence after V2-AI-003;
+  it does not supersede historical long-form findings.
+
+### V2-AI-020 — Representative busy-machine resource receipt
+
+- **Finding:** This was intentionally not a clean benchmark. Before inference,
+  multiple ChatGPT, SnipBoard, Codex, PowerShell, ServiceShell, Explorer,
+  security, and support processes were active. After the run, 2,593 MiB of
+  memory was available; the loaded Ollama worker held about 5.12 GiB working
+  set, and `ollama ps` reported Qwen 8B at 6.5 GiB resident with one CPU
+  processor at 100%. Total physical memory was unavailable through the
+  read-only CIM interface because access was denied.
+- **Evidence source:** 2026-07-15 read-only process snapshot, performance
+  counters, and `ollama ps` before/after the local experiment.
+- **Exact runtime/model/version:** Windows representative workstation; Ollama
+  `0.13.0`; final loaded model `qwen3:8b` at its installed digest. Exact total
+  memory is intentionally unrecorded because the permitted interface denied it.
+- **Authority classification:** `REFERENCE_ONLY` environment evidence.
+- **V1 disposition:** Do not treat this as a supported-hardware benchmark or
+  infer a clean-machine SLA.
+- **V2 relevance:** Records why future hardware-class and low-load receipts
+  need explicit state capture.
+- **Confidence:** High for observed available memory/process residency; unknown
+  for total-memory capacity and sustained thermal behavior.
+- **Unresolved questions:** CPU core topology, GPU availability, storage speed,
+  memory compression effects, and low-load token rate.
+- **Required experiment:** Controlled synthetic low-load run with the same
+  metrics and a documented hardware class, only if separately authorized.
+- **Dependencies:** Jason-controlled application closure, unchanged model,
+  local runtime, and an approved measurement policy.
+- **Packaging implications:** Product messaging cannot promise interactive local
+  performance without hardware-class evidence.
+- **Exact reopening trigger:** An authorized low-load or hardware-class rerun.
+- **Expected resolution stage:** V2 local-runtime feasibility and packaging.
+- **Supersession history:** New dated representative-load receipt; does not
+  supersede V2-AI-008's missing-evidence finding.
+
+### V2-AI-021 — Reduced-thinking witness for Qwen 8B
+
+- **Finding:** Ollama explicitly supports `think:false`, and the primary
+  comparison used it. A single same-fixture `think:true` Qwen 8B witness also
+  returned a strict-valid, fixture-grounded result in 107.26 s at 5.22 tokens/s,
+  versus the primary `think:false` result's 150.48 s at 4.99 tokens/s. The
+  default-thinking witness generated 508 tokens versus 690, so this is not an
+  output-length-equivalent overhead comparison. Reduced-thinking material
+  benefit was not demonstrated.
+- **Evidence source:** 2026-07-15 direct loopback single-fixture witness using
+  frozen `exposition-pacing`; temporary raw output remained outside repository.
+- **Exact runtime/model/version:** Ollama `0.13.0`; `qwen3:8b` installed digest
+  from V2-AI-019; identical prompt/schema/options except `think:true` versus
+  `think:false`.
+- **Authority classification:** `ACTIVE_BUT_INCOMPLETE` performance witness.
+- **V1 disposition:** Do not claim a reasoning-overhead optimization or alter
+  V1 route policy from this one non-equivalent witness.
+- **V2 relevance:** Identifies a controllable reasoning-mode variable for later
+  preregistered experiments.
+- **Confidence:** High for measured one-run values; low for causal inference.
+- **Unresolved questions:** How reasoning mode changes output length, quality,
+  schema adherence, hidden thinking behavior, and latency across fixtures.
+- **Required experiment:** Paired, repeated, output-length-aware synthetic
+  comparison before any reasoning-mode recommendation.
+- **Dependencies:** Fixed model digest, frozen fixtures, scoring protocol, and
+  explicit V2 experiment authority.
+- **Packaging implications:** No extra package dependency, but UI claims about
+  speed or reasoning controls need evidence.
+- **Exact reopening trigger:** V2 authorizes a controlled reasoning-mode study.
+- **Expected resolution stage:** V2 performance and prompt/runtime evaluation.
+- **Supersession history:** Initial witness; no prior reasoning-mode receipt.
+
+### V2-AI-022 — Direct Ollama versus historical Python/FastAPI path
+
+- **Finding:** Direct local Ollama accepted the Package 19.14 critique
+  instruction/schema and produced five strict-valid critiques across six real
+  requests. Historical local long-form reruns through the Python/router path
+  stopped on `invalid_output`. Direct results prove that the installed Qwen
+  models are not categorically incapable of structured critique; they do not
+  prove the historical long-form task or Python route is repaired.
+- **Evidence source:** V2-AI-018/V2-AI-019 direct receipts; immutable historical
+  record `fa4bd0c:docs/runbooks/long_form_integrated_pass_20260316.md`; local
+  adapter/router/critique source inventory.
+- **Exact runtime/model/version:** Direct Ollama `0.13.0` with installed Qwen
+  tags/digests; historical path used local OpenAI-compatible Ollama-backed
+  `qwen3:4b` and `qwen3:8b` after base-URL repair.
+- **Authority classification:** `REFERENCE_ONLY` causal comparison.
+- **V1 disposition:** Do not connect the legacy Python route to Package 19.14;
+  any local gateway must use the shared authority and strict validation.
+- **V2 relevance:** Narrows future investigation to adapter, prompt, parser,
+  router, and task-contract seams rather than model absence alone.
+- **Confidence:** High that direct and historical paths differ materially; low
+  for isolating one exact historical failure cause.
+- **Unresolved questions:** Historical raw response shape, exact long-form
+  prompt/validator interaction, route metadata, and whether local normalization
+  discarded usable output.
+- **Required experiment:** Synthetic controlled replay of the historical
+  contract through isolated seams; do not use manuscripts or repair production
+  code during investigation.
+- **Dependencies:** Explicit V2 or later salvage authority, historical contract
+  reconstruction, redacted logs, and fixture-only data.
+- **Packaging implications:** Reusing Python introduces additional failure and
+  packaging seams; direct main-process local gateway remains an alternative.
+- **Exact reopening trigger:** A later authorized local-gateway salvage or V2
+  historical-contract investigation.
+- **Expected resolution stage:** V2 provider-adapter and contract diagnosis.
+- **Supersession history:** Refines, but does not rewrite, V2-AI-003.
+
+### V2-AI-023 — Historical `invalid_output` causal classification
+
+- **Finding:** `LIKELY`: the historical failure involved a Python/router,
+  prompt/schema, adapter-normalization, or long-form validator seam in addition
+  to any model variability. `VERIFIED`: direct local requests can return
+  non-empty, non-truncated, strict-valid selected-prose critique for both model
+  tags. `POSSIBLE`: Qwen 4B's one-of-three non-verbatim-evidence failure shows
+  model output adherence can also contribute. `UNKNOWN`: the exact historical
+  root cause cannot be assigned without the original raw response and full
+  contract trace, neither of which should be reconstructed from private prose.
+- **Evidence source:** V2-AI-018 through V2-AI-022, legacy source inspection,
+  and immutable historical record `fa4bd0c`.
+- **Exact runtime/model/version:** Direct Ollama `0.13.0`, Qwen digests in
+  V2-AI-017; historical local tags as described in V2-AI-022.
+- **Authority classification:** `REFERENCE_ONLY` diagnostic hypothesis.
+- **V1 disposition:** No legacy-path repair or route connection is authorized by
+  this classification.
+- **V2 relevance:** Provides bounded hypotheses and prevents the unsupported
+  claim that model size alone caused historical failure.
+- **Confidence:** High for the verified direct behavior; medium for the likely
+  multi-seam conclusion; low for a single-cause claim.
+- **Unresolved questions:** Exact parser input/output, reasoning text handling,
+  token truncation, schema differences, and legacy validator assumptions.
+- **Required experiment:** Isolated synthetic seam tests with redacted summary
+  artifacts and no production-code repair in the experiment.
+- **Dependencies:** Future diagnostic authority, fixture-only inputs, and safe
+  retention/redaction rules.
+- **Packaging implications:** A Python local path cannot be assessed solely on
+  model performance; its parser/router behavior is a release concern.
+- **Exact reopening trigger:** A bounded future task explicitly authorizes
+  historical invalid-output diagnosis.
+- **Expected resolution stage:** V2 adapter/parser salvage investigation.
+- **Supersession history:** Adds a classification to V2-AI-003 and V2-AI-022;
+  neither historical record is altered.
+
+### V2-AI-024 — Provisional V1 and off-hours disposition
+
+- **Finding:** Neither model is an `INTERACTIVE_V1_CANDIDATE` on this busy
+  machine. Qwen 4B is provisionally `BORDERLINE_INTERACTIVE` by latency but has
+  insufficient strict-contract reliability. Qwen 8B is provisionally
+  `BORDERLINE_INTERACTIVE` by structural validity but takes 150–167 s per real
+  fixture after warm-up and has material memory residency. It is not currently
+  a V1 interactive selection. A low-load rerun is not currently recommended as
+  a V1 promotion gate: available evidence does not make a greater-than-twofold
+  token-rate improvement plausible, and the default-thinking witness did not
+  show a reduced-thinking benefit. A later manual low-load 8B run may still be
+  useful as V2/hardware evidence if Jason independently wants it.
+- **Evidence source:** V2-AI-018 through V2-AI-021.
+- **Exact runtime/model/version:** Ollama `0.13.0`; Qwen 4B/8B digests in
+  V2-AI-017; three direct synthetic fixtures with `think:false` plus one Qwen
+  8B `think:true` witness.
+- **Authority classification:** `ACTIVE_BUT_INCOMPLETE` feasibility conclusion.
+- **V1 disposition:** `DEFER_WITHOUT_DELETION`; retain existing local code and
+  evidence, but do not select, ship, or connect either model in Package 19.14.
+- **V2 relevance:** Qwen 8B is a candidate for later off-hours or hardware-class
+  investigation, not for automated scheduling or background work now.
+- **Confidence:** Medium; the corpus is deliberately small and representative
+  load is not a clean benchmark.
+- **Unresolved questions:** Lower-load token rate, human critique scores,
+  repeated-run reliability, model/prompt sensitivity, and acceptable user wait.
+- **Required experiment:** If later authorized, run a manually initiated,
+  synthetic-only low-load Qwen 8B receipt using the same three fixtures and
+  metrics; do not schedule it and do not treat it as full qualification.
+- **Dependencies:** Jason manually controls machine load; same model digest;
+  explicit local experiment authority; no provider/network route.
+- **Packaging implications:** Current results support optional local tooling or
+  V2/off-hours investigation only, not an interactive packaged V1 promise.
+- **Exact reopening trigger:** Jason authorizes a low-load local feasibility
+  rerun or a full local-route qualification package.
+- **Expected resolution stage:** V2 hardware/local-model evaluation, or a later
+  separately authorized V1 qualification decision.
+- **Supersession history:** Adds dated feasibility evidence to V2-AI-008,
+  V2-AI-009, and V2-AI-012 without changing their historical text.
+
 ## 3. V2 open questions
 
 The next authorized V2 orchestrator must inherit, without silently resolving:
