@@ -1,6 +1,6 @@
 # Stage 19 Package 19.14 Dual-Route Reconciliation
 
-Status: documentation reconciliation complete; no runtime or test mutation authorized; local-route decision, provider qualification, Jason manual acceptance, and closure remain pending
+Status: documentation reconciliation complete; no runtime or test mutation authorized; the later V1 local-route disposition selects no local route, while provider qualification, Jason manual acceptance, and closure remain pending
 
 Package: 19.14 — bounded selected-prose critique
 
@@ -22,6 +22,14 @@ synchronization, Package 19.15, Stage 19 closure, a commit, or a push.
 V2 evaluation and orchestration findings are preserved separately in
 [`v2_ai_insight_register.md`](./v2_ai_insight_register.md). Registration there
 does not make an idea current authority or enlarge Package 19.14.
+
+The later, controlling current-V1 linkage is
+[`stage19_package_19_14_local_route_feasibility_disposition.md`](./stage19_package_19_14_local_route_feasibility_disposition.md).
+It records that dual-route viability was investigated, no local route is
+selected for V1 from current evidence, and the maximum dual-route architecture
+remains a future possibility rather than current V1 scope. OpenAI remains the
+only currently implemented V1 critique candidate, pending live qualification;
+the canonical V2 register governs the preserved local findings.
 
 ## 2. Repository gate
 
@@ -199,8 +207,9 @@ OpenAI gateway itself mutates or persists manuscript truth.
 
 ## 10. V1 hybrid viability
 
-A coherent two-route V1 is viable only if the local route is separately
-qualified and the broad legacy paths are fenced. The maximum architecture is:
+A coherent two-route V1 could be viable only if the local route is separately
+qualified and the broad legacy paths are fenced. It is not current V1 scope.
+The preserved maximum architecture is:
 
 ```text
 one selected-prose critique UI

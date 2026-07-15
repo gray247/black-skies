@@ -37,6 +37,12 @@ Later architecture reconciliation is recorded in
 V2 evaluation and orchestration knowledge is preserved separately, without
 implementation authority, in
 [`v2_ai_insight_register.md`](./v2_ai_insight_register.md).
+The later local feasibility disposition is recorded in
+[`stage19_package_19_14_local_route_feasibility_disposition.md`](./stage19_package_19_14_local_route_feasibility_disposition.md):
+dual-route viability was investigated, but no local route is selected for V1
+from current evidence. The maximum dual-route architecture is preserved as a
+future possibility, not current V1 scope; OpenAI remains the only currently
+implemented V1 critique candidate, pending live qualification.
 
 ## 2. Retained product boundary
 
@@ -47,16 +53,14 @@ result persistence, recovery, snapshots, export, whole-project context,
 multiple providers, routing, fallback, automatic retry, local models,
 persistent credentials, Command Center AI, and autonomous mutation.
 
-That A-F implementation boundary did not settle OpenAI as the only intended V1
-provider. Subject to later separate authorization and qualification, the
-maximum independently closable V1 boundary is one shared selected-prose
-critique workflow with one exact local route and the pinned OpenAI route,
-manual author selection, explicit rerouting through a new immutable request
-and authorization, no silent fallback, and a separate qualification receipt
-for each shipped provider/model. Package 19.14 does not include multi-model
-evaluation, automatic provider/model selection, hardware-aware routing,
-prompt-experiment systems, model management, background jobs, scheduled work,
-or other V2 orchestration.
+The A-F implementation boundary does not make OpenAI accepted release evidence.
+The local-route feasibility disposition settles current V1 scope: no local
+route, dual-route selection, or rerouting is selected for Package 19.14.
+Subject to later separate authorization and qualification, the maximum
+dual-route architecture remains a future possibility only. Package 19.14 does
+not include multi-model evaluation, automatic provider/model selection,
+hardware-aware routing, prompt-experiment systems, model management,
+background jobs, scheduled work, or other V2 orchestration.
 
 Core project creation, opening, editing, dirty-state tracking, Save, recovery,
 close, re-entry, Command Center, and later export must continue to work when AI
