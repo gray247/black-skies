@@ -7,10 +7,87 @@
 - Pinned model: `gpt-5.4-2026-03-05`
 - Fixture set: `aiCritiqueQualification.v1`
 - Frozen: 2026-07-14, before any real-model qualification run
-- Current status: **automated fixture integrity is implemented; the 24 real OpenAI requests and two-human scoring have not run**
+- Current status: **the bounded qualification verifier is implemented across manifest, raw evidence, identity map, reviewer packets, reviewer scores, adjudication, independent threshold reproduction, receipt cross-file verification, cost verification, and receipt redaction; the 24 real OpenAI requests and two-human scoring have not run**
 - Blocking prerequisites for the real run: an explicitly supplied `BLACK_SKIES_AI_QUALIFICATION_API_KEY`, `BLACK_SKIES_RUN_AI_QUALIFICATION=1`, Jason, and one independent human reviewer.
 
-The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the live OpenAI run. The frozen fixture corpus, rubric, thresholds, pinned model snapshot, request contract, and two-human scoring requirement remain unchanged. The current automated runner validates and hashes live responses but deliberately creates neither anonymized reviewer packets nor a persisted score receipt; before a live horizon, a separately approved procedure or bounded repair must name a controlled non-repository review location and preserve the identity mapping without exposing it to reviewers. No raw provider output, credential, or manuscript data may be added to this record or the repository.
+The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the live OpenAI run. The frozen fixture corpus, rubric, thresholds, pinned model snapshot, request contract, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
+
+## Evidence capture and external review artifacts
+
+The main-process gateway has an optional qualification-only evidence sink. When
+supplied by the qualification runner, it reads the decoded HTTP response body
+once, hashes those exact observed bytes, and parses from those same bytes. This
+is post-HTTP-content-decoding evidence, not lower-level wire capture. The sink
+is not exposed through renderer code, preload, IPC, Command Center, or the
+public critique result.
+
+A live run requires all of `BLACK_SKIES_RUN_AI_QUALIFICATION=1`,
+`BLACK_SKIES_AI_QUALIFICATION_API_KEY`, and
+`BLACK_SKIES_AI_QUALIFICATION_OUTPUT_DIR`. The output root must be an absolute,
+safe external directory outside the repository and Git worktrees; it may not be
+Desktop, Downloads, application storage, project storage, or test-report
+directories. Raw response bodies and the private identity map remain there,
+never in Git. Partial attempts remain attributable if a capture fails.
+
+The external run separates private raw evidence and identity mapping from two
+independently randomized reviewer packets, immutable score files, adjudication,
+threshold calculation, and a redacted immutable receipt. Packets hide
+provider/model, fixture identity, execution order, cost, private paths, and
+HTTP details. The frozen thresholds above remain controlling; a future receipt
+may contain only hashes, approved metadata, aggregate scores, costs,
+disposition, and its canonical SHA-256, never prose, raw output, credentials,
+authorization headers, reviewer identity, or private paths. Retention and
+cleanup of the external evidence remain the human operator's responsibility.
+
+The automated evidence suite includes complete mocked PASS and score-based FAIL
+workflows. A valid FAIL receipt records a failed qualification threshold while
+remaining distinct from evidence corruption. The standalone verifier
+reconstructs finalized evidence from the external run alone. Manifest and run
+identity, the frozen 12-fixture/two-execution structure, raw-file containment,
+byte length and SHA-256, provider/model/request-contract bindings, and private
+reviewer identity mappings are verified. Both independently randomized reviewer
+packets are verified for schema, hashes, exact coverage, opaque identity,
+private-map correspondence, frozen fixture prose, normalized critique content,
+substantive equivalence, independent ordering, and prohibited metadata
+leakage. Both reviewer score files are verified for schema, distinct labels,
+packet and accepted-evidence hashes, exact opaque-ID coverage, dimension ranges
+and types, required booleans, and independent-scoring attestations. The
+required disagreement set is independently recomputed, and adjudication
+evidence is verified for completeness, neutral identity, preserved original
+values, valid resolution, rationale, schema, and accepted-evidence hashes.
+Explicit no-adjudication evidence is also verified when no disagreement reaches
+the required threshold.
+
+The verifier independently reproduces structural validity, adjudicated
+per-output dimension values and means, the overall and six dimension means,
+the 20-of-24 output threshold, each mandatory fixture-category floor,
+disqualifying flag counts, unresolved-adjudication count, stable failure
+reasons, and PASS or FAIL without using receipt aggregates as inputs. It then
+compares every reproduced value with the receipt.
+
+Receipt verification now enforces the exact allowlisted schema, canonical
+bytes, independently calculated SHA-256, sidecar and manifest bindings,
+run/provider/model/repository/date and evidence-hash bindings, packet, score,
+and adjudication hashes, stable disposition and failure reasons, and tool
+identity. Durable token usage is checked against the captured provider envelope
+and the frozen pricing contract. Per-attempt and aggregate calculated costs,
+the 24-attempt maximum, and authorization-ceiling compliance are independently
+reproduced. Calculated cost remains an estimate, not a provider invoice.
+Receipt allowlists and narrow serialized-content checks reject credentials,
+authorization material, headers, raw responses or prompts, fixture prose,
+reviewer identity, private paths, and unnecessary machine metadata.
+
+Focused manifest, raw-evidence, identity-map, packet, score, adjudication,
+threshold, cost, and receipt tamper cases pin stable redacted error codes
+without claiming a global exhaustive matrix. Mocked PASS and FAIL workflows
+verify the complete durable-evidence path end to end. A legitimate threshold
+FAIL remains `integrity: VALID` and `qualification: FAIL`; evidence or receipt
+tampering produces `integrity: INVALID` and `qualification: UNVERIFIED`.
+
+Live qualification remains unauthorized without the explicit opt-in,
+credential, external output location, and two-human review prerequisites.
+Mocked evidence does not qualify the model. A verified live PASS receipt
+remains required before Package 19.14-G.
 
 ## Frozen corpus
 

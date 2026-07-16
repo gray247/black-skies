@@ -25,10 +25,47 @@ export interface DraftEditorProps {
   className?: string;
   extensions?: Extension[];
   onChange?: (nextValue: string) => void;
+  onSelectionChange?: (selection: DraftEditorSelectionEvidence) => void;
   diffConfig?: DraftEditorDiffConfig | null;
   ariaLabel?: string | null;
   ariaLabelledBy?: string | null;
   ariaDescribedBy?: string | null;
+}
+
+export interface DraftEditorSelectionEvidence {
+  readonly selectionStart: number;
+  readonly selectionEnd: number;
+  readonly selectedText: string;
+  readonly editorRevision: number;
+  readonly sourceFingerprint: string;
+  readonly selectionFingerprint: string;
+}
+
+async function fingerprintText(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+export async function buildDraftEditorSelectionEvidence(
+  source: string,
+  selectionStart: number,
+  selectionEnd: number,
+  editorRevision: number,
+): Promise<DraftEditorSelectionEvidence> {
+  const selectedText = source.slice(selectionStart, selectionEnd);
+  const [sourceFingerprint, selectionFingerprint] = await Promise.all([
+    fingerprintText(source),
+    fingerprintText(selectedText),
+  ]);
+  return {
+    selectionStart,
+    selectionEnd,
+    selectedText,
+    editorRevision,
+    sourceFingerprint,
+    selectionFingerprint,
+  };
 }
 
 const editorTheme = EditorView.theme(
@@ -76,6 +113,7 @@ export default function DraftEditor({
   className,
   extensions,
   onChange,
+  onSelectionChange,
   diffConfig,
   ariaLabel,
   ariaLabelledBy,
@@ -85,11 +123,18 @@ export default function DraftEditor({
   const viewRef = useRef<EditorView | null>(null);
   const docRef = useRef(value);
   const onChangeRef = useRef(onChange);
+  const onSelectionChangeRef = useRef(onSelectionChange);
   const skipNextChangeRef = useRef(false);
+  const editorRevisionRef = useRef(0);
+  const selectionSequenceRef = useRef(0);
 
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
+
+  useEffect(() => {
+    onSelectionChangeRef.current = onSelectionChange;
+  }, [onSelectionChange]);
 
   const diffExtensions = useMemo<Extension[]>(() => {
     if (!diffConfig) {
@@ -169,17 +214,28 @@ export default function DraftEditor({
   const changeListener = useMemo(
     () =>
       EditorView.updateListener.of((update) => {
-        if (!update.docChanged) {
-          return;
+        if (update.docChanged) {
+          editorRevisionRef.current += 1;
+          if (skipNextChangeRef.current) {
+            skipNextChangeRef.current = false;
+          } else {
+            onChangeRef.current?.(update.state.doc.toString());
+          }
         }
-        if (skipNextChangeRef.current) {
-          skipNextChangeRef.current = false;
-          return;
-        }
-        const handler = onChangeRef.current;
-        if (handler) {
-          handler(update.state.doc.toString());
-        }
+        if (!update.docChanged && !update.selectionSet) return;
+        const sequence = ++selectionSequenceRef.current;
+        const range = update.state.selection.main;
+        const source = update.state.doc.toString();
+        void buildDraftEditorSelectionEvidence(
+          source,
+          range.from,
+          range.to,
+          editorRevisionRef.current,
+        ).then((evidence) => {
+          if (sequence === selectionSequenceRef.current) {
+            onSelectionChangeRef.current?.(evidence);
+          }
+        });
       }),
     [],
   );

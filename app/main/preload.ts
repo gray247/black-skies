@@ -10,6 +10,14 @@ import {
   type SplitCommandOwnershipBridge,
 } from '../shared/ipc/splitCommand';
 import {
+  AI_CRITIQUE_CHANNELS,
+  type AiCritiqueApprovalRequest,
+  type AiCritiqueBridge,
+  type AiCritiquePrepareRequest,
+  type AiCritiqueRequestReference,
+  type AiCritiqueState,
+} from '../shared/ipc/aiCritique';
+import {
   matchesSplitCommandOwnershipSyncMessagePairIdentity,
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
@@ -2502,6 +2510,26 @@ const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunc
     }
   : null;
 
+const aiCritiqueBridge: AiCritiqueBridge = {
+  credentialStatus: () => ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.credentialStatus),
+  setCredential: (credential: string) =>
+    ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.setCredential, credential),
+  clearCredential: () => ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.clearCredential),
+  prepare: (request: AiCritiquePrepareRequest) =>
+    ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.prepare, request),
+  approveAndExecute: (request: AiCritiqueApprovalRequest) =>
+    ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.approveAndExecute, request),
+  cancel: (request: AiCritiqueRequestReference) =>
+    ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.cancel, request),
+  invalidate: (request: AiCritiqueRequestReference) =>
+    ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.invalidate, request),
+  subscribeState(listener: (state: AiCritiqueState) => void): () => void {
+    const handler = (_event: IpcRendererEvent, state: AiCritiqueState) => listener(state);
+    ipcRenderer.on(AI_CRITIQUE_CHANNELS.stateChanged, handler);
+    return () => ipcRenderer.removeListener(AI_CRITIQUE_CHANNELS.stateChanged, handler);
+  },
+};
+
 registerConsoleForwarding();
 
 if (!isCommandCenterPreload) {
@@ -2513,6 +2541,7 @@ if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
   contextBridge.exposeInMainWorld('layout', layoutBridge);
   contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+  contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
 }
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);

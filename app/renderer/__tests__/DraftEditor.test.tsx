@@ -1,7 +1,7 @@
 ﻿import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import DraftEditor from '../DraftEditor';
+import DraftEditor, { buildDraftEditorSelectionEvidence } from '../DraftEditor';
 
 const sampleSceneMarkdown = `---
 id: sc_0001
@@ -12,6 +12,27 @@ pov: Mara Ibarra
 Mara Ibarra enters Basement Pulse and maps the sealed corridor.`;
 
 describe('DraftEditor', () => {
+  it('builds exact UTF-16 selection evidence with deterministic source and selection fingerprints', async () => {
+    const astralCharacter = String.fromCodePoint(0x1f30c);
+    const source = `Before ${astralCharacter} after`;
+    const selectionStart = 'Before '.length;
+    const selectionEnd = selectionStart + astralCharacter.length;
+    const evidence = await buildDraftEditorSelectionEvidence(
+      source,
+      selectionStart,
+      selectionEnd,
+      12,
+    );
+
+    expect(evidence).toEqual({
+      selectionStart,
+      selectionEnd,
+      selectedText: astralCharacter,
+      editorRevision: 12,
+      sourceFingerprint: '786dea71246fb66bbf29152592c8261da652e06ffc53ae1a3ac596bdc90ea3da',
+      selectionFingerprint: 'fe436484db81102e533cc2197fdc65b4c3d7e5322c7080d77c81df15b4f2c894',
+    });
+  });
   it('renders the sample scene title and body', async () => {
     render(
       <DraftEditor

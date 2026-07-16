@@ -10,18 +10,28 @@ import type {
   ProjectSpineWritingRecoveryState,
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
+import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
 import Stage19WritingSpineApp, { useCloseConfirmationRequest } from '../Stage19WritingSpineApp';
 
 vi.mock('../DraftEditor', () => ({
   default: ({
     value,
     onChange,
+    onSelectionChange,
     ariaLabel,
     placeholder,
     readOnly,
   }: {
     value: string;
     onChange?: (value: string) => void;
+    onSelectionChange?: (selection: {
+      selectionStart: number;
+      selectionEnd: number;
+      selectedText: string;
+      editorRevision: number;
+      sourceFingerprint: string;
+      selectionFingerprint: string;
+    }) => void;
     ariaLabel?: string | null;
     placeholder?: string;
     readOnly?: boolean;
@@ -31,6 +41,17 @@ vi.mock('../DraftEditor', () => ({
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange?.(event.target.value)}
+      onSelect={(event) => {
+        const target = event.currentTarget;
+        onSelectionChange?.({
+          selectionStart: target.selectionStart,
+          selectionEnd: target.selectionEnd,
+          selectedText: target.value.slice(target.selectionStart, target.selectionEnd),
+          editorRevision: 1,
+          sourceFingerprint: 'a'.repeat(64),
+          selectionFingerprint: 'b'.repeat(64),
+        });
+      }}
       readOnly={readOnly}
     />
   ),
@@ -233,6 +254,69 @@ function recoveryCandidate(
     prose,
     decision,
   } as const;
+}
+
+function createAiBridge(selectedText: string) {
+  const listeners = new Set<(state: AiCritiqueState) => void>();
+  const preview = {
+    requestId: 'ai-request-1',
+    status: 'prepared' as const,
+    expiresAt: '2026-07-14T12:05:00.000Z',
+    payloadHash: 'c'.repeat(64),
+    providerBodyJson: JSON.stringify({ model: 'gpt-5.4-2026-03-05', input: selectedText }),
+    provider: 'openai' as const,
+    model: 'gpt-5.4-2026-03-05' as const,
+    remote: true as const,
+    taskContractVersion: 'black_skies_critique_v1' as const,
+    instructions: 'Frozen critique instructions.',
+    selectedText,
+    cost: {
+      currency: 'USD' as const,
+      pricingVerifiedAt: '2026-07-14' as const,
+      inputUsdPerMillionTokens: 2.5 as const,
+      cachedInputUsdPerMillionTokens: 0.25 as const,
+      outputUsdPerMillionTokens: 15 as const,
+      estimatedInputTokens: 100,
+      maximumInputTokens: 400,
+      maximumOutputTokens: 1600 as const,
+      estimatedUsd: 0.02425,
+      maximumCalculatedUsd: 0.025,
+      authorizationCeilingUsd: 0.1 as const,
+      invoiceDisclaimer: 'Calculated usage cost - not provider invoice.' as const,
+    },
+    retentionDisclosure: 'Retention disclosure.',
+    clearanceDisclosure: 'Confirm exact prose is cleared for remote transmission.',
+    cancellationDisclosure: 'Local cancellation does not guarantee provider cancellation.',
+  };
+  const bridge: AiCritiqueBridge = {
+    credentialStatus: vi.fn(async () => ({ configured: false })),
+    setCredential: vi.fn(async () => ({ ok: true as const, data: { configured: true } })),
+    clearCredential: vi.fn(async () => ({ configured: false })),
+    prepare: vi.fn(async () => ({ ok: true as const, data: preview })),
+    approveAndExecute: vi.fn(async (request) => ({
+      ok: true as const,
+      data: { requestId: request.requestId, operationId: request.operationId },
+    })),
+    cancel: vi.fn(async (request) => ({
+      ok: true as const,
+      data: { requestId: request.requestId, status: 'cancelled' as const },
+    })),
+    invalidate: vi.fn(async (request) => ({
+      ok: true as const,
+      data: { requestId: request.requestId, status: 'invalidated' as const },
+    })),
+    subscribeState: vi.fn((listener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    }),
+  };
+  return {
+    bridge,
+    preview,
+    emit(state: AiCritiqueState) {
+      for (const listener of listeners) listener(state);
+    },
+  };
 }
 
 let closeRequestState: ReturnType<typeof useCloseConfirmationRequest>;
@@ -1164,5 +1248,136 @@ describe('Stage19WritingSpineApp', () => {
     const event = new Event('beforeunload', { cancelable: true });
     window.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('requires exact selection preview, session credential, clearance, and explicit approval', async () => {
+    const prose = `${'The rain marked time against the station glass while Mara waited for a train that did not arrive. '.repeat(4)}End.`;
+    const project = createBridge(snapshot('writing', {
+      units: [{ id: 'unit_a', title: 'AI Boundary', order: 1, body: prose }],
+    }));
+    const ai = createAiBridge(`${prose}\n`);
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: AI Boundary' });
+    (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
+    fireEvent.select(editor);
+    expect(screen.getByRole('button', { name: 'Review outbound critique request' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+
+    expect(await screen.findByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
+    expect(screen.getByText('gpt-5.4-2026-03-05')).toBeVisible();
+    expect(screen.getByText('2026-07-14')).toBeVisible();
+    expect(screen.getByLabelText('Exact selected prose to transmit')).toHaveValue(`${prose}\n`);
+    expect(ai.bridge.prepare).toHaveBeenCalledWith(expect.objectContaining({
+      selection: expect.objectContaining({
+        projectId: 'proj_a',
+        unitId: 'unit_a',
+        selectedText: `${prose}\n`,
+        sourceFingerprint: 'a'.repeat(64),
+        selectionFingerprint: 'b'.repeat(64),
+      }),
+    }));
+
+    const keyInput = screen.getByLabelText('OpenAI API key (session only; no readback)');
+    await user.type(keyInput, 'synthetic-session-credential-123456');
+    await user.click(screen.getByRole('button', { name: 'Set session key' }));
+    expect(keyInput).toHaveValue('');
+    expect(ai.bridge.setCredential).toHaveBeenCalledWith('synthetic-session-credential-123456');
+
+    const approve = screen.getByRole('button', { name: 'Approve and send exact payload' });
+    expect(approve).toBeDisabled();
+    await user.click(screen.getByLabelText('Confirm exact prose is cleared for remote transmission.'));
+    expect(approve).toBeEnabled();
+    await user.click(approve);
+    expect(ai.bridge.approveAndExecute).toHaveBeenCalledWith(expect.objectContaining({
+      requestId: 'ai-request-1',
+      payloadHash: 'c'.repeat(64),
+      transmissionConfirmed: true,
+      authorizationCeilingUsd: 0.1,
+    }));
+    expect(screen.queryByRole('button', { name: /apply|insert|rewrite|copy to editor/i })).not.toBeInTheDocument();
+  });
+
+  it('keeps completed same-unit advice visible but unmistakably stale after editing', async () => {
+    const prose = `${'A narrow beam crossed the empty hall while the clock repeated the same minute. '.repeat(5)}End.`;
+    const project = createBridge(snapshot('writing', {
+      units: [{ id: 'unit_a', title: 'Staleness', order: 1, body: prose }],
+    }));
+    const ai = createAiBridge(`${prose}\n`);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
+    (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
+    fireEvent.select(editor);
+    fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+    await screen.findByRole('heading', { name: 'Exact outbound preview' });
+
+    act(() => {
+      ai.emit({
+        requestId: 'ai-request-1',
+        status: 'completed',
+        result: {
+          requestId: 'ai-request-1',
+          provider: 'openai',
+          model: 'gpt-5.4-2026-03-05',
+          taskContractVersion: 'black_skies_critique_v1',
+          sourceFingerprint: 'a'.repeat(64),
+          selectionFingerprint: 'b'.repeat(64),
+          editorRevision: 1,
+          completedAt: '2026-07-14T12:00:00.000Z',
+          content: {
+            overview: 'The passage sustains a controlled temporal unease.',
+            strengths: [],
+            priorities: [],
+            uncertainties: [],
+            limitations: ['Selected passage only.'],
+          },
+          usage: {
+            inputTokens: 100,
+            cachedInputTokens: 0,
+            outputTokens: 50,
+            calculatedUsd: 0.001,
+            invoiceDisclaimer: 'Calculated usage cost - not provider invoice.',
+          },
+        },
+      });
+    });
+    expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+    fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
+    expect(screen.getByText('Stale: the manuscript changed after this critique completed.')).toBeVisible();
+    expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+  });
+
+  it('visibly invalidates a prepared approval when the selected range changes', async () => {
+    const prose = `${'A narrow beam crossed the empty hall while the clock repeated the same minute. '.repeat(5)}End.`;
+    const project = createBridge(snapshot('writing', {
+      units: [{ id: 'unit_a', title: 'Selection binding', order: 1, body: prose }],
+    }));
+    const ai = createAiBridge(`${prose}\n`);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Selection binding' });
+    (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
+    fireEvent.select(editor);
+    fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+    expect(await screen.findByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
+
+    (editor as HTMLTextAreaElement).setSelectionRange(10, (editor as HTMLTextAreaElement).value.length);
+    fireEvent.select(editor);
+
+    expect(screen.queryByRole('heading', { name: 'Exact outbound preview' })).not.toBeInTheDocument();
+    expect(screen.getByText('Selection changed. Review a new outbound critique request.')).toBeVisible();
+    expect(ai.bridge.invalidate).toHaveBeenCalledWith({
+      requestId: 'ai-request-1',
+      operationId: expect.stringMatching(/^ai-critique:/),
+    });
+  });
+
+  it('never renders an AI surface in Command Center even if a bridge is supplied', async () => {
+    const project = createBridge(snapshot('command'));
+    const ai = createAiBridge('x'.repeat(300));
+    render(<Stage19WritingSpineApp windowRole="command" bridge={project.bridge} aiBridge={ai.bridge} />);
+    expect(await screen.findByRole('region', { name: 'Command Center' })).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
+    expect(ai.bridge.credentialStatus).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SplitCommandOwnershipSyncMessage } from '../../shared/splitCommandAuthority';
 import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineBridge } from '../../shared/ipc/projectSpine';
+import { AI_CRITIQUE_CHANNELS, type AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 
 const contextBridgeMock = vi.hoisted(() => ({
   exposeInMainWorld: vi.fn(),
@@ -133,6 +134,10 @@ function getProjectSpineBridge(): ProjectSpineBridge | undefined {
     | undefined;
 }
 
+function getAiCritiqueBridge(): AiCritiqueBridge | undefined {
+  return getExposedGlobal('aiCritique') as AiCritiqueBridge | undefined;
+}
+
 function getExposedGlobal(key: string): unknown {
   return vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls.find(([name]) => name === key)?.[1];
 }
@@ -179,6 +184,7 @@ describe('splitCommand preload bridge', () => {
         '__electronApi',
         '__phase4MockFlowEnabled',
         '__testEnv',
+        'aiCritique',
         'diagnostics',
         'layout',
         'projectLoader',
@@ -188,6 +194,18 @@ describe('splitCommand preload bridge', () => {
       ].sort(),
     );
     expect(getExposedGlobal('projectLoader')).toBeDefined();
+    expect(Object.keys(getAiCritiqueBridge()!).sort()).toEqual(
+      [
+        'approveAndExecute',
+        'cancel',
+        'clearCredential',
+        'credentialStatus',
+        'invalidate',
+        'prepare',
+        'setCredential',
+        'subscribeState',
+      ].sort(),
+    );
     expect(getExposedGlobal('services')).toBeDefined();
     expect(getExposedGlobal('__electronApi')).toBeDefined();
   });
@@ -316,6 +334,7 @@ describe('splitCommand preload bridge', () => {
     expect(getExposedGlobal('projectLoader')).toBeUndefined();
     expect(getExposedGlobal('services')).toBeUndefined();
     expect(getExposedGlobal('__electronApi')).toBeUndefined();
+    expect(getExposedGlobal('aiCritique')).toBeUndefined();
     expect(getExposedGlobal('__test')).toBeUndefined();
     expect(getExposedGlobal('__dev')).toBeUndefined();
     expect(getExposedGlobal('__testInsights')).toBeUndefined();
@@ -501,6 +520,7 @@ describe('splitCommand preload bridge', () => {
         '__electronApi',
         '__phase4MockFlowEnabled',
         '__testEnv',
+        'aiCritique',
         'diagnostics',
         'layout',
         'projectLoader',
@@ -536,6 +556,11 @@ describe('splitCommand preload bridge', () => {
       ].sort(),
     );
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
+    const aiCritique = getAiCritiqueBridge();
+    expect(aiCritique).toBeDefined();
+    ipcRendererInvokeMock.mockResolvedValueOnce({ configured: false });
+    await expect(aiCritique!.credentialStatus()).resolves.toEqual({ configured: false });
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(AI_CRITIQUE_CHANNELS.credentialStatus);
     expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
     expect(projectSpine?.acceptRecoveryCandidate).toEqual(expect.any(Function));
     expect(projectSpine?.rejectRecoveryCandidate).toEqual(expect.any(Function));

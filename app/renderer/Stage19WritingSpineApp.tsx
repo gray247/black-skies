@@ -10,7 +10,17 @@ import type {
   ProjectSpineSessionSnapshot,
   ProjectSpineWindowRole,
 } from '../shared/ipc/projectSpine';
-import DraftEditor from './DraftEditor';
+import {
+  AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
+  AI_CRITIQUE_MAX_SELECTION_LENGTH,
+  AI_CRITIQUE_MIN_SELECTION_LENGTH,
+  type AiCritiqueBridge,
+  type AiCritiqueCompletedResult,
+  type AiCritiquePreview,
+  type AiCritiqueRequestReference,
+  type AiCritiqueState,
+} from '../shared/ipc/aiCritique';
+import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 
 interface DraftEnvelope {
   readonly header: string;
@@ -396,11 +406,13 @@ export function useCloseConfirmationRequest({
 export interface Stage19WritingSpineAppProps {
   readonly windowRole?: ProjectSpineWindowRole;
   readonly bridge?: ProjectSpineBridge;
+  readonly aiBridge?: AiCritiqueBridge;
 }
 
 export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
+  aiBridge = window.aiCritique,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -411,6 +423,16 @@ export default function Stage19WritingSpineApp({
   const [renameTitle, setRenameTitle] = useState('');
   const [buffers, setBuffers] = useState<Record<string, string>>({});
   const [recoveryDecisionUnitId, setRecoveryDecisionUnitId] = useState<string | null>(null);
+  const [aiSelection, setAiSelection] = useState<DraftEditorSelectionEvidence | null>(null);
+  const [aiCredential, setAiCredential] = useState('');
+  const [aiCredentialConfigured, setAiCredentialConfigured] = useState(false);
+  const [aiPreview, setAiPreview] = useState<AiCritiquePreview | null>(null);
+  const [aiClearanceConfirmed, setAiClearanceConfirmed] = useState(false);
+  const [aiState, setAiState] = useState<AiCritiqueState | null>(null);
+  const [aiResult, setAiResult] = useState<AiCritiqueCompletedResult | null>(null);
+  const [aiResultStale, setAiResultStale] = useState(false);
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
   const buffersRef = useRef(buffers);
@@ -574,6 +596,51 @@ export default function Stage19WritingSpineApp({
       unsubscribe();
     };
   }, [applySnapshot, bridge]);
+
+  const clearAiSurface = useCallback((invalidateActive: boolean) => {
+    const reference = aiReferenceRef.current;
+    if (invalidateActive && reference && aiBridge) {
+      void aiBridge.invalidate(reference);
+    }
+    aiReferenceRef.current = null;
+    setAiPreview(null);
+    setAiClearanceConfirmed(false);
+    setAiState(null);
+    setAiResult(null);
+    setAiResultStale(false);
+    setAiNotice(null);
+  }, [aiBridge]);
+
+  useEffect(() => {
+    if (windowRole !== 'writing' || !aiBridge) return;
+    let cancelled = false;
+    void aiBridge.credentialStatus().then((status) => {
+      if (!cancelled && 'configured' in status) setAiCredentialConfigured(status.configured);
+    });
+    const unsubscribe = aiBridge.subscribeState((state) => {
+      if (state.requestId !== aiReferenceRef.current?.requestId) return;
+      setAiState(state);
+      if (state.status === 'completed' && state.result) {
+        setAiResult(state.result);
+        setAiResultStale(false);
+      }
+      if (state.error) setAiNotice(state.error.message);
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [aiBridge, windowRole]);
+
+  const aiAuthorityIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.activeUnitId ?? ''}\n${snapshot.generation}\n${snapshot.recovery?.status ?? ''}\n${closeConfirmation.activeRequest?.correlationId ?? ''}`;
+  const aiAuthorityIdentityRef = useRef(aiAuthorityIdentity);
+  useEffect(() => {
+    if (aiAuthorityIdentityRef.current !== aiAuthorityIdentity) {
+      aiAuthorityIdentityRef.current = aiAuthorityIdentity;
+      setAiSelection(null);
+      clearAiSurface(true);
+    }
+  }, [aiAuthorityIdentity, clearAiSurface]);
 
   const activeUnit = useMemo(
     () => snapshot.project?.units.find((unit) => unit.id === snapshot.activeUnitId) ?? null,
@@ -875,6 +942,16 @@ export default function Stage19WritingSpineApp({
 
   const handleBufferChange = useCallback(
     (unitId: string, body: string) => {
+      setAiSelection(null);
+      if (aiResult) {
+        setAiResultStale(true);
+      } else if (aiReferenceRef.current && aiBridge) {
+        void aiBridge.invalidate(aiReferenceRef.current);
+        aiReferenceRef.current = null;
+        setAiPreview(null);
+        setAiState(null);
+        setAiClearanceConfirmed(false);
+      }
       editRevisionRef.current[unitId] = (editRevisionRef.current[unitId] ?? 0) + 1;
       buffersRef.current = { ...buffersRef.current, [unitId]: body };
       setBuffers(buffersRef.current);
@@ -887,7 +964,7 @@ export default function Stage19WritingSpineApp({
         editRevision: editRevisionRef.current[unitId],
       });
     },
-    [reportDirty, scheduleRecoveryCheckpoint],
+    [aiBridge, aiResult, reportDirty, scheduleRecoveryCheckpoint],
   );
 
   const saveUnit = useCallback(
@@ -1051,6 +1128,120 @@ export default function Stage19WritingSpineApp({
     applySnapshot(result.snapshot);
     setNotice(resultMessage(result));
   }, [applySnapshot, bridge, flushRecoveryCheckpoint]);
+
+  const handleAiSelection = useCallback((selection: DraftEditorSelectionEvidence) => {
+    const selectionChanged = Boolean(
+      aiSelection &&
+      (
+        aiSelection.selectionStart !== selection.selectionStart ||
+        aiSelection.selectionEnd !== selection.selectionEnd ||
+        aiSelection.editorRevision !== selection.editorRevision ||
+        aiSelection.sourceFingerprint !== selection.sourceFingerprint ||
+        aiSelection.selectionFingerprint !== selection.selectionFingerprint
+      )
+    );
+    if (selectionChanged && aiReferenceRef.current && !aiResult) {
+      if (aiBridge) void aiBridge.invalidate(aiReferenceRef.current);
+      aiReferenceRef.current = null;
+      setAiPreview(null);
+      setAiState(null);
+      setAiClearanceConfirmed(false);
+      setAiNotice('Selection changed. Review a new outbound critique request.');
+    }
+    setAiSelection(selection);
+  }, [aiBridge, aiResult, aiSelection]);
+
+  const configureAiCredential = useCallback(async () => {
+    if (!aiBridge || !aiCredential) return;
+    const credential = aiCredential;
+    setAiCredential('');
+    const result = await aiBridge.setCredential(credential);
+    if (result.ok) {
+      setAiCredentialConfigured(result.data.configured);
+      setAiNotice('Session credential configured in main-process memory.');
+    } else {
+      setAiNotice(result.error.message);
+    }
+  }, [aiBridge, aiCredential]);
+
+  const clearAiCredential = useCallback(async () => {
+    if (!aiBridge) return;
+    const status = await aiBridge.clearCredential();
+    setAiCredentialConfigured(status.configured);
+    setAiCredential('');
+    setAiNotice('Session credential cleared.');
+  }, [aiBridge]);
+
+  const prepareAiCritique = useCallback(async () => {
+    if (!aiBridge || !aiSelection || !snapshot.project || !snapshot.activeUnitId) return;
+    const nonWhitespaceLength = aiSelection.selectedText.replace(/\s/g, '').length;
+    if (
+      nonWhitespaceLength < AI_CRITIQUE_MIN_SELECTION_LENGTH ||
+      nonWhitespaceLength > AI_CRITIQUE_MAX_SELECTION_LENGTH
+    ) {
+      setAiNotice('Select between 200 and 12,000 non-whitespace characters.');
+      return;
+    }
+    if (aiReferenceRef.current) void aiBridge.invalidate(aiReferenceRef.current);
+    aiReferenceRef.current = null;
+    setAiPreview(null);
+    setAiState(null);
+    setAiResult(null);
+    setAiResultStale(false);
+    setAiClearanceConfirmed(false);
+    setAiNotice(null);
+    const request = {
+      operationId: operationId('ai-critique'),
+      selection: {
+        projectId: snapshot.project.projectId,
+        unitId: snapshot.activeUnitId,
+        generation: snapshot.generation,
+        projectRevision: snapshot.revision,
+        ...aiSelection,
+      },
+    };
+    const prepared = await aiBridge.prepare(request);
+    if (!prepared.ok) {
+      setAiNotice(prepared.error.message);
+      return;
+    }
+    setAiPreview(prepared.data);
+    aiReferenceRef.current = {
+      requestId: prepared.data.requestId,
+      operationId: request.operationId,
+    };
+    setAiState({ requestId: prepared.data.requestId, status: 'prepared' });
+  }, [aiBridge, aiSelection, snapshot.activeUnitId, snapshot.generation, snapshot.project, snapshot.revision]);
+
+  const approveAiCritique = useCallback(async () => {
+    const reference = aiReferenceRef.current;
+    if (!aiBridge || !aiPreview || !aiSelection || !reference || !aiClearanceConfirmed) return;
+    const approved = await aiBridge.approveAndExecute({
+      ...reference,
+      payloadHash: aiPreview.payloadHash,
+      editorRevision: aiSelection.editorRevision,
+      sourceFingerprint: aiSelection.sourceFingerprint,
+      selectionFingerprint: aiSelection.selectionFingerprint,
+      transmissionConfirmed: true,
+      authorizationCeilingUsd: AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
+    });
+    if (!approved.ok) {
+      setAiNotice(approved.error.message);
+      return;
+    }
+  }, [aiBridge, aiClearanceConfirmed, aiPreview, aiSelection]);
+
+  const stopWaitingForAi = useCallback(async () => {
+    if (!aiBridge || !aiReferenceRef.current) return;
+    const cancelled = await aiBridge.cancel(aiReferenceRef.current);
+    if (cancelled.ok) setAiState(cancelled.data);
+    else setAiNotice(cancelled.error.message);
+  }, [aiBridge]);
+
+  const dismissAiCritique = useCallback(() => {
+    clearAiSurface(Boolean(aiReferenceRef.current && !aiResult));
+    setAiSelection(null);
+  }, [aiResult, clearAiSurface]);
 
   if (loading) {
     return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
@@ -1309,11 +1500,93 @@ export default function Stage19WritingSpineApp({
                   <DraftEditor
                     value={activeBuffer}
                     onChange={(body) => handleBufferChange(activeUnit.id, body)}
+                    onSelectionChange={handleAiSelection}
                     readOnly={recoveryBlocksEditing}
                     placeholder="Start writing…"
                     ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
                   />
                 </div>
+                <section className="stage19-ai" aria-label="Selected prose AI critique">
+                  <div className="stage19-ai__heading">
+                    <div><span className="stage19-spine__eyebrow">Optional remote critique</span><h3>Selected prose only</h3></div>
+                    <span className={aiCredentialConfigured ? 'is-ready' : ''}>
+                      {aiCredentialConfigured ? 'Session credential ready' : 'No session credential'}
+                    </span>
+                  </div>
+                  {!aiBridge ? (
+                    <p>AI critique is unavailable. Writing, Save, recovery, and close remain local and available.</p>
+                  ) : (
+                    <>
+                      <div className="stage19-ai__credential">
+                        <label>
+                          <span>OpenAI API key (session only; no readback)</span>
+                          <input type="password" autoComplete="off" value={aiCredential} onChange={(event) => setAiCredential(event.target.value)} />
+                        </label>
+                        <button type="button" onClick={() => void configureAiCredential()} disabled={!aiCredential}>Set session key</button>
+                        <button type="button" onClick={() => void clearAiCredential()} disabled={!aiCredentialConfigured}>Clear key</button>
+                      </div>
+                      <div className="stage19-ai__selection">
+                        <p>{aiSelection?.selectedText
+                          ? `${aiSelection.selectedText.replace(/\s/g, '').length.toLocaleString()} non-whitespace characters selected`
+                          : 'Select 200–12,000 non-whitespace characters in the manuscript editor.'}</p>
+                        <button
+                          type="button"
+                          onClick={() => void prepareAiCritique()}
+                          disabled={!aiSelection || aiSelection.selectedText.replace(/\s/g, '').length < AI_CRITIQUE_MIN_SELECTION_LENGTH || aiSelection.selectedText.replace(/\s/g, '').length > AI_CRITIQUE_MAX_SELECTION_LENGTH || aiState?.status === 'executing'}
+                        >
+                          Review outbound critique request
+                        </button>
+                      </div>
+                      {aiPreview ? (
+                        <div className="stage19-ai__preview">
+                          <h4>Exact outbound preview</h4>
+                          <dl>
+                            <div><dt>Provider</dt><dd>{aiPreview.provider}</dd></div>
+                            <div><dt>Pinned model</dt><dd>{aiPreview.model}</dd></div>
+                            <div><dt>Processing</dt><dd>Remote OpenAI Responses API</dd></div>
+                            <div><dt>Pricing verified</dt><dd>{aiPreview.cost.pricingVerifiedAt}</dd></div>
+                            <div><dt>Current text pricing</dt><dd>${aiPreview.cost.inputUsdPerMillionTokens.toFixed(2)} input / ${aiPreview.cost.cachedInputUsdPerMillionTokens.toFixed(2)} cached input / ${aiPreview.cost.outputUsdPerMillionTokens.toFixed(2)} output per 1M tokens</dd></div>
+                            <div><dt>Preview expires</dt><dd>{aiPreview.expiresAt}</dd></div>
+                            <div><dt>Estimated usage cost</dt><dd>${aiPreview.cost.estimatedUsd.toFixed(6)} USD</dd></div>
+                            <div><dt>Calculated maximum</dt><dd>${aiPreview.cost.maximumCalculatedUsd.toFixed(6)} USD under the $0.10 local ceiling</dd></div>
+                            <div><dt>Payload SHA-256</dt><dd><code>{aiPreview.payloadHash}</code></dd></div>
+                          </dl>
+                          <p>{aiPreview.cost.invoiceDisclaimer}</p>
+                          <p>{aiPreview.retentionDisclosure}</p>
+                          <p>{aiPreview.cancellationDisclosure}</p>
+                          <details><summary>Frozen critique instructions</summary><pre>{aiPreview.instructions}</pre></details>
+                          <details><summary>Exact provider request JSON</summary><pre>{aiPreview.providerBodyJson}</pre></details>
+                          <label><span>Exact selected prose to transmit</span><textarea readOnly value={aiPreview.selectedText} rows={8} /></label>
+                          <label className="stage19-ai__clearance">
+                            <input type="checkbox" checked={aiClearanceConfirmed} onChange={(event) => setAiClearanceConfirmed(event.target.checked)} />
+                            <span>{aiPreview.clearanceDisclosure}</span>
+                          </label>
+                          <button type="button" onClick={() => void approveAiCritique()} disabled={!aiClearanceConfirmed || !aiCredentialConfigured || aiState?.status !== 'prepared'}>
+                            Approve and send exact payload
+                          </button>
+                        </div>
+                      ) : null}
+                      {aiState && ['approved', 'executing'].includes(aiState.status) ? (
+                        <div className="stage19-ai__progress" role="status"><p>Waiting for advisory critique. Editing will invalidate and discard this request.</p><button type="button" onClick={() => void stopWaitingForAi()}>Stop waiting</button></div>
+                      ) : null}
+                      {aiResult ? (
+                        <div className={`stage19-ai__result ${aiResultStale ? 'is-stale' : ''}`}>
+                          {aiResultStale ? <p className="stage19-ai__stale" role="status">Stale: the manuscript changed after this critique completed.</p> : null}
+                          <h4>Advisory critique</h4>
+                          <p>{aiResult.content.overview}</p>
+                          {aiResult.content.strengths.length > 0 ? <><h5>Strengths</h5><ul>{aiResult.content.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                          {aiResult.content.priorities.length > 0 ? <><h5>Priorities</h5><ol>{aiResult.content.priorities.map((item, index) => <li key={`${index}-${item.evidence}`}><blockquote>{item.evidence}</blockquote><p>{item.observation}</p><p>{item.impact}</p><p>{item.revisionQuestion}</p></li>)}</ol></> : null}
+                          {aiResult.content.uncertainties.length > 0 ? <><h5>Uncertainties</h5><ul>{aiResult.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                          <p>{aiResult.usage.inputTokens} input tokens; {aiResult.usage.outputTokens} output tokens; ${aiResult.usage.calculatedUsd.toFixed(6)} calculated.</p>
+                          <p>{aiResult.usage.invoiceDisclaimer}</p>
+                          <button type="button" onClick={dismissAiCritique}>Dismiss critique</button>
+                        </div>
+                      ) : null}
+                      {aiNotice ? <p className="stage19-ai__notice" role="status">{aiNotice}</p> : null}
+                      {aiState && ['failed', 'cancelled', 'expired', 'invalidated'].includes(aiState.status) && !aiResult ? <button type="button" onClick={dismissAiCritique}>Dismiss critique status</button> : null}
+                    </>
+                  )}
+                </section>
               </>
             ) : (
               <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>

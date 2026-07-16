@@ -56,6 +56,10 @@ import {
   registerProjectSpineIpc,
 } from './projectSpineIpc.js';
 import {
+  invalidateAllAiCritiqueArtifacts,
+  registerAiCritiqueIpc,
+} from './aiCritiqueIpc.js';
+import {
   clearPendingCloseRequest,
   consumeCoordinatedCloseAllowance,
   createPendingCloseRequest,
@@ -293,6 +297,7 @@ function resolveProjectSpineWindowRole(webContentsId: number): ProjectSpineWindo
 }
 
 function publishProjectSpineSession(): void {
+  invalidateAllAiCritiqueArtifacts();
   for (const [webContentsId, registration] of projectSpineWindows) {
     if (
       registration.window.isDestroyed() ||
@@ -1317,6 +1322,11 @@ if (!hasSingleInstanceLock) {
         resolveWindowRole: resolveProjectSpineWindowRole,
         publishSession: publishProjectSpineSession,
         initiateCoordinatedShutdown: initiateCoordinatedCloseShutdown,
+      });
+      registerAiCritiqueIpc({
+        processSessionId: projectSpineOriginSessionId,
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
       });
       registerDiagnosticsIpc();
       registerSplitCommandOwnershipIpc();
