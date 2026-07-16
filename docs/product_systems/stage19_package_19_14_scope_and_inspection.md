@@ -78,7 +78,7 @@ Current official OpenAI documentation was reverified on 2026-07-14:
 | Current standard text pricing | input `$2.50`/1M tokens; cached input `$0.25`/1M; output `$15.00`/1M |
 | Structured output | supported through strict `text.format.type: json_schema` |
 | Storage | `store: false`; no conversation, file, tool, or background state |
-| Prompt cache | current request enum is `prompt_cache_retention: "in-memory"`; the earlier planning spelling `in_memory` is invalid and is corrected here |
+| Prompt cache | current request enum is `prompt_cache_retention: "in_memory"` |
 | Training | API data is not used to train or improve OpenAI models unless the customer explicitly opts in |
 | Provider retention disclosure | abuse-monitoring logs may contain prompts/responses and are retained up to 30 days by default; encrypted prompt-cache state may remain GPU-local up to 24 hours |
 
@@ -157,7 +157,7 @@ enriches the approved request.
 
 The accepted request is non-streaming and non-background, uses low reasoning
 effort and at most 1,600 output tokens, disables truncation and tool use, and
-sets `store: false` and `prompt_cache_retention: "in-memory"`. It sends only:
+sets `store: false` and `prompt_cache_retention: "in_memory"`. It sends only:
 
 1. the fixed `black_skies_critique_v1` instruction; and
 2. the exact selected prose as one `input_text` item.
@@ -222,7 +222,7 @@ placeholder is replaced only by the exact visible selected prose:
   "store": false,
   "stream": false,
   "background": false,
-  "prompt_cache_retention": "in-memory",
+  "prompt_cache_retention": "in_memory",
   "truncation": "disabled"
 }
 ```

@@ -183,6 +183,74 @@ describe('fixed OpenAI critique gateway', () => {
     }
   });
 
+  it('keeps bounded provider validation classification in main-process-only error metadata', async () => {
+    const privateMessage = "Invalid value: 'in-memory'. Supported values are: 'in_memory' and '24h'.";
+    const gateway = new AiCritiqueGateway({
+      fetch: vi.fn(async () => new Response(JSON.stringify({
+        error: {
+          message: privateMessage,
+          type: 'invalid_request_error',
+          code: 'invalid_value',
+          nested: { request: passage },
+        },
+      }), { status: 400 })),
+    });
+    try {
+      await gateway.execute(request());
+      throw new Error('Expected gateway rejection');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AiCritiqueGatewayError);
+      const gatewayError = error as AiCritiqueGatewayError;
+      expect(gatewayError.detail).toEqual({
+        code: 'PROVIDER_ERROR',
+        message: 'The provider rejected the critique request.',
+        retryable: false,
+      });
+      expect(gatewayError.providerFailure).toEqual({
+        httpStatus: 400,
+        providerType: 'invalid_request_error',
+        providerCode: 'invalid_value',
+        sanitizedMessage: 'The provider rejected a request parameter.',
+      });
+      expect(gatewayError.message).not.toContain('in-memory');
+      expect(gatewayError.message).not.toContain('Rain worried');
+    }
+  });
+
+  it('does not preserve malformed, oversized, or unsafe provider error text', async () => {
+    const unsafeMessage = `${'x'.repeat(10_000)} Bearer synthetic-session-credential-never-log ${passage}`;
+    const gateway = new AiCritiqueGateway({
+      fetch: vi.fn(async () => new Response(JSON.stringify({
+        error: {
+          message: unsafeMessage,
+          type: 'invalid_request_error',
+          code: 'invalid_value',
+        },
+      }), { status: 400 })),
+    });
+    try {
+      await gateway.execute(request());
+      throw new Error('Expected gateway rejection');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AiCritiqueGatewayError);
+      const failure = (error as AiCritiqueGatewayError).providerFailure;
+      expect(failure?.sanitizedMessage).toBe('The provider rejected a request parameter.');
+      expect(failure?.sanitizedMessage.length).toBeLessThanOrEqual(240);
+      expect(JSON.stringify(failure)).not.toContain('synthetic-session-credential');
+      expect(JSON.stringify(failure)).not.toContain('Rain worried');
+    }
+  });
+
+  it('fails safely without provider classification for malformed validation envelopes', async () => {
+    const gateway = new AiCritiqueGateway({
+      fetch: vi.fn(async () => new Response('{"error":{"message":"private only"}}', { status: 400 })),
+    });
+    await expect(gateway.execute(request())).rejects.toMatchObject({
+      detail: { code: 'PROVIDER_ERROR', retryable: false },
+      providerFailure: undefined,
+    });
+  });
+
   it('locally cancels and rejects a late provider result', async () => {
     let resolveFetch!: (response: Response) => void;
     const fetchPromise = new Promise<Response>((resolve) => { resolveFetch = resolve; });

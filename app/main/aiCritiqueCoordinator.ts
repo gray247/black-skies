@@ -98,7 +98,7 @@ export interface AiCritiqueProviderRequestBody {
   readonly store: false;
   readonly stream: false;
   readonly background: false;
-  readonly prompt_cache_retention: 'in-memory';
+  readonly prompt_cache_retention: 'in_memory';
   readonly truncation: 'disabled';
 }
 
@@ -183,7 +183,7 @@ export function buildAiCritiqueProviderBody(selectedText: string): AiCritiquePro
     store: false,
     stream: false,
     background: false,
-    prompt_cache_retention: 'in-memory',
+    prompt_cache_retention: 'in_memory',
     truncation: 'disabled',
   };
 }

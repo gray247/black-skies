@@ -71,7 +71,7 @@ describe('AiCritiqueCoordinator', () => {
       store: false,
       stream: false,
       background: false,
-      prompt_cache_retention: 'in-memory',
+      prompt_cache_retention: 'in_memory',
       truncation: 'disabled',
       tools: [],
       tool_choice: 'none',
@@ -79,6 +79,8 @@ describe('AiCritiqueCoordinator', () => {
     expect(body.input[0].content[0].text).toBe(selectedText);
     const serialized = serializeAiCritiqueProviderBody(body);
     expect(serializeAiCritiqueProviderBody(buildAiCritiqueProviderBody(selectedText))).toBe(serialized);
+    expect(JSON.parse(serialized)).toMatchObject({ prompt_cache_retention: 'in_memory' });
+    expect(serialized).not.toContain('"prompt_cache_retention":"in-memory"');
     expect(serialized).not.toContain('project-a');
     expect(serialized).not.toContain('C:/projects/a');
   });

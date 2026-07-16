@@ -46,10 +46,22 @@ export interface AiCritiqueGatewayOptions {
 }
 
 export class AiCritiqueGatewayError extends Error {
-  constructor(readonly detail: AiCritiqueError) {
+  constructor(
+    readonly detail: AiCritiqueError,
+    /** Main-process-only operator metadata. It is never included in the IPC error contract. */
+    readonly providerFailure?: AiCritiqueProviderFailure,
+  ) {
     super(detail.message);
     this.name = 'AiCritiqueGatewayError';
   }
+}
+
+export interface AiCritiqueProviderFailure {
+  readonly httpStatus: number;
+  readonly providerType: string | null;
+  readonly providerCode: string | null;
+  /** A fixed local message; never provider-supplied response text. */
+  readonly sanitizedMessage: string;
 }
 
 interface ActiveRequest {
@@ -211,6 +223,26 @@ function parseJsonBytes(bytes: Uint8Array): unknown | null {
   }
 }
 
+function providerIdentifier(value: unknown): string | null {
+  if (typeof value !== 'string' || !/^[a-z][a-z0-9_-]{0,63}$/i.test(value)) return null;
+  return value;
+}
+
+function providerFailure(status: number, body: Uint8Array): AiCritiqueProviderFailure | null {
+  const parsed = parseJsonBytes(body);
+  if (!isRecord(parsed) || !isRecord(parsed.error)) return null;
+  const providerType = providerIdentifier(parsed.error.type);
+  const providerCode = providerIdentifier(parsed.error.code);
+  if (providerType === null && providerCode === null) return null;
+  return {
+    httpStatus: status,
+    providerType,
+    providerCode,
+    // Do not retain provider-supplied text: it can echo private request content.
+    sanitizedMessage: 'The provider rejected a request parameter.',
+  };
+}
+
 function classifyHttpFailure(status: number, body: Uint8Array): AiCritiqueGatewayError {
   if (status === 401 || status === 403) {
     return gatewayError('PROVIDER_AUTH', 'The provider rejected the session credential.');
@@ -228,6 +260,17 @@ function classifyHttpFailure(status: number, body: Uint8Array): AiCritiqueGatewa
   }
   if (status >= 500) {
     return gatewayError('PROVIDER_UNAVAILABLE', 'The provider is temporarily unavailable.', true);
+  }
+  const failure = providerFailure(status, body);
+  if (status === 400 && failure) {
+    return new AiCritiqueGatewayError(
+      {
+        code: 'PROVIDER_ERROR',
+        message: 'The provider rejected the critique request.',
+        retryable: false,
+      },
+      failure,
+    );
   }
   return gatewayError('PROVIDER_ERROR', 'The provider rejected the critique request.');
 }
