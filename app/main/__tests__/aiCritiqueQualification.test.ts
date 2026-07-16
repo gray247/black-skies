@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -14,7 +17,10 @@ import {
   serializeAiCritiqueProviderBody,
   sha256,
 } from '../aiCritiqueCoordinator';
-import { QualificationArtifactRun } from '../aiCritiqueQualificationArtifacts';
+import {
+  QualificationArtifactRun,
+  QUALIFICATION_ARTIFACT_VERSION,
+} from '../aiCritiqueQualificationArtifacts';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
 
 const expectedHashes = [
@@ -32,9 +38,135 @@ const expectedHashes = [
   'f8338dba1532db7be1b7da78c1da8ebfcd1bd81444fdb5e88c04f2fa2a219ab9',
 ] as const;
 
-const qualificationEnabled = process.env.BLACK_SKIES_RUN_AI_QUALIFICATION === '1';
-const qualificationCredential = process.env.BLACK_SKIES_AI_QUALIFICATION_API_KEY;
-const qualificationOutputRoot = process.env.BLACK_SKIES_AI_QUALIFICATION_OUTPUT_DIR;
+interface LiveQualificationConfiguration {
+  readonly credential: string;
+  readonly outputRoot: string;
+}
+
+function liveQualificationConfiguration(
+  env: NodeJS.ProcessEnv,
+): LiveQualificationConfiguration | null {
+  if (
+    env.BLACK_SKIES_RUN_AI_QUALIFICATION !== '1' ||
+    !env.BLACK_SKIES_AI_QUALIFICATION_API_KEY ||
+    !env.BLACK_SKIES_AI_QUALIFICATION_OUTPUT_DIR
+  ) return null;
+  return {
+    credential: env.BLACK_SKIES_AI_QUALIFICATION_API_KEY,
+    outputRoot: env.BLACK_SKIES_AI_QUALIFICATION_OUTPUT_DIR,
+  };
+}
+
+function resolveRepositoryHead(repositoryRoot: string, env: NodeJS.ProcessEnv): string {
+  const supplied = env.GIT_COMMIT?.trim();
+  const head = supplied || execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  }).trim();
+  if (!/^[a-f0-9]{40,64}$/.test(head)) {
+    throw new Error('Live qualification requires an exact repository HEAD.');
+  }
+  return head;
+}
+
+type QualificationFixture = typeof AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[number];
+
+interface QualificationAttemptContext {
+  readonly attemptId: string;
+  readonly execution: 1 | 2;
+  readonly fixture: QualificationFixture;
+  readonly providerBodyJson: string;
+  readonly captureEvidence: ReturnType<QualificationArtifactRun['evidenceSink']>;
+}
+
+interface QualificationAttemptResult {
+  readonly critique: unknown;
+  readonly normalizedHash: string;
+  readonly structuralValid: true;
+  readonly usage: { readonly calculatedUsd: number };
+}
+
+async function runQualificationCapture(options: {
+  readonly outputRoot: string;
+  readonly repositoryRoot: string;
+  readonly repositoryHead: string;
+  readonly allowTemporaryRoot?: boolean;
+  readonly runId?: string;
+  readonly executeAttempt: (
+    context: QualificationAttemptContext,
+  ) => Promise<QualificationAttemptResult>;
+}): Promise<QualificationArtifactRun> {
+  const artifactRun = await QualificationArtifactRun.create({
+    outputRoot: options.outputRoot,
+    repositoryRoot: options.repositoryRoot,
+    repositoryHead: options.repositoryHead,
+    allowTemporaryRoot: options.allowTemporaryRoot,
+    runId: options.runId,
+  });
+  for (const fixture of AI_CRITIQUE_QUALIFICATION_FIXTURES_V1) {
+    for (let execution = 1; execution <= 2; execution += 1) {
+      const typedExecution = execution as 1 | 2;
+      const providerBodyJson = serializeAiCritiqueProviderBody(
+        buildAiCritiqueProviderBody(fixture.prose),
+      );
+      const attemptId =
+        `qualification:${fixture.id}:${typedExecution}:${randomUUID()}`;
+      const captureEvidence = artifactRun.evidenceSink({
+        attemptId,
+        fixtureId: fixture.id,
+        fixtureHash: fixture.contentHash,
+        execution: typedExecution,
+        prose: fixture.prose,
+        critique: null,
+        provider: 'openai',
+        model: 'gpt-5.4-2026-03-05',
+        instructionHash: sha256(AI_CRITIQUE_INSTRUCTIONS),
+        schemaHash: sha256(JSON.stringify(AI_CRITIQUE_RESPONSE_SCHEMA)),
+        parameterHash: sha256(providerBodyJson.replace(fixture.prose, '')),
+        requestHash: sha256(providerBodyJson),
+        normalizedHash: '',
+        structuralValid: false,
+        usage: null,
+      });
+      try {
+        const result = await options.executeAttempt({
+          attemptId,
+          execution: typedExecution,
+          fixture,
+          providerBodyJson,
+          captureEvidence,
+        });
+        await artifactRun.completeAttempt(attemptId, result);
+      } catch (error) {
+        await artifactRun.recordCaptureFailure({
+          attemptId,
+          fixtureId: fixture.id,
+          execution: typedExecution,
+        });
+        console.error('[qualification:capture-failed]', {
+          runId: artifactRun.runId,
+          code: 'CAPTURE_ATTEMPT_FAILED',
+          attemptId,
+          fixtureId: fixture.id,
+          execution: typedExecution,
+        });
+        throw error;
+      }
+    }
+  }
+  await artifactRun.completeCapture();
+  await artifactRun.finalizePackets(randomUUID(), randomUUID());
+  console.log('[qualification:capture-complete]', {
+    runId: artifactRun.runId,
+    runRoot: artifactRun.root,
+    lifecycle: 'PACKETS_FINALIZED',
+    attemptCount: 24,
+  });
+  return artifactRun;
+}
+
+const liveConfiguration = liveQualificationConfiguration(process.env);
 
 describe('AI critique qualification v1', () => {
   it('freezes twelve synthetic, cleared, bounded fixtures and their content hashes', () => {
@@ -54,35 +186,205 @@ describe('AI critique qualification v1', () => {
     }
   });
 
-  it.skipIf(!qualificationEnabled || !qualificationCredential || !qualificationOutputRoot)(
+  it('requires every live gate while allowing exact repository HEAD derivation', () => {
+    expect(liveQualificationConfiguration({})).toBeNull();
+    expect(liveQualificationConfiguration({
+      BLACK_SKIES_RUN_AI_QUALIFICATION: '1',
+    })).toBeNull();
+    expect(liveQualificationConfiguration({
+      BLACK_SKIES_RUN_AI_QUALIFICATION: '1',
+      BLACK_SKIES_AI_QUALIFICATION_API_KEY: 'synthetic',
+    })).toBeNull();
+    expect(liveQualificationConfiguration({
+      BLACK_SKIES_RUN_AI_QUALIFICATION: '1',
+      BLACK_SKIES_AI_QUALIFICATION_API_KEY: 'synthetic',
+      BLACK_SKIES_AI_QUALIFICATION_OUTPUT_DIR: 'C:\\external',
+    })).toEqual({
+      credential: 'synthetic',
+      outputRoot: 'C:\\external',
+    });
+    expect(resolveRepositoryHead(resolve(process.cwd(), '..'), {
+      GIT_COMMIT: 'a'.repeat(40),
+    })).toBe('a'.repeat(40));
+    expect(() => resolveRepositoryHead(resolve(process.cwd(), '..'), {
+      GIT_COMMIT: 'unrecorded-head',
+    })).toThrow('exact repository HEAD');
+  });
+
+  it('runs the complete Windows-safe capture lifecycle through a mocked gateway', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-live-runner-mock-'));
+    let mockedRequestCount = 0;
+    const run = await runQualificationCapture({
+      outputRoot,
+      repositoryRoot: 'C:\\Dev\\black-skies',
+      repositoryHead: 'b'.repeat(40),
+      allowTemporaryRoot: true,
+      runId: 'mocked-windows-runner',
+      executeAttempt: async ({
+        attemptId,
+        fixture,
+        providerBodyJson,
+        captureEvidence,
+      }) => {
+        const gateway = new AiCritiqueGateway({
+          fetch: async () => {
+            mockedRequestCount += 1;
+            return new Response(JSON.stringify({
+              model: 'gpt-5.4-2026-03-05',
+              status: 'completed',
+              output: [{
+                type: 'message',
+                content: [{
+                  type: 'output_text',
+                  text: JSON.stringify({
+                    overview: 'The selected passage was reviewed.',
+                    strengths: [],
+                    priorities: [],
+                    uncertainties: [],
+                    limitations: ['Selected passage only.'],
+                  }),
+                }],
+              }],
+              usage: {
+                input_tokens: 100,
+                input_tokens_details: { cached_tokens: 20 },
+                output_tokens: 40,
+              },
+            }), { status: 200 });
+          },
+          evidenceSink: captureEvidence,
+        });
+        const result = await gateway.execute({
+          requestId: attemptId,
+          evidenceAttemptId: attemptId,
+          credential: 'synthetic-never-networked',
+          providerBodyJson,
+          payloadHash: sha256(providerBodyJson),
+          selectedText: fixture.prose,
+          sourceFingerprint: fixture.contentHash,
+          selectionFingerprint: fixture.contentHash,
+          editorRevision: 0,
+        });
+        return {
+          critique: result.content,
+          normalizedHash: sha256(JSON.stringify(result.content)),
+          structuralValid: true,
+          usage: { calculatedUsd: result.usage.calculatedUsd },
+        };
+      },
+    });
+    expect(mockedRequestCount).toBe(24);
+    const manifest = JSON.parse(await readFile(join(run.privateRoot, 'run-manifest.json'), 'utf8'));
+    expect(manifest).toMatchObject({
+      schemaVersion: QUALIFICATION_ARTIFACT_VERSION,
+      state: 'PACKETS_FINALIZED',
+      attemptCount: 24,
+      repositoryHead: 'b'.repeat(40),
+    });
+    expect(await readdir(join(run.privateRoot, 'raw-responses'))).toHaveLength(24);
+    await expect(readFile(join(run.root, 'reviewer-a', 'packet.json'), 'utf8')).resolves.toContain('"reviewer":"reviewer-a"');
+    await expect(readFile(join(run.root, 'reviewer-b', 'packet.json'), 'utf8')).resolves.toContain('"reviewer":"reviewer-b"');
+    await expect(readFile(join(run.root, 'reviewer-a', 'score-template.json'), 'utf8')).resolves.toContain('"independentAttestation":false');
+    await expect(readFile(join(run.root, 'reviewer-b', 'score-template.json'), 'utf8')).resolves.toContain('"independentAttestation":false');
+    await expect(readFile(join(run.root, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
+  });
+
+  it('records a mocked runner failure without retrying or finalizing review artifacts', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-live-runner-failure-'));
+    let calls = 0;
+    await expect(runQualificationCapture({
+      outputRoot,
+      repositoryRoot: 'C:\\Dev\\black-skies',
+      repositoryHead: 'c'.repeat(40),
+      allowTemporaryRoot: true,
+      runId: 'mocked-partial-runner',
+      executeAttempt: async ({
+        attemptId,
+        fixture,
+        providerBodyJson,
+        captureEvidence,
+      }) => {
+        calls += 1;
+        if (calls === 3) throw new Error('mocked transport failure');
+        const gateway = new AiCritiqueGateway({
+          fetch: async () => new Response(JSON.stringify({
+            model: 'gpt-5.4-2026-03-05',
+            status: 'completed',
+            output: [{
+              type: 'message',
+              content: [{
+                type: 'output_text',
+                text: JSON.stringify({
+                  overview: 'Mocked result.',
+                  strengths: [],
+                  priorities: [],
+                  uncertainties: [],
+                  limitations: [],
+                }),
+              }],
+            }],
+            usage: {
+              input_tokens: 100,
+              input_tokens_details: { cached_tokens: 20 },
+              output_tokens: 40,
+            },
+          }), { status: 200 }),
+          evidenceSink: captureEvidence,
+        });
+        const result = await gateway.execute({
+          requestId: attemptId,
+          evidenceAttemptId: attemptId,
+          credential: 'synthetic-never-networked',
+          providerBodyJson,
+          payloadHash: sha256(providerBodyJson),
+          selectedText: fixture.prose,
+          sourceFingerprint: fixture.contentHash,
+          selectionFingerprint: fixture.contentHash,
+          editorRevision: 0,
+        });
+        return {
+          critique: result.content,
+          normalizedHash: sha256(JSON.stringify(result.content)),
+          structuralValid: true,
+          usage: { calculatedUsd: result.usage.calculatedUsd },
+        };
+      },
+    })).rejects.toThrow('mocked transport failure');
+    expect(calls).toBe(3);
+    const runRoot = join(outputRoot, 'mocked-partial-runner');
+    const manifest = JSON.parse(await readFile(join(runRoot, 'private', 'run-manifest.json'), 'utf8'));
+    expect(manifest).toMatchObject({
+      state: 'CAPTURE_FAILED',
+      attemptCount: 2,
+      captureFailure: {
+        code: 'CAPTURE_ATTEMPT_FAILED',
+        execution: 1,
+      },
+    });
+    await expect(readFile(join(runRoot, 'reviewer-a', 'packet.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(runRoot, 'reviewer-a', 'score-template.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(runRoot, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
+  });
+
+  it.skipIf(!liveConfiguration)(
     'runs two independent schema-and-evidence-valid requests for every frozen fixture',
     async () => {
-      let capture: ((evidence: Parameters<NonNullable<ConstructorParameters<typeof AiCritiqueGateway>[0]['evidenceSink']>>[0]) => Promise<void>) | null = null;
-      const run = await QualificationArtifactRun.create({
-        outputRoot: qualificationOutputRoot!, repositoryRoot: resolve(process.cwd(), '..'),
-        repositoryHead: process.env.GIT_COMMIT ?? 'unrecorded-head',
-      });
-      const gateway = new AiCritiqueGateway({ evidenceSink: async (evidence) => {
-        if (!capture) throw new Error('Qualification evidence arrived without an active attempt.');
-        await capture(evidence);
-      } });
-      const completedHashes: string[] = [];
-      for (const fixture of AI_CRITIQUE_QUALIFICATION_FIXTURES_V1) {
-        for (let run = 1; run <= 2; run += 1) {
-          const providerBodyJson = serializeAiCritiqueProviderBody(
-            buildAiCritiqueProviderBody(fixture.prose),
-          );
-          const attemptId = `qualification:${fixture.id}:${run}:${randomUUID()}`;
-          capture = run.evidenceSink({
-            attemptId, fixtureId: fixture.id, fixtureHash: fixture.contentHash, execution: run as 1 | 2,
-            prose: fixture.prose, critique: null, provider: 'openai', model: 'gpt-5.4-2026-03-05',
-            instructionHash: sha256(AI_CRITIQUE_INSTRUCTIONS), schemaHash: sha256(JSON.stringify(AI_CRITIQUE_RESPONSE_SCHEMA)),
-            parameterHash: sha256(providerBodyJson.replace(fixture.prose, '')), requestHash: sha256(providerBodyJson),
-            normalizedHash: '', structuralValid: false, usage: null,
-          });
+      const repositoryRoot = resolve(process.cwd(), '..');
+      const run = await runQualificationCapture({
+        outputRoot: liveConfiguration!.outputRoot,
+        repositoryRoot,
+        repositoryHead: resolveRepositoryHead(repositoryRoot, process.env),
+        executeAttempt: async ({
+          attemptId,
+          fixture,
+          providerBodyJson,
+          captureEvidence,
+        }) => {
+          const gateway = new AiCritiqueGateway({ evidenceSink: captureEvidence });
           const result = await gateway.execute({
-            requestId: attemptId, evidenceAttemptId: attemptId,
-            credential: qualificationCredential!,
+            requestId: attemptId,
+            evidenceAttemptId: attemptId,
+            credential: liveConfiguration!.credential,
             providerBodyJson,
             payloadHash: sha256(providerBodyJson),
             selectedText: fixture.prose,
@@ -90,19 +392,21 @@ describe('AI critique qualification v1', () => {
             selectionFingerprint: fixture.contentHash,
             editorRevision: 0,
           });
-          run.completeAttempt(attemptId, { critique: result.content, normalizedHash: sha256(JSON.stringify(result.content)), structuralValid: true, usage: { calculatedUsd: result.usage.calculatedUsd } });
           expect(result.sourceFingerprint).toBe(fixture.contentHash);
-          completedHashes.push(sha256(JSON.stringify({
-            fixtureHash: fixture.contentHash,
-            run,
-            usage: result.usage,
-            contentHash: sha256(JSON.stringify(result.content)),
-          })));
-        }
-      }
-      expect(completedHashes).toHaveLength(24);
-      expect(new Set(completedHashes).size).toBe(24);
-      expect(await run.writeIdentityMap()).toHaveLength(24);
+          return {
+            critique: result.content,
+            normalizedHash: sha256(JSON.stringify(result.content)),
+            structuralValid: true,
+            usage: { calculatedUsd: result.usage.calculatedUsd },
+          };
+        },
+      });
+      const manifest = JSON.parse(await readFile(join(run.privateRoot, 'run-manifest.json'), 'utf8'));
+      expect(manifest).toMatchObject({
+        state: 'PACKETS_FINALIZED',
+        attemptCount: 24,
+        repositoryHead: resolveRepositoryHead(repositoryRoot, process.env),
+      });
     },
     40 * 60 * 1000,
   );

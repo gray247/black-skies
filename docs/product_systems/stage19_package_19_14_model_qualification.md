@@ -7,7 +7,7 @@
 - Pinned model: `gpt-5.4-2026-03-05`
 - Fixture set: `aiCritiqueQualification.v1`
 - Frozen: 2026-07-14, before any real-model qualification run
-- Current status: **the bounded qualification verifier is implemented across manifest, raw evidence, identity map, reviewer packets, reviewer scores, adjudication, independent threshold reproduction, receipt cross-file verification, cost verification, and receipt redaction; the 24 real OpenAI requests and two-human scoring have not run**
+- Current status: **the bounded qualification verifier and Windows-safe capture-finalization repair are implemented but uncommitted; the 24 real OpenAI requests and two-human scoring have not run**
 - Blocking prerequisites for the real run: an explicitly supplied `BLACK_SKIES_AI_QUALIFICATION_API_KEY`, `BLACK_SKIES_RUN_AI_QUALIFICATION=1`, Jason, and one independent human reviewer.
 
 The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the live OpenAI run. The frozen fixture corpus, rubric, thresholds, pinned model snapshot, request contract, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
@@ -28,6 +28,43 @@ safe external directory outside the repository and Git worktrees; it may not be
 Desktop, Downloads, application storage, project storage, or test-report
 directories. Raw response bodies and the private identity map remain there,
 never in Git. Partial attempts remain attributable if a capture fails.
+
+Logical attempt IDs retain their colon-delimited fixture, execution, and UUID
+identity in private evidence. They are never used as Windows filenames. Raw
+response storage instead uses deterministic
+`attempt-<48 lowercase SHA-256 hex characters>.bin` names derived from the
+logical attempt ID. The private identity map binds each logical ID to that
+storage filename, and the verifier independently reproduces and checks the
+binding. Collisions, path traversal, overwrites, and mismatched bindings fail
+closed.
+
+The capture lifecycle starts at `CAPTURING`. Every exact response body and
+partial identity-map update is persisted atomically. An attempt failure
+preserves completed evidence, records the failed logical attempt, fixture, and
+execution in the manifest under stable code `CAPTURE_ATTEMPT_FAILED`, advances
+to `CAPTURE_FAILED`, and performs no retry. A later invocation creates a new
+run UUID rather than resuming or overwriting the partial run.
+
+Completion requires exactly two structurally valid attempts for every frozen
+fixture, 24 attempts total, consistent provider/model/request-contract
+bindings, valid hashes, and readable contained raw evidence. Only then does
+the manifest advance atomically to `CAPTURE_COMPLETE`.
+
+Packet finalization creates immutable `reviewer-a/packet.json` and
+`reviewer-b/packet.json` files with reviewer-specific opaque IDs and
+independently randomized ordering. It then creates editable
+`reviewer-a/score-template.json` and `reviewer-b/score-template.json` inputs.
+Templates contain every opaque ID and null placeholders for all required
+dimensions and flags; they do not contain fabricated scores or a pre-checked
+independent-review attestation. Accepted immutable reviewer evidence remains
+the distinct `scores.json` filename created only by the score-ingestion
+workflow.
+
+The successful live-capture phase ends at `PACKETS_FINALIZED`: 24 attempts,
+the finalized private identity map, two blinded packets, two editable score
+templates, no accepted scores, no adjudication, and no PASS/FAIL receipt. A
+receipt cannot be created until both human score files and any required
+adjudication have been accepted.
 
 The external run separates private raw evidence and identity mapping from two
 independently randomized reviewer packets, immutable score files, adjudication,
@@ -84,10 +121,11 @@ verify the complete durable-evidence path end to end. A legitimate threshold
 FAIL remains `integrity: VALID` and `qualification: FAIL`; evidence or receipt
 tampering produces `integrity: INVALID` and `qualification: UNVERIFIED`.
 
-Live qualification remains unauthorized without the explicit opt-in,
-credential, external output location, and two-human review prerequisites.
-Mocked evidence does not qualify the model. A verified live PASS receipt
-remains required before Package 19.14-G.
+Live qualification remains unauthorized until this Windows capture repair is
+reviewed and committed, and afterward still requires the explicit opt-in,
+credential, external output location, exact repository HEAD, and two-human
+review prerequisites. Mocked repair evidence does not qualify the model. A
+verified live PASS receipt remains required before Package 19.14-G.
 
 ## Frozen corpus
 
@@ -114,10 +152,10 @@ Changing prose, intent, evidence, prohibited claims, hashes, fixture count, mand
 
 1. Verify the fixture-integrity test passes and the hashes above match the source.
 2. Supply the qualification key only in the process environment. Do not type it into a command, log it, echo it, store it, or add it to a project file.
-3. Set the explicit opt-in flag and run the qualification test. It sends exactly two independent requests for each of the twelve passages through the production gateway: 24 requests total.
-4. Confirm 24/24 responses pass transport, pinned-model, strict-schema, verbatim-evidence, token-accounting, and redacted-error validation.
-5. Assign opaque randomized response identifiers. Keep fixture identity and run order hidden from both reviewers during scoring. Do not place raw responses in Git or this record.
-6. Jason and one independent human reviewer score every response independently from 1 to 5 for:
+3. Set the explicit opt-in flag, external output root, and exact repository HEAD, then run the qualification test. It sends exactly two independent requests for each of the twelve passages through the production gateway: 24 requests total.
+4. Confirm the runner reports lifecycle `PACKETS_FINALIZED`, 24/24 responses, a finalized identity map, two blinded packets, and two `score-template.json` files. Confirm no receipt exists.
+5. Keep fixture identity and run order hidden from both reviewers during scoring. Do not place raw responses, private identity evidence, or full reviewer packets in Git or this record.
+6. Jason and one independent human reviewer independently complete their score templates from 1 to 5 for:
    - relevance;
    - evidence specificity;
    - correctness;

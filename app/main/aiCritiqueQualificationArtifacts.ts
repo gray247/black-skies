@@ -46,6 +46,13 @@ export interface IdentityEntry extends QualificationResponse {
   readonly responseHash: string; readonly byteLength: number; readonly httpStatus: number; readonly rawResponsePath: string;
   readonly capturedAt: string;
 }
+export interface QualificationCaptureFailure {
+  readonly code: 'CAPTURE_ATTEMPT_FAILED';
+  readonly attemptId: string;
+  readonly fixtureId: string;
+  readonly execution: 1 | 2;
+  readonly recordedAt: string;
+}
 export interface ReviewerScore {
   readonly opaqueId: string; readonly relevance: number; readonly evidenceSpecificity: number; readonly correctness: number;
   readonly actionability: number; readonly styleRespect: number; readonly uncertaintyRefusal: number;
@@ -86,9 +93,16 @@ export function canonicalHash(value: unknown): string { return hashBytes(canonic
 function isObjectRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
 function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean { return Object.keys(value).sort().join('|') === [...keys].sort().join('|'); }
 async function atomicCreate(path: string, content: string): Promise<void> { try { await access(path); throw new Error('Qualification evidence is immutable and cannot be overwritten.'); } catch (error) { if (error instanceof Error && error.message.includes('immutable')) throw error; } const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { encoding: 'utf8', flag: 'wx' }); await rename(temporary, path); }
+async function atomicCreateBytes(path: string, content: Uint8Array): Promise<void> { try { await access(path); throw new Error('Qualification evidence is immutable and cannot be overwritten.'); } catch (error) { if (error instanceof Error && error.message.includes('immutable')) throw error; } const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { flag: 'wx' }); await rename(temporary, path); }
+async function atomicReplace(path: string, content: string): Promise<void> { const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { encoding: 'utf8', flag: 'wx' }); await rename(temporary, path); }
 function inside(child: string, parent: string): boolean { const r = relative(parent, child); return r === '' || (!r.startsWith(`..${sep}`) && r !== '..' && !isAbsolute(r)); }
 async function nearestExisting(path: string): Promise<string> { let current = path; for (;;) { try { await access(current); return current; } catch { const next = dirname(current); if (next === current) throw new Error('Qualification output root has no existing ancestor.'); current = next; } } }
 async function hasGitMarker(path: string): Promise<boolean> { try { await access(join(path, '.git')); return true; } catch { return false; } }
+
+export function qualificationAttemptStorageFilename(attemptId: string): string {
+  if (!attemptId) throw new Error('Qualification attempt identity is required.');
+  return `attempt-${hashBytes(attemptId).slice(0, 48)}.bin`;
+}
 
 export async function assertQualificationOutputRoot(outputRoot: string, repositoryRoot: string, allowTemporaryRoot = false): Promise<string> {
   if (!outputRoot || !isAbsolute(outputRoot)) throw new Error('Qualification output root must be an absolute path.');
@@ -104,7 +118,7 @@ export async function assertQualificationOutputRoot(outputRoot: string, reposito
 }
 
 export class QualificationArtifactRun {
-  readonly root: string; readonly privateRoot: string; private readonly entries = new Map<string, IdentityEntry>(); private state: QualificationRunState = 'CREATED'; private packets: Record<string, ReturnType<typeof makeReviewerPacket>> = {}; private reviewerMaps: { a: Record<string, string>; b: Record<string, string> } | null = null; private readonly scoreHashes = new Map<string, string>(); private adjudicationHash: string | null = null; private receiptHash: string | null = null;
+  readonly root: string; readonly privateRoot: string; private readonly entries = new Map<string, IdentityEntry>(); private readonly rawStorageNames = new Map<string, string>(); private state: QualificationRunState = 'CREATED'; private captureFailure: QualificationCaptureFailure | null = null; private packets: Record<string, ReturnType<typeof makeReviewerPacket>> = {}; private reviewerMaps: { a: Record<string, string>; b: Record<string, string> } | null = null; private readonly scoreHashes = new Map<string, string>(); private adjudicationHash: string | null = null; private receiptHash: string | null = null;
   private constructor(readonly outputRoot: string, readonly runId: string, readonly repositoryHead: string) { this.root = join(outputRoot, runId); this.privateRoot = join(this.root, 'private'); }
   static async create(options: { outputRoot: string; repositoryRoot: string; repositoryHead: string; runId?: string; allowTemporaryRoot?: boolean }): Promise<QualificationArtifactRun> {
     const outputRoot = await assertQualificationOutputRoot(options.outputRoot, options.repositoryRoot, options.allowTemporaryRoot); const run = new QualificationArtifactRun(outputRoot, options.runId ?? randomUUID(), options.repositoryHead);
@@ -112,16 +126,75 @@ export class QualificationArtifactRun {
     await Promise.all([mkdir(join(run.privateRoot, 'raw-responses'), { recursive: true }), mkdir(join(run.root, 'reviewer-a'), { recursive: true }), mkdir(join(run.root, 'reviewer-b'), { recursive: true }), mkdir(join(run.root, 'adjudication'), { recursive: true }), mkdir(join(run.root, 'receipt'), { recursive: true })]);
     await run.persistManifest(); await run.transition('CAPTURING'); return run;
   }
-  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await writeFile(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash }), 'utf8'); }
+  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await atomicReplace(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, captureFailure: this.captureFailure, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash })); }
   async transition(next: QualificationRunState): Promise<void> { const allowed: Readonly<Record<QualificationRunState, readonly QualificationRunState[]>> = { CREATED: ['CAPTURING'], CAPTURING: ['CAPTURE_FAILED', 'CAPTURE_COMPLETE'], CAPTURE_FAILED: [], CAPTURE_COMPLETE: ['PACKETS_FINALIZED'], PACKETS_FINALIZED: ['SCORING_IN_PROGRESS'], SCORING_IN_PROGRESS: ['SCORES_COMPLETE'], SCORES_COMPLETE: ['ADJUDICATION_REQUIRED', 'ADJUDICATION_COMPLETE', 'FINALIZED_PASS', 'FINALIZED_FAIL'], ADJUDICATION_REQUIRED: ['ADJUDICATION_COMPLETE'], ADJUDICATION_COMPLETE: ['FINALIZED_PASS', 'FINALIZED_FAIL'], FINALIZED_PASS: [], FINALIZED_FAIL: [] }; if (TERMINAL.has(this.state) || !allowed[this.state].includes(next)) throw new Error(`Invalid qualification lifecycle transition: ${this.state} -> ${next}.`); this.state = next; await this.persistManifest(); }
-  private async writePrivate(name: string, value: unknown, immutable = true): Promise<void> { await writeFile(join(this.privateRoot, name), canonicalJson(value), { encoding: 'utf8', flag: immutable ? 'wx' : 'w' }); }
+  private async writePrivate(name: string, value: unknown, immutable = true): Promise<void> { const path = join(this.privateRoot, name); if (immutable) await atomicCreate(path, canonicalJson(value)); else await atomicReplace(path, canonicalJson(value)); }
   evidenceSink(metadata: Omit<QualificationResponse, 'responseHash' | 'byteLength' | 'httpStatus' | 'rawResponsePath' | 'capturedAt'>): (evidence: AiCritiqueGatewayEvidence) => Promise<void> {
-    return async (evidence) => { if (evidence.attemptId !== metadata.attemptId || this.entries.has(evidence.attemptId)) throw new Error('Qualification evidence attempt identity is invalid or duplicated.'); const rawResponsePath = `private/raw-responses/${metadata.attemptId}.bin`; await writeFile(join(this.root, rawResponsePath), evidence.body, { flag: 'wx' }); const rawUsage = rawUsageEvidence(evidence.body); this.entries.set(metadata.attemptId, { ...metadata, usage: rawUsage ? { ...metadata.usage, ...rawUsage } : metadata.usage, responseHash: evidence.bodySha256, byteLength: evidence.byteLength, httpStatus: evidence.status, rawResponsePath, capturedAt: new Date().toISOString() }); await this.writePrivate('identity-map.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, entries: [...this.entries.values()] }, false); };
+    return async (evidence) => {
+      if (this.state !== 'CAPTURING' || evidence.attemptId !== metadata.attemptId || this.entries.has(evidence.attemptId)) throw new Error('Qualification evidence attempt identity is invalid or duplicated.');
+      const storageFilename = qualificationAttemptStorageFilename(metadata.attemptId);
+      const existingAttemptId = this.rawStorageNames.get(storageFilename);
+      if (existingAttemptId && existingAttemptId !== metadata.attemptId) throw new Error('Qualification raw-response filename collision was rejected.');
+      const rawResponsePath = `private/raw-responses/${storageFilename}`;
+      await atomicCreateBytes(join(this.root, rawResponsePath), evidence.body);
+      const rawUsage = rawUsageEvidence(evidence.body);
+      this.rawStorageNames.set(storageFilename, metadata.attemptId);
+      this.entries.set(metadata.attemptId, { ...metadata, usage: rawUsage ? { ...metadata.usage, ...rawUsage } : metadata.usage, responseHash: evidence.bodySha256, byteLength: evidence.byteLength, httpStatus: evidence.status, rawResponsePath, capturedAt: new Date().toISOString() });
+      await this.writePrivate('identity-map.partial.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, state: this.state, entries: [...this.entries.values()] }, false);
+      await this.persistManifest();
+    };
   }
-  completeAttempt(attemptId: string, result: Pick<QualificationResponse, 'critique' | 'normalizedHash' | 'structuralValid' | 'usage'>): void { const entry = this.entries.get(attemptId); if (!entry) throw new Error('Qualification result arrived without captured provider evidence.'); this.entries.set(attemptId, { ...entry, ...result, usage: entry.usage || result.usage ? { ...entry.usage, ...result.usage } : null }); }
-  async writeIdentityMap(): Promise<readonly IdentityEntry[]> { const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId)); await this.writePrivate('identity-map.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, entries, reviewerMaps: this.reviewerMaps, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])) }, false); return entries; }
+  async completeAttempt(attemptId: string, result: Pick<QualificationResponse, 'critique' | 'normalizedHash' | 'structuralValid' | 'usage'>): Promise<void> { const entry = this.entries.get(attemptId); if (!entry) throw new Error('Qualification result arrived without captured provider evidence.'); this.entries.set(attemptId, { ...entry, ...result, usage: entry.usage || result.usage ? { ...entry.usage, ...result.usage } : null }); await this.writePrivate('identity-map.partial.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, state: this.state, entries: [...this.entries.values()] }, false); }
+  async recordCaptureFailure(failure: Omit<QualificationCaptureFailure, 'code' | 'recordedAt'>): Promise<void> { if (this.state !== 'CAPTURING') throw new Error('Only an active capture may record a failure.'); this.captureFailure = { code: 'CAPTURE_ATTEMPT_FAILED', ...failure, recordedAt: new Date().toISOString() }; await this.transition('CAPTURE_FAILED'); }
+  async completeCapture(): Promise<readonly IdentityEntry[]> {
+    if (this.state !== 'CAPTURING') throw new Error('Only an active capture may be completed.');
+    const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId));
+    const expected = new Map<string, string>(QUALIFICATION_FIXTURES_V1);
+    if (entries.length !== 24) throw new Error('Capture completion requires exactly 24 attempts.');
+    const seen = new Set<string>();
+    for (const entry of entries) {
+      const key = `${entry.fixtureId}:${entry.execution}`;
+      if (
+        seen.has(key) ||
+        expected.get(entry.fixtureId) !== entry.fixtureHash ||
+        (entry.execution !== 1 && entry.execution !== 2) ||
+        entry.provider !== AI_CRITIQUE_PROVIDER ||
+        entry.model !== AI_CRITIQUE_MODEL ||
+        !entry.structuralValid ||
+        !/^[a-f0-9]{64}$/.test(entry.requestHash) ||
+        !/^[a-f0-9]{64}$/.test(entry.responseHash) ||
+        !/^[a-f0-9]{64}$/.test(entry.normalizedHash) ||
+        entry.rawResponsePath !== `private/raw-responses/${qualificationAttemptStorageFilename(entry.attemptId)}`
+      ) throw new Error('Capture completion evidence is incomplete or inconsistent.');
+      seen.add(key);
+      await this.readRaw(entry);
+    }
+    if ([...expected.keys()].some((fixtureId) => !seen.has(`${fixtureId}:1`) || !seen.has(`${fixtureId}:2`))) throw new Error('Capture completion requires exactly two attempts per frozen fixture.');
+    await this.transition('CAPTURE_COMPLETE');
+    return entries;
+  }
+  async writeIdentityMap(): Promise<readonly IdentityEntry[]> { const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId)); await this.writePrivate('identity-map.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, entries, reviewerMaps: this.reviewerMaps, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])) }); return entries; }
   async readRaw(entry: IdentityEntry): Promise<Uint8Array> { const body = await readFile(join(this.root, entry.rawResponsePath)); if (hashBytes(body) !== entry.responseHash) throw new Error('Qualification raw response integrity check failed.'); return body; }
-  async finalizePackets(seedA: string, seedB: string): Promise<{ readonly reviewerA: string; readonly reviewerB: string }> { if (this.state !== 'CAPTURE_COMPLETE' || this.entries.size !== 24) throw new Error('Packets require exactly 24 completed captured responses.'); const entries = await this.writeIdentityMap(); for (const entry of entries) await this.readRaw(entry); const a = makeReviewerPacket(this.runId, 'reviewer-a', entries, seedA); const b = makeReviewerPacket(this.runId, 'reviewer-b', entries, seedB); await atomicCreate(join(this.root, 'reviewer-a', 'packet.json'), canonicalJson(a.packet)); await atomicCreate(join(this.root, 'reviewer-b', 'packet.json'), canonicalJson(b.packet)); this.reviewerMaps = { a: a.privateMap, b: b.privateMap }; this.packets = { 'reviewer-a': a, 'reviewer-b': b }; await this.writePrivate('reviewer-maps.json', this.reviewerMaps); await this.writeIdentityMap(); await this.transition('PACKETS_FINALIZED'); return { reviewerA: a.packetHash, reviewerB: b.packetHash }; }
+  async finalizePackets(seedA: string, seedB: string): Promise<{ readonly reviewerA: string; readonly reviewerB: string }> {
+    if (this.state !== 'CAPTURE_COMPLETE' || this.entries.size !== 24 || !seedA || !seedB || seedA === seedB) throw new Error('Packets require exactly 24 completed captured responses and independent seeds.');
+    const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId));
+    for (const entry of entries) await this.readRaw(entry);
+    const a = makeReviewerPacket(this.runId, 'reviewer-a', entries, seedA);
+    const b = makeReviewerPacket(this.runId, 'reviewer-b', entries, seedB);
+    const orderA = a.packet.responses.map((response) => a.privateMap[response.id]);
+    const orderB = b.packet.responses.map((response) => b.privateMap[response.id]);
+    if (canonicalJson(orderA) === canonicalJson(orderB)) throw new Error('Reviewer packet ordering must be independently randomized.');
+    await atomicCreate(join(this.root, 'reviewer-a', 'packet.json'), canonicalJson(a.packet));
+    await atomicCreate(join(this.root, 'reviewer-b', 'packet.json'), canonicalJson(b.packet));
+    this.reviewerMaps = { a: a.privateMap, b: b.privateMap };
+    this.packets = { 'reviewer-a': a, 'reviewer-b': b };
+    await this.writePrivate('reviewer-maps.json', this.reviewerMaps);
+    await this.writeIdentityMap();
+    await atomicCreate(join(this.root, 'reviewer-a', 'score-template.json'), canonicalJson(makeReviewerScoreTemplate(this.runId, a.packet)));
+    await atomicCreate(join(this.root, 'reviewer-b', 'score-template.json'), canonicalJson(makeReviewerScoreTemplate(this.runId, b.packet)));
+    await this.transition('PACKETS_FINALIZED');
+    return { reviewerA: a.packetHash, reviewerB: b.packetHash };
+  }
   async submitScores(scores: ReviewerScores): Promise<string> { if (!['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'].includes(this.state)) throw new Error('Scores cannot be submitted before packet finalization.'); const packet = this.packets[scores.reviewer]; if (!packet || this.scoreHashes.has(scores.reviewer)) throw new Error('Reviewer score submission is invalid or already immutable.'); validateReviewerScores(scores, packet); const content = canonicalJson(scores); const hash = hashBytes(content); await atomicCreate(join(this.root, scores.reviewer, 'scores.json'), content); this.scoreHashes.set(scores.reviewer, hash); if (this.state === 'PACKETS_FINALIZED') await this.transition('SCORING_IN_PROGRESS'); if (this.scoreHashes.size === 2) await this.transition('SCORES_COMPLETE'); else await this.persistManifest(); return hash; }
   async submitAdjudications(values: readonly Adjudication[], a: ReviewerScores, b: ReviewerScores): Promise<string> { if (!['SCORES_COMPLETE', 'ADJUDICATION_REQUIRED'].includes(this.state)) throw new Error('Adjudication requires two accepted score files.'); const maps = await JSON.parse(await readFile(join(this.privateRoot, 'reviewer-maps.json'), 'utf8')) as { a: Record<string, string>; b: Record<string, string> }; const required = requiredAdjudications(a, b, maps.a, maps.b); const received = new Map(values.map((value) => [value.id, value])); if (received.size !== values.length || required.some((value) => !received.has(value.id)) || values.some((value) => { const need = required.find((requiredValue) => requiredValue.id === value.id); const finalValueSupplied = Object.hasOwn(value, 'finalValue'); const hasFinalValue = Number.isInteger(value.finalValue) && value.finalValue! >= 1 && value.finalValue! <= 5; const hasDisposition = ['REVIEWER_A', 'REVIEWER_B', 'MIDPOINT', 'DOCUMENTED_NO_SCORE'].includes(value.disposition ?? ''); return !need || value.opaqueId !== need.opaqueId || value.dimension !== need.dimension || value.reviewerA !== need.reviewerA || value.reviewerB !== need.reviewerB || (finalValueSupplied ? !hasFinalValue : !hasDisposition) || !value.rationale.trim(); })) throw new Error('Adjudication set is incomplete or invalid.'); const content = canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, values }); await atomicCreate(join(this.root, 'adjudication', 'adjudication.json'), content); this.adjudicationHash = hashBytes(content); await this.transition('ADJUDICATION_COMPLETE'); return this.adjudicationHash; }
   async finalizeReceipt(a: ReviewerScores, b: ReviewerScores, adjudications: readonly Adjudication[]): Promise<{ readonly sha256: string; readonly disposition: string }> { if (!['SCORES_COMPLETE', 'ADJUDICATION_COMPLETE'].includes(this.state)) throw new Error('Receipt finalization requires accepted score files.'); const maps = await JSON.parse(await readFile(join(this.privateRoot, 'reviewer-maps.json'), 'utf8')) as { a: Record<string, string>; b: Record<string, string> }; const required = requiredAdjudications(a, b, maps.a, maps.b); if (required.length > 0 && !this.adjudicationHash) { if (this.state === 'SCORES_COMPLETE') await this.transition('ADJUDICATION_REQUIRED'); throw new Error('Required adjudication is missing.'); } const threshold = calculateQualificationThresholds([...this.entries.values()], a, b, maps.a, maps.b, adjudications); const receipt = createQualificationReceipt({ runId: this.runId, provider: AI_CRITIQUE_PROVIDER, model: AI_CRITIQUE_MODEL, repositoryHead: this.repositoryHead, entries: [...this.entries.values()], packetHashes: { 'reviewer-a': this.packets['reviewer-a'].packetHash, 'reviewer-b': this.packets['reviewer-b'].packetHash }, scoreHashes: { 'reviewer-a': this.scoreHashes.get('reviewer-a')!, 'reviewer-b': this.scoreHashes.get('reviewer-b')! }, adjudicationHash: this.adjudicationHash ?? 'NONE', threshold }); await atomicCreate(join(this.root, 'receipt', 'qualification-receipt.json'), receipt.bytes); await atomicCreate(join(this.root, 'receipt', 'qualification-receipt.sha256'), `${receipt.sha256}\n`); this.receiptHash = receipt.sha256; await this.transition(threshold.pass ? 'FINALIZED_PASS' : 'FINALIZED_FAIL'); return { sha256: receipt.sha256, disposition: receipt.receipt.disposition }; }
@@ -132,6 +205,33 @@ export function makeReviewerPacket(runId: string, reviewer: 'reviewer-a' | 'revi
   const responses = entries.map((entry) => ({ id: opaqueId(reviewer, seed, entry.attemptId), prose: entry.prose, critique: entry.critique })).sort((a, b) => canonicalHash({ seed, id: a.id }).localeCompare(canonicalHash({ seed, id: b.id })));
   const packet = { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId, reviewer, rubric: [...SCORE_DIMENSIONS], responses };
   return { packet, packetHash: canonicalHash(packet), privateMap: Object.fromEntries(entries.map((entry) => [opaqueId(reviewer, seed, entry.attemptId), entry.attemptId])) };
+}
+export function makeReviewerScoreTemplate(
+  runId: string,
+  packet: ReturnType<typeof makeReviewerPacket>['packet'],
+) {
+  return {
+    schemaVersion: 'v1',
+    runId,
+    reviewer: packet.reviewer,
+    packetHash: canonicalHash(packet),
+    independentAttestation: false,
+    scores: packet.responses.map((response) => ({
+      opaqueId: response.id,
+      relevance: null,
+      evidenceSpecificity: null,
+      correctness: null,
+      actionability: null,
+      styleRespect: null,
+      uncertaintyRefusal: null,
+      fabricatedFact: null,
+      harmfulRecommendation: null,
+      inappropriateNormalization: null,
+      missedMaterialDefect: null,
+      unjustifiedRefusal: null,
+      note: '',
+    })),
+  };
 }
 function assertScore(score: ReviewerScore): void { for (const dimension of SCORE_DIMENSIONS) if (!Number.isInteger(score[dimension]) || score[dimension] < 1 || score[dimension] > 5) throw new Error('Reviewer score dimension must be an integer from 1 through 5.'); for (const flag of SCORE_FLAGS) if (typeof score[flag] !== 'boolean') throw new Error('Reviewer score flags are required booleans.'); }
 export function validateReviewerScores(scores: ReviewerScores, packet: { packetHash: string; packet: { reviewer: 'reviewer-a' | 'reviewer-b'; responses: readonly { id: string }[] } }): void { if (scores.packetHash !== packet.packetHash || scores.reviewer !== packet.packet.reviewer || scores.independentAttestation !== true) throw new Error('Reviewer score file does not attest to the supplied packet.'); const ids = new Set(packet.packet.responses.map((response) => response.id)); if (scores.scores.length !== ids.size) throw new Error('Reviewer scores must cover each expected response exactly once.'); const seen = new Set<string>(); for (const score of scores.scores) { if (!ids.has(score.opaqueId) || seen.has(score.opaqueId)) throw new Error('Reviewer score has an unknown or duplicate response ID.'); seen.add(score.opaqueId); assertScore(score); } }
@@ -313,6 +413,7 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
     const relativePath = entry.rawResponsePath;
     const resolvedPath = typeof relativePath === 'string' ? resolve(runRoot, relativePath) : '';
     if (!relativePath || isAbsolute(relativePath) || !inside(resolvedPath, resolve(runRoot)) || !relativePath.replace(/\\/g, '/').startsWith('private/raw-responses/')) { issue('RAW_PATH_ESCAPE', 'raw', 'raw-response', 'Raw-response path is not safely contained.'); continue; }
+    if (relativePath.replace(/\\/g, '/') !== `private/raw-responses/${qualificationAttemptStorageFilename(entry.attemptId)}`) issue('RAW_STORAGE_BINDING_INVALID', 'raw', 'raw-response', 'Raw-response storage name does not match its logical attempt identity.');
     if (seenRawPaths.has(relativePath)) issue('RAW_PATH_DUPLICATE', 'raw', 'raw-response', 'Multiple attempts reference the same raw response.');
     seenRawPaths.add(relativePath);
     try {

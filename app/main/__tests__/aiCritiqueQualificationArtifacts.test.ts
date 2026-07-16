@@ -1,9 +1,9 @@
-import { cp, mkdtemp, readFile, unlink, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, canonicalJson, makeReviewerPacket, validateReviewerScores, requiredAdjudications, verifyQualificationRun } from '../aiCritiqueQualificationArtifacts';
+import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, canonicalJson, makeReviewerPacket, qualificationAttemptStorageFilename, validateReviewerScores, requiredAdjudications, verifyQualificationRun } from '../aiCritiqueQualificationArtifacts';
 import { sha256 } from '../aiCritiqueCoordinator';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
 
@@ -15,6 +15,43 @@ let failBaseRunRoot: string;
 const mockedCalculatedUsd = 0.000805;
 function mockedProviderResponse(index: number): string { return JSON.stringify({ id: `mock-response-${index}`, usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 20 }, output_tokens: 40 } }); }
 
+async function captureMockAttempt(
+  run: QualificationArtifactRun,
+  index: number,
+  logicalAttemptId = `qualification:${AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)].id}:${index % 2 === 0 ? 1 : 2}:mock-${index}`,
+): Promise<void> {
+  const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)];
+  const [fixtureId, fixtureHash] = QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)];
+  const critique = { overview: `mock-${index}` };
+  const sink = run.evidenceSink({
+    attemptId: logicalAttemptId,
+    fixtureId,
+    fixtureHash,
+    execution: index % 2 === 0 ? 1 : 2,
+    prose: fixture.prose,
+    critique,
+    provider: 'openai',
+    model: 'gpt-5.4-2026-03-05',
+    instructionHash: 'i'.repeat(64),
+    schemaHash: 's'.repeat(64),
+    parameterHash: 'p'.repeat(64),
+    requestHash: sha256(`mock-request-${index}`),
+    normalizedHash: sha256(JSON.stringify(critique)),
+    structuralValid: true,
+    usage: { calculatedUsd: mockedCalculatedUsd },
+  });
+  const responseText = mockedProviderResponse(index);
+  const body = new TextEncoder().encode(responseText);
+  await sink({
+    attemptId: logicalAttemptId,
+    status: 200,
+    body,
+    bodySha256: sha256(responseText),
+    byteLength: body.byteLength,
+    providerRequestId: null,
+  });
+}
+
 async function createBaseRun(runId = 'base-run', withDispute = false, useDisposition = false, failDimension = false): Promise<string> {
   const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-evidence-base-'));
   const run = await QualificationArtifactRun.create({ outputRoot, repositoryRoot, repositoryHead: 'head', runId, allowTemporaryRoot: true });
@@ -22,7 +59,7 @@ async function createBaseRun(runId = 'base-run', withDispute = false, useDisposi
     const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const [fixtureId, fixtureHash] = QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const attemptId = `${runId}-attempt-${index}`; const critique = { overview: 'mock' };
     const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`${runId}-request-${index}`), normalizedHash: sha256(JSON.stringify(critique)), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } }); const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText); await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
   }
-  await run.transition('CAPTURE_COMPLETE'); await run.finalizePackets('base-seed-a', 'base-seed-b');
+  await run.completeCapture(); await run.finalizePackets('base-seed-a', 'base-seed-b');
   const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
   const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId, reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: failDimension ? 3 : withDispute && reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
   const a = makeScores(packets[0], 'reviewer-a'); const b = makeScores(packets[1], 'reviewer-b'); await run.submitScores(a); await run.submitScores(b);
@@ -107,8 +144,235 @@ describe.sequential('AI critique qualification artifacts', () => {
     const body = new TextEncoder().encode('{"mock":"provider response"}');
     await sink({ attemptId: 'a1', status: 200, body, bodySha256: sha256('{"mock":"provider response"}'), byteLength: body.byteLength, providerRequestId: null });
     const [entry] = await run.writeIdentityMap();
-    expect(entry.rawResponsePath).toBe('private/raw-responses/a1.bin');
+    expect(entry.rawResponsePath).toBe(`private/raw-responses/${qualificationAttemptStorageFilename('a1')}`);
     expect(new TextDecoder().decode(await run.readRaw(entry))).toBe('{"mock":"provider response"}');
+  });
+
+  it('derives deterministic Windows-safe storage names from private logical attempt identities', () => {
+    const logicalIds = [
+      'qualification:fixture:1:uuid',
+      'contains*question?quote"angle<bracket>pipe|slash/backslash\\',
+      'trailing.',
+      'trailing ',
+      'CON',
+      'PRN',
+      'AUX',
+      'NUL',
+      'COM1',
+      'LPT1',
+      '../../private/raw-responses/escape',
+    ];
+    for (const logicalId of logicalIds) {
+      const filename = qualificationAttemptStorageFilename(logicalId);
+      expect(filename).toMatch(/^attempt-[a-f0-9]{48}\.bin$/);
+      expect(filename).not.toMatch(/[:*?"<>|/\\]/);
+      expect(filename).not.toMatch(/[. ]$/);
+      expect(filename).not.toMatch(/^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)/i);
+      expect(qualificationAttemptStorageFilename(logicalId)).toBe(filename);
+    }
+    expect(qualificationAttemptStorageFilename(logicalIds[0]))
+      .not.toBe(qualificationAttemptStorageFilename(logicalIds[1]));
+  });
+
+  it('rejects a forced raw-storage collision rather than overwriting evidence', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-collision-'));
+    const run = await QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      runId: 'collision-run',
+      allowTemporaryRoot: true,
+    });
+    const attemptId = 'qualification:collision:1:logical';
+    const storageFilename = qualificationAttemptStorageFilename(attemptId);
+    (run as unknown as { rawStorageNames: Map<string, string> }).rawStorageNames.set(
+      storageFilename,
+      'different-logical-attempt',
+    );
+    const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[0];
+    const sink = run.evidenceSink({
+      attemptId,
+      fixtureId: fixture.id,
+      fixtureHash: fixture.contentHash,
+      execution: 1,
+      prose: fixture.prose,
+      critique: { overview: 'mock' },
+      provider: 'openai',
+      model: 'gpt-5.4-2026-03-05',
+      instructionHash: 'i'.repeat(64),
+      schemaHash: 's'.repeat(64),
+      parameterHash: 'p'.repeat(64),
+      requestHash: 'r'.repeat(64),
+      normalizedHash: 'n'.repeat(64),
+      structuralValid: true,
+      usage: { calculatedUsd: mockedCalculatedUsd },
+    });
+    const body = new TextEncoder().encode(mockedProviderResponse(0));
+    await expect(sink({
+      attemptId,
+      status: 200,
+      body,
+      bodySha256: sha256(mockedProviderResponse(0)),
+      byteLength: body.byteLength,
+      providerRequestId: null,
+    })).rejects.toThrow('collision');
+    await expect(readdir(join(run.privateRoot, 'raw-responses'))).resolves.toEqual([]);
+  });
+
+  it('finalizes a mocked Windows capture into blinded packets and editable score templates', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-windows-success-'));
+    const run = await QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      runId: 'windows-success-run',
+      allowTemporaryRoot: true,
+    });
+    for (let index = 0; index < 24; index += 1) await captureMockAttempt(run, index);
+    await run.completeCapture();
+    await run.finalizePackets('windows-seed-a', 'windows-seed-b');
+
+    const manifest = JSON.parse(await readFile(join(run.privateRoot, 'run-manifest.json'), 'utf8'));
+    const identity = JSON.parse(await readFile(join(run.privateRoot, 'identity-map.json'), 'utf8'));
+    expect(manifest).toMatchObject({
+      state: 'PACKETS_FINALIZED',
+      expectedAttemptCount: 24,
+      attemptCount: 24,
+      captureFailure: null,
+      scoreHashes: {},
+      adjudicationHash: null,
+      receiptHash: null,
+    });
+    expect(identity.entries).toHaveLength(24);
+    expect(identity.entries.every((entry: { attemptId: string }) => entry.attemptId.includes(':'))).toBe(true);
+    expect(identity.entries.every((entry: { attemptId: string; rawResponsePath: string }) =>
+      entry.rawResponsePath === `private/raw-responses/${qualificationAttemptStorageFilename(entry.attemptId)}`)).toBe(true);
+    const rawFiles = await readdir(join(run.privateRoot, 'raw-responses'));
+    expect(rawFiles).toHaveLength(24);
+    expect(rawFiles.every((filename) => /^attempt-[a-f0-9]{48}\.bin$/.test(filename))).toBe(true);
+
+    const packetA = JSON.parse(await readFile(join(run.root, 'reviewer-a', 'packet.json'), 'utf8'));
+    const packetB = JSON.parse(await readFile(join(run.root, 'reviewer-b', 'packet.json'), 'utf8'));
+    expect(packetA.responses).toHaveLength(24);
+    expect(packetB.responses).toHaveLength(24);
+    expect(packetA.responses.map((response: { id: string }) => response.id))
+      .not.toEqual(packetB.responses.map((response: { id: string }) => response.id));
+    for (const packetText of [canonicalJson(packetA), canonicalJson(packetB)]) {
+      expect(packetText).not.toMatch(/provider|gpt-5\.4|fixtureId|execution|rawResponsePath|calculatedUsd/);
+    }
+    for (const reviewer of ['reviewer-a', 'reviewer-b'] as const) {
+      const packet = reviewer === 'reviewer-a' ? packetA : packetB;
+      const template = JSON.parse(await readFile(join(run.root, reviewer, 'score-template.json'), 'utf8'));
+      expect(template).toMatchObject({
+        schemaVersion: 'v1',
+        runId: 'windows-success-run',
+        reviewer,
+        independentAttestation: false,
+      });
+      expect(template.scores).toHaveLength(24);
+      expect(template.scores.every((score: Record<string, unknown>) =>
+        score.relevance === null &&
+        score.fabricatedFact === null &&
+        typeof score.opaqueId === 'string')).toBe(true);
+      const completedScores = {
+        ...template,
+        independentAttestation: true as const,
+        scores: template.scores.map((score: { opaqueId: string }) => ({
+          opaqueId: score.opaqueId,
+          relevance: 5,
+          evidenceSpecificity: 5,
+          correctness: 5,
+          actionability: 5,
+          styleRespect: 5,
+          uncertaintyRefusal: 5,
+          fabricatedFact: false,
+          harmfulRecommendation: false,
+          inappropriateNormalization: false,
+          missedMaterialDefect: false,
+          unjustifiedRefusal: false,
+          note: '',
+        })),
+      };
+      expect(() => validateReviewerScores(completedScores, {
+        packet,
+        packetHash: canonicalHash(packet),
+      })).not.toThrow();
+      await expect(readFile(join(run.root, reviewer, 'scores.json'), 'utf8')).rejects.toThrow();
+    }
+    await expect(readFile(join(run.root, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
+    await expect(QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      runId: 'windows-success-run',
+      allowTemporaryRoot: true,
+    })).rejects.toThrow('cannot be overwritten');
+  });
+
+  it('preserves partial evidence, records the failed attempt, and starts a later invocation under a distinct UUID', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-windows-partial-'));
+    const failedRun = await QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      allowTemporaryRoot: true,
+    });
+    await captureMockAttempt(failedRun, 0);
+    await captureMockAttempt(failedRun, 1);
+    const failedAttempt = 'qualification:internal-pov-drift:1:failed-attempt';
+    await failedRun.recordCaptureFailure({
+      attemptId: failedAttempt,
+      fixtureId: 'internal-pov-drift',
+      execution: 1,
+    });
+
+    const manifest = JSON.parse(await readFile(join(failedRun.privateRoot, 'run-manifest.json'), 'utf8'));
+    const partialIdentity = JSON.parse(await readFile(join(failedRun.privateRoot, 'identity-map.partial.json'), 'utf8'));
+    expect(manifest).toMatchObject({
+      state: 'CAPTURE_FAILED',
+      attemptCount: 2,
+      captureFailure: {
+        code: 'CAPTURE_ATTEMPT_FAILED',
+        attemptId: failedAttempt,
+        fixtureId: 'internal-pov-drift',
+        execution: 1,
+      },
+    });
+    expect(partialIdentity.entries).toHaveLength(2);
+    await expect(failedRun.completeCapture()).rejects.toThrow('active capture');
+    await expect(readFile(join(failedRun.root, 'reviewer-a', 'packet.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(failedRun.root, 'reviewer-a', 'score-template.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(failedRun.root, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
+
+    const laterRun = await QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      allowTemporaryRoot: true,
+    });
+    expect(laterRun.runId).not.toBe(failedRun.runId);
+    expect(laterRun.root).not.toBe(failedRun.root);
+  });
+
+  it('does not advance lifecycle when immutable packet finalization cannot complete', async () => {
+    const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-packet-failure-'));
+    const run = await QualificationArtifactRun.create({
+      outputRoot,
+      repositoryRoot,
+      repositoryHead: 'head',
+      runId: 'packet-failure-run',
+      allowTemporaryRoot: true,
+    });
+    for (let index = 0; index < 24; index += 1) await captureMockAttempt(run, index);
+    await run.completeCapture();
+    await writeFile(join(run.root, 'reviewer-b', 'packet.json'), '{"occupied":true}', 'utf8');
+    await expect(run.finalizePackets('packet-failure-a', 'packet-failure-b'))
+      .rejects.toThrow('immutable');
+    const manifest = JSON.parse(await readFile(join(run.privateRoot, 'run-manifest.json'), 'utf8'));
+    expect(manifest.state).toBe('CAPTURE_COMPLETE');
+    await expect(readFile(join(run.root, 'reviewer-a', 'score-template.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(run.root, 'reviewer-b', 'score-template.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(run.root, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
   });
 
   it('uses independent opaque reviewer IDs and rejects packet or score integrity failures', () => {
@@ -128,7 +392,7 @@ describe.sequential('AI critique qualification artifacts', () => {
       const attemptId = `attempt-${index}`; const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`request-${index}`), normalizedHash: sha256(JSON.stringify({ overview: 'mock' })), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } });
       const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText); await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
     }
-    await run.transition('CAPTURE_COMPLETE'); await run.finalizePackets('seed-a', 'seed-b');
+    await run.completeCapture(); await run.finalizePackets('seed-a', 'seed-b');
     const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await (await import('node:fs/promises')).readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
     const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'pass-run', reviewer, independentAttestation: true as const, packetHash: sha256(JSON.stringify(packet)), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
     const a = makeScores(packets[0], 'reviewer-a'); const b = makeScores(packets[1], 'reviewer-b');
@@ -151,7 +415,7 @@ describe.sequential('AI critique qualification artifacts', () => {
       const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText);
       await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
     }
-    await run.transition('CAPTURE_COMPLETE'); await run.finalizePackets('fail-seed-a', 'fail-seed-b');
+    await run.completeCapture(); await run.finalizePackets('fail-seed-a', 'fail-seed-b');
     const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await (await import('node:fs/promises')).readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
     const scores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'fail-run', reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), scores: packet.responses.map((response: { id: string }) => ({ opaqueId: response.id, relevance: 3, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
     const a = scores(packets[0], 'reviewer-a'); const b = scores(packets[1], 'reviewer-b');
@@ -196,6 +460,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     ['wrong normalized hash', 'RAW_NORMALIZED_HASH_MISMATCH', async (root) => mutateJson(join(root, 'private', 'identity-map.json'), (value) => { value.entries[0].normalizedHash = '0'.repeat(64); })],
     ['path traversal', 'RAW_PATH_ESCAPE', async (root) => mutateJson(join(root, 'private', 'identity-map.json'), (value) => { value.entries[0].rawResponsePath = '../escape.bin'; })],
     ['absolute path', 'RAW_PATH_ESCAPE', async (root) => mutateJson(join(root, 'private', 'identity-map.json'), (value) => { value.entries[0].rawResponsePath = 'C:\\escape.bin'; })],
+    ['logical ID/storage filename mismatch', 'RAW_STORAGE_BINDING_INVALID', async (root) => mutateJson(join(root, 'private', 'identity-map.json'), (value) => { value.entries[0].rawResponsePath = value.entries[1].rawResponsePath; })],
     ['response substituted from another run', 'RECEIPT_EVIDENCE_BINDING_MISMATCH', async (root) => { const path = join(root, 'private', 'identity-map.json'); const map = JSON.parse(await readFile(path, 'utf8')); const raw = join(root, map.entries[0].rawResponsePath); await writeFile(raw, 'substituted'); map.entries[0].byteLength = 11; map.entries[0].responseHash = sha256('substituted'); await writeFile(path, canonicalJson(map)); }],
   ];
   it.each(rawCases)('rejects raw-evidence tamper: %s', async (_name, code, tamper) => { const root = await cloneBase('raw'); await tamper(root); const result = await verifyQualificationRun(root); expect(result.errors.map((error) => error.code)).toContain(code); expect(result.errors.every((error) => !error.message.includes(root))).toBe(true); });
