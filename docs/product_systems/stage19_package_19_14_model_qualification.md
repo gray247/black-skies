@@ -14,6 +14,12 @@
 
 The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for a complete live OpenAI run. The frozen fixture corpus, response-schema shape, rubric, thresholds, pinned model snapshot, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
 
+The canonical forward-looking AI program context is
+[v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md).
+This qualification record remains authoritative for Package 19.14. In this
+record, Qualification Contract `V1` and `V2` name evidence-contract versions;
+they do not name the Black Skies product milestones `V1.0` and `V2.0`.
+
 ## Redacted V1 failed-capture disposition
 
 The external run `48558ad3-4047-479c-893d-a1b193ea4ec8`, captured on 2026-07-16 from repository HEAD `17b9130497fe629607ee70e9159b5f2cde3b30e1`, used OpenAI model `gpt-5.4-2026-03-05` under contract `black_skies_critique_v1`. It remains preserved external evidence with lifecycle `CAPTURE_FAILED` after exactly one provider attempt. The provider returned HTTP `200` and a structurally valid critique, but main rejected all four evidence fields with stable failure `PROVIDER_RESPONSE_INVALID` because none was an exact contiguous source substring.
@@ -202,6 +208,18 @@ Failure preserves the evidence and blocks Package 19.14-G readiness. It does not
 | Fixture hash | Opaque run hash | Reviewer | Relevance | Evidence | Correctness | Actionability | Style respect | Uncertainty/refusal | Adjudication reference |
 |---|---|---|---:|---:|---:|---:|---:|---:|---|
 | pending | pending | Jason / independent reviewer | pending | pending | pending | pending | pending | pending | pending |
+
+## Package 19.14 stopping boundary
+
+The next Package 19.14 action is exactly one separately authorized live run of
+the frozen `black_skies_critique_v2` contract. If capture succeeds, the
+established human-review, adjudication-if-needed, receipt, bounded integration,
+acceptance, and closure pipeline continues. If the model again fails evidence
+compliance, the automatic qualification loop stops for an explicit
+product-level disposition. Failure does not automatically authorize a
+Qualification Contract V3, repeated prompt optimization, model bake-offs,
+alternate-provider or local-model qualification, or broad intelligence-layer
+refinement inside Package 19.14.
 
 ## Authority boundary
 

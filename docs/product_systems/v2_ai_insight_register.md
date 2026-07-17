@@ -1,14 +1,31 @@
-# V2 AI Insight Register
+# AI Intelligence-Layer Register — Black Skies V1.0 to V2.0
 
-Status: canonical evidence-preservation register; not implementation authority
+Status: canonical forward-looking AI intelligence-layer register and evidence
+index; not implementation authority
 
-Verification date: 2026-07-14
+Verification date: 2026-07-17
+
+Controlling audit: `BS-19.14-24A`
 
 ## 1. Register authority and maintenance rules
 
-This is the single canonical register for V2 AI evaluation and orchestration
-insights discovered during Stage 19 Package 19.14 reconciliation. It preserves
-knowledge without moving V2 work into V1.
+This is the single canonical register for the Black Skies V1.0-to-V2.0 AI
+intelligence-layer program and for evaluation and orchestration insights found
+during Stage 19 Package 19.14. It preserves knowledge without moving later
+research or implementation into V1.0.
+
+Package 19.14 qualification authority remains in the Package 19.14 scope,
+disposition, qualification, acceptance, and closure records. This register
+indexes that work as one intelligence-layer component; it does not replace,
+expand, or reopen the package contract.
+
+Terminology is strict throughout this record:
+
+- **Black Skies V1.0, V2.0, and V3.0** are product versions.
+- **Qualification Contract V1 and Qualification Contract V2** are protocol
+  revisions inside Package 19.14.
+- Qualification Contract V2 is not Black Skies V2.0, and the failed
+  Qualification Contract V1 capture must never be relabeled as V2 evidence.
 
 An entry is evidence, a question, or a candidate experiment. It is not product
 authority, implementation authorization, provider approval, model selection,
@@ -32,6 +49,10 @@ Maintenance rules:
    prohibited.
 8. A candidate model or experiment may not be promoted into V1 authority by
    editing this register.
+9. Future V1.0-to-V2.0 AI planning updates this register instead of creating a
+   provider-specific or package-specific competing register.
+10. Evidence, repository authority, inference, recommendation, and open
+    question must remain visibly distinct.
 
 Allowed authority classifications are `CURRENT_AUTHORITY`,
 `ACTIVE_BUT_INCOMPLETE`, `HISTORICAL`, `SUPERSEDED`, `REFERENCE_ONLY`,
@@ -866,3 +887,361 @@ Before any experiment, V2 requires explicit Jason authorization covering:
 - whether results may influence product routing or remain research-only.
 
 DO NOT IMPLEMENT IN PACKAGE 19.14.
+
+## 6. Product roadmap and terminology authority
+
+Jason's product-version roadmap is controlling human authority:
+
+| Product horizon | Controlling meaning |
+| --- | --- |
+| Black Skies V1.0 | Complete when Stage 19 and the remaining V1 framework work are complete. Package 19.14 is one bounded Stage 19 package, not the whole intelligence layer. |
+| V1.0 to V2.0 | Write complete real stories; use the product intensively; refine subsystems, prompts, performance, providers, and local models; learn from normal author workflows; and mature the intelligence layer. |
+| V2.0 to V3.0 | Perform the major GUI revision, visual polish, usability refinement, and broader product polish. |
+
+The V1.0-to-V2.0 program may discover changes that later require product or
+architecture authority. This register records those needs but does not grant
+that authority. GUI work belongs in the V2.0-to-V3.0 horizon when it is mainly
+visual or polish work; a user-experience issue that affects safety, approval,
+truthfulness, or workflow ownership remains an earlier product concern.
+
+## 7. Repository knowledge inventory and authority map
+
+This inventory is content-based. A filename, status header, test name, or
+historical `Active` label is not enough to promote a record over newer current
+authority.
+
+| Source group | Representative records or code | What exists | Classification and use |
+| --- | --- | --- | --- |
+| Current product navigation and roadmap | `current_truth_index.md`; `current_product_roadmap.md`; `docs/product_systems/README.md` | Authority precedence, current product doctrine, product horizons, and dossier navigation. | `CURRENT_AUTHORITY`. The pre-A-F Package 19.14 status wording in the first two records was stale and is repaired by BS-19.14-24A; older embedded stage snapshots remain historical. |
+| Cross-system AI governance | `ai_lifecycle_and_approval_matrix.md`; `model_routing_and_budget_architecture.md`; `llm_package_construction_architecture.md`; `protected_content_permission_matrix.md`; `authorship_provenance_ai_visibility.md` | Advisory-only doctrine, approval tiers, route modes, no silent fallback/spend/transmission/mutation, package/payload separation, protection, and provenance. | `CURRENT_AUTHORITY` for product and architecture boundaries; not runtime proof. |
+| Task and workflow dossiers | `critique_evaluation.md`; `draft_generation_rewrite_loop.md`; `continuity.md`; `memory_lab.md`; `async_job_queue_task_runner.md`; `workflow_proof_WP-06_ai_route_package_queue_acceptance.md` | Task-specific ownership, critique output classes, memory questions, queue lifecycle, route/package/acceptance distinctions, and deferred background work. | Current product doctrine or completed workflow-boundary proof according to each record; not proof that the runtime implements the whole design. |
+| Stage 10 and 11 audits | `stage10_ai_provider_queue_performance_cost_findings.md`; `stage11_ai_routing_approval_provenance_transmission_questions.md`; `stage11_queue_service_performance_cost_hardware_model_lifecycle_questions.md` | Missing operational evidence, fatal-question review, and named handoffs for routing, provider drift, queue, cost, hardware, and model lifecycle. | `HISTORICAL` campaign records with surviving evidence and handoffs; their embedded stage-status lines are not current sequencing authority. |
+| Stage 12 architecture contracts | `stage12_package_payload_context_identity_contract.md`; `stage12_provider_policy_external_assurance_contract.md`; `stage12_queue_attempt_retry_cancellation_contract.md`; `stage12_cost_accounting_budget_persistence_contract.md`; `stage12_telemetry_generic_cache_governance_contract.md`; `stage12_evidence_retention_last_witness_contract.md`; `stage12_hardware_resource_pressure_protection_contract.md`; `stage12_model_qualification_lifecycle_contract.md` | Provider-neutral identity, invalidation, qualification, evidence, retry, cancellation, cost, cache, hardware, and lifecycle safety floors. | `CURRENT_AUTHORITY` for their owned architecture questions. They explicitly do not choose runtime schemas, models, providers, or implementation. |
+| Package 19.14 authority | `stage19_package_19_14_scope_and_inspection.md`; `stage19_package_19_14_local_route_feasibility_disposition.md`; `stage19_package_19_14_model_qualification.md` | Current selected-prose scope, one pinned OpenAI route, no local V1 route, frozen qualification corpus, failed V1 capture, and prepared Qualification Contract V2. | `CURRENT_AUTHORITY` or `ACTIVE_BUT_INCOMPLETE` within Package 19.14. These records, not this register, own the live qualification and closure pipeline. |
+| Package 19.14 implementation and focused tests | `app/shared/ipc/aiCritique.ts`; `app/main/aiCritiqueCoordinator.ts`; `aiCritiqueGateway.ts`; `aiCritiqueIpc.ts`; `aiCritiqueQualificationArtifacts.ts`; their focused tests; `Stage19WritingSpineApp.tsx`; `stage19-ai-critique.spec.ts` | Main-owned immutable request/approval lifecycle, exact selected-prose evidence, one narrow gateway, strict response validation, stale/late rejection, redaction, blinded review packets, receipt verification, and Writing-Studio-only advisory presentation. | Current implementation evidence for the exact Package 19.14 path. Tests prove exercised contracts, not live model usefulness or broad intelligence quality. |
+| Current legacy model runtime | `docs/specs/model_runtime.md`; `model_routing.py`; `model_router.py`; `model_adapters.py`; `run_policy.py`; prompt modules and tests | Four coarse tasks (`outline`, `draft`, `critique`, `rewrite`), Ollama/OpenAI adapters, provider availability, prompt profiles, route metadata, budgets, and automatic-capable fallback. | Current or legacy runtime evidence according to the cited current-runtime record, but `REFERENCE_ONLY` for Package 19.14 and future architecture until reconciled with current no-silent-fallback, approval, and Project Spine doctrine. |
+| Prompt and context code | `prompt_profile_resolver.py`; `prompt_compiler.py`; `prompt_pipeline.py`; `operations/long_form_execution.py`; Package 19.14 fixed instructions | Provider-oriented draft profiles, scene context compilation, memory-packet inputs, long-form prompts, and one fixed selected-prose critique prompt. | Implementation notes and evidence. No canonical multi-task prompt-family architecture or held-out prompt evaluation exists. |
+| Older offline evaluation harness | `scripts/eval.py`; `services/.../eval/dataset.py`; `report.py`; `tests/test_eval_*`; 63 packaged YAML task cards | Schema-validated task cards for 21 outline, 21 draft, and 21 critique cases; adapter/tool checks; pass-rate, latency, and error-budget reporting. | `REFERENCE_ONLY` harness evidence. The default runners inspect expected artifacts and do not execute or rank real models; their passes are not literary-quality, grounding, hallucination, or model-capability evidence. |
+| Package 19.14 qualification harness | `aiCritiqueQualification.v1.ts`; `aiCritiqueQualification.test.ts`; `aiCritiqueQualificationArtifacts.ts` and tests | Twelve synthetic selected-prose fixtures, two runs each, strict schema/evidence checks, two blinded human reviewers, fixed thresholds, adjudication, immutable receipts, and tamper verification. | `ACTIVE_BUT_INCOMPLETE`. Strong task-contract machinery; the V2 live provider run and human scoring have not occurred. |
+| Dated local-model receipts | V2-AI-017 through V2-AI-024; local-route disposition | Exact Ollama/Qwen identities, representative-load timing/resource observations, structural-validity samples, and the no-local-V1 disposition. | Dated evidence, not universal benchmarks, supported-hardware claims, or model qualification. |
+| Historical provider and long-form evidence | Git object `fa4bd0c:docs/runbooks/long_form_integrated_pass_20260316.md`; current runbooks | Earlier provider-backed rescue attempts, Qwen `invalid_output` runs, long-form persistence, retries, and fallback behavior. | `HISTORICAL` or `REFERENCE_ONLY`. Useful for hypotheses and failure classes; incompatible behavior is not current Package 19.14 authority. |
+| Memory prototype evidence | `docs/specs/memory_prototype_v1.md`; `docs/reviews/memory_prototype_v1_findings.md`; prototype tests and eval runner | Advisory derived-state, lineage, packet assembly, no-mutation, failure isolation, and replay/eval containment. | Explicitly historical prototype evidence. It does not authorize a product memory system or persistent learned intelligence. |
+| Stale or competing legacy specifications | `docs/policies.md`; `docs/settings.md`; `docs/specs/model_backend.md`; `docs/critique_rubric.md`; provider experiment runbooks | Stored/global route settings, automatic fallback, persisted rewrite/critique artifacts, suggested edits, deterministic fallback, caching, and broader provider/model assumptions. | `CONTRADICTORY` or `REFERENCE_ONLY` where they conflict with current authority. Their old `LOCKED`, `Active`, or source-of-truth labels do not override current product-system and Stage 19 records. |
+
+### 7.1 Overlap, conflict, and stale-material findings
+
+1. Package 19.14 and the legacy Python service both contain critique,
+   provider, prompt, result, and lifecycle seams. The Package 19.14 path is the
+   current bounded implementation; the legacy path is evidence and a future
+   salvage candidate, not a second production authority.
+2. `model_router.py`, legacy critique, long-form operations, and the provider
+   runbooks allow automatic provider or deterministic fallback. Current
+   authority forbids silent fallback. Future reuse requires explicit rerouting,
+   a new request identity, renewed approval, and task-specific qualification.
+3. `docs/critique_rubric.md` describes suggested edits, persistent rubric CRUD,
+   and broad critique APIs. The current V1 critique is advisory selected-prose
+   output with no apply, persistence, or rewrite authority.
+4. The 63-card offline harness and the 12-fixture Package 19.14 qualification
+   suite overlap in the word `eval` but prove different things. The former
+   proves dataset and reporting plumbing; the latter is the task-specific live
+   model qualification contract.
+5. Stage 12 defines the required shape of a future AI Model Capability Matrix,
+   but no populated, current, provider/model/task capability matrix exists.
+   Creating one before task taxonomy and evidence rules are authorized would
+   manufacture authority.
+6. The dual-route reconciliation preserved a possible two-route V1 design.
+   The later local-route disposition controls current V1 and selects no local
+   route. The earlier maximum architecture remains a future option only.
+7. The prior V1 live provider capture is immutable `CAPTURE_FAILED` evidence.
+   Qualification Contract V2 clarifies serialization while retaining the exact
+   evidence rule; it does not rewrite the V1 failure or create product V2.0.
+8. Current truth and roadmap records still carried pre-A-F Package 19.14 status
+   wording. BS-19.14-24A repairs only the current status and discoverability
+   lines; it does not rewrite older historical receipts.
+
+## 8. V1.0-to-V2.0 intelligence-layer program
+
+This is a program definition, not execution authorization. Each workstream
+needs a separately bounded package, explicit data and provider permissions,
+and evidence proportional to the claim.
+
+### 8.1 Real-use refinement
+
+- Use Black Skies to write complete real stories and exercise normal author
+  workflows, not only fixtures.
+- Record failures, friction, strong outputs, weak outputs, interruption cost,
+  and author value without storing manuscript prose in this register.
+- Maintain a bounded failure/insight ledger tied to task, product version,
+  model/prompt identity where applicable, and reproducible non-private evidence.
+- Distinguish a workflow problem, a prompt problem, a model problem, a context
+  problem, and a product-experience problem before proposing a repair.
+
+### 8.2 Task architecture and specialization
+
+- Define a provider-neutral task taxonomy before broad routing. Candidate
+  classes include critique, brainstorming, planning, revision, continuity
+  checking, summarization, research, metadata extraction, drafting, and
+  comparison.
+- Specify for each task its owner, source scope, output class, mutation limits,
+  context needs, latency tolerance, evaluation method, and acceptance path.
+- Do not assume the model qualified for selected-prose critique is qualified
+  for another task.
+- Preserve reusable infrastructure only where the request artifact, approval
+  binding, gateway, validation, and evidence semantics are genuinely shared.
+
+### 8.3 Provider and model evaluation
+
+- Compare multiple OpenAI models when authorized and useful; compare hosted and
+  local routes without treating either class as inherently superior.
+- Preserve manual provider/model selection and no silent fallback. Explicit
+  rerouting is a new approved action.
+- Reverify exact provider, model snapshot, local digest/quantization, runtime,
+  wrapper, prompt, schema, and task contract for every receipt.
+- Treat Ollama and llama.cpp as relevant research directions. No repository
+  llama.cpp implementation currently exists.
+- Preserve the Qwen receipts as workstation-specific evidence: smaller models
+  may be more interactively practical; larger models may suit later manual
+  background/off-hours study; neither claim is universal without new evidence.
+
+### 8.4 Prompt and context program
+
+- Develop task-specific prompt structures only after each task contract is
+  defined.
+- Compare prompt families with preregistered factors, held-out fixtures, fixed
+  model/runtime identities, and human usefulness scoring.
+- Preserve source grounding, evidence fidelity, author intent, uncertainty,
+  and injection resistance; schema compliance alone is insufficient.
+- Define how project, unit, generation, revision, selection, outline, timeline,
+  character, lore, metadata, memory, and external context are selected,
+  declared, invalidated, and bounded.
+- Prevent stale, cross-project, hidden, or uncontrolled context growth. Context
+  compression and whole-chapter/long-context work require separate evidence.
+
+### 8.5 Performance, hardware, and scheduling
+
+- Measure cold and warm latency, token throughput, system and available memory,
+  CPU/GPU pressure, storage, cancellation cleanup, responsiveness, concurrency,
+  and interference with ordinary applications.
+- Use normal-user-load testing because idle-machine benchmarks do not represent
+  Jason's ordinary environment; record clean-load evidence separately when it
+  answers a named causal question.
+- Separate interactive, deferred, manually initiated background, and scheduled
+  or overnight execution classes.
+- Keep scheduled and overnight jobs in the V1.0-to-V2.0 program. Do not infer
+  authority from the existing scheduler or queue doctrine.
+
+### 8.6 Privacy, cost, and reliability
+
+- Prefer privacy-preserving routes where practical and keep local processing
+  available as a strategic option.
+- Measure real API usage and calculated cost while labeling provider invoices,
+  estimates, local energy/hardware cost, and unobserved provider work
+  separately.
+- Preserve explicit cost caps, approvals, provider-policy revalidation, and
+  protected-content rules.
+- Test outage, timeout, rate limit, refusal, invalid response, partial result,
+  stale result, cancellation, app/project close, retry, and explicit rerouting.
+- Keep advisory AI optional so provider or local-runtime failure never becomes
+  a hidden dependency for opening, editing, saving, recovery, export, or close.
+
+### 8.7 Evaluation program
+
+- Create reusable synthetic task fixtures and separately governed real-story
+  evaluation sets.
+- Evaluate structure, evidence fidelity, usefulness, hallucination, tone fit,
+  consistency, author value, latency, resource pressure, privacy, and cost.
+- Use blinded or independent human review where it adds value; preserve
+  reviewer disagreement and adjudication rather than averaging it away.
+- Add held-out sets and drift/regression receipts so prompt or model changes do
+  not overfit one frozen qualification corpus.
+- Develop a populated model capability record or matrix only after task
+  taxonomy, evidence levels, receipt lifetime, and promotion rules receive
+  authority.
+
+### 8.8 Program evidence sequence
+
+The default evidence sequence is:
+
+1. authorize task, data, provider/model, hardware, budget, and retention scope;
+2. freeze task contract and source/output boundaries;
+3. freeze synthetic baselines and held-out fixtures;
+4. verify adapter and result-schema conformance without broad quality claims;
+5. establish one-model baselines before comparisons;
+6. perform blinded usefulness and grounding review;
+7. measure normal-load and controlled hardware/performance behavior;
+8. test privacy, injection, lifecycle, and failure behavior;
+9. simulate routing policy only after task-specific receipts exist; and
+10. promote a capability only through a separate explicit product decision.
+
+## 9. Package 19.14 as an intelligence-layer component
+
+Package 19.14 establishes the first current operational component of a future
+intelligence layer. It is not the intelligence architecture by itself.
+
+### 9.1 Strengths and proof boundary
+
+| Dimension | What Package 19.14 establishes | What it does not establish |
+| --- | --- | --- |
+| Task architecture | One explicit `selected-prose critique` task with a fixed advisory result contract and no rewrite/apply path. | A provider-neutral task taxonomy or proof that critique, brainstorming, planning, revision, continuity, summarization, research, drafting, and extraction share one contract. |
+| Request authority | Main-owned project, unit, generation, session, revision, selection, payload bytes, hash, TTL, and one-use approval binding. | General context assembly for whole chapters, whole projects, cross-project work, memory, retrieval, or external sources. |
+| Provider execution | One fixed OpenAI Responses API gateway, pinned model snapshot, exact request bytes, timeout, redaction, and strict result validation. | Multiple-provider routing, local qualification, provider substitution, streaming, tool use, or generic gateway conformance. |
+| Routing and fallback | Fixed provider truth and fail-closed behavior with no automatic fallback or retry. | A model capability matrix, route recommendation, hardware-aware policy, or automatic routing. |
+| Safety and trust | Selected prose is treated as quoted data; embedded instructions are rejected by contract; output is advisory, ephemeral, separate, source-grounded, and non-mutating. | Protection detection, broad project-content injection defense, external research citation verification, or safety for tools and proposed manuscript mutations. |
+| Lifecycle | Prepared/approved/executing/terminal states, expiration, replay prevention, stale/late rejection, local cancellation, and project/unit/generation invalidation. | Provider-side cancellation, durable background jobs, restart recovery, partial-output workflows, or long-lived queue cleanup/retention. |
+| Evaluation | Twelve frozen synthetic fixtures, strict schema and verbatim-evidence checks, two runs, two blinded human reviewers, fixed thresholds, adjudication, receipts, and tamper verification. | Broad literary quality, real-story usefulness, repeatability across time/tasks, model drift, long context, local models, or other providers. |
+| Observability and cost | Bounded provider failure classes, redacted main-only diagnostics, provider token usage, calculated cost, and external qualification evidence. | A general intelligence telemetry model, provider invoice truth, cross-task regression dashboard, local total cost, or production performance distributions. |
+| Product experience | A Writing-Studio-only preview, credential/clearance/approval flow, separate advisory result, stale state, and no Command Center AI surface. | Result comparison/history, multi-task information architecture, background-job controls, or the V2.0-to-V3.0 GUI revision. |
+| Extensibility | Strong candidate seams in immutable artifacts, approval binding, gateway isolation, result validation, receipt generation, and evidence verification. | Authority to generalize critique-specific OpenAI fields, the selected-prose schema, fixtures, UI, or qualification thresholds into universal AI infrastructure. |
+
+If Qualification Contract V2 passes, it proves only that the exact pinned model,
+prompt/instruction, wrapper, schema, selected-prose task, corpus, thresholds,
+review method, provider policy, and repository revision satisfied the frozen
+qualification contract. It does not prove that the model is generally
+qualified, that all critiques are useful, that the provider is best, or that
+other tasks, prompts, contexts, routes, models, and hardware are safe.
+
+### 9.2 Intentional V1 deferrals versus planning omissions
+
+Intentional V1 deferrals are multiple providers, local AI, automatic routing,
+fallback, prompt optimization, background or scheduled work, memory,
+persistence, history, whole-project context, broad task support, and GUI
+redesign. They remain non-blocking for the frozen V2 live qualification.
+
+The planning omissions that need a future explicit home are a task taxonomy,
+a populated capability/receipt model, general context-construction and
+invalidation rules, intelligence-specific observability, a real-use evaluation
+program, prompt-family promotion rules, background-job cleanup and retention,
+and a product decision on persistent learned/advisory state. Stage 12 and the
+current product dossiers supply safety floors for several of these questions;
+they do not supply the missing V2 program decisions or runtime evidence.
+
+## 10. Classified weakness and gap ledger
+
+`Source kind` distinguishes repository authority, evidence, inference,
+recommendation, and open question. Each finding has one controlling
+classification from the BS-19.14-24A classification set.
+
+| ID | Major finding | Source kind | Controlling classification | Reopening trigger / required next evidence |
+| --- | --- | --- | --- | --- |
+| V2-GAP-001 | No Qualification Contract V2 live capture, human scores, adjudication, or verified receipt exists. | Evidence gap | `Package 19.14 closure requirement` | Execute BS-19.14-24 once under the frozen V2 contract; on capture success complete the existing human-review and receipt pipeline. |
+| V2-GAP-002 | A second evidence-compliance failure would leave the product choice unresolved; automatic V3 contract creation is forbidden. | Repository authority and open question | `requires human authority` | A failed V2 capture requires explicit product-level disposition before any prompt, model, provider, schema, or contract change. |
+| V2-GAP-003 | Package 19.14 implements one selected-prose critique task. | Repository authority | `intentional V1 limitation` | Reopen only after V1.0 when a bounded task-taxonomy package is authorized. |
+| V2-GAP-004 | No canonical provider-neutral taxonomy separates critique, brainstorming, planning, revision, continuity, summarization, research, drafting, and extraction capability classes. | Inference from current dossiers and code | `future V2 architecture decision` | Authorize task architecture and define owners, inputs, outputs, risk, latency, context, and evaluation per class. |
+| V2-GAP-005 | Stage 12 defines a capability-matrix contract, but no populated current model/provider/task matrix exists. | Repository authority plus evidence gap | `V1.0-to-V2.0 refinement item` | Define task taxonomy, evidence grades, receipt lifetime, and promotion rules before populating the matrix. |
+| V2-GAP-006 | V1 has one pinned provider/model and no manual multi-route control or automatic routing. | Repository authority | `intentional V1 limitation` | Reopen after task-specific alternative-route receipts and an explicit product routing decision. |
+| V2-GAP-007 | Current context is exactly selected prose plus fixed instruction, with main-owned identity bindings. | Repository authority | `intentional V1 limitation` | Reopen for a named task that requires additional context; preserve preview-to-payload identity and source declarations. |
+| V2-GAP-008 | General context selection, growth limits, stale-summary invalidation, cross-project isolation, and whole-chapter/long-context behavior are not operationally proved. | Open question and evidence gap | `future V2 architecture decision` | Define a task-bound context contract and prove source/currentness/protection/project bindings with synthetic tests. |
+| V2-GAP-009 | Whether the intelligence layer needs persistent learned state, summaries, embeddings, or other derived memory remains unresolved. | Open question | `requires human authority` | Human decision must name value, ownership, retention, invalidation, deletion, protection, and prohibited storage before design. |
+| V2-GAP-010 | Package qualification emphasizes contract validity and a bounded human rubric; real-story usefulness and cross-task quality remain unknown. | Evidence gap | `V1.0-to-V2.0 refinement item` | Establish governed real-story sets, held-out fixtures, blinded review where useful, and author-value measures. |
+| V2-GAP-011 | General intelligence telemetry, trace, redacted diagnostic, cost, latency, and regression records are not defined as one operational program. | Open question with existing safety floors | `future V2 architecture decision` | Build on Stage 12 telemetry/evidence/cost contracts; define minimum data, redaction, retention, and claim scope before runtime work. |
+| V2-GAP-012 | Package 19.14 treats selected manuscript instructions as data, but broader project-content, retrieved-content, provider-returned-instruction, and tool injection behavior is not proved. | Evidence gap | `V1.0-to-V2.0 refinement item` | Add task-specific adversarial fixtures after context and tool boundaries are authorized. |
+| V2-GAP-013 | Package 19.14 relies on exact preview and manual clearance because automatic protected-content detection does not exist. | Repository authority | `already governed elsewhere` | The protected-content matrix and package/payload contracts remain controlling; reopen only for a separately authorized detection/transform path. |
+| V2-GAP-014 | Cancellation stops local waiting and rejects late results; it does not prove provider-side cancellation or zero cost. | Repository authority | `intentional V1 limitation` | Preserve honest wording; later measure provider and local cleanup under a lifecycle/reliability package. |
+| V2-GAP-015 | Background, scheduled, overnight, restart-surviving, and partial-result execution is absent from Package 19.14. | Repository authority | `future V2 architecture decision` | Authorize a background-work product decision, then resolve queue ownership, revalidation, cleanup, retention, budgets, protection, and review UX before execution. |
+| V2-GAP-016 | Result comparison, durable history, revisit workflows, and author-preference learning are absent. | Repository authority and open question | `V1.0-to-V2.0 refinement item` | Gather real-use demand; define retention and owner boundaries before making results durable. |
+| V2-GAP-017 | Some current request, approval, validation, and receipt seams are reusable, but the coordinator, schema, fixtures, and UI are partly critique/OpenAI-specific. | Inference | `future V2 architecture decision` | Generalize only after a second task or provider demonstrates a shared invariant; do not pre-generalize. |
+| V2-GAP-018 | Legacy Python routes permit fallback, persistence, broad service exposure, and caller-owned identifiers that conflict with current Package 19.14 boundaries. | Implementation evidence | `already governed elsewhere` | Keep disconnected from the Package 19.14 path; reopen under a bounded salvage/fencing package if production reachability or reuse is proposed. |
+| V2-GAP-019 | Complete-story and normal-workload learning has not yet been converted into a governed intelligence-layer evidence program. | Recommendation | `V1.0-to-V2.0 refinement item` | Begin after V1.0 with privacy-safe issue records and explicit separation of manuscript content from register metadata. |
+| V2-GAP-020 | Cross-route total cost, normal-load performance, supported hardware, and interference with ordinary applications remain incomplete. | Evidence gap | `V1.0-to-V2.0 refinement item` | Authorize dated task workloads, hardware classes, normal-load measurements, provider pricing snapshots, and cost claim rules. |
+| V2-GAP-021 | Task priorities, supported providers/models, hardware floors, experiment budgets, real-story data use, reviewer availability, retention, routing automation, and promotion gates are product choices. | Open question | `requires human authority` | Jason must approve each bounded program charter before execution or promotion. |
+| V2-GAP-022 | Final multi-task layout, visual comparison, control density, polish, and broader Writing Studio redesign are not defined. | Open question | `V2.0-to-V3.0 GUI/polish concern` | Reopen after intelligence behavior and workflow evidence are mature enough to support the major GUI revision. |
+| V2-GAP-023 | Connector admission, connector-specific AI routing, and external workspace integration are not part of this register package. | Repository authority | `out of scope` | Reopen only through the existing workflow-proof and Missing Connector Review gates plus explicit connector authority. |
+
+### 10.1 Exact resolution-stage map
+
+The classification column states disposition. This map separately names one
+exact expected resolution stage for every deferral; the final ledger column
+remains the corresponding reopening trigger and required evidence.
+
+| Finding | Expected resolution stage |
+| --- | --- |
+| V2-GAP-001 | Package 19.14 BS-19.14-24 live run and its existing review/receipt/acceptance pipeline. |
+| V2-GAP-002 | Package 19.14 post-V2-failure product-disposition decision, only if V2 evidence compliance fails again. |
+| V2-GAP-003 | First explicitly authorized post-V1.0 task-architecture package. |
+| V2-GAP-004 | First V1.0-to-V2.0 task-architecture package. |
+| V2-GAP-005 | V1.0-to-V2.0 capability-matrix package after task taxonomy and evidence rules. |
+| V2-GAP-006 | V1.0-to-V2.0 routing-policy decision after alternative-route receipts. |
+| V2-GAP-007 | First future task package whose named contract requires broader context. |
+| V2-GAP-008 | V1.0-to-V2.0 context-construction architecture package. |
+| V2-GAP-009 | Human product decision before any learned-state, summary, embedding, or derived-memory design. |
+| V2-GAP-010 | V1.0-to-V2.0 real-use evaluation program. |
+| V2-GAP-011 | V1.0-to-V2.0 intelligence observability architecture package. |
+| V2-GAP-012 | V1.0-to-V2.0 task-specific adversarial safety evaluation. |
+| V2-GAP-013 | Applicable protected-content detection or transformation package, before such a path is designed. |
+| V2-GAP-014 | V1.0-to-V2.0 reliability and lifecycle evidence program. |
+| V2-GAP-015 | V1.0-to-V2.0 background-work architecture package. |
+| V2-GAP-016 | V1.0-to-V2.0 history, comparison, retention, and preference-learning product decision. |
+| V2-GAP-017 | Shared-seam architecture review after evidence from a second task or provider. |
+| V2-GAP-018 | Bounded legacy salvage/fencing package before any reuse or production reachability. |
+| V2-GAP-019 | First explicitly authorized post-V1.0 real-story evidence program. |
+| V2-GAP-020 | V1.0-to-V2.0 performance, hardware, and total-cost evidence program. |
+| V2-GAP-021 | Human approval before each bounded V1.0-to-V2.0 program charter. |
+| V2-GAP-022 | V2.0-to-V3.0 GUI and product-polish program. |
+| V2-GAP-023 | Missing Connector Review followed by an explicitly authorized connector package. |
+
+No `V1 blocking defect` was found by this documentation audit. That conclusion
+does not prejudge the V2 live qualification result. A live integrity failure,
+contract mismatch, credential leak, route deviation, or inability to verify the
+frozen request would be evaluated under its existing stop conditions.
+
+## 11. Package 19.14 stopping boundary and sequencing
+
+The exact Package 19.14 boundary is:
+
+```text
+Run BS-19.14-24 once using the frozen Qualification Contract V2.
+
+If capture succeeds:
+complete the established human-review, adjudication-if-needed, receipt,
+bounded integration, acceptance, and closure pipeline.
+
+If the model again fails evidence compliance:
+stop the automatic qualification loop and require an explicit product-level disposition.
+
+Do not automatically create Qualification Contract V3.
+
+Do not begin repeated prompt optimization, model bake-offs,
+alternate-provider qualification, local-model qualification,
+or broad intelligence-layer refinement inside Package 19.14.
+```
+
+BS-19.14-24A sequencing assessment, dated 2026-07-17:
+
+```text
+PROCEED_WITH_BS_19_14_24
+```
+
+Basis: the frozen V2 contract and qualification machinery are already the exact
+next missing Package 19.14 evidence; the intelligence-layer gaps are intentional
+V1 limits, later refinements, future architecture decisions, or human decisions.
+This audit found no repository repair required before the authorized live run.
+The recommendation authorizes no provider call inside BS-19.14-24A and does not
+weaken the live-run stop conditions.
+
+## 12. Discovery and maintenance rules
+
+1. `current_truth_index.md` and `current_product_roadmap.md` must link this file
+   as the canonical forward-looking AI intelligence-layer register.
+2. Package 19.14 scope and qualification records must link here for later
+   program context while retaining their own qualification authority.
+3. New evidence receives a stable `V2-AI-*` entry; new audit gaps receive a
+   stable `V2-GAP-*` entry. Do not renumber or rewrite historical entries.
+4. Corrections add a new entry and explicit supersession link. They do not
+   silently revise a dated model, run, cost, failure, or hardware receipt.
+5. Future planning must state source kind, authority class, product horizon,
+   reopening trigger, expected resolution stage, and human decisions needed.
+6. A code path, test, harness, provider document, benchmark, or successful run
+   is evidence only for its observed scope. Promotion requires an explicit
+   product decision and current authority update.
+7. Keep providers, models, prompts, task contracts, wrappers, schemas,
+   fixtures, hardware, and dates exact where known and visibly unknown where
+   not proved.
+8. Never store API credentials, manuscript prose, raw provider responses,
+   private qualification contents, authorization headers, reviewer identity,
+   private paths, or temporary operational secrets in this register.
+9. Re-review the register at V1.0 closure, before the first V1.0-to-V2.0 AI
+   program package, when a new AI task/provider/local runtime/background lane is
+   proposed, and before any capability-matrix or routing-policy promotion.
+10. Maintenance is documentation/governance work only unless a later explicit
+    task separately authorizes implementation, model execution, provider calls,
+    benchmarking, or private-data handling.

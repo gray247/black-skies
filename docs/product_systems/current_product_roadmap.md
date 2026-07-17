@@ -18,7 +18,7 @@ Current status:
 - `stage19_package_19_12_authorization_reconciliation.md` records that Jason authorized each bounded mutation during active orchestration; the earlier scope record did not itself authorize runtime work
 - Package `19.13`, `Command Center integrity`, is formally closed by commit `33d603d`; Package `19.12` remains closed and their shared integration evidence does not combine package authority
 - closure records remain immutable conditional receipts; their retained pre-commit wording is historical, and the later commit and push of `b793998` and `33d603d` satisfied their respective closure conditions
-- Package `19.14`, `optional AI decision and, only if retained, bounded implementation`, is next in the approved sequence, requires separate Jason authorization, and has no currently authorized implementation
+- Package `19.14`, `bounded selected-prose AI critique`, has committed implementation for Packages 19.14-A through 19.14-F; the first live `black_skies_critique_v1` capture stopped at `CAPTURE_FAILED`, the frozen `black_skies_critique_v2` contract is ready, and BS-19.14-24 is the separately authorized next live run but has not been executed by the documentation-only BS-19.14-24A audit; Package 19.14-G acceptance and package closure remain pending and separately controlled
 - Packages `19.15` through `19.22` remain pending; Package `19.22` remains the final V1.0 closure and release boundary
 - the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix continue to define the planning boundary
 - further implementation remains blocked until separately bounded and authorized as a Stage 19 package
@@ -830,6 +830,20 @@ lane.
 ## 8. Product Horizons
 
 The roadmap uses broad horizons rather than build phases.
+
+For AI intelligence-layer planning, product-version horizons are explicit:
+
+- `V1.0` is the still-open Stage 19 implementation and acceptance milestone.
+- `V1.0-to-V2.0` is the real-story, intensive-use, refinement, task-expansion,
+  model/prompt evaluation, performance, reliability, cost, and hardware-learning
+  horizon after V1.0.
+- `V2.0-to-V3.0` holds the major GUI, layout, comparison, and polish horizon
+  after intelligence behavior and workflow evidence mature.
+
+[v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md)
+is the canonical forward-looking AI intelligence-layer register for those
+horizons. It is planning and evidence-index authority, not implementation,
+provider-call, qualification, or package-acceptance authority.
 
 - `Current critical product discovery`
   Resolve or consciously defer the product questions that can still

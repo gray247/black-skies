@@ -20,7 +20,7 @@ It does not finalize the entire product vision.
 - `stage19_package_19_12_authorization_reconciliation.md` synchronizes repository authority with Jason's mutation-by-mutation authorization; it does not treat the earlier scope record as runtime authorization
 - Package `19.13`, `Command Center integrity`, is formally closed by commit `33d603d`; Package `19.12` remains closed and their shared integration evidence does not combine package authority
 - closure records remain immutable conditional receipts; their retained pre-commit wording is historical, and the later commit and push of `b793998` and `33d603d` satisfied their respective closure conditions
-- Package `19.14`, `optional AI decision and, only if retained, bounded implementation`, is next in the approved sequence, requires separate Jason authorization, and has no currently authorized implementation
+- Package `19.14`, `bounded selected-prose AI critique`, has committed implementation for Packages 19.14-A through 19.14-F; the first live `black_skies_critique_v1` capture stopped at `CAPTURE_FAILED`, the frozen `black_skies_critique_v2` contract is ready, and BS-19.14-24 is the separately authorized next live run but has not been executed by the documentation-only BS-19.14-24A audit; Package 19.14-G acceptance and package closure remain pending and separately controlled
 - Packages `19.15` through `19.22` remain pending; Package `19.22` remains the final V1.0 closure and release boundary
 - the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix remain the current planning controls
 - every later implementation package requires its own bounded authorization
@@ -103,6 +103,11 @@ Current Black Skies doctrine is:
   `explicit_content_architecture.md`,
   `ai_lifecycle_and_approval_matrix.md`, and
   `authorship_provenance_ai_visibility.md`.
+- [v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md)
+  is the canonical forward-looking V1.0-to-V2.0 AI intelligence-layer
+  register and evidence index. Package-specific records retain authority
+  over Package 19.14 qualification, and future intelligence-layer planning
+  must update the register without rewriting historical evidence.
 - No system may silently mutate accepted truth.
 - No system may silently create or mutate durable AI-origin memory, note, or signal state.
 - No system may silently export, sync, spend money, retain AI-origin durable memory, or transmit protected content.
@@ -424,6 +429,7 @@ Current canonical repo-tracked sources include:
 - [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
 - [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)
 - [ai_lifecycle_and_approval_matrix.md](/C:/Dev/black-skies/docs/product_systems/ai_lifecycle_and_approval_matrix.md)
+- [v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md)
 - [writing_surface.md](/C:/Dev/black-skies/docs/product_systems/writing_surface.md)
 - [command_center_surface.md](/C:/Dev/black-skies/docs/product_systems/command_center_surface.md)
 - [narrative_insertion_assertion.md](/C:/Dev/black-skies/docs/product_systems/narrative_insertion_assertion.md)
