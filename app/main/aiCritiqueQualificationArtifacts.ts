@@ -10,6 +10,7 @@ import {
   AI_CRITIQUE_PROVIDER,
   AI_CRITIQUE_TASK_CONTRACT_VERSION,
 } from '../shared/ipc/aiCritique.js';
+import type { AiCritiqueContent, AiCritiquePriority } from '../shared/ipc/aiCritique.js';
 import type { AiCritiqueGatewayEvidence } from './aiCritiqueGateway.js';
 
 export const QUALIFICATION_ARTIFACT_VERSION = 'black-skies-qualification-artifacts-v2';
@@ -39,7 +40,7 @@ export interface QualificationUsage {
 }
 export interface QualificationResponse {
   readonly attemptId: string; readonly fixtureId: string; readonly fixtureHash: string; readonly execution: 1 | 2;
-  readonly prose: string; readonly critique: unknown; readonly provider: string; readonly model: string; readonly contractVersion: typeof AI_CRITIQUE_TASK_CONTRACT_VERSION;
+  readonly prose: string; readonly critique: AiCritiqueContent; readonly provider: string; readonly model: string; readonly contractVersion: typeof AI_CRITIQUE_TASK_CONTRACT_VERSION;
   readonly instructionHash: string; readonly schemaHash: string; readonly parameterHash: string; readonly requestHash: string;
   readonly normalizedHash: string; readonly structuralValid: boolean; readonly usage: QualificationUsage | null;
 }
@@ -93,6 +94,28 @@ export function canonicalJson(value: unknown): string { return JSON.stringify(so
 export function canonicalHash(value: unknown): string { return hashBytes(canonicalJson(value)); }
 function isObjectRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
 function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean { return Object.keys(value).sort().join('|') === [...keys].sort().join('|'); }
+function normalizedStringArray(value: unknown, field: string): string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) throw new Error(`Normalized critique ${field} must be a string array.`);
+  return [...value];
+}
+function normalizedPriority(value: unknown): AiCritiquePriority {
+  const keys = ['evidence', 'observation', 'impact', 'revisionQuestion'] as const;
+  if (!isObjectRecord(value) || !hasOnlyKeys(value, keys) || keys.some((key) => typeof value[key] !== 'string')) throw new Error('Normalized critique priority is invalid.');
+  return { evidence: value.evidence as string, observation: value.observation as string, impact: value.impact as string, revisionQuestion: value.revisionQuestion as string };
+}
+export function serializeNormalizedCritique(value: unknown): string {
+  const keys = ['overview', 'strengths', 'priorities', 'uncertainties', 'limitations'] as const;
+  if (!isObjectRecord(value) || !hasOnlyKeys(value, keys) || typeof value.overview !== 'string' || !Array.isArray(value.priorities)) throw new Error('Normalized critique is invalid.');
+  const normalized: AiCritiqueContent = {
+    overview: value.overview,
+    strengths: normalizedStringArray(value.strengths, 'strengths'),
+    priorities: value.priorities.map(normalizedPriority),
+    uncertainties: normalizedStringArray(value.uncertainties, 'uncertainties'),
+    limitations: normalizedStringArray(value.limitations, 'limitations'),
+  };
+  return JSON.stringify(normalized);
+}
+export function normalizedCritiqueHash(value: unknown): string { return hashBytes(serializeNormalizedCritique(value)); }
 async function atomicCreate(path: string, content: string): Promise<void> { try { await access(path); throw new Error('Qualification evidence is immutable and cannot be overwritten.'); } catch (error) { if (error instanceof Error && error.message.includes('immutable')) throw error; } const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { encoding: 'utf8', flag: 'wx' }); await rename(temporary, path); }
 async function atomicCreateBytes(path: string, content: Uint8Array): Promise<void> { try { await access(path); throw new Error('Qualification evidence is immutable and cannot be overwritten.'); } catch (error) { if (error instanceof Error && error.message.includes('immutable')) throw error; } const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { flag: 'wx' }); await rename(temporary, path); }
 async function atomicReplace(path: string, content: string): Promise<void> { const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, content, { encoding: 'utf8', flag: 'wx' }); await rename(temporary, path); }
@@ -339,7 +362,7 @@ export function createQualificationReceipt(input: { runId: string; provider: str
     repositoryHead: input.repositoryHead, qualificationDate: qualificationDate(input.entries),
     instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null,
     fixtureHashes: input.entries.map((entry) => entry.fixtureHash).sort(), requestHashes: input.entries.map((entry) => entry.requestHash).sort(),
-    responseHashes: input.entries.map((entry) => entry.responseHash).sort(), normalizedHashes: input.entries.map((entry) => entry.normalizedHash).sort(),
+    responseHashes: input.entries.map((entry) => entry.responseHash).sort(), normalizedHashes: input.entries.map((entry) => normalizedCritiqueHash(entry.critique)).sort(),
     packetHashes: input.packetHashes, scoreHashes: input.scoreHashes, adjudicationHash: input.adjudicationHash,
     aggregate, costSummary: qualificationCostSummary(input.entries), disposition: pass ? 'PASS' : 'FAIL', failureReasons: reasons,
     tool: QUALIFICATION_ARTIFACT_VERSION,
@@ -349,7 +372,7 @@ export function createQualificationReceipt(input: { runId: string; provider: str
 
 export interface QualificationVerificationError { readonly code: string; readonly category: 'manifest' | 'raw' | 'identity' | 'packet' | 'score' | 'adjudication' | 'threshold' | 'receipt'; readonly artifact: string; readonly message: string; }
 export interface QualificationVerificationResult { readonly valid: boolean; readonly integrityStatus: 'VALID' | 'INVALID'; readonly qualificationDisposition: 'PASS' | 'FAIL' | 'UNVERIFIED'; readonly runId: string | null; readonly lifecycle: string | null; readonly disposition: 'PASS' | 'FAIL' | null; readonly receiptHash: string | null; readonly evidenceCount: number; readonly errors: readonly QualificationVerificationError[]; }
-export async function verifyQualificationRun(runRoot: string): Promise<QualificationVerificationResult> {
+export async function verifyQualificationRun(runRoot: string, options: { phase?: 'finalized' | 'capture' } = {}): Promise<QualificationVerificationResult> {
   const errors: QualificationVerificationError[] = [];
   let manifest: Record<string, unknown> | null = null;
   let identity: Record<string, unknown> | null = null;
@@ -381,7 +404,9 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
   const runId = manifest && typeof manifest.runId === 'string' ? manifest.runId : null;
   if (!runId || runId !== basenameSafe(runRoot)) issue('MANIFEST_RUN_ID_MISMATCH', 'manifest', 'run-manifest', 'Run identity does not match its directory.');
   const lifecycle = manifest && typeof manifest.state === 'string' ? manifest.state : null;
-  if (lifecycle !== 'FINALIZED_PASS' && lifecycle !== 'FINALIZED_FAIL') issue('MANIFEST_LIFECYCLE_NONTERMINAL', 'manifest', 'run-manifest', 'Qualification lifecycle is not finalized.');
+  if (options.phase === 'capture') {
+    if (lifecycle !== 'PACKETS_FINALIZED') issue('MANIFEST_CAPTURE_LIFECYCLE_INVALID', 'manifest', 'run-manifest', 'Capture verification requires the packets-finalized lifecycle.');
+  } else if (lifecycle !== 'FINALIZED_PASS' && lifecycle !== 'FINALIZED_FAIL') issue('MANIFEST_LIFECYCLE_NONTERMINAL', 'manifest', 'run-manifest', 'Qualification lifecycle is not finalized.');
   if (manifest && manifest.expectedAttemptCount !== 24) issue('MANIFEST_ATTEMPT_COUNT_INVALID', 'manifest', 'run-manifest', 'Expected attempt count is not 24.');
 
   identity = await readObject(join(runRoot, 'private', 'identity-map.json'));
@@ -412,7 +437,10 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
     if (Object.keys(entry).some((key) => !allowedEntryKeys.has(key) || /credential|authorization|api.?key/i.test(key))) issue('IDENTITY_SENSITIVE_FIELD', 'identity', 'identity-map', 'Identity entry contains an unrecognized sensitive field.');
     if (typeof entry.prose !== 'string' || hashBytes(entry.prose) !== entry.fixtureHash) issue('RAW_FIXTURE_CONTENT_MISMATCH', 'raw', 'raw-response', 'Frozen fixture content does not match its recorded hash.');
     if (entry.structuralValid && entry.httpStatus !== 200) issue('RAW_HTTP_STATUS_INVALID', 'raw', 'raw-response', 'Structurally valid evidence has an invalid HTTP status.');
-    if (entry.structuralValid && hashBytes(JSON.stringify(entry.critique)) !== entry.normalizedHash) issue('RAW_NORMALIZED_HASH_MISMATCH', 'raw', 'raw-response', 'Normalized result hash does not match durable critique evidence.');
+    if (entry.structuralValid) {
+      try { if (normalizedCritiqueHash(entry.critique) !== entry.normalizedHash) issue('RAW_NORMALIZED_HASH_MISMATCH', 'raw', 'raw-response', 'Normalized result hash does not match durable critique evidence.'); }
+      catch { issue('RAW_NORMALIZED_CONTENT_INVALID', 'raw', 'raw-response', 'Normalized critique evidence is structurally invalid.'); }
+    }
     const relativePath = entry.rawResponsePath;
     const resolvedPath = typeof relativePath === 'string' ? resolve(runRoot, relativePath) : '';
     if (!relativePath || isAbsolute(relativePath) || !inside(resolvedPath, resolve(runRoot)) || !relativePath.replace(/\\/g, '/').startsWith('private/raw-responses/')) { issue('RAW_PATH_ESCAPE', 'raw', 'raw-response', 'Raw-response path is not safely contained.'); continue; }
@@ -503,6 +531,17 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
     if (packetA.attemptOrder.join('|') === packetB.attemptOrder.join('|')) issue('PACKET_ORDER_NOT_INDEPENDENT', 'packet', 'reviewer-packets', 'Reviewer packet ordering is not independently randomized.');
     if (packetA.responseIds.some((id) => packetB.responseIds.includes(id))) issue('PACKET_OPAQUE_ID_COLLISION', 'packet', 'reviewer-packets', 'Reviewer packets reuse opaque identities.');
     if (canonicalJson(packetA.responses) === canonicalJson(packetB.responses)) issue('PACKET_REVIEWER_COPY', 'packet', 'reviewer-packets', 'One reviewer packet was reused for the other reviewer.');
+  }
+
+  if (options.phase === 'capture') {
+    for (const reviewer of ['reviewer-a', 'reviewer-b'] as const) {
+      try { await access(join(runRoot, reviewer, 'scores.json')); issue('CAPTURE_SCORE_PRESENT', 'score', reviewer, 'Score evidence is present before human scoring begins.'); } catch { /* Expected. */ }
+    }
+    try { await access(join(runRoot, 'adjudication', 'adjudication.json')); issue('CAPTURE_ADJUDICATION_PRESENT', 'adjudication', 'adjudication', 'Adjudication evidence is present before human scoring begins.'); } catch { /* Expected. */ }
+    for (const name of ['qualification-receipt.json', 'qualification-receipt.sha256']) {
+      try { await access(join(runRoot, 'receipt', name)); issue('CAPTURE_RECEIPT_PRESENT', 'receipt', name, 'Receipt evidence is present before qualification finalization.'); } catch { /* Expected. */ }
+    }
+    return { valid: errors.length === 0, integrityStatus: errors.length === 0 ? 'VALID' : 'INVALID', qualificationDisposition: 'UNVERIFIED', runId, lifecycle, disposition: null, receiptHash: null, evidenceCount: entries.length, errors };
   }
 
   const scoreObjects = new Map<'reviewer-a' | 'reviewer-b', ReviewerScores>();
@@ -672,8 +711,11 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
       if (canonicalJson(parsed.fixtureHashes) !== canonicalJson(entries.map((entry) => entry.fixtureHash).sort())) issue('RECEIPT_FIXTURE_HASH_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt fixture hashes are inconsistent.');
       if (canonicalJson(parsed.requestHashes) !== canonicalJson(entries.map((entry) => entry.requestHash).sort())) issue('RECEIPT_REQUEST_HASH_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt request hashes are inconsistent.');
       if (canonicalJson(parsed.responseHashes) !== canonicalJson(entries.map((entry) => entry.responseHash).sort())) issue('RECEIPT_RESPONSE_HASH_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt response hashes are inconsistent.');
-      if (canonicalJson(parsed.normalizedHashes) !== canonicalJson(entries.map((entry) => entry.normalizedHash).sort())) issue('RECEIPT_NORMALIZED_HASH_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt normalized-result hashes are inconsistent.');
-      if (canonicalJson(parsed.fixtureHashes) !== canonicalJson(entries.map((entry) => entry.fixtureHash).sort()) || canonicalJson(parsed.requestHashes) !== canonicalJson(entries.map((entry) => entry.requestHash).sort()) || canonicalJson(parsed.responseHashes) !== canonicalJson(entries.map((entry) => entry.responseHash).sort()) || canonicalJson(parsed.normalizedHashes) !== canonicalJson(entries.map((entry) => entry.normalizedHash).sort())) issue('RECEIPT_EVIDENCE_BINDING_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt evidence hashes are inconsistent.');
+      let independentlyNormalizedHashes: string[] = [];
+      try { independentlyNormalizedHashes = entries.map((entry) => normalizedCritiqueHash(entry.critique)).sort(); }
+      catch { issue('RECEIPT_NORMALIZED_CONTENT_INVALID', 'receipt', 'qualification-receipt', 'Normalized critique evidence cannot be independently hashed.'); }
+      if (canonicalJson(parsed.normalizedHashes) !== canonicalJson(independentlyNormalizedHashes)) issue('RECEIPT_NORMALIZED_HASH_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt normalized-result hashes are inconsistent.');
+      if (canonicalJson(parsed.fixtureHashes) !== canonicalJson(entries.map((entry) => entry.fixtureHash).sort()) || canonicalJson(parsed.requestHashes) !== canonicalJson(entries.map((entry) => entry.requestHash).sort()) || canonicalJson(parsed.responseHashes) !== canonicalJson(entries.map((entry) => entry.responseHash).sort()) || canonicalJson(parsed.normalizedHashes) !== canonicalJson(independentlyNormalizedHashes)) issue('RECEIPT_EVIDENCE_BINDING_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt evidence hashes are inconsistent.');
       const expectedPacketHashes = { 'reviewer-a': (manifest as { packetHashes?: Record<string, string> } | null)?.packetHashes?.['reviewer-a'], 'reviewer-b': (manifest as { packetHashes?: Record<string, string> } | null)?.packetHashes?.['reviewer-b'] };
       const expectedScoreHashes = { 'reviewer-a': (manifest as { scoreHashes?: Record<string, string> } | null)?.scoreHashes?.['reviewer-a'], 'reviewer-b': (manifest as { scoreHashes?: Record<string, string> } | null)?.scoreHashes?.['reviewer-b'] };
       if (!isObjectRecord(parsed.packetHashes) || !hasOnlyKeys(parsed.packetHashes, ['reviewer-a', 'reviewer-b']) || canonicalJson(parsed.packetHashes) !== canonicalJson(expectedPacketHashes)) issue('PACKET_RECEIPT_HASH_MISMATCH', 'packet', 'qualification-receipt', 'Receipt packet hashes are inconsistent.');

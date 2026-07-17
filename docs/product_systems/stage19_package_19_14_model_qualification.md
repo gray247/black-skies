@@ -8,11 +8,11 @@
 - Pinned model: `gpt-5.4-2026-03-05`
 - Fixture set: `aiCritiqueQualification.v1`
 - Frozen V1 corpus and scoring authority: 2026-07-14
-- V2 contract prepared: 2026-07-16; not yet live-run or accepted
-- Current status: **one V1 live capture terminated at `CAPTURE_FAILED` on its first provider attempt; V2 clarifies the unchanged exact-substring rule and requires a new separately authorized live run**
-- Blocking prerequisites for the real run: an explicitly supplied `BLACK_SKIES_AI_QUALIFICATION_API_KEY`, `BLACK_SKIES_RUN_AI_QUALIFICATION=1`, Jason, and one independent human reviewer.
+- V2 live capture completed: 2026-07-17
+- Current status: **V2 run `887ebcff-456b-463a-8365-45dc1009e22b` is integrity-verified at `PACKETS_FINALIZED`; qualification remains `UNVERIFIED` until two independent human reviews and any required adjudication are complete**
+- Remaining prerequisites: Jason and one independent human reviewer. No additional provider call is authorized or required for scoring this run.
 
-The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for a complete live OpenAI run. The frozen fixture corpus, response-schema shape, rubric, thresholds, pinned model snapshot, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
+The credential and opt-in were process-local capture prerequisites, not repository configuration, and are not retained. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the completed live OpenAI capture plus the required human review. The frozen fixture corpus, response-schema shape, rubric, thresholds, pinned model snapshot, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
 
 The canonical forward-looking AI program context is
 [v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md).
@@ -33,6 +33,14 @@ The runner performed no retry. The run contains no reviewer packets, score templ
 `black_skies_critique_v2` retains the V1 substantive rule: every priority evidence value must be one exact contiguous substring copied from the selected prose. V2 makes the serialization requirement explicit: copy every character, punctuation mark, quotation mark, capitalization choice, whitespace character, and Unicode code point exactly; add no outer quotation delimiters, explanatory prefix or suffix, connective text, or absent ellipsis; combine no separated spans; and perform no typography or Unicode normalization.
 
 V2 has distinct durable identity in the provider-bound structured-output name, preview and completed-result contract version, instruction hash, request hash, qualification entries, manifest, receipt, and verifier checks. Its expanded artifact format is `black-skies-qualification-artifacts-v2`; the failed run remains `black-skies-qualification-artifacts-v1`. Historical V1 evidence remains V1 and must never be relabeled as V2.
+
+### V2 capture verification reconciliation
+
+The external immutable run `887ebcff-456b-463a-8365-45dc1009e22b`, captured from repository HEAD `071ea7e12ca927bf46e1058afc14d72cc53fdb29`, contains 24 of 24 HTTP-200, structurally valid attempts and 89 of 89 exact-substring priority-evidence matches. It used no retry or fallback. Its calculated usage cost is USD 0.355179. It contains the finalized private identity map, two blinded packets, and two score templates; it contains no accepted scores, adjudication, or receipt.
+
+BS-19.14-24B classified the initial normalized-hash verification failures as `VERIFIER_DEFECT`. Capture, the shared critique type, the strict response schema, and gateway reconstruction all use the durable field order `overview`, `strengths`, `priorities`, `uncertainties`, `limitations`, with priority fields `evidence`, `observation`, `impact`, `revisionQuestion`. The verifier had instead hashed objects after the artifact-envelope canonical JSON parser had exposed lexically sorted insertion order. Lexical key sorting remains authoritative only for canonical artifact-envelope bytes; it is not the normalized-critique hash contract.
+
+The normalized serializer now reconstructs those exact durable fields, rejects missing or unknown fields, preserves every string byte as represented by JSON and preserves all array ordering, then applies UTF-8 SHA-256 to the resulting compact JSON. Capture, receipt generation, and verification share that implementation. The capture-phase verifier reports this run `VALID`, with 24 evidence entries and qualification disposition `UNVERIFIED`. No external artifact was edited, and human scoring remained paused during reconciliation.
 
 ## Evidence capture and external review artifacts
 

@@ -21,6 +21,7 @@ import {
 import {
   QualificationArtifactRun,
   QUALIFICATION_ARTIFACT_VERSION,
+  normalizedCritiqueHash,
 } from '../aiCritiqueQualificationArtifacts';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
 
@@ -286,7 +287,7 @@ describe('AI critique qualification v2', () => {
         });
         return {
           critique: result.content,
-          normalizedHash: sha256(JSON.stringify(result.content)),
+          normalizedHash: normalizedCritiqueHash(result.content),
           structuralValid: true,
           usage: { calculatedUsd: result.usage.calculatedUsd },
         };
@@ -364,7 +365,7 @@ describe('AI critique qualification v2', () => {
         });
         return {
           critique: result.content,
-          normalizedHash: sha256(JSON.stringify(result.content)),
+          normalizedHash: normalizedCritiqueHash(result.content),
           structuralValid: true,
           usage: { calculatedUsd: result.usage.calculatedUsd },
         };
@@ -416,7 +417,7 @@ describe('AI critique qualification v2', () => {
           expect(result.sourceFingerprint).toBe(fixture.contentHash);
           return {
             critique: result.content,
-            normalizedHash: sha256(JSON.stringify(result.content)),
+            normalizedHash: normalizedCritiqueHash(result.content),
             structuralValid: true,
             usage: { calculatedUsd: result.usage.calculatedUsd },
           };
