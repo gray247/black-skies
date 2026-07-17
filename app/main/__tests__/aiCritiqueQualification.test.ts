@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AI_CRITIQUE_MAX_SELECTION_LENGTH,
   AI_CRITIQUE_MIN_SELECTION_LENGTH,
+  AI_CRITIQUE_TASK_CONTRACT_VERSION,
 } from '../../shared/ipc/aiCritique';
 import { AiCritiqueGateway } from '../aiCritiqueGateway';
 import {
@@ -121,6 +122,7 @@ async function runQualificationCapture(options: {
         critique: null,
         provider: 'openai',
         model: 'gpt-5.4-2026-03-05',
+        contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
         instructionHash: sha256(AI_CRITIQUE_INSTRUCTIONS),
         schemaHash: sha256(JSON.stringify(AI_CRITIQUE_RESPONSE_SCHEMA)),
         parameterHash: sha256(providerBodyJson.replace(fixture.prose, '')),
@@ -168,7 +170,7 @@ async function runQualificationCapture(options: {
 
 const liveConfiguration = liveQualificationConfiguration(process.env);
 
-describe('AI critique qualification v1', () => {
+describe('AI critique qualification v2', () => {
   it('freezes twelve synthetic, cleared, bounded fixtures and their content hashes', () => {
     expect(AI_CRITIQUE_QUALIFICATION_FIXTURES_V1).toHaveLength(12);
     expect(AI_CRITIQUE_QUALIFICATION_FIXTURES_V1.map((fixture) => fixture.contentHash)).toEqual(
@@ -209,6 +211,23 @@ describe('AI critique qualification v1', () => {
     expect(() => resolveRepositoryHead(resolve(process.cwd(), '..'), {
       GIT_COMMIT: 'unrecorded-head',
     })).toThrow('exact repository HEAD');
+  });
+
+  it('binds the deterministic V2 instruction and contract identity into provider request bytes', () => {
+    const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[0];
+    const body = buildAiCritiqueProviderBody(fixture.prose);
+    const serialized = serializeAiCritiqueProviderBody(body);
+    expect(body.instructions).toBe(AI_CRITIQUE_INSTRUCTIONS);
+    expect(body.text.format.name).toBe(AI_CRITIQUE_TASK_CONTRACT_VERSION);
+    expect(serialized).toContain(JSON.stringify(AI_CRITIQUE_INSTRUCTIONS));
+    expect(sha256(AI_CRITIQUE_INSTRUCTIONS)).toMatch(/^[a-f0-9]{64}$/);
+    expect(sha256(AI_CRITIQUE_INSTRUCTIONS)).not.toBe(
+      '31b927362d569a254cb20614f2004ff130f513d1928cfb32109c580d5daf71c1',
+    );
+    expect(AI_CRITIQUE_TASK_CONTRACT_VERSION).not.toBe('black_skies_critique_v1');
+    expect(sha256(serialized)).toBe(
+      sha256(serializeAiCritiqueProviderBody(buildAiCritiqueProviderBody(fixture.prose))),
+    );
   });
 
   it('runs the complete Windows-safe capture lifecycle through a mocked gateway', async () => {
@@ -280,6 +299,7 @@ describe('AI critique qualification v1', () => {
       state: 'PACKETS_FINALIZED',
       attemptCount: 24,
       repositoryHead: 'b'.repeat(40),
+      contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
     });
     expect(await readdir(join(run.privateRoot, 'raw-responses'))).toHaveLength(24);
     await expect(readFile(join(run.root, 'reviewer-a', 'packet.json'), 'utf8')).resolves.toContain('"reviewer":"reviewer-a"');
@@ -356,6 +376,7 @@ describe('AI critique qualification v1', () => {
     expect(manifest).toMatchObject({
       state: 'CAPTURE_FAILED',
       attemptCount: 2,
+      contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
       captureFailure: {
         code: 'CAPTURE_ATTEMPT_FAILED',
         execution: 1,
@@ -405,6 +426,7 @@ describe('AI critique qualification v1', () => {
       expect(manifest).toMatchObject({
         state: 'PACKETS_FINALIZED',
         attemptCount: 24,
+        contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
         repositoryHead: resolveRepositoryHead(repositoryRoot, process.env),
       });
     },

@@ -11,6 +11,7 @@ export const AI_CRITIQUE_CHANNELS = {
 
 export const AI_CRITIQUE_PROVIDER = 'openai' as const;
 export const AI_CRITIQUE_MODEL = 'gpt-5.4-2026-03-05' as const;
+export const AI_CRITIQUE_TASK_CONTRACT_VERSION = 'black_skies_critique_v2' as const;
 export const AI_CRITIQUE_PRICING_VERIFIED_AT = '2026-07-14' as const;
 export const AI_CRITIQUE_AUTHORIZATION_CEILING_USD = 0.1 as const;
 export const AI_CRITIQUE_MAX_OUTPUT_TOKENS = 1600 as const;
@@ -108,7 +109,7 @@ export interface AiCritiquePreview {
   readonly provider: typeof AI_CRITIQUE_PROVIDER;
   readonly model: typeof AI_CRITIQUE_MODEL;
   readonly remote: true;
-  readonly taskContractVersion: 'black_skies_critique_v1';
+  readonly taskContractVersion: typeof AI_CRITIQUE_TASK_CONTRACT_VERSION;
   readonly instructions: string;
   readonly selectedText: string;
   readonly cost: AiCritiqueCostPreview;
@@ -160,7 +161,7 @@ export interface AiCritiqueCompletedResult {
   readonly requestId: string;
   readonly provider: typeof AI_CRITIQUE_PROVIDER;
   readonly model: typeof AI_CRITIQUE_MODEL;
-  readonly taskContractVersion: 'black_skies_critique_v1';
+  readonly taskContractVersion: typeof AI_CRITIQUE_TASK_CONTRACT_VERSION;
   readonly sourceFingerprint: string;
   readonly selectionFingerprint: string;
   readonly editorRevision: number;

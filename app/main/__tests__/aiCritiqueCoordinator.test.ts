@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
   AI_CRITIQUE_MODEL,
+  AI_CRITIQUE_TASK_CONTRACT_VERSION,
   type AiCritiqueApprovalRequest,
   type AiCritiquePrepareRequest,
 } from '../../shared/ipc/aiCritique';
@@ -98,8 +99,12 @@ describe('AiCritiqueCoordinator', () => {
       providerBodyJson: serializeAiCritiqueProviderBody(buildAiCritiqueProviderBody(selectedText)),
       provider: 'openai',
       model: AI_CRITIQUE_MODEL,
+      taskContractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
       selectedText,
     });
+    const preparedBody = JSON.parse(preview.providerBodyJson);
+    expect(preview.instructions).toBe(preparedBody.instructions);
+    expect(preparedBody.text.format.name).toBe(AI_CRITIQUE_TASK_CONTRACT_VERSION);
     expect(preview.expiresAt).toBe(new Date(1_000 + AI_CRITIQUE_REQUEST_TTL_MS).toISOString());
     expect(preview.cost.maximumCalculatedUsd).toBeLessThanOrEqual(
       AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
@@ -164,7 +169,12 @@ describe('AiCritiqueCoordinator', () => {
     expect(() => coordinator.approve(approvalFor(preview))).toThrowError(
       expect.objectContaining({ detail: expect.objectContaining({ code: 'REQUEST_TERMINAL' }) }),
     );
-    expect(coordinator.beginExecution(preview.requestId).state.status).toBe('executing');
+    const execution = coordinator.beginExecution(preview.requestId);
+    expect(execution.state.status).toBe('executing');
+    expect(execution.providerBodyJson).toBe(preview.providerBodyJson);
+    expect(execution.payloadHash).toBe(preview.payloadHash);
+    expect(execution.providerBody.instructions).toBe(preview.instructions);
+    expect(sha256(execution.providerBodyJson)).toBe(preview.payloadHash);
     expect(() => coordinator.beginExecution(preview.requestId)).toThrowError(
       expect.objectContaining({ detail: expect.objectContaining({ code: 'REQUEST_TERMINAL' }) }),
     );
@@ -196,7 +206,7 @@ describe('AiCritiqueCoordinator', () => {
       requestId: preview.requestId,
       provider: 'openai',
       model: AI_CRITIQUE_MODEL,
-      taskContractVersion: 'black_skies_critique_v1',
+      taskContractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
       sourceFingerprint: '0'.repeat(64),
       selectionFingerprint: sha256(selectedText),
       editorRevision: 3,

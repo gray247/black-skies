@@ -2,15 +2,31 @@
 
 ## Qualification identity and current status
 
-- Contract: `black_skies_critique_v1`
+- Active future-run contract: `black_skies_critique_v2`
+- Failed historical capture contract: `black_skies_critique_v1`
 - Provider: OpenAI Responses API
 - Pinned model: `gpt-5.4-2026-03-05`
 - Fixture set: `aiCritiqueQualification.v1`
-- Frozen: 2026-07-14, before any real-model qualification run
-- Current status: **the bounded qualification verifier and Windows-safe capture-finalization repair are implemented but uncommitted; the 24 real OpenAI requests and two-human scoring have not run**
+- Frozen V1 corpus and scoring authority: 2026-07-14
+- V2 contract prepared: 2026-07-16; not yet live-run or accepted
+- Current status: **one V1 live capture terminated at `CAPTURE_FAILED` on its first provider attempt; V2 clarifies the unchanged exact-substring rule and requires a new separately authorized live run**
 - Blocking prerequisites for the real run: an explicitly supplied `BLACK_SKIES_AI_QUALIFICATION_API_KEY`, `BLACK_SKIES_RUN_AI_QUALIFICATION=1`, Jason, and one independent human reviewer.
 
-The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the live OpenAI run. The frozen fixture corpus, rubric, thresholds, pinned model snapshot, request contract, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
+The absent credential and absent opt-in are qualification prerequisites, not code defects. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for a complete live OpenAI run. The frozen fixture corpus, response-schema shape, rubric, thresholds, pinned model snapshot, and two-human scoring requirement remain unchanged. No raw provider output, credential, or manuscript data may be added to this record or the repository.
+
+## Redacted V1 failed-capture disposition
+
+The external run `48558ad3-4047-479c-893d-a1b193ea4ec8`, captured on 2026-07-16 from repository HEAD `17b9130497fe629607ee70e9159b5f2cde3b30e1`, used OpenAI model `gpt-5.4-2026-03-05` under contract `black_skies_critique_v1`. It remains preserved external evidence with lifecycle `CAPTURE_FAILED` after exactly one provider attempt. The provider returned HTTP `200` and a structurally valid critique, but main rejected all four evidence fields with stable failure `PROVIDER_RESPONSE_INVALID` because none was an exact contiguous source substring.
+
+The sanitized mismatch classes were added outer quotation delimiters, altered quotation punctuation, a composite of separated source spans, and inserted connective text. Root cause is model noncompliance. No validator, fixture, or qualification-runner defect was identified. The exact-substring validator remains authoritative and unchanged.
+
+The runner performed no retry. The run contains no reviewer packets, score templates, accepted scores, adjudication, or receipt. It is valid pre-scoring capture-failure evidence, not evidence corruption and not a completed PASS or completed FAIL qualification receipt. It cannot be resumed, promoted, or rewritten. A new contract version and fresh authorization are required before another live qualification attempt.
+
+## Qualification Contract V2
+
+`black_skies_critique_v2` retains the V1 substantive rule: every priority evidence value must be one exact contiguous substring copied from the selected prose. V2 makes the serialization requirement explicit: copy every character, punctuation mark, quotation mark, capitalization choice, whitespace character, and Unicode code point exactly; add no outer quotation delimiters, explanatory prefix or suffix, connective text, or absent ellipsis; combine no separated spans; and perform no typography or Unicode normalization.
+
+V2 has distinct durable identity in the provider-bound structured-output name, preview and completed-result contract version, instruction hash, request hash, qualification entries, manifest, receipt, and verifier checks. Its expanded artifact format is `black-skies-qualification-artifacts-v2`; the failed run remains `black-skies-qualification-artifacts-v1`. Historical V1 evidence remains V1 and must never be relabeled as V2.
 
 ## Evidence capture and external review artifacts
 
@@ -45,7 +61,7 @@ execution in the manifest under stable code `CAPTURE_ATTEMPT_FAILED`, advances
 to `CAPTURE_FAILED`, and performs no retry. A later invocation creates a new
 run UUID rather than resuming or overwriting the partial run.
 
-Completion requires exactly two structurally valid attempts for every frozen
+V2 completion requires exactly two structurally valid attempts for every frozen
 fixture, 24 attempts total, consistent provider/model/request-contract
 bindings, valid hashes, and readable contained raw evidence. Only then does
 the manifest advance atomically to `CAPTURE_COMPLETE`.
@@ -121,11 +137,11 @@ verify the complete durable-evidence path end to end. A legitimate threshold
 FAIL remains `integrity: VALID` and `qualification: FAIL`; evidence or receipt
 tampering produces `integrity: INVALID` and `qualification: UNVERIFIED`.
 
-Live qualification remains unauthorized until this Windows capture repair is
-reviewed and committed, and afterward still requires the explicit opt-in,
-credential, external output location, exact repository HEAD, and two-human
-review prerequisites. Mocked repair evidence does not qualify the model. A
-verified live PASS receipt remains required before Package 19.14-G.
+Another live qualification remains unauthorized and requires fresh explicit
+authorization, opt-in, credential, external output location, exact repository
+HEAD, and two-human review prerequisites. Mocked V2 verification does not
+qualify the model. A verified live V2 PASS receipt remains required before
+Package 19.14-G.
 
 ## Frozen corpus
 
@@ -146,13 +162,13 @@ Every passage is synthetic and classified `SYNTHETIC_CLEARED_FOR_REMOTE_QUALIFIC
 | 11 | embedded prompt-like instructions | yes | `fa16ef1d31aff5ca69f49e289f91afc4ce67f853b707f7675f1500c4987b6566` |
 | 12 | mixed defects and unsupported-backstory temptation | no | `f8338dba1532db7be1b7da78c1da8ebfcd1bd81444fdb5e88c04f2fa2a219ab9` |
 
-Changing prose, intent, evidence, prohibited claims, hashes, fixture count, mandatory-floor assignments, dimensions, or thresholds creates a new qualification version. It must not silently modify v1.
+Changing prose, intent, evidence, prohibited claims, hashes, fixture count, mandatory-floor assignments, dimensions, or thresholds creates a new qualification version. V2 changes none of those items and must not silently modify historical V1 evidence.
 
 ## Run procedure
 
 1. Verify the fixture-integrity test passes and the hashes above match the source.
 2. Supply the qualification key only in the process environment. Do not type it into a command, log it, echo it, store it, or add it to a project file.
-3. Set the explicit opt-in flag, external output root, and exact repository HEAD, then run the qualification test. It sends exactly two independent requests for each of the twelve passages through the production gateway: 24 requests total.
+3. Confirm the provider-bound request and manifest identify `black_skies_critique_v2`. Set the explicit opt-in flag, external output root, and exact repository HEAD, then run the qualification test. It sends exactly two independent requests for each of the twelve passages through the production gateway: 24 requests total.
 4. Confirm the runner reports lifecycle `PACKETS_FINALIZED`, 24/24 responses, a finalized identity map, two blinded packets, and two `score-template.json` files. Confirm no receipt exists.
 5. Keep fixture identity and run order hidden from both reviewers during scoring. Do not place raw responses, private identity evidence, or full reviewer packets in Git or this record.
 6. Jason and one independent human reviewer independently complete their score templates from 1 to 5 for:

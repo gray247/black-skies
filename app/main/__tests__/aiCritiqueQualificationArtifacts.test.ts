@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { AI_CRITIQUE_TASK_CONTRACT_VERSION } from '../../shared/ipc/aiCritique';
 import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, canonicalJson, makeReviewerPacket, qualificationAttemptStorageFilename, validateReviewerScores, requiredAdjudications, verifyQualificationRun } from '../aiCritiqueQualificationArtifacts';
 import { sha256 } from '../aiCritiqueCoordinator';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
@@ -32,6 +33,7 @@ async function captureMockAttempt(
     critique,
     provider: 'openai',
     model: 'gpt-5.4-2026-03-05',
+    contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
     instructionHash: 'i'.repeat(64),
     schemaHash: 's'.repeat(64),
     parameterHash: 'p'.repeat(64),
@@ -57,7 +59,7 @@ async function createBaseRun(runId = 'base-run', withDispute = false, useDisposi
   const run = await QualificationArtifactRun.create({ outputRoot, repositoryRoot, repositoryHead: 'head', runId, allowTemporaryRoot: true });
   for (let index = 0; index < 24; index += 1) {
     const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const [fixtureId, fixtureHash] = QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const attemptId = `${runId}-attempt-${index}`; const critique = { overview: 'mock' };
-    const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`${runId}-request-${index}`), normalizedHash: sha256(JSON.stringify(critique)), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } }); const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText); await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
+    const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique, provider: 'openai', model: 'gpt-5.4-2026-03-05', contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION, instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`${runId}-request-${index}`), normalizedHash: sha256(JSON.stringify(critique)), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } }); const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText); await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
   }
   await run.completeCapture(); await run.finalizePackets('base-seed-a', 'base-seed-b');
   const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
@@ -139,7 +141,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-'));
     const run = await QualificationArtifactRun.create({ outputRoot, repositoryRoot, repositoryHead: 'head', runId: 'mock-run', allowTemporaryRoot: true });
     const sink = run.evidenceSink({
-      attemptId: 'a1', fixtureId: 'fixture', fixtureHash: 'f'.repeat(64), execution: 1, prose: 'synthetic prose', critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: 'r'.repeat(64), normalizedHash: 'n'.repeat(64), structuralValid: true, usage: { calculatedUsd: 0.01 },
+      attemptId: 'a1', fixtureId: 'fixture', fixtureHash: 'f'.repeat(64), execution: 1, prose: 'synthetic prose', critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION, instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: 'r'.repeat(64), normalizedHash: 'n'.repeat(64), structuralValid: true, usage: { calculatedUsd: 0.01 },
     });
     const body = new TextEncoder().encode('{"mock":"provider response"}');
     await sink({ attemptId: 'a1', status: 200, body, bodySha256: sha256('{"mock":"provider response"}'), byteLength: body.byteLength, providerRequestId: null });
@@ -199,6 +201,7 @@ describe.sequential('AI critique qualification artifacts', () => {
       critique: { overview: 'mock' },
       provider: 'openai',
       model: 'gpt-5.4-2026-03-05',
+      contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
       instructionHash: 'i'.repeat(64),
       schemaHash: 's'.repeat(64),
       parameterHash: 'p'.repeat(64),
@@ -376,7 +379,7 @@ describe.sequential('AI critique qualification artifacts', () => {
   });
 
   it('uses independent opaque reviewer IDs and rejects packet or score integrity failures', () => {
-    const entry = { attemptId: 'a1', fixtureId: 'fixture', fixtureHash: 'f'.repeat(64), execution: 1 as const, prose: 'synthetic prose', critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: 'r'.repeat(64), normalizedHash: 'n'.repeat(64), structuralValid: true, usage: { calculatedUsd: 0.01 }, responseHash: 'h'.repeat(64), byteLength: 10, httpStatus: 200, rawResponsePath: 'private/raw-responses/a1.bin', capturedAt: '2026-07-15T00:00:00.000Z' };
+    const entry = { attemptId: 'a1', fixtureId: 'fixture', fixtureHash: 'f'.repeat(64), execution: 1 as const, prose: 'synthetic prose', critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION, instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: 'r'.repeat(64), normalizedHash: 'n'.repeat(64), structuralValid: true, usage: { calculatedUsd: 0.01 }, responseHash: 'h'.repeat(64), byteLength: 10, httpStatus: 200, rawResponsePath: 'private/raw-responses/a1.bin', capturedAt: '2026-07-15T00:00:00.000Z' };
     const a = makeReviewerPacket('run', 'reviewer-a', [entry], 'seed-a'); const b = makeReviewerPacket('run', 'reviewer-b', [entry], 'seed-b');
     expect(a.packet.responses[0].id).not.toBe(b.packet.responses[0].id);
     const valid = { schemaVersion: 'v1', runId: 'run', reviewer: 'reviewer-a' as const, independentAttestation: true as const, packetHash: a.packetHash, scores: [{ opaqueId: a.packet.responses[0].id, relevance: 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false }] };
@@ -389,7 +392,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     const run = await QualificationArtifactRun.create({ outputRoot, repositoryRoot, repositoryHead: 'head', runId: 'pass-run', allowTemporaryRoot: true });
     for (let index = 0; index < 24; index += 1) {
       const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const [fixtureId, fixtureHash] = QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)];
-      const attemptId = `attempt-${index}`; const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`request-${index}`), normalizedHash: sha256(JSON.stringify({ overview: 'mock' })), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } });
+      const attemptId = `attempt-${index}`; const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION, instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`request-${index}`), normalizedHash: sha256(JSON.stringify({ overview: 'mock' })), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } });
       const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText); await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
     }
     await run.completeCapture(); await run.finalizePackets('seed-a', 'seed-b');
@@ -411,7 +414,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     for (let index = 0; index < 24; index += 1) {
       const fixture = AI_CRITIQUE_QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)]; const [fixtureId, fixtureHash] = QUALIFICATION_FIXTURES_V1[Math.floor(index / 2)];
       const attemptId = `fail-attempt-${index}`;
-      const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`fail-request-${index}`), normalizedHash: sha256(JSON.stringify({ overview: 'mock' })), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } });
+      const sink = run.evidenceSink({ attemptId, fixtureId, fixtureHash, execution: index % 2 === 0 ? 1 : 2, prose: fixture.prose, critique: { overview: 'mock' }, provider: 'openai', model: 'gpt-5.4-2026-03-05', contractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION, instructionHash: 'i'.repeat(64), schemaHash: 's'.repeat(64), parameterHash: 'p'.repeat(64), requestHash: sha256(`fail-request-${index}`), normalizedHash: sha256(JSON.stringify({ overview: 'mock' })), structuralValid: true, usage: { calculatedUsd: mockedCalculatedUsd } });
       const responseText = mockedProviderResponse(index); const body = new TextEncoder().encode(responseText);
       await sink({ attemptId, status: 200, body, bodySha256: sha256(responseText), byteLength: body.byteLength, providerRequestId: null });
     }
@@ -438,6 +441,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     ['repository HEAD mismatch', 'MANIFEST_RECEIPT_BINDING_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.repositoryHead = 'wrong-head'; })],
     ['provider mismatch', 'MANIFEST_PROVIDER_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.provider = 'wrong'; })],
     ['model mismatch', 'MANIFEST_MODEL_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.model = 'wrong'; })],
+    ['contract-version mismatch', 'MANIFEST_CONTRACTVERSION_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.contractVersion = 'black_skies_critique_v1'; })],
     ['instruction hash mismatch', 'MANIFEST_INSTRUCTIONHASH_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.instructionHash = '0'.repeat(64); })],
     ['schema hash mismatch', 'MANIFEST_SCHEMAHASH_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.schemaHash = '0'.repeat(64); })],
     ['parameter hash mismatch', 'MANIFEST_PARAMETERHASH_MISMATCH', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.parameterHash = '0'.repeat(64); })],
@@ -626,6 +630,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     ['wrong run ID', 'RECEIPT_RUN_ID_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.runId = 'other-run'; })],
     ['wrong provider', 'RECEIPT_PROVIDER_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.provider = 'other-provider'; })],
     ['wrong model', 'RECEIPT_MODEL_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.model = 'other-model'; })],
+    ['wrong contract version', 'RECEIPT_CONTRACT_VERSION_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.contractVersion = 'black_skies_critique_v1'; })],
     ['wrong repository HEAD', 'RECEIPT_REPOSITORY_HEAD_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.repositoryHead = 'other-head'; })],
     ['wrong qualification date', 'RECEIPT_QUALIFICATION_DATE_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.qualificationDate = '2000-01-01'; })],
     ['wrong fixture hash', 'RECEIPT_FIXTURE_HASH_MISMATCH', async (root) => resealReceipt(root, (receipt) => { receipt.fixtureHashes[0] = '0'.repeat(64); })],

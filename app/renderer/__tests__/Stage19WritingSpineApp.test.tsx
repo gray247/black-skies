@@ -267,7 +267,7 @@ function createAiBridge(selectedText: string) {
     provider: 'openai' as const,
     model: 'gpt-5.4-2026-03-05' as const,
     remote: true as const,
-    taskContractVersion: 'black_skies_critique_v1' as const,
+    taskContractVersion: 'black_skies_critique_v2' as const,
     instructions: 'Frozen critique instructions.',
     selectedText,
     cost: {
@@ -1320,7 +1320,7 @@ describe('Stage19WritingSpineApp', () => {
           requestId: 'ai-request-1',
           provider: 'openai',
           model: 'gpt-5.4-2026-03-05',
-          taskContractVersion: 'black_skies_critique_v1',
+          taskContractVersion: 'black_skies_critique_v2',
           sourceFingerprint: 'a'.repeat(64),
           selectionFingerprint: 'b'.repeat(64),
           editorRevision: 1,

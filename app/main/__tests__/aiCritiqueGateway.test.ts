@@ -5,6 +5,7 @@ import {
   AiCritiqueGateway,
   AiCritiqueGatewayError,
   AI_CRITIQUE_RESPONSES_ENDPOINT,
+  validateAiCritiqueContent,
 } from '../aiCritiqueGateway';
 import {
   buildAiCritiqueProviderBody,
@@ -74,6 +75,46 @@ afterEach(() => {
 });
 
 describe('fixed OpenAI critique gateway', () => {
+  const evidenceSource =
+    'Mara said, “Stay here.”  Eli answered, "I will." Then the room…fell quiet.';
+  const contentWithEvidence = (evidence: string) => ({
+    overview: 'Bounded critique.',
+    strengths: [],
+    priorities: [{
+      evidence,
+      observation: 'Observation.',
+      impact: 'Impact.',
+      revisionQuestion: 'Question?',
+    }],
+    uncertainties: [],
+    limitations: [],
+  });
+
+  it.each([
+    ['added ASCII quotation wrapper', '"Mara said"'],
+    ['straight marks substituted for curly marks', 'Mara said, "Stay here."'],
+    ['curly marks substituted for straight marks', 'Eli answered, “I will.”'],
+    ['two non-contiguous source spans combined', 'Mara said,Eli answered'],
+    ['connective word inserted between source spans', 'Mara said, and Eli answered'],
+    ['ellipsis inserted where the source has none', 'Mara said…Stay here.'],
+    ['punctuation normalized', 'Mara said: “Stay here.”'],
+    ['whitespace normalized', 'here.” Eli answered'],
+    ['case altered', 'mara said'],
+  ])('rejects evidence that is not one exact source substring: %s', (_label, evidence) => {
+    expect(() => validateAiCritiqueContent(contentWithEvidence(evidence), evidenceSource)).toThrowError(
+      expect.objectContaining({ detail: expect.objectContaining({ code: 'PROVIDER_RESPONSE_INVALID' }) }),
+    );
+  });
+
+  it.each([
+    ['one exact contiguous substring', 'Mara said'],
+    ['exact copied quotation marks', 'Mara said, “Stay here.”'],
+    ['an exact source ellipsis', 'room…fell quiet'],
+  ])('accepts governed exact-substring evidence: %s', (_label, evidence) => {
+    expect(validateAiCritiqueContent(contentWithEvidence(evidence), evidenceSource).priorities[0].evidence)
+      .toBe(evidence);
+  });
+
   it('sends the exact approved bytes to the frozen Responses endpoint and accounts returned tokens', async () => {
     const fetchMock = vi.fn(async () => providerResponse());
     const gateway = new AiCritiqueGateway({ fetch: fetchMock, now: () => Date.parse('2026-07-14T12:00:00Z') });

@@ -8,10 +8,11 @@ import {
   AI_CRITIQUE_MODEL,
   AI_CRITIQUE_PRICING_VERIFIED_AT,
   AI_CRITIQUE_PROVIDER,
+  AI_CRITIQUE_TASK_CONTRACT_VERSION,
 } from '../shared/ipc/aiCritique.js';
 import type { AiCritiqueGatewayEvidence } from './aiCritiqueGateway.js';
 
-export const QUALIFICATION_ARTIFACT_VERSION = 'black-skies-qualification-artifacts-v1';
+export const QUALIFICATION_ARTIFACT_VERSION = 'black-skies-qualification-artifacts-v2';
 export const QUALIFICATION_FIXTURES_V1 = Object.freeze([
   ['clean-restrained-prose', 'cccdf4637df94f518b826c5884ffc797d4293eef9e15d790e758e91ec8f76957'],
   ['exposition-pacing', '9660f2b8c3af445bf956a3dafb1331afebbb89494cfa27f4db89c4f56eaa3f74'],
@@ -38,7 +39,7 @@ export interface QualificationUsage {
 }
 export interface QualificationResponse {
   readonly attemptId: string; readonly fixtureId: string; readonly fixtureHash: string; readonly execution: 1 | 2;
-  readonly prose: string; readonly critique: unknown; readonly provider: string; readonly model: string;
+  readonly prose: string; readonly critique: unknown; readonly provider: string; readonly model: string; readonly contractVersion: typeof AI_CRITIQUE_TASK_CONTRACT_VERSION;
   readonly instructionHash: string; readonly schemaHash: string; readonly parameterHash: string; readonly requestHash: string;
   readonly normalizedHash: string; readonly structuralValid: boolean; readonly usage: QualificationUsage | null;
 }
@@ -126,7 +127,7 @@ export class QualificationArtifactRun {
     await Promise.all([mkdir(join(run.privateRoot, 'raw-responses'), { recursive: true }), mkdir(join(run.root, 'reviewer-a'), { recursive: true }), mkdir(join(run.root, 'reviewer-b'), { recursive: true }), mkdir(join(run.root, 'adjudication'), { recursive: true }), mkdir(join(run.root, 'receipt'), { recursive: true })]);
     await run.persistManifest(); await run.transition('CAPTURING'); return run;
   }
-  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await atomicReplace(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, captureFailure: this.captureFailure, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash })); }
+  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await atomicReplace(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, contractVersion: first?.contractVersion ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, captureFailure: this.captureFailure, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash })); }
   async transition(next: QualificationRunState): Promise<void> { const allowed: Readonly<Record<QualificationRunState, readonly QualificationRunState[]>> = { CREATED: ['CAPTURING'], CAPTURING: ['CAPTURE_FAILED', 'CAPTURE_COMPLETE'], CAPTURE_FAILED: [], CAPTURE_COMPLETE: ['PACKETS_FINALIZED'], PACKETS_FINALIZED: ['SCORING_IN_PROGRESS'], SCORING_IN_PROGRESS: ['SCORES_COMPLETE'], SCORES_COMPLETE: ['ADJUDICATION_REQUIRED', 'ADJUDICATION_COMPLETE', 'FINALIZED_PASS', 'FINALIZED_FAIL'], ADJUDICATION_REQUIRED: ['ADJUDICATION_COMPLETE'], ADJUDICATION_COMPLETE: ['FINALIZED_PASS', 'FINALIZED_FAIL'], FINALIZED_PASS: [], FINALIZED_FAIL: [] }; if (TERMINAL.has(this.state) || !allowed[this.state].includes(next)) throw new Error(`Invalid qualification lifecycle transition: ${this.state} -> ${next}.`); this.state = next; await this.persistManifest(); }
   private async writePrivate(name: string, value: unknown, immutable = true): Promise<void> { const path = join(this.privateRoot, name); if (immutable) await atomicCreate(path, canonicalJson(value)); else await atomicReplace(path, canonicalJson(value)); }
   evidenceSink(metadata: Omit<QualificationResponse, 'responseHash' | 'byteLength' | 'httpStatus' | 'rawResponsePath' | 'capturedAt'>): (evidence: AiCritiqueGatewayEvidence) => Promise<void> {
@@ -160,6 +161,7 @@ export class QualificationArtifactRun {
         (entry.execution !== 1 && entry.execution !== 2) ||
         entry.provider !== AI_CRITIQUE_PROVIDER ||
         entry.model !== AI_CRITIQUE_MODEL ||
+        entry.contractVersion !== AI_CRITIQUE_TASK_CONTRACT_VERSION ||
         !entry.structuralValid ||
         !/^[a-f0-9]{64}$/.test(entry.requestHash) ||
         !/^[a-f0-9]{64}$/.test(entry.responseHash) ||
@@ -333,6 +335,7 @@ export function createQualificationReceipt(input: { runId: string; provider: str
   const first = input.entries[0]; const { pass, reasons, ...aggregate } = input.threshold;
   const receipt = {
     schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: input.runId, provider: input.provider, model: input.model,
+    contractVersion: first?.contractVersion ?? null,
     repositoryHead: input.repositoryHead, qualificationDate: qualificationDate(input.entries),
     instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null,
     fixtureHashes: input.entries.map((entry) => entry.fixtureHash).sort(), requestHashes: input.entries.map((entry) => entry.requestHash).sort(),
@@ -369,7 +372,7 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
     if (normalized.includes('rawhttp') || normalized === 'rawresponse' || normalized === 'httpenvelope') return 'PACKET_RAW_HTTP_LEAKAGE';
     if (normalized.includes('authorization') || normalized.includes('credential') || normalized.includes('apikey')) return 'PACKET_AUTHORIZATION_LEAKAGE';
     if (normalized === 'headers' || normalized === 'header') return 'PACKET_HEADER_LEAKAGE';
-    if (['attemptid', 'capturedat', 'responsehash', 'requesthash', 'normalizedhash', 'instructionhash', 'schemahash', 'parameterhash', 'bytelength', 'httpstatus'].includes(normalized)) return 'PACKET_PRIVATE_METADATA_LEAKAGE';
+    if (['attemptid', 'capturedat', 'responsehash', 'requesthash', 'normalizedhash', 'contractversion', 'instructionhash', 'schemahash', 'parameterhash', 'bytelength', 'httpstatus'].includes(normalized)) return 'PACKET_PRIVATE_METADATA_LEAKAGE';
     return null;
   };
   manifest = await readObject(join(runRoot, 'private', 'run-manifest.json'));
@@ -396,14 +399,14 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
   }
   if (entries.some((entry) => !expectedFixtures.has(entry.fixtureId))) issue('RAW_UNEXPECTED_FIXTURE', 'raw', 'raw-response', 'Unexpected fixture evidence is present.');
   const first = entries[0];
-  const bindingFields = ['provider', 'model', 'instructionHash', 'schemaHash', 'parameterHash'] as const;
+  const bindingFields = ['provider', 'model', 'contractVersion', 'instructionHash', 'schemaHash', 'parameterHash'] as const;
   for (const field of bindingFields) {
     if (!first || typeof first[field] !== 'string' || entries.some((entry) => entry[field] !== first[field])) issue(`RAW_${field.toUpperCase()}_BINDING_INVALID`, 'raw', 'raw-response', 'Run-wide provider contract binding is inconsistent.');
     if (manifest && manifest[field] !== first?.[field]) issue(`MANIFEST_${field.toUpperCase()}_MISMATCH`, 'manifest', 'run-manifest', 'Manifest provider contract binding is inconsistent.');
   }
   const hex64 = /^[a-f0-9]{64}$/;
   const seenRawPaths = new Set<string>();
-  const allowedEntryKeys = new Set(['attemptId', 'fixtureId', 'fixtureHash', 'execution', 'prose', 'critique', 'provider', 'model', 'instructionHash', 'schemaHash', 'parameterHash', 'requestHash', 'normalizedHash', 'structuralValid', 'usage', 'responseHash', 'byteLength', 'httpStatus', 'rawResponsePath', 'capturedAt']);
+  const allowedEntryKeys = new Set(['attemptId', 'fixtureId', 'fixtureHash', 'execution', 'prose', 'critique', 'provider', 'model', 'contractVersion', 'instructionHash', 'schemaHash', 'parameterHash', 'requestHash', 'normalizedHash', 'structuralValid', 'usage', 'responseHash', 'byteLength', 'httpStatus', 'rawResponsePath', 'capturedAt']);
   for (const entry of entries) {
     if (!entry || typeof entry !== 'object' || !entry.attemptId || !hex64.test(entry.requestHash) || !hex64.test(entry.normalizedHash) || !hex64.test(entry.responseHash)) { issue('RAW_RECORD_MALFORMED', 'raw', 'raw-response', 'Raw evidence record is malformed.'); continue; }
     if (Object.keys(entry).some((key) => !allowedEntryKeys.has(key) || /credential|authorization|api.?key/i.test(key))) issue('IDENTITY_SENSITIVE_FIELD', 'identity', 'identity-map', 'Identity entry contains an unrecognized sensitive field.');
@@ -626,7 +629,7 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
       }
       if (manifest?.receiptHash !== receiptHash) issue('MANIFEST_RECEIPT_HASH_MISMATCH', 'manifest', 'run-manifest', 'Manifest receipt hash does not match independently calculated receipt bytes.');
 
-      const rootKeys = ['schemaVersion', 'runId', 'provider', 'model', 'repositoryHead', 'qualificationDate', 'instructionHash', 'schemaHash', 'parameterHash', 'fixtureHashes', 'requestHashes', 'responseHashes', 'normalizedHashes', 'packetHashes', 'scoreHashes', 'adjudicationHash', 'aggregate', 'costSummary', 'disposition', 'failureReasons', 'tool'];
+      const rootKeys = ['schemaVersion', 'runId', 'provider', 'model', 'contractVersion', 'repositoryHead', 'qualificationDate', 'instructionHash', 'schemaHash', 'parameterHash', 'fixtureHashes', 'requestHashes', 'responseHashes', 'normalizedHashes', 'packetHashes', 'scoreHashes', 'adjudicationHash', 'aggregate', 'costSummary', 'disposition', 'failureReasons', 'tool'];
       const sensitiveCode = (key: string): string | null => {
         const normalized = key.replace(/[^a-z0-9]/gi, '').toLowerCase();
         if (normalized.includes('credential') || normalized === 'apikey') return 'RECEIPT_CREDENTIAL_PROHIBITED';
@@ -657,6 +660,7 @@ export async function verifyQualificationRun(runRoot: string): Promise<Qualifica
       }
       if (parsed.provider !== first?.provider || parsed.provider !== AI_CRITIQUE_PROVIDER) issue('RECEIPT_PROVIDER_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt provider binding is inconsistent.');
       if (parsed.model !== first?.model || parsed.model !== AI_CRITIQUE_MODEL) issue('RECEIPT_MODEL_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt model binding is inconsistent.');
+      if (parsed.contractVersion !== first?.contractVersion || parsed.contractVersion !== AI_CRITIQUE_TASK_CONTRACT_VERSION) issue('RECEIPT_CONTRACT_VERSION_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt qualification-contract binding is inconsistent.');
       if (parsed.repositoryHead !== manifest?.repositoryHead) {
         issue('RECEIPT_REPOSITORY_HEAD_MISMATCH', 'receipt', 'qualification-receipt', 'Receipt repository binding is inconsistent.');
         issue('MANIFEST_RECEIPT_BINDING_MISMATCH', 'manifest', 'run-manifest', 'Manifest receipt or repository binding is inconsistent.');
