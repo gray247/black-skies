@@ -18,6 +18,7 @@
     "preview": "vite preview",
     "lint": "node ../scripts/run-app-eslint.mjs",
     "test": "node ../scripts/run-vitest-offline.mjs",
+    "qualification:import-scores": "pnpm run build:main && node dist-electron/main/aiCritiqueScoreImportCli.js",
     "package:dir": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir",
     "package:win": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis portable",
     "e2e:build": "pnpm run build:production",

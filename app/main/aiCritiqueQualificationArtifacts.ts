@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile, access, stat, rename, realpath } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, access, stat, rename, realpath, unlink, open, copyFile, readdir, link } from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 import {
@@ -61,7 +62,7 @@ export interface ReviewerScore {
   readonly fabricatedFact: boolean; readonly harmfulRecommendation: boolean; readonly inappropriateNormalization: boolean;
   readonly missedMaterialDefect: boolean; readonly unjustifiedRefusal: boolean; readonly note?: string;
 }
-export interface ReviewerScores { readonly schemaVersion: string; readonly runId: string; readonly reviewer: 'reviewer-a' | 'reviewer-b'; readonly independentAttestation: true; readonly packetHash: string; readonly scores: readonly ReviewerScore[]; }
+export interface ReviewerScores { readonly schemaVersion: string; readonly runId: string; readonly reviewer: 'reviewer-a' | 'reviewer-b'; readonly independentAttestation: true; readonly packetHash: string; readonly templateProvenance?: string; readonly scores: readonly ReviewerScore[]; }
 export interface Adjudication {
   readonly id: string; readonly opaqueId: string; readonly dimension: ScoreDimension; readonly reviewerA: number; readonly reviewerB: number;
   readonly finalValue?: number; readonly disposition?: 'REVIEWER_A' | 'REVIEWER_B' | 'MIDPOINT' | 'DOCUMENTED_NO_SCORE';
@@ -69,6 +70,9 @@ export interface Adjudication {
 }
 export type QualificationRunState = 'CREATED' | 'CAPTURING' | 'CAPTURE_FAILED' | 'CAPTURE_COMPLETE' | 'PACKETS_FINALIZED' | 'SCORING_IN_PROGRESS' | 'SCORES_COMPLETE' | 'ADJUDICATION_REQUIRED' | 'ADJUDICATION_COMPLETE' | 'FINALIZED_PASS' | 'FINALIZED_FAIL';
 const TERMINAL = new Set<QualificationRunState>(['CAPTURE_FAILED', 'FINALIZED_PASS', 'FINALIZED_FAIL']);
+const SCORE_TEMPLATE_SCHEMA_VERSION = 'v1';
+const SCORE_NOTE_MAX_LENGTH = 500;
+const SCORE_ENTRY_KEYS = ['opaqueId', ...SCORE_DIMENSIONS, ...SCORE_FLAGS, 'note'] as const;
 
 function hashBytes(value: Uint8Array | string): string { return createHash('sha256').update(value).digest('hex'); }
 function roundUsd(value: number): number { return Math.round(value * 1_000_000) / 1_000_000; }
@@ -142,7 +146,7 @@ export async function assertQualificationOutputRoot(outputRoot: string, reposito
 }
 
 export class QualificationArtifactRun {
-  readonly root: string; readonly privateRoot: string; private readonly entries = new Map<string, IdentityEntry>(); private readonly rawStorageNames = new Map<string, string>(); private state: QualificationRunState = 'CREATED'; private captureFailure: QualificationCaptureFailure | null = null; private packets: Record<string, ReturnType<typeof makeReviewerPacket>> = {}; private reviewerMaps: { a: Record<string, string>; b: Record<string, string> } | null = null; private readonly scoreHashes = new Map<string, string>(); private adjudicationHash: string | null = null; private receiptHash: string | null = null;
+  readonly root: string; readonly privateRoot: string; private readonly entries = new Map<string, IdentityEntry>(); private readonly rawStorageNames = new Map<string, string>(); private state: QualificationRunState = 'CREATED'; private captureFailure: QualificationCaptureFailure | null = null; private packets: Record<string, ReturnType<typeof makeReviewerPacket>> = {}; private reviewerMaps: { a: Record<string, string>; b: Record<string, string> } | null = null; private readonly scoreHashes = new Map<string, string>(); private templateProvenanceHashes: Record<string, string> = {}; private adjudicationHash: string | null = null; private receiptHash: string | null = null;
   private constructor(readonly outputRoot: string, readonly runId: string, readonly repositoryHead: string) { this.root = join(outputRoot, runId); this.privateRoot = join(this.root, 'private'); }
   static async create(options: { outputRoot: string; repositoryRoot: string; repositoryHead: string; runId?: string; allowTemporaryRoot?: boolean }): Promise<QualificationArtifactRun> {
     const outputRoot = await assertQualificationOutputRoot(options.outputRoot, options.repositoryRoot, options.allowTemporaryRoot); const run = new QualificationArtifactRun(outputRoot, options.runId ?? randomUUID(), options.repositoryHead);
@@ -150,7 +154,7 @@ export class QualificationArtifactRun {
     await Promise.all([mkdir(join(run.privateRoot, 'raw-responses'), { recursive: true }), mkdir(join(run.root, 'reviewer-a'), { recursive: true }), mkdir(join(run.root, 'reviewer-b'), { recursive: true }), mkdir(join(run.root, 'adjudication'), { recursive: true }), mkdir(join(run.root, 'receipt'), { recursive: true })]);
     await run.persistManifest(); await run.transition('CAPTURING'); return run;
   }
-  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await atomicReplace(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, contractVersion: first?.contractVersion ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, captureFailure: this.captureFailure, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash })); }
+  private async persistManifest(): Promise<void> { const first = this.entries.values().next().value as IdentityEntry | undefined; await atomicReplace(join(this.privateRoot, 'run-manifest.json'), canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, repositoryHead: this.repositoryHead, state: this.state, expectedAttemptCount: 24, attemptCount: this.entries.size, provider: first?.provider ?? null, model: first?.model ?? null, contractVersion: first?.contractVersion ?? null, instructionHash: first?.instructionHash ?? null, schemaHash: first?.schemaHash ?? null, parameterHash: first?.parameterHash ?? null, captureFailure: this.captureFailure, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), templateProvenanceHashes: this.templateProvenanceHashes, scoreHashes: Object.fromEntries(this.scoreHashes), adjudicationHash: this.adjudicationHash, receiptHash: this.receiptHash })); }
   async transition(next: QualificationRunState): Promise<void> { const allowed: Readonly<Record<QualificationRunState, readonly QualificationRunState[]>> = { CREATED: ['CAPTURING'], CAPTURING: ['CAPTURE_FAILED', 'CAPTURE_COMPLETE'], CAPTURE_FAILED: [], CAPTURE_COMPLETE: ['PACKETS_FINALIZED'], PACKETS_FINALIZED: ['SCORING_IN_PROGRESS'], SCORING_IN_PROGRESS: ['SCORES_COMPLETE'], SCORES_COMPLETE: ['ADJUDICATION_REQUIRED', 'ADJUDICATION_COMPLETE', 'FINALIZED_PASS', 'FINALIZED_FAIL'], ADJUDICATION_REQUIRED: ['ADJUDICATION_COMPLETE'], ADJUDICATION_COMPLETE: ['FINALIZED_PASS', 'FINALIZED_FAIL'], FINALIZED_PASS: [], FINALIZED_FAIL: [] }; if (TERMINAL.has(this.state) || !allowed[this.state].includes(next)) throw new Error(`Invalid qualification lifecycle transition: ${this.state} -> ${next}.`); this.state = next; await this.persistManifest(); }
   private async writePrivate(name: string, value: unknown, immutable = true): Promise<void> { const path = join(this.privateRoot, name); if (immutable) await atomicCreate(path, canonicalJson(value)); else await atomicReplace(path, canonicalJson(value)); }
   evidenceSink(metadata: Omit<QualificationResponse, 'responseHash' | 'byteLength' | 'httpStatus' | 'rawResponsePath' | 'capturedAt'>): (evidence: AiCritiqueGatewayEvidence) => Promise<void> {
@@ -198,7 +202,7 @@ export class QualificationArtifactRun {
     await this.transition('CAPTURE_COMPLETE');
     return entries;
   }
-  async writeIdentityMap(): Promise<readonly IdentityEntry[]> { const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId)); await this.writePrivate('identity-map.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, entries, reviewerMaps: this.reviewerMaps, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])) }); return entries; }
+  async writeIdentityMap(): Promise<readonly IdentityEntry[]> { const entries = [...this.entries.values()].sort((a, b) => a.attemptId.localeCompare(b.attemptId)); await this.writePrivate('identity-map.json', { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, entries, reviewerMaps: this.reviewerMaps, packetHashes: Object.fromEntries(Object.entries(this.packets).map(([key, value]) => [key, value.packetHash])), templateProvenanceHashes: this.templateProvenanceHashes }); return entries; }
   async readRaw(entry: IdentityEntry): Promise<Uint8Array> { const body = await readFile(join(this.root, entry.rawResponsePath)); if (hashBytes(body) !== entry.responseHash) throw new Error('Qualification raw response integrity check failed.'); return body; }
   async finalizePackets(seedA: string, seedB: string): Promise<{ readonly reviewerA: string; readonly reviewerB: string }> {
     if (this.state !== 'CAPTURE_COMPLETE' || this.entries.size !== 24 || !seedA || !seedB || seedA === seedB) throw new Error('Packets require exactly 24 completed captured responses and independent seeds.');
@@ -214,13 +218,16 @@ export class QualificationArtifactRun {
     this.reviewerMaps = { a: a.privateMap, b: b.privateMap };
     this.packets = { 'reviewer-a': a, 'reviewer-b': b };
     await this.writePrivate('reviewer-maps.json', this.reviewerMaps);
+    const templateA = makeReviewerScoreTemplate(this.runId, a.packet);
+    const templateB = makeReviewerScoreTemplate(this.runId, b.packet);
+    this.templateProvenanceHashes = { 'reviewer-a': templateA.templateProvenance, 'reviewer-b': templateB.templateProvenance };
     await this.writeIdentityMap();
-    await atomicCreate(join(this.root, 'reviewer-a', 'score-template.json'), canonicalJson(makeReviewerScoreTemplate(this.runId, a.packet)));
-    await atomicCreate(join(this.root, 'reviewer-b', 'score-template.json'), canonicalJson(makeReviewerScoreTemplate(this.runId, b.packet)));
+    await atomicCreate(join(this.root, 'reviewer-a', 'score-template.json'), canonicalJson(templateA));
+    await atomicCreate(join(this.root, 'reviewer-b', 'score-template.json'), canonicalJson(templateB));
     await this.transition('PACKETS_FINALIZED');
     return { reviewerA: a.packetHash, reviewerB: b.packetHash };
   }
-  async submitScores(scores: ReviewerScores): Promise<string> { if (!['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'].includes(this.state)) throw new Error('Scores cannot be submitted before packet finalization.'); const packet = this.packets[scores.reviewer]; if (!packet || this.scoreHashes.has(scores.reviewer)) throw new Error('Reviewer score submission is invalid or already immutable.'); validateReviewerScores(scores, packet); const content = canonicalJson(scores); const hash = hashBytes(content); await atomicCreate(join(this.root, scores.reviewer, 'scores.json'), content); this.scoreHashes.set(scores.reviewer, hash); if (this.state === 'PACKETS_FINALIZED') await this.transition('SCORING_IN_PROGRESS'); if (this.scoreHashes.size === 2) await this.transition('SCORES_COMPLETE'); else await this.persistManifest(); return hash; }
+  async submitScores(scores: ReviewerScores): Promise<string> { if (!['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'].includes(this.state)) throw new Error('Scores cannot be submitted before packet finalization.'); const packet = this.packets[scores.reviewer]; if (!packet || this.scoreHashes.has(scores.reviewer) || scores.templateProvenance !== this.templateProvenanceHashes[scores.reviewer]) throw new Error('Reviewer score submission is invalid or already immutable.'); validateReviewerScores(scores, packet); const content = canonicalJson(scores); const hash = hashBytes(content); await atomicCreate(join(this.root, scores.reviewer, 'scores.json'), content); this.scoreHashes.set(scores.reviewer, hash); if (this.state === 'PACKETS_FINALIZED') await this.transition('SCORING_IN_PROGRESS'); if (this.scoreHashes.size === 2) await this.transition('SCORES_COMPLETE'); else await this.persistManifest(); return hash; }
   async submitAdjudications(values: readonly Adjudication[], a: ReviewerScores, b: ReviewerScores): Promise<string> { if (!['SCORES_COMPLETE', 'ADJUDICATION_REQUIRED'].includes(this.state)) throw new Error('Adjudication requires two accepted score files.'); const maps = await JSON.parse(await readFile(join(this.privateRoot, 'reviewer-maps.json'), 'utf8')) as { a: Record<string, string>; b: Record<string, string> }; const required = requiredAdjudications(a, b, maps.a, maps.b); const received = new Map(values.map((value) => [value.id, value])); if (received.size !== values.length || required.some((value) => !received.has(value.id)) || values.some((value) => { const need = required.find((requiredValue) => requiredValue.id === value.id); const finalValueSupplied = Object.hasOwn(value, 'finalValue'); const hasFinalValue = Number.isInteger(value.finalValue) && value.finalValue! >= 1 && value.finalValue! <= 5; const hasDisposition = ['REVIEWER_A', 'REVIEWER_B', 'MIDPOINT', 'DOCUMENTED_NO_SCORE'].includes(value.disposition ?? ''); return !need || value.opaqueId !== need.opaqueId || value.dimension !== need.dimension || value.reviewerA !== need.reviewerA || value.reviewerB !== need.reviewerB || (finalValueSupplied ? !hasFinalValue : !hasDisposition) || !value.rationale.trim(); })) throw new Error('Adjudication set is incomplete or invalid.'); const content = canonicalJson({ schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId: this.runId, values }); await atomicCreate(join(this.root, 'adjudication', 'adjudication.json'), content); this.adjudicationHash = hashBytes(content); await this.transition('ADJUDICATION_COMPLETE'); return this.adjudicationHash; }
   async finalizeReceipt(a: ReviewerScores, b: ReviewerScores, adjudications: readonly Adjudication[]): Promise<{ readonly sha256: string; readonly disposition: string }> { if (!['SCORES_COMPLETE', 'ADJUDICATION_COMPLETE'].includes(this.state)) throw new Error('Receipt finalization requires accepted score files.'); const maps = await JSON.parse(await readFile(join(this.privateRoot, 'reviewer-maps.json'), 'utf8')) as { a: Record<string, string>; b: Record<string, string> }; const required = requiredAdjudications(a, b, maps.a, maps.b); if (required.length > 0 && !this.adjudicationHash) { if (this.state === 'SCORES_COMPLETE') await this.transition('ADJUDICATION_REQUIRED'); throw new Error('Required adjudication is missing.'); } const threshold = calculateQualificationThresholds([...this.entries.values()], a, b, maps.a, maps.b, adjudications); const receipt = createQualificationReceipt({ runId: this.runId, provider: AI_CRITIQUE_PROVIDER, model: AI_CRITIQUE_MODEL, repositoryHead: this.repositoryHead, entries: [...this.entries.values()], packetHashes: { 'reviewer-a': this.packets['reviewer-a'].packetHash, 'reviewer-b': this.packets['reviewer-b'].packetHash }, scoreHashes: { 'reviewer-a': this.scoreHashes.get('reviewer-a')!, 'reviewer-b': this.scoreHashes.get('reviewer-b')! }, adjudicationHash: this.adjudicationHash ?? 'NONE', threshold }); await atomicCreate(join(this.root, 'receipt', 'qualification-receipt.json'), receipt.bytes); await atomicCreate(join(this.root, 'receipt', 'qualification-receipt.sha256'), `${receipt.sha256}\n`); this.receiptHash = receipt.sha256; await this.transition(threshold.pass ? 'FINALIZED_PASS' : 'FINALIZED_FAIL'); return { sha256: receipt.sha256, disposition: receipt.receipt.disposition }; }
 }
@@ -231,12 +238,21 @@ export function makeReviewerPacket(runId: string, reviewer: 'reviewer-a' | 'revi
   const packet = { schemaVersion: QUALIFICATION_ARTIFACT_VERSION, runId, reviewer, rubric: [...SCORE_DIMENSIONS], responses };
   return { packet, packetHash: canonicalHash(packet), privateMap: Object.fromEntries(entries.map((entry) => [opaqueId(reviewer, seed, entry.attemptId), entry.attemptId])) };
 }
+export function reviewerTemplateProvenance(value: { schemaVersion: unknown; runId: unknown; reviewer: unknown; packetHash: unknown; scores: readonly unknown[] }): string {
+  if (value.schemaVersion !== SCORE_TEMPLATE_SCHEMA_VERSION || typeof value.runId !== 'string' || !['reviewer-a', 'reviewer-b'].includes(String(value.reviewer)) || !/^[a-f0-9]{64}$/.test(String(value.packetHash)) || !Array.isArray(value.scores)) throw new Error('Score template immutable identity is invalid.');
+  const aliases = value.scores.map((entry) => {
+    if (!isObjectRecord(entry) || typeof entry.opaqueId !== 'string' || !/^r-[a-f0-9]{20}$/.test(entry.opaqueId)) throw new Error('Score template alias identity is invalid.');
+    return entry.opaqueId;
+  });
+  if (new Set(aliases).size !== aliases.length) throw new Error('Score template aliases must be unique.');
+  return canonicalHash({ schemaVersion: value.schemaVersion, runId: value.runId, reviewer: value.reviewer, packetHash: value.packetHash, rubric: [...SCORE_DIMENSIONS], scoreEntryFields: [...SCORE_ENTRY_KEYS], aliases });
+}
 export function makeReviewerScoreTemplate(
   runId: string,
   packet: ReturnType<typeof makeReviewerPacket>['packet'],
 ) {
-  return {
-    schemaVersion: 'v1',
+  const base = {
+    schemaVersion: SCORE_TEMPLATE_SCHEMA_VERSION,
     runId,
     reviewer: packet.reviewer,
     packetHash: canonicalHash(packet),
@@ -257,8 +273,9 @@ export function makeReviewerScoreTemplate(
       note: '',
     })),
   };
+  return { ...base, templateProvenance: reviewerTemplateProvenance(base) };
 }
-function assertScore(score: ReviewerScore): void { for (const dimension of SCORE_DIMENSIONS) if (!Number.isInteger(score[dimension]) || score[dimension] < 1 || score[dimension] > 5) throw new Error('Reviewer score dimension must be an integer from 1 through 5.'); for (const flag of SCORE_FLAGS) if (typeof score[flag] !== 'boolean') throw new Error('Reviewer score flags are required booleans.'); }
+function assertScore(score: ReviewerScore): void { if (!isObjectRecord(score) || Object.keys(score).some((key) => !SCORE_ENTRY_KEYS.includes(key as typeof SCORE_ENTRY_KEYS[number]))) throw new Error('Reviewer score contains an unsupported field.'); for (const dimension of SCORE_DIMENSIONS) if (!Number.isInteger(score[dimension]) || score[dimension] < 1 || score[dimension] > 5) throw new Error('Reviewer score dimension must be an integer from 1 through 5.'); for (const flag of SCORE_FLAGS) if (typeof score[flag] !== 'boolean') throw new Error('Reviewer score flags are required booleans.'); if (Object.hasOwn(score, 'note') && (typeof score.note !== 'string' || score.note.length > SCORE_NOTE_MAX_LENGTH)) throw new Error('Reviewer score note is invalid.'); }
 export function validateReviewerScores(scores: ReviewerScores, packet: { packetHash: string; packet: { reviewer: 'reviewer-a' | 'reviewer-b'; responses: readonly { id: string }[] } }): void { if (scores.packetHash !== packet.packetHash || scores.reviewer !== packet.packet.reviewer || scores.independentAttestation !== true) throw new Error('Reviewer score file does not attest to the supplied packet.'); const ids = new Set(packet.packet.responses.map((response) => response.id)); if (scores.scores.length !== ids.size) throw new Error('Reviewer scores must cover each expected response exactly once.'); const seen = new Set<string>(); for (const score of scores.scores) { if (!ids.has(score.opaqueId) || seen.has(score.opaqueId)) throw new Error('Reviewer score has an unknown or duplicate response ID.'); seen.add(score.opaqueId); assertScore(score); } }
 function resolveScores(scores: ReviewerScores, privateMap: Readonly<Record<string, string>>): Map<string, ReviewerScore> { return new Map(scores.scores.map((score) => { const attemptId = privateMap[score.opaqueId]; if (!attemptId) throw new Error('Reviewer score cannot be resolved through the private identity map.'); return [attemptId, score]; })); }
 export function requiredAdjudications(a: ReviewerScores, b: ReviewerScores, mapA: Readonly<Record<string, string>>, mapB: Readonly<Record<string, string>>): readonly Omit<Adjudication, 'finalValue' | 'disposition' | 'rationale' | 'at'>[] { const byA = resolveScores(a, mapA); const byB = resolveScores(b, mapB); return [...byA].flatMap(([attemptId, score]) => SCORE_DIMENSIONS.filter((dimension) => Math.abs(score[dimension] - byB.get(attemptId)![dimension]) >= 2).map((dimension) => ({ id: `adj-${canonicalHash({ attemptId, dimension }).slice(0, 20)}`, opaqueId: `q-${canonicalHash({ attemptId }).slice(0, 20)}`, dimension, reviewerA: score[dimension], reviewerB: byB.get(attemptId)![dimension] }))); }
@@ -370,6 +387,228 @@ export function createQualificationReceipt(input: { runId: string; provider: str
   return { receipt, bytes: canonicalJson(receipt), sha256: canonicalHash(receipt) };
 }
 
+export type ScoreImportTransactionPhase = 'JOURNAL_PREPARED' | 'SCORE_STAGED' | 'MANIFEST_STAGED' | 'SCORE_COMMITTED' | 'MANIFEST_COMMITTED' | 'COMPLETE';
+export type ScoreImportRecoveryStatus = 'NONE' | 'UNCOMMITTED_TRANSACTION' | 'SCORE_COMMITTED_MANIFEST_PENDING' | 'TRANSACTION_ALREADY_COMPLETE';
+export class ReviewerScoreImportSafeStop extends Error { constructor(readonly recoveryStatus: Exclude<ScoreImportRecoveryStatus, 'NONE'>) { super(`Reviewer score import safely stopped after ${recoveryStatus}.`); } }
+interface ScoreImportJournal {
+  readonly schemaVersion: 'black-skies-score-import-transaction-v1'; readonly runId: string; readonly operation: 'IMPORT_REVIEWER_SCORE';
+  readonly reviewer: 'reviewer-a' | 'reviewer-b'; readonly sourceLifecycle: 'PACKETS_FINALIZED' | 'SCORING_IN_PROGRESS'; readonly targetLifecycle: 'SCORING_IN_PROGRESS' | 'SCORES_COMPLETE';
+  readonly acceptedScoreRelativePath: string; readonly acceptedScoreExpectedSha256: string; readonly stagedAcceptedScoreRelativePath: 'private/.score-import-score.staged';
+  readonly stagedManifestRelativePath: 'private/.score-import-manifest.staged'; readonly expectedOldManifestSha256: string; readonly expectedNewManifestSha256: string;
+  readonly phase: ScoreImportTransactionPhase; readonly createdAt: string;
+}
+interface ScoreImportLock { readonly schemaVersion: 'black-skies-score-import-lock-v1'; readonly runId: string; readonly operation: 'IMPORT_REVIEWER_SCORE'; readonly ownerToken: string; readonly pid: number; readonly createdAt: string; }
+const SCORE_IMPORT_LOCK = 'private/.score-import.lock';
+const SCORE_IMPORT_RECOVERY_CLAIM = 'private/.score-import-recovery.claim';
+const SCORE_IMPORT_JOURNAL = 'private/score-import-transaction.json';
+const SCORE_IMPORT_SCORE_STAGE = 'private/.score-import-score.staged';
+const SCORE_IMPORT_MANIFEST_STAGE = 'private/.score-import-manifest.staged';
+const SCORE_IMPORT_TRANSACTION_NAMES = new Set(['.score-import-score.staged', '.score-import-manifest.staged', 'score-import-transaction.json']);
+
+async function pathExists(path: string): Promise<boolean> { try { await access(path); return true; } catch { return false; } }
+async function durableCreate(path: string, content: string): Promise<void> {
+  const handle = await open(path, 'wx');
+  try { await handle.writeFile(content, 'utf8'); await handle.sync(); } finally { await handle.close(); }
+}
+async function durableAtomicReplace(path: string, content: string): Promise<void> {
+  const temporary = `${path}.${randomUUID()}.tmp`;
+  try { await durableCreate(temporary, content); await rename(temporary, path); } catch (error) { await unlink(temporary).catch(() => undefined); throw error; }
+}
+async function fileHash(path: string): Promise<string | null> { try { return hashBytes(await readFile(path)); } catch { return null; } }
+function exactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean { return Object.keys(value).sort().join('|') === [...keys].sort().join('|'); }
+function validIsoTimestamp(value: unknown): value is string { return typeof value === 'string' && Number.isFinite(Date.parse(value)); }
+function parseScoreImportLock(value: unknown, runId: string): ScoreImportLock {
+  const keys = ['schemaVersion', 'runId', 'operation', 'ownerToken', 'pid', 'createdAt'];
+  if (!isObjectRecord(value) || !exactKeys(value, keys) || value.schemaVersion !== 'black-skies-score-import-lock-v1' || value.runId !== runId || value.operation !== 'IMPORT_REVIEWER_SCORE' || typeof value.ownerToken !== 'string' || !/^[a-f0-9-]{36}$/.test(value.ownerToken) || !Number.isInteger(value.pid) || (value.pid as number) <= 0 || !validIsoTimestamp(value.createdAt)) throw new Error('Score-import lock is malformed or conflicts with this run; bounded human inspection is required.');
+  return value as unknown as ScoreImportLock;
+}
+function parseScoreImportJournal(value: unknown, runId: string): ScoreImportJournal {
+  const keys = ['schemaVersion', 'runId', 'operation', 'reviewer', 'sourceLifecycle', 'targetLifecycle', 'acceptedScoreRelativePath', 'acceptedScoreExpectedSha256', 'stagedAcceptedScoreRelativePath', 'stagedManifestRelativePath', 'expectedOldManifestSha256', 'expectedNewManifestSha256', 'phase', 'createdAt'];
+  if (!isObjectRecord(value) || !exactKeys(value, keys) || value.schemaVersion !== 'black-skies-score-import-transaction-v1' || value.runId !== runId || value.operation !== 'IMPORT_REVIEWER_SCORE' || !['reviewer-a', 'reviewer-b'].includes(String(value.reviewer)) || !['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'].includes(String(value.sourceLifecycle)) || !['SCORING_IN_PROGRESS', 'SCORES_COMPLETE'].includes(String(value.targetLifecycle)) || value.acceptedScoreRelativePath !== `${value.reviewer}/scores.json` || value.stagedAcceptedScoreRelativePath !== SCORE_IMPORT_SCORE_STAGE || value.stagedManifestRelativePath !== SCORE_IMPORT_MANIFEST_STAGE || !/^[a-f0-9]{64}$/.test(String(value.acceptedScoreExpectedSha256)) || !/^[a-f0-9]{64}$/.test(String(value.expectedOldManifestSha256)) || !/^[a-f0-9]{64}$/.test(String(value.expectedNewManifestSha256)) || !['JOURNAL_PREPARED', 'SCORE_STAGED', 'MANIFEST_STAGED', 'SCORE_COMMITTED', 'MANIFEST_COMMITTED', 'COMPLETE'].includes(String(value.phase)) || !validIsoTimestamp(value.createdAt)) throw new Error('Score-import journal is malformed or conflicts with this run; bounded human inspection is required.');
+  if ((value.sourceLifecycle === 'PACKETS_FINALIZED' && value.targetLifecycle !== 'SCORING_IN_PROGRESS') || (value.sourceLifecycle === 'SCORING_IN_PROGRESS' && value.targetLifecycle !== 'SCORES_COMPLETE')) throw new Error('Score-import journal lifecycle binding is invalid; bounded human inspection is required.');
+  return value as unknown as ScoreImportJournal;
+}
+async function readJsonObject(path: string, label: string): Promise<Record<string, unknown>> {
+  let parsed: unknown;
+  try { parsed = JSON.parse(await readFile(path, 'utf8')); } catch { throw new Error(`${label} is missing or malformed.`); }
+  if (!isObjectRecord(parsed)) throw new Error(`${label} is invalid.`);
+  return parsed;
+}
+async function assertNoUnexpectedTransactionFiles(privateRoot: string): Promise<void> {
+  const unexpected = (await readdir(privateRoot)).filter((name) => name.startsWith('.score-import-') || name.startsWith('score-import-transaction')).filter((name) => !['.score-import.lock', '.score-import-recovery.claim'].includes(name) && !SCORE_IMPORT_TRANSACTION_NAMES.has(name));
+  if (unexpected.length > 0) throw new Error('Unexpected score-import transaction files require bounded human inspection.');
+}
+function processIsActive(pid: number): boolean {
+  try { process.kill(pid, 0); return true; } catch (error) { return (error as NodeJS.ErrnoException).code !== 'ESRCH'; }
+}
+async function writeJournal(path: string, journal: ScoreImportJournal, phase: ScoreImportTransactionPhase): Promise<ScoreImportJournal> {
+  const next = { ...journal, phase } as ScoreImportJournal;
+  await durableAtomicReplace(path, canonicalJson(next));
+  return next;
+}
+async function manifestMatchesRecoveredTarget(path: string, journal: ScoreImportJournal): Promise<boolean> {
+  try {
+    const value = JSON.parse(await readFile(path, 'utf8')) as unknown;
+    return isObjectRecord(value) && value.runId === journal.runId && value.state === journal.targetLifecycle && isObjectRecord(value.scoreHashes) && value.scoreHashes[journal.reviewer] === journal.acceptedScoreExpectedSha256;
+  } catch { return false; }
+}
+async function assertStableScoreState(runDir: string): Promise<void> {
+  const manifest = await readJsonObject(join(runDir, 'private', 'run-manifest.json'), 'Qualification manifest');
+  const scoreHashes = isObjectRecord(manifest.scoreHashes) ? manifest.scoreHashes : {};
+  if (Object.keys(scoreHashes).some((key) => !['reviewer-a', 'reviewer-b'].includes(key) || !/^[a-f0-9]{64}$/.test(String(scoreHashes[key])))) throw new Error('Qualification score state requires bounded human inspection.');
+  for (const reviewer of ['reviewer-a', 'reviewer-b'] as const) {
+    const acceptedHash = await fileHash(join(runDir, reviewer, 'scores.json')); const recordedHash = scoreHashes[reviewer];
+    if ((recordedHash === undefined) !== (acceptedHash === null) || (recordedHash !== undefined && acceptedHash !== recordedHash)) throw new Error('Qualification accepted-score evidence conflicts with the manifest; bounded human inspection is required.');
+  }
+  const count = Object.keys(scoreHashes).length;
+  if ((manifest.state === 'PACKETS_FINALIZED' && count !== 0) || (manifest.state === 'SCORING_IN_PROGRESS' && count !== 1) || (manifest.state === 'SCORES_COMPLETE' && count !== 2) || !['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS', 'SCORES_COMPLETE'].includes(String(manifest.state))) throw new Error('Qualification lifecycle conflicts with accepted-score evidence; bounded human inspection is required.');
+}
+async function recoverScoreImport(runDir: string): Promise<ScoreImportRecoveryStatus> {
+  const privateRoot = join(runDir, 'private'); const journalPath = join(runDir, SCORE_IMPORT_JOURNAL); const manifestPath = join(privateRoot, 'run-manifest.json');
+  const scoreStage = join(runDir, SCORE_IMPORT_SCORE_STAGE); const manifestStage = join(runDir, SCORE_IMPORT_MANIFEST_STAGE);
+  await assertNoUnexpectedTransactionFiles(privateRoot);
+  if (!await pathExists(journalPath)) {
+    if (await pathExists(scoreStage) || await pathExists(manifestStage)) throw new Error('Unjournaled score-import staging requires bounded human inspection.');
+    await assertStableScoreState(runDir);
+    return 'NONE';
+  }
+  const journal = parseScoreImportJournal(await readJsonObject(journalPath, 'Score-import journal'), basenameSafe(runDir));
+  const acceptedPath = join(runDir, journal.acceptedScoreRelativePath);
+  const [manifestHash, acceptedHash, scoreStageHash, manifestStageHash] = await Promise.all([fileHash(manifestPath), fileHash(acceptedPath), fileHash(scoreStage), fileHash(manifestStage)]);
+  const stagedValid = (scoreStageHash === null || scoreStageHash === journal.acceptedScoreExpectedSha256) && (manifestStageHash === null || manifestStageHash === journal.expectedNewManifestSha256);
+  if (!stagedValid) throw new Error('Score-import staged evidence differs from its journal; bounded human inspection is required.');
+  const uncommittedEvidencePlausible = (journal.phase === 'JOURNAL_PREPARED' && manifestStageHash === null)
+    || (journal.phase === 'SCORE_STAGED' && scoreStageHash === journal.acceptedScoreExpectedSha256)
+    || (journal.phase === 'MANIFEST_STAGED' && scoreStageHash === journal.acceptedScoreExpectedSha256 && manifestStageHash === journal.expectedNewManifestSha256);
+  if (acceptedHash === null && manifestHash === journal.expectedOldManifestSha256 && uncommittedEvidencePlausible) {
+    await unlink(scoreStage).catch(() => undefined); await unlink(manifestStage).catch(() => undefined); await unlink(journalPath);
+    return 'UNCOMMITTED_TRANSACTION';
+  }
+  const splitPhase = ['MANIFEST_STAGED', 'SCORE_COMMITTED'].includes(journal.phase);
+  if (acceptedHash === journal.acceptedScoreExpectedSha256 && manifestHash === journal.expectedOldManifestSha256 && manifestStageHash === journal.expectedNewManifestSha256 && splitPhase) {
+    await rename(manifestStage, manifestPath);
+    if (await fileHash(manifestPath) !== journal.expectedNewManifestSha256 || !await manifestMatchesRecoveredTarget(manifestPath, journal)) throw new Error('Recovered qualification manifest failed target verification; bounded human inspection is required.');
+    let completed = await writeJournal(journalPath, journal, 'MANIFEST_COMMITTED'); completed = await writeJournal(journalPath, completed, 'COMPLETE');
+    await unlink(scoreStage).catch(() => undefined); await unlink(journalPath);
+    return 'SCORE_COMMITTED_MANIFEST_PENDING';
+  }
+  const completePhase = ['SCORE_COMMITTED', 'MANIFEST_COMMITTED', 'COMPLETE'].includes(journal.phase);
+  if (acceptedHash === journal.acceptedScoreExpectedSha256 && manifestHash === journal.expectedNewManifestSha256 && completePhase && await manifestMatchesRecoveredTarget(manifestPath, journal)) {
+    await unlink(scoreStage).catch(() => undefined); await unlink(manifestStage).catch(() => undefined); await unlink(journalPath);
+    return 'TRANSACTION_ALREADY_COMPLETE';
+  }
+  throw new Error('Score-import durable state is ambiguous or tampered; bounded human inspection is required.');
+}
+async function acquireScoreImportLock(runDir: string): Promise<{ path: string; recoveryStatus: ScoreImportRecoveryStatus }> {
+  const lockPath = join(runDir, SCORE_IMPORT_LOCK); const claimPath = join(runDir, SCORE_IMPORT_RECOVERY_CLAIM); const runId = basenameSafe(runDir);
+  const create = async () => durableCreate(lockPath, canonicalJson({ schemaVersion: 'black-skies-score-import-lock-v1', runId, operation: 'IMPORT_REVIEWER_SCORE', ownerToken: randomUUID(), pid: process.pid, createdAt: new Date().toISOString() } satisfies ScoreImportLock));
+  if (await pathExists(claimPath)) {
+    const claimText = await readFile(claimPath, 'utf8'); const claim = parseScoreImportLock(JSON.parse(claimText) as unknown, runId);
+    if (processIsActive(claim.pid)) throw new Error('Another score-import recovery is active for this qualification run.');
+    if (!await pathExists(lockPath)) await link(claimPath, lockPath).catch((error) => { if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error; });
+    const lockText = await readFile(lockPath, 'utf8'); const lock = parseScoreImportLock(JSON.parse(lockText) as unknown, runId);
+    if (lockText !== claimText && processIsActive(lock.pid)) throw new Error('Another score import is active for this qualification run.');
+    await unlink(claimPath);
+  }
+  try { await create(); } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    const lockText = await readFile(lockPath, 'utf8'); const lock = parseScoreImportLock(JSON.parse(lockText) as unknown, runId);
+    if (processIsActive(lock.pid)) throw new Error('Another score import or recovery is active for this qualification run.');
+    try { await link(lockPath, claimPath); } catch (claimError) { if ((claimError as NodeJS.ErrnoException).code === 'EEXIST') throw new Error('Another score-import recovery is active for this qualification run.'); throw claimError; }
+    const claimedText = await readFile(claimPath, 'utf8');
+    if (claimedText !== lockText || await readFile(lockPath, 'utf8') !== lockText) throw new Error('Score-import lock changed during stale recovery; bounded human inspection is required.');
+    const recovered = await recoverScoreImport(runDir); await unlink(lockPath);
+    try { await create(); } catch (createError) { await unlink(claimPath).catch(() => undefined); if ((createError as NodeJS.ErrnoException).code === 'EEXIST') throw new Error('Another score import acquired the run after recovery.'); throw createError; }
+    await unlink(claimPath);
+    return { path: lockPath, recoveryStatus: recovered };
+  }
+  try { return { path: lockPath, recoveryStatus: await recoverScoreImport(runDir) }; } catch (error) { throw error; }
+}
+
+export interface ReviewerScoreImportResult { readonly reviewer: 'reviewer-a' | 'reviewer-b'; readonly validationStatus: 'VALID'; readonly recoveryStatus: ScoreImportRecoveryStatus; readonly acceptedScoreFilename: 'scores.json'; readonly acceptedScoreSha256: string; readonly lifecycle: 'SCORING_IN_PROGRESS' | 'SCORES_COMPLETE'; readonly otherReviewerPending: boolean; readonly templateProvenance: string; readonly compatibility: 'BACKWARD_COMPATIBLE_LEGACY_V2' | 'RECORDED_PROVENANCE'; }
+export async function importReviewerScores(input: { runDir: string; reviewer: 'reviewer-a' | 'reviewer-b'; templatePath: string; testHooks?: { crashAfterPhase?: 'LOCK_ACQUIRED' | ScoreImportTransactionPhase | 'SCORE_CREATED' | 'MANIFEST_REPLACED' | 'CLEANUP_COMPLETE' } }): Promise<ReviewerScoreImportResult> {
+  const runDir = resolve(input.runDir);
+  const manifestPath = join(runDir, 'private', 'run-manifest.json');
+  const identityPath = join(runDir, 'private', 'identity-map.json');
+  const packetPath = join(runDir, input.reviewer, 'packet.json');
+  const generatedTemplatePath = join(runDir, input.reviewer, 'score-template.json');
+  const acceptedPath = join(runDir, input.reviewer, 'scores.json');
+  const lock = await acquireScoreImportLock(runDir); let releaseLock = true; let journal: ScoreImportJournal | null = null;
+  const crash = (phase: 'LOCK_ACQUIRED' | ScoreImportTransactionPhase | 'SCORE_CREATED' | 'MANIFEST_REPLACED' | 'CLEANUP_COMPLETE'): void => { if (input.testHooks?.crashAfterPhase === phase) { releaseLock = false; throw new Error(`Simulated abrupt termination after ${phase}.`); } };
+  try {
+  crash('LOCK_ACQUIRED');
+  const manifestText = await readFile(manifestPath, 'utf8');
+  const manifest = await readJsonObject(manifestPath, 'Qualification manifest');
+  const identity = await readJsonObject(identityPath, 'Qualification identity map');
+  const packet = await readJsonObject(packetPath, 'Assigned reviewer packet');
+  const generated = await readJsonObject(generatedTemplatePath, 'Generated score template');
+  const completed = await readJsonObject(resolve(input.templatePath), 'Completed score template');
+  if (manifest.schemaVersion !== QUALIFICATION_ARTIFACT_VERSION || identity.schemaVersion !== QUALIFICATION_ARTIFACT_VERSION || manifest.runId !== basenameSafe(runDir) || identity.runId !== manifest.runId) throw new Error('Qualification run identity is invalid.');
+  if (!['PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'].includes(String(manifest.state))) throw new Error('Reviewer score import is not permitted in the current lifecycle.');
+  const packetHash = canonicalHash(packet);
+  const packetHashes = isObjectRecord(manifest.packetHashes) ? manifest.packetHashes : {};
+  const identityPacketHashes = isObjectRecord(identity.packetHashes) ? identity.packetHashes : {};
+  if (packet.reviewer !== input.reviewer || packet.runId !== manifest.runId || packetHash !== packetHashes[input.reviewer] || packetHash !== identityPacketHashes[input.reviewer]) throw new Error('Assigned reviewer packet binding is invalid.');
+  const generatedRootKeys = Object.hasOwn(generated, 'templateProvenance') ? ['schemaVersion', 'runId', 'reviewer', 'packetHash', 'independentAttestation', 'scores', 'templateProvenance'] : ['schemaVersion', 'runId', 'reviewer', 'packetHash', 'independentAttestation', 'scores'];
+  if (!hasOnlyKeys(generated, generatedRootKeys) || generated.independentAttestation !== false || !Array.isArray(generated.scores)) throw new Error('Generated score template structure is invalid.');
+  for (const entry of generated.scores) if (!isObjectRecord(entry) || !hasOnlyKeys(entry, SCORE_ENTRY_KEYS) || SCORE_DIMENSIONS.some((key) => entry[key] !== null) || SCORE_FLAGS.some((key) => entry[key] !== null) || entry.note !== '') throw new Error('Generated score template editable fields are invalid.');
+  const expectedProvenance = reviewerTemplateProvenance(generated as { schemaVersion: unknown; runId: unknown; reviewer: unknown; packetHash: unknown; scores: readonly unknown[] });
+  if (generated.runId !== manifest.runId || generated.reviewer !== input.reviewer || generated.packetHash !== packetHash || (Object.hasOwn(generated, 'templateProvenance') && generated.templateProvenance !== expectedProvenance)) throw new Error('Generated score template provenance is invalid.');
+  const packetAliases = Array.isArray(packet.responses) ? packet.responses.map((entry) => isObjectRecord(entry) ? entry.id : undefined) : [];
+  const generatedAliases = generated.scores.map((entry) => (entry as Record<string, unknown>).opaqueId);
+  if (packetAliases.length !== 24 || canonicalJson(generatedAliases) !== canonicalJson(packetAliases)) throw new Error('Generated score template aliases or order do not match the assigned packet.');
+  const recordedManifest = isObjectRecord(manifest.templateProvenanceHashes) ? manifest.templateProvenanceHashes[input.reviewer] : undefined;
+  const recordedIdentity = isObjectRecord(identity.templateProvenanceHashes) ? identity.templateProvenanceHashes[input.reviewer] : undefined;
+  const compatibility = recordedManifest === undefined && recordedIdentity === undefined && !Object.hasOwn(generated, 'templateProvenance') ? 'BACKWARD_COMPATIBLE_LEGACY_V2' : 'RECORDED_PROVENANCE';
+  if (compatibility === 'RECORDED_PROVENANCE' && (recordedManifest !== expectedProvenance || recordedIdentity !== expectedProvenance)) throw new Error('Recorded score template provenance is invalid.');
+  const completedRootKeys = Object.hasOwn(completed, 'templateProvenance') ? ['schemaVersion', 'runId', 'reviewer', 'packetHash', 'independentAttestation', 'scores', 'templateProvenance'] : ['schemaVersion', 'runId', 'reviewer', 'packetHash', 'independentAttestation', 'scores'];
+  if (!hasOnlyKeys(completed, completedRootKeys) || completed.schemaVersion !== SCORE_TEMPLATE_SCHEMA_VERSION || completed.runId !== manifest.runId || completed.reviewer !== input.reviewer || completed.packetHash !== packetHash || completed.independentAttestation !== true || !Array.isArray(completed.scores)) throw new Error('Completed score template binding is invalid.');
+  if (compatibility === 'RECORDED_PROVENANCE' && completed.templateProvenance !== expectedProvenance) throw new Error('Completed score template provenance is invalid.');
+  if (reviewerTemplateProvenance(completed as { schemaVersion: unknown; runId: unknown; reviewer: unknown; packetHash: unknown; scores: readonly unknown[] }) !== expectedProvenance) throw new Error('Completed score template immutable structure is invalid.');
+  const completedAliases = completed.scores.map((entry) => isObjectRecord(entry) ? entry.opaqueId : undefined);
+  if (canonicalJson(completedAliases) !== canonicalJson(generatedAliases)) throw new Error('Completed score template aliases or order are invalid.');
+  const accepted: ReviewerScores = { schemaVersion: SCORE_TEMPLATE_SCHEMA_VERSION, runId: String(completed.runId), reviewer: input.reviewer, packetHash, templateProvenance: expectedProvenance, independentAttestation: true, scores: completed.scores as unknown as ReviewerScore[] };
+  validateReviewerScores(accepted, { packetHash, packet: packet as unknown as { reviewer: 'reviewer-a' | 'reviewer-b'; responses: readonly { id: string }[] } });
+  const acceptedBytes = canonicalJson(accepted);
+  const acceptedHash = hashBytes(acceptedBytes);
+  const scoreTemp = join(runDir, SCORE_IMPORT_SCORE_STAGE); const manifestTemp = join(runDir, SCORE_IMPORT_MANIFEST_STAGE); const journalPath = join(runDir, SCORE_IMPORT_JOURNAL);
+    if (await pathExists(acceptedPath)) throw new Error('Reviewer score submission already exists and is immutable.');
+    if (await readFile(manifestPath, 'utf8') !== manifestText) throw new Error('Qualification manifest changed during validation.');
+    const scoreHashes = isObjectRecord(manifest.scoreHashes) ? { ...manifest.scoreHashes } : {};
+    if (Object.keys(scoreHashes).some((key) => key !== 'reviewer-a' && key !== 'reviewer-b')) throw new Error('Qualification score-hash state is invalid.');
+    if (Object.hasOwn(scoreHashes, input.reviewer)) throw new Error('Reviewer score submission is already recorded.');
+    const existingReviewers = Object.keys(scoreHashes);
+    if ((manifest.state === 'PACKETS_FINALIZED' && existingReviewers.length !== 0) || (manifest.state === 'SCORING_IN_PROGRESS' && (existingReviewers.length !== 1 || existingReviewers[0] === input.reviewer))) throw new Error('Qualification score-hash state conflicts with the lifecycle.');
+    for (const reviewer of ['reviewer-a', 'reviewer-b'] as const) {
+      const existingHash = await fileHash(join(runDir, reviewer, 'scores.json')); const recordedHash = scoreHashes[reviewer];
+      if ((recordedHash === undefined) !== (existingHash === null) || (recordedHash !== undefined && existingHash !== recordedHash)) throw new Error('Qualification accepted-score evidence conflicts with the manifest.');
+    }
+    if (await pathExists(join(runDir, 'adjudication', 'adjudication.json')) || await pathExists(join(runDir, 'receipt', 'qualification-receipt.json'))) throw new Error('Reviewer score import is blocked by premature finalization evidence.');
+    scoreHashes[input.reviewer] = acceptedHash;
+    const nextLifecycle = Object.keys(scoreHashes).length === 2 ? 'SCORES_COMPLETE' : 'SCORING_IN_PROGRESS';
+    const nextManifest = { ...manifest, state: nextLifecycle, scoreHashes };
+    const newManifestBytes = canonicalJson(nextManifest);
+    journal = { schemaVersion: 'black-skies-score-import-transaction-v1', runId: String(manifest.runId), operation: 'IMPORT_REVIEWER_SCORE', reviewer: input.reviewer, sourceLifecycle: manifest.state as 'PACKETS_FINALIZED' | 'SCORING_IN_PROGRESS', targetLifecycle: nextLifecycle, acceptedScoreRelativePath: `${input.reviewer}/scores.json`, acceptedScoreExpectedSha256: acceptedHash, stagedAcceptedScoreRelativePath: SCORE_IMPORT_SCORE_STAGE, stagedManifestRelativePath: SCORE_IMPORT_MANIFEST_STAGE, expectedOldManifestSha256: hashBytes(manifestText), expectedNewManifestSha256: hashBytes(newManifestBytes), phase: 'JOURNAL_PREPARED', createdAt: new Date().toISOString() };
+    await durableCreate(journalPath, canonicalJson(journal)); crash('JOURNAL_PREPARED');
+    await durableCreate(scoreTemp, acceptedBytes); if (await fileHash(scoreTemp) !== acceptedHash) throw new Error('Staged accepted-score hash verification failed.'); journal = await writeJournal(journalPath, journal, 'SCORE_STAGED'); crash('SCORE_STAGED');
+    await durableCreate(manifestTemp, newManifestBytes); if (await fileHash(manifestTemp) !== journal.expectedNewManifestSha256) throw new Error('Staged manifest hash verification failed.'); journal = await writeJournal(journalPath, journal, 'MANIFEST_STAGED'); crash('MANIFEST_STAGED');
+    if (await fileHash(manifestPath) !== journal.expectedOldManifestSha256) throw new Error('Qualification manifest changed before evidence commit.');
+    await copyFile(scoreTemp, acceptedPath, fsConstants.COPYFILE_EXCL); const acceptedHandle = await open(acceptedPath, 'r+'); try { await acceptedHandle.sync(); } finally { await acceptedHandle.close(); }
+    if (await fileHash(acceptedPath) !== acceptedHash) throw new Error('Accepted-score commit hash verification failed.');
+    crash('SCORE_CREATED'); journal = await writeJournal(journalPath, journal, 'SCORE_COMMITTED'); crash('SCORE_COMMITTED');
+    await rename(manifestTemp, manifestPath); if (await fileHash(manifestPath) !== journal.expectedNewManifestSha256 || !await manifestMatchesRecoveredTarget(manifestPath, journal)) throw new Error('Committed qualification manifest failed target verification.'); crash('MANIFEST_REPLACED'); journal = await writeJournal(journalPath, journal, 'MANIFEST_COMMITTED'); crash('MANIFEST_COMMITTED');
+    journal = await writeJournal(journalPath, journal, 'COMPLETE'); crash('COMPLETE');
+    await unlink(scoreTemp); await unlink(journalPath); crash('CLEANUP_COMPLETE');
+    return { reviewer: input.reviewer, validationStatus: 'VALID', recoveryStatus: lock.recoveryStatus, acceptedScoreFilename: 'scores.json', acceptedScoreSha256: acceptedHash, lifecycle: nextLifecycle, otherReviewerPending: nextLifecycle !== 'SCORES_COMPLETE', templateProvenance: expectedProvenance, compatibility };
+  } catch (error) {
+    if (releaseLock && (!journal || ['JOURNAL_PREPARED', 'SCORE_STAGED', 'MANIFEST_STAGED'].includes(journal.phase)) && !await pathExists(acceptedPath)) {
+      await unlink(join(runDir, SCORE_IMPORT_SCORE_STAGE)).catch(() => undefined); await unlink(join(runDir, SCORE_IMPORT_MANIFEST_STAGE)).catch(() => undefined); await unlink(join(runDir, SCORE_IMPORT_JOURNAL)).catch(() => undefined);
+    } else if (journal) releaseLock = false;
+    if (lock.recoveryStatus !== 'NONE') throw new ReviewerScoreImportSafeStop(lock.recoveryStatus);
+    throw error;
+  } finally { if (releaseLock) await unlink(lock.path).catch(() => undefined); }
+}
+
 export interface QualificationVerificationError { readonly code: string; readonly category: 'manifest' | 'raw' | 'identity' | 'packet' | 'score' | 'adjudication' | 'threshold' | 'receipt'; readonly artifact: string; readonly message: string; }
 export interface QualificationVerificationResult { readonly valid: boolean; readonly integrityStatus: 'VALID' | 'INVALID'; readonly qualificationDisposition: 'PASS' | 'FAIL' | 'UNVERIFIED'; readonly runId: string | null; readonly lifecycle: string | null; readonly disposition: 'PASS' | 'FAIL' | null; readonly receiptHash: string | null; readonly evidenceCount: number; readonly errors: readonly QualificationVerificationError[]; }
 export async function verifyQualificationRun(runRoot: string, options: { phase?: 'finalized' | 'capture' } = {}): Promise<QualificationVerificationResult> {
@@ -464,7 +703,7 @@ export async function verifyQualificationRun(runRoot: string, options: { phase?:
       }
     } catch { issue('RAW_FILE_MISSING', 'raw', 'raw-response', 'Raw-response evidence is missing.'); }
   }
-  const allowedIdentityKeys = new Set(['schemaVersion', 'runId', 'entries', 'reviewerMaps', 'packetHashes']);
+  const allowedIdentityKeys = new Set(['schemaVersion', 'runId', 'entries', 'reviewerMaps', 'packetHashes', 'templateProvenanceHashes']);
   if (identity && Object.keys(identity).some((key) => !allowedIdentityKeys.has(key) || /credential|authorization|api.?key/i.test(key))) issue('IDENTITY_SENSITIVE_FIELD', 'identity', 'identity-map', 'Identity map contains an unrecognized sensitive field.');
   const reviewerMaps = identity?.reviewerMaps as { a?: Record<string, string>; b?: Record<string, string> } | null | undefined;
   const mapValues = (map: Record<string, string> | undefined) => map ? Object.values(map) : [];
@@ -552,11 +791,19 @@ export async function verifyQualificationRun(runRoot: string, options: { phase?:
     let scoreText = '';
     try { scoreText = await readFile(join(runRoot, reviewer, 'scores.json'), 'utf8'); const parsed: unknown = JSON.parse(scoreText); scoreValue = isObjectRecord(parsed) ? parsed : null; } catch { scoreValue = null; }
     if (!scoreValue) { issue('SCORE_FILE_MISSING', 'score', reviewer, 'Reviewer score evidence is unavailable or invalid.'); continue; }
-    if (!hasOnlyKeys(scoreValue, ['schemaVersion', 'runId', 'reviewer', 'independentAttestation', 'packetHash', 'scores'])) issue('SCORE_SCHEMA_INVALID', 'score', reviewer, 'Reviewer score file contains unsupported fields.');
+    const scoreRootKeys = Object.hasOwn(scoreValue, 'templateProvenance') ? ['schemaVersion', 'runId', 'reviewer', 'independentAttestation', 'packetHash', 'templateProvenance', 'scores'] : ['schemaVersion', 'runId', 'reviewer', 'independentAttestation', 'packetHash', 'scores'];
+    if (!hasOnlyKeys(scoreValue, scoreRootKeys)) issue('SCORE_SCHEMA_INVALID', 'score', reviewer, 'Reviewer score file contains unsupported fields.');
     if (scoreValue.schemaVersion !== 'v1') issue('SCORE_SCHEMA_UNSUPPORTED', 'score', reviewer, 'Reviewer score schema is unsupported.');
     if (scoreValue.runId !== runId || scoreValue.reviewer !== reviewer) issue('SCORE_REVIEWER_MISMATCH', 'score', reviewer, 'Reviewer score identity is inconsistent.');
     if (scoreValue.independentAttestation !== true) issue('SCORE_ATTESTATION_MISSING', 'score', reviewer, 'Independent-scoring attestation is missing.');
     if (!packet || scoreValue.packetHash !== canonicalHash(packet.packet)) issue('SCORE_PACKET_HASH_MISMATCH', 'score', reviewer, 'Reviewer score file is bound to the wrong packet.');
+    if (Object.hasOwn(scoreValue, 'templateProvenance')) {
+      try {
+        const provenance = reviewerTemplateProvenance(scoreValue as unknown as { schemaVersion: unknown; runId: unknown; reviewer: unknown; packetHash: unknown; scores: readonly unknown[] });
+        const recorded = isObjectRecord(manifest?.templateProvenanceHashes) ? manifest.templateProvenanceHashes[reviewer] : undefined;
+        if (scoreValue.templateProvenance !== provenance || (recorded !== undefined && recorded !== provenance)) issue('SCORE_TEMPLATE_PROVENANCE_MISMATCH', 'score', reviewer, 'Reviewer score template provenance is inconsistent.');
+      } catch { issue('SCORE_TEMPLATE_PROVENANCE_MISMATCH', 'score', reviewer, 'Reviewer score template provenance is invalid.'); }
+    }
     const scores = Array.isArray(scoreValue.scores) ? scoreValue.scores : [];
     if (scores.length !== 24) issue('SCORE_ENTRY_COUNT_INVALID', 'score', reviewer, 'Reviewer score file does not contain exactly 24 entries.');
     const expectedIds = new Set(packet?.responseIds ?? []);

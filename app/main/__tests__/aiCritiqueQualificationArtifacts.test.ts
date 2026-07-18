@@ -1,11 +1,12 @@
 import { cp, mkdtemp, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { AI_CRITIQUE_TASK_CONTRACT_VERSION } from '../../shared/ipc/aiCritique';
 import type { AiCritiqueContent } from '../../shared/ipc/aiCritique';
-import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, canonicalJson, makeReviewerPacket, normalizedCritiqueHash, qualificationAttemptStorageFilename, serializeNormalizedCritique, validateReviewerScores, requiredAdjudications, verifyQualificationRun } from '../aiCritiqueQualificationArtifacts';
+import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, canonicalJson, importReviewerScores, makeReviewerPacket, normalizedCritiqueHash, qualificationAttemptStorageFilename, reviewerTemplateProvenance, serializeNormalizedCritique, validateReviewerScores, requiredAdjudications, verifyQualificationRun } from '../aiCritiqueQualificationArtifacts';
 import { sha256 } from '../aiCritiqueCoordinator';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
 
@@ -14,9 +15,11 @@ let baseRunRoot: string;
 let adjudicatedBaseRunRoot: string;
 let dispositionBaseRunRoot: string;
 let failBaseRunRoot: string;
+let importBaseRunRoot: string;
 const mockedCalculatedUsd = 0.000805;
 function mockedProviderResponse(index: number): string { return JSON.stringify({ id: `mock-response-${index}`, usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 20 }, output_tokens: 40 } }); }
 function normalizedCritique(overview = 'mock'): AiCritiqueContent { return { overview, strengths: [], priorities: [], uncertainties: [], limitations: [] }; }
+function provenanceForPacket(runId: string, packet: { reviewer: string; responses: { id: string }[] }): string { return reviewerTemplateProvenance({ schemaVersion: 'v1', runId, reviewer: packet.reviewer, packetHash: canonicalHash(packet), scores: packet.responses.map((response) => ({ opaqueId: response.id })) }); }
 
 async function captureMockAttempt(
   run: QualificationArtifactRun,
@@ -65,7 +68,7 @@ async function createBaseRun(runId = 'base-run', withDispute = false, useDisposi
   }
   await run.completeCapture(); await run.finalizePackets('base-seed-a', 'base-seed-b');
   const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
-  const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId, reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: failDimension ? 3 : withDispute && reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
+  const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId, reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), templateProvenance: provenanceForPacket(runId, packet), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: failDimension ? 3 : withDispute && reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
   const a = makeScores(packets[0], 'reviewer-a'); const b = makeScores(packets[1], 'reviewer-b'); await run.submitScores(a); await run.submitScores(b);
   const maps = JSON.parse(await readFile(join(run.privateRoot, 'reviewer-maps.json'), 'utf8'));
   const adjudications = withDispute ? requiredAdjudications(a, b, maps.a, maps.b).map((need) => ({
@@ -77,12 +80,30 @@ async function createBaseRun(runId = 'base-run', withDispute = false, useDisposi
   if (adjudications.length > 0) await run.submitAdjudications(adjudications, a, b);
   await run.finalizeReceipt(a, b, adjudications); return run.root;
 }
+async function createImportBaseRun(runId = 'import-base-run'): Promise<string> {
+  const outputRoot = await mkdtemp(join(tmpdir(), 'black-skies-qualification-import-base-'));
+  const run = await QualificationArtifactRun.create({ outputRoot, repositoryRoot, repositoryHead: 'head', runId, allowTemporaryRoot: true });
+  for (let index = 0; index < 24; index += 1) await captureMockAttempt(run, index, `${runId}:attempt:${index}`);
+  await run.completeCapture(); await run.finalizePackets(`${runId}-seed-a`, `${runId}-seed-b`); return run.root;
+}
+async function completedTemplate(root: string, reviewer: 'reviewer-a' | 'reviewer-b'): Promise<{ path: string; value: Record<string, any> }> {
+  const value = JSON.parse(await readFile(join(root, reviewer, 'score-template.json'), 'utf8'));
+  value.independentAttestation = true;
+  value.scores = value.scores.map((score: Record<string, unknown>) => ({ ...score, relevance: 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false }));
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-completed-score-')); const path = join(parent, 'completed-template.json'); await writeFile(path, JSON.stringify(value, null, 2), 'utf8'); return { path, value };
+}
 
 async function cloneRun(source: string, label: string): Promise<string> { const parent = await mkdtemp(join(tmpdir(), `black-skies-qualification-${label}-`)); const target = join(parent, basename(source)); await cp(source, target, { recursive: true }); return target; }
 async function cloneBase(label: string): Promise<string> { return cloneRun(baseRunRoot, label); }
 async function cloneAdjudicatedBase(label: string): Promise<string> { return cloneRun(adjudicatedBaseRunRoot, label); }
 async function cloneFailBase(label: string): Promise<string> { return cloneRun(failBaseRunRoot, label); }
+async function cloneImportBase(label: string): Promise<string> { return cloneRun(importBaseRunRoot, label); }
 async function mutateJson(path: string, mutate: (value: Record<string, any>) => void): Promise<void> { const value = JSON.parse(await readFile(path, 'utf8')); mutate(value); await writeFile(path, canonicalJson(value), 'utf8'); }
+async function markScoreImportLockStale(root: string): Promise<void> { await mutateJson(join(root, 'private', '.score-import.lock'), (value) => { value.pid = 2147483647; }); }
+async function expectNoScoreImportTransaction(root: string): Promise<void> {
+  const names = await readdir(join(root, 'private'));
+  expect(names.filter((name) => name.includes('score-import'))).toEqual([]);
+}
 async function resealReceipt(root: string, mutate: (value: Record<string, any>) => void): Promise<void> {
   const receiptPath = join(root, 'receipt', 'qualification-receipt.json');
   const receipt = JSON.parse(await readFile(receiptPath, 'utf8'));
@@ -170,6 +191,187 @@ describe.sequential('AI critique qualification artifacts', () => {
     adjudicatedBaseRunRoot = await createBaseRun('adjudicated-base-run', true);
     dispositionBaseRunRoot = await createBaseRun('disposition-base-run', true, true);
     failBaseRunRoot = await createBaseRun('fail-base-run', false, false, true);
+    importBaseRunRoot = await createImportBaseRun();
+  });
+
+  it('records deterministic future template provenance and imports both reviewers independently', async () => {
+    const root = await cloneImportBase('valid-import');
+    const a = await completedTemplate(root, 'reviewer-a');
+    const sourceA = JSON.parse(await readFile(join(root, 'reviewer-a', 'score-template.json'), 'utf8'));
+    expect(sourceA.templateProvenance).toBe(reviewerTemplateProvenance(sourceA));
+    const first = await importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: a.path });
+    expect(first).toMatchObject({ validationStatus: 'VALID', lifecycle: 'SCORING_IN_PROGRESS', otherReviewerPending: true, compatibility: 'RECORDED_PROVENANCE' });
+    const b = await completedTemplate(root, 'reviewer-b');
+    const second = await importReviewerScores({ runDir: root, reviewer: 'reviewer-b', templatePath: b.path });
+    expect(second).toMatchObject({ validationStatus: 'VALID', lifecycle: 'SCORES_COMPLETE', otherReviewerPending: false });
+    expect(await readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8')).toBe(canonicalJson(JSON.parse(await readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8'))));
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: a.path })).rejects.toThrow(/lifecycle|already/i);
+    await expect(readFile(join(root, 'adjudication', 'adjudication.json'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(root, 'receipt', 'qualification-receipt.json'), 'utf8')).rejects.toThrow();
+  });
+
+  it('produces identical accepted bytes from reordered source keys and different line endings', async () => {
+    const roots = await Promise.all([cloneImportBase('canonical-a'), cloneImportBase('canonical-b')]);
+    const first = await completedTemplate(roots[0], 'reviewer-a');
+    const second = await completedTemplate(roots[1], 'reviewer-a');
+    const reordered = { scores: second.value.scores.map((score: Record<string, unknown>) => Object.fromEntries(Object.entries(score).reverse())), independentAttestation: true, templateProvenance: second.value.templateProvenance, packetHash: second.value.packetHash, reviewer: second.value.reviewer, runId: second.value.runId, schemaVersion: second.value.schemaVersion };
+    await writeFile(second.path, JSON.stringify(reordered, null, 4).replace(/\n/g, '\r\n'), 'utf8');
+    const a = await importReviewerScores({ runDir: roots[0], reviewer: 'reviewer-a', templatePath: first.path });
+    const b = await importReviewerScores({ runDir: roots[1], reviewer: 'reviewer-a', templatePath: second.path });
+    expect(a.acceptedScoreSha256).toBe(b.acceptedScoreSha256);
+    expect(await readFile(join(roots[0], 'reviewer-a', 'scores.json'), 'utf8')).toBe(await readFile(join(roots[1], 'reviewer-a', 'scores.json'), 'utf8'));
+  });
+
+  const importTamperCases: readonly [string, (value: Record<string, any>) => void][] = [
+    ['wrong run ID', (value) => { value.runId = 'wrong'; }],
+    ['wrong reviewer role', (value) => { value.reviewer = 'reviewer-b'; }],
+    ['wrong packet hash', (value) => { value.packetHash = '0'.repeat(64); }],
+    ['wrong template provenance', (value) => { value.templateProvenance = '0'.repeat(64); }],
+    ['wrong schema version', (value) => { value.schemaVersion = 'v2'; }],
+    ['missing alias', (value) => { value.scores.pop(); }],
+    ['extra alias', (value) => { value.scores.push({ ...value.scores[0], opaqueId: `r-${'0'.repeat(20)}` }); }],
+    ['duplicate alias', (value) => { value.scores[1].opaqueId = value.scores[0].opaqueId; }],
+    ['changed alias order', (value) => { value.scores.reverse(); }],
+    ['missing dimension', (value) => { delete value.scores[0].relevance; }],
+    ['non-integer dimension', (value) => { value.scores[0].relevance = 4.5; }],
+    ['out-of-range dimension', (value) => { value.scores[0].relevance = 6; }],
+    ['missing flag', (value) => { delete value.scores[0].fabricatedFact; }],
+    ['invalid flag type', (value) => { value.scores[0].fabricatedFact = 'false'; }],
+    ['invalid note type', (value) => { value.scores[0].note = 1; }],
+    ['oversized note', (value) => { value.scores[0].note = 'x'.repeat(501); }],
+    ['false independent attestation', (value) => { value.independentAttestation = false; }],
+    ['unknown root field', (value) => { value.extra = true; }],
+    ['unknown score field', (value) => { value.scores[0].extra = true; }],
+  ];
+  it.each(importTamperCases)('rejects completed-template tamper without changing the run: %s', async (_name, mutate) => {
+    const root = await cloneImportBase('import-tamper'); const before = await readFile(join(root, 'private', 'run-manifest.json'), 'utf8'); const completed = await completedTemplate(root, 'reviewer-a'); mutate(completed.value); await writeFile(completed.path, JSON.stringify(completed.value), 'utf8');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow();
+    expect(await readFile(join(root, 'private', 'run-manifest.json'), 'utf8')).toBe(before);
+    await expect(readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8')).rejects.toThrow();
+  });
+
+  it('cleans a malformed-template validation stop and locks down unrecorded accepted evidence', async () => {
+    const malformedRoot = await cloneImportBase('malformed'); const malformed = await completedTemplate(malformedRoot, 'reviewer-a'); await writeFile(malformed.path, '{', 'utf8');
+    await expect(importReviewerScores({ runDir: malformedRoot, reviewer: 'reviewer-a', templatePath: malformed.path })).rejects.toThrow('malformed');
+    await expectNoScoreImportTransaction(malformedRoot);
+    const existingRoot = await cloneImportBase('existing'); const existing = await completedTemplate(existingRoot, 'reviewer-a'); await writeFile(join(existingRoot, 'reviewer-a', 'scores.json'), '{}', 'utf8');
+    await expect(importReviewerScores({ runDir: existingRoot, reviewer: 'reviewer-a', templatePath: existing.path })).rejects.toThrow(/already exists|conflicts/);
+    expect(await readFile(join(existingRoot, 'private', '.score-import.lock'), 'utf8')).toBeTruthy();
+  });
+
+  const crashPhases = ['LOCK_ACQUIRED', 'JOURNAL_PREPARED', 'SCORE_STAGED', 'MANIFEST_STAGED', 'SCORE_CREATED', 'SCORE_COMMITTED', 'MANIFEST_REPLACED', 'MANIFEST_COMMITTED', 'COMPLETE', 'CLEANUP_COMPLETE'] as const;
+  const reviewerTransitions = [
+    ['reviewer-a', 'PACKETS_FINALIZED', 'SCORING_IN_PROGRESS'],
+    ['reviewer-b', 'SCORING_IN_PROGRESS', 'SCORES_COMPLETE'],
+  ] as const;
+  it.each(reviewerTransitions.flatMap(([reviewer, source, target]) => crashPhases.map((phase) => [reviewer, source, target, phase] as const)))('recovers %s %s -> %s after abrupt termination at %s', async (reviewer, source, target, phase) => {
+    const root = await cloneImportBase(`crash-${reviewer}-${phase.toLowerCase()}`);
+    if (reviewer === 'reviewer-b') { const first = await completedTemplate(root, 'reviewer-a'); await importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: first.path }); }
+    const manifestBefore = JSON.parse(await readFile(join(root, 'private', 'run-manifest.json'), 'utf8'));
+    expect(manifestBefore.state).toBe(source);
+    const completed = await completedTemplate(root, reviewer);
+    await expect(importReviewerScores({ runDir: root, reviewer, templatePath: completed.path, testHooks: { crashAfterPhase: phase } })).rejects.toThrow('Simulated abrupt termination');
+    await markScoreImportLockStale(root);
+    const committed = ['SCORE_CREATED', 'SCORE_COMMITTED', 'MANIFEST_REPLACED', 'MANIFEST_COMMITTED', 'COMPLETE', 'CLEANUP_COMPLETE'].includes(phase);
+    if (committed) await expect(importReviewerScores({ runDir: root, reviewer, templatePath: completed.path })).rejects.toThrow(/safely stopped|lifecycle|already exists|already recorded/i);
+    else {
+      const result = await importReviewerScores({ runDir: root, reviewer, templatePath: completed.path });
+      expect(result).toMatchObject({ lifecycle: target, recoveryStatus: phase === 'LOCK_ACQUIRED' ? 'NONE' : 'UNCOMMITTED_TRANSACTION' });
+    }
+    const manifestAfter = JSON.parse(await readFile(join(root, 'private', 'run-manifest.json'), 'utf8'));
+    expect(manifestAfter.state).toBe(target);
+    expect(typeof manifestAfter.scoreHashes[reviewer]).toBe('string');
+    expect(await readFile(join(root, reviewer, 'scores.json'), 'utf8')).toBeTruthy();
+    await expectNoScoreImportTransaction(root);
+  });
+
+  it('rejects an active run lock and recovers a stale lock without a journal', async () => {
+    const root = await cloneImportBase('lock-policy'); const completed = await completedTemplate(root, 'reviewer-a');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path, testHooks: { crashAfterPhase: 'LOCK_ACQUIRED' } })).rejects.toThrow('Simulated');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow('active');
+    await markScoreImportLockStale(root);
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).resolves.toMatchObject({ lifecycle: 'SCORING_IN_PROGRESS', recoveryStatus: 'NONE' });
+    await expectNoScoreImportTransaction(root);
+  });
+
+  it('does not clear a stale journal-free lock over unrecorded accepted evidence', async () => {
+    const root = await cloneImportBase('stale-lock-unrecorded-score'); const completed = await completedTemplate(root, 'reviewer-a');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path, testHooks: { crashAfterPhase: 'LOCK_ACQUIRED' } })).rejects.toThrow('Simulated');
+    await markScoreImportLockStale(root); await writeFile(join(root, 'reviewer-b', 'scores.json'), '{}', 'utf8');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow(/conflicts|inspection/);
+    expect(await readFile(join(root, 'private', '.score-import.lock'), 'utf8')).toBeTruthy();
+  });
+
+  it('keeps journal and lock metadata bounded to non-content operational fields', async () => {
+    const root = await cloneImportBase('bounded-journal'); const completed = await completedTemplate(root, 'reviewer-a');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path, testHooks: { crashAfterPhase: 'MANIFEST_STAGED' } })).rejects.toThrow('Simulated');
+    const journalText = await readFile(join(root, 'private', 'score-import-transaction.json'), 'utf8'); const journal = JSON.parse(journalText);
+    expect(Object.keys(journal).sort()).toEqual(['schemaVersion', 'runId', 'operation', 'reviewer', 'sourceLifecycle', 'targetLifecycle', 'acceptedScoreRelativePath', 'acceptedScoreExpectedSha256', 'stagedAcceptedScoreRelativePath', 'stagedManifestRelativePath', 'expectedOldManifestSha256', 'expectedNewManifestSha256', 'phase', 'createdAt'].sort());
+    expect(journalText).not.toMatch(/opaqueId|note|relevance|fabricatedFact|critique|prose|credential|api.?key/i);
+    const lockText = await readFile(join(root, 'private', '.score-import.lock'), 'utf8');
+    expect(lockText).not.toMatch(/reviewer-a|reviewer-b|opaqueId|note|relevance|fabricatedFact|critique|prose|credential|api.?key/i);
+  });
+
+  const ambiguousRecoveryCases: readonly [string, 'JOURNAL_PREPARED' | 'SCORE_STAGED' | 'MANIFEST_STAGED', (root: string) => Promise<void>][] = [
+    ['malformed journal', 'JOURNAL_PREPARED', async (root) => writeFile(join(root, 'private', 'score-import-transaction.json'), '{', 'utf8')],
+    ['wrong run ID', 'JOURNAL_PREPARED', async (root) => mutateJson(join(root, 'private', 'score-import-transaction.json'), (value) => { value.runId = 'wrong-run'; })],
+    ['wrong reviewer', 'JOURNAL_PREPARED', async (root) => mutateJson(join(root, 'private', 'score-import-transaction.json'), (value) => { value.reviewer = 'reviewer-b'; })],
+    ['conflicting manifest', 'JOURNAL_PREPARED', async (root) => mutateJson(join(root, 'private', 'run-manifest.json'), (value) => { value.state = 'CAPTURE_COMPLETE'; })],
+    ['tampered staged score', 'SCORE_STAGED', async (root) => writeFile(join(root, 'private', '.score-import-score.staged'), 'tampered', 'utf8')],
+    ['missing required staged manifest', 'MANIFEST_STAGED', async (root) => unlink(join(root, 'private', '.score-import-manifest.staged'))],
+  ];
+  it.each(ambiguousRecoveryCases)('fails closed for stale-lock recovery with %s', async (_name, phase, tamper) => {
+    const root = await cloneImportBase('ambiguous-recovery'); const completed = await completedTemplate(root, 'reviewer-a');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path, testHooks: { crashAfterPhase: phase } })).rejects.toThrow('Simulated');
+    await markScoreImportLockStale(root); await tamper(root);
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow(/inspection|ambiguous|tampered|malformed|conflicts/);
+    expect(await readFile(join(root, 'private', '.score-import.lock'), 'utf8')).toBeTruthy();
+  });
+
+  it('keeps recovered completion idempotent across repeated invocations', async () => {
+    const root = await cloneImportBase('recovery-idempotence'); const completed = await completedTemplate(root, 'reviewer-a');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path, testHooks: { crashAfterPhase: 'SCORE_COMMITTED' } })).rejects.toThrow('Simulated');
+    await markScoreImportLockStale(root);
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow(/safely stopped|already/i);
+    const accepted = await readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8'); const manifest = await readFile(join(root, 'private', 'run-manifest.json'), 'utf8');
+    await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow(/already/i);
+    expect(await readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8')).toBe(accepted); expect(await readFile(join(root, 'private', 'run-manifest.json'), 'utf8')).toBe(manifest);
+    await expectNoScoreImportTransaction(root);
+  });
+
+  it('supports the bounded legacy V2 provenance rule without rewriting historical templates', async () => {
+    const root = await cloneImportBase('legacy');
+    for (const path of [join(root, 'private', 'run-manifest.json'), join(root, 'private', 'identity-map.json')]) await mutateJson(path, (value) => { delete value.templateProvenanceHashes; });
+    await mutateJson(join(root, 'reviewer-a', 'score-template.json'), (value) => { delete value.templateProvenance; });
+    const completed = await completedTemplate(root, 'reviewer-a');
+    const result = await importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path });
+    expect(result.compatibility).toBe('BACKWARD_COMPATIBLE_LEGACY_V2');
+  });
+
+  it('rejects altered generated-template aliases for both recorded and legacy provenance', async () => {
+    for (const legacy of [false, true]) {
+      const root = await cloneImportBase(legacy ? 'legacy-source-tamper' : 'future-source-tamper');
+      if (legacy) for (const path of [join(root, 'private', 'run-manifest.json'), join(root, 'private', 'identity-map.json')]) await mutateJson(path, (value) => { delete value.templateProvenanceHashes; });
+      await mutateJson(join(root, 'reviewer-a', 'score-template.json'), (value) => { if (legacy) delete value.templateProvenance; value.scores.reverse(); });
+      const completed = await completedTemplate(root, 'reviewer-a');
+      await expect(importReviewerScores({ runDir: root, reviewer: 'reviewer-a', templatePath: completed.path })).rejects.toThrow(/provenance|aliases or order/);
+      await expect(readFile(join(root, 'reviewer-a', 'scores.json'), 'utf8')).rejects.toThrow();
+    }
+  });
+
+  it('exposes a safe role-scoped score-import CLI result', async () => {
+    const root = await cloneImportBase('cli'); const completed = await completedTemplate(root, 'reviewer-a');
+    const stdout = execFileSync(process.execPath, [join(repositoryRoot, 'app', 'dist-electron', 'main', 'aiCritiqueScoreImportCli.js'), '--run-dir', root, '--reviewer', 'reviewer-a', '--template', completed.path], { encoding: 'utf8' });
+    const result = JSON.parse(stdout);
+    expect(result).toMatchObject({ reviewer: 'reviewer-a', validationStatus: 'VALID', recoveryStatus: 'NONE', acceptedScoreFilename: 'scores.json', lifecycle: 'SCORING_IN_PROGRESS', otherReviewerPending: true });
+    expect(Object.keys(result).sort()).toEqual(['acceptedScoreFilename', 'acceptedScoreSha256', 'lifecycle', 'otherReviewerPending', 'recoveryStatus', 'reviewer', 'validationStatus'].sort());
+  });
+  it('redacts score-import CLI failures to safe status metadata', async () => {
+    const root = await cloneImportBase('cli-failure'); const completed = await completedTemplate(root, 'reviewer-a'); await writeFile(completed.path, '{', 'utf8');
+    let stderr = '';
+    try { execFileSync(process.execPath, [join(repositoryRoot, 'app', 'dist-electron', 'main', 'aiCritiqueScoreImportCli.js'), '--run-dir', root, '--reviewer', 'reviewer-a', '--template', completed.path], { encoding: 'utf8' }); } catch (error) { stderr = String((error as { stderr?: string }).stderr ?? ''); }
+    expect(JSON.parse(stderr)).toEqual({ validationStatus: 'INVALID', recoveryStatus: 'SAFE_STOP' });
+    expect(stderr).not.toContain(root); expect(stderr).not.toContain(completed.path);
   });
   it('rejects a repository artifact root and creates private external evidence only', async () => {
     await expect(QualificationArtifactRun.create({ outputRoot: repositoryRoot, repositoryRoot, repositoryHead: 'head' })).rejects.toThrow('outside the repository');
@@ -432,7 +634,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     }
     await run.completeCapture(); await run.finalizePackets('seed-a', 'seed-b');
     const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await (await import('node:fs/promises')).readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
-    const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'pass-run', reviewer, independentAttestation: true as const, packetHash: sha256(JSON.stringify(packet)), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
+    const makeScores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'pass-run', reviewer, independentAttestation: true as const, packetHash: sha256(JSON.stringify(packet)), templateProvenance: provenanceForPacket('pass-run', packet), scores: packet.responses.map((response: { id: string }, index: number) => ({ opaqueId: response.id, relevance: reviewer === 'reviewer-a' && index === 0 ? 3 : 5, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
     const a = makeScores(packets[0], 'reviewer-a'); const b = makeScores(packets[1], 'reviewer-b');
     // Packet hashes are canonical rather than incidental JSON formatting.
     a.packetHash = canonicalHash(packets[0]); b.packetHash = canonicalHash(packets[1]);
@@ -455,7 +657,7 @@ describe.sequential('AI critique qualification artifacts', () => {
     }
     await run.completeCapture(); await run.finalizePackets('fail-seed-a', 'fail-seed-b');
     const packets = await Promise.all(['reviewer-a', 'reviewer-b'].map(async (reviewer) => JSON.parse(await (await import('node:fs/promises')).readFile(join(run.root, reviewer, 'packet.json'), 'utf8'))));
-    const scores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'fail-run', reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), scores: packet.responses.map((response: { id: string }) => ({ opaqueId: response.id, relevance: 3, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
+    const scores = (packet: typeof packets[number], reviewer: 'reviewer-a' | 'reviewer-b') => ({ schemaVersion: 'v1', runId: 'fail-run', reviewer, independentAttestation: true as const, packetHash: canonicalHash(packet), templateProvenance: provenanceForPacket('fail-run', packet), scores: packet.responses.map((response: { id: string }) => ({ opaqueId: response.id, relevance: 3, evidenceSpecificity: 5, correctness: 5, actionability: 5, styleRespect: 5, uncertaintyRefusal: 5, fabricatedFact: false, harmfulRecommendation: false, inappropriateNormalization: false, missedMaterialDefect: false, unjustifiedRefusal: false })) });
     const a = scores(packets[0], 'reviewer-a'); const b = scores(packets[1], 'reviewer-b');
     await run.submitScores(a); await run.submitScores(b);
     const receipt = await run.finalizeReceipt(a, b, []);
