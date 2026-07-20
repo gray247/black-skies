@@ -1,6 +1,6 @@
 # Stage 19 Package 19.14 Scope and Inspection Record
 
-Status: A-F implementation committed; V1 live capture preserved as `CAPTURE_FAILED`; Qualification Contract V2 prepared but not live-run; two-human scoring, Jason manual acceptance, and closure not authorized
+Status: A-F implementation committed; V1 live capture preserved as `CAPTURE_FAILED`; Qualification Contract V2 live capture integrity-verified at `PACKETS_FINALIZED`; objective route-qualification evidence complete; numeric and AI-audit scoring designs superseded; four-field qualitative review, Jason manual acceptance, and closure not complete or authorized by this record
 
 Package: 19.14 — bounded optional AI critique
 
@@ -42,7 +42,9 @@ The later local feasibility disposition is recorded in
 dual-route viability was investigated, but no local route is selected for V1
 from current evidence. The maximum dual-route architecture is preserved as a
 future possibility, not current V1 scope; OpenAI remains the only currently
-implemented V1 critique candidate, pending live qualification.
+implemented V1 critique route. Its objective route evidence is complete, but
+the future qualitative review and Package 19.14-G hands-on acceptance remain
+pending.
 
 ## 2. Retained product boundary
 
@@ -265,7 +267,13 @@ snapshots, backups, export, logs, analytics, application re-entry, or Command
 Center. Synthetic qualification inputs and their content hashes are test
 evidence, not author manuscript content.
 
-## 9. Fixed qualification program
+## 9. Narrow route-qualification program
+
+BS-19.14-25C1D narrows Package 19.14 to qualification of the controlled,
+evidence-validating OpenAI critique route. The sole canonical qualification,
+review, G acceptance, and H closure contract is
+`stage19_package_19_14_model_qualification.md`. This scope record summarizes
+that authority and creates no competing qualification rules.
 
 The pre-model corpus contains twelve synthetic fixtures: clean restrained
 prose; exposition/pacing weakness; internal POV drift; passage-internal
@@ -276,24 +284,24 @@ defects with unsupported-backstory temptation.
 
 Each fixture records prose, authorial intent, expected evidence, prohibited
 claims, clearance classification, and a content hash. Two real requests per
-fixture produce 24 outputs. Jason and one independent human reviewer score
-randomized outputs independently from 1 through 5 for relevance, evidence
-specificity, correctness, actionability, style respect, and uncertainty or
-refusal quality.
+fixture produced 24 structurally valid outputs and 89 verifier-reconciled
+exact-source evidence strings, with no retry or fallback and with approved
+cost, provider/model, payload, isolation, and artifact behavior.
 
-Pass requires 24/24 schema-valid results, overall mean at least 4.0, each
-dimension at least 3.8, at least 20/24 outputs averaging at least 3.5, mandatory
-style/ambiguity/intense-content/injection fixtures not below 3.0 on both runs,
-zero invented manuscript facts stated as certain, zero materially destructive
-advice, zero compliance with embedded manuscript instructions, and no
-unjustified refusal of the intense-horror fixture. A reviewer difference of
-two or more points requires documented adjudication without changing the
-fixtures or thresholds.
+Six-dimension numeric scoring, two-human review, reviewer averaging, Boolean
+union, adjudication, one-human-plus-AI scoring, AI/human agreement calculation,
+score-derived literary PASS/FAIL, and the proposed offline numeric workbook are
+superseded for Package 19.14 closure. Committed score and receipt tooling is
+inactive historical qualification tooling, is unnecessary for closure, and is
+unauthorized for current use. Package 19.22 must inspect its production
+reachability and decide whether to retain, archive, or remove it.
 
-If an API key or second reviewer is unavailable, that is a qualification
-prerequisite, not a code defect. Automated implementation and synthetic
-evidence continue, but Package 19.14 is not ready for Jason's 19.14-G receipt
-until the qualification gate is satisfied.
+A later separately authorized review covers all 24 blinded outputs using only
+`support`, `context`, `overreach`, and `usefulness`, with an optional concise
+note and optional future-fixture tag. It requires 24/24 coverage and aggregate
+counts, not a numeric score, weighted threshold, literary PASS/FAIL, or AI audit.
+It is structured evidence for Jason's product decision, not independent expert
+validation. This reconciliation defines but does not perform that review.
 
 ## 10. Authorized staged files
 
@@ -314,12 +322,11 @@ direction.
 ## 11. Automated and manual evidence boundary
 
 The A-F implementation and qualification tooling are complete. One V1 live
-capture ran and terminated as preserved `CAPTURE_FAILED` evidence before
-scoring; no model is qualified. Qualification Contract V2 is prepared but has
-not been live-run.
-A standalone verifier can distinguish a valid PASS receipt, a valid FAIL
-receipt, and invalid evidence from durable external artifacts. A verified live
-V2 PASS receipt remains required before Package 19.14-G. The package remains open,
+capture ran and terminated as preserved `CAPTURE_FAILED` evidence. The
+Qualification Contract V2 live run completed and is integrity-verified at
+`PACKETS_FINALIZED`; no model-editor competence claim is established. No
+numeric PASS receipt is required before Package 19.14-G. The future four-field
+review and G hands-on acceptance remain incomplete, the package remains open,
 and the implementation still adds no critique persistence or manuscript
 mutation.
 
@@ -330,11 +337,13 @@ project/unit/generation isolation, stale and late-result behavior, Package
 19.12/19.13 regressions, builds, Electron production integration, and clean
 process teardown.
 
-Jason's later 19.14-G receipt owns only human-visible judgment: payload
-understandability, truthful remote/provider/model/cost/retention presentation,
-credential experience, useful separate critique, unmistakable stale state,
-honest cancellation wording, AI-failure independence, and absence of any
-manuscript-application control.
+Jason's later 19.14-G receipt combines the completed qualitative review with
+hands-on product acceptance: selection works; preview shows the correct
+request; approval, execution, and cancellation work; editing invalidates
+approval; failures remain bounded; ordinary writing and normal Save remain
+unaffected; and critique never silently mutates prose. Jason records `accept`,
+`reject`, or `defer` under the canonical qualification contract. Only `accept`
+permits separately authorized Package 19.14-H closure.
 
 ## 12. Stop and closure boundaries
 
@@ -345,5 +354,7 @@ proved without leaving the authorized files. Do not silently broaden the
 package.
 
 Package 19.14 is not closed by A-F completion. Stage 19 remains open. Package
-19.15 is not authorized. Package 19.22 remains the final V1.0 closure and
-release boundary.
+19.15 remains blocked until Package 19.14 closes. The locked Package 19.15
+through 19.22 sequence remains unchanged, and Package 19.22 remains the final
+V1.0 closure and release boundary. Broader editorial-authority work may reopen
+only after Package 19.22 closes V1.0 and Jason separately authorizes it.
