@@ -151,11 +151,65 @@ left zero Electron processes.
 Future test-harness work should audit listener registration/cleanup or suite
 isolation so larger aggregates remain warning-free.
 
+### `BS-DEFERRED-WRITING-EDITOR-UNDO-01`
+
+Jason's 2026-07-26 hands-on Package 19.15 pass found that `Ctrl+Z` does not
+undo manuscript edits. Inspection confirmed that `DraftEditor.tsx` configures
+CodeMirror language, wrapping, theme, placeholder, and change listeners but
+does not install a history extension or undo keymap.
+
+This is existing Writing Studio editor capability debt rather than Markdown
+export authority. Future editor work should add and qualify undo/redo without
+weakening dirty-state, recovery-checkpoint, Save, or AI-request invalidation
+truth.
+
+### `BS-DEFERRED-WRITING-EDITOR-FRAMING-01`
+
+The same hands-on pass found that replacing visibly identical prose from a
+copy/paste remained dirty. The durable body retained an invisible terminal
+newline while the supplied visible example did not, so exact buffer comparison
+correctly classified the bytes as different. A normal Save established a new
+durable clean baseline and export then proceeded correctly.
+
+Future Writing Studio usability work should make terminal framing behavior
+unsurprising or recoverable without silently normalizing authored body content.
+This observation does not authorize an export-time rewrite.
+
 ## 7. Hands-on acceptance checklist
 
 Receipt owner: Jason
 
 Receipt status: pending
+
+### 7.1 Hands-on observations recorded 2026-07-26
+
+Jason reported successful results for:
+
+- the clean-state export control;
+- reserved `CON` fallback to `manuscript.md`;
+- neutral native-dialog cancellation;
+- destination outside the project;
+- four-unit authoritative order and exact visible Markdown content;
+- duplicate, blank, empty, whitespace-only, punctuation, link, and Unicode
+  cases;
+- absence of front matter and excluded operational content;
+- dirty-state export blocking;
+- successful Save followed by export eligibility;
+- repeat-export byte identity;
+- declined replacement preserving the original destination; and
+- accepted replacement matching the qualified export.
+
+On Windows, the native Save dialog displayed its own overwrite warning first.
+After Jason confirmed that native warning, Black Skies displayed its separate
+Replace/Cancel confirmation. Declining the Black Skies confirmation preserved
+the destination; accepting it completed replacement. This ordering is
+consistent with the contract's requirement that replacement never occur
+without explicit confirmation.
+
+The undo and terminal-framing observations are retained above as
+`BS-DEFERRED-WRITING-EDITOR-UNDO-01` and
+`BS-DEFERRED-WRITING-EDITOR-FRAMING-01`. They do not invalidate the successful
+dirty-state gate or the later clean durable export.
 
 Use a disposable project named `CON` so the reserved-name fallback can be
 observed. Create and save these units in this order:
