@@ -14,6 +14,7 @@ export const PROJECT_SPINE_CHANNELS = {
   renameUnit: 'project-spine:rename-unit',
   reorderUnits: 'project-spine:reorder-units',
   deleteUnit: 'project-spine:delete-unit',
+  exportMarkdown: 'project-spine:export-markdown',
   sessionChanged: 'project-spine:session-changed',
   closeConfirmationRequest: 'project-spine:close-confirmation-request',
   closeConfirmationResponse: 'project-spine:close-confirmation-response',
@@ -182,6 +183,9 @@ export type ProjectSpineErrorCode =
   | 'RECOVERY_CLEANUP_FAILED'
   | 'SAVE_FAILED'
   | 'STRUCTURE_WRITE_FAILED'
+  | 'EXPORT_BLOCKED'
+  | 'EXPORT_DESTINATION_INVALID'
+  | 'EXPORT_FAILED'
   | 'UNKNOWN';
 
 export interface ProjectSpineError {
@@ -298,6 +302,37 @@ export interface DeleteManuscriptUnitRequest extends ProjectSpineBinding {
   readonly confirmNonEmpty: boolean;
 }
 
+export interface ExportMarkdownRequest extends ProjectSpineBinding {
+  readonly revision: number;
+}
+
+export interface ExportMarkdownCancelledResultData {
+  readonly status: 'cancelled';
+  readonly projectId: string;
+  readonly generation: number;
+  readonly revision: number;
+  readonly operationId: string;
+}
+
+export interface ExportMarkdownCompletedResultData {
+  readonly status: 'completed';
+  readonly projectId: string;
+  readonly generation: number;
+  readonly revision: number;
+  readonly operationId: string;
+  readonly destinationPath: string;
+  readonly byteLength: number;
+  readonly unitCount: number;
+  readonly sha256: string;
+  readonly orderedUnitIds: readonly string[];
+  readonly sourceSnapshotFingerprint: string;
+  readonly completedAt: string;
+}
+
+export type ExportMarkdownResultData =
+  | ExportMarkdownCancelledResultData
+  | ExportMarkdownCompletedResultData;
+
 export interface ProjectSpineBridge {
   readonly windowRole: ProjectSpineWindowRole;
   chooseDirectory(): Promise<{ canceled: boolean; path?: string }>;
@@ -341,4 +376,8 @@ export interface ProjectSpineBridge {
   reorderUnits?(request: ReorderManuscriptUnitsRequest): Promise<ProjectSpineResult>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
   deleteUnit?(request: DeleteManuscriptUnitRequest): Promise<ProjectSpineResult>;
+  /** Writing Studio only. Omitted from the Command Center bridge. */
+  exportMarkdown?(
+    request: ExportMarkdownRequest,
+  ): Promise<ProjectSpineResult<ExportMarkdownResultData>>;
 }

@@ -56,6 +56,12 @@ export interface ProjectRecoveryCheckpointContext {
   readonly revision: number;
 }
 
+export interface ProjectExportSnapshotContext {
+  readonly project: LoadedProject & { readonly projectId: string };
+  readonly generation: number;
+  readonly revision: number;
+}
+
 export interface DiscardedUnsavedBuffers {
   readonly projectId: string;
   readonly generation: number;
@@ -201,6 +207,38 @@ export class ProjectSessionCoordinator {
     return {
       project: cloneProject(this.activeProject as LoadedProject & { projectId: string }) as LoadedProject & {
         projectId: string;
+      },
+      generation: this.generation,
+      revision: this.revision,
+    };
+  }
+
+  assertExportReady(binding: ProjectSpineBinding, expectedRevision: number): void {
+    this.assertBinding(binding);
+    if (!Number.isInteger(expectedRevision) || expectedRevision !== this.revision) {
+      throw new ProjectSessionError('STALE_SESSION', 'The export request belongs to a stale project revision.');
+    }
+    if (
+      this.hasOperationInFlight() ||
+      this.dirtyUnitIds.size > 0 ||
+      (this.saveState.status !== 'clean' && this.saveState.status !== 'saved') ||
+      this.recoveryState.status !== 'none'
+    ) {
+      throw new ProjectSessionError(
+        'EXPORT_BLOCKED',
+        'Save the project successfully before exporting.',
+      );
+    }
+  }
+
+  createExportSnapshot(
+    binding: ProjectSpineBinding,
+    expectedRevision: number,
+  ): ProjectExportSnapshotContext {
+    this.assertExportReady(binding, expectedRevision);
+    return {
+      project: cloneProject(this.activeProject as LoadedProject & { readonly projectId: string }) as LoadedProject & {
+        readonly projectId: string;
       },
       generation: this.generation,
       revision: this.revision,

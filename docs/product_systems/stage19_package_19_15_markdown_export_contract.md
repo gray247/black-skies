@@ -195,9 +195,10 @@ The document structure is:
 ```
 
 The project heading is always present. Each unit receives exactly one
-second-level heading. There is exactly one blank line after every heading.
-There is exactly one blank line between a non-empty unit body and the next unit
-heading.
+second-level heading. There is exactly one blank line between headings and
+following content and between document sections. When the final unit is empty,
+its heading is followed only by the document's single terminating LF; export
+does not invent a trailing blank body line.
 
 An empty unit is represented as:
 

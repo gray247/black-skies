@@ -10,6 +10,8 @@ import {
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest,
   type DeleteManuscriptUnitRequest,
+  type ExportMarkdownRequest,
+  type ExportMarkdownResultData,
   type OpenProjectRequest,
   type ProjectSpineError,
   type ProjectSpineCloseConfirmationResponse,
@@ -41,6 +43,14 @@ import {
   ProjectSessionError,
   toProjectSpineError,
 } from './projectSessionCoordinator';
+import {
+  buildMarkdownExportArtifact,
+  destinationExists,
+  MarkdownExportError,
+  normalizeSelectedMarkdownPath,
+  suggestMarkdownFilename,
+  writeMarkdownAtomic,
+} from './projectSpineMarkdownExport';
 import {
   clearPendingCloseRequest,
   grantCoordinatedCloseAllowance,
@@ -138,7 +148,8 @@ function failure<T>(
   if (
     normalized.code !== 'STALE_SESSION' &&
     normalized.code !== 'WRONG_WINDOW_ROLE' &&
-    !normalized.code.startsWith('RECOVERY_')
+    !normalized.code.startsWith('RECOVERY_') &&
+    !normalized.code.startsWith('EXPORT_')
   ) {
     coordinator.noteFailure(normalized, targetPath);
   }
@@ -146,6 +157,9 @@ function failure<T>(
 }
 
 function mapProjectSpineError(error: unknown): ProjectSpineError {
+  if (error instanceof MarkdownExportError) {
+    return { code: error.code, message: error.message };
+  }
   if (error instanceof ProjectSpineRecoveryCheckpointError) {
     return { code: error.code, message: error.message };
   }
@@ -1057,6 +1071,88 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       if (token) coordinator.failStructureMutation(token, mapProjectSpineError(error).message);
       publish();
       return failure(role, error);
+    }
+  });
+
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.exportMarkdown, async (event, request: ExportMarkdownRequest) => {
+    const role = roleForEvent(event);
+    try {
+      if (role !== 'writing') {
+        throw new ProjectSessionError('WRONG_WINDOW_ROLE', 'Only Writing Studio may export the manuscript.');
+      }
+      if (!request || typeof request.revision !== 'number') {
+        throw new ProjectSessionError('INVALID_REQUEST', 'A bound Markdown export request is required.');
+      }
+      coordinator.assertExportReady(request, request.revision);
+      const activeProject = coordinator.getActiveProject()!;
+      const destination = await dialog.showSaveDialog({
+        title: 'Export Markdown manuscript',
+        defaultPath: suggestMarkdownFilename(activeProject.name),
+        buttonLabel: 'Export',
+        filters: [{ name: 'Markdown', extensions: ['md'] }],
+      });
+      if (destination.canceled || !destination.filePath) {
+        return success<ExportMarkdownResultData>(role, {
+          status: 'cancelled',
+          projectId: request.projectId,
+          generation: request.generation,
+          revision: request.revision,
+          operationId: request.operationId,
+        });
+      }
+      const targetPath = normalizeSelectedMarkdownPath(destination.filePath);
+      const replacementRequired = await destinationExists(targetPath);
+      if (replacementRequired) {
+        const replacement = await dialog.showMessageBox({
+          type: 'warning',
+          title: 'Replace existing Markdown file?',
+          message: 'A file already exists at this destination.',
+          detail: targetPath,
+          buttons: ['Replace', 'Cancel'],
+          defaultId: 1,
+          cancelId: 1,
+          noLink: true,
+        });
+        if (replacement.response !== 0) {
+          return success<ExportMarkdownResultData>(role, {
+            status: 'cancelled',
+            projectId: request.projectId,
+            generation: request.generation,
+            revision: request.revision,
+            operationId: request.operationId,
+          });
+        }
+      }
+      const source = coordinator.createExportSnapshot(request, request.revision);
+      const artifact = buildMarkdownExportArtifact({
+        projectId: source.project.projectId,
+        projectTitle: source.project.name,
+        generation: source.generation,
+        revision: source.revision,
+        units: source.project.scenes.map((unit) => ({
+          id: unit.id,
+          title: unit.title,
+          order: unit.order,
+          markdown: source.project.drafts[unit.id] ?? '',
+        })),
+      });
+      await writeMarkdownAtomic(targetPath, artifact.bytes, replacementRequired);
+      return success<ExportMarkdownResultData>(role, {
+        status: 'completed',
+        projectId: source.project.projectId,
+        generation: source.generation,
+        revision: source.revision,
+        operationId: request.operationId,
+        destinationPath: targetPath,
+        byteLength: artifact.bytes.length,
+        unitCount: artifact.unitCount,
+        sha256: artifact.sha256,
+        orderedUnitIds: artifact.orderedUnitIds,
+        sourceSnapshotFingerprint: artifact.sourceSnapshotFingerprint,
+        completedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      return failure<ExportMarkdownResultData>(role, error);
     }
   });
 }

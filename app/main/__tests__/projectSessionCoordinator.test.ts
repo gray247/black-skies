@@ -344,6 +344,68 @@ describe('ProjectSessionCoordinator', () => {
     expect(coordinator.snapshot('writing').project?.projectId).toBe('proj_b');
   });
 
+  it('creates export snapshots only for the exact durably clean project revision', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_export', 'C:\\projects\\export');
+    coordinator.activateProject(active);
+
+    const cleanSnapshot = coordinator.snapshot('writing');
+    const cleanBinding = binding(coordinator, active, 'export-clean');
+    expect(coordinator.createExportSnapshot(cleanBinding, cleanSnapshot.revision)).toMatchObject({
+      project: { projectId: 'proj_export' },
+      generation: cleanSnapshot.generation,
+      revision: cleanSnapshot.revision,
+    });
+    expect(() => coordinator.assertExportReady(cleanBinding, cleanSnapshot.revision - 1)).toThrowError(
+      expect.objectContaining({ code: 'STALE_SESSION' }),
+    );
+
+    coordinator.setUnitDirty(binding(coordinator, active, 'dirty-export'), 'unit_1', true);
+    const dirtySnapshot = coordinator.snapshot('writing');
+    expect(() => coordinator.assertExportReady(
+      binding(coordinator, active, 'export-dirty'),
+      dirtySnapshot.revision,
+    )).toThrowError(expect.objectContaining({
+      code: 'EXPORT_BLOCKED',
+      message: 'Save the project successfully before exporting.',
+    }));
+
+    const saveToken = coordinator.beginSave(
+      binding(coordinator, active, 'save-export'),
+      'unit_1',
+    );
+    const savingSnapshot = coordinator.snapshot('writing');
+    expect(() => coordinator.assertExportReady(
+      binding(coordinator, active, 'export-saving'),
+      savingSnapshot.revision,
+    )).toThrowError(expect.objectContaining({ code: 'EXPORT_BLOCKED' }));
+
+    coordinator.failSave(saveToken, 'simulated failure');
+    const failedSnapshot = coordinator.snapshot('writing');
+    expect(() => coordinator.assertExportReady(
+      binding(coordinator, active, 'export-failed'),
+      failedSnapshot.revision,
+    )).toThrowError(expect.objectContaining({ code: 'EXPORT_BLOCKED' }));
+
+    const recoveryCoordinator = new ProjectSessionCoordinator();
+    const recoveryProject = project('proj_recovery_export', 'C:\\projects\\recovery-export');
+    recoveryCoordinator.activateProject(recoveryProject);
+    recoveryCoordinator.installRecoveryState(
+      binding(recoveryCoordinator, recoveryProject, 'install-recovery'),
+      {
+        status: 'degraded',
+        reason: 'read-failed',
+        message: 'Recovery evidence could not be read.',
+        candidates: [],
+      },
+    );
+    const recoverySnapshot = recoveryCoordinator.snapshot('writing');
+    expect(() => recoveryCoordinator.assertExportReady(
+      binding(recoveryCoordinator, recoveryProject, 'export-recovery'),
+      recoverySnapshot.revision,
+    )).toThrowError(expect.objectContaining({ code: 'EXPORT_BLOCKED' }));
+  });
+
   it('removes only a recent reference and marks missing references stale', () => {
     const coordinator = new ProjectSessionCoordinator([
       { path: 'C:\\projects\\a', title: 'A', lastOpened: 2, stale: false },

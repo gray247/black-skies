@@ -649,6 +649,8 @@ import {
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest as ProjectSpineCreateProjectRequest,
   type DeleteManuscriptUnitRequest,
+  type ExportMarkdownRequest,
+  type ExportMarkdownResultData,
   type OpenProjectRequest as ProjectSpineOpenProjectRequest,
   type ProjectSpineBridge,
   type ProjectSpineCloseConfirmationRequest,
@@ -2297,6 +2299,10 @@ const projectSpineBridge: ProjectSpineBridge | CommandProjectSpineBridge =
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.reorderUnits, request) as Promise<ProjectSpineResult>,
         deleteUnit: (request: DeleteManuscriptUnitRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.deleteUnit, request) as Promise<ProjectSpineResult>,
+        exportMarkdown: (request: ExportMarkdownRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, request) as Promise<
+            ProjectSpineResult<ExportMarkdownResultData>
+          >,
         onCloseConfirmationRequest: (
           listener: (request: ProjectSpineCloseConfirmationRequest) => void,
         ) => {

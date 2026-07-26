@@ -1,4 +1,4 @@
-import { cp, mkdtemp, rm, stat } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,6 +10,8 @@ const electronMocks = vi.hoisted(() => {
   return {
     handlers,
     showOpenDialog: vi.fn(),
+    showSaveDialog: vi.fn(),
+    showMessageBox: vi.fn(),
     handle: vi.fn((channel: string, handler: (event: { sender: { id: number } }, request?: any) => Promise<any>) => {
       handlers.set(channel, handler);
     }),
@@ -23,7 +25,11 @@ vi.mock('electron', () => ({
     getAppPath: vi.fn(() => process.cwd()),
     isPackaged: false,
   },
-  dialog: { showOpenDialog: electronMocks.showOpenDialog },
+  dialog: {
+    showOpenDialog: electronMocks.showOpenDialog,
+    showSaveDialog: electronMocks.showSaveDialog,
+    showMessageBox: electronMocks.showMessageBox,
+  },
   ipcMain: {
     handle: electronMocks.handle,
     removeHandler: electronMocks.removeHandler,
@@ -85,6 +91,9 @@ describe('project-spine IPC', () => {
   beforeEach(async () => {
     electronMocks.handlers.clear();
     electronMocks.showOpenDialog.mockReset();
+    electronMocks.showSaveDialog.mockReset();
+    electronMocks.showMessageBox.mockReset();
+    electronMocks.showMessageBox.mockResolvedValue({ response: 1 });
     const root = await temporaryRoot();
     testRecentStorePath = join(root, 'recents.json');
     testCoordinator = new ProjectSessionCoordinator();
@@ -119,6 +128,196 @@ describe('project-spine IPC', () => {
     expect(command.project).toMatchObject({ projectId: created.projectId });
     expect(command.project.drafts).toBeUndefined();
     expect(command.generation).toBe(writing.generation);
+  });
+
+  it('exports a clean immutable main-owned Markdown snapshot with exact evidence', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'outside-project.md');
+    const project: LoadedProject = {
+      ...syntheticProject('proj_export', join(root, 'project')),
+      name: 'Export Project',
+      outline: {
+        ...syntheticProject('proj_export', join(root, 'project')).outline,
+        scenes: [
+          { id: 'unit_b', order: 2, title: '', beat_refs: [] },
+          { id: 'unit_a', order: 1, title: '# Opening', beat_refs: [] },
+        ],
+      },
+      scenes: [
+        { id: 'unit_b', order: 2, title: '' },
+        { id: 'unit_a', order: 1, title: '# Opening' },
+      ],
+      drafts: {
+        unit_a: '---\nid: unit_a\ntitle: "# Opening"\norder: 1\n---\nFirst body.\n',
+        unit_b: '---\nid: unit_b\ntitle: ""\norder: 2\n---\n',
+      },
+    };
+    testCoordinator.activateProject(project);
+    electronMocks.showSaveDialog.mockResolvedValue({ canceled: false, filePath: target });
+
+    const before = testCoordinator.snapshot('writing');
+    const result = await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: before.generation,
+      revision: before.revision,
+      operationId: 'export-clean',
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        status: 'completed',
+        projectId: 'proj_export',
+        generation: before.generation,
+        revision: before.revision,
+        operationId: 'export-clean',
+        destinationPath: target,
+        unitCount: 2,
+        orderedUnitIds: ['unit_a', 'unit_b'],
+      },
+      snapshot: {
+        generation: before.generation,
+        revision: before.revision,
+        dirtyUnitIds: [],
+        recovery: { status: 'none' },
+      },
+    });
+    expect(result.data.sha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.data.sourceSnapshotFingerprint).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.data.byteLength).toBe(Buffer.byteLength(await readFile(target, 'utf8')));
+    expect(await readFile(target, 'utf8')).toBe(
+      '# Export Project\n\n## \\# Opening\n\nFirst body.\n\n## Untitled\n',
+    );
+    expect(testCoordinator.snapshot('writing')).toEqual(before);
+  });
+
+  it('treats dialog cancellation and declined replacement as neutral non-mutations', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'existing.md');
+    await writeFile(target, 'original\n', 'utf8');
+    const project = syntheticProject('proj_cancel', join(root, 'project'));
+    testCoordinator.activateProject(project);
+    const before = testCoordinator.snapshot('writing');
+    const request = {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: before.generation,
+      revision: before.revision,
+      operationId: 'export-cancel',
+    };
+
+    electronMocks.showSaveDialog.mockResolvedValueOnce({ canceled: true });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, request)).toMatchObject({
+      ok: true,
+      data: { status: 'cancelled', operationId: 'export-cancel' },
+    });
+    expect(testCoordinator.snapshot('writing')).toEqual(before);
+
+    electronMocks.showSaveDialog.mockResolvedValueOnce({ canceled: false, filePath: target });
+    electronMocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      ...request,
+      operationId: 'export-decline',
+    })).toMatchObject({
+      ok: true,
+      data: { status: 'cancelled', operationId: 'export-decline' },
+    });
+    expect(await readFile(target, 'utf8')).toBe('original\n');
+    expect(testCoordinator.snapshot('writing')).toEqual(before);
+  });
+
+  it('requires explicit replacement confirmation for the exact destination', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'existing.md');
+    await writeFile(target, 'original\n', 'utf8');
+    const project = syntheticProject('proj_replace', join(root, 'project'));
+    testCoordinator.activateProject(project);
+    const before = testCoordinator.snapshot('writing');
+    electronMocks.showSaveDialog.mockResolvedValue({ canceled: false, filePath: target });
+    electronMocks.showMessageBox.mockResolvedValue({ response: 0 });
+
+    const result = await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: before.generation,
+      revision: before.revision,
+      operationId: 'export-replace',
+    });
+
+    expect(result).toMatchObject({ ok: true, data: { status: 'completed', destinationPath: target } });
+    expect(electronMocks.showMessageBox).toHaveBeenCalledWith(expect.objectContaining({
+      detail: target,
+      defaultId: 1,
+      cancelId: 1,
+    }));
+    expect(await readFile(target, 'utf8')).toBe('# proj\\_replace\n');
+  });
+
+  it('blocks dirty state, stale dialog results, and Command Center export without mutation', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'blocked.md');
+    const project: LoadedProject = {
+      ...syntheticProject('proj_blocked', join(root, 'project')),
+      outline: {
+        ...syntheticProject('proj_blocked', join(root, 'project')).outline,
+        scenes: [{ id: 'unit_a', order: 1, title: 'A', beat_refs: [] }],
+      },
+      scenes: [{ id: 'unit_a', order: 1, title: 'A' }],
+      drafts: { unit_a: '---\nid: unit_a\ntitle: A\norder: 1\n---\nSaved\n' },
+    };
+    testCoordinator.activateProject(project);
+    const clean = testCoordinator.snapshot('writing');
+    const binding = {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: clean.generation,
+      revision: clean.revision,
+      operationId: 'export-blocked',
+    };
+
+    testCoordinator.setUnitDirty(binding, 'unit_a', true);
+    const dirtyBefore = testCoordinator.snapshot('writing');
+    expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      ...binding,
+      revision: dirtyBefore.revision,
+    })).toMatchObject({
+      ok: false,
+      error: { code: 'EXPORT_BLOCKED', message: 'Save the project successfully before exporting.' },
+    });
+    expect(testCoordinator.snapshot('writing')).toEqual(dirtyBefore);
+    expect(electronMocks.showSaveDialog).not.toHaveBeenCalled();
+
+    testCoordinator.setUnitDirty({
+      ...binding,
+      operationId: 'clean-again',
+    }, 'unit_a', false);
+    const ready = testCoordinator.snapshot('writing');
+    electronMocks.showSaveDialog.mockImplementationOnce(async () => {
+      testCoordinator.selectUnit({
+        projectId: project.projectId!,
+        projectPath: project.path,
+        generation: ready.generation,
+        operationId: 'change-during-dialog',
+      }, 'unit_a');
+      return { canceled: false, filePath: target };
+    });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: ready.generation,
+      revision: ready.revision,
+      operationId: 'export-stale-dialog',
+    })).toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
+    await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
+
+    expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 2, {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: testCoordinator.snapshot('command').generation,
+      revision: testCoordinator.snapshot('command').revision,
+      operationId: 'command-export',
+    })).toMatchObject({ ok: false, error: { code: 'WRONG_WINDOW_ROLE' } });
   });
 
   it('validates correlated close-confirmation responses without mutating state on rejection', async () => {
