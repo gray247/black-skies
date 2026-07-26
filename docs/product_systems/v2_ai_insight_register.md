@@ -260,6 +260,9 @@ Allowed authority classifications are `CURRENT_AUTHORITY`,
 
 ### V2-AI-007 — Qualification seam
 
+- **Current-state note:** V2-AI-026 supersedes this entry's incomplete-status
+  wording and records the completed qualitative review, G acceptance, and H
+  closure. The evidence observations below remain historical.
 - **Finding:** Package 19.14 introduces twelve synthetic selected-prose fixtures,
   content hashes, strict schema checks, two captured executions per fixture,
   24 structurally valid outputs, 89 exact-source evidence strings, no retry or
@@ -290,7 +293,8 @@ Allowed authority classifications are `CURRENT_AUTHORITY`,
 - **Exact reopening trigger:** V2 defines task categories beyond selected-prose
   critique or evaluates more than the bounded V1 routes.
 - **Expected resolution stage:** V2 evaluation-method design.
-- **Supersession history:** Initial entry.
+- **Supersession history:** Initial entry; current-state portions superseded by
+  V2-AI-026 without rewriting the historical capture evidence.
 
 ### V2-AI-008 — Hardware-class questions
 
@@ -872,6 +876,46 @@ Allowed authority classifications are `CURRENT_AUTHORITY`,
 - **Supersession history:** Supersedes the 25C1/25C1B scoring direction without
   altering the immutable capture or authorizing post-V1 implementation.
 
+### V2-AI-026 — Package 19.14 closure evidence
+
+- **Finding:** Package 19.14 is closed. The immutable V2 capture established
+  bounded route evidence; the completed 24-output qualitative review is valid
+  and preserved with documented output defects; and Jason accepted the
+  hands-on Package 19.14-G route with `PASS_WITH_LIMITATIONS`.
+- **Evidence source:** The sole canonical
+  `stage19_package_19_14_model_qualification.md` closure contract and its
+  externally preserved technical, qualitative-review, validation, and
+  hands-on acceptance identities.
+- **Exact runtime/model/version:** OpenAI Responses API,
+  `gpt-5.4-2026-03-05`, under `black_skies_critique_v2`.
+- **Authority classification:** `CURRENT_AUTHORITY` for the closed bounded V1
+  selected-prose critique route.
+- **V1 disposition:** Accept only the optional, advisory, explicitly
+  human-authorized route. Preserve provider/model disclosure, no silent
+  fallback, retry, reroute, or prose mutation, and the documented limitations.
+- **V2 relevance:** Local-first critique remains future work. Broader editorial
+  architecture, real-story usefulness, cross-task capability, routing, and
+  long-context claims remain deferred.
+- **Confidence:** High for the preserved bounded evidence and hands-on
+  disposition; no general editorial-competence inference is authorized.
+- **Unresolved questions:** The post-V1 editorial program questions already
+  recorded by this register remain unresolved.
+- **Required experiment:** None inside Package 19.14. Future work requires its
+  own bounded authorization and evidence contract.
+- **Dependencies:** Package 19.22 owns retain/archive/remove disposition for
+  inactive historical scoring tooling.
+- **Packaging implications:** Preserve the observed packaging-bloat/progress
+  limitation as a separate cleanup concern, not an AI-route acceptance defect.
+- **Exact reopening trigger:** Reopen only through a separately authorized
+  package that changes the accepted route contract or begins a named post-V1
+  intelligence/editorial program.
+- **Expected resolution stage:** Package 19.22 for inactive-tooling disposition;
+  otherwise the first applicable separately authorized post-V1 package.
+- **Supersession history:** Supersedes the current-state portions of V2-AI-007
+  and V2-AI-025 that described the qualitative review, G acceptance, and H
+  closure as future or incomplete; resolves V2-GAP-001 without rewriting the
+  historical evidence those entries preserve.
+
 ## 3. V2 open questions
 
 The next authorized V2 orchestrator must inherit, without silently resolving:
@@ -949,7 +993,7 @@ authority.
 | Task and workflow dossiers | `critique_evaluation.md`; `draft_generation_rewrite_loop.md`; `continuity.md`; `memory_lab.md`; `async_job_queue_task_runner.md`; `workflow_proof_WP-06_ai_route_package_queue_acceptance.md` | Task-specific ownership, critique output classes, memory questions, queue lifecycle, route/package/acceptance distinctions, and deferred background work. | Current product doctrine or completed workflow-boundary proof according to each record; not proof that the runtime implements the whole design. |
 | Stage 10 and 11 audits | `stage10_ai_provider_queue_performance_cost_findings.md`; `stage11_ai_routing_approval_provenance_transmission_questions.md`; `stage11_queue_service_performance_cost_hardware_model_lifecycle_questions.md` | Missing operational evidence, fatal-question review, and named handoffs for routing, provider drift, queue, cost, hardware, and model lifecycle. | `HISTORICAL` campaign records with surviving evidence and handoffs; their embedded stage-status lines are not current sequencing authority. |
 | Stage 12 architecture contracts | `stage12_package_payload_context_identity_contract.md`; `stage12_provider_policy_external_assurance_contract.md`; `stage12_queue_attempt_retry_cancellation_contract.md`; `stage12_cost_accounting_budget_persistence_contract.md`; `stage12_telemetry_generic_cache_governance_contract.md`; `stage12_evidence_retention_last_witness_contract.md`; `stage12_hardware_resource_pressure_protection_contract.md`; `stage12_model_qualification_lifecycle_contract.md` | Provider-neutral identity, invalidation, qualification, evidence, retry, cancellation, cost, cache, hardware, and lifecycle safety floors. | `CURRENT_AUTHORITY` for their owned architecture questions. They explicitly do not choose runtime schemas, models, providers, or implementation. |
-| Package 19.14 authority | `stage19_package_19_14_scope_and_inspection.md`; `stage19_package_19_14_local_route_feasibility_disposition.md`; `stage19_package_19_14_model_qualification.md` | Current selected-prose scope, one pinned OpenAI route, no local V1 route, frozen corpus, failed V1 capture, completed immutable V2 capture, narrow route evidence, future four-field review, and G/H boundaries. | `CURRENT_AUTHORITY` or `ACTIVE_BUT_INCOMPLETE` within Package 19.14. The qualification record is the sole canonical qualification and closure contract; this register preserves later program context. |
+| Package 19.14 authority | `stage19_package_19_14_scope_and_inspection.md`; `stage19_package_19_14_local_route_feasibility_disposition.md`; `stage19_package_19_14_model_qualification.md` | Closed selected-prose scope, one pinned OpenAI route, no local V1 route, frozen corpus, failed V1 capture, completed immutable V2 capture, narrow route evidence, completed four-field review, accepted G disposition, and H closure. | `CURRENT_AUTHORITY` for the closed bounded V1 route. The qualification record is the sole canonical qualification and closure contract; this register preserves later program context. |
 | Package 19.14 implementation and focused tests | `app/shared/ipc/aiCritique.ts`; `app/main/aiCritiqueCoordinator.ts`; `aiCritiqueGateway.ts`; `aiCritiqueIpc.ts`; `aiCritiqueQualificationArtifacts.ts`; their focused tests; `Stage19WritingSpineApp.tsx`; `stage19-ai-critique.spec.ts` | Main-owned immutable request/approval lifecycle, exact selected-prose evidence, one narrow gateway, strict response validation, stale/late rejection, redaction, blinded review packets, receipt verification, and Writing-Studio-only advisory presentation. | Current implementation evidence for the exact Package 19.14 path. Tests prove exercised contracts, not live model usefulness or broad intelligence quality. |
 | Current legacy model runtime | `docs/specs/model_runtime.md`; `model_routing.py`; `model_router.py`; `model_adapters.py`; `run_policy.py`; prompt modules and tests | Four coarse tasks (`outline`, `draft`, `critique`, `rewrite`), Ollama/OpenAI adapters, provider availability, prompt profiles, route metadata, budgets, and automatic-capable fallback. | Current or legacy runtime evidence according to the cited current-runtime record, but `REFERENCE_ONLY` for Package 19.14 and future architecture until reconciled with current no-silent-fallback, approval, and Project Spine doctrine. |
 | Prompt and context code | `prompt_profile_resolver.py`; `prompt_compiler.py`; `prompt_pipeline.py`; `operations/long_form_execution.py`; Package 19.14 fixed instructions | Provider-oriented draft profiles, scene context compilation, memory-packet inputs, long-form prompts, and one fixed selected-prose critique prompt. | Implementation notes and evidence. No canonical multi-task prompt-family architecture or held-out prompt evaluation exists. |
@@ -1120,7 +1164,7 @@ intelligence layer. It is not the intelligence architecture by itself.
 | Routing and fallback | Fixed provider truth and fail-closed behavior with no automatic fallback or retry. | A model capability matrix, route recommendation, hardware-aware policy, or automatic routing. |
 | Safety and trust | Selected prose is treated as quoted data; embedded instructions are rejected by contract; output is advisory, ephemeral, separate, source-grounded, and non-mutating. | Protection detection, broad project-content injection defense, external research citation verification, or safety for tools and proposed manuscript mutations. |
 | Lifecycle | Prepared/approved/executing/terminal states, expiration, replay prevention, stale/late rejection, local cancellation, and project/unit/generation invalidation. | Provider-side cancellation, durable background jobs, restart recovery, partial-output workflows, or long-lived queue cleanup/retention. |
-| Evaluation | Twelve frozen synthetic fixtures, strict schema and verbatim-evidence checks, two captured executions, 24 structurally valid outputs, 89 exact-source evidence strings, no retry/fallback, and verifier reconciliation; a future four-field human review remains pending. | Novel-editor or developmental-editing competence, literary PASS/FAIL, human or expert consensus, real-story usefulness, repeatability across time/tasks, model drift, long context, local models, or other providers. |
+| Evaluation | Twelve frozen synthetic fixtures, strict schema and verbatim-evidence checks, two captured executions, 24 structurally valid outputs, 89 exact-source evidence strings, no retry/fallback/reroute, verifier reconciliation, a completed four-field human review, and accepted hands-on G evidence with documented limitations. | Novel-editor or developmental-editing competence, literary PASS/FAIL, human or expert consensus, real-story usefulness, repeatability across time/tasks, model drift, long context, local models, or other providers. |
 | Observability and cost | Bounded provider failure classes, redacted main-only diagnostics, provider token usage, calculated cost, and external qualification evidence. | A general intelligence telemetry model, provider invoice truth, cross-task regression dashboard, local total cost, or production performance distributions. |
 | Product experience | A Writing-Studio-only preview, credential/clearance/approval flow, separate advisory result, stale state, and no Command Center AI surface. | Result comparison/history, multi-task information architecture, background-job controls, or the V2.0-to-V3.0 GUI revision. |
 | Extensibility | Strong candidate seams in immutable artifacts, approval binding, gateway isolation, result validation, receipt generation, and evidence verification. | Authority to generalize critique-specific OpenAI fields, the selected-prose schema, fixtures, UI, or qualification thresholds into universal AI infrastructure. |
@@ -1155,7 +1199,7 @@ classification from the BS-19.14-24A classification set.
 
 | ID | Major finding | Source kind | Controlling classification | Reopening trigger / required next evidence |
 | --- | --- | --- | --- | --- |
-| V2-GAP-001 | Qualification Contract V2 capture and objective route verification are complete, but the four-field 24-output review, Jason's hands-on G acceptance, and H closure remain incomplete. | Evidence and acceptance gap | `Package 19.14 closure requirement` | Complete the separately authorized qualitative review and G hands-on acceptance under the canonical qualification record; only `accept` permits separately authorized H closure. |
+| V2-GAP-001 | Resolved: Qualification Contract V2 capture and objective route verification, the four-field 24-output review, Jason's hands-on G acceptance, and H closure are complete; Package 19.14 is closed with documented limitations. | Closed evidence and acceptance gap | `resolved Package 19.14 closure requirement` | Reopen only if a separately authorized package changes the accepted bounded route contract; do not reopen for deferred post-V1 architecture work. |
 | V2-GAP-002 | A second evidence-compliance failure would leave the product choice unresolved; automatic V3 contract creation is forbidden. | Repository authority and open question | `requires human authority` | A failed V2 capture requires explicit product-level disposition before any prompt, model, provider, schema, or contract change. |
 | V2-GAP-003 | Package 19.14 implements one selected-prose critique task. | Repository authority | `intentional V1 limitation` | Reopen only after V1.0 when a bounded task-taxonomy package is authorized. |
 | V2-GAP-004 | No canonical provider-neutral taxonomy separates critique, brainstorming, planning, revision, continuity, summarization, research, drafting, and extraction capability classes. | Inference from current dossiers and code | `future V2 architecture decision` | Authorize task architecture and define owners, inputs, outputs, risk, latency, context, and evaluation per class. |
@@ -1187,7 +1231,7 @@ remains the corresponding reopening trigger and required evidence.
 
 | Finding | Expected resolution stage |
 | --- | --- |
-| V2-GAP-001 | Package 19.14 four-field qualitative review, hands-on G acceptance, and separately authorized H closure. |
+| V2-GAP-001 | Resolved by Package 19.14 four-field qualitative review, hands-on G acceptance, and H closure. |
 | V2-GAP-002 | Package 19.14 post-V2-failure product-disposition decision, only if V2 evidence compliance fails again. |
 | V2-GAP-003 | First explicitly authorized post-V1.0 task-architecture package. |
 | V2-GAP-004 | First V1.0-to-V2.0 task-architecture package. |
@@ -1211,28 +1255,26 @@ remains the corresponding reopening trigger and required evidence.
 | V2-GAP-022 | V2.0-to-V3.0 GUI and product-polish program. |
 | V2-GAP-023 | Missing Connector Review followed by an explicitly authorized connector package. |
 
-No new `V1 blocking defect` was found by this documentation audit. The V2 live
-capture and objective verifier reconciliation are complete. The future
-qualitative review and hands-on G acceptance remain open and may still produce
-an `accept`, `reject`, or `defer` disposition.
+No new `V1 blocking defect` was found. The V2 live capture, objective verifier
+reconciliation, qualitative review, hands-on G acceptance, and H closure are
+complete. Package 19.14 is closed, and Package 19.15 is eligible to begin
+separately.
 
 ## 11. Package 19.14 stopping boundary and sequencing
 
-The exact Package 19.14 boundary is:
+The closed Package 19.14 boundary is:
 
 ```text
 The Qualification Contract V2 capture and objective route verification are
-complete and immutable.
-
-Complete a separately authorized four-field qualitative review of all 24
-blinded outputs, then perform Jason's hands-on Package 19.14-G acceptance and
-record accept, reject, or defer. Only accept permits separately authorized H.
+complete and immutable. The qualitative review, hands-on G acceptance, and H
+closure are complete. Package 19.14 is closed.
 
 Do not run another capture or automatically create Qualification Contract V3.
 
 Do not begin repeated prompt optimization, model bake-offs,
 alternate-provider qualification, local-model qualification,
-or broad intelligence-layer refinement inside Package 19.14.
+local-first critique, or broad intelligence-layer refinement inside Package
+19.14. Package 19.15 requires separate bounded authorization.
 ```
 
 BS-19.14-24A sequencing assessment, dated 2026-07-17:
@@ -1242,8 +1284,9 @@ PROCEED_WITH_BS_19_14_24
 ```
 
 That 2026-07-17 sequencing assessment is historical: the authorized run later
-completed. Current sequencing authority is BS-19.14-25C1D and the Package 19.14
-qualification record. No provider call is authorized by the reconciliation.
+completed. Current sequencing authority is the closed Package 19.14
+qualification record plus the current truth index and roadmap. No provider
+call or Package 19.15 implementation is authorized by this closure.
 
 ## 12. Discovery and maintenance rules
 

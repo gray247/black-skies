@@ -1,6 +1,6 @@
 # Stage 19 Package 19.14 Scope and Inspection Record
 
-Status: A-F implementation committed; V1 live capture preserved as `CAPTURE_FAILED`; Qualification Contract V2 live capture integrity-verified at `PACKETS_FINALIZED`; objective route-qualification evidence complete; numeric and AI-audit scoring designs superseded; four-field qualitative review, Jason manual acceptance, and closure not complete or authorized by this record
+Status: Package 19.14 closed; bounded OpenAI critique route accepted for its optional, advisory, explicitly authorized V1 role; V1 failed capture preserved; Qualification Contract V2 live capture integrity-verified at `PACKETS_FINALIZED`; four-field qualitative review valid and preserved with documented output defects; Package 19.14-G accepted with documented non-blocking limitations
 
 Package: 19.14 — bounded optional AI critique
 
@@ -22,10 +22,11 @@ implementation, focused and integration testing, provider qualification,
 hostile review, in-scope repair, and repeated verification until the package is
 ready for Jason's manual acceptance.
 
-Package 19.14-G remains Jason's manual acceptance. Package 19.14-H closure and
-current-authority synchronization remain separately authorized. This record
-does not authorize either action, Package 19.15, Stage 19 closure, V1.0
-completion, commit, or push.
+Package 19.14-G hands-on acceptance and Package 19.14-H closure and
+current-authority synchronization are complete under the sole canonical
+qualification and closure contract. Package 19.15 is eligible to begin
+separately; this record does not begin it, close Stage 19, complete V1.0,
+commit, or push.
 
 The gate began from clean synchronized commit
 `3e77a1eb5bd68bb23e68e7f187b584f8ee458417` (`docs(product): sync authority
@@ -42,9 +43,9 @@ The later local feasibility disposition is recorded in
 dual-route viability was investigated, but no local route is selected for V1
 from current evidence. The maximum dual-route architecture is preserved as a
 future possibility, not current V1 scope; OpenAI remains the only currently
-implemented V1 critique route. Its objective route evidence is complete, but
-the future qualitative review and Package 19.14-G hands-on acceptance remain
-pending.
+implemented V1 critique route. Its objective route evidence, qualitative
+review, hands-on G acceptance, and H closure are complete. Local-first critique
+remains future work.
 
 ## 2. Retained product boundary
 
@@ -296,12 +297,17 @@ inactive historical qualification tooling, is unnecessary for closure, and is
 unauthorized for current use. Package 19.22 must inspect its production
 reachability and decide whether to retain, archive, or remove it.
 
-A later separately authorized review covers all 24 blinded outputs using only
+The separately authorized review covered all 24 blinded outputs using only
 `support`, `context`, `overreach`, and `usefulness`, with an optional concise
-note and optional future-fixture tag. It requires 24/24 coverage and aggregate
-counts, not a numeric score, weighted threshold, literary PASS/FAIL, or AI audit.
-It is structured evidence for Jason's product decision, not independent expert
-validation. This reconciliation defines but does not perform that review.
+note and optional future-fixture tag. It achieved 24/24 coverage. Aggregate
+counts were 22 supported, 2 partly supported, and 0 unsupported; 11 within
+context, 12 limitation disclosed, and 1 exceeds context; 23 no overreach,
+0 possible overreach, and 1 clear overreach; and 21 useful, 2 low value, and
+1 unusable. Its disposition is
+`VALID_AND_PRESERVED_WITH_DOCUMENTED_OUTPUT_DEFECTS`. It is categorical
+structured evidence for Jason's product decision, not a numeric score,
+weighted threshold, literary PASS/FAIL, AI audit, or independent expert
+validation.
 
 ## 10. Authorized staged files
 
@@ -324,11 +330,10 @@ direction.
 The A-F implementation and qualification tooling are complete. One V1 live
 capture ran and terminated as preserved `CAPTURE_FAILED` evidence. The
 Qualification Contract V2 live run completed and is integrity-verified at
-`PACKETS_FINALIZED`; no model-editor competence claim is established. No
-numeric PASS receipt is required before Package 19.14-G. The future four-field
-review and G hands-on acceptance remain incomplete, the package remains open,
-and the implementation still adds no critique persistence or manuscript
-mutation.
+`PACKETS_FINALIZED`; no model-editor competence claim is established. The
+four-field review and G hands-on acceptance are complete, Package 19.14 is
+closed, and the implementation still adds no critique persistence or
+manuscript mutation.
 
 Automation owns canonical byte/hash identity, replay/expiry, main sender-role
 and session validation, Command Center bridge absence, provider failure matrix,
@@ -337,13 +342,12 @@ project/unit/generation isolation, stale and late-result behavior, Package
 19.12/19.13 regressions, builds, Electron production integration, and clean
 process teardown.
 
-Jason's later 19.14-G receipt combines the completed qualitative review with
-hands-on product acceptance: selection works; preview shows the correct
-request; approval, execution, and cancellation work; editing invalidates
-approval; failures remain bounded; ordinary writing and normal Save remain
-unaffected; and critique never silently mutates prose. Jason records `accept`,
-`reject`, or `defer` under the canonical qualification contract. Only `accept`
-permits separately authorized Package 19.14-H closure.
+Jason's completed 19.14-G receipt combines the qualitative review with hands-on
+product acceptance: selection, preview, approval, execution, cancellation,
+invalidation, isolation, credential clearing, restart behavior, ordinary
+writing, and normal Save satisfied the bounded contract; critique never
+silently mutated prose. Jason recorded `accept` with
+`PASS_WITH_LIMITATIONS`, permitting the completed Package 19.14-H closure.
 
 ## 12. Stop and closure boundaries
 
@@ -353,8 +357,9 @@ redaction, replay protection, core independence, or qualification cannot be
 proved without leaving the authorized files. Do not silently broaden the
 package.
 
-Package 19.14 is not closed by A-F completion. Stage 19 remains open. Package
-19.15 remains blocked until Package 19.14 closes. The locked Package 19.15
+Package 19.14 is closed. Stage 19 remains open. Package 19.15 is eligible to
+begin separately but is not begun by this record. The locked Package 19.15
 through 19.22 sequence remains unchanged, and Package 19.22 remains the final
-V1.0 closure and release boundary. Broader editorial-authority work may reopen
-only after Package 19.22 closes V1.0 and Jason separately authorizes it.
+V1.0 closure and release boundary. Local-first critique remains future work.
+Broader editorial-authority work may reopen only after Package 19.22 closes
+V1.0 and Jason separately authorizes it.

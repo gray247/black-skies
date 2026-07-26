@@ -9,8 +9,8 @@
 - Fixture set: `aiCritiqueQualification.v1`
 - Frozen V1 corpus and historical scoring contract: 2026-07-14
 - V2 live capture completed: 2026-07-17
-- Current status: **V2 run `887ebcff-456b-463a-8365-45dc1009e22b` is integrity-verified at `PACKETS_FINALIZED`; objective route-qualification evidence is complete; the future four-field qualitative review, Jason's Package 19.14-G hands-on acceptance, and Package 19.14-H closure remain incomplete and separately controlled**
-- Remaining prerequisites: complete the future four-field review of all 24 blinded outputs, then complete Jason's hands-on Package 19.14-G acceptance. Only an `accept` disposition permits separately authorized Package 19.14-H closure and authority synchronization. No provider call, numeric scoring, AI audit, receipt finalization, or review-interface implementation is authorized by BS-19.14-25C1D.
+- Current status: **Package 19.14 is closed. V2 run `887ebcff-456b-463a-8365-45dc1009e22b` is integrity-verified at `PACKETS_FINALIZED`; objective route-qualification evidence is complete; the four-field qualitative review is valid and preserved with documented output defects; and Jason accepted Package 19.14-G after hands-on validation with documented non-blocking limitations**
+- Closure disposition: the bounded OpenAI Responses API route using pinned model `gpt-5.4-2026-03-05` is accepted for its optional, advisory, explicitly human-authorized V1 role. Package 19.15 is eligible to begin separately; this record does not begin it. No provider call, numeric scoring, AI audit, receipt finalization, review-interface implementation, local-first critique, or broader editorial architecture is authorized by this closure.
 
 The credential and opt-in were process-local capture prerequisites, not repository configuration, and are not retained. Local feasibility is not full task-quality qualification; no local model is selected for Package 19.14, and no mocked or local result can substitute for the completed live OpenAI capture. The fixture corpus, response-schema shape, captured provider/model identity, and objective integrity gates remain unchanged. Numeric literary scoring, two-human review, and one-human-plus-AI scoring are superseded for Package 19.14 closure. No raw provider output, credential, or manuscript data may be added to this record or the repository.
 
@@ -38,7 +38,7 @@ Immutable run `887ebcff-456b-463a-8365-45dc1009e22b` established:
 
 - 24 completed provider requests and 24 structurally valid outputs;
 - 89 exact-source evidence strings, all reconciled by the verifier;
-- no retry and no fallback;
+- no retry, fallback, or reroute;
 - approved cost behavior;
 - provider/model binding;
 - request identity and payload integrity;
@@ -50,7 +50,12 @@ The immutable 24-response capture remains unchanged as future regression and
 error-analysis evidence. Package 19.14 does not reinterpret or modify its
 outputs.
 
-At Package 19.14-H closure, the exact allowed claim is:
+Its independently recomputed immutable identity is 32 files, 6 directories,
+874325 bytes, with canonical tree SHA-256
+`963ea2e8f6c277224e87ac44110846eb5bb009878b96cee540d3ef2b90a67baa`.
+Aggregate provider cost was USD 0.355179.
+
+The exact Package 19.14-H closure claim is:
 
 > Package 19.14 qualified a bounded, explicit, evidence-validating OpenAI critique transport and execution route under frozen fixtures and controlled authorization.
 
@@ -74,10 +79,10 @@ release-readiness inspection must confirm that this superseded tooling is not
 production-reachable and decide whether to retain, archive, or remove it. This
 task does not delete or refactor that code.
 
-### Future four-field qualitative review
+### Completed four-field qualitative review
 
-The future review covers all 24 blinded outputs. For each opaque output ID,
-Jason records exactly four required judgments:
+Jason completed the review of all 24 blinded outputs using exactly four
+required judgments per opaque output ID:
 
 ```text
 support: supported | partly_supported | unsupported
@@ -86,38 +91,69 @@ overreach: no_overreach | possible_overreach | clear_overreach
 usefulness: useful | low_value | unusable
 ```
 
-A concise note and future-fixture tag are optional. The completed review must
-cover 24/24 outputs and report aggregate category counts. Opaque packet
-identity remains preserved, and raw prose and provider output remain outside
-the repository. The review creates no numeric score, weighted threshold,
-literary PASS/FAIL calculation, or AI/human agreement calculation. It is
-structured evidence for Jason's product decision, not independent expert
-validation. BS-19.14-25C1D defines this contract but does not perform the
-review or implement a review interface.
+A concise note and future-fixture tag remained optional. Validation established
+24/24 coverage and independently recomputed these aggregates:
+
+- support: 22 `supported`, 2 `partly_supported`, 0 `unsupported`;
+- context: 11 `within_context`, 12 `limitation_disclosed`, 1 `exceeds_context`;
+- overreach: 23 `no_overreach`, 0 `possible_overreach`, 1 `clear_overreach`;
+  and
+- usefulness: 21 `useful`, 2 `low_value`, 1 `unusable`.
+
+The preserved completed-review SHA-256 is
+`ef8da97d48327df710e0e8b6e8cf91b02ede8c3317ba234d976f8bbb3d08748f`.
+The validation-manifest SHA-256 is
+`109454dee491a446a2c9f4f8ab39f7618aee419812c19ebc281eb2b95e16eae5`.
+The disposition is
+`VALID_AND_PRESERVED_WITH_DOCUMENTED_OUTPUT_DEFECTS`.
+
+Known semantic defects remain truncation, repeated phrases or clauses,
+malformed punctuation, invisible Unicode padding, and schema-valid but
+semantically degraded text. These categorical judgments do not create a
+numeric score, weighted threshold, literary PASS/FAIL calculation, AI/human
+agreement calculation, general editorial-competence claim, or independent
+expert validation. Opaque packet identity remains preserved, and raw prose
+and provider output remain outside the repository.
 
 ### Package 19.14-G hands-on acceptance and disposition
 
-The qualitative review informs but does not replace Jason's hands-on product
-acceptance. Package 19.14-G must confirm that selection works; preview shows
-the correct request; approval works; execution works; cancellation works;
-editing invalidates approval; failures remain bounded; ordinary writing and
-normal Save remain unaffected; and critique never silently mutates prose.
+Jason completed Package 19.14-G with result `PASS_WITH_LIMITATIONS`. The
+packaged application remained responsive; AI remained optional; writing and
+Save worked without credentials and after both success and cancellation; the
+disposable project remained isolated; exact selected prose and route/cost/hash
+disclosures appeared in preview; the session credential remained memory-only;
+explicit confirmation and approval were required; the successful critique
+remained advisory and did not mutate prose; all evidence quotations matched
+exact source substrings; source changes invalidated approval and made completed
+critique visibly stale; project switching did not contaminate projects;
+cancellation discarded late output; no retry, fallback, reroute, or model
+substitution occurred; credential clearing worked; and restart restored
+manuscript content without restoring credential, preview, request, or critique
+state.
 
-Jason records one disposition:
+The hands-on authorization allowed at most 2 requests, USD $0.10 per request,
+and USD $0.20 aggregate. Exactly 2 requests were used, with no substitution or
+context expansion.
 
-- `accept`: the optional bounded OpenAI route is acceptable for V1, and neither
-  the captured outputs nor hands-on behavior reveals a release-blocking issue
-  in Jason's judgment;
-- `reject`: the captured or hands-on behavior is serious enough to reject the
-  current route; rejection does not authorize another prompt, model, provider,
-  paid run, or fixture change, and a separate product disposition is required;
-  or
-- `defer`: no final decision is made; Package 19.14 remains open and blocks
-  Package 19.15.
+Documented non-blocking limitations are:
 
-Only `accept` permits separately authorized Package 19.14-H closure and
-current-authority synchronization. G does not close the package, and this task
-does not perform G or authorize H.
+1. Cost presentation should show a rounded amount first while retaining the
+   precise calculated value as secondary detail.
+2. One critique strength was disproportionately long and appeared to terminate
+   somewhat abruptly.
+3. Packaged-build progress appeared frozen while copying 36 historical
+   sample-project directories. This is packaging bloat/progress visibility,
+   not an AI-route acceptance defect.
+
+Jason's exact disposition is:
+
+> I accept Package 19.14-G. The bounded OpenAI critique route is adequate for its optional, advisory, explicitly authorized V1 role, subject to the documented limitations.
+>
+> No blocking defect was observed.
+
+The durable acceptance record remains external to the repository and immutable
+qualification run. The `accept` disposition permits this Package 19.14-H
+closure and authority synchronization.
 
 ### Post-V1 editorial-authority reopening
 
@@ -445,7 +481,7 @@ V2 has distinct durable identity in the provider-bound structured-output name, p
 
 ### V2 capture verification reconciliation
 
-The external immutable run `887ebcff-456b-463a-8365-45dc1009e22b`, captured from repository HEAD `071ea7e12ca927bf46e1058afc14d72cc53fdb29`, contains 24 of 24 HTTP-200, structurally valid attempts and 89 of 89 exact-substring priority-evidence matches. It used no retry or fallback. Its calculated usage cost is USD 0.355179. It contains the finalized private identity map, two blinded packets, and two score templates; it contains no accepted scores, adjudication, or receipt.
+The external immutable run `887ebcff-456b-463a-8365-45dc1009e22b`, captured from repository HEAD `071ea7e12ca927bf46e1058afc14d72cc53fdb29`, contains 24 of 24 HTTP-200, structurally valid attempts and 89 of 89 exact-substring priority-evidence matches. It used no retry, fallback, or reroute. Its calculated usage cost is USD 0.355179. It contains the finalized private identity map, two blinded packets, and two score templates; it contains no accepted scores, adjudication, or receipt. Its immutable identity is 32 files, 6 directories, 874325 bytes, with canonical tree SHA-256 `963ea2e8f6c277224e87ac44110846eb5bb009878b96cee540d3ef2b90a67baa`.
 
 BS-19.14-24B classified the initial normalized-hash verification failures as `VERIFIER_DEFECT`. Capture, the shared critique type, the strict response schema, and gateway reconstruction all use the durable field order `overview`, `strengths`, `priorities`, `uncertainties`, `limitations`, with priority fields `evidence`, `observation`, `impact`, `revisionQuestion`. The verifier had instead hashed objects after the artifact-envelope canonical JSON parser had exposed lexically sorted insertion order. Lexical key sorting remains authoritative only for canonical artifact-envelope bytes; it is not the normalized-critique hash contract.
 
@@ -481,7 +517,7 @@ The bounded `private/score-import-transaction.json` journal is specific to `IMPO
 
 Restart recovery classifies durable bytes rather than trusting the journal phase alone. `UNCOMMITTED_TRANSACTION` requires the old manifest, no accepted score, and only phase-consistent staging with exact hashes; it removes the staging and journal, then restarts validation. `SCORE_COMMITTED_MANIFEST_PENDING` requires the exact accepted-score hash, old manifest hash, and exact staged new manifest; it atomically rolls the manifest forward, verifies target lifecycle and score binding, marks completion, and cleans transaction metadata without regenerating or deleting the score. `TRANSACTION_ALREADY_COMPLETE` requires the accepted-score hash, new manifest hash, target lifecycle, and manifest score binding; it cleans only verified stale transaction metadata and a new submission remains a duplicate. Any wrong hash, schema, run, role, lifecycle, stage inventory, or phase/evidence relationship is `AMBIGUOUS_OR_TAMPERED_STATE`: no evidence is deleted, no lifecycle advances, and bounded human inspection is required. Recovery is idempotent.
 
-Human scoring and live score import remain unstarted. This importer does not compare scores, adjudicate, infer `PASS` or `FAIL`, or finalize a receipt. It must not be used for the future four-field review. The former two-human `BS-19.14-25C — Implement Durable Qualification Finalization Commands` plan and the later 25C1C/25C2-25C4 scoring sequence are superseded.
+Human scoring and live score import remain unstarted. This importer does not compare scores, adjudicate, infer `PASS` or `FAIL`, or finalize a receipt. It was not used for the completed four-field review. The former two-human `BS-19.14-25C — Implement Durable Qualification Finalization Commands` plan and the later 25C1C/25C2-25C4 scoring sequence are superseded.
 
 ## Evidence capture and external review artifacts
 
@@ -631,22 +667,22 @@ the objective route-evidence contract requires new authority and a new
 qualification version. Historical dimensions and thresholds remain preserved
 but inactive. V2 must not silently modify historical V1 evidence.
 
-## Completed run record and future review procedure
+## Completed run, qualitative review, and acceptance record
 
 1. Fixture-integrity tests passed and the hashes above matched the source.
 2. The qualification key was supplied only to the completed run process and was not retained in repository configuration.
 3. The provider-bound request and manifest identified `black_skies_critique_v2`; the completed run sent exactly two independent requests for each of twelve passages through the production gateway, 24 requests total.
 4. The runner reached `PACKETS_FINALIZED` with 24/24 responses, a finalized identity map, two blinded packets, two historical score templates, and no receipt. These completed steps do not authorize another provider run.
 5. Keep fixture identity and run order hidden from Jason. Do not place raw responses, private identity evidence, or full review packets in Git or this record.
-6. In a later separately authorized review task, Jason completes the four-field qualitative review defined by BS-19.14-25C1D for all 24 blinded outputs. No review is performed here.
-7. Jason then performs the hands-on Package 19.14-G acceptance contract and records `accept`, `reject`, or `defer`.
-8. Preserve only approved aggregate qualitative-review evidence and the G disposition allowed by later authority. Do not persist raw output or credentials in the repository.
+6. Jason completed the separately authorized four-field qualitative review for all 24 blinded outputs. The preserved review and validation manifest retain the exact hashes and categorical aggregates recorded above.
+7. Jason completed the hands-on Package 19.14-G acceptance contract and recorded `accept` with result `PASS_WITH_LIMITATIONS`.
+8. Package 19.14-H preserves only approved aggregate qualitative-review evidence and the exact G disposition in repository authority. Raw output and credentials remain outside the repository.
 
 ## Superseded numeric pass thresholds
 
 The thresholds below describe inactive historical qualification tooling. They
 are unnecessary for Package 19.14 closure, unauthorized for current use, and
-must not be applied to the future qualitative review or Package 19.14-G.
+were not applied to the completed qualitative review or Package 19.14-G.
 
 The historical implementation required all of these conditions:
 
@@ -675,18 +711,19 @@ closure artifact.
 
 ## Package 19.14 stopping boundary
 
-The V2 live capture and objective route-evidence reconciliation are complete.
-The next Package 19.14 actions are a separately authorized four-field review
-of all 24 blinded outputs and Jason's hands-on Package 19.14-G acceptance. This
-does not authorize another capture, Qualification Contract V3, numeric scoring,
-an AI audit, a review interface, repeated prompt optimization, model bake-offs,
-alternate-provider or local-model qualification, or broad intelligence-layer
-refinement inside Package 19.14.
+Package 19.14 is closed. The V2 live capture, objective route-evidence
+reconciliation, four-field qualitative review, hands-on G acceptance, and H
+authority synchronization are complete. This closure does not authorize
+another capture, Qualification Contract V3, numeric scoring, an AI audit, a
+review interface, repeated prompt optimization, model bake-offs,
+alternate-provider or local-model qualification, local-first critique, or
+broad intelligence-layer refinement. Package 19.15 is eligible to begin only
+through separate bounded authorization.
 
 ## Authority boundary
 
-This record is Package 19.14-F route-qualification evidence and the controlling
-contract for the remaining review, G, and H boundaries. It does not perform or
-claim Jason’s Package 19.14-G manual acceptance, does not close Package 19.14,
-does not authorize Package 19.14-H, and does not begin Package 19.15. Package
-19.14 remains open; Stage 19 and V1.0 remain open.
+This record is the sole canonical Package 19.14 qualification and closure
+contract. It records Jason's completed Package 19.14-G manual acceptance and
+closes Package 19.14 while preserving the bounded claim and documented
+limitations above. It does not begin Package 19.15, close Stage 19, or complete
+V1.0. Stage 19 and V1.0 remain open.
