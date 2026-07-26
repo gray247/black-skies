@@ -4489,6 +4489,13 @@ body[data-stage19-spine] {
   max-width: 112rem;
 }
 
+.stage19-spine__project-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .stage19-spine h1,
 .stage19-spine h2,
 .stage19-spine p {
@@ -4554,6 +4561,35 @@ body[data-stage19-spine] {
   padding: 0.75rem 1rem;
   border: 1px solid rgba(248, 113, 113, 0.55);
   border-radius: 0.65rem;
+  background: rgba(127, 29, 29, 0.24);
+  color: #fecaca;
+}
+
+.stage19-spine__export-remedy,
+.stage19-spine__export-notice {
+  max-width: 112rem;
+  margin: 0 auto 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(217, 119, 6, 0.58);
+  border-radius: 0.65rem;
+  background: rgba(120, 53, 15, 0.2);
+  color: #fde68a;
+}
+
+.stage19-spine__export-notice--success {
+  border-color: rgba(5, 150, 105, 0.62);
+  background: rgba(6, 78, 59, 0.24);
+  color: #a7f3d0;
+}
+
+.stage19-spine__export-notice--neutral {
+  border-color: rgba(71, 85, 105, 0.8);
+  background: rgba(15, 23, 42, 0.72);
+  color: #cbd5e1;
+}
+
+.stage19-spine__export-notice--failure {
+  border-color: rgba(248, 113, 113, 0.55);
   background: rgba(127, 29, 29, 0.24);
   color: #fecaca;
 }
@@ -4976,6 +5012,11 @@ body[data-stage19-spine] {
 @media (max-width: 900px) {
   .stage19-spine__header,
   .stage19-spine__lifecycle {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stage19-spine__project-actions {
     align-items: stretch;
     flex-direction: column;
   }

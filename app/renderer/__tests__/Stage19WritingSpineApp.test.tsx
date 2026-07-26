@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
+  ExportMarkdownResultData,
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBridge,
   ProjectSpineCommandStatusProjection,
@@ -211,6 +212,18 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
           renameUnit: vi.fn(async () => ok({})),
           reorderUnits: vi.fn(async () => ok({})),
           deleteUnit: vi.fn(async () => ok({})),
+          exportMarkdown: vi.fn(async (request: {
+            projectId: string;
+            generation: number;
+            revision: number;
+            operationId: string;
+          }) => ok<ExportMarkdownResultData>({
+            status: 'cancelled',
+            projectId: request.projectId,
+            generation: request.generation,
+            revision: request.revision,
+            operationId: request.operationId,
+          })),
           ...(options.closeConfirmations
             ? {
                 onCloseConfirmationRequest: vi.fn((listener: (request: ProjectSpineCloseConfirmationRequest) => void) => {
@@ -480,6 +493,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('button', { name: /Untitled/i })).toBeVisible();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Export Markdown/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Create unit/i })).not.toBeInTheDocument();
     expect(document.querySelector('[data-stage19-role="command"]')).toHaveAttribute(
       'data-primary-scroll-container',
@@ -714,10 +728,171 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('button', { name: 'Create unit' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Update title' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Delete unit…' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Export Markdown…' })).toBeEnabled();
     expect(document.querySelector('[data-stage19-role="writing"]')).toHaveAttribute(
       'data-primary-scroll-container',
       'true',
     );
+  });
+
+  it('binds a clean Markdown export to the exact project revision and reports completion', async () => {
+    const current = snapshot('writing', { revision: 7 });
+    const harness = createBridge(current);
+    vi.mocked(harness.bridge.exportMarkdown!).mockResolvedValueOnce({
+      ok: true,
+      data: {
+        status: 'completed',
+        projectId: 'proj_a',
+        generation: 1,
+        revision: 7,
+        operationId: 'export-operation',
+        destinationPath: 'C:\\exports\\Project A.md',
+        byteLength: 321,
+        unitCount: 2,
+        sha256: 'a'.repeat(64),
+        orderedUnitIds: ['unit_a', 'unit_b'],
+        sourceSnapshotFingerprint: 'b'.repeat(64),
+        completedAt: '2026-07-26T20:00:00.000Z',
+      },
+      snapshot: current,
+    });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+
+    expect(harness.bridge.exportMarkdown).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a',
+      projectPath: 'C:\\projects\\a',
+      generation: 1,
+      revision: 7,
+      operationId: expect.stringMatching(/^export-markdown:/),
+    }));
+    expect(await screen.findByText(/Export complete: C:\\exports\\Project A\.md \(321 bytes, 2 units\)\./))
+      .toBeVisible();
+  });
+
+  it.each([
+    {
+      name: 'dirty',
+      options: {
+        dirtyUnitIds: ['unit_a'],
+        saveState: { status: 'dirty' as const, unitId: 'unit_a', message: null },
+      },
+    },
+    {
+      name: 'saving',
+      options: {
+        saveState: { status: 'saving' as const, unitId: 'unit_a', message: null },
+      },
+    },
+    {
+      name: 'save-failed',
+      options: {
+        saveState: { status: 'save-failed' as const, unitId: 'unit_a', message: 'failed' },
+      },
+    },
+    {
+      name: 'recovery decision',
+      options: {
+        recovery: {
+          status: 'decision-required' as const,
+          candidates: [recoveryCandidate('unit_a', 'Recovered prose')],
+        },
+      },
+    },
+    {
+      name: 'accepted recovery awaiting Save',
+      options: {
+        recovery: {
+          status: 'accepted-pending-save' as const,
+          candidates: [recoveryCandidate('unit_a', 'Recovered prose', 'accepted-pending-save')],
+        },
+      },
+    },
+    {
+      name: 'degraded recovery',
+      options: {
+        recovery: {
+          status: 'degraded' as const,
+          reason: 'read-failed' as const,
+          message: 'Recovery evidence could not be read.',
+          candidates: [],
+        },
+      },
+    },
+  ])('blocks Markdown export for $name state with the governed remedy', async ({ options }) => {
+    const harness = createBridge(snapshot('writing', options));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    expect(await screen.findByRole('button', { name: 'Export Markdown…' })).toBeDisabled();
+    expect(screen.getByText('Save the project successfully before exporting.')).toBeVisible();
+    expect(harness.bridge.exportMarkdown).not.toHaveBeenCalled();
+  });
+
+  it('treats Save-dialog cancellation as a neutral no-op', async () => {
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+
+    expect(await screen.findByText(/Export cancelled\. No file was created\./)).toBeVisible();
+    expect(screen.queryByText(/failed/i)).not.toBeInTheDocument();
+  });
+
+  it('attributes delayed export completion to its original project after a project switch', async () => {
+    const projectA = snapshot('writing');
+    const harness = createBridge(projectA);
+    let resolveExport: ((result: ProjectSpineResult<ExportMarkdownResultData>) => void) | null = null;
+    vi.mocked(harness.bridge.exportMarkdown!).mockImplementationOnce(
+      () => new Promise<ProjectSpineResult<ExportMarkdownResultData>>((resolve) => {
+        resolveExport = resolve;
+      }),
+    );
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+    act(() => harness.emit(snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 2,
+      revision: 1,
+    })));
+    await screen.findByRole('heading', { name: 'Project B' });
+
+    await act(async () => {
+      resolveExport!({
+        ok: true,
+        data: {
+          status: 'completed',
+          projectId: 'proj_a',
+          generation: 1,
+          revision: 1,
+          operationId: 'export-a',
+          destinationPath: 'C:\\exports\\Project A.md',
+          byteLength: 111,
+          unitCount: 2,
+          sha256: 'a'.repeat(64),
+          orderedUnitIds: ['unit_a', 'unit_b'],
+          sourceSnapshotFingerprint: 'b'.repeat(64),
+          completedAt: '2026-07-26T20:00:00.000Z',
+        },
+        snapshot: projectA,
+      });
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
   });
 
   it('blocks editing while showing full prior-session prose and sends exact recovery decisions', async () => {

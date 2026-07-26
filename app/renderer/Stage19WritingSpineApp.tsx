@@ -409,6 +409,13 @@ export interface Stage19WritingSpineAppProps {
   readonly aiBridge?: AiCritiqueBridge;
 }
 
+interface MarkdownExportNotice {
+  readonly projectId: string;
+  readonly projectTitle: string;
+  readonly tone: 'neutral' | 'success' | 'failure';
+  readonly message: string;
+}
+
 export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
@@ -418,6 +425,8 @@ export default function Stage19WritingSpineApp({
   const [loading, setLoading] = useState(true);
   const [projectionUnavailable, setProjectionUnavailable] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [exportingMarkdown, setExportingMarkdown] = useState(false);
+  const [markdownExportNotice, setMarkdownExportNotice] = useState<MarkdownExportNotice | null>(null);
   const [projectTitle, setProjectTitle] = useState('Untitled Project');
   const [newUnitTitle, setNewUnitTitle] = useState('');
   const [renameTitle, setRenameTitle] = useState('');
@@ -656,6 +665,11 @@ export default function Stage19WritingSpineApp({
   const hasLocalUnsaved = dirtyUnitIds.size > 0;
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
   const recoveryBlocksEditing = snapshot.recovery?.status === 'decision-required' || snapshot.recovery?.status === 'degraded';
+  const markdownExportRequiresSave = Boolean(snapshot.project) && (
+    hasLocalUnsaved ||
+    (snapshot.saveState.status !== 'clean' && snapshot.saveState.status !== 'saved') ||
+    snapshot.recovery?.status !== 'none'
+  );
 
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
@@ -1129,6 +1143,66 @@ export default function Stage19WritingSpineApp({
     setNotice(resultMessage(result));
   }, [applySnapshot, bridge, flushRecoveryCheckpoint]);
 
+  const handleExportMarkdown = useCallback(async () => {
+    const current = snapshotRef.current;
+    const api = bridge?.exportMarkdown;
+    if (!current.project || !api || windowRole !== 'writing') return;
+    const localDirty = deriveDirtyUnitIds(current, buffersRef.current);
+    if (
+      localDirty.size > 0 ||
+      (current.saveState.status !== 'clean' && current.saveState.status !== 'saved') ||
+      current.recovery?.status !== 'none'
+    ) {
+      setMarkdownExportNotice({
+        projectId: current.project.projectId,
+        projectTitle: current.project.title,
+        tone: 'failure',
+        message: 'Save the project successfully before exporting.',
+      });
+      return;
+    }
+    const binding = bindingFor(current, 'export-markdown');
+    if (!binding) return;
+    const source = {
+      projectId: current.project.projectId,
+      projectTitle: current.project.title.trim() || 'Untitled Project',
+    };
+    setExportingMarkdown(true);
+    setMarkdownExportNotice(null);
+    try {
+      const result = await api({ ...binding, revision: current.revision });
+      if (!result.ok) {
+        setMarkdownExportNotice({
+          ...source,
+          tone: 'failure',
+          message: result.error.message,
+        });
+        return;
+      }
+      if (result.data.status === 'cancelled') {
+        setMarkdownExportNotice({
+          ...source,
+          tone: 'neutral',
+          message: 'Export cancelled. No file was created.',
+        });
+        return;
+      }
+      setMarkdownExportNotice({
+        ...source,
+        tone: 'success',
+        message: `Export complete: ${result.data.destinationPath} (${result.data.byteLength} bytes, ${result.data.unitCount} unit${result.data.unitCount === 1 ? '' : 's'}).`,
+      });
+    } catch {
+      setMarkdownExportNotice({
+        ...source,
+        tone: 'failure',
+        message: 'Markdown export could not reach the application service. No completion was recorded.',
+      });
+    } finally {
+      setExportingMarkdown(false);
+    }
+  }, [bridge, windowRole]);
+
   const handleAiSelection = useCallback((selection: DraftEditorSelectionEvidence) => {
     const selectionChanged = Boolean(
       aiSelection &&
@@ -1369,10 +1443,39 @@ export default function Stage19WritingSpineApp({
           <h1>{snapshot.project?.title ?? 'Your local writing workspace'}</h1>
           <p>{snapshot.project ? `Project identity: ${snapshot.project.projectId}` : 'Create or open an isolated local project to begin.'}</p>
         </div>
-        <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">
-          {writingSaveSummary}
-        </span>
+        <div className="stage19-spine__project-actions">
+          <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">
+            {writingSaveSummary}
+          </span>
+          <button
+            type="button"
+            onClick={() => void handleExportMarkdown()}
+            disabled={
+              !snapshot.project ||
+              !bridge?.exportMarkdown ||
+              markdownExportRequiresSave ||
+              exportingMarkdown
+            }
+          >
+            {exportingMarkdown ? 'Exporting…' : 'Export Markdown…'}
+          </button>
+        </div>
       </header>
+      {markdownExportRequiresSave ? (
+        <p className="stage19-spine__export-remedy" role="status">
+          Save the project successfully before exporting.
+        </p>
+      ) : null}
+      {markdownExportNotice ? (
+        <p
+          className={`stage19-spine__export-notice stage19-spine__export-notice--${markdownExportNotice.tone}`}
+          role={markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}
+        >
+          <strong>Markdown export for {markdownExportNotice.projectTitle}</strong>
+          {' — '}
+          {markdownExportNotice.message}
+        </p>
+      ) : null}
       {notice || snapshot.lastError ? (
         <p className="stage19-spine__notice" role="alert">{notice ?? snapshot.lastError?.message}</p>
       ) : null}
