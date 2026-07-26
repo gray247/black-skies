@@ -1,4 +1,5 @@
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -92,11 +93,82 @@ describe('Project Spine Markdown export', () => {
     }).markdown).toBe('# Untitled Project\n');
   });
 
+  it('preserves duplicate titles, Unicode, intentional body Markdown, and empty units exactly', () => {
+    const artifact = buildMarkdownExportArtifact({
+      projectId: 'private-project-id',
+      projectTitle: '星の夜\t[Draft]',
+      generation: 4,
+      revision: 12,
+      units: [
+        {
+          id: 'private-unit-1',
+          title: 'Duplicate',
+          order: 1,
+          markdown: '---\nid: private-unit-1\n---\n**bold** and [link](https://example.test)\n',
+        },
+        {
+          id: 'private-unit-2',
+          title: 'Duplicate',
+          order: 2,
+          markdown: '---\nid: private-unit-2\n---\nCafé 🌌\n',
+        },
+        {
+          id: 'private-unit-3',
+          title: ' \n\t ',
+          order: 3,
+          markdown: '---\nid: private-unit-3\n---\n',
+        },
+        {
+          id: 'private-unit-4',
+          title: 'Whitespace body',
+          order: 4,
+          markdown: '---\nid: private-unit-4\n---\n \t \n',
+        },
+      ],
+    });
+
+    expect(artifact.markdown).toBe(
+      '# 星の夜 \\[Draft\\]\n\n' +
+      '## Duplicate\n\n**bold** and [link](https://example.test)\n\n' +
+      '## Duplicate\n\nCafé 🌌\n\n' +
+      '## Untitled\n\n' +
+      '## Whitespace body\n',
+    );
+    expect(artifact.markdown).not.toContain('private-project-id');
+    expect(artifact.markdown).not.toContain('private-unit-');
+    expect(artifact.bytes.toString('utf8')).toBe(artifact.markdown);
+  });
+
+  it('uses the exact governed source fingerprint projection and exact byte hash', () => {
+    const artifact = buildMarkdownExportArtifact({
+      projectId: 'proj_fingerprint',
+      projectTitle: 'Fingerprint',
+      generation: 5,
+      revision: 9,
+      units: [{
+        id: 'unit_a',
+        title: 'A',
+        order: 1,
+        markdown: '---\r\nid: unit_a\r\n---\r\nBody\r\n',
+      }],
+    });
+    const bodyHash = createHash('sha256').update('Body\n', 'utf8').digest('hex');
+    const projection = `{"schemaVersion":1,"projectId":"proj_fingerprint","generation":5,"revision":9,"units":[{"id":"unit_a","order":1,"title":"A","bodySha256":"${bodyHash}"}]}`;
+
+    expect(artifact.sourceSnapshotFingerprint).toBe(
+      createHash('sha256').update(projection, 'utf8').digest('hex'),
+    );
+    expect(artifact.sha256).toBe(
+      createHash('sha256').update(artifact.bytes).digest('hex'),
+    );
+  });
+
   it.each([
     ['Story: First/Last', 'Story_ First_Last.md'],
     ['CON', 'manuscript.md'],
     ['con.notes', 'manuscript.md'],
     ['  .  ', 'manuscript.md'],
+    ['Trailing.  ', 'Trailing.md'],
     ['星の夜', '星の夜.md'],
   ])('suggests a deterministic Windows-safe filename for %s', (title, expected) => {
     expect(suggestMarkdownFilename(title)).toBe(expected);
@@ -153,6 +225,46 @@ describe('Project Spine Markdown export', () => {
       code: 'EXPORT_FAILED',
     });
     expect(await readFile(target, 'utf8')).toBe('appeared later\n');
+    expect((await readdir(root)).filter((entry) => entry.endsWith('.tmp'))).toEqual([]);
+  });
+
+  it('contains sync failure and removes the incomplete temporary file', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'sync-failure.md');
+    const operations = {
+      open: async (...args: Parameters<typeof fs.open>) => {
+        const handle = await fs.open(...args);
+        return {
+          writeFile: handle.writeFile.bind(handle),
+          sync: async () => { throw new Error('sync unavailable'); },
+          close: handle.close.bind(handle),
+        } as Awaited<ReturnType<typeof fs.open>>;
+      },
+      rename: fs.rename,
+      link: fs.link,
+      rm: fs.rm,
+    };
+
+    await expect(writeMarkdownAtomic(target, Buffer.from('new\n'), false, operations))
+      .rejects.toMatchObject({ code: 'EXPORT_FAILED' });
+    await expect(readFile(target)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect((await readdir(root)).filter((entry) => entry.endsWith('.tmp'))).toEqual([]);
+  });
+
+  it('preserves an existing destination and removes the temporary file when replacement fails', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'replacement-failure.md');
+    await writeFile(target, 'original\n', 'utf8');
+    const operations = {
+      open: fs.open,
+      rename: async () => { throw new Error('replace unavailable'); },
+      link: fs.link,
+      rm: fs.rm,
+    };
+
+    await expect(writeMarkdownAtomic(target, Buffer.from('new\n'), true, operations))
+      .rejects.toMatchObject({ code: 'EXPORT_FAILED' });
+    expect(await readFile(target, 'utf8')).toBe('original\n');
     expect((await readdir(root)).filter((entry) => entry.endsWith('.tmp'))).toEqual([]);
   });
 });

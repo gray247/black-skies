@@ -80,6 +80,7 @@ export interface RegisterProjectSpineIpcOptions {
   readonly loadProject?: (projectPath: string) => Promise<LoadedProject>;
   readonly initiateCoordinatedShutdown?: () => void;
   readonly recoveryCheckpoints?: ProjectSpineRecoveryCheckpointService;
+  readonly writeMarkdownFile?: typeof writeMarkdownAtomic;
 }
 
 interface ProjectMetadataV1 {
@@ -1136,7 +1137,11 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           markdown: source.project.drafts[unit.id] ?? '',
         })),
       });
-      await writeMarkdownAtomic(targetPath, artifact.bytes, replacementRequired);
+      await (registrationOptions.writeMarkdownFile ?? writeMarkdownAtomic)(
+        targetPath,
+        artifact.bytes,
+        replacementRequired,
+      );
       return success<ExportMarkdownResultData>(role, {
         status: 'completed',
         projectId: source.project.projectId,

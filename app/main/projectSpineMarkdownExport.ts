@@ -32,6 +32,13 @@ export interface MarkdownExportArtifact {
   readonly unitCount: number;
 }
 
+export interface MarkdownExportFileOperations {
+  readonly open: typeof fs.open;
+  readonly rename: typeof fs.rename;
+  readonly link: typeof fs.link;
+  readonly rm: typeof fs.rm;
+}
+
 export class MarkdownExportError extends Error {
   constructor(
     readonly code: 'EXPORT_DESTINATION_INVALID' | 'EXPORT_FAILED',
@@ -186,6 +193,7 @@ export async function writeMarkdownAtomic(
   targetPath: string,
   bytes: Buffer,
   allowReplacement: boolean,
+  operations: MarkdownExportFileOperations = fs,
 ): Promise<void> {
   const temporaryPath = path.join(
     path.dirname(targetPath),
@@ -193,20 +201,20 @@ export async function writeMarkdownAtomic(
   );
   let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
   try {
-    handle = await fs.open(temporaryPath, 'wx');
+    handle = await operations.open(temporaryPath, 'wx');
     await handle.writeFile(bytes);
     await handle.sync();
     await handle.close();
     handle = null;
     if (allowReplacement) {
-      await fs.rename(temporaryPath, targetPath);
+      await operations.rename(temporaryPath, targetPath);
     } else {
-      await fs.link(temporaryPath, targetPath);
-      await fs.rm(temporaryPath);
+      await operations.link(temporaryPath, targetPath);
+      await operations.rm(temporaryPath);
     }
   } catch (error) {
     await handle?.close().catch(() => undefined);
-    await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
+    await operations.rm(temporaryPath, { force: true }).catch(() => undefined);
     if (error instanceof MarkdownExportError) {
       throw error;
     }

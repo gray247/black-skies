@@ -329,6 +329,7 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.renameUnit).toBeUndefined();
     expect(projectSpine?.reorderUnits).toBeUndefined();
     expect(projectSpine?.deleteUnit).toBeUndefined();
+    expect(projectSpine?.exportMarkdown).toBeUndefined();
     expect(projectSpine?.onCloseConfirmationRequest).toBeUndefined();
     expect(projectSpine?.respondToCloseConfirmation).toBeUndefined();
     expect(getExposedGlobal('projectLoader')).toBeUndefined();
@@ -540,6 +541,7 @@ describe('splitCommand preload bridge', () => {
         'createProject',
         'createUnit',
         'deleteUnit',
+        'exportMarkdown',
         'getSession',
         'onCloseConfirmationRequest',
         'openProject',
@@ -568,6 +570,43 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.renameUnit).toEqual(expect.any(Function));
     expect(projectSpine?.reorderUnits).toEqual(expect.any(Function));
     expect(projectSpine?.deleteUnit).toEqual(expect.any(Function));
+    expect(projectSpine?.exportMarkdown).toEqual(expect.any(Function));
+    const exportRequest = {
+      projectId: 'proj_export',
+      projectPath: 'C:\\projects\\export',
+      generation: 3,
+      revision: 7,
+      operationId: 'export-markdown',
+    };
+    const exportResult = {
+      ok: true as const,
+      data: {
+        status: 'cancelled' as const,
+        projectId: 'proj_export',
+        generation: 3,
+        revision: 7,
+        operationId: 'export-markdown',
+      },
+      snapshot: {
+        schemaVersion: 1 as const,
+        role: 'writing' as const,
+        generation: 3,
+        revision: 7,
+        project: null,
+        activeUnitId: null,
+        recentProjects: [],
+        dirtyUnitIds: [],
+        saveState: { status: 'clean' as const, unitId: null, message: null },
+        lastError: null,
+        recovery: { status: 'none' as const, candidates: [] },
+      },
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce(exportResult);
+    await expect(projectSpine!.exportMarkdown!(exportRequest)).resolves.toEqual(exportResult);
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(
+      PROJECT_SPINE_CHANNELS.exportMarkdown,
+      exportRequest,
+    );
 
     const degradedSnapshot = {
       schemaVersion: 1 as const,

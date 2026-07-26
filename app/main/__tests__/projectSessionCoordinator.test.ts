@@ -359,6 +359,19 @@ describe('ProjectSessionCoordinator', () => {
     expect(() => coordinator.assertExportReady(cleanBinding, cleanSnapshot.revision - 1)).toThrowError(
       expect.objectContaining({ code: 'STALE_SESSION' }),
     );
+    for (const staleBinding of [
+      { ...cleanBinding, projectId: 'another-project' },
+      { ...cleanBinding, projectPath: 'C:\\projects\\another-path' },
+      { ...cleanBinding, generation: cleanBinding.generation + 1 },
+    ]) {
+      expect(() => coordinator.assertExportReady(staleBinding, cleanSnapshot.revision)).toThrowError(
+        expect.objectContaining({ code: 'STALE_SESSION' }),
+      );
+    }
+    expect(() => coordinator.assertExportReady(
+      { ...cleanBinding, operationId: ' ' },
+      cleanSnapshot.revision,
+    )).toThrowError(expect.objectContaining({ code: 'INVALID_REQUEST' }));
 
     coordinator.setUnitDirty(binding(coordinator, active, 'dirty-export'), 'unit_1', true);
     const dirtySnapshot = coordinator.snapshot('writing');

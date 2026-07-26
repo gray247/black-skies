@@ -46,6 +46,7 @@ import {
 import { ProjectSessionCoordinator } from '../projectSessionCoordinator';
 import { ProjectSpineRecoveryCheckpointService } from '../projectSpineRecoveryCheckpoints';
 import { ProjectSpineRecoveryRepository } from '../projectSpineRecoveryRepository';
+import { writeMarkdownAtomic } from '../projectSpineMarkdownExport';
 import {
   consumeCoordinatedCloseAllowance,
   createPendingCloseRequest,
@@ -190,6 +191,60 @@ describe('project-spine IPC', () => {
       '# Export Project\n\n## \\# Opening\n\nFirst body.\n\n## Untitled\n',
     );
     expect(testCoordinator.snapshot('writing')).toEqual(before);
+  });
+
+  it('finishes an immutable Project A snapshot without retargeting after a later project switch', async () => {
+    const root = await temporaryRoot();
+    const target = join(root, 'project-a-export.md');
+    const projectA: LoadedProject = {
+      ...syntheticProject('proj_a_export', join(root, 'project-a')),
+      name: 'Project A',
+      outline: {
+        ...syntheticProject('proj_a_export', join(root, 'project-a')).outline,
+        scenes: [{ id: 'unit_a', order: 1, title: 'A', beat_refs: [] }],
+      },
+      scenes: [{ id: 'unit_a', order: 1, title: 'A' }],
+      drafts: { unit_a: '---\nid: unit_a\n---\nProject A body\n' },
+    };
+    const projectB = syntheticProject('proj_b_active', join(root, 'project-b'));
+    testCoordinator.activateProject(projectA);
+    const before = testCoordinator.snapshot('writing');
+    electronMocks.showSaveDialog.mockResolvedValue({ canceled: false, filePath: target });
+    registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      publishSession: vi.fn(),
+      writeMarkdownFile: async (...args) => {
+        testCoordinator.activateProject(projectB, true);
+        await writeMarkdownAtomic(...args);
+      },
+    });
+
+    const result = await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 1, {
+      projectId: projectA.projectId,
+      projectPath: projectA.path,
+      generation: before.generation,
+      revision: before.revision,
+      operationId: 'export-project-a',
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        status: 'completed',
+        projectId: 'proj_a_export',
+        generation: before.generation,
+        revision: before.revision,
+        operationId: 'export-project-a',
+      },
+      snapshot: { project: { projectId: 'proj_b_active' } },
+    });
+    expect(await readFile(target, 'utf8')).toBe(
+      '# Project A\n\n## A\n\nProject A body\n',
+    );
+    expect(testCoordinator.snapshot('writing').project?.projectId).toBe('proj_b_active');
   });
 
   it('treats dialog cancellation and declined replacement as neutral non-mutations', async () => {
