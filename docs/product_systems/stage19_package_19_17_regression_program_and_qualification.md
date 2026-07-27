@@ -138,6 +138,19 @@ helper is now generic over its request type, and the regex exception is
 documented at the exact line. Main TypeScript compilation and the critical
 tests pass after both corrections.
 
+### `BS-19.17-F03` — cross-platform qualification paths
+
+The first exact-commit Linux run reached the critical contract matrix and
+correctly rejected two test-only Windows path assumptions. The AI
+qualification-artifact test hard-coded `C:\Dev\black-skies`, and the Markdown
+filename test supplied Windows separators to Linux's native path parser.
+
+The tests now derive the repository root from `import.meta.url` and construct
+test destinations with the host path library. This preserves the Windows-safe
+product contract while allowing the same non-product qualification witnesses
+to run on Windows and Linux. The affected 266-test aggregate passes on Windows
+after correction; the superseding exact-commit CI run is required below.
+
 ## 8. Remaining qualification
 
 Package `19.17` closure requires:
@@ -151,4 +164,3 @@ Package `19.17` closure requires:
 
 Until those five steps complete, this record is implementation qualification,
 not the Package `19.17` closure receipt.
-

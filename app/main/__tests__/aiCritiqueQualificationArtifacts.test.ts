@@ -1,7 +1,8 @@
 import { cp, mkdtemp, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { AI_CRITIQUE_TASK_CONTRACT_VERSION } from '../../shared/ipc/aiCritique';
@@ -10,7 +11,7 @@ import { QualificationArtifactRun, QUALIFICATION_FIXTURES_V1, canonicalHash, can
 import { sha256 } from '../aiCritiqueCoordinator';
 import { AI_CRITIQUE_QUALIFICATION_FIXTURES_V1 } from './fixtures/aiCritiqueQualification.v1';
 
-const repositoryRoot = 'C:\\Dev\\black-skies';
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 let baseRunRoot: string;
 let adjudicatedBaseRunRoot: string;
 let dispositionBaseRunRoot: string;

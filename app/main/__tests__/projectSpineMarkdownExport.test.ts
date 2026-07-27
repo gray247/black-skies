@@ -181,12 +181,12 @@ describe('Project Spine Markdown export', () => {
   });
 
   it('normalizes exactly one Markdown extension and rejects unsafe edited names', () => {
-    expect(normalizeSelectedMarkdownPath('C:\\exports\\Draft.MD.md')).toMatch(/Draft\.md$/);
-    expect(normalizeSelectedMarkdownPath('C:\\exports\\Draft.txt')).toMatch(/Draft\.txt\.md$/);
+    expect(normalizeSelectedMarkdownPath(join('exports', 'Draft.MD.md'))).toMatch(/Draft\.md$/);
+    expect(normalizeSelectedMarkdownPath(join('exports', 'Draft.txt'))).toMatch(/Draft\.txt\.md$/);
     for (const unsafe of [
-      'C:\\exports\\.md',
-      'C:\\exports\\CON.md',
-      `C:\\exports\\${'a'.repeat(121)}.md`,
+      join('exports', '.md'),
+      join('exports', 'CON.md'),
+      join('exports', `${'a'.repeat(121)}.md`),
     ]) {
       expect(() => normalizeSelectedMarkdownPath(unsafe)).toThrow(MarkdownExportError);
     }
