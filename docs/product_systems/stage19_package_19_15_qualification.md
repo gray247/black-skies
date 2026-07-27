@@ -4,15 +4,16 @@ Date: 2026-07-26
 
 Task: `BS-19.15-05 — Qualify Markdown Export`
 
-Status: `AUTOMATED_QUALIFICATION_PASS_HANDS_ON_ACCEPTED_CLOSURE_PENDING`
+Status: `AUTOMATED_QUALIFICATION_PASS_HANDS_ON_ACCEPTED`
 
 ## 1. Authority and boundary
 
 This record qualifies the bounded Markdown export defined by
 `stage19_package_19_15_markdown_export_contract.md`.
 
-It does not record Jason's hands-on acceptance, perform
-`BS-19.15-06 — Close Package 19.15`, begin Package 19.16, qualify an
+This qualification record did not itself perform
+`BS-19.15-06 — Close Package 19.15`; closure is separately recorded by
+`stage19_package_19_15_closure.md`. It does not begin Package 19.16, qualify an
 installer, or promote the legacy renderer or Python export paths.
 
 No provider request, credential, internet access, Python export service, or
@@ -256,6 +257,7 @@ BS-19.15-03_COMPLETE
 BS-19.15-04_COMPLETE
 BS-19.15-05_AUTOMATED_QUALIFICATION_PASS
 JASON_HANDS_ON_ACCEPTANCE_PASS
-BS-19.15-06_AUTHORIZED
-PACKAGE_19_16_BLOCKED_UNTIL_19_15_CLOSURE
+BS-19.15-06_COMPLETE
+PACKAGE_19_15_CLOSED_BY_6c3d382
+PACKAGE_19_16_ELIGIBLE_SEPARATE_AUTHORIZATION_REQUIRED
 ```
