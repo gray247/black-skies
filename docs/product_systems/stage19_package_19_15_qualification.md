@@ -4,7 +4,7 @@ Date: 2026-07-26
 
 Task: `BS-19.15-05 — Qualify Markdown Export`
 
-Status: `AUTOMATED_QUALIFICATION_PASS_HANDS_ON_ACCEPTANCE_PENDING`
+Status: `AUTOMATED_QUALIFICATION_PASS_HANDS_ON_ACCEPTED_CLOSURE_PENDING`
 
 ## 1. Authority and boundary
 
@@ -179,7 +179,7 @@ This observation does not authorize an export-time rewrite.
 
 Receipt owner: Jason
 
-Receipt status: pending
+Receipt status: accepted by Jason on 2026-07-26
 
 ### 7.1 Hands-on observations recorded 2026-07-26
 
@@ -198,6 +198,8 @@ Jason reported successful results for:
 - repeat-export byte identity;
 - declined replacement preserving the original destination; and
 - accepted replacement matching the qualified export.
+- a user-edited Unicode filename; and
+- normalization of `Night 星.md.md` to exactly `Night 星.md`.
 
 On Windows, the native Save dialog displayed its own overwrite warning first.
 After Jason confirmed that native warning, Black Skies displayed its separate
@@ -253,7 +255,7 @@ service is needed.
 BS-19.15-03_COMPLETE
 BS-19.15-04_COMPLETE
 BS-19.15-05_AUTOMATED_QUALIFICATION_PASS
-JASON_HANDS_ON_ACCEPTANCE_PENDING
-BS-19.15-06_NOT_STARTED
+JASON_HANDS_ON_ACCEPTANCE_PASS
+BS-19.15-06_AUTHORIZED
 PACKAGE_19_16_BLOCKED_UNTIL_19_15_CLOSURE
 ```
