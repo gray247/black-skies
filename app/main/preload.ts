@@ -25,7 +25,7 @@ import {
 
 const safeExpose = (key: string, api: unknown) => {
   try {
-    if ((process as any).contextIsolated) {
+    if ((process as NodeJS.Process & { contextIsolated?: boolean }).contextIsolated) {
       contextBridge.exposeInMainWorld(key, api);
     } else {
       console.warn(`[preload] contextIsolation=false; skipping expose ${key}`);
@@ -84,6 +84,8 @@ const splitCommandLaunchContext = readSplitCommandLaunchContextFromArgv();
 const isCommandCenterPreload =
   splitCommandLaunchContext?.windowRole === 'secondary' ||
   (hasSplitCommandLaunchArguments && !splitCommandLaunchContext);
+const exposesLegacyWritingSurface =
+  !isCommandCenterPreload && splitCommandLaunchContext === null;
 let splitCommandOwnershipSync: SplitCommandOwnershipSyncMessage | null = null;
 const splitCommandOwnershipSyncListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
 
@@ -219,7 +221,7 @@ const electronFsApi = {
     };
   },
 };
-if (!isCommandCenterPreload) {
+if (exposesLegacyWritingSurface) {
   safeExpose('__electronApi', { fs: electronFsApi });
 }
 
@@ -227,7 +229,7 @@ const isPlaywright = process.env.PLAYWRIGHT === '1';
 const harnessHooksEnabled = modePolicy.isHarnessEnabled();
 const forceRecoveryInHarness = process.env.BLACKSKIES_TEST_NEEDS_RECOVERY === '1';
 const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
-if (!isCommandCenterPreload) {
+if (exposesLegacyWritingSurface) {
   safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
 }
 const setPlaywrightTestAttribute = (): void => {
@@ -304,7 +306,7 @@ const ensureForceStateAttrsWithRetry = (): void => {
   }
 };
 ensureForceStateAttrsWithRetry();
-if (!isCommandCenterPreload) {
+if (exposesLegacyWritingSurface) {
   safeExpose('__testEnv', { isPlaywright });
 }
 
@@ -586,7 +588,7 @@ const devApi: {
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
 // opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
-if (!isCommandCenterPreload && (isPlaywright || harnessHooksEnabled)) {
+if (exposesLegacyWritingSurface && (isPlaywright || harnessHooksEnabled)) {
   safeExpose('__test', {
     markBoot: () => console.log('[boot] renderer mounted'),
   });
@@ -707,7 +709,6 @@ import type {
   DraftUnitOverrides,
   OutlineBuildBridgeRequest,
   OutlineBuildBridgeResponse,
-  ExportFormat,
   Phase4CritiqueBridgeRequest,
   Phase4CritiqueBridgeResponse,
   Phase4RewriteBridgeRequest,
@@ -1146,7 +1147,7 @@ function formatLogArgument(argument: unknown): string {
     if (typeof json === 'string') {
       return json;
     }
-  } catch (error) {
+  } catch {
     // Ignore serialization errors and fall through to the string fallback.
   }
 
@@ -2538,15 +2539,17 @@ const aiCritiqueBridge: AiCritiqueBridge = {
 
 registerConsoleForwarding();
 
-if (!isCommandCenterPreload) {
+if (exposesLegacyWritingSurface) {
   contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 }
 contextBridge.exposeInMainWorld('projectSpine', projectSpineBridge);
-if (!isCommandCenterPreload) {
+if (exposesLegacyWritingSurface) {
   contextBridge.exposeInMainWorld('services', servicesBridge);
   contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
   contextBridge.exposeInMainWorld('layout', layoutBridge);
   contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+}
+if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
 }
 if (splitCommandBridge) {

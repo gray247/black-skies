@@ -363,6 +363,40 @@ describe('main split command launch hook', () => {
     }
   });
 
+  it('denies new windows and external navigation in both dedicated windows', async () => {
+    process.env.VITE_DEV_SERVER_URL = 'http://127.0.0.1:4173/';
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(2);
+    for (const window of browserWindowState.instances) {
+      expect(window.webContents.setWindowOpenHandler).toHaveBeenCalledTimes(1);
+      const openHandler = window.webContents.setWindowOpenHandler.mock.calls[0]?.[0];
+      expect(openHandler?.({ url: 'https://example.com' })).toEqual({ action: 'deny' });
+
+      const externalNavigation = { preventDefault: vi.fn() };
+      window.webContents.emit('will-navigate', externalNavigation, 'https://example.com/');
+      expect(externalNavigation.preventDefault).toHaveBeenCalledTimes(1);
+
+      const sameOriginNavigation = { preventDefault: vi.fn() };
+      window.webContents.emit(
+        'will-navigate',
+        sameOriginNavigation,
+        'http://127.0.0.1:4173/another-route',
+      );
+      expect(sameOriginNavigation.preventDefault).not.toHaveBeenCalled();
+
+      const localFileNavigation = { preventDefault: vi.fn() };
+      window.webContents.emit(
+        'will-navigate',
+        localFileNavigation,
+        'file:///C:/Dev/black-skies/app/dist/index.html',
+      );
+      expect(localFileNavigation.preventDefault).not.toHaveBeenCalled();
+    }
+  });
+
   it('loads the built renderer in both unpackaged windows when no dev URL is configured', async () => {
     experimentalSplitCommandWorkspace = true;
 

@@ -12,7 +12,10 @@ import type {
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
 import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
-import Stage19WritingSpineApp, { useCloseConfirmationRequest } from '../Stage19WritingSpineApp';
+import Stage19WritingSpineApp, {
+  deriveDirtyUnitIds,
+  useCloseConfirmationRequest,
+} from '../Stage19WritingSpineApp';
 
 vi.mock('../DraftEditor', () => ({
   default: ({
@@ -389,6 +392,21 @@ beforeEach(() => {
 });
 
 describe('Stage19WritingSpineApp', () => {
+  it('treats the durable Markdown terminal newline as file framing, not visible prose', () => {
+    const current = snapshot('writing');
+    const authoredTerminalLine = snapshot('writing', {
+      units: [{ id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body\n' }],
+    });
+
+    expect(deriveDirtyUnitIds(current, { unit_a: 'Alpha body' })).toEqual(new Set());
+    expect(deriveDirtyUnitIds(authoredTerminalLine, { unit_a: 'Alpha body\n' })).toEqual(
+      new Set(),
+    );
+    expect(deriveDirtyUnitIds(current, { unit_a: 'Alpha body changed' })).toEqual(
+      new Set(['unit_a']),
+    );
+  });
+
   it.each(['writing', 'command'] as const)(
     'renders a restored canonical clean project as saved immediately in %s',
     async (windowRole) => {
@@ -546,7 +564,7 @@ describe('Stage19WritingSpineApp', () => {
 
   it.each([
     ['dirty', ['unit_a'], '1 unsaved unit'],
-    ['saving', ['unit_a'], 'Savingâ€¦'],
+    ['saving', ['unit_a'], 'Saving…'],
     ['saved', [], 'Saved durably'],
     ['save-failed', ['unit_a'], 'Save failed in Writing Studio'],
   ] as const)('renders authoritative Command Save status %s', async (save, dirtyUnitIds, label) => {
@@ -723,7 +741,7 @@ describe('Stage19WritingSpineApp', () => {
     const harness = createBridge(snapshot('writing'));
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
-    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body\n');
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
     expect(screen.queryByText(/id: unit_a/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create unit' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Update title' })).toBeVisible();
@@ -1044,6 +1062,48 @@ describe('Stage19WritingSpineApp', () => {
     confirm.mockRestore();
   });
 
+  it('contains structural and lifecycle transport failures without losing the current project', async () => {
+    const user = userEvent.setup();
+    const harness = createBridge(snapshot('writing'));
+    vi.mocked(harness.bridge.createUnit!).mockRejectedValueOnce(new Error('transport unavailable'));
+    vi.mocked(harness.bridge.chooseDirectory).mockResolvedValueOnce({
+      canceled: false,
+      path: 'C:\\projects\\b',
+    });
+    vi.mocked(harness.bridge.openProject).mockRejectedValueOnce(new Error('transport unavailable'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+
+    await user.click(screen.getByRole('button', { name: 'Create unit' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The manuscript unit could not be created',
+    );
+    expect(screen.getByRole('heading', { name: 'Project A' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Open project…' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The project operation could not reach the application service',
+    );
+    expect(screen.getByRole('heading', { name: 'Project A' })).toBeVisible();
+  });
+
+  it('contains dirty-status transport failure while keeping the local prose visible', async () => {
+    const user = userEvent.setup();
+    const harness = createBridge(snapshot('writing'));
+    vi.mocked(harness.bridge.setUnitDirty!).mockRejectedValueOnce(new Error('transport unavailable'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+
+    await act(async () => {
+      await user.type(editor, ' protected local prose');
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Recovery protection remains active',
+    );
+    expect((editor as HTMLTextAreaElement).value).toContain('protected local prose');
+  });
+
   it('keeps unsaved prose isolated by unit while navigating', async () => {
     const user = userEvent.setup();
     const harness = createBridge(snapshot('writing'));
@@ -1059,7 +1119,7 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /02\s+Untitled/i }));
     });
-    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Untitled' })).toHaveValue('Beta body\n');
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Untitled' })).toHaveValue('Beta body');
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /01\s+First Unit/i }));
     });
@@ -1248,7 +1308,7 @@ describe('Stage19WritingSpineApp', () => {
     });
 
     expect(harness.bridge.captureRecoveryCheckpoint).not.toHaveBeenCalled();
-    expect(screen.getByRole('textbox', { name: 'Manuscript editor: Project B Unit' })).toHaveValue('B durable\n');
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: Project B Unit' })).toHaveValue('B durable');
   });
 
   it('routes Ctrl+S through the generation-bound durable save contract', async () => {
@@ -1275,6 +1335,22 @@ describe('Stage19WritingSpineApp', () => {
       }),
     );
     expect(await screen.findByText('Saved durably')).toBeVisible();
+  });
+
+  it('preserves an authored terminal line break separately from durable file framing', async () => {
+    const user = userEvent.setup();
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+
+    await user.click(editor);
+    await user.type(editor, '{enter}');
+    await user.click(screen.getByRole('button', { name: /^Save$/ }));
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
+    const request = vi.mocked(harness.bridge.saveUnit!).mock.calls[0][0];
+    expect(request.markdown).toMatch(/Alpha body\n\n$/);
+    expect(request.expectedMarkdown).toMatch(/Alpha body\n$/);
   });
 
   it('applies the authoritative dirty and saved result immediately in Writing Studio', async () => {
@@ -1404,7 +1480,7 @@ describe('Stage19WritingSpineApp', () => {
     });
 
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
-    expect(screen.getByRole('textbox', { name: 'Manuscript editor: B Unit' })).toHaveValue('Project B prose\n');
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: B Unit' })).toHaveValue('Project B prose');
     expect(screen.getByRole('textbox', { name: 'Manuscript editor: B Unit' })).not.toHaveValue(
       expect.stringContaining('Project A only'),
     );
@@ -1430,7 +1506,7 @@ describe('Stage19WritingSpineApp', () => {
     const project = createBridge(snapshot('writing', {
       units: [{ id: 'unit_a', title: 'AI Boundary', order: 1, body: prose }],
     }));
-    const ai = createAiBridge(`${prose}\n`);
+    const ai = createAiBridge(prose);
     const user = userEvent.setup();
     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
 
@@ -1443,12 +1519,12 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
     expect(screen.getByText('gpt-5.4-2026-03-05')).toBeVisible();
     expect(screen.getByText('2026-07-14')).toBeVisible();
-    expect(screen.getByLabelText('Exact selected prose to transmit')).toHaveValue(`${prose}\n`);
+    expect(screen.getByLabelText('Exact selected prose to transmit')).toHaveValue(prose);
     expect(ai.bridge.prepare).toHaveBeenCalledWith(expect.objectContaining({
       selection: expect.objectContaining({
         projectId: 'proj_a',
         unitId: 'unit_a',
-        selectedText: `${prose}\n`,
+        selectedText: prose,
         sourceFingerprint: 'a'.repeat(64),
         selectionFingerprint: 'b'.repeat(64),
       }),

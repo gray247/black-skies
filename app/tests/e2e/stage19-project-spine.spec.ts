@@ -73,6 +73,31 @@ test.describe('C1 unsaved close flow', () => {
       const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Keep unit' });
       await editor.pressSequentially('Keep this unsaved prose');
       await expect(editor).toHaveText('Keep this unsaved prose');
+      await writing.keyboard.press('Control+Z');
+      await expect(editor).not.toContainText('Keep this unsaved prose');
+      await expect(editor).toContainText('Start writing…');
+      await writing.keyboard.press('Control+Y');
+      await expect(editor).toHaveText('Keep this unsaved prose');
+      await writing.evaluate(async () => {
+        const bridge = window.projectSpine!;
+        const current = await bridge.getSession();
+        const unit = await bridge.createUnit!({
+          projectId: current.project!.projectId,
+          projectPath: current.project!.path,
+          generation: current.generation,
+          operationId: 'keep-undo-boundary-unit',
+          title: 'Undo boundary',
+        });
+        if (!unit.ok) throw new Error(unit.error.message);
+      });
+      const boundaryEditor = writing.getByRole('textbox', {
+        name: 'Manuscript editor: Undo boundary',
+      });
+      await expect(boundaryEditor).toContainText('Start writing…');
+      await writing.keyboard.press('Control+Z');
+      await expect(boundaryEditor).toContainText('Start writing…');
+      await writing.getByRole('button', { name: /Keep unit/ }).click();
+      await expect(editor).toHaveText('Keep this unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       await expect(writing.getByRole('button', { name: 'Keep unit Unsaved' })).toBeVisible();

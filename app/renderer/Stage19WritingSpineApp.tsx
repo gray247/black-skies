@@ -58,16 +58,16 @@ function splitDraft(markdown: string): DraftEnvelope {
     return { header: '', body: normalized };
   }
   const closingIndex = closingOffset + 1;
+  const framedBody = lines.slice(closingIndex + 1).join('\n');
   return {
     header: `${lines.slice(0, closingIndex + 1).join('\n')}\n`,
-    body: lines.slice(closingIndex + 1).join('\n'),
+    body: framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody,
   };
 }
 
 function composeDraft(envelope: DraftEnvelope, body: string): string {
   const normalizedBody = body.replace(/\r\n/g, '\n');
-  const bodyWithNewline = normalizedBody.endsWith('\n') ? normalizedBody : `${normalizedBody}\n`;
-  return `${envelope.header}${bodyWithNewline}`;
+  return `${envelope.header}${normalizedBody}\n`;
 }
 
 function bindingFor(
@@ -157,7 +157,7 @@ function commandSaveLabel(
     return 'Save failed in Writing Studio';
   }
   if (status.save === 'saving') {
-    return 'Savingâ€¦';
+    return 'Saving…';
   }
   if (status.recovery === 'decision-required' || status.recovery === 'degraded') {
     return commandRecoveryLabel(status);
@@ -604,12 +604,12 @@ export default function Stage19WritingSpineApp({
       cancelled = true;
       unsubscribe();
     };
-  }, [applySnapshot, bridge]);
+  }, [applySnapshot, bridge, windowRole]);
 
   const clearAiSurface = useCallback((invalidateActive: boolean) => {
     const reference = aiReferenceRef.current;
     if (invalidateActive && reference && aiBridge) {
-      void aiBridge.invalidate(reference);
+      void aiBridge.invalidate(reference).catch(() => undefined);
     }
     aiReferenceRef.current = null;
     setAiPreview(null);
@@ -625,6 +625,8 @@ export default function Stage19WritingSpineApp({
     let cancelled = false;
     void aiBridge.credentialStatus().then((status) => {
       if (!cancelled && 'configured' in status) setAiCredentialConfigured(status.configured);
+    }).catch(() => {
+      if (!cancelled) setAiCredentialConfigured(false);
     });
     const unsubscribe = aiBridge.subscribeState((state) => {
       if (state.requestId !== aiReferenceRef.current?.requestId) return;
@@ -782,12 +784,14 @@ export default function Stage19WritingSpineApp({
   };
 
   useEffect(() => {
+    const checkpointTimers = recoveryCheckpointTimersRef.current;
+    const pendingCheckpoints = pendingRecoveryCheckpointsRef.current;
     recoveryCheckpointMountedRef.current = true;
     return () => {
       recoveryCheckpointMountedRef.current = false;
-      for (const timer of recoveryCheckpointTimersRef.current.values()) clearTimeout(timer);
-      recoveryCheckpointTimersRef.current.clear();
-      pendingRecoveryCheckpointsRef.current.clear();
+      for (const timer of checkpointTimers.values()) clearTimeout(timer);
+      checkpointTimers.clear();
+      pendingCheckpoints.clear();
     };
   }, []);
 
@@ -807,34 +811,42 @@ export default function Stage19WritingSpineApp({
         }
         discardUnsaved = true;
       }
-      let result = await request(discardUnsaved);
-      if (result.ok === false && result.error.code === 'UNSAVED_CHANGES' && !discardUnsaved) {
-        const discard = window.confirm(
-          'This project has unsaved manuscript changes. Discard them and switch projects?',
-        );
-        if (!discard) {
-          setNotice('Project switch cancelled; unsaved work was preserved.');
-          return;
+      try {
+        let result = await request(discardUnsaved);
+        if (result.ok === false && result.error.code === 'UNSAVED_CHANGES' && !discardUnsaved) {
+          const discard = window.confirm(
+            'This project has unsaved manuscript changes. Discard them and switch projects?',
+          );
+          if (!discard) {
+            setNotice('Project switch cancelled; unsaved work was preserved.');
+            return;
+          }
+          result = await request(true);
         }
-        result = await request(true);
+        applySnapshot(result.snapshot);
+        setNotice(result.ok === false ? result.error.message : null);
+      } catch {
+        setNotice('The project operation could not reach the application service. Your current work was preserved; try again.');
       }
-      applySnapshot(result.snapshot);
-      setNotice(result.ok === false ? result.error.message : null);
     },
     [applySnapshot, flushAllRecoveryCheckpoints, hasLocalUnsaved],
   );
 
   const handleOpenProject = useCallback(async () => {
     if (!bridge) return;
-    const selection = await bridge.chooseDirectory();
-    if (selection.canceled || !selection.path) return;
-    await runLifecycleRequest((discardUnsaved) =>
-      bridge.openProject({
-        path: selection.path!,
-        operationId: operationId('open-project'),
-        discardUnsaved,
-      }),
-    );
+    try {
+      const selection = await bridge.chooseDirectory();
+      if (selection.canceled || !selection.path) return;
+      await runLifecycleRequest((discardUnsaved) =>
+        bridge.openProject({
+          path: selection.path!,
+          operationId: operationId('open-project'),
+          discardUnsaved,
+        }),
+      );
+    } catch {
+      setNotice('The project picker could not be opened. Your current work was preserved; try again.');
+    }
   }, [bridge, runLifecycleRequest]);
 
   const handleCreateProject = useCallback(async () => {
@@ -844,16 +856,20 @@ export default function Stage19WritingSpineApp({
       setNotice('Enter a project title before creating a project.');
       return;
     }
-    const selection = await bridge.chooseDirectory();
-    if (selection.canceled || !selection.path) return;
-    await runLifecycleRequest((discardUnsaved) =>
-      bridge.createProject({
-        parentPath: selection.path!,
-        title,
-        operationId: operationId('create-project'),
-        discardUnsaved,
-      }),
-    );
+    try {
+      const selection = await bridge.chooseDirectory();
+      if (selection.canceled || !selection.path) return;
+      await runLifecycleRequest((discardUnsaved) =>
+        bridge.createProject({
+          parentPath: selection.path!,
+          title,
+          operationId: operationId('create-project'),
+          discardUnsaved,
+        }),
+      );
+    } catch {
+      setNotice('The project picker could not be opened. Your current work was preserved; try again.');
+    }
   }, [bridge, projectTitle, runLifecycleRequest]);
 
   const handleOpenRecent = useCallback(
@@ -873,12 +889,16 @@ export default function Stage19WritingSpineApp({
   const handleRemoveRecent = useCallback(
     async (projectPath: string) => {
       if (!bridge) return;
-      const result = await bridge.removeRecent({
-        path: projectPath,
-        operationId: operationId('remove-recent'),
-      });
-      applySnapshot(result.snapshot);
-      setNotice(resultMessage(result));
+      try {
+        const result = await bridge.removeRecent({
+          path: projectPath,
+          operationId: operationId('remove-recent'),
+        });
+        applySnapshot(result.snapshot);
+        setNotice(resultMessage(result));
+      } catch {
+        setNotice('The recent-project list could not be updated. No project data was changed.');
+      }
     },
     [applySnapshot, bridge],
   );
@@ -890,9 +910,13 @@ export default function Stage19WritingSpineApp({
       if (previousUnitId) await flushRecoveryCheckpoint(previousUnitId);
       const binding = bindingFor(snapshotRef.current, 'select-unit');
       if (!binding) return;
-      const result = await bridge.selectUnit({ ...binding, unitId });
-      applySnapshot(result.snapshot);
-      setNotice(resultMessage(result));
+      try {
+        const result = await bridge.selectUnit({ ...binding, unitId });
+        applySnapshot(result.snapshot);
+        setNotice(resultMessage(result));
+      } catch {
+        setNotice('The manuscript unit could not be selected. Your current work was preserved; try again.');
+      }
     },
     [applySnapshot, bridge, flushRecoveryCheckpoint],
   );
@@ -949,6 +973,9 @@ export default function Stage19WritingSpineApp({
           reportedDirtyRef.current[unitId] = !dirty;
           setNotice(result.error.message);
         }
+      }).catch(() => {
+        reportedDirtyRef.current[unitId] = !dirty;
+        setNotice('The application could not record the latest unsaved-work status. Recovery protection remains active; try Save.');
       });
     },
     [applySnapshot, bridge],
@@ -960,7 +987,7 @@ export default function Stage19WritingSpineApp({
       if (aiResult) {
         setAiResultStale(true);
       } else if (aiReferenceRef.current && aiBridge) {
-        void aiBridge.invalidate(aiReferenceRef.current);
+        void aiBridge.invalidate(aiReferenceRef.current).catch(() => undefined);
         aiReferenceRef.current = null;
         setAiPreview(null);
         setAiState(null);
@@ -1093,19 +1120,27 @@ export default function Stage19WritingSpineApp({
   const handleCreateUnit = useCallback(async () => {
     const binding = bindingFor(snapshotRef.current, 'create-unit');
     if (!binding || !bridge?.createUnit) return;
-    const result = await bridge.createUnit({ ...binding, title: newUnitTitle });
-    applySnapshot(result.snapshot);
-    if (result.ok) setNewUnitTitle('');
-    setNotice(resultMessage(result));
+    try {
+      const result = await bridge.createUnit({ ...binding, title: newUnitTitle });
+      applySnapshot(result.snapshot);
+      if (result.ok) setNewUnitTitle('');
+      setNotice(resultMessage(result));
+    } catch {
+      setNotice('The manuscript unit could not be created. No existing manuscript content was changed.');
+    }
   }, [applySnapshot, bridge, newUnitTitle]);
 
   const handleRenameUnit = useCallback(async () => {
     const unitId = snapshotRef.current.activeUnitId;
     const binding = bindingFor(snapshotRef.current, 'rename-unit');
     if (!binding || !unitId || !bridge?.renameUnit) return;
-    const result = await bridge.renameUnit({ ...binding, unitId, title: renameTitle });
-    applySnapshot(result.snapshot);
-    setNotice(resultMessage(result));
+    try {
+      const result = await bridge.renameUnit({ ...binding, unitId, title: renameTitle });
+      applySnapshot(result.snapshot);
+      setNotice(resultMessage(result));
+    } catch {
+      setNotice('The manuscript title could not be updated. Your current work was preserved.');
+    }
   }, [applySnapshot, bridge, renameTitle]);
 
   const moveActiveUnit = useCallback(
@@ -1119,9 +1154,13 @@ export default function Stage19WritingSpineApp({
       const target = index + offset;
       if (index < 0 || target < 0 || target >= ordered.length) return;
       [ordered[index], ordered[target]] = [ordered[target], ordered[index]];
-      const result = await bridge.reorderUnits({ ...binding, orderedUnitIds: ordered });
-      applySnapshot(result.snapshot);
-      setNotice(resultMessage(result));
+      try {
+        const result = await bridge.reorderUnits({ ...binding, orderedUnitIds: ordered });
+        applySnapshot(result.snapshot);
+        setNotice(resultMessage(result));
+      } catch {
+        setNotice('The manuscript order could not be updated. Your current work was preserved.');
+      }
     },
     [applySnapshot, bridge],
   );
@@ -1138,9 +1177,13 @@ export default function Stage19WritingSpineApp({
     await flushRecoveryCheckpoint(unitId);
     const binding = bindingFor(snapshotRef.current, 'delete-unit');
     if (!binding) return;
-    const result = await bridge.deleteUnit({ ...binding, unitId, confirmNonEmpty: true });
-    applySnapshot(result.snapshot);
-    setNotice(resultMessage(result));
+    try {
+      const result = await bridge.deleteUnit({ ...binding, unitId, confirmNonEmpty: true });
+      applySnapshot(result.snapshot);
+      setNotice(resultMessage(result));
+    } catch {
+      setNotice('The manuscript unit could not be deleted. Its content remains available.');
+    }
   }, [applySnapshot, bridge, flushRecoveryCheckpoint]);
 
   const handleExportMarkdown = useCallback(async () => {
@@ -1215,7 +1258,7 @@ export default function Stage19WritingSpineApp({
       )
     );
     if (selectionChanged && aiReferenceRef.current && !aiResult) {
-      if (aiBridge) void aiBridge.invalidate(aiReferenceRef.current);
+      if (aiBridge) void aiBridge.invalidate(aiReferenceRef.current).catch(() => undefined);
       aiReferenceRef.current = null;
       setAiPreview(null);
       setAiState(null);
@@ -1229,21 +1272,29 @@ export default function Stage19WritingSpineApp({
     if (!aiBridge || !aiCredential) return;
     const credential = aiCredential;
     setAiCredential('');
-    const result = await aiBridge.setCredential(credential);
-    if (result.ok) {
-      setAiCredentialConfigured(result.data.configured);
-      setAiNotice('Session credential configured in main-process memory.');
-    } else {
-      setAiNotice(result.error.message);
+    try {
+      const result = await aiBridge.setCredential(credential);
+      if (result.ok) {
+        setAiCredentialConfigured(result.data.configured);
+        setAiNotice('Session credential configured in main-process memory.');
+      } else {
+        setAiNotice(result.error.message);
+      }
+    } catch {
+      setAiNotice('The critique credential service is unavailable. The credential was cleared from this form.');
     }
   }, [aiBridge, aiCredential]);
 
   const clearAiCredential = useCallback(async () => {
     if (!aiBridge) return;
-    const status = await aiBridge.clearCredential();
-    setAiCredentialConfigured(status.configured);
-    setAiCredential('');
-    setAiNotice('Session credential cleared.');
+    try {
+      const status = await aiBridge.clearCredential();
+      setAiCredentialConfigured(status.configured);
+      setAiCredential('');
+      setAiNotice('Session credential cleared.');
+    } catch {
+      setAiNotice('The critique credential service is unavailable. Try clearing the session credential again.');
+    }
   }, [aiBridge]);
 
   const prepareAiCritique = useCallback(async () => {
@@ -1256,7 +1307,9 @@ export default function Stage19WritingSpineApp({
       setAiNotice('Select between 200 and 12,000 non-whitespace characters.');
       return;
     }
-    if (aiReferenceRef.current) void aiBridge.invalidate(aiReferenceRef.current);
+    if (aiReferenceRef.current) {
+      void aiBridge.invalidate(aiReferenceRef.current).catch(() => undefined);
+    }
     aiReferenceRef.current = null;
     setAiPreview(null);
     setAiState(null);
@@ -1274,42 +1327,53 @@ export default function Stage19WritingSpineApp({
         ...aiSelection,
       },
     };
-    const prepared = await aiBridge.prepare(request);
-    if (!prepared.ok) {
-      setAiNotice(prepared.error.message);
-      return;
+    try {
+      const prepared = await aiBridge.prepare(request);
+      if (!prepared.ok) {
+        setAiNotice(prepared.error.message);
+        return;
+      }
+      setAiPreview(prepared.data);
+      aiReferenceRef.current = {
+        requestId: prepared.data.requestId,
+        operationId: request.operationId,
+      };
+      setAiState({ requestId: prepared.data.requestId, status: 'prepared' });
+    } catch {
+      setAiNotice('The critique service is unavailable. No prose was transmitted by this attempt.');
     }
-    setAiPreview(prepared.data);
-    aiReferenceRef.current = {
-      requestId: prepared.data.requestId,
-      operationId: request.operationId,
-    };
-    setAiState({ requestId: prepared.data.requestId, status: 'prepared' });
   }, [aiBridge, aiSelection, snapshot.activeUnitId, snapshot.generation, snapshot.project, snapshot.revision]);
 
   const approveAiCritique = useCallback(async () => {
     const reference = aiReferenceRef.current;
     if (!aiBridge || !aiPreview || !aiSelection || !reference || !aiClearanceConfirmed) return;
-    const approved = await aiBridge.approveAndExecute({
-      ...reference,
-      payloadHash: aiPreview.payloadHash,
-      editorRevision: aiSelection.editorRevision,
-      sourceFingerprint: aiSelection.sourceFingerprint,
-      selectionFingerprint: aiSelection.selectionFingerprint,
-      transmissionConfirmed: true,
-      authorizationCeilingUsd: AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
-    });
-    if (!approved.ok) {
-      setAiNotice(approved.error.message);
-      return;
+    try {
+      const approved = await aiBridge.approveAndExecute({
+        ...reference,
+        payloadHash: aiPreview.payloadHash,
+        editorRevision: aiSelection.editorRevision,
+        sourceFingerprint: aiSelection.sourceFingerprint,
+        selectionFingerprint: aiSelection.selectionFingerprint,
+        transmissionConfirmed: true,
+        authorizationCeilingUsd: AI_CRITIQUE_AUTHORIZATION_CEILING_USD,
+      });
+      if (!approved.ok) {
+        setAiNotice(approved.error.message);
+      }
+    } catch {
+      setAiNotice('The critique service is unavailable. Completion was not recorded; review the request before retrying.');
     }
   }, [aiBridge, aiClearanceConfirmed, aiPreview, aiSelection]);
 
   const stopWaitingForAi = useCallback(async () => {
     if (!aiBridge || !aiReferenceRef.current) return;
-    const cancelled = await aiBridge.cancel(aiReferenceRef.current);
-    if (cancelled.ok) setAiState(cancelled.data);
-    else setAiNotice(cancelled.error.message);
+    try {
+      const cancelled = await aiBridge.cancel(aiReferenceRef.current);
+      if (cancelled.ok) setAiState(cancelled.data);
+      else setAiNotice(cancelled.error.message);
+    } catch {
+      setAiNotice('The critique service could not confirm cancellation. Late results remain fail-closed.');
+    }
   }, [aiBridge]);
 
   const dismissAiCritique = useCallback(() => {
@@ -1598,9 +1662,10 @@ export default function Stage19WritingSpineApp({
                     {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
                   </button>
                 </div>
-                <p className="stage19-spine__shortcut">Ctrl+S saves the selected unit. Switching units preserves unsaved buffers.</p>
+                <p className="stage19-spine__shortcut">Ctrl+S saves the selected unit. Ctrl+Z undoes and Ctrl+Y redoes editor changes. Switching units preserves unsaved buffers.</p>
                 <div className="stage19-spine__editor">
                   <DraftEditor
+                    key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${snapshot.activeUnitId ?? 'no-unit'}`}
                     value={activeBuffer}
                     onChange={(body) => handleBufferChange(activeUnit.id, body)}
                     onSelectionChange={handleAiSelection}

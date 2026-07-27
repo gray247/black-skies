@@ -518,16 +518,8 @@ describe('splitCommand preload bridge', () => {
 
     expect(getExposedGlobalNames().sort()).toEqual(
       [
-        '__electronApi',
-        '__phase4MockFlowEnabled',
-        '__testEnv',
         'aiCritique',
-        'diagnostics',
-        'layout',
-        'projectLoader',
         'projectSpine',
-        'runtimeConfig',
-        'services',
         'splitCommand',
       ].sort(),
     );
@@ -560,6 +552,14 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
     const aiCritique = getAiCritiqueBridge();
     expect(aiCritique).toBeDefined();
+    expect(getExposedGlobal('projectLoader')).toBeUndefined();
+    expect(getExposedGlobal('services')).toBeUndefined();
+    expect(getExposedGlobal('__electronApi')).toBeUndefined();
+    expect(getExposedGlobal('diagnostics')).toBeUndefined();
+    expect(getExposedGlobal('layout')).toBeUndefined();
+    expect(getExposedGlobal('runtimeConfig')).toBeUndefined();
+    expect(getExposedGlobal('__test')).toBeUndefined();
+    expect(getExposedGlobal('__dev')).toBeUndefined();
     ipcRendererInvokeMock.mockResolvedValueOnce({ configured: false });
     await expect(aiCritique!.credentialStatus()).resolves.toEqual({ configured: false });
     expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(AI_CRITIQUE_CHANNELS.credentialStatus);

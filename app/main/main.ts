@@ -29,7 +29,6 @@ import {
 import { registerLayoutIpc } from './layoutIpc.js';
 import {
   DEFAULT_HEALTH_PROBE,
-  DEFAULT_RUNTIME_CONFIG,
   DEFAULT_SERVICE_PORT_RANGE,
   loadRuntimeConfig,
   type ServicePortRange,
@@ -87,15 +86,17 @@ function resolveProjectRoot(): string {
 
 const projectRoot = resolveProjectRoot();
 
-process.on('exit', (code) => {
-  console.log('[main] Process exiting with code', code);
-});
-process.on('uncaughtException', (error) => {
-  console.error('[main] Uncaught exception', error);
-});
-process.on('unhandledRejection', (reason) => {
-  console.error('[main] Unhandled rejection', reason);
-});
+if (process.env.PLAYWRIGHT !== '1') {
+  process.on('exit', (code) => {
+    console.log('[main] Process exiting with code', code);
+  });
+  process.on('uncaughtException', (error) => {
+    console.error('[main] Uncaught exception', error);
+  });
+  process.on('unhandledRejection', (reason) => {
+    console.error('[main] Unhandled rejection', reason);
+  });
+}
 const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
@@ -156,7 +157,6 @@ let splitCommandPairTeardownInProgress = false;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 
 let servicesProcess: ServicesProcess | null = null;
-let servicesPort: number | null = null;
 let shuttingDown = false;
 let coordinatedCloseShutdownInProgress = false;
 let mainLogger: Logger | null = null;
@@ -298,7 +298,7 @@ function resolveProjectSpineWindowRole(webContentsId: number): ProjectSpineWindo
 
 function publishProjectSpineSession(): void {
   invalidateAllAiCritiqueArtifacts();
-  for (const [webContentsId, registration] of projectSpineWindows) {
+  for (const registration of projectSpineWindows.values()) {
     if (
       registration.window.isDestroyed() ||
       registration.window.webContents.isDestroyed()
@@ -610,7 +610,6 @@ async function startServices(): Promise<void> {
   if (configuredServicePort !== null) {
     const logger = ensureMainLogger();
     servicesProcess = null;
-    servicesPort = configuredServicePort;
     logger.info('Using externally managed FastAPI services', {
       port: configuredServicePort,
       source: 'BLACKSKIES_SERVICES_PORT',
@@ -639,7 +638,6 @@ async function startServices(): Promise<void> {
       servicesSuppressed = true;
     }
     servicesProcess = null;
-    servicesPort = null;
     if (process.env.BLACKSKIES_E2E_MODE === '1' && process.env.BLACKSKIES_E2E_PORT) {
       process.env.BLACKSKIES_SERVICES_PORT = process.env.BLACKSKIES_E2E_PORT;
     } else {
@@ -688,7 +686,6 @@ async function startServices(): Promise<void> {
     const exitLogger = ensureMainLogger();
     if (servicesProcess === child) {
       servicesProcess = null;
-      servicesPort = null;
       delete process.env.BLACKSKIES_SERVICES_PORT;
     }
 
@@ -709,7 +706,6 @@ async function startServices(): Promise<void> {
   }
 
   servicesProcess = child;
-  servicesPort = port;
   process.env.BLACKSKIES_SERVICES_PORT = String(port);
 
   try {
@@ -733,7 +729,6 @@ async function stopServices(): Promise<void> {
 
   const logger = ensureMainLogger();
   servicesProcess = null;
-  servicesPort = null;
   delete process.env.BLACKSKIES_SERVICES_PORT;
 
   logger.info('Stopping FastAPI services', { pid: child.pid });
@@ -820,33 +815,7 @@ function registerDiagnosticsIpc(): void {
   );
 }
 
-async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<BrowserWindow> {
-  console.log('[main] Creating main window. projectRoot=', projectRoot);
-  const windowOptions = {
-    title: 'Black Skies — Writing Studio',
-    width: initialBounds?.width ?? 1280,
-    height: initialBounds?.height ?? 840,
-    x: initialBounds?.x,
-    y: initialBounds?.y,
-    minWidth: 640,
-    minHeight: 560,
-    show: false,
-    autoHideMenuBar: true,
-    env: { ...process.env, PLAYWRIGHT: '1' },
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false,
-      preload: PRELOAD_PATH,
-      additionalArguments: splitCommandLifecycleSeam
-        ? [...splitCommandLifecycleSeam.launchArguments]
-        : [],
-    },
-  } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
-  const window = new BrowserWindow(windowOptions);
-  const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'writing');
-  installUnsavedCloseGuard(window);
-
+function installNavigationGuard(window: BrowserWindow): void {
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
   const allowedOrigins = new Set<string>();
@@ -874,6 +843,36 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
       event.preventDefault();
     }
   });
+}
+
+async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<BrowserWindow> {
+  console.log('[main] Creating main window. projectRoot=', projectRoot);
+  const windowOptions = {
+    title: 'Black Skies — Writing Studio',
+    width: initialBounds?.width ?? 1280,
+    height: initialBounds?.height ?? 840,
+    x: initialBounds?.x,
+    y: initialBounds?.y,
+    minWidth: 640,
+    minHeight: 560,
+    show: false,
+    autoHideMenuBar: true,
+    env: { ...process.env, PLAYWRIGHT: '1' },
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      preload: PRELOAD_PATH,
+      additionalArguments: splitCommandLifecycleSeam
+        ? [...splitCommandLifecycleSeam.launchArguments]
+        : [],
+    },
+  } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
+  const window = new BrowserWindow(windowOptions);
+  const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'writing');
+  installUnsavedCloseGuard(window);
+
+  installNavigationGuard(window);
 
   window.on('ready-to-show', () => {
     window.show();
@@ -964,7 +963,7 @@ async function createSplitCommandSecondaryWindow(
   const window = new BrowserWindow(windowOptions);
   const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'command');
 
-  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  installNavigationGuard(window);
   window.on('ready-to-show', () => {
     window.show();
   });
@@ -1187,7 +1186,6 @@ async function bootstrap(): Promise<void> {
   try {
     await startOptionalServicesForCoreShell(startServices, ({ message }) => {
       servicesProcess = null;
-      servicesPort = null;
       delete process.env.BLACKSKIES_SERVICES_PORT;
       ensureMainLogger().warn('Optional services unavailable; continuing with core writing shell', {
         error: message,
@@ -1272,7 +1270,7 @@ function setupAppEventHandlers(): void {
     void shutdownLogging();
   });
 
-  const handleProcessSignal = (_signal: NodeJS.Signals): void => {
+  const handleProcessSignal = (): void => {
     if (shuttingDown) {
       return;
     }
@@ -1282,8 +1280,10 @@ function setupAppEventHandlers(): void {
     });
   };
 
-  process.on('SIGINT', handleProcessSignal);
-  process.on('SIGTERM', handleProcessSignal);
+  if (!isPlaywright) {
+    process.on('SIGINT', handleProcessSignal);
+    process.on('SIGTERM', handleProcessSignal);
+  }
 }
 
 let hasSingleInstanceLock = true;

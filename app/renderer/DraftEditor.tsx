@@ -3,6 +3,7 @@ import type { Extension } from '@codemirror/state';
 import { EditorState } from '@codemirror/state';
 import {
   EditorView,
+  keymap,
   lineNumbers,
   placeholder as placeholderExtension,
 } from '@codemirror/view';
@@ -105,6 +106,15 @@ const editorTheme = EditorView.theme(
 );
 
 const hostClassName = 'draft-editor__mount';
+const MAX_UNDO_ENTRIES = 200;
+const TYPING_GROUP_WINDOW_MS = 1_000;
+
+interface DraftHistoryState {
+  readonly undo: string[];
+  readonly redo: string[];
+  lastEditKind: 'typing' | 'other' | null;
+  lastEditAt: number;
+}
 
 export default function DraftEditor({
   value,
@@ -125,6 +135,13 @@ export default function DraftEditor({
   const onChangeRef = useRef(onChange);
   const onSelectionChangeRef = useRef(onSelectionChange);
   const skipNextChangeRef = useRef(false);
+  const historyOperationRef = useRef<'undo' | 'redo' | null>(null);
+  const historyRef = useRef<DraftHistoryState>({
+    undo: [],
+    redo: [],
+    lastEditKind: null,
+    lastEditAt: 0,
+  });
   const editorRevisionRef = useRef(0);
   const selectionSequenceRef = useRef(0);
 
@@ -219,6 +236,28 @@ export default function DraftEditor({
           if (skipNextChangeRef.current) {
             skipNextChangeRef.current = false;
           } else {
+            const historyOperation = historyOperationRef.current;
+            historyOperationRef.current = null;
+            if (!historyOperation) {
+              const history = historyRef.current;
+              const now = Date.now();
+              const isTyping = update.transactions.some((transaction) =>
+                transaction.isUserEvent('input.type'),
+              );
+              const groupsWithPreviousTyping =
+                isTyping &&
+                history.lastEditKind === 'typing' &&
+                now - history.lastEditAt <= TYPING_GROUP_WINDOW_MS;
+              if (!groupsWithPreviousTyping) {
+                history.undo.push(update.startState.doc.toString());
+                if (history.undo.length > MAX_UNDO_ENTRIES) {
+                  history.undo.shift();
+                }
+              }
+              history.redo.length = 0;
+              history.lastEditKind = isTyping ? 'typing' : 'other';
+              history.lastEditAt = now;
+            }
             onChangeRef.current?.(update.state.doc.toString());
           }
         }
@@ -243,9 +282,47 @@ export default function DraftEditor({
   const resolvedPlaceholder = placeholder ?? 'Start drafting this scene…';
 
   const baseExtensions = useMemo(() => {
+    const replaceDocument = (
+      view: EditorView,
+      nextValue: string,
+      operation: 'undo' | 'redo',
+    ): boolean => {
+      historyOperationRef.current = operation;
+      view.dispatch({
+        changes: {
+          from: 0,
+          to: view.state.doc.length,
+          insert: nextValue,
+        },
+        selection: {
+          anchor: Math.min(nextValue.length, view.state.selection.main.head),
+        },
+      });
+      historyRef.current.lastEditKind = null;
+      return true;
+    };
+    const undo = (view: EditorView): boolean => {
+      if (readOnly) return false;
+      const previous = historyRef.current.undo.pop();
+      if (previous === undefined) return false;
+      historyRef.current.redo.push(view.state.doc.toString());
+      return replaceDocument(view, previous, 'undo');
+    };
+    const redo = (view: EditorView): boolean => {
+      if (readOnly) return false;
+      const next = historyRef.current.redo.pop();
+      if (next === undefined) return false;
+      historyRef.current.undo.push(view.state.doc.toString());
+      return replaceDocument(view, next, 'redo');
+    };
     const configuration: Extension[] = [
       lineNumbers(),
       EditorView.lineWrapping,
+      keymap.of([
+        { key: 'Mod-z', run: undo },
+        { key: 'Mod-Shift-z', run: redo },
+        { key: 'Mod-y', run: redo },
+      ]),
       markdown(),
       editorTheme,
       placeholderExtension(resolvedPlaceholder),
@@ -295,6 +372,10 @@ export default function DraftEditor({
     if (value === currentValue) {
       return;
     }
+    historyRef.current.undo.length = 0;
+    historyRef.current.redo.length = 0;
+    historyRef.current.lastEditKind = null;
+    historyOperationRef.current = null;
     skipNextChangeRef.current = true;
     view.dispatch({
       changes: { from: 0, to: currentValue.length, insert: value },
