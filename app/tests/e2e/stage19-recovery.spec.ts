@@ -378,8 +378,7 @@ test('preserves checkpoint evidence through renderer loss and a fresh-process re
     await waitForRecoveryCandidates(project.path, [unsaved]);
     const artifactBeforeCrash = await readFile(recoveryArtifactPath(project.path), 'utf8');
 
-    const rendererCrash = writing.waitForEvent('crash');
-    await electronApp.evaluate(async ({ BrowserWindow }) => {
+    const rendererExitReason = await electronApp.evaluate(async ({ BrowserWindow }) => {
       const roles = await Promise.all(BrowserWindow.getAllWindows().map(async (window) => ({
         window,
         role: await window.webContents.executeJavaScript(
@@ -388,9 +387,19 @@ test('preserves checkpoint evidence through renderer loss and a fresh-process re
       })));
       const writingWindow = roles.find((entry) => entry.role === 'writing')?.window;
       if (!writingWindow) throw new Error('Writing Studio BrowserWindow was unavailable for renderer crash proof.');
-      writingWindow.webContents.forcefullyCrashRenderer();
+      return new Promise<string>((resolve, reject) => {
+        const timeout = setTimeout(
+          () => reject(new Error('Writing Studio render-process-gone was not observed.')),
+          15_000,
+        );
+        writingWindow.webContents.once('render-process-gone', (_event, details) => {
+          clearTimeout(timeout);
+          resolve(details.reason);
+        });
+        writingWindow.webContents.forcefullyCrashRenderer();
+      });
     });
-    await rendererCrash;
+    expect(rendererExitReason).toBe('crashed');
     expect(await readFile(recoveryArtifactPath(project.path), 'utf8')).toBe(artifactBeforeCrash);
     await terminateElectronApplicationAbruptly(electronApp);
 

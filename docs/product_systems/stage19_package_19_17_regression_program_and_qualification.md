@@ -162,6 +162,19 @@ the editor prose and clean decoration. This removes restored-selection
 run-order dependence without changing product behavior or weakening the
 assertion.
 
+### `BS-19.17-F05` — Linux renderer-crash observation seam
+
+The next exact Linux run passed all static, build, contract, accessibility,
+performance, lifecycle, and recovery scenarios except the final renderer-loss
+witness. Electron forcefully terminated the renderer, but Playwright's
+page-level `crash` event was not emitted on the Linux Electron path, leaving
+the test waiting until timeout.
+
+The witness now awaits Electron main's authoritative `render-process-gone`
+event and requires reason `crashed` before checking preserved recovery bytes
+and performing the fresh-process restart. This is the correct cross-platform
+process boundary and keeps the renderer-loss assertion fail-closed.
+
 ## 8. Remaining qualification
 
 Package `19.17` closure requires:
