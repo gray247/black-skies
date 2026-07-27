@@ -201,7 +201,8 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       ['Last Orbit', 'ORBIT::last'],
     ] as const;
     for (const [title, prose] of expected) {
-      await writing.getByRole('button', { name: new RegExp(title) }).click();
+      const unitButton = writing.getByRole('button', { name: new RegExp(title) });
+      if (await unitButton.isEnabled()) await unitButton.click();
       const editor = writing.getByRole('textbox', { name: `Manuscript editor: ${title}` });
       await editor.pressSequentially(prose);
       await writing.keyboard.press('Control+S');
@@ -229,7 +230,8 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       { title: 'Last Orbit', order: 3 },
     ]);
     for (const [title, prose] of expected) {
-      await reWriting.getByRole('button', { name: new RegExp(title) }).click();
+      const unitButton = reWriting.getByRole('button', { name: new RegExp(title) });
+      if (await unitButton.isEnabled()) await unitButton.click();
       await expect(reWriting.getByRole('textbox', { name: `Manuscript editor: ${title}` })).toHaveText(prose);
       await expect(reWriting.getByRole('button', { name: new RegExp(`${title} Unsaved`) })).toHaveCount(0);
     }

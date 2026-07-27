@@ -151,6 +151,17 @@ product contract while allowing the same non-product qualification witnesses
 to run on Windows and Linux. The affected 266-test aggregate passes on Windows
 after correction; the superseding exact-commit CI run is required below.
 
+### `BS-19.17-F04` — active-unit Electron run-order assumption
+
+An exact clean Windows rerun exposed a non-product test assumption after the
+portability fix: the durable-reopen loop always clicked each unit button, but
+the currently active unit is intentionally disabled. Depending on restored
+selection, the first click could therefore wait until timeout. The witness now
+clicks only when the requested unit is not already active, then always verifies
+the editor prose and clean decoration. This removes restored-selection
+run-order dependence without changing product behavior or weakening the
+assertion.
+
 ## 8. Remaining qualification
 
 Package `19.17` closure requires:
