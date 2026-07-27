@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "renderer/Stage19WritingSpineApp.tsx",
+    "renderer/DraftEditor.tsx",
+    "renderer/types/global.d.ts",
+    "shared/ipc/projectSpine.ts",
+    "shared/ipc/aiCritique.ts"
+  ],
+  "exclude": [
+    "dist",
+    "dist-electron",
+    "node_modules",
+    "renderer/__tests__"
+  ]
+}

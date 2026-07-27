@@ -1,0 +1,62 @@
+name: Stage 19 Fixed Regression Gate
+
+on:
+  push:
+    branches:
+      - main
+      - salvage/minimal-two-surface-shell
+  pull_request: {}
+  workflow_dispatch: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  stage19-regression:
+    name: Stage 19 Development RC Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install locked dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Install Electron display dependencies
+        run: |
+          pnpm --filter app exec playwright install-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+      - name: Run fixed Stage 19 gate
+        run: pnpm stage19:regression
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: stage19-regression-failure
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            app/test-results
+            app/playwright-report

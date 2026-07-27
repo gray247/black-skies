@@ -136,12 +136,12 @@ function requireReference(session: SenderSession, reference: AiCritiqueRequestRe
   }
 }
 
-function installHandler(
+function installHandler<TRequest = undefined>(
   channel: string,
-  handler: (event: IpcMainInvokeEvent, request?: any) => Promise<unknown> | unknown,
+  handler: (event: IpcMainInvokeEvent, request: TRequest) => Promise<unknown> | unknown,
 ): void {
   ipcMain.removeHandler(channel);
-  ipcMain.handle(channel, handler);
+  ipcMain.handle(channel, (event, request: unknown) => handler(event, request as TRequest));
 }
 
 export function registerAiCritiqueIpc(nextOptions: RegisterAiCritiqueIpcOptions): void {

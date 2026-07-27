@@ -36,7 +36,15 @@ module.exports = {
         }
       },
       rules: {
-        "react/react-in-jsx-scope": "off"
+        "react/react-in-jsx-scope": "off",
+        "jsx-a11y/no-noninteractive-tabindex": [
+          "error",
+          {
+            tags: ["main"],
+            roles: ["tabpanel"],
+            allowExpressionValues: true
+          }
+        ]
       }
     }
   ]

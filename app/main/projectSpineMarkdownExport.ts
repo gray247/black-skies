@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const MARKDOWN_TITLE_SYNTAX = /[\\`*_[\]<>#!&~]/g;
+// Windows rejects every ASCII control character in a filename.
+// eslint-disable-next-line no-control-regex
 const WINDOWS_INVALID_FILENAME_CHARACTERS = /[\\/:*?"<>|\u0000-\u001f]/g;
 const WINDOWS_DEVICE_NAMES = /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
 const TERMINAL_MARKDOWN_EXTENSIONS = /(?:\.md)+$/i;

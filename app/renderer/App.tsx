@@ -203,15 +203,6 @@ function createTestRecoveryStatus(projectId?: string): RecoveryStatusBridgeRespo
 }
 
 
-function deriveProjectIdFromPath(path: string): string {
-  const segments = path.split(/[\\/]+/).filter(Boolean);
-  const base = segments.at(-1);
-  if (base && base.length > 0) {
-    return base;
-  }
-  return path;
-}
-
 function deriveProjectDisplayLabel(
   project: LoadedProject | null,
   projectPath: string | null | undefined,

@@ -36,7 +36,7 @@ const legacyConfigPath = path.join(repoRoot, ".eslintrc.cjs");
 
 const { status, error } = spawnSync(
   eslintExecutable,
-  ["--config", legacyConfigPath, ...lintTargets],
+  ["--config", legacyConfigPath, "--max-warnings", "6", ...lintTargets],
   {
     cwd: appDir,
     env: {
