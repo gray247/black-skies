@@ -387,6 +387,10 @@ test('preserves checkpoint evidence through renderer loss and a fresh-process re
       })));
       const writingWindow = roles.find((entry) => entry.role === 'writing')?.window;
       if (!writingWindow) throw new Error('Writing Studio BrowserWindow was unavailable for renderer crash proof.');
+      const rendererProcessId = writingWindow.webContents.getOSProcessId();
+      if (!Number.isInteger(rendererProcessId) || rendererProcessId <= 0) {
+        throw new Error('Writing Studio renderer process identity was unavailable.');
+      }
       return new Promise<string>((resolve, reject) => {
         const timeout = setTimeout(
           () => reject(new Error('Writing Studio render-process-gone was not observed.')),
@@ -396,10 +400,10 @@ test('preserves checkpoint evidence through renderer loss and a fresh-process re
           clearTimeout(timeout);
           resolve(details.reason);
         });
-        writingWindow.webContents.forcefullyCrashRenderer();
+        process.kill(rendererProcessId, 'SIGKILL');
       });
     });
-    expect(rendererExitReason).toBe('crashed');
+    expect(['crashed', 'killed']).toContain(rendererExitReason);
     expect(await readFile(recoveryArtifactPath(project.path), 'utf8')).toBe(artifactBeforeCrash);
     await terminateElectronApplicationAbruptly(electronApp);
 

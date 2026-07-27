@@ -170,10 +170,15 @@ witness. Electron forcefully terminated the renderer, but Playwright's
 page-level `crash` event was not emitted on the Linux Electron path, leaving
 the test waiting until timeout.
 
-The witness now awaits Electron main's authoritative `render-process-gone`
-event and requires reason `crashed` before checking preserved recovery bytes
-and performing the fresh-process restart. This is the correct cross-platform
-process boundary and keeps the renderer-loss assertion fail-closed.
+The first correction awaited Electron main's authoritative
+`render-process-gone` event, but Linux also showed that
+`forcefullyCrashRenderer()` itself did not complete the process transition.
+The final witness resolves the Writing renderer's real OS process identity,
+terminates only that renderer process, awaits `render-process-gone`, and
+requires Electron to classify the loss as `crashed` or `killed` before checking
+preserved recovery bytes and performing the fresh-process restart. This is the
+cross-platform process boundary and keeps the renderer-loss assertion
+fail-closed.
 
 ## 8. Remaining qualification
 
