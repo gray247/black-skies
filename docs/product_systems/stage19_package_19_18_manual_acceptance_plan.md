@@ -250,8 +250,12 @@ section A2.
 
 The correction serializes rapid dirty/clean/dirty status submissions and makes
 Save wait for the selected unit's latest dirty-status submission before it
-captures recovery and begins durable persistence. It neither delays ordinary
-typing nor retargets a Save across a project generation change.
+captures the settled editor buffer, captures recovery, and begins durable
+persistence. The first clean-gate run proved why both boundaries are required:
+the early implementation could acknowledge Save while persisting an earlier
+buffer. The edit-revision guard still preserves any genuinely later edit as
+dirty, and the operation neither delays ordinary typing nor retargets a Save
+across a project generation change.
 
 Permanent proof now includes:
 

@@ -1047,8 +1047,7 @@ export default function Stage19WritingSpineApp({
     async (unitId: string) => {
       const current = snapshotRef.current;
       const api = bridge?.saveUnit;
-      const body = buffersRef.current[unitId];
-      if (!current.project || !api || typeof body !== 'string') {
+      if (!current.project || !api || typeof buffersRef.current[unitId] !== 'string') {
         setNotice('This manuscript unit cannot be saved in the current session.');
         return;
       }
@@ -1056,6 +1055,10 @@ export default function Stage19WritingSpineApp({
       const startingEditRevision = editRevisionRef.current[unitId] ?? 0;
       await flushDirtyReports(unitId);
       if (snapshotRef.current.generation !== startingGeneration) {
+        return;
+      }
+      const body = buffersRef.current[unitId];
+      if (typeof body !== 'string') {
         return;
       }
       const checkpointReady = await flushRecoveryCheckpoint(unitId);
