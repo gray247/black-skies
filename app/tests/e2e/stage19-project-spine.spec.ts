@@ -47,6 +47,52 @@ test('Stage 19 dedicated windows reach stable startup', async ({ electronApp, pa
   await expect.poll(() => electronApp.process()?.exitCode ?? null, { timeout: 2_000 }).toBeNull();
 });
 
+test('redo followed immediately by Ctrl+S saves the restored prose durably', async ({ electronApp, page }) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-stage19-redo-save-e2e-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    const project = await writing.evaluate(async (parentPath) => {
+      const bridge = window.projectSpine!;
+      const created = await bridge.createProject({
+        parentPath,
+        title: 'Redo save project',
+        operationId: 'redo-save-create',
+      });
+      if (!created.ok) throw new Error(created.error.message);
+      const current = await bridge.getSession();
+      const unit = await bridge.createUnit!({
+        projectId: current.project!.projectId,
+        projectPath: current.project!.path,
+        generation: current.generation,
+        operationId: 'redo-save-unit',
+        title: 'Opening unit',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+      return {
+        path: current.project!.path,
+        unitId: unit.data.unitId,
+      };
+    }, parent);
+    const prose = 'ORION-OPENING — Café 🌌 **bold**\nUNDO-CHECK — this line must return';
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening unit' });
+
+    await editor.fill(prose);
+    await writing.keyboard.press('Control+Z');
+    await writing.keyboard.press('Control+Y');
+    await writing.keyboard.press('Control+S');
+
+    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('button', { name: 'Opening unit Unsaved' })).toHaveCount(0);
+    const durable = await writing.evaluate(async ({ unitId }) => {
+      const current = await window.projectSpine!.getSession();
+      return current.project?.drafts[unitId] ?? null;
+    }, project);
+    expect(durable).toContain(prose);
+  } finally {
+    await removeTemporaryDirectory(parent);
+  }
+});
+
 test.describe('C1 unsaved close flow', () => {
   test.use({ skipPageCloseTeardown: true, skipFailureScreenshotAfterVerifiedExit: true });
 

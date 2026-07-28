@@ -230,3 +230,38 @@ Package `19.18` closes only after the receipt is recorded, every failure is
 fixed/retested or explicitly routed under the blocker taxonomy, and the
 repository authority is synchronized. Package `19.19` does not begin by
 inference.
+
+## 9. Live acceptance correction record
+
+### 2026-07-27 — undo/redo followed immediately by Save
+
+Jason completed the stable launch and the rest of section A1 successfully, but
+observed one bounded failure in `P19.18 Orion`:
+
+```text
+Ctrl+Z removed the new line.
+Ctrl+Y restored it.
+Immediate Ctrl+S produced no visible Save result.
+After another edit, Save completed normally.
+```
+
+This is an acceptance failure, not operator error. The checklist paused before
+section A2.
+
+The correction serializes rapid dirty/clean/dirty status submissions and makes
+Save wait for the selected unit's latest dirty-status submission before it
+captures recovery and begins durable persistence. It neither delays ordinary
+typing nor retargets a Save across a project generation change.
+
+Permanent proof now includes:
+
+- a renderer regression that holds three rapid dirty-state submissions open
+  and proves Save cannot begin until the final redone state settles;
+- a production Electron regression that types recognizable Unicode prose,
+  performs undo and redo, immediately invokes `Ctrl+S`, and confirms both the
+  Saved projection and exact durable prose; and
+- the existing fixed Package `19.17` gate, which must pass from the clean
+  correction commit before human retest.
+
+Closure remains blocked on Jason repeating only the corrected A1
+undo/redo/immediate-Save sequence and confirming the result.

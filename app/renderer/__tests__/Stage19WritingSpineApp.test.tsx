@@ -1337,6 +1337,52 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByText('Saved durably')).toBeVisible();
   });
 
+  it('waits for rapid dirty-state changes to settle before saving redone prose', async () => {
+    const harness = createBridge(snapshot('writing'));
+    const releases: Array<() => void> = [];
+    vi.mocked(harness.bridge.setUnitDirty!).mockImplementation((request) =>
+      new Promise((resolve) => {
+        releases.push(() => resolve({
+          ok: true,
+          data: {},
+          snapshot: {
+            ...harness.current,
+            revision: harness.current.revision + releases.length,
+            dirtyUnitIds: request.dirty ? [request.unitId] : [],
+            saveState: request.dirty
+              ? { status: 'dirty', unitId: request.unitId, message: null }
+              : { status: 'clean', unitId: null, message: null },
+          },
+        }));
+      }),
+    );
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+
+    fireEvent.change(editor, { target: { value: 'redone prose' } });
+    fireEvent.change(editor, { target: { value: 'Alpha body' } });
+    fireEvent.change(editor, { target: { value: 'redone prose' } });
+    fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+
+    await waitFor(() => expect(harness.bridge.setUnitDirty).toHaveBeenCalledTimes(1));
+    expect(harness.bridge.saveUnit).not.toHaveBeenCalled();
+    await act(async () => releases.shift()?.());
+    await waitFor(() => expect(harness.bridge.setUnitDirty).toHaveBeenCalledTimes(2));
+    expect(harness.bridge.saveUnit).not.toHaveBeenCalled();
+    await act(async () => releases.shift()?.());
+    await waitFor(() => expect(harness.bridge.setUnitDirty).toHaveBeenCalledTimes(3));
+    expect(harness.bridge.saveUnit).not.toHaveBeenCalled();
+    await act(async () => releases.shift()?.());
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(harness.bridge.saveUnit!)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unitId: 'unit_a',
+        markdown: expect.stringContaining('redone prose'),
+      }),
+    );
+  });
+
   it('preserves an authored terminal line break separately from durable file framing', async () => {
     const user = userEvent.setup();
     const harness = createBridge(snapshot('writing'));

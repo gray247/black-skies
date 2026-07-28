@@ -447,6 +447,7 @@ export default function Stage19WritingSpineApp({
   const buffersRef = useRef(buffers);
   const editRevisionRef = useRef<Record<string, number>>({});
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
+  const dirtyReportPromisesRef = useRef(new Map<string, Promise<void>>());
   const appliedGenerationRef = useRef(0);
   const appliedRecoveryUnitsRef = useRef(new Set<string>());
   const recoveryDecisionSubmissionRef = useRef<{
@@ -554,11 +555,14 @@ export default function Stage19WritingSpineApp({
       recoveryCheckpointPromisesRef.current.clear();
       editRevisionRef.current = {};
       reportedDirtyRef.current = {};
+      dirtyReportPromisesRef.current.clear();
     } else {
       reportedDirtyRef.current = Object.fromEntries(
         (next.project?.units ?? []).map((unit) => [
           unit.id,
-          next.dirtyUnitIds.includes(unit.id),
+          dirtyReportPromisesRef.current.has(unit.id)
+            ? (reportedDirtyRef.current[unit.id] ?? next.dirtyUnitIds.includes(unit.id))
+            : next.dirtyUnitIds.includes(unit.id),
         ]),
       );
     }
@@ -963,23 +967,54 @@ export default function Stage19WritingSpineApp({
 
   const reportDirty = useCallback(
     (unitId: string, dirty: boolean) => {
-      if (!bridge?.setUnitDirty || reportedDirtyRef.current[unitId] === dirty) return;
+      const api = bridge?.setUnitDirty;
+      if (!api || reportedDirtyRef.current[unitId] === dirty) return;
       const binding = bindingFor(snapshotRef.current, 'set-dirty');
       if (!binding) return;
       reportedDirtyRef.current[unitId] = dirty;
-      void bridge.setUnitDirty({ ...binding, unitId, dirty }).then((result) => {
-        applySnapshot(result.snapshot);
-        if (result.ok === false) {
-          reportedDirtyRef.current[unitId] = !dirty;
-          setNotice(result.error.message);
+      const previous = dirtyReportPromisesRef.current.get(unitId) ?? Promise.resolve();
+      const submission = previous
+        .catch(() => undefined)
+        .then(async () => {
+          if (snapshotRef.current.generation !== binding.generation) return;
+          try {
+            const result = await api({ ...binding, unitId, dirty });
+            applySnapshot(result.snapshot);
+            if (result.ok === false) {
+              if (reportedDirtyRef.current[unitId] === dirty) {
+                reportedDirtyRef.current[unitId] = !dirty;
+              }
+              setNotice(result.error.message);
+            }
+          } catch {
+            if (reportedDirtyRef.current[unitId] === dirty) {
+              reportedDirtyRef.current[unitId] = !dirty;
+            }
+            setNotice('The application could not record the latest unsaved-work status. Recovery protection remains active; try Save.');
+          }
+        });
+      dirtyReportPromisesRef.current.set(unitId, submission);
+      void submission.finally(() => {
+        if (dirtyReportPromisesRef.current.get(unitId) === submission) {
+          dirtyReportPromisesRef.current.delete(unitId);
         }
-      }).catch(() => {
-        reportedDirtyRef.current[unitId] = !dirty;
-        setNotice('The application could not record the latest unsaved-work status. Recovery protection remains active; try Save.');
       });
     },
     [applySnapshot, bridge],
   );
+
+  const flushDirtyReports = useCallback(async (unitId: string): Promise<void> => {
+    let pending = dirtyReportPromisesRef.current.get(unitId);
+    while (pending) {
+      await pending;
+      const next = dirtyReportPromisesRef.current.get(unitId);
+      if (next === pending) {
+        dirtyReportPromisesRef.current.delete(unitId);
+        return;
+      }
+      pending = next;
+    }
+  }, []);
 
   const handleBufferChange = useCallback(
     (unitId: string, body: string) => {
@@ -1019,6 +1054,10 @@ export default function Stage19WritingSpineApp({
       }
       const startingGeneration = current.generation;
       const startingEditRevision = editRevisionRef.current[unitId] ?? 0;
+      await flushDirtyReports(unitId);
+      if (snapshotRef.current.generation !== startingGeneration) {
+        return;
+      }
       const checkpointReady = await flushRecoveryCheckpoint(unitId);
       if (!checkpointReady) {
         reportDirty(unitId, true);
@@ -1082,7 +1121,7 @@ export default function Stage19WritingSpineApp({
         );
       }
     },
-    [applySnapshot, bridge, flushRecoveryCheckpoint, reportDirty],
+    [applySnapshot, bridge, flushDirtyReports, flushRecoveryCheckpoint, reportDirty],
   );
 
   useEffect(() => {
