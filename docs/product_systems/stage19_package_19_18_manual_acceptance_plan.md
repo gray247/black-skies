@@ -284,3 +284,11 @@ SECTION A2: PASS
 ```
 
 Section A, stable launch and happy path, is `PASS`.
+
+Jason completed the project-isolation exercise and reported:
+
+```text
+SECTION B: PASS
+```
+
+Section B, project isolation, is `PASS`.
