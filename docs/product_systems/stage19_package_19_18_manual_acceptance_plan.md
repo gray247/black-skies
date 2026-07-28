@@ -267,5 +267,12 @@ Permanent proof now includes:
 - the existing fixed Package `19.17` gate, which must pass from the clean
   correction commit before human retest.
 
-Closure remains blocked on Jason repeating only the corrected A1
-undo/redo/immediate-Save sequence and confirming the result.
+Jason repeated only the corrected A1 undo/redo/immediate-Save sequence against
+commit `5aa8b6d` and reported:
+
+```text
+A1 NARROW RETEST: PASS
+```
+
+The correction is accepted. Section A1 is `PASS`; Package `19.18` continues
+with the remaining single-pass checklist.
