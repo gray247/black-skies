@@ -276,3 +276,11 @@ A1 NARROW RETEST: PASS
 
 The correction is accepted. Section A1 is `PASS`; Package `19.18` continues
 with the remaining single-pass checklist.
+
+Jason then completed the stable-build export exercise and reported:
+
+```text
+SECTION A2: PASS
+```
+
+Section A, stable launch and happy path, is `PASS`.
