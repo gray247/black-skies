@@ -315,3 +315,35 @@ SECTION C1 CONSOLIDATED: PASS
 
 Section C1 is `PASS` with explicit evidence reuse. This is consolidation, not
 an unrecorded omission.
+
+Jason completed the combined durable Save-failure and optional-service-failure
+exercise and reported:
+
+```text
+SECTION C2 CONSOLIDATED: PASS
+```
+
+The main-process log independently confirms that the intentional invalid
+service port reached the containment boundary:
+
+```text
+Optional services unavailable; continuing with core writing shell
+```
+
+The lack of visible difference between normal and degraded core use is the
+expected result. Writing, Save, close, and reopen remained usable.
+
+Two diagnostic observations were classified separately:
+
+- Chromium `Autofill.enable` and `Autofill.setAddresses` protocol messages are
+  harmless unpackaged-DevTools noise and do not represent an application
+  failure.
+- The unpackaged production-built launcher incorrectly probed the configured
+  packaged-Python path before honoring `BLACKSKIES_PYTHON`, then fell back to
+  global `python`. Services remained healthy, but this contradicted the
+  launcher's approved-environment claim. The in-scope correction requires
+  bundled Python only when `app.isPackaged` is true and retains the existing
+  allowlist and path validation for explicit unpackaged interpreters.
+
+Section C2 is `PASS`; the Python diagnostic correction requires the fixed clean
+regression gate before section D begins.

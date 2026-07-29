@@ -48,6 +48,7 @@ import {
 import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
 import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 import { startOptionalServicesForCoreShell } from './optionalServiceStartup.js';
+import { requiresBundledPython } from './pythonExecutablePolicy.js';
 import { deriveSplitCommandInitialPlacement, type InitialWindowBounds } from './splitCommandWindowPlacement.js';
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import {
@@ -204,7 +205,7 @@ function resolvePortRange(value: string | undefined, fallback: ServicePortRange)
 }
 
 function resolvePythonExecutable(): string {
-  if (!isDev && bundledPythonPath) {
+  if (requiresBundledPython(app.isPackaged, bundledPythonPath)) {
     return fallbackPythonExecutable();
   }
 

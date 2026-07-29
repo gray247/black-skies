@@ -25,6 +25,7 @@ const unitFiles = [
   "main/__tests__/projectSpineMarkdownExport.test.ts",
   "main/__tests__/projectSpineIpc.test.ts",
   "main/__tests__/optionalServiceStartup.test.ts",
+  "main/__tests__/pythonExecutablePolicy.test.ts",
   "main/__tests__/aiCritiqueQualification.test.ts",
   "main/__tests__/aiCritiqueIpc.test.ts",
   "main/__tests__/aiCritiqueGateway.test.ts",

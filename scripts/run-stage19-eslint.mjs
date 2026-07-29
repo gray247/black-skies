@@ -23,6 +23,7 @@ const lintTargets = [
   "main/aiCritiqueCoordinator.ts",
   "main/aiCritiqueGateway.ts",
   "main/optionalServiceStartup.ts",
+  "main/pythonExecutablePolicy.ts",
   "shared/ipc/projectSpine.ts",
   "shared/ipc/aiCritique.ts",
   "shared/splitCommandAuthority.ts",
@@ -66,4 +67,3 @@ if (result.error) {
 }
 
 process.exit(result.status ?? 1);
-
