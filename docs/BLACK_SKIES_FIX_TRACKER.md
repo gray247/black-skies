@@ -33,7 +33,17 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - adds a pre-build and post-assembly fail-closed verifier for version identity, file allowlists, protected-evidence families, Python, source maps, ASAR integrity, executable identity, hashes, and unsigned signature truth,
   - records the Windows version-field mapping: `1.0.0-rc1` manifest/application identity, `1.0.0.1` PE file version, and electron-builder's `1.0.0.0` PE product-version core,
   - caught and corrected dependency source maps during the first guarded assembly; no failed assembly was accepted as an installer,
+  - disables NSIS update-blockmap output after the guarded installer build exposed that second unintended distributable artifact,
   - emits a prose-free machine-readable receipt and updates the technical packaging guide to the NSIS-only runtime.
+- [2026-07-29] Package 19.19 clean installed-lifecycle automation added:
+  - adds a clean Windows workflow that runs the exact fixed Stage 19 gate before packaging and uploads only the installer and receipt after every installed check passes,
+  - installs to a unique per-user temporary directory, verifies registration and both shortcuts, requires matching non-default embedded installer/executable icons, and applies a temporary outbound firewall block,
+  - launches the real installed executable without development flags or provider credentials, proves packaged/sandbox/bridge/process-tree boundaries, and performs synthetic create, order, save, normal close, relaunch, reopen, and exact-byte Markdown export,
+  - uninstalls in guaranteed cleanup and requires application, shortcut, and registration removal while every external disposable project file and export remains byte-identical.
+  - a local diagnostic proved silent default installation but exposed that NSIS does not safely accept the system-wide `C:\tmp` custom destination in this per-user mode; qualification now uses a unique directory under the runner user's local application-data root.
+  - aligns registration proof with electron-builder's actual `Black Skies 1.0.0-rc1` display identity and validates its exact uninstaller path and version rather than assuming a non-emitted `InstallLocation` value.
+  - corrects the Windows process-tree witness after the full regression misclassified a pre-existing `MoNotificationUx.exe` as an Electron descendant solely because its stale parent PID had been reused; Windows descendants must now be created no earlier than the witnessed Electron root.
+  - local packaged lifecycle proof passed `app.isPackaged`, two-window sandbox, bridge allowlists, no forbidden runtime descendants, durable reopen, and exact export; the local desktop token cannot create firewall rules, so the required offline firewall and complete installed/uninstalled proof remain assigned to the elevated clean Windows runner.
 - [2026-06-08] Critical Question Tightening Pass 1 refined the first-wave continuity/routing/package cluster:
   - tightens remaining Critical questions in `continuity.md`, `signal_architecture.md`, `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md`, and `explicit_content_architecture.md`,
   - moves doctrine-answered or non-blocking items out of Critical where supported while keeping the dossiers rough and not build-ready,

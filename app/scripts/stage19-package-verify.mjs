@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -145,6 +145,10 @@ export function verifyPreflight() {
   invariant(builder.nsis?.oneClick === false, "The installer must use assisted mode.");
   invariant(builder.nsis?.perMachine === false, "The installer must be per-user.");
   invariant(
+    builder.nsis?.differentialPackage === false,
+    "NSIS blockmap generation must remain disabled for the single-artifact RC."
+  );
+  invariant(
     builder.nsis?.allowToChangeInstallationDirectory === true,
     "The assisted installer must allow directory selection."
   );
@@ -256,7 +260,32 @@ export function verifyUnpacked(unpackedPath) {
 export function verifyInstaller(installerPath) {
   invariant(existsSync(installerPath), "The NSIS installer is missing.");
   invariant(path.basename(installerPath) === INSTALLER_NAME, "The installer filename is unexpected.");
+  const releaseFiles = readdirSync(path.dirname(installerPath), { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
+  const forbiddenReleaseFiles = releaseFiles.filter(
+    (filename) =>
+      filename.toLowerCase().includes("portable") ||
+      filename.toLowerCase().endsWith(".blockmap") ||
+      (filename.toLowerCase().endsWith(".exe") && filename !== INSTALLER_NAME)
+  );
+  invariant(
+    forbiddenReleaseFiles.length === 0,
+    `Unexpected release artifacts found: ${forbiddenReleaseFiles.join(", ")}`
+  );
   const installerTruth = getWindowsFileTruth(installerPath);
+  invariant(
+    installerTruth.productVersion === RELEASE_VERSION,
+    `Installer ProductVersion is ${installerTruth.productVersion ?? "missing"}.`
+  );
+  invariant(
+    installerTruth.fileVersion === WINDOWS_NUMERIC_VERSION,
+    `Installer FileVersion is ${installerTruth.fileVersion ?? "missing"}.`
+  );
+  invariant(
+    installerTruth.fileDescription === "Electron desktop client for the Black Skies writing toolkit.",
+    `Installer description is ${installerTruth.fileDescription ?? "missing"}.`
+  );
   invariant(
     installerTruth.signatureStatus === "NotSigned",
     `Internal RC installer signature status is ${installerTruth.signatureStatus}.`

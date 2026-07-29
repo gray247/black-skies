@@ -73,39 +73,58 @@ export async function waitForProcessIdsToExit(
   }
 }
 
-function processRowsFromWindows(): Array<{ pid: number; parentPid: number }> | null {
+interface ProcessTreeRow {
+  readonly pid: number;
+  readonly parentPid: number;
+  readonly startedAt: number | null;
+}
+
+function processRowsFromWindows(): ProcessTreeRow[] | null {
   const result = spawnSync(
     'powershell.exe',
     [
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId | ConvertTo-Json -Compress',
+      [
+        'Get-CimInstance Win32_Process |',
+        "Select-Object @{n='pid';e={[int]$_.ProcessId}},@{n='parentPid';e={[int]$_.ParentProcessId}},@{n='startedAt';e={$_.CreationDate.ToUniversalTime().ToString('o')}} |",
+        'ConvertTo-Json -Compress',
+      ].join(' '),
     ],
     { encoding: 'utf8', windowsHide: true },
   );
   if (result.status !== 0 || !result.stdout.trim()) return null;
   try {
     const parsed = JSON.parse(result.stdout) as
-      | { ProcessId?: unknown; ParentProcessId?: unknown }
-      | Array<{ ProcessId?: unknown; ParentProcessId?: unknown }>;
+      | { pid?: unknown; parentPid?: unknown; startedAt?: unknown }
+      | Array<{ pid?: unknown; parentPid?: unknown; startedAt?: unknown }>;
     return (Array.isArray(parsed) ? parsed : [parsed]).flatMap((entry) => {
-      const pid = Number(entry.ProcessId);
-      const parentPid = Number(entry.ParentProcessId);
-      return Number.isInteger(pid) && Number.isInteger(parentPid) ? [{ pid, parentPid }] : [];
+      const pid = Number(entry.pid);
+      const parentPid = Number(entry.parentPid);
+      const startedAt = typeof entry.startedAt === 'string'
+        ? Date.parse(entry.startedAt)
+        : Number.NaN;
+      return Number.isInteger(pid) && Number.isInteger(parentPid)
+        ? [{ pid, parentPid, startedAt: Number.isFinite(startedAt) ? startedAt : null }]
+        : [];
     });
   } catch {
     return null;
   }
 }
 
-function processRowsFromPosix(): Array<{ pid: number; parentPid: number }> | null {
+function processRowsFromPosix(): ProcessTreeRow[] | null {
   const result = spawnSync('ps', ['-eo', 'pid=,ppid='], { encoding: 'utf8' });
   if (result.status !== 0 || !result.stdout) return null;
   return result.stdout.split('\n').flatMap((line) => {
     const match = line.trim().match(/^(\d+)\s+(\d+)$/);
     return match
-      ? [{ pid: Number.parseInt(match[1] ?? '', 10), parentPid: Number.parseInt(match[2] ?? '', 10) }]
+      ? [{
+          pid: Number.parseInt(match[1] ?? '', 10),
+          parentPid: Number.parseInt(match[2] ?? '', 10),
+          startedAt: null,
+        }]
       : [];
   });
 }
@@ -119,13 +138,22 @@ export function collectProcessTreePids(rootPid: number): {
     : processRowsFromPosix();
   if (!rows) return { descendantPids: [], inventorySucceeded: false };
 
+  const rootStartedAt = rows.find((row) => row.pid === rootPid)?.startedAt ?? null;
   const descendants: number[] = [];
   const queue = [rootPid];
   const visited = new Set(queue);
   while (queue.length > 0) {
     const parentPid = queue.shift() ?? rootPid;
     for (const row of rows) {
-      if (row.parentPid !== parentPid || visited.has(row.pid)) continue;
+      if (
+        row.parentPid !== parentPid ||
+        visited.has(row.pid) ||
+        (
+          rootStartedAt !== null &&
+          row.startedAt !== null &&
+          row.startedAt < rootStartedAt
+        )
+      ) continue;
       visited.add(row.pid);
       descendants.push(row.pid);
       queue.push(row.pid);

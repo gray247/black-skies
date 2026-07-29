@@ -22,6 +22,7 @@
     "package:verify:preflight": "node ./scripts/stage19-package-verify.mjs --preflight",
     "package:verify:unpacked": "node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked",
     "package:verify:installer": "node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked --installer ./release/BlackSkies-Setup-1.0.0-rc1.exe --receipt ./release/stage19-package-receipt.json",
+    "package:smoke:installed": "node ./scripts/stage19-installed-smoke.mjs",
     "package:dir": "node ./scripts/stage19-package-verify.mjs --preflight && vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir && node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked",
     "package:win": "node ./scripts/stage19-package-verify.mjs --preflight && vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis && node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked --installer ./release/BlackSkies-Setup-1.0.0-rc1.exe --receipt ./release/stage19-package-receipt.json",
     "e2e:build": "pnpm run build:production",

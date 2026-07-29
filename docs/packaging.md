@@ -79,7 +79,7 @@ ASAR remains enabled. Packaging uses an explicit allowlist containing only:
 
 The installer excludes `sample_project`, protected evidence, Python sources and
 requirements, development/test material, fixtures, source maps, portable
-targets, and unrelated repository resources.
+targets, update blockmaps, and unrelated repository resources.
 
 The installed application always launches the dedicated Stage 19 two-window
 host. Both renderers are sandboxed, context isolated, and denied Node

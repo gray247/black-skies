@@ -1,0 +1,73 @@
+name: Stage 19 Windows Packaging Proof
+
+on:
+  push:
+    branches:
+      - salvage/minimal-two-surface-shell
+  workflow_dispatch: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CSC_IDENTITY_AUTO_DISCOVERY: false
+
+jobs:
+  windows-package:
+    name: Windows 11 x64 package, install, and uninstall
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v5
+      - name: Set up Python for repository hygiene gate
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: pwsh
+        run: '"path=$(pnpm store path --silent)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append'
+      - name: Cache pnpm store
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install frozen dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Run fixed Stage 19 regression
+        run: pnpm stage19:regression
+      - name: Build and verify unsigned NSIS installer
+        run: pnpm --filter app run package:win
+      - name: Install, run offline lifecycle, and uninstall
+        shell: pwsh
+        run: >
+          ./scripts/stage19-installed-lifecycle.ps1
+          -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe
+          -ReceiptPath ./app/release/stage19-package-receipt.json
+      - name: Upload qualified RC installer and receipt
+        uses: actions/upload-artifact@v6
+        with:
+          name: black-skies-1.0.0-rc1-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            app/release/BlackSkies-Setup-1.0.0-rc1.exe
+            app/release/stage19-package-receipt.json
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: stage19-packaging-failure-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            app/test-results
+            app/playwright-report
