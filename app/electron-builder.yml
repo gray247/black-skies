@@ -1,8 +1,9 @@
 appId: com.blackskies.desktop
 productName: Black Skies
-artifactName: BlackSkies-${version}-${arch}.${ext}
+buildVersion: 1.0.0.1
+artifactName: BlackSkies-Setup-${version}.${ext}
+asar: true
 extraMetadata:
-  version: 0.1.0
   main: dist-electron/main/main.js
 directories:
   output: release
@@ -10,34 +11,22 @@ directories:
 files:
   - dist/**
   - dist-electron/**
+  - '!**/*.map'
   - package.json
-extraResources:
-  - from: ../services/src
-    to: python
-  - from: ../sitecustomize.py
-    to: python/sitecustomize.py
-  - from: ../requirements.lock
-    to: python/requirements.lock
-  - from: ../requirements.dev.lock
-    to: python/requirements.dev.lock
-  - from: ../sample_project
-    to: sample_project
 win:
+  icon: resources/icon.ico
   target:
     - target: nsis
       arch:
         - x64
-    - target: portable
-      arch:
-        - x64
-  artifactName: BlackSkies-${version}-${arch}.${ext}
 nsis:
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
   deleteAppDataOnUninstall: false
   runAfterFinish: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Black Skies
   artifactName: BlackSkies-Setup-${version}.exe
-portable:
-  artifactName: BlackSkies-Portable-${version}.exe
 publish: null

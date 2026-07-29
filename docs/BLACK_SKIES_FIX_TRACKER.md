@@ -28,6 +28,12 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - forces packaged builds onto the two-window Stage 19 host with sandboxed, context-isolated, Node-disabled renderers,
   - exposes only Project Spine, split-window, and Writing-only critique contracts and preserves Command Center's prose-free bridge boundary,
   - prohibits packaged Python resolution and legacy FastAPI service startup while retaining unpackaged development compatibility.
+- [2026-07-29] Package 19.19 installer definition and artifact guard implemented:
+  - narrows release output to one assisted per-user Windows x64 NSIS installer, keeps ASAR enabled, removes portable and whole-tree resource inclusion, and adds the canonical multi-resolution Black Skies icon,
+  - adds a pre-build and post-assembly fail-closed verifier for version identity, file allowlists, protected-evidence families, Python, source maps, ASAR integrity, executable identity, hashes, and unsigned signature truth,
+  - records the Windows version-field mapping: `1.0.0-rc1` manifest/application identity, `1.0.0.1` PE file version, and electron-builder's `1.0.0.0` PE product-version core,
+  - caught and corrected dependency source maps during the first guarded assembly; no failed assembly was accepted as an installer,
+  - emits a prose-free machine-readable receipt and updates the technical packaging guide to the NSIS-only runtime.
 - [2026-06-08] Critical Question Tightening Pass 1 refined the first-wave continuity/routing/package cluster:
   - tightens remaining Critical questions in `continuity.md`, `signal_architecture.md`, `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md`, and `explicit_content_architecture.md`,
   - moves doctrine-answered or non-blocking items out of Critical where supported while keeping the dossiers rough and not build-ready,

@@ -47,6 +47,7 @@ yarn-debug.log*
 yarn-error.log*
 .hypothesis/
 app/dist-electron/
+app/release/
 dist-electron/
 app/test-results/
 app/playwright-report/

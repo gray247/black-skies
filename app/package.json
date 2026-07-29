@@ -19,8 +19,11 @@
     "lint": "node ../scripts/run-app-eslint.mjs",
     "test": "node ../scripts/run-vitest-offline.mjs",
     "qualification:import-scores": "pnpm run build:main && node dist-electron/main/aiCritiqueScoreImportCli.js",
-    "package:dir": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir",
-    "package:win": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis portable",
+    "package:verify:preflight": "node ./scripts/stage19-package-verify.mjs --preflight",
+    "package:verify:unpacked": "node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked",
+    "package:verify:installer": "node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked --installer ./release/BlackSkies-Setup-1.0.0-rc1.exe --receipt ./release/stage19-package-receipt.json",
+    "package:dir": "node ./scripts/stage19-package-verify.mjs --preflight && vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir && node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked",
+    "package:win": "node ./scripts/stage19-package-verify.mjs --preflight && vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis && node ./scripts/stage19-package-verify.mjs --preflight --unpacked ./release/win-unpacked --installer ./release/BlackSkies-Setup-1.0.0-rc1.exe --receipt ./release/stage19-package-receipt.json",
     "e2e:build": "pnpm run build:production",
     "e2e:test": "pnpm exec playwright test --project=electron --workers=1 --reporter=list --trace=on",
     "e2e:last": "pnpm exec playwright test --last-failed --project=electron --workers=1 --reporter=list --trace=on",
@@ -42,6 +45,7 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
+    "@electron/asar": "3.4.1",
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.5.0",

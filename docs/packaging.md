@@ -1,104 +1,104 @@
-Status: Active
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+# Windows Packaging Guide
 
-# docs/packaging.md - Windows Packaging Guide
-**Status:** Active (last reviewed 2025-10-28)
+Status: Package 19.19 internal release-candidate authority
 
-This guide describes how to build the Black Skies Windows installer (NSIS) and the portable ZIP-style executable using the new packaging tooling.
+Version: `1.0.0-rc1`
 
-> See also: [BUILD_STEPS_PLAYBOOK.md](./BUILD_STEPS_PLAYBOOK.md) (Milestone P7 packaging steps) for the authoritative checklist referenced by release gates.
+Target: Windows 11 x64, per-user assisted NSIS installer
 
----
+Package 19.19 produces exactly one distributable application artifact:
 
-## 1. Prerequisites
-- **Windows 11** host shell (PowerShell or Command Prompt).
-- **Node.js 20+** with Corepack enabled (`corepack enable`).
-- **pnpm 8+** (Corepack will install the pinned version automatically).
-- **Python 3.11** available on `PATH` (`python`), or export `BLACKSKIES_PYTHON="C:\\Path\\to\\python.exe"` prior to launching.
-- **NSIS 3.09+** installed and added to `PATH` (required for the installer target).
-- Optional: **7-Zip** for inspecting the portable archive contents.
-
----
-
-## 2. One-time setup
-```powershell
-# from the repo root
-corepack pnpm install --recursive
+```text
+app/release/BlackSkies-Setup-1.0.0-rc1.exe
 ```
-This installs Electron, electron-builder, and renderer/main build toolchains in the `app` workspace.
 
----
+The installer is an unsigned internal release candidate. Its truthful signature
+status is `NotSigned`; it is not represented as publicly signed or
+SmartScreen-trusted. Package 19.20 owns the separate human packaged-RC
+acceptance pass.
 
-## 3. Building the artifacts
+Windows PE fixed-version fields cannot encode a SemVer prerelease label. The
+manifest, installed `app.getVersion()`, filename, and receipt retain
+`1.0.0-rc1`; the PE file version uses the deterministic RC1 equivalent
+`1.0.0.1`, while electron-builder's PE product version contains the SemVer
+numeric core `1.0.0.0`. The verifier requires all three identities and records
+their relationship.
+
+## Prerequisites
+
+- Windows 11 x64
+- the repository-pinned Node and pnpm toolchain
+- frozen repository dependencies
+
+Python, a globally installed NSIS, globally installed Node for the application,
+provider credentials, and internet access at application runtime are neither
+required nor permitted dependencies of the packaged application. The build
+tool may obtain its pinned packaging binaries when they are not already cached.
+
+## Build and verify
+
+From the repository root:
+
 ```powershell
-# create NSIS installer + portable executable (Developer Mode or admin shell recommended)
-$env:ELECTRON_BUILDER_DISABLE_CODE_SIGNING = '1'
-corepack pnpm --filter app run package:win
+pnpm install --frozen-lockfile
+$env:CSC_IDENTITY_AUTO_DISCOVERY = 'false'
+pnpm --filter app run package:win
 ```
-The script performs the following steps:
-1. `vite build` writes the renderer bundle to `app/dist/`.
-2. `tsc --project tsconfig.main.json` emits main/preload code to `dist-electron/`.
-3. `node ./scripts/write-dist-commonjs.cjs` adjusts the preload build for Electron’s CommonJS entrypoints.
-4. `electron-builder --config electron-builder.yml --win nsis portable`:
-   - copies `dist`, `dist-electron`, and production dependencies into `app/release/`
-   - bundles `services/src` plus `requirements*.lock` under `resources/python`
-   - copies `sample_project/` into the package for first-launch testing
-   - produces:
-     - `app/release/BlackSkies-Setup-<version>.exe`
-     - `app/release/BlackSkies-Portable-<version>.exe`
 
-A dry run without installer generation is available for local inspection:
+`package:win` performs the following fail-closed sequence:
+
+1. validates version, target, icon, ASAR, and file-allowlist policy;
+2. creates the production renderer and main/preload bundles;
+3. creates only the Windows x64 assisted NSIS installer;
+4. inspects the unpacked application and ASAR before accepting the installer;
+5. verifies executable and installer identity and unsigned status; and
+6. writes `app/release/stage19-package-receipt.json`.
+
+The receipt contains source commit, version, architecture, filenames, byte
+lengths, SHA-256 hashes, signature truth, manifest checks, and timestamps. It
+must never contain manuscript prose, protected evidence, or credentials.
+
+For an unpacked diagnostic build, use:
+
 ```powershell
-$env:ELECTRON_BUILDER_DISABLE_CODE_SIGNING = '1'
-corepack pnpm --filter app run package:dir
+$env:CSC_IDENTITY_AUTO_DISCOVERY = 'false'
+pnpm --filter app run package:dir
 ```
-The `--dir` target creates `app/release/win-unpacked/` with the assembled app tree.
 
-> **Notes:**
-> - Building Windows artifacts must be executed on Windows. Cross-compiling from WSL/Linux will download the Linux Electron target and fail the sanity check.
-> - Windows Developer Mode (or an elevated PowerShell) is required so the `winCodeSign` tool can extract its symbolic links. If you see `A required privilege is not held by the client`, enable Developer Mode and rerun the packaging command.
+The same preflight and unpacked-artifact verifier runs automatically. No
+installer is accepted or uploaded unless the verifier passes.
 
----
+## Packaged contents and runtime
 
-## 4. Verifying the builds
-1. **Installer:** run `BlackSkies-Setup-<version>.exe`, choose an install directory, launch from the finish screen, and confirm the FastAPI service starts (the Recovery banner should stay hidden when no crash markers exist).
-2. **Portable:** execute `BlackSkies-Portable-<version>.exe`; it unpacks to a temporary directory and launches immediately. Close the app to clean up the temporary folder.
-3. During manual QA, inspect `%LOCALAPPDATA%\BlackSkies\logs` for `main.log` and verify snapshots export correctly in the installed copy.
-4. Run the smoke harness from the repository root to mirror Milestone P7 checks:
-   ```powershell
-   scripts/smoke.ps1 -ProjectId proj_esther_estate -Cycles 3 -SkipInstall
-   bash scripts/smoke.sh --project proj_esther_estate --cycles 3
-   ```
+ASAR remains enabled. Packaging uses an explicit allowlist containing only:
 
----
+- the production renderer;
+- compiled Electron main and preload files;
+- production package metadata; and
+- production runtime dependencies selected by the packager.
 
-## 5. Updating the build number
-The version originates from `app/package.json` and is injected into the packaged metadata via `electron-builder.yml`. Bump `"version"` in `app/package.json` before releasing and rerun the packaging command. Ensure the same version appears in the generated release artefacts (`BlackSkies-Setup-<version>.exe`, `BlackSkies-Portable-<version>.exe`) and record the change in `phase_log.md`.
+The installer excludes `sample_project`, protected evidence, Python sources and
+requirements, development/test material, fixtures, source maps, portable
+targets, and unrelated repository resources.
 
----
+The installed application always launches the dedicated Stage 19 two-window
+host. Both renderers are sandboxed, context isolated, and denied Node
+integration. The packaged runtime does not probe or launch legacy
+Python/FastAPI services. Retained AI critique uses its direct main-process
+gateway and is not part of offline core qualification.
 
-## 6. Troubleshooting
-- **Missing Python runtime:** ensure Python 3.11 is installed and accessible. On systems with multiple versions, set `BLACKSKIES_PYTHON` to the desired interpreter path before launching the packaged app.
-- **NSIS not found:** add the NSIS installation folder (e.g., `C:\\Program Files (x86)\\NSIS`) to `PATH` and retry `package:win`.
-- **Electron download blocked:** run behind a proxy that permits GitHub release downloads or pre-populate `~\\AppData\\Local\\electron\\Cache` with the required zip.
-- **Slow rebuilds:** delete `app/dist/` and `dist-electron/` when switching branches to avoid stale assets; rerun the packaging command after cleanup.
-- **CommonJS bridge missing:** if the packaged build fails to locate preload scripts, rerun `package:win`; the script invokes `node ./scripts/write-dist-commonjs.cjs` to populate `dist-electron` before electron-builder runs.
+Projects and Markdown exports remain outside the installation directory at
+locations chosen by the user. Uninstall removes application files,
+registration, and shortcuts while retaining external project data and the
+Electron user-data directory.
 
-## Packaging Targets (Phase post-P11)
-- **Windows installer** (NSIS / electron-builder + NSIS) installs to `%LOCALAPPDATA%\BlackSkies`, creates logs under `%LOCALAPPDATA%\BlackSkies\logs`, and stores runtime settings at `%LOCALAPPDATA%\BlackSkies\settings.json`.
-- Installer creates a **desktop shortcut**, **Start Menu entry**, and an **Apps & Features** uninstall entry (electron-builder emits the uninstall metadata automatically).
-- Optional **portable** ZIP flavors remain available for QA; they respect the same `%LOCALAPPDATA%` data paths when executed.
+## Qualification boundary
 
-## First-Run Behavior
-- First launch after install surfaces a welcome screen that highlights Spark Pad + Wizard presets and invites the user to start Bookend 1 (Spark Pad preset on the left, Wizard center, Draft Board right, History bottom).
-- Welcome screen guides the user through enabling the Spark Pad workflow and optionally previews the first Story or Visual timeline.
-- Once dismissed, the welcome experience stays suppressed until a reinstall; the next launch jumps directly into the last project.
+Package 19.19 qualification binds the installer filename and SHA-256 to one
+exact source commit. The clean Windows workflow runs the fixed Stage 19
+regression gate, verifies the artifact before installation, performs the
+installed offline lifecycle smoke, and uninstalls in guaranteed cleanup.
+Linux runs the same fixed Stage 19 regression for that commit.
 
-## Data Location
-- **User data (projects):** stored wherever the user selects (recommendation: `%USERPROFILE%\Documents\BlackSkies\Projects`). Projects keep their own `project.json`, `drafts/`, `history/`, and `analytics/` directories.
-- **App data:** settings, logs (`main.log`, `renderer.log`), and telemetry caches stay under `%LOCALAPPDATA%\BlackSkies`.
-- Export artifacts default to the project’s `/exports/` folder; installers do not redirect exported output.
-
-## Phase Alignment
-- Packaging & Distribution tops the roadmap after Phases 9–11 and Bookends 1/2 stabilize. See the “Packaging & Distribution” phase in `docs/phases/phase_charter.md` for the gate criteria before releasing installers.
+Only the installer and machine-readable receipt are retained for the bounded
+Package 19.20 handoff.
