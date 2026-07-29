@@ -18,6 +18,12 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-07-29] Package 19.19 packaging and installation proof closed:
+  - qualifies exact implementation commit `85c1524d486cf42d93fa057e3e8c00376071e8fb` after the clean local Windows gate, exact-commit Linux run `30492203812`, and clean Windows package/install/offline-use/uninstall run `30492203867` all passed,
+  - binds the sole qualified installer `BlackSkies-Setup-1.0.0-rc1.exe` (89,318,050 bytes) to SHA-256 `3f59db2f17566a99a269968cd9dba7785646cc7652f4948cb99dc4d1c163a0e0` and truthfully records `NotSigned`,
+  - records zero forbidden packaged paths, two sandboxed installed windows, no forbidden Node/Python runtime descendants, exact durable Save/reopen/export behavior, and clean uninstall with external project/export bytes preserved,
+  - closes with no open Package 19.19 P0/P1/P2/P3 finding and no protected evidence,
+  - marks Package 19.20 human packaged-RC acceptance as next eligible but not authorized or started.
 - [2026-07-29] Package 19.19 packaging and installation proof authorized:
   - records clean starting commit `17c59f5` and the bounded unsigned Windows 11 x64 per-user NSIS `1.0.0-rc1` target,
   - classifies whole-tree `sample_project` packaging, version mismatch, portable output, legacy Python resources, missing product icon, and disabled preload sandbox as release-boundary defects,

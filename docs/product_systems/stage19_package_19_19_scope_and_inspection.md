@@ -1,7 +1,7 @@
 # Stage 19 Package 19.19 Scope and Inspection
 
-Status: implementation authorized; packaging output remains blocked until the
-release-boundary defects in this record are corrected and verified
+Status: historical opening authority; superseded after successful correction
+and qualification by `stage19_package_19_19_closure.md`
 
 Package: `19.19` — packaging and installation proof
 
@@ -108,4 +108,3 @@ Package `19.19` closes only after the exact implementation commit passes the
 clean Windows Stage 19 gate, Linux Stage 19 CI, clean Windows
 packaging/install/uninstall CI, artifact hashing and inspection, and repository
 hygiene without protected evidence.
-
