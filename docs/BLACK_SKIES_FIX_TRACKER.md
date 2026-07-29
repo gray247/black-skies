@@ -18,6 +18,13 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-07-29] Package 19.20 packaged-RC acceptance authorized and twice-reviewed:
+  - binds the first human pass to exact installer `BlackSkies-Setup-1.0.0-rc1.exe`, 89,318,050 bytes, SHA-256 `3f59db2f17566a99a269968cd9dba7785646cc7652f4948cb99dc4d1c163a0e0`, from implementation commit `85c1524`,
+  - separates carried-forward Package 19.19 automation from the smaller human trust boundary and consolidates installed happy path, defect retest, isolation, failures, recovery, offline core, physical windows, uninstall, and reinstall,
+  - requires a fail-closed acceptance witness with negative identity, shortcut, registration, version, signature, sentinel, and preservation tests before hands-on acceptance,
+  - adds explicit vulnerability coverage for artifact substitution, privilege expansion, path hijack, runtime dependency, cross-project leakage, dishonest Save/export, recovery truth, evidence leakage, and uninstaller overreach,
+  - closes `BS-19.20-P2-01`: automatic push-triggered packaging emitted a second, disqualified installer artifact from documentation-only commit `82b3962`; packaging is now explicit-manual-dispatch-only, every upload name must contain the exact source SHA, six focused policy tests pass, and the complete fixed Stage 19 gate passes,
+  - records that hands-on acceptance has not begun and Packages 19.21-19.22 remain unauthorized.
 - [2026-07-29] Package 19.19 packaging and installation proof closed:
   - qualifies exact implementation commit `85c1524d486cf42d93fa057e3e8c00376071e8fb` after the clean local Windows gate, exact-commit Linux run `30492203812`, and clean Windows package/install/offline-use/uninstall run `30492203867` all passed,
   - binds the sole qualified installer `BlackSkies-Setup-1.0.0-rc1.exe` (89,318,050 bytes) to SHA-256 `3f59db2f17566a99a269968cd9dba7785646cc7652f4948cb99dc4d1c163a0e0` and truthfully records `NotSigned`,

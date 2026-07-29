@@ -30,6 +30,7 @@ const unitFiles = [
   "main/__tests__/packagedRuntimePolicy.test.ts",
   "main/__tests__/stage19PreloadChannels.test.ts",
   "main/__tests__/stage19PackageVerifier.test.ts",
+  "main/__tests__/stage19PackagingWorkflowPolicy.test.ts",
   "main/__tests__/aiCritiqueQualification.test.ts",
   "main/__tests__/aiCritiqueIpc.test.ts",
   "main/__tests__/aiCritiqueGateway.test.ts",
@@ -135,6 +136,9 @@ phase("Repository tracked-path hygiene", "python", [
   "--tracked"
 ]);
 phase("Git diff hygiene", "git", ["diff", "--check"]);
+phase("Packaging workflow manual-dispatch policy", process.execPath, [
+  "scripts/stage19-packaging-workflow-policy.mjs"
+]);
 phase("Historical app lint with six-warning ceiling", process.execPath, [
   "scripts/run-app-eslint.mjs"
 ]);

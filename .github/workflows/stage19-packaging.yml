@@ -1,9 +1,6 @@
 name: Stage 19 Windows Packaging Proof
 
 on:
-  push:
-    branches:
-      - salvage/minimal-two-surface-shell
   workflow_dispatch: {}
 
 env:
