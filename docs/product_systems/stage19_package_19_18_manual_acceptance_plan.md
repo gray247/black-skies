@@ -292,3 +292,26 @@ SECTION B: PASS
 ```
 
 Section B, project isolation, is `PASS`.
+
+## 10. Consolidated evidence disposition
+
+Before continuing section C, Jason asked to remove redundant manual work. The
+checklist was consolidated without weakening the acceptance boundary:
+
+- neutral export cancellation carries forward from section B;
+- clean stable-build export carries forward from section A2;
+- replacement decline/accept carries forward from Jason's Package `19.15`
+  acceptance because the export replacement path is unchanged and remains
+  covered by the fixed regression gate; and
+- ordinary-folder rejection and dirty-state export blocking remained direct
+  Package `19.18` checks because they exercise integrated active-project and
+  recently corrected dirty-state behavior.
+
+Jason completed those two retained checks and reported:
+
+```text
+SECTION C1 CONSOLIDATED: PASS
+```
+
+Section C1 is `PASS` with explicit evidence reuse. This is consolidation, not
+an unrecorded omission.
