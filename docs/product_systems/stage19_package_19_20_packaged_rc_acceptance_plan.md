@@ -665,3 +665,37 @@ tree. The original Package `19.19` installer is disqualified from Package
 `19.20`. Human acceptance may resume only after the correction is committed,
 the full fixed gate passes, and one new exact candidate completes the clean
 Windows packaging/install qualification workflow.
+
+The replacement candidate subsequently qualified:
+
+```text
+implementation commit:
+  ffcbed8bc03a8226229844ce613217075d039f2b
+clean Windows qualification run:
+  30497477422
+artifact ID:
+  8742294718
+installer:
+  BlackSkies-Setup-1.0.0-rc1.exe
+byte length:
+  89274684
+SHA-256:
+  17e44ebee808142eeea393777f74993e524704f12bf426d861718ab39ed6b063
+signature:
+  NotSigned
+fixed Stage 19 gate:
+  PASS
+clean build and artifact verification:
+  PASS
+offline installed lifecycle:
+  PASS
+uninstall and external-data preservation:
+  PASS
+protected evidence:
+  NOT_USED
+```
+
+The acceptance witness is rebound to that exact identity. Subsequent manual
+work uses a fresh `Stage19-20-ffcbed8` acceptance root; the rejected candidate,
+its preflight evidence, and its crash evidence remain historical and must not
+be reused as acceptance evidence.
