@@ -347,3 +347,12 @@ Two diagnostic observations were classified separately:
 
 Section C2 is `PASS`; the Python diagnostic correction requires the fixed clean
 regression gate before section D begins.
+
+The first clean-gate run after that correction exposed a gate-only run-order
+defect in the existing multi-unit save/reopen scenario. Trace evidence showed
+that a binder button was briefly disabled during project hydration; the test
+treated that transient state as permission to skip selection and then searched
+for the wrong editor. The gate now waits for each requested unit to become
+enabled before selecting it. The complete five-scenario project-spine Electron
+file passes with that deterministic wait; no runtime correction resulted from
+this gate finding.

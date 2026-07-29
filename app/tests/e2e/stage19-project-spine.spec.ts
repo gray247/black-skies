@@ -248,7 +248,8 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     ] as const;
     for (const [title, prose] of expected) {
       const unitButton = writing.getByRole('button', { name: new RegExp(title) });
-      if (await unitButton.isEnabled()) await unitButton.click();
+      await expect(unitButton).toBeEnabled();
+      await unitButton.click();
       const editor = writing.getByRole('textbox', { name: `Manuscript editor: ${title}` });
       await editor.pressSequentially(prose);
       await writing.keyboard.press('Control+S');
@@ -277,7 +278,8 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     ]);
     for (const [title, prose] of expected) {
       const unitButton = reWriting.getByRole('button', { name: new RegExp(title) });
-      if (await unitButton.isEnabled()) await unitButton.click();
+      await expect(unitButton).toBeEnabled();
+      await unitButton.click();
       await expect(reWriting.getByRole('textbox', { name: `Manuscript editor: ${title}` })).toHaveText(prose);
       await expect(reWriting.getByRole('button', { name: new RegExp(`${title} Unsaved`) })).toHaveCount(0);
     }
