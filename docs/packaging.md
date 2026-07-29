@@ -54,6 +54,9 @@ pnpm --filter app run package:win
 5. verifies executable and installer identity and unsigned status; and
 6. writes `app/release/stage19-package-receipt.json`.
 
+The builder is invoked with `--publish never`; GitHub Actions performs the only
+artifact retention step, after installed lifecycle qualification succeeds.
+
 The receipt contains source commit, version, architecture, filenames, byte
 lengths, SHA-256 hashes, signature truth, manifest checks, and timestamps. It
 must never contain manuscript prose, protected evidence, or credentials.

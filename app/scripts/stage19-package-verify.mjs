@@ -127,6 +127,10 @@ export function verifyPreflight() {
   invariant(rootPackage.version === RELEASE_VERSION, "Root manifest version is not 1.0.0-rc1.");
   invariant(appPackage.version === RELEASE_VERSION, "App manifest version is not 1.0.0-rc1.");
   invariant(
+    appPackage.scripts?.["package:win"]?.includes("--publish never"),
+    "The Windows package command must explicitly disable electron-builder publishing."
+  );
+  invariant(
     builder.buildVersion === WINDOWS_NUMERIC_VERSION,
     "The Windows numeric version is not the deterministic RC1 encoding 1.0.0.1."
   );
