@@ -126,12 +126,11 @@ and begins a bounded repair/retest cycle.
 
 ### E. Real writing session
 
-Use the stable build for one continuous 60–90 minute real writing session.
-Create or continue a disposable manuscript with several units. Organize,
-write, navigate, undo/redo, Save periodically, close/reopen once if natural,
-and export at the end.
+Superseded by the claim-specific cumulative evidence disposition in section
+11. A fixed 60–90 minute duration is not an independent acceptance claim and
+is no longer required for closure.
 
-Record:
+If a voluntary writing session is performed, record:
 
 - approximate duration;
 - approximate word count and unit count;
@@ -220,7 +219,7 @@ project isolation:
 bounded failures:
 recovery accept:
 recovery reject:
-60–90 minute session:
+real-writing evidence (section 11 disposition):
 two-monitor/window behavior:
 overall disposition: PASS | PASS_WITH_ACCEPTED_P2 | FAIL
 observations:
@@ -382,3 +381,44 @@ Section D, recovery accept and reject, is `PASS`. Recovery acceptance remained
 unsaved until normal Save and then became durable; recovery rejection preserved
 the durable baseline, removed the rejected prose, and did not reoffer it.
 Command Center remained status-only in both flows.
+
+## 11. Writing-duration and monitor disposition
+
+Jason rejected the planned 60–90 minute typing quota as non-probative:
+
+```text
+60-90 minutes of writing ... proves nothing.
+```
+
+That objection is accepted. Elapsed typing time does not prove durable
+correctness. The quota is replaced by the stronger cumulative evidence already
+collected during this single Package `19.18` acceptance campaign:
+
+- multi-unit Unicode and Markdown editing;
+- undo, redo, immediate Save, normal Save, and Save failure/retry;
+- close, relaunch, and exact durable re-entry;
+- clean and blocked export;
+- project switching and dirty-switch cancellation;
+- optional-service degradation;
+- interrupted-recovery acceptance and rejection; and
+- repeated ordinary navigation, focus, move, resize, maximize, and restore.
+
+Jason physically disconnected the second monitor. Windows from the disconnected
+display moved onto and overlapped the surviving display, remained reachable,
+and could be moved and resized normally. Reconnecting the monitor did not
+automatically return the displaced window to its former display. Jason reported
+that everything worked well.
+
+Section F is `PASS`. Automatic restoration to a prior monitor after reconnect
+was not a Package `19.18` requirement. The non-return and temporary overlap are
+preserved as a P2 placement-refinement observation for later ownership review;
+they do not block the stable development build.
+
+Section E is satisfied by evidence substitution rather than an arbitrary
+duration claim. No claim is made that elapsed manual use proves reliability.
+
+Overall Package `19.18` human disposition:
+
+```text
+PASS
+```
