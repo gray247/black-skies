@@ -106,10 +106,14 @@ function getWindowsFileTruth(filePath) {
     "$signature = Get-AuthenticodeSignature -LiteralPath $file;",
     "[ordered]@{ productVersion = $version.ProductVersion; fileVersion = $version.FileVersion; fileDescription = $version.FileDescription; signatureStatus = $signature.Status.ToString() } | ConvertTo-Json -Compress"
   ].join(" ");
+  const childEnvironment = { ...process.env, BLACK_SKIES_ARTIFACT: filePath };
+  for (const key of Object.keys(childEnvironment)) {
+    if (key.toLowerCase() === "psmodulepath") delete childEnvironment[key];
+  }
   return JSON.parse(
     execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
       encoding: "utf8",
-      env: { ...process.env, BLACK_SKIES_ARTIFACT: filePath }
+      env: childEnvironment
     }).trim()
   );
 }
