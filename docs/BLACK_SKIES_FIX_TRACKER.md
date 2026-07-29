@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-07-29] Package 19.19 packaging and installation proof authorized:
+  - records clean starting commit `17c59f5` and the bounded unsigned Windows 11 x64 per-user NSIS `1.0.0-rc1` target,
+  - classifies whole-tree `sample_project` packaging, version mismatch, portable output, legacy Python resources, missing product icon, and disabled preload sandbox as release-boundary defects,
+  - records that the bounded baseline package inspection was stopped before completion, no protected file content was inspected or retained, and the generated output was removed,
+  - blocks further installer generation until an explicit runtime allowlist and fail-closed forbidden-content guard exist.
 - [2026-06-08] Critical Question Tightening Pass 1 refined the first-wave continuity/routing/package cluster:
   - tightens remaining Critical questions in `continuity.md`, `signal_architecture.md`, `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md`, and `explicit_content_architecture.md`,
   - moves doctrine-answered or non-blocking items out of Critical where supported while keeping the dossiers rough and not build-ready,
