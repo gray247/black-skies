@@ -415,10 +415,20 @@ describe('main split command launch hook', () => {
 
     await loadMainModule();
 
-    expect(browserWindowState.instances).toHaveLength(1);
-    expect(browserWindowState.instances[0].loadURL).toHaveBeenCalledWith(
-      expect.stringMatching(/^file:\/\/\/.*\/dist\/index\.html$/),
-    );
+    expect(browserWindowState.instances).toHaveLength(2);
+    for (const window of browserWindowState.instances) {
+      expect(window.loadURL).toHaveBeenCalledWith(
+        expect.stringMatching(/^file:\/\/\/.*\/dist\/index\.html$/),
+      );
+      expect(window.options.webPreferences).toEqual(
+        expect.objectContaining({
+          contextIsolation: true,
+          nodeIntegration: false,
+          sandbox: true,
+          preload: expect.stringMatching(/stage19Preload\.js$/),
+        }),
+      );
+    }
   });
 
   it('fails clearly instead of inventing a localhost URL when the built renderer is missing', async () => {

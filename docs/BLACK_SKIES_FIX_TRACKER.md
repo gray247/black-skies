@@ -23,6 +23,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - classifies whole-tree `sample_project` packaging, version mismatch, portable output, legacy Python resources, missing product icon, and disabled preload sandbox as release-boundary defects,
   - records that the bounded baseline package inspection was stopped before completion, no protected file content was inspected or retained, and the generated output was removed,
   - blocks further installer generation until an explicit runtime allowlist and fail-closed forbidden-content guard exist.
+- [2026-07-29] Package 19.19 packaged-runtime hardening implemented:
+  - adds a fail-closed single-file Stage 19 preload whose only runtime module is Electron and whose channel table is parity-tested against canonical IPC contracts,
+  - forces packaged builds onto the two-window Stage 19 host with sandboxed, context-isolated, Node-disabled renderers,
+  - exposes only Project Spine, split-window, and Writing-only critique contracts and preserves Command Center's prose-free bridge boundary,
+  - prohibits packaged Python resolution and legacy FastAPI service startup while retaining unpackaged development compatibility.
 - [2026-06-08] Critical Question Tightening Pass 1 refined the first-wave continuity/routing/package cluster:
   - tightens remaining Critical questions in `continuity.md`, `signal_architecture.md`, `model_routing_and_budget_architecture.md`, `llm_package_construction_architecture.md`, and `explicit_content_architecture.md`,
   - moves doctrine-answered or non-blocking items out of Critical where supported while keeping the dossiers rough and not build-ready,

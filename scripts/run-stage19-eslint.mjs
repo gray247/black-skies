@@ -24,6 +24,8 @@ const lintTargets = [
   "main/aiCritiqueGateway.ts",
   "main/optionalServiceStartup.ts",
   "main/pythonExecutablePolicy.ts",
+  "main/packagedRuntimePolicy.ts",
+  "main/stage19Preload.ts",
   "shared/ipc/projectSpine.ts",
   "shared/ipc/aiCritique.ts",
   "shared/splitCommandAuthority.ts",

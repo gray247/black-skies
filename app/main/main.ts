@@ -49,6 +49,11 @@ import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
 import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 import { startOptionalServicesForCoreShell } from './optionalServiceStartup.js';
 import { requiresBundledPython } from './pythonExecutablePolicy.js';
+import {
+  shouldEnableDedicatedStage19Host,
+  shouldResolveLegacyPython,
+  shouldStartLegacyServices,
+} from './packagedRuntimePolicy.js';
 import { deriveSplitCommandInitialPlacement, type InitialWindowBounds } from './splitCommandWindowPlacement.js';
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import {
@@ -103,9 +108,13 @@ const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
 const projectSpineOriginSessionId = randomUUID();
+const dedicatedStage19HostEnabled = shouldEnableDedicatedStage19Host(
+  app.isPackaged,
+  runtimeConfig.ui.experimentalSplitCommandWorkspace,
+);
 const splitCommandLifecycleSeam: SplitCommandLifecycleSeam | null =
   createSplitCommandLifecycleSeam({
-    experimentalEnabled: runtimeConfig.ui.experimentalSplitCommandWorkspace,
+    experimentalEnabled: dedicatedStage19HostEnabled,
     sessionGeneration: randomUUID(),
     onClear: clearSplitCommandPairRuntimeReferences,
   });
@@ -116,7 +125,11 @@ const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.
 const bundledPythonPath = runtimeConfig.service.bundledPythonPath ?? '';
 const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
-const PRELOAD_PATH = join(__dirname, 'preload.js');
+const LEGACY_PRELOAD_PATH = join(__dirname, 'preload.js');
+const STAGE19_PRELOAD_PATH = join(__dirname, 'stage19Preload.js');
+const ACTIVE_PRELOAD_PATH = app.isPackaged
+  ? STAGE19_PRELOAD_PATH
+  : LEGACY_PRELOAD_PATH;
 
 const explicitRendererUrl =
   process.env.VITE_DEV_SERVER_URL?.trim() || process.env.ELECTRON_RENDERER_URL?.trim() || null;
@@ -145,7 +158,9 @@ const RESOLVED_PORT_RANGE = resolvePortRange(
   PORT_RANGE_ENV,
   runtimeConfig.service.portRange ?? DEFAULT_SERVICE_PORT_RANGE,
 );
-const PYTHON_EXECUTABLE = resolvePythonExecutable();
+const PYTHON_EXECUTABLE = shouldResolveLegacyPython(app.isPackaged)
+  ? resolvePythonExecutable()
+  : null;
 
 let mainWindow: BrowserWindow | null = null;
 let splitCommandSecondaryWindow: BrowserWindow | null = null;
@@ -600,6 +615,12 @@ async function startServices(): Promise<void> {
   if (servicesProcess) {
     return;
   }
+  if (!shouldStartLegacyServices(app.isPackaged)) {
+    ensureMainLogger().info('Legacy Python services are disabled in the packaged Stage 19 host.');
+    servicesProcess = null;
+    delete process.env.BLACKSKIES_SERVICES_PORT;
+    return;
+  }
 
   const configuredServicePortRaw = process.env.BLACKSKIES_SERVICES_PORT;
   const configuredServicePort = resolveConfiguredServicePort();
@@ -661,6 +682,9 @@ async function startServices(): Promise<void> {
     port,
   });
 
+  if (!PYTHON_EXECUTABLE) {
+    throw new Error('Legacy Python executable is unavailable in the packaged Stage 19 host.');
+  }
   const child = spawn(PYTHON_EXECUTABLE, args, {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: buildPythonEnv(),
@@ -862,8 +886,8 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
-      preload: PRELOAD_PATH,
+      sandbox: app.isPackaged,
+      preload: ACTIVE_PRELOAD_PATH,
       additionalArguments: splitCommandLifecycleSeam
         ? [...splitCommandLifecycleSeam.launchArguments]
         : [],
@@ -956,8 +980,8 @@ async function createSplitCommandSecondaryWindow(
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
-      preload: PRELOAD_PATH,
+      sandbox: app.isPackaged,
+      preload: ACTIVE_PRELOAD_PATH,
       additionalArguments: [...contract.launchArguments],
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
@@ -1334,7 +1358,7 @@ if (!hasSingleInstanceLock) {
       registerLayoutIpc({
         devServerUrl: START_URL.startsWith('http') ? START_URL : null,
         rendererIndexFile,
-        preloadPath: PRELOAD_PATH,
+        preloadPath: ACTIVE_PRELOAD_PATH,
         getMainWindow: () => mainWindow,
       });
       ensureMainLogger().info('Electron app ready');
