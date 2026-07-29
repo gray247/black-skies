@@ -356,3 +356,29 @@ for the wrong editor. The gate now waits for each requested unit to become
 enabled before selecting it. The complete five-scenario project-spine Electron
 file passes with that deterministic wait; no runtime correction resulted from
 this gate finding.
+
+Final correction qualification:
+
+```text
+Python policy correction: 28a2bdb
+Deterministic hydration wait: c5c86a0
+Windows fixed gate: PASS
+Unit/component/contract checks: 523 passed, 2 intentional skips
+Production Electron scenarios: 18 passed
+Linux fixed gate run: 30482059014 PASS
+Worktree: CLEAN_RC_ELIGIBLE
+Protected evidence: NOT_USED
+```
+
+Jason then completed both distinct interrupted-recovery decisions and
+reported:
+
+```text
+SECTION D1 RECOVERY ACCEPT: PASS
+SECTION D2 RECOVERY REJECT: PASS
+```
+
+Section D, recovery accept and reject, is `PASS`. Recovery acceptance remained
+unsaved until normal Save and then became durable; recovery rejection preserved
+the durable baseline, removed the rejected prose, and did not reoffer it.
+Command Center remained status-only in both flows.
