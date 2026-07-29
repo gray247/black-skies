@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  app-builder-lib@26.8.1:
+    hash: iysnqz7alkuhtj4vqfvmbaymci
+    path: patches/app-builder-lib@26.8.1.patch
+
 importers:
 
   .:
@@ -1602,7 +1607,7 @@ packages:
     resolution: {integrity: sha512-j87o0j6LqPL3QRr8yid6c+Tt5gC7xNfYo6uQIQkorAC6MpeayVMZrEDzKmJJ/Hlv7EnOQpaRm53k6ktDYZyB6w==}
     dev: true
 
-  /app-builder-lib@26.8.1(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1):
+  /app-builder-lib@26.8.1(patch_hash=iysnqz7alkuhtj4vqfvmbaymci)(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1):
     resolution: {integrity: sha512-p0Im/Dx5C4tmz8QEE1Yn4MkuPC8PrnlRneMhWJj7BBXQfNTJUshM/bp3lusdEsDbvvfJZpXWnYesgSLvwtM2Zw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -1650,6 +1655,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
   /argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -2327,7 +2333,7 @@ packages:
   /dmg-builder@26.8.1(electron-builder-squirrel-windows@26.8.1):
     resolution: {integrity: sha512-glMJgnTreo8CFINujtAhCgN96QAqApDMZ8Vl1r8f0QT8QprvC1UCltV4CcWj20YoIyLZx6IUskaJZ0NV8fokcg==}
     dependencies:
-      app-builder-lib: 26.8.1(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
+      app-builder-lib: 26.8.1(patch_hash=iysnqz7alkuhtj4vqfvmbaymci)(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
       builder-util: 26.8.1
       fs-extra: 10.1.0
       iconv-lite: 0.6.3
@@ -2420,7 +2426,7 @@ packages:
   /electron-builder-squirrel-windows@26.8.1(dmg-builder@26.8.1):
     resolution: {integrity: sha512-o288fIdgPLHA76eDrFADHPoo7VyGkDCYbLV1GzndaMSAVBoZrGvM9m2IehdcVMzdAZJ2eV9bgyissQXHv5tGzA==}
     dependencies:
-      app-builder-lib: 26.8.1(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
+      app-builder-lib: 26.8.1(patch_hash=iysnqz7alkuhtj4vqfvmbaymci)(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
       builder-util: 26.8.1
       electron-winstaller: 5.4.0
     transitivePeerDependencies:
@@ -2433,7 +2439,7 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
-      app-builder-lib: 26.8.1(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
+      app-builder-lib: 26.8.1(patch_hash=iysnqz7alkuhtj4vqfvmbaymci)(dmg-builder@26.8.1)(electron-builder-squirrel-windows@26.8.1)
       builder-util: 26.8.1
       builder-util-runtime: 9.5.1
       chalk: 4.1.2

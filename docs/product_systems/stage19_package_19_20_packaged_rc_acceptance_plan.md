@@ -613,3 +613,55 @@ full fixed Stage 19 gate:
 
 The packaged 100-unit execution remains correctly pending until the assisted
 installer and installed-file witness pass.
+
+### BS-19.20-W01 promotion and correction
+
+The supported assisted launch also returned without displaying a window.
+Windows Error Reporting recorded the same failure for all three attempts:
+
+```text
+classification: P1 candidate blocker
+exception: 0xC0000005
+faulting module: extracted NSIS System.dll
+fault offset: 0x00001581
+WER bucket: f39dc239067558ab49ac63d51bad7fe8
+application files written: none
+registration or shortcuts written: none
+Defender event at failure: none
+installer SHA-256: exact qualified match
+signature status: NotSigned
+protected evidence: NOT_USED
+```
+
+A minimal isolated probe proved that the bundled NSIS `3.0.4.1` System
+plug-in succeeds for the installer mutex call but fails on the per-user
+`SHGetKnownFolderPath` sequence used by `app-builder-lib@26.8.1`. The
+Package `19.19` runner did not expose this host-specific Windows 11 failure.
+
+The bounded correction pins a pnpm dependency patch that retains the
+template's existing canonical `$LocalAppData\Programs` fallback and removes
+only the optional crashing known-folder calls. The configuration now also
+sets `allowElevation: false` and `packElevateHelper: false`, matching the
+per-user contract and preventing unused machine-wide elevation behavior.
+Preflight and fixed-gate tests fail closed if those settings or the pinned
+patch disappear.
+
+The corrected local candidate passed:
+
+```text
+package preflight: PASS
+compatibility patch tests: 2 passed
+installer build: PASS
+isolated per-user silent install on affected host: exit 0
+installed executable present: PASS
+HKCU registration only: PASS
+isolated silent uninstall: exit 0
+application directory removed: PASS
+registration removed: PASS
+```
+
+This local artifact is diagnostic only because it was built from an uncommitted
+tree. The original Package `19.19` installer is disqualified from Package
+`19.20`. Human acceptance may resume only after the correction is committed,
+the full fixed gate passes, and one new exact candidate completes the clean
+Windows packaging/install qualification workflow.

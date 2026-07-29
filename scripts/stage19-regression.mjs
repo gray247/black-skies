@@ -31,6 +31,7 @@ const unitFiles = [
   "main/__tests__/stage19PreloadChannels.test.ts",
   "main/__tests__/stage19PackageVerifier.test.ts",
   "main/__tests__/stage19PackagingWorkflowPolicy.test.ts",
+  "main/__tests__/stage19NsisCompatibilityPatch.test.ts",
   "main/__tests__/stage19AcceptanceWitness.test.ts",
   "main/__tests__/aiCritiqueQualification.test.ts",
   "main/__tests__/aiCritiqueIpc.test.ts",

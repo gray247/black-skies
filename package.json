@@ -28,5 +28,10 @@
     "dependencies": {
         "ws": "^8.18.3",
         "yaml": "^2.8.3"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "app-builder-lib@26.8.1": "patches/app-builder-lib@26.8.1.patch"
+        }
     }
 }

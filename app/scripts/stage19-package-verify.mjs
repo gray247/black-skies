@@ -153,6 +153,14 @@ export function verifyPreflight() {
   invariant(builder.nsis?.oneClick === false, "The installer must use assisted mode.");
   invariant(builder.nsis?.perMachine === false, "The installer must be per-user.");
   invariant(
+    builder.nsis?.allowElevation === false,
+    "The per-user installer must not offer elevation to a machine-wide install."
+  );
+  invariant(
+    builder.nsis?.packElevateHelper === false,
+    "The per-user package must not include the unused elevation helper."
+  );
+  invariant(
     builder.nsis?.differentialPackage === false,
     "NSIS blockmap generation must remain disabled for the single-artifact RC."
   );
