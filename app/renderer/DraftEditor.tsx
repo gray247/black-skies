@@ -26,6 +26,7 @@ export interface DraftEditorProps {
   className?: string;
   extensions?: Extension[];
   onChange?: (nextValue: string) => void;
+  onSave?: (currentValue: string) => void;
   onSelectionChange?: (selection: DraftEditorSelectionEvidence) => void;
   diffConfig?: DraftEditorDiffConfig | null;
   ariaLabel?: string | null;
@@ -123,6 +124,7 @@ export default function DraftEditor({
   className,
   extensions,
   onChange,
+  onSave,
   onSelectionChange,
   diffConfig,
   ariaLabel,
@@ -133,6 +135,7 @@ export default function DraftEditor({
   const viewRef = useRef<EditorView | null>(null);
   const docRef = useRef(value);
   const onChangeRef = useRef(onChange);
+  const onSaveRef = useRef(onSave);
   const onSelectionChangeRef = useRef(onSelectionChange);
   const skipNextChangeRef = useRef(false);
   const historyOperationRef = useRef<'undo' | 'redo' | null>(null);
@@ -148,6 +151,10 @@ export default function DraftEditor({
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
+
+  useEffect(() => {
+    onSaveRef.current = onSave;
+  }, [onSave]);
 
   useEffect(() => {
     onSelectionChangeRef.current = onSelectionChange;
@@ -319,6 +326,13 @@ export default function DraftEditor({
       lineNumbers(),
       EditorView.lineWrapping,
       keymap.of([
+        {
+          key: 'Mod-s',
+          run: (view) => {
+            onSaveRef.current?.(view.state.doc.toString());
+            return true;
+          },
+        },
         { key: 'Mod-z', run: undo },
         { key: 'Mod-Shift-z', run: redo },
         { key: 'Mod-y', run: redo },

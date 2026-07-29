@@ -1044,7 +1044,13 @@ export default function Stage19WritingSpineApp({
   );
 
   const saveUnit = useCallback(
-    async (unitId: string) => {
+    async (unitId: string, settledEditorBody?: string) => {
+      if (
+        typeof settledEditorBody === 'string' &&
+        settledEditorBody !== buffersRef.current[unitId]
+      ) {
+        handleBufferChange(unitId, settledEditorBody);
+      }
       const current = snapshotRef.current;
       const api = bridge?.saveUnit;
       if (!current.project || !api || typeof buffersRef.current[unitId] !== 'string') {
@@ -1124,7 +1130,14 @@ export default function Stage19WritingSpineApp({
         );
       }
     },
-    [applySnapshot, bridge, flushDirtyReports, flushRecoveryCheckpoint, reportDirty],
+    [
+      applySnapshot,
+      bridge,
+      flushDirtyReports,
+      flushRecoveryCheckpoint,
+      handleBufferChange,
+      reportDirty,
+    ],
   );
 
   useEffect(() => {
@@ -1710,6 +1723,7 @@ export default function Stage19WritingSpineApp({
                     key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${snapshot.activeUnitId ?? 'no-unit'}`}
                     value={activeBuffer}
                     onChange={(body) => handleBufferChange(activeUnit.id, body)}
+                    onSave={(body) => void saveUnit(activeUnit.id, body)}
                     onSelectionChange={handleAiSelection}
                     readOnly={recoveryBlocksEditing}
                     placeholder="Start writing…"

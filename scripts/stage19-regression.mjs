@@ -14,6 +14,7 @@ const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const unitFiles = [
   "renderer/__tests__/Stage19WritingSpineApp.test.tsx",
+  "renderer/__tests__/DraftEditor.test.tsx",
   "renderer/__tests__/splitCommandShellState.test.ts",
   "main/__tests__/splitCommandWindowPlacement.test.ts",
   "main/__tests__/splitCommandSecondaryLaunchHook.test.ts",

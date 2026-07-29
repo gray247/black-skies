@@ -1,5 +1,5 @@
 ﻿import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import DraftEditor, { buildDraftEditorSelectionEvidence } from '../DraftEditor';
 
@@ -110,5 +110,16 @@ describe('DraftEditor', () => {
     expect(scroller).not.toBeNull();
     expect(scroller).toHaveAttribute('aria-labelledby', 'scene-title');
     expect(scroller).toHaveAttribute('aria-describedby', 'scene-meta');
+  });
+
+  it('routes Ctrl+S with the editor document read synchronously from CodeMirror', async () => {
+    const onSave = vi.fn();
+    render(<DraftEditor value="Settled editor prose" onSave={onSave} />);
+    const textbox = await screen.findByRole('textbox', { name: 'Draft editor' });
+
+    fireEvent.keyDown(textbox, { key: 's', ctrlKey: true });
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith('Settled editor prose');
   });
 });
