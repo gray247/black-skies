@@ -10,6 +10,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 import { _electron as electron } from "playwright";
 
@@ -27,6 +28,20 @@ const expectedMarkdown = [
   "## Untitled",
   ""
 ].join("\n");
+const representativeUnitCount = 100;
+const representativeProjectTitle = "Packaged 100 Unit Ω";
+const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
+const representativeClosing = "[Closing](https://example.invalid/closing)";
+
+export function expectedRepresentativeMarkdown() {
+  const lines = [`# ${representativeProjectTitle}`, ""];
+  for (let index = 1; index <= representativeUnitCount; index += 1) {
+    lines.push(`## Representative ${String(index).padStart(3, "0")}`, "");
+    if (index === 1) lines.push(representativeOpening, "");
+    if (index === representativeUnitCount) lines.push(representativeClosing, "");
+  }
+  return lines.join("\n");
+}
 
 function fail(message) {
   throw new Error(`[stage19-installed] ${message}`);
@@ -348,6 +363,7 @@ async function main() {
   const executablePath = requireValue("--executable");
   const smokeRoot = requireValue("--root");
   const resultPath = requireValue("--result");
+  const runRepresentative = process.argv.includes("--representative");
   assert(existsSync(executablePath), "Installed executable does not exist.");
   mkdirSync(smokeRoot, { recursive: true });
   const userDataPath = path.join(smokeRoot, "user-data");
@@ -359,6 +375,7 @@ async function main() {
 
   let first;
   let second;
+  let third;
   try {
     first = await launchInstalled(executablePath, userDataPath);
     const firstTruth = await runtimeTruth(
@@ -467,8 +484,143 @@ async function main() {
       exported.data.sha256 === hashBytes(exactExport),
       "Installed export result SHA-256 differed from exact bytes."
     );
-    await closeClean(second.application);
-    second = null;
+
+    let representative = null;
+    if (runRepresentative) {
+      const representativeCreated = await invokeOk(
+        second.writing,
+        async (parentPath) =>
+          window.projectSpine.createProject({
+            parentPath,
+            title: "Packaged 100 Unit Ω",
+            operationId: "installed-representative-create"
+          }),
+        projectParent
+      );
+      const representativeProjectPath = representativeCreated.snapshot.project.path;
+      let representativeSnapshot = representativeCreated.snapshot;
+      const representativeUnitIds = [];
+      const creationStartedAt = performance.now();
+      for (let index = 1; index <= representativeUnitCount; index += 1) {
+        const createdUnit = await invokeOk(
+          second.writing,
+          async ({ request, title }) =>
+            window.projectSpine.createUnit({ ...request, title }),
+          {
+            request: binding(
+              representativeSnapshot,
+              `installed-representative-unit-${index}`
+            ),
+            title: `Representative ${String(index).padStart(3, "0")}`
+          }
+        );
+        representativeUnitIds.push(createdUnit.data.unitId);
+        representativeSnapshot = createdUnit.snapshot;
+      }
+      const creationDurationMs = performance.now() - creationStartedAt;
+      assert(
+        creationDurationMs < 15_000,
+        `Installed 100-unit creation exceeded 15 seconds: ${creationDurationMs}ms.`
+      );
+      await saveProse(
+        second.writing,
+        representativeUnitIds[0],
+        representativeOpening,
+        "installed-representative-opening"
+      );
+      await saveProse(
+        second.writing,
+        representativeUnitIds.at(-1),
+        representativeClosing,
+        "installed-representative-closing"
+      );
+      representativeSnapshot = await second.writing.evaluate(() =>
+        window.projectSpine.getSession()
+      );
+      const selectionStartedAt = performance.now();
+      await invokeOk(
+        second.writing,
+        async ({ request, unitId }) =>
+          window.projectSpine.selectUnit({ ...request, unitId }),
+        {
+          request: binding(representativeSnapshot, "installed-representative-select"),
+          unitId: representativeUnitIds.at(-1)
+        }
+      );
+      const selectionDurationMs = performance.now() - selectionStartedAt;
+      assert(
+        selectionDurationMs < 3_000,
+        `Installed unit-100 selection exceeded 3 seconds: ${selectionDurationMs}ms.`
+      );
+      await closeClean(second.application);
+      second = null;
+
+      third = await launchInstalled(executablePath, userDataPath);
+      await runtimeTruth(third.application, third.writing, third.command, executablePath);
+      const representativeReopened = await invokeOk(
+        third.writing,
+        async (project) =>
+          window.projectSpine.openProject({
+            path: project,
+            operationId: "installed-representative-reopen"
+          }),
+        representativeProjectPath
+      );
+      assert(
+        representativeReopened.snapshot.project.units.length === representativeUnitCount,
+        "Reopened representative project unit count differed."
+      );
+      assert(
+        representativeReopened.snapshot.dirtyUnitIds.length === 0,
+        "Reopened representative project was not clean."
+      );
+      const representativeExportPath = path.join(
+        smokeRoot,
+        "exports",
+        "installed-representative.md"
+      );
+      await third.application.evaluate(({ dialog }, destination) => {
+        dialog.showSaveDialog = async () => ({ canceled: false, filePath: destination });
+      }, representativeExportPath);
+      const representativeExport = await invokeOk(
+        third.writing,
+        async (request) => window.projectSpine.exportMarkdown(request),
+        {
+          ...binding(
+            representativeReopened.snapshot,
+            "installed-representative-export"
+          ),
+          revision: representativeReopened.snapshot.revision
+        }
+      );
+      const representativeExportBytes = readFileSync(representativeExportPath);
+      assert(
+        representativeExportBytes.equals(
+          Buffer.from(expectedRepresentativeMarkdown(), "utf8")
+        ),
+        "Installed representative Markdown bytes differed."
+      );
+      assert(
+        representativeExport.data.unitCount === representativeUnitCount,
+        "Installed representative export unit count differed."
+      );
+      await closeClean(third.application);
+      third = null;
+      representative = {
+        projectPath: representativeProjectPath,
+        projectFiles: projectFileManifest(representativeProjectPath),
+        exportPath: representativeExportPath,
+        exportByteLength: statSync(representativeExportPath).size,
+        exportSha256: hashFile(representativeExportPath),
+        unitCount: representativeUnitCount,
+        creationDurationMs,
+        selectionDurationMs,
+        exactMarkdownMatched: true
+      };
+    } else {
+      await closeClean(second.application);
+      second = null;
+    }
 
     const result = {
       schema: "black-skies.stage19.installed-smoke.v1",
@@ -484,6 +636,7 @@ async function main() {
       exportSha256: hashFile(exportPath),
       exportedUnitCount: exported.data.unitCount,
       exactMarkdownMatched: true,
+      representative,
       coreNetworkCredentialsPresent: false,
       developmentFlagsPresent: false,
       completedAtUtc: new Date().toISOString()
@@ -491,7 +644,7 @@ async function main() {
     writeFileSync(resultPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   } finally {
-    for (const launched of [second, first]) {
+    for (const launched of [third, second, first]) {
       if (!launched) continue;
       try {
         await launched.application.close();
@@ -502,7 +655,12 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
-  process.exit(1);
-});
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  main().catch((error) => {
+    process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
+    process.exit(1);
+  });
+}

@@ -205,8 +205,10 @@ Negative self-tests will prove that the witness rejects:
 The tests use synthetic metadata or a disposable copied fixture. A deliberately
 mismatched or modified installer is never executed.
 
-Codex will also run a packaged representative-project check against the exact
-installed executable. It will create a generated partition-B 100-unit project,
+Codex will also prepare a packaged representative-project check for the exact
+installed executable. Immediately after the assisted installation and
+`installed` witness pass, but before section 4 human testing, it will create a
+generated partition-B 100-unit project,
 exercise selection at the far end, save representative Unicode/Markdown
 content, close, relaunch, reopen, and export it. The existing Package `19.16`
 ceilings remain regression bounds rather than broad performance claims:
@@ -570,3 +572,44 @@ The first restricted-sandbox production-build attempt could not write Vite's
 normal dependency-directory temporary file. The same build and complete gate
 passed outside that filesystem restriction; no product or repository
 correction resulted from the sandbox-only failure.
+
+Two local silent invocations of the exact installer then exited with Windows
+access-violation code `0xC0000005`, once with a disposable custom per-user
+destination and once with the default destination. Both failed before
+registration, shortcuts, application launch, or user-data creation; the exact
+empty disposable remnants were inspected and removed. The clean Package
+`19.19` Windows runner had already passed silent installation for the same
+installer hash.
+
+This is tracked as `BS-19.20-W01`, a local silent-install divergence. Silent
+installation is not the Package `19.20` human target. The 100-unit check will
+therefore run against the exact executable after the supported assisted
+installation. If the assisted installer also fails, the finding promotes
+immediately to a P1 candidate blocker.
+
+The fail-closed machine preflight then passed:
+
+```text
+existing Black Skies registration: none
+existing Black Skies shortcuts: none
+selected installation directory: absent
+existing Black Skies user data: none
+qualified installer copy SHA-256: exact match
+qualification receipt binding: exact match
+signature status: NotSigned
+adjacent uninstall sentinel: created and hashed
+protected evidence: NOT_USED
+```
+
+Acceptance-witness and representative-test preparation passed:
+
+```text
+focused witness/negative/expected-byte tests: 10 passed
+full fixed Stage 19 gate:
+  unit/component/contract: 555 passed / 2 intentional skips
+  Electron: 18 passed
+  protected evidence: NOT_USED
+```
+
+The packaged 100-unit execution remains correctly pending until the assisted
+installer and installed-file witness pass.
