@@ -1,58 +1,187 @@
-Status: Active
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+# Black Skies 1.0.0-rc1 Support Playbook
 
-# Support Playbook — Phase 9 Preview
-**Status:** Draft · 2025-10-07
-> **Category:** Troubleshooting / Ops
-> **Reference:** This doc and others live in `docs/ops/dev_ops_notes.md`.
+Status: Package `19.21` current installed-product support guidance
 
-This playbook captures the day-2 operations for Phase 9 features. Update as the release stabilises.
+Audience: internal support and release operators
 
-## Contact & Intake
-- **Primary channel:** `#black-skies-support`
-- **Escalation:** tag @desktop-oncall for Electron/runtime issues, @services-oncall for FastAPI incidents.
-- **Ticket triage:** log every customer incident in Linear (`SUP`) with repro steps, logs, and environment details.
+Platform: Windows 11 x64
 
-## Log & Telemetry Collection
-- Electron main logs: `%APPDATA%/BlackSkies/logs/main.log`
-- Renderer diagnostics: `%APPDATA%/BlackSkies/history/diagnostics/renderer.log`
-- Services: `~/.blackskies/services/*.log`
-- Voice notes metadata: `<project>/history/voice_notes/index.json`
-- Analytics cache: `<project>/.blackskies/cache/analytics_summary.json`
+## Support boundary
 
-## Feature Runbooks
+Support the accepted packaged application described in `../../RELEASE.md` and
+`../quickstart.md`. Do not use retained Python/FastAPI services, legacy
+analytics/plugins/Companion flows, development flags, sample projects, or
+historical phase documents to explain installed V1 behavior.
 
-### Analytics Summary
-1. Hit `GET /api/v1/analytics/summary?project_id=…` with `curl -v` (matches `docs/specs/analytics_service_spec.md`).
-2. If the payload is stale, delete `.blackskies/cache/analytics_summary.json` and retry; this forces cache regeneration for the Project Health drawer.
-3. Inspect diagnostics under `history/diagnostics/*analytics*.json` for schema errors or missing Outline/Writing artifacts.
-4. Verify Outline and Writing files exist; missing drafts surface as `VALIDATION` issues in the response.
-5. When triaging regressions, rerun `pytest -m "analytics"` to confirm the analytics contract still holds.
+Do not request manuscript prose or OpenAI credentials. Ask for the minimum
+non-content evidence needed: candidate identity, Windows version, installation
+path, project path if the user approves sharing it, exact UI label/message,
+time, action sequence, and whether external project files remain present.
 
-### Backup Verification (Disabled in v1.1)
-The daemon described in the charter is not shipping yet; `/api/v1/healthz` always reports `backup_status: "warning"` and zero counts. Leave this section as a placeholder until the verifier flag is enabled.
+## Intake checklist
 
-### Voice Notes & Transcription (Deferred)
-Voice input/recording are not exposed in v1.1 builds. Ignore the legacy plan references until the feature ships.
+Record:
 
-### Plugin Sandbox
-1. Ensure sandbox registry is enabled via Settings → Plugins (requires restart).
-2. Audit log is written to `%APPDATA%/BlackSkies/history/plugin_audit.log`.
-3. Permission errors return `403` with details in log; verify manifest scopes.
-4. Network-denied plugins must whitelist domains in `config/runtime.yaml::plugin.proxy_allowlist`.
+1. installer filename, byte length, SHA-256, and signature status;
+2. whether installation used the default or a custom per-user directory;
+3. whether both **Writing Studio** and **Command Center** opened;
+4. project action: Create, Open, Recent project, Save, recovery, or export;
+5. exact state text such as **Saved durably**, **N unsaved units**,
+   **Save failed**, or **Status unavailable**;
+6. whether core writing remains usable;
+7. whether the project/export lives outside the application directory; and
+8. whether the incident follows install, upgrade/substitution, monitor change,
+   interruption, uninstall, or reinstall.
 
-### Docking & Hotkeys
-1. Toggle docking in `config/runtime.yaml::ui.enable_docking`; restart Electron.
-2. Reset layout with `Ctrl+Alt+0` and ensure `.blackskies/layout.json` updates.
-3. Accessibility: `Ctrl+Alt+]` cycles focus; confirm the focused pane acquires `data-pane-id` attribute.
+Accepted candidate identity:
 
-## Escalation Matrix
-- **Data loss / corruption:** escalate immediately to @services-lead.
-- **Security incident (plugin escape, sandbox bypass):** page security on-call; capture logs and disable plugin runtime (`BLACKSKIES_DISABLE_PLUGINS=1`).
-- **Budget overrun:** advise customer to adjust limits in `.env` or `project.json`, document manual refund if applicable.
+```text
+BlackSkies-Setup-1.0.0-rc1.exe
+89275742 bytes
+93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+NotSigned
+```
 
-## Post-Release Tasks
-- Run smoke (`scripts/load.py --profile smoke --start-service`).
-- Monitor metrics dashboard for error spikes during first 24h.
-- Summarise incidents in the weekly support report.
+A mismatch is a different candidate. Stop candidate-specific troubleshooting
+and route it to the release operator.
+
+## Severity and immediate response
+
+| Severity | Examples | Response |
+| --- | --- | --- |
+| P0 | confirmed security compromise or destructive cross-project corruption | Stop use, preserve evidence without copying prose/credentials, escalate immediately. |
+| P1 | launch failure, silent/dishonest Save, unrecoverable primary workflow, installer boundary violation | Keep files intact, stop destructive retries, escalate as a release blocker. |
+| P2 | major bounded degradation with a viable workaround | Document exact workaround and owner; do not call it fixed. |
+| P3 | minor usability or cosmetic issue | Record exact UI/location and future owner. |
+
+## Installation and launch
+
+### Unsigned-installer warning
+
+The internal RC is intentionally `NotSigned`. Verify exact filename, byte
+length, and SHA-256 before running it. Do not represent it as trusted by
+SmartScreen or advise bypassing a warning for an unverified artifact.
+
+### Missing window
+
+Black Skies launches two windows. Check the taskbar and all connected displays.
+After monitor disconnect, both windows should remain reachable but can overlap.
+Reconnect does not restore former placement automatically.
+
+If launch fails, preserve the installed directory and candidate identity.
+Do not install a different build over the accepted candidate as a diagnostic
+step.
+
+## Project intake
+
+**Open project…** requires the actual project folder containing `project.json`.
+**Create project…** requires a parent folder and creates a new project folder
+inside it.
+
+For an invalid project:
+
+- confirm the selected folder level;
+- confirm the folder exists and is readable;
+- do not manually repair `project.json`, outline metadata, drafts, or recovery
+  files during first-line support; and
+- preserve the folder and exact error before escalation.
+
+Removing a recent-project reference does not delete project files.
+
+## Save failure
+
+If **Save failed** appears:
+
+1. keep Writing Studio open;
+2. do not close, switch candidates, or treat unit switching as Save;
+3. preserve the visible local prose without asking the user to transmit it;
+4. check project-location availability, write permission, free space, and
+   removable/network volume state;
+5. retry normal **Save** or `Ctrl+S`; and
+6. confirm **Saved durably** before normal close/relaunch.
+
+If retry fails, preserve the project and recovery artifacts unchanged and
+escalate. Never claim durability based only on Command Center when it reports
+failure or status unavailable.
+
+## Recovery
+
+Recovery candidates must be reviewed in Writing Studio.
+
+- **Recover this prose** applies the displayed candidate as unsaved work.
+  Normal Save is still required.
+- **Reject and delete candidate** preserves the durable baseline and deletes
+  only that confirmed recovery candidate.
+- **Recovery evidence needs attention** blocks editing and preserves the
+  artifact.
+
+Do not delete or rewrite recovery artifacts manually. Rejection is destructive
+and must be initiated by the user against the exact displayed candidate.
+
+## Markdown export
+
+Export requires a clean, saved project and no unresolved recovery state.
+Cancellation creates no file. An existing destination is replaced only after
+the explicit **Replace existing Markdown file?** → **Replace** decision.
+
+For failure:
+
+- keep the project open and clean;
+- choose a writable destination outside the installation directory;
+- confirm the destination is not locked by another program;
+- preserve the exact error and destination path; and
+- never claim completion without the **Export complete** notice and expected
+  file.
+
+## Optional remote critique
+
+Optional critique is not part of offline core support.
+
+- Never ask for or record the API key.
+- The key is session-only main-process memory and has no readback.
+- No prose is sent at preview; transmission requires explicit clearance and
+  **Approve and send exact payload**.
+- Editing invalidates the request/result relationship.
+- **Stop waiting** is fail-closed locally but may not cancel provider-side work
+  already accepted.
+- Critique is advisory and never mutates manuscript files.
+
+Provider auth, billing, rate limits, availability, and network errors must not
+be diagnosed by enabling legacy services or changing core project files.
+Confirm core writing remains available and ask the user to clear the session
+key if they no longer want remote access enabled.
+
+## Uninstall, reinstall, and data
+
+Uninstall removes application files, per-user registration, and Black Skies
+shortcuts. It retains external projects/exports and the Electron per-user
+application-data directory.
+
+Before uninstall/reinstall troubleshooting:
+
+1. record the exact candidate identity;
+2. back up external projects using ordinary file-copy practices;
+3. confirm projects are outside the installation directory;
+4. close both windows normally after Save; and
+5. verify the same installer hash before reinstall.
+
+Do not describe uninstall as a privacy wipe or project deletion.
+
+## Escalation packet
+
+Provide:
+
+- severity and user impact;
+- exact accepted/mismatched candidate identity;
+- Windows version and display/scaling arrangement;
+- installation path;
+- action sequence and exact UI text;
+- project/export path only if approved by the user;
+- whether external bytes remain present;
+- whether core writing remains available;
+- whether recovery was offered and whether the user chose accept or reject;
+- whether optional network critique was involved; and
+- a statement that no manuscript prose or credential was collected.
+
+Do not collect protected manuscript content merely to reproduce an issue. Use
+new synthetic text in a disposable project when a reproduction is authorized.

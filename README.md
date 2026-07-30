@@ -1,61 +1,45 @@
 # Black Skies
 
-Local-first novelist tool for Windows 11: guided outline -> draft -> rewrite -> critique -> export.
+Black Skies is a local-first Windows writing application with two coordinated
+windows:
 
-> Status note: README is onboarding-oriented, not runtime or phase authority.
-> Runtime authority: `build/runtime_truth.json` and `docs/specs/current_state.md`.
-> Current phase status authority: `docs/roadmap.md`.
+- **Writing Studio** owns project creation/opening, manuscript structure,
+  editing, Save, recovery, Markdown export, and optional selected-prose
+  critique.
+- **Command Center** mirrors project, navigation, recovery, and durable-save
+  status. It does not edit prose or mutate manuscript structure.
 
-## Platform
-Windows 11 only (current desktop target).
+The current release candidate targets Windows 11 x64. Core writing, Save,
+reopen, recovery, and Markdown export work offline and do not require Python,
+a globally installed Node.js runtime, a repository checkout, or provider
+credentials.
 
-## Dev Quickstart
-Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
+## Start here
 
-1. **Install workspace dependencies**
-   ```bash
-   pnpm install --recursive
-   ```
-2. **Set up the Python services environment**
-   ```bash
-   cd services
-   python -m venv .venv
-   # PowerShell
-   .\.venv\Scripts\Activate.ps1
-   # bash
-   source .venv/bin/activate
-   pip install -c ../constraints.txt -e .[dev]
-   ```
-3. **Launch smoke stack**
-   ```powershell
-   powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
-   ```
+- End users and acceptance operators:
+  [`docs/quickstart.md`](docs/quickstart.md)
+- Support and troubleshooting:
+  [`docs/ops/support_playbook.md`](docs/ops/support_playbook.md)
+- Release-candidate identity and release boundary:
+  [`RELEASE.md`](RELEASE.md)
+- Package/build operators:
+  [`docs/packaging.md`](docs/packaging.md)
+- Current product and Stage 19 authority:
+  [`docs/product_systems/current_truth_index.md`](docs/product_systems/current_truth_index.md)
 
-## Runtime pointers
-- Canon runtime state: `docs/specs/current_state.md`
-- Memory runtime boundary: `docs/specs/memory_runtime.md`
-- Model/provider runtime boundary: `docs/specs/model_runtime.md`
-- Runtime truth ledger: `build/runtime_truth.json`
+## Current release status
 
-## Companion overlay and budget meter
-- Companion overlay supports rubric editing and batch critique flows.
-- Budget meter updates from preflight and operation telemetry in workspace header.
+Version `1.0.0-rc1` is an unsigned internal release candidate, not a public or
+SmartScreen-trusted release. Package `19.20` accepted the exact packaged
+candidate recorded in `RELEASE.md`. Package `19.21` closed after aligning and
+rehearsing this documentation against that product. Package `19.22` remains
+the final V1.0 closure/release boundary and requires Jason's explicit release
+authorization.
 
-## Observability
-- Health probe: `GET http://127.0.0.1:8000/api/v1/healthz`
-- Metrics: `GET http://127.0.0.1:8000/api/v1/metrics`
-- Traceability: responses include `X-Trace-Id`.
+## Developer workspace
 
-## CI and validation
-[![Eval Harness](https://github.com/black-skies/black-skies/actions/workflows/eval.yml/badge.svg?branch=main)](https://github.com/black-skies/black-skies/actions/workflows/eval.yml)
-
-The validation workflow includes runtime-truth checks, service unit tests, long-form hardening tests, route smoke, and UI smoke lanes.
-
-## Repo map
-```
-/app               Electron + React
-/services          FastAPI services
-/docs              Specs and planning docs
-/tools             Runtime truth and utility tooling
-/sample_project    Example project for dev and QA
-```
+The repository contains retained legacy services, historical product plans,
+development harnesses, and future work that are not part of the installed V1
+runtime. Developer commands are documented separately in `AGENTS.md`,
+`docs/tests.md`, and the explicitly developer-only `RUNBOOK.md`; they must not
+be treated as end-user prerequisites or current product authority.

@@ -1,171 +1,230 @@
-Status: Active
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+# Black Skies 1.0.0-rc1 User Guide
 
-# Quickstart / Smoke Test Guide
+Status: Package `19.21` current installed-product guidance
 
-This document is the handoff for QA and support testers who want a clean way to bring the desktop app online without remembering the repo history. It assumes a fresh clone on Windows 11.
+Platform: Windows 11 x64
 
-> **Release target:** `v1.0.0-rc1` (Phase 7).
+Installer: `BlackSkies-Setup-1.0.0-rc1.exe`
 
----
+Signature: `NotSigned` (unsigned internal RC)
 
-## Prerequisites
+This guide describes the accepted Package `19.20` application. It does not
+require a repository checkout, Python, global Node.js, a development server,
+or an OpenAI credential for core writing.
 
-- Windows 11 (Developer Mode **enabled** if you plan to run the packaging scripts).
-- Python 3.11 on `PATH`.
-- Node.js 20.x (Corepack enabled).
-- Git + PowerShell 7 (or Windows PowerShell 5.1).
+## Install and first launch
 
-> **Verify:**
-> ```powershell
-> node -v      # -> v20.x
-> python --version  # -> 3.11.x
-> corepack --version
-> ```
+1. Obtain the exact internal installer from the authorized release operator.
+2. Verify the installer before running it:
 
-- Install the Python dev lock (`pip install -r requirements.dev.lock`) so optional modules like `pydantic-settings` are present before you run the smoke or load scripts.
+   ```powershell
+   Get-Item -LiteralPath .\BlackSkies-Setup-1.0.0-rc1.exe |
+     Select-Object Name,Length
+   Get-FileHash -Algorithm SHA256 -LiteralPath .\BlackSkies-Setup-1.0.0-rc1.exe
+   Get-AuthenticodeSignature -LiteralPath .\BlackSkies-Setup-1.0.0-rc1.exe |
+     Select-Object Status
+   ```
 
-### Offline prerequisites (air-gapped QA)
+   Expected result:
 
-- While you still have network access, populate the cached wheels so Python installs succeed offline:
-  ```bash
-  bash scripts/freeze_wheels.sh
-  ```
-  The script writes all locked dependencies under `vendor/wheels/`; see the Milestone 0 verification notes for refresh commands and expected artifacts.【F:docs/milestone0_verification.md†L1-L56】【F:docs/milestone0_verification.md†L63-L87】
-- Refresh the virtual environment from those wheels before disconnecting:
-  ```bash
-  bash scripts/setup
-  ```
-  `scripts/setup` prefers `vendor/wheels/` and leaves `.env` untouched if it already exists.【F:scripts/setup†L1-L129】
-- Copy `.env.example` to `.env`, confirm it opts into the local provider stack, and point it at a valid project directory. Set the mode to `offline` (the default), keep the dummy key, and include `BLACKSKIES_PROJECT_BASE_DIR` for your sample content:
-  ```ini
-  OPENAI_API_KEY=dummy
-  BLACK_SKIES_MODE=offline
-  BLACKSKIES_PROJECT_BASE_DIR=C:\\Dev\\black-skies\\sample_project
-  ```
--  The services enforce that `BLACKSKIES_PROJECT_BASE_DIR` exists, and the UI reads the same value when launching the smoke scripts.【F:services/src/blackskies/services/config.py†L14-L74】【F:README.md†L32-L55】 The optional budget/plugin overrides in `.env.example` stay at the RC1 defaults ($12.50 soft / $25.00 hard) for smoke tests; adjust them only when packaging a customized build.
-- Copy the `sample_project/Esther_Estate` folder (and any additional project assets) to the offline machine so QA can load the reference project without network fetches.【F:README.md†L76-L95】
-- With `BLACK_SKIES_MODE=offline` (the default), the agents never attempt external API calls; the privacy policy confirms no background network traffic in local mode.【F:docs/policies.md†L1-L35】【F:services/src/blackskies/services/settings.py†L1-L58】
-- When `config/runtime.yaml` specifies a port range outside 1–65535, the startup log now emits `[config] Adjusted service.port_range…` and clamps the values automatically; this is expected for stale configs copied from earlier milestones.【F:app/shared/config/runtime.ts†L252-L292】
+   ```text
+   filename: BlackSkies-Setup-1.0.0-rc1.exe
+   bytes: 89275742
+   SHA-256: 93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+   signature: NotSigned
+   ```
 
----
+3. Run the assisted installer. Installation is per-user, does not request
+   elevation, and allows a custom installation directory.
+4. Leave **Run Black Skies** selected, or launch **Black Skies** from the
+   desktop or Start Menu shortcut.
 
-## One‑Time Bootstrap
+Windows may warn because this internal RC is unsigned. Verify the exact hash
+above before choosing to run it. A different byte length or hash is a
+different candidate and is not covered by this acceptance.
 
-```powershell
-# from repo root
-powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -OnlyTests
-```
+Black Skies opens two independent Windows: **Writing Studio** and
+**Command Center**.
 
-- Creates `.venv` and installs locked Python deps.
-- Installs pinned pnpm + workspace packages.
-- Runs the full pytest + Vitest suite as a smoke check.
+## Create or open a project
 
-If everything is green you are ready to launch the GUI.
+Use project controls in Writing Studio:
 
----
+- **Open project…** — select the actual Black Skies project folder containing
+  `project.json`.
+- **Create project…** — enter **New project title**, then select a parent
+  folder. Black Skies creates a new project folder inside that parent.
+- **Recent projects** — reopen a remembered project reference. **Missing**
+  means the remembered folder is no longer available. **Remove** forgets only
+  that recent reference; it does not delete project files.
 
-## Launching the App (Smoke Test)
+Projects are isolated local folders. Project files live outside the
+installation directory at locations you choose.
 
-```powershell
-powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
-```
+## Organize and write
 
-What it does:
+The **Binder** lists **Manuscript units** in durable order.
 
-1. Ensures deps are synchronized and builds the Electron main bundle (`pnpm --filter app build:main`).
-2. Opens a PowerShell window running `pnpm --filter app dev -- --host 127.0.0.1 --port 5173` (Vite renderer).
-3. Opens a second window running the real Electron shell (`pnpm --filter app exec electron ..\dist-electron\main\main.js`) with the correct env vars (`ELECTRON_RENDERER_URL`, `BLACKSKIES_PYTHON`, `BLACKSKIES_PROJECT_BASE_DIR`).
-4. Electron spawns the FastAPI service automatically; the status pill should transition from “Checking writing tools” to “Ready” once `/api/v1/healthz` responds.
+1. Enter an optional **Unit title** and choose **Create unit**. A blank title
+   displays as **Untitled**.
+2. Select a unit in the binder.
+3. To rename it, edit **Selected unit title** and choose **Update title**.
+4. Use **Move up** and **Move down** to change durable manuscript order.
+5. Use **Delete unit…** only after reviewing its confirmation. Unit deletion
+   cannot be undone in this release.
+6. Write in **Manuscript editor**.
 
-Close the two windows to stop the app.
+Editor shortcuts:
 
----
+| Action | Shortcut |
+| --- | --- |
+| Undo | `Ctrl+Z` |
+| Redo | `Ctrl+Y` or `Ctrl+Shift+Z` |
+| Save selected unit | `Ctrl+S` |
 
-### Offline smoke checklist (QA)
+Switching units preserves unsaved buffers during the live session. It is not
+a durable Save.
 
-Use this when verifying an air-gapped build. Perform the steps in order after disconnecting from the network:
+## Understand Save state
 
-1. **Dependency cache** — Confirm `vendor/wheels/` still contains the wheel set generated by `scripts/freeze_wheels.sh` (look for timestamped `.whl` files).【F:docs/milestone0_verification.md†L63-L87】
-2. **Environment** — Open `.env` and verify the entries from the offline prerequisites (`BLACK_SKIES_MODE=offline`, `BLACKSKIES_PROJECT_BASE_DIR=…`). The loader now emits the `BLACK_SKIES_MODE` key by default, but legacy `.env` files with `BLACK_SKIES_BLACK_SKIES_MODE` still work and log a reminder to rename it.【F:services/src/blackskies/services/settings.py†L1-L134】【F:services/src/blackskies/services/config.py†L14-L74】
-3. **Project assets** — Ensure the directory referenced by `BLACKSKIES_PROJECT_BASE_DIR` includes `sample_project/Esther_Estate` (or your test project) so the wizard can load content.【F:README.md†L76-L95】
-4. **Smoke script** — Run `powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest`. The script should complete without hitting the network; if packages are missing rerun the cache refresh sequence while online.【F:start-codex.ps1†L145-L261】
-5. **UI confirmation** — When Electron opens, watch the status pill advance to “Ready” and confirm `/api/v1/healthz` passes without external calls (monitor via Windows Resource Monitor or offline firewall logs).【F:docs/policies.md†L1-L35】
+Writing Studio uses these exact state families:
 
----
+- **Saved durably** — current manuscript changes reached project storage.
+- **1 unsaved unit** / **N unsaved units** — local editor work still needs
+  Save.
+- **Saving…** — a Save is in progress.
+- **Save failed: …** — durable storage did not accept the Save. The editor
+  retains local prose and recovery protection where available; correct the
+  storage problem and try **Save** again.
 
-## Manual Launch (if you prefer explicit terminals)
+Command Center mirrors durable-save truth and identifies failures as occurring
+in Writing Studio. It does not provide mutation controls.
 
-```powershell
-# window 1 (renderer)
-cd C:\Dev\black-skies
-pnpm --filter app dev -- --host 127.0.0.1 --port 5173
+When closing with unsaved work, Writing Studio offers **Keep editing** or
+**Discard changes**. Discard intentionally abandons the
+unsaved buffers; it is not Save.
 
-# window 2 (electron)
-cd C:\Dev\black-skies\app
-$env:ELECTRON_RENDERER_URL = 'http://127.0.0.1:5173/'
-$env:BLACKSKIES_PYTHON     = 'C:\Dev\black-skies\.venv\Scripts\python.exe'
-pnpm exec electron ..\dist-electron\main\main.js
-```
+## Close, reopen, and continue
 
-The renderer window keeps Vite hot reloading; close it to stop the dev server. The Electron window spawns a child Python process (FastAPI) and cleans it up on exit.
+1. Save every changed unit until Writing Studio reports **Saved durably**.
+2. Close the Black Skies windows normally.
+3. Relaunch from the desktop or Start Menu shortcut.
+4. Reopen the project through **Recent projects** or **Open project…**.
+5. Confirm unit names, order, and prose before continuing.
 
----
+## Export deterministic Markdown
 
-### Runtime configuration overrides
+Export is available only from Writing Studio when the project is clean:
 
-Defaults for port ranges, health probe timing, bundled Python interpreters, analytics thresholds, and the draft synthesizer heuristics live in `config/runtime.yaml`. Update this file (or point `BLACKSKIES_CONFIG_PATH` at a custom copy) when you need to harden deployments—changes are picked up by both the FastAPI backend and the Electron main/preload processes. The `draft_synthesizer` section lets you override POV/goal/conflict/turn/emotion lists or adjust the word-target curve without touching code, which is handy when running branded demos or expanding the companion cast.
+1. Save every changed unit successfully.
+2. Choose **Export Markdown…**.
+3. In **Export Markdown manuscript**, choose a destination. Black Skies
+   creates a `.md` file; if another extension is entered, `.md` is appended.
+4. Cancelling the save dialog records **Export cancelled. No file was
+   created.**
+5. If the destination exists, **Replace existing Markdown file?** offers
+   **Replace** or **Cancel**. Replacement occurs only after **Replace**.
 
----
+The export contains the project title followed by units in binder order. Unit
+titles are escaped as Markdown headings, blank titles become **Untitled**, and
+saved prose is preserved deterministically. Project files are not modified by
+export.
 
-## Packaging (optional)
+If export is disabled or reports **Save the project successfully before
+exporting**, resolve unsaved, failed-Save, or recovery state first. If export
+fails, the app does not claim completion; choose another writable destination
+or retry after resolving the reported storage error.
 
-To produce the unpacked build for QA:
+## Recover interrupted work
 
-```powershell
-# ensure Developer Mode is enabled so symlinks can be created
-$env:ELECTRON_BUILDER_DISABLE_CODE_SIGNING = '1'
-pnpm --filter app run package:dir
-```
+After an interrupted session, Writing Studio may show **Recover unsaved
+Writing Studio prose**.
 
-The output lands in `app/release/win-unpacked`. Running `package:win` generates the NSIS installer and portable EXE (requires NSIS in `PATH`).
+1. Review every displayed candidate.
+2. Choose **Recover this prose** to apply that candidate, or **Reject and
+   delete candidate** to keep the durable baseline and delete only the
+   displayed recovery candidate.
+3. Complete a decision for every candidate.
+4. Recovered prose remains explicitly unsaved. Use the normal **Save** action
+   for each recovered unit to make it durable.
 
-> If you see `Cannot create symbolic link : A required privilege is not held by the client`, turn on Windows Developer Mode or run the packaging step from an elevated PowerShell session.
+If **Recovery evidence needs attention** appears, editing is blocked and the
+recovery artifact is preserved. Do not manually delete project recovery files.
+Open another project or close Writing Studio, preserve the project folder, and
+follow the support escalation in `ops/support_playbook.md`.
 
----
+## Optional remote OpenAI critique
 
-## Sample Project
+Core writing is offline. The **Optional remote critique — Selected prose
+only** surface is opt-in:
 
-Use the bundled `sample_project/Esther_Estate` for smoke tests:
+1. Enter an **OpenAI API key (session only; no readback)** and choose **Set
+   session key**. The key remains only in main-process memory for the running
+   session and is not written to project files.
+2. Select 200–12,000 non-whitespace characters in the active editor.
+3. Choose **Review outbound critique request**.
+4. Review the **Exact outbound preview**, including exact selected prose,
+   frozen instructions, provider request JSON, model, pricing snapshot, cost
+   estimate, retention/cancellation disclosures, and payload hash.
+5. Confirm the transmission clearance, then choose **Approve and send exact
+   payload**.
 
-- Automated: `./scripts/smoke.sh` (or `powershell -File .\scripts\smoke.ps1`) bootstraps the venv, starts the API, and runs three Outline → Writing → Feedback → Accept cycles against `proj_esther_estate`.
-- Manual: Launch the desktop shell, choose **Open Project**, browse to `sample_project/Esther_Estate`, and step through the Outline → Writing → Feedback → Accept flow to confirm the budget pill and recovery banner respond as expected.
-- Load sanity: python scripts/load.py --total-cycles 4 --concurrency 2 --start-service --scene-count 4 autostarts the FastAPI bridge, waits for /api/v1/healthz, rotates four scenes, and verifies critique telemetry updates the budget meter and ledger.
+No prose is sent during preview. Transmission requires explicit approval.
+Results are advisory only and never rewrite manuscript files. Editing or
+changing the selection invalidates a pending result; **Stop waiting** stops
+local waiting, but may not prevent provider-side work already accepted.
+**Clear key** removes the session credential.
 
-### Recovery banner smoke (manual trigger)
+V1 does not provide automatic critique, background sending, local-model
+routing, model choice, rewrite application, critique persistence, or critique
+from Command Center. Provider access, billing, and network availability are
+the user's responsibility.
 
-If you need to force the crash recovery banner during a smoke run, call the recovery tracker before relaunching the Electron shell:
+## Keyboard, focus, scaling, and two-window use
 
-```powershell
-cd C:\Dev\black-skies
-.\.venv\Scripts\python.exe -c "from blackskies.services.config import ServiceSettings; from blackskies.services.routers.recovery import RecoveryTracker; tracker = RecoveryTracker(ServiceSettings()); tracker.mark_needs_recovery('proj_esther_estate', reason='smoke-test manual')"
-Get-Content sample_project\proj_esther_estate\history\recovery\state.json
-```
+- Use `Tab` and `Shift+Tab` to move through interactive controls. Focus is
+  visibly indicated.
+- Use the normal Windows move, resize, maximize, restore, and focus commands
+  for both windows.
+- Windows scaling used during acceptance is supported; if content feels
+  crowded, resize or maximize the affected window and use Windows display
+  settings.
+- A common two-monitor layout places Writing Studio on the primary writing
+  display and Command Center on the second display.
+- If a monitor disconnects, both windows should remain reachable on a
+  surviving display, but they can overlap. Reconnecting does not
+  automatically return a window to its previous monitor; arrange the windows
+  again.
 
-The JSON should show `"status": "needs-recovery"` and `"needs_recovery": true`. Launch Vite and Electron afterwards; the banner appears as soon as the project loads, and it clears once **Restore snapshot** succeeds.
+## Uninstall and data retention
 
----
+Use Windows **Installed apps** or the Black Skies uninstaller.
+
+Uninstall removes application files, per-user registration, and Black Skies
+desktop/Start Menu shortcuts. It intentionally retains:
+
+- projects and Markdown exports stored outside the installation directory;
+  and
+- the Electron per-user application-data directory.
+
+Uninstall is not project deletion or a privacy wipe. Back up external projects
+before any operating-system or storage maintenance. Reinstalling the exact
+candidate can reopen preserved projects through **Open project…**.
 
 ## Troubleshooting
 
-| Symptom | Fix |
+| Symptom | Response |
 | --- | --- |
-| `pnpm` not found | Ensure Corepack is enabled (`corepack enable`). |
-| FastAPI health probe stuck on CORS | The service now ships with CORS allowing `http://127.0.0.1:5173`; restart if you modified it. |
-| Electron fails with `ERR_REQUIRE_ESM` | Rebuild the main bundle (`pnpm --filter app build:main`) to ensure the CommonJS shims are present. |
-| Packaging fails downloading `winCodeSign` | Enable Developer Mode or run the command in an elevated shell. |
-| Smoke script fails offline with missing wheels | Rebuild the cache while online (`bash scripts/freeze_wheels.sh`) and rerun `bash scripts/setup`; see the Milestone 0 checklist for the expected artifacts.【F:docs/milestone0_verification.md†L63-L87】【F:scripts/setup†L1-L129】 |
-| Services attempt external providers | Set `BLACK_SKIES_MODE=offline` (default) and a valid `BLACKSKIES_PROJECT_BASE_DIR` in `.env`; refer to the service configuration notes in the README. Legacy `.env` files using `BLACK_SKIES_BLACK_SKIES_MODE` still load but log a rename warning.【F:services/src/blackskies/services/settings.py†L1-L134】【F:services/src/blackskies/services/config.py†L14-L74】【F:README.md†L32-L55】 |
+| Windows warns when installing | This RC is unsigned. Stop unless filename, byte length, and SHA-256 match this guide. |
+| Two windows do not appear | Check the taskbar and surviving displays. If launch still fails, record the installed path and contact support; do not install a different candidate over it. |
+| Project is rejected | For Open, select the project folder containing valid `project.json`, not its parent or a manuscript subfolder. Do not hand-edit project metadata as a first response. |
+| Save fails | Keep Writing Studio open, preserve the visible prose, restore write access/free space to the project location, and retry Save. Do not treat switching units or closing as Save. |
+| Export is disabled | Save all units and complete any recovery decision first. |
+| Export fails | Choose a writable destination outside the installation directory, or retry after correcting the reported storage problem. |
+| Recovery is offered | Review every candidate; accept or reject explicitly. Accepted prose still needs normal Save. |
+| Recovery is degraded | Preserve the project folder and recovery artifact; do not delete either manually. Escalate with the exact on-screen message. |
+| Optional critique fails | Core writing remains available. Check network/key/provider access, review a fresh outbound preview, or clear the session key. |
+| Command Center appears stale | Continue work in Writing Studio and wait for synchronization. Never infer Saved state from Command Center when it says status is unavailable. |
 
-For deeper debugging see `docs/packaging.md`, `docs/tests.md`, and `docs/specs/endpoints.md`.
+For intake and escalation details, see
+[`ops/support_playbook.md`](ops/support_playbook.md).

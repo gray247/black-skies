@@ -1,192 +1,138 @@
-Status: Active
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+# Black Skies V1 Accepted UI Vocabulary
 
-# Black Skies writer UI copy spec v1
+Status: Package `19.21` current-copy inventory
 
-This document defines approved UI text, tooltips, toasts, dialogs, and inline hints. Tone: calm, writer-first, professional (no emojis or exclamation marks).
+Version: `1.0.0-rc1`
 
----
+This record mirrors the accepted Writing Studio and Command Center product. It
+does not authorize copy changes. Source and installed-application behavior win
+if a future mismatch is found.
 
-## Top bar and header
+## Window identities
 
-| Location | Text |
-| :-- | :-- |
-| Main title | Your Story |
-| Subtitle (prefix) | Working on: {StoryTitle} |
-| Status pill | Checking writing tools / Ready / Writing tools offline |
-| Companion button | Companion |
-| Generate button | Generate |
-| Critique button | Critique |
+| Surface | Exact identity and role |
+| --- | --- |
+| Writing Studio | Window title `Black Skies — Writing Studio`; project lifecycle, structure, prose editing, Save, recovery, export, optional critique |
+| Command Center | Window title `Black Skies — Command Center`; navigation and project/save/recovery status only; no prose or structural mutation |
 
-### Tooltips
+## Project lifecycle
 
-- View connection status for the writing tools.
-- Open the companion panel for scene insights and pacing feedback.
-- Generate a new draft or continue the current scene.
-- Request feedback on the current scene.
+| UI text | Meaning |
+| --- | --- |
+| `Open project…` | Select the actual project folder containing `project.json`. |
+| `New project title` | Title used for a new project. |
+| `Create project…` | Select a parent folder; Black Skies creates a project folder inside it. |
+| `Recent projects` | Remembered project references. |
+| `Missing` | A remembered project path is unavailable. |
+| `Remove` | Forget the recent reference without deleting project files. |
 
----
+## Binder and editor
 
-## Dock workspace
+| Area | Exact accepted text |
+| --- | --- |
+| Structure | `Binder`, `Manuscript units`, `Unit title (optional)`, `Create unit` |
+| Selected unit | `Selected unit title`, `Update title`, `Move up`, `Move down`, `Delete unit…` |
+| Editor | `Active manuscript unit`, `Manuscript editor`, `Start writing…`, `Save`, `Saving…` |
+| Empty states | `Create the first manuscript unit when you are ready to write.`, `No manuscript unit selected`, `Create or select a unit from the binder.` |
 
-| Element | Text |
-| :-- | :-- |
-| Wizard pane | Outline |
-| Draft board | Writing view |
-| Critique results | Feedback notes |
-| History pane | Timeline |
-| Analytics pane | Story insights |
-| Apply preset button | Restore layout |
-| Reset layout button | Default view |
-| Restoring layout banner | Rebuilding your workspace... |
-| Hidden panes zero state | No panels open. Restore your workspace layout. |
-| No project state | Open a story to start writing. |
+Blank unit titles display as `Untitled`. Unit deletion confirms that the action
+cannot be undone in this package.
 
-### Tooltips and controls
+Keyboard guidance:
 
-- Expand this pane.
-- Close this pane.
-- Open this pane in a separate window.
-- Focus this pane.
-- Restore your saved layout preset.
-- Return to the default layout.
-- Plan chapters, scenes, and beats.
-- Write and edit your scene text.
-- Review feedback and suggested revisions.
-- View previous versions and snapshots.
-- See pacing and emotion data.
+- `Ctrl+S` saves the selected unit.
+- `Ctrl+Z` undoes editor changes.
+- `Ctrl+Y` and `Ctrl+Shift+Z` redo editor changes.
+- Switching units preserves unsaved buffers during the live session.
 
----
+## Save and close language
 
-## Companion panel
+| State | Exact family |
+| --- | --- |
+| no active project | `All changes saved` |
+| active project clean/saved | `Saved durably` |
+| dirty | `1 unsaved unit` / `N unsaved units`; binder marker `Unsaved` |
+| saving | `Saving…` |
+| failed | `Save failed` or `Save failed: {message}` |
+| Command failure | `Save failed in Writing Studio` |
+| close warning | `This project has manuscript changes that have not been saved.` |
+| close actions | `Keep editing`; `Discard changes` |
 
-| Element | Text |
-| :-- | :-- |
-| Header title | Companion |
-| Subheader | Guidance and pacing feedback for your current scene. |
-| Scene insights heading | Scene insights |
-| Rubric heading | Focus points |
-| Batch critique heading | Scene reviews |
-| Run batch button | Review selected scenes |
-| Empty state | Select a scene to view pacing and feedback recommendations. |
+No V1 copy may promise autosave or automatic Save on exit.
 
-### Buttons and tooltips
+## Markdown export
 
-- Close the companion panel.
-- Add a new focus point.
-- Restore default focus points.
-- Add this focus point.
-- Remove this focus point.
-- Select all scenes for review.
-- Clear the current selection.
-- Review selected scenes.
-- Include this scene in the batch review.
-- View emotional progression across scenes.
-- View pacing and word-count metrics.
+| Context | Exact text |
+| --- | --- |
+| Action | `Export Markdown…`; progress `Exporting…` |
+| Dirty remedy | `Save the project successfully before exporting.` |
+| Save dialog | `Export Markdown manuscript`; action `Export`; filter `Markdown` |
+| Replacement dialog | `Replace existing Markdown file?`; `A file already exists at this destination.`; actions `Replace`, `Cancel` |
+| Cancellation | `Export cancelled. No file was created.` |
+| Success | `Export complete: {path} ({bytes} bytes, {unit count}).` |
 
----
+## Recovery
 
-## Footer and system panels
+| State | Exact accepted text |
+| --- | --- |
+| decision heading | `Recover unsaved Writing Studio prose` |
+| decision explanation | `Review every candidate. Recovered prose remains unsaved until you use the normal Save action.` |
+| accept | `Recover this prose` |
+| reject | `Reject and delete candidate` |
+| accepted | `Recovered prose is applied and remains unsaved. Use Save for each recovered unit to make it durable.` |
+| degraded | `Recovery evidence needs attention` |
 
-| Element | Text |
-| :-- | :-- |
-| Status message | All changes saved. |
-| Debug event log | Activity log |
-| Recovery entry | Backups |
-| Troubleshooting snapshot | Story snapshot |
+Recovery rejection is explicit destructive cleanup of the displayed candidate,
+not a general project delete.
 
----
+## Command Center
 
-## Toast notifications
+Accepted role copy:
 
-| Category | Text |
-| :-- | :-- |
-| Workspace | Workspace restored. / Default view applied. / Couldn't load saved layout. |
-| Story | Story loaded. / Story closed. |
-| Writing | New draft written. / Draft updated. / Couldn't write draft. |
-| Feedback | Feedback ready. / Feedback unavailable. / Revision accepted. / Revision undone. |
-| Batch review | All selected scenes reviewed. / Some scenes failed to review. |
-| Insights | Scene insights updated. / No emotion tags yet. / Add a few lines to unlock pacing insights. |
-| Snapshots or exports | Snapshot created. / Restored earlier version. / Story exported. / Export incomplete. |
-| Connection | Connecting... / Ready. / Writing tools offline. / Back online. |
-| General errors | Something went wrong. / Permission needed. / Couldn't reach story files. |
+```text
+Navigation, project status, and durable save truth.
+Manuscript mutation is unavailable here.
+```
 
----
+Accepted mutability note:
 
-## Dialogs and confirmations
+```text
+Advisory/status/navigation only.
+No prose editor or structural mutation controls are exposed.
+```
 
-| Context | Text |
-| :-- | :-- |
-| Reset layout | Reset workspace layout? Restores your panels to the default view. |
-| Apply preset | Apply this layout preset? Your current arrangement will be replaced. |
-| Close story | Close this story? Unsaved changes will be saved automatically. |
-| Remove story | Remove this story from your library? Files remain on your drive. |
-| Replace draft | Replace current draft? Previous version saved in Timeline. |
-| Discard edits | Discard unsaved edits? Cannot be undone. |
-| Rerun feedback | Run feedback again? Previous notes will be replaced. |
-| Batch review | Review multiple scenes? Each scene is analysed separately. |
-| Select focus | Select focus points before running feedback. |
-| Restore snapshot | Restore this version? Current text will be replaced. |
-| Delete snapshot | Remove this version? Permanently deletes the snapshot. |
-| Export | Export story files? Creates Markdown and JSON copies. |
-| Reset preferences | Reset preferences to default? Display and editor settings restored. |
-| Exit app | Exit Black Skies? All work will be saved automatically. |
-| Clear log | Clear the activity log? Removes all recorded events. |
+If authority is unavailable, Command Center says
+`Writing Studio authority could not be reached. No saved or recovery claim is
+shown.` It must not infer state.
 
-### Standard button labels
+## Optional remote critique
 
-Confirm / Cancel / Close / Try again / Remove / Save changes
+| Context | Exact accepted text |
+| --- | --- |
+| Surface | `Optional remote critique`; `Selected prose only` |
+| Credential | `OpenAI API key (session only; no readback)`; `Set session key`; `Clear key` |
+| Selection | `Select 200–12,000 non-whitespace characters in the manuscript editor.` |
+| Preview | `Review outbound critique request`; `Exact outbound preview` |
+| Approval | `Approve and send exact payload` |
+| Progress | `Waiting for advisory critique. Editing will invalidate and discard this request.`; `Stop waiting` |
+| Result | `Advisory critique`; `Dismiss critique` |
 
----
+The preview includes provider, pinned model, remote processing, pricing
+snapshot, estimated/calculated maximum cost, payload SHA-256, retention and
+cancellation disclosures, frozen instructions, exact request JSON, exact
+selected prose, and transmission clearance. No copy may imply automatic
+sending, local processing, manuscript mutation, persistence, or Command Center
+availability.
 
-## Inline empty states and hints
+## Tone and error rules
 
-| Area | Text |
-| :-- | :-- |
-| Outline pane | Start your outline here. Add chapters or scenes as cards. |
-| Writing view | Your story starts here. Type or import text to begin. |
-| Feedback notes | No feedback yet. Click Critique to get suggestions. |
-| Timeline | Snapshots appear here as you write and save. |
-| Insights panel | Select a scene to see pacing and emotion insights. |
-| Activity log | No events recorded yet. Actions will appear here. |
-
----
-
-## Settings and preferences tooltips
-
-| Control | Text |
-| :-- | :-- |
-| Theme selector | Switch between light and dark themes. |
-| Font size slider | Adjust editor text size. |
-| Autosave toggle | Save changes automatically while you write. |
-| AI model selector | Choose a writing model or service. |
-| Connection retry | Retry connecting to the writing service. |
-| Reset preferences | Restore default preferences. |
-
----
-
-## Keyboard and interaction hints
-
-| Action | Hint |
-| :-- | :-- |
-| Drag pane border | Drag to resize panels. |
-| Double-click title bar | Double-click to toggle full size. |
-| Keyboard shortcuts | Press Ctrl + Alt + [ / ] to switch panels. |
-| Undo | Revert last change. |
-| Redo | Repeat last change. |
-| Scroll or zoom charts | Scroll to zoom or pan. |
-
----
-
-## Tone and voice summary
-
-| Principle | Description |
-| :-- | :-- |
-| Voice | Calm, supportive, professional. |
-| Sentence structure | Short, active voice, verb + object phrasing. |
-| Vocabulary | Prefer story, scene, draft, feedback, insight, timeline, snapshot. |
-| Avoid | Avoid console or service jargon; favour writer-first language. |
-| Punctuation | No exclamation marks, no emojis. |
-| Error style | Focus on recovery (for example, "Returning to default view.", "Work saved locally."). |
-| Consistency | Maintain plain-English capitalisation across all UI. |
+- Use calm, direct, writer-facing language.
+- Name the owning window when responsibility matters.
+- Never call unsaved/recovered work durable.
+- Never claim export completion before the destination write succeeds.
+- Preserve explicit destructive language for discard, recovery rejection, and
+  unit deletion.
+- Do not expose credentials or manuscript prose in operator records.
+- Do not use legacy Companion, service-health, plugin, analytics, autosave,
+  snapshot-history, broad export, layout-preset, or model-router terminology
+  for the accepted V1 product.

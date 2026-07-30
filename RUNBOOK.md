@@ -1,44 +1,48 @@
-# RUNBOOK.md - Black Skies Service
+# Black Skies Developer Service Runbook
 
-## Authority note
-This runbook is operational guidance, not runtime or phase authority.
-- Runtime authority: `build/runtime_truth.json`, `docs/specs/current_state.md`
-- Status authority: `docs/roadmap.md`
+Status: developer-only retained service guidance; not installed V1 operation
 
-## Overview
-Bootstrap, configure, and operate the FastAPI service locally.
+The repository retains a Python/FastAPI service stack for development,
+historical compatibility, and future work. The accepted packaged
+`1.0.0-rc1` application does not require or launch this service for core
+writing, Save, recovery, Markdown export, or Command Center.
 
-## Setup
-1. Ensure Python 3.11+ is installed.
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   # PowerShell
-   . .venv\Scripts\Activate.ps1
-   # bash
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
-   ```
-4. Optional `.env` overrides can be added from `.env.example`.
+End users and support operators must use:
 
-## Run API
-```bash
+- `docs/quickstart.md`;
+- `docs/ops/support_playbook.md`; and
+- `RELEASE.md`.
+
+Do not install Python, start FastAPI, edit `.env`, or run repository scripts as
+a remedy for an installed-product incident.
+
+## Developer setup
+
+From an authorized repository workspace:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
+```
+
+Run the retained API:
+
+```powershell
 uvicorn blackskies.services.app:create_app --factory --reload --port 8080
 ```
 
-- Health: `GET http://localhost:8080/api/v1/healthz`
-- Metrics: `GET http://localhost:8080/api/v1/metrics`
+Developer endpoints:
 
-## Maintenance
-- Unit lane: `pytest -q services/tests/unit`
-- Full suite: `pytest -q`
-- Runtime truth check: `pytest -q services/tests/unit/test_runtime_truth.py`
-- Service truth lane (PASS 2 authority): `python scripts/run_service_truth.py`
+- `GET http://localhost:8080/api/v1/healthz`
+- `GET http://localhost:8080/api/v1/metrics`
 
-## Troubleshooting
-- Missing deps: reinstall lockfile-constrained dependencies.
-- Data path errors: verify configured project base path exists and is writable.
-- Flag confusion: verify feature flags/maturity vars in `.env` and `feature_flags.py`.
+Developer verification commands:
+
+```powershell
+pytest -q services/tests/unit
+python scripts/run_service_truth.py
+```
+
+These commands are not Package `19.21` user/operator guidance, do not qualify
+the Stage 19 installed runtime, and do not replace `pnpm stage19:regression`.

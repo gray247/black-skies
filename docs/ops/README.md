@@ -1,18 +1,19 @@
-Status: Active
-Version: 1.0
-Last Reviewed: 2025-11-05
+# Operations and Troubleshooting
 
-# Ops & Troubleshooting
+Current installed-product support authority:
 
-This folder collects support runbooks, rescue kits, start-codex notes, security sweeps, and operational trivia.  
-Link actions back to `docs/BUILD_PLAN.md` for planning context, `docs/BLACK_SKIES_FIX_TRACKER.md` for current operational status, and `docs/roadmap/master_phase_allocation_plan.md` when incidents align with specific phases.
-
-Canonical docs:
-- `dev_ops_notes.md`
-- `start_codex_gui_notes.md`
 - `support_playbook.md`
-- `gui_insights_rescue_kit.md`
-- `security.md`
-- `security_sweep.md`
+- `../quickstart.md`
+- `../../RELEASE.md`
+- `../packaging.md`
+- `../rollback_policy.md`
 
-Archive resolved maneuvers under `docs/archive/`; use this folder for active troubleshooting guides.
+Other files in this directory describe retained developer services, historical
+operations, security sweeps, or legacy GUI rescue paths. They are not
+installed V1 support authority and must not be used to require Python,
+FastAPI, global Node.js, repository scripts, legacy plugins/analytics, or
+historical runtime flags from end users.
+
+Stage 19 product and package status is governed by
+`../product_systems/current_truth_index.md` and the current Package `19.20` /
+`19.21` records, not by historical phase plans.

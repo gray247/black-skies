@@ -93,32 +93,25 @@ risk, blocker, acceptance, or closure boundaries.
 
 ## 6. Current package position
 
-Package `19.12`, **history/recovery/interruption safety**, followed the formal
-closure of Packages `19.9` through `19.11` by commit `d780f52`. Its original
-selection and scope records required separate Jason authorization and did not
-themselves authorize runtime work. Jason later authorized each bounded mutation
-during active orchestration. The independently reviewed, accepted sequence is
-`3253a00` (recovery candidate repository), `0f5280b` (prose recovery checkpoint
-capture), `60a8ec7` (explicit prose recovery decisions), and `67e250b` (recovery
-interruption acceptance).
+Packages `19.12` through `19.21` are closed through their respective package
+closure records. Package `19.20` accepted exact candidate `b916765` and
+installer `BlackSkies-Setup-1.0.0-rc1.exe` (89275742 bytes,
+SHA-256
+`93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b`,
+`NotSigned`).
 
-Package `19.12` automated and manual acceptance is complete, and it is formally
-closed by commit `b793998`. The authorization reconciliation continues to
-record the distinction between the earlier non-authorizing scope record and the
-later separately issued human authorizations.
+Package `19.21`, **user/release/operator documentation**, aligned current
+release-facing records to that accepted product, passed static documentation
+checks, and passed a real installed-app Computer Use rehearsal. Its nine P1/P2
+documentation findings are closed. One truthful non-blocking P3
+export-notice-lifetime observation is owned by Package `19.22` with an exact
+reopening trigger.
 
-Package `19.13`, **Command Center integrity**, is formally closed by commit
-`33d603d`. Package `19.12` remains closed, and shared Package 19.12/19.13
-integration evidence does not combine their authority or closure boundaries.
-Their closure records remain immutable conditional receipts: retained
-pre-commit wording is historical, and the later commit and push of `b793998`
-and `33d603d` satisfied the respective closure conditions.
-
-Stage 19 remains open. Package `19.14`, **optional AI decision and, only if
-retained, bounded implementation**, is next in the approved sequence. It
-requires separate Jason authorization, and no Package `19.14` implementation is
-currently authorized. Packages `19.15` through `19.22` remain pending, and
-Package `19.22` remains the final V1.0 closure and release boundary.
+Stage 19 remains open. Package `19.22`, **final V1.0 closure/release**, is next
+eligible. It must complete its autonomous closure preparation and residual
+dispositions before Jason's final human verification. No tag, public release,
+signing request, or release announcement is authorized without Jason's
+explicit final release authorization.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is
@@ -131,4 +124,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Packages 19.12 and 19.13 formally closed; Stage 19 remains open; Package 19.14 is next but requires separate Jason authorization; no Package 19.14 implementation is authorized
+PZ_CONTINUE: Package 19.21 closed; Stage 19 remains open; Package 19.22 is next eligible and remains the final human/release-authorization boundary

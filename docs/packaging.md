@@ -1,6 +1,6 @@
 # Windows Packaging Guide
 
-Status: Package 19.19 internal release-candidate authority
+Status: Package 19.21-aligned build/operator guidance
 
 Version: `1.0.0-rc1`
 
@@ -14,8 +14,32 @@ app/release/BlackSkies-Setup-1.0.0-rc1.exe
 
 The installer is an unsigned internal release candidate. Its truthful signature
 status is `NotSigned`; it is not represented as publicly signed or
-SmartScreen-trusted. Package 19.20 owns the separate human packaged-RC
-acceptance pass.
+SmartScreen-trusted.
+
+Package `19.20` completed the packaged-RC acceptance pass. The accepted
+candidate is exactly:
+
+```text
+source commit:
+  b916765196bde37e95968d3985ab5238b47ad797
+installer:
+  BlackSkies-Setup-1.0.0-rc1.exe
+byte length:
+  89275742
+SHA-256:
+  93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+signature:
+  NotSigned
+clean Windows qualification run:
+  30509993912
+artifact ID:
+  8746806252
+```
+
+Any build command below creates a new artifact candidate. It does not reproduce
+or inherit Package `19.20` acceptance merely because its filename/version
+matches. Requalification is required whenever source or artifact identity
+changes.
 
 Windows PE fixed-version fields cannot encode a SemVer prerelease label. The
 manifest, installed `app.getVersion()`, filename, and receipt retain
@@ -103,5 +127,7 @@ regression gate, verifies the artifact before installation, performs the
 installed offline lifecycle smoke, and uninstalls in guaranteed cleanup.
 Linux runs the same fixed Stage 19 regression for that commit.
 
-Only the installer and machine-readable receipt are retained for the bounded
-Package 19.20 handoff.
+Only the installer and machine-readable receipt were retained for the bounded
+Package `19.20` handoff. Package `19.21` publishes no new artifact. Package
+`19.22` remains the final V1.0 closure/release boundary and requires Jason's
+explicit release authorization before tagging or publishing.
