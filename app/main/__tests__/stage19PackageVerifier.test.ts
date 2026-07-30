@@ -50,7 +50,10 @@ describe("Stage 19 package artifact verifier", () => {
         "/dist/assets/index.js",
         "/dist-electron/main/main.js",
         "/dist-electron/main/stage19Preload.js",
-        "/package.json"
+        "/package.json",
+        "/node_modules/@lezer/css/src/tokens.js",
+        "/node_modules/js-tokens/index.js",
+        "/node_modules/prop-types/lib/ReactPropTypesSecret.js"
       ])
     ).toEqual([]);
   });
