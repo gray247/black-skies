@@ -313,7 +313,7 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.click(recentButton);
 
     await waitFor(() => {
-      expect(loadProjectMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+      expect(loadProjectMock).toHaveBeenCalledTimes(3);
     });
 
     const callPaths = loadProjectMock.mock.calls.map(([request]) => request.path);
@@ -369,7 +369,7 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.click(recentButton);
 
     await waitFor(() => {
-      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: stalePath });
+      expect(loadProjectMock).toHaveBeenCalledTimes(3);
     });
 
     await waitFor(() => {
@@ -1027,9 +1027,11 @@ describe('ProjectHome recent project recovery', () => {
       expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: stalePath });
     });
 
-    const sessionTruth = screen.getByRole('status', { name: /Session truth/i });
-    expect(sessionTruth).toHaveTextContent('Signal classification: recovery-required');
-    expect(sessionTruth).toHaveTextContent('Draft/session state: runtime-only, partial, recovery-required');
+    const sessionTruth = await screen.findByRole('status', { name: /Session truth/i });
+    await waitFor(() => {
+      expect(sessionTruth).toHaveTextContent('Signal classification: recovery-required');
+      expect(sessionTruth).toHaveTextContent('Draft/session state: runtime-only, partial, recovery-required');
+    });
     expect(projectLoader.getSampleProjectPath).not.toHaveBeenCalled();
     expect(projectLoader.createProject).not.toHaveBeenCalled();
     expect(toasts.some((toast) => toast.title === 'Could not open project')).toBe(true);

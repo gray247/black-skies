@@ -1,6 +1,7 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
+import { useState } from 'react';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import RelationshipGraph from '../components/RelationshipGraph';
@@ -68,14 +69,19 @@ describe('Analytics requests stay on valid endpoints', () => {
     });
 
     const OpenAnalytics = () => {
-      const handleOpen = () => {
-        render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
-        render(<RelationshipGraph projectId="proj" />);
-      };
+      const [open, setOpen] = useState(false);
       return (
-        <button type="button" onClick={handleOpen}>
-          Open Story Insights
-        </button>
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open Story Insights
+          </button>
+          {open ? (
+            <>
+              <AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />
+              <RelationshipGraph projectId="proj" />
+            </>
+          ) : null}
+        </>
       );
     };
 

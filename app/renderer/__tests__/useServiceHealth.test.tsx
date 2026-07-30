@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { ServicesBridge, ServiceHealthResponse } from '../../shared/ipc/services';
@@ -58,6 +58,9 @@ describe('useServiceHealth', () => {
   it('falls back to offline when services are unavailable', async () => {
     render(<Harness services={undefined} />);
 
+    await act(async () => {
+      await Promise.resolve();
+    });
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('offline'));
   });
 
@@ -127,6 +130,9 @@ describe('useServiceHealth', () => {
 
     render(<Harness services={services} />);
 
+    await act(async () => {
+      await Promise.resolve();
+    });
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('offline'));
     await waitFor(() => expect(screen.getByTestId('port-flag')).toHaveTextContent('true'));
     expect(screen.getByTestId('error')).toHaveTextContent('Backend service port is unavailable.');
@@ -174,6 +180,9 @@ describe('useServiceHealth', () => {
 
     const { unmount } = render(<Harness services={undefined} />);
 
+    await act(async () => {
+      await Promise.resolve();
+    });
     await waitFor(() => {
       expect(addWindowSpy).toHaveBeenCalledWith('test:service-status', expect.any(Function));
       expect(addWindowSpy).toHaveBeenCalledWith('test:service-health', expect.any(Function));

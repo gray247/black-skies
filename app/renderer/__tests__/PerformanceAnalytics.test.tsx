@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
@@ -22,7 +22,7 @@ describe('Performance regressions for analytics surfaces', () => {
     (window as typeof window & { services?: unknown }).services = undefined;
   });
 
-  it('renders large scene set within budget', () => {
+  it('renders large scene set within budget', async () => {
     const scenes = buildScenes(120);
     const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockResolvedValue({
@@ -39,6 +39,7 @@ describe('Performance regressions for analytics surfaces', () => {
     const start = performance.now();
     render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
     const elapsed = performance.now() - start;
+    await waitFor(() => expect(servicesMock.getAnalyticsScenes).toHaveBeenCalledOnce());
 
     // Ensure synthetic render stays under a generous local threshold.
     expect(elapsed).toBeLessThan(300);
@@ -62,6 +63,7 @@ describe('Performance regressions for analytics surfaces', () => {
     const { rerender } = render(
       <AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />,
     );
+    await waitFor(() => expect(servicesMock.getAnalyticsScenes).toHaveBeenCalledOnce());
     rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
     rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
 

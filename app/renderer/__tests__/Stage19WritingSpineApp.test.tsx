@@ -1082,17 +1082,19 @@ describe('Stage19WritingSpineApp', () => {
     const editor = await screen.findByLabelText('Manuscript editor: First Unit');
     expect(editor).toHaveValue('Recovered prose');
 
-    fireEvent.change(editor, { target: { value: 'Newer local prose' } });
-    act(() => harness.emit(snapshot('writing', {
-      revision: 2,
-      recovery: {
-        status: 'accepted-pending-save',
-        candidates: [{
-          ...recoveryCandidate('unit_a', 'Older completed checkpoint', 'accepted-pending-save'),
-          candidateVersion: 2,
-        }],
-      },
-    })));
+    act(() => {
+      fireEvent.change(editor, { target: { value: 'Newer local prose' } });
+      harness.emit(snapshot('writing', {
+        revision: 2,
+        recovery: {
+          status: 'accepted-pending-save',
+          candidates: [{
+            ...recoveryCandidate('unit_a', 'Older completed checkpoint', 'accepted-pending-save'),
+            candidateVersion: 2,
+          }],
+        },
+      }));
+    });
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveValue('Newer local prose');
   });
 
