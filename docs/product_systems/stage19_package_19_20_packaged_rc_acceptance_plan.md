@@ -699,3 +699,45 @@ The acceptance witness is rebound to that exact identity. Subsequent manual
 work uses a fresh `Stage19-20-ffcbed8` acceptance root; the rejected candidate,
 its preflight evidence, and its crash evidence remain historical and must not
 be reused as acceptance evidence.
+
+### BS-19.20-P1-02 — Trailing-newline Save rejection
+
+During the recovery-decision setup, deleting a second prose line left an
+intentional trailing newline in the editor buffer. `Ctrl+S` then failed
+honestly with:
+
+```text
+The submitted manuscript prose does not match the durable save payload.
+```
+
+The editor's deterministic serializer always appends the manuscript unit's
+required final newline. The main-process authority instead appended one only
+when submitted prose did not already end in a newline. Consequently, a valid
+editor body ending in a newline produced two final newlines in the durable
+payload but only one in the validator's comparison value.
+
+Disposition:
+
+```text
+classification: P1 packaged-RC blocker
+data loss: none observed
+dishonest save: prevented
+project identity crossover: not observed
+cause: renderer/main serialization-contract mismatch
+correction: main validator always applies the renderer's one-additional-newline rule
+focused IPC and renderer tests: 83 passed
+focused Electron/Playwright reproduction: 1 passed
+protected evidence: NOT_USED
+```
+
+The earlier recovery-acceptance result is invalidated because the friendly
+project name was used where the native folder picker exposed the generated
+folder name. Direct synthetic-file inspection proved that the accepted marker
+was saved to the Recovery Reject project while the Recovery Accept project
+remained at its baseline. This was test-operator ambiguity, not evidence of
+application crossover.
+
+Any corrected build must complete the full fixed gate and clean Windows
+packaging/install qualification again. Previously completed Sections A and B
+remain useful human behavioral evidence, but the corrected candidate requires
+a narrow installed Save and recovery accept/reject retest before closure.

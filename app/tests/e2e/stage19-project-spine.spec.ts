@@ -93,6 +93,48 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
   }
 });
 
+test('Ctrl+S saves editor prose that ends with an intentional trailing newline', async ({ electronApp, page }) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-stage19-trailing-newline-e2e-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    const project = await writing.evaluate(async (parentPath) => {
+      const bridge = window.projectSpine!;
+      const created = await bridge.createProject({
+        parentPath,
+        title: 'Trailing newline project',
+        operationId: 'trailing-newline-create',
+      });
+      if (!created.ok) throw new Error(created.error.message);
+      const current = await bridge.getSession();
+      const unit = await bridge.createUnit!({
+        projectId: current.project!.projectId,
+        projectPath: current.project!.path,
+        generation: current.generation,
+        operationId: 'trailing-newline-unit',
+        title: 'Trailing newline unit',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+      return { unitId: unit.data.unitId };
+    }, parent);
+    const editor = writing.getByRole('textbox', {
+      name: 'Manuscript editor: Trailing newline unit',
+    });
+
+    await editor.fill('Baseline retained after deleting line two.\n');
+    await writing.keyboard.press('Control+S');
+
+    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByText('The submitted manuscript prose does not match')).toHaveCount(0);
+    const durable = await writing.evaluate(async ({ unitId }) => {
+      const current = await window.projectSpine!.getSession();
+      return current.project?.drafts[unitId] ?? null;
+    }, project);
+    expect(durable).toContain('Baseline retained after deleting line two.\n\n');
+  } finally {
+    await removeTemporaryDirectory(parent);
+  }
+});
+
 test.describe('C1 unsaved close flow', () => {
   test.use({ skipPageCloseTeardown: true, skipFailureScreenshotAfterVerifiedExit: true });
 

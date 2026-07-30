@@ -832,6 +832,44 @@ describe('project-spine IPC', () => {
     });
   });
 
+  it('saves prose with an intentional trailing newline using the renderer serialization contract', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Trailing Newline' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Trailing Newline Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-trailing-newline-project',
+    });
+    const binding = {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+    };
+    const expectedMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    const submittedProse = 'Retain this trailing blank line.\n';
+    const acceptedMarkdown = `${expectedMarkdown}${submittedProse}\n`;
+
+    const saved = await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      ...binding,
+      operationId: 'save-trailing-newline-unit',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      markdown: acceptedMarkdown,
+      submittedProse,
+    });
+
+    expect(saved).toMatchObject({
+      ok: true,
+      snapshot: { dirtyUnitIds: [], saveState: { status: 'saved', unitId: withUnit.unitId } },
+    });
+    expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
+      acceptedMarkdown,
+    );
+  });
+
   it('captures prose only from Writing Studio and retires the matching candidate after Save', async () => {
     const parent = await temporaryRoot();
     const created = await bootstrapFreshProject({ parentPath: parent, title: 'Recovery Project' });

@@ -954,9 +954,10 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       }
       coordinator.assertRecoveryMutationAllowed(request);
       const normalizedSubmittedProse = request.submittedProse.replace(/\r\n/g, '\n');
-      const serializedSubmittedProse = normalizedSubmittedProse.endsWith('\n')
-        ? normalizedSubmittedProse
-        : `${normalizedSubmittedProse}\n`;
+      // The renderer's durable serializer always terminates the editor body
+      // with one additional newline. Preserve an intentional trailing blank
+      // line in submitted prose instead of collapsing it during validation.
+      const serializedSubmittedProse = `${normalizedSubmittedProse}\n`;
       if (extractRecoveryProse(request.markdown) !== serializedSubmittedProse) {
         throw new ProjectSessionError(
           'INVALID_REQUEST',
