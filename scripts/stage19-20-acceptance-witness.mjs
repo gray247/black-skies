@@ -17,15 +17,15 @@ import { fileURLToPath } from "node:url";
 const modulePath = fileURLToPath(import.meta.url);
 
 export const stage19Candidate = Object.freeze({
-  sourceCommit: "ffcbed8bc03a8226229844ce613217075d039f2b",
+  sourceCommit: "b916765196bde37e95968d3985ab5238b47ad797",
   installerFilename: "BlackSkies-Setup-1.0.0-rc1.exe",
-  installerByteLength: 89274684,
+  installerByteLength: 89275742,
   installerSha256:
-    "17e44ebee808142eeea393777f74993e524704f12bf426d861718ab39ed6b063",
+    "93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b",
   installedExecutableSha256:
-    "4ac995b39fb917f7f1d4b7afa8d2bf148f6caf60bc66e4899b3e20edafc04e59",
+    "9c1f0cd1fc4dc28b555d99577fd026e2b02a9fd176e99a192743f084795be35b",
   installedAsarSha256:
-    "2d1343640a53882d4a26589b526973886e899fd3dbabfc4625b8cd34396c3e4b",
+    "ed523adcf9476dbb954a6a366c1e95fbc0dc9c4ddae5c8ebfc0a30fb344e63f6",
   version: "1.0.0-rc1",
   fileVersion: "1.0.0.1",
   executableProductVersion: "1.0.0.0",

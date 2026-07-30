@@ -741,3 +741,42 @@ Any corrected build must complete the full fixed gate and clean Windows
 packaging/install qualification again. Previously completed Sections A and B
 remain useful human behavioral evidence, but the corrected candidate requires
 a narrow installed Save and recovery accept/reject retest before closure.
+
+The correction is now bound to a new exact candidate:
+
+```text
+implementation commit:
+  b916765196bde37e95968d3985ab5238b47ad797
+clean Windows qualification run:
+  30509993912
+artifact ID:
+  8746806252
+installer:
+  BlackSkies-Setup-1.0.0-rc1.exe
+byte length:
+  89275742
+SHA-256:
+  93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+signature:
+  NotSigned
+fixed Stage 19 gate:
+  558 passed / 2 intentional skips / 19 Electron passed
+clean build and artifact verification:
+  PASS
+offline installed lifecycle:
+  PASS
+exact Markdown comparison:
+  PASS
+uninstall and external-data preservation:
+  PASS
+forbidden runtime processes:
+  0
+protected evidence:
+  NOT_USED
+```
+
+The acceptance witness must reject every earlier installer and is rebound to
+this identity. The remaining human work uses a fresh `Stage19-20-b916765`
+acceptance root. It is limited to the corrected trailing-newline Save path,
+unambiguous recovery acceptance and rejection using exact generated folder
+names, and the still-pending uninstall/same-candidate reinstall boundary.
