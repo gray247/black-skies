@@ -222,6 +222,7 @@ test.describe('startup_authority_contract', () => {
     };
 
     // Case A: no project loaded => generate/critique must be disabled.
+    await waitForNoProjectAuthorityState(page, 'NO_PROJECT_FALSE_READY');
     const noProjectSnapshot = await collectStartupStateSnapshot(page);
     const noProjectLoaded =
       noProjectSnapshot.project.loadedBody ?? noProjectSnapshot.project.loadedHtml;
