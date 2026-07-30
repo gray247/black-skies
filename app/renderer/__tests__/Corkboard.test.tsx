@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import Corkboard from '../components/Corkboard';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const scenesPayload = {
   ok: true,
@@ -38,13 +39,13 @@ const scenesPayload = {
 describe('Corkboard', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsScenes: vi.fn().mockResolvedValue(scenesPayload),
-    };
+    });
   });
 
   afterEach(() => {
-    delete (window as typeof window & { services?: unknown }).services;
+    delete window.services;
   });
 
   it('renders a card per scene', async () => {

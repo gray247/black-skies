@@ -572,8 +572,22 @@ export default function WizardPanel({
         [targetStep]: true,
       }));
 
+      const createSnapshot = services.createSnapshot;
+      if (!createSnapshot) {
+        onToast({
+          tone: 'warning',
+          title: 'Snapshot creation unavailable',
+          description: 'The optional writing-tools snapshot bridge is not available.',
+        });
+        setLockRequests((previous) => ({
+          ...previous,
+          [targetStep]: false,
+        }));
+        return;
+      }
+
       try {
-        const response = await services.createSnapshot({
+        const response = await createSnapshot({
           projectId: safeProjectId,
           step: STEP_TO_SERVICE_ID[targetStep],
           label: `wizard-${STEP_TO_SERVICE_ID[targetStep]}`,

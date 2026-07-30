@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Iterable
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger

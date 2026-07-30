@@ -27,9 +27,12 @@ const unitFiles = [
   "main/__tests__/projectSpineIpc.test.ts",
   "main/__tests__/optionalServiceStartup.test.ts",
   "main/__tests__/pythonExecutablePolicy.test.ts",
+  "main/__tests__/python311LanePolicy.test.ts",
   "main/__tests__/packagedRuntimePolicy.test.ts",
   "main/__tests__/stage19PreloadChannels.test.ts",
   "main/__tests__/stage19PackageVerifier.test.ts",
+  "main/__tests__/stage19InternalBaselineIdentity.test.ts",
+  "main/__tests__/runVitestOfflineExitCode.test.ts",
   "main/__tests__/stage19PackagingWorkflowPolicy.test.ts",
   "main/__tests__/stage19NsisCompatibilityPatch.test.ts",
   "main/__tests__/stage19AcceptanceWitness.test.ts",
@@ -39,7 +42,8 @@ const unitFiles = [
   "main/__tests__/aiCritiqueCoordinator.test.ts",
   "main/__tests__/aiCritiqueQualificationArtifacts.test.ts",
   "main/__tests__/runtimeSessionTruthMain.test.ts",
-  "main/__tests__/runtimeSessionTruth.test.ts"
+  "main/__tests__/runtimeSessionTruth.test.ts",
+  "main/__tests__/truthLaneRuntimeBoundary.test.ts"
 ];
 
 const electronFiles = [
@@ -124,10 +128,6 @@ function electronCommand() {
   return { command: "xvfb-run", args: ["-a", pnpm, ...args] };
 }
 
-const tsc = require.resolve("typescript/bin/tsc", {
-  paths: [path.join(appDir, "node_modules"), path.join(repoRoot, "node_modules")]
-});
-
 process.stdout.write(
   `[stage19] fixed regression gate; allowDirty=${allowDirty}; protectedEvidence=NOT_USED\n`
 );
@@ -141,17 +141,17 @@ phase("Git diff hygiene", "git", ["diff", "--check"]);
 phase("Packaging workflow manual-dispatch policy", process.execPath, [
   "scripts/stage19-packaging-workflow-policy.mjs"
 ]);
-phase("Historical app lint with six-warning ceiling", process.execPath, [
+phase("First-party app lint with zero-warning ceiling", process.execPath, [
   "scripts/run-app-eslint.mjs"
 ]);
 phase("Active Stage 19 lint with zero-warning ceiling", process.execPath, [
   "scripts/run-stage19-eslint.mjs"
 ]);
-phase("Active Stage 19 renderer typecheck", process.execPath, [
-  tsc,
-  "--project",
-  "app/tsconfig.stage19-renderer.json",
-  "--noEmit"
+phase("Full app TypeScript boundary", pnpm, [
+  "--dir",
+  "app",
+  "run",
+  "typecheck:all"
 ]);
 phase("Renderer and main production build", pnpm, [
   "--dir",

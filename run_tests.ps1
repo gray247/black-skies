@@ -4,7 +4,11 @@ param(
     [string[]]$TestPath,
 
     [ValidateSet("unit", "mixed", "all")]
-    [string]$Group = "mixed"
+    [string]$Group = "mixed",
+
+    [string]$PythonPath,
+
+    [switch]$ReportSkips
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,13 +17,28 @@ Set-StrictMode -Version Latest
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $RepoRoot
 
-$Python = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+$Python = if ($PythonPath) {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($PythonPath)
+}
+elseif ($env:BLACKSKIES_PYTHON) {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($env:BLACKSKIES_PYTHON)
+}
+else {
+    Join-Path $RepoRoot ".venv\Scripts\python.exe"
+}
 if (-not (Test-Path -LiteralPath $Python)) {
-    throw "Python not found at $Python. Create the repo venv first."
+    throw "Python not found at $Python. Create the repo venv or pass -PythonPath."
 }
 
 $CacheDir = Join-Path $RepoRoot ".pytest-cache-local"
-$TempRoot = Join-Path $RepoRoot ".pytest-tmp"
+$TempBase = if ($env:BLACKSKIES_TEST_TEMP_ROOT) {
+    $env:BLACKSKIES_TEST_TEMP_ROOT
+} elseif ($env:OS -eq "Windows_NT") {
+    Join-Path $env:SystemDrive "tmp"
+} else {
+    [System.IO.Path]::GetTempPath()
+}
+$TempRoot = Join-Path $TempBase "black-skies-pytest"
 New-Item -ItemType Directory -Force -Path $CacheDir, $TempRoot | Out-Null
 
 function Get-GroupSpecs {
@@ -98,6 +117,9 @@ $PytestArgs = @(
     "--import-mode=importlib",
     "-q"
 )
+if ($ReportSkips) {
+    $PytestArgs += "-rs"
+}
 
 & $Python @PytestArgs @ResolvedTests
 exit $LASTEXITCODE

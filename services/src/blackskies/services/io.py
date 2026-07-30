@@ -6,10 +6,10 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 
-def atomic_write_json(path: Path, payload: Mapping[str, Any]) -> None:
+def atomic_write_json(path: Path, payload: Any) -> None:
     """Write JSON content atomically."""
 
     path.parent.mkdir(parents=True, exist_ok=True)

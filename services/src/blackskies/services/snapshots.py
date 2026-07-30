@@ -9,7 +9,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Mapping
 
 from .diagnostics import DiagnosticLogger
 from .persistence import SnapshotPersistence

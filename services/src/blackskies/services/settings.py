@@ -8,14 +8,22 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, ClassVar, Literal, Optional
 
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
 BaseSettings: type[Any]
+_settings_config_factory: Any
 
 try:  # pragma: no cover - exercised via fallback tests
-    from pydantic_settings import BaseSettings as PydanticBaseSettings, SettingsConfigDict
+    from pydantic_settings import (
+        BaseSettings as PydanticBaseSettings,
+        SettingsConfigDict as _PydanticSettingsConfigDict,
+    )
+
+    _settings_config_factory = _PydanticSettingsConfigDict
 except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is absent
-    from pydantic import BaseModel, ConfigDict as SettingsConfigDict
+    from pydantic import BaseModel
+
+    _settings_config_factory = ConfigDict
 
     def _parse_env_file(path: Path, encoding: str) -> dict[str, str]:
         parsed: dict[str, str] = {}
@@ -45,7 +53,7 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is
         return [str(alias)]
 
     class _BaseSettings(BaseModel):
-        model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+        model_config: ClassVar[ConfigDict] = _settings_config_factory(
             extra="ignore",
             populate_by_name=True,
         )
@@ -58,8 +66,8 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is
         def _resolve_settings_values(cls, data: dict[str, Any]) -> dict[str, Any]:
             values = dict(data)
             config = cls.model_config
-            env_file_name = config.get("env_file")
-            env_encoding = config.get("env_file_encoding", "utf-8")
+            env_file_name: Any = config.get("env_file")
+            env_encoding: Any = config.get("env_file_encoding", "utf-8")
             file_values: dict[str, str] = {}
 
             if env_file_name:
@@ -67,7 +75,7 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is
                 if not env_file_path.is_absolute():
                     env_file_path = Path.cwd() / env_file_path
                 if env_file_path.exists():
-                    file_values = _parse_env_file(env_file_path, env_encoding)
+                    file_values = _parse_env_file(env_file_path, str(env_encoding or "utf-8"))
 
             for field_name, field in cls.model_fields.items():
                 if field_name in values:
@@ -114,7 +122,7 @@ VALID_MODES: tuple[Mode, ...] = ("offline", "live", "mock", "companion")
 class Settings(BaseSettings):
     """Pydantic-based configuration for orchestrating agents and services."""
 
-    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+    model_config: ClassVar[ConfigDict] = _settings_config_factory(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",

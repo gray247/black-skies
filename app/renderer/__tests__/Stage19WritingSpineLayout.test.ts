@@ -11,7 +11,7 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
   });
 
   it('keeps one page-level scroll owner and a responsive desktop Command Center grid', () => {
-    const css = readFileSync(resolve(process.cwd(), 'renderer/styles/app.css'), 'utf8');
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     expect(css).toMatch(/\.stage19-spine\s*\{[\s\S]*?overflow-y:\s*auto;/);
     expect(css).toMatch(
       /\.stage19-spine__command-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*24rem\),\s*1fr\)\);/,

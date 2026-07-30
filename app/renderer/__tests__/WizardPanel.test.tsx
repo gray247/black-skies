@@ -1,5 +1,5 @@
-﻿import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import WizardPanel from '../components/WizardPanel';
 import type { ServicesBridge } from '../../shared/ipc/services';
@@ -131,7 +131,7 @@ describe('WizardPanel', () => {
 
     await waitFor(() => expect(services.buildOutline).toHaveBeenCalled());
 
-    const request = services.buildOutline.mock.calls[0][0];
+    const request = vi.mocked(services.buildOutline).mock.calls[0][0];
     expect(request.projectId).toBe('test_project');
     expect(request.wizardLocks.acts.length).toBeGreaterThan(0);
 
@@ -147,7 +147,7 @@ describe('WizardPanel', () => {
 
   it('surfaces recovery-oriented copy when snapshot creation fails', async () => {
     const services = createServices();
-    (services.createSnapshot as vi.Mock).mockResolvedValue({
+    (services.createSnapshot as Mock).mockResolvedValue({
       ok: false,
       error: {
         message: 'Snapshot service offline',

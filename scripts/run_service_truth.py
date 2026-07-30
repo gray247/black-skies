@@ -24,7 +24,11 @@ PASS2_TESTS = [
 
 
 def resolve_python_executable() -> Path | None:
+    explicit = os.environ.get("PYTHON", "").strip()
     candidates = (
+        *((Path(explicit),) if explicit else ()),
+        REPO_ROOT / ".venv311" / "Scripts" / "python.exe",
+        REPO_ROOT / ".venv311" / "bin" / "python",
         REPO_ROOT / ".venv" / "Scripts" / "python.exe",
         REPO_ROOT / ".venv" / "bin" / "python",
         Path(sys.executable),
@@ -38,11 +42,18 @@ def resolve_python_executable() -> Path | None:
 def main() -> int:
     python_exe = resolve_python_executable()
     if python_exe is None:
-        print("[service-truth] missing python executable (.venv or interpreter)", file=sys.stderr)
+        print("[service-truth] missing configured Python executable", file=sys.stderr)
         return 2
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
-    temp_root = REPO_ROOT / "codex_temp" / "service-truth" / run_id
+    configured_temp = os.environ.get("BLACKSKIES_TEST_TEMP_ROOT", "").strip()
+    if configured_temp:
+        temp_base = Path(configured_temp)
+    elif os.name == "nt":
+        temp_base = Path(os.environ.get("SystemDrive", "C:")) / "tmp"
+    else:
+        temp_base = Path(os.environ.get("TMPDIR", "/tmp"))
+    temp_root = temp_base / "black-skies-service-truth" / run_id
     base_temp = temp_root / "basetemp"
     scratch = temp_root / "scratch"
     for path in (base_temp, scratch):

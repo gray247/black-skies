@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type {
   ProjectSpineBridge,
   ProjectSpineCloseConfirmationRequest,
+  ProjectSpineResult,
   ProjectSpineSessionSnapshot,
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
@@ -156,7 +157,7 @@ describe('Stage 19 close-confirmation renderer seam', () => {
 
   it('prevents duplicate submission and preserves a failed response for retry', async () => {
     const harness = bridgeHarness();
-    let resolve: ((value: unknown) => void) | undefined;
+    let resolve: ((value: ProjectSpineResult) => void) | undefined;
     vi.mocked(harness.bridge.respondToCloseConfirmation!).mockImplementation(
       () => new Promise((done) => { resolve = done; }),
     );

@@ -420,3 +420,7 @@ test('preserves checkpoint evidence through renderer loss and a fresh-process re
     await removeTemporaryDirectory(parent);
   }
 });
+// HARNESS_ONLY
+// Reason: Exercises synthetic Stage 19 Electron state before installed-build qualification.
+// Owner: Package 19.22 internal baseline verification.
+// Retire when: An installed-build recovery truth lane provides equivalent deterministic coverage.

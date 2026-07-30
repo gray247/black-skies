@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import json
 import sys
 from textwrap import dedent
 
 import pytest
 
-from blackskies.services.plugins import PluginExecutionError, PluginRegistry
+from blackskies.services.plugins import PluginRegistry
 
 
 @pytest.fixture(autouse=True)

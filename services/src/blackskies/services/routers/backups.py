@@ -198,7 +198,7 @@ async def restore_backup(
             degraded_reasons=(result.get("operation") or {}).get("degraded_reasons"),
         )
         return result
-    except FileNotFoundError as exc:
+    except FileNotFoundError:
         raise_validation_error(
             message="Backup bundle not found.",
             details={"backupName": request_model.backupName},

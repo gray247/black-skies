@@ -77,6 +77,6 @@ Record:
 - every P0/P1/P2/P3 disposition; and
 - explicit human/release authorization.
 
-Package `19.22` remains the final V1.0 release boundary. This policy does not
-authorize tags, public releases, signing requests, announcements, history
-rewrites, or automatic rollback.
+Package `19.22` remains the final internal barebones V1.0 baseline boundary.
+This policy does not authorize tags, public releases, signing requests,
+announcements, history rewrites, or automatic rollback.

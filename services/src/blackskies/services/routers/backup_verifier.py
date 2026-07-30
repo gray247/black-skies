@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 
 from ..backup_verifier import run_verification
 from ..config import ServiceSettings

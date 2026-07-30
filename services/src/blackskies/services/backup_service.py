@@ -16,8 +16,6 @@ from typing import Any
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .restore_service import (
-    _ensure_required_files,
-    _find_manifest_dir,
     _create_destination,
     _restore_operation_payload,
     evaluate_restore_as_copy_eligibility,

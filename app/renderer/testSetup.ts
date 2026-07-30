@@ -14,7 +14,6 @@ if (typeof window !== 'undefined' && typeof window.ResizeObserver === 'undefined
     unobserve(): void {}
     disconnect(): void {}
   }
-  // @ts-expect-error - assigning test stub
   window.ResizeObserver = ResizeObserverStub;
 }
 

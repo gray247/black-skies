@@ -6,7 +6,7 @@ import asyncio
 import json
 import zipfile
 from pathlib import Path
-from typing import Any, TypedDict, cast
+from typing import TypedDict, cast
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger

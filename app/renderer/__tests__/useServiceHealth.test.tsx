@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { ServicesBridge, ServiceHealthResponse } from '../../shared/ipc/services';
 import { useServiceHealth } from '../hooks/useServiceHealth';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 vi.mock('../utils/env', async () => {
   const actual = await vi.importActual<typeof import('../utils/env')>('../utils/env');
@@ -61,14 +62,14 @@ describe('useServiceHealth', () => {
   });
 
   it('transitions to online when the health probe succeeds', async () => {
-    const services = {
+    const services = createServicesBridgeMock({
       checkHealth: vi.fn().mockResolvedValue({
         ok: true,
         data: { status: 'online' },
         traceId: 'trace-online',
       } satisfies ServiceHealthResponse),
       exportProject: vi.fn(),
-    } as ServicesBridge;
+    });
 
     render(<Harness services={services} />);
 
@@ -77,14 +78,14 @@ describe('useServiceHealth', () => {
   });
 
   it('does not churn render state when a background health poll returns the same online snapshot', async () => {
-    const services = {
+    const services = createServicesBridgeMock({
       checkHealth: vi.fn().mockResolvedValue({
         ok: true,
         data: { status: 'online' },
         traceId: 'trace-online',
       } satisfies ServiceHealthResponse),
       exportProject: vi.fn(),
-    } as ServicesBridge;
+    });
 
     render(<Harness services={services} />);
 
@@ -98,12 +99,12 @@ describe('useServiceHealth', () => {
   });
 
   it('allows manual retries while preserving the latest status', async () => {
-    const services = {
+    const services = createServicesBridgeMock({
       checkHealth: vi
         .fn()
         .mockResolvedValue({ ok: true, data: { status: 'online' }, traceId: 'trace-online' }),
       exportProject: vi.fn(),
-    } as ServicesBridge;
+    });
 
     render(<Harness services={services} />);
 
@@ -113,7 +114,7 @@ describe('useServiceHealth', () => {
   });
 
   it('flags when the health probe reports a missing port', async () => {
-    const services = {
+    const services = createServicesBridgeMock({
       checkHealth: vi.fn().mockResolvedValue({
         ok: false,
         error: {
@@ -122,7 +123,7 @@ describe('useServiceHealth', () => {
         },
       }),
       exportProject: vi.fn(),
-    } as ServicesBridge;
+    });
 
     render(<Harness services={services} />);
 
@@ -132,7 +133,7 @@ describe('useServiceHealth', () => {
   });
 
   it('keeps the latest service status stable while a restore is in progress', async () => {
-    const services = {
+    const services = createServicesBridgeMock({
       checkHealth: vi
         .fn()
         .mockResolvedValueOnce({
@@ -149,7 +150,7 @@ describe('useServiceHealth', () => {
           },
         }),
       exportProject: vi.fn(),
-    } as ServicesBridge;
+    });
 
     render(<Harness services={services} />);
 

@@ -148,7 +148,7 @@ describe('ProjectHome recent project recovery', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     window.localStorage.clear();
-    delete (window as Partial<Record<string, unknown>>).projectLoader;
+    delete window.projectLoader;
   });
 
   it('shows an explicit welcome card while bootstrap waits for the sample project', async () => {
@@ -168,7 +168,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -203,7 +203,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -235,7 +235,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -299,7 +299,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
     const toaster: ToastPayload[] = [];
 
     render(
@@ -313,10 +313,10 @@ describe('ProjectHome recent project recovery', () => {
     fireEvent.click(recentButton);
 
     await waitFor(() => {
-      expect(projectLoader.loadProject.mock.calls.length).toBeGreaterThanOrEqual(2);
+      expect(loadProjectMock.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
 
-    const callPaths = projectLoader.loadProject.mock.calls.map(([request]) => request.path);
+    const callPaths = loadProjectMock.mock.calls.map(([request]) => request.path);
     expect(callPaths).toContain(stalePath);
     expect(callPaths.filter((path) => path === samplePath).length).toBeGreaterThanOrEqual(1);
 
@@ -360,7 +360,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
     const toasts: ToastPayload[] = [];
 
     render(<ProjectHome onToast={(toast) => toasts.push(toast)} onProjectLoaded={vi.fn()} />);
@@ -398,7 +398,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -459,7 +459,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -534,7 +534,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -597,7 +597,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     const { rerender } = render(
       <ProjectHome
@@ -680,7 +680,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     const { rerender } = render(
       <ProjectHome
@@ -741,7 +741,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     const { container } = render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -785,7 +785,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -837,7 +837,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<DraftOverridesHarness />);
 
@@ -874,7 +874,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -912,7 +912,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     const { rerender } = render(
       <ProjectHome
@@ -970,7 +970,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome suppressBootstrap onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -1010,7 +1010,7 @@ describe('ProjectHome recent project recovery', () => {
       createProject: vi.fn(),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
     const toasts: ToastPayload[] = [];
 
     render(
@@ -1047,7 +1047,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -1071,7 +1071,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -1092,7 +1092,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: vi.fn(),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} suppressBootstrap />);
 
@@ -1126,7 +1126,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -1154,7 +1154,7 @@ describe('ProjectHome recent project recovery', () => {
       loadProject: loadProjectMock,
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
 
@@ -1181,7 +1181,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -1216,7 +1216,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -1267,7 +1267,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     const { rerender } = render(
       <ProjectHome
@@ -1318,7 +1318,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome
@@ -1361,7 +1361,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
     };
 
-    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    window.projectLoader = projectLoader;
 
     render(
       <ProjectHome

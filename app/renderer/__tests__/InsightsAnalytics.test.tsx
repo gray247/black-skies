@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import { InsightsAnalytics } from '../components/CompanionOverlay';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const summaryPayload = {
   ok: true,
@@ -38,10 +39,10 @@ describe('InsightsAnalytics', () => {
   });
 
   it('renders summary and scene entries when online', async () => {
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsSummary: vi.fn().mockResolvedValue(summaryPayload),
       getAnalyticsScenes: vi.fn().mockResolvedValue(scenesPayload),
-    };
+    });
     render(<InsightsAnalytics projectId="proj" serviceStatus="online" />);
     await waitFor(() => {
       expect(screen.getByTestId('insights-analytics-summary')).toBeInTheDocument();
@@ -52,10 +53,10 @@ describe('InsightsAnalytics', () => {
   });
 
   it('shows offline message when services unavailable', async () => {
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsSummary: vi.fn().mockResolvedValue(summaryPayload),
       getAnalyticsScenes: vi.fn().mockResolvedValue(scenesPayload),
-    };
+    });
     render(<InsightsAnalytics projectId="proj" serviceStatus="offline" />);
     await waitFor(() => {
       expect(screen.getByTestId('insights-analytics-offline')).toBeInTheDocument();

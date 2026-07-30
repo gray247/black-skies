@@ -5,11 +5,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.integrity import validate_project
-from blackskies.services.scene_docs import DraftRequestError, read_scene_document
+from blackskies.services.scene_docs import read_scene_document
 
 
 def _write_scene(project_root: Path, scene_id: str, title: str, order: int) -> None:

@@ -17,7 +17,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
 from blackskies.services.critique import CritiqueService
 from blackskies.services.draft_synthesizer import DraftSynthesizer
 
-from test_app import API_PREFIX, SERVICE_VERSION, _bootstrap_outline, _build_critique_payload
+from .test_app import API_PREFIX, SERVICE_VERSION, _bootstrap_outline, _build_critique_payload
 
 pytestmark = pytest.mark.anyio("asyncio")
 

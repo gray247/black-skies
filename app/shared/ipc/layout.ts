@@ -323,8 +323,12 @@ function normalizeLayoutTree(node: unknown): LayoutTree | null {
   return candidate;
 }
 
+export function normalizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+  return normalizeLayoutTree(node);
+}
+
 export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
-  const candidate = normalizeLayoutTree(node);
+  const candidate = normalizeLayoutNode(node);
   if (!candidate || !treeMeetsRequirements(candidate)) {
     logInvalidLayout('layout contains duplicates or missing required panes');
     return null;

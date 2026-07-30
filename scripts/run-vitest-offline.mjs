@@ -48,7 +48,7 @@ async function runVitest() {
   if (!ctx?.shouldKeepServer()) {
     await ctx?.exit();
   }
-  return ctx?.config.exitCode ?? 0;
+  return process.exitCode ?? 0;
 }
 
 const exitCode = await runVitest();

@@ -7,6 +7,7 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import Corkboard from '../components/Corkboard';
 import RelationshipGraph from '../components/RelationshipGraph';
 import type { ServicesBridge } from '../../shared/ipc/services';
+import type { AnalyticsBridgeRequest, ServiceResult } from '../../shared/ipc/services';
 
 const buildScenes = (count: number) =>
   Array.from({ length: count }, (_, index) => ({
@@ -128,7 +129,7 @@ describe('Story Insights regressions', () => {
     render(<PanelHost />);
     expect(screen.queryByTestId('insights-pane')).toBeNull();
     await user.click(screen.getByRole('button', { name: /open story insights/i }));
-    expect(screen.getByTestId('insights-pane')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('insights-pane')).toBeInTheDocument());
   });
 
   it('only hits valid analytics endpoints when insights open', async () => {
@@ -139,37 +140,36 @@ describe('Story Insights regressions', () => {
       return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
     }) as unknown as typeof fetch;
 
-    const buildService = (path: string) =>
-      vi.fn(async ({ projectId }: { projectId: string }) => {
+    const buildService = <T,>(
+      path: string,
+      makeData: (projectId: string) => T,
+    ) =>
+      vi.fn(async ({ projectId }: AnalyticsBridgeRequest): Promise<ServiceResult<T>> => {
         const url = `http://127.0.0.1:9999${path}?project_id=${projectId}`;
         const response = await fetch(url);
         await response.json();
-        if (path.includes('summary')) {
-          return {
-            ok: true,
-            data: {
-              projectId,
-              projectPath: `/projects/${projectId}`,
-              scenes: 0,
-              wordCount: 0,
-              avgReadability: 12.1,
-            },
-          };
-        }
-        if (path.includes('scenes')) {
-          return {
-            ok: true,
-            data: { scenes: [] },
-          };
-        }
-        return { ok: true, data: { nodes: [], edges: [] } };
+        return { ok: true, data: makeData(projectId) };
       });
 
     const win = window as StoryInsightsWindow;
     const servicesMock: Partial<ServicesBridge> = {
-      getAnalyticsSummary: buildService('/api/v1/analytics/summary'),
-      getAnalyticsScenes: buildService('/api/v1/analytics/scenes'),
-      getAnalyticsRelationships: buildService('/api/v1/analytics/relationships'),
+      getAnalyticsSummary: buildService('/api/v1/analytics/summary', (projectId) => ({
+        projectId,
+        projectPath: `/projects/${projectId}`,
+        scenes: 0,
+        wordCount: 0,
+        avgReadability: 12.1,
+      })),
+      getAnalyticsScenes: buildService('/api/v1/analytics/scenes', (projectId) => ({
+        projectId,
+        projectPath: `/projects/${projectId}`,
+        scenes: [],
+      })),
+      getAnalyticsRelationships: buildService('/api/v1/analytics/relationships', (projectId) => ({
+        projectId,
+        nodes: [],
+        edges: [],
+      })),
     };
     win.services = servicesMock as ServicesBridge;
 

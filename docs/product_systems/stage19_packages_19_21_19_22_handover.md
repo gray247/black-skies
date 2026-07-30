@@ -12,11 +12,11 @@ Package 19.20 implementation commit:
 Package 19.20:
   CLOSED — JASON OVERALL PASS
 next eligible:
-  Package 19.21
-Package 19.21 implementation:
-  NOT STARTED
-Package 19.22 implementation/release:
-  NOT STARTED
+  Package 19.22 internal baseline qualification
+Package 19.21:
+  CLOSED — commit 2dc8010
+Package 19.22:
+  ACTIVE — PUBLIC RELEASE NOT AUTHORIZED
 protected evidence:
   NOT_USED
 ```
@@ -94,8 +94,8 @@ The final Computer Use pass independently exercised:
 
 ## 4. Jason's requested remaining-work model
 
-Jason requests an autonomous-first release workflow for the rest of Black
-Skies:
+Jason requests an autonomous-first internal qualification workflow for the
+bounded Stage 19 baseline:
 
 ```text
 Codex builds, audits, fixes, and verifies the remaining work.
@@ -116,19 +116,19 @@ Codex documents out-of-scope observations with a future owner.
 Jason is not used as the step-by-step test operator.
 
 Codex stops only for:
-  a decision that changes product/release authority
+  a decision that changes product or public-release authority
   a sensitive or destructive action requiring action-time confirmation
   a blocker that cannot be resolved inside the authorized package
-  the final human/release authorization required by Package 19.22
+  the final internal-milestone judgment required by Package 19.22
 
 Only after the product, documentation, tests, package, and real GUI rehearsal
-are complete does Codex hand Jason the candidate and say it is ready for final
-human verification.
+are complete does Codex hand Jason the candidate for the final
+internal-milestone judgment.
 ```
 
 This workflow authorizes autonomous preparation and verification. It does not
-waive the master-plan requirement that Jason explicitly authorize the final
-Package `19.22` V1.0 release/tag boundary.
+authorize a tag, signing request, publication, announcement, public
+distribution, or alpha/beta claim.
 
 ## 5. Package 19.21 target
 
@@ -167,28 +167,31 @@ documentation against the installed application. Treat a mismatch as a
 Package `19.21` defect, correct the documentation or product only within
 authority, and rerun the affected path.
 
-## 6. Package 19.22 preparation target
+## 6. Package 19.22 internal-closure target
 
-Package `19.22` is the final V1.0 closure and release boundary. Before asking
-Jason for final human verification or release authorization, Codex should
+Package `19.22` is the final internal barebones V1.0 closure boundary. Before
+asking Jason for the final internal-milestone judgment, Codex should
 autonomously prepare:
 
 - a complete closure audit across Packages `19.1` through `19.21`;
 - an explicit disposition for retained inactive Package `19.14`
   qualification/scoring tooling;
-- clean current-truth, roadmap, release, support, and V2-deferral authority;
-- no unresolved P0/P1 and an explicit disposition for every P2/P3;
+- clean current-truth, roadmap, internal-build, support, and V3 ownership
+  authority;
+- no unresolved P0/P1/P2 and an explicit owner and reopening trigger for
+  every retained P3;
 - clean tracked worktree and exact source identity;
 - full fixed Stage 19 regression on Windows;
 - Linux exact-commit regression;
 - clean Windows package/build/artifact/install/offline/uninstall proof;
 - exact installer/receipt hashes and signature truth;
-- Playwright/Electron coverage for every release-critical path;
+- Playwright/Electron coverage for every internal-V1-critical path;
 - a final Computer Use rehearsal of install, launch, create, edit, Save,
   reopen, export, recovery, two-window behavior, uninstall, and reinstall;
 - evidence that no protected prose, real credential, optional provider call,
   Python/global Node runtime, or repository dependency entered qualification;
-- version/tag/release-name consistency and a documented rollback posture; and
+- version, installer-name, internal-build identity, and rollback consistency;
+  and
 - a concise final human checklist containing only judgments automation cannot
   honestly supply.
 
@@ -197,8 +200,9 @@ dependencies, installer, version, icon, or packaging configuration, it creates
 a new candidate. Rebuild and rerun all affected qualification and Computer Use
 checks before asking Jason to verify it.
 
-Do not create a final tag, public release, signing request, or release
-announcement without Jason's explicit final release authorization.
+Do not create a tag, public release, signing request, publication,
+announcement, or distribution artifact. Package `19.22` contains no authority
+that can authorize those actions.
 
 ## 7. Final handoff condition
 
@@ -210,8 +214,8 @@ The desired final message, only after all autonomous evidence passes, is:
 
 ```text
 Black Skies is built, packaged, regression-tested, Playwright-tested,
-installed-app-tested with Computer Use, and ready for your final human
-verification.
+and installed-app-tested with Computer Use. The bounded internal V1
+foundation is ready for your final internal-milestone judgment.
 ```
 
 Until then, continue autonomously, fix in-scope failures, preserve exact

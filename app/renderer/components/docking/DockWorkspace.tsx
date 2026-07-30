@@ -1,6 +1,11 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Mosaic, MosaicZeroState, type MosaicPath } from 'react-mosaic-component';
+import {
+  Mosaic,
+  MosaicZeroState,
+  type MosaicNode,
+  type MosaicPath,
+} from 'react-mosaic-component';
 
 import 'react-mosaic-component/react-mosaic-component.css';
 
@@ -17,6 +22,7 @@ import {
   type LayoutSplitWeights,
   type LayoutTree,
   normalisePaneId,
+  normalizeLayoutNode,
 } from '../../../shared/ipc/layout';
 import {
   ALL_DOCK_PANES,
@@ -154,6 +160,7 @@ export function ensurePaneInLayout(tree: LayoutTree, paneId: LayoutPaneId): Layo
     first: cloneLayout(tree),
     second: paneId,
     splitPercentage: 70,
+    weights: [0.7, 0.3],
   };
 }
 
@@ -170,7 +177,7 @@ function removePaneFromLayout(tree: LayoutTree | null, paneId: LayoutPaneId): La
     return null;
   }
   if (!first) {
-    return cloneLayout(second);
+    return second ? cloneLayout(second) : null;
   }
   if (!second) {
     return cloneLayout(first);
@@ -180,6 +187,7 @@ function removePaneFromLayout(tree: LayoutTree | null, paneId: LayoutPaneId): La
     first,
     second,
     splitPercentage: tree.splitPercentage,
+    weights: tree.weights,
   };
 }
 
@@ -220,7 +228,8 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [focusedPaneId, setFocusedPaneId] = useState<LayoutPaneId | null>(null);
-  const [relocatedMap, setRelocatedMap] = useState<Record<LayoutPaneId, number>>({});
+  const [relocatedMap, setRelocatedMap] =
+    useState<Partial<Record<LayoutPaneId, number>>>({});
   const relocationToastFiredRef = useRef(false);
   const relocationTimersRef = useRef(new Map<LayoutPaneId, number>());
   const clampHistoryRef = useRef(new Map<LayoutPaneId, FloatingPaneClampInfo>());
@@ -456,7 +465,7 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     const allowed = new Set<LayoutPaneId>(ALL_DOCK_PANES);
     const filtered = focusCycleOrder
       .map((pane) => normalisePaneId(pane))
-      .filter((pane): pane is LayoutPaneId => Boolean(pane) && allowed.has(pane));
+      .filter((pane): pane is LayoutPaneId => pane !== null && allowed.has(pane));
     return filtered.length > 0 ? filtered : (ALL_DOCK_PANES as LayoutPaneId[]);
   }, [focusCycleOrder]);
   const missingPaneIds = useMemo(() => {
@@ -483,7 +492,8 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const [stableHiddenPaneIds, setStableHiddenPaneIds] = useState<LayoutPaneId[]>(
     () => getDefaultHiddenPaneIds(),
   );
-  const [paneVisibility, setPaneVisibility] = useState<Record<LayoutPaneId, boolean>>({});
+  const [paneVisibility, setPaneVisibility] =
+    useState<Partial<Record<LayoutPaneId, boolean>>>({});
   const [expandedGroups, setExpandedGroups] = useState<Record<string, LayoutPaneId>>({});
   const panePathsRef = useRef<Map<LayoutPaneId, MosaicPath>>(new Map());
   const groupBaseWeightsRef = useRef<Record<string, LayoutSplitWeights>>({});
@@ -706,12 +716,12 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   );
 
   const handleLayoutChange = useCallback(
-    (nextLayout: LayoutTree) => {
-      if (stableDockMode) {
+    (nextLayout: MosaicNode<LayoutPaneId> | null) => {
+      if (stableDockMode || !nextLayout) {
         return;
       }
       const sanitised = storyInsightsHiddenByHotkey
-        ? nextLayout
+        ? normalizeLayoutNode(nextLayout) ?? cloneLayout(DEFAULT_LAYOUT)
         : sanitizeLayoutNode(nextLayout) ?? cloneLayout(DEFAULT_LAYOUT);
       applyLayout(sanitised);
     },

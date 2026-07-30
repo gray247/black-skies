@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Package 19.22 current documentation authority and validation boundary",
+  "excludedHistoricalRoots": [
+    "archive/",
+    "docs/archive/",
+    "docs/audits/",
+    "docs/roadmap/",
+    "work/"
+  ],
+  "documents": [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "docs/current_authority_inventory.md",
+    "docs/ops/support_playbook.md",
+    "docs/packaging.md",
+    "docs/product_systems/current_product_roadmap.md",
+    "docs/product_systems/current_truth_index.md",
+    "docs/product_systems/stage19_package_19_21_closure.md",
+    "docs/product_systems/stage19_package_19_22_plan_and_findings.md",
+    "docs/product_systems/stage19_packages_19_21_19_22_handover.md",
+    "docs/product_systems/stage19_v1_master_implementation_and_acceptance_plan.md",
+    "docs/product_systems/stage19_v1_scope_lock.md",
+    "docs/quickstart.md",
+    "docs/rollback_policy.md",
+    "docs/style.md",
+    "docs/tests.md",
+    "docs/ui_copy_spec_v1.md",
+    "README.md",
+    "RELEASE.md",
+    "RUNBOOK.md",
+    "SECURITY.md"
+  ]
+}

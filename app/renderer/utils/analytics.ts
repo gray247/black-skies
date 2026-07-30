@@ -36,6 +36,10 @@ export interface ResolvedAnalyticsConfig {
   };
 }
 
+type AnalyticsConfigInput = Partial<Omit<AnalyticsConfig, 'pace'>> & {
+  pace?: Partial<AnalyticsConfig['pace']>;
+};
+
 const DEFAULT_EMOTION_INTENSITY: Record<string, number> = {
   dread: 1.0,
   tension: 0.85,
@@ -53,7 +57,7 @@ const DEFAULT_CONFIG: ResolvedAnalyticsConfig = {
   },
 };
 
-export function resolveAnalyticsConfig(config?: AnalyticsConfig | null): ResolvedAnalyticsConfig {
+export function resolveAnalyticsConfig(config?: AnalyticsConfigInput | null): ResolvedAnalyticsConfig {
   if (!config) {
     return DEFAULT_CONFIG;
   }

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect, useRef, useState } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import App from '../App';
 
@@ -20,6 +20,7 @@ declare global {
 
 const loadedProject: LoadedProject = {
   path: '/projects/demo',
+  projectId: 'demo',
   name: 'Demo Project',
   outline: {
     schema_version: 'OutlineSchema v1',
@@ -33,8 +34,6 @@ const loadedProject: LoadedProject = {
         title: 'Arrival',
         chapter_id: 'ch_0001',
         beat_refs: ['inciting'],
-        purpose: 'escalation',
-        emotion_tag: 'respite',
       },
     ],
   },
@@ -265,12 +264,12 @@ describe('App critique + rewrite loop', () => {
       priorities: ['Add tension in the middle beat.'],
       line_comments: [{ line: 1, note: 'Sample issue.' }],
     };
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: critiqueResponse,
       traceId: 'trace-critique',
     });
-    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+    (services.rewriteDraft as Mock).mockResolvedValue({
       ok: true,
       data: { unit_id: 'sc_0001', revised_text: 'Revised scene text' },
       traceId: 'trace-rewrite',
@@ -351,7 +350,7 @@ describe('App critique + rewrite loop', () => {
       priorities: ['Clarify stakes without changing the draft.'],
       line_comments: [{ line: 1, note: 'Advisory note.' }],
     };
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: critiqueResponse,
       traceId: 'trace-advisory',
@@ -385,12 +384,12 @@ describe('App critique + rewrite loop', () => {
       priorities: ['Preserve continuity.'],
       line_comments: [{ line: 1, note: 'Keep stakes clear.' }],
     };
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: critiqueResponse,
       traceId: 'trace-critique',
     });
-    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+    (services.rewriteDraft as Mock).mockResolvedValue({
       ok: false,
       error: {
         code: 'CONFLICT',
@@ -432,7 +431,7 @@ describe('App critique + rewrite loop', () => {
     const phase4Window = window as typeof window & { __BLACKSKIES_PHASE4_MOCK?: boolean };
     phase4Window.__BLACKSKIES_PHASE4_MOCK = false;
 
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: {
         unit_id: 'sc_0001',
@@ -442,7 +441,7 @@ describe('App critique + rewrite loop', () => {
         line_comments: [],
       } satisfies DraftCritiqueBridgeResponse,
     });
-    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+    (services.rewriteDraft as Mock).mockResolvedValue({
       ok: true,
       data: { unit_id: 'sc_0001', revised_text: 'Default route guard rewrite.' },
     });
@@ -464,7 +463,7 @@ describe('App critique + rewrite loop', () => {
     const editedDraft = 'Edited draft text wins over project draft.';
     window.__TEST_PROJECT_HOME_EDITED_DRAFT = editedDraft;
 
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: {
         unit_id: 'sc_0001',
@@ -474,7 +473,7 @@ describe('App critique + rewrite loop', () => {
         line_comments: [],
       } satisfies DraftCritiqueBridgeResponse,
     });
-    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+    (services.rewriteDraft as Mock).mockResolvedValue({
       ok: true,
       data: { unit_id: 'sc_0001', revised_text: 'Rewritten payload-source text.' },
     });
@@ -526,7 +525,7 @@ describe('App critique + rewrite loop', () => {
       priorities: [],
       line_comments: [],
     };
-    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as Mock).mockResolvedValue({
       ok: true,
       data: critiqueResponse,
       traceId: 'trace-critique-split-command',

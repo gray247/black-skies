@@ -107,13 +107,15 @@ function AnalyticsDashboard({
       }));
       return;
     }
+    const getAnalyticsSummary = services.getAnalyticsSummary;
+    const getAnalyticsScenes = services.getAnalyticsScenes;
     let cancelled = false;
     setState((prev) => ({ ...prev, loading: true, error: null }));
     (async () => {
       try {
         const [summaryResp, scenesResp] = await Promise.all([
-          services.getAnalyticsSummary({ projectId }),
-          services.getAnalyticsScenes({ projectId }),
+          getAnalyticsSummary({ projectId }),
+          getAnalyticsScenes({ projectId }),
         ]);
         if (cancelled) {
           return;

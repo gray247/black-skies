@@ -578,6 +578,8 @@ def test_backup_restore_cleans_invalid_materialized_copy(
     assert restore_response.status_code == 400
     detail = restore_response.json()
     assert detail["code"] == "VALIDATION"
-    assert detail["details"]["operation"]["cleanup_status"] == "completed"
-    assert detail["details"]["operation"]["completion_status"] == "failed-cleaned"
+    operation = detail["details"].get("operation")
+    assert operation, detail
+    assert operation["cleanup_status"] == "completed"
+    assert operation["completion_status"] == "failed-cleaned"
     assert not any(project_root.parent.glob(f"{project_id}_restored_*"))

@@ -182,10 +182,8 @@ def _replay_signatures(scenario: ReplayScenario, runs: int) -> Iterable[tuple[ob
     "scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}"
 )
 def test_contested_selection_determinism_supported_env(
-    tmp_path: Path, scenario: ReplayScenario
+    scenario: ReplayScenario,
 ) -> None:
-    if not _supported_deterministic_environment(tmp_path):
-        pytest.skip("best-effort environment: deterministic gate is report-only")
     signatures = list(_replay_signatures(scenario, runs=100))
     first = signatures[0]
     winner_drift = sum(1 for sig in signatures if sig[0] != first[0])
@@ -199,13 +197,12 @@ def test_contested_selection_determinism_supported_env(
 @pytest.mark.parametrize(
     "scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}"
 )
-def test_contested_selection_determinism_best_effort_report_only(
+def test_contested_selection_determinism_is_independent_of_host_lock_mode(
     tmp_path: Path,
     scenario: ReplayScenario,
 ) -> None:
-    if _supported_deterministic_environment(tmp_path):
-        pytest.skip("supported deterministic environment: report-only test not applicable")
+    lock_is_deterministic = _supported_deterministic_environment(tmp_path)
     signatures = list(_replay_signatures(scenario, runs=5))
-    # Report-only lane: verify replay executes and returns deterministic fields structure.
-    assert signatures
+    assert isinstance(lock_is_deterministic, bool)
+    assert len(set(signatures)) == 1
     assert all(len(sig) == 4 for sig in signatures)

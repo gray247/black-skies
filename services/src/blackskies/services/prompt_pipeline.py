@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from .advisory_memory_resolver import resolve_advisory_memory_packet as _resolve_memory_lab_packet
+from .advisory_memory_resolver import (  # noqa: F401 - tested compatibility export
+    resolve_advisory_memory_packet as _resolve_memory_lab_packet,
+)
 from .continuity_context_builder import SceneContext, assemble_scene_context
 from .prompt_compiler import compile_draft_prompt
 from .prompt_profile_resolver import (

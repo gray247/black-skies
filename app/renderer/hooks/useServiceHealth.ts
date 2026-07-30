@@ -23,7 +23,16 @@ interface UseServiceHealthResult {
   isPortUnavailable: boolean;
   lastError: ServiceError | null;
   serviceUnavailable: boolean;
-  reason: string;
+  reason: string | null;
+}
+
+interface LastKnownServiceState {
+  status: ServiceStatus;
+  isPortUnavailable: boolean;
+  reason: string | null;
+  serviceUnavailable: boolean;
+  lastError: ServiceError | null;
+  forceOffline: boolean;
 }
 
 declare global {
@@ -147,7 +156,7 @@ export function useServiceHealth(
     ? 'test-offline'
     : 'online';
   const initialServiceUnavailable = initialForcedOffline;
-  const lastKnownStateRef = useRef({
+  const lastKnownStateRef = useRef<LastKnownServiceState>({
     status: initialStatus,
     isPortUnavailable: initialPortUnavailable,
     reason: initialReason,

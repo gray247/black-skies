@@ -32,7 +32,7 @@ def read_draft_scene(
 
     try:
         validated_project_id = validate_project_id(project_id)
-    except ValueError as exc:
+    except ValueError:
         raise_validation_error(
             message="Invalid project id.",
             details={"project_id": project_id, "scene_id": scene_id},
@@ -85,7 +85,7 @@ def read_draft_scene(
 
     try:
         text = draft_path.read_text(encoding="utf-8")
-    except UnicodeDecodeError as exc:
+    except UnicodeDecodeError:
         raise_validation_error(
             message="Draft scene markdown contains invalid UTF-8.",
             details={"project_id": validated_project_id, "scene_id": scene_id},

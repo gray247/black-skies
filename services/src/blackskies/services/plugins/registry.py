@@ -13,7 +13,7 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, List
 
 from ..feature_flags import plugins_enabled
 from .host import PluginExecutionError, launch_plugin

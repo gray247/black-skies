@@ -27,7 +27,7 @@ function createSignal(category: (typeof NARRATIVE_QUALITATIVE_SIGNAL_CATEGORIES)
   return {
     id: `sig_${category}`,
     category,
-    label: `${category.replaceAll("_", " ")}`,
+    label: `${category.replace(/_/g, " ")}`,
     explanation: `Explainable signal for ${category}.`,
     relatedObjectIds: ["nar_example_1", "rel_example_1"],
     provenance: authoredProvenance,

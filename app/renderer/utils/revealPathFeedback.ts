@@ -56,7 +56,7 @@ export async function revealPathWithToast({
   kind,
   pushToast,
 }: {
-  services: ServicesBridge | undefined;
+  services: Pick<ServicesBridge, 'revealPath'> | undefined;
   targetPath: string | null | undefined;
   kind: RevealTargetKind;
   pushToast: (payload: ToastPayload) => void;

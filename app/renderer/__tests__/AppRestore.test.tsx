@@ -27,7 +27,7 @@ describe('SnapshotsPanel restore workflow', () => {
       <SnapshotsPanel
         projectId="demo"
         projectPath="/projects/demo"
-        services={services as ServicesBridge}
+        services={services}
         serviceStatus="online"
         pushToast={pushToast}
       />,
@@ -77,7 +77,7 @@ describe('SnapshotsPanel restore workflow', () => {
       <SnapshotsPanel
         projectId="demo"
         projectPath="/projects/demo"
-        services={{ restoreFromZip } as ServicesBridge}
+        services={{ restoreFromZip }}
         serviceStatus="online"
         pushToast={pushToast}
       />,
@@ -118,7 +118,7 @@ describe('SnapshotsPanel restore workflow', () => {
       <SnapshotsPanel
         projectId="demo"
         projectPath="/projects/demo"
-        services={{ restoreFromZip, revealPath } as ServicesBridge}
+        services={{ restoreFromZip, revealPath }}
         serviceStatus="online"
         pushToast={pushToast}
       />,
@@ -159,7 +159,7 @@ describe('SnapshotsPanel restore workflow', () => {
       <SnapshotsPanel
         projectId="demo"
         projectPath="/projects/demo"
-        services={{ restoreFromZip } as ServicesBridge}
+        services={{ restoreFromZip }}
         serviceStatus="online"
         pushToast={pushToast}
       />,

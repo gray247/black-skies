@@ -17,6 +17,7 @@
     "build:production": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
     "preview": "vite preview",
     "lint": "node ../scripts/run-app-eslint.mjs",
+    "typecheck:all": "tsc --noEmit --project tsconfig.json",
     "test": "node ../scripts/run-vitest-offline.mjs",
     "qualification:import-scores": "pnpm run build:main && node dist-electron/main/aiCritiqueScoreImportCli.js",
     "package:verify:preflight": "node ./scripts/stage19-package-verify.mjs --preflight",

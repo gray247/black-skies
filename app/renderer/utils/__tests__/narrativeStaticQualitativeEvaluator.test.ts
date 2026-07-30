@@ -120,7 +120,7 @@ describe("Static qualitative evaluator v0", () => {
 
   it("stays outside file-write and project persistence APIs", () => {
     const evaluatorSource = readFileSync(
-      resolve(process.cwd(), "shared/narrativeStaticQualitativeEvaluator.ts"),
+      resolve(import.meta.dirname, "..", "..", "..", "shared", "narrativeStaticQualitativeEvaluator.ts"),
       "utf8",
     );
 

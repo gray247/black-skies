@@ -28,6 +28,7 @@ const projectHomeMockState: {
 
 const loadedProject: LoadedProject = {
   path: '/projects/demo',
+  projectId: 'proj_demo',
   name: 'Demo Project',
   outline: {
     schema_version: 'OutlineSchema v1',
@@ -328,7 +329,7 @@ describe('App recovery banner', () => {
     const message = await screen.findByText(
       'Current project files restored from recovery snapshot.',
     );
-    const toastCard = message.closest('.toast');
+    const toastCard = message.closest<HTMLElement>('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
       expect(within(toastCard).getByText('trace-restore-success')).toBeInTheDocument();

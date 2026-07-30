@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 
 from blackskies.services.app import create_app
 from blackskies.services.config import ServiceSettings
-from blackskies.services.models.draft import DraftGenerateRequest
 
 
 def _client(tmp_path: Path):

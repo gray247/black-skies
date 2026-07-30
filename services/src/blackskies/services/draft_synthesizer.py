@@ -12,7 +12,6 @@ from typing import Any, Sequence
 from .heuristics import DEFAULT_HEURISTICS, Heuristics
 from .models.draft import DraftGenerateRequest, DraftUnitOverrides
 from .models.outline import OutlineScene
-from .constants import WORD_TARGET_BASE, WORD_TARGET_PER_ORDER
 
 
 @dataclass

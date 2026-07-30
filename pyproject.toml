@@ -32,6 +32,7 @@ dependencies = [
     "pytest>=8.4.0",
     "pytest-cov>=7.0.0",
     "pytest-rerunfailures>=16.0.0",
+    "hypothesis>=6.0.0",
     "flake8>=7.0.0",
     "mypy>=1.11.0,<1.12",
     "black>=25.0.0",
@@ -52,6 +53,9 @@ exclude = ["tests", "vendor", "data"]
 [tool.black]
 line-length = 100
 target-version = ["py311"]
+extend-exclude = '''
+/(?:\.venv[^/]*|node_modules|vendor|archive|dist|dist-electron|release)/
+'''
 
 [tool.coverage.run]
 branch = true

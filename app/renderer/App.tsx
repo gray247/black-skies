@@ -9,6 +9,7 @@ import ProjectHome, {
   type DraftSaveState,
   type ProjectHomeProps,
   type ProjectLoadEvent,
+  type SceneWriteTraceMeta,
 } from "./components/ProjectHome";
 import CompanionOverlay from "./components/CompanionOverlay";
 import WizardPanel from "./components/WizardPanel";
@@ -79,14 +80,11 @@ import "./styles/stable-home.css";
 type DraftGenerationScope = "active-scene" | "all-scenes";
 
 type SceneWriteWriterKind =
-  | "user_selection"
+  | NonNullable<SceneWriteTraceMeta["writerKind"]>
   | "project_activation"
   | "draft_preview_replay"
   | "persisted_scene_restore"
   | "split_command_replay"
-  | "project_home_callback"
-  | "project_home_effect_echo"
-  | "project_home_prop_sync"
   | "project_home_load_default"
   | "commit_sink"
   | "harness_selection";
@@ -183,6 +181,9 @@ const EXPORT_FORMAT_LABELS: Record<ExportFormat, string> = {
   md: "Markdown",
   txt: "Plain text",
   zip: "ZIP archive",
+  docx: "Word document",
+  pdf: "PDF document",
+  rtf: "Rich Text Format",
 };
 
 const TEST_SNAPSHOT_SUMMARY: SnapshotSummary = {
@@ -549,7 +550,7 @@ export default function App(): JSX.Element {
     const allowed = new Set<LayoutPaneId>(DOCKABLE_PANES);
     const filtered = entries
       .map((item) => (typeof item === "string" ? normalisePaneId(item.trim()) : null))
-      .filter((item): item is LayoutPaneId => Boolean(item) && allowed.has(item));
+      .filter((item): item is LayoutPaneId => item !== null && allowed.has(item));
     return filtered.length > 0 ? filtered : DOCKABLE_PANES;
   }, [runtimeUi]);
   const defaultDockPreset = runtimeUi?.defaultPreset ?? "standard";
@@ -581,7 +582,11 @@ export default function App(): JSX.Element {
       return window.__blackskiesDebugLog;
     };
     const dbg = (scope: string, msg?: string) => {
-      resolveDebugLog().push({ scope, msg });
+      resolveDebugLog().push({
+        timestamp: new Date().toISOString(),
+        scope,
+        data: msg ?? null,
+      });
       console.log(`[dbg:${scope}] ${msg ?? ''}`);
     };
 
@@ -672,7 +677,6 @@ export default function App(): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const visualHomeRetry = isVisualHomeMode ? async () => {} : checkServices;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const serviceHealthContextValue = useMemo(
     () => ({
       serviceUnavailable: effectiveServiceUnavailable,
@@ -833,7 +837,8 @@ export default function App(): JSX.Element {
         sceneSelectionNullLockRef.current = true;
         draftPreviewSyncPendingStateRef.current = null;
         draftPreviewSyncHydratedRef.current = true;
-        const clearProjectPath = projectSummary?.path ?? currentProjectRef.current?.path ?? null;
+        const clearProjectPath =
+          projectSummaryRef.current?.path ?? currentProjectRef.current?.path ?? null;
         if (clearProjectPath) {
           writeDraftPreviewSyncState(
             clearProjectPath,
@@ -842,7 +847,7 @@ export default function App(): JSX.Element {
               projectPath: clearProjectPath,
               activeSceneId: null,
               projectDrafts: projectDraftsRef.current,
-              draftEdits,
+              draftEdits: draftEditsRef.current,
             }),
           );
         }
@@ -1032,6 +1037,8 @@ export default function App(): JSX.Element {
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const projectSummaryRef = useRef<ProjectSummary | null>(null);
+  projectSummaryRef.current = projectSummary;
   const [draftGenerationScope, setDraftGenerationScope] =
     useState<DraftGenerationScope>("active-scene");
   const globalWindowForDefaults = window as typeof window & {
@@ -1054,6 +1061,8 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const draftEditsRef = useRef<Record<string, string>>({});
+  draftEditsRef.current = draftEdits;
   const [draftSaveState, setDraftSaveState] = useState<DraftSaveState>({
     sceneId: null,
     status: 'idle',
@@ -1281,6 +1290,8 @@ export default function App(): JSX.Element {
     isDraftPreviewStateEqual,
     projectDrafts,
     projectSummary?.path,
+    projectSummary?.projectId,
+    recordSceneWriteTrace,
     setActiveScene,
     setCurrentProject,
     setDraftEdits,
@@ -2043,9 +2054,10 @@ export default function App(): JSX.Element {
             void revealPathWithToast({
               services,
               targetPath: reportPath,
-              kind: 'verification report',
+              kind: 'verification record',
               pushToast,
             }),
+          dismissOnPress: true,
         });
       }
       pushToast({
@@ -2131,7 +2143,12 @@ export default function App(): JSX.Element {
           ? [
               {
                 label: "Reveal export folder",
-                onPress: () => void services.revealPath(`${projectSummary.path}/exports`),
+                onPress: () => {
+                  const revealPath = services.revealPath;
+                  if (revealPath) {
+                    void revealPath(`${projectSummary.path}/exports`);
+                  }
+                },
               },
             ]
           : undefined,
@@ -2279,7 +2296,6 @@ export default function App(): JSX.Element {
             tone: "warning",
             title: "Harness project load failed",
             description: message,
-            traceId: response?.traceId ?? response?.error?.traceId,
           });
         })
         .catch((error: unknown) => {
@@ -2305,13 +2321,7 @@ export default function App(): JSX.Element {
   const handleActiveSceneChange = useCallback(
     (
       payload: ActiveScenePayload | null,
-      meta?: {
-        triggerEventId?: string | null;
-        writerKind?: SceneWriteWriterKind;
-        projectSwitchGenerationToken?: number | null;
-        hydrationGenerationToken?: number | null;
-        sourceFunction?: string;
-      },
+      meta?: SceneWriteTraceMeta,
     ) => {
     if (!payload) {
       sceneSelectionNullLockRef.current = true;
@@ -2326,7 +2336,7 @@ export default function App(): JSX.Element {
             projectPath: clearProjectPath,
             activeSceneId: null,
             projectDrafts: projectDraftsRef.current,
-            draftEdits,
+            draftEdits: draftEditsRef.current,
           }),
         );
       }
@@ -2689,6 +2699,9 @@ export default function App(): JSX.Element {
   }, [
     activeSceneId,
     currentProject,
+    projectSummary?.path,
+    projectSummary?.projectId,
+    recordSceneWriteTrace,
     splitCommandModeRequested,
   ]);
 
@@ -2730,6 +2743,9 @@ export default function App(): JSX.Element {
     activeSceneId,
     applySceneSelection,
     currentProject,
+    projectSummary?.path,
+    projectSummary?.projectId,
+    recordSceneWriteTrace,
     splitCommandModeRequested,
     splitCommandShellState.selectedSceneId,
   ]);
@@ -3008,7 +3024,14 @@ export default function App(): JSX.Element {
       }
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }
-  }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);
+  }, [
+    activeScene?.title,
+    activeSceneId,
+    projectLabel,
+    projectSummary?.path,
+    projectSummary?.projectId,
+    recordSceneWriteTrace,
+  ]);
   const testRecoveryStatusOverride = useMemo(() => {
     if (!isSnapshotRestoreFlowActive || recoveryStatus) {
       return null;
@@ -3222,7 +3245,6 @@ export default function App(): JSX.Element {
     [renderProjectHome, renderRecoveryBanner],
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const dockWorkspaceProps = useMemo(
     () => ({
       projectPath: projectSummary?.path ?? null,
@@ -3504,7 +3526,6 @@ export default function App(): JSX.Element {
     serviceOffline,
     testMode.isTestEnv(),
   ];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const workspaceHeaderProps = useMemo(
     () => ({
       projectLabel,

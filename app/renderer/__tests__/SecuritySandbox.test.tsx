@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import { vi } from 'vitest';
 
 type SecurityWindow = typeof window & {
-  services?: { call: (path: string) => boolean };
   __cspLogged?: boolean;
 };
 
@@ -14,7 +13,6 @@ describe('Security and sandbox regressions', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    (window as SecurityWindow).services = undefined;
     global.fetch = undefined as unknown as typeof fetch;
     delete (window as SecurityWindow).__cspLogged;
   });
@@ -22,8 +20,7 @@ describe('Security and sandbox regressions', () => {
   it('rejects forbidden service endpoints without touching network', () => {
     const fetchSpy = vi.fn();
     global.fetch = fetchSpy as unknown as typeof fetch;
-    const win = window as SecurityWindow;
-    win.services = {
+    const services = {
       call: (path: string) => {
         if (!['analytics/summary', 'analytics/scenes', 'analytics/relationships'].includes(path)) {
           throw new Error('BridgeInputError');
@@ -32,7 +29,7 @@ describe('Security and sandbox regressions', () => {
       },
     };
 
-    expect(() => win.services?.call('analytics/budget')).toThrow(/BridgeInputError/);
+    expect(() => services.call('analytics/budget')).toThrow(/BridgeInputError/);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 

@@ -5,13 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 
 import { DEFAULT_RUNTIME_CONFIG } from '../../shared/config/runtime';
-import type { LoadedProject } from '../../shared/ipc/projectLoader';
+import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
 import type { ServicesBridge } from '../../shared/ipc/services';
 
 declare global {
   interface Window {
     services?: ServicesBridge;
-    projectLoader?: unknown;
+    projectLoader?: ProjectLoaderApi;
     __testProjectState?: {
       loaded: boolean;
       path: string | null;
@@ -426,7 +426,7 @@ describe('App identity handoff witnesses', () => {
           title: 'Missing Identity Scene',
           order: 1,
           purpose: 'setup',
-          emotion_tag: 'uncertain',
+          emotion_tag: 'dread',
           word_target: 650,
         },
       ],
@@ -548,7 +548,11 @@ describe('App identity handoff witnesses', () => {
       sceneId: request.sceneId,
       markdown: request.markdown,
     }));
-    window.projectLoader = { saveDraft };
+    window.projectLoader = {
+      openProjectDialog: vi.fn(),
+      loadProject: vi.fn(),
+      saveDraft,
+    };
 
     render(<App />);
     await screen.findByTestId('project-home-mock');
@@ -581,6 +585,8 @@ describe('App identity handoff witnesses', () => {
   it('keeps a manual edit dirty and unsaved when durable save fails', async () => {
     mockLoadedProject = buildLoadedProject({ projectId: 'proj_save_failure' });
     window.projectLoader = {
+      openProjectDialog: vi.fn(),
+      loadProject: vi.fn(),
       saveDraft: vi.fn().mockResolvedValue({
         ok: false,
         error: { code: 'STALE_DRAFT', message: 'Reload before saving.' },
@@ -627,7 +633,7 @@ describe('App identity handoff witnesses', () => {
           title: 'Existing Scene',
           order: 1,
           purpose: 'setup',
-          emotion_tag: 'steady',
+          emotion_tag: 'tension',
           word_target: 700,
         },
       ],
@@ -681,7 +687,7 @@ describe('App identity handoff witnesses', () => {
             title: 'Rejected Scene',
             order: 1,
             purpose: 'setup',
-            emotion_tag: 'blocked',
+            emotion_tag: 'aftermath',
             word_target: 500,
           },
         ],

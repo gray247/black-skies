@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import type { LoadedProject, OutlineFile } from '../../shared/ipc/projectLoader';
@@ -80,7 +80,7 @@ function createMatchingIdentityProject(): LoadedProject {
 }
 
 describe('ProjectHome divergence visibility witness', () => {
-  let onToast: ReturnType<typeof vi.fn>;
+  let onToast: Mock<(toast: ToastPayload) => void>;
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -107,7 +107,7 @@ describe('ProjectHome divergence visibility witness', () => {
     const project = createDivergentProject();
     const onProjectLoaded = vi.fn();
 
-    window.projectLoader.loadProject = vi.fn().mockResolvedValue({
+    window.projectLoader!.loadProject = vi.fn().mockResolvedValue({
       ok: true,
       project,
       issues: [],
@@ -171,10 +171,10 @@ describe('ProjectHome divergence visibility witness', () => {
     const project = createMatchingIdentityProject();
     const onProjectLoaded = vi.fn();
 
-    window.projectLoader.openProjectDialog = vi
+    window.projectLoader!.openProjectDialog = vi
       .fn()
       .mockResolvedValue({ canceled: false, filePath: project.path });
-    window.projectLoader.loadProject = vi.fn().mockResolvedValue({
+    window.projectLoader!.loadProject = vi.fn().mockResolvedValue({
       ok: true,
       project,
       issues: [],

@@ -10,7 +10,7 @@ It does not finalize the entire product vision.
 
 ## Stage 19 V1.0 Authority Alignment
 
-- Stage 19 is open and remains the implementation sequencing and acceptance authority intended to culminate in Black Skies V1.0
+- Stage 19 is open and Package `19.22` is active as the implementation, repository-hardening, and acceptance authority for a bounded internal barebones V1.0 baseline
 - V1.0 is the product milestone, not a separate or competing stage system
 - Packages `19.1` through `19.5` are the `Foundation Spine` package group; they cover only the initial bounded local writing-spine sequence and do not close Stage 19, prove V1.0, or establish release readiness
 - Package `19.5` awaits final package acceptance through its narrowed verification record
@@ -27,7 +27,7 @@ It does not finalize the entire product vision.
 - Package `19.18`, manual acceptance of the stable production-built development entry, is formally closed by `stage19_package_19_18_closure.md` with Jason's `PASS`. Exact final qualified runtime commit `c5c86a0` passed the clean Windows gate and GitHub Linux run `30482059014`; the acceptance campaign closed happy path, isolation, bounded failures, recovery, and physical monitor behavior without protected evidence
 - Package `19.20`, packaged release-candidate acceptance and retesting, is formally closed with Jason's explicit overall `PASS` by `stage19_package_19_20_closure.md`. Exact candidate `b916765` passed clean Windows qualification run `30509993912`, full fixed regression, exact artifact verification, offline installed lifecycle, corrected trailing-newline Save and relaunch, recovery acceptance and rejection, zero forbidden runtime descendants, uninstall preservation, same-candidate reinstall, and preserved-project reopen. Installer `BlackSkies-Setup-1.0.0-rc1.exe` is 89275742 bytes with SHA-256 `93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b`, `NotSigned`; protected evidence was not used
 - Package `19.21`, user/release/operator documentation, is closed by `stage19_package_19_21_closure.md`. Current user, support, release, rollback, package, UI-vocabulary, navigation, and developer-boundary records match the accepted Package `19.20` product. Static documentation checks and an installed-app Computer Use rehearsal passed without protected evidence, credentials, provider calls, replacement, recovery rejection, uninstall, or deletion. Nine P1/P2 documentation findings are closed; one truthful non-blocking P3 notice-lifetime observation is owned by Package `19.22` with an exact reopening trigger
-- Package `19.22` is next eligible and remains the final V1.0 closure/release boundary requiring Jason's final human verification and explicit release authorization
+- Package `19.22` is active as the final internal barebones V1.0 closure boundary. Jason supplies the final internal-milestone verification. Public release is not authorized; tags, publication, signing, announcements, and alpha/beta claims are prohibited. A future public alpha or beta readiness review follows the separate V3 product program under new authority
 - the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix remain the current planning controls
 - every later implementation package requires its own bounded authorization
 - protected evidence and excluded systems retain their controlling governance; this alignment authorizes neither

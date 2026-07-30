@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import DockPaneTile from '../components/docking/DockPaneTile';
 import type { LayoutPaneId } from '../../shared/ipc/layout';
-import { MosaicContext, MosaicWindowContext } from 'react-mosaic-component';
 
 vi.mock('react-mosaic-component', async () => {
   const actual = await vi.importActual<typeof import('react-mosaic-component')>('react-mosaic-component');
@@ -32,47 +31,23 @@ vi.mock('react-mosaic-component', async () => {
 
 describe('DockPaneTile toolbar controls', () => {
   it('renders pane toolbar controls with updated tooltips', () => {
-    const mockMosaicActions = {
-      expand: vi.fn(),
-      remove: vi.fn(),
-      hide: vi.fn(),
-      replaceWith: vi.fn(),
-      updateTree: vi.fn(),
-      getRoot: vi.fn(() => null),
-    };
-    const mockWindowActions = {
-      split: vi.fn().mockResolvedValue(undefined),
-      replaceWithNew: vi.fn().mockResolvedValue(undefined),
-      setAdditionalControlsOpen: vi.fn(),
-      getPath: vi.fn(() => ['outline']),
-      connectDragSource: vi.fn((element) => element),
-    };
-
     render(
-      <MosaicContext.Provider
-        value={{ mosaicActions: mockMosaicActions, mosaicId: 'mosaic', blueprintNamespace: '' }}
-      >
-        <MosaicWindowContext.Provider
-          value={{ blueprintNamespace: '', mosaicWindowActions: mockWindowActions }}
-        >
-          <DockPaneTile
-            projectPath="sample/project"
-            paneId="outline"
-            paneTitle="Wizard"
-            path={['first']}
-            instructionsId="instructions"
-            assignPaneRef={() => undefined}
-            canFloat
-            onFloat={() => undefined}
-            onFocusRequest={() => undefined}
-            onContentFocus={() => undefined}
-            onContentBlur={() => undefined}
-            isFocused={false}
-            paneDescription="Plan chapters, scenes, and beats."
-            content={<div>Wizard content</div>}
-          />
-        </MosaicWindowContext.Provider>
-      </MosaicContext.Provider>,
+      <DockPaneTile
+        projectPath="sample/project"
+        paneId="outline"
+        paneTitle="Wizard"
+        path={['first']}
+        instructionsId="instructions"
+        assignPaneRef={() => undefined}
+        canFloat
+        onFloat={() => undefined}
+        onFocusRequest={() => undefined}
+        onContentFocus={() => undefined}
+        onContentBlur={() => undefined}
+        isFocused={false}
+        paneDescription="Plan chapters, scenes, and beats."
+        content={<div>Wizard content</div>}
+      />,
     );
 
     const expandButton = screen.getByRole('button', { name: /Expand Wizard pane/i });
@@ -92,49 +67,25 @@ describe('DockPaneTile toolbar controls', () => {
 
   it('invokes focus request handler', async () => {
     const onFocusRequest = vi.fn();
-    const mockMosaicActions = {
-      expand: vi.fn(),
-      remove: vi.fn(),
-      hide: vi.fn(),
-      replaceWith: vi.fn(),
-      updateTree: vi.fn(),
-      getRoot: vi.fn(() => null),
-    };
-    const mockWindowActions = {
-      split: vi.fn().mockResolvedValue(undefined),
-      replaceWithNew: vi.fn().mockResolvedValue(undefined),
-      setAdditionalControlsOpen: vi.fn(),
-      getPath: vi.fn(() => ['outline']),
-      connectDragSource: vi.fn((element) => element),
-    };
-
     const user = userEvent.setup();
 
     render(
-      <MosaicContext.Provider
-        value={{ mosaicActions: mockMosaicActions, mosaicId: 'mosaic', blueprintNamespace: '' }}
-      >
-        <MosaicWindowContext.Provider
-          value={{ blueprintNamespace: '', mosaicWindowActions: mockWindowActions }}
-        >
-          <DockPaneTile
-            projectPath="sample/project"
-            paneId="outline"
-            paneTitle="Wizard"
-            path={['first']}
-            instructionsId="instructions"
-            assignPaneRef={() => undefined}
-            canFloat
-            onFloat={() => undefined}
-            onFocusRequest={onFocusRequest}
-            onContentFocus={() => undefined}
-            onContentBlur={() => undefined}
-            isFocused={false}
-            paneDescription="Plan chapters, scenes, and beats."
-            content={<div>Wizard content</div>}
-          />
-        </MosaicWindowContext.Provider>
-      </MosaicContext.Provider>,
+      <DockPaneTile
+        projectPath="sample/project"
+        paneId="outline"
+        paneTitle="Wizard"
+        path={['first']}
+        instructionsId="instructions"
+        assignPaneRef={() => undefined}
+        canFloat
+        onFloat={() => undefined}
+        onFocusRequest={onFocusRequest}
+        onContentFocus={() => undefined}
+        onContentBlur={() => undefined}
+        isFocused={false}
+        paneDescription="Plan chapters, scenes, and beats."
+        content={<div>Wizard content</div>}
+      />,
     );
 
     const focusButton = screen.getByRole('button', { name: /Focus Wizard pane/i });

@@ -38,7 +38,9 @@ if (typeof window !== 'undefined') {
 
 function shouldLogToConsole(): boolean {
   if (typeof window !== 'undefined') {
-    const win = window as typeof window & { __testEnv?: { isPlaywright?: boolean } };
+    const win = window as typeof window & {
+      __testEnv?: boolean | { isPlaywright?: boolean };
+    };
     if (
       (typeof process !== 'undefined' && process.env?.PLAYWRIGHT === '1') ||
       win.__testEnv === true ||

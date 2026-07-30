@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import logging
 
 import pytest
 
 from blackskies.services.model_router import (
-    ModelRouter,
     ModelTask,
     create_default_model_router,
 )

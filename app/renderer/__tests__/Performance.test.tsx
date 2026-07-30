@@ -3,6 +3,7 @@ import { describe, expect, it, vi, afterEach } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import DraftEditor from '../DraftEditor';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 function buildScenes(count: number) {
   return Array.from({ length: count }, (_, index) => ({
@@ -17,13 +18,13 @@ function buildScenes(count: number) {
 describe('Performance regressions', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = undefined;
+    delete window.services;
   });
 
   it('renders large analytics scenes within 200ms', async () => {
     const scenes = buildScenes(100);
     const totalWords = scenes.reduce((sum, scene) => sum + scene.wordCount, 0);
-    const services = {
+    const services = createServicesBridgeMock({
       getAnalyticsSummary: vi.fn().mockResolvedValue({
         ok: true,
         data: {
@@ -35,8 +36,8 @@ describe('Performance regressions', () => {
         },
       }),
       getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
-    };
-    (window as typeof window & { services?: unknown }).services = services as unknown;
+    });
+    window.services = services;
 
     const start = performance.now();
     render(<AnalyticsDashboard projectId="proj_perf" projectPath="/projects/perf" />);
@@ -67,7 +68,7 @@ describe('Performance regressions', () => {
 
   it('avoids repeated analytics computations on identical renders', async () => {
     const scenes = buildScenes(5);
-    const services = {
+    const services = createServicesBridgeMock({
       getAnalyticsSummary: vi.fn().mockResolvedValue({
         ok: true,
         data: {
@@ -79,8 +80,8 @@ describe('Performance regressions', () => {
         },
       }),
       getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
-    };
-    (window as typeof window & { services?: unknown }).services = services as unknown;
+    });
+    window.services = services;
 
     const { rerender } = render(
       <AnalyticsDashboard projectId="proj_idle" projectPath="/projects/idle" />,

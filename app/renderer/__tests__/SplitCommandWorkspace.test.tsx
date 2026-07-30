@@ -24,7 +24,7 @@ const PROJECT: LoadedProject = {
       title: "Signal",
       order: 2,
       chapter_id: "ch_1",
-      purpose: "Escalate the signal.",
+      purpose: "escalation",
     },
     {
       id: "sc_0001",
@@ -78,7 +78,7 @@ const STRUCTURED_PROJECT: LoadedProject = {
       title: "Signal",
       order: 2,
       chapter_id: "ch_0002",
-      purpose: "Escalate the signal.",
+      purpose: "escalation",
     },
   ],
   drafts: {
@@ -96,7 +96,7 @@ function createProjectWithScenes(count: number): LoadedProject {
       title: `Scene ${order}`,
       order,
       chapter_id: "ch_large",
-      purpose: `Purpose ${order}`,
+      purpose: "escalation" as const,
     };
   });
 

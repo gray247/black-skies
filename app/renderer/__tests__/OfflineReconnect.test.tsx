@@ -43,7 +43,7 @@ describe('Offline / reconnect behavior', () => {
     render(<OfflineAppHarness />);
     await user.click(screen.getByTestId('retry'));
     await waitFor(() => expect(screen.getByTestId('service-status').textContent).toBe('online'));
-    expect(screen.getByTestId('analytics-count').textContent).toBe('1');
+    await waitFor(() => expect(screen.getByTestId('analytics-count').textContent).toBe('1'));
     await user.click(screen.getByTestId('retry'));
     expect(screen.getByTestId('analytics-count').textContent).toBe('1');
   });

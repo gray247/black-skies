@@ -10,8 +10,9 @@
     "scripts": {
         "bootstrap": "pnpm install --recursive",
         "lint": "pnpm -r lint",
+        "typecheck:all": "pnpm --filter @blackskies/app typecheck:all",
         "dev": "node ./scripts/dev-runner.mjs",
-        "lint:docs": "markdownlint --disable MD041 -- \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\"",
+        "lint:docs": "node ./scripts/check-current-authority-docs.mjs",
         "test:e2e": "node ./scripts/e2e-with-backend.mjs",
         "test:e2e:args": "node ./scripts/test_e2e_launcher_args.mjs",
         "test:truth": "node ./scripts/truth-with-backend.mjs",

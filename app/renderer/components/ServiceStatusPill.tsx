@@ -7,7 +7,7 @@ type PillStatus = ServiceStatus | 'port-unavailable';
 
 interface ServiceStatusPillProps {
   status: ServiceStatus;
-  reason?: string;
+  reason?: string | null;
   onRetry?: () => void;
   serviceOffline: boolean;
 }

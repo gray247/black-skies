@@ -49,11 +49,13 @@ function normalizedArchivePath(value) {
 export function findForbiddenPackagePaths(paths) {
   return paths.filter((candidate) => {
     const normalized = normalizedArchivePath(candidate);
+    const basename = path.posix.basename(normalized);
     return (
       forbiddenFragments.some((fragment) => normalized.includes(fragment)) ||
       /^\/(?:tests?|fixtures?|docs?)(?:\/|$)/u.test(normalized) ||
       /\.(?:py|pyc|pyo)$/u.test(normalized) ||
       /(?:^|\/)\.env(?:[./]|$)/u.test(normalized) ||
+      /(?:credential|credentials|secret|secrets|token|tokens)(?:[._-]|$)/u.test(basename) ||
       normalized.includes("portable")
     );
   });

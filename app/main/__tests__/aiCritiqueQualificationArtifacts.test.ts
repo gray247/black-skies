@@ -188,11 +188,19 @@ describe.sequential('AI critique qualification artifacts', () => {
   });
 
   beforeAll(async () => {
-    baseRunRoot = await createBaseRun();
-    adjudicatedBaseRunRoot = await createBaseRun('adjudicated-base-run', true);
-    dispositionBaseRunRoot = await createBaseRun('disposition-base-run', true, true);
-    failBaseRunRoot = await createBaseRun('fail-base-run', false, false, true);
-    importBaseRunRoot = await createImportBaseRun();
+    [
+      baseRunRoot,
+      adjudicatedBaseRunRoot,
+      dispositionBaseRunRoot,
+      failBaseRunRoot,
+      importBaseRunRoot,
+    ] = await Promise.all([
+      createBaseRun(),
+      createBaseRun('adjudicated-base-run', true),
+      createBaseRun('disposition-base-run', true, true),
+      createBaseRun('fail-base-run', false, false, true),
+      createImportBaseRun(),
+    ]);
   });
 
   it('records deterministic future template provenance and imports both reviewers independently', async () => {

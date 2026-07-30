@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Final
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings

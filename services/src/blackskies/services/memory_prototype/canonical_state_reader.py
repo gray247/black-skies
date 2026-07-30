@@ -10,8 +10,11 @@ from typing import Any
 from .schemas import CanonicalLineageKey, CanonicalNarrativeSnapshot, sha256_text
 
 _yaml_spec = find_spec("yaml")
+yaml: Any
 if _yaml_spec is not None:  # pragma: no branch - import branch is deterministic at runtime.
-    import yaml  # type: ignore[import-not-found]
+    import yaml as _yaml  # type: ignore[import-not-found]
+
+    yaml = _yaml
 else:
     yaml = None
 

@@ -341,3 +341,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     await removeTemporaryDirectory(parent);
   }
 });
+// HARNESS_ONLY
+// Reason: Exercises synthetic Stage 19 Electron state before installed-build qualification.
+// Owner: Package 19.22 internal baseline verification.
+// Retire when: An installed-build project-spine truth lane provides equivalent deterministic coverage.

@@ -175,7 +175,7 @@ class DraftGenerationService:
     ) -> DraftGenerationResult:
         """Generate draft units for the provided request."""
 
-        trace_id = ensure_trace_id()
+        ensure_trace_id()
         budget_state = self._budget_service.load_state(project_root)
         budget_meta = budget_state.metadata.setdefault("budget", {})
 

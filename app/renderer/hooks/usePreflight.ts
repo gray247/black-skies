@@ -61,7 +61,7 @@ function summarizeDraftGenerateResult(result: ServiceResult<DraftGenerateBridgeR
       resultKeys: Object.keys(result.data),
       unitKeys:
         result.data.units.length > 0 && result.data.units[0] && typeof result.data.units[0] === 'object'
-          ? Object.keys(result.data.units[0] as Record<string, unknown>)
+          ? Object.keys(result.data.units[0] as unknown as Record<string, unknown>)
           : [],
     };
   }

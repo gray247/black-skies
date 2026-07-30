@@ -38,7 +38,7 @@ def _persist_report(project_root: Path, report: dict[str, Any]) -> Path:
 def test_verification_reports_ok(tmp_path: Path) -> None:
     project_root = _build_project(tmp_path)
     settings = ServiceSettings(project_base_dir=tmp_path)
-    snapshot_meta = create_snapshot(project_root)
+    create_snapshot(project_root)
     backup_service = BackupService(settings=settings, diagnostics=DiagnosticLogger())
     backup_service.create_backup(project_id="verify-project")
 

@@ -1,4 +1,12 @@
 [flake8]
 max-line-length = 100
-extend-ignore = E203
-exclude = .venv,node_modules,vendor,build,dist,site-packages
+extend-ignore = E203,E501,W503
+exclude = .git,.venv*,.pytest-tmp,node_modules,vendor,archive,build,dist,dist-electron,release
+per-file-ignores =
+    scripts/eval.py:E402
+    scripts/load.py:E402
+    scripts/security_sweep.py:E402
+    scripts/smoke_runner.py:E402
+    services/tests/unit/test_plugin_registry.py:E402
+    tests/test_eval_error_budget.py:E402
+    tests/test_load_script.py:E402

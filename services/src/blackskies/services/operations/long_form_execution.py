@@ -16,7 +16,6 @@ from ..prompt_pipeline import ProviderProfile, select_profile
 from ..run_policy import RunPolicyDecision, format_run_policy_metadata
 from ..long_form import (
     LongFormChunk,
-    ChapterMemoryPacket,
     assemble_chapter_memory,
     assemble_continuation_packet,
     fingerprint_long_form_prompt,

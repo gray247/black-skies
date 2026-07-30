@@ -85,7 +85,8 @@ export function useRecovery({
         lastRecoveryProjectIdRef.current = null;
         return;
       }
-      if (!services) {
+      const getRecoveryStatus = services?.getRecoveryStatus;
+      if (!getRecoveryStatus) {
         setRecoveryStatus(null);
         lastRecoveryProjectIdRef.current = null;
         return;
@@ -94,7 +95,7 @@ export function useRecovery({
       try {
         recoveryFetchInFlightRef.current = true;
         lastRecoveryProjectIdRef.current = projectId;
-        const result = await services.getRecoveryStatus({ projectId });
+        const result = await getRecoveryStatus({ projectId });
         if (!isMountedRef.current) {
           return;
         }
@@ -148,6 +149,7 @@ export function useRecovery({
       }
       return;
     }
+    const restoreInput = validation.input;
 
     setRecoveryAction('restore');
     try {
@@ -168,7 +170,7 @@ export function useRecovery({
         window.dispatchEvent(new Event('test:restoreSnapshot'));
         setRecoveryStatus((previous) => {
           const projectId =
-            validation.input.projectSummary.projectId ?? previous?.project_id ?? null;
+            restoreInput.projectSummary.projectId ?? previous?.project_id ?? null;
           if (!projectId) {
             return null;
           }
@@ -182,7 +184,7 @@ export function useRecovery({
         globalWindow.__snapshotRestoreDone = true;
         return;
       }
-      const result = await performRestoreSnapshot(validation.input);
+      const result = await performRestoreSnapshot(restoreInput);
       pushToast(result.toast);
       if (result.ok && result.recoveryStatus) {
         setRecoveryStatus(result.recoveryStatus);

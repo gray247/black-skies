@@ -11,7 +11,9 @@ import {
 } from "../../../scripts/stage19-packaging-workflow-policy.mjs";
 
 const workflowPath = path.resolve(
-  process.cwd(),
+  import.meta.dirname,
+  "..",
+  "..",
   "..",
   ".github",
   "workflows",

@@ -10,6 +10,7 @@ import type {
   ServicesBridge,
   SnapshotManifest,
 } from '../../shared/ipc/services';
+import type { ToastPayload } from '../types/toast';
 
 const createSnapshotFsMock = ({
   metadata,
@@ -47,12 +48,15 @@ const createSnapshotFsMock = ({
       throw Object.assign(new Error('File missing'), { code: 'ENOENT' });
     }),
     readDir: vi.fn(async () => []),
-    stat: vi.fn(async () => ({
-      size: statSize,
-      isFile: true,
-      isDirectory: false,
-      mtimeMs: 0,
-    })),
+    stat: vi.fn(async (path: string) => {
+      void path;
+      return {
+        size: statSize,
+        isFile: true,
+        isDirectory: false,
+        mtimeMs: 0,
+      };
+    }),
   };
 };
 
@@ -149,7 +153,7 @@ describe('SnapshotsPanel verification details', () => {
     });
 
     const revealPath = vi.fn();
-    const pushToast = vi.fn();
+    const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
     const services: Partial<ServicesBridge> = {
       listProjectSnapshots,
@@ -396,7 +400,7 @@ describe('SnapshotsPanel verification details', () => {
       ok: true,
       data: verificationReport,
     });
-    const pushToast = vi.fn();
+    const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
     render(
       <SnapshotsPanel
@@ -496,7 +500,7 @@ describe('SnapshotsPanel verification details', () => {
       data: verificationReport,
     });
     const getBackupVerificationReport = vi.fn().mockRejectedValue(new Error('Bridge offline'));
-    const pushToast = vi.fn();
+    const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
     render(
       <SnapshotsPanel
@@ -580,7 +584,7 @@ describe('SnapshotsPanel verification details', () => {
       },
     });
     const revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/projects/proj/.snapshots' });
-    const pushToast = vi.fn();
+    const pushToast = vi.fn<(toast: ToastPayload) => void>();
     const fsMock = createSnapshotFsMock();
     fsMock.stat = vi.fn(async (path: string) => {
       if (
@@ -663,7 +667,7 @@ describe('SnapshotsPanel verification details', () => {
       ok: true,
       path: '/projects/proj/.snapshots/last_verification.json',
     });
-    const pushToast = vi.fn();
+    const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
     render(
       <SnapshotsPanel
@@ -737,7 +741,7 @@ describe('SnapshotsPanel verification details', () => {
           },
         ],
       });
-      const pushToast = vi.fn();
+      const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
       render(
         <SnapshotsPanel
@@ -940,7 +944,7 @@ it('renders backup list and triggers backup actions', async () => {
   });
 
   const revealPath = vi.fn();
-  const pushToast = vi.fn();
+  const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
   const services: Partial<ServicesBridge> = {
     listProjectSnapshots,
@@ -1179,7 +1183,7 @@ it('surfaces blocked restore eligibility reasons for backup restores', async () 
     },
     traceId: 'trace-restore-blocked',
   });
-  const pushToast = vi.fn();
+  const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
   render(
     <SnapshotsPanel
@@ -1253,7 +1257,7 @@ it('surfaces actionable text when backup verification fails', async () => {
     traceId: 'trace-verify-failed',
   });
 
-  const pushToast = vi.fn();
+  const pushToast = vi.fn<(toast: ToastPayload) => void>();
 
   render(
     <SnapshotsPanel

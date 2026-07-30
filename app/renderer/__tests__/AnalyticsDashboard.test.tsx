@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const summaryPayload = {
   ok: true,
@@ -50,14 +51,14 @@ const scenesPayload = {
 describe('AnalyticsDashboard', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsSummary: vi.fn().mockResolvedValue(summaryPayload),
       getAnalyticsScenes: vi.fn().mockResolvedValue(scenesPayload),
-    };
+    });
   });
 
   afterEach(() => {
-    delete (window as typeof window & { services?: unknown }).services;
+    delete window.services;
   });
 
   it('renders summary and scene rows', async () => {

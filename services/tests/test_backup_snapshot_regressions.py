@@ -12,7 +12,6 @@ from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.export import compile_manuscript, load_outline_artifact
 from blackskies.services.export_service import ProjectExportResult
-from blackskies.services.persistence import SnapshotPersistence
 
 
 def _write_outline(project_root: Path) -> None:

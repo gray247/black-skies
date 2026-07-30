@@ -15,7 +15,7 @@ afterEach(() => {
 describe('modePolicy', () => {
   it('does not throw when process is unavailable', () => {
     const originalProcess = globalThis.process;
-    delete (globalThis as typeof globalThis & { process?: typeof process }).process;
+    Reflect.deleteProperty(globalThis, 'process');
 
     try {
       expect(modePolicy.isProduction()).toBe(false);

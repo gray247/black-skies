@@ -411,7 +411,7 @@ describe('App preflight integration', () => {
   beforeEach(() => {
     services = createServicesMock();
     setViewportWidth(1440);
-    mockLoadedProjectId = undefined;
+    mockLoadedProjectId = 'demo';
     mockLoadedProjectPath = undefined;
     mockLoadedProjectName = undefined;
     mockLoadedProjectScenes = undefined;
@@ -1035,6 +1035,7 @@ describe('App preflight integration', () => {
     const generatedText = 'Mara steadied her breath as the corridor held still.';
     const staleProject: LoadedProject = {
       path: '/projects/demo',
+      projectId: 'demo',
       name: 'Demo Project',
       outline: {
         schema_version: 'OutlineSchema v1',
@@ -1581,7 +1582,7 @@ describe('App preflight integration', () => {
 
     await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
     const message = await screen.findByText(/New draft written/i);
-    const toastCard = message.closest('.toast');
+    const toastCard = message.closest<HTMLElement>('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
       expect(within(toastCard).getByText('trace-generate')).toBeInTheDocument();
@@ -1610,7 +1611,7 @@ describe('App preflight integration', () => {
 
     await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
     const message = await screen.findByText(/Something went wrong\./i);
-    const toastCard = message.closest('.toast');
+    const toastCard = message.closest<HTMLElement>('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
       expect(within(toastCard).getByText('trace-generate-failure')).toBeInTheDocument();
@@ -1726,7 +1727,7 @@ describe('App preflight integration', () => {
     const message = await screen.findByText('Snapshot request timed out', {
       selector: '.toast__title',
     });
-    const toastCard = message.closest('.toast');
+    const toastCard = message.closest<HTMLElement>('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
       expect(within(toastCard).queryByText(/no snapshot was created/i)).toBeNull();
@@ -1765,13 +1766,17 @@ describe('App preflight integration', () => {
 
     await userEvent.click(snapshotsButton);
     window.dispatchEvent(new CustomEvent('test:open-snapshots'));
-    const snapshotsPanel = await screen.findByTestId('snapshots-panel', { timeout: 3000 });
+    const snapshotsPanel = await screen.findByTestId(
+      'snapshots-panel',
+      {},
+      { timeout: 3000 },
+    );
     expect(snapshotsPanel).toHaveAttribute('role', 'dialog');
-    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(services.listProjectSnapshots!).toHaveBeenCalledTimes(1));
 
     const revealButtons = await screen.findAllByRole('button', { name: /reveal/i });
     await userEvent.click(revealButtons[0]);
-    expect(services.revealPath).toHaveBeenCalled();
+    expect(services.revealPath!).toHaveBeenCalled();
 
     await userEvent.click(screen.getByLabelText('Close snapshots panel'));
     await waitFor(() =>
@@ -1787,12 +1792,12 @@ describe('App preflight integration', () => {
       expect(button).toHaveTextContent(/open snapshots panel/i);
       return button as HTMLButtonElement;
     });
-    const revealCallsBeforeCreateToast = vi.mocked(services.revealPath).mock.calls.length;
+    const revealCallsBeforeCreateToast = vi.mocked(services.revealPath!).mock.calls.length;
     await userEvent.click(openPanelToastAction);
 
     const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
     expect(reopenedSnapshotsPanel).toBeInTheDocument();
-    expect(vi.mocked(services.revealPath).mock.calls.length).toBe(revealCallsBeforeCreateToast);
+    expect(vi.mocked(services.revealPath!).mock.calls.length).toBe(revealCallsBeforeCreateToast);
   });
 
   it('refreshes the snapshot list when the create toast reopens the panel', async () => {

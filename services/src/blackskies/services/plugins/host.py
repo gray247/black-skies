@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping
+from typing import Any, Dict, Mapping, MutableMapping
 
 RUNNER_MODULE = "blackskies.services.plugins.runner"
 

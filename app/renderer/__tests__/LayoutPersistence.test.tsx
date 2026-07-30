@@ -8,6 +8,7 @@ import type { LayoutPaneId, LayoutTree } from '../../shared/ipc/layout';
 type MockBridge = {
   loadLayout: ReturnType<typeof vi.fn>;
   saveLayout: ReturnType<typeof vi.fn>;
+  resetLayout: ReturnType<typeof vi.fn>;
   listFloatingPanes: ReturnType<typeof vi.fn>;
   openFloatingPane: ReturnType<typeof vi.fn>;
   closeFloatingPane: ReturnType<typeof vi.fn>;
@@ -29,6 +30,7 @@ function setupBridge(result: { layout: LayoutTree | null; floating?: Array<unkno
       schemaVersion: 2,
     }),
     saveLayout: vi.fn().mockResolvedValue(undefined),
+    resetLayout: vi.fn().mockResolvedValue(undefined),
     listFloatingPanes: vi.fn().mockResolvedValue(result.floating ?? []),
     openFloatingPane: vi.fn().mockResolvedValue({ opened: true, clamp: null }),
     closeFloatingPane: vi.fn().mockResolvedValue(undefined),
@@ -51,7 +53,9 @@ describe('Layout persistence', () => {
         direction: 'column',
         first: 'draftPreview',
         second: 'timeline',
+        weights: [0.5, 0.5],
       },
+      weights: [0.5, 0.5],
     };
     const bridge = setupBridge({ layout: savedLayout });
 

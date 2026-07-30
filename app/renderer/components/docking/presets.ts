@@ -22,6 +22,7 @@ function cloneNode(node: LayoutTree | LayoutPaneId): LayoutTree | LayoutPaneId {
     first: cloneNode(node.first),
     second: cloneNode(node.second),
     splitPercentage: node.splitPercentage,
+    weights: [...node.weights],
   };
 }
 

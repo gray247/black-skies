@@ -6,7 +6,7 @@ import BudgetIndicator, {
 } from './BudgetIndicator';
 import ServiceStatusPill from './ServiceStatusPill';
 import type { ServiceStatus } from './ServiceStatusPill';
-import type { ExportFormat } from '../shared/ipc/services';
+import type { ExportFormat } from '../../shared/ipc/services';
 
 type DraftGenerationScope = 'active-scene' | 'all-scenes';
 
@@ -14,7 +14,7 @@ interface WorkspaceHeaderProps {
   projectLabel: string;
   draftSessionStateLabel?: string | null;
   serviceStatus: ServiceStatus;
-  serviceReason?: string;
+  serviceReason?: string | null;
   onRetry: () => Promise<void>;
   onToggleCompanion: () => void;
   onGenerate: () => void;

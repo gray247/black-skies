@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-import ProjectHome from '../components/ProjectHome';
+import ProjectHome, { type ProjectLoadEvent } from '../components/ProjectHome';
 import type {
   LoadedProject,
   OutlineFile,
@@ -85,8 +85,8 @@ function createValidIdProject(): LoadedProject {
 
 describe('ProjectHome missing-ID remembered-path witness', () => {
   let projectLoader: ProjectLoaderApi;
-  let onToast: ReturnType<typeof vi.fn>;
-  let onProjectLoaded: ReturnType<typeof vi.fn>;
+  let onToast: Mock<(toast: ToastPayload) => void>;
+  let onProjectLoaded: Mock<(event: ProjectLoadEvent) => void>;
 
   beforeEach(() => {
     onToast = vi.fn<(toast: ToastPayload) => void>();

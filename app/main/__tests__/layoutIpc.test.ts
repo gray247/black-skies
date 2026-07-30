@@ -180,4 +180,31 @@ describe('layoutIpc loadPersistedLayout', () => {
     expect(isValidLayoutTree(DEFAULT_LAYOUT)).toBe(true);
     expect(sanitizeLayoutNode(DEFAULT_LAYOUT as never)).toEqual(DEFAULT_LAYOUT);
   });
+
+  it('normalizes legacy persisted splits without weights into complete runtime splits', () => {
+    const legacyLayout = {
+      direction: 'column',
+      first: {
+        direction: 'row',
+        first: 'draftPreview',
+        second: 'storyInsights',
+        splitPercentage: 60,
+      },
+      second: {
+        direction: 'row',
+        first: 'outline',
+        second: 'corkboard',
+        splitPercentage: 25,
+      },
+      splitPercentage: 40,
+    };
+
+    const normalized = sanitizeLayoutNode(legacyLayout as never);
+
+    expect(normalized).toMatchObject({
+      weights: [0.4, 0.6],
+      first: { weights: [0.6, 0.4] },
+      second: { weights: [0.25, 0.75] },
+    });
+  });
 });

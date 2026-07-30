@@ -122,6 +122,7 @@ async function readSceneCacheFiles(projectPath: string): Promise<SceneCacheRecor
       if (
         payload &&
         typeof payload === 'object' &&
+        'scene_id' in payload &&
         typeof payload.scene_id === 'string'
       ) {
         records.push(payload as SceneCacheRecord);

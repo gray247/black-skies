@@ -1,5 +1,6 @@
 import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type {
+  DraftUnitScope,
   RecoveryStatusBridgeResponse,
   ServicesBridge,
 } from '../../shared/ipc/services';
@@ -8,7 +9,7 @@ import type { ToastPayload } from '../types/toast';
 export interface ProjectSummary {
   projectId: string;
   path: string;
-  unitScope: 'scene';
+  unitScope: DraftUnitScope;
   unitIds: string[];
 }
 
@@ -67,4 +68,3 @@ export declare function validateDiagnostics(options: {
 export declare function openDiagnostics(input: {
   diagnostics: DiagnosticsBridge;
 }): Promise<{ ok: boolean; toast?: ToastPayload }>;
-

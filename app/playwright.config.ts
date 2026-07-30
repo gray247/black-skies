@@ -3,12 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
-const retriesFromEnv = Number.parseInt(process.env.PLAYWRIGHT_RETRIES ?? '', 10);
-const resolvedRetries = Number.isFinite(retriesFromEnv)
-  ? Math.max(0, retriesFromEnv)
-  : process.env.CI
-    ? 2
-    : 0;
+const resolvedRetries = 0;
 const reportRoot =
   process.env.PLAYWRIGHT_OUTPUT_DIR ??
   process.cwd();
@@ -19,8 +14,9 @@ if (disableAnimations) {
   process.env.PLAYWRIGHT_DISABLE_ANIMATIONS = '1';
 }
 
-// Avoid contradictory color env vars that produce noisy Node warnings in test output.
-if (process.env.FORCE_COLOR && process.env.NO_COLOR) {
+// Playwright enables color for worker output. Remove the inherited opt-out before
+// workers are created so Node never observes contradictory color variables.
+if (process.env.NO_COLOR) {
   delete process.env.NO_COLOR;
 }
 

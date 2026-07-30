@@ -58,6 +58,7 @@ describe('Layout regressions', () => {
       direction: 'row',
       first: 'outline',
       second: 'draftPreview',
+      weights: [0.5, 0.5],
     };
     const bridge = setupLayoutBridge(floatingLayout, [
       { id: 'storyInsights' as LayoutPaneId, bounds: { x: 10, y: 10, width: 320, height: 240 } },
@@ -130,8 +131,11 @@ describe('Layout regressions', () => {
           direction: 'column',
           first: 'storyInsights',
           second: 'corkboard',
+          weights: [0.5, 0.5],
         },
+        weights: [0.5, 0.5],
       },
+      weights: [0.5, 0.5],
     };
     setupLayoutBridge(layoutWithoutRelationshipGraph, []);
 

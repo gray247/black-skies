@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import RelationshipGraph from '../components/RelationshipGraph';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const allowedPaths = [
   '/api/v1/analytics/summary',
@@ -42,7 +43,7 @@ function setupFetchRecorder(): { fetchMock: ReturnType<typeof vi.fn>; urls: stri
 describe('Analytics requests stay on valid endpoints', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = undefined;
+    delete window.services;
   });
 
   it('only issues summary/scenes/relationships calls when analytics are opened', async () => {
@@ -53,18 +54,18 @@ describe('Analytics requests stay on valid endpoints', () => {
         const url = `http://127.0.0.1:9999${path}?project_id=${projectId}`;
         const response = await fetch(url);
         const payload = await response.json();
-        return { ok: true, data: payload };
+        return { ok: true as const, data: payload };
       });
 
     const getAnalyticsSummary = buildAnalyticsService('/api/v1/analytics/summary');
     const getAnalyticsScenes = buildAnalyticsService('/api/v1/analytics/scenes');
     const getAnalyticsRelationships = buildAnalyticsService('/api/v1/analytics/relationships');
 
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsSummary,
       getAnalyticsScenes,
       getAnalyticsRelationships,
-    };
+    });
 
     const OpenAnalytics = () => {
       const handleOpen = () => {

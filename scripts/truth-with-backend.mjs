@@ -1371,6 +1371,17 @@ async function run() {
     'fixture contract verification',
   );
   const launchRoot = mkdtempSync(path.join(os.tmpdir(), LAUNCH_PREFIX));
+  const runtimeConfigPath = path.join(launchRoot, 'runtime.yaml');
+  writeFileSync(
+    runtimeConfigPath,
+    [
+      'ui:',
+      '  enable_docking: true',
+      '  experimental_split_command_workspace: false',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
   const truthProjectSourcePath = resolveTruthProjectSourcePath(
     path.resolve(REPO_ROOT, 'sample_project', 'Esther_Estate'),
     launchRoot,
@@ -1393,9 +1404,15 @@ async function run() {
     BLACKSKIES_E2E_MODE: '1',
     BLACKSKIES_E2E_SYNTHETIC_MODE: '0',
     BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: '0',
+    BLACKSKIES_MODEL_ROUTING_POLICY: 'local_only',
+    BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED: '0',
+    BLACKSKIES_LOCAL_LLM_AVAILABLE: '1',
     BLACKSKIES_PROJECT_BASE_DIR: truthProject.projectBaseDir,
     PROJECT_BASE_DIR: truthProject.projectBaseDir,
   };
+  delete backendEnv.OPENAI_API_KEY;
+  delete backendEnv.BLACKSKIES_OPENAI_API_KEY;
+  delete backendEnv.BLACK_SKIES_OPENAI_API_KEY;
   process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_MODE = '1';
@@ -1470,6 +1487,7 @@ async function run() {
       BLACKSKIES_E2E_SYNTHETIC_MODE: '0',
       BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: '0',
       BLACKSKIES_TRUTH_DEBUG_PORT: String(ELECTRON_DEBUG_PORT),
+      BLACKSKIES_CONFIG_PATH: runtimeConfigPath,
       PLAYWRIGHT: '1',
     };
     if (process.platform === 'linux') {

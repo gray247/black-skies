@@ -51,17 +51,14 @@ const result = spawnSync(
   eslintExecutable,
   [
     "--config",
-    path.join(repoRoot, ".eslintrc.cjs"),
+    path.join(repoRoot, "eslint.config.js"),
     "--max-warnings",
     "0",
     ...lintTargets
   ],
   {
     cwd: appDir,
-    env: {
-      ...process.env,
-      ESLINT_USE_FLAT_CONFIG: "false"
-    },
+    env: process.env,
     stdio: "inherit",
     shell: process.platform === "win32"
   }

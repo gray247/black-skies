@@ -146,7 +146,11 @@ test.describe('GUI flow smoke tests', () => {
     ).toBeVisible();
   });
 
-  (FULL_ANALYTICS_E2E ? test : test.skip)('budget_indicator_flow (UI)', async ({ page }) => {
+  test('budget_indicator_flow (UI)', async ({ page }) => {
+    test.skip(
+      !FULL_ANALYTICS_E2E,
+      'Full analytics UI coverage is opt-in via FULL_ANALYTICS_E2E=1.',
+    );
     await installServiceStubs(page, 'budget-indicator');
     await bootstrapHarness(page, { expectedMode: 'full' });
 
@@ -199,7 +203,11 @@ test.describe('GUI flow smoke tests', () => {
     await expect(page.getByTestId('workspace-action-critique')).toBeEnabled();
   });
 
-  (FULL_ANALYTICS_E2E ? test : test.skip)('snapshots_panel_flow (UI)', async ({ page }) => {
+  test('snapshots_panel_flow (UI)', async ({ page }) => {
+    test.skip(
+      !FULL_ANALYTICS_E2E,
+      'Full analytics UI coverage is opt-in via FULL_ANALYTICS_E2E=1.',
+    );
     await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page, { expectedMode: 'full' });
 

@@ -12,9 +12,9 @@ Package 19.19 produces exactly one distributable application artifact:
 app/release/BlackSkies-Setup-1.0.0-rc1.exe
 ```
 
-The installer is an unsigned internal release candidate. Its truthful signature
-status is `NotSigned`; it is not represented as publicly signed or
-SmartScreen-trusted.
+The installer is an unsigned qualified internal build. Its truthful signature
+status is `NotSigned`; it is not represented as public, alpha, beta, signed,
+production, or SmartScreen-trusted.
 
 Package `19.20` completed the packaged-RC acceptance pass. The accepted
 candidate is exactly:
@@ -78,8 +78,8 @@ pnpm --filter app run package:win
 5. verifies executable and installer identity and unsigned status; and
 6. writes `app/release/stage19-package-receipt.json`.
 
-The builder is invoked with `--publish never`; GitHub Actions performs the only
-artifact retention step, after installed lifecycle qualification succeeds.
+The builder is invoked with `--publish never`. Internal workflow artifact
+retention is qualification evidence only and does not publish a release.
 
 The receipt contains source commit, version, architecture, filenames, byte
 lengths, SHA-256 hashes, signature truth, manifest checks, and timestamps. It
@@ -128,6 +128,7 @@ installed offline lifecycle smoke, and uninstalls in guaranteed cleanup.
 Linux runs the same fixed Stage 19 regression for that commit.
 
 Only the installer and machine-readable receipt were retained for the bounded
-Package `19.20` handoff. Package `19.21` publishes no new artifact. Package
-`19.22` remains the final V1.0 closure/release boundary and requires Jason's
-explicit release authorization before tagging or publishing.
+Package `19.20` handoff. Package `19.21` produced no new artifact. Package
+`19.22` is the internal V1 closure boundary and prohibits tagging, publishing,
+signing, or announcing a release. Public alpha or beta consideration remains
+outside Stage 19 and follows the separate V3 product program.

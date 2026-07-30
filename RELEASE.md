@@ -1,4 +1,15 @@
-# Black Skies V1 Release Record
+# Black Skies Internal V1 Build Record
+
+## Authority boundary
+
+This file records internal build and installation evidence. It is not a public
+release plan. Public release is not authorized, and Package `19.22` will not
+create a tag, publish an artifact, request signing, announce availability, or
+claim alpha, beta, production, or general-availability status.
+
+The internal V1 baseline is deliberately bounded. A separate V3 product
+program must finish before any future public alpha or beta readiness review
+may be proposed under new authority.
 
 ## Current candidate
 
@@ -29,9 +40,10 @@ protected evidence:
 
 Any rebuilt binary, different source commit, filename, byte length, hash, or
 receipt is a different candidate and inherits none of this acceptance.
-Historical candidates and their hashes are not current release authority.
+Historical candidates and their hashes are not current internal-build
+authority.
 
-## RC release notes
+## Qualified internal-build capabilities
 
 The accepted candidate provides:
 
@@ -72,11 +84,11 @@ Support must follow `docs/ops/support_playbook.md`. Do not advise users to edit
 project metadata, delete recovery artifacts, install Python/Node, run legacy
 services, or substitute an unverified installer.
 
-## Package 19.22 release gate
+## Package 19.22 internal-closure gate
 
-Package `19.21` aligned and rehearsed documentation but cannot authorize V1.0
-release. Before tagging or publishing, Package `19.22` must independently
-confirm:
+Package `19.21` aligned and rehearsed documentation. Package `19.22` may close
+Stage 19 only as an internal barebones V1 baseline after it independently
+confirms:
 
 1. Packages `19.1` through `19.21` are closed with every residual owned.
 2. The tracked worktree and exact source identity are clean and recorded.
@@ -91,11 +103,12 @@ confirm:
 7. No protected prose, credential, optional provider call, Python/global Node
    runtime, or repository dependency entered qualification.
 8. No unresolved P0/P1 remains and every P2/P3 has an explicit disposition.
-9. Jason supplies the final human verification and explicit release
-   authorization.
+9. Jason supplies the final internal-milestone verification.
 
-Do not create a final tag, public release, signing request, or release
-announcement before that explicit authorization.
+Package `19.22` prohibits a tag, public release, signing request, publication,
+or release announcement. A future public alpha or beta requires completion of
+the V3 product program, a separate readiness audit, and new explicit
+authorization.
 
 ## Operator verification
 

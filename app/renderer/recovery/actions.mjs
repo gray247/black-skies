@@ -36,7 +36,7 @@ const REOPEN_FAILED_TOAST = {
 };
 
 export function validateRestoreSnapshot(options) {
-  if (!options.services) {
+  if (!options.services?.restoreSnapshot) {
     return { canProceed: false, toast: SERVICES_UNAVAILABLE_TOAST };
   }
   if (!options.projectSummary) {

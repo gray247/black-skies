@@ -3,8 +3,8 @@
 ## 1. Program model
 
 Stage 19 owns the bounded implementation and acceptance sequence through Black
-Skies V1.0. `stage19_v1_scope_lock.md` controls the product promise and release
-boundary. The `Foundation Spine` group (`19.1`-`19.5`) supplies the first local
+Skies internal V1.0 baseline. `stage19_v1_scope_lock.md` controls the bounded
+product promise. The `Foundation Spine` group (`19.1`-`19.5`) supplies the first local
 project-open/save/re-entry proof only.
 
 Every package follows:
@@ -41,13 +41,13 @@ Git status.
 | 19.19 | packaging and installation proof | stable runtime/regression and 19.18 | NSIS install/launch/save/reopen/export packaging checks pass |
 | 19.20 | packaged release-candidate acceptance and retesting | 19.18-19.19 | packaged RC acceptance matrix and defect retest cycle pass |
 | 19.21 | user/release/operator documentation | RC behavior fixed | support and release records match reality |
-| 19.22 | final V1.0 closure/release | all prior | no P0/P1, clean/tagged repo, Jason release authorization |
+| 19.22 | internal barebones V1.0 closure | all prior | no P0/P1/P2, clean verified repo, Jason internal-milestone verification, no release action |
 
 Dependency rules are binding: project identity precedes save; save precedes
 recovery; manuscript authority precedes export; core workflow precedes optional
 AI; stable runtime precedes development-build acceptance; development-build
-acceptance precedes packaging; packaged RC acceptance precedes closure; and
-Package `19.22` requires final Jason release authorization.
+acceptance precedes packaging; packaged-build acceptance precedes closure; and
+Package `19.22` requires final Jason internal-milestone verification.
 
 ## 3. Package acceptance requirements
 
@@ -68,9 +68,9 @@ Codex may prepare scripts and checklists; Jason supplies acceptance judgment.
 Package `19.20` repeats the release-critical paths against the packaged release
 candidate after Package `19.19` proves packaging and installation.
 
-## 4. Automated and release gates
+## 4. Automated and internal-closure gates
 
-The release gate must include static checks, critical unit/component/contract
+The internal-closure gate must include static checks, critical unit/component/contract
 tests, lifecycle/isolation/save/recovery/export integrations, critical Electron
 E2E, renderer and main production builds, packaging, packaged smoke tests, and
 a clean worktree. Tests use evidence partitions A-C only. Flakes, skips, broad
@@ -107,11 +107,11 @@ documentation findings are closed. One truthful non-blocking P3
 export-notice-lifetime observation is owned by Package `19.22` with an exact
 reopening trigger.
 
-Stage 19 remains open. Package `19.22`, **final V1.0 closure/release**, is next
-eligible. It must complete its autonomous closure preparation and residual
-dispositions before Jason's final human verification. No tag, public release,
-signing request, or release announcement is authorized without Jason's
-explicit final release authorization.
+Stage 19 remains open. Package `19.22`, **internal barebones V1.0 closure**, is
+active. It must complete repository hardening, autonomous closure preparation,
+and residual dispositions before Jason's final internal-milestone
+verification. Public release is not authorized; Package `19.22` prohibits a
+tag, publication, signing request, release announcement, or alpha/beta claim.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is
@@ -124,4 +124,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Package 19.21 closed; Stage 19 remains open; Package 19.22 is next eligible and remains the final human/release-authorization boundary
+PZ_CONTINUE: Package 19.21 closed; Stage 19 remains open; Package 19.22 is active as the internal barebones V1 closure boundary; public release is not authorized

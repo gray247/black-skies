@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(process.cwd(), "..");
+const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 const rootPackage = JSON.parse(
   readFileSync(path.join(repoRoot, "package.json"), "utf8")
 ) as {

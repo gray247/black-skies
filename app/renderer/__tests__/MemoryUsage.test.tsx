@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
 
@@ -91,11 +91,12 @@ describe('Approximate memory leak safeguards', () => {
     expect(maxCount).toBeLessThanOrEqual(1);
   });
 
-  it('keeps docked panes stable across remounts', () => {
+  it('keeps docked panes stable across remounts', async () => {
     const bridge = {
       loadLayout: () =>
         Promise.resolve({ layout: null, floatingPanes: [], schemaVersion: 2 }),
       saveLayout: () => Promise.resolve(),
+      resetLayout: () => Promise.resolve(),
       listFloatingPanes: () => Promise.resolve([]),
       openFloatingPane: () => Promise.resolve({ opened: false, clamp: null }),
       closeFloatingPane: () => Promise.resolve(),
@@ -113,6 +114,7 @@ describe('Approximate memory leak safeguards', () => {
         autoSnapEnabled={false}
       />,
     );
+    await waitFor(() => expect(screen.getByTestId('pane-storyInsights')).toBeInTheDocument());
     unmount();
     render(
       <DockWorkspace
@@ -125,7 +127,8 @@ describe('Approximate memory leak safeguards', () => {
         autoSnapEnabled={false}
       />,
     );
-    expect(mountCounts.outline ?? 1).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getByTestId('pane-storyInsights')).toBeInTheDocument());
+    expect(mountCounts.storyInsights).toBe(1);
   });
 }
 );

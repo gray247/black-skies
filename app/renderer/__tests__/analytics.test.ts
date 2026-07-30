@@ -37,7 +37,7 @@ describe('analytics helpers', () => {
   it('computes emotion arc intensity using config overrides', () => {
     const scenes: SceneDraftMetadata[] = [
       { id: 'a', order: 2, title: 'Two', emotion_tag: 'dread' },
-      { id: 'b', order: 1, title: 'One', emotion_tag: 'unknown' },
+      { id: 'b', order: 1, title: 'One' },
     ];
 
     const arc = computeEmotionArc(scenes, SAMPLE_CONFIG);

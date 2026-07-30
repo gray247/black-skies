@@ -6,7 +6,7 @@ interface ServiceHealthBannerProps {
   visible: boolean;
   serviceStatus: ServiceStatus;
   isPortUnavailable: boolean;
-  reason?: string;
+  reason?: string | null;
   errorMessage?: string | null;
   onRetry: () => void;
   freezeBanner?: boolean;

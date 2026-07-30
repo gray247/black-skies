@@ -7,11 +7,11 @@ import { describe, expect, it } from "vitest";
 import MinimalTwoSurfaceShell from "./MinimalTwoSurfaceShell";
 
 function readScaffoldSource() {
-  return readFileSync(resolve(process.cwd(), "renderer/salvage/MinimalTwoSurfaceShell.tsx"), "utf8");
+  return readFileSync(resolve(import.meta.dirname, "MinimalTwoSurfaceShell.tsx"), "utf8");
 }
 
 function readModelSource() {
-  return readFileSync(resolve(process.cwd(), "renderer/salvage/salvageShellModel.ts"), "utf8");
+  return readFileSync(resolve(import.meta.dirname, "salvageShellModel.ts"), "utf8");
 }
 
 describe("MinimalTwoSurfaceShell", () => {

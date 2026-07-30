@@ -292,6 +292,7 @@ describe('DockWorkspace', () => {
       direction: 'row',
       first: 'outline',
       second: 'draftPreview',
+      weights: [0.5, 0.5],
     };
 
     const updated = ensurePaneInLayout(baseLayout, 'storyInsights');

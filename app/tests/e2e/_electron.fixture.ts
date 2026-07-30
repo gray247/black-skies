@@ -410,24 +410,18 @@ export const test = base.extend<Fixtures>({
     const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererUrl = rendererIndexExists ? pathToFileURL(rendererIndex).toString() : undefined;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
-    const runtimeConfigDir = splitCommandRuntimeConfig
-      ? fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-runtime-'))
-      : null;
-    const runtimeConfigPath = runtimeConfigDir
-      ? path.join(runtimeConfigDir, 'runtime.yaml')
-      : null;
-    if (runtimeConfigPath) {
-      fs.writeFileSync(
-        runtimeConfigPath,
-        [
-          'ui:',
-          '  enable_docking: false',
-          '  experimental_split_command_workspace: true',
-          '',
-        ].join('\n'),
-        'utf8',
-      );
-    }
+    const runtimeConfigDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-runtime-'));
+    const runtimeConfigPath = path.join(runtimeConfigDir, 'runtime.yaml');
+    fs.writeFileSync(
+      runtimeConfigPath,
+      [
+        'ui:',
+        `  enable_docking: ${splitCommandRuntimeConfig ? 'false' : 'true'}`,
+        `  experimental_split_command_workspace: ${splitCommandRuntimeConfig ? 'true' : 'false'}`,
+        '',
+      ].join('\n'),
+      'utf8',
+    );
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
@@ -439,7 +433,7 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_MODE: '1',
-      ...(runtimeConfigPath ? { BLACKSKIES_CONFIG_PATH: runtimeConfigPath } : {}),
+      BLACKSKIES_CONFIG_PATH: runtimeConfigPath,
     };
     if (path.basename(testInfo.file) === 'visual.home.spec.ts') {
       launchEnv.BLACKSKIES_VISUAL_STABLE = '1';
@@ -460,7 +454,6 @@ export const test = base.extend<Fixtures>({
     const application = await electron.launch({
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
-        '--disable-gpu',
         `--user-data-dir=${userDataDir}`,
         entryPoint,
       ],

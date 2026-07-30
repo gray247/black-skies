@@ -9,7 +9,7 @@ implementation-planning review.
 
 Current status:
 
-- Stage 19 is open and is the governed implementation and acceptance program intended to culminate in Black Skies V1.0
+- Stage 19 is open and Package `19.22` is active as the governed internal barebones V1.0 closure and repository-hardening package
 - V1.0 is the product milestone reached through Stage 19, not a competing stage system
 - Packages `19.1` through `19.5` are the `Foundation Spine` package group; they complete, or await final package acceptance for, only the initial bounded local project-open/save/re-entry sequence and do not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
@@ -25,7 +25,7 @@ Current status:
 - Package `19.18`, manual acceptance of the stable production-built development entry, is formally closed by `stage19_package_19_18_closure.md` with Jason's `PASS`. Exact final qualified runtime commit `c5c86a0` passed the clean Windows gate and GitHub Linux run `30482059014`; the acceptance campaign closed happy path, isolation, bounded failures, recovery, and physical monitor behavior without protected evidence
 - Package `19.20`, packaged release-candidate acceptance and retesting, is formally closed with Jason's explicit overall `PASS` by `stage19_package_19_20_closure.md`. Exact candidate `b916765` passed clean Windows qualification run `30509993912`, full fixed regression, exact artifact verification, offline installed lifecycle, corrected trailing-newline Save and relaunch, recovery acceptance and rejection, zero forbidden runtime descendants, uninstall preservation, same-candidate reinstall, and preserved-project reopen. Installer `BlackSkies-Setup-1.0.0-rc1.exe` is 89275742 bytes with SHA-256 `93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b`, `NotSigned`; protected evidence was not used
 - Package `19.21`, user/release/operator documentation, is closed by `stage19_package_19_21_closure.md`. Current release-facing records match the accepted Package `19.20` product; static documentation checks and an installed-app Computer Use rehearsal passed. Nine P1/P2 documentation defects are closed and one truthful non-blocking P3 notice-lifetime observation is routed to Package `19.22` with an exact reopening trigger
-- Package `19.22` is next eligible and remains the final V1.0 closure/release boundary requiring Jason's final human verification and explicit release authorization
+- Package `19.22` is active as the final internal barebones V1.0 closure boundary. It requires Jason's final internal-milestone verification and prohibits a tag, public release, signing request, publication, announcement, or alpha/beta claim. Public alpha or beta consideration is deferred until after the separate V3 product program and a new readiness decision
 - the Stage 19 V1.0 scope lock, master implementation/acceptance plan, and salvage traceability matrix continue to define the planning boundary
 - further implementation remains blocked until separately bounded and authorized as a Stage 19 package
 - any older embedded statement below that names Stage 11 or another completed stage as next eligible, says implementation planning has not started, or describes Stage 19 only as the initial spine is retained historical status text and is superseded for current sequencing by this status block and `stage19_v1_authority_alignment_decision.md`

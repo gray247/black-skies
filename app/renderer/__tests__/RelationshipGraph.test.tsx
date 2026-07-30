@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import RelationshipGraph from '../components/RelationshipGraph';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const graphPayload = {
   ok: true,
@@ -23,13 +24,13 @@ const graphPayload = {
 describe('RelationshipGraph', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = {
+    window.services = createServicesBridgeMock({
       getAnalyticsRelationships: vi.fn().mockResolvedValue(graphPayload),
-    };
+    });
   });
 
   afterEach(() => {
-    delete (window as typeof window & { services?: unknown }).services;
+    delete window.services;
   });
 
   it('renders nodes and edges', async () => {

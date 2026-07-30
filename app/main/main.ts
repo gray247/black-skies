@@ -71,10 +71,6 @@ import {
   hasPendingCloseRequest,
 } from './closeConfirmationCoordinator.js';
 
-if (process.env.PLAYWRIGHT === '1') {
-  app.disableHardwareAcceleration();
-}
-
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
   const candidates = [
@@ -456,7 +452,6 @@ async function selectServicePort(): Promise<number> {
   }
 
   for (const candidate of candidates) {
-    // eslint-disable-next-line no-await-in-loop -- sequential probing avoids port races
     const available = await isPortAvailable(candidate);
     if (available) {
       return candidate;

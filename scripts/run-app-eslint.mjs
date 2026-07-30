@@ -32,17 +32,14 @@ try {
   process.exit(0);
 }
 
-const legacyConfigPath = path.join(repoRoot, ".eslintrc.cjs");
+const flatConfigPath = path.join(repoRoot, "eslint.config.js");
 
 const { status, error } = spawnSync(
   eslintExecutable,
-  ["--config", legacyConfigPath, "--max-warnings", "6", ...lintTargets],
+  ["--config", flatConfigPath, "--max-warnings", "0", ...lintTargets],
   {
     cwd: appDir,
-    env: {
-      ...process.env,
-      ESLINT_USE_FLAT_CONFIG: "false"
-    },
+    env: process.env,
     stdio: "inherit",
     shell: process.platform === "win32"
   }

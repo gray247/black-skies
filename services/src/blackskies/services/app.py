@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from contextvars import ContextVar
 from datetime import datetime, timezone
-from typing import Awaitable, Callable, Final
+from typing import Final
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError

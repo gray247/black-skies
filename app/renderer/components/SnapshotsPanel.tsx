@@ -25,7 +25,7 @@ interface SnapshotRow {
 interface SnapshotsPanelProps {
   projectId: string;
   projectPath: string | null;
-  services: ServicesBridge | undefined;
+  services: Partial<ServicesBridge> | undefined;
   onClose?: () => void;
   serviceStatus: ServiceStatus;
   pushToast: (payload: ToastPayload) => void;
@@ -749,7 +749,6 @@ export default function SnapshotsPanel({
     snapshotPathById,
   ]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleCreateBackup = useCallback(async () => {
     if (creatingBackup) {
       return;
@@ -982,7 +981,10 @@ export default function SnapshotsPanel({
                 {
                   label: 'Open folder',
                   onPress: () => {
-                    void services.revealPath?.(payload.restored_path);
+                    const restoredPath = payload.restored_path;
+                    if (restoredPath) {
+                      void services.revealPath?.(restoredPath);
+                    }
                   },
                 },
               ]

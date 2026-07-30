@@ -380,7 +380,6 @@ export async function launchStage19BuiltApplication(
   const application = await electron.launch({
     args: [
       ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
-      '--disable-gpu',
       `--user-data-dir=${userDataDirectory}`,
       resolve(appDirectory, 'dist-electron', 'main', 'main.js'),
     ],

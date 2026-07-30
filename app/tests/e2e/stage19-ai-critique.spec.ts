@@ -99,3 +99,7 @@ test('selected-prose critique is Writing-Studio-only, preview-bound, optional, a
     await removeTemporaryDirectory(parent);
   }
 });
+// HARNESS_ONLY
+// Reason: Exercises synthetic Stage 19 Electron state before installed-build qualification.
+// Owner: Package 19.22 internal baseline verification.
+// Retire when: An installed-build critique truth lane provides equivalent deterministic coverage.

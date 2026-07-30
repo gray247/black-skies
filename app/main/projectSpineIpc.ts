@@ -401,17 +401,41 @@ export async function createManuscriptUnit(
   const unitId = `unit_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
   const order = outline.scenes.length + 1;
   const draftPath = path.join(project.path, 'drafts', `${unitId}.md`);
-  await writeFileExclusiveSynced(draftPath, serializeUnitDraft(unitId, normalizedTitle, order));
+  const draft = serializeUnitDraft(unitId, normalizedTitle, order);
+  await writeFileExclusiveSynced(draftPath, draft);
+  const nextOutline: OutlineFile = {
+    ...outline,
+    scenes: [...outline.scenes, { id: unitId, title: normalizedTitle, order }],
+  };
   try {
-    await writeJsonAtomic(path.join(project.path, 'outline.json'), {
-      ...outline,
-      scenes: [...outline.scenes, { id: unitId, title: normalizedTitle, order }],
-    });
+    await writeJsonAtomic(path.join(project.path, 'outline.json'), nextOutline);
   } catch (error) {
     await fs.rm(draftPath, { force: true }).catch(() => undefined);
     throw error;
   }
-  return { project: await loadProjectForSpine(project.path), unitId };
+
+  const activeProjectMatchesDurableOutline =
+    project.scenes.length === outline.scenes.length &&
+    project.scenes.every((unit, index) => {
+      const durable = outline.scenes[index];
+      return durable?.id === unit.id &&
+        durable.title === unit.title &&
+        durable.order === unit.order &&
+        durable.chapter_id === unit.chapter_id;
+    });
+  if (!activeProjectMatchesDurableOutline) {
+    return { project: await loadProjectForSpine(project.path), unitId };
+  }
+
+  return {
+    project: {
+      ...project,
+      outline: nextOutline,
+      scenes: [...project.scenes, { id: unitId, title: normalizedTitle, order }],
+      drafts: { ...project.drafts, [unitId]: draft },
+    },
+    unitId,
+  };
 }
 
 export async function renameManuscriptUnit(

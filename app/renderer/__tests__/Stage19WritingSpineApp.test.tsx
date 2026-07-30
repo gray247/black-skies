@@ -6,6 +6,7 @@ import type {
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBridge,
   ProjectSpineCommandStatusProjection,
+  RecoveryCandidateDecisionResultData,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
   ProjectSpineWritingRecoveryState,
@@ -841,7 +842,10 @@ describe('Stage19WritingSpineApp', () => {
         },
       },
     },
-  ])('blocks Markdown export for $name state with the governed remedy', async ({ options }) => {
+  ] satisfies ReadonlyArray<{
+    name: string;
+    options: NonNullable<Parameters<typeof snapshot>[1]>;
+  }>)('blocks Markdown export for $name state with the governed remedy', async ({ options }) => {
     const harness = createBridge(snapshot('writing', options));
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
@@ -913,6 +917,74 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
   });
 
+  it('keeps a prior export cancellation isolated from the active project and its next export', async () => {
+    const projectA = snapshot('writing');
+    const projectB = snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 2,
+      revision: 3,
+    });
+    const harness = createBridge(projectA);
+    vi.mocked(harness.bridge.exportMarkdown!)
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          status: 'cancelled',
+          projectId: 'proj_a',
+          generation: 1,
+          revision: 1,
+          operationId: 'export-a-cancelled',
+        },
+        snapshot: projectA,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          status: 'completed',
+          projectId: 'proj_b',
+          generation: 2,
+          revision: 3,
+          operationId: 'export-b-completed',
+          destinationPath: 'C:\\exports\\Project B.md',
+          byteLength: 222,
+          unitCount: 2,
+          sha256: 'c'.repeat(64),
+          orderedUnitIds: ['unit_a', 'unit_b'],
+          sourceSnapshotFingerprint: 'd'.repeat(64),
+          completedAt: '2026-07-30T05:00:00.000Z',
+        },
+        snapshot: projectB,
+      });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const projectAExportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(projectAExportButton);
+    });
+    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.getByText(/Export cancelled\. No file was created\./)).toBeVisible();
+
+    act(() => harness.emit(projectB));
+    expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+    expect(screen.getByText('Saved durably')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Export Markdown…' })).toBeEnabled();
+    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+
+    await act(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Export Markdown…' }));
+    });
+    expect(harness.bridge.exportMarkdown).toHaveBeenLastCalledWith(expect.objectContaining({
+      projectId: 'proj_b',
+      projectPath: 'C:\\projects\\b',
+      generation: 2,
+      revision: 3,
+    }));
+    expect(await screen.findByText(/Markdown export for Project B/)).toBeVisible();
+    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+  });
+
   it('blocks editing while showing full prior-session prose and sends exact recovery decisions', async () => {
     const current = snapshot('writing', {
       recovery: {
@@ -950,9 +1022,11 @@ describe('Stage19WritingSpineApp', () => {
       },
     });
     const harness = createBridge(current);
-    let resolveOldDecision: ((result: ProjectSpineResult) => void) | null = null;
+    let resolveOldDecision:
+      | ((result: ProjectSpineResult<RecoveryCandidateDecisionResultData>) => void)
+      | null = null;
     vi.mocked(harness.bridge.acceptRecoveryCandidate!).mockImplementationOnce(
-      () => new Promise<ProjectSpineResult>((resolve) => {
+      () => new Promise<ProjectSpineResult<RecoveryCandidateDecisionResultData>>((resolve) => {
         resolveOldDecision = resolve;
       }),
     );

@@ -12,7 +12,6 @@ import threading
 import time
 import zipfile
 from contextlib import contextmanager
-import os
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -2333,14 +2332,14 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
 
     def _write_scene(
         self: DraftPersistence,
-        project_id: str,
+        project_root: Path,
         front_matter: dict[str, Any],
         body: str,
         *,
         durable: bool | None = None,
     ) -> Path:
         recorded["scene_durable"] = durable
-        target = tmp_path / project_id / "drafts" / f"{front_matter['id']}.md"
+        target = project_root / "drafts" / f"{front_matter['id']}.md"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(self._render(front_matter, body), encoding="utf-8")
         return target
@@ -2387,7 +2386,7 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
 
     monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
     monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
-    monkeypatch.setattr(DraftPersistence, "write_scene", _write_scene)
+    monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _write_scene)
     monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
     monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
 
@@ -2551,7 +2550,6 @@ def test_snapshot_restore_flow(test_client: TestClient, tmp_path: Path) -> None:
         },
     )
     assert draft_response.status_code == status.HTTP_200_OK
-    draft_unit = draft_response.json()["units"][0]
     draft_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
     original_draft = draft_path.read_text(encoding="utf-8")
 

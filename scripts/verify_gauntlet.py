@@ -18,6 +18,7 @@ BUILD_DIR = REPO_ROOT / "build" / "gauntlet"
 LOG_DIR = BUILD_DIR / "logs"
 RECEIPT_JSON = REPO_ROOT / "build" / "truth_receipts" / "latest.json"
 RECEIPT_TEXT = REPO_ROOT / "build" / "truth_receipts" / "latest.txt"
+PYTHON311 = REPO_ROOT / ".venv311" / "Scripts" / "python.exe"
 PYTHON = REPO_ROOT / ".venv" / "Scripts" / "python.exe"
 CI_PROOF_SCHEMA = "GauntletCIProof v1"
 PASS_PROOF_SCHEMA = "GauntletPassProof v1"
@@ -28,6 +29,11 @@ def now_iso() -> str:
 
 
 def pick_python() -> str:
+    explicit = os.environ.get("PYTHON", "").strip()
+    if explicit:
+        return explicit
+    if PYTHON311.exists():
+        return str(PYTHON311)
     return str(PYTHON if PYTHON.exists() else Path(sys.executable))
 
 
@@ -402,7 +408,7 @@ def main() -> int:
                 [
                     "cmd",
                     "/c",
-                    "pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts",
+                    "pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts",
                 ]
             ],
             "delegable": True,

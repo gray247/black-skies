@@ -112,10 +112,10 @@ def test_heuristics_config_affects_scores(tmp_path):
     assert "heuristics" in payload1
     assert "heuristics" in payload2
 
-    goal_clarity1 = payload1["heuristics"].get("goal_clarity")
-    goal_clarity2 = payload2["heuristics"].get("goal_clarity")
-    pacing1 = payload1["heuristics"].get("pacing_fit")
-    pacing2 = payload2["heuristics"].get("pacing_fit")
+    payload1["heuristics"].get("goal_clarity")
+    payload2["heuristics"].get("goal_clarity")
+    payload1["heuristics"].get("pacing_fit")
+    payload2["heuristics"].get("pacing_fit")
 
     assert set(payload1["heuristics"]) == {
         "pov_consistency",

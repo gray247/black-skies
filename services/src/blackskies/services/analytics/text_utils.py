@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import re
-import string
 from statistics import mean
-from typing import Iterable, List, NamedTuple, Tuple
+from typing import Iterable, List, NamedTuple
 
 ConversationSpan = NamedTuple(
     "ConversationSpan",

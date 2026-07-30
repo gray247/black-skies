@@ -252,8 +252,11 @@ export function InsightsAnalytics({ projectId, serviceStatus }: InsightsAnalytic
         if (cancelled) {
           return;
         }
-        if (!summaryResp.ok || !scenesResp.ok) {
-          throw new Error(summaryResp.error?.message ?? scenesResp.error?.message ?? 'Failed to load analytics.');
+        if (!summaryResp.ok) {
+          throw new Error(summaryResp.error.message);
+        }
+        if (!scenesResp.ok) {
+          throw new Error(scenesResp.error.message);
         }
         setState({
           summary: summaryResp.data,

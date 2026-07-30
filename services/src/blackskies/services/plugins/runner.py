@@ -8,12 +8,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 import traceback
 from pathlib import Path
-from typing import Any, Dict, TextIO
-
 from typing import Any, Dict, TextIO, cast
 
 try:  # pragma: no branch - platform-dependent import

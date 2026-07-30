@@ -26,6 +26,7 @@ const SANDBOX_WARNING = {
 const BUDGET_TITLE_BY_CONTEXT: Record<ServiceErrorContext, string> = {
   generation: "Couldn't write draft.",
   critique: 'Feedback unavailable.',
+  rewrite: 'Rewrite unavailable.',
   preflight: 'Budget limit exceeded.',
   analytics: 'Budget exhausted.',
 };

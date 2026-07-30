@@ -12,7 +12,7 @@ try:
 except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
     pytest.skip(f"httpx is required for async tests: {exc}", allow_module_level=True)
 
-from test_app import (
+from .test_app import (
     API_PREFIX,
     SERVICE_VERSION,
     _build_critique_payload,

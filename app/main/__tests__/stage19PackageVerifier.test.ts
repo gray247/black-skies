@@ -22,12 +22,14 @@ function icoDirectory(sizes: number[]): Buffer {
 }
 
 describe("Stage 19 package artifact verifier", () => {
-  it("rejects protected evidence, Python, source maps, and portable output", () => {
+  it("rejects protected evidence, Python, source maps, credentials, and portable output", () => {
     expect(
       findForbiddenPackagePaths([
         "/sample_project/protected/file.bin",
         "/services/api.py",
         "/dist/main.js.map",
+        "/dist/credentials.json",
+        "/dist/session-token.txt",
         "/BlackSkies-Portable.exe",
         "/dist/index.html"
       ])
@@ -35,6 +37,8 @@ describe("Stage 19 package artifact verifier", () => {
       "/sample_project/protected/file.bin",
       "/services/api.py",
       "/dist/main.js.map",
+      "/dist/credentials.json",
+      "/dist/session-token.txt",
       "/BlackSkies-Portable.exe"
     ]);
   });

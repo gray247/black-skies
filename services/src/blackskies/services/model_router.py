@@ -233,7 +233,6 @@ class ModelRouter:
 
         allow_local = bool(policy_decision.allow_local and local_available and local)
         allow_api = bool(policy_decision.allow_api and api_available and api)
-        fallback_used = False
 
         if policy_decision.prefer_local:
             if allow_local:
@@ -241,7 +240,6 @@ class ModelRouter:
                 decision = self._build_decision(task, local, policy_decision.reason)
                 self._trace(decision)
                 return decision
-            fallback_used = True
             if allow_api:
                 assert api is not None
                 decision = self._build_decision(task, api, policy_decision.reason)
@@ -256,7 +254,6 @@ class ModelRouter:
                 decision = self._build_decision(task, api, policy_decision.reason)
                 self._trace(decision)
                 return decision
-            fallback_used = True
             if allow_local:
                 assert local is not None
                 decision = self._build_decision(task, local, policy_decision.reason)

@@ -53,14 +53,14 @@ export interface DraftSaveState {
   message: string | null;
 }
 
-type SceneWriteWriterKind =
+export type SceneWriteWriterKind =
   | 'user_selection'
   | 'project_switch'
   | 'project_home_callback'
   | 'project_home_effect_echo'
   | 'project_home_prop_sync';
 
-interface SceneWriteTraceMeta {
+export interface SceneWriteTraceMeta {
   triggerEventId?: string | null;
   writerKind?: SceneWriteWriterKind;
   projectSwitchGenerationToken?: number | null;
@@ -743,6 +743,13 @@ export default function ProjectHome({
     }
   }, []);
 
+  const activeSceneIdRef = useRef(activeSceneId);
+  activeSceneIdRef.current = activeSceneId;
+  const projectIdRef = useRef(projectId);
+  projectIdRef.current = projectId;
+  const recordSceneWriteTraceRef = useRef(recordSceneWriteTrace);
+  recordSceneWriteTraceRef.current = recordSceneWriteTrace;
+
   const loadProjectAtPath = useCallback(
     async (
       targetPath: string,
@@ -813,12 +820,13 @@ export default function ProjectHome({
             !isRecoveryRequiredLoadCode(response.error.code) &&
             projectLoader.getSampleProjectPath
           ) {
+            const getSampleProjectPath = projectLoader.getSampleProjectPath;
             void (async () => {
               try {
                 recordDebugEvent('project-home.load.sample-attempt', {
                   targetPath,
                 });
-                const samplePath = await projectLoader.getSampleProjectPath();
+                const samplePath = await getSampleProjectPath();
                 if (samplePath && samplePath !== targetPath) {
                   const fallbackProject = await loadProjectAtPath(samplePath, {
                     reason: 'bootstrap',
@@ -876,7 +884,7 @@ export default function ProjectHome({
           issueCount: response.issues.length,
         });
         const projectSwitchGenerationToken = ++projectSwitchGenerationRef.current;
-        const previousSceneId = activeSceneId;
+          const previousSceneId = activeSceneIdRef.current;
         const nextSceneId =
           previousSceneId && response.project.drafts[previousSceneId]
             ? previousSceneId
@@ -886,13 +894,13 @@ export default function ProjectHome({
         setLastLoadErrorCode(null);
         setIssues(response.issues);
         setActiveSceneId(nextSceneId);
-        recordSceneWriteTrace('project-home.scene.write', {
+        recordSceneWriteTraceRef.current('project-home.scene.write', {
           writerKind: 'project_switch',
           sourceFunction: 'loadProjectAtPath',
           requestedSceneId: nextSceneId,
           previousSceneId,
           committedSceneId: nextSceneId,
-          projectId: response.project.projectId ?? projectId ?? null,
+          projectId: response.project.projectId ?? projectIdRef.current ?? null,
           projectPath: response.project.path,
           projectSwitchGenerationToken,
           hydrationGenerationToken: null,

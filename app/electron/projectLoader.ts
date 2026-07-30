@@ -6,6 +6,7 @@ import {
   OutlineFile,
   ProjectDialogResult,
   ProjectIssue,
+  ProjectLoadFailure,
   ProjectLoadRequest,
   ProjectLoadResponse,
   SceneDraftMetadata,
@@ -92,14 +93,14 @@ class ProjectLoaderAggregateError extends Error {
   constructor(
     message: string,
     readonly issues: ProjectIssue[],
-    readonly code: ProjectLoadResponse['error']['code'] = 'UNKNOWN',
+    readonly code: ProjectLoadFailure['error']['code'] = 'UNKNOWN',
   ) {
     super(message);
     this.name = 'ProjectLoaderAggregateError';
   }
 }
 
-function mapSystemErrorCode(code?: string): ProjectLoadResponse['error']['code'] {
+function mapSystemErrorCode(code?: string): ProjectLoadFailure['error']['code'] {
   switch (code) {
     case 'ENOENT':
       return 'PROJECT_NOT_FOUND';

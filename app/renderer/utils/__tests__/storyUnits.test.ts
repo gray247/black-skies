@@ -23,7 +23,7 @@ const PROJECT: LoadedProject = {
       title: "Second",
       order: 2,
       chapter_id: "ch_1",
-      purpose: "Escalate the problem.",
+      purpose: "escalation",
     },
     {
       id: "sc_0001",

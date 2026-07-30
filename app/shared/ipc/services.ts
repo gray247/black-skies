@@ -582,19 +582,19 @@ export interface ServicesBridge {
   rewriteDraft?: (
     request: DraftRewriteBridgeRequest,
   ) => Promise<ServiceResult<DraftRewriteBridgeResponse>>;
-  phase4Critique: (
+  phase4Critique?: (
     request: Phase4CritiqueBridgeRequest,
   ) => Promise<ServiceResult<Phase4CritiqueBridgeResponse>>;
-  phase4Rewrite: (
+  phase4Rewrite?: (
     request: Phase4RewriteBridgeRequest,
   ) => Promise<ServiceResult<Phase4RewriteBridgeResponse>>;
   preflightDraft: (
     request: DraftPreflightBridgeRequest,
   ) => Promise<ServiceResult<DraftPreflightEstimate>>;
-  acceptDraft: (
+  acceptDraft?: (
     request: DraftAcceptBridgeRequest,
   ) => Promise<ServiceResult<DraftAcceptBridgeResponse>>;
-  createSnapshot: (
+  createSnapshot?: (
     request: WizardLockSnapshotBridgeRequest,
   ) => Promise<ServiceResult<WizardLockSnapshotBridgeResponse>>;
   createProjectSnapshot?: (
@@ -603,16 +603,16 @@ export interface ServicesBridge {
   listProjectSnapshots?: (
     request: { projectId: string },
   ) => Promise<ServiceResult<SnapshotManifest[]>>;
-  getRecoveryStatus: (
+  getRecoveryStatus?: (
     request: RecoveryStatusBridgeRequest,
   ) => Promise<ServiceResult<RecoveryStatusBridgeResponse>>;
-  restoreSnapshot: (
+  restoreSnapshot?: (
     request: RecoveryRestoreBridgeRequest,
   ) => Promise<ServiceResult<RecoveryRestoreBridgeResponse>>;
   restoreFromZip?: (
     request: RestoreFromZipRequest,
   ) => Promise<ServiceResult<RestoreFromZipResponse>>;
-  exportProject: (
+  exportProject?: (
     request: ProjectExportBridgeRequest,
   ) => Promise<ServiceResult<ProjectExportBridgeResponse>>;
   createBackup?: (

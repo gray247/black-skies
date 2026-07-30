@@ -5,6 +5,8 @@ import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type { RecoveryStatusBridgeResponse, ServicesBridge } from '../../shared/ipc/services';
 import type ProjectSummary from '../types/project';
 import useRecovery from '../hooks/useRecovery';
+import type { ToastPayload } from '../types/toast';
+import { createServicesBridgeMock } from './testBridgeFactories';
 
 const defaultProjectSummary: ProjectSummary = {
   projectId: 'proj_recovery',
@@ -34,25 +36,27 @@ function createRecoveryStatus(overrides?: Partial<RecoveryStatusBridgeResponse>)
 }
 
 function buildServices(overrides?: {
-  getRecoveryStatus?: () => Promise<{ ok: boolean; data: RecoveryStatusBridgeResponse }>;
-  restoreSnapshot?: () => Promise<{ ok: boolean; data: RecoveryStatusBridgeResponse }>;
+  getRecoveryStatus?: NonNullable<ServicesBridge['getRecoveryStatus']>;
+  restoreSnapshot?: NonNullable<ServicesBridge['restoreSnapshot']>;
 }): { services: ServicesBridge; mocks: { getRecoveryStatus: ReturnType<typeof vi.fn>; restoreSnapshot: ReturnType<typeof vi.fn> } } {
-  const getRecoveryStatus =
+  const getRecoveryStatus = vi.fn(
     overrides?.getRecoveryStatus ??
-    vi.fn().mockResolvedValue({
+      (async () => ({
       ok: true,
       data: createRecoveryStatus(),
       traceId: 'trace-status',
-    });
-  const restoreSnapshot =
+      } as const)),
+  );
+  const restoreSnapshot = vi.fn(
     overrides?.restoreSnapshot ??
-    vi.fn().mockResolvedValue({
+      (async () => ({
       ok: true,
       data: createRecoveryStatus({ status: 'idle', needs_recovery: false }),
       traceId: 'trace-restore',
-    });
+      } as const)),
+  );
 
-  const partial: Partial<ServicesBridge> = {
+  const services = createServicesBridgeMock({
     getRecoveryStatus,
     restoreSnapshot,
     exportProject: vi.fn().mockResolvedValue({
@@ -68,9 +72,9 @@ function buildServices(overrides?: {
         schema_version: 'ProjectExportResult v1',
       },
     }),
-  };
+  });
 
-  return { services: partial as ServicesBridge, mocks: { getRecoveryStatus, restoreSnapshot } };
+  return { services, mocks: { getRecoveryStatus, restoreSnapshot } };
 }
 
 function RecoveryHarness({
@@ -84,7 +88,7 @@ function RecoveryHarness({
   diagnostics?: DiagnosticsBridge;
   serviceStatus?: 'online' | 'offline' | 'checking';
   projectSummary?: ProjectSummary;
-  pushToast: ReturnType<typeof vi.fn>;
+  pushToast: (toast: ToastPayload) => void;
 }) {
   const hook = useRecovery({
     services,

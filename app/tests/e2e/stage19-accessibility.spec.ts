@@ -64,3 +64,7 @@ test('dedicated Stage 19 writing and command surfaces have no WCAG A/AA axe viol
     await removeTemporaryDirectory(parent);
   }
 });
+// HARNESS_ONLY
+// Reason: Exercises synthetic Stage 19 Electron state before installed-build qualification.
+// Owner: Package 19.22 internal baseline verification.
+// Retire when: An installed-build accessibility truth lane provides equivalent deterministic coverage.

@@ -50,12 +50,7 @@ def _write_scene(project_root: Path, *, title: str, body: str) -> None:
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir(parents=True, exist_ok=True)
     metadata = (
-        "---\n"
-        f"id: {SCENE_ID}\n"
-        f"title: {title}\n"
-        "order: 1\n"
-        "chapter_id: ch_1000\n"
-        "---\n"
+        "---\n" f"id: {SCENE_ID}\n" f"title: {title}\n" "order: 1\n" "chapter_id: ch_1000\n" "---\n"
     )
     (drafts_dir / f"{SCENE_ID}.md").write_text(metadata + body + "\n", encoding="utf-8")
 

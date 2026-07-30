@@ -24,7 +24,7 @@ function BudgetHarness({
   projectId,
   pushToast,
   onReady,
-}: BudgetHarnessProps): JSX.Element {
+}: BudgetHarnessProps): JSX.Element | null {
   const { refreshBudget } = useBudgetIndicator({
     services,
     projectId,
