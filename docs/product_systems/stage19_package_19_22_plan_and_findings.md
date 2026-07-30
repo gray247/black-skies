@@ -71,10 +71,34 @@ or weakened assertion may substitute for repair.
 | BS-19.22-P1-16 | P1 | Service-truth and gauntlet interpreter/temp contracts could silently leave Python 3.11 or fail before collection under repository ACLs. | Both scripts preferred `.venv`; service truth also hard-coded a repository `codex_temp` root that reproduced `PermissionError` before pytest. | No packaged input; Python verification infrastructure only. | Package `19.22`: honor explicit `PYTHON`, prefer `.venv311`, use the established `BLACKSKIES_TEST_TEMP_ROOT`/short Windows temp boundary, and retain policy tests in Stage 19 regression. | Python source compiles; policy tests pass; service truth passes `19/19` under Python 3.11 at `C:\tmp`; full gauntlet uses the same interpreter and passes. Full Python/static rerun and CI remain. | LOCALLY_CLOSED_PENDING_OUTER_LOOP. Reopen on interpreter drift, repository-temp ACL failure, collection failure, or any lane that silently falls back away from configured Python 3.11. |
 | BS-19.22-P1-17 | P1 | Gauntlet PASS 3 always selected zero tests because app-workspace Vitest received repository-relative paths prefixed with `app/`. | The captured PASS 3 log reported `No test files found`; all other gauntlet passes were green. | No packaged input; gauntlet command and policy test only. | Package `19.22`: pass app-workspace-relative test paths and prohibit the stale prefix in a permanent policy witness. | The exact three-suite cluster passed three consecutive runs (`31/31` each); the complete six-pass gauntlet then returned `MERGE` with high confidence and no blocking issue. CI remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on zero-test selection, any PASS 3 failure, or gauntlet verdict below high-confidence `MERGE`. |
 | BS-19.22-P1-18 | P1 | Seven Vitest suites passed only when invoked from the app workspace; the root direct inventory failed before exercising their contracts. | The root runner exposed repository-path construction from `process.cwd()`, even though the official app runner selects `app` as its working directory. That made test and policy inputs depend on the caller rather than the owning file. | No packaged input; tests only. | Package `19.22`: anchor repository and app fixtures to each test module through `import.meta.dirname`; preserve both supported invocation boundaries. | The exact seven-suite cluster passed three consecutive runs (`40/40` each), and the official complete inventory passed `974` with two declared opt-in skips. CI remains. | LOCALLY_CLOSED_PENDING_CI. Reopen if any test fixture or repository-policy path changes meaning with the supported runner's working directory. |
-| BS-19.22-P1-19 | P1 | The complete Vitest inventory passed while emitting React updates-outside-`act` warnings, leaving asynchronous assertions and remount behavior potentially order-dependent. | Offline analytics asserted before its effect committed; the insights pane asserted synchronously after an interaction; and the docking remount test asserted a fabricated default count before asynchronous layout loading settled. Those warnings amplified unrelated concurrent component output. | No packaged input; tests only. | Package `19.22`: wait for the actual committed state at each asynchronous boundary and make the remount witness assert the real mounted pane and live count. Do not suppress console output or weaken assertions. | The six-suite warning cluster passed three consecutive concurrent runs (`74/74` each) with no React `act` warning. Complete Vitest, Stage 19, and CI remain. | LOCALLY_CLOSED_PENDING_OUTER_LOOP. Reopen on any React `act` warning, assertion-before-commit behavior, or remount witness that can pass without the pane mounting. |
+| BS-19.22-P1-19 | P1 | The complete Vitest inventory passed while emitting React updates-outside-`act` warnings, leaving asynchronous assertions and remount behavior potentially order-dependent. | Offline analytics asserted before its effect committed; the insights pane asserted synchronously after an interaction; and the docking remount test asserted a fabricated default count before asynchronous layout loading settled. Exact-commit Linux CI then exposed remaining direct async user interactions in Stage 19 and offline tests. | No packaged input; tests only. | Package `19.22`: wait for committed asynchronous state and wrap direct async user interactions in React `act`; make the remount witness assert the real mounted pane and live count. Do not suppress console output or weaken assertions. | The repaired Stage 19, offline, and coordinator cluster passes (`74/74`) with no React scheduling warning locally. | LOCALLY_CLOSED_PENDING_CI. Reopen on any React `act` warning, assertion-before-commit behavior, or remount witness that can pass without the pane mounting. |
 | BS-19.22-P1-20 | P1 | The first exact-commit candidate built successfully but package verification rejected legitimate third-party JavaScript modules as credential material. | `pnpm --dir app run package:win` rejected Lezer `tokens.js`, `js-tokens`, and React `ReactPropTypesSecret.js`. The credential basename rule matched keyword substrings without distinguishing executable source from credential-like data/key files. | Yes. The packaging verifier is candidate-affecting under the Package 19.22 boundary, so the verifier repair requires a new exact commit and candidate qualification even though the first artifact bytes were valid. | Package `19.22`: retain `.env` rejection; restrict credential-name matching to delimited credential terms with data, certificate, or key extensions; add the exact third-party false positives as acceptance witnesses. | The focused verifier suite passes (`3/3`). The repaired verifier accepts the built ASAR with `2,571` entries, `2,334` integrity records, and zero forbidden paths while reporting both executable and installer `NotSigned`. New exact-commit rebuild and CI remain. | LOCALLY_CLOSED_PENDING_NEW_CANDIDATE. Reopen if a credential-like data/key file passes, an ordinary dependency source file is rejected, or the exact candidate reports any forbidden path. |
+| BS-19.22-P1-21 | P1 | The exact-commit Linux full unit inventory failed one recovery-context assertion although Windows passed. | CI run `30567954794`, job `90957091052`: the fixture supplied a Windows-form path on Linux, while the coordinator correctly returned its canonical `path.resolve` identity. The assertion compared canonical output with unnormalized fixture input. | No packaged input; test expectation only. | Package `19.22`: assert the coordinator's cross-platform canonical path contract explicitly without changing runtime normalization. | The focused coordinator suite passes (`12/12`) and app lint is clean. Exact-commit CI rerun remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on any platform-dependent identity assertion or mismatch between binding validation and returned recovery context. |
 
-## 5. Retained boundary dispositions
+## 5. Exact candidate and installed evidence
+
+- Exact candidate commit: `a88ed9b62b429e0a11bbad54ad376815ffc98ad2`.
+- Installer: `BlackSkies-Setup-1.0.0-rc1.exe`, `89,277,460` bytes,
+  SHA-256 `fd0cd729f0acc3783f81161c4ad9646853a96b705f0c5ab901ab7f4e2c54719e`,
+  `NotSigned`, built with publication disabled.
+- ASAR: `15,083,810` bytes, SHA-256
+  `75a3526860b70d3bc0f3dc8ad4ec13e2da91b92a54eed81c4064392a10e9d11b`,
+  `2,571` entries, `2,334` integrity records, and zero forbidden paths.
+- Installed smoke: packaged identity, two sandboxed windows, no forbidden runtime
+  descendants, no core credentials or development flags, durable close/reopen,
+  and exact deterministic Markdown export passed.
+- Installed representative proof: `100` units created in `2,690.3372` ms,
+  selected in `11.3134` ms, reopened clean, and exported with exact bytes.
+- Approved uninstall exited `0`; the executable and uninstaller were removed.
+  All `115` recorded external synthetic project/export files remained present
+  with unchanged SHA-256 values. Reinstall exited `0` and restored the exact
+  `210,950,656`-byte unsigned executable.
+- Jason's final judgment is recorded: Package `19.22` is acceptable as the
+  completed barebones internal V1 baseline and does not authorize a public
+  release, alpha, beta, or production-readiness claim.
+- Exact-commit CI remains mandatory before closure.
+
+## 6. Retained boundary dispositions
 
 - Package `19.14` numeric scoring, packet finalization, and another provider
   capture remain inactive and unauthorized.
@@ -86,7 +110,7 @@ or weakened assertion may substitute for repair.
   must resolve to a verified later repair or an exact owner and reopening
   trigger before Package `19.22` closes.
 
-## 6. Stop conditions
+## 7. Stop conditions
 
 Package `19.22` cannot close while any active first-party lint warning, test
 failure, unexpected skip, flaky retry dependency, leaked process, build

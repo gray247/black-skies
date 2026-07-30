@@ -1002,7 +1002,9 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByText('(Empty manuscript prose)')).toBeVisible();
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveAttribute('readonly');
     expect(screen.getByRole('button', { name: 'Create unit' })).toBeDisabled();
-    await userEvent.click(screen.getAllByRole('button', { name: 'Recover this prose' })[0]);
+    await act(async () => {
+      await userEvent.click(screen.getAllByRole('button', { name: 'Recover this prose' })[0]);
+    });
     expect(harness.bridge.acceptRecoveryCandidate).toHaveBeenCalledWith(expect.objectContaining({
       projectId: 'proj_a',
       projectPath: 'C:\\projects\\a',
@@ -1032,7 +1034,10 @@ describe('Stage19WritingSpineApp', () => {
     );
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Recover this prose' }));
+    const recoverButton = await screen.findByRole('button', { name: 'Recover this prose' });
+    await act(async () => {
+      await userEvent.click(recoverButton);
+    });
     const nextProject = snapshot('writing', {
       projectId: 'proj_b',
       path: 'C:\\projects\\b',
@@ -1148,13 +1153,17 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
 
-    await user.click(screen.getByRole('button', { name: 'Create unit' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Create unit' }));
+    });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The manuscript unit could not be created',
     );
     expect(screen.getByRole('heading', { name: 'Project A' })).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Open project…' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Open project…' }));
+    });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The project operation could not reach the application service',
     );
@@ -1463,9 +1472,11 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
 
-    await user.click(editor);
-    await user.type(editor, '{enter}');
-    await user.click(screen.getByRole('button', { name: /^Save$/ }));
+    await act(async () => {
+      await user.click(editor);
+      await user.type(editor, '{enter}');
+      await user.click(screen.getByRole('button', { name: /^Save$/ }));
+    });
 
     await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
     const request = vi.mocked(harness.bridge.saveUnit!).mock.calls[0][0];
@@ -1479,10 +1490,14 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
-    await user.type(editor, ' immediate state');
+    await act(async () => {
+      await user.type(editor, ' immediate state');
+    });
     expect(await screen.findByText('1 unsaved unit')).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+    });
     expect(await screen.findByText('Saved durably')).toBeVisible();
     expect(harness.current.dirtyUnitIds).toEqual([]);
   });
@@ -1634,7 +1649,9 @@ describe('Stage19WritingSpineApp', () => {
     (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
     fireEvent.select(editor);
     expect(screen.getByRole('button', { name: 'Review outbound critique request' })).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+    });
 
     expect(await screen.findByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
     expect(screen.getByText('gpt-5.4-2026-03-05')).toBeVisible();
@@ -1651,16 +1668,22 @@ describe('Stage19WritingSpineApp', () => {
     }));
 
     const keyInput = screen.getByLabelText('OpenAI API key (session only; no readback)');
-    await user.type(keyInput, 'synthetic-session-credential-123456');
-    await user.click(screen.getByRole('button', { name: 'Set session key' }));
+    await act(async () => {
+      await user.type(keyInput, 'synthetic-session-credential-123456');
+      await user.click(screen.getByRole('button', { name: 'Set session key' }));
+    });
     expect(keyInput).toHaveValue('');
     expect(ai.bridge.setCredential).toHaveBeenCalledWith('synthetic-session-credential-123456');
 
     const approve = screen.getByRole('button', { name: 'Approve and send exact payload' });
     expect(approve).toBeDisabled();
-    await user.click(screen.getByLabelText('Confirm exact prose is cleared for remote transmission.'));
+    await act(async () => {
+      await user.click(screen.getByLabelText('Confirm exact prose is cleared for remote transmission.'));
+    });
     expect(approve).toBeEnabled();
-    await user.click(approve);
+    await act(async () => {
+      await user.click(approve);
+    });
     expect(ai.bridge.approveAndExecute).toHaveBeenCalledWith(expect.objectContaining({
       requestId: 'ai-request-1',
       payloadHash: 'c'.repeat(64),

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
 
@@ -41,10 +41,14 @@ describe('Offline / reconnect behavior', () => {
   it('refreshes analytics once after reconnect', async () => {
     const user = userEvent.setup();
     render(<OfflineAppHarness />);
-    await user.click(screen.getByTestId('retry'));
+    await act(async () => {
+      await user.click(screen.getByTestId('retry'));
+    });
     await waitFor(() => expect(screen.getByTestId('service-status').textContent).toBe('online'));
     await waitFor(() => expect(screen.getByTestId('analytics-count').textContent).toBe('1'));
-    await user.click(screen.getByTestId('retry'));
+    await act(async () => {
+      await user.click(screen.getByTestId('retry'));
+    });
     expect(screen.getByTestId('analytics-count').textContent).toBe('1');
   });
 });

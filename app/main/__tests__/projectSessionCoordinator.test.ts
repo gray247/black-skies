@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import path from 'node:path';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import {
   ProjectSessionCoordinator,
@@ -163,7 +164,7 @@ describe('ProjectSessionCoordinator', () => {
     const exact = binding(coordinator, active, 'checkpoint');
 
     expect(coordinator.getRecoveryCheckpointContext(exact, 'unit_1')).toMatchObject({
-      project: { projectId: 'proj_recovery', path: active.path },
+      project: { projectId: 'proj_recovery', path: path.resolve(active.path) },
       generation: 1,
     });
     expect(() => coordinator.getRecoveryCheckpointContext({ ...exact, generation: 0 }, 'unit_1'))
