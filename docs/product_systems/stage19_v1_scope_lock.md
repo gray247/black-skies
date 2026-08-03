@@ -116,9 +116,10 @@ without its owning authorization.
 ## 9. Stage 19/V1.0 closure floor
 
 Closure requires all required packages, critical static/automated/Electron
-gates, manual happy/failure/isolation/real-session/two-monitor acceptance,
-packaged installation acceptance, no unresolved P0/P1, honest recovery and
-known limitations, release documentation, a clean synchronized repository,
-correct version/tag, and Jason's explicit release authorization.
+gates, automated and Computer Use happy/failure/isolation/real-session/two-monitor
+acceptance, packaged installation acceptance, no unresolved P0/P1/P2/P3,
+honest recovery and known limitations, internal-build documentation, a clean
+synchronized repository, version `1.0.0-rc1` without a tag, and Jason's exact
+internal-milestone judgment.
 
 PZ_CONTINUE: Black Skies V1.0 scope locked for Stage 19 planning; runtime continuation still requires separate package authorization

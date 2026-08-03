@@ -18,8 +18,8 @@ The inventory includes:
 - current user, support, security, developer, package, rollback, and UI
   guidance;
 - the current product-roadmap and truth-index entry points;
-- the Stage 19 scope, master plan, Package `19.21` receipt, Package `19.22`
-  ledger, and final handover; and
+- the Stage 19 scope, master plan, Package `19.22` ledger, and final handover;
+  and
 - the internal build record retained under the filename `RELEASE.md`.
 
 Package closure records not listed here remain immutable historical receipts.

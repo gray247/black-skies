@@ -164,7 +164,7 @@ export default function DraftEditor({
     if (!diffConfig) {
       return [];
     }
-    // TODO: integrate merge/diff view once diff pipelines are available.
+    // Deferred as UNSCHEDULED_NON_V1 in docs/deferred/smart_merge_tool.md.
     return [];
   }, [diffConfig]);
 

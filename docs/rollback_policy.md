@@ -75,7 +75,7 @@ Record:
 - preservation evidence;
 - rerun results;
 - every P0/P1/P2/P3 disposition; and
-- explicit human/release authorization.
+- Jason's exact internal-milestone judgment for the qualified candidate.
 
 Package `19.22` remains the final internal barebones V1.0 baseline boundary.
 This policy does not authorize tags, public releases, signing requests,

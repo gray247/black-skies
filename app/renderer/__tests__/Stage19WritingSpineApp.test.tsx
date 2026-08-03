@@ -867,7 +867,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.queryByText(/failed/i)).not.toBeInTheDocument();
   });
 
-  it('attributes delayed export completion to its original project after a project switch', async () => {
+  it('discards delayed export completion after an authoritative project switch', async () => {
     const projectA = snapshot('writing');
     const harness = createBridge(projectA);
     let resolveExport: ((result: ProjectSpineResult<ExportMarkdownResultData>) => void) | null = null;
@@ -913,11 +913,11 @@ describe('Stage19WritingSpineApp', () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
   });
 
-  it('keeps a prior export cancellation isolated from the active project and its next export', async () => {
+  it('retires a prior export cancellation when switching projects and keeps the next export independent', async () => {
     const projectA = snapshot('writing');
     const projectB = snapshot('writing', {
       projectId: 'proj_b',
@@ -970,7 +970,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
     expect(screen.getByText('Saved durably')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Export Markdown…' })).toBeEnabled();
-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
 
     await act(async () => {
       await userEvent.click(screen.getByRole('button', { name: 'Export Markdown…' }));
@@ -982,6 +982,66 @@ describe('Stage19WritingSpineApp', () => {
       revision: 3,
     }));
     expect(await screen.findByText(/Markdown export for Project B/)).toBeVisible();
+    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+  });
+
+  it('keeps an export notice through a same-project revision', async () => {
+    const projectA = snapshot('writing');
+    const harness = createBridge(projectA);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+    expect(await screen.findByText(/Markdown export for Project A/)).toBeVisible();
+
+    act(() => harness.emit(snapshot('writing', { revision: 2 })));
+    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+  });
+
+  it('does not resurrect an old export after switching away and back to the same project', async () => {
+    const projectA = snapshot('writing');
+    const projectB = snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 2,
+    });
+    const returnedProjectA = snapshot('writing', { generation: 3, revision: 1 });
+    const harness = createBridge(projectA);
+    let resolveExport: ((result: ProjectSpineResult<ExportMarkdownResultData>) => void) | null = null;
+    vi.mocked(harness.bridge.exportMarkdown!).mockImplementationOnce(
+      () => new Promise<ProjectSpineResult<ExportMarkdownResultData>>((resolve) => {
+        resolveExport = resolve;
+      }),
+    );
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+    act(() => harness.emit(projectB));
+    await screen.findByRole('heading', { name: 'Project B' });
+    act(() => harness.emit(returnedProjectA));
+    await screen.findByRole('heading', { name: 'Project A' });
+
+    await act(async () => {
+      resolveExport!({
+        ok: true,
+        data: {
+          status: 'cancelled',
+          projectId: 'proj_a',
+          generation: 1,
+          revision: 1,
+          operationId: 'export-a-cancelled',
+        },
+        snapshot: projectA,
+      });
+      await Promise.resolve();
+    });
+
     expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
   });
 

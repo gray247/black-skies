@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-06-08
+Last Reviewed: 2026-08-03
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Package 19.22 internal-V1 closure execution authorized with public release actions prohibited:
+  - records `BS-19.22-P1-23`: earlier `a88ed9b` artifact evidence and `0d4e05d` Linux CI are historical inputs, not closure evidence for the next renderer-changing candidate,
+  - records `BS-19.22-P3-04` and `P3-24` as an in-package repair: export notices now retire on authoritative project-generation changes and stale asynchronous results are discarded,
+  - requires one exact source SHA, Windows artifact, installed receipt, CI record, and Jason verdict before closure; no mixed-candidate evidence is acceptable,
+  - retains Package 19.14 scoring/provider tooling in place as inactive historical qualification tooling and excludes Smart Merge from internal V1 as `UNSCHEDULED_NON_V1`.
 - [2026-07-29] Package 19.20 packaged-RC acceptance authorized and twice-reviewed:
   - binds the first human pass to exact installer `BlackSkies-Setup-1.0.0-rc1.exe`, 89,318,050 bytes, SHA-256 `3f59db2f17566a99a269968cd9dba7785646cc7652f4948cb99dc4d1c163a0e0`, from implementation commit `85c1524`,
   - separates carried-forward Package 19.19 automation from the smaller human trust boundary and consolidates installed happy path, defect retest, isolation, failures, recovery, offline core, physical windows, uninstall, and reinstall,

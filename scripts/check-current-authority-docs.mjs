@@ -20,6 +20,12 @@ if (new Set(documents).size !== documents.length) {
   throw new Error('Current-authority documentation inventory contains a duplicate path.');
 }
 
+const package1921Closure = 'docs/product_systems/stage19_package_19_21_closure.md';
+const package1922Closure = 'docs/product_systems/stage19_package_19_22_closure.md';
+if (documents.includes(package1921Closure) && documents.includes(package1922Closure)) {
+  throw new Error('Current-authority inventory cannot contain both Package 19.21 and 19.22 closure receipts.');
+}
+
 const missingDocuments = documents.filter((documentPath) => {
   return !existsSync(resolve(repoRoot, documentPath));
 });
@@ -90,9 +96,21 @@ if (unresolved.length > 0) {
 const claimPatterns = [
   /\b(?:is|are)\s+(?:release[- ]ready|production[- ]ready)\b/i,
   /\bpublic V1\b/i,
-  /\bPackage `?19\.22`?.{0,40}\b(?:release|release\/tag) boundary\b/i,
+  /\bPackage `?19\.22`?.{0,80}\b(?:release|release\/tag) boundary\b/i,
   /\bPackage 19\.22 implementation\/release\b/i,
+  /\bPackage `?19\.22`?.{0,120}\b(?:explicit |final )?release authorization\b/i,
 ];
+const rejectedClaimSentinels = [
+  'Package 19.22 is the final V1.0 closure/release boundary.',
+  'Package 19.22 requires Jason\'s explicit release authorization.',
+  'Package 19.22 is production-ready.',
+  'Package 19.22 is public V1.',
+];
+for (const sentinel of rejectedClaimSentinels) {
+  if (!claimPatterns.some((pattern) => pattern.test(sentinel))) {
+    throw new Error(`Stale-claim guard does not reject its required sentinel: ${sentinel}`);
+  }
+}
 const staleClaims = [];
 for (const documentPath of documents) {
   const source = readFileSync(resolve(repoRoot, documentPath), 'utf8');

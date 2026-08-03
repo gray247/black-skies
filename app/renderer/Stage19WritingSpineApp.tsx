@@ -449,6 +449,7 @@ export default function Stage19WritingSpineApp({
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
   const dirtyReportPromisesRef = useRef(new Map<string, Promise<void>>());
   const appliedGenerationRef = useRef(0);
+  const markdownExportOperationRef = useRef(0);
   const appliedRecoveryUnitsRef = useRef(new Set<string>());
   const recoveryDecisionSubmissionRef = useRef<{
     readonly id: string;
@@ -512,6 +513,9 @@ export default function Stage19WritingSpineApp({
       appliedRecoveryUnitsRef.current.clear();
       recoveryDecisionSubmissionRef.current = null;
       setRecoveryDecisionUnitId(null);
+      markdownExportOperationRef.current += 1;
+      setExportingMarkdown(false);
+      setMarkdownExportNotice(null);
     }
     setSnapshot(next);
     snapshotRef.current = next;
@@ -1264,11 +1268,23 @@ export default function Stage19WritingSpineApp({
     const source = {
       projectId: current.project.projectId,
       projectTitle: current.project.title.trim() || 'Untitled Project',
+      generation: current.generation,
+    };
+    const operation = markdownExportOperationRef.current + 1;
+    markdownExportOperationRef.current = operation;
+    const sourceIsCurrent = () => {
+      const latest = snapshotRef.current;
+      return (
+        markdownExportOperationRef.current === operation &&
+        latest.generation === source.generation &&
+        latest.project?.projectId === source.projectId
+      );
     };
     setExportingMarkdown(true);
     setMarkdownExportNotice(null);
     try {
       const result = await api({ ...binding, revision: current.revision });
+      if (!sourceIsCurrent()) return;
       if (!result.ok) {
         setMarkdownExportNotice({
           ...source,
@@ -1291,13 +1307,16 @@ export default function Stage19WritingSpineApp({
         message: `Export complete: ${result.data.destinationPath} (${result.data.byteLength} bytes, ${result.data.unitCount} unit${result.data.unitCount === 1 ? '' : 's'}).`,
       });
     } catch {
+      if (!sourceIsCurrent()) return;
       setMarkdownExportNotice({
         ...source,
         tone: 'failure',
         message: 'Markdown export could not reach the application service. No completion was recorded.',
       });
     } finally {
-      setExportingMarkdown(false);
+      if (markdownExportOperationRef.current === operation) {
+        setExportingMarkdown(false);
+      }
     }
   }, [bridge, windowRole]);
 

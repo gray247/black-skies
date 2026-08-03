@@ -3,14 +3,20 @@ param(
   [string]$InstalledExecutable,
 
   [Parameter(Mandatory = $true)]
-  [string]$EvidenceRoot
+  [string]$EvidenceRoot,
+
+  [Parameter(Mandatory = $true)]
+  [string]$InstallerPath,
+
+  [Parameter(Mandatory = $true)]
+  [string]$ReceiptPath
 )
 
 $ErrorActionPreference = "Stop"
-$expectedExecutableHash = "4ac995b39fb917f7f1d4b7afa8d2bf148f6caf60bc66e4899b3e20edafc04e59"
-$expectedAsarHash = "2d1343640a53882d4a26589b526973886e899fd3dbabfc4625b8cd34396c3e4b"
 $executable = [System.IO.Path]::GetFullPath($InstalledExecutable)
 $evidenceRoot = [System.IO.Path]::GetFullPath($EvidenceRoot)
+$installer = [System.IO.Path]::GetFullPath($InstallerPath)
+$receiptPath = [System.IO.Path]::GetFullPath($ReceiptPath)
 $installDirectory = Split-Path -Parent $executable
 $asarPath = Join-Path $installDirectory "resources\app.asar"
 $externalDataDirectory = Join-Path $evidenceRoot "ExternalData"
@@ -24,8 +30,22 @@ function Assert-Stage19 {
   }
 }
 
+Assert-Stage19 (Test-Path -LiteralPath $receiptPath -PathType Leaf) "The exact-candidate receipt is missing."
+$receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
+Assert-Stage19 ($receipt.schema -eq "black-skies.stage19.package-receipt.v1") "The candidate receipt schema differs."
+Assert-Stage19 ($receipt.qualifiedCommit -match "^[a-f0-9]{40}$") "The candidate receipt does not name an exact source commit."
+Assert-Stage19 ($receipt.version -eq "1.0.0-rc1") "The candidate receipt version differs."
+Assert-Stage19 ($receipt.signatureStatus -eq "NotSigned") "The candidate receipt signature truth differs."
+$expectedExecutableHash = [string]$receipt.unpacked.executable.sha256
+$expectedAsarHash = [string]$receipt.unpacked.asar.sha256
+$expectedInstallerHash = [string]$receipt.installer.sha256
+Assert-Stage19 ($expectedExecutableHash -match "^[a-f0-9]{64}$") "The candidate receipt executable hash is invalid."
+Assert-Stage19 ($expectedAsarHash -match "^[a-f0-9]{64}$") "The candidate receipt ASAR hash is invalid."
+Assert-Stage19 ($expectedInstallerHash -match "^[a-f0-9]{64}$") "The candidate receipt installer hash is invalid."
 Assert-Stage19 (Test-Path -LiteralPath $executable -PathType Leaf) "The installed executable is missing."
 Assert-Stage19 (Test-Path -LiteralPath $asarPath -PathType Leaf) "The installed ASAR is missing."
+Assert-Stage19 (Test-Path -LiteralPath $installer -PathType Leaf) "The exact candidate installer is missing."
+Assert-Stage19 ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant() -eq $expectedInstallerHash) "Installer SHA-256 differs from the candidate receipt."
 Assert-Stage19 ((Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash.ToLowerInvariant() -eq $expectedExecutableHash) "Installed executable SHA-256 differs."
 Assert-Stage19 ((Get-FileHash -LiteralPath $asarPath -Algorithm SHA256).Hash.ToLowerInvariant() -eq $expectedAsarHash) "Installed ASAR SHA-256 differs."
 Assert-Stage19 ((Get-AuthenticodeSignature -LiteralPath $executable).Status -eq "NotSigned") "Installed signature truth differs."
@@ -55,6 +75,10 @@ Assert-Stage19 ((Get-FileHash -LiteralPath $asarPath -Algorithm SHA256).Hash.ToL
 $evidence = [ordered]@{
   schema = "black-skies.stage19-20.representative-installed.v1"
   status = "passed"
+  qualifiedCommit = $receipt.qualifiedCommit
+  receiptPath = $receiptPath
+  installerPath = $installer
+  installerSha256 = $expectedInstallerHash
   installedExecutable = $executable
   installedExecutableSha256 = $expectedExecutableHash
   installedAsarSha256 = $expectedAsarHash
