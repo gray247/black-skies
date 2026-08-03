@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Package 19.22 exact-candidate Windows packaging proof `30860268774` failed before packaging in the fixed Stage 19 regression matrix:
+  - root cause: `bootstrapFreshProject` returned the caller's lexical Windows path while `loadProjectForSpine` correctly returned `fs.realpath` canonical identity; on GitHub-hosted Windows this split `C:\\Users\\RUNNER~1\\...` from `C:\\Users\\runneradmin\\...`, causing valid recovery/save bindings to fail as stale and cascading into unrelated test assertions,
+  - repair: the bootstrap boundary now returns the filesystem-canonical project root after the atomic rename, matching later load/open identity; the owning bootstrap regression compares the returned path with `realpath`,
+  - candidate impact: runtime source changed. Candidate `1080f9bd26f724f7cab6facc543e1824b2f817f8` and all of its CI evidence are historical inputs; the next pushed commit requires the complete exact-candidate ladder.
 - [2026-08-03] Package 19.22 internal-V1 closure execution authorized with public release actions prohibited:
   - records `BS-19.22-P1-23`: earlier `a88ed9b` artifact evidence and `0d4e05d` Linux CI are historical inputs, not closure evidence for the next renderer-changing candidate,
   - records `BS-19.22-P3-04` and `P3-24` as an in-package repair: export notices now retire on authoritative project-generation changes and stale asynchronous results are discarded,

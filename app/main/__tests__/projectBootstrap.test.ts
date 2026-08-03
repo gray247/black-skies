@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -69,7 +69,7 @@ describe('project bootstrap contract', () => {
     });
 
     expect(result.projectName).toBe('Brand New Story');
-    expect(result.projectPath).toBe(join(workspaceRoot, result.projectId));
+    expect(result.projectPath).toBe(await realpath(join(workspaceRoot, result.projectId)));
     expect(result.projectId).toMatch(/^proj_brand-new-story_[a-f0-9]{10}$/);
 
     expect((await stat(result.projectPath)).isDirectory()).toBe(true);

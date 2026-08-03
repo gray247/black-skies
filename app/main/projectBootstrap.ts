@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdtemp, mkdir, rename, rm, access, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rename, rm, access, realpath, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import type { OutlineFile, ProjectIssue } from '../shared/ipc/projectLoader';
 
@@ -235,7 +235,7 @@ export async function bootstrapFreshProject(
         request.initialState ?? 'empty',
       );
       await rename(tempWorkspace, projectPath);
-      return { projectPath, projectId, projectName: projectTitle };
+      return { projectPath: await realpath(projectPath), projectId, projectName: projectTitle };
     } catch (error) {
       await cleanupPath(tempWorkspace).catch(async () => {
         // If cleanup is unsafe or impossible, leave an explicit invalid marker behind.
