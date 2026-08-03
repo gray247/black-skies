@@ -985,6 +985,42 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
   });
 
+  it('discards a delayed export failure after an authoritative project switch', async () => {
+    const projectA = snapshot('writing');
+    const harness = createBridge(projectA);
+    let resolveExport: ((result: ProjectSpineResult<ExportMarkdownResultData>) => void) | null = null;
+    vi.mocked(harness.bridge.exportMarkdown!).mockImplementationOnce(
+      () => new Promise<ProjectSpineResult<ExportMarkdownResultData>>((resolve) => {
+        resolveExport = resolve;
+      }),
+    );
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    const exportButton = await screen.findByRole('button', { name: 'Export Markdown…' });
+    await act(async () => {
+      await userEvent.click(exportButton);
+    });
+    act(() => harness.emit(snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      title: 'Project B',
+      generation: 2,
+    })));
+    await screen.findByRole('heading', { name: 'Project B' });
+
+    await act(async () => {
+      resolveExport!({
+        ok: false,
+        error: { code: 'EXPORT_FAILED', message: 'Project A export failed.' },
+        snapshot: projectA,
+      });
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Project A export failed\./)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+  });
+
   it('keeps an export notice through a same-project revision', async () => {
     const projectA = snapshot('writing');
     const harness = createBridge(projectA);
