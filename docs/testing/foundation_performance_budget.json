@@ -1,6 +1,34 @@
 {
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
-  "baseline": null,
+  "baseline": {
+    "qualifiedCommit": "5c3316cf55bf0a7d480b52ba126641805b5e447d",
+    "windowsWorkflowRun": "30944258613",
+    "artifact": {
+      "id": "8906600512",
+      "name": "black-skies-1.0.0-rc1-5c3316cf55bf0a7d480b52ba126641805b5e447d",
+      "archiveSha256": "b04b944ecc91bf8d366e871f2e98eff75ef5ad65f1dac340c4cb62efc2d5a973",
+      "receiptSha256": "d8ca83596ec058992f6436b0dc15984a0be4744523d146bd78d877200d81e7de",
+      "installerSha256": "f2f1e6c9df78dbe6275d5b23489dd408d936716625c067d26b0f55a4756f84d7"
+    },
+    "metrics": {
+      "installer": { "byteLength": 87075685 },
+      "unpacked": {
+        "byteLength": 356232114,
+        "asar": { "byteLength": 14732388 },
+        "executable": { "byteLength": 210950656 },
+        "rendererChunks": { "totalByteLength": 1201236 }
+      },
+      "installedLifecycle": {
+        "performance": {
+          "coldLaunchDurationMs": 1472.7603,
+          "coldLaunchSamplesMs": [1472.7603, 1264.9132, 1154.4638999999997],
+          "coldLaunchSampleCount": 3,
+          "coldLaunchStatistic": "maximum",
+          "steadyStateWorkingSetBytes": 422920192
+        }
+      }
+    }
+  },
   "baselineRule": "The first reviewed exact-candidate Windows receipt using the three-sample fresh-user-data cold-launch protocol establishes the baseline. Its maximum observed launch time is the budget metric; missing, unverified, non-exact, or single-sample measurements fail closed."
 }
