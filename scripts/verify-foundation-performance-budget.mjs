@@ -26,8 +26,10 @@ try {
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
   const coldLaunch = receipt.installedLifecycle?.performance;
-  invariant(budget.measurementProtocol === 'prepared-profile-process-cold-median-v2', 'Performance budget measurement protocol is invalid.');
+  invariant(budget.measurementProtocol === 'main-process-monotonic-two-window-median-v3', 'Performance budget measurement protocol is invalid.');
   invariant(coldLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
+  invariant(coldLaunch?.coldLaunchMeasurementSource === 'main-process-monotonic-probe', 'Cold-launch measurement source is invalid.');
+  invariant(coldLaunch?.coldLaunchProbeSchema === 'black-skies.stage19.internal-startup-probe.v1', 'Cold-launch probe schema is invalid.');
   invariant(Number.isFinite(coldLaunch?.coldLaunchPreparationMs) && coldLaunch.coldLaunchPreparationMs > 0, 'Cold-launch preparation evidence is missing or invalid.');
   invariant(coldLaunch.coldLaunchPreparationWindowCount === 2, 'Cold-launch preparation did not prove two windows.');
   invariant(coldLaunch.coldLaunchPreparationVisibleWindowCount === 2, 'Cold-launch preparation did not prove two visible windows.');

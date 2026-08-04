@@ -322,6 +322,7 @@ describe('main split command launch hook', () => {
     delete process.env.BLACKSKIES_CONFIG_PATH;
     delete process.env.VITE_DEV_SERVER_URL;
     delete process.env.ELECTRON_RENDERER_URL;
+    delete process.env.STAGE19_INTERNAL_STARTUP_PROBE;
   });
 
   afterEach(async () => {
@@ -330,6 +331,7 @@ describe('main split command launch hook', () => {
     delete process.env.BLACKSKIES_FORCE_SERVICES;
     delete process.env.BLACKSKIES_SERVICES_PORT;
     delete process.env.BLACKSKIES_CONFIG_PATH;
+    delete process.env.STAGE19_INTERNAL_STARTUP_PROBE;
   });
 
   it('keeps the stable path at one BrowserWindow with no secondary launch', async () => {
@@ -352,6 +354,35 @@ describe('main split command launch hook', () => {
       'Split command mutation ownership classified',
       expect.anything(),
     );
+  });
+
+  it('records the qualification-only startup probe when both windows become visible', async () => {
+    process.env.STAGE19_INTERNAL_STARTUP_PROBE = '1';
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    const [writingStudio, commandCenter] = browserWindowState.instances;
+    writingStudio.emit('ready-to-show');
+    commandCenter.emit('ready-to-show');
+
+    const probe = Reflect.get(
+      globalThis,
+      Symbol.for('blackskies.stage19.internal.startupProbe'),
+    ) as {
+      schema?: string;
+      writingVisibleMs?: number;
+      commandVisibleMs?: number;
+      twoWindowVisibleMs?: number;
+    };
+    expect(probe.schema).toBe('black-skies.stage19.internal-startup-probe.v1');
+    expect(probe.writingVisibleMs).toEqual(expect.any(Number));
+    expect(probe.commandVisibleMs).toEqual(expect.any(Number));
+    expect(probe.twoWindowVisibleMs).toBeGreaterThanOrEqual(
+      Math.max(probe.writingVisibleMs!, probe.commandVisibleMs!),
+    );
+    expect(writingStudio.show).toHaveBeenCalledTimes(1);
+    expect(commandCenter.show).toHaveBeenCalledTimes(1);
   });
 
   it('loads an explicitly configured Vite development server in both dedicated windows', async () => {

@@ -87,6 +87,48 @@ function resolveProjectRoot(): string {
 }
 
 const projectRoot = resolveProjectRoot();
+const STAGE19_STARTUP_PROBE_KEY = Symbol.for('blackskies.stage19.internal.startupProbe');
+const stage19StartupProbeStartedAt =
+  process.env.STAGE19_INTERNAL_STARTUP_PROBE === '1' ? process.hrtime.bigint() : null;
+const stage19StartupProbe = stage19StartupProbeStartedAt
+  ? {
+      schema: 'black-skies.stage19.internal-startup-probe.v1',
+      writingVisibleMs: null as number | null,
+      commandVisibleMs: null as number | null,
+      twoWindowVisibleMs: null as number | null,
+    }
+  : null;
+
+if (stage19StartupProbe) {
+  Object.defineProperty(globalThis, STAGE19_STARTUP_PROBE_KEY, {
+    configurable: false,
+    enumerable: false,
+    value: stage19StartupProbe,
+    writable: false,
+  });
+}
+
+function recordStage19StartupWindowVisible(role: 'writing' | 'command'): void {
+  if (!stage19StartupProbe || !stage19StartupProbeStartedAt) {
+    return;
+  }
+  const elapsedMs = Number(process.hrtime.bigint() - stage19StartupProbeStartedAt) / 1_000_000;
+  if (role === 'writing') {
+    stage19StartupProbe.writingVisibleMs ??= elapsedMs;
+  } else {
+    stage19StartupProbe.commandVisibleMs ??= elapsedMs;
+  }
+  if (
+    stage19StartupProbe.twoWindowVisibleMs === null &&
+    stage19StartupProbe.writingVisibleMs !== null &&
+    stage19StartupProbe.commandVisibleMs !== null
+  ) {
+    stage19StartupProbe.twoWindowVisibleMs = Math.max(
+      stage19StartupProbe.writingVisibleMs,
+      stage19StartupProbe.commandVisibleMs,
+    );
+  }
+}
 
 if (process.env.PLAYWRIGHT !== '1') {
   process.on('exit', (code) => {
@@ -896,6 +938,7 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
 
   window.on('ready-to-show', () => {
     window.show();
+    recordStage19StartupWindowVisible('writing');
   });
 
   window.on('closed', () => {
@@ -986,6 +1029,7 @@ async function createSplitCommandSecondaryWindow(
   installNavigationGuard(window);
   window.on('ready-to-show', () => {
     window.show();
+    recordStage19StartupWindowVisible('command');
   });
   window.webContents.on('render-process-gone', (_event, details) => {
     console.error('[main] Split command secondary renderer gone', details);

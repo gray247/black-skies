@@ -1,43 +1,7 @@
 {
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
-  "measurementProtocol": "prepared-profile-process-cold-median-v2",
-  "baseline": {
-    "qualifiedCommit": "9b1f15518b4161ab7a694d8516b5bd77ea905669",
-    "windowsWorkflowRun": "30949541170",
-    "artifact": {
-      "id": "8908693941",
-      "name": "black-skies-1.0.0-rc1-9b1f15518b4161ab7a694d8516b5bd77ea905669",
-      "archiveSha256": "55ee72e24e495651673ed41ea72c8cf8bcf167063c6a47441295d790ded57acb",
-      "receiptSha256": "76ae86624c31e10aa5ae726f58f347f3137144126a5475825351c36d4ce17d64",
-      "installerSha256": "c38bea32bea91f1bdf10753bfea8f215c91f1c6c2448eb8052697785fb83b470"
-    },
-    "metrics": {
-      "installer": { "byteLength": 87075402 },
-      "unpacked": {
-        "byteLength": 356232682,
-        "asar": { "byteLength": 14732956 },
-        "executable": { "byteLength": 210950656 },
-        "rendererChunks": { "totalByteLength": 1201236 }
-      },
-      "installedLifecycle": {
-        "performance": {
-          "coldLaunchProtocol": "prepared-profile-process-cold-median-v2",
-          "coldLaunchPreparationMs": 965.3988000000002,
-          "coldLaunchPreparationWindowCount": 2,
-          "coldLaunchPreparationVisibleWindowCount": 2,
-          "coldLaunchPreparationSandboxedWindowCount": 2,
-          "coldLaunchDurationMs": 709.2880999999998,
-          "coldLaunchSamplesMs": [853.6562999999996, 705.4609, 719.3157000000001, 709.0303999999996, 709.2880999999998],
-          "coldLaunchSampleCount": 5,
-          "coldLaunchSampleWindowCounts": [2, 2, 2, 2, 2],
-          "coldLaunchSampleVisibleWindowCounts": [2, 2, 2, 2, 2],
-          "coldLaunchSampleSandboxedWindowCounts": [2, 2, 2, 2, 2],
-          "coldLaunchStatistic": "median",
-          "steadyStateWorkingSetBytes": 424439808
-        }
-      }
-    }
-  },
-  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured profile-preparation lifecycle and exactly five fully closed process-cold launches against that prepared profile. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. The median of all five recorded launches is the budget metric. Missing, unverified, non-exact, or nonconforming measurements fail closed."
+  "measurementProtocol": "main-process-monotonic-two-window-median-v3",
+  "baseline": null,
+  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. The median of all five probe readings is the budget metric. Missing, unverified, non-exact, or nonconforming measurements fail closed."
 }

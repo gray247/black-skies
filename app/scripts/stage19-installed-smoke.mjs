@@ -30,7 +30,7 @@ const expectedMarkdown = [
 ].join("\n");
 const representativeUnitCount = 100;
 const coldLaunchSampleCount = 5;
-const coldLaunchProtocol = "prepared-profile-process-cold-median-v2";
+const coldLaunchProtocol = "main-process-monotonic-two-window-median-v3";
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -97,6 +97,7 @@ function sanitizedLaunchEnvironment() {
       delete environment[key];
     }
   }
+  environment.STAGE19_INTERNAL_STARTUP_PROBE = "1";
   return environment;
 }
 
@@ -416,6 +417,32 @@ async function coldLaunchReadiness(application) {
   return windows;
 }
 
+async function readColdLaunchProbe(application) {
+  const probe = await application.evaluate(() => {
+    const value = globalThis[Symbol.for("blackskies.stage19.internal.startupProbe")];
+    if (!value || typeof value !== "object") {
+      return null;
+    }
+    return {
+      schema: value.schema,
+      writingVisibleMs: value.writingVisibleMs,
+      commandVisibleMs: value.commandVisibleMs,
+      twoWindowVisibleMs: value.twoWindowVisibleMs
+    };
+  });
+  assert(
+    probe?.schema === "black-skies.stage19.internal-startup-probe.v1",
+    "Installed startup probe was unavailable or malformed."
+  );
+  assert(
+    Number.isFinite(probe.writingVisibleMs) &&
+      Number.isFinite(probe.commandVisibleMs) &&
+      Number.isFinite(probe.twoWindowVisibleMs),
+    "Installed startup probe did not record both visible windows."
+  );
+  return probe;
+}
+
 async function measureColdLaunch(executablePath, userDataPath) {
   mkdirSync(userDataPath, { recursive: true });
   let launched;
@@ -423,7 +450,9 @@ async function measureColdLaunch(executablePath, userDataPath) {
     const startedAt = performance.now();
     launched = await launchInstalled(executablePath, userDataPath);
     const readiness = await coldLaunchReadiness(launched.application);
-    const durationMs = performance.now() - startedAt;
+    const probe = await readColdLaunchProbe(launched.application);
+    const harnessReadyAtMs = performance.now() - startedAt;
+    const durationMs = probe.twoWindowVisibleMs;
     const truth = await runtimeTruth(
       launched.application,
       launched.writing,
@@ -445,6 +474,8 @@ async function measureColdLaunch(executablePath, userDataPath) {
     launched = undefined;
     return {
       durationMs,
+      harnessReadyAtMs,
+      probe,
       windowCount: truth.windows.length,
       visibleWindowCount: readiness.filter((window) => window.visible).length,
       sandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length
@@ -765,12 +796,16 @@ async function main() {
       zeroSurvivorProcessCount: 0,
       performance: {
         coldLaunchProtocol,
+        coldLaunchMeasurementSource: "main-process-monotonic-probe",
+        coldLaunchProbeSchema: coldLaunchPreparation.probe.schema,
         coldLaunchPreparationMs: coldLaunchPreparation.durationMs,
+        coldLaunchPreparationHarnessReadyAtMs: coldLaunchPreparation.harnessReadyAtMs,
         coldLaunchPreparationWindowCount: coldLaunchPreparation.windowCount,
         coldLaunchPreparationVisibleWindowCount: coldLaunchPreparation.visibleWindowCount,
         coldLaunchPreparationSandboxedWindowCount: coldLaunchPreparation.sandboxedWindowCount,
         coldLaunchDurationMs,
         coldLaunchSamplesMs,
+        coldLaunchHarnessReadyAtSamplesMs: coldLaunchSamples.map((sample) => sample.harnessReadyAtMs),
         coldLaunchSampleCount,
         coldLaunchSampleWindowCounts: coldLaunchSamples.map((sample) => sample.windowCount),
         coldLaunchSampleVisibleWindowCounts: coldLaunchSamples.map((sample) => sample.visibleWindowCount),
