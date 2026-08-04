@@ -379,7 +379,10 @@ def main() -> int:
     ci_proof = load_ci_proof(ci_proof_path)
     if args.validate_ci_proof_only:
         if ci_proof is None:
-            print("CI proof validation failed: proof manifest is missing or malformed.", file=sys.stderr)
+            print(
+                "CI proof validation failed: proof manifest is missing or malformed.",
+                file=sys.stderr,
+            )
             return 1
         requirements = {
             "PASS 3": [{"role": "summary"}],

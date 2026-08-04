@@ -126,6 +126,8 @@ jobs:
   app-e2e:
     name: HARNESS_ONLY App Smoke (Playwright)
     runs-on: ubuntu-latest
+    env:
+      BLACKSKIES_ENABLE_ANALYTICS: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -386,6 +388,8 @@ jobs:
   app-truth-lane:
     name: App Truth Lane (Real Service Path)
     runs-on: ubuntu-latest
+    env:
+      BLACKSKIES_ENABLE_ANALYTICS: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -521,6 +525,8 @@ jobs:
   gauntlet-pass5-proof:
     name: Gauntlet PASS 5 Proof (Harness/Smoke)
     runs-on: ubuntu-latest
+    env:
+      BLACKSKIES_ENABLE_ANALYTICS: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v5

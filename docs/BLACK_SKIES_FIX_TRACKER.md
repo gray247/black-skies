@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation exact-candidate CI failure loop (`df95bf510c95012a41fced4299b822ff46dbfa61`):
+  - Stage 19 Fixed Regression Gate and Windows Packaging Proof passed, but Validation & Eval Harness and Security Audit failed; their evidence is historical after the repairs below,
+  - root causes were explicit analytics opt-in missing from historical harness/truth jobs, one repo-wide Black formatting drift, a portable typing gap around the Windows-only `winerror` attribute, a pytest temporary-directory shim incompatible with positional pytest calls, and Safety exit code `64` being misclassified even though its JSON report was produced,
+  - repairs keep analytics disabled by default in the product and opt in only affected harness jobs; security still fails closed on a missing or malformed report, while Safety's documented completed-with-findings status is parsed as a report rather than treated as scanner unavailability,
+  - the next committed SHA must repeat the complete local, Linux, security, Windows packaging, artifact, and installed qualification ladder.
 - [2026-08-03] Foundation Python/Windows repair evidence on `codex/foundation-audit`:
   - Python `3.11.9` is available and the project-local qualification environment uses it; the prior Python-baseline environment block is cleared,
   - the workspace was checked for project-owned Electron/Python test processes before the rerun; only verified workspace-owned processes were stopped and no owned survivor remained,

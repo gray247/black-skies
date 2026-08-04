@@ -272,8 +272,14 @@ jobs:
               except Exception as exc:
                   raise SystemExit(f"Required security report is malformed: {path}: {exc}") from exc
 
-          for name in ("PIP_AUDIT_STATUS", "SAFETY_STATUS", "PNPM_AUDIT_STATUS"):
-              if os.environ.get(name) not in {"0", "1"}:
+          completed_statuses = {
+              "PIP_AUDIT_STATUS": {"0", "1"},
+              # Safety's legacy JSON command uses 64 when it completed and found issues.
+              "SAFETY_STATUS": {"0", "64"},
+              "PNPM_AUDIT_STATUS": {"0", "1"},
+          }
+          for name, accepted in completed_statuses.items():
+              if os.environ.get(name) not in accepted:
                   raise SystemExit(f"{name} indicates scanner failure, not a completed findings report: {os.environ.get(name)!r}")
 
           pip_audit = _load_json("pip-audit-report.json")

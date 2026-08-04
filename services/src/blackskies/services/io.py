@@ -32,7 +32,10 @@ def _replace_atomically(temp_path: str, path: Path) -> None:
             os.replace(temp_path, path)
             return
         except PermissionError as error:
-            if os.name != "nt" or error.winerror not in _WINDOWS_REPLACE_RETRY_ERRORS:
+            if (
+                os.name != "nt"
+                or getattr(error, "winerror", None) not in _WINDOWS_REPLACE_RETRY_ERRORS
+            ):
                 raise
             if attempt == _WINDOWS_REPLACE_ATTEMPTS - 1:
                 raise

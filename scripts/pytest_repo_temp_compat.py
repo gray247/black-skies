@@ -33,7 +33,7 @@ def pytest_configure(config) -> None:  # pragma: no cover - exercised via pytest
     pytest_pathlib.cleanup_dead_symlinks = _safe_cleanup_dead_symlinks
     pytest_tmpdir.cleanup_dead_symlinks = _safe_cleanup_dead_symlinks
 
-    def _safe_make_numbered_dir(*, root, prefix, mode=0o700):  # pragma: no cover
+    def _safe_make_numbered_dir(root, prefix, mode=0o700):  # pragma: no cover
         numbered_dir = _original_make_numbered_dir(root=root, prefix=prefix, mode=0o777)
         try:
             os.chmod(numbered_dir, 0o777)
