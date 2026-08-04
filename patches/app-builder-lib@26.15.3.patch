@@ -1,0 +1,28 @@
+diff --git a/templates/nsis/multiUser.nsh b/templates/nsis/multiUser.nsh
+index a810c8237ce630df986f91b54510e899b8dc80ad..d6b7d466e5db3cc8ca2c0356f35e9827cb87a1c6 100644
+--- a/templates/nsis/multiUser.nsh
++++ b/templates/nsis/multiUser.nsh
+@@ -27,4 +27,8 @@ Var installMode
+     ${if} $perUserInstallationFolder != ""
+       StrCpy $INSTDIR $perUserInstallationFolder
+     ${else}
++      # The NSIS 3.0.4.1 System plug-in crashes in SHGetKnownFolderPath on
++      # supported Windows 11 24H2 systems. Black Skies is explicitly per-user,
++      # so use NSIS's canonical LocalAppData variable instead of the optional
++      # known-folder override.
+       StrCpy $0 "$LocalAppData\Programs"
+@@ -32,14 +36,0 @@ Var installMode
+-      Push $1
+-      Push $2
+-      # UserProgramFiles is the per-user install root and can be a non-default location
+-      StrCpy $2 0
+-      System::Call 'SHELL32::SHGetKnownFolderPath(g "${FOLDERID_UserProgramFiles}", i ${KF_FLAG_CREATE}, p 0, *p .r2)i.r1'
+-      ${If} $1 == 0
+-        System::Call 'KERNEL32::lstrcpynW(w .r0, p r2, i ${NSIS_MAX_STRLEN})p'
+-      ${endif}
+-      # SHGetKnownFolderPath may return allocated memory even on failure
+-      ${If} $2 != 0
+-        System::Call 'OLE32::CoTaskMemFree(p r2)'
+-      ${endif}
+-      Pop $2
+-      Pop $1

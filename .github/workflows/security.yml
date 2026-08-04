@@ -327,19 +327,39 @@ jobs:
                           )
 
           pnpm_audit = _load_json("pnpm-audit-report.json")
-          if not isinstance(pnpm_audit, dict) or not isinstance(pnpm_audit.get("vulnerabilities"), dict):
+          if not isinstance(pnpm_audit, dict):
               raise SystemExit("pnpm audit report has an unexpected schema")
-          if isinstance(pnpm_audit, dict):
-              vulnerabilities = pnpm_audit.get("vulnerabilities")
-              if isinstance(vulnerabilities, dict):
-                  for package, data in vulnerabilities.items():
-                      if not isinstance(data, dict):
-                          continue
-                      severity = str(data.get("severity") or "").lower()
-                      if severity in SEVERITIES:
-                          findings.append(
-                              ("pnpm", str(package), severity, str(data.get("id") or "<unknown>"))
+          vulnerabilities = pnpm_audit.get("vulnerabilities")
+          advisories = pnpm_audit.get("advisories")
+          if isinstance(vulnerabilities, dict):
+              for package, data in vulnerabilities.items():
+                  if not isinstance(data, dict):
+                      continue
+                  severity = str(data.get("severity") or "").lower()
+                  if severity in SEVERITIES:
+                      findings.append(
+                          ("pnpm", str(package), severity, str(data.get("id") or "<unknown>"))
+                      )
+          elif isinstance(advisories, dict):
+              for advisory in advisories.values():
+                  if not isinstance(advisory, dict):
+                      continue
+                  severity = str(advisory.get("severity") or "").lower()
+                  if severity in SEVERITIES:
+                      findings.append(
+                          (
+                              "pnpm",
+                              str(advisory.get("module_name") or "<unknown>"),
+                              severity,
+                              str(
+                                  advisory.get("github_advisory_id")
+                                  or advisory.get("id")
+                                  or "<unknown>"
+                              ),
                           )
+                      )
+          else:
+              raise SystemExit("pnpm audit report has an unexpected schema")
 
           print(f"HIGH/CRITICAL findings: {len(findings)}")
           for source, package, severity, advisory in findings:

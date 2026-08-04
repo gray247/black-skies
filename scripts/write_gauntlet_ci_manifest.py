@@ -45,7 +45,7 @@ def main() -> int:
                 args.pass3_result,
                 args.commit_sha,
                 [
-                    {"role": "summary", "path": "pass3/build/ci_proof/pass3/summary.json"},
+                    {"role": "summary", "path": "pass3/summary.json"},
                 ],
             ),
             "PASS 4": _job(
@@ -53,12 +53,12 @@ def main() -> int:
                 args.pass4_result,
                 args.commit_sha,
                 [
-                    {"role": "summary", "path": "pass4/build/ci_proof/pass4/summary.json"},
+                    {"role": "summary", "path": "pass4/summary.json"},
                     {
                         "role": "truth_receipt_json",
-                        "path": "pass4/build/truth_receipts/latest.json",
+                        "path": "pass4/latest.json",
                     },
-                    {"role": "truth_receipt_txt", "path": "pass4/build/truth_receipts/latest.txt"},
+                    {"role": "truth_receipt_txt", "path": "pass4/latest.txt"},
                 ],
             ),
             "PASS 5": _job(
@@ -66,7 +66,7 @@ def main() -> int:
                 args.pass5_result,
                 args.commit_sha,
                 [
-                    {"role": "summary", "path": "pass5/build/ci_proof/pass5/summary.json"},
+                    {"role": "summary", "path": "pass5/summary.json"},
                 ],
             ),
             "PASS 6": _job(
@@ -74,7 +74,7 @@ def main() -> int:
                 args.pass6_result,
                 args.commit_sha,
                 [
-                    {"role": "summary", "path": "pass6/build/ci_proof/pass6/summary.json"},
+                    {"role": "summary", "path": "pass6/summary.json"},
                 ],
             ),
         },

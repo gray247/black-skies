@@ -18,6 +18,17 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation gauntlet-proof receipt repair:
+  - the exact-candidate Validation & Eval Harness producers all passed, but the final proof-manifest job failed closed because the artifact service stores each uploaded file at the artifact root while the manifest expected its producer-directory path,
+  - the manifest and its upload allowlist now name the downloaded artifact-root paths. This retains strict artifact presence, status, and exact-SHA validation; it does not add a placeholder or downgrade the proof requirement.
+- [2026-08-04] Foundation dependency security repair:
+  - the frozen JavaScript graph now upgrades the Windows packager and high/critical transitive dependencies, preserves the per-user NSIS safeguard as a package-version-specific patch, and has zero high/critical `pnpm audit` findings after a clean frozen install,
+  - the Stage 19 NSIS patch test is bound to the upgraded packager identity so a missing or stale patch cannot be mistaken for current qualification,
+  - two moderate development-tool findings (`uuid@9` beneath `react-mosaic-component` and `markdown-it@14.1.1` beneath `markdownlint-cli`) remain explicitly visible for a separately compatibility-scoped cleanup; neither is hidden by the high/critical gate.
+- [2026-08-04] Foundation security gate follow-up (`1c78012be93d0de0ea608c3d64cd7d573afbc92f`):
+  - both macOS and Ubuntu sweeps rejected a valid legacy `pnpm audit --json` advisory report because the parser accepted only the alternate `vulnerabilities` schema,
+  - the checker now recognizes both documented report layouts and fails closed on any other layout; this exposes rather than waives every HIGH/CRITICAL advisory,
+  - the resulting dependency findings are an active candidate blocker and will be repaired through the committed dependency authority before a replacement candidate is frozen.
 - [2026-08-04] Foundation exact-candidate CI failure loop (`df95bf510c95012a41fced4299b822ff46dbfa61`):
   - Stage 19 Fixed Regression Gate and Windows Packaging Proof passed, but Validation & Eval Harness and Security Audit failed; their evidence is historical after the repairs below,
   - root causes were explicit analytics opt-in missing from historical harness/truth jobs, one repo-wide Black formatting drift, a portable typing gap around the Windows-only `winerror` attribute, a pytest temporary-directory shim incompatible with positional pytest calls, and Safety exit code `64` being misclassified even though its JSON report was produced,

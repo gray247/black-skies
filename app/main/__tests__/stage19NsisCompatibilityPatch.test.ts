@@ -11,15 +11,15 @@ const rootPackage = JSON.parse(
 };
 const patchPath = path.join(
   repoRoot,
-  rootPackage.pnpm?.patchedDependencies?.["app-builder-lib@26.8.1"] ?? ""
+  rootPackage.pnpm?.patchedDependencies?.["app-builder-lib@26.15.3"] ?? ""
 );
 const patch = readFileSync(patchPath, "utf8");
 
 describe("Stage 19 NSIS Windows 11 compatibility patch", () => {
-  it("pins the exact app-builder-lib patch", () => {
+  it("pins the exact upgraded app-builder-lib patch", () => {
     expect(
-      rootPackage.pnpm?.patchedDependencies?.["app-builder-lib@26.8.1"]
-    ).toBe("patches/app-builder-lib@26.8.1.patch");
+      rootPackage.pnpm?.patchedDependencies?.["app-builder-lib@26.15.3"]
+    ).toBe("patches/app-builder-lib@26.15.3.patch");
   });
 
   it("removes only the crashing per-user known-folder System calls", () => {
