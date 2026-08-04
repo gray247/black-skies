@@ -35,6 +35,7 @@ packages = ["src/blackskies"]
 
 [tool.pytest.ini_options]
 addopts = [
+  "--import-mode=importlib",
   "--ignore=.venv",
   "--ignore=vendor",
   "--ignore=node_modules",

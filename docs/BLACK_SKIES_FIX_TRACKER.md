@@ -18,9 +18,17 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Foundation Python/Windows repair evidence on `codex/foundation-audit`:
+  - Python `3.11.9` is available and the project-local qualification environment uses it; the prior Python-baseline environment block is cleared,
+  - the workspace was checked for project-owned Electron/Python test processes before the rerun; only verified workspace-owned processes were stopped and no owned survivor remained,
+  - isolated Python 3.11 service evidence: `635 passed in 35.54s` with a unique repository-local temporary root,
+  - repaired Windows persistence seams: short atomic temporary names preserve path-length headroom; same-target memory writes are serialized; restore diagnostics remain with the source project; and diagnostic storage failure cannot replace a controlled API error,
+  - this is local repair evidence only. The full exact-candidate Windows/Linux qualification ladder remains required after the resulting repair commit is frozen.
+- [2026-08-03] Foundation qualification repair: the first valid Python 3.11 full-suite collection found duplicate `test_agents` module basenames in `services/tests/unit/` and `tests/`. `pytest` now uses isolated import mode so both suites collect without module-cache aliasing. Re-run the full Python gate before verification.
+- [2026-08-03] Foundation qualification repair: Windows reproduced a same-target concurrent JSON replacement failure in deferred-memory artifact storage. `atomic_write_json` now serializes same-process writes per canonical target while retaining atomic replacement; the existing race regression is the verification witness.
 - [2026-08-03] Foundation hardening Phase 1 / Phase 2 implementation is in progress on `codex/foundation-audit`:
   - `FND-002`, `FND-003`, `FND-005`, `FND-006`, `FND-008`, and `FND-013` are partially repaired: CI installs are frozen, the service dependency entry point delegates to root lockfiles, the machine-specific configuration is removed, historical trace/CI output is archived outside active paths, and harness service ports are isolated per run,
-  - Python 3.11 is now an explicit local check; the current workstation has Python 3.13, so Python qualification remains blocked until a 3.11 interpreter is installed and selected,
+  - Python 3.11 is now an explicit local check and is available for the project-local qualification environment; the remaining Python work is the complete candidate gate rather than interpreter provisioning,
   - `docs/testing/intentional_skip_inventory.json` is the machine-readable inventory of the four Playwright opt-in lanes and the prohibited live-provider Vitest lane,
   - remaining Phase 1 work: fail-closed gauntlet/security receipt enforcement and exact-candidate execution evidence; remaining Phase 2 work: full Windows/Linux harness proof and zero-survivor receipts.
 - [2026-08-03] Foundation runtime and coverage inventories added:

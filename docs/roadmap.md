@@ -68,7 +68,7 @@ Open:
 ### P9 - Analytics and visualization (Partial)
 Landed:
 - Analytics routes and runtime guards in `services/src/blackskies/services/routers/analytics.py`
-- Default analytics maturity is production in `services/src/blackskies/services/feature_flags.py`
+- Analytics is non-baseline and defaults off in `services/src/blackskies/services/feature_flags.py`; it requires explicit internal opt-in.
 - Runtime truth lists analytics as baseline default on.
 
 Open:

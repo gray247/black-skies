@@ -18,7 +18,7 @@ Runtime claim sources:
 | `memory_lab_enabled` | advisory memory subsystem on/off | `experimental` or `off` | legacy boolean remains supported; explicit `memory_lab_maturity` overrides it; boolean is normalized from maturity during the migration window |
 | `BLACKSKIES_ENABLE_PLUGINS` | plugin execution on/off | `partial` or `off` | legacy env boolean remains supported; explicit `BLACKSKIES_PLUGINS_MATURITY` overrides it |
 | `BLACKSKIES_ENABLE_VOICE_NOTES` | deferred voice workflow on/off | `internal` or `off` | legacy env boolean remains supported; explicit `BLACKSKIES_VOICE_NOTES_MATURITY` overrides it |
-| `BLACKSKIES_ENABLE_ANALYTICS` | analytics available on/off | `production` or `off` | legacy env boolean remains supported; explicit `BLACKSKIES_ANALYTICS_MATURITY` overrides it |
+| `BLACKSKIES_ENABLE_ANALYTICS` | analytics internal opt-in on/off | `internal` or `off` | legacy env boolean remains supported; explicit `BLACKSKIES_ANALYTICS_MATURITY` overrides it |
 
 Diagnostics contract note:
 - maturity reporting in `/api/v1/healthz` is additive

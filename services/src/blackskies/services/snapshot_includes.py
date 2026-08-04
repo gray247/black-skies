@@ -10,6 +10,8 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Sequence
 from uuid import uuid4
 
+from .persistence.atomic import replace_file
+
 DEFAULT_SNAPSHOT_INCLUDES: tuple[str, ...] = ("drafts", "outline.json", "project.json")
 SNAPSHOT_IGNORE_PATTERNS: tuple[str, ...] = ("*.tmp",)
 
@@ -119,18 +121,18 @@ def copy_include_entries(include_specs: Sequence[SnapshotIncludeSpec]) -> list[s
 
 
 def _restore_directory(source: Path, target: Path) -> None:
-    temp_dir = target.parent / f".{target.name}.{uuid4().hex}.restore"
+    temp_dir = target.parent / f".{uuid4().hex}.restore"
     if temp_dir.exists():
         shutil.rmtree(temp_dir)
     shutil.copytree(source, temp_dir, dirs_exist_ok=True)
     if target.exists():
         shutil.rmtree(target)
-    temp_dir.replace(target)
+    replace_file(temp_dir, target)
 
 
 def _restore_file(source: Path, target: Path) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = target.parent / f".{target.name}.{uuid4().hex}.restore"
+    temp_path = target.parent / f".{uuid4().hex}.restore"
     shutil.copy2(source, temp_path)
     if hasattr(os, "fsync"):
         try:
@@ -139,7 +141,7 @@ def _restore_file(source: Path, target: Path) -> None:
         except OSError as exc:  # pragma: no cover - defensive handling
             if exc.errno not in _FSYNC_IGNORE_ERRNOS:
                 raise
-    temp_path.replace(target)
+    replace_file(temp_path, target)
 
 
 def restore_include_entries(

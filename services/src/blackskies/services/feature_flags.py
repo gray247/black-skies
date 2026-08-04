@@ -10,7 +10,6 @@ import os
 from enum import Enum
 
 
-
 class FeatureMaturity(str, Enum):
     """Feature exposure maturity for user-meaningful subsystems.
 

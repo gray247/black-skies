@@ -32,7 +32,7 @@ EXPECTED_HEALTH_PAYLOAD = {
     "backup_failed_snapshots": 0,
     "feature_maturity_contract": "diagnostics_only_v1",
     "feature_maturity": {
-        "analytics": "production",
+        "analytics": "off",
         "backup_verifier": "off",
         "memory_lab": "off",
         "plugins": "off",

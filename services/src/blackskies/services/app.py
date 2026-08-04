@@ -30,6 +30,7 @@ from .http import (
     request_validation_response,
     resolve_trace_id,
     build_error_payload,
+    record_diagnostic_safely,
 )
 from .middleware import BodySizeLimitMiddleware
 from .metrics import record_request
@@ -127,7 +128,8 @@ class TraceMiddleware:
                 audit_details.setdefault("method", request.method)
                 audit_details.setdefault("path", str(request.url.path))
                 audit_details.setdefault("trace_id", trace_id)
-                diagnostics.log(
+                record_diagnostic_safely(
+                    diagnostics,
                     exc.project_root,
                     code=exc.code,
                     message=exc.message,

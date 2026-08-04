@@ -147,6 +147,26 @@ def _sanitize_details(details: Any) -> Any:
     return details
 
 
+def record_diagnostic_safely(
+    diagnostics: DiagnosticLogger,
+    project_root: Path,
+    *,
+    code: str,
+    message: str,
+    details: dict[str, Any],
+) -> None:
+    """Record diagnostics without allowing storage trouble to change an API result."""
+
+    try:
+        diagnostics.log(project_root, code=code, message=message, details=details)
+    except OSError:
+        LOGGER.warning(
+            "Unable to persist diagnostic for service error %s; preserving response.",
+            code,
+            exc_info=True,
+        )
+
+
 def raise_service_error(
     *,
     status_code: int | None = None,
@@ -164,7 +184,13 @@ def raise_service_error(
     payload_message = message or definition.message
     final_status = status_code or definition.status_code
     if project_root is not None:
-        diagnostics.log(project_root, code=code, message=payload_message, details=safe_details)
+        record_diagnostic_safely(
+            diagnostics,
+            project_root,
+            code=code,
+            message=payload_message,
+            details=safe_details,
+        )
     service_error = ServiceError(
         code=code,
         status_code=final_status,

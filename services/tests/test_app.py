@@ -21,6 +21,14 @@ from uuid import UUID
 import httpx
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def enable_nonbaseline_analytics(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Application analytics tests opt into the non-baseline route family."""
+
+    monkeypatch.setenv("BLACKSKIES_ENABLE_ANALYTICS", "1")
+
+
 try:
     from fastapi import status
     from fastapi.testclient import TestClient
@@ -32,19 +40,24 @@ try:
 except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
     pytest.skip(f"yaml is required for service tests: {exc}", allow_module_level=True)
 
-from blackskies.services.analytics.service import AnalyticsSummaryService
-from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
-from blackskies.services.config import ServiceSettings
-from blackskies.services.diagnostics import DiagnosticLogger
-import blackskies.services.snapshots as snapshots_module
-from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
-from blackskies.services.routers.recovery import RecoveryTracker
-import blackskies.services.routers.draft.generation as draft_generation_router
-from blackskies.services.critique import CritiqueService
-import blackskies.services.operations.draft_accept as draft_accept_module
-from blackskies.services.operations.draft_accept import DraftAcceptService, DraftAcceptanceResult
-from blackskies.services.operations.draft_generation import DraftGenerationService
-from blackskies.services.scene_docs import DraftRequestError
+# These imports intentionally follow dependency gates so missing optional test
+# dependencies produce a module-level skip instead of an import failure.
+from blackskies.services.analytics.service import AnalyticsSummaryService  # noqa: E402
+from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app  # noqa: E402
+from blackskies.services.config import ServiceSettings  # noqa: E402
+from blackskies.services.diagnostics import DiagnosticLogger  # noqa: E402
+import blackskies.services.snapshots as snapshots_module  # noqa: E402
+from blackskies.services.persistence import DraftPersistence, SnapshotPersistence  # noqa: E402
+from blackskies.services.routers.recovery import RecoveryTracker  # noqa: E402
+import blackskies.services.routers.draft.generation as draft_generation_router  # noqa: E402
+from blackskies.services.critique import CritiqueService  # noqa: E402
+import blackskies.services.operations.draft_accept as draft_accept_module  # noqa: E402
+from blackskies.services.operations.draft_accept import (  # noqa: E402
+    DraftAcceptService,
+    DraftAcceptanceResult,
+)
+from blackskies.services.operations.draft_generation import DraftGenerationService  # noqa: E402
+from blackskies.services.scene_docs import DraftRequestError  # noqa: E402
 
 app_module = importlib.import_module("blackskies.services.app")
 
@@ -371,7 +384,7 @@ def test_health(test_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> Non
     assert payload["backup_failed_snapshots"] == 0
     assert payload["feature_maturity_contract"] == "diagnostics_only_v1"
     assert payload["feature_maturity"] == {
-        "analytics": "production",
+        "analytics": "internal",
         "backup_verifier": "off",
         "memory_lab": "off",
         "plugins": "off",
@@ -1913,6 +1926,15 @@ def test_draft_generate_provider_timeout_returns_controlled_error(
         )
 
     monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    def _diagnostic_write_failure(*_args: Any, **_kwargs: Any) -> None:
+        raise OSError("diagnostic storage is temporarily unavailable")
+
+    monkeypatch.setattr(
+        test_client.app.state.diagnostics,
+        "log",
+        _diagnostic_write_failure,
+    )
 
     response = test_client.post(
         f"{API_PREFIX}/draft/generate",

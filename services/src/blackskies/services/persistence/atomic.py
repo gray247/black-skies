@@ -45,6 +45,16 @@ _TRANSIENT_ERRNOS = {errno.EACCES, errno.EPERM}
 _TRANSIENT_WINERRORS = {5, 32}
 
 
+def _temporary_path(target_path: Path) -> Path:
+    """Return a short, unique sibling path for an atomic write.
+
+    Keeping the temporary name independent of the target filename preserves
+    headroom for deeply nested Windows project paths.
+    """
+
+    return target_path.parent / f".{uuid4().hex}.tmp"
+
+
 def replace_file(
     temp_path: Path,
     target_path: Path,
@@ -76,11 +86,14 @@ def write_json_atomic(path: Path, payload: dict[str, Any], *, durable: bool = Tr
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with locked_path(path):
-        temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
-        with temp_path.open("w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, ensure_ascii=False)
-            flush_handle(handle, durable=durable)
-        replace_file(temp_path, path)
+        temp_path = _temporary_path(path)
+        try:
+            with temp_path.open("w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, ensure_ascii=False)
+                flush_handle(handle, durable=durable)
+            replace_file(temp_path, path)
+        finally:
+            temp_path.unlink(missing_ok=True)
 
 
 def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None:
@@ -88,7 +101,7 @@ def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with locked_path(path):
-        temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
+        temp_path = _temporary_path(path)
         normalized = content.replace("\r\n", "\n")
         if not normalized.endswith("\n"):
             normalized = f"{normalized}\n"
@@ -101,13 +114,7 @@ def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None
 def dump_diagnostic(path: Path, payload: dict[str, Any]) -> None:
     """Write a JSON diagnostic payload to disk."""
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with locked_path(path):
-        temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
-        with temp_path.open("w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, ensure_ascii=False)
-            flush_handle(handle, durable=True)
-        replace_file(temp_path, path)
+    write_json_atomic(path, payload, durable=True)
 
 
 # Backwards compatibility for modules that still import the underscored names.

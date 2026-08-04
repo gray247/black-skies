@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Callable, Mapping
 
 from .diagnostics import DiagnosticLogger
 from .persistence import SnapshotPersistence
+from .persistence.atomic import replace_file
 
 if TYPE_CHECKING:
     from .routers.recovery import RecoveryTracker
@@ -259,12 +260,16 @@ def create_snapshot(project_root: Path) -> dict[str, Any]:
 
     snapshot_root = _snapshot_root(project_root)
     snapshot_root.mkdir(parents=True, exist_ok=True)
-    snapshot_id = _timestamp()
+    snapshot_id_base = _timestamp()
+    snapshot_id = snapshot_id_base
+    suffix = 1
     temp_dir = snapshot_root / f"{snapshot_id}.tmp"
     final_dir = snapshot_root / snapshot_id
-
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
+    while temp_dir.exists() or final_dir.exists():
+        snapshot_id = f"{snapshot_id_base}_{suffix:02d}"
+        temp_dir = snapshot_root / f"{snapshot_id}.tmp"
+        final_dir = snapshot_root / snapshot_id
+        suffix += 1
     temp_dir.mkdir(parents=True)
 
     files_included: list[dict[str, str]] = []
@@ -295,9 +300,7 @@ def create_snapshot(project_root: Path) -> dict[str, Any]:
     manifest_path = temp_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
-    if final_dir.exists():
-        shutil.rmtree(final_dir)
-    temp_dir.rename(final_dir)
+    replace_file(temp_dir, final_dir)
 
     prune_snapshots(project_root, keep=SNAPSHOT_RETENTION)
 

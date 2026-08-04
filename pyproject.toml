@@ -57,6 +57,9 @@ extend-exclude = '''
 /(?:\.venv[^/]*|node_modules|vendor|archive|dist|dist-electron|release)/
 '''
 
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+
 [tool.coverage.run]
 branch = true
 source = ["blackskies.services"]

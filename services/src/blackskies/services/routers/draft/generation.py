@@ -13,7 +13,12 @@ from pydantic import ValidationError
 from ...config import ServiceSettings
 from ...diagnostics import DiagnosticLogger
 from ...export import load_outline_artifact
-from ...http import ensure_trace_id, raise_service_error, raise_validation_error
+from ...http import (
+    ensure_trace_id,
+    raise_service_error,
+    raise_validation_error,
+    record_diagnostic_safely,
+)
 from ...models.draft import DraftGenerateRequest
 from ...scene_docs import DraftRequestError
 from ...service_errors import ServiceError
@@ -264,7 +269,8 @@ async def generate_draft(
             project_id=request_model.project_id,
             status="error",
         )
-        diagnostics.log(
+        record_diagnostic_safely(
+            diagnostics,
             resolved_project_root,
             code="PROVIDER_TIMEOUT",
             message="Draft provider timed out.",

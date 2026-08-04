@@ -10,7 +10,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from blackskies.services.io import atomic_write_json
+from blackskies.services.io import atomic_write_json, atomic_write_lock
 
 from .schemas import (
     AdvisoryArtifactEnvelope,
@@ -164,13 +164,14 @@ class MemoryPrototypeStorage:
         lineage_token = self._lineage_token(lineage)
         target = target_dir / f"{lineage_token}.json"
         self._assert_allowed_write(target)
-        self._assert_no_fallback_overwrite(lineage=lineage, target=target)
-        envelope = AdvisoryArtifactEnvelope.for_lineage(
-            lineage=lineage,
-            source_hashes=source_hashes,
-        ).as_dict()
-        blob = {"envelope": envelope, "payload": payload, "advisory": True}
-        atomic_write_json(target, blob)
+        with atomic_write_lock(target):
+            self._assert_no_fallback_overwrite(lineage=lineage, target=target)
+            envelope = AdvisoryArtifactEnvelope.for_lineage(
+                lineage=lineage,
+                source_hashes=source_hashes,
+            ).as_dict()
+            blob = {"envelope": envelope, "payload": payload, "advisory": True}
+            atomic_write_json(target, blob)
         return target
 
     def write_diagnostic(

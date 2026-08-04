@@ -274,10 +274,11 @@ def validate_restored_copy(
         operation["completion_status"] = "validated-success"
         return True, operation
 
+    source_project_root = restored_root.parent / restored_root.name.split("_restored_", 1)[0]
     diagnostics.log(
-        restored_root,
+        source_project_root,
         code="INTEGRITY_POST_RESTORE",
-        message="Restored project failed integrity validation.",
+        message="Restored project failed integrity validation; source project retained the diagnostic.",
         details={"errors": integrity.errors, "warnings": integrity.warnings},
     )
 
@@ -289,9 +290,9 @@ def validate_restored_copy(
         cleanup_status = "failed-preserved"
         degraded_reasons.append("cleanup-failed-preserved")
         diagnostics.log(
-            restored_root,
+            source_project_root,
             code="RESTORE_CLEANUP_FAILED",
-            message="Restored project cleanup failed after validation error.",
+            message="Restored project cleanup failed after validation error; source project retained the diagnostic.",
             details={"error": str(cleanup_error)},
         )
 

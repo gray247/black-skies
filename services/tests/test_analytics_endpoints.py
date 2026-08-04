@@ -7,6 +7,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.fixture(autouse=True)
+def enable_nonbaseline_analytics(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Endpoint coverage opts into the intentionally non-baseline analytics surface."""
+
+    monkeypatch.setenv("BLACKSKIES_ENABLE_ANALYTICS", "1")
+
+
 def _seed_project(client: TestClient, project_id: str) -> None:
     base_dir = Path(client.app.state.settings.project_base_dir)
     project_root = base_dir / project_id

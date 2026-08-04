@@ -23,6 +23,13 @@ from .test_app import (
 pytestmark = pytest.mark.anyio("asyncio")
 
 
+@pytest.fixture(autouse=True)
+def enable_nonbaseline_analytics(monkeypatch: pytest.MonkeyPatch) -> None:
+    """This legacy analytics-export scenario must opt into analytics explicitly."""
+
+    monkeypatch.setenv("BLACKSKIES_ENABLE_ANALYTICS", "1")
+
+
 @pytest.fixture()
 def anyio_backend() -> str:
     """Force AnyIO to use the asyncio backend."""
