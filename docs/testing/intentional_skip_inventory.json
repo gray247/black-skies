@@ -17,7 +17,7 @@
       "reopening_trigger": "A scoped snapshots-panel qualification lane is authorized."
     },
     {
-      "identity": "real-service truth lane", 
+      "identity": "real-service truth lane",
       "framework": "Playwright",
       "reason": "The real-service reference lane is opt-in and must not be represented by service stubs.",
       "owner": "Service truth",
