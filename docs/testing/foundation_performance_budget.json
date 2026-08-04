@@ -1,6 +1,29 @@
 {
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
-  "baseline": null,
+  "baseline": {
+    "qualifiedCommit": "a00189f731159f314b83f7fce548a1cc1fd17bfb",
+    "windowsWorkflowRun": "30941009910",
+    "artifact": {
+      "id": "8905315820",
+      "name": "black-skies-1.0.0-rc1-a00189f731159f314b83f7fce548a1cc1fd17bfb",
+      "receiptSha256": "84b2b03c8813e3d2de6918bbcf378a98f206415c26b69e604dc4adec71329fb7"
+    },
+    "metrics": {
+      "installer": { "byteLength": 87077205 },
+      "unpacked": {
+        "byteLength": 356232093,
+        "asar": { "byteLength": 14732367 },
+        "executable": { "byteLength": 210950656 },
+        "rendererChunks": { "totalByteLength": 1201215 }
+      },
+      "installedLifecycle": {
+        "performance": {
+          "coldLaunchDurationMs": 1575.3719,
+          "steadyStateWorkingSetBytes": 424214528
+        }
+      }
+    }
+  },
   "baselineRule": "The first complete exact-candidate Windows receipt establishes the baseline. Missing, unverified, or non-exact measurements fail closed."
 }

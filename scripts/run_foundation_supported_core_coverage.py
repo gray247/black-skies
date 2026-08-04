@@ -11,7 +11,6 @@ import xml.etree.ElementTree as element_tree
 from datetime import UTC, datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "docs" / "testing" / "foundation_supported_core_coverage.json"
 
@@ -41,12 +40,14 @@ def main() -> int:
     if minimum != 60 or not isinstance(included, list) or not included:
         raise RuntimeError("Supported-core coverage policy is incomplete.")
     modules = [entry.get("pythonModule") for entry in included if entry.get("pythonModule")]
-    test_paths = sorted({
-        entry["verification"]
-        for entry in included
-        if isinstance(entry.get("verification"), str)
-        and entry["verification"].startswith("services/")
-    })
+    test_paths = sorted(
+        {
+            entry["verification"]
+            for entry in included
+            if isinstance(entry.get("verification"), str)
+            and entry["verification"].startswith("services/")
+        }
+    )
     if not modules:
         raise RuntimeError("Supported-core coverage manifest has no Python modules.")
     if any(not isinstance(module, str) or not module for module in modules):
@@ -72,7 +73,9 @@ def main() -> int:
     ]
     result = subprocess.run(command, cwd=ROOT, text=True)
     if result.returncode != 0:
-        raise RuntimeError(f"Supported-core coverage test command failed with exit code {result.returncode}.")
+        raise RuntimeError(
+            f"Supported-core coverage test command failed with exit code {result.returncode}."
+        )
     if not raw_report.is_file():
         raise RuntimeError("Coverage JSON report was not produced.")
     if not junit_report.is_file():
