@@ -35,6 +35,7 @@ build/*
 !build/runtime_truth.schema.json
 .venv/
 .venv*/
+.foundation-venv*/
 venv/
 env/
 codex_temp/
