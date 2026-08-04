@@ -1118,6 +1118,52 @@ describe('project-spine IPC', () => {
     })).resolves.toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
   });
 
+  it('requires an explicit discard when a current-session checkpoint is the only unsaved-work evidence', async () => {
+    const parent = await temporaryRoot();
+    const createdA = await bootstrapFreshProject({ parentPath: parent, title: 'Checkpoint Guard A' });
+    const createdB = await bootstrapFreshProject({ parentPath: parent, title: 'Checkpoint Guard B' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(createdA.projectPath),
+      'Checkpoint Guard Unit',
+    );
+    const openedA = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: createdA.projectPath,
+      operationId: 'open-checkpoint-guard-a',
+    });
+    const bindingA = {
+      projectId: createdA.projectId,
+      projectPath: createdA.projectPath,
+      generation: openedA.snapshot.generation,
+      unitId: withUnit.unitId,
+    };
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.captureRecoveryCheckpoint, 1, {
+      ...bindingA,
+      operationId: 'checkpoint-without-dirty-report',
+      prose: 'Protected prose from a delayed dirty report',
+    })).resolves.toMatchObject({ ok: true, data: { status: 'stored' } });
+    expect((await invoke(PROJECT_SPINE_CHANNELS.getSession, 1)).dirtyUnitIds).toEqual([withUnit.unitId]);
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: createdB.projectPath,
+      operationId: 'blocked-checkpoint-switch',
+    })).resolves.toMatchObject({ ok: false, error: { code: 'UNSAVED_CHANGES' } });
+    await expect(new ProjectSpineRecoveryRepository(createdA.projectPath).read()).resolves.toMatchObject({
+      ok: true,
+      data: { status: 'present', envelope: { candidates: [{ prose: 'Protected prose from a delayed dirty report' }] } },
+    });
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: createdB.projectPath,
+      operationId: 'discard-checkpoint-switch',
+      discardUnsaved: true,
+    })).resolves.toMatchObject({ ok: true, snapshot: { project: { projectId: createdB.projectId } } });
+    await expect(new ProjectSpineRecoveryRepository(createdA.projectPath).read()).resolves.toEqual({
+      ok: true,
+      data: { status: 'missing', envelope: null },
+    });
+  });
+
   it('never reports saved after a stale-source conflict', async () => {
     const parent = await temporaryRoot();
     const created = await bootstrapFreshProject({ parentPath: parent, title: 'Conflict Project' });

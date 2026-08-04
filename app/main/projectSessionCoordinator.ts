@@ -375,7 +375,14 @@ export class ProjectSessionCoordinator {
     candidate: ProjectSpineRecoveryCandidate | null,
   ): void {
     this.assertBinding(binding);
-    if (this.recoveryState.status !== 'accepted-pending-save') return;
+    if (this.recoveryState.status !== 'accepted-pending-save') {
+      // A current-session checkpoint is authoritative evidence that this unit
+      // differs from its durable draft. It must keep project switching on the
+      // explicit discard path even if a delayed renderer dirty report arrives
+      // out of order.
+      if (candidate) this.setUnitDirty(binding, unitId, true);
+      return;
+    }
     const existing = this.recoveryState.candidates.find((entry) => entry.unitId === unitId);
     if (!existing) return;
     const candidates = candidate
