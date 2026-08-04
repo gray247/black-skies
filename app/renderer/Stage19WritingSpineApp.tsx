@@ -1147,6 +1147,10 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     if (windowRole !== 'writing') return;
     const handler = (event: KeyboardEvent) => {
+      // DraftEditor owns Ctrl/Cmd+S while the editor has focus and supplies the
+      // exact CodeMirror document. Do not start a second, competing save after
+      // that handled editor event bubbles to the window.
+      if (event.defaultPrevented) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
         if (snapshotRef.current.recovery?.status === 'decision-required' || snapshotRef.current.recovery?.status === 'degraded') return;

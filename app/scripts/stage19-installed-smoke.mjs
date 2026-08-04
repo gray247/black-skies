@@ -29,6 +29,7 @@ const expectedMarkdown = [
   ""
 ].join("\n");
 const representativeUnitCount = 100;
+const coldLaunchSampleCount = 3;
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -381,6 +382,61 @@ async function closeClean(application, ownedProcessIds) {
   assert(survivors.length === 0, `Installed app left owned processes after teardown: ${JSON.stringify(survivors)}.`);
 }
 
+async function measureColdLaunch(executablePath, smokeRoot, sampleIndex) {
+  const userDataPath = path.join(
+    smokeRoot,
+    "cold-launch-user-data",
+    String(sampleIndex).padStart(2, "0")
+  );
+  mkdirSync(userDataPath, { recursive: true });
+  let launched;
+  try {
+    const startedAt = performance.now();
+    launched = await launchInstalled(executablePath, userDataPath);
+    const truth = await runtimeTruth(
+      launched.application,
+      launched.writing,
+      launched.command,
+      executablePath
+    );
+    const rootPid = launched.application.process()?.pid;
+    assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
+    const processEntries = processTree(rootPid);
+    const ownedProcessIds = [rootPid, ...processEntries.map((entry) => entry.pid)];
+    const forbiddenProcesses = processEntries.filter((entry) =>
+      /^(?:python(?:3)?|node)(?:\.exe)?$/iu.test(entry.name)
+    );
+    assert(
+      forbiddenProcesses.length === 0,
+      `Installed process tree contained forbidden runtimes: ${JSON.stringify(forbiddenProcesses)}`
+    );
+    const durationMs = performance.now() - startedAt;
+    await closeClean(launched.application, ownedProcessIds);
+    launched = undefined;
+    return {
+      durationMs,
+      windowCount: truth.windows.length,
+      sandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length
+    };
+  } finally {
+    if (launched) {
+      try {
+        const rootPid = launched.application.process()?.pid;
+        const ownedProcessIds = Number.isInteger(rootPid)
+          ? [rootPid, ...processTree(rootPid).map((entry) => entry.pid)]
+          : [];
+        await closeClean(launched.application, ownedProcessIds);
+      } catch {
+        try {
+          await launched.application.close();
+        } catch {
+          // Preserve the original launch/measurement failure.
+        }
+      }
+    }
+  }
+}
+
 async function main() {
   const executablePath = requireValue("--executable");
   const smokeRoot = requireValue("--root");
@@ -399,7 +455,12 @@ async function main() {
   let second;
   let third;
   try {
-    const coldLaunchStartedAt = performance.now();
+    const coldLaunchSamples = [];
+    for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
+      coldLaunchSamples.push(await measureColdLaunch(executablePath, smokeRoot, sampleIndex));
+    }
+    const coldLaunchSamplesMs = coldLaunchSamples.map((sample) => sample.durationMs);
+    const coldLaunchDurationMs = Math.max(...coldLaunchSamplesMs);
     first = await launchInstalled(executablePath, userDataPath);
     const firstTruth = await runtimeTruth(
       first.application,
@@ -411,7 +472,6 @@ async function main() {
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
     const firstTree = processTree(rootPid);
     const firstOwnedProcessIds = [rootPid, ...firstTree.map((entry) => entry.pid)];
-    const coldLaunchDurationMs = performance.now() - coldLaunchStartedAt;
     const steadyStateWorkingSetBytes = firstTree.reduce(
       (total, entry) => total + entry.workingSetBytes,
       0
@@ -667,6 +727,9 @@ async function main() {
       zeroSurvivorProcessCount: 0,
       performance: {
         coldLaunchDurationMs,
+        coldLaunchSamplesMs,
+        coldLaunchSampleCount,
+        coldLaunchStatistic: "maximum",
         steadyStateWorkingSetBytes,
         processCount: firstTree.length
       },

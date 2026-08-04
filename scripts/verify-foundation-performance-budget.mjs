@@ -21,6 +21,12 @@ try {
   invariant(receipt.installedLifecycle?.status === 'passed', 'Installed lifecycle is not a passing measurement.');
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
+  const coldLaunch = receipt.installedLifecycle?.performance;
+  invariant(coldLaunch?.coldLaunchStatistic === 'maximum', 'Cold-launch measurement must use the bounded maximum statistic.');
+  invariant(coldLaunch?.coldLaunchSampleCount === 3, 'Cold-launch measurement must contain exactly three independent samples.');
+  invariant(Array.isArray(coldLaunch?.coldLaunchSamplesMs) && coldLaunch.coldLaunchSamplesMs.length === 3, 'Cold-launch sample evidence is missing or malformed.');
+  invariant(coldLaunch.coldLaunchSamplesMs.every(Number.isFinite), 'Cold-launch sample evidence contains an invalid value.');
+  invariant(coldLaunch.coldLaunchDurationMs === Math.max(...coldLaunch.coldLaunchSamplesMs), 'Cold-launch metric must be the maximum observed sample, not an average or retry result.');
   for (const metric of metricPaths) invariant(Number.isFinite(get(receipt, metric)), `Measurement is missing or invalid: ${metric}.`);
   invariant(budget.baseline, 'Performance baseline is not established; this receipt is UNVERIFIED until a reviewed exact-candidate baseline is committed.');
   for (const metric of metricPaths) {

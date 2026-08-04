@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-08-03
+Last Reviewed: 2026-08-04
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation exact-candidate failure follow-up (`4f01e4435b7c1432a297c9824c105f39e7921caf`):
+  - Validation & Eval exposed a core Stage 19 race: an editor-owned Ctrl/Cmd+S save bubbled into the Writing Studio window shortcut and could start a second concurrent durable save after redo. The window handler now respects an already-handled editor event, and a renderer regression proves one editor shortcut produces one generation-bound save and the durable-save status.
+  - Windows Packaging Proof measured `1,859.7787 ms` against the former single-sample `1,575.3719 ms` launch value. The candidate contained no packaged-runtime input change, so this is classified as a measurement-protocol defect, not waived as an application regression. The old value is historical only: the harness now requires three independent fresh-user-data two-window launches, proves zero owned-process survivors after each, and records the maximum observed duration rather than retrying or averaging.
+  - `pnpm/action-setup@v4` still emitted a forced Node 20-to-24 annotation. Every workflow now uses the action's Node-24 `v6` release; the replacement candidate must prove the warning is absent from all exact-SHA workflow receipts.
+  - `FND-012` and `FND-014` remain open. The next candidate is intentionally UNVERIFIED until its Windows receipt establishes a reviewed baseline under the strengthened measurement protocol; only the following exact candidate may enforce the 5% budget.
 - [2026-08-04] `FND-014` baseline captured from the independently downloaded authoritative artifact for exact candidate `a00189f731159f314b83f7fce548a1cc1fd17bfb`: Windows Packaging Proof `30941009910`, artifact `8905315820`, and the downloaded receipt SHA-256 `84b2b03c8813e3d2de6918bbcf378a98f206415c26b69e604dc4adec71329fb7`. The installer is `87,077,205` bytes with SHA-256 `84dffa3acbad9fc54cbb20c12d0f0736f0eef58fe2c1bc6e1b355a10b1aad1f0`; the receipt records a passing two-window offline lifecycle with zero forbidden and zero survivor processes. Its immutable metric baseline is installer `87,077,205`, unpacked app `356,232,093`, ASAR `14,732,367`, executable `210,950,656`, renderer chunks `1,201,215` bytes, cold launch `1,575.3719 ms`, and steady-state working set `424,214,528` bytes. The run is historical input because its required performance-budget step intentionally failed while the baseline was null; the next exact candidate must enforce this 5% budget.
 - [2026-08-04] Foundation exit-criteria implementation started:
   - `FND-012`, `FND-014`, and `FND-016` remain open; they cannot close from the prior Package 19.22 or foundation human pass alone,

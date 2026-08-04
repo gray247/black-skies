@@ -69,7 +69,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -103,7 +103,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -145,7 +145,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -396,7 +396,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -477,7 +477,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -533,7 +533,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -632,7 +632,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash

@@ -120,7 +120,7 @@ jobs:
           name: safety-report-${{ matrix.os }}
           path: safety-report.json
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           run_install: false
       - name: Set up Node 24

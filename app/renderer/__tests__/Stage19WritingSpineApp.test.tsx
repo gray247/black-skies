@@ -22,6 +22,7 @@ vi.mock('../DraftEditor', () => ({
   default: ({
     value,
     onChange,
+    onSave,
     onSelectionChange,
     ariaLabel,
     placeholder,
@@ -29,6 +30,7 @@ vi.mock('../DraftEditor', () => ({
   }: {
     value: string;
     onChange?: (value: string) => void;
+    onSave?: (value: string) => void;
     onSelectionChange?: (selection: {
       selectionStart: number;
       selectionEnd: number;
@@ -46,6 +48,12 @@ vi.mock('../DraftEditor', () => ({
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange?.(event.target.value)}
+      onKeyDown={(event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+          event.preventDefault();
+          onSave?.(event.currentTarget.value);
+        }
+      }}
       onSelect={(event) => {
         const target = event.currentTarget;
         onSelectionChange?.({
@@ -1514,6 +1522,24 @@ describe('Stage19WritingSpineApp', () => {
         unitId: 'unit_a',
         expectedMarkdown: expect.stringContaining('Alpha body'),
         markdown: expect.stringMatching(/saved text.*Alpha body|Alpha body.*saved text/s),
+      }),
+    );
+    expect(await screen.findByText('Saved durably')).toBeVisible();
+  });
+
+  it('does not duplicate an editor-owned Ctrl+S save at window scope', async () => {
+    const harness = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+
+    fireEvent.change(editor, { target: { value: 'redone prose' } });
+    fireEvent.keyDown(editor, { key: 's', ctrlKey: true });
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(harness.bridge.saveUnit!)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unitId: 'unit_a',
+        markdown: expect.stringContaining('redone prose'),
       }),
     );
     expect(await screen.findByText('Saved durably')).toBeVisible();
