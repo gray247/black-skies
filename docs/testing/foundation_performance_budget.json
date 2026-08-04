@@ -2,6 +2,38 @@
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
   "measurementProtocol": "fresh-profile-after-required-precondition-v1",
-  "baseline": null,
+  "baseline": {
+    "qualifiedCommit": "12ffe64af7f7a12cb9a621a03864c2585a7e2914",
+    "windowsWorkflowRun": "30947396678",
+    "artifact": {
+      "id": "8907833951",
+      "name": "black-skies-1.0.0-rc1-12ffe64af7f7a12cb9a621a03864c2585a7e2914",
+      "archiveSha256": "c5dd663ec9d5e48d901d60b61e2b2e03cb9b46b1c4ed8293cf5ea0eff0d489a8",
+      "receiptSha256": "69a3c4bbddf1b7fed00f4868a4d1ed16cd87c0baf0ad0105a1d36fd071bccfc5",
+      "installerSha256": "446f0052c4b3fed9b8b004585f4f709ec1e067ac9dc2af4a781050878e72624c"
+    },
+    "metrics": {
+      "installer": { "byteLength": 87075403 },
+      "unpacked": {
+        "byteLength": 356232682,
+        "asar": { "byteLength": 14732956 },
+        "executable": { "byteLength": 210950656 },
+        "rendererChunks": { "totalByteLength": 1201236 }
+      },
+      "installedLifecycle": {
+        "performance": {
+          "coldLaunchProtocol": "fresh-profile-after-required-precondition-v1",
+          "coldLaunchPreconditionMs": 1635.1001999999999,
+          "coldLaunchPreconditionWindowCount": 2,
+          "coldLaunchPreconditionSandboxedWindowCount": 2,
+          "coldLaunchDurationMs": 1172.3985000000002,
+          "coldLaunchSamplesMs": [1172.3985000000002, 1160.9876999999997, 1102.3999000000003],
+          "coldLaunchSampleCount": 3,
+          "coldLaunchStatistic": "maximum",
+          "steadyStateWorkingSetBytes": 422678528
+        }
+      }
+    }
+  },
   "baselineRule": "The first reviewed exact-candidate Windows receipt using the required preconditioning launch followed by exactly three independent fresh-user-data launches establishes the baseline. The precondition must prove two sandboxed windows and zero-survivor teardown but is never a measured sample or retry. The maximum of the three measured launches is the budget metric; missing, unverified, non-exact, or nonconforming measurements fail closed."
 }
