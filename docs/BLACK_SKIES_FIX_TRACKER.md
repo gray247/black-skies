@@ -20,7 +20,8 @@ If an issue is not tracked here, it is not part of the active fix scope.
 ## Documentation Continuity Updates
 - [2026-08-04] Foundation gauntlet-proof receipt repair:
   - the exact-candidate Validation & Eval Harness producers all passed, but the final proof-manifest job failed closed because the artifact service stores each uploaded file at the artifact root while the manifest expected its producer-directory path,
-  - the manifest and its upload allowlist now name the downloaded artifact-root paths. This retains strict artifact presence, status, and exact-SHA validation; it does not add a placeholder or downgrade the proof requirement.
+  - PASS 3, 5, and 6 are single-file artifacts and download at their artifact root; PASS 4 preserves its `ci_proof/` and `truth_receipts/` directories because it intentionally uploads multiple files. The manifest and its regression test now model both layouts exactly,
+  - this retains strict artifact presence, status, and exact-SHA validation; it does not add a placeholder or downgrade the proof requirement.
 - [2026-08-04] Foundation dependency security repair:
   - the frozen JavaScript graph now upgrades the Windows packager and high/critical transitive dependencies, preserves the per-user NSIS safeguard as a package-version-specific patch, and has zero high/critical `pnpm audit` findings after a clean frozen install,
   - the Stage 19 NSIS patch test is bound to the upgraded packager identity so a missing or stale patch cannot be mistaken for current qualification,

@@ -40,9 +40,15 @@ def test_manifest_uses_artifact_root_paths_after_download(monkeypatch, tmp_path:
         {"role": "summary", "path": "pass3/summary.json"}
     ]
     assert manifest["jobs"]["PASS 4"]["artifacts"] == [
-        {"role": "summary", "path": "pass4/summary.json"},
-        {"role": "truth_receipt_json", "path": "pass4/latest.json"},
-        {"role": "truth_receipt_txt", "path": "pass4/latest.txt"},
+        {"role": "summary", "path": "pass4/ci_proof/pass4/summary.json"},
+        {
+            "role": "truth_receipt_json",
+            "path": "pass4/truth_receipts/latest.json",
+        },
+        {
+            "role": "truth_receipt_txt",
+            "path": "pass4/truth_receipts/latest.txt",
+        },
     ]
     assert manifest["jobs"]["PASS 5"]["artifacts"] == [
         {"role": "summary", "path": "pass5/summary.json"}

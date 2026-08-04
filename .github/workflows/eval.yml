@@ -757,9 +757,9 @@ jobs:
           path: |
             build/ci_proof/gauntlet_ci_proof.json
             ci_artifacts/pass3/summary.json
-            ci_artifacts/pass4/summary.json
-            ci_artifacts/pass4/latest.json
-            ci_artifacts/pass4/latest.txt
+            ci_artifacts/pass4/ci_proof/pass4/summary.json
+            ci_artifacts/pass4/truth_receipts/latest.json
+            ci_artifacts/pass4/truth_receipts/latest.txt
             ci_artifacts/pass5/summary.json
             ci_artifacts/pass6/summary.json
 
