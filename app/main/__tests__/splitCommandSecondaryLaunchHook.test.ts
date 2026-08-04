@@ -111,6 +111,10 @@ class BrowserWindowMock {
 
   show = vi.fn();
 
+  close = vi.fn(() => {
+    this.destroy();
+  });
+
   destroy(): void {
     if (this.destroyed) {
       return;
@@ -827,6 +831,18 @@ describe('main split command launch hook', () => {
     expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
   });
 
+  it('closes the subordinate Command Center through its normal lifecycle when Writing Studio closes', async () => {
+    experimentalSplitCommandWorkspace = true;
+
+    await loadMainModule();
+
+    const [primaryWindow, secondaryWindow] = browserWindowState.instances;
+    primaryWindow.destroy();
+
+    expect(secondaryWindow.close).toHaveBeenCalledTimes(1);
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+  });
+
   it('marks the pair degraded when the secondary renderer crashes', async () => {
     experimentalSplitCommandWorkspace = true;
 
@@ -890,7 +906,7 @@ describe('main split command launch hook', () => {
     expect(secondaryWindow.isDestroyed()).toBe(true);
   });
 
-  it('marks the pair stale when the primary BrowserWindow closes and destroys the secondary', async () => {
+  it('marks the pair stale when the primary BrowserWindow closes and closes the secondary', async () => {
     experimentalSplitCommandWorkspace = true;
 
     await loadMainModule();
@@ -955,7 +971,7 @@ describe('main split command launch hook', () => {
     expect(resolveRegisteredProjectSpineRole(secondaryWebContentsId)).toBeNull();
   });
 
-  it('destroys the secondary even when primary-collapse diagnostics throw', async () => {
+  it('closes the secondary even when primary-collapse diagnostics throw', async () => {
     experimentalSplitCommandWorkspace = true;
     await loadMainModule();
 

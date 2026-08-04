@@ -11,6 +11,12 @@ const workflowPath = path.join(
   "workflows",
   "stage19-packaging.yml"
 );
+const foundationWorkflowPaths = {
+  "Stage 19 Fixed Regression Gate": path.join(repoRoot, ".github", "workflows", "stage19-regression.yml"),
+  "Stage 19 Windows Packaging Proof": workflowPath,
+  "Validation & Eval Harness": path.join(repoRoot, ".github", "workflows", "eval.yml"),
+  "Security Audit": path.join(repoRoot, ".github", "workflows", "security.yml"),
+};
 
 export function validateStage19PackagingWorkflow(source) {
   const lines = source.replaceAll("\r\n", "\n").split("\n");
@@ -75,11 +81,42 @@ export function assertStage19PackagingWorkflow(source) {
   }
 }
 
+export function validateFoundationActionRuntimePolicy(
+  workflowSources = Object.fromEntries(
+    Object.entries(foundationWorkflowPaths).map(([name, sourcePath]) => [
+      name,
+      readFileSync(sourcePath, "utf8"),
+    ])
+  )
+) {
+  const errors = [];
+  for (const [name, source] of Object.entries(workflowSources)) {
+    const pnpmActions = [...source.matchAll(/pnpm\/action-setup@v(\d+)/gu)];
+    if (pnpmActions.length === 0) {
+      errors.push(`${name} must configure pnpm/action-setup@v6.`);
+    } else if (pnpmActions.some((match) => match[1] !== "6")) {
+      errors.push(`${name} must not configure a deprecated pnpm/action-setup runtime.`);
+    }
+    if (/node-version:\s*['"]?20(?:\D|$)/mu.test(source)) {
+      errors.push(`${name} must not configure the deprecated Node 20 action runtime.`);
+    }
+  }
+  return errors;
+}
+
+export function assertFoundationActionRuntimePolicy(workflowSources) {
+  const errors = validateFoundationActionRuntimePolicy(workflowSources);
+  if (errors.length > 0) {
+    throw new Error(errors.join("\n"));
+  }
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === modulePath) {
   try {
     assertStage19PackagingWorkflow(readFileSync(workflowPath, "utf8"));
+    assertFoundationActionRuntimePolicy();
     process.stdout.write(
-      "STAGE19_PACKAGING_WORKFLOW_POLICY_PASS manual-dispatch-only exact-sha-artifacts\n"
+      "STAGE19_PACKAGING_WORKFLOW_POLICY_PASS manual-dispatch-only exact-sha-artifacts node24-actions\n"
     );
   } catch (error) {
     process.stderr.write(

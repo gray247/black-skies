@@ -1119,10 +1119,14 @@ function clearSplitCommandPairRuntimeReferences(): void {
   if (secondaryWindow && !secondaryWindow.isDestroyed()) {
     console.log('[main] Split Command secondary cleanup requested', {
       secondaryWindowId: secondaryWindow.id,
-      method: 'destroy',
+      method: 'close',
     });
     try {
-      secondaryWindow.destroy();
+      // Command Center is subordinate to Writing Studio and cannot hold shared
+      // mutations. Close it through Electron's normal window lifecycle rather
+      // than forcibly destroying it while Writing Studio's closed callback is
+      // still unwinding.
+      secondaryWindow.close();
     } finally {
       console.log('[main] Split Command secondary cleanup returned', {
         secondaryWindowId: secondaryWindow.id,

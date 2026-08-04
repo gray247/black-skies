@@ -577,10 +577,10 @@ jobs:
               },
               {
                   "family": "NODE_ACTION_RUNTIME_WARNING",
-                  "status": "unknown",
-                  "source": "workflow_metadata_only",
-                  "confidence": "low",
-                  "notes": "No log parsing in Batch 4A; status intentionally conservative.",
+                  "status": "not_observed",
+                  "source": "foundation_action_runtime_policy",
+                  "confidence": "high",
+                  "notes": "All four foundation workflows are statically guarded to use pnpm/action-setup@v6 and Node 24; Node 20 action-runtime warnings are prohibited.",
               },
               {
                   "family": "NODE_PUNYCODE_URL_PARSE_TRANSITIVE",

@@ -6,7 +6,9 @@ import { describe, expect, it } from "vitest";
 // The policy is deliberately executable as plain Node.js in clean CI jobs.
 // @ts-expect-error JavaScript policy module has no separate declaration file.
 import {
+  assertFoundationActionRuntimePolicy,
   assertStage19PackagingWorkflow,
+  validateFoundationActionRuntimePolicy,
   validateStage19PackagingWorkflow
 } from "../../../scripts/stage19-packaging-workflow-policy.mjs";
 
@@ -64,5 +66,19 @@ describe("Stage 19 packaging workflow policy", () => {
     expect(() =>
       assertStage19PackagingWorkflow(readFileSync(workflowPath, "utf8"))
     ).not.toThrow();
+  });
+
+  it("rejects Node 20 and non-v6 pnpm action runtimes across every foundation workflow", () => {
+    expect(() => assertFoundationActionRuntimePolicy()).not.toThrow();
+    expect(
+      validateFoundationActionRuntimePolicy({
+        "Stage 19 Fixed Regression Gate": "uses: pnpm/action-setup@v4\nnode-version: '20'",
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("deprecated pnpm/action-setup runtime"),
+        expect.stringContaining("deprecated Node 20 action runtime"),
+      ])
+    );
   });
 });
