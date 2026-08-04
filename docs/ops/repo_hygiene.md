@@ -20,12 +20,12 @@ The goal is to keep generated artifacts, local tool state, and fixture snapshots
 ## Tracked diagnostic scripts
 
 Tracked diagnostic helpers are source files and must meet normal quality gates (including format checks).
-For one-off trace/diff probes, prefer containment under `app/temp-trace/` or `tools/` instead of adding new repo-root helper scripts.
+For one-off trace/diff probes, use an ignored temporary directory or `tools/`; do not add generated traces to source paths.
 If such scripts are intentionally tracked, keep them formatted and periodically prune stale copies.
 
 Current classification:
-- `app/temp-trace/` is a tracked diagnostic workspace for trace inspection helpers and fixture-adjacent probes.
-- Repo-root `diff*.py` / `*trace*.py` helpers were previously tracked ad-hoc diagnostics; the stale root copies were pruned in the 2026-04-30 cleanup, and any new one-off probes should still live under `app/temp-trace/` or `tools/`.
+- `app/temp-trace/` and `ci_artifacts/` are ignored generated-output locations, not sources of qualification evidence.
+- Historical trace evidence is retained under `docs/history/foundation_pre_v2_2026-08-03/`; new one-off probes belong in ignored locations or `tools/`.
 
 ## Install the local pre-commit hook
 

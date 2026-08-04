@@ -398,7 +398,7 @@ async function openFloatingWindow(
       contextIsolation: true,
       nodeIntegration: false,
       preload: options.preloadPath,
-      sandbox: false,
+      sandbox: true,
       additionalArguments: [],
     },
   });

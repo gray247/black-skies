@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { SERVICE_PORT } from './servicePort';
 import { startServiceStubs, stopServiceStubs } from './utils/serviceStubs';
 import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
 import { killElectronProcessTree, waitForProcessIdsToExit } from './stage19-electron-support';
@@ -422,6 +421,12 @@ export const test = base.extend<Fixtures>({
       ].join('\n'),
       'utf8',
     );
+    const servicePort = useExternalService
+      ? Number(process.env.BLACKSKIES_E2E_PORT ?? process.env.BLACKSKIES_SERVICES_PORT)
+      : await startServiceStubs();
+    if (!Number.isInteger(servicePort) || servicePort <= 0) {
+      throw new Error('Electron harness did not receive a valid per-run service port.');
+    }
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
@@ -430,8 +435,8 @@ export const test = base.extend<Fixtures>({
       PLAYWRIGHT: '1',
       BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
-      BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
-      BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
+      BLACKSKIES_SERVICES_PORT: String(servicePort),
+      BLACKSKIES_E2E_PORT: String(servicePort),
       BLACKSKIES_E2E_MODE: '1',
       BLACKSKIES_CONFIG_PATH: runtimeConfigPath,
     };
@@ -448,9 +453,6 @@ export const test = base.extend<Fixtures>({
     process.env.BLACKSKIES_E2E_PORT = launchEnv[ 'BLACKSKIES_E2E_PORT' ] ?? launchEnv.BLACKSKIES_SERVICES_PORT;
 
     resetPersistedHarnessState(repoRoot);
-    if (!useExternalService) {
-      await startServiceStubs();
-    }
     const application = await electron.launch({
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),

@@ -61,4 +61,11 @@ def test_feature_flag_env_maturity_normalization(monkeypatch) -> None:
 
     assert plugins_maturity() is FeatureMaturity.PARTIAL
     assert voice_notes_maturity() is FeatureMaturity.INTERNAL
-    assert analytics_maturity() is FeatureMaturity.PRODUCTION
+    assert analytics_maturity() is FeatureMaturity.INTERNAL
+
+
+def test_analytics_is_off_without_explicit_opt_in(monkeypatch) -> None:
+    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.delenv("BLACKSKIES_ANALYTICS_MATURITY", raising=False)
+
+    assert analytics_maturity() is FeatureMaturity.OFF

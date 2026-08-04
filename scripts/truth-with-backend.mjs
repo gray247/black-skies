@@ -23,8 +23,8 @@ import { WebSocket as NodeWebSocket } from 'ws';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SERVICE_PORT = 9999;
-const ELECTRON_DEBUG_PORT = 9222;
+let SERVICE_PORT = 0;
+let ELECTRON_DEBUG_PORT = 0;
 const HEALTH_PATH = `/api/v1/healthz`;
 const HEALTH_TIMEOUT_MS = 30_000;
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -41,6 +41,20 @@ const FAILURE_CATEGORY = Object.freeze({
 });
 let latestReceipt = buildTruthReceipt();
 const WebSocketImpl = globalThis.WebSocket ?? NodeWebSocket;
+
+async function allocateLoopbackPort() {
+  const reservation = net.createServer();
+  await new Promise((resolve, reject) => {
+    reservation.once('error', reject);
+    reservation.listen(0, '127.0.0.1', resolve);
+  });
+  const address = reservation.address();
+  await new Promise((resolve, reject) => reservation.close((error) => (error ? reject(error) : resolve())));
+  if (!address || typeof address === 'string' || address.port <= 0) {
+    throw new Error('[truth] unable to allocate an isolated loopback port');
+  }
+  return address.port;
+}
 
 function resolvePythonCommand() {
   const envPython = process.env.PYTHON?.trim();
@@ -1343,6 +1357,8 @@ async function waitForProcessExit(pid, timeoutMs) {
 }
 
 async function run() {
+  SERVICE_PORT = await allocateLoopbackPort();
+  ELECTRON_DEBUG_PORT = await allocateLoopbackPort();
   const receipt = latestReceipt;
   const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
   const defaultCommand = [

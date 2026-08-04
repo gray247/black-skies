@@ -73,7 +73,3 @@ exclude = '''
   | .*\\.egg-info
 )/
 '''
-
-# Optional: keep custom paths OUTSIDE the regex block.
-[tool.blackskies]
-some_path = "C:/Dev/black-skies/services/whatever"

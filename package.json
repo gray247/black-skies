@@ -8,7 +8,8 @@
         "pnpm": ">=8.0.0"
     },
     "scripts": {
-        "bootstrap": "pnpm install --recursive",
+        "bootstrap": "pnpm install --recursive --frozen-lockfile",
+        "python:check": "python ./scripts/require_python311.py",
         "lint": "pnpm -r lint",
         "typecheck:all": "pnpm --filter @blackskies/app typecheck:all",
         "dev": "node ./scripts/dev-runner.mjs",

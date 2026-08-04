@@ -1,5 +1,4 @@
-# services/requirements-dev.txt
-# Dev-only dependencies for running backend locally
-fastapi
-PyYAML
-uvicorn==0.29.0
+# Compatibility entry point. The repository-root lockfiles are the only
+# dependency authority; do not add unpinned service-local requirements here.
+-r ../requirements.lock
+-r ../requirements.dev.lock

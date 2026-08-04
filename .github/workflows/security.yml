@@ -89,9 +89,7 @@ jobs:
             --requirement requirements.lock \
             --requirement requirements.dev.lock
           status=$?
-          if [ ! -f pip-audit-report.json ]; then
-            echo '{"error":"pip-audit terminated before producing a report"}' > pip-audit-report.json
-          fi
+          test -s pip-audit-report.json || { echo "pip-audit produced no report" >&2; exit 1; }
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Upload pip-audit report
@@ -115,9 +113,7 @@ jobs:
             --file requirements.lock \
             --file requirements.dev.lock
           status=$?
-          if [ ! -f safety-report.json ]; then
-            echo '{"error":"safety terminated before producing a report"}' > safety-report.json
-          fi
+          test -s safety-report.json || { echo "Safety produced no report" >&2; exit 1; }
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Upload Safety report
@@ -154,9 +150,7 @@ jobs:
           set +e
           pnpm audit --json > pnpm-audit-report.json
           status=$?
-          if [ ! -f pnpm-audit-report.json ]; then
-            echo '{"error":"pnpm audit terminated before producing a report"}' > pnpm-audit-report.json
-          fi
+          test -s pnpm-audit-report.json || { echo "pnpm audit produced no report" >&2; exit 1; }
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Upload pnpm audit report
@@ -220,18 +214,15 @@ jobs:
           LEDGER_ARTIFACT="load-ledger.json"
           status=$?
           if [ "$status" -ne 0 ] || [ -z "$RUN_JSON" ] || [ ! -f "$RUN_JSON" ]; then
-            RUN_JSON="$LEDGER_ARTIFACT"
-            echo '{"error":"load ledger not found after load run"}' > "$RUN_JSON"
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          else
-            cp "$RUN_JSON" "$LEDGER_ARTIFACT"
-            echo "found=true" >> "$GITHUB_OUTPUT"
-            RUN_JSON="$LEDGER_ARTIFACT"
+            echo "load ledger not found after load run" >&2
+            exit 1
           fi
+          cp "$RUN_JSON" "$LEDGER_ARTIFACT"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          RUN_JSON="$LEDGER_ARTIFACT"
           echo "run_json=$RUN_JSON" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Enforce load SLO
-        if: ${{ steps.load_ledger.outputs.found == 'true' }}
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
       - name: Upload load ledger
         if: always()
@@ -246,9 +237,7 @@ jobs:
           set +e
           python scripts/dependency_report.py --output dependency-report.json
           status=$?
-          if [ ! -f dependency-report.json ]; then
-            echo '{"error":"dependency report generation failed before producing a report"}' > dependency-report.json
-          fi
+          test -s dependency-report.json || { echo "dependency report was not produced" >&2; exit 1; }
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Upload dependency report
@@ -258,6 +247,10 @@ jobs:
           name: dependency-report-${{ matrix.os }}
           path: dependency-report.json
       - name: Fail only on HIGH/CRITICAL vulnerabilities
+        env:
+          PIP_AUDIT_STATUS: ${{ steps.pip_audit.outputs.status }}
+          SAFETY_STATUS: ${{ steps.safety.outputs.status }}
+          PNPM_AUDIT_STATUS: ${{ steps.pnpm_audit.outputs.status }}
         run: |
           python - <<'PY'
           from __future__ import annotations
@@ -265,6 +258,7 @@ jobs:
           import json
           from pathlib import Path
           from typing import Any
+          import os
 
           SEVERITIES = {"high", "critical"}
           findings: list[tuple[str, str, str, str]] = []
@@ -272,13 +266,19 @@ jobs:
           def _load_json(path: str) -> Any:
               report = Path(path)
               if not report.exists():
-                  return None
+                  raise SystemExit(f"Required security report is missing: {path}")
               try:
                   return json.loads(report.read_text(encoding="utf-8"))
-              except Exception:
-                  return None
+              except Exception as exc:
+                  raise SystemExit(f"Required security report is malformed: {path}: {exc}") from exc
+
+          for name in ("PIP_AUDIT_STATUS", "SAFETY_STATUS", "PNPM_AUDIT_STATUS"):
+              if os.environ.get(name) not in {"0", "1"}:
+                  raise SystemExit(f"{name} indicates scanner failure, not a completed findings report: {os.environ.get(name)!r}")
 
           pip_audit = _load_json("pip-audit-report.json")
+          if not isinstance(pip_audit, dict) or not isinstance(pip_audit.get("dependencies"), list):
+              raise SystemExit("pip-audit report has an unexpected schema")
           if isinstance(pip_audit, dict):
               for dep in pip_audit.get("dependencies", []):
                   if not isinstance(dep, dict):
@@ -299,6 +299,8 @@ jobs:
                           )
 
           safety = _load_json("safety-report.json")
+          if not isinstance(safety, (dict, list)):
+              raise SystemExit("Safety report has an unexpected schema")
           if isinstance(safety, dict):
               for key in ("vulnerabilities", "issues", "results"):
                   entries = safety.get(key)
@@ -319,6 +321,8 @@ jobs:
                           )
 
           pnpm_audit = _load_json("pnpm-audit-report.json")
+          if not isinstance(pnpm_audit, dict) or not isinstance(pnpm_audit.get("vulnerabilities"), dict):
+              raise SystemExit("pnpm audit report has an unexpected schema")
           if isinstance(pnpm_audit, dict):
               vulnerabilities = pnpm_audit.get("vulnerabilities")
               if isinstance(vulnerabilities, dict):

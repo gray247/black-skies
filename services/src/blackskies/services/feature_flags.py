@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 from enum import Enum
 
-os.environ.setdefault("BLACKSKIES_ENABLE_ANALYTICS", "1")
 
 
 class FeatureMaturity(str, Enum):
@@ -125,13 +124,13 @@ def analytics_maturity() -> FeatureMaturity:
     return _maturity_from_env(
         maturity_env_var="BLACKSKIES_ANALYTICS_MATURITY",
         legacy_bool_env_var="BLACKSKIES_ENABLE_ANALYTICS",
-        enabled_state=FeatureMaturity.PRODUCTION,
-        default_state=FeatureMaturity.PRODUCTION,
+        enabled_state=FeatureMaturity.INTERNAL,
+        default_state=FeatureMaturity.OFF,
     )
 
 
 def analytics_enabled() -> bool:
-    """Return True when baseline analytics remains enabled for the current runtime."""
+    """Return True only when non-baseline analytics is explicitly enabled."""
 
     return analytics_maturity().is_active
 

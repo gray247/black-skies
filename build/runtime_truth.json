@@ -1,8 +1,8 @@
 {
   "analytics": {
-    "enabled_by_default": true,
+    "enabled_by_default": false,
     "env_var": "BLACKSKIES_ENABLE_ANALYTICS",
-    "notes": "Analytics routes are exposed by default and can be hidden by the analytics feature flag; default maturity is production unless explicitly overridden.",
+    "notes": "Analytics is non-baseline and disabled by default; routes require explicit internal opt-in.",
     "routes": [
       "/api/v1/analytics/summary",
       "/api/v1/analytics/scenes",
@@ -62,19 +62,19 @@
   ],
   "features": [
     {
-      "baseline_default": "on",
+      "baseline_default": "off",
       "config_keys": [],
       "env_vars": [
         "BLACKSKIES_ENABLE_ANALYTICS"
       ],
       "kind": "runtime",
       "name": "analytics",
-      "notes": "Analytics routes are part of the backend surface by default.",
+      "notes": "Analytics routes are an explicit internal non-baseline opt-in.",
       "runtime_entrypoints": [
         "services/src/blackskies/services/routers/analytics.py"
       ],
       "source_of_truth": "services/src/blackskies/services/feature_flags.py",
-      "state": "production",
+      "state": "off",
       "user_visible": true
     },
     {
@@ -303,7 +303,7 @@
   "generated_from": {
     "config_defaults_hash": "b53815b53ea6ee820d098f3df951d41f13044d47725506bc39537b511ff36eed",
     "generator_version": "1",
-    "git_commit": "1947f94c8d1797c3ebc660ebe0cac13729a3f5f1"
+    "git_commit": "39ea203ddd40af2ce68f479440a79e225219e1ab"
   },
   "health_surfaces": [
     {
@@ -365,7 +365,7 @@
       "present": true
     },
     {
-      "baseline_enabled": true,
+      "baseline_enabled": false,
       "guarded_by": [
         "BLACKSKIES_ENABLE_ANALYTICS"
       ],
@@ -375,7 +375,7 @@
       "present": true
     },
     {
-      "baseline_enabled": true,
+      "baseline_enabled": false,
       "guarded_by": [
         "BLACKSKIES_ENABLE_ANALYTICS"
       ],
@@ -385,7 +385,7 @@
       "present": true
     },
     {
-      "baseline_enabled": true,
+      "baseline_enabled": false,
       "guarded_by": [
         "BLACKSKIES_ENABLE_ANALYTICS"
       ],
@@ -395,7 +395,7 @@
       "present": true
     },
     {
-      "baseline_enabled": true,
+      "baseline_enabled": false,
       "guarded_by": [
         "BLACKSKIES_ENABLE_ANALYTICS"
       ],

@@ -10,7 +10,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SERVICE_PORT = 9999;
+let SERVICE_PORT = 0;
 const HEALTH_PATH = `/api/v1/healthz`;
 const ANALYTICS_PROJECT_ID = 'proj_esther_estate';
 const HEALTH_TIMEOUT_MS = 30_000;
@@ -23,6 +23,20 @@ const E2E_FIXTURE_MATERIALIZE_SCRIPT = path.resolve(__dirname, 'materialize_e2e_
 const E2E_FIXTURE_CONTRACT_SCRIPT = path.resolve(__dirname, 'check_e2e_fixture_contract.mjs');
 const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
 const timelineEvents = [];
+
+async function allocateLoopbackPort() {
+  const reservation = net.createServer();
+  await new Promise((resolve, reject) => {
+    reservation.once('error', reject);
+    reservation.listen(0, '127.0.0.1', resolve);
+  });
+  const address = reservation.address();
+  await new Promise((resolve, reject) => reservation.close((error) => (error ? reject(error) : resolve())));
+  if (!address || typeof address === 'string' || address.port <= 0) {
+    throw new Error('[e2e] unable to allocate an isolated loopback port');
+  }
+  return address.port;
+}
 
 function normalizeForwardedArgs(rawArgs) {
   const args = [...rawArgs];
@@ -419,6 +433,7 @@ async function classifyPortOccupancy(host, port, healthPath) {
 }
 
 async function run() {
+  SERVICE_PORT = await allocateLoopbackPort();
   recordTimelineEvent('launcher_start', {
     pid: process.pid,
     platform: process.platform,
@@ -487,43 +502,9 @@ async function run() {
     const backendCommand = backendTokens[0];
     const backendArgs = backendTokens.slice(1);
 
-    let reuseExistingBackend = false;
-    try {
-      await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
-      recordTimelineEvent('port_check_passed', {
-        host: '127.0.0.1',
-        port: SERVICE_PORT,
-      });
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes(`Port ${SERVICE_PORT} on 127.0.0.1 is already in use`)
-      ) {
-        const occupancy = await classifyPortOccupancy('127.0.0.1', SERVICE_PORT, HEALTH_PATH);
-        recordTimelineEvent('port_check_occupied', {
-          host: '127.0.0.1',
-          port: SERVICE_PORT,
-          ...occupancy,
-        });
-        if (occupancy.healthy) {
-          reuseExistingBackend = true;
-          console.log(
-            `[e2e] preflight: port ${SERVICE_PORT} is occupied by a healthy backend; reusing existing service.`,
-          );
-        } else {
-          throw new Error(
-            `[e2e] preflight: port ${SERVICE_PORT} occupied but health check failed; classify as stale/conflict. ` +
-              `details=${JSON.stringify(occupancy)}`,
-          );
-        }
-      } else {
-        throw error;
-      }
-    }
-
-    if (!reuseExistingBackend) {
-      console.log(`[e2e] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
-    }
+    await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
+    recordTimelineEvent('port_check_passed', { host: '127.0.0.1', port: SERVICE_PORT });
+    console.log(`[e2e] launching isolated backend: ${backendCommand} ${backendArgs.join(' ')}`);
     const backendEnv = {
       ...sanitizeColorEnv(process.env),
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
@@ -546,21 +527,10 @@ async function run() {
     process.env.PATH = prependVenvPath(process.env.PATH);
     backendEnv.PATH = prependVenvPath(backendEnv.PATH);
     let backendSpawnError = null;
-    if (!reuseExistingBackend) {
-      backend = spawn(backendCommand, backendArgs, {
-        env: backendEnv,
-        stdio: 'inherit',
-      });
-      backendStartedByLauncher = true;
-      backend.once('error', (error) => {
-        backendSpawnError = error;
-      });
-      recordTimelineEvent('backend_spawned', {
-        command: backendCommand,
-        args: backendArgs,
-        port: SERVICE_PORT,
-      });
-    }
+    backend = spawn(backendCommand, backendArgs, { env: backendEnv, stdio: 'inherit' });
+    backendStartedByLauncher = true;
+    backend.once('error', (error) => { backendSpawnError = error; });
+    recordTimelineEvent('backend_spawned', { command: backendCommand, args: backendArgs, port: SERVICE_PORT });
 
     await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS, {
       process: backend,

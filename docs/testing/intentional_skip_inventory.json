@@ -1,0 +1,41 @@
+{
+  "schema_version": "IntentionalSkipInventory v1",
+  "policy": "Only listed opt-in or unavailable-dependency skips are permitted in the relevant inventory.",
+  "entries": [
+    {
+      "identity": "budget_indicator_flow (UI)",
+      "framework": "Playwright",
+      "reason": "Budget-indicator UI is opt-in pending its scoped qualification lane.",
+      "owner": "Foundation hardening",
+      "reopening_trigger": "A scoped budget-indicator qualification lane is authorized."
+    },
+    {
+      "identity": "snapshots_panel_flow (UI)",
+      "framework": "Playwright",
+      "reason": "Snapshots-panel UI is opt-in pending its scoped qualification lane.",
+      "owner": "Foundation hardening",
+      "reopening_trigger": "A scoped snapshots-panel qualification lane is authorized."
+    },
+    {
+      "identity": "real-service truth lane", 
+      "framework": "Playwright",
+      "reason": "The real-service reference lane is opt-in and must not be represented by service stubs.",
+      "owner": "Service truth",
+      "reopening_trigger": "A controlled real-service environment is provided."
+    },
+    {
+      "identity": "strict visual snapshot lane",
+      "framework": "Playwright",
+      "reason": "Pixel snapshots are opt-in because host rendering is not a portable product assertion.",
+      "owner": "Renderer quality",
+      "reopening_trigger": "A fixed visual-reference host is approved."
+    },
+    {
+      "identity": "live-provider qualification",
+      "framework": "Vitest",
+      "reason": "Credentialed provider qualification is prohibited for the offline internal baseline.",
+      "owner": "Provider program",
+      "reopening_trigger": "Governing authority authorizes provider qualification."
+    }
+  ]
+}

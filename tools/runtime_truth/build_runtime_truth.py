@@ -430,11 +430,11 @@ def _features(settings: ServiceSettings) -> list[FeatureEntry]:
             kind="runtime",
             state=analytics_maturity().value,
             source_of_truth="services/src/blackskies/services/feature_flags.py",
-            baseline_default="on",
+            baseline_default="off",
             user_visible=True,
             env_vars=["BLACKSKIES_ENABLE_ANALYTICS"],
             runtime_entrypoints=["services/src/blackskies/services/routers/analytics.py"],
-            notes="Analytics routes are part of the backend surface by default.",
+            notes="Analytics routes are an explicit internal non-baseline opt-in.",
         ),
         FeatureEntry(
             name="provider_calls",
@@ -686,8 +686,7 @@ def _analytics_state() -> AnalyticsState:
             "/api/v1/analytics/budget",
         ],
         notes=(
-            "Analytics routes are exposed by default and can be hidden by the analytics feature flag; "
-            "default maturity is production unless explicitly overridden."
+            "Analytics is non-baseline and disabled by default; routes require explicit internal opt-in."
         ),
     )
 

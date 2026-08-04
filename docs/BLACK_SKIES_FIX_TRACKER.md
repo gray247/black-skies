@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Foundation hardening Phase 1 / Phase 2 implementation is in progress on `codex/foundation-audit`:
+  - `FND-002`, `FND-003`, `FND-005`, `FND-006`, `FND-008`, and `FND-013` are partially repaired: CI installs are frozen, the service dependency entry point delegates to root lockfiles, the machine-specific configuration is removed, historical trace/CI output is archived outside active paths, and harness service ports are isolated per run,
+  - Python 3.11 is now an explicit local check; the current workstation has Python 3.13, so Python qualification remains blocked until a 3.11 interpreter is installed and selected,
+  - `docs/testing/intentional_skip_inventory.json` is the machine-readable inventory of the four Playwright opt-in lanes and the prohibited live-provider Vitest lane,
+  - remaining Phase 1 work: fail-closed gauntlet/security receipt enforcement and exact-candidate execution evidence; remaining Phase 2 work: full Windows/Linux harness proof and zero-survivor receipts.
 - [2026-08-03] Foundation audit opened on separate branch `codex/foundation-audit` before any V2 planning:
   - `FND-001`: `origin/main` is not a safe migration target; it removes the accepted Stage 19 writing-spine runtime, dedicated-window tests, and current packaging/regression workflows,
   - `FND-002` through `FND-016`: tracked historical/generated evidence, non-frozen CI installs, permissive proof placeholders, unsupported local Python baseline, Electron launch/process-teardown failure, intentional skip visibility, analytics/stub truth mismatch, machine-specific configuration, runtime fallback and floating-window seams, deferred provider placeholders, a declared-but-failing coverage gate, repository hygiene gaps, missing package-size budgets, fail-open security/load reporting, and the oversized mixed historical surface are recorded in `docs/audits/foundation_pre_v2_audit_2026-08-03.md`,

@@ -66,6 +66,8 @@ _external_archives/
 # -------------------------
 tmp_*
 temp_*
+app/temp-trace/
+ci_artifacts/
 *.tmp
 *.zip
 tmp/

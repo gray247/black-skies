@@ -39,8 +39,6 @@ These are part of the standard backend surface today.
 - Prompt/context assembly facade: `services/src/blackskies/services/prompt_pipeline.py`
 - Continuity/carryover persistence: `services/src/blackskies/services/scene_memory.py`
 - Draft and long-form operations: `services/src/blackskies/services/operations/draft_generation.py`, `services/src/blackskies/services/operations/long_form_execution.py`
-- Analytics baseline flagging: `services/src/blackskies/services/feature_flags.py`
-- Analytics maturity defaults to `production` unless explicitly reduced via `BLACKSKIES_ANALYTICS_MATURITY` or `BLACKSKIES_ENABLE_ANALYTICS=0`
 - Legacy continuity compatibility writes when Memory Lab is off: `services/src/blackskies/services/config.py`
 
 ## Implemented but off by default
@@ -53,6 +51,7 @@ These systems exist in code and tests, but they are not part of the default runt
 - Backup verification daemon: `services/src/blackskies/services/backup_verifier.py`, enabled through `backup_verifier_enabled`
 - Advisory Memory Lab base system: `services/src/blackskies/services/memory_lab/`, enabled through `memory_lab_enabled`
 - Plugin execution surface: `services/src/blackskies/services/plugins/registry.py`, gated by `BLACKSKIES_ENABLE_PLUGINS`
+- Analytics routes: `services/src/blackskies/services/routers/analytics.py`, disabled by default and only exposed as an explicit internal non-baseline opt-in
 
 ## Experimental
 

@@ -72,10 +72,10 @@ def test_runtime_truth_semantic_defaults() -> None:
     assert "BLACKSKIES_BACKUP_VERIFIER_ENABLED" in backup_report["guarded_by"]
 
     analytics_feature = next(feature for feature in features if feature["name"] == "analytics")
-    assert analytics_feature["state"] == "production"
-    assert analytics_feature["baseline_default"] == "on"
-    assert analytics["enabled_by_default"] is True
-    assert "production" in analytics["notes"]
+    assert analytics_feature["state"] == "off"
+    assert analytics_feature["baseline_default"] == "off"
+    assert analytics["enabled_by_default"] is False
+    assert "non-baseline" in analytics["notes"]
 
     analytics_routes = [route for route in routes if route["path"].startswith("/api/v1/analytics/")]
     assert analytics_routes

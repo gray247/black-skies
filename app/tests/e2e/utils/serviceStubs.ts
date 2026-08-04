@@ -4,7 +4,6 @@ import type { Socket } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
-import { SERVICE_PORT } from '../servicePort';
 import { loadSampleProject } from './sampleProject';
 import { setFlatMode, setRecoveryMode, setFullMode } from './testModeConfig';
 
@@ -255,6 +254,7 @@ const restoreResponse = {
 };
 
 let server: http.Server | null = null;
+let serverPort: number | null = null;
 const serverSockets = new Set<Socket>();
 let currentScenario: ServiceScenario = 'normal';
 
@@ -308,13 +308,20 @@ function respond(res: http.ServerResponse, data: unknown, status = 200): void {
   res.end(payload);
 }
 
-async function ensureServer(): Promise<void> {
+async function ensureServer(port = 0): Promise<number> {
   if (shouldUseExternalService()) {
-    return;
+    const configuredPort = Number(process.env.BLACKSKIES_E2E_PORT ?? process.env.BLACKSKIES_SERVICES_PORT);
+    if (!Number.isInteger(configuredPort) || configuredPort <= 0) {
+      throw new Error('External Electron service requires BLACKSKIES_E2E_PORT or BLACKSKIES_SERVICES_PORT.');
+    }
+    return configuredPort;
   }
   seedVerificationReport();
   if (server) {
-    return;
+    if (serverPort === null) {
+      throw new Error('Electron service stub server is running without a bound port.');
+    }
+    return serverPort;
   }
 
   server = http.createServer((req, res) => {
@@ -322,7 +329,7 @@ async function ensureServer(): Promise<void> {
       respond(res, { message: 'Missing URL' }, 400);
       return;
     }
-    const target = new URL(req.url, `http://127.0.0.1:${SERVICE_PORT}`);
+    const target = new URL(req.url, `http://127.0.0.1:${serverPort ?? port}`);
     const path = target.pathname.replace('/api/v1', '');
     const method = req.method ?? 'GET';
     switch (path) {
@@ -482,8 +489,14 @@ async function ensureServer(): Promise<void> {
     }
     server.once('error', reject);
     server.once('listening', () => resolve());
-    server.listen(SERVICE_PORT, '127.0.0.1');
+    server.listen(port, '127.0.0.1');
   });
+  const address = server.address();
+  if (!address || typeof address === 'string' || address.port <= 0) {
+    throw new Error('Electron service stub did not bind a loopback port.');
+  }
+  serverPort = address.port;
+  return serverPort;
 }
 
 async function shutdownServer(): Promise<void> {
@@ -495,6 +508,7 @@ async function shutdownServer(): Promise<void> {
     return;
   }
   server = null;
+  serverPort = null;
   activeServer.closeIdleConnections?.();
   const closePromise = new Promise<void>((resolve, reject) => {
     activeServer.close((error) => {
@@ -604,9 +618,10 @@ export async function installServiceStubs(
   }, scenario === 'snapshot');
 }
 
-export async function startServiceStubs(): Promise<void> {
-  await ensureServer();
+export async function startServiceStubs(port = 0): Promise<number> {
+  const boundPort = await ensureServer(port);
   currentScenario = 'normal';
+  return boundPort;
 }
 
 export async function stopServiceStubs(): Promise<void> {

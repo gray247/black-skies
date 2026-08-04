@@ -364,6 +364,11 @@ def main() -> int:
         default=os.environ.get("GAUNTLET_CI_PROOF", ""),
         help="Optional CI proof manifest path for delegated passes.",
     )
+    parser.add_argument(
+        "--validate-ci-proof-only",
+        action="store_true",
+        help="Validate a complete downloaded CI proof without running local passes.",
+    )
     args = parser.parse_args()
 
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
@@ -372,6 +377,39 @@ def main() -> int:
     commit_sha = get_head_sha()
     ci_proof_path = Path(args.ci_proof).resolve() if args.ci_proof else None
     ci_proof = load_ci_proof(ci_proof_path)
+    if args.validate_ci_proof_only:
+        if ci_proof is None:
+            print("CI proof validation failed: proof manifest is missing or malformed.", file=sys.stderr)
+            return 1
+        requirements = {
+            "PASS 3": [{"role": "summary"}],
+            "PASS 4": [
+                {"role": "summary"},
+                {"role": "truth_receipt_json"},
+                {"role": "truth_receipt_txt"},
+            ],
+            "PASS 5": [{"role": "summary"}],
+            "PASS 6": [{"role": "summary"}],
+        }
+        errors: list[str] = []
+        for pass_id, required in requirements.items():
+            valid, pass_errors, _ = validate_ci_delegation(
+                ci_proof,
+                pass_id,
+                commit_sha,
+                required,
+                "spawn EPERM required for CI-only PASS 6 proof validation",
+                [],
+            )
+            if not valid:
+                errors.extend(pass_errors)
+        if errors:
+            print("CI proof validation failed:", file=sys.stderr)
+            for error in errors:
+                print(f"- {error}", file=sys.stderr)
+            return 1
+        print(f"CI proof validation passed for exact commit {commit_sha}.")
+        return 0
     python_exe = pick_python()
 
     results: list[PassResult] = []

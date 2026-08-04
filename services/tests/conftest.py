@@ -9,8 +9,6 @@ from pathlib import Path
 
 import pytest
 
-os.environ.setdefault("BLACKSKIES_ENABLE_ANALYTICS", "1")
-
 try:
     import httpx
 except ModuleNotFoundError:  # pragma: no cover - optional dependency for async tests
