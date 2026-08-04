@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Foundation audit opened on separate branch `codex/foundation-audit` before any V2 planning:
+  - `FND-001`: `origin/main` is not a safe migration target; it removes the accepted Stage 19 writing-spine runtime, dedicated-window tests, and current packaging/regression workflows,
+  - `FND-002` through `FND-016`: tracked historical/generated evidence, non-frozen CI installs, permissive proof placeholders, unsupported local Python baseline, Electron launch/process-teardown failure, intentional skip visibility, analytics/stub truth mismatch, machine-specific configuration, runtime fallback and floating-window seams, deferred provider placeholders, a declared-but-failing coverage gate, repository hygiene gaps, missing package-size budgets, fail-open security/load reporting, and the oversized mixed historical surface are recorded in `docs/audits/foundation_pre_v2_audit_2026-08-03.md`,
+  - no runtime or product behavior changed in the audit pass; findings require bounded repair batches with reproducible evidence before V2 discussion.
 - [2026-08-03] Package 19.22 closed as the internal V1 baseline:
   - exact candidate `c247bb86bf701c577e778356d60bf093a7319855` passed Stage 19 Fixed Regression Gate `30860811708`, Validation & Eval Harness `30860813282`, Security Audit `30860814798`, and Windows Packaging Proof `30860816290`,
   - the qualified unsigned installer is `BlackSkies-Setup-1.0.0-rc1.exe`, 89,277,308 bytes, SHA-256 `e96d1db82c68d09a4695ca74aff37c625fa363bb749a0549d57d8caba55cc372`,
