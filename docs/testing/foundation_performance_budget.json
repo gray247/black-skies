@@ -2,6 +2,49 @@
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
   "measurementProtocol": "paired-main-process-monotonic-two-window-median-v4",
-  "baseline": null,
+  "baseline": {
+    "sourceCandidate": "38eb5bc77bc27f8debee23f6807f96b9229ec1d0",
+    "workflowRunId": 30953780486,
+    "artifactId": 8910378110,
+    "artifactArchiveSha256": "dd5d9396b4aca554fc4fdfb69b88660bd8a303a16ef892f0b484b066caebe933",
+    "receiptSha256": "e57a0ddf8ce58922bb84b9a7b08e363713fc7201f57ad987caa8b588de00ce5b",
+    "installerSha256": "01b4b732096301c22e46a1d79160059659feb48b197bf3d9e28d872e2318e470",
+    "reference": {
+      "sourceCandidate": "38eb5bc77bc27f8debee23f6807f96b9229ec1d0",
+      "executable": {
+        "byteLength": 210950656,
+        "sha256": "6927ca25639ca17120dee97a3e54cc240d3a675bc6cdbfbe82710ce5a6ac446f"
+      },
+      "asar": {
+        "byteLength": 14735980,
+        "sha256": "5d3cc3fd6489c863e85952cb6d0d5607205d29d57dd6e9e2d953b4f4af8e8fe8"
+      }
+    },
+    "metrics": {
+      "installer": {
+        "byteLength": 87075285
+      },
+      "unpacked": {
+        "byteLength": 356235706,
+        "asar": {
+          "byteLength": 14735980
+        },
+        "executable": {
+          "byteLength": 210950656
+        },
+        "rendererChunks": {
+          "totalByteLength": 1201236
+        }
+      },
+      "installedLifecycle": {
+        "performance": {
+          "coldLaunchDurationMs": 505.4711,
+          "referenceColdLaunchDurationMs": 465.4865,
+          "coldLaunchCandidateToReferenceRatio": 1.0858985169279882,
+          "steadyStateWorkingSetBytes": 425410560
+        }
+      }
+    }
+  },
   "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches for both the candidate and a clean unpacked reference built from the same exact source when baseline is null. Later candidates build the recorded exact reference source in the same Windows job. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. The governed startup value is the candidate median divided by the paired reference median from that same runner. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. Package size and steady-state memory remain absolute measurements. Missing, unverified, non-exact, or nonconforming measurements fail closed."
 }
