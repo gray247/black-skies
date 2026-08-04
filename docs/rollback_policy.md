@@ -1,6 +1,6 @@
 # Black Skies V1 Release-Candidate Rollback Policy
 
-Status: Package `19.21` operator guidance
+Status: Package `19.22` internal-baseline operator guidance
 
 ## Trigger
 
@@ -16,13 +16,13 @@ history.
 
 ```text
 source commit:
-  b916765196bde37e95968d3985ab5238b47ad797
+  c247bb86bf701c577e778356d60bf093a7319855
 installer:
   BlackSkies-Setup-1.0.0-rc1.exe
 bytes:
-  89275742
+  89277308
 SHA-256:
-  93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+  e96d1db82c68d09a4695ca74aff37c625fa363bb749a0549d57d8caba55cc372
 signature:
   NotSigned
 ```
@@ -77,6 +77,6 @@ Record:
 - every P0/P1/P2/P3 disposition; and
 - Jason's exact internal-milestone judgment for the qualified candidate.
 
-Package `19.22` remains the final internal barebones V1.0 baseline boundary.
+Package `19.22` is the closed internal barebones V1.0 baseline boundary.
 This policy does not authorize tags, public releases, signing requests,
 announcements, history rewrites, or automatic rollback.

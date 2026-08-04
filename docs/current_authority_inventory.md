@@ -46,14 +46,14 @@ the owning finding reopens.
 The bounded status during this package is:
 
 ```text
-PACKAGE_19_22: ACTIVE
-STAGE_19: OPEN
-INTERNAL_V1_BASELINE: QUALIFICATION_IN_PROGRESS
+PACKAGE_19_22: CLOSED
+STAGE_19: CLOSED
+INTERNAL_V1_BASELINE: COMPLETE
 PUBLIC_RELEASE: NOT_AUTHORIZED
 ALPHA_OR_BETA: NOT_CLAIMED
 V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
 ```
 
-Only the final Package `19.22` closure record may change the first three lines,
-and only after the complete closure standard and Jason's final
-internal-milestone judgment are satisfied.
+The Package `19.22` closure receipt records the exact candidate, evidence, and
+human check that changed the first three lines. Public-release authority did
+not change.

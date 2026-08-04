@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-03] Package 19.22 closed as the internal V1 baseline:
+  - exact candidate `c247bb86bf701c577e778356d60bf093a7319855` passed Stage 19 Fixed Regression Gate `30860811708`, Validation & Eval Harness `30860813282`, Security Audit `30860814798`, and Windows Packaging Proof `30860816290`,
+  - the qualified unsigned installer is `BlackSkies-Setup-1.0.0-rc1.exe`, 89,277,308 bytes, SHA-256 `e96d1db82c68d09a4695ca74aff37c625fa363bb749a0549d57d8caba55cc372`,
+  - Jason's human check passed the core writing flow; `BS-19.22-P1-23`, `P3-04`, `P3-24`, and `P1-25` are closed with exact evidence,
+  - public release, tags, signing, publication, and alpha/beta claims remain unauthorized.
 - [2026-08-03] Package 19.22 exact-candidate Windows packaging proof `30860268774` failed before packaging in the fixed Stage 19 regression matrix:
   - root cause: `bootstrapFreshProject` returned the caller's lexical Windows path while `loadProjectForSpine` correctly returned `fs.realpath` canonical identity; on GitHub-hosted Windows this split `C:\\Users\\RUNNER~1\\...` from `C:\\Users\\runneradmin\\...`, causing valid recovery/save bindings to fail as stale and cascading into unrelated test assertions,
   - repair: the bootstrap boundary now returns the filesystem-canonical project root after the atomic rename, matching later load/open identity; the owning bootstrap regression compares the returned path with `realpath`,

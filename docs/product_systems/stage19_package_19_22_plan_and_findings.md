@@ -2,13 +2,12 @@
 
 ## 1. Authority and outcome
 
-Package `19.22` is active. It may close Stage 19 only as a bounded internal
-engineering baseline:
+Package `19.22` is closed as the bounded internal engineering baseline:
 
 ```text
-PACKAGE_19_22: ACTIVE
-STAGE_19: OPEN
-INTERNAL_V1_BASELINE: NOT_YET_COMPLETE
+PACKAGE_19_22: CLOSED
+STAGE_19: CLOSED
+INTERNAL_V1_BASELINE: COMPLETE
 PUBLIC_RELEASE: NOT_AUTHORIZED
 ALPHA_OR_BETA: NOT_CLAIMED
 V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
@@ -134,3 +133,16 @@ test, qualification-helper, tracker, and pre-closure authority change. No
 tracked change may follow it before Jason's verdict. The only allowed later
 commit is a documentation-and-tracker-only closure receipt after an exact
 `PASS` verdict naming that candidate SHA.
+
+## 9. Closure
+
+Package `19.22` closed on 2026-08-03. Qualified candidate
+`c247bb86bf701c577e778356d60bf093a7319855` passed all required exact CI and
+Windows artifact gates, and Jason's human check passed the core writing flow.
+See [`stage19_package_19_22_closure.md`](stage19_package_19_22_closure.md).
+Public release remains unauthorized.
+
+At closure, `BS-19.22-P1-23`, `BS-19.22-P3-04`, `BS-19.22-P3-24`, and
+`BS-19.22-P1-25` are CLOSED with the exact evidence named in the closure
+receipt. The other retained ledger repairs are closed through the same complete
+exact-candidate ladder; their individual reopening triggers remain binding.

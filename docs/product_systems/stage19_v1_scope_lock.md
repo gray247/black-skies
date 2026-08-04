@@ -11,6 +11,10 @@ Stage 19 and do not prove V1.0.
 This scope lock authorizes planning and selection only. Each implementation
 package still requires a separate bounded authorization.
 
+Closure status: Stage 19 and the internal V1 baseline are complete through
+Package `19.22`; see `stage19_package_19_22_closure.md`. This does not
+authorize a public release, tag, signing, or publication.
+
 ## 2. Minimum honest V1.0 promise
 
 > A writer can create or open an isolated local project, develop an outline

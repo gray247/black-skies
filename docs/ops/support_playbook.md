@@ -1,6 +1,6 @@
 # Black Skies 1.0.0-rc1 Support Playbook
 
-Status: Package `19.21` current installed-product support guidance
+Status: Package `19.22` internal-baseline support guidance
 
 Audience: internal support and release operators
 
@@ -37,8 +37,8 @@ Accepted candidate identity:
 
 ```text
 BlackSkies-Setup-1.0.0-rc1.exe
-89275742 bytes
-93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+89277308 bytes
+e96d1db82c68d09a4695ca74aff37c625fa363bb749a0549d57d8caba55cc372
 NotSigned
 ```
 

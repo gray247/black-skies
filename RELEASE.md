@@ -84,11 +84,10 @@ Support must follow `docs/ops/support_playbook.md`. Do not advise users to edit
 project metadata, delete recovery artifacts, install Python/Node, run legacy
 services, or substitute an unverified installer.
 
-## Package 19.22 internal-closure gate
+## Package 19.22 internal-closure record
 
-Package `19.21` aligned and rehearsed documentation. Package `19.22` may close
-Stage 19 only as an internal barebones V1 baseline after it independently
-confirms:
+Package `19.22` closed Stage 19 as the internal barebones V1 baseline after it
+independently confirmed the following gates:
 
 1. Packages `19.1` through `19.21` are closed with every residual owned.
 2. The tracked worktree and exact source identity are clean and recorded.

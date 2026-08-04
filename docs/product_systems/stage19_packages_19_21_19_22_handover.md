@@ -16,7 +16,7 @@ next eligible:
 Package 19.21:
   CLOSED — commit 2dc8010
 Package 19.22:
-  ACTIVE — PUBLIC RELEASE NOT AUTHORIZED
+  CLOSED — INTERNAL V1 BASELINE COMPLETE — PUBLIC RELEASE NOT AUTHORIZED
 protected evidence:
   NOT_USED
 ```
@@ -210,14 +210,12 @@ The next thread should not ask Jason to perform intermediate setup that Codex
 can safely perform with repository tools, Playwright/Electron, packaging
 automation, or Computer Use.
 
-The desired final message, only after all autonomous evidence passes, is:
+The final handoff is complete:
 
 ```text
-Black Skies is built, packaged, regression-tested, Playwright-tested,
-and installed-app-tested with Computer Use. The bounded internal V1
-foundation is ready for your final internal-milestone judgment.
+Black Skies passed its exact-candidate CI, packaging, installed-app, and core
+writing human checks. The bounded internal V1 foundation is complete; public
+release authority was not granted.
 ```
 
-Until then, continue autonomously, fix in-scope failures, preserve exact
-evidence, commit and push verified batches, and report only decisions,
-material residuals, or genuine authority blockers.
+Future work requires new authority and must not infer public-release scope.

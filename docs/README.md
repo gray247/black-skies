@@ -18,11 +18,10 @@
 - `product_systems/stage19_v1_master_implementation_and_acceptance_plan.md`
 - `product_systems/stage19_package_19_20_closure.md`
 - `product_systems/stage19_package_19_22_plan_and_findings.md`
+- `product_systems/stage19_package_19_22_closure.md`
 - `product_systems/stage19_packages_19_21_19_22_handover.md`
 
-Stage 19 remains open. Package `19.21` is closed; Package `19.22` is next
-eligible and is the final internal V1.0 baseline boundary. It requires Jason's
-final internal-milestone judgment after exact-candidate qualification. It does
+Stage 19 and the internal V1 baseline are closed by Package `19.22`. This does
 not authorize a tag, public release, signing, publication, announcement, or
 alpha/beta claim.
 

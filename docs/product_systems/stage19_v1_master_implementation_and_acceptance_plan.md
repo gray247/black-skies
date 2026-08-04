@@ -41,7 +41,7 @@ Git status.
 | 19.19 | packaging and installation proof | stable runtime/regression and 19.18 | NSIS install/launch/save/reopen/export packaging checks pass |
 | 19.20 | packaged release-candidate acceptance and retesting | 19.18-19.19 | packaged RC acceptance matrix and defect retest cycle pass |
 | 19.21 | user/release/operator documentation | RC behavior fixed | support and release records match reality |
-| 19.22 | internal barebones V1.0 closure | all prior | no P0/P1/P2, clean verified repo, Jason internal-milestone verification, no release action |
+| 19.22 | internal barebones V1.0 closure | all prior | CLOSED: exact candidate, Windows artifact/install proof, four CI runs, Jason core-writing check; no release action |
 
 Dependency rules are binding: project identity precedes save; save precedes
 recovery; manuscript authority precedes export; core workflow precedes optional
@@ -107,11 +107,11 @@ documentation findings are closed. One truthful non-blocking P3
 export-notice-lifetime observation is owned by Package `19.22` with an exact
 reopening trigger.
 
-Stage 19 remains open. Package `19.22`, **internal barebones V1.0 closure**, is
-active. It must complete repository hardening, autonomous closure preparation,
-and residual dispositions before Jason's final internal-milestone
-verification. Public release is not authorized; Package `19.22` prohibits a
-tag, publication, signing request, release announcement, or alpha/beta claim.
+Stage 19 is closed. Package `19.22`, **internal barebones V1.0 closure**,
+completed repository hardening and exact-candidate qualification; Jason's
+core-writing human check passed. Public release is not authorized, and the
+closure created no tag, publication, signing request, release announcement, or
+alpha/beta claim.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is
@@ -124,4 +124,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Package 19.21 closed; Stage 19 remains open; Package 19.22 is active as the internal barebones V1 closure boundary; public release is not authorized
+PZ_CONTINUE: Package 19.22 closed; Stage 19 and the internal V1 baseline are complete; public release is not authorized
