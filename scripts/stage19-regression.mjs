@@ -165,6 +165,8 @@ phase("Critical unit, component, and contract matrix", pnpm, [
   "test",
   "--",
   "--run",
+  "--maxWorkers=1",
+  "--minWorkers=1",
   ...unitFiles
 ]);
 const electron = electronCommand();

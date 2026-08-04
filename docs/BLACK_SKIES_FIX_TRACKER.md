@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation Windows Stage 19 harness repair:
+  - exact candidate `4b00c64ae147686a549702114a2bd392adf047b9` passed Linux, security, and evaluation gates, but its Windows packaging proof stopped before packaging because two otherwise-valid receipt-tamper cases exceeded Vitest's unchanged five-second limit under a four-worker mixed critical matrix,
+  - the affected qualification-artifact suite passes those same strict tamper cases locally on Windows (each under 100 ms); the failure is worker contention rather than a waived integrity rule or product behavior defect,
+  - the fixed Stage 19 unit matrix now uses one explicit Vitest worker. It preserves the five-second timeout, zero retries, every test, and all assertions while making the qualification evidence pass deterministic on the constrained Windows packaging runner. A replacement candidate must repeat the full exact-SHA ladder.
 - [2026-08-04] Foundation gauntlet-proof receipt repair:
   - the exact-candidate Validation & Eval Harness producers all passed, but the final proof-manifest job failed closed because the artifact service stores each uploaded file at the artifact root while the manifest expected its producer-directory path,
   - PASS 3, 5, and 6 are single-file artifacts and download at their artifact root; PASS 4 preserves its `ci_proof/` and `truth_receipts/` directories because it intentionally uploads multiple files. The manifest and its regression test now model both layouts exactly,
