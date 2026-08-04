@@ -30,7 +30,7 @@ const expectedMarkdown = [
 ].join("\n");
 const representativeUnitCount = 100;
 const coldLaunchSampleCount = 5;
-const coldLaunchProtocol = "main-process-monotonic-two-window-median-v3";
+const coldLaunchProtocol = "paired-main-process-monotonic-two-window-median-v4";
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -389,6 +389,30 @@ function median(values) {
   return [...values].sort((left, right) => left - right)[Math.floor(values.length / 2)];
 }
 
+function summarizeColdLaunchPerformance(coldLaunchPreparation, coldLaunchSamples) {
+  const coldLaunchSamplesMs = coldLaunchSamples.map((sample) => sample.durationMs);
+  return {
+    coldLaunchProtocol,
+    coldLaunchMeasurementSource: "main-process-monotonic-probe",
+    coldLaunchProbeSchema: coldLaunchPreparation.probe.schema,
+    coldLaunchPreparationMs: coldLaunchPreparation.durationMs,
+    coldLaunchPreparationHarnessReadyAtMs: coldLaunchPreparation.harnessReadyAtMs,
+    coldLaunchPreparationWindowCount: coldLaunchPreparation.windowCount,
+    coldLaunchPreparationVisibleWindowCount: coldLaunchPreparation.visibleWindowCount,
+    coldLaunchPreparationSandboxedWindowCount: coldLaunchPreparation.sandboxedWindowCount,
+    coldLaunchDurationMs: median(coldLaunchSamplesMs),
+    coldLaunchSamplesMs,
+    coldLaunchHarnessReadyAtSamplesMs: coldLaunchSamples.map((sample) => sample.harnessReadyAtMs),
+    coldLaunchSampleCount,
+    coldLaunchSampleWindowCounts: coldLaunchSamples.map((sample) => sample.windowCount),
+    coldLaunchSampleVisibleWindowCounts: coldLaunchSamples.map((sample) => sample.visibleWindowCount),
+    coldLaunchSampleSandboxedWindowCounts: coldLaunchSamples.map(
+      (sample) => sample.sandboxedWindowCount
+    ),
+    coldLaunchStatistic: "median"
+  };
+}
+
 async function coldLaunchReadiness(application) {
   const windows = await application.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()
@@ -476,9 +500,12 @@ async function measureColdLaunch(executablePath, userDataPath) {
       durationMs,
       harnessReadyAtMs,
       probe,
+      isPackaged: truth.isPackaged,
+      version: truth.version,
       windowCount: truth.windows.length,
       visibleWindowCount: readiness.filter((window) => window.visible).length,
-      sandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length
+      sandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length,
+      forbiddenRuntimeProcessCount: forbiddenProcesses.length
     };
   } finally {
     if (launched) {
@@ -504,6 +531,7 @@ async function main() {
   const smokeRoot = requireValue("--root");
   const resultPath = requireValue("--result");
   const runRepresentative = process.argv.includes("--representative");
+  const performanceOnly = process.argv.includes("--performance-only");
   assert(existsSync(executablePath), "Installed executable does not exist.");
   mkdirSync(smokeRoot, { recursive: true });
   const userDataPath = path.join(smokeRoot, "user-data");
@@ -528,8 +556,36 @@ async function main() {
     for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
       coldLaunchSamples.push(await measureColdLaunch(executablePath, coldLaunchUserDataPath));
     }
-    const coldLaunchSamplesMs = coldLaunchSamples.map((sample) => sample.durationMs);
-    const coldLaunchDurationMs = median(coldLaunchSamplesMs);
+    const launchPerformance = summarizeColdLaunchPerformance(
+      coldLaunchPreparation,
+      coldLaunchSamples
+    );
+    assert(
+      coldLaunchSamples.every((sample) => sample.isPackaged),
+      "Cold-launch samples did not prove packaged runtime truth."
+    );
+    assert(
+      coldLaunchSamples.every((sample) => sample.forbiddenRuntimeProcessCount === 0),
+      "Cold-launch samples found a forbidden runtime process."
+    );
+    if (performanceOnly) {
+      const firstSample = coldLaunchSamples[0];
+      const result = {
+        schema: "black-skies.stage19.installed-smoke.v1",
+        qualificationMode: "paired-startup-reference",
+        appIsPackaged: true,
+        version: firstSample.version,
+        windowCount: firstSample.windowCount,
+        sandboxedWindowCount: firstSample.sandboxedWindowCount,
+        forbiddenRuntimeProcessCount: 0,
+        zeroSurvivorProcessCount: 0,
+        performance: launchPerformance,
+        completedAtUtc: new Date().toISOString()
+      };
+      writeFileSync(resultPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     first = await launchInstalled(executablePath, userDataPath);
     const firstTruth = await runtimeTruth(
       first.application,
@@ -795,24 +851,7 @@ async function main() {
       forbiddenRuntimeProcessCount: forbiddenProcesses.length,
       zeroSurvivorProcessCount: 0,
       performance: {
-        coldLaunchProtocol,
-        coldLaunchMeasurementSource: "main-process-monotonic-probe",
-        coldLaunchProbeSchema: coldLaunchPreparation.probe.schema,
-        coldLaunchPreparationMs: coldLaunchPreparation.durationMs,
-        coldLaunchPreparationHarnessReadyAtMs: coldLaunchPreparation.harnessReadyAtMs,
-        coldLaunchPreparationWindowCount: coldLaunchPreparation.windowCount,
-        coldLaunchPreparationVisibleWindowCount: coldLaunchPreparation.visibleWindowCount,
-        coldLaunchPreparationSandboxedWindowCount: coldLaunchPreparation.sandboxedWindowCount,
-        coldLaunchDurationMs,
-        coldLaunchSamplesMs,
-        coldLaunchHarnessReadyAtSamplesMs: coldLaunchSamples.map((sample) => sample.harnessReadyAtMs),
-        coldLaunchSampleCount,
-        coldLaunchSampleWindowCounts: coldLaunchSamples.map((sample) => sample.windowCount),
-        coldLaunchSampleVisibleWindowCounts: coldLaunchSamples.map((sample) => sample.visibleWindowCount),
-        coldLaunchSampleSandboxedWindowCounts: coldLaunchSamples.map(
-          (sample) => sample.sandboxedWindowCount
-        ),
-        coldLaunchStatistic: "median",
+        ...launchPerformance,
         steadyStateWorkingSetBytes,
         processCount: firstTree.length
       },

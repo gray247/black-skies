@@ -5,6 +5,10 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$ReceiptPath,
 
+  [string]$PerformanceReferenceExecutable = "",
+
+  [string]$PerformanceReferenceCommit = "",
+
   [string]$WorkingRoot = (Join-Path $env:LOCALAPPDATA ("BlackSkiesQualification\19-19-" + [guid]::NewGuid().ToString("N")))
 )
 
@@ -12,17 +16,28 @@ $ErrorActionPreference = "Stop"
 $installer = [System.IO.Path]::GetFullPath($InstallerPath)
 $receipt = [System.IO.Path]::GetFullPath($ReceiptPath)
 $working = [System.IO.Path]::GetFullPath($WorkingRoot)
+$performanceReferenceRequested = -not [string]::IsNullOrWhiteSpace($PerformanceReferenceExecutable)
+$performanceReference = if ($performanceReferenceRequested) {
+  [System.IO.Path]::GetFullPath($PerformanceReferenceExecutable)
+} else {
+  $null
+}
 $installDirectory = Join-Path $working "installed"
 $smokeDirectory = Join-Path $working "external-data"
 $smokeResultPath = Join-Path $working "installed-smoke.json"
+$referenceSmokeDirectory = Join-Path $working "performance-reference-external-data"
+$referenceSmokeResultPath = Join-Path $working "performance-reference-smoke.json"
 $firewallRuleName = "BlackSkies-19.19-" + [guid]::NewGuid().ToString("N")
+$referenceFirewallRuleName = "BlackSkies-19.19-reference-" + [guid]::NewGuid().ToString("N")
 $installedExecutable = Join-Path $installDirectory "Black Skies.exe"
 $uninstaller = Join-Path $installDirectory "Uninstall Black Skies.exe"
 $installed = $false
 $firewallCreated = $false
+$referenceFirewallCreated = $false
 $shortcutPaths = @()
 $registrationPath = $null
 $smoke = $null
+$referenceSmoke = $null
 
 function Assert-Stage19 {
   param([bool]$Condition, [string]$Message)
@@ -30,6 +45,10 @@ function Assert-Stage19 {
     throw "[stage19-installed] $Message"
   }
 }
+
+Assert-Stage19 (
+  $performanceReferenceRequested -eq (-not [string]::IsNullOrWhiteSpace($PerformanceReferenceCommit))
+) "Performance reference executable and commit must be provided together."
 
 function Wait-PathState {
   param([string]$LiteralPath, [bool]$Exists, [int]$TimeoutSeconds = 30)
@@ -101,6 +120,9 @@ function Get-EmbeddedIconPngHash {
 New-Item -ItemType Directory -Path $working -Force | Out-Null
 Assert-Stage19 (Test-Path -LiteralPath $installer -PathType Leaf) "Installer is missing."
 Assert-Stage19 (Test-Path -LiteralPath $receipt -PathType Leaf) "Qualification receipt is missing."
+if ($performanceReferenceRequested) {
+  Assert-Stage19 (Test-Path -LiteralPath $performanceReference -PathType Leaf) "Performance reference executable is missing."
+}
 Assert-Stage19 ((Get-AuthenticodeSignature -LiteralPath $installer).Status -eq "NotSigned") "Installer signature truth is not NotSigned."
 
 try {
@@ -153,7 +175,28 @@ try {
   Assert-Stage19 ($smoke.sandboxedWindowCount -eq 2) "Installed smoke did not prove two sandboxed windows."
   Assert-Stage19 ($smoke.forbiddenRuntimeProcessCount -eq 0) "Installed smoke found a forbidden runtime process."
   Assert-Stage19 ($smoke.exactMarkdownMatched -eq $true) "Installed smoke did not match exact Markdown bytes."
+
+  if ($performanceReferenceRequested) {
+    New-NetFirewallRule -DisplayName $referenceFirewallRuleName -Direction Outbound -Program $performanceReference -Action Block -Profile Any | Out-Null
+    $referenceFirewallCreated = $true
+    & node (Join-Path (Split-Path -Parent $PSScriptRoot) "app\scripts\stage19-installed-smoke.mjs") `
+      --executable $performanceReference `
+      --root $referenceSmokeDirectory `
+      --result $referenceSmokeResultPath `
+      --performance-only
+    Assert-Stage19 ($LASTEXITCODE -eq 0) "Performance reference smoke failed."
+    $referenceSmoke = Get-Content -LiteralPath $referenceSmokeResultPath -Raw | ConvertFrom-Json
+    Assert-Stage19 ($referenceSmoke.qualificationMode -eq "paired-startup-reference") "Performance reference did not report paired-startup mode."
+    Assert-Stage19 ($referenceSmoke.appIsPackaged -eq $true) "Performance reference did not prove app.isPackaged."
+    Assert-Stage19 ($referenceSmoke.windowCount -eq 2) "Performance reference did not prove two windows."
+    Assert-Stage19 ($referenceSmoke.sandboxedWindowCount -eq 2) "Performance reference did not prove two sandboxed windows."
+    Assert-Stage19 ($referenceSmoke.forbiddenRuntimeProcessCount -eq 0) "Performance reference found a forbidden runtime process."
+    Assert-Stage19 ($referenceSmoke.zeroSurvivorProcessCount -eq 0) "Performance reference left owned processes after teardown."
+  }
 } finally {
+  if ($referenceFirewallCreated) {
+    Remove-NetFirewallRule -DisplayName $referenceFirewallRuleName -ErrorAction SilentlyContinue
+  }
   if ($firewallCreated) {
     Remove-NetFirewallRule -DisplayName $firewallRuleName -ErrorAction SilentlyContinue
   }
@@ -181,6 +224,28 @@ foreach ($file in $smoke.projectFiles) {
 }
 
 $receiptDocument = Get-Content -LiteralPath $receipt -Raw | ConvertFrom-Json
+$performanceReceipt = $smoke.performance
+if ($performanceReferenceRequested) {
+  Assert-Stage19 ($null -ne $referenceSmoke) "Performance reference result was not produced."
+  $referenceAsar = Join-Path (Join-Path (Split-Path -Parent $performanceReference) "resources") "app.asar"
+  Assert-Stage19 (Test-Path -LiteralPath $referenceAsar -PathType Leaf) "Performance reference ASAR is missing."
+  $candidateLaunchMs = [double]$smoke.performance.coldLaunchDurationMs
+  $referenceLaunchMs = [double]$referenceSmoke.performance.coldLaunchDurationMs
+  Assert-Stage19 ($candidateLaunchMs -gt 0 -and $referenceLaunchMs -gt 0) "Paired startup measurements are invalid."
+  $performanceReceipt | Add-Member -NotePropertyName pairedReference -NotePropertyValue ([ordered]@{
+    sourceCandidate = $PerformanceReferenceCommit
+    executable = [ordered]@{
+      byteLength = (Get-Item -LiteralPath $performanceReference).Length
+      sha256 = (Get-FileHash -LiteralPath $performanceReference -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    asar = [ordered]@{
+      byteLength = (Get-Item -LiteralPath $referenceAsar).Length
+      sha256 = (Get-FileHash -LiteralPath $referenceAsar -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    performance = $referenceSmoke.performance
+    candidateToReferenceRatio = $candidateLaunchMs / $referenceLaunchMs
+  })
+}
 $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NotePropertyValue ([ordered]@{
   status = "passed"
   installationDirectory = $installDirectory
@@ -189,7 +254,7 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   sandboxedWindowCount = $smoke.sandboxedWindowCount
   forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount
   zeroSurvivorProcessCount = $smoke.zeroSurvivorProcessCount
-  performance = $smoke.performance
+  performance = $performanceReceipt
   offlineFirewallRuleApplied = $true
   exactMarkdownMatched = $smoke.exactMarkdownMatched
   exportedUnitCount = $smoke.exportedUnitCount

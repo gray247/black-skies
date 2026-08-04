@@ -4,7 +4,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const metricPaths = ['installer.byteLength', 'unpacked.byteLength', 'unpacked.asar.byteLength', 'unpacked.executable.byteLength', 'unpacked.rendererChunks.totalByteLength', 'installedLifecycle.performance.coldLaunchDurationMs', 'installedLifecycle.performance.steadyStateWorkingSetBytes'];
+const absoluteMetricPaths = ['installer.byteLength', 'unpacked.byteLength', 'unpacked.asar.byteLength', 'unpacked.executable.byteLength', 'unpacked.rendererChunks.totalByteLength', 'installedLifecycle.performance.steadyStateWorkingSetBytes'];
 
 function readJson(filePath) { return JSON.parse(readFileSync(filePath, 'utf8')); }
 function get(object, dottedPath) { return dottedPath.split('.').reduce((value, key) => value?.[key], object); }
@@ -13,6 +13,29 @@ function argument(flag) { const index = process.argv.indexOf(flag); return index
 function median(values) {
   invariant(values.length % 2 === 1, 'Cold-launch median requires an odd sample count.');
   return [...values].sort((left, right) => left - right)[Math.floor(values.length / 2)];
+}
+function assertColdLaunchMeasurement(measurement, label) {
+  invariant(measurement?.coldLaunchMeasurementSource === 'main-process-monotonic-probe', `${label} measurement source is invalid.`);
+  invariant(measurement?.coldLaunchProbeSchema === 'black-skies.stage19.internal-startup-probe.v1', `${label} probe schema is invalid.`);
+  invariant(Number.isFinite(measurement?.coldLaunchPreparationMs) && measurement.coldLaunchPreparationMs > 0, `${label} preparation evidence is missing or invalid.`);
+  invariant(measurement.coldLaunchPreparationWindowCount === 2, `${label} preparation did not prove two windows.`);
+  invariant(measurement.coldLaunchPreparationVisibleWindowCount === 2, `${label} preparation did not prove two visible windows.`);
+  invariant(measurement.coldLaunchPreparationSandboxedWindowCount === 2, `${label} preparation did not prove two sandboxed windows.`);
+  invariant(measurement?.coldLaunchStatistic === 'median', `${label} measurement must use the governed median statistic.`);
+  invariant(measurement?.coldLaunchSampleCount === 5, `${label} measurement must contain exactly five process-cold samples.`);
+  invariant(Array.isArray(measurement?.coldLaunchSamplesMs) && measurement.coldLaunchSamplesMs.length === 5, `${label} sample evidence is missing or malformed.`);
+  invariant(measurement.coldLaunchSamplesMs.every(Number.isFinite), `${label} sample evidence contains an invalid value.`);
+  for (const [field, requirement] of [
+    ['coldLaunchSampleWindowCounts', 'two windows'],
+    ['coldLaunchSampleVisibleWindowCounts', 'two visible windows'],
+    ['coldLaunchSampleSandboxedWindowCounts', 'two sandboxed windows']
+  ]) {
+    invariant(
+      Array.isArray(measurement[field]) && measurement[field].length === 5 && measurement[field].every((count) => count === 2),
+      `${label} samples did not each prove ${requirement}.`
+    );
+  }
+  invariant(measurement.coldLaunchDurationMs === median(measurement.coldLaunchSamplesMs), `${label} metric must be the median of every governed sample.`);
 }
 
 try {
@@ -25,33 +48,28 @@ try {
   invariant(receipt.installedLifecycle?.status === 'passed', 'Installed lifecycle is not a passing measurement.');
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
-  const coldLaunch = receipt.installedLifecycle?.performance;
-  invariant(budget.measurementProtocol === 'main-process-monotonic-two-window-median-v3', 'Performance budget measurement protocol is invalid.');
-  invariant(coldLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
-  invariant(coldLaunch?.coldLaunchMeasurementSource === 'main-process-monotonic-probe', 'Cold-launch measurement source is invalid.');
-  invariant(coldLaunch?.coldLaunchProbeSchema === 'black-skies.stage19.internal-startup-probe.v1', 'Cold-launch probe schema is invalid.');
-  invariant(Number.isFinite(coldLaunch?.coldLaunchPreparationMs) && coldLaunch.coldLaunchPreparationMs > 0, 'Cold-launch preparation evidence is missing or invalid.');
-  invariant(coldLaunch.coldLaunchPreparationWindowCount === 2, 'Cold-launch preparation did not prove two windows.');
-  invariant(coldLaunch.coldLaunchPreparationVisibleWindowCount === 2, 'Cold-launch preparation did not prove two visible windows.');
-  invariant(coldLaunch.coldLaunchPreparationSandboxedWindowCount === 2, 'Cold-launch preparation did not prove two sandboxed windows.');
-  invariant(coldLaunch?.coldLaunchStatistic === 'median', 'Cold-launch measurement must use the governed median statistic.');
-  invariant(coldLaunch?.coldLaunchSampleCount === 5, 'Cold-launch measurement must contain exactly five process-cold samples.');
-  invariant(Array.isArray(coldLaunch?.coldLaunchSamplesMs) && coldLaunch.coldLaunchSamplesMs.length === 5, 'Cold-launch sample evidence is missing or malformed.');
-  invariant(coldLaunch.coldLaunchSamplesMs.every(Number.isFinite), 'Cold-launch sample evidence contains an invalid value.');
-  for (const [field, label] of [
-    ['coldLaunchSampleWindowCounts', 'two windows'],
-    ['coldLaunchSampleVisibleWindowCounts', 'two visible windows'],
-    ['coldLaunchSampleSandboxedWindowCounts', 'two sandboxed windows']
-  ]) {
-    invariant(
-      Array.isArray(coldLaunch[field]) && coldLaunch[field].length === 5 && coldLaunch[field].every((count) => count === 2),
-      `Cold-launch samples did not each prove ${label}.`
-    );
-  }
-  invariant(coldLaunch.coldLaunchDurationMs === median(coldLaunch.coldLaunchSamplesMs), 'Cold-launch metric must be the median of every governed sample.');
-  for (const metric of metricPaths) invariant(Number.isFinite(get(receipt, metric)), `Measurement is missing or invalid: ${metric}.`);
+  const candidateColdLaunch = receipt.installedLifecycle?.performance;
+  invariant(budget.measurementProtocol === 'paired-main-process-monotonic-two-window-median-v4', 'Performance budget measurement protocol is invalid.');
+  invariant(candidateColdLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
+  assertColdLaunchMeasurement(candidateColdLaunch, 'Candidate cold-launch');
+  const pairedReference = candidateColdLaunch?.pairedReference;
+  invariant(typeof pairedReference?.sourceCandidate === 'string' && pairedReference.sourceCandidate.length === 40, 'Paired startup reference source candidate is missing or invalid.');
+  invariant(Number.isFinite(pairedReference?.executable?.byteLength) && typeof pairedReference.executable.sha256 === 'string', 'Paired startup reference executable evidence is invalid.');
+  invariant(Number.isFinite(pairedReference?.asar?.byteLength) && typeof pairedReference.asar.sha256 === 'string', 'Paired startup reference ASAR evidence is invalid.');
+  invariant(pairedReference?.performance?.coldLaunchProtocol === budget.measurementProtocol, 'Paired startup reference measurement protocol is invalid.');
+  assertColdLaunchMeasurement(pairedReference?.performance, 'Paired startup reference');
+  const startupRatio = candidateColdLaunch.coldLaunchDurationMs / pairedReference.performance.coldLaunchDurationMs;
+  invariant(Number.isFinite(pairedReference.candidateToReferenceRatio) && pairedReference.candidateToReferenceRatio > 0, 'Paired startup ratio is missing or invalid.');
+  invariant(Math.abs(pairedReference.candidateToReferenceRatio - startupRatio) < 0.000001, 'Paired startup ratio does not match the exact candidate and reference medians.');
+  for (const metric of absoluteMetricPaths) invariant(Number.isFinite(get(receipt, metric)), `Measurement is missing or invalid: ${metric}.`);
   invariant(budget.baseline, 'Performance baseline is not established; this receipt is UNVERIFIED until a reviewed exact-candidate baseline is committed.');
-  for (const metric of metricPaths) {
+  invariant(pairedReference.sourceCandidate === budget.baseline.reference.sourceCandidate, 'Paired startup reference does not match the governed baseline source candidate.');
+  invariant(pairedReference.executable.sha256 === budget.baseline.reference.executable.sha256, 'Paired startup reference executable does not match the governed baseline.');
+  invariant(pairedReference.asar.sha256 === budget.baseline.reference.asar.sha256, 'Paired startup reference ASAR does not match the governed baseline.');
+  const baselineStartupRatio = get(budget.baseline.metrics, 'installedLifecycle.performance.coldLaunchCandidateToReferenceRatio');
+  invariant(Number.isFinite(baselineStartupRatio), 'Baseline paired startup ratio is missing or invalid.');
+  invariant(startupRatio <= baselineStartupRatio * (1 + budget.maximumRegressionPercent / 100), `Performance budget exceeded for paired startup ratio: ${startupRatio} > ${baselineStartupRatio}.`);
+  for (const metric of absoluteMetricPaths) {
     const baseline = get(budget.baseline.metrics, metric);
     const actual = get(receipt, metric);
     invariant(Number.isFinite(baseline), `Baseline metric is missing: ${metric}.`);

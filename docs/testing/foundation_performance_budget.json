@@ -1,37 +1,7 @@
 {
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
-  "measurementProtocol": "main-process-monotonic-two-window-median-v3",
-  "baseline": {
-    "sourceCandidate": "ff87b99e7fa37af9839cd87c96b0a9c36a56d99e",
-    "workflowRunId": 30951177653,
-    "artifactId": 8909348390,
-    "artifactArchiveSha256": "258362e5c8de586d2f0e202d2671482bc2fd43906cac4c8b0a91edc51ac2c018",
-    "receiptSha256": "441f959221d86c0897573a46705fc37b24bf9b811dd79af880ccfc5ff3f9dc6f",
-    "installerSha256": "ee3a12b54f71172bcecfd5d2221dce42e7c4e8409427172ca0b5ab880e260c5b",
-    "metrics": {
-      "installer": {
-        "byteLength": 87075284
-      },
-      "unpacked": {
-        "byteLength": 356235706,
-        "asar": {
-          "byteLength": 14735980
-        },
-        "executable": {
-          "byteLength": 210950656
-        },
-        "rendererChunks": {
-          "totalByteLength": 1201236
-        }
-      },
-      "installedLifecycle": {
-        "performance": {
-          "coldLaunchDurationMs": 451.1197,
-          "steadyStateWorkingSetBytes": 420806656
-        }
-      }
-    }
-  },
-  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. The median of all five probe readings is the budget metric. Missing, unverified, non-exact, or nonconforming measurements fail closed."
+  "measurementProtocol": "paired-main-process-monotonic-two-window-median-v4",
+  "baseline": null,
+  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches for both the candidate and a clean unpacked reference built from the same exact source when baseline is null. Later candidates build the recorded exact reference source in the same Windows job. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. The governed startup value is the candidate median divided by the paired reference median from that same runner. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. Package size and steady-state memory remain absolute measurements. Missing, unverified, non-exact, or nonconforming measurements fail closed."
 }

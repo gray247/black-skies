@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout exact source
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Set up Python for repository hygiene gate
         uses: actions/setup-python@v6
         with:
@@ -42,12 +44,24 @@ jobs:
         run: pnpm stage19:regression
       - name: Build and verify unsigned NSIS installer
         run: pnpm --filter app run package:win
+      - name: Build paired foundation startup reference
+        shell: pwsh
+        run: |
+          $budget = Get-Content -LiteralPath ./docs/testing/foundation_performance_budget.json -Raw | ConvertFrom-Json
+          $referenceCandidate = if ($null -eq $budget.baseline) { $env:GITHUB_SHA } else { $budget.baseline.reference.sourceCandidate }
+          ./scripts/build-foundation-performance-reference.ps1 `
+            -SourceCandidate $referenceCandidate `
+            -WorkingRoot ./.tmp/foundation-startup-reference `
+            -ResultPath ./.tmp/foundation-startup-reference.json
       - name: Install, run offline lifecycle, and uninstall
         shell: pwsh
-        run: >
-          ./scripts/stage19-installed-lifecycle.ps1
-          -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe
-          -ReceiptPath ./app/release/stage19-package-receipt.json
+        run: |
+          $reference = Get-Content -LiteralPath ./.tmp/foundation-startup-reference.json -Raw | ConvertFrom-Json
+          ./scripts/stage19-installed-lifecycle.ps1 `
+            -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
+            -ReceiptPath ./app/release/stage19-package-receipt.json `
+            -PerformanceReferenceExecutable $reference.executablePath `
+            -PerformanceReferenceCommit $reference.sourceCandidate
       - name: Upload qualified RC installer and receipt
         uses: actions/upload-artifact@v6
         with:

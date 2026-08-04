@@ -18,6 +18,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] `FND-014` V4 paired-reference correction (`10a4776390d7bea7de614fe7d67d99eab2ee2eb9`): Stage 19 Fixed Regression Gate `30951938612`, Validation & Eval Harness `30951938701`, and Security Audit `30951938699` passed exactly at this SHA. Windows Packaging Proof `30951938610` passed exact regression, unsigned package construction, offline installed lifecycle, exact Markdown, two visible sandboxed windows, forbidden-runtime checks, uninstall, artifact upload, and zero-survivor teardown. It correctly rejected V3's raw startup comparison only: its `488.7022 ms` median exceeded the independently verified V3 baseline `451.1197 ms`, while the packaged executable and ASAR SHA-256 values remained byte-identical. This is conclusive evidence that an absolute hosted-runner clock remains invalid at a hard 5% threshold, not a product regression or a retry candidate. V4 retains the exact five-sample main-process probe but pairs the candidate with a clean unpacked reference rebuilt from the governed exact source in the same Windows job, with the same network block, sandbox checks, process ownership checks, and zero-survivor teardown. The governed startup metric is the candidate/reference median ratio; package-size and working-set budgets remain absolute. The first V4 source uses itself as the reference, is intentionally baseline-null, and must fail only that guard. Its reviewed successor records the reference source and ratio; every later candidate must use that recorded source and pass the unchanged 5% paired metric. `FND-014` remains open.
 - [2026-08-04] `FND-014` V3 baseline established from the independently downloaded authoritative Windows artifact for exact source candidate `ff87b99e7fa37af9839cd87c96b0a9c36a56d99e`: Stage 19 Fixed Regression Gate `30951171260`, Validation & Eval Harness `30951173346`, and Security Audit `30951175565` passed exactly at this SHA. Windows Packaging Proof `30951177653` passed exact regression, unsigned package construction, offline installed lifecycle, exact Markdown, two visible sandboxed windows, forbidden-runtime checks, uninstall, artifact upload, and zero-survivor teardown; it failed only the deliberate baseline-null guard. Artifact `8909348390` archive SHA-256 is `258362e5c8de586d2f0e202d2671482bc2fd43906cac4c8b0a91edc51ac2c018`; independently downloaded receipt SHA-256 is `441f959221d86c0897573a46705fc37b24bf9b811dd79af880ccfc5ff3f9dc6f`; independently recomputed installer SHA-256 is `ee3a12b54f71172bcecfd5d2221dce42e7c4e8409427172ca0b5ab880e260c5b`; archive-extracted executable and ASAR SHA-256 values are `6927ca25639ca17120dee97a3e54cc240d3a675bc6cdbfbe82710ce5a6ac446f` and `5d3cc3fd6489c863e85952cb6d0d5607205d29d57dd6e9e2d953b4f4af8e8fe8`, matching the receipt. The prepared-profile V3 launch was `510.7315 ms`; all five main-process monotonic samples were `512.2414`, `443.3711`, `433.4067`, `473.5318`, and `451.1197 ms`, each proving two visible sandboxed windows and zero-survivor teardown. The governed median is `451.1197 ms`. Installer `87,075,284`, unpacked app `356,235,706`, ASAR `14,735,980`, executable `210,950,656`, renderer chunks `1,201,236` bytes, and steady-state working set `420,806,656` bytes establish the immutable V3 baseline. This source candidate is historical after the following documentation-only baseline commit; that successor must enforce every 5% metric. `FND-014` remains open.
 - [2026-08-04] `FND-014` V3 measurement correction (`69a006e0f74df08c547738601d743adf61db02a2`): Stage 19 Fixed Regression Gate `30950247241`, Validation & Eval Harness `30950249499`, and Security Audit `30950251382` passed exactly at this SHA. Windows Packaging Proof `30950253156` again passed exact regression, package construction, offline lifecycle, uninstall, exact Markdown, two visible sandboxed windows, forbidden-runtime checks, and zero-survivor teardown; the sole failure was the hard startup budget. The five external Playwright measurements were `814.2626`, `710.5535`, `776.4226`, `782.6105`, and `772.9669 ms`, median `776.4226 ms`, against the prior `709.2881 ms` source metric. The executable and ASAR SHA-256 values remained unchanged, confirming that Playwright/Electron launch coordination—not packaged application work—still contaminated the timer. The replacement V3 protocol is enabled only by the internal qualification environment flag and records a monotonic main-process duration from process entry until each already-sandboxed window is shown. External Playwright readiness remains recorded for diagnostics but cannot affect the performance score; full window, IPC, offline, package, and teardown truth continues after timing. A focused regression (`splitCommandSecondaryLaunchHook.test.ts`) proves that both `ready-to-show` events are required before the probe yields a two-window measurement. The V2 baseline is historical; V3 is intentionally baseline-null until its exact Windows artifact is independently reviewed. `FND-014` remains open.
 - [2026-08-04] `FND-014` V2 protocol baseline established from the independently downloaded authoritative Windows artifact for exact source candidate `9b1f15518b4161ab7a694d8516b5bd77ea905669`: Stage 19 Fixed Regression Gate `30949534758`, Validation & Eval Harness `30949537247`, and Security Audit `30949539410` passed exactly at this SHA. Windows Packaging Proof `30949541170` passed exact regression, package construction, offline installed lifecycle, uninstall, artifact upload, exact Markdown, two visible sandboxed windows, forbidden-runtime checks, and zero-survivor teardown; its only failure was the deliberate missing-baseline guard. Artifact `8908693941` archive SHA-256 is `55ee72e24e495651673ed41ea72c8cf8bcf167063c6a47441295d790ded57acb`; independently downloaded receipt SHA-256 is `76ae86624c31e10aa5ae726f58f347f3137144126a5475825351c36d4ce17d64`; independently recomputed installer SHA-256 is `c38bea32bea91f1bdf10753bfea8f215c91f1c6c2448eb8052697785fb83b470`. The V2 preparation launch was `965.3988 ms`; all five recorded process-cold samples were `853.6563`, `705.4609`, `719.3157`, `709.0304`, and `709.2881 ms`, each proving two visible sandboxed windows. The immutable 5% startup metric is the governed median, `709.2881 ms`; installer `87,075,402`, unpacked app `356,232,682`, ASAR `14,732,956`, executable `210,950,656`, renderer chunks `1,201,236` bytes, and steady-state working set `424,439,808` bytes complete the baseline. This source candidate becomes historical after the following docs-only baseline commit; its successor must enforce every metric. `FND-014` remains open.
@@ -919,6 +920,7 @@ Initial setup/runtime assumptions and command contracts were misaligned (pnpm av
   - failures (if any) are vulnerability-policy gates tied to real advisories.
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Verified setup improvements and identified matrix artifact-name collision risk.
 - 2026-04-21 - Codex - Began implementation pass to harden matrix artifact naming.
 - 2026-04-21 - Codex - Updated matrix artifact upload names to include `${{ matrix.os }}` for pip-audit, safety, pnpm-audit, and dependency reports.
@@ -942,14 +944,17 @@ Initial setup/runtime assumptions and command contracts were misaligned (pnpm av
 - 2026-04-22 - Codex - Updated fixture-prep step wording/payload to shared `Prepare sample project fixture` shape for CI determinism.
 
 #### Verification
+
 - Partial: workflow-bug symptoms above are addressed and gate policy logic was updated; CI confirmation is still required for severity-threshold behavior on ubuntu/macos matrix jobs.
 
 #### Exit Criteria
+
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
 
 ---
 
 ## [2] Black failing in CI
+
 - Tier: 1
 - Status: VERIFIED
 - Priority: Critical
@@ -957,9 +962,11 @@ Initial setup/runtime assumptions and command contracts were misaligned (pnpm av
 - Last Updated: 2026-04-22
 
 #### Description
+
 Black failures were historically reported and are now resolved in both local and CI repo-wide checks.
 
 #### Known Facts
+
 - `eval.yml` Black lane now runs repo-wide (`black --check .`); temporary Black scope narrowing comments were removed in this pass.
 - Local repro now passes exactly with CI-equivalent repo-wide command:
   `./.venv/bin/python -m black --check .`.
@@ -978,12 +985,15 @@ Black failures were historically reported and are now resolved in both local and
     `./.venv/bin/python -m black --check --target-version py311 .` -> 362 files unchanged.
 
 #### Root Cause
+
 Residual formatting debt plus temporary CI scope narrowing.
 
 #### Actions
+
 - Preserve focused debt retirement on mypy separately (not part of this issue pass).
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Confirmed scope narrowing remains in CI; local repro blocked by missing tool install.
 - 2026-04-21 - Codex - Installed lockfile Python deps in root `.venv` and verified Black availability in WSL.
 - 2026-04-21 - Codex - Reproduced scoped CI Black command locally: PASS (346 files unchanged).
@@ -1421,25 +1431,30 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 # Tier 3 - CI Architecture Debt
 
 ## [7] Node/pnpm inconsistency
+
 - Status: PARTIAL
 - Last Updated: 2026-04-23
 
 #### Known Facts
+
 - Both `eval.yml` and `security.yml` now set Node 24 and pnpm 8.
 - Workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at top level to reduce GitHub Actions Node runtime deprecation noise.
 - `actions/setup-node` usage is now standardized on `actions/setup-node@v5` across `eval.yml` and `security.yml` to reduce mixed-action-runtime warning noise while preserving Node 24 toolchain targets.
 - Duplication and minor setup drift still exist across workflow jobs.
 
 #### Actions
+
 - Consider shared composite action or reusable workflow.
 
 ---
 
 ## [8] Artifact upload logic issues
+
 - Status: PARTIAL
 - Last Updated: 2026-04-23
 
 #### Known Facts
+
 - File-existence guards are now present.
 - Matrix artifact naming collision risk was addressed in a prior pass and remains fixed.
 - Prior dynamic load-ledger output path was unstable under failure conditions.
@@ -1465,9 +1480,11 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Gauntlet proof-manifest placeholder materialization now also creates PASS 4 truth-receipt placeholders (`latest.json` / `latest.txt`) when absent, keeping manifest artifact payload deterministic without masking upstream pass results.
 
 #### Actions
+
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Issue execution batched with [1] due same file and same root cause.
 - 2026-04-21 - Codex - Implemented matrix-unique artifact names in `security.yml`; awaiting CI confirmation.
 - 2026-04-22 - Codex - Fixed dynamic load-ledger artifact path contract so upload-artifact always receives a valid `path`.
@@ -1499,10 +1516,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 ---
 
 ## [9] Workflow duplication/divergence
+
 - Status: VERIFIED
 - Last Updated: 2026-04-23
 
 #### Known Facts
+
 - `eval.yml` and `security.yml` still duplicate setup and policy logic.
 - Trigger gap was present: workflow runs were not configured on push for active development branches (`main`, `phase-b2-memory-lab`), so branch pushes did not automatically execute these lanes.
 - Dependency/tool download churn remains a CI cost driver on reruns.
@@ -1511,11 +1530,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Node setup action version is now aligned to `actions/setup-node@v5` in both eval/security workflows, reducing per-job runtime-version drift while keeping existing Node 24 toolchain inputs.
 
 #### Actions
+
 - Consolidate shared workflow patterns.
 - Keep push/pull_request/workflow_dispatch trigger coverage explicit for active verification workflows.
 - Keep cache improvements limited to dependency stores and browser bundles; treat OS package reuse as future runner-architecture optimization.
 
 #### Progress Log
+
 - 2026-04-22 - Codex - Added `push` triggers for `main` and `phase-b2-memory-lab` in `eval.yml` and `security.yml`; retained existing `pull_request` and manual dispatch triggers.
 - 2026-04-22 - Codex - Added pnpm store caching to Node jobs in `eval.yml` and `security.yml` via `actions/cache` keyed by `pnpm-lock.yaml`.
 - 2026-04-22 - Codex - Added Playwright browser cache (`~/.cache/ms-playwright`) in eval jobs that install browsers.
@@ -1526,10 +1547,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 ---
 
 ## [10] Temporary CI scope narrowing
+
 - Status: ACTIVE
 - Last Updated: 2026-04-22
 
 #### Known Facts
+
 - Black scope narrowing is retired and validated:
   - `eval.yml` now runs repo-wide Black (`black --check .`).
   - GitHub Actions passed the repo-wide Black step.
@@ -1537,6 +1560,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Scoped mypy command still passes while expanded mypy fails with 173 errors in 49 files.
 
 #### Actions
+
 - Keep Black narrowing retired; do not reintroduce scoped Black paths.
 - Keep temporary mypy/flake8 scope decisions isolated until their debt retirement passes complete.
 
@@ -1545,66 +1569,79 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 # Tier 4 - Testing and Verification Debt
 
 ## [11] Smoke vs truth-lane boundary
+
 - Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - `scripts/e2e-with-backend.mjs` rejects explicit selectors in smoke mode and keeps the fixed smoke set separate from full-suite selector paths.
 - `app/main/__tests__/e2eLauncherArgs.test.ts` now exercises smoke rejection, full-suite selector acceptance, and smoke default-file behavior; `scripts/test_e2e_launcher_args.mjs` mirrors the same contract.
 - `pnpm test:e2e:args`, the launcher Vitest guard, `pnpm test:e2e -- --workers=1`, `pnpm --filter app test`, and `pnpm --filter app run build:production` all passed on the boundary-fix commit chain.
 - Harness lane also sets synthetic/mock assumptions by default (`BLACKSKIES_E2E_SYNTHETIC_MODE=1`, `BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW=1`).
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Added CI-run launcher boundary contract and refreshed the manual launcher-arg regression so smoke-vs-full-suite separation stays explicit.
 - 2026-04-30 - Codex - Marked the smoke/truth boundary verified after the green launcher-boundary and smoke-suite validation chain.
 
 ---
 
 ## [12] Capability coverage gaps
+
 - Status: ACTIVE
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - Current service code does not expose a live `Link`/`Deprecation`/`Sunset` successor-header helper to patch; the archived review note appears stale relative to the present `services/src/blackskies/services/app.py` surface.
 - `docs/specs/endpoints.md` already treats unversioned aliases as retired, so there is no obvious current contract seam to close without inventing a new one.
 - Targeted search across current services/tests found no standalone closure proof yet.
 
 ## [13] Accept step not in UI chain
+
 - Status: VERIFIED
-Last Updated: 2026-04-30
+  Last Updated: 2026-04-30
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Verified the accept path is covered by the audited-chain contract and end-to-end GUI flow:
   - `services/tests/unit/test_audited_chain_contract.py` asserts the service extension chain includes `accept -> snapshot -> recovery`,
   - `services/tests/test_end_to_end_gui_flow.py` exercises accept, snapshot creation, and recovery linkage,
   - `pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "snapshot_restore_flow" --project=electron --workers=1` passed.
 
 ## [14] Dual snapshot system risk
+
 - Status: Deferred-Accepted
-Last Updated: 2026-04-30
+  Last Updated: 2026-04-30
 
 #### Known Facts
+
 - The audited-chain contract now names the canonical authority split explicitly:
   - truth-lane accept/recovery assertions use `history/snapshots/*`,
   - manual snapshot feature assertions use `.snapshots/*`,
   - truth-lane tests must not use `.snapshots/*` for accept/recovery assertions.
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Retired the dual-snapshot ambiguity as an accepted architecture risk:
   - the audited-chain contract explicitly records the canonical authority split,
   - accept/recovery coverage is validated by `services/tests/test_end_to_end_gui_flow.py` and the GUI snapshot restore flow,
   - no code-path change was required; this is a documentation/authority clarification closure.
 
 ## [15] No-silent-success enforcement
+
 - Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - `app/tests/e2e/_electron.fixture.ts` attaches runtime-error diagnostics and now fails on any non-allowlisted runtime/page error once the test itself is otherwise passing.
 - The current allowlist still tolerates the known renderer `push` noise.
 - `budget_guardrail_smoke` now marks its expected 402 resource noise so the runtime gate only fails on unexpected errors.
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Wired a fail-fast runtime-error gate in the Electron fixture while preserving the known `push` allowlist.
 - 2026-04-30 - Codex - Scoped the expected budget 402 resource noise to the budget smoke lane instead of widening the runtime gate.
 - 2026-04-30 - Codex - Verification run:
@@ -1616,43 +1653,53 @@ Last Updated: 2026-04-30
 # Tier 5 - Docs and Governance Debt
 
 ## [16] Phase docs out of sync
+
 - Status: PARTIAL
 - Last Updated: 2026-04-21
 
 #### Known Facts
+
 - `docs/roadmap.md` and `docs/phases/phase_log.md` are aligned on authority.
 - `docs/phase_bridge.md` had transitional framing and encoding corruption.
 
 #### Actions
+
 - Keep transitional bridge doc explicit and UTF-8 clean.
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Rewrote `docs/phase_bridge.md` to remove mojibake and preserve current transitional scope wording.
 
 ---
 
 ## [17] Doc authority drift
+
 - Status: PARTIAL
 - Last Updated: 2026-04-21
 
 #### Known Facts
+
 - Authority notes exist in key docs, reducing ambiguity.
 - Operational docs contained stale command paths and behavior.
 
 #### Actions
+
 - Keep active docs aligned with current scripts and startup paths.
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Updated `docs/ops/start_codex_gui_notes.md` to use current scripts (`bootstrap`, `scripts/electron-dev.mjs`) and removed placeholder launcher guidance.
 - 2026-04-21 - Codex - Corrected `docs/ops/start_codex_gui_notes.md` bootstrap detail to match `start-codex.ps1` lockfile install command (`pnpm install --frozen-lockfile --prefer-frozen-lockfile`).
 
 ---
 
 ## [18] Runtime truth sync risk
+
 - Status: PARTIAL
 - Last Updated: 2026-04-22
 
 #### Known Facts
+
 - `services/tests/unit/test_runtime_truth.py` imports `tools.runtime_truth.build_runtime_truth`.
 - CI failure showed `ModuleNotFoundError: No module named 'tools'` under services test invocation context.
 - Root cause was test path setup only adding `services/src` to `sys.path`; repo root (which contains `tools/`) was not guaranteed on path.
@@ -1661,12 +1708,14 @@ Last Updated: 2026-04-30
 - Freshness compare now excludes volatile `git_commit` provenance so semantic payload equivalence remains enforceable.
 
 #### Progress Log
+
 - 2026-04-22 - Codex - Updated `services/tests/conftest.py` to add both repo root and `services/src` to `sys.path` for services test runs.
 - 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; import error no longer reproduces.
 - 2026-04-22 - Codex - Updated `tools/runtime_truth/build_runtime_truth.py::normalized_payload` to drop `generated_from.git_commit` from freshness comparisons.
 - 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; result: `3 passed`.
 
 #### Verification
+
 - Partial: import-path and freshness assertion blockers are resolved locally; CI confirmation is still required.
 
 ---
@@ -1674,39 +1723,47 @@ Last Updated: 2026-04-30
 # Tier 6 - Repo Hygiene
 
 ## [19] Junk artifact buildup
+
 - Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - Permission-denied temp dirs exist under `services/` (`testtmp-app-1`, `testtmp-budget-1`, `testtmp-longform-1`) and interfere with repo scanning.
 - Tracked ad-hoc diagnostics scripts (`app/temp-trace/*.py` and root `diff*/trace*` helpers) created avoidable repo-wide Black debt before this pass.
 - 2026-04-30 cleanup removed the obvious repo-root residue set: `1.txt`, `black-test-delete/`, `diffpixels.py`, `diffregion.py`, `diffscript.py`, `diffstats.py`, `list_trace.py`, `scan_trace.py`, `trace_search.py`, `e-b2-memory-lab`, `loading.jpg`, `work/app-preflight-output.txt`, `work/errors_clip-*.json`, and `work/full-renderer.txt`.
 - `python scripts/check_repo_hygiene.py` passes after that cleanup; remaining scan friction is still the host ACL issue tracked under [21]/[30].
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Removed the tracked repo-root residue set and verified `python scripts/check_repo_hygiene.py`, `eval.yml`, `security.yml`, Black, load lane, and Playwright/runtime-error gate all passed on SHA `7239c7aee6b70ad11ff3560d50f2badc04cdba80`.
 
 ---
 
 ## [20] .gitignore discipline issues
+
 - Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - `.gitignore` includes `services/testtmp-*/`, but existing directories are still present and causing tooling friction.
 - `.gitignore` cannot contain already-tracked ad-hoc scripts; containment needs policy discipline (where such scripts live and how they are maintained), not broad new ignore globs.
 - The repo-root ad-hoc helper residue was removed instead of hidden behind broader ignore rules, keeping the policy narrow and source-safe.
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Validated ignore-policy discipline by cleaning tracked residue instead of broadening ignore globs; green CI on SHA `7239c7aee6b70ad11ff3560d50f2badc04cdba80` confirms the narrowed policy is stable.
 
 ---
 
 ## [21] Environment instability
+
 - Status: PARTIAL
 - Last Updated: 2026-04-23
 
 #### Known Facts
+
 - Root `.venv` in WSL now has `black` and `mypy` available via lockfile install command.
 - Remaining environment blocker is narrowed: legacy ACL-locked dirs under `codex_temp/` still return permission denied on this host (`m700`, `probeperm`, one historical `service-truth/.../basetemp`).
 - Preventive guardrail added in `scripts/pytest_repo_temp_compat.py` to force traversable perms for pytest-created repo-local temp directories.
@@ -1758,10 +1815,12 @@ Last Updated: 2026-04-30
 # Tier 7 - Security and Dependencies
 
 ## [22] Security workflow + vulnerability reporting
+
 - Status: PARTIAL
 - Last Updated: 2026-04-22
 
 #### Known Facts
+
 - Reporting steps exist and fail-closed behavior is present.
 - Matrix artifact naming remains OS-unique.
 - Workflow stability fixes were applied for known runner failures:
@@ -1783,6 +1842,7 @@ Last Updated: 2026-04-30
 - Security workflow now includes top-level `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` for action-runtime forward compatibility.
 
 #### Progress Log
+
 - 2026-04-22 - Codex - Ran local CI-equivalent scanner commands and captured JSON reports for triage (`pip-audit`, `safety`, `pnpm audit`).
 - 2026-04-22 - Codex - Applied first low-risk remediation batch:
   - Python transitive: `python-dotenv` `1.1.1` -> `1.2.2` (CVE-2026-28684 fix).
@@ -1797,10 +1857,12 @@ Last Updated: 2026-04-30
 ---
 
 ## [23] Dependency update plan missing
+
 - Status: ACTIVE
 - Last Updated: 2026-04-22
 
 #### Known Facts
+
 - Security workflow now reaches advisory gating and reports real package vulnerabilities after command-level fixes.
 - Upgrade/remediation planning needs to be tracked separately from workflow command/runtime reliability work.
 - Triage split now established:
@@ -1817,6 +1879,7 @@ Last Updated: 2026-04-30
   - `starlette` and `pytest` security fixes require higher compatibility review due framework/test major-version impacts.
 
 #### Actions
+
 - Maintain explicit dependency remediation plan tied to advisory reports (pip-audit, Safety, pnpm audit), separate from workflow bug fixes.
 - Execute phased remediation:
   - Batch A (completed): low-risk patch/minor updates with clear fixes and minimal blast radius.
@@ -1828,10 +1891,12 @@ Last Updated: 2026-04-30
 # Tier 8 - Product and UX Debt
 
 ## [24] GUI navigation instability
+
 - Status: PARTIAL
 - Last Updated: 2026-04-23
 
 #### Known Facts
+
 - App Lint + Unit Tests had a renderer contract drift cluster:
   - stale Story Insights test expected a `refresh analytics` button that is not rendered in the current dashboard UI.
   - stale preflight test expected toast action label `show snapshots`; current UI action label is `View report`.
@@ -1945,6 +2010,7 @@ Last Updated: 2026-04-30
   - `smoke.project.spec.ts` is now aligned to `_electron.fixture.ts` lifecycle instead of `electron.launch.ts` to reduce harness path divergence inside HARNESS_ONLY canaries.
 
 #### Progress Log
+
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
   - removed `refresh analytics` button assertion in `StoryInsightsRegression.test.tsx`.
   - changed snapshot toast action assertion to `View report` in `AppPreflight.test.tsx`.
@@ -2182,31 +2248,38 @@ Last Updated: 2026-04-30
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test --project=electron --workers=1 --reporter=line tests/e2e/visual.home.spec.ts` -> `1 passed`.
 
 #### Verification
+
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
 
 ## [25] Layout persistence issues
+
 - Status: VERIFIED
-Last Updated: 2026-04-30
+  Last Updated: 2026-04-30
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Verified the renderer layout persistence contract with targeted local suites:
   - `pnpm exec vitest run renderer/__tests__/DockWorkspace.test.tsx renderer/__tests__/LayoutPersistence.test.tsx renderer/__tests__/LayoutRegression.test.tsx` passed,
   - layout lifecycle warnings are sanitized and invalid persisted layouts fall back to the default preset without breaking workspace loading.
 
 ## [26] Project creation UX weak
+
 - Status: ACTIVE
 - Last Updated: 2026-04-30
 
 #### Known Facts
+
 - `docs/onboarding.md` and `docs/packaging.md` describe the intended welcome screen and quick-start behavior, but the live renderer still routes through the existing `ProjectHome` open-project flow.
 - The current code surface is enough to scope a UX contract, but not enough to justify a speculative code change without product/design approval.
 - Next action remains: define the smallest explicit project-creation UX contract, then implement it in a single targeted pass.
 
 ## [27] Budget meter reliability
+
 - Status: VERIFIED
-Last Updated: 2026-04-30
+  Last Updated: 2026-04-30
 
 #### Progress Log
+
 - 2026-04-30 - Codex - Verified the budget meter contract with both harness and e2e smoke coverage:
   - `pnpm exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts -g "budget_indicator_flow|budget_guardrail_smoke" --project=electron --workers=1` passed,
   - `budget-meter.spec.ts` still asserts deterministic preflight readiness and the strict `$0.02 / $10.00` post-critique budget label.
@@ -2214,6 +2287,7 @@ Last Updated: 2026-04-30
 ## PASS 5 — Fixture Authority & Scene Selection Stability
 
 ### Section 1 — Fixture Contract Authority
+
 - Status: RESOLVED
 - Root cause: E2E and truth lanes referenced different or non-existent sample project paths. `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` were not reliably materialized in CI.
 - Fix: introduced shared materializer `scripts/materialize_e2e_fixture.mjs`.
@@ -2225,6 +2299,7 @@ Last Updated: 2026-04-30
 - Key invariant: `No Playwright or truth execution occurs unless fixture contract is valid`
 
 ### Section 2 — Scene Selection Authority
+
 - Status: RESOLVED
 - Root cause: tests used event-only or DOM-based selection paths that did not guarantee commit to `App` active scene state.
 - Authority map:
@@ -2250,6 +2325,7 @@ Last Updated: 2026-04-30
 - Key invariant: `Active scene is only considered selected when committed marker is set`
 
 ### Section 3 — Large File / Coupling Risk
+
 - Status: NEW FINDING
 - Observation: `App.tsx` and `preload.ts` are large enough that full inspection is truncated in terminal/debug output.
 - Risk:
@@ -2283,6 +2359,7 @@ Last Updated: 2026-04-30
   - event dispatch alone is not proof
 
 ### Section 4 — Current System State
+
 - Fixture contract: enforced and deterministic
 - Analytics preflight: reliable gate
 - Scene selection: routed through canonical authority
@@ -2299,6 +2376,7 @@ Last Updated: 2026-04-30
   - future contract drift
 
 ### Section 5 — Repository Hygiene Note
+
 - Status: NON-FUNCTIONAL / UNRELATED WORKSPACE ARTIFACT
 - Observation: `git status` shows a pre-existing deleted path: `D "ted memory docs, services, and tests\\"`.
 - Scope: this deletion was not introduced by the current fixture or scene-selection fixes.
@@ -2320,6 +2398,7 @@ Last Updated: 2026-04-30
 # Newly Added Issues (2026-04-21)
 
 ## [28] Ops doc command drift (invalid dev launcher guidance)
+
 - Tier: 5
 - Status: PARTIAL
 - Priority: High
@@ -2328,31 +2407,39 @@ Last Updated: 2026-04-30
 - Last Updated: 2026-04-21
 
 #### Description
+
 `docs/ops/start_codex_gui_notes.md` documented a placeholder launcher path that no longer exists.
 
 #### Known Facts
+
 - Doc referenced `scripts/electron-dev-placeholder.mjs` and stale `pnpm run install` command.
 - Execution and ownership now tracked under [17] to avoid duplicate planning.
 
 #### Root Cause
+
 Operational doc was not updated after dev launcher migration.
 
 #### Actions
+
 - Keep as history issue; execute under [17].
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Added issue after code/doc verification.
 - 2026-04-21 - Codex - Partial remediation completed via doc update; consolidated ongoing governance tracking under [17].
 
 #### Verification
+
 - Pending full active-doc sweep.
 
 #### Exit Criteria
+
 - No stale launcher references in active ops docs.
 
 ---
 
 ## [29] Encoding corruption in active docs
+
 - Tier: 5
 - Status: PARTIAL
 - Priority: Medium
@@ -2414,14 +2501,17 @@ Temp directories under `services/` return access denied during recursive searche
 - Execution and ownership aligned with [19]/[20] cleanup planning.
 
 #### Root Cause
+
 Generated temp trees were left with restrictive host-level ACL/mode combinations; one historical pytest basetemp path in `codex_temp/service-truth/.../basetemp` is part of the affected set.
 
 #### Actions
+
 - Investigate ownership/ACLs. (completed)
 - Remove or reset these directories. (blocked by host ACL denial; requires elevated/manual host cleanup)
 - Ensure test cleanup path is deterministic. (partially completed via pytest temp compat guardrail hardening)
 
 #### Verification
+
 - Partial:
   - blocker reproduced and characterized with owner/mode evidence;
   - preventive shim behavior validated on a fresh `codex_temp/permcheck` run;
@@ -2429,11 +2519,13 @@ Generated temp trees were left with restrictive host-level ACL/mode combinations
   - legacy locked directories still require host-level cleanup.
 
 #### Exit Criteria
+
 - No permission-denied generated dirs in repo root.
 
 ---
 
 ## [31] Backlog doc references stale TODO inventory
+
 - Tier: 5
 - Status: PARTIAL
 - Priority: Medium
@@ -2442,26 +2534,33 @@ Generated temp trees were left with restrictive host-level ACL/mode combinations
 - Last Updated: 2026-04-21
 
 #### Description
+
 `docs/idea_backlog.md` claimed `docs/phases/phase_log.md` contained TODO-marked items that should be moved, but the current phase log no longer contains those TODOs.
 
 #### Root Cause
+
 Backlog note drifted after phase-log cleanup.
 
 #### Actions
+
 - Keep this issue for history; governance ownership is tracked under [17].
 
 #### Progress Log
+
 - 2026-04-21 - Codex - Updated `docs/idea_backlog.md` exploratory note to remove stale TODO claim.
 
 #### Verification
+
 - Partial (specific stale claim removed).
 
 #### Exit Criteria
+
 - No stale cross-doc TODO references in active planning docs.
 
 ---
 
 ## Change Log
+
 - 2026-04-29 - Codex - Phase 4.8B first test-only mypy reduction batch:
   - reduced the mypy baseline from `175 errors in 49 files` to `158 errors in 44 files`,
   - fixed test-local typing gaps in `tests/test_tool_search.py`, `services/tests/test_heuristics_pipeline.py`, `services/tests/test_draft_read_endpoint.py`, `services/tests/test_snapshot_endpoints.py`, and `services/tests/test_export_endpoints.py`,
