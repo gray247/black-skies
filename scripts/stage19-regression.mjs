@@ -137,6 +137,9 @@ phase("Repository tracked-path hygiene", "python", [
   "scripts/check_repo_hygiene.py",
   "--tracked"
 ]);
+phase("Foundation reachability and coverage policy", process.execPath, [
+  "scripts/verify-foundation-inventory.mjs"
+]);
 phase("Git diff hygiene", "git", ["diff", "--check"]);
 phase("Packaging workflow manual-dispatch policy", process.execPath, [
   "scripts/stage19-packaging-workflow-policy.mjs"

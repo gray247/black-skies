@@ -1,0 +1,6 @@
+{
+  "schema": "black-skies.foundation-performance-budget.v1",
+  "maximumRegressionPercent": 5,
+  "baseline": null,
+  "baselineRule": "The first complete exact-candidate Windows receipt establishes the baseline. Missing, unverified, or non-exact measurements fail closed."
+}

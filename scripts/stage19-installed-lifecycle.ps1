@@ -145,7 +145,8 @@ try {
   & node (Join-Path (Split-Path -Parent $PSScriptRoot) "app\scripts\stage19-installed-smoke.mjs") `
     --executable $installedExecutable `
     --root $smokeDirectory `
-    --result $smokeResultPath
+    --result $smokeResultPath `
+    --representative
   Assert-Stage19 ($LASTEXITCODE -eq 0) "Installed application lifecycle smoke failed."
   $smoke = Get-Content -LiteralPath $smokeResultPath -Raw | ConvertFrom-Json
   Assert-Stage19 ($smoke.appIsPackaged -eq $true) "Installed smoke did not prove app.isPackaged."
@@ -187,6 +188,8 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   windowCount = $smoke.windowCount
   sandboxedWindowCount = $smoke.sandboxedWindowCount
   forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount
+  zeroSurvivorProcessCount = $smoke.zeroSurvivorProcessCount
+  performance = $smoke.performance
   offlineFirewallRuleApplied = $true
   exactMarkdownMatched = $smoke.exactMarkdownMatched
   exportedUnitCount = $smoke.exportedUnitCount

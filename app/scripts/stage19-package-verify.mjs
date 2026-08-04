@@ -94,6 +94,31 @@ function fileIdentity(filePath) {
   };
 }
 
+function directoryByteLength(directoryPath) {
+  return readdirSync(directoryPath, { withFileTypes: true }).reduce((total, entry) => {
+    const entryPath = path.join(directoryPath, entry.name);
+    if (entry.isDirectory()) return total + directoryByteLength(entryPath);
+    return total + (entry.isFile() ? statSync(entryPath).size : 0);
+  }, 0);
+}
+
+function rendererChunkMetrics() {
+  const assetsPath = path.join(appDir, "dist", "assets");
+  invariant(existsSync(assetsPath), "Renderer asset output is missing.");
+  const chunks = readdirSync(assetsPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => ({
+      filename: entry.name,
+      byteLength: statSync(path.join(assetsPath, entry.name)).size
+    }))
+    .sort((left, right) => left.filename.localeCompare(right.filename));
+  invariant(chunks.length > 0, "Renderer asset output contains no chunks.");
+  return {
+    totalByteLength: chunks.reduce((total, chunk) => total + chunk.byteLength, 0),
+    chunks
+  };
+}
+
 function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
@@ -269,6 +294,7 @@ export function verifyUnpacked(unpackedPath) {
   );
 
   return {
+    byteLength: directoryByteLength(unpackedPath),
     executable: { ...fileIdentity(executablePath), ...executableTruth },
     asar: {
       ...fileIdentity(asarPath),
@@ -276,6 +302,7 @@ export function verifyUnpacked(unpackedPath) {
       integrityRecordCount: integrityRecords.length,
       expectedPaths: EXPECTED_ASAR_PATHS
     },
+    rendererChunks: rendererChunkMetrics(),
     forbiddenPathCount: forbidden.length
   };
 }

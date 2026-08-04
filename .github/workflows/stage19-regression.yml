@@ -47,6 +47,19 @@ jobs:
           sudo apt-get install -y xvfb
       - name: Run fixed Stage 19 gate
         run: pnpm stage19:regression
+      - name: Run supported-core branch coverage
+        run: >
+          python scripts/run_foundation_supported_core_coverage.py
+          --receipt .tmp/foundation-supported-core-coverage-${{ github.sha }}.json
+          --basetemp .tmp/foundation-coverage-${{ github.run_id }}
+      - name: Upload supported-core coverage receipt
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: foundation-supported-core-coverage-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: .tmp/foundation-supported-core-coverage-${{ github.sha }}.json
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v6

@@ -20,6 +20,9 @@
         "test:service-truth": "python ./scripts/run_service_truth.py",
         "verify:gauntlet": "python ./scripts/verify_gauntlet.py",
         "repo:hygiene": "python scripts/check_repo_hygiene.py --tracked",
+        "foundation:inventory": "node scripts/verify-foundation-inventory.mjs",
+        "foundation:coverage": "python scripts/run_foundation_supported_core_coverage.py",
+        "foundation:performance": "node scripts/verify-foundation-performance-budget.mjs",
         "stage19:lint": "node ./scripts/run-stage19-eslint.mjs",
         "stage19:regression": "node ./scripts/stage19-regression.mjs"
     },

@@ -57,6 +57,8 @@ jobs:
           path: |
             app/release/BlackSkies-Setup-1.0.0-rc1.exe
             app/release/stage19-package-receipt.json
+      - name: Enforce foundation performance baseline
+        run: pnpm foundation:performance -- --receipt app/release/stage19-package-receipt.json
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v6

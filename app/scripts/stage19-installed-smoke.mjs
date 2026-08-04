@@ -101,7 +101,7 @@ function sanitizedLaunchEnvironment() {
 function processTree(rootPid) {
   const command = [
     "$root = [int]$env:BLACK_SKIES_ROOT_PID;",
-    "$rows = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath);",
+    "$rows = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,WorkingSetSize);",
     "$selected = New-Object System.Collections.Generic.List[object];",
     "$queue = New-Object System.Collections.Generic.Queue[int];",
     "$queue.Enqueue($root);",
@@ -127,8 +127,28 @@ function processTree(rootPid) {
     pid: Number(entry.ProcessId),
     parentPid: Number(entry.ParentProcessId),
     name: String(entry.Name ?? ""),
-    executablePath: entry.ExecutablePath ? String(entry.ExecutablePath) : null
+    executablePath: entry.ExecutablePath ? String(entry.ExecutablePath) : null,
+    workingSetBytes: Number(entry.WorkingSetSize ?? 0)
   }));
+}
+
+function survivingOwnedProcesses(processIds) {
+  if (!processIds.length) return [];
+  const command = [
+    "$ids = $env:BLACK_SKIES_OWNED_PIDS -split ',' | Where-Object { $_ };",
+    "@(Get-Process -Id $ids -ErrorAction SilentlyContinue | Select-Object Id,ProcessName | ConvertTo-Json -Compress)"
+  ].join(" ");
+  const output = execFileSync(
+    "powershell.exe",
+    ["-NoProfile", "-NonInteractive", "-Command", command],
+    {
+      encoding: "utf8",
+      env: { ...process.env, BLACK_SKIES_OWNED_PIDS: processIds.join(",") }
+    }
+  ).trim();
+  if (!output) return [];
+  const parsed = JSON.parse(output);
+  return Array.isArray(parsed) ? parsed : [parsed];
 }
 
 async function identifyWindows(application) {
@@ -345,7 +365,7 @@ async function saveProse(writing, unitId, prose, prefix) {
   );
 }
 
-async function closeClean(application) {
+async function closeClean(application, ownedProcessIds) {
   const processHandle = application.process();
   const exitPromise = processHandle
     ? new Promise((resolve, reject) => {
@@ -357,6 +377,8 @@ async function closeClean(application) {
     : Promise.reject(new Error("Installed app process handle was unavailable."));
   await application.evaluate(({ app }) => app.quit());
   await exitPromise;
+  const survivors = survivingOwnedProcesses(ownedProcessIds);
+  assert(survivors.length === 0, `Installed app left owned processes after teardown: ${JSON.stringify(survivors)}.`);
 }
 
 async function main() {
@@ -377,6 +399,7 @@ async function main() {
   let second;
   let third;
   try {
+    const coldLaunchStartedAt = performance.now();
     first = await launchInstalled(executablePath, userDataPath);
     const firstTruth = await runtimeTruth(
       first.application,
@@ -387,6 +410,12 @@ async function main() {
     const rootPid = first.application.process()?.pid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
     const firstTree = processTree(rootPid);
+    const firstOwnedProcessIds = [rootPid, ...firstTree.map((entry) => entry.pid)];
+    const coldLaunchDurationMs = performance.now() - coldLaunchStartedAt;
+    const steadyStateWorkingSetBytes = firstTree.reduce(
+      (total, entry) => total + entry.workingSetBytes,
+      0
+    );
     const forbiddenProcesses = firstTree.filter((entry) =>
       /^(?:python(?:3)?|node)(?:\.exe)?$/iu.test(entry.name)
     );
@@ -441,7 +470,7 @@ async function main() {
     );
     snapshot = await first.writing.evaluate(() => window.projectSpine.getSession());
     assert(snapshot.dirtyUnitIds.length === 0, "The generated project was not durably clean.");
-    await closeClean(first.application);
+    await closeClean(first.application, firstOwnedProcessIds);
     first = null;
 
     second = await launchInstalled(executablePath, userDataPath);
@@ -552,7 +581,9 @@ async function main() {
         selectionDurationMs < 3_000,
         `Installed unit-100 selection exceeded 3 seconds: ${selectionDurationMs}ms.`
       );
-      await closeClean(second.application);
+      const secondRootPid = second.application.process()?.pid;
+      assert(Number.isInteger(secondRootPid), "Installed root process PID was unavailable.");
+      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid).map((entry) => entry.pid)]);
       second = null;
 
       third = await launchInstalled(executablePath, userDataPath);
@@ -604,7 +635,9 @@ async function main() {
         representativeExport.data.unitCount === representativeUnitCount,
         "Installed representative export unit count differed."
       );
-      await closeClean(third.application);
+      const thirdRootPid = third.application.process()?.pid;
+      assert(Number.isInteger(thirdRootPid), "Installed root process PID was unavailable.");
+      await closeClean(third.application, [thirdRootPid, ...processTree(thirdRootPid).map((entry) => entry.pid)]);
       third = null;
       representative = {
         projectPath: representativeProjectPath,
@@ -618,7 +651,9 @@ async function main() {
         exactMarkdownMatched: true
       };
     } else {
-      await closeClean(second.application);
+      const secondRootPid = second.application.process()?.pid;
+      assert(Number.isInteger(secondRootPid), "Installed root process PID was unavailable.");
+      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid).map((entry) => entry.pid)]);
       second = null;
     }
 
@@ -629,6 +664,12 @@ async function main() {
       windowCount: firstTruth.windows.length,
       sandboxedWindowCount: firstTruth.windows.filter((window) => window.sandbox).length,
       forbiddenRuntimeProcessCount: forbiddenProcesses.length,
+      zeroSurvivorProcessCount: 0,
+      performance: {
+        coldLaunchDurationMs,
+        steadyStateWorkingSetBytes,
+        processCount: firstTree.length
+      },
       projectPath,
       projectFiles: projectFileManifest(projectPath),
       exportPath,

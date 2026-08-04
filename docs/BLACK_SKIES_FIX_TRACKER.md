@@ -18,6 +18,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation exit-criteria implementation started:
+  - `FND-012`, `FND-014`, and `FND-016` remain open; they cannot close from the prior Package 19.22 or foundation human pass alone,
+  - the committed supported-core coverage manifest retains the 60% branch threshold and distinguishes core verification paths from explicitly owned/reopenable deferred surfaces,
+  - the reachability inventory now makes core, retained non-baseline, deferred, and historical-only surfaces machine-checkable; no surface is classified removable until it is absent from package, test, qualification-helper, and authority graphs,
+  - the performance budget policy is fail-closed until the next exact Windows candidate produces a complete installer/startup/memory/package/process receipt; the first complete receipt establishes the 5% regression baseline.
 - [2026-08-04] Foundation warning-elimination follow-up:
   - candidate `209042f1c9e048259395c1b73b08386c44cd4651` completed the exact Linux, evaluation, security, Windows package, offline installed-lifecycle, uninstall, and artifact-upload ladder; its evidence is historical because the receipts still contain preventable warning output,
   - the application build warns that its Vite configuration uses legacy `__dirname`, and every workflow forces `pnpm/action-setup@v4` from its Node 20 runtime to Node 24, producing an action annotation. Both are configuration seams, not accepted warnings,

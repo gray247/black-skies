@@ -1,0 +1,23 @@
+{
+  "schema": "black-skies.foundation-supported-core-coverage.v1",
+  "minimumBranchCoverage": 60,
+  "included": [
+    {"path": "services/src/blackskies/services/models/project.py", "pythonModule": "blackskies.services.models.project", "owner": "Project Spine", "verification": "services/tests/unit/test_models_project.py"},
+    {"path": "services/src/blackskies/services/persistence", "pythonModule": "blackskies.services.persistence", "owner": "Project Spine", "verification": "services/tests/unit/test_persistence.py"},
+    {"path": "services/src/blackskies/services/operations/recovery.py", "pythonModule": "blackskies.services.operations.recovery", "owner": "Recovery", "verification": "services/tests/unit/test_recovery_tracker.py"},
+    {"path": "services/src/blackskies/services/operations/draft_export.py", "pythonModule": "blackskies.services.operations.draft_export", "owner": "Markdown export", "verification": "services/tests/unit/test_project_export_service.py"},
+    {"path": "services/src/blackskies/services/app.py", "pythonModule": "blackskies.services.app", "owner": "Offline service startup", "verification": "services/tests/test_app.py"},
+    {"path": "app/main/projectSpineIpc.ts", "owner": "Stage 19 IPC", "verification": "app/main/__tests__/projectSpineIpc.test.ts"},
+    {"path": "app/renderer/Stage19WritingSpineApp.tsx", "owner": "Writing Studio", "verification": "app/renderer/__tests__/Stage19WritingSpineApp.test.tsx"},
+    {"path": "app/main/runtimeSessionTruth.ts", "owner": "Runtime truth", "verification": "app/main/__tests__/runtimeSessionTruthMain.test.ts"}
+  ],
+  "excluded": [
+    {"surface": "live-provider qualification", "owner": "Provider program", "reopeningTrigger": "Governing authority authorizes provider qualification."},
+    {"surface": "provider-backed long-form", "owner": "Provider program", "reopeningTrigger": "A scoped provider milestone is authorized."},
+    {"surface": "memory prototypes", "owner": "Memory program", "reopeningTrigger": "Memory implementation is explicitly authorized."},
+    {"surface": "Smart Merge", "owner": "Product governance", "reopeningTrigger": "A scoped milestone assigns Smart Merge."},
+    {"surface": "optional analytics", "owner": "Analytics program", "reopeningTrigger": "Analytics is authorized as a qualified product surface."},
+    {"surface": "strict visual snapshots", "owner": "Renderer quality", "reopeningTrigger": "A fixed visual-reference host is approved."},
+    {"surface": "inactive historical qualification tooling", "owner": "Release governance", "reopeningTrigger": "Governing authority reactivates the tooling."}
+  ]
+}
