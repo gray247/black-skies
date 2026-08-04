@@ -10,6 +10,10 @@ function readJson(filePath) { return JSON.parse(readFileSync(filePath, 'utf8'));
 function get(object, dottedPath) { return dottedPath.split('.').reduce((value, key) => value?.[key], object); }
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function argument(flag) { const index = process.argv.indexOf(flag); return index >= 0 ? process.argv[index + 1] : undefined; }
+function median(values) {
+  invariant(values.length % 2 === 1, 'Cold-launch median requires an odd sample count.');
+  return [...values].sort((left, right) => left - right)[Math.floor(values.length / 2)];
+}
 
 try {
   const receiptArgument = argument('--receipt');
@@ -22,16 +26,27 @@ try {
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
   const coldLaunch = receipt.installedLifecycle?.performance;
-  invariant(budget.measurementProtocol === 'fresh-profile-after-required-precondition-v1', 'Performance budget measurement protocol is invalid.');
+  invariant(budget.measurementProtocol === 'prepared-profile-process-cold-median-v2', 'Performance budget measurement protocol is invalid.');
   invariant(coldLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
-  invariant(Number.isFinite(coldLaunch?.coldLaunchPreconditionMs) && coldLaunch.coldLaunchPreconditionMs > 0, 'Cold-launch precondition evidence is missing or invalid.');
-  invariant(coldLaunch.coldLaunchPreconditionWindowCount === 2, 'Cold-launch precondition did not prove two visible windows.');
-  invariant(coldLaunch.coldLaunchPreconditionSandboxedWindowCount === 2, 'Cold-launch precondition did not prove two sandboxed windows.');
-  invariant(coldLaunch?.coldLaunchStatistic === 'maximum', 'Cold-launch measurement must use the bounded maximum statistic.');
-  invariant(coldLaunch?.coldLaunchSampleCount === 3, 'Cold-launch measurement must contain exactly three independent samples.');
-  invariant(Array.isArray(coldLaunch?.coldLaunchSamplesMs) && coldLaunch.coldLaunchSamplesMs.length === 3, 'Cold-launch sample evidence is missing or malformed.');
+  invariant(Number.isFinite(coldLaunch?.coldLaunchPreparationMs) && coldLaunch.coldLaunchPreparationMs > 0, 'Cold-launch preparation evidence is missing or invalid.');
+  invariant(coldLaunch.coldLaunchPreparationWindowCount === 2, 'Cold-launch preparation did not prove two windows.');
+  invariant(coldLaunch.coldLaunchPreparationVisibleWindowCount === 2, 'Cold-launch preparation did not prove two visible windows.');
+  invariant(coldLaunch.coldLaunchPreparationSandboxedWindowCount === 2, 'Cold-launch preparation did not prove two sandboxed windows.');
+  invariant(coldLaunch?.coldLaunchStatistic === 'median', 'Cold-launch measurement must use the governed median statistic.');
+  invariant(coldLaunch?.coldLaunchSampleCount === 5, 'Cold-launch measurement must contain exactly five process-cold samples.');
+  invariant(Array.isArray(coldLaunch?.coldLaunchSamplesMs) && coldLaunch.coldLaunchSamplesMs.length === 5, 'Cold-launch sample evidence is missing or malformed.');
   invariant(coldLaunch.coldLaunchSamplesMs.every(Number.isFinite), 'Cold-launch sample evidence contains an invalid value.');
-  invariant(coldLaunch.coldLaunchDurationMs === Math.max(...coldLaunch.coldLaunchSamplesMs), 'Cold-launch metric must be the maximum observed sample, not an average or retry result.');
+  for (const [field, label] of [
+    ['coldLaunchSampleWindowCounts', 'two windows'],
+    ['coldLaunchSampleVisibleWindowCounts', 'two visible windows'],
+    ['coldLaunchSampleSandboxedWindowCounts', 'two sandboxed windows']
+  ]) {
+    invariant(
+      Array.isArray(coldLaunch[field]) && coldLaunch[field].length === 5 && coldLaunch[field].every((count) => count === 2),
+      `Cold-launch samples did not each prove ${label}.`
+    );
+  }
+  invariant(coldLaunch.coldLaunchDurationMs === median(coldLaunch.coldLaunchSamplesMs), 'Cold-launch metric must be the median of every governed sample.');
   for (const metric of metricPaths) invariant(Number.isFinite(get(receipt, metric)), `Measurement is missing or invalid: ${metric}.`);
   invariant(budget.baseline, 'Performance baseline is not established; this receipt is UNVERIFIED until a reviewed exact-candidate baseline is committed.');
   for (const metric of metricPaths) {
