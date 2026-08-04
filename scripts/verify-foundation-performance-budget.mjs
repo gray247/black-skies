@@ -22,6 +22,11 @@ try {
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
   const coldLaunch = receipt.installedLifecycle?.performance;
+  invariant(budget.measurementProtocol === 'fresh-profile-after-required-precondition-v1', 'Performance budget measurement protocol is invalid.');
+  invariant(coldLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
+  invariant(Number.isFinite(coldLaunch?.coldLaunchPreconditionMs) && coldLaunch.coldLaunchPreconditionMs > 0, 'Cold-launch precondition evidence is missing or invalid.');
+  invariant(coldLaunch.coldLaunchPreconditionWindowCount === 2, 'Cold-launch precondition did not prove two visible windows.');
+  invariant(coldLaunch.coldLaunchPreconditionSandboxedWindowCount === 2, 'Cold-launch precondition did not prove two sandboxed windows.');
   invariant(coldLaunch?.coldLaunchStatistic === 'maximum', 'Cold-launch measurement must use the bounded maximum statistic.');
   invariant(coldLaunch?.coldLaunchSampleCount === 3, 'Cold-launch measurement must contain exactly three independent samples.');
   invariant(Array.isArray(coldLaunch?.coldLaunchSamplesMs) && coldLaunch.coldLaunchSamplesMs.length === 3, 'Cold-launch sample evidence is missing or malformed.');

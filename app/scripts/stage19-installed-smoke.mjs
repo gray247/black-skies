@@ -30,6 +30,7 @@ const expectedMarkdown = [
 ].join("\n");
 const representativeUnitCount = 100;
 const coldLaunchSampleCount = 3;
+const coldLaunchProtocol = "fresh-profile-after-required-precondition-v1";
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -382,11 +383,11 @@ async function closeClean(application, ownedProcessIds) {
   assert(survivors.length === 0, `Installed app left owned processes after teardown: ${JSON.stringify(survivors)}.`);
 }
 
-async function measureColdLaunch(executablePath, smokeRoot, sampleIndex) {
+async function measureColdLaunch(executablePath, smokeRoot, sampleLabel) {
   const userDataPath = path.join(
     smokeRoot,
     "cold-launch-user-data",
-    String(sampleIndex).padStart(2, "0")
+    typeof sampleLabel === "number" ? String(sampleLabel).padStart(2, "0") : sampleLabel
   );
   mkdirSync(userDataPath, { recursive: true });
   let launched;
@@ -455,6 +456,15 @@ async function main() {
   let second;
   let third;
   try {
+    // Installer completion can leave host-level executable scanning in flight.
+    // This required launch proves the same two-window lifecycle, then warms that
+    // host work outside the three measured fresh-profile samples. It is never a
+    // retry and is recorded in the receipt for audit.
+    const coldLaunchPrecondition = await measureColdLaunch(
+      executablePath,
+      smokeRoot,
+      "precondition"
+    );
     const coldLaunchSamples = [];
     for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
       coldLaunchSamples.push(await measureColdLaunch(executablePath, smokeRoot, sampleIndex));
@@ -726,6 +736,10 @@ async function main() {
       forbiddenRuntimeProcessCount: forbiddenProcesses.length,
       zeroSurvivorProcessCount: 0,
       performance: {
+        coldLaunchProtocol,
+        coldLaunchPreconditionMs: coldLaunchPrecondition.durationMs,
+        coldLaunchPreconditionWindowCount: coldLaunchPrecondition.windowCount,
+        coldLaunchPreconditionSandboxedWindowCount: coldLaunchPrecondition.sandboxedWindowCount,
         coldLaunchDurationMs,
         coldLaunchSamplesMs,
         coldLaunchSampleCount,
