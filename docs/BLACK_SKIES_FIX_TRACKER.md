@@ -18,6 +18,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Documentation Continuity Updates
+- [2026-08-04] Foundation warning-elimination follow-up:
+  - candidate `209042f1c9e048259395c1b73b08386c44cd4651` completed the exact Linux, evaluation, security, Windows package, offline installed-lifecycle, uninstall, and artifact-upload ladder; its evidence is historical because the receipts still contain preventable warning output,
+  - the application build warns that its Vite configuration uses legacy `__dirname`, and every workflow forces `pnpm/action-setup@v4` from its Node 20 runtime to Node 24, producing an action annotation. Both are configuration seams, not accepted warnings,
+  - the Vite root now uses Vite's supported native ESM directory identity, workflow-level forced action-runtime overrides are removed, and the two renderer tests now await every state-producing selection, bridge event, and editor change through React `act`. The next candidate must prove the updated configuration without warning suppression.
 - [2026-08-04] Foundation Windows Stage 19 harness repair:
   - exact candidate `4b00c64ae147686a549702114a2bd392adf047b9` passed Linux, security, and evaluation gates, but its Windows packaging proof stopped before packaging because two otherwise-valid receipt-tamper cases exceeded Vitest's unchanged five-second limit under a four-worker mixed critical matrix,
   - the affected qualification-artifact suite passes those same strict tamper cases locally on Windows (each under 100 ms); the failure is worker contention rather than a waived integrity rule or product behavior defect,

@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 // Vite configuration for the renderer process. Electron loads assets from the
 // generated dist folder, so keep relative paths intact.
 export default defineConfig({
-  root: __dirname,
+  root: import.meta.dirname,
   plugins: [react()],
   base: './',
   test: {

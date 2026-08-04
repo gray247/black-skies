@@ -1178,7 +1178,7 @@ describe('Stage19WritingSpineApp', () => {
     const editor = await screen.findByLabelText('Manuscript editor: First Unit');
     expect(editor).toHaveValue('Recovered prose');
 
-    act(() => {
+    await act(async () => {
       fireEvent.change(editor, { target: { value: 'Newer local prose' } });
       harness.emit(snapshot('writing', {
         revision: 2,
@@ -1190,6 +1190,7 @@ describe('Stage19WritingSpineApp', () => {
           }],
         },
       }));
+      await Promise.resolve();
     });
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveValue('Newer local prose');
   });
@@ -1799,12 +1800,18 @@ describe('Stage19WritingSpineApp', () => {
     const ai = createAiBridge(`${prose}\n`);
     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
-    (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
-    fireEvent.select(editor);
-    fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+    await act(async () => {
+      (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
+      fireEvent.select(editor);
+      await Promise.resolve();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
+      await Promise.resolve();
+    });
     await screen.findByRole('heading', { name: 'Exact outbound preview' });
 
-    act(() => {
+    await act(async () => {
       ai.emit({
         requestId: 'ai-request-1',
         status: 'completed',
@@ -1833,9 +1840,13 @@ describe('Stage19WritingSpineApp', () => {
           },
         },
       });
+      await Promise.resolve();
     });
     expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
-    fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
+    await act(async () => {
+      fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
+      await Promise.resolve();
+    });
     expect(screen.getByText('Stale: the manuscript changed after this critique completed.')).toBeVisible();
     expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
   });
