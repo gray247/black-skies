@@ -131,6 +131,35 @@ def test_synthetic_mode_uses_non_durable_recovery_writes(
     assert captured and all(flag is False for flag in captured)
 
 
+def test_synthetic_mark_completed_does_not_touch_recovery_state_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    tracker = RecoveryTracker(settings)
+    state_path = tmp_path / "proj-123" / "history" / "recovery" / "state.json"
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.recovery.allow_e2e_synthetic_mode",
+        lambda: True,
+    )
+    monkeypatch.setattr(
+        tracker,
+        "_read_state",
+        lambda project_id: pytest.fail("synthetic completion must not read recovery state"),
+    )
+    monkeypatch.setattr(
+        tracker,
+        "_write_state",
+        lambda *args, **kwargs: pytest.fail("synthetic completion must not write recovery state"),
+    )
+
+    state = tracker.mark_completed(project_id="proj-123", snapshot_info={"snapshot_id": "snap-001"})
+
+    assert state["status"] == "idle"
+    assert state["last_snapshot"] == {"snapshot_id": "snap-001"}
+    assert not state_path.exists()
+
+
 def test_read_state_uses_the_same_path_lock_for_stable_reads(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

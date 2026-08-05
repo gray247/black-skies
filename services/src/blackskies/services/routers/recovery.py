@@ -224,6 +224,19 @@ class RecoveryTracker:
         return self._write_state(project_id, state)
 
     def mark_completed(self, project_id: str, snapshot_info: dict[str, Any]) -> dict[str, Any]:
+        if allow_e2e_synthetic_mode():
+            return self._normalise_state(
+                {
+                    "status": "idle",
+                    "last_snapshot": snapshot_info,
+                    "pending_unit_id": None,
+                    "draft_id": None,
+                    "started_at": None,
+                    "message": None,
+                    "failure_reason": None,
+                }
+            )
+
         state = self._read_state(project_id)
         state.update(
             {
