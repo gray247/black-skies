@@ -104,7 +104,7 @@ function sanitizedLaunchEnvironment() {
 function processTree(rootPid) {
   const command = [
     "$root = [int]$env:BLACK_SKIES_ROOT_PID;",
-    "$rows = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,WorkingSetSize);",
+    "$rows = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,CreationDate,WorkingSetSize);",
     "$selected = New-Object System.Collections.Generic.List[object];",
     "$queue = New-Object System.Collections.Generic.Queue[int];",
     "$queue.Enqueue($root);",
@@ -131,15 +131,17 @@ function processTree(rootPid) {
     parentPid: Number(entry.ParentProcessId),
     name: String(entry.Name ?? ""),
     executablePath: entry.ExecutablePath ? String(entry.ExecutablePath) : null,
+    creationDate: entry.CreationDate ? String(entry.CreationDate) : null,
     workingSetBytes: Number(entry.WorkingSetSize ?? 0)
   }));
 }
 
-function survivingOwnedProcesses(processIds) {
+function queryProcessIdentities(processIds) {
   if (!processIds.length) return [];
   const command = [
     "$ids = $env:BLACK_SKIES_OWNED_PIDS -split ',' | Where-Object { $_ };",
-    "@(Get-Process -Id $ids -ErrorAction SilentlyContinue | Select-Object Id,ProcessName | ConvertTo-Json -Compress)"
+    "$rows = @(Get-CimInstance Win32_Process | Where-Object { $ids -contains [string]$_.ProcessId } | Select-Object ProcessId,Name,ExecutablePath,CreationDate);",
+    "$rows | ConvertTo-Json -Compress"
   ].join(" ");
   const output = execFileSync(
     "powershell.exe",
@@ -151,7 +153,33 @@ function survivingOwnedProcesses(processIds) {
   ).trim();
   if (!output) return [];
   const parsed = JSON.parse(output);
-  return Array.isArray(parsed) ? parsed : [parsed];
+  return (Array.isArray(parsed) ? parsed : [parsed]).map((entry) => ({
+    pid: Number(entry.ProcessId),
+    name: String(entry.Name ?? entry.ProcessName ?? ""),
+    executablePath: entry.ExecutablePath ? String(entry.ExecutablePath) : null,
+    creationDate: entry.CreationDate ? String(entry.CreationDate) : null
+  }));
+}
+
+export function isOwnedProcessSurvivor(expected, current) {
+  if (expected.pid !== current.pid) return false;
+  if (expected.creationDate && current.creationDate) {
+    return expected.creationDate === current.creationDate;
+  }
+  const expectedPath = expected.executablePath?.toLowerCase() ?? null;
+  const currentPath = current.executablePath?.toLowerCase() ?? null;
+  return (
+    expected.name.toLowerCase() === current.name.toLowerCase() &&
+    expectedPath === currentPath
+  );
+}
+
+function survivingOwnedProcesses(ownedProcesses) {
+  if (!ownedProcesses.length) return [];
+  const currentProcesses = queryProcessIdentities(ownedProcesses.map((entry) => entry.pid));
+  return currentProcesses.filter((current) =>
+    ownedProcesses.some((expected) => isOwnedProcessSurvivor(expected, current))
+  );
 }
 
 async function identifyWindows(application) {
@@ -379,6 +407,7 @@ async function saveProse(writing, unitId, prose, prefix) {
 }
 
 async function closeClean(application, ownedProcessIds) {
+  const ownedProcesses = queryProcessIdentities(ownedProcessIds);
   const processHandle = application.process();
   const exitPromise = processHandle
     ? new Promise((resolve, reject) => {
@@ -390,7 +419,7 @@ async function closeClean(application, ownedProcessIds) {
     : Promise.reject(new Error("Installed app process handle was unavailable."));
   await application.evaluate(({ app }) => app.quit());
   await exitPromise;
-  const survivors = survivingOwnedProcesses(ownedProcessIds);
+  const survivors = survivingOwnedProcesses(ownedProcesses);
   assert(survivors.length === 0, `Installed app left owned processes after teardown: ${JSON.stringify(survivors)}.`);
 }
 

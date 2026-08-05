@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 // @ts-expect-error Installed smoke is plain JavaScript test tooling.
-import { expectedRepresentativeMarkdown } from "../../scripts/stage19-installed-smoke.mjs";
+import {
+  expectedRepresentativeMarkdown,
+  isOwnedProcessSurvivor
+} from "../../scripts/stage19-installed-smoke.mjs";
 
 // The witness is plain Node.js so Codex can run it without application code.
 // @ts-expect-error JavaScript witness module has no separate declaration file.
@@ -146,5 +149,25 @@ describe("Package 19.20 acceptance witness", () => {
     expect(markdown).toContain("Packaged scale opening — Café 🌌 **bold**");
     expect(markdown).toContain("[Closing](https://example.invalid/closing)");
     expect(markdown.endsWith("\n")).toBe(true);
+  });
+
+  it("does not mistake a reused PID for an owned survivor", () => {
+    const expected = {
+      pid: 3888,
+      name: "electron.exe",
+      executablePath: "C:/Install/Black Skies.exe",
+      creationDate: "2026-08-05T22:30:00.000000Z"
+    };
+    expect(
+      isOwnedProcessSurvivor(expected, {
+        pid: 3888,
+        name: "dwm.exe",
+        executablePath: "C:/Windows/System32/dwm.exe",
+        creationDate: "2026-08-05T22:31:00.000000Z"
+      })
+    ).toBe(false);
+    expect(
+      isOwnedProcessSurvivor(expected, { ...expected })
+    ).toBe(true);
   });
 });
