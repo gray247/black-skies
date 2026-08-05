@@ -9,6 +9,7 @@ import json
 import logging
 import math
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -49,6 +50,7 @@ DEFAULT_PROFILES_PATH = Path("config/load_profiles.yaml")
 DEFAULT_SERVICE_COMMAND = (
     "uvicorn blackskies.services.app:create_app --factory --host {host} --port {port}"
 )
+FULL_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _build_started_service_env(base_env: Mapping[str, str]) -> dict[str, str]:
@@ -58,6 +60,21 @@ def _build_started_service_env(base_env: Mapping[str, str]) -> dict[str, str]:
     service_env["BLACKSKIES_E2E_MODE"] = "1"
     service_env["BLACKSKIES_E2E_SYNTHETIC_MODE"] = "1"
     return service_env
+
+
+def _resolve_candidate_sha(environment: Mapping[str, str]) -> str:
+    """Return the exact checked-out SHA, rejecting mixed GitHub evidence."""
+
+    git_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, text=True
+    ).strip()
+    supplied_sha = environment.get("GITHUB_SHA", "").strip()
+    if supplied_sha and supplied_sha != git_sha:
+        raise RuntimeError(f"GITHUB_SHA {supplied_sha} does not match checked-out HEAD {git_sha}.")
+    candidate_sha = supplied_sha or git_sha
+    if not FULL_SHA_PATTERN.fullmatch(candidate_sha):
+        raise RuntimeError(f"Candidate SHA is malformed: {candidate_sha!r}.")
+    return candidate_sha
 
 
 @dataclass(slots=True)
@@ -660,6 +677,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if profile.description:
         LOGGER.info("Profile description: %s", profile.description)
 
+    candidate_sha = _resolve_candidate_sha(os.environ)
     run_metadata = runs.start_run(
         "load-test",
         {
@@ -669,6 +687,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "project_id": args.project_id,
             "total_cycles": profile.total_cycles,
             "concurrency": profile.concurrency,
+            "candidate_sha": candidate_sha,
         },
     )
     run_id = run_metadata["run_id"]
@@ -690,6 +709,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     breaches = evaluate_thresholds(metrics, profile.thresholds)
     breaches.extend(_service_warning_breaches(service_evidence))
     result_payload = build_result_payload(metrics, profile.thresholds, profile, breaches)
+    result_payload["candidate_sha"] = candidate_sha
     result_payload["service_warning_count"] = len(service_evidence.warning_lines)
     result_payload["service_warnings"] = service_evidence.warning_lines
     runs.finalize_run(

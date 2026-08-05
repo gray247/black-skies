@@ -119,6 +119,14 @@ export function validateFoundationActionRuntimePolicy(
     if (/node-version:\s*['"]?20(?:\D|$)/mu.test(source)) {
       errors.push(`${name} must not configure the deprecated Node 20 action runtime.`);
     }
+    if (
+      name === "Security Audit" &&
+      !/SEVERITIES\s*=\s*\{"info",\s*"low",\s*"moderate",\s*"high",\s*"critical"\}/u.test(
+        source
+      )
+    ) {
+      errors.push("Security Audit must block every known vulnerability severity.");
+    }
   }
   return errors;
 }

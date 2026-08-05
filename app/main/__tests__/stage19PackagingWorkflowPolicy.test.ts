@@ -85,4 +85,26 @@ describe("Stage 19 packaging workflow policy", () => {
       ])
     );
   });
+
+  it("rejects a security workflow that permits lower-severity vulnerabilities", () => {
+    const securityWorkflowPath = path.resolve(
+      import.meta.dirname,
+      "..",
+      "..",
+      "..",
+      ".github",
+      "workflows",
+      "security.yml"
+    );
+    const validSecurity = readFileSync(securityWorkflowPath, "utf8");
+
+    expect(
+      validateFoundationActionRuntimePolicy({
+        "Security Audit": validSecurity.replace(
+          'SEVERITIES = {"info", "low", "moderate", "high", "critical"}',
+          'SEVERITIES = {"high", "critical"}'
+        ),
+      })
+    ).toContainEqual(expect.stringContaining("every known vulnerability severity"));
+  });
 });

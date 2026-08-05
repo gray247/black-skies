@@ -238,7 +238,7 @@ jobs:
           from typing import Any
           import os
 
-          SEVERITIES = {"high", "critical"}
+          SEVERITIES = {"info", "low", "moderate", "high", "critical"}
           UNKNOWN_SEVERITY = "unknown"
           findings: list[tuple[str, str, str, str]] = []
 

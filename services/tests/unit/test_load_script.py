@@ -38,6 +38,21 @@ def test_load_service_env_enables_synthetic_e2e_mode(load_script_module: ModuleT
     assert env["BLACKSKIES_E2E_SYNTHETIC_MODE"] == "1"
 
 
+def test_load_candidate_sha_rejects_mixed_github_checkout(
+    load_script_module: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    checked_out_sha = "a" * 40
+    monkeypatch.setattr(
+        load_script_module.subprocess,
+        "check_output",
+        lambda *args, **kwargs: checked_out_sha,
+    )
+
+    assert load_script_module._resolve_candidate_sha({}) == checked_out_sha
+    with pytest.raises(RuntimeError, match="does not match checked-out HEAD"):
+        load_script_module._resolve_candidate_sha({"GITHUB_SHA": "b" * 40})
+
+
 def test_load_service_output_classifies_only_structured_warnings(
     load_script_module: ModuleType,
 ) -> None:
