@@ -246,6 +246,7 @@ async function runtimeTruth(application, writing, command, executablePath) {
     "createUnit",
     "deleteUnit",
     "exportMarkdown",
+    "focusWritingWindow",
     "getSession",
     "onCloseConfirmationRequest",
     "openProject",

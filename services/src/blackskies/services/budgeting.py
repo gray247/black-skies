@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterator, Mapping
 
 from .diagnostics import DiagnosticLogger
+from .e2e_mode import allow_e2e_synthetic_mode
 from .constants import (
     COST_PER_1000_WORDS_USD,
     DEFAULT_HARD_BUDGET_LIMIT_USD,
@@ -274,9 +275,16 @@ def persist_project_budget(
     serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
     state.project_root.mkdir(parents=True, exist_ok=True)
-    write_text_atomic(state.project_path, serialized, durable=durable)
     state.metadata = payload
     state.spent_usd = budget_section["spent_usd"]
+
+    # Synthetic load/eval fixtures are disposable; avoid serializing concurrent
+    # accepts onto the same project.json. Normal and durable writes remain
+    # authoritative for product/runtime paths.
+    if allow_e2e_synthetic_mode() and not durable:
+        return
+
+    write_text_atomic(state.project_path, serialized, durable=durable)
 
 
 @contextmanager

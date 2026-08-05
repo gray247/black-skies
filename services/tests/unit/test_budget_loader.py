@@ -169,6 +169,30 @@ def test_persist_project_budget_updates_spend(tmp_path: Path) -> None:
     assert (project_root / "project.json").exists()
 
 
+def test_synthetic_non_durable_budget_update_stays_in_memory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Disposable synthetic load updates must not contend on project.json."""
+
+    project_root = tmp_path / "proj_synthetic"
+    project_path = project_root / "project.json"
+    state = ProjectBudgetState(
+        project_root=project_root,
+        metadata={"project_id": "proj_synthetic", "budget": {"spent_usd": 0.0}},
+        soft_limit=5.0,
+        hard_limit=10.0,
+        spent_usd=0.0,
+        project_path=project_path,
+    )
+
+    monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
+    monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
+    _persist_project_budget(state, 0.02, durable=False)
+
+    assert state.spent_usd == pytest.approx(0.02)
+    assert not project_path.exists()
+
+
 def test_edit_project_budget_state_provides_locked_state(
     project_root: Path, diagnostics: DiagnosticLogger
 ) -> None:
