@@ -124,7 +124,14 @@ function focusWritingEditor(): void {
   editor?.focus({ preventScroll: true });
 }
 
-function restoreWritingWindowFocus(): void {
+async function restoreWritingWindowFocus(
+  focusWritingWindow?: () => Promise<unknown>,
+): Promise<void> {
+  try {
+    await focusWritingWindow?.();
+  } catch {
+    // Focus restoration is best effort; the editor remains available if the window is already active.
+  }
   const restore = () => {
     const focus = window.focus as (() => void) & { _isMockFunction?: boolean };
     const runningInJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -840,10 +847,10 @@ export default function Stage19WritingSpineApp({
         );
         if (!discard) {
           setNotice('Project switch cancelled; unsaved work was preserved.');
-          restoreWritingWindowFocus();
+          void restoreWritingWindowFocus(bridge?.focusWritingWindow);
           return;
         }
-        restoreWritingWindowFocus();
+        void restoreWritingWindowFocus(bridge?.focusWritingWindow);
         discardUnsaved = true;
       }
       try {
@@ -854,10 +861,10 @@ export default function Stage19WritingSpineApp({
           );
           if (!discard) {
             setNotice('Project switch cancelled; unsaved work was preserved.');
-            restoreWritingWindowFocus();
+            void restoreWritingWindowFocus(bridge?.focusWritingWindow);
             return;
           }
-          restoreWritingWindowFocus();
+          void restoreWritingWindowFocus(bridge?.focusWritingWindow);
           result = await request(true);
         }
         applySnapshot(result.snapshot);
@@ -866,7 +873,7 @@ export default function Stage19WritingSpineApp({
         setNotice('The project operation could not reach the application service. Your current work was preserved; try again.');
       }
     },
-    [applySnapshot, flushAllRecoveryCheckpoints, hasLocalUnsaved],
+    [applySnapshot, bridge, flushAllRecoveryCheckpoints, hasLocalUnsaved],
   );
 
   const handleOpenProject = useCallback(async () => {

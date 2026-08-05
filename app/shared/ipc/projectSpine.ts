@@ -1,5 +1,6 @@
 export const PROJECT_SPINE_CHANNELS = {
   chooseDirectory: 'project-spine:choose-directory',
+  focusWritingWindow: 'project-spine:focus-writing-window',
   openProject: 'project-spine:open-project',
   createProject: 'project-spine:create-project',
   getSession: 'project-spine:get-session',
@@ -335,6 +336,8 @@ export type ExportMarkdownResultData =
 
 export interface ProjectSpineBridge {
   readonly windowRole: ProjectSpineWindowRole;
+  /** Writing Studio only. Re-activates the owning Electron window after a native dialog closes. */
+  focusWritingWindow?(): Promise<ProjectSpineResult>;
   chooseDirectory(): Promise<{ canceled: boolean; path?: string }>;
   openProject(request: OpenProjectRequest): Promise<ProjectSpineResult<{ activation: 'activated' | 'already-active' }>>;
   createProject(request: CreateProjectRequest): Promise<ProjectSpineResult<{ activation: 'activated' }>>;

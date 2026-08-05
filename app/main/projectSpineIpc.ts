@@ -710,6 +710,12 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     return { canceled: result.canceled, path: result.filePaths?.[0] };
   });
 
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.focusWritingWindow, async (event) => {
+    const role = requireWritingRole(event);
+    registrationOptions.focusWritingWindow?.();
+    return success(role, {});
+  });
+
   ipcMain.handle(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, async (event, value: unknown) => {
     const role = roleForEvent(event);
     try {

@@ -534,6 +534,7 @@ describe('splitCommand preload bridge', () => {
         'createUnit',
         'deleteUnit',
         'exportMarkdown',
+        'focusWritingWindow',
         'getSession',
         'onCloseConfirmationRequest',
         'openProject',

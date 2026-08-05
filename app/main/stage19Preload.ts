@@ -44,6 +44,7 @@ import type {
 export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
   projectSpine: Object.freeze({
     chooseDirectory: 'project-spine:choose-directory',
+    focusWritingWindow: 'project-spine:focus-writing-window',
     openProject: 'project-spine:open-project',
     createProject: 'project-spine:create-project',
     getSession: 'project-spine:get-session',
@@ -286,6 +287,10 @@ const commandProjectSpine: CommandProjectSpineBridge = {
 
 const writingProjectSpine: ProjectSpineBridge = {
   ...baseProjectSpine,
+  focusWritingWindow: () =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.focusWritingWindow) as Promise<
+      ProjectSpineResult
+    >,
   setUnitDirty: (request: SetManuscriptUnitDirtyRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.setUnitDirty, request),
   captureRecoveryCheckpoint: (request: CaptureRecoveryCheckpointRequest) =>

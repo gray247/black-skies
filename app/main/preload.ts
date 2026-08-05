@@ -2204,6 +2204,9 @@ const projectSpineWindowRole = isCommandCenterPreload ? 'command' : 'writing';
 
 const projectSpineBaseBridge: ProjectSpineBridge = {
   windowRole: projectSpineWindowRole,
+  async focusWritingWindow() {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.focusWritingWindow) as Promise<ProjectSpineResult>;
+  },
   async chooseDirectory() {
     return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.chooseDirectory) as Promise<{
       canceled: boolean;

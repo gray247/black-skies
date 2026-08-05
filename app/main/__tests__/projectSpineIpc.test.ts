@@ -424,6 +424,15 @@ describe('project-spine IPC', () => {
     expect(hasPendingCloseRequest()).toBe(false);
   });
 
+  it('allows only Writing Studio to re-activate its owning window after a native dialog', async () => {
+    expect(await invoke(PROJECT_SPINE_CHANNELS.focusWritingWindow, 1)).toMatchObject({ ok: true });
+    expect(focusWritingWindow).toHaveBeenCalledTimes(1);
+    await expect(invoke(PROJECT_SPINE_CHANNELS.focusWritingWindow, 2)).rejects.toMatchObject({
+      code: 'WRONG_WINDOW_ROLE',
+    });
+    expect(focusWritingWindow).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps editing without granting a close allowance, initiating shutdown, or changing dirty session state', async () => {
     const initiateCoordinatedShutdown = vi.fn();
     electronMocks.handlers.clear();

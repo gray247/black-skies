@@ -157,6 +157,7 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
 
   const bridge = {
     windowRole: initial.role,
+    focusWritingWindow: vi.fn(async () => undefined),
     chooseDirectory: vi.fn().mockResolvedValue({ canceled: true }),
     openProject: vi.fn(async () => ok({ activation: 'activated' as const })),
     createProject: vi.fn(async () => ok({ activation: 'activated' as const })),
@@ -1765,6 +1766,7 @@ describe('Stage19WritingSpineApp', () => {
 
     await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(document.activeElement).toBe(editor));
+    expect(harness.bridge.focusWritingWindow).toHaveBeenCalledTimes(1);
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(harness.bridge.openProject).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Project switch cancelled');
