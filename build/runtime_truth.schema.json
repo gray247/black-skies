@@ -207,7 +207,7 @@
           "type": "string"
         },
         "generator_version": {
-          "default": "1",
+          "default": "2",
           "title": "Generator Version",
           "type": "string"
         },

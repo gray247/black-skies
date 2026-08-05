@@ -302,8 +302,8 @@
   "generated_at": null,
   "generated_from": {
     "config_defaults_hash": "b53815b53ea6ee820d098f3df951d41f13044d47725506bc39537b511ff36eed",
-    "generator_version": "1",
-    "git_commit": "39ea203ddd40af2ce68f479440a79e225219e1ab"
+    "generator_version": "2",
+    "git_commit": "c927cf617b454dc33c7a5a72823c2d5990908701"
   },
   "health_surfaces": [
     {

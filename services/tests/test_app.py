@@ -127,6 +127,22 @@ def test_favicon_placeholder_returns_no_content(test_client: TestClient) -> None
     _assert_trace_header(response)
 
 
+def test_service_lifespan_starts_and_stops_verification_scheduler(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The supported lifespan hook preserves scheduler startup and teardown."""
+
+    scheduler = Mock()
+    monkeypatch.setattr(app_module, "VerificationScheduler", lambda settings: scheduler)
+    application = create_app(ServiceSettings(project_base_dir=tmp_path))
+
+    with TestClient(application):
+        scheduler.start.assert_called_once_with()
+        scheduler.shutdown.assert_not_called()
+
+    scheduler.shutdown.assert_called_once_with()
+
+
 def _build_payload() -> dict[str, Any]:
     """Return a representative outline build payload."""
 

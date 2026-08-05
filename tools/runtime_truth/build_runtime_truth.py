@@ -41,7 +41,11 @@ from blackskies.services.model_routing import ModelRouterConfig  # noqa: E402
 
 app_module = importlib.import_module("blackskies.services.app")
 
-GENERATOR_VERSION = "1"
+GENERATOR_VERSION = "2"
+
+OPENAPI_HTTP_METHODS = frozenset(
+    {"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"}
+)
 
 
 FeatureKind = Literal["runtime", "experimental", "deferred", "operational"]
@@ -403,19 +407,32 @@ def _route_metadata(
 def _routes(settings: ServiceSettings) -> list[RouteEntry]:
     application = app_module.create_app(settings)
     discovered: dict[tuple[str, str], RouteEntry] = {}
+
+    def record(path: str, method: str) -> None:
+        baseline_enabled, guarded_by, notes = _route_metadata(path, method, settings)
+        discovered[(path, method)] = RouteEntry(
+            path=path,
+            method=method,
+            baseline_enabled=baseline_enabled,
+            guarded_by=guarded_by,
+            notes=notes,
+        )
+
+    # FastAPI 0.141+ retains included routers as lazy route branches. OpenAPI is
+    # the supported flattened view of schema-visible routes and avoids depending
+    # on FastAPI's private router representation.
+    for path, path_item in application.openapi().get("paths", {}).items():
+        for method_name in path_item:
+            method = method_name.upper()
+            if method in OPENAPI_HTTP_METHODS and method not in {"HEAD", "OPTIONS"}:
+                record(path, method)
+
+    # Preserve direct non-schema endpoints such as the service manifest and
+    # favicon, which remain ordinary APIRoute objects on the application.
     for route in application.routes:
-        if not isinstance(route, APIRoute):
-            continue
-        for method in sorted(route.methods - {"HEAD", "OPTIONS"}):
-            baseline_enabled, guarded_by, notes = _route_metadata(route.path, method, settings)
-            key = (route.path, method)
-            discovered[key] = RouteEntry(
-                path=route.path,
-                method=method,
-                baseline_enabled=baseline_enabled,
-                guarded_by=guarded_by,
-                notes=notes,
-            )
+        if isinstance(route, APIRoute):
+            for method in sorted(route.methods - {"HEAD", "OPTIONS"}):
+                record(route.path, method)
     return sorted(discovered.values(), key=lambda item: (item.path, item.method))
 
 
@@ -849,10 +866,12 @@ def write_artifacts() -> tuple[Path, Path]:
     payload_path.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     schema_path.write_text(
         json.dumps(schema, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     return payload_path, schema_path
 

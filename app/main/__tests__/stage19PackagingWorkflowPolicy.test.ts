@@ -68,14 +68,17 @@ describe("Stage 19 packaging workflow policy", () => {
     ).not.toThrow();
   });
 
-  it("rejects Node 20 and non-v6 pnpm action runtimes across every foundation workflow", () => {
+  it("rejects stale checkout, Node, and pnpm action runtimes across every foundation workflow", () => {
     expect(() => assertFoundationActionRuntimePolicy()).not.toThrow();
     expect(
       validateFoundationActionRuntimePolicy({
-        "Stage 19 Fixed Regression Gate": "uses: pnpm/action-setup@v4\nnode-version: '20'",
+        "Stage 19 Fixed Regression Gate":
+          "uses: actions/checkout@v5\nuses: actions/setup-node@v5\nuses: pnpm/action-setup@v4\nnode-version: '20'",
       })
     ).toEqual(
       expect.arrayContaining([
+        expect.stringContaining("older checkout action runtime"),
+        expect.stringContaining("older setup-node action runtime"),
         expect.stringContaining("deprecated pnpm/action-setup runtime"),
         expect.stringContaining("deprecated Node 20 action runtime"),
       ])

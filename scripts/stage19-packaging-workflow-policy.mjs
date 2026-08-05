@@ -91,6 +91,18 @@ export function validateFoundationActionRuntimePolicy(
 ) {
   const errors = [];
   for (const [name, source] of Object.entries(workflowSources)) {
+    const checkoutActions = [...source.matchAll(/actions\/checkout@v(\d+)/gu)];
+    if (checkoutActions.length === 0) {
+      errors.push(`${name} must configure actions/checkout@v7.`);
+    } else if (checkoutActions.some((match) => match[1] !== "7")) {
+      errors.push(`${name} must not configure an older checkout action runtime.`);
+    }
+    const nodeActions = [...source.matchAll(/actions\/setup-node@v(\d+)/gu)];
+    if (nodeActions.length === 0) {
+      errors.push(`${name} must configure actions/setup-node@v7.`);
+    } else if (nodeActions.some((match) => match[1] !== "7")) {
+      errors.push(`${name} must not configure an older setup-node action runtime.`);
+    }
     const pnpmActions = [...source.matchAll(/pnpm\/action-setup@v(\d+)/gu)];
     if (pnpmActions.length === 0) {
       errors.push(`${name} must configure pnpm/action-setup@v6.`);
@@ -116,7 +128,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === modulePath) {
     assertStage19PackagingWorkflow(readFileSync(workflowPath, "utf8"));
     assertFoundationActionRuntimePolicy();
     process.stdout.write(
-      "STAGE19_PACKAGING_WORKFLOW_POLICY_PASS manual-dispatch-only exact-sha-artifacts node24-actions\n"
+      "STAGE19_PACKAGING_WORKFLOW_POLICY_PASS manual-dispatch-only exact-sha-artifacts current-node24-actions\n"
     );
   } catch (error) {
     process.stderr.write(

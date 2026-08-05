@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from typing import Final
@@ -156,11 +158,24 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
     service_settings = settings or ServiceSettings.from_environment()
+    startup_handlers: list[Callable[[], Awaitable[None]]] = []
+    shutdown_handlers: list[Callable[[], Awaitable[None]]] = []
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        for handler in startup_handlers:
+            await handler()
+        try:
+            yield
+        finally:
+            for handler in reversed(shutdown_handlers):
+                await handler()
 
     application = FastAPI(
         title="Black Skies Services",
         version=SERVICE_VERSION,
         responses=default_error_responses(),
+        lifespan=lifespan,
     )
     application.state.settings = service_settings
     application.state.build_tracker = BuildTracker()
@@ -231,8 +246,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         async def _stop_backup_verifier() -> None:
             await backup_verifier.stop()
 
-        application.add_event_handler("startup", _start_backup_verifier)
-        application.add_event_handler("shutdown", _stop_backup_verifier)
+        startup_handlers.append(_start_backup_verifier)
+        shutdown_handlers.append(_stop_backup_verifier)
     else:
         # Preserve explicit health state for the shipped baseline: verifier code
         # exists, but the daemon is not started unless configuration enables it.
@@ -252,8 +267,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     async def _stop_scheduler() -> None:
         scheduler.shutdown()
 
-    application.add_event_handler("startup", _start_scheduler)
-    application.add_event_handler("shutdown", _stop_scheduler)
+    startup_handlers.append(_start_scheduler)
+    shutdown_handlers.append(_stop_scheduler)
 
     async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()

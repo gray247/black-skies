@@ -1,8 +1,9 @@
 # FastAPI/Starlette/HTTPX stack pinned to keep pip installs aligned with the lockfiles.
 APScheduler==3.10.4
-fastapi==0.121.3
+fastapi==0.141.1
 httpx==0.27.2
-starlette==0.49.3
+httpx2==2.9.1
+starlette==1.3.1
 pydantic==2.12.3
 pydantic-core==2.41.4
 pydantic-settings==2.11.0

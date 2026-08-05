@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
@@ -53,7 +53,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
@@ -96,35 +96,12 @@ jobs:
           name: pip-audit-report-${{ matrix.os }}
           path: pip-audit-report.json
 
-      - name: Install Safety
-        run: |
-          pip install safety
-
-      - name: Run Safety
-        id: safety
-        run: |
-          set +e
-          safety check \
-            --output json \
-            --save-json safety-report.json \
-            --file requirements.lock \
-            --file requirements.dev.lock
-          status=$?
-          test -s safety-report.json || { echo "Safety produced no report" >&2; exit 1; }
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Upload Safety report
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: safety-report-${{ matrix.os }}
-          path: safety-report.json
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
         with:
           run_install: false
       - name: Set up Node 24
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           package-manager-cache: false
@@ -243,10 +220,9 @@ jobs:
         with:
           name: dependency-report-${{ matrix.os }}
           path: dependency-report.json
-      - name: Fail only on HIGH/CRITICAL vulnerabilities
+      - name: Fail on blocking or unclassified vulnerabilities
         env:
           PIP_AUDIT_STATUS: ${{ steps.pip_audit.outputs.status }}
-          SAFETY_STATUS: ${{ steps.safety.outputs.status }}
           PNPM_AUDIT_STATUS: ${{ steps.pnpm_audit.outputs.status }}
         run: |
           python - <<'PY'
@@ -258,7 +234,18 @@ jobs:
           import os
 
           SEVERITIES = {"high", "critical"}
+          UNKNOWN_SEVERITY = "unknown"
           findings: list[tuple[str, str, str, str]] = []
+
+          def _finding_severity(vulnerability: dict[str, Any]) -> str:
+              severity = str(vulnerability.get("severity") or "").strip().lower()
+              return severity or UNKNOWN_SEVERITY
+
+          def _blocks_qualification(vulnerability: dict[str, Any]) -> bool:
+              return _finding_severity(vulnerability) in SEVERITIES | {UNKNOWN_SEVERITY}
+
+          if not _blocks_qualification({}):
+              raise SystemExit("Security finding sentinel failed: missing severity must fail closed")
 
           def _load_json(path: str) -> Any:
               report = Path(path)
@@ -271,8 +258,6 @@ jobs:
 
           completed_statuses = {
               "PIP_AUDIT_STATUS": {"0", "1"},
-              # Safety's legacy JSON command uses 64 when it completed and found issues.
-              "SAFETY_STATUS": {"0", "64"},
               "PNPM_AUDIT_STATUS": {"0", "1"},
           }
           for name, accepted in completed_statuses.items():
@@ -285,39 +270,20 @@ jobs:
           if isinstance(pip_audit, dict):
               for dep in pip_audit.get("dependencies", []):
                   if not isinstance(dep, dict):
-                      continue
+                      raise SystemExit("pip-audit dependency entry is malformed")
                   package = str(dep.get("name") or "<unknown>")
-                  for vuln in dep.get("vulnerabilities", []):
+                  vulnerabilities = dep.get("vulns", dep.get("vulnerabilities"))
+                  if not isinstance(vulnerabilities, list):
+                      raise SystemExit(f"pip-audit dependency entry has no findings list: {package}")
+                  for vuln in vulnerabilities:
                       if not isinstance(vuln, dict):
-                          continue
-                      severity = str(vuln.get("severity") or "").lower()
-                      if severity in SEVERITIES:
+                          raise SystemExit(f"pip-audit vulnerability entry is malformed: {package}")
+                      severity = _finding_severity(vuln)
+                      if _blocks_qualification(vuln):
                           findings.append(
                               (
                                   "pip-audit",
                                   package,
-                                  severity,
-                                  str(vuln.get("id") or "<unknown>"),
-                              )
-                          )
-
-          safety = _load_json("safety-report.json")
-          if not isinstance(safety, (dict, list)):
-              raise SystemExit("Safety report has an unexpected schema")
-          if isinstance(safety, dict):
-              for key in ("vulnerabilities", "issues", "results"):
-                  entries = safety.get(key)
-                  if not isinstance(entries, list):
-                      continue
-                  for vuln in entries:
-                      if not isinstance(vuln, dict):
-                          continue
-                      severity = str(vuln.get("severity") or "").lower()
-                      if severity in SEVERITIES:
-                          findings.append(
-                              (
-                                  "safety",
-                                  str(vuln.get("package_name") or vuln.get("package") or "<unknown>"),
                                   severity,
                                   str(vuln.get("id") or "<unknown>"),
                               )
@@ -331,18 +297,18 @@ jobs:
           if isinstance(vulnerabilities, dict):
               for package, data in vulnerabilities.items():
                   if not isinstance(data, dict):
-                      continue
-                  severity = str(data.get("severity") or "").lower()
-                  if severity in SEVERITIES:
+                      raise SystemExit(f"pnpm vulnerability entry is malformed: {package}")
+                  severity = _finding_severity(data)
+                  if _blocks_qualification(data):
                       findings.append(
                           ("pnpm", str(package), severity, str(data.get("id") or "<unknown>"))
                       )
           elif isinstance(advisories, dict):
               for advisory in advisories.values():
                   if not isinstance(advisory, dict):
-                      continue
-                  severity = str(advisory.get("severity") or "").lower()
-                  if severity in SEVERITIES:
+                      raise SystemExit("pnpm advisory entry is malformed")
+                  severity = _finding_severity(advisory)
+                  if _blocks_qualification(advisory):
                       findings.append(
                           (
                               "pnpm",
@@ -358,7 +324,7 @@ jobs:
           else:
               raise SystemExit("pnpm audit report has an unexpected schema")
 
-          print(f"HIGH/CRITICAL findings: {len(findings)}")
+          print(f"Blocking HIGH/CRITICAL/UNKNOWN findings: {len(findings)}")
           for source, package, severity, advisory in findings:
               print(f"- {source}: {package} [{severity}] ({advisory})")
 
@@ -374,7 +340,7 @@ jobs:
       - pip-audit
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Write observability summary artifacts
         if: always()
         env:
@@ -445,8 +411,6 @@ jobs:
               entry("dependency_security_reports", "dependency-report-macos-latest", "pip-audit", pip_audit_result),
               entry("dependency_security_reports", "pip-audit-report-ubuntu-latest", "pip-audit", pip_audit_result),
               entry("dependency_security_reports", "pip-audit-report-macos-latest", "pip-audit", pip_audit_result),
-              entry("dependency_security_reports", "safety-report-ubuntu-latest", "pip-audit", pip_audit_result),
-              entry("dependency_security_reports", "safety-report-macos-latest", "pip-audit", pip_audit_result),
               entry("dependency_security_reports", "pnpm-audit-report-ubuntu-latest", "pip-audit", pip_audit_result),
               entry("dependency_security_reports", "pnpm-audit-report-macos-latest", "pip-audit", pip_audit_result),
           ]

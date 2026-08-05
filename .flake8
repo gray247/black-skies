@@ -1,7 +1,7 @@
 [flake8]
 max-line-length = 100
 extend-ignore = E203,E501,W503
-exclude = .git,.venv*,.pytest-tmp,node_modules,vendor,archive,build,dist,dist-electron,release
+exclude = .git,.venv*,.foundation-venv*,.tmp,.pytest-tmp,node_modules,vendor,archive,build,dist,dist-electron,release
 per-file-ignores =
     scripts/eval.py:E402
     scripts/load.py:E402
