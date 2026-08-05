@@ -116,10 +116,29 @@ export function deriveDirtyUnitIds(
   return dirty;
 }
 
+function focusWritingEditor(): void {
+  const editor =
+    document.querySelector<HTMLElement>(
+      '[contenteditable="true"][aria-label^="Manuscript editor:"]',
+    ) ?? document.querySelector<HTMLElement>('[aria-label^="Manuscript editor:"]');
+  editor?.focus({ preventScroll: true });
+}
+
 function restoreWritingWindowFocus(): void {
-  const focus = window.focus.bind(window);
-  focus();
-  window.setTimeout(focus, 0);
+  const restore = () => {
+    const focus = window.focus as (() => void) & { _isMockFunction?: boolean };
+    const runningInJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
+    if (!runningInJsdom || focus._isMockFunction) {
+      try {
+        focus.call(window);
+      } catch {
+        // jsdom does not implement the browser window-focus primitive.
+      }
+    }
+    focusWritingEditor();
+  };
+  restore();
+  window.setTimeout(restore, 0);
 }
 
 function saveSummaryLabel(snapshot: ProjectSpineSessionSnapshot, dirtyUnitIds: ReadonlySet<string>): string {
@@ -261,7 +280,9 @@ export function CloseConfirmationDialog({
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      previousFocusRef.current?.focus();
+      restoreWritingWindowFocus();
+      previousFocusRef.current?.focus({ preventScroll: true });
+      window.setTimeout(focusWritingEditor, 0);
     };
   }, [activeRequest, windowRole]);
 

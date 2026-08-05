@@ -202,7 +202,14 @@ test.describe('C1 unsaved close flow', () => {
       await expect(dialog).toHaveCount(0);
       expect(beforeUnload.observedTypes).toEqual(['beforeunload']);
       expect(beforeUnload.unexpectedTypes).toEqual([]);
-      await expect(editor).toHaveText('Keep this unsaved prose');
+      await expect
+        .poll(() =>
+          writing.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? null),
+        )
+        .toBe('Manuscript editor: Keep unit');
+      await writing.keyboard.type(' immediately editable');
+      await expect(editor).toContainText('Keep this unsaved prose');
+      await expect(editor).toContainText('immediately editable');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       expect(electronApp.windows()).toHaveLength(2);
