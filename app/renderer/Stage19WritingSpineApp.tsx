@@ -838,11 +838,12 @@ export default function Stage19WritingSpineApp({
         const discard = window.confirm(
           'This project has unsaved manuscript changes. Discard them and switch projects?',
         );
-        restoreWritingWindowFocus();
         if (!discard) {
           setNotice('Project switch cancelled; unsaved work was preserved.');
+          restoreWritingWindowFocus();
           return;
         }
+        restoreWritingWindowFocus();
         discardUnsaved = true;
       }
       try {
@@ -851,11 +852,12 @@ export default function Stage19WritingSpineApp({
           const discard = window.confirm(
             'This project has unsaved manuscript changes. Discard them and switch projects?',
           );
-          restoreWritingWindowFocus();
           if (!discard) {
             setNotice('Project switch cancelled; unsaved work was preserved.');
+            restoreWritingWindowFocus();
             return;
           }
+          restoreWritingWindowFocus();
           result = await request(true);
         }
         applySnapshot(result.snapshot);

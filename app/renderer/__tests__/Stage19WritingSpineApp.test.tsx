@@ -1760,9 +1760,11 @@ describe('Stage19WritingSpineApp', () => {
     const focus = vi.spyOn(window, 'focus').mockImplementation(() => undefined);
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     fireEvent.click(await screen.findByRole('button', { name: /Open project/ }));
 
     await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(document.activeElement).toBe(editor));
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(harness.bridge.openProject).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Project switch cancelled');
