@@ -29,7 +29,9 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        run: corepack prepare pnpm@8.15.9 --activate
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.9 --activate
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: pwsh
