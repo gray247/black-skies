@@ -121,7 +121,9 @@ class DraftAcceptService:
 
         budget_started = perf_counter()
 
-        def _apply_budget_update(budget_state: ProjectBudgetState) -> tuple[ProjectBudgetState, float, float]:
+        def _apply_budget_update(
+            budget_state: ProjectBudgetState,
+        ) -> tuple[ProjectBudgetState, float, float]:
             accept_cost = derive_accept_unit_cost(
                 budget_state=budget_state,
                 request=request,
