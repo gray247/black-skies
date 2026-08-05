@@ -79,6 +79,7 @@ export interface RegisterProjectSpineIpcOptions {
   readonly coordinator?: ProjectSessionCoordinator;
   readonly loadProject?: (projectPath: string) => Promise<LoadedProject>;
   readonly initiateCoordinatedShutdown?: () => void;
+  readonly focusWritingWindow?: () => void;
   readonly recoveryCheckpoints?: ProjectSpineRecoveryCheckpointService;
   readonly writeMarkdownFile?: typeof writeMarkdownAtomic;
 }
@@ -733,6 +734,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       }
       if (typedResponse.decision === 'keep-editing') {
         clearPendingCloseRequest();
+        registrationOptions.focusWritingWindow?.();
         return success(role, {});
       }
       await requireRecoveryCheckpoints().withIntentionalCleanup(
@@ -1109,11 +1111,10 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       if (!request || typeof request.revision !== 'number') {
         throw new ProjectSessionError('INVALID_REQUEST', 'A bound Markdown export request is required.');
       }
-      coordinator.assertExportReady(request, request.revision);
-      const activeProject = coordinator.getActiveProject()!;
+      const source = coordinator.createExportSnapshot(request, request.revision);
       const destination = await dialog.showSaveDialog({
         title: 'Export Markdown manuscript',
-        defaultPath: suggestMarkdownFilename(activeProject.name),
+        defaultPath: suggestMarkdownFilename(source.project.name),
         buttonLabel: 'Export',
         filters: [{ name: 'Markdown', extensions: ['md'] }],
       });
@@ -1149,7 +1150,6 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           });
         }
       }
-      const source = coordinator.createExportSnapshot(request, request.revision);
       const artifact = buildMarkdownExportArtifact({
         projectId: source.project.projectId,
         projectTitle: source.project.name,

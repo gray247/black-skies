@@ -414,6 +414,33 @@ describe('Stage19WritingSpineApp', () => {
     expect(deriveDirtyUnitIds(current, { unit_a: 'Alpha body changed' })).toEqual(
       new Set(['unit_a']),
     );
+    expect(deriveDirtyUnitIds(snapshot('writing', {
+      dirtyUnitIds: ['unit_a'],
+      saveState: { status: 'dirty', unitId: 'unit_a', message: null },
+    }), { unit_a: 'Alpha body' })).toEqual(new Set(['unit_a']));
+  });
+
+  it('keeps authoritative accepted-recovery dirtiness actionable through the visible Save button', async () => {
+    const current = snapshot('writing', {
+      dirtyUnitIds: ['unit_a'],
+      saveState: { status: 'dirty', unitId: 'unit_a', message: null },
+      recovery: {
+        status: 'accepted-pending-save',
+        candidates: [recoveryCandidate('unit_a', 'Recovered prose', 'accepted-pending-save')],
+      },
+    });
+    const harness = createBridge(current);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' }))
+      .toHaveValue('Recovered prose');
+    const save = screen.getByRole('button', { name: /^Save$/ });
+    expect(save).toBeEnabled();
+    fireEvent.click(save);
+
+    await waitFor(() => expect(harness.bridge.saveUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ submittedProse: 'Recovered prose' }),
+    ));
   });
 
   it.each(['writing', 'command'] as const)(
@@ -1696,6 +1723,7 @@ describe('Stage19WritingSpineApp', () => {
           },
     );
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const focus = vi.spyOn(window, 'focus').mockImplementation(() => undefined);
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
     const openButton = await screen.findByRole('button', { name: 'Open project…' });
@@ -1714,7 +1742,32 @@ describe('Stage19WritingSpineApp', () => {
       expect.objectContaining({ path: 'C:\\projects\\b', discardUnsaved: true }),
     );
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+    await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
     confirm.mockRestore();
+    focus.mockRestore();
+  });
+
+  it('restores Writing Studio focus when a dirty project switch is cancelled', async () => {
+    const harness = createBridge(snapshot('writing', {
+      dirtyUnitIds: ['unit_a'],
+      saveState: { status: 'dirty', unitId: 'unit_a', message: null },
+    }));
+    vi.mocked(harness.bridge.chooseDirectory).mockResolvedValue({
+      canceled: false,
+      path: 'C:\\projects\\b',
+    });
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const focus = vi.spyOn(window, 'focus').mockImplementation(() => undefined);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Open project/ }));
+
+    await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(harness.bridge.openProject).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Project switch cancelled');
+    confirm.mockRestore();
+    focus.mockRestore();
   });
 
   it('clears project-bound buffers when a new project generation arrives', async () => {

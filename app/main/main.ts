@@ -1390,6 +1390,12 @@ if (!hasSingleInstanceLock) {
         resolveWindowRole: resolveProjectSpineWindowRole,
         publishSession: publishProjectSpineSession,
         initiateCoordinatedShutdown: initiateCoordinatedCloseShutdown,
+        focusWritingWindow: () => {
+          if (!mainWindow || mainWindow.isDestroyed()) return;
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.show();
+          mainWindow.focus();
+        },
       });
       registerAiCritiqueIpc({
         processSessionId: projectSpineOriginSessionId,

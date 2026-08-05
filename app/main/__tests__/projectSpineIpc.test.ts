@@ -57,6 +57,7 @@ import {
 const temporaryRoots: string[] = [];
 let testRecentStorePath = '';
 let testCoordinator: ProjectSessionCoordinator;
+let focusWritingWindow: ReturnType<typeof vi.fn>;
 
 async function temporaryRoot(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'black-skies-project-spine-ipc-'));
@@ -98,6 +99,7 @@ describe('project-spine IPC', () => {
     const root = await temporaryRoot();
     testRecentStorePath = join(root, 'recents.json');
     testCoordinator = new ProjectSessionCoordinator();
+    focusWritingWindow = vi.fn();
     resetProjectSpineForTests(testCoordinator);
     registerProjectSpineIpc({
       originSessionId: 'test-origin-session',
@@ -105,6 +107,7 @@ describe('project-spine IPC', () => {
       recentStorePath: testRecentStorePath,
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
       publishSession: vi.fn(),
+      focusWritingWindow,
     });
   });
 
@@ -309,7 +312,7 @@ describe('project-spine IPC', () => {
     expect(await readFile(target, 'utf8')).toBe('# proj\\_replace\n');
   });
 
-  it('blocks dirty state, stale dialog results, and Command Center export without mutation', async () => {
+  it('blocks dirty state, freezes clean export truth before the dialog, and rejects Command Center export', async () => {
     const root = await temporaryRoot();
     const target = join(root, 'blocked.md');
     const project: LoadedProject = {
@@ -363,8 +366,16 @@ describe('project-spine IPC', () => {
       generation: ready.generation,
       revision: ready.revision,
       operationId: 'export-stale-dialog',
-    })).toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
-    await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
+    })).toMatchObject({
+      ok: true,
+      data: {
+        status: 'completed',
+        projectId: project.projectId,
+        generation: ready.generation,
+        revision: ready.revision,
+      },
+    });
+    await expect(readFile(target, 'utf8')).resolves.toContain('Saved');
 
     expect(await invoke(PROJECT_SPINE_CHANNELS.exportMarkdown, 2, {
       projectId: project.projectId,
@@ -379,6 +390,7 @@ describe('project-spine IPC', () => {
     const request = createPendingCloseRequest('proj_a', 7, 1)!;
     const valid = { correlationId: request.correlationId, projectId: 'proj_a', generation: 7, decision: 'keep-editing' as const };
     expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, valid)).toMatchObject({ ok: true });
+    expect(focusWritingWindow).toHaveBeenCalledTimes(1);
     expect(hasPendingCloseRequest()).toBe(false);
     expect(await invoke(PROJECT_SPINE_CHANNELS.closeConfirmationResponse, 1, valid)).toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
 

@@ -111,11 +111,15 @@ export function deriveDirtyUnitIds(
     const durable = splitDraft(drafts[unit.id] ?? '').body;
     if (Object.prototype.hasOwnProperty.call(buffers, unit.id) && buffers[unit.id] !== durable) {
       dirty.add(unit.id);
-    } else if (Object.prototype.hasOwnProperty.call(buffers, unit.id)) {
-      dirty.delete(unit.id);
     }
   }
   return dirty;
+}
+
+function restoreWritingWindowFocus(): void {
+  const focus = window.focus.bind(window);
+  focus();
+  window.setTimeout(focus, 0);
 }
 
 function saveSummaryLabel(snapshot: ProjectSpineSessionSnapshot, dirtyUnitIds: ReadonlySet<string>): string {
@@ -670,8 +674,8 @@ export default function Stage19WritingSpineApp({
     : '';
   const activeDurableBody = splitDraft(activeDurableMarkdown).body;
   const activeBuffer = activeUnit ? buffers[activeUnit.id] ?? activeDurableBody : '';
-  const activeDirty = Boolean(activeUnit && activeBuffer !== activeDurableBody);
   const dirtyUnitIds = useMemo(() => deriveDirtyUnitIds(snapshot, buffers), [buffers, snapshot]);
+  const activeDirty = Boolean(activeUnit && dirtyUnitIds.has(activeUnit.id));
   const hasLocalUnsaved = dirtyUnitIds.size > 0;
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
   const recoveryBlocksEditing = snapshot.recovery?.status === 'decision-required' || snapshot.recovery?.status === 'degraded';
@@ -813,6 +817,7 @@ export default function Stage19WritingSpineApp({
         const discard = window.confirm(
           'This project has unsaved manuscript changes. Discard them and switch projects?',
         );
+        restoreWritingWindowFocus();
         if (!discard) {
           setNotice('Project switch cancelled; unsaved work was preserved.');
           return;
@@ -825,6 +830,7 @@ export default function Stage19WritingSpineApp({
           const discard = window.confirm(
             'This project has unsaved manuscript changes. Discard them and switch projects?',
           );
+          restoreWritingWindowFocus();
           if (!discard) {
             setNotice('Project switch cancelled; unsaved work was preserved.');
             return;
