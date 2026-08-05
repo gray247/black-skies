@@ -2422,11 +2422,15 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
         budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
         state.spent_usd = budget_section["spent_usd"]
 
+    def _forbid_budget_lock(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("synthetic accepts must not acquire the project budget lock")
+
     monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
     monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
     monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _write_scene)
     monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
     monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
+    monkeypatch.setattr(draft_accept_module, "edit_project_budget_state", _forbid_budget_lock)
 
     payload = {
         "project_id": project_id,

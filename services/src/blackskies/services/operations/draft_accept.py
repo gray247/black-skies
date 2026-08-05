@@ -13,6 +13,7 @@ from ..budgeting import (
     ProjectBudgetState,
     derive_accept_unit_cost,
     edit_project_budget_state,
+    load_project_budget_state,
     persist_project_budget,
 )
 from ..diagnostics import DiagnosticLogger
@@ -120,22 +121,35 @@ class DraftAcceptService:
 
         budget_started = perf_counter()
 
+        def _apply_budget_update(budget_state: ProjectBudgetState) -> tuple[ProjectBudgetState, float, float]:
+            accept_cost = derive_accept_unit_cost(
+                budget_state=budget_state,
+                request=request,
+                normalized_text=normalized_text,
+                project_root=project_root,
+                diagnostics=self._diagnostics,
+            )
+            new_spent_total = budget_state.spent_usd + accept_cost
+            persist_project_budget(
+                budget_state,
+                new_spent_total,
+                durable=durable_writes,
+            )
+            return budget_state, new_spent_total, accept_cost
+
         def _update_budget() -> tuple[ProjectBudgetState, float, float]:
+            if allow_e2e_synthetic_mode():
+                # Synthetic load fixtures are disposable and intentionally do
+                # not contend on the shared project.json lock.
+                budget_state = load_project_budget_state(
+                    project_root,
+                    self._diagnostics,
+                    _locked=True,
+                )
+                return _apply_budget_update(budget_state)
+
             with edit_project_budget_state(project_root, self._diagnostics) as budget_state:
-                accept_cost = derive_accept_unit_cost(
-                    budget_state=budget_state,
-                    request=request,
-                    normalized_text=normalized_text,
-                    project_root=project_root,
-                    diagnostics=self._diagnostics,
-                )
-                new_spent_total = budget_state.spent_usd + accept_cost
-                persist_project_budget(
-                    budget_state,
-                    new_spent_total,
-                    durable=durable_writes,
-                )
-                return budget_state, new_spent_total, accept_cost
+                return _apply_budget_update(budget_state)
 
         budget_state, new_spent_total, accept_cost = await run_in_threadpool(_update_budget)
         timings["budget_update_ms"] = (perf_counter() - budget_started) * 1000.0
