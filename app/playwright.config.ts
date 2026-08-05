@@ -4,9 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
 const resolvedRetries = 0;
-const reportRoot =
-  process.env.PLAYWRIGHT_OUTPUT_DIR ??
-  process.cwd();
+const reportRoot = process.env.PLAYWRIGHT_OUTPUT_DIR ?? process.cwd();
 const resultsRoot = path.join(reportRoot, 'test-results');
 const htmlReportFolder = path.join(reportRoot, 'playwright-report');
 
@@ -22,6 +20,7 @@ if (process.env.NO_COLOR) {
 
 export default defineConfig({
   testDir: './tests/e2e',
+  captureGitInfo: { commit: false, diff: false },
   globalSetup: fileURLToPath(new URL('../scripts/playwright_pipe_preflight.mjs', import.meta.url)),
   outputDir: resultsRoot,
   timeout: 90_000,
