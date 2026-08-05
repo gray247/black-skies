@@ -712,22 +712,22 @@ jobs:
         with:
           python-version: '3.11'
       - name: Download PASS 3 proof
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: gauntlet-pass3-proof
           path: ci_artifacts/pass3
       - name: Download PASS 4 proof
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: gauntlet-pass4-proof
           path: ci_artifacts/pass4
       - name: Download PASS 5 proof
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: gauntlet-pass5-proof
           path: ci_artifacts/pass5
       - name: Download PASS 6 proof
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: gauntlet-pass6-proof
           path: ci_artifacts/pass6

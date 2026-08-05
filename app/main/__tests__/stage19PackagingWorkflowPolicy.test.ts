@@ -73,7 +73,7 @@ describe("Stage 19 packaging workflow policy", () => {
     expect(
       validateFoundationActionRuntimePolicy({
         "Stage 19 Fixed Regression Gate":
-          "uses: actions/checkout@v5\nuses: actions/setup-node@v5\nuses: pnpm/action-setup@v4\nnode-version: '20'",
+          "uses: actions/checkout@v5\nuses: actions/setup-node@v5\nuses: pnpm/action-setup@v4\nuses: actions/download-artifact@v7\nnode-version: '20'",
       })
     ).toEqual(
       expect.arrayContaining([
@@ -82,6 +82,7 @@ describe("Stage 19 packaging workflow policy", () => {
         expect.stringContaining("deprecated pnpm/action-setup runtime"),
         expect.stringContaining("deprecated Node 20 action runtime"),
         expect.stringContaining("deterministic Git initial branch"),
+        expect.stringContaining("older download-artifact action runtime"),
       ])
     );
   });
