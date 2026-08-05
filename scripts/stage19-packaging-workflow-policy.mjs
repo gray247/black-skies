@@ -117,8 +117,8 @@ export function validateFoundationActionRuntimePolicy(
       errors.push(`${name} must not configure a deprecated pnpm/action-setup runtime.`);
     }
     const downloadActions = [...source.matchAll(/actions\/download-artifact@v(\d+)/gu)];
-    if (downloadActions.some((match) => match[1] !== "8")) {
-      errors.push(`${name} must not configure an older download-artifact action runtime.`);
+    if (downloadActions.length > 0) {
+      errors.push(`${name} must use the warning-free GitHub CLI artifact download path.`);
     }
     if (/node-version:\s*['"]?20(?:\D|$)/mu.test(source)) {
       errors.push(`${name} must not configure the deprecated Node 20 action runtime.`);

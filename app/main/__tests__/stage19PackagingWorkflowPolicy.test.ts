@@ -82,7 +82,7 @@ describe("Stage 19 packaging workflow policy", () => {
         expect.stringContaining("deprecated pnpm/action-setup runtime"),
         expect.stringContaining("deprecated Node 20 action runtime"),
         expect.stringContaining("deterministic Git initial branch"),
-        expect.stringContaining("older download-artifact action runtime"),
+        expect.stringContaining("warning-free GitHub CLI artifact download path"),
       ])
     );
   });
