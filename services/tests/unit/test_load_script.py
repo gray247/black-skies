@@ -36,3 +36,28 @@ def test_load_service_env_enables_synthetic_e2e_mode(load_script_module: ModuleT
     assert env["PATH"] == "C:/bin"
     assert env["BLACKSKIES_E2E_MODE"] == "1"
     assert env["BLACKSKIES_E2E_SYNTHETIC_MODE"] == "1"
+
+
+def test_load_service_output_classifies_only_structured_warnings(
+    load_script_module: ModuleType,
+) -> None:
+    assert load_script_module._service_output_is_warning(
+        '{"level":"WARNING","message":"slow durable write"}'
+    )
+    assert not load_script_module._service_output_is_warning(
+        '{"level":"INFO","message":"the word WARNING is data"}'
+    )
+    assert not load_script_module._service_output_is_warning("WARNING in unstructured tool output")
+
+
+def test_load_service_warning_is_a_blocking_breach(load_script_module: ModuleType) -> None:
+    evidence = load_script_module.StartedServiceEvidence(
+        warning_lines=['{"level":"WARNING","message":"slow durable write"}']
+    )
+
+    assert load_script_module._service_warning_breaches(evidence) == [
+        "Harness-owned service emitted 1 structured warning(s)."
+    ]
+    assert not load_script_module._service_warning_breaches(
+        load_script_module.StartedServiceEvidence()
+    )

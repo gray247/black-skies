@@ -13,6 +13,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import mean
@@ -194,6 +195,46 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
             return latencies[int(rank)]
         fraction = rank - lower
         return latencies[lower] + (latencies[upper] - latencies[lower]) * fraction
+
+
+@dataclass(slots=True)
+class StartedServiceEvidence:
+    """Structured warnings observed from the harness-owned service process."""
+
+    warning_lines: list[str] = field(default_factory=list)
+
+
+def _service_output_is_warning(line: str) -> bool:
+    """Return whether one service output line is a structured warning."""
+
+    try:
+        payload = json.loads(line)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(payload, dict) and str(payload.get("level", "")).upper() == "WARNING"
+
+
+def _relay_service_output(
+    stream: Any,
+    evidence: StartedServiceEvidence,
+) -> None:
+    """Relay child output while retaining exact structured warning records."""
+
+    for line in iter(stream.readline, ""):
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        if _service_output_is_warning(line):
+            evidence.warning_lines.append(line.rstrip("\r\n"))
+
+
+def _service_warning_breaches(evidence: StartedServiceEvidence) -> list[str]:
+    """Return a blocking qualification breach for any service warning."""
+
+    if not evidence.warning_lines:
+        return []
+    return [
+        "Harness-owned service emitted " f"{len(evidence.warning_lines)} structured warning(s)."
+    ]
 
 
 def configure_logging(level: int) -> None:
@@ -382,20 +423,41 @@ def _resolve_service_command(args: argparse.Namespace) -> list[str]:
 
 
 @contextlib.contextmanager
-def _maybe_started_service(args: argparse.Namespace) -> Iterator[None]:
+def _maybe_started_service(args: argparse.Namespace) -> Iterator[StartedServiceEvidence]:
+    evidence = StartedServiceEvidence()
     if not getattr(args, "start_service", False):
-        yield
+        yield evidence
         return
 
     command_tokens = _resolve_service_command(args)
     LOGGER.info("Starting services with command: %s", " ".join(command_tokens))
     service_env = _build_started_service_env(os.environ)
     try:
-        process = subprocess.Popen(command_tokens, cwd=REPO_ROOT, env=service_env)
+        process = subprocess.Popen(
+            command_tokens,
+            cwd=REPO_ROOT,
+            env=service_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            bufsize=1,
+        )
     except FileNotFoundError as exc:
         raise SystemExit(f"Unable to start services: {exc}") from exc
+    if process.stdout is None:  # pragma: no cover - subprocess contract guard
+        process.terminate()
+        raise RuntimeError("Started service output pipe was unavailable.")
+    relay = threading.Thread(
+        target=_relay_service_output,
+        args=(process.stdout, evidence),
+        name="blackskies-load-service-output",
+        daemon=True,
+    )
+    relay.start()
     try:
-        yield
+        yield evidence
     finally:
         LOGGER.info("Stopping services process (pid=%s)", process.pid)
         process.terminate()
@@ -405,6 +467,9 @@ def _maybe_started_service(args: argparse.Namespace) -> Iterator[None]:
             LOGGER.warning("Service process did not exit gracefully; sending SIGKILL.")
             process.kill()
             process.wait(timeout=5)
+        relay.join(timeout=5)
+        if relay.is_alive():
+            raise RuntimeError("Service output relay did not terminate cleanly.")
 
 
 def distribute_cycles(total_cycles: int, concurrency: int) -> Iterable[int]:
@@ -610,7 +675,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     metrics = LoadMetrics()
 
-    with _maybe_started_service(args):
+    with _maybe_started_service(args) as service_evidence:
         try:
             asyncio.run(run_profile(profile, args, metrics))
         except Exception as exc:  # pragma: no cover - CLI surface
@@ -623,7 +688,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
     breaches = evaluate_thresholds(metrics, profile.thresholds)
+    breaches.extend(_service_warning_breaches(service_evidence))
     result_payload = build_result_payload(metrics, profile.thresholds, profile, breaches)
+    result_payload["service_warning_count"] = len(service_evidence.warning_lines)
+    result_payload["service_warnings"] = service_evidence.warning_lines
     runs.finalize_run(
         run_id,
         status="failed" if breaches else "completed",

@@ -91,6 +91,13 @@ export function validateFoundationActionRuntimePolicy(
 ) {
   const errors = [];
   for (const [name, source] of Object.entries(workflowSources)) {
+    if (
+      !/^\s*GIT_CONFIG_COUNT:\s*1\s*$/mu.test(source) ||
+      !/^\s*GIT_CONFIG_KEY_0:\s*init\.defaultBranch\s*$/mu.test(source) ||
+      !/^\s*GIT_CONFIG_VALUE_0:\s*main\s*$/mu.test(source)
+    ) {
+      errors.push(`${name} must configure a deterministic Git initial branch before checkout.`);
+    }
     const checkoutActions = [...source.matchAll(/actions\/checkout@v(\d+)/gu)];
     if (checkoutActions.length === 0) {
       errors.push(`${name} must configure actions/checkout@v7.`);
