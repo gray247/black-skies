@@ -118,11 +118,19 @@ def log_accept_timing_snapshot(
     snapshot_id: str | None,
     timings: Mapping[str, float],
 ) -> None:
-    """Emit a low-noise warning when accept timing exceeds the diagnostic floor."""
+    """Emit a warning when the acceptance pipeline exceeds the diagnostic floor.
+
+    ``total_ms`` includes request validation and project lookup performed by the
+    route before the acceptance pipeline starts.  Those boundary costs are not
+    acceptance work and can vary with the host or request transport, so the
+    diagnostic floor is intentionally applied to ``accept_apply_ms``.
+    """
+
+    accept_apply_ms = float(timings.get("accept_apply_ms", 0.0))
+    if accept_apply_ms < ACCEPT_SLOW_LATENCY_MS:
+        return
 
     total_ms = float(timings.get("total_ms", 0.0))
-    if total_ms < ACCEPT_SLOW_LATENCY_MS:
-        return
 
     LOGGER.warning(
         (

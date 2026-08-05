@@ -182,7 +182,10 @@ def test_accept_timing_below_threshold_is_quiet(monkeypatch: pytest.MonkeyPatch)
         unit_id="sc_0001",
         draft_id="dr_401",
         snapshot_id=None,
-        timings={"total_ms": ACCEPT_SLOW_LATENCY_MS - 0.1},
+        timings={
+            "accept_apply_ms": ACCEPT_SLOW_LATENCY_MS - 0.1,
+            "total_ms": ACCEPT_SLOW_LATENCY_MS + 50.0,
+        },
     )
 
     assert recorded_messages == []

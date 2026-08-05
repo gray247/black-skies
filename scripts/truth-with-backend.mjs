@@ -1419,6 +1419,9 @@ async function run() {
     BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     BLACKSKIES_E2E_MODE: '1',
     BLACKSKIES_E2E_SYNTHETIC_MODE: '0',
+    // The truth lane explicitly probes the internal analytics contract; this
+    // opt-in is scoped to the lane and does not change the product default.
+    BLACKSKIES_ENABLE_ANALYTICS: '1',
     BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: '0',
     BLACKSKIES_MODEL_ROUTING_POLICY: 'local_only',
     BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED: '0',
@@ -1501,6 +1504,8 @@ async function run() {
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_MODE: '1',
       BLACKSKIES_E2E_SYNTHETIC_MODE: '0',
+      // Keep the renderer and backend on the same explicit truth-lane flag.
+      BLACKSKIES_ENABLE_ANALYTICS: '1',
       BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: '0',
       BLACKSKIES_TRUTH_DEBUG_PORT: String(ELECTRON_DEBUG_PORT),
       BLACKSKIES_CONFIG_PATH: runtimeConfigPath,

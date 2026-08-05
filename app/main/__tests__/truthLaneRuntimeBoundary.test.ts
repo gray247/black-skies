@@ -25,6 +25,7 @@ describe('truth-lane runtime boundary', () => {
     expect(source).toContain("BLACKSKIES_MODEL_ROUTING_POLICY: 'local_only'");
     expect(source).toContain("BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED: '0'");
     expect(source).toContain("BLACKSKIES_LOCAL_LLM_AVAILABLE: '1'");
+    expect(source).toContain("BLACKSKIES_ENABLE_ANALYTICS: '1'");
     expect(source).toContain('delete backendEnv.OPENAI_API_KEY');
     expect(source).toContain('delete backendEnv.BLACKSKIES_OPENAI_API_KEY');
     expect(source).toContain('delete backendEnv.BLACK_SKIES_OPENAI_API_KEY');
