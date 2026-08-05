@@ -183,7 +183,13 @@ async function launchInstalled(executablePath, userDataPath) {
   return { application, ...windows };
 }
 
-async function runtimeTruth(application, writing, command, executablePath) {
+async function runtimeTruth(
+  application,
+  writing,
+  command,
+  executablePath,
+  { allowLegacyWritingBridge = false } = {}
+) {
   const mainTruth = await application.evaluate(async ({ app, BrowserWindow }) => {
     const windows = BrowserWindow.getAllWindows().filter((window) => !window.isDestroyed());
     return {
@@ -246,7 +252,6 @@ async function runtimeTruth(application, writing, command, executablePath) {
     "createUnit",
     "deleteUnit",
     "exportMarkdown",
-    "focusWritingWindow",
     "getSession",
     "onCloseConfirmationRequest",
     "openProject",
@@ -261,6 +266,10 @@ async function runtimeTruth(application, writing, command, executablePath) {
     "subscribeSession",
     "windowRole"
   ].sort();
+  const expectedWritingProjectSpine = (allowLegacyWritingBridge
+    ? writingProjectSpine
+    : [...writingProjectSpine, "focusWritingWindow"]
+  ).sort();
   const commandProjectSpine = [
     "getSession",
     "selectUnit",
@@ -284,7 +293,7 @@ async function runtimeTruth(application, writing, command, executablePath) {
     "subscribeState"
   ].sort();
   assert(
-    JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(writingProjectSpine),
+    JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(expectedWritingProjectSpine),
     `Writing Project Spine allowlist differed: ${JSON.stringify(writingGlobals.projectSpine)}`
   );
   assert(
@@ -468,7 +477,11 @@ async function readColdLaunchProbe(application) {
   return probe;
 }
 
-async function measureColdLaunch(executablePath, userDataPath) {
+async function measureColdLaunch(
+  executablePath,
+  userDataPath,
+  { allowLegacyWritingBridge = false } = {}
+) {
   mkdirSync(userDataPath, { recursive: true });
   let launched;
   try {
@@ -482,7 +495,8 @@ async function measureColdLaunch(executablePath, userDataPath) {
       launched.application,
       launched.writing,
       launched.command,
-      executablePath
+      executablePath,
+      { allowLegacyWritingBridge }
     );
     const rootPid = launched.application.process()?.pid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
@@ -552,10 +566,20 @@ async function main() {
     // fixed sequence of fully closed process launches. No sample is retried or
     // discarded; the median of all five is the governed metric.
     const coldLaunchUserDataPath = path.join(smokeRoot, "cold-launch-user-data", "prepared");
-    const coldLaunchPreparation = await measureColdLaunch(executablePath, coldLaunchUserDataPath);
+    const coldLaunchPreparation = await measureColdLaunch(
+      executablePath,
+      coldLaunchUserDataPath,
+      { allowLegacyWritingBridge: performanceOnly }
+    );
     const coldLaunchSamples = [];
     for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
-      coldLaunchSamples.push(await measureColdLaunch(executablePath, coldLaunchUserDataPath));
+      coldLaunchSamples.push(
+        await measureColdLaunch(
+          executablePath,
+          coldLaunchUserDataPath,
+          { allowLegacyWritingBridge: performanceOnly }
+        )
+      );
     }
     const launchPerformance = summarizeColdLaunchPerformance(
       coldLaunchPreparation,
