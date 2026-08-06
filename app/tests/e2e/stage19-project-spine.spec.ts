@@ -135,6 +135,124 @@ test('Ctrl+S saves editor prose that ends with an intentional trailing newline',
   }
 });
 
+test('cancelled project switch leaves the editor immediately editable', async ({ electronApp, page }) => {
+  const parentA = await mkdtemp(join(tmpdir(), 'black-skies-stage19-cancel-focus-a-'));
+  const parentB = await mkdtemp(join(tmpdir(), 'black-skies-stage19-cancel-focus-b-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    const projects = await writing.evaluate(async ({ parentAPath, parentBPath }) => {
+      const bridge = window.projectSpine!;
+      const createdA = await bridge.createProject({ parentPath: parentAPath, title: 'Cancel focus A', operationId: 'cancel-focus-create-a' });
+      if (!createdA.ok) throw new Error(createdA.error.message);
+      const pathA = createdA.snapshot.project!.path;
+      const currentA = await bridge.getSession();
+      const unit = await bridge.createUnit!({
+        projectId: currentA.project!.projectId,
+        projectPath: currentA.project!.path,
+        generation: currentA.generation,
+        operationId: 'cancel-focus-create-unit',
+        title: 'Cancel focus unit',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+      const createdB = await bridge.createProject({ parentPath: parentBPath, title: 'Cancel focus B', operationId: 'cancel-focus-create-b' });
+      if (!createdB.ok) throw new Error(createdB.error.message);
+      const pathB = createdB.snapshot.project!.path;
+      const reopenedA = await bridge.openProject({ path: pathA, operationId: 'cancel-focus-reopen-a', discardUnsaved: true });
+      if (!reopenedA.ok) throw new Error(reopenedA.error.message);
+      return { pathA, pathB };
+    }, { parentAPath: parentA, parentBPath: parentB });
+    await electronApp.evaluate(({ dialog }, targetPath) => {
+      dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
+    }, projects.pathB);
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Cancel focus unit' });
+    await editor.fill('Before cancelling the project switch');
+    const dialogPromise = new Promise<void>((resolve) => {
+      writing.once('dialog', (dialog) => {
+        void dialog.dismiss().then(() => resolve());
+      });
+    });
+    await writing.getByRole('button', { name: 'Open project…' }).click();
+    await dialogPromise;
+    await expect(writing.getByRole('alert')).toHaveText(/Project switch cancelled/);
+    await expect.poll(() => writing.evaluate(() => ({
+      hasFocus: document.hasFocus(),
+      activeLabel: document.activeElement?.getAttribute('aria-label') ?? null,
+    }))).toEqual({ hasFocus: true, activeLabel: 'Manuscript editor: Cancel focus unit' });
+    await writing.keyboard.type(' and this must work immediately');
+    await expect(editor).toContainText('and this must work immediately');
+
+    await electronApp.evaluate(({ dialog }, targetPath) => {
+      dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
+    }, projects.pathB);
+    const discardDialogPromise = new Promise<void>((resolve) => {
+      writing.once('dialog', (dialog) => {
+        void dialog.accept().then(() => resolve());
+      });
+    });
+    await writing.getByRole('button', { name: 'Open project…' }).click();
+    await discardDialogPromise;
+    await expect(writing.getByRole('heading', { name: 'Cancel focus B' })).toBeVisible();
+
+    const reopened = await writing.evaluate(async (targetPath) => {
+      return window.projectSpine!.openProject({
+        path: targetPath,
+        operationId: 'cancel-focus-direct-reopen-a',
+        discardUnsaved: false,
+      });
+    }, projects.pathA);
+    if (!reopened.ok) throw new Error(reopened.error.message);
+    await expect(writing.getByRole('heading', { name: 'Cancel focus A' })).toBeVisible();
+    await expect(writing.getByText('Editing is blocked')).toHaveCount(0);
+    await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Cancel focus unit' })).toBeEditable();
+  } finally {
+    await removeTemporaryDirectory(parentA);
+    await removeTemporaryDirectory(parentB);
+  }
+});
+
+test('switching back to a saved project does not create a recovery editing lock', async ({ electronApp, page }) => {
+  const parentA = await mkdtemp(join(tmpdir(), 'black-skies-stage19-round-trip-a-'));
+  const parentB = await mkdtemp(join(tmpdir(), 'black-skies-stage19-round-trip-b-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    const projects = await writing.evaluate(async ({ parentAPath, parentBPath }) => {
+      const bridge = window.projectSpine!;
+      const createdA = await bridge.createProject({ parentPath: parentAPath, title: 'Round trip A', operationId: 'round-trip-create-a' });
+      if (!createdA.ok) throw new Error(createdA.error.message);
+      const pathA = createdA.snapshot.project!.path;
+      const currentA = await bridge.getSession();
+      const unit = await bridge.createUnit!({
+        projectId: currentA.project!.projectId,
+        projectPath: currentA.project!.path,
+        generation: currentA.generation,
+        operationId: 'round-trip-create-unit',
+        title: 'Round trip unit',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+      const createdB = await bridge.createProject({ parentPath: parentBPath, title: 'Round trip B', operationId: 'round-trip-create-b' });
+      if (!createdB.ok) throw new Error(createdB.error.message);
+      const reopenedA = await bridge.openProject({ path: pathA, operationId: 'round-trip-reopen-a', discardUnsaved: true });
+      if (!reopenedA.ok) throw new Error(reopenedA.error.message);
+      return { pathA, pathB: createdB.snapshot.project!.path };
+    }, { parentAPath: parentA, parentBPath: parentB });
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Round trip unit' });
+    await editor.fill('Saved round-trip prose');
+    await writing.keyboard.press('Control+S');
+    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+
+    await electronApp.evaluate(({ dialog }, targetPath) => {
+      dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
+    }, projects.pathA);
+    await writing.getByRole('button', { name: 'Open project…' }).click();
+    await expect(writing.getByRole('heading', { name: 'Round trip A' })).toBeVisible();
+    await expect(writing.getByText('Editing is blocked')).toHaveCount(0);
+    await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Round trip unit' })).toBeEditable();
+  } finally {
+    await removeTemporaryDirectory(parentA);
+    await removeTemporaryDirectory(parentB);
+  }
+});
+
 test.describe('C1 unsaved close flow', () => {
   test.use({ skipPageCloseTeardown: true, skipFailureScreenshotAfterVerifiedExit: true });
 

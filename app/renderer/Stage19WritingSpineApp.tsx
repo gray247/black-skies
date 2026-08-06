@@ -880,7 +880,10 @@ export default function Stage19WritingSpineApp({
     if (!bridge) return;
     try {
       const selection = await bridge.chooseDirectory();
-      if (selection.canceled || !selection.path) return;
+      if (selection.canceled || !selection.path) {
+        void restoreWritingWindowFocus(bridge.focusWritingWindow);
+        return;
+      }
       await runLifecycleRequest((discardUnsaved) =>
         bridge.openProject({
           path: selection.path!,
@@ -902,7 +905,10 @@ export default function Stage19WritingSpineApp({
     }
     try {
       const selection = await bridge.chooseDirectory();
-      if (selection.canceled || !selection.path) return;
+      if (selection.canceled || !selection.path) {
+        void restoreWritingWindowFocus(bridge.focusWritingWindow);
+        return;
+      }
       await runLifecycleRequest((discardUnsaved) =>
         bridge.createProject({
           parentPath: selection.path!,

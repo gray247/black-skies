@@ -1395,6 +1395,7 @@ if (!hasSingleInstanceLock) {
           if (mainWindow.isMinimized()) mainWindow.restore();
           mainWindow.show();
           mainWindow.focus();
+          mainWindow.webContents.focus();
         },
       });
       registerAiCritiqueIpc({
