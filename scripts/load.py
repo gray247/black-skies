@@ -518,10 +518,9 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
         if base_ids:
             scene_plan = [base_ids[index % len(base_ids)] for index in range(planned_length)]
     else:
-        requested_scene_count = scene_count_arg or profile.scene_count
-        if requested_scene_count:
-            base_ids = smoke_runner.load_scene_ids(project_root, requested_scene_count)
-            scene_plan = [base_ids[index % len(base_ids)] for index in range(planned_length)]
+        requested_scene_count = scene_count_arg or profile.scene_count or planned_length
+        base_ids = smoke_runner.load_scene_ids(project_root, requested_scene_count)
+        scene_plan = [base_ids[index % len(base_ids)] for index in range(planned_length)]
 
     if profile.warmup_cycles:
         LOGGER.info("Running %s warmup cycle(s) without metrics.", profile.warmup_cycles)

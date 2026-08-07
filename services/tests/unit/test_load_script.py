@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
@@ -76,3 +77,64 @@ def test_load_service_warning_is_a_blocking_breach(load_script_module: ModuleTyp
     assert not load_script_module._service_warning_breaches(
         load_script_module.StartedServiceEvidence()
     )
+
+
+def test_load_profile_defaults_to_one_planned_scene_per_cycle(
+    load_script_module: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Concurrent synthetic workers must not default to the same scene files."""
+
+    requested_limits: list[int] = []
+    assigned_scene_ids: list[str] = []
+
+    def _load_scene_ids(project_root: Path, limit: int) -> list[str]:
+        assert project_root == tmp_path / "proj_load"
+        requested_limits.append(limit)
+        return [f"sc_{index:04d}" for index in range(1, limit + 1)]
+
+    async def _run_cycles(config, metrics=None) -> None:
+        del metrics
+        assigned_scene_ids.extend(config.scene_ids or ())
+
+    monkeypatch.setattr(
+        load_script_module.smoke_runner,
+        "resolve_project_base_dir",
+        lambda value: tmp_path,
+    )
+    monkeypatch.setattr(load_script_module.smoke_runner, "load_scene_ids", _load_scene_ids)
+    monkeypatch.setattr(load_script_module.smoke_runner, "run_cycles", _run_cycles)
+
+    profile = load_script_module.LoadProfile(
+        name="focused",
+        total_cycles=4,
+        concurrency=2,
+        timeout=45.0,
+        thresholds=load_script_module.Thresholds(
+            p95_ms=280.0,
+            p99_ms=320.0,
+            max_error_rate=0.0,
+            max_budget_usd=5.0,
+        ),
+    )
+    args = SimpleNamespace(
+        host="127.0.0.1",
+        port=8000,
+        project_id="proj_load",
+        project_base_dir=None,
+        scene_ids=None,
+        scene_count=None,
+        wizard_steps=None,
+    )
+
+    asyncio.run(
+        load_script_module.run_profile(
+            profile,
+            args,
+            load_script_module.LoadMetrics(),
+        )
+    )
+
+    assert requested_limits == [4]
+    assert assigned_scene_ids == ["sc_0001", "sc_0002", "sc_0003", "sc_0004"]
