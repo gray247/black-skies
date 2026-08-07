@@ -216,6 +216,28 @@ foreach ($file in $smoke.projectFiles) {
 }
 
 $receiptDocument = Get-Content -LiteralPath $receipt -Raw | ConvertFrom-Json
+$externalManifestPath = Join-Path $working "stage19-22-external-manifest.json"
+$lifecycleEvidencePath = Join-Path $working "stage19-22-lifecycle-evidence.json"
+$externalManifest = @(
+  Get-ChildItem -LiteralPath $smokeDirectory -Recurse -File |
+    Sort-Object FullName |
+    ForEach-Object {
+      [ordered]@{
+        path = [System.IO.Path]::GetRelativePath($smokeDirectory, $_.FullName).Replace("\", "/")
+        byteLength = $_.Length
+        sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+      }
+    }
+)
+Assert-Stage19 ($externalManifest.Count -gt 0) "External preservation manifest is empty."
+$externalManifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $externalManifestPath -Encoding utf8
+
+$reinstallProcess = Start-Process -FilePath $installer -ArgumentList @("/S", "/D=$installDirectory") -Wait -PassThru -WindowStyle Hidden
+Assert-Stage19 ($reinstallProcess.ExitCode -eq 0) "NSIS same-installer reinstall exited with code $($reinstallProcess.ExitCode)."
+Wait-PathState -LiteralPath $installedExecutable -Exists $true
+Wait-PathState -LiteralPath (Join-Path $installDirectory "resources\app.asar") -Exists $true
+Assert-Stage19 ((Get-AuthenticodeSignature -LiteralPath $installedExecutable).Status -eq "NotSigned") "Reinstalled executable signature truth is not NotSigned."
+
 $performanceReceipt = $smoke.performance
 if ($performanceReferenceRequested) {
   Assert-Stage19 ($null -ne $performanceReceipt.pairedReference) "Interleaved performance reference result was not produced."
@@ -249,8 +271,21 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   externalProjectPreserved = $true
   externalExportPreserved = $true
   uninstallRemovedApplication = $true
+  sameInstallerReinstallPassed = $true
   completedAtUtc = [DateTime]::UtcNow.ToString("o")
 })
 $receiptDocument | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $receipt -Encoding utf8
+
+[ordered]@{
+  schema = "black-skies.stage19-22.lifecycle-evidence.v1"
+  qualifiedCommit = $receiptDocument.qualifiedCommit
+  installedOffline = $true
+  representativeWorkloadPassed = $smoke.exactMarkdownMatched -eq $true
+  forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount
+  uninstallRemovedApplication = $true
+  externalDataPreserved = $true
+  sameInstallerReinstallPassed = $true
+  completedAtUtc = [DateTime]::UtcNow.ToString("o")
+} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $lifecycleEvidencePath -Encoding utf8
 
 Write-Host "STAGE19_INSTALLED_LIFECYCLE_PASS"

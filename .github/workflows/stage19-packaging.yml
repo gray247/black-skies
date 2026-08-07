@@ -65,8 +65,19 @@ jobs:
           ./scripts/stage19-installed-lifecycle.ps1 `
             -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
             -ReceiptPath ./app/release/stage19-package-receipt.json `
+            -WorkingRoot ./.tmp/stage19-22-lifecycle `
             -PerformanceReferenceExecutable $reference.executablePath `
             -PerformanceReferenceCommit $reference.sourceCandidate
+      - name: Verify receipt-bound installed candidate
+        shell: pwsh
+        run: |
+          node ./scripts/stage19-22-qualification-witness.mjs `
+            --receipt ./app/release/stage19-package-receipt.json `
+            --installer ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
+            --install-dir ./.tmp/stage19-22-lifecycle/installed `
+            --external-root ./.tmp/stage19-22-lifecycle/external-data `
+            --lifecycle-evidence ./.tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json `
+            --expected-manifest ./.tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
       - name: Upload qualified RC installer and receipt
         uses: actions/upload-artifact@v6
         with:
@@ -76,6 +87,8 @@ jobs:
           path: |
             app/release/BlackSkies-Setup-1.0.0-rc1.exe
             app/release/stage19-package-receipt.json
+            .tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json
+            .tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
       - name: Enforce foundation performance baseline
         run: pnpm foundation:performance -- --receipt app/release/stage19-package-receipt.json
       - name: Upload failure diagnostics
