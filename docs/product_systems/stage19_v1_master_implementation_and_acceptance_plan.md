@@ -41,7 +41,7 @@ Git status.
 | 19.19 | packaging and installation proof | stable runtime/regression and 19.18 | NSIS install/launch/save/reopen/export packaging checks pass |
 | 19.20 | packaged release-candidate acceptance and retesting | 19.18-19.19 | packaged RC acceptance matrix and defect retest cycle pass |
 | 19.21 | user/release/operator documentation | RC behavior fixed | support and release records match reality |
-| 19.22 | internal barebones V1.0 closure | all prior | ACTIVE: new exact candidate, Windows artifact/install proof, exact-SHA CI, and Jason PASS; no release action |
+| 19.22 | private internal V1.0 closure | all prior | CLOSED: exact candidate `675e5125`, Windows artifact/install proof, exact-SHA CI, and Jason `HUMAN PASS`; no public-distribution action |
 
 Dependency rules are binding: project identity precedes save; save precedes
 recovery; manuscript authority precedes export; core workflow precedes optional
@@ -106,15 +106,15 @@ checks, and passed a real installed-app Computer Use rehearsal. Its nine P1/P2
 documentation findings are closed. The truthful export-notice-lifetime
 observation was repaired and closed by Package `19.22`.
 
-Stage 19 remains open. Package `19.22`, **internal barebones V1.0 closure**,
-completed repository hardening and exact-candidate qualification at
-`3060c36448a946b1f2294575129abc42a12d98a9` is historical because it lacked
-the required receipt-bound qualification witness. A new candidate must pass
-the full ladder before V1 can close. Its four exact workflows,
-authoritative Windows artifact/install proof, performance budget, and Jason's
-verbatim internal-V1 PASS are recorded in the closure receipt. Public release
-is not authorized, and the closure created no tag, publication, signing
-request, release announcement, or alpha/beta claim.
+Stage 19 is closed. Package `19.22`, **private internal V1.0 closure**,
+qualified exact executable candidate
+`675e5125e533ca27000dc7cc4caf3d4386cc1771`. Its four exact-SHA workflows,
+authoritative Windows artifact/install proof, receipt-bound dynamic witness,
+performance budget, and Jason's `HUMAN PASS` are recorded in
+`stage19_package_19_22_closure.md`. The earlier `3060c36448a946b1f2294575129abc42a12d98a9`
+candidate is historical because it lacked that witness. V1 is the sole user's
+private development milestone: the closure created no public release, tag,
+publication, signing request, alpha/beta claim, or automatic V2/V3 start.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is
@@ -127,4 +127,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Package 19.22 active; Stage 19 and the internal V1 baseline remain open; public release is not authorized
+PZ_COMPLETE: Package 19.22 and the private V1 baseline are closed; public distribution is not authorized and later development requires separate authorization

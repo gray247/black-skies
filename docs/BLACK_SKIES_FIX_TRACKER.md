@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Package 19.22 foundation closure complete; future work requires new scope
+Status: Private V1.0 baseline complete through Package 19.22; future development requires new scope
 Last Reviewed: 2026-08-07
 
 ## Purpose
@@ -18,6 +18,32 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Package 19.22 Foundation Closure — 2026-08-07
+
+### Current exact closure
+
+The prior `3060c36448a946b1f2294575129abc42a12d98a9` closure entry below is
+superseded because it predates the receipt-bound Package 19.22 witness. Exact
+candidate `675e5125e533ca27000dc7cc4caf3d4386cc1771` passed Stage 19 run
+`31216657477`, Validation & Eval run `31216661060`, Security Audit run
+`31216663205`, and Windows Packaging Proof run `31216659293`, all at that
+same SHA. Windows artifact `9008970163` is named
+`black-skies-1.0.0-rc1-675e5125e533ca27000dc7cc4caf3d4386cc1771` and has
+archive digest `sha256:d24fbe80bbd3bc8a022a3e042cab0d1bee82019d0db283498a8fa13745c6b0a4`.
+
+The generated-receipt witness, unsigned package verifier, installed offline
+lifecycle, no-forbidden-descendant check, external-data-preserving uninstall,
+same-installer reinstall, and performance baseline all passed. Jason recorded
+`HUMAN PASS for candidate 675e5125e533ca27000dc7cc4caf3d4386cc1771.` No
+protected evidence was used. This closes `BS-19.22-P1-23`,
+`BS-19.22-P3-04`, and `BS-19.22-P3-24` for that exact candidate. Any changed
+candidate input or failed, skipped, retried, leaked, mismatched, or unavailable
+replacement evidence reopens Package 19.22.
+
+V1, V2, and V3 are private development milestones for the sole user. This
+closure creates no public distribution, tag, signing, publication, or automatic
+authority for a later development milestone.
+
+### Superseded closure evidence
 
 The exact candidate `3060c36448a946b1f2294575129abc42a12d98a9` passed the
 complete four-workflow ladder, authoritative Windows artifact and hash review,

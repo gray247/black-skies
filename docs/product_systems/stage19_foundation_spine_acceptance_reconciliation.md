@@ -9,11 +9,13 @@ scope. Later Stage 19 acceptance evidence may support the broader product
 claim, but does not rewrite or backdate the `19.5` record.
 
 This reconciliation is not retroactive manual acceptance, release readiness,
-or V1 closure. It cannot authorize a release, tag, signing, publication,
-alpha/beta activity, or a new product phase.
+or the cause of V1 closure. It cannot authorize a release, tag, signing,
+publication, alpha/beta activity, or a new product phase.
 
-Stage 19 and the internal V1 baseline remain open until Package `19.22` has a
-clean exact candidate, receipt-bound Windows artifact and installed-lifecycle
-evidence, exact-SHA CI, final human `PASS`, and a documentation-only closure
-state. Any missing, mismatched, protected, retried, skipped, or leaked evidence
-reopens Package `19.22`.
+Package `19.22` independently met those conditions with exact candidate
+`675e5125e533ca27000dc7cc4caf3d4386cc1771`, its receipt-bound Windows
+artifact and installed-lifecycle evidence, exact-SHA CI, and final human
+`PASS`. This reconciliation remains only a bounded prerequisite record; it
+neither backdates `19.5` nor supplies V1 closure authority. Any missing,
+mismatched, protected, retried, skipped, or leaked replacement evidence reopens
+Package `19.22`.

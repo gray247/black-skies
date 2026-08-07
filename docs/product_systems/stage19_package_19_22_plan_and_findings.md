@@ -2,15 +2,15 @@
 
 ## 1. Authority and outcome
 
-Package `19.22` is active as the bounded internal engineering baseline:
+Package `19.22` is closed as the bounded private internal engineering baseline:
 
 ```text
-PACKAGE_19_22: ACTIVE
-STAGE_19: OPEN
-INTERNAL_V1_BASELINE: NOT_YET_COMPLETE
+PACKAGE_19_22: CLOSED
+STAGE_19: CLOSED
+INTERNAL_V1_BASELINE: COMPLETE
 PUBLIC_RELEASE: NOT_AUTHORIZED
 ALPHA_OR_BETA: NOT_CLAIMED
-V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
+FUTURE_DEVELOPMENT_STAGE: REQUIRES_SEPARATE_AUTHORIZATION
 ```
 
 The accepted V1 product claim is limited to the two-window Windows writing
@@ -83,7 +83,7 @@ until one clean candidate satisfies the complete evidence ladder.
 | BS-19.22-P1-20 | P1 | The first exact-commit candidate built successfully but package verification rejected legitimate third-party JavaScript modules as credential material. | `pnpm --dir app run package:win` rejected Lezer `tokens.js`, `js-tokens`, and React `ReactPropTypesSecret.js`. The credential basename rule matched keyword substrings without distinguishing executable source from credential-like data/key files. | Yes. The packaging verifier is candidate-affecting under the Package 19.22 boundary, so the verifier repair requires a new exact commit and candidate qualification even though the first artifact bytes were valid. | Package `19.22`: retain `.env` rejection; restrict credential-name matching to delimited credential terms with data, certificate, or key extensions; add the exact third-party false positives as acceptance witnesses. | The focused verifier suite passes (`3/3`). The repaired verifier accepts the built ASAR with `2,571` entries, `2,334` integrity records, and zero forbidden paths while reporting both executable and installer `NotSigned`. New exact-commit rebuild and CI remain. | LOCALLY_CLOSED_PENDING_NEW_CANDIDATE. Reopen if a credential-like data/key file passes, an ordinary dependency source file is rejected, or the exact candidate reports any forbidden path. |
 | BS-19.22-P1-21 | P1 | The exact-commit Linux full unit inventory failed one recovery-context assertion although Windows passed. | CI run `30567954794`, job `90957091052`: the fixture supplied a Windows-form path on Linux, while the coordinator correctly returned its canonical `path.resolve` identity. The assertion compared canonical output with unnormalized fixture input. | No packaged input; test expectation only. | Package `19.22`: assert the coordinator's cross-platform canonical path contract explicitly without changing runtime normalization. | The focused coordinator suite passes (`12/12`) and app lint is clean. Exact-commit CI rerun remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on any platform-dependent identity assertion or mismatch between binding validation and returned recovery context. |
 | BS-19.22-P1-22 | P1 | The exact-commit Linux Playwright inventory observed enabled actions during the transition from no-project startup to automatic sample-project rehydration. | CI run `30568418898`, job `90958648413`: canary launch, fixture preparation, and `62` other tests passed; `startup_authority_contract` sampled the project-loaded marker once before the authority state settled, then asserted the earlier no-project branch against buttons already enabled by completed rehydration. | No packaged input; Electron contract test only. | Package `19.22`: use the suite's existing bounded authority-settlement helper before classifying the initial state, so the witness accepts either a stably disabled no-project state or completed project rehydration, never a mixed transition. | The complete focused startup-authority Electron suite passes `11/11` outside the nested sandbox with zero retries. Exact-commit Linux CI remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on any mixed startup classification, falsely enabled no-project action, or failure to enable actions after authoritative project/scene activation. |
-| BS-19.22-P1-23 | P1 | The prior closure named a candidate without the required receipt-bound 19.22 qualification witness. | Candidate `3060c36448a946b1f2294575129abc42a12d98a9` relied on the immutable hard-coded Package 19.20 witness instead of a witness consuming the generated receipt. | Yes. A new candidate must qualify. | Package `19.22`: preserve 19.20 evidence as historical and require the dynamic receipt-bound witness, exact-SHA CI, artifact, lifecycle, and final human receipt for one new candidate. | New witness and negative tests are present; clean-candidate evidence remains required. | OPEN_BLOCKED_BY_REQUIRED_EVIDENCE. Reopen if any receipt, artifact, lifecycle, candidate, or human judgment fact differs. |
+| BS-19.22-P1-23 | P1 | The prior closure named a candidate without the required receipt-bound 19.22 qualification witness. | Candidate `3060c36448a946b1f2294575129abc42a12d98a9` relied on the immutable hard-coded Package 19.20 witness instead of a witness consuming the generated receipt. | Yes. A new candidate qualified. | Package `19.22`: preserve 19.20 evidence as historical and require the dynamic receipt-bound witness, exact-SHA CI, artifact, lifecycle, and final human receipt for one new candidate. | Candidate `675e5125e533ca27000dc7cc4caf3d4386cc1771` passed the generated-receipt witness, four exact-SHA workflows, package/install lifecycle, and final human `PASS`; the current receipt is `stage19_package_19_22_closure.md`. | CLOSED_EXACT_CANDIDATE. Reopen if any receipt, artifact, lifecycle, candidate, or human judgment fact differs. |
 | BS-19.22-P3-24 | P3 | The prior notice-lifetime disposition named no approved future resolution stage. | The prior `Post-V1/V3` owner was undefined while the V3 program was not authorized. | Yes. This package resolves the limitation in runtime instead of deferring it. | Package `19.22`: close through the P3-04 repair and its regression coverage. | P3-04's exact-candidate runtime regression and installed artifact behavior are recorded in the closure receipt; no future stage is required for this defect. | CLOSED_EXACT_CANDIDATE. Reopen only if the export-notice invariant regresses. |
 
 ## 5. Exact candidate and installed evidence
@@ -141,12 +141,15 @@ commit is a documentation-and-tracker-only closure receipt after an exact
 
 ## 9. Closure
 
-Package `19.22` remains open. The prior `3060c36448a946b1f2294575129abc42a12d98a9`
-record is historical only. The new candidate must pass exact CI, Windows
-artifact, installed lifecycle, and final human PASS with the receipt-bound
-witness. Public release remains unauthorized.
+Package `19.22` is closed. The sole qualified executable candidate is
+`675e5125e533ca27000dc7cc4caf3d4386cc1771`; its exact CI, Windows artifact,
+receipt-bound installed lifecycle, and final human `PASS` are recorded in
+`stage19_package_19_22_closure.md`. The prior `3060c36448a946b1f2294575129abc42a12d98a9`
+record is historical only. Public distribution remains unauthorized, and a
+future private development milestone requires separate authority.
 
-`BS-19.22-P1-23` is open pending the new candidate. The Foundation Spine is
-only reconciled by `stage19_foundation_spine_acceptance_reconciliation.md` and
-does not provide retroactive manual acceptance, release readiness, or V1
-closure.
+`BS-19.22-P1-23` and `BS-19.22-P3-24` are closed for that exact candidate. The
+Foundation Spine is only reconciled by
+`stage19_foundation_spine_acceptance_reconciliation.md`; it does not provide
+retroactive manual acceptance or substitute for the exact Package `19.22`
+closure evidence.

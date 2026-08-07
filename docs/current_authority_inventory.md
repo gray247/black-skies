@@ -18,12 +18,13 @@ The inventory includes:
 - current user, support, security, developer, package, rollback, and UI
   guidance;
 - the current product-roadmap and truth-index entry points;
-- the Stage 19 scope, master plan, Package `19.22` ledger, Foundation Spine
-  acceptance reconciliation, and final handover; and
+- the Stage 19 scope, master plan, Package `19.22` ledger and closure receipt,
+  Foundation Spine acceptance reconciliation, and final handover; and
 - the internal build record retained under the filename `RELEASE.md`.
 
 Package closure records not listed here remain immutable historical receipts.
-They may prove a past decision but cannot override the current inventory.
+The listed Package `19.22` closure receipt is current authority for the
+bounded private V1 milestone only.
 Product dossiers remain doctrine for the concepts they own; they do not state
 Package `19.22`, artifact, or public-release status unless promoted into this
 inventory.
@@ -43,18 +44,19 @@ the owning finding reopens.
 
 ## Milestone language
 
-The bounded status during this package is:
+The current bounded status is:
 
 ```text
-PACKAGE_19_22: ACTIVE
-STAGE_19: OPEN
-INTERNAL_V1_BASELINE: NOT_YET_COMPLETE
+PACKAGE_19_22: CLOSED
+STAGE_19: CLOSED
+INTERNAL_V1_BASELINE: COMPLETE
 PUBLIC_RELEASE: NOT_AUTHORIZED
 ALPHA_OR_BETA: NOT_CLAIMED
-V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
+FUTURE_DEVELOPMENT_STAGE: REQUIRES_SEPARATE_AUTHORIZATION
 ```
 
-The prior Package `19.22` closure receipt is historical only: its candidate
-predated the receipt-bound qualification witness now required for current
-authority. A new clean candidate and final human PASS are required; public
-release authority did not change.
+The qualified binary is candidate `675e5125e533ca27000dc7cc4caf3d4386cc1771`.
+The documentation-only closure state is the next commit containing the current
+closure receipt. V1, V2, and V3 are private development milestones for the
+sole user; this record grants no public-distribution authority and does not
+automatically begin a later milestone.

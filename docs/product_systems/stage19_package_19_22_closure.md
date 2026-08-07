@@ -1,5 +1,76 @@
 # Package 19.22 Internal V1 Closure Receipt
 
+## Current binding result
+
+Status: `CURRENT_AUTHORITY` â€” private V1 development milestone only
+
+The sole qualified executable candidate (**C**) is:
+
+```text
+675e5125e533ca27000dc7cc4caf3d4386cc1771
+```
+
+The documentation-only closure state (**D**) is the commit that first contains
+this current receipt and its synchronized authority updates. It changes no
+application, test, workflow, dependency, manifest, resource, or packaging
+input. `C..D` must therefore contain documentation and tracker changes only.
+
+Jason's binding final judgment, recorded on 2026-08-07, is:
+
+```text
+HUMAN PASS for candidate 675e5125e533ca27000dc7cc4caf3d4386cc1771.
+```
+
+This passes the bounded private V1 baseline. V1, V2, and V3 are development
+milestones for the sole user, not public-release labels. This receipt grants no
+public distribution, tag, signing, publication, alpha/beta claim, or automatic
+authority to begin a later development milestone.
+
+## Exact qualification evidence for C
+
+All four workflows reported `success` for the same full candidate SHA:
+
+| Gate | Workflow run | Exact job or artifact | Result |
+| --- | ---: | --- | --- |
+| Stage 19 Fixed Regression Gate | `31216657477` | job `92991650999` | success |
+| Validation & Eval Harness | `31216661060` | all 12 jobs succeeded | success |
+| Security Audit | `31216663205` | all 4 jobs succeeded | success |
+| Stage 19 Windows Packaging Proof | `31216659293` | job `92991655669`; artifact `9008970163` | success |
+
+Windows run `31216659293` passed the fixed Stage 19 regression, unsigned NSIS
+installer build and verifier, paired reference, offline installed lifecycle,
+uninstall preservation, same-installer reinstall, receipt-bound candidate
+witness, artifact upload, and foundation performance baseline. Its artifact is
+named `black-skies-1.0.0-rc1-675e5125e533ca27000dc7cc4caf3d4386cc1771` and
+has GitHub archive digest
+`sha256:d24fbe80bbd3bc8a022a3e042cab0d1bee82019d0db283498a8fa13745c6b0a4`.
+The generated receipt, verified in that run, bound the candidate SHA, unsigned
+signature status, installer/executable/ASAR identities, offline lifecycle, no
+forbidden runtime descendants, external-data preservation, and reinstall.
+
+No protected evidence was used. A failed, skipped, retried, leaked, mismatched,
+or unavailable replacement receipt reopens Package `19.22`.
+
+## Finding disposition for C
+
+`BS-19.22-P1-23` is closed by the receipt-bound dynamic witness and the exact
+candidate ladder. `BS-19.22-P3-24` is closed by the project-scoped export
+notice repair: changing authoritative project identity clears the notice, and
+delayed completion from a no-longer-active project is ignored. The Foundation
+Spine `19.5` reconciliation remains a narrow, non-retroactive prerequisite
+record and did not supply this closure authority.
+
+```text
+PACKAGE_19_22: CLOSED
+STAGE_19: CLOSED
+INTERNAL_V1_BASELINE: COMPLETE
+PUBLIC_RELEASE: NOT_AUTHORIZED
+ALPHA_OR_BETA: NOT_CLAIMED
+FUTURE_DEVELOPMENT_STAGE: REQUIRES_SEPARATE_AUTHORIZATION
+```
+
+## Superseded historical receipt
+
 > Superseded: the candidate recorded below predates the required receipt-bound
 > Package 19.22 qualification witness. This document is historical evidence
 > only and cannot close Stage 19 or the internal V1 baseline.

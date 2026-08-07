@@ -18,7 +18,7 @@ Package 19.21:
 Package 19.22:
   CLOSED — INTERNAL V1 BASELINE COMPLETE — PUBLIC RELEASE NOT AUTHORIZED
 Package 19.22 exact candidate:
-  3060c36448a946b1f2294575129abc42a12d98a9
+  675e5125e533ca27000dc7cc4caf3d4386cc1771
 Package 19.22 closure receipt:
   docs/product_systems/stage19_package_19_22_closure.md
 protected evidence:
@@ -26,7 +26,8 @@ protected evidence:
 ```
 
 The authoritative Package 19.22 closure is
-`docs/product_systems/stage19_package_19_22_closure.md`.
+`docs/product_systems/stage19_package_19_22_closure.md`. The earlier
+`3060c36448a946b1f2294575129abc42a12d98a9` claim is superseded history.
 
 ## 2. Accepted packaged candidate
 
@@ -172,6 +173,13 @@ Package `19.21` defect, correct the documentation or product only within
 authority, and rerun the affected path.
 
 ## 6. Package 19.22 internal-closure result
+
+> Current result: exact candidate `675e5125e533ca27000dc7cc4caf3d4386cc1771`
+> is the only qualified executable. It passed all four exact-SHA workflows,
+> including the receipt-bound Windows package/lifecycle proof, and Jason
+> recorded `HUMAN PASS`. The prior `3060c36448a946b1f2294575129abc42a12d98a9`
+> detail in this legacy handover section is superseded historical evidence;
+> `stage19_package_19_22_closure.md` controls current closure status.
 
 Package `19.22` was the final internal barebones V1.0 closure boundary. The
 required evidence was prepared, the exact candidate was qualified, and Jason

@@ -11,11 +11,12 @@ Stage 19 and do not prove V1.0.
 This scope lock authorizes planning and selection only. Each implementation
 package still requires a separate bounded authorization.
 
-Closure status: Stage 19 and the internal V1 baseline are complete through
-Package `19.22`, exact candidate
-`3060c36448a946b1f2294575129abc42a12d98a9`; see
-`stage19_package_19_22_closure.md`. This does not authorize a public release,
-tag, signing, or publication.
+Closure status: Stage 19 and the private internal V1 baseline are complete
+through Package `19.22`, exact executable candidate
+`675e5125e533ca27000dc7cc4caf3d4386cc1771`; see
+`stage19_package_19_22_closure.md`. V1, V2, and V3 are the sole user's
+development milestones. This does not authorize public distribution, a tag,
+signing, or publication, and it does not automatically begin a later milestone.
 
 ## 2. Minimum honest V1.0 promise
 
@@ -128,4 +129,4 @@ honest recovery and known limitations, internal-build documentation, a clean
 synchronized repository, version `1.0.0-rc1` without a tag, and Jason's exact
 internal-milestone judgment.
 
-PZ_CONTINUE: Black Skies V1.0 scope locked for Stage 19 planning; runtime continuation still requires separate package authorization
+PZ_COMPLETE: private Black Skies V1.0 baseline closed through Package 19.22; any later development milestone requires separate authorization
