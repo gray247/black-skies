@@ -410,7 +410,7 @@ def derive_accept_unit_cost(
                     "received_draft_id": request.draft_id,
                 },
             )
-    else:
+    elif not allow_e2e_synthetic_mode():
         diagnostics.log(
             project_root,
             code="INTERNAL",

@@ -2425,12 +2425,24 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
     def _forbid_budget_lock(*args: Any, **kwargs: Any) -> None:
         raise AssertionError("synthetic accepts must not acquire the project budget lock")
 
+    def _capture_diagnostic(
+        self: DiagnosticLogger,
+        project_root: Path,
+        *,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+    ) -> Path:
+        recorded.setdefault("diagnostics", []).append(message)
+        return project_root / "history" / "diagnostics" / "captured.json"
+
     monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
     monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
     monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _write_scene)
     monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
     monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
     monkeypatch.setattr(draft_accept_module, "edit_project_budget_state", _forbid_budget_lock)
+    monkeypatch.setattr(DiagnosticLogger, "log", _capture_diagnostic)
 
     payload = {
         "project_id": project_id,
@@ -2456,6 +2468,9 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
     assert recorded["scene_durable"] is False
     assert recorded["snapshot_durable"] is False
     assert recorded["budget_durable"] is False
+    assert "Missing cached generate response; recomputing cost." not in recorded.get(
+        "diagnostics", []
+    )
 
 
 def test_draft_accept_snapshot_conflict(
