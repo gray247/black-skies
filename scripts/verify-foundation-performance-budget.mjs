@@ -49,7 +49,7 @@ try {
   invariant(receipt.installedLifecycle?.forbiddenRuntimeProcessCount === 0, 'Installed lifecycle found forbidden runtime processes.');
   invariant(receipt.installedLifecycle?.zeroSurvivorProcessCount === 0, 'Installed lifecycle left owned processes after teardown.');
   const candidateColdLaunch = receipt.installedLifecycle?.performance;
-  invariant(budget.measurementProtocol === 'paired-main-process-monotonic-two-window-median-v4', 'Performance budget measurement protocol is invalid.');
+  invariant(budget.measurementProtocol === 'interleaved-main-process-monotonic-two-window-median-v5', 'Performance budget measurement protocol is invalid.');
   invariant(candidateColdLaunch?.coldLaunchProtocol === budget.measurementProtocol, 'Receipt measurement protocol does not match the governed performance budget.');
   assertColdLaunchMeasurement(candidateColdLaunch, 'Candidate cold-launch');
   const pairedReference = candidateColdLaunch?.pairedReference;

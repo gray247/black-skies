@@ -1,8 +1,9 @@
 {
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
-  "measurementProtocol": "paired-main-process-monotonic-two-window-median-v4",
-  "baseline": {
+  "measurementProtocol": "interleaved-main-process-monotonic-two-window-median-v5",
+  "baseline": null,
+  "historicalBaseline": {
     "sourceCandidate": "38eb5bc77bc27f8debee23f6807f96b9229ec1d0",
     "workflowRunId": 30953780486,
     "artifactId": 8910378110,
@@ -46,5 +47,5 @@
       }
     }
   },
-  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches for both the candidate and a clean unpacked reference built from the same exact source when baseline is null. Later candidates build the recorded exact reference source in the same Windows job. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. The governed startup value is the candidate median divided by the paired reference median from that same runner. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. Package size and steady-state memory remain absolute measurements. Missing, unverified, non-exact, or nonconforming measurements fail closed."
+  "baselineRule": "The first reviewed exact-candidate Windows receipt establishes the baseline only after one complete, unmeasured prepared-profile lifecycle and exactly five fully closed process-cold launches for both the candidate and a clean unpacked reference built from the same exact source when baseline is null. Candidate and reference launches are interleaved in one controlled smoke process so host load and runner drift affect both measurements. Later candidates build the recorded exact reference source in the same Windows job. The metric comes only from the qualification-only main-process monotonic probe, from process entry through both windows being shown; Playwright readiness time is recorded separately but never scored. The governed startup value is the candidate median divided by the interleaved reference median from that same runner. Every preparation and measured launch must prove two visible sandboxed windows and zero-survivor teardown; no sample may be retried or discarded. Package size and steady-state memory remain absolute measurements. Missing, unverified, non-exact, or nonconforming measurements fail closed."
 }

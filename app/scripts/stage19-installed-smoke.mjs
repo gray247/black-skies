@@ -30,7 +30,7 @@ const expectedMarkdown = [
 ].join("\n");
 const representativeUnitCount = 100;
 const coldLaunchSampleCount = 5;
-const coldLaunchProtocol = "paired-main-process-monotonic-two-window-median-v4";
+const coldLaunchProtocol = "interleaved-main-process-monotonic-two-window-median-v5";
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -54,6 +54,11 @@ function requireValue(flag) {
   const value = index >= 0 ? process.argv[index + 1] : undefined;
   if (!value) fail(`Missing ${flag}.`);
   return path.resolve(value);
+}
+
+function optionalValue(flag) {
+  const index = process.argv.indexOf(flag);
+  return index >= 0 ? path.resolve(process.argv[index + 1]) : null;
 }
 
 function assert(condition, message) {
@@ -574,6 +579,14 @@ async function main() {
   const executablePath = requireValue("--executable");
   const smokeRoot = requireValue("--root");
   const resultPath = requireValue("--result");
+  const pairedReferenceExecutable = optionalValue("--paired-reference-executable");
+  const pairedReferenceCommit = process.argv.includes("--paired-reference-commit")
+    ? process.argv[process.argv.indexOf("--paired-reference-commit") + 1]
+    : null;
+  assert(
+    !pairedReferenceExecutable || /^[0-9a-f]{40}$/iu.test(pairedReferenceCommit ?? ""),
+    "Paired reference commit must be a full SHA when a paired reference executable is provided."
+  );
   const runRepresentative = process.argv.includes("--representative");
   const performanceOnly = process.argv.includes("--performance-only");
   assert(existsSync(executablePath), "Installed executable does not exist.");
@@ -600,20 +613,79 @@ async function main() {
       coldLaunchUserDataPath,
       { allowLegacyWritingBridge: performanceOnly }
     );
+    let referenceLaunchPerformance = null;
+    let pairedReference = null;
+    let referenceColdLaunchPreparation = null;
+    const referenceColdLaunchSamples = [];
     const coldLaunchSamples = [];
-    for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
-      coldLaunchSamples.push(
-        await measureColdLaunch(
-          executablePath,
-          coldLaunchUserDataPath,
-          { allowLegacyWritingBridge: performanceOnly }
-        )
+    if (pairedReferenceExecutable) {
+      const referenceSmokeRoot = path.join(smokeRoot, "paired-reference");
+      referenceColdLaunchPreparation = await measureColdLaunch(
+        pairedReferenceExecutable,
+        path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
+        { allowLegacyWritingBridge: true }
       );
+      for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
+        coldLaunchSamples.push(
+          await measureColdLaunch(
+            executablePath,
+            coldLaunchUserDataPath,
+            { allowLegacyWritingBridge: performanceOnly }
+          )
+        );
+        referenceColdLaunchSamples.push(
+          await measureColdLaunch(
+            pairedReferenceExecutable,
+            path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
+            { allowLegacyWritingBridge: true }
+          )
+        );
+      }
+      referenceLaunchPerformance = summarizeColdLaunchPerformance(
+        referenceColdLaunchPreparation,
+        referenceColdLaunchSamples
+      );
+      pairedReference = {
+        sourceCandidate: pairedReferenceCommit,
+        performance: referenceLaunchPerformance,
+        candidateToReferenceRatio: 0
+      };
+      const referenceMeasurements = [
+        referenceColdLaunchPreparation,
+        ...referenceColdLaunchSamples
+      ];
+      assert(
+        referenceMeasurements.every((sample) => sample.isPackaged),
+        "Paired reference samples did not prove packaged runtime truth."
+      );
+      assert(
+        referenceMeasurements.every((sample) => sample.windowCount === 2 && sample.sandboxedWindowCount === 2),
+        "Paired reference samples did not prove two sandboxed windows."
+      );
+      assert(
+        referenceMeasurements.every((sample) => sample.forbiddenRuntimeProcessCount === 0),
+        "Paired reference samples found a forbidden runtime process."
+      );
+    } else {
+      for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
+        coldLaunchSamples.push(
+          await measureColdLaunch(
+            executablePath,
+            coldLaunchUserDataPath,
+            { allowLegacyWritingBridge: performanceOnly }
+          )
+        );
+      }
     }
     const launchPerformance = summarizeColdLaunchPerformance(
       coldLaunchPreparation,
       coldLaunchSamples
     );
+    if (pairedReference) {
+      pairedReference.candidateToReferenceRatio =
+        launchPerformance.coldLaunchDurationMs / pairedReference.performance.coldLaunchDurationMs;
+      launchPerformance.pairedReference = pairedReference;
+    }
     assert(
       coldLaunchSamples.every((sample) => sample.isPackaged),
       "Cold-launch samples did not prove packaged runtime truth."
