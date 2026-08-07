@@ -30,6 +30,13 @@ same SHA. Windows artifact `9008970163` is named
 `black-skies-1.0.0-rc1-675e5125e533ca27000dc7cc4caf3d4386cc1771` and has
 archive digest `sha256:d24fbe80bbd3bc8a022a3e042cab0d1bee82019d0db283498a8fa13745c6b0a4`.
 
+The first documentation-only closure commit, `97c6644bb061ade42a23aa70446f39f2932c0518`,
+failed exact-SHA Validation & Eval run `31218885890` only because it replaced
+the governing test's required `public release ... not authorized` wording with
+`public distribution`. No executable, dependency, package, workflow, test, or
+configuration input changed. This record restores the required wording before
+the final documentation-only closure revision; the failed run is not retried.
+
 The generated-receipt witness, unsigned package verifier, installed offline
 lifecycle, no-forbidden-descendant check, external-data-preserving uninstall,
 same-installer reinstall, and performance baseline all passed. Jason recorded

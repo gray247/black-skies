@@ -113,8 +113,9 @@ authoritative Windows artifact/install proof, receipt-bound dynamic witness,
 performance budget, and Jason's `HUMAN PASS` are recorded in
 `stage19_package_19_22_closure.md`. The earlier `3060c36448a946b1f2294575129abc42a12d98a9`
 candidate is historical because it lacked that witness. V1 is the sole user's
-private development milestone: the closure created no public release, tag,
-publication, signing request, alpha/beta claim, or automatic V2/V3 start.
+private development milestone: public release is not authorized; the closure
+created no public release, tag, publication, signing request, alpha/beta claim,
+or automatic V2/V3 start.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is

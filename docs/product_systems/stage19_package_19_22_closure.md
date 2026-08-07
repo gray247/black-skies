@@ -10,10 +10,14 @@ The sole qualified executable candidate (**C**) is:
 675e5125e533ca27000dc7cc4caf3d4386cc1771
 ```
 
-The documentation-only closure state (**D**) is the commit that first contains
-this current receipt and its synchronized authority updates. It changes no
-application, test, workflow, dependency, manifest, resource, or packaging
-input. `C..D` must therefore contain documentation and tracker changes only.
+The final documentation-only closure state (**D**) is the follow-up commit
+after the invalidated documentation-only record
+`97c6644bb061ade42a23aa70446f39f2932c0518`. That record failed its exact-SHA
+validation only because it omitted the governing phrase `public release is not
+authorized`; no executable input changed and the failure is not retried. `D`
+changes no application, test, workflow, dependency, manifest, resource, or
+packaging input. `C..D` must therefore contain documentation and tracker
+changes only.
 
 Jason's binding final judgment, recorded on 2026-08-07, is:
 
