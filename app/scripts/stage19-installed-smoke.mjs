@@ -187,6 +187,15 @@ function survivingOwnedProcesses(ownedProcesses) {
   );
 }
 
+function ownedProcessIdsForExecutable(rootPid, executablePath) {
+  const packageDirectory = path.dirname(executablePath).toLowerCase();
+  const descendants = processTree(rootPid).filter((entry) => {
+    const childPath = entry.executablePath?.toLowerCase();
+    return childPath && (childPath === executablePath.toLowerCase() || childPath.startsWith(`${packageDirectory}\\`));
+  });
+  return [rootPid, ...descendants.map((entry) => entry.pid)];
+}
+
 async function identifyWindows(application) {
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
@@ -535,7 +544,7 @@ async function measureColdLaunch(
     const rootPid = launched.application.process()?.pid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
     const processEntries = processTree(rootPid);
-    const ownedProcessIds = [rootPid, ...processEntries.map((entry) => entry.pid)];
+    const ownedProcessIds = ownedProcessIdsForExecutable(rootPid, executablePath);
     const forbiddenProcesses = processEntries.filter((entry) =>
       /^(?:python(?:3)?|node)(?:\.exe)?$/iu.test(entry.name)
     );
@@ -561,7 +570,7 @@ async function measureColdLaunch(
       try {
         const rootPid = launched.application.process()?.pid;
         const ownedProcessIds = Number.isInteger(rootPid)
-          ? [rootPid, ...processTree(rootPid).map((entry) => entry.pid)]
+          ? ownedProcessIdsForExecutable(rootPid, executablePath)
           : [];
         await closeClean(launched.application, ownedProcessIds);
       } catch {
