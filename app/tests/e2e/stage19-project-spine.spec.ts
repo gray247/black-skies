@@ -166,13 +166,10 @@ test('cancelled project switch leaves the editor immediately editable', async ({
     }, projects.pathB);
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Cancel focus unit' });
     await editor.fill('Before cancelling the project switch');
-    const dialogPromise = new Promise<void>((resolve) => {
-      writing.once('dialog', (dialog) => {
-        void dialog.dismiss().then(() => resolve());
-      });
-    });
     await writing.getByRole('button', { name: 'Open project…' }).click();
-    await dialogPromise;
+    const switchDialog = writing.getByRole('dialog', { name: 'Unsaved manuscript changes' });
+    await expect(switchDialog).toBeVisible();
+    await switchDialog.getByRole('button', { name: 'Continue editing' }).click();
     await expect(writing.getByRole('alert')).toHaveText(/Project switch cancelled/);
     await expect.poll(() => writing.evaluate(() => ({
       hasFocus: document.hasFocus(),
@@ -184,13 +181,10 @@ test('cancelled project switch leaves the editor immediately editable', async ({
     await electronApp.evaluate(({ dialog }, targetPath) => {
       dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
     }, projects.pathB);
-    const discardDialogPromise = new Promise<void>((resolve) => {
-      writing.once('dialog', (dialog) => {
-        void dialog.accept().then(() => resolve());
-      });
-    });
     await writing.getByRole('button', { name: 'Open project…' }).click();
-    await discardDialogPromise;
+    await writing.getByRole('dialog', { name: 'Unsaved manuscript changes' })
+      .getByRole('button', { name: 'Discard changes' })
+      .click();
     await expect(writing.getByRole('heading', { name: 'Cancel focus B' })).toBeVisible();
 
     const reopened = await writing.evaluate(async (targetPath) => {

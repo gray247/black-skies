@@ -340,6 +340,72 @@ export function CloseConfirmationDialog({
   );
 }
 
+interface ProjectSwitchConfirmationDialogProps {
+  readonly open: boolean;
+  readonly continueEditing: () => void;
+  readonly discardChanges: () => void;
+}
+
+export function ProjectSwitchConfirmationDialog({
+  open,
+  continueEditing,
+  discardChanges,
+}: ProjectSwitchConfirmationDialogProps): JSX.Element | null {
+  const continueEditingRef = useRef<HTMLButtonElement>(null);
+  const discardChangesRef = useRef<HTMLButtonElement>(null);
+  const continueEditingCallbackRef = useRef(continueEditing);
+  continueEditingCallbackRef.current = continueEditing;
+
+  useEffect(() => {
+    if (!open) return;
+    continueEditingRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        continueEditingCallbackRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      event.preventDefault();
+      (event.shiftKey ? discardChangesRef : continueEditingRef).current?.focus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      focusWritingEditor();
+      window.setTimeout(focusWritingEditor, 0);
+    };
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="stage19-close-confirmation" role="presentation">
+      <div className="stage19-close-confirmation__backdrop" aria-hidden="true" />
+      <section
+        className="stage19-close-confirmation__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="stage19-project-switch-title"
+        aria-describedby="stage19-project-switch-description"
+      >
+        <h2 id="stage19-project-switch-title">Unsaved manuscript changes</h2>
+        <p id="stage19-project-switch-description">
+          Discard your unsaved changes and switch projects, or continue editing the current project.
+        </p>
+        <div className="stage19-close-confirmation__actions">
+          <button ref={continueEditingRef} type="button" onClick={continueEditing}>
+            Continue editing
+          </button>
+          <button ref={discardChangesRef} type="button" onClick={discardChanges}>
+            Discard changes
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function sameCloseConfirmationRequest(
   left: ProjectSpineCloseConfirmationRequest,
   right: ProjectSpineCloseConfirmationRequest,
@@ -463,6 +529,8 @@ export default function Stage19WritingSpineApp({
   const [newUnitTitle, setNewUnitTitle] = useState('');
   const [renameTitle, setRenameTitle] = useState('');
   const [buffers, setBuffers] = useState<Record<string, string>>({});
+  const [projectSwitchConfirmationOpen, setProjectSwitchConfirmationOpen] = useState(false);
+  const projectSwitchDecisionRef = useRef<((discardChanges: boolean) => void) | null>(null);
   const [recoveryDecisionUnitId, setRecoveryDecisionUnitId] = useState<string | null>(null);
   const [aiSelection, setAiSelection] = useState<DraftEditorSelectionEvidence | null>(null);
   const [aiCredential, setAiCredential] = useState('');
@@ -819,6 +887,25 @@ export default function Stage19WritingSpineApp({
     const results = await Promise.all([...unitIds].map((unitId) => flushRecoveryCheckpoint(unitId)));
     return results.every(Boolean);
   }, [flushRecoveryCheckpoint]);
+
+  const requestProjectSwitchDecision = useCallback((): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
+      projectSwitchDecisionRef.current = resolve;
+      setProjectSwitchConfirmationOpen(true);
+    });
+  }, []);
+
+  const resolveProjectSwitchDecision = useCallback((discardChanges: boolean): void => {
+    const resolve = projectSwitchDecisionRef.current;
+    projectSwitchDecisionRef.current = null;
+    setProjectSwitchConfirmationOpen(false);
+    resolve?.(discardChanges);
+  }, []);
+
+  useEffect(() => () => {
+    projectSwitchDecisionRef.current?.(false);
+    projectSwitchDecisionRef.current = null;
+  }, []);
   flushBeforeCloseResponseRef.current = async () => {
     await flushAllRecoveryCheckpoints();
   };
@@ -842,29 +929,21 @@ export default function Stage19WritingSpineApp({
       await flushAllRecoveryCheckpoints();
       let discardUnsaved = false;
       if (hasLocalUnsaved || snapshotRef.current.saveState.status === 'save-failed') {
-        const discard = window.confirm(
-          'This project has unsaved manuscript changes. Discard them and switch projects?',
-        );
+        const discard = await requestProjectSwitchDecision();
         if (!discard) {
           setNotice('Project switch cancelled; unsaved work was preserved.');
-          void restoreWritingWindowFocus(bridge?.focusWritingWindow);
           return;
         }
-        void restoreWritingWindowFocus(bridge?.focusWritingWindow);
         discardUnsaved = true;
       }
       try {
         let result = await request(discardUnsaved);
         if (result.ok === false && result.error.code === 'UNSAVED_CHANGES' && !discardUnsaved) {
-          const discard = window.confirm(
-            'This project has unsaved manuscript changes. Discard them and switch projects?',
-          );
+          const discard = await requestProjectSwitchDecision();
           if (!discard) {
             setNotice('Project switch cancelled; unsaved work was preserved.');
-            void restoreWritingWindowFocus(bridge?.focusWritingWindow);
             return;
           }
-          void restoreWritingWindowFocus(bridge?.focusWritingWindow);
           result = await request(true);
         }
         applySnapshot(result.snapshot);
@@ -873,7 +952,7 @@ export default function Stage19WritingSpineApp({
         setNotice('The project operation could not reach the application service. Your current work was preserved; try again.');
       }
     },
-    [applySnapshot, bridge, flushAllRecoveryCheckpoints, hasLocalUnsaved],
+    [applySnapshot, flushAllRecoveryCheckpoints, hasLocalUnsaved, requestProjectSwitchDecision],
   );
 
   const handleOpenProject = useCallback(async () => {
@@ -1906,6 +1985,11 @@ export default function Stage19WritingSpineApp({
         </div>
       )}
       <CloseConfirmationDialog windowRole={windowRole} {...closeConfirmation} />
+      <ProjectSwitchConfirmationDialog
+        open={projectSwitchConfirmationOpen}
+        continueEditing={() => resolveProjectSwitchDecision(false)}
+        discardChanges={() => resolveProjectSwitchDecision(true)}
+      />
     </main>
   );
 }

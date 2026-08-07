@@ -1723,8 +1723,6 @@ describe('Stage19WritingSpineApp', () => {
             snapshot: harness.current,
           },
     );
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const focus = vi.spyOn(window, 'focus').mockImplementation(() => undefined);
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
     const openButton = await screen.findByRole('button', { name: 'Open project…' });
@@ -1733,7 +1731,9 @@ describe('Stage19WritingSpineApp', () => {
       await user.click(openButton);
     });
 
-    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog', { name: 'Unsaved manuscript changes' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Discard changes' }));
+
     expect(harness.bridge.openProject).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ path: 'C:\\projects\\b', discardUnsaved: false }),
@@ -1743,9 +1743,6 @@ describe('Stage19WritingSpineApp', () => {
       expect.objectContaining({ path: 'C:\\projects\\b', discardUnsaved: true }),
     );
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
-    await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
-    confirm.mockRestore();
-    focus.mockRestore();
   });
 
   it('restores Writing Studio focus when a dirty project switch is cancelled', async () => {
@@ -1757,21 +1754,17 @@ describe('Stage19WritingSpineApp', () => {
       canceled: false,
       path: 'C:\\projects\\b',
     });
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    const focus = vi.spyOn(window, 'focus').mockImplementation(() => undefined);
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
 
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     fireEvent.click(await screen.findByRole('button', { name: /Open project/ }));
 
-    await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
+    const continueEditing = await screen.findByRole('button', { name: 'Continue editing' });
+    expect(continueEditing).toHaveFocus();
+    fireEvent.click(continueEditing);
     await waitFor(() => expect(document.activeElement).toBe(editor));
-    expect(harness.bridge.focusWritingWindow).toHaveBeenCalledTimes(1);
-    expect(confirm).toHaveBeenCalledTimes(1);
     expect(harness.bridge.openProject).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Project switch cancelled');
-    confirm.mockRestore();
-    focus.mockRestore();
   });
 
   it('clears project-bound buffers when a new project generation arrives', async () => {
