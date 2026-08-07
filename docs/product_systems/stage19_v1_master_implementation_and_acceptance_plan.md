@@ -41,7 +41,7 @@ Git status.
 | 19.19 | packaging and installation proof | stable runtime/regression and 19.18 | NSIS install/launch/save/reopen/export packaging checks pass |
 | 19.20 | packaged release-candidate acceptance and retesting | 19.18-19.19 | packaged RC acceptance matrix and defect retest cycle pass |
 | 19.21 | user/release/operator documentation | RC behavior fixed | support and release records match reality |
-| 19.22 | internal barebones V1.0 closure | all prior | CLOSED: exact candidate, Windows artifact/install proof, four CI runs, Jason core-writing check; no release action |
+| 19.22 | internal barebones V1.0 closure | all prior | ACTIVE: new exact candidate, Windows artifact/install proof, exact-SHA CI, and Jason PASS; no release action |
 
 Dependency rules are binding: project identity precedes save; save precedes
 recovery; manuscript authority precedes export; core workflow precedes optional
@@ -106,9 +106,11 @@ checks, and passed a real installed-app Computer Use rehearsal. Its nine P1/P2
 documentation findings are closed. The truthful export-notice-lifetime
 observation was repaired and closed by Package `19.22`.
 
-Stage 19 is closed. Package `19.22`, **internal barebones V1.0 closure**,
+Stage 19 remains open. Package `19.22`, **internal barebones V1.0 closure**,
 completed repository hardening and exact-candidate qualification at
-`3060c36448a946b1f2294575129abc42a12d98a9`. Its four exact workflows,
+`3060c36448a946b1f2294575129abc42a12d98a9` is historical because it lacked
+the required receipt-bound qualification witness. A new candidate must pass
+the full ladder before V1 can close. Its four exact workflows,
 authoritative Windows artifact/install proof, performance budget, and Jason's
 verbatim internal-V1 PASS are recorded in the closure receipt. Public release
 is not authorized, and the closure created no tag, publication, signing
@@ -125,4 +127,4 @@ cannot close Stage 19. Only Package `19.22`, after all approved implementation,
 automated, manual, packaging, RC, documentation, safety, and authority gates,
 may recommend Stage 19/V1.0 closure.
 
-PZ_CONTINUE: Package 19.22 closed; Stage 19 and the internal V1 baseline are complete; public release is not authorized
+PZ_CONTINUE: Package 19.22 active; Stage 19 and the internal V1 baseline remain open; public release is not authorized

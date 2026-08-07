@@ -31,6 +31,7 @@ const unitFiles = [
   "main/__tests__/packagedRuntimePolicy.test.ts",
   "main/__tests__/stage19PreloadChannels.test.ts",
   "main/__tests__/stage19PackageVerifier.test.ts",
+  "main/__tests__/stage19_22QualificationWitness.test.ts",
   "main/__tests__/stage19InternalBaselineIdentity.test.ts",
   "main/__tests__/runVitestOfflineExitCode.test.ts",
   "main/__tests__/stage19PackagingWorkflowPolicy.test.ts",
@@ -169,7 +170,6 @@ phase("Critical unit, component, and contract matrix", pnpm, [
   "--",
   "--run",
   "--maxWorkers=1",
-  "--minWorkers=1",
   ...unitFiles
 ]);
 const electron = electronCommand();

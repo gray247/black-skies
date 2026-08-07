@@ -1,5 +1,9 @@
 # Package 19.22 Internal V1 Closure Receipt
 
+> Superseded: the candidate recorded below predates the required receipt-bound
+> Package 19.22 qualification witness. This document is historical evidence
+> only and cannot close Stage 19 or the internal V1 baseline.
+
 Status: `CLOSED` — internal V1 baseline only
 
 ## Binding result

@@ -18,8 +18,8 @@ The inventory includes:
 - current user, support, security, developer, package, rollback, and UI
   guidance;
 - the current product-roadmap and truth-index entry points;
-- the Stage 19 scope, master plan, Package `19.22` ledger, and final handover;
-  and
+- the Stage 19 scope, master plan, Package `19.22` ledger, Foundation Spine
+  acceptance reconciliation, and final handover; and
 - the internal build record retained under the filename `RELEASE.md`.
 
 Package closure records not listed here remain immutable historical receipts.
@@ -46,15 +46,15 @@ the owning finding reopens.
 The bounded status during this package is:
 
 ```text
-PACKAGE_19_22: CLOSED
-STAGE_19: CLOSED
-INTERNAL_V1_BASELINE: COMPLETE
+PACKAGE_19_22: ACTIVE
+STAGE_19: OPEN
+INTERNAL_V1_BASELINE: NOT_YET_COMPLETE
 PUBLIC_RELEASE: NOT_AUTHORIZED
 ALPHA_OR_BETA: NOT_CLAIMED
 V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
 ```
 
-The Package `19.22` closure receipt records exact candidate
-`3060c36448a946b1f2294575129abc42a12d98a9`, workflow identities, artifact and
-hash evidence, coverage/performance receipts, and Jason's verbatim human
-check. Public-release authority did not change.
+The prior Package `19.22` closure receipt is historical only: its candidate
+predated the receipt-bound qualification witness now required for current
+authority. A new clean candidate and final human PASS are required; public
+release authority did not change.
