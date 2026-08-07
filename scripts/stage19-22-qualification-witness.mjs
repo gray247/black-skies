@@ -85,7 +85,12 @@ export function validatePreservation(expected, actual) {
 function windowsSignatureStatus(filePath) {
   if (process.platform !== "win32") return "NotInspectedOnThisPlatform";
   const command = ["$signature = Get-AuthenticodeSignature -LiteralPath $env:BLACK_SKIES_ARTIFACT;", "$signature.Status.ToString()"].join(" ");
-  return execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", env: { ...process.env, BLACK_SKIES_ARTIFACT: filePath } }).trim();
+  const options = { encoding: "utf8", env: { ...process.env, BLACK_SKIES_ARTIFACT: filePath } };
+  try {
+    return execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], options).trim();
+  } catch {
+    return execFileSync("pwsh.exe", ["-NoProfile", "-NonInteractive", "-Command", command], options).trim();
+  }
 }
 
 function required(options, name) {
