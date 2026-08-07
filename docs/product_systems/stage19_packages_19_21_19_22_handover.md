@@ -4,7 +4,7 @@
 
 ```text
 branch:
-  salvage/minimal-two-surface-shell
+  codex/foundation-audit
 Package 19.20 closure commit:
   619f34b92e1e9f53084f4b41d570eab5969773ac
 Package 19.20 implementation commit:
@@ -12,17 +12,21 @@ Package 19.20 implementation commit:
 Package 19.20:
   CLOSED — JASON OVERALL PASS
 next eligible:
-  Package 19.22 internal baseline qualification
+  post-V1 work only under separately authorized scope
 Package 19.21:
   CLOSED — commit 2dc8010
 Package 19.22:
   CLOSED — INTERNAL V1 BASELINE COMPLETE — PUBLIC RELEASE NOT AUTHORIZED
+Package 19.22 exact candidate:
+  3060c36448a946b1f2294575129abc42a12d98a9
+Package 19.22 closure receipt:
+  docs/product_systems/stage19_package_19_22_closure.md
 protected evidence:
   NOT_USED
 ```
 
-The authoritative closure is
-`docs/product_systems/stage19_package_19_20_closure.md`.
+The authoritative Package 19.22 closure is
+`docs/product_systems/stage19_package_19_22_closure.md`.
 
 ## 2. Accepted packaged candidate
 
@@ -167,11 +171,11 @@ documentation against the installed application. Treat a mismatch as a
 Package `19.21` defect, correct the documentation or product only within
 authority, and rerun the affected path.
 
-## 6. Package 19.22 internal-closure target
+## 6. Package 19.22 internal-closure result
 
-Package `19.22` is the final internal barebones V1.0 closure boundary. Before
-asking Jason for the final internal-milestone judgment, Codex should
-autonomously prepare:
+Package `19.22` was the final internal barebones V1.0 closure boundary. The
+required evidence was prepared, the exact candidate was qualified, and Jason
+provided the binding internal-milestone judgment. The receipt records:
 
 - a complete closure audit across Packages `19.1` through `19.21`;
 - an explicit disposition for retained inactive Package `19.14`
@@ -193,9 +197,10 @@ autonomously prepare:
 - version, installer-name, internal-build identity, and rollback consistency;
   and
 - a concise final human checklist containing only judgments automation cannot
-  honestly supply.
+  honestly supply; and
+- the exact verdict `PASS — candidate 3060c36448a946b1f2294575129abc42a12d98a9 — internal V1 baseline only — no public release authority.`
 
-If Package `19.22` changes the executable, preload, renderer, main process,
+If any post-closure change alters the executable, preload, renderer, main process,
 dependencies, installer, version, icon, or packaging configuration, it creates
 a new candidate. Rebuild and rerun all affected qualification and Computer Use
 checks before asking Jason to verify it.

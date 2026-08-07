@@ -103,15 +103,16 @@ SHA-256
 Package `19.21`, **user/release/operator documentation**, aligned current
 release-facing records to that accepted product, passed static documentation
 checks, and passed a real installed-app Computer Use rehearsal. Its nine P1/P2
-documentation findings are closed. One truthful non-blocking P3
-export-notice-lifetime observation is owned by Package `19.22` with an exact
-reopening trigger.
+documentation findings are closed. The truthful export-notice-lifetime
+observation was repaired and closed by Package `19.22`.
 
 Stage 19 is closed. Package `19.22`, **internal barebones V1.0 closure**,
-completed repository hardening and exact-candidate qualification; Jason's
-core-writing human check passed. Public release is not authorized, and the
-closure created no tag, publication, signing request, release announcement, or
-alpha/beta claim.
+completed repository hardening and exact-candidate qualification at
+`3060c36448a946b1f2294575129abc42a12d98a9`. Its four exact workflows,
+authoritative Windows artifact/install proof, performance budget, and Jason's
+verbatim internal-V1 PASS are recorded in the closure receipt. Public release
+is not authorized, and the closure created no tag, publication, signing
+request, release announcement, or alpha/beta claim.
 
 Runtime work never begins by inference. One-package-at-a-time governance
 remains in force, and the approved sequence through Package `19.22` is

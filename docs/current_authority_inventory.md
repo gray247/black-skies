@@ -54,6 +54,7 @@ ALPHA_OR_BETA: NOT_CLAIMED
 V3_PRODUCT_PROGRAM: NOT_STARTED_BY_THIS_PACKAGE
 ```
 
-The Package `19.22` closure receipt records the exact candidate, evidence, and
-human check that changed the first three lines. Public-release authority did
-not change.
+The Package `19.22` closure receipt records exact candidate
+`3060c36448a946b1f2294575129abc42a12d98a9`, workflow identities, artifact and
+hash evidence, coverage/performance receipts, and Jason's verbatim human
+check. Public-release authority did not change.

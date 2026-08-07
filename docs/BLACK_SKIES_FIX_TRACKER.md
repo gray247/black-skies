@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Active
+Status: Package 19.22 foundation closure complete; future work requires new scope
 Last Reviewed: 2026-08-07
 
 ## Purpose
@@ -16,6 +16,37 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Package 19.22 Foundation Closure — 2026-08-07
+
+The exact candidate `3060c36448a946b1f2294575129abc42a12d98a9` passed the
+complete four-workflow ladder, authoritative Windows artifact and hash review,
+installed offline lifecycle, V5 performance budget, and Jason's exact human
+verdict:
+
+```text
+PASS — candidate 3060c36448a946b1f2294575129abc42a12d98a9 — internal V1 baseline only — no public release authority.
+```
+
+Stage 19 run `31190997301`, Validation & Eval run `31190997340`, Security
+Audit run `31190997287`, and Windows Packaging Proof run `31190997377` all
+reported success for that SHA. Artifact `8999087600` was independently
+downloaded; its archive digest is
+`4d47afb2e81de934c8b7a5ba851d667dbbd9054b943e09f11fa49708ebb9cb17`, its
+receipt digest is
+`e90fd0e9675a325c75a068870bdbaa0efca344c2c82def21e19d0dcec734c631`, and its
+installer digest is
+`16bb75a766392d407dbd728f51a6d3a34e66b570f781ea07d499aa7f12b7867d`.
+
+This closes `FND-012` (supported-core coverage), `FND-014` (size/startup/
+memory budget), `FND-016` (reachability and dead-surface dispositions),
+`FND-017` (recovery/project-switch truth), and `FND-018` (Windows focus and
+dirty-switch behavior), together with Package 19.22 findings
+`BS-19.22-P1-23`, `BS-19.22-P3-04`, `BS-19.22-P3-24`, and
+`BS-19.22-P1-25`. Earlier entries below are historical repair evidence; their
+reopening triggers remain binding, but they do not keep the current baseline
+open. No tag, publication, signing request, release claim, or V2 authority
+was created.
 
 ## Foundation Security Repair Batch — 2026-08-05
 - `FND-015` remains open after Security Audit run `31032584093` for candidate `401b4ea291140c0b82bfd40c415e2e00d9e3e8a2`: Electron `39.8.9` advisories were actionable, and the Ubuntu light-load lane stopped on a structured slow-accept warning. The bounded repair raises Electron to patched `39.8.10` in the app manifest and lockfile; local `pnpm audit --json` reports zero findings at every severity.

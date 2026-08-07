@@ -16,13 +16,13 @@ history.
 
 ```text
 source commit:
-  c247bb86bf701c577e778356d60bf093a7319855
+  3060c36448a946b1f2294575129abc42a12d98a9
 installer:
   BlackSkies-Setup-1.0.0-rc1.exe
 bytes:
-  89277308
+  87066061
 SHA-256:
-  e96d1db82c68d09a4695ca74aff37c625fa363bb749a0549d57d8caba55cc372
+  16bb75a766392d407dbd728f51a6d3a34e66b570f781ea07d499aa7f12b7867d
 signature:
   NotSigned
 ```

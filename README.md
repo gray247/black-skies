@@ -31,9 +31,9 @@ credentials.
 
 Version `1.0.0-rc1` identifies an unsigned qualified internal build, not a
 public, alpha, beta, production, or SmartScreen-trusted release. Package
-`19.20` accepted the exact packaged candidate recorded in `RELEASE.md`.
-Package `19.21` aligned and rehearsed documentation against that product.
-Package `19.22` is active as the final internal barebones V1 closure boundary.
+`19.20` and Package `19.21` are historical predecessors. Package `19.22` is
+closed as the final internal barebones V1 baseline; its exact candidate and
+artifact are recorded in `RELEASE.md` and the closure receipt.
 Public release is not authorized; public alpha or beta consideration is
 deferred until after the separate V3 product program.
 

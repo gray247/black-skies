@@ -11,13 +11,13 @@ The internal V1 baseline is deliberately bounded. A separate V3 product
 program must finish before any future public alpha or beta readiness review
 may be proposed under new authority.
 
-## Current candidate
+## Current internal V1 candidate
 
-Package `19.20` accepted exactly:
+Package `19.22` accepted exactly as the internal V1 baseline:
 
 ```text
 source commit:
-  b916765196bde37e95968d3985ab5238b47ad797
+  3060c36448a946b1f2294575129abc42a12d98a9
 version:
   1.0.0-rc1
 platform:
@@ -25,18 +25,22 @@ platform:
 installer:
   BlackSkies-Setup-1.0.0-rc1.exe
 byte length:
-  89275742
+  87066061
 SHA-256:
-  93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b
+  16bb75a766392d407dbd728f51a6d3a34e66b570f781ea07d499aa7f12b7867d
 signature:
   NotSigned
 clean Windows qualification run:
-  30509993912
+  31190997377
 artifact ID:
-  8746806252
+  8999087600
 protected evidence:
   NOT_USED
 ```
+
+The four exact-SHA qualification runs are `31190997301`, `31190997340`,
+`31190997287`, and `31190997377`. The exact human verdict is recorded in
+[`stage19_package_19_22_closure.md`](docs/product_systems/stage19_package_19_22_closure.md).
 
 Any rebuilt binary, different source commit, filename, byte length, hash, or
 receipt is a different candidate and inherits none of this acceptance.

@@ -12,8 +12,10 @@ This scope lock authorizes planning and selection only. Each implementation
 package still requires a separate bounded authorization.
 
 Closure status: Stage 19 and the internal V1 baseline are complete through
-Package `19.22`; see `stage19_package_19_22_closure.md`. This does not
-authorize a public release, tag, signing, or publication.
+Package `19.22`, exact candidate
+`3060c36448a946b1f2294575129abc42a12d98a9`; see
+`stage19_package_19_22_closure.md`. This does not authorize a public release,
+tag, signing, or publication.
 
 ## 2. Minimum honest V1.0 promise
 
