@@ -2,7 +2,50 @@
   "schema": "black-skies.foundation-performance-budget.v1",
   "maximumRegressionPercent": 5,
   "measurementProtocol": "interleaved-main-process-monotonic-two-window-median-v5",
-  "baseline": null,
+  "baseline": {
+    "sourceCandidate": "2c29aa11aaab35e01e40cf9b64c7e2c9397b81be",
+    "workflowRunId": 31186016962,
+    "artifactId": 8997053680,
+    "artifactArchiveSha256": "9f1308524585e10305bfc1d7f68d6c5f6e65021431f0c6837aef471210756dd0",
+    "receiptSha256": "14911abcb9166afad6f4d5d618bc71d7d4da130ac245476ed9cfd8634843a68e",
+    "installerSha256": "0e8d6b6d14e77469f949bf8529600e766ac9462f33dced13103bc1b8c3974f1b",
+    "reference": {
+      "sourceCandidate": "2c29aa11aaab35e01e40cf9b64c7e2c9397b81be",
+      "executable": {
+        "byteLength": 210956800,
+        "sha256": "11601a01695d0eb8fe336998c3f75d0049e441e84f4ac292db6053abcb6abe5d"
+      },
+      "asar": {
+        "byteLength": 14753558,
+        "sha256": "0212e3719510cbc554002df247e885736fdfe42cc3e28730283553cc58d8fc75"
+      }
+    },
+    "metrics": {
+      "installer": {
+        "byteLength": 87066117
+      },
+      "unpacked": {
+        "byteLength": 356259428,
+        "asar": {
+          "byteLength": 14753558
+        },
+        "executable": {
+          "byteLength": 210956800
+        },
+        "rendererChunks": {
+          "totalByteLength": 1206374
+        }
+      },
+      "installedLifecycle": {
+        "performance": {
+          "coldLaunchDurationMs": 488.4471,
+          "referenceColdLaunchDurationMs": 472.1469,
+          "coldLaunchCandidateToReferenceRatio": 1.0345235773018948,
+          "steadyStateWorkingSetBytes": 424611840
+        }
+      }
+    }
+  },
   "historicalBaseline": {
     "sourceCandidate": "38eb5bc77bc27f8debee23f6807f96b9229ec1d0",
     "workflowRunId": 30953780486,

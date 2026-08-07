@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-08-04
+Last Reviewed: 2026-08-07
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -21,6 +21,12 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - `FND-015` remains open after Security Audit run `31032584093` for candidate `401b4ea291140c0b82bfd40c415e2e00d9e3e8a2`: Electron `39.8.9` advisories were actionable, and the Ubuntu light-load lane stopped on a structured slow-accept warning. The bounded repair raises Electron to patched `39.8.10` in the app manifest and lockfile; local `pnpm audit --json` reports zero findings at every severity.
 - The light-load warning was traced to the diagnostic boundary, not waived: `total_ms` included request validation and project lookup while the recorded acceptance pipeline (`accept_apply_ms`) was below the 100 ms floor. The warning now evaluates `accept_apply_ms`, with a regression proving transport overhead alone remains quiet. The exact `python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service` run completed with zero structured warnings and exit code 0.
 - The truth launcher now explicitly enables analytics only inside its internal truth lane, matching the existing CI job opt-in and leaving the product default disabled. Local `pnpm test:truth` completed through Electron launch, analytics preflight, accept persistence, recovery, and export. The replacement worktree candidate must still complete all four exact-SHA workflows; prior receipts remain historical input.
+
+## Foundation Performance Baseline V5 — 2026-08-07
+- `FND-014` V5 baseline is established from the independently downloaded authoritative Windows artifact for exact candidate `2c29aa11aaab35e01e40cf9b64c7e2c9397b81be`: Windows Packaging Proof `31186016962`; artifact `8997053680`; archive SHA-256 `9f1308524585e10305bfc1d7f68d6c5f6e65021431f0c6837aef471210756dd0`; receipt SHA-256 `14911abcb9166afad6f4d5d618bc71d7d4da130ac245476ed9cfd8634843a68e`; installer SHA-256 `0e8d6b6d14e77469f949bf8529600e766ac9462f33dced13103bc1b8c3974f1b`.
+- Stage 19 Fixed Regression Gate `31186017332`, Validation & Eval Harness `31186016999`, and Security Audit `31186017282` passed at the same exact SHA. Windows package construction, paired-reference build, offline installed lifecycle, two sandboxed windows, exact Markdown, uninstall preservation, forbidden-runtime checks, and zero-survivor teardown passed. The Windows job failed only the deliberate baseline-null guard before this receipt was reviewed.
+- V5 metrics are now immutable in `docs/testing/foundation_performance_budget.json`: installer `87,066,117` bytes; unpacked app `356,259,428`; ASAR `14,753,558`; executable `210,956,800`; renderer chunks `1,206,374`; candidate cold-launch median `488.4471 ms`; same-SHA paired-reference median `472.1469 ms`; governed startup ratio `1.0345235773018948`; steady-state working set `424,611,840` bytes. Both candidate and reference used five interleaved process-cold samples with two visible sandboxed windows and zero survivors per sample.
+- The next exact candidate must enforce the unchanged 5% budget against this V5 baseline. `FND-014` remains open until that successor passes budget enforcement; all prior baseline receipts are historical input.
 
 ## Documentation Continuity Updates
 - [2026-08-04] `FND-015` strict Windows warning trace: candidate `8a8db682216c552239969f4f1bed5aef383c1bcd` passed Windows canary `30969488722`, including Stage 19 regression, package verification, paired startup measurement, installed lifecycle, performance budget, and zero-survivor teardown. Raw-log review still rejected it: pnpm `8.15.9` under Node 24 emitted two `DEP0169` warnings, and Playwright `1.59.1` automatically captured CI Git metadata through a shell-mediated child process that emitted one `DEP0190` warning after all 19 Electron tests passed. Windows qualification now executes repository tools on supported Node 22, while GitHub actions retain their current Node-24 action runtimes; Playwright Git capture is explicitly disabled because receipts already bind the exact SHA and the implicit metadata subprocess is neither required nor accepted. `8a8db682` remains historical and the replacement Windows canary must be functionally green and warning-free.
