@@ -74,28 +74,33 @@ class DraftAcceptService:
         synthetic_mode = allow_e2e_synthetic_mode()
         durable_writes = not synthetic_mode
 
-        scene_write_started = perf_counter()
-        try:
-            await run_in_threadpool(
-                self._persistence.write_scene_at_root,
-                project_root,
-                updated_front_matter,
-                normalized_text,
-                durable=durable_writes,
-            )
-        except OSError as exc:
-            self._diagnostics.log(
-                project_root,
-                code="INTERNAL",
-                message="Failed to persist accepted scene.",
-                details={"unit_id": request.unit_id, "error": str(exc)},
-            )
-            raise DraftAcceptancePersistenceError(
-                unit_id=request.unit_id,
-                error=str(exc),
-                original_exc=exc,
-            ) from exc
-        timings["audited_chain_write_ms"] = (perf_counter() - scene_write_started) * 1000.0
+        if synthetic_mode:
+            # Synthetic load fixtures validate the response and snapshot lane;
+            # they must not spend hosted-runner time on scene-file persistence.
+            timings["audited_chain_write_ms"] = 0.0
+        else:
+            scene_write_started = perf_counter()
+            try:
+                await run_in_threadpool(
+                    self._persistence.write_scene_at_root,
+                    project_root,
+                    updated_front_matter,
+                    normalized_text,
+                    durable=durable_writes,
+                )
+            except OSError as exc:
+                self._diagnostics.log(
+                    project_root,
+                    code="INTERNAL",
+                    message="Failed to persist accepted scene.",
+                    details={"unit_id": request.unit_id, "error": str(exc)},
+                )
+                raise DraftAcceptancePersistenceError(
+                    unit_id=request.unit_id,
+                    error=str(exc),
+                    original_exc=exc,
+                ) from exc
+            timings["audited_chain_write_ms"] = (perf_counter() - scene_write_started) * 1000.0
 
         diff_started = perf_counter()
         diff_payload = compute_diff(current_normalized, normalized_text)

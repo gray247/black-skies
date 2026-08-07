@@ -2368,19 +2368,8 @@ def test_draft_accept_uses_in_memory_budget_in_synthetic_mode(
 
     recorded: dict[str, Any] = {}
 
-    def _write_scene(
-        self: DraftPersistence,
-        project_root: Path,
-        front_matter: dict[str, Any],
-        body: str,
-        *,
-        durable: bool | None = None,
-    ) -> Path:
-        recorded["scene_durable"] = durable
-        target = project_root / "drafts" / f"{front_matter['id']}.md"
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(self._render(front_matter, body), encoding="utf-8")
-        return target
+    def _forbid_scene_write(*args: Any, **kwargs: Any) -> Path:
+        raise AssertionError("synthetic accepts must not persist accepted scenes")
 
     def _create_snapshot(
         self: SnapshotPersistence,
@@ -2430,7 +2419,7 @@ def test_draft_accept_uses_in_memory_budget_in_synthetic_mode(
 
     monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
     monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
-    monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _write_scene)
+    monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _forbid_scene_write)
     monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
     monkeypatch.setattr(draft_accept_module, "edit_project_budget_state", _forbid_budget_lock)
     monkeypatch.setattr(draft_accept_module, "persist_project_budget", _forbid_budget_io)
@@ -2458,7 +2447,6 @@ def test_draft_accept_uses_in_memory_budget_in_synthetic_mode(
     response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
     assert response.status_code == 200
     assert response.json()["budget"]["spent_usd"] == pytest.approx(0.02)
-    assert recorded["scene_durable"] is False
     assert recorded["snapshot_durable"] is False
     assert "Missing cached generate response; recomputing cost." not in recorded.get(
         "diagnostics", []
