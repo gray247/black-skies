@@ -629,12 +629,10 @@ async function main() {
     const coldLaunchSamples = [];
     if (pairedReferenceExecutable) {
       const referenceSmokeRoot = path.join(smokeRoot, "paired-reference");
-      const pairedReferenceIsCurrentCandidate =
-        pairedReferenceCommit === process.env.GITHUB_SHA;
       referenceColdLaunchPreparation = await measureColdLaunch(
         pairedReferenceExecutable,
         path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
-        { allowLegacyWritingBridge: !pairedReferenceIsCurrentCandidate }
+        { allowLegacyWritingBridge: false }
       );
       for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
         coldLaunchSamples.push(
@@ -648,7 +646,7 @@ async function main() {
           await measureColdLaunch(
             pairedReferenceExecutable,
             path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
-            { allowLegacyWritingBridge: !pairedReferenceIsCurrentCandidate }
+            { allowLegacyWritingBridge: false }
           )
         );
       }
