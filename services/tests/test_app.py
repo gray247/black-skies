@@ -2353,12 +2353,12 @@ def test_draft_accept_ignores_tampered_cost(test_client: TestClient, tmp_path: P
     assert persisted_meta["budget"]["spent_usd"] == pytest.approx(1.03)
 
 
-def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
+def test_draft_accept_uses_in_memory_budget_in_synthetic_mode(
     test_client: TestClient,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Synthetic smoke accept keeps correctness while skipping durability fsyncs."""
+    """Synthetic smoke accept keeps budget work off disk and outside the worker pool."""
 
     project_id = "proj_accept_synthetic_writes"
     draft_id = "dr_synthetic_001"
@@ -2411,19 +2411,11 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
             "includes": list(include_entries or []),
         }
 
-    def _persist_budget(
-        state: Any,
-        new_spent_usd: float,
-        *,
-        durable: bool = True,
-    ) -> None:
-        recorded["budget_durable"] = durable
-        budget_section = state.metadata.setdefault("budget", {})
-        budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
-        state.spent_usd = budget_section["spent_usd"]
-
     def _forbid_budget_lock(*args: Any, **kwargs: Any) -> None:
         raise AssertionError("synthetic accepts must not acquire the project budget lock")
+
+    def _forbid_budget_io(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("synthetic accepts must not read or persist project budget state")
 
     def _capture_diagnostic(
         self: DiagnosticLogger,
@@ -2440,8 +2432,8 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
     monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
     monkeypatch.setattr(DraftPersistence, "write_scene_at_root", _write_scene)
     monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
-    monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
     monkeypatch.setattr(draft_accept_module, "edit_project_budget_state", _forbid_budget_lock)
+    monkeypatch.setattr(draft_accept_module, "persist_project_budget", _forbid_budget_io)
     monkeypatch.setattr(DiagnosticLogger, "log", _capture_diagnostic)
 
     payload = {
@@ -2465,9 +2457,9 @@ def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
 
     response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
     assert response.status_code == 200
+    assert response.json()["budget"]["spent_usd"] == pytest.approx(0.02)
     assert recorded["scene_durable"] is False
     assert recorded["snapshot_durable"] is False
-    assert recorded["budget_durable"] is False
     assert "Missing cached generate response; recomputing cost." not in recorded.get(
         "diagnostics", []
     )

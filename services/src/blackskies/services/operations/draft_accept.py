@@ -13,9 +13,9 @@ from ..budgeting import (
     ProjectBudgetState,
     derive_accept_unit_cost,
     edit_project_budget_state,
-    load_project_budget_state,
     persist_project_budget,
 )
+from ..constants import DEFAULT_HARD_BUDGET_LIMIT_USD, DEFAULT_SOFT_BUDGET_LIMIT_USD
 from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..e2e_mode import allow_e2e_synthetic_mode
@@ -71,7 +71,8 @@ class DraftAcceptService:
 
         started_at = perf_counter()
         timings: dict[str, float] = {}
-        durable_writes = not allow_e2e_synthetic_mode()
+        synthetic_mode = allow_e2e_synthetic_mode()
+        durable_writes = not synthetic_mode
 
         scene_write_started = perf_counter()
         try:
@@ -123,6 +124,8 @@ class DraftAcceptService:
 
         def _apply_budget_update(
             budget_state: ProjectBudgetState,
+            *,
+            persist: bool = True,
         ) -> tuple[ProjectBudgetState, float, float]:
             accept_cost = derive_accept_unit_cost(
                 budget_state=budget_state,
@@ -132,28 +135,51 @@ class DraftAcceptService:
                 diagnostics=self._diagnostics,
             )
             new_spent_total = budget_state.spent_usd + accept_cost
-            persist_project_budget(
-                budget_state,
-                new_spent_total,
-                durable=durable_writes,
-            )
+            if persist:
+                persist_project_budget(
+                    budget_state,
+                    new_spent_total,
+                    durable=durable_writes,
+                )
+            else:
+                budget_state.spent_usd = round(new_spent_total, 2)
             return budget_state, new_spent_total, accept_cost
 
         def _update_budget() -> tuple[ProjectBudgetState, float, float]:
-            if allow_e2e_synthetic_mode():
-                # Synthetic load fixtures are disposable and intentionally do
-                # not contend on the shared project.json lock.
-                budget_state = load_project_budget_state(
-                    project_root,
-                    self._diagnostics,
-                    _locked=True,
-                )
-                return _apply_budget_update(budget_state)
-
             with edit_project_budget_state(project_root, self._diagnostics) as budget_state:
                 return _apply_budget_update(budget_state)
 
-        budget_state, new_spent_total, accept_cost = await run_in_threadpool(_update_budget)
+        if synthetic_mode:
+            # Synthetic load fixtures use the harness budget contract and must
+            # not measure hosted-runner thread scheduling or project.json I/O.
+            budget_state = ProjectBudgetState(
+                project_root=project_root,
+                metadata={
+                    "project_id": request.project_id,
+                    "budget": {
+                        "last_generate_response": {
+                            "draft_id": request.draft_id,
+                            "units": [
+                                {
+                                    "id": request.unit_id,
+                                    "meta": request.unit.meta,
+                                    "estimated_cost_usd": request.unit.estimated_cost_usd,
+                                }
+                            ],
+                        }
+                    },
+                },
+                soft_limit=DEFAULT_SOFT_BUDGET_LIMIT_USD,
+                hard_limit=DEFAULT_HARD_BUDGET_LIMIT_USD,
+                spent_usd=0.0,
+                project_path=project_root / "project.json",
+            )
+            budget_state, new_spent_total, accept_cost = _apply_budget_update(
+                budget_state,
+                persist=False,
+            )
+        else:
+            budget_state, new_spent_total, accept_cost = await run_in_threadpool(_update_budget)
         timings["budget_update_ms"] = (perf_counter() - budget_started) * 1000.0
 
         response_started = perf_counter()
