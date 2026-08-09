@@ -3,7 +3,8 @@
 ## Purpose
 
 This record defines the documents that may state current repository,
-internal-build, operator, support, and Stage 19 truth during Package `19.22`.
+internal-build, operator, support, V1 closure, and accepted post-V1 program
+truth.
 The machine-readable inventory is
 [`current_authority_inventory.json`](current_authority_inventory.json).
 
@@ -18,6 +19,7 @@ The inventory includes:
 - current user, support, security, developer, package, rollback, and UI
   guidance;
 - the current product-roadmap and truth-index entry points;
+- the accepted post-V1 master product program;
 - the Stage 19 scope, master plan, Package `19.22` ledger and closure receipt,
   Foundation Spine acceptance reconciliation, and final handover; and
 - the internal build record retained under the filename `RELEASE.md`.
@@ -28,6 +30,10 @@ bounded private V1 milestone only.
 Product dossiers remain doctrine for the concepts they own; they do not state
 Package `19.22`, artifact, or public-release status unless promoted into this
 inventory.
+
+The accepted post-V1 master program governs direction and sequencing only. It
+does not grant public-release authority or automatically authorize a runtime
+workflow.
 
 The following roots are explicitly historical or non-current for this gate:
 

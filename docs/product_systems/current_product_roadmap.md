@@ -11,6 +11,10 @@ Current status:
 
 - Stage 19 and Package `19.22` are closed for the governed private V1.0 baseline; exact executable candidate `675e5125e533ca27000dc7cc4caf3d4386cc1771` and its closure receipt are the current authority
 - V1.0 is the product milestone reached through Stage 19, not a competing stage system
+- `black_skies_post_v1_master_product_program.md` is accepted current authority for the post-V1 product constitution, eight-program workflow sequence, dossier-to-program map, evidence rhythm, and named deferral triggers
+- the two required V2 learning workflows are Critique Workbench followed by the first Writing Surface to Living Outline loop; their learning synthesis gates the major V3 product-shell program
+- `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
+- the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group, limited to the initial bounded local project-open/save/re-entry sequence; `stage19_foundation_spine_acceptance_reconciliation.md` is the current non-retroactive authority and does not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
 - Packages `19.9` through `19.11` are formally closed by commit `d780f52`; this package-horizon closure does not close Stage 19 or complete V1.0
@@ -240,6 +244,10 @@ questions have different owners.
   owns the current product-discovery posture, discovery priorities,
   horizons, deferrals, and future implementation-planning review
   conditions.
+- [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+  owns the accepted post-V1 product constitution, eight-program workflow
+  sequence, dossier-to-program map, risk-proportional evidence rhythm, and
+  named deferral triggers.
 - [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
   owns current capability placement, ownership, overlap risks, and the
   distinction between missing owners and intentionally cross-system
@@ -837,14 +845,18 @@ lane.
 
 The roadmap uses broad horizons rather than build phases.
 
-For AI intelligence-layer planning, product-version horizons are explicit:
+Product-version horizons are explicit:
 
-- `V1.0` is the still-open Stage 19 implementation and acceptance milestone.
-- `V1.0-to-V2.0` is the real-story, intensive-use, refinement, task-expansion,
-  model/prompt evaluation, performance, reliability, cost, and hardware-learning
-  horizon after V1.0.
-- `V2.0-to-V3.0` holds the major GUI, layout, comparison, and polish horizon
-  after intelligence behavior and workflow evidence mature.
+- `V1.0` is the closed private foundation and acceptance milestone.
+- `V1.0-to-V2.0` is the workflow-learning horizon. It first completes
+  Critique Workbench, then proves the Writing Surface to Living Outline loop.
+  Functional UI is part of each workflow proof.
+- `V2.0-to-V3.0` begins only after the two-workflow learning synthesis and
+  holds the contextual product shell, minimal Companion bar, major GUI and
+  layout convergence, comparison behavior, and broader product polish.
+- later V2 and V3 programs add signals, story intelligence, creation,
+  revision, organization, interchange, heavy intelligence, durability, and
+  release hardening according to the accepted eight-program sequence.
 
 [v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md)
 is the canonical forward-looking AI intelligence-layer register for those
@@ -868,8 +880,10 @@ provider-call, qualification, or package-acceptance authority.
   Preserve future validation programs and advanced authoring
   possibilities without smuggling them into the current foundation.
 
-These horizons are product-planning posture only.
-They are not build phases, pass numbers, or implementation order.
+These horizons remain product-planning posture. The accepted implementation
+order inside them belongs to
+[black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md),
+and each runtime workflow still requires separate bounded authorization.
 
 ## 9. Historical Planning Posture
 

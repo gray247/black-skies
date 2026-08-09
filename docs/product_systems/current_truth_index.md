@@ -32,6 +32,26 @@ It does not finalize the entire product vision.
 - protected evidence and excluded systems retain their controlling governance; this alignment authorizes neither
 - older embedded stage-progress statements are retained historical snapshots and do not override `current_product_roadmap.md` or `stage19_v1_authority_alignment_decision.md`
 
+## Post-V1 Product Program Authority
+
+- Jason accepted `black_skies_post_v1_master_product_program.md` on 2026-08-09.
+- The accepted program owns the post-V1 product constitution, eight-program
+  workflow sequence, dossier-to-program map, evidence rhythm, and named
+  deferral triggers.
+- The forty-five category-4 dossiers are product boundaries and deferral
+  records, not forty-five serial implementation phases.
+- `Living Outline` is the writer-facing name for the existing optional Outline
+  system working bidirectionally with the Writing Surface. It does not create
+  a new truth owner.
+- Critique Workbench and the first Living Outline loop are the two required V2
+  learning workflows before the major V3 product-shell program.
+- Functional UI required to understand and safely act on a workflow belongs in
+  V2; unified layout and polish belong to V3 after the two-workflow synthesis.
+- The first V3 shell includes a minimal Companion bar, routes results into the
+  Command Center, and keeps conversation memory non-durable by default.
+- Program acceptance does not authorize all runtime work. Each named workflow
+  remains separately bounded and authorized.
+
 ## Why This Index Exists
 
 Black Skies now has:
@@ -61,8 +81,9 @@ Without an explicit truth index, the project risks split-brain planning:
 8. No continuity, critique, Companion, or projection layer may silently become authored truth.
 9. Architecture-governance contracts in `docs/product_systems/` constrain dossier interpretation before runtime code, tooling convenience, or old planning assumptions may claim authority.
 10. Reaching Category `4` across the inventory does not authorize implementation.
-11. Sequencing authority belongs to
-    `current_product_roadmap.md`; maturity authority belongs to
+11. Broad horizon authority belongs to `current_product_roadmap.md`;
+    accepted post-V1 program sequencing belongs to
+    `black_skies_post_v1_master_product_program.md`; maturity authority belongs to
     `dossier_maturity_inventory.md`; detailed readiness-gate authority
     belongs to `pre_code_discovery_plan.md`.
 12. No unresolved issue may be deferred to a completed stage or closed package.
@@ -89,7 +110,8 @@ Current Black Skies doctrine is:
 - Narrative Insertion / Narrative Assertion is the smallest narrative foundation.
 - Scene is projection, container, view, or legacy compatibility only.
 - Story Unit is optional.
-- Outline is optional.
+- Outline is optional. `Living Outline` is its accepted writer-facing name
+  when it operates bidirectionally with the Writing Surface.
 - Story Unit owns optional narrative-purpose and grouping state, not manuscript truth.
 - Outline owns planning structure, intended order, and named prototype arrangements.
 - Planning order may differ from manuscript order without becoming automatic error or truth mutation.
@@ -120,6 +142,11 @@ Current Black Skies doctrine is:
 - Manual run is the backup.
 - Paid API is reserved for heavy, deep, or long-context work when quality or scale requires it.
 - Signals may surface in Outline, Writing Surface, Command Center, Companion, or tool-specific panels, but signals remain advisory unless the user accepts or acts on them.
+- Starting signal-delivery choices are `Off`, `Ask Only`, `Quiet`, and
+  `Alert`; starting project postures are `Explore`, `Develop`, and `Finish`.
+- Companion is silent and summonable by default. Its first V3 interaction is a
+  minimal bar whose results open in the Command Center, with no durable
+  conversation memory by default.
 - Accepted continuity truth lives in author-owned story foundations, notes, lore, character facts, narrative assertions, or other explicit author decisions.
 - There is no separate accepted-continuity kingdom or shadow canon.
 - Human-author doctrine: "No story is complete until every word on every page is mine."
@@ -396,10 +423,11 @@ thread:
 
 1. [current_truth_index.md](/C:/Dev/black-skies/docs/product_systems/current_truth_index.md)
 2. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-3. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-4. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-5. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-6. the current active campaign dossier, when a campaign is active.
+3. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+4. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+5. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+6. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+7. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -430,6 +458,7 @@ Current canonical repo-tracked sources include:
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+- [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
 - [_dossier_template.md](/C:/Dev/black-skies/docs/product_systems/_dossier_template.md)
 - [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
 - [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)

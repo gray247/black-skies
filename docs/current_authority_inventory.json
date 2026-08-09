@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "purpose": "Package 19.22 current documentation authority and validation boundary",
+  "purpose": "Current V1 closure and accepted post-V1 product-program documentation authority boundary",
   "excludedHistoricalRoots": [
     "archive/",
     "docs/archive/",
@@ -14,6 +14,7 @@
     "docs/current_authority_inventory.md",
     "docs/ops/support_playbook.md",
     "docs/packaging.md",
+    "docs/product_systems/black_skies_post_v1_master_product_program.md",
     "docs/product_systems/current_product_roadmap.md",
     "docs/product_systems/current_truth_index.md",
     "docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md",
