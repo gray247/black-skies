@@ -5,6 +5,7 @@ import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineBridge } from '../../shared/ipc/projectSpine';
 import { AI_CRITIQUE_CHANNELS, type AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS, type FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
+import { LIVING_OUTLINE_CHANNELS, type LivingOutlineBridge } from '../../shared/ipc/livingOutline';
 
 const contextBridgeMock = vi.hoisted(() => ({
   exposeInMainWorld: vi.fn(),
@@ -143,6 +144,10 @@ function getFeedbackNotesBridge(): FeedbackNotesBridge | undefined {
   return getExposedGlobal('feedbackNotes') as FeedbackNotesBridge | undefined;
 }
 
+function getLivingOutlineBridge(): LivingOutlineBridge | undefined {
+  return getExposedGlobal('livingOutline') as LivingOutlineBridge | undefined;
+}
+
 function getExposedGlobal(key: string): unknown {
   return vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls.find(([name]) => name === key)?.[1];
 }
@@ -191,6 +196,7 @@ describe('splitCommand preload bridge', () => {
         '__testEnv',
         'aiCritique',
         'feedbackNotes',
+        'livingOutline',
         'diagnostics',
         'layout',
         'projectLoader',
@@ -343,6 +349,7 @@ describe('splitCommand preload bridge', () => {
     expect(getExposedGlobal('__electronApi')).toBeUndefined();
     expect(getExposedGlobal('aiCritique')).toBeUndefined();
     expect(getExposedGlobal('feedbackNotes')).toBeUndefined();
+    expect(getExposedGlobal('livingOutline')).toBeUndefined();
     expect(getExposedGlobal('__test')).toBeUndefined();
     expect(getExposedGlobal('__dev')).toBeUndefined();
     expect(getExposedGlobal('__testInsights')).toBeUndefined();
@@ -527,6 +534,7 @@ describe('splitCommand preload bridge', () => {
       [
         'aiCritique',
         'feedbackNotes',
+        'livingOutline',
         'projectSpine',
         'splitCommand',
       ].sort(),
@@ -561,8 +569,10 @@ describe('splitCommand preload bridge', () => {
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
     const aiCritique = getAiCritiqueBridge();
     const feedbackNotes = getFeedbackNotesBridge();
+    const livingOutline = getLivingOutlineBridge();
     expect(aiCritique).toBeDefined();
     expect(feedbackNotes).toBeDefined();
+    expect(livingOutline).toBeDefined();
     expect(getExposedGlobal('projectLoader')).toBeUndefined();
     expect(getExposedGlobal('services')).toBeUndefined();
     expect(getExposedGlobal('__electronApi')).toBeUndefined();
@@ -580,6 +590,12 @@ describe('splitCommand preload bridge', () => {
       FEEDBACK_NOTE_CHANNELS.createFromCritique,
       {},
     );
+    ipcRendererInvokeMock.mockResolvedValueOnce({ ok: true, data: [] });
+    await expect(feedbackNotes!.list!({} as never)).resolves.toEqual({ ok: true, data: [] });
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(FEEDBACK_NOTE_CHANNELS.list, {});
+    ipcRendererInvokeMock.mockResolvedValueOnce({ ok: true });
+    await expect(livingOutline!.get({} as never)).resolves.toEqual({ ok: true });
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(LIVING_OUTLINE_CHANNELS.get, {});
     expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
     expect(projectSpine?.acceptRecoveryCandidate).toEqual(expect.any(Function));
     expect(projectSpine?.rejectRecoveryCandidate).toEqual(expect.any(Function));

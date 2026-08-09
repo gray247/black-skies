@@ -3,6 +3,7 @@ import { PROJECT_SPINE_CHANNELS } from '../../shared/ipc/projectSpine';
 import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
 import { AI_CRITIQUE_CHANNELS } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS } from '../../shared/ipc/feedbackNotes';
+import { LIVING_OUTLINE_CHANNELS } from '../../shared/ipc/livingOutline';
 import { LOGGING_CHANNELS } from '../../shared/ipc/logging';
 
 const exposed = vi.hoisted(() => new Map<string, unknown>());
@@ -59,6 +60,7 @@ describe('dedicated Stage 19 preload', () => {
     expect(STAGE19_PRELOAD_CHANNELS.splitCommand).toEqual(SPLIT_COMMAND_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.aiCritique).toEqual(AI_CRITIQUE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.feedbackNotes).toEqual(FEEDBACK_NOTE_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.livingOutline).toEqual(LIVING_OUTLINE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.diagnostics).toBe(LOGGING_CHANNELS.diagnostics);
   });
 
@@ -67,6 +69,7 @@ describe('dedicated Stage 19 preload', () => {
     expect([...exposed.keys()].sort()).toEqual([
       'aiCritique',
       'feedbackNotes',
+      'livingOutline',
       'projectSpine',
       'splitCommand',
     ]);
@@ -86,6 +89,7 @@ describe('dedicated Stage 19 preload', () => {
     expect([...exposed.keys()].sort()).toEqual(['projectSpine', 'splitCommand']);
     expect(exposed.has('aiCritique')).toBe(false);
     expect(exposed.has('feedbackNotes')).toBe(false);
+    expect(exposed.has('livingOutline')).toBe(false);
   });
 
   it('fails closed when the split-window identity is incomplete', async () => {

@@ -87,6 +87,10 @@ export class FeedbackNotesRepository {
     return created;
   }
 
+  async list(projectId: string): Promise<readonly FeedbackNote[]> {
+    return (await this.readEnvelope(projectId)).notes;
+  }
+
   private async readEnvelope(projectId: string): Promise<FeedbackNotesEnvelope> {
     try {
       return validateEnvelope(JSON.parse(await fs.readFile(this.filePath, 'utf8')) as unknown, projectId);

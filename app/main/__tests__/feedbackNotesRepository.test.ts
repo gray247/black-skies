@@ -59,6 +59,7 @@ describe('Feedback Notes sidecar', () => {
     });
     await expect(readFile(join(projectPath, 'project.json'), 'utf8')).resolves.toBe('{"project":"unchanged"}\n');
     await expect(readFile(join(projectPath, 'outline.json'), 'utf8')).resolves.toBe('{"outline":"unchanged"}\n');
+    await expect(new FeedbackNotesRepository(projectPath).list('project-a')).resolves.toEqual([note]);
   });
 
   it('keeps projects isolated even where a sidecar from another project is present', async () => {

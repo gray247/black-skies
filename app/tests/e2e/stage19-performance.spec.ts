@@ -40,9 +40,9 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
       return performance.now() - startedAt;
     }, parent);
 
-    const binderButtons = writing.locator(
-      '[aria-label="Manuscript binder"] .stage19-spine__unit-list button',
-    );
+    const binderButtons = writing
+      .getByRole('complementary', { name: 'Manuscript binder and Living Outline' })
+      .locator('.stage19-spine__unit-list button');
     await expect(binderButtons).toHaveCount(100);
     await expect(command.locator('dd').filter({ hasText: /^100$/ })).toBeVisible();
     expect(creationDurationMs).toBeLessThan(15_000);

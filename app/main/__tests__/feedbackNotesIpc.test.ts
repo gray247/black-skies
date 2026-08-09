@@ -65,11 +65,14 @@ function invoke(senderId: number, candidate: unknown = request): Promise<any> {
 
 describe('Feedback Notes IPC authority', () => {
   const create = vi.fn();
+  const list = vi.fn();
 
   beforeEach(() => {
     resetFeedbackNotesIpcForTests();
     electronMocks.handlers.clear();
     create.mockReset();
+    list.mockReset();
+    list.mockResolvedValue([]);
     aiMocks.completed.mockReset();
     aiMocks.completed.mockReturnValue({
       requestId: 'critique-a',
@@ -78,7 +81,7 @@ describe('Feedback Notes IPC authority', () => {
     registerFeedbackNotesIpc({
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
       getWritingSnapshot: snapshot,
-      repositoryFactory: () => ({ create } as never),
+      repositoryFactory: () => ({ create, list } as never),
     });
   });
 
@@ -95,18 +98,30 @@ describe('Feedback Notes IPC authority', () => {
     });
   });
 
+  it('lists only the active project advisory notes for reopen discovery', async () => {
+    const note = {
+      id: 'feedback-a', projectId: 'project-a', unitId: 'unit-a', sourceCritiqueRequestId: 'critique-a',
+      selectionFingerprint: 'selection-a', createdAt: '2026-08-07T12:00:00.000Z', advisory: true, body: request.body,
+    };
+    list.mockResolvedValue([note]);
+    const handler = electronMocks.handlers.get(FEEDBACK_NOTE_CHANNELS.list)!;
+    await expect(Promise.resolve(handler({ sender: { id: 2 } }, request))).resolves.toMatchObject({ ok: false, error: { code: 'NOT_WRITING_STUDIO' } });
+    await expect(Promise.resolve(handler({ sender: { id: 1 } }, request))).resolves.toEqual({ ok: true, data: [note] });
+    expect(list).toHaveBeenCalledWith('project-a');
+  });
+
   it('rejects stale project, changed unit, and unrelated critique results before writing', async () => {
     registerFeedbackNotesIpc({
       resolveWindowRole: () => 'writing',
       getWritingSnapshot: () => ({ ...snapshot(), activeUnitId: 'unit-b' }),
-      repositoryFactory: () => ({ create } as never),
+      repositoryFactory: () => ({ create, list } as never),
     });
     await expect(invoke(1)).resolves.toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
     expect(create).not.toHaveBeenCalled();
 
     registerFeedbackNotesIpc({
       resolveWindowRole: () => 'writing', getWritingSnapshot: snapshot,
-      repositoryFactory: () => ({ create } as never),
+      repositoryFactory: () => ({ create, list } as never),
     });
     aiMocks.completed.mockReturnValue(null);
     await expect(invoke(1)).resolves.toMatchObject({ ok: false, error: { code: 'CRITIQUE_UNAVAILABLE' } });

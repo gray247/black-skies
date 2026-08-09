@@ -61,10 +61,12 @@ import {
   registerProjectSpineIpc,
 } from './projectSpineIpc.js';
 import {
+  executeDeterministicAiCritiqueFixture,
   invalidateAllAiCritiqueArtifacts,
   registerAiCritiqueIpc,
 } from './aiCritiqueIpc.js';
 import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
+import { registerLivingOutlineIpc } from './livingOutlineIpc.js';
 import {
   clearPendingCloseRequest,
   consumeCoordinatedCloseAllowance,
@@ -1403,8 +1405,13 @@ if (!hasSingleInstanceLock) {
         processSessionId: projectSpineOriginSessionId,
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        execute: isPlaywright ? executeDeterministicAiCritiqueFixture : undefined,
       });
       registerFeedbackNotesIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
+      registerLivingOutlineIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
       });

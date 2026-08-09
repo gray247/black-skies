@@ -6,7 +6,10 @@ import {
   FEEDBACK_NOTE_MAX_BODY_LENGTH,
   type CreateFeedbackNoteFromCritiqueRequest,
   type FeedbackNoteError,
+  type FeedbackNoteFailure,
   type FeedbackNoteResult,
+  type FeedbackNotesListResult,
+  type ListFeedbackNotesRequest,
 } from '../shared/ipc/feedbackNotes.js';
 import type { ProjectSpineSessionSnapshot, ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import { completedAiCritiqueForSender } from './aiCritiqueIpc.js';
@@ -20,7 +23,7 @@ export interface RegisterFeedbackNotesIpcOptions {
 
 let options: RegisterFeedbackNotesIpcOptions | null = null;
 
-function fail(code: FeedbackNoteError['code'], message: string): FeedbackNoteResult {
+function fail(code: FeedbackNoteError['code'], message: string): FeedbackNoteFailure {
   return { ok: false, error: { code, message } };
 }
 
@@ -93,15 +96,47 @@ function createFromCritique(
   });
 }
 
+function list(
+  event: IpcMainInvokeEvent,
+  request: ListFeedbackNotesRequest,
+): Promise<FeedbackNotesListResult> {
+  if (!options || options.resolveWindowRole(event.sender.id) !== 'writing') {
+    return Promise.resolve(fail('NOT_WRITING_STUDIO', 'Feedback notes are available only in Writing Studio.'));
+  }
+  if (!request || typeof request.operationId !== 'string' || !request.operationId.trim() ||
+    typeof request.projectId !== 'string' || !request.projectId.trim() ||
+    typeof request.projectPath !== 'string' || !request.projectPath.trim() ||
+    !Number.isInteger(request.generation) || request.generation < 0) {
+    return Promise.resolve(fail('INVALID_REQUEST', 'The feedback-note list request is incomplete.'));
+  }
+  const snapshot = options.getWritingSnapshot();
+  if (!snapshot.project) return Promise.resolve(fail('NO_ACTIVE_PROJECT', 'Open a project before viewing feedback notes.'));
+  if (snapshot.project.projectId !== request.projectId || !samePath(snapshot.project.path, request.projectPath) || snapshot.generation !== request.generation) {
+    return Promise.resolve(fail('STALE_SESSION', 'The project changed before feedback notes were loaded.'));
+  }
+  const repository = (options.repositoryFactory ?? ((projectPath: string) => new FeedbackNotesRepository(projectPath)))(snapshot.project.path);
+  return repository.list(snapshot.project.projectId)
+    .then((notes) => ({ ok: true, data: notes } as const))
+    .catch((error: unknown) => {
+      if (error instanceof FeedbackNotesRepositoryError) return fail('FEEDBACK_NOTES_UNAVAILABLE', error.message);
+      return fail('FEEDBACK_NOTES_UNAVAILABLE', 'Saved feedback notes could not be loaded.');
+    });
+}
+
 export function registerFeedbackNotesIpc(nextOptions: RegisterFeedbackNotesIpcOptions): void {
   options = nextOptions;
   ipcMain.removeHandler(FEEDBACK_NOTE_CHANNELS.createFromCritique);
+  ipcMain.removeHandler(FEEDBACK_NOTE_CHANNELS.list);
   ipcMain.handle(FEEDBACK_NOTE_CHANNELS.createFromCritique, (event, request: unknown) =>
     createFromCritique(event, request as CreateFeedbackNoteFromCritiqueRequest),
+  );
+  ipcMain.handle(FEEDBACK_NOTE_CHANNELS.list, (event, request: unknown) =>
+    list(event, request as ListFeedbackNotesRequest),
   );
 }
 
 export function resetFeedbackNotesIpcForTests(): void {
   ipcMain.removeHandler(FEEDBACK_NOTE_CHANNELS.createFromCritique);
+  ipcMain.removeHandler(FEEDBACK_NOTE_CHANNELS.list);
   options = null;
 }

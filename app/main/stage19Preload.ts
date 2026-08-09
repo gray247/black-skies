@@ -34,7 +34,17 @@ import type {
 import type {
   CreateFeedbackNoteFromCritiqueRequest,
   FeedbackNotesBridge,
+  ListFeedbackNotesRequest,
 } from '../shared/ipc/feedbackNotes';
+import type {
+  CreateLivingOutlineItemRequest,
+  DeleteLivingOutlineItemRequest,
+  GetLivingOutlineRequest,
+  LinkLivingOutlineItemRequest,
+  LivingOutlineBridge,
+  MoveLivingOutlineItemRequest,
+  UpdateLivingOutlineItemRequest,
+} from '../shared/ipc/livingOutline';
 import type {
   SplitCommandOwnershipSyncMessage,
   SplitCommandWindowRole,
@@ -84,6 +94,15 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
   }),
   feedbackNotes: Object.freeze({
     createFromCritique: 'feedback-notes:create-from-critique',
+    list: 'feedback-notes:list',
+  }),
+  livingOutline: Object.freeze({
+    get: 'living-outline:get',
+    createItem: 'living-outline:create-item',
+    updateItem: 'living-outline:update-item',
+    moveItem: 'living-outline:move-item',
+    linkItem: 'living-outline:link-item',
+    deleteItem: 'living-outline:delete-item',
   }),
   diagnostics: 'logging:diagnostics',
 });
@@ -413,6 +432,23 @@ const aiCritique: AiCritiqueBridge = {
 const feedbackNotes: FeedbackNotesBridge = {
   createFromCritique: (request: CreateFeedbackNoteFromCritiqueRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createFromCritique, request),
+  list: (request: ListFeedbackNotesRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.list, request),
+};
+
+const livingOutline: LivingOutlineBridge = {
+  get: (request: GetLivingOutlineRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.get, request),
+  createItem: (request: CreateLivingOutlineItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.createItem, request),
+  updateItem: (request: UpdateLivingOutlineItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.updateItem, request),
+  moveItem: (request: MoveLivingOutlineItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.moveItem, request),
+  linkItem: (request: LinkLivingOutlineItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.linkItem, request),
+  deleteItem: (request: DeleteLivingOutlineItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.deleteItem, request),
 };
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
@@ -458,4 +494,5 @@ contextBridge.exposeInMainWorld('splitCommand', splitCommand);
 if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);
+  contextBridge.exposeInMainWorld('livingOutline', livingOutline);
 }

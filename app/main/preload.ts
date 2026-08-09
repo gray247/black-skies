@@ -21,7 +21,18 @@ import {
   FEEDBACK_NOTE_CHANNELS,
   type CreateFeedbackNoteFromCritiqueRequest,
   type FeedbackNotesBridge,
+  type ListFeedbackNotesRequest,
 } from '../shared/ipc/feedbackNotes';
+import {
+  LIVING_OUTLINE_CHANNELS,
+  type CreateLivingOutlineItemRequest,
+  type DeleteLivingOutlineItemRequest,
+  type GetLivingOutlineRequest,
+  type LinkLivingOutlineItemRequest,
+  type LivingOutlineBridge,
+  type MoveLivingOutlineItemRequest,
+  type UpdateLivingOutlineItemRequest,
+} from '../shared/ipc/livingOutline';
 import {
   matchesSplitCommandOwnershipSyncMessagePairIdentity,
   type SplitCommandOwnershipSyncMessage,
@@ -2548,6 +2559,16 @@ const aiCritiqueBridge: AiCritiqueBridge = {
 const feedbackNotesBridge: FeedbackNotesBridge = {
   createFromCritique: (request: CreateFeedbackNoteFromCritiqueRequest) =>
     ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createFromCritique, request),
+  list: (request: ListFeedbackNotesRequest) => ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.list, request),
+};
+
+const livingOutlineBridge: LivingOutlineBridge = {
+  get: (request: GetLivingOutlineRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.get, request),
+  createItem: (request: CreateLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.createItem, request),
+  updateItem: (request: UpdateLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.updateItem, request),
+  moveItem: (request: MoveLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.moveItem, request),
+  linkItem: (request: LinkLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.linkItem, request),
+  deleteItem: (request: DeleteLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.deleteItem, request),
 };
 
 registerConsoleForwarding();
@@ -2565,6 +2586,7 @@ if (exposesLegacyWritingSurface) {
 if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotesBridge);
+  contextBridge.exposeInMainWorld('livingOutline', livingOutlineBridge);
 }
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);

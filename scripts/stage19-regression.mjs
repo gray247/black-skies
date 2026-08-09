@@ -42,6 +42,10 @@ const unitFiles = [
   "main/__tests__/aiCritiqueGateway.test.ts",
   "main/__tests__/aiCritiqueCoordinator.test.ts",
   "main/__tests__/aiCritiqueQualificationArtifacts.test.ts",
+  "main/__tests__/feedbackNotesRepository.test.ts",
+  "main/__tests__/feedbackNotesIpc.test.ts",
+  "main/__tests__/livingOutlineRepository.test.ts",
+  "main/__tests__/livingOutlineIpc.test.ts",
   "main/__tests__/runtimeSessionTruthMain.test.ts",
   "main/__tests__/runtimeSessionTruth.test.ts",
   "main/__tests__/truthLaneRuntimeBoundary.test.ts"
@@ -52,6 +56,7 @@ const electronFiles = [
   "tests/e2e/stage19-recovery.spec.ts",
   "tests/e2e/stage19-command-center-integrity.spec.ts",
   "tests/e2e/stage19-ai-critique.spec.ts",
+  "tests/e2e/stage19-gate1-workflows.spec.ts",
   "tests/e2e/stage19-accessibility.spec.ts",
   "tests/e2e/stage19-performance.spec.ts"
 ];

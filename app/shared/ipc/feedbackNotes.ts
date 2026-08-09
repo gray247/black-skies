@@ -1,5 +1,6 @@
 export const FEEDBACK_NOTE_CHANNELS = {
   createFromCritique: 'feedback-notes:create-from-critique',
+  list: 'feedback-notes:list',
 } as const;
 
 export const FEEDBACK_NOTE_SCHEMA_VERSION = 'BlackSkiesFeedbackNotes v1' as const;
@@ -41,6 +42,13 @@ export interface CreateFeedbackNoteFromCritiqueRequest {
   readonly body: string;
 }
 
+export interface ListFeedbackNotesRequest {
+  readonly operationId: string;
+  readonly projectId: string;
+  readonly projectPath: string;
+  readonly generation: number;
+}
+
 export interface FeedbackNoteSuccess {
   readonly ok: true;
   readonly data: FeedbackNote;
@@ -53,8 +61,16 @@ export interface FeedbackNoteFailure {
 
 export type FeedbackNoteResult = FeedbackNoteSuccess | FeedbackNoteFailure;
 
+export interface FeedbackNotesListSuccess {
+  readonly ok: true;
+  readonly data: readonly FeedbackNote[];
+}
+
+export type FeedbackNotesListResult = FeedbackNotesListSuccess | FeedbackNoteFailure;
+
 export interface FeedbackNotesBridge {
   createFromCritique(
     request: CreateFeedbackNoteFromCritiqueRequest,
   ): Promise<FeedbackNoteResult>;
+  list?(request: ListFeedbackNotesRequest): Promise<FeedbackNotesListResult>;
 }

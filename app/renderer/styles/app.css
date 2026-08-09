@@ -4622,6 +4622,7 @@ body[data-stage19-spine] {
 }
 
 .stage19-spine input,
+.stage19-spine select,
 .stage19-spine button {
   border: 1px solid #475569;
   background: rgba(15, 23, 42, 0.94);
@@ -4629,6 +4630,12 @@ body[data-stage19-spine] {
 }
 
 .stage19-spine input {
+  width: 100%;
+  padding: 0.62rem 0.7rem;
+  border-radius: 0.5rem;
+}
+
+.stage19-spine select {
   width: 100%;
   padding: 0.62rem 0.7rem;
   border-radius: 0.5rem;
@@ -4655,6 +4662,11 @@ body[data-stage19-spine] {
 
 .stage19-spine__writing-grid.is-review-open {
   grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr) minmax(20rem, 28rem);
+}
+
+.stage19-spine__writing-grid.is-focus-mode {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 82rem;
 }
 
 .stage19-spine__review-pane {
@@ -4690,6 +4702,93 @@ body[data-stage19-spine] {
 
 .stage19-spine__binder {
   align-self: start;
+}
+
+.stage19-living-outline {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(71, 85, 105, 0.76);
+}
+
+.stage19-living-outline__boundary,
+.stage19-living-outline__notice,
+.stage19-living-outline__preview {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+}
+
+.stage19-living-outline__notice {
+  padding: 0.65rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 0.55rem;
+  background: rgba(120, 53, 15, 0.18);
+}
+
+.stage19-living-outline__editor,
+.stage19-living-outline__selected-actions {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border-radius: 0.65rem;
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.stage19-living-outline__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.stage19-living-outline__checkbox {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stage19-living-outline__checkbox input {
+  width: auto;
+}
+
+.stage19-living-outline__items {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage19-living-outline__items button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem 0.55rem;
+  width: 100%;
+  text-align: left;
+}
+
+.stage19-living-outline__items button strong,
+.stage19-living-outline__items button small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.stage19-living-outline__items button em,
+.stage19-living-outline__items button small {
+  grid-column: 2;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.stage19-living-outline__items button.is-active {
+  border-color: #a78bfa;
+  background: rgba(124, 58, 237, 0.18);
+}
+
+.stage19-living-outline__items button.is-writing-linked {
+  box-shadow: inset 3px 0 #22d3ee;
 }
 
 .stage19-spine__create-unit,

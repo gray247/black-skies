@@ -1,9 +1,13 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 
 import {
+  AI_CRITIQUE_MODEL,
+  AI_CRITIQUE_PROVIDER,
+  AI_CRITIQUE_TASK_CONTRACT_VERSION,
   AI_CRITIQUE_CHANNELS,
   type AiCritiqueApprovalRequest,
   type AiCritiqueCredentialStatus,
+  type AiCritiqueCompletedResult,
   type AiCritiqueError,
   type AiCritiquePrepareRequest,
   type AiCritiqueRequestReference,
@@ -23,6 +27,43 @@ export interface AiCritiqueExecutionContext {
   readonly credential: string;
   readonly coordinator: AiCritiqueCoordinator;
   publish(state: AiCritiqueState): void;
+}
+
+/** Playwright-only deterministic completion. Never performs provider I/O. */
+export function executeDeterministicAiCritiqueFixture(context: AiCritiqueExecutionContext): void {
+  const execution = context.coordinator.beginExecution(context.requestId);
+  context.publish(execution.state);
+  queueMicrotask(() => {
+    if (context.coordinator.readState(context.requestId).status !== 'executing') return;
+    const result: AiCritiqueCompletedResult = {
+      requestId: context.requestId,
+      provider: AI_CRITIQUE_PROVIDER,
+      model: AI_CRITIQUE_MODEL,
+      taskContractVersion: AI_CRITIQUE_TASK_CONTRACT_VERSION,
+      sourceFingerprint: execution.sourceFingerprint,
+      selectionFingerprint: execution.selectionFingerprint,
+      editorRevision: execution.editorRevision,
+      completedAt: new Date().toISOString(),
+      content: {
+        overview: 'Deterministic advisory fixture: the selected passage establishes a clear narrative question.',
+        strengths: ['The selected prose maintains a consistent point of attention.'],
+        priorities: [],
+        uncertainties: ['This fixture evaluates workflow behavior, not broad model quality.'],
+        limitations: [
+          'Selected-passage advisory only; no manuscript or story truth was changed.',
+          'Deterministic automated fixture; no provider request or charge occurred.',
+        ],
+      },
+      usage: {
+        inputTokens: 100,
+        cachedInputTokens: 0,
+        outputTokens: 50,
+        calculatedUsd: 0,
+        invoiceDisclaimer: 'Calculated usage cost - not provider invoice.',
+      },
+    };
+    context.publish(context.coordinator.complete(context.requestId, result));
+  });
 }
 
 export interface RegisterAiCritiqueIpcOptions {

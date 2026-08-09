@@ -20,7 +20,13 @@ import {
   type AiCritiqueRequestReference,
   type AiCritiqueState,
 } from '../shared/ipc/aiCritique';
-import type { FeedbackNotesBridge } from '../shared/ipc/feedbackNotes';
+import type { FeedbackNote, FeedbackNotesBridge } from '../shared/ipc/feedbackNotes';
+import type {
+  LivingOutlineBridge,
+  LivingOutlineItemKind,
+  LivingOutlineItemState,
+  LivingOutlineSnapshotV1,
+} from '../shared/ipc/livingOutline';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 
 interface DraftEnvelope {
@@ -507,6 +513,7 @@ export interface Stage19WritingSpineAppProps {
   readonly bridge?: ProjectSpineBridge;
   readonly aiBridge?: AiCritiqueBridge;
   readonly feedbackNotesBridge?: FeedbackNotesBridge;
+  readonly livingOutlineBridge?: LivingOutlineBridge;
 }
 
 interface MarkdownExportNotice {
@@ -521,6 +528,7 @@ export default function Stage19WritingSpineApp({
   bridge = window.projectSpine,
   aiBridge = window.aiCritique,
   feedbackNotesBridge = window.feedbackNotes,
+  livingOutlineBridge = window.livingOutline,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -548,6 +556,16 @@ export default function Stage19WritingSpineApp({
   const [feedbackNoteBody, setFeedbackNoteBody] = useState('');
   const [feedbackNoteSaving, setFeedbackNoteSaving] = useState(false);
   const [feedbackNoteNotice, setFeedbackNoteNotice] = useState<string | null>(null);
+  const [savedFeedbackNotes, setSavedFeedbackNotes] = useState<readonly FeedbackNote[]>([]);
+  const [focusMode, setFocusMode] = useState(false);
+  const [livingOutline, setLivingOutline] = useState<LivingOutlineSnapshotV1 | null>(null);
+  const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
+  const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
+  const [selectedOutlineItemId, setSelectedOutlineItemId] = useState<string | null>(null);
+  const [outlineLabel, setOutlineLabel] = useState('');
+  const [outlineKind, setOutlineKind] = useState<LivingOutlineItemKind>('fragment');
+  const [outlineState, setOutlineState] = useState<LivingOutlineItemState>('planned');
+  const [outlineLinkActiveUnit, setOutlineLinkActiveUnit] = useState(true);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -721,6 +739,75 @@ export default function Stage19WritingSpineApp({
     };
   }, [applySnapshot, bridge, windowRole]);
 
+  const livingOutlineProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
+  useEffect(() => {
+    if (windowRole !== 'writing') return;
+    if (!snapshot.project) {
+      setLivingOutline(null);
+      setLivingOutlineNotice(null);
+      setSelectedOutlineItemId(null);
+      return;
+    }
+    if (!livingOutlineBridge) {
+      setLivingOutline(null);
+      setLivingOutlineNotice('Living Outline is unavailable. Manuscript writing and saving remain available.');
+      return;
+    }
+    let cancelled = false;
+    setLivingOutlineLoading(true);
+    setLivingOutlineNotice(null);
+    void livingOutlineBridge.get({
+      operationId: operationId('living-outline-load'),
+      projectId: snapshot.project.projectId,
+      projectPath: snapshot.project.path,
+      generation: snapshot.generation,
+    }).then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        setLivingOutline(result.data);
+        setLivingOutlineNotice(result.data.message);
+      } else {
+        setLivingOutline(null);
+        setLivingOutlineNotice(result.error.message);
+      }
+    }).catch(() => {
+      if (!cancelled) setLivingOutlineNotice('Living Outline could not be loaded. Manuscript writing remains available.');
+    }).finally(() => {
+      if (!cancelled) setLivingOutlineLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  // The stable identity deliberately avoids reloading after ordinary manuscript revisions.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [livingOutlineBridge, livingOutlineProjectIdentity, windowRole]);
+
+  useEffect(() => {
+    if (windowRole !== 'writing') return;
+    if (!snapshot.project || !feedbackNotesBridge?.list) {
+      setSavedFeedbackNotes([]);
+      return;
+    }
+    let cancelled = false;
+    void feedbackNotesBridge.list({
+      operationId: operationId('feedback-notes-list'),
+      projectId: snapshot.project.projectId,
+      projectPath: snapshot.project.path,
+      generation: snapshot.generation,
+    }).then((result) => {
+      if (cancelled) return;
+      if (result.ok) setSavedFeedbackNotes(result.data);
+      else setFeedbackNoteNotice(result.error.message);
+    }).catch(() => {
+      if (!cancelled) setFeedbackNoteNotice('Saved advisory notes could not be loaded. Manuscript writing remains available.');
+    });
+    return () => {
+      cancelled = true;
+    };
+  // Load only when project identity changes, not after ordinary manuscript revisions.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackNotesBridge, livingOutlineProjectIdentity, windowRole]);
+
   const clearAiSurface = useCallback((invalidateActive: boolean) => {
     const reference = aiReferenceRef.current;
     if (invalidateActive && reference && aiBridge) {
@@ -784,6 +871,23 @@ export default function Stage19WritingSpineApp({
     : '';
   const activeDurableBody = splitDraft(activeDurableMarkdown).body;
   const activeBuffer = activeUnit ? buffers[activeUnit.id] ?? activeDurableBody : '';
+  const selectedOutlineItem = useMemo(
+    () => livingOutline?.document.items.find((item) => item.id === selectedOutlineItemId) ?? null,
+    [livingOutline, selectedOutlineItemId],
+  );
+  const projectedWritingOrder = useMemo(
+    () => (livingOutline?.document.items ?? [])
+      .flatMap((item) => {
+        if (!item.manuscriptUnitId) return [];
+        const unit = snapshot.project?.units.find((candidate) => candidate.id === item.manuscriptUnitId);
+        return unit ? [{ item, unit }] : [];
+      }),
+    [livingOutline, snapshot.project?.units],
+  );
+  const activeLinkedOutlineItemId = useMemo(
+    () => livingOutline?.document.items.find((item) => item.manuscriptUnitId === snapshot.activeUnitId)?.id ?? null,
+    [livingOutline?.document.items, snapshot.activeUnitId],
+  );
   const dirtyUnitIds = useMemo(() => deriveDirtyUnitIds(snapshot, buffers), [buffers, snapshot]);
   const activeDirty = Boolean(activeUnit && dirtyUnitIds.has(activeUnit.id));
   const hasLocalUnsaved = dirtyUnitIds.size > 0;
@@ -798,6 +902,10 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
   }, [activeUnit?.id, activeUnit?.title]);
+
+  useEffect(() => {
+    if (activeLinkedOutlineItemId) setSelectedOutlineItemId(activeLinkedOutlineItemId);
+  }, [activeLinkedOutlineItemId]);
 
   const submitRecoveryCheckpoint = useCallback(async (
     unitId: string,
@@ -1063,6 +1171,143 @@ export default function Stage19WritingSpineApp({
     },
     [applySnapshot, bridge, flushRecoveryCheckpoint],
   );
+
+  const applyLivingOutlineResult = useCallback((result: Awaited<ReturnType<LivingOutlineBridge['get']>>) => {
+    if (result.ok) {
+      setLivingOutline(result.data);
+      setLivingOutlineNotice(result.data.message);
+      return true;
+    }
+    setLivingOutlineNotice(result.error.message);
+    return false;
+  }, []);
+
+  const livingOutlineMutationBinding = useCallback(() => {
+    const current = snapshotRef.current;
+    if (!current.project || !livingOutline || livingOutline.availability !== 'ready') return null;
+    return {
+      projectId: current.project.projectId,
+      projectPath: current.project.path,
+      generation: current.generation,
+      expectedRevision: livingOutline.document.revision,
+    };
+  }, [livingOutline]);
+
+  const createLivingOutlineItem = useCallback(async () => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !outlineLabel.trim()) return;
+    setLivingOutlineLoading(true);
+    try {
+      const result = await livingOutlineBridge.createItem({
+        ...binding,
+        operationId: operationId('living-outline-create'),
+        label: outlineLabel,
+        kind: outlineKind,
+        state: outlineState,
+        manuscriptUnitId: outlineLinkActiveUnit ? snapshotRef.current.activeUnitId : null,
+      });
+      if (applyLivingOutlineResult(result) && result.ok) {
+        const created = result.data.document.items.at(-1);
+        setSelectedOutlineItemId(created?.id ?? null);
+        setOutlineLabel('');
+      }
+    } catch {
+      setLivingOutlineNotice('The outline item could not be saved. Manuscript text was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, outlineKind, outlineLabel, outlineLinkActiveUnit, outlineState]);
+
+  const selectLivingOutlineItem = useCallback(async (itemId: string) => {
+    const item = livingOutline?.document.items.find((candidate) => candidate.id === itemId);
+    if (!item) return;
+    setSelectedOutlineItemId(item.id);
+    setOutlineLabel(item.label);
+    setOutlineKind(item.kind);
+    setOutlineState(item.state);
+    setOutlineLinkActiveUnit(Boolean(item.manuscriptUnitId));
+    if (item.manuscriptUnitId && item.manuscriptUnitId !== snapshotRef.current.activeUnitId) {
+      await handleSelectUnit(item.manuscriptUnitId);
+    }
+  }, [handleSelectUnit, livingOutline]);
+
+  const updateLivingOutlineItem = useCallback(async () => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !selectedOutlineItem || !outlineLabel.trim()) return;
+    setLivingOutlineLoading(true);
+    try {
+      applyLivingOutlineResult(await livingOutlineBridge.updateItem({
+        ...binding,
+        operationId: operationId('living-outline-update'),
+        itemId: selectedOutlineItem.id,
+        label: outlineLabel,
+        kind: outlineKind,
+        state: outlineState,
+      }));
+    } catch {
+      setLivingOutlineNotice('The outline item could not be updated. Manuscript text was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, outlineKind, outlineLabel, outlineState, selectedOutlineItem]);
+
+  const moveLivingOutlineItem = useCallback(async (direction: -1 | 1) => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    setLivingOutlineLoading(true);
+    try {
+      if (applyLivingOutlineResult(await livingOutlineBridge.moveItem({
+        ...binding,
+        operationId: operationId('living-outline-move'),
+        itemId: selectedOutlineItem.id,
+        direction,
+      }))) {
+        setLivingOutlineNotice('Planning order saved. Accepted manuscript order was not changed.');
+      }
+    } catch {
+      setLivingOutlineNotice('The planning order could not be saved. Accepted manuscript order was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
+
+  const linkLivingOutlineItem = useCallback(async (manuscriptUnitId: string | null) => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    setLivingOutlineLoading(true);
+    try {
+      applyLivingOutlineResult(await livingOutlineBridge.linkItem({
+        ...binding,
+        operationId: operationId('living-outline-link'),
+        itemId: selectedOutlineItem.id,
+        manuscriptUnitId,
+      }));
+    } catch {
+      setLivingOutlineNotice('The outline link could not be saved. Manuscript text was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
+
+  const deleteLivingOutlineItem = useCallback(async () => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    setLivingOutlineLoading(true);
+    try {
+      if (applyLivingOutlineResult(await livingOutlineBridge.deleteItem({
+        ...binding,
+        operationId: operationId('living-outline-delete'),
+        itemId: selectedOutlineItem.id,
+      }))) {
+        setSelectedOutlineItemId(null);
+        setOutlineLabel('');
+      }
+    } catch {
+      setLivingOutlineNotice('The outline item could not be removed. Manuscript text was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
 
   const submitRecoveryDecision = useCallback(async (
     candidate: ProjectSpineRecoveryCandidateProjection,
@@ -1634,6 +1879,7 @@ export default function Stage19WritingSpineApp({
         body,
       });
       if (result.ok) {
+        setSavedFeedbackNotes((current) => [...current, result.data]);
         setFeedbackNoteNotice('Advisory project note saved. It is separate from manuscript and outline files.');
       } else {
         setFeedbackNoteNotice(result.error.message);
@@ -1643,7 +1889,7 @@ export default function Stage19WritingSpineApp({
     } finally {
       setFeedbackNoteSaving(false);
     }
-  }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.project]);
+  }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.generation, snapshot.project]);
 
   if (loading) {
     return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
@@ -1787,6 +2033,9 @@ export default function Stage19WritingSpineApp({
           >
             {exportingMarkdown ? 'Exporting…' : 'Export Markdown…'}
           </button>
+          <button type="button" aria-pressed={focusMode} onClick={() => setFocusMode((current) => !current)}>
+            {focusMode ? 'Exit Focus mode' : 'Enter Focus mode'}
+          </button>
         </div>
       </header>
       {markdownExportRequiresSave ? (
@@ -1861,8 +2110,8 @@ export default function Stage19WritingSpineApp({
         <button type="button" onClick={() => void handleCreateProject()} disabled={!bridge}>Create project…</button>
       </section>
       {snapshot.project ? (
-        <div className={`stage19-spine__writing-grid ${reviewPaneOpen ? 'is-review-open' : ''}`}>
-          <aside className="stage19-spine__binder" aria-label="Manuscript binder">
+        <div className={`stage19-spine__writing-grid ${reviewPaneOpen && !focusMode ? 'is-review-open' : ''} ${focusMode ? 'is-focus-mode' : ''}`}>
+          {!focusMode ? <aside className="stage19-spine__binder" aria-label="Manuscript binder and Living Outline">
             <div className="stage19-spine__section-heading">
               <div><span className="stage19-spine__eyebrow">Binder</span><h2>Manuscript units</h2></div>
               <span>{snapshot.project.units.length}</span>
@@ -1912,7 +2161,87 @@ export default function Stage19WritingSpineApp({
                 <button type="button" className="stage19-spine__danger" onClick={() => void handleDeleteUnit()} disabled={recoveryBlocksEditing}>Delete unit…</button>
               </div>
             ) : null}
-          </aside>
+            <section className="stage19-living-outline" aria-label="Living Outline">
+              <div className="stage19-spine__section-heading">
+                <div><span className="stage19-spine__eyebrow">Optional planning layer</span><h2>Living Outline</h2></div>
+                <span>{livingOutline?.document.items.length ?? 0}</span>
+              </div>
+              <p className="stage19-living-outline__boundary">Planning only. It can point to writing, but it cannot rewrite prose or reorder the accepted manuscript.</p>
+              {livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
+              {livingOutlineLoading && !livingOutline ? <p>Loading outline…</p> : null}
+              {livingOutline?.availability === 'ready' ? (
+                <>
+                  <div className="stage19-living-outline__editor">
+                    <label>
+                      <span>Outline item</span>
+                      <input value={outlineLabel} maxLength={240} onChange={(event) => setOutlineLabel(event.target.value)} placeholder="A fragment, gap, or planning area" />
+                    </label>
+                    <label>
+                      <span>Shape</span>
+                      <select value={outlineKind} onChange={(event) => setOutlineKind(event.target.value as LivingOutlineItemKind)}>
+                        <option value="fragment">Fragment</option>
+                        <option value="gap">Gap</option>
+                        <option value="container">Planning area</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>Status</span>
+                      <select value={outlineState} onChange={(event) => setOutlineState(event.target.value as LivingOutlineItemState)}>
+                        <option value="authored">Authored</option>
+                        <option value="planned">Planned</option>
+                        <option value="inferred">Inferred</option>
+                        <option value="proposed">Proposed</option>
+                      </select>
+                    </label>
+                    <label className="stage19-living-outline__checkbox">
+                      <input type="checkbox" checked={outlineLinkActiveUnit} onChange={(event) => setOutlineLinkActiveUnit(event.target.checked)} disabled={!activeUnit} />
+                      <span>{activeUnit ? `Link new item to ${activeUnit.displayTitle}` : 'Create unlinked (no active writing)'}</span>
+                    </label>
+                    <div className="stage19-living-outline__actions">
+                      <button type="button" onClick={() => void createLivingOutlineItem()} disabled={livingOutlineLoading || !outlineLabel.trim()}>Add outline item</button>
+                      <button type="button" onClick={() => void updateLivingOutlineItem()} disabled={livingOutlineLoading || !selectedOutlineItem || !outlineLabel.trim()}>Update selected</button>
+                    </div>
+                  </div>
+                  {livingOutline.document.items.length > 0 ? (
+                    <ol className="stage19-living-outline__items">
+                      {livingOutline.document.items.map((item, index) => {
+                        const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
+                        return (
+                          <li key={item.id}>
+                            <button
+                              type="button"
+                              className={`${item.id === selectedOutlineItemId ? 'is-active' : ''} ${item.manuscriptUnitId === snapshot.activeUnitId ? 'is-writing-linked' : ''}`}
+                              aria-current={item.id === selectedOutlineItemId ? 'true' : undefined}
+                              onClick={() => void selectLivingOutlineItem(item.id)}
+                            >
+                              <span>{String(index + 1).padStart(2, '0')}</span>
+                              <strong>{item.label}</strong>
+                              <em>{item.kind} · {item.state}</em>
+                              <small>{linkedUnit ? `Writing: ${linkedUnit.displayTitle}` : 'Unlinked planning'}</small>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  ) : <p className="stage19-spine__empty">Start with a fragment, a gap, or an empty planning area. No warnings are generated.</p>}
+                  {selectedOutlineItem ? (
+                    <div className="stage19-living-outline__selected-actions">
+                      <button type="button" onClick={() => void moveLivingOutlineItem(-1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === selectedOutlineItem.id}>Move planning up</button>
+                      <button type="button" onClick={() => void moveLivingOutlineItem(1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === selectedOutlineItem.id}>Move planning down</button>
+                      <button type="button" onClick={() => void linkLivingOutlineItem(snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || selectedOutlineItem.manuscriptUnitId === snapshot.activeUnitId}>Link to active writing</button>
+                      <button type="button" onClick={() => void linkLivingOutlineItem(null)} disabled={livingOutlineLoading || !selectedOutlineItem.manuscriptUnitId}>Unlink</button>
+                      <button type="button" className="stage19-spine__danger" onClick={() => void deleteLivingOutlineItem()} disabled={livingOutlineLoading}>Delete planning item</button>
+                    </div>
+                  ) : null}
+                  <details className="stage19-living-outline__preview">
+                    <summary>Preview linked writing order</summary>
+                    <p>Preview only. Moving this list never moves accepted manuscript units.</p>
+                    {projectedWritingOrder.length > 0 ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol> : <p>No outline items are linked to writing yet.</p>}
+                  </details>
+                </>
+              ) : null}
+            </section>
+          </aside> : null}
           <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
             {activeUnit ? (
               <>
@@ -1939,7 +2268,7 @@ export default function Stage19WritingSpineApp({
                     ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
                   />
                 </div>
-                <section className="stage19-ai" aria-label="Selected prose AI critique">
+                {!focusMode ? <section className="stage19-ai" aria-label="Selected prose AI critique">
                   <div className="stage19-ai__heading">
                     <div><span className="stage19-spine__eyebrow">Optional remote critique</span><h3>Selected prose only</h3></div>
                     <span className={aiCredentialConfigured ? 'is-ready' : ''}>
@@ -2002,18 +2331,19 @@ export default function Stage19WritingSpineApp({
                       {aiState && ['approved', 'executing'].includes(aiState.status) ? (
                         <div className="stage19-ai__progress" role="status"><p>Waiting for advisory critique. Editing will invalidate and discard this request.</p><button type="button" onClick={() => void stopWaitingForAi()}>Stop waiting</button></div>
                       ) : null}
-                      {aiResult && !reviewPaneOpen ? <button type="button" onClick={() => setReviewPaneOpen(true)}>Open Critique Workbench</button> : null}
                       {aiNotice ? <p className="stage19-ai__notice" role="status">{aiNotice}</p> : null}
                       {aiState && ['failed', 'cancelled', 'expired', 'invalidated'].includes(aiState.status) && !aiResult ? <button type="button" onClick={dismissAiCritique}>Dismiss critique status</button> : null}
                     </>
                   )}
-                </section>
+                  {(aiResult || savedFeedbackNotes.length > 0) && !reviewPaneOpen ? <button type="button" onClick={() => setReviewPaneOpen(true)}>{aiResult ? 'Open Critique Workbench' : `Open Feedback Notes (${savedFeedbackNotes.length})`}</button> : null}
+                  {!reviewPaneOpen && feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{feedbackNoteNotice}</p> : null}
+                </section> : null}
               </>
             ) : (
               <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>
             )}
           </section>
-          {reviewPaneOpen ? (
+          {reviewPaneOpen && !focusMode ? (
             <aside className="stage19-spine__review-pane" aria-label="Critique Workbench">
               <div className="stage19-ai__heading">
                 <div><span className="stage19-spine__eyebrow">Summonable review pane</span><h3>Critique Workbench</h3></div>
@@ -2053,6 +2383,12 @@ export default function Stage19WritingSpineApp({
               ) : (
                 <p>No completed critique is open. Keep writing, or select prose to review an exact outbound request.</p>
               )}
+              <section className="stage19-ai__saved-notes" aria-label="Saved advisory Feedback Notes">
+                <h4>Saved advisory Feedback Notes</h4>
+                {savedFeedbackNotes.length > 0 ? (
+                  <ol>{savedFeedbackNotes.map((note) => <li key={note.id}><p>{note.body}</p><small>Advisory · {note.createdAt} · source request {note.sourceCritiqueRequestId}</small></li>)}</ol>
+                ) : <p>No author-saved feedback notes in this project.</p>}
+              </section>
             </aside>
           ) : null}
         </div>
