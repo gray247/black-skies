@@ -15,6 +15,8 @@ Current status:
 - the two required V2 learning workflows are Critique Workbench followed by the first Writing Surface to Living Outline loop; their learning synthesis gates the major V3 product-shell program
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
+- human validation is consolidated into five gates: combined V2 workflows, V3 shell and Companion, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates
+- Emotion Graph V1 is the first visual story-intelligence lens after the V3 shell and Companion gate; it uses Living Outline story positions and keeps planned, observed, and inferred emotion distinct
 - Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group, limited to the initial bounded local project-open/save/re-entry sequence; `stage19_foundation_spine_acceptance_reconciliation.md` is the current non-retroactive authority and does not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
 - Packages `19.9` through `19.11` are formally closed by commit `d780f52`; this package-horizon closure does not close Stage 19 or complete V1.0
@@ -857,6 +859,11 @@ Product-version horizons are explicit:
 - later V2 and V3 programs add signals, story intelligence, creation,
   revision, organization, interchange, heavy intelligence, durability, and
   release hardening according to the accepted eight-program sequence.
+- Emotion Graph V1 is the first visual story-intelligence lens after the V3
+  shell and Companion gate because it requires stable Living Outline story
+  positions and a proven summonable Command Center home.
+- Human validation occurs at the five accepted combined gates rather than
+  after every low-risk workflow slice or implementation batch.
 
 [v2_ai_insight_register.md](/C:/Dev/black-skies/docs/product_systems/v2_ai_insight_register.md)
 is the canonical forward-looking AI intelligence-layer register for those

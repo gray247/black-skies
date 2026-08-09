@@ -49,6 +49,13 @@ It does not finalize the entire product vision.
   V2; unified layout and polish belong to V3 after the two-workflow synthesis.
 - The first V3 shell includes a minimal Companion bar, routes results into the
   Command Center, and keeps conversation memory non-durable by default.
+- Human validation is consolidated into five gates: combined V2 workflows,
+  V3 shell and Companion, story intelligence and creation or revision,
+  high-risk behavior, and the final installed product. Low-risk automated work
+  may continue between those gates.
+- Emotion Graph V1 is the first visual story-intelligence lens after the V3
+  shell and Companion gate. It uses Living Outline story positions and keeps
+  author-planned, manuscript-observed, and inferred emotion distinct.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 

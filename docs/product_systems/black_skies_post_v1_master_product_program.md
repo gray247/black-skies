@@ -219,14 +219,14 @@ Remaining scope:
 - prove prose cannot change through the workflow,
 - prove cancellation, stale selection, provider failure, and copy or note-save
   failure remain honest,
-- perform one twenty-minute human review,
-- create a repair batch only if that complete review finds a problem.
+- prepare Critique Workbench for the combined V2 human gate,
+- create a repair batch only if automation or that combined review finds a
+  problem.
 
 Exit evidence:
 
 - automated evidence is green,
-- one human workflow receipt answers `understandable`, `safe to act on`, and
-  `did not interrupt writing`,
+- the workflow is ready for the combined V2 human gate with Living Outline,
 - no broad critique-quality or provider-ranking claim is made.
 
 ### Program 2 - Prove The Living Outline Loop
@@ -259,7 +259,8 @@ Exit evidence:
 - the loop works on a real small project,
 - direct writing remains possible with no outline,
 - outline-first and prose-first paths both work,
-- one complete human review is recorded.
+- the combined V2 human gate reviews Critique Workbench and Living Outline in
+  one author session.
 
 ### Gate A - Two-Workflow Learning Synthesis
 
@@ -272,6 +273,9 @@ After Programs 1 and 2, record a short synthesis:
 - what belonged in the Command Center,
 - what interrupted flow,
 - what should become a reusable interaction pattern.
+
+This synthesis follows Human Gate 1, the combined V2 review of Critique
+Workbench and Living Outline.
 
 V3 interface work begins only after this synthesis. This is a learning gate,
 not another general audit campaign.
@@ -320,18 +324,37 @@ Sequence:
 
 1. implement the shared Off / Ask Only / Quiet / Alert posture,
 2. implement Explore / Develop / Finish project posture,
-3. prove one high-value signal family end to end,
-4. add further analyzers only when the shared interaction works,
-5. keep deep maps and comparisons summonable in the Command Center.
+3. build Emotion Graph V1 as the first visual story-intelligence lens,
+4. prove continuity and one further high-value signal family end to end,
+5. add further analyzers only when the shared interaction works,
+6. keep deep maps and comparisons summonable in the Command Center.
 
 Likely order after the shared signal contract:
 
+- Emotion Graph V1,
 - continuity,
 - timeline and chronology,
 - foreshadow and payoff,
 - pacing and pressure,
 - overused words, cliche, and senses analyzers,
-- theme, relationship, and emotion views.
+- theme and relationship views,
+- richer multi-character and intended-versus-observed emotion overlays.
+
+Emotion Graph V1 begins after Human Gate 2 confirms the contextual V3 shell
+and Companion placement. It depends on the Living Outline's stable story
+positions so graph points can link back to real writing and structure.
+
+Its first bounded slice includes:
+
+- source-linked emotional movement across Living Outline positions,
+- visibly distinct author-planned, manuscript-observed, and inferred lanes,
+- optional character lanes using author labels or accepted character
+  references where available,
+- click-to-jump between a graph point, related writing, and outline context,
+- summonable Command Center detail with only quiet contextual cues beside the
+  Writing Surface,
+- no AI dependency, automatic canonization, mandatory emotion taxonomy,
+  psychiatric diagnosis, or universal emotional-success score.
 
 The order may change from author evidence. No analyzer earns a permanent
 dashboard tile merely because a dossier exists.
@@ -413,21 +436,37 @@ mode constrain every applicable program without becoming extra programs.
 
 ## 8. Efficient Delivery Rhythm
 
-### 8.1 One Slice, Several Automated Batches, One Human Review
+### 8.1 Long Automated Runs And Five Human Gates
 
-For each complete workflow slice:
+Within and across adjacent low-risk workflow slices, the agent may run for
+extended periods through:
 
 1. contract and persistence batch,
 2. owner bridge and process-boundary batch,
 3. user-interface workflow batch,
 4. end-to-end evidence batch,
-5. one human review of the complete workflow.
+5. automated repair and regression batches.
 
-The exact number of automated batches may shrink or grow with risk. The human
-review remains attached to a usable workflow, not to every code change.
+The exact number of automated batches may shrink or grow with risk. Human
+review is consolidated into five gates:
 
-If the human review fails, create one repair batch, rerun automation, and
-repeat the human workflow only when it is whole again.
+1. `V2 combined review`: Critique Workbench plus Living Outline.
+2. `V3 shell review`: contextual layout, Focus mode, and Companion bar.
+3. `Intelligence review`: signal posture, Emotion Graph V1, the first useful
+   analyzers, and the first bounded creation or revision workflow.
+4. `High-risk review`: paid or outbound AI, durable memory, background jobs,
+   restore-over-current, destructive work, or truth-changing actions. Fresh
+   approvals still apply where governing contracts require them.
+5. `Final product review`: installed application and complete author journey
+   before any later public milestone decision.
+
+If a human gate fails, create a bounded repair batch, rerun automation, and
+repeat the human gate only when the grouped workflow is whole again.
+
+Human validation is not required between these gates unless work encounters a
+new product choice, owner conflict, destructive boundary, protected-content
+decision, outbound transmission, paid spend, or other higher contract that
+requires explicit author authority.
 
 ### 8.2 Commit And Push Rhythm
 
