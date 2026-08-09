@@ -13,6 +13,7 @@ import type {
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
 import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
+import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import Stage19WritingSpineApp, {
   deriveDirtyUnitIds,
   useCloseConfirmationRequest,
@@ -1874,7 +1875,17 @@ describe('Stage19WritingSpineApp', () => {
       units: [{ id: 'unit_a', title: 'Staleness', order: 1, body: prose }],
     }));
     const ai = createAiBridge(`${prose}\n`);
-    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
+    const feedbackNotes: FeedbackNotesBridge = {
+      createFromCritique: vi.fn(async () => ({
+        ok: true as const,
+        data: {
+          id: 'feedback-a', projectId: 'proj_a', unitId: 'unit_a', sourceCritiqueRequestId: 'ai-request-1',
+          selectionFingerprint: 'b'.repeat(64), createdAt: '2026-07-14T12:00:00.000Z', advisory: true as const,
+          body: 'Keep the temporal unease.',
+        },
+      })),
+    };
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} feedbackNotesBridge={feedbackNotes} />);
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
     await act(async () => {
       (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
@@ -1918,7 +1929,15 @@ describe('Stage19WritingSpineApp', () => {
       });
       await Promise.resolve();
     });
+    expect(screen.getByRole('complementary', { name: 'Critique Workbench' })).toBeVisible();
     expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+    const note = screen.getByLabelText('Save a concise advisory project note');
+    fireEvent.change(note, { target: { value: 'Keep the temporal unease.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save advisory note' }));
+    await waitFor(() => expect(feedbackNotes.createFromCritique).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a', unitId: 'unit_a', sourceCritiqueRequestId: 'ai-request-1', body: 'Keep the temporal unease.',
+    })));
+    expect(await screen.findByText('Advisory project note saved. It is separate from manuscript and outline files.')).toBeVisible();
     await act(async () => {
       fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
       await Promise.resolve();

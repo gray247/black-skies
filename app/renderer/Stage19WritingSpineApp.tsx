@@ -20,6 +20,7 @@ import {
   type AiCritiqueRequestReference,
   type AiCritiqueState,
 } from '../shared/ipc/aiCritique';
+import type { FeedbackNotesBridge } from '../shared/ipc/feedbackNotes';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 
 interface DraftEnvelope {
@@ -505,6 +506,7 @@ export interface Stage19WritingSpineAppProps {
   readonly windowRole?: ProjectSpineWindowRole;
   readonly bridge?: ProjectSpineBridge;
   readonly aiBridge?: AiCritiqueBridge;
+  readonly feedbackNotesBridge?: FeedbackNotesBridge;
 }
 
 interface MarkdownExportNotice {
@@ -518,6 +520,7 @@ export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
   aiBridge = window.aiCritique,
+  feedbackNotesBridge = window.feedbackNotes,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -541,6 +544,10 @@ export default function Stage19WritingSpineApp({
   const [aiResult, setAiResult] = useState<AiCritiqueCompletedResult | null>(null);
   const [aiResultStale, setAiResultStale] = useState(false);
   const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [reviewPaneOpen, setReviewPaneOpen] = useState(false);
+  const [feedbackNoteBody, setFeedbackNoteBody] = useState('');
+  const [feedbackNoteSaving, setFeedbackNoteSaving] = useState(false);
+  const [feedbackNoteNotice, setFeedbackNoteNotice] = useState<string | null>(null);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -726,6 +733,10 @@ export default function Stage19WritingSpineApp({
     setAiResult(null);
     setAiResultStale(false);
     setAiNotice(null);
+    setReviewPaneOpen(false);
+    setFeedbackNoteBody('');
+    setFeedbackNoteSaving(false);
+    setFeedbackNoteNotice(null);
   }, [aiBridge]);
 
   useEffect(() => {
@@ -742,6 +753,9 @@ export default function Stage19WritingSpineApp({
       if (state.status === 'completed' && state.result) {
         setAiResult(state.result);
         setAiResultStale(false);
+        setReviewPaneOpen(true);
+        setFeedbackNoteBody('');
+        setFeedbackNoteNotice(null);
       }
       if (state.error) setAiNotice(state.error.message);
     });
@@ -1580,6 +1594,57 @@ export default function Stage19WritingSpineApp({
     setAiSelection(null);
   }, [aiResult, clearAiSurface]);
 
+  const copyAiResult = useCallback(async () => {
+    if (!aiResult) return;
+    const resultText = [
+      'Advisory critique (author review only)',
+      aiResult.content.overview,
+      aiResult.content.strengths.length ? `Strengths:\n${aiResult.content.strengths.map((item) => `- ${item}`).join('\n')}` : '',
+      aiResult.content.priorities.length ? `Priorities:\n${aiResult.content.priorities.map((item) => `- ${item.observation} ${item.revisionQuestion}`).join('\n')}` : '',
+      aiResult.content.uncertainties.length ? `Uncertainties:\n${aiResult.content.uncertainties.map((item) => `- ${item}`).join('\n')}` : '',
+      aiResult.content.limitations.length ? `Limitations:\n${aiResult.content.limitations.map((item) => `- ${item}`).join('\n')}` : '',
+    ].filter(Boolean).join('\n\n');
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Copy is unavailable in this window.');
+      await navigator.clipboard.writeText(resultText);
+      setFeedbackNoteNotice('Critique copied. This copy is temporary and does not alter the manuscript.');
+    } catch {
+      setFeedbackNoteNotice('Could not copy the critique. Select and copy the text manually.');
+    }
+  }, [aiResult]);
+
+  const saveFeedbackNote = useCallback(async () => {
+    if (!feedbackNotesBridge || !aiResult || !snapshot.project || !snapshot.activeUnitId) return;
+    const body = feedbackNoteBody.trim();
+    if (!body) {
+      setFeedbackNoteNotice('Write the concise advisory note you want to keep.');
+      return;
+    }
+    setFeedbackNoteSaving(true);
+    setFeedbackNoteNotice(null);
+    try {
+      const result = await feedbackNotesBridge.createFromCritique({
+        operationId: operationId('feedback-note'),
+        projectId: snapshot.project.projectId,
+        projectPath: snapshot.project.path,
+        generation: snapshot.generation,
+        unitId: snapshot.activeUnitId,
+        sourceCritiqueRequestId: aiResult.requestId,
+        selectionFingerprint: aiResult.selectionFingerprint,
+        body,
+      });
+      if (result.ok) {
+        setFeedbackNoteNotice('Advisory project note saved. It is separate from manuscript and outline files.');
+      } else {
+        setFeedbackNoteNotice(result.error.message);
+      }
+    } catch {
+      setFeedbackNoteNotice('The feedback note could not be saved. Your manuscript is unchanged.');
+    } finally {
+      setFeedbackNoteSaving(false);
+    }
+  }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.project]);
+
   if (loading) {
     return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
   }
@@ -1796,7 +1861,7 @@ export default function Stage19WritingSpineApp({
         <button type="button" onClick={() => void handleCreateProject()} disabled={!bridge}>Create project…</button>
       </section>
       {snapshot.project ? (
-        <div className="stage19-spine__writing-grid">
+        <div className={`stage19-spine__writing-grid ${reviewPaneOpen ? 'is-review-open' : ''}`}>
           <aside className="stage19-spine__binder" aria-label="Manuscript binder">
             <div className="stage19-spine__section-heading">
               <div><span className="stage19-spine__eyebrow">Binder</span><h2>Manuscript units</h2></div>
@@ -1937,19 +2002,7 @@ export default function Stage19WritingSpineApp({
                       {aiState && ['approved', 'executing'].includes(aiState.status) ? (
                         <div className="stage19-ai__progress" role="status"><p>Waiting for advisory critique. Editing will invalidate and discard this request.</p><button type="button" onClick={() => void stopWaitingForAi()}>Stop waiting</button></div>
                       ) : null}
-                      {aiResult ? (
-                        <div className={`stage19-ai__result ${aiResultStale ? 'is-stale' : ''}`}>
-                          {aiResultStale ? <p className="stage19-ai__stale" role="status">Stale: the manuscript changed after this critique completed.</p> : null}
-                          <h4>Advisory critique</h4>
-                          <p>{aiResult.content.overview}</p>
-                          {aiResult.content.strengths.length > 0 ? <><h5>Strengths</h5><ul>{aiResult.content.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-                          {aiResult.content.priorities.length > 0 ? <><h5>Priorities</h5><ol>{aiResult.content.priorities.map((item, index) => <li key={`${index}-${item.evidence}`}><blockquote>{item.evidence}</blockquote><p>{item.observation}</p><p>{item.impact}</p><p>{item.revisionQuestion}</p></li>)}</ol></> : null}
-                          {aiResult.content.uncertainties.length > 0 ? <><h5>Uncertainties</h5><ul>{aiResult.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-                          <p>{aiResult.usage.inputTokens} input tokens; {aiResult.usage.outputTokens} output tokens; ${aiResult.usage.calculatedUsd.toFixed(6)} calculated.</p>
-                          <p>{aiResult.usage.invoiceDisclaimer}</p>
-                          <button type="button" onClick={dismissAiCritique}>Dismiss critique</button>
-                        </div>
-                      ) : null}
+                      {aiResult && !reviewPaneOpen ? <button type="button" onClick={() => setReviewPaneOpen(true)}>Open Critique Workbench</button> : null}
                       {aiNotice ? <p className="stage19-ai__notice" role="status">{aiNotice}</p> : null}
                       {aiState && ['failed', 'cancelled', 'expired', 'invalidated'].includes(aiState.status) && !aiResult ? <button type="button" onClick={dismissAiCritique}>Dismiss critique status</button> : null}
                     </>
@@ -1960,6 +2013,48 @@ export default function Stage19WritingSpineApp({
               <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>
             )}
           </section>
+          {reviewPaneOpen ? (
+            <aside className="stage19-spine__review-pane" aria-label="Critique Workbench">
+              <div className="stage19-ai__heading">
+                <div><span className="stage19-spine__eyebrow">Summonable review pane</span><h3>Critique Workbench</h3></div>
+                <button type="button" onClick={() => setReviewPaneOpen(false)}>Hide pane</button>
+              </div>
+              {aiResult ? (
+                <div className={`stage19-ai__result ${aiResultStale ? 'is-stale' : ''}`}>
+                  {aiResultStale ? <p className="stage19-ai__stale" role="status">Stale: the manuscript changed after this critique completed.</p> : null}
+                  <p><strong>Advisory only.</strong> This is a suggestion about the original selected prose, not story truth and never a manuscript change.</p>
+                  <dl className="stage19-ai__summary">
+                    <div><dt>Scope</dt><dd>Selected prose in {activeUnit?.displayTitle ?? 'the active unit'}</dd></div>
+                    <div><dt>Provider / model</dt><dd>{aiResult.provider} / {aiResult.model}</dd></div>
+                    <div><dt>Calculated cost</dt><dd>${aiResult.usage.calculatedUsd.toFixed(6)} (not an invoice)</dd></div>
+                    <div><dt>Privacy</dt><dd>Only the previewed selection was sent after approval.</dd></div>
+                  </dl>
+                  <h4>Advisory critique</h4>
+                  <p>{aiResult.content.overview}</p>
+                  {aiResult.content.strengths.length > 0 ? <><h5>Strengths</h5><ul>{aiResult.content.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                  {aiResult.content.priorities.length > 0 ? <><h5>Priorities</h5><ol>{aiResult.content.priorities.map((item, index) => <li key={`${index}-${item.evidence}`}><blockquote>{item.evidence}</blockquote><p>{item.observation}</p><p>{item.impact}</p><p>{item.revisionQuestion}</p></li>)}</ol></> : null}
+                  {aiResult.content.uncertainties.length > 0 ? <><h5>Uncertainties</h5><ul>{aiResult.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                  {aiResult.content.limitations.length > 0 ? <><h5>Limitations</h5><ul>{aiResult.content.limitations.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                  <p>{aiResult.usage.inputTokens} input tokens; {aiResult.usage.outputTokens} output tokens; {aiResult.usage.invoiceDisclaimer}</p>
+                  <div className="stage19-ai__actions">
+                    <button type="button" onClick={() => void copyAiResult()}>Copy result text</button>
+                    <button type="button" onClick={dismissAiCritique}>Dismiss critique</button>
+                  </div>
+                  <label className="stage19-ai__note">
+                    <span>Save a concise advisory project note</span>
+                    <textarea value={feedbackNoteBody} maxLength={4000} rows={4} onChange={(event) => setFeedbackNoteBody(event.target.value)} />
+                  </label>
+                  <button type="button" onClick={() => void saveFeedbackNote()} disabled={!feedbackNotesBridge || feedbackNoteSaving}>
+                    {feedbackNoteSaving ? 'Saving note…' : 'Save advisory note'}
+                  </button>
+                  {!feedbackNotesBridge ? <p className="stage19-ai__notice">Saving notes is unavailable in this window. The critique remains temporary.</p> : null}
+                  {feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{feedbackNoteNotice}</p> : null}
+                </div>
+              ) : (
+                <p>No completed critique is open. Keep writing, or select prose to review an exact outbound request.</p>
+              )}
+            </aside>
+          ) : null}
         </div>
       ) : (
         <div className="stage19-spine__welcome-grid">
