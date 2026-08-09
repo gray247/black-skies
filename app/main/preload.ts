@@ -18,6 +18,11 @@ import {
   type AiCritiqueState,
 } from '../shared/ipc/aiCritique';
 import {
+  FEEDBACK_NOTE_CHANNELS,
+  type CreateFeedbackNoteFromCritiqueRequest,
+  type FeedbackNotesBridge,
+} from '../shared/ipc/feedbackNotes';
+import {
   matchesSplitCommandOwnershipSyncMessagePairIdentity,
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
@@ -2540,6 +2545,11 @@ const aiCritiqueBridge: AiCritiqueBridge = {
   },
 };
 
+const feedbackNotesBridge: FeedbackNotesBridge = {
+  createFromCritique: (request: CreateFeedbackNoteFromCritiqueRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createFromCritique, request),
+};
+
 registerConsoleForwarding();
 
 if (exposesLegacyWritingSurface) {
@@ -2554,6 +2564,7 @@ if (exposesLegacyWritingSurface) {
 }
 if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
+  contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotesBridge);
 }
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);

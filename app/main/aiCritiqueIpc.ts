@@ -291,6 +291,17 @@ export function invalidateAllAiCritiqueArtifacts(): void {
   }
 }
 
+/** Feedback Notes may retain a completed critique only through this narrow, sender-bound lookup. */
+export function completedAiCritiqueForSender(
+  senderId: number,
+  requestId: string,
+): AiCritiqueState['result'] | null {
+  const session = senderSessions.get(senderId);
+  if (!session || typeof requestId !== 'string' || requestId.trim().length === 0) return null;
+  const state = session.coordinator.readState(requestId);
+  return state.status === 'completed' && state.result ? state.result : null;
+}
+
 export function resetAiCritiqueIpcForTests(): void {
   for (const channel of Object.values(AI_CRITIQUE_CHANNELS)) {
     if (channel !== AI_CRITIQUE_CHANNELS.stateChanged) ipcMain.removeHandler(channel);

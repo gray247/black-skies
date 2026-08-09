@@ -64,6 +64,7 @@ import {
   invalidateAllAiCritiqueArtifacts,
   registerAiCritiqueIpc,
 } from './aiCritiqueIpc.js';
+import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
 import {
   clearPendingCloseRequest,
   consumeCoordinatedCloseAllowance,
@@ -1400,6 +1401,10 @@ if (!hasSingleInstanceLock) {
       });
       registerAiCritiqueIpc({
         processSessionId: projectSpineOriginSessionId,
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
+      registerFeedbackNotesIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
       });

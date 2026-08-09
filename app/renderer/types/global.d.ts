@@ -6,6 +6,7 @@ import type { LayoutBridge } from '../../shared/ipc/layout';
 import type { SplitCommandOwnershipBridge } from '../../shared/ipc/splitCommand';
 import type { RuntimeConfig } from '../../shared/config/runtime';
 import type { AiCritiqueBridge } from '../../shared/ipc/aiCritique';
+import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
@@ -66,6 +67,7 @@ declare global {
     layout?: LayoutBridge;
     splitCommand?: SplitCommandOwnershipBridge;
     aiCritique?: AiCritiqueBridge;
+    feedbackNotes?: FeedbackNotesBridge;
     __dev?: DevHarness;
     __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     __serviceHealthRetry?: () => Promise<void>;

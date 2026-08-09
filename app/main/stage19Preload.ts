@@ -32,6 +32,10 @@ import type {
   AiCritiqueState,
 } from '../shared/ipc/aiCritique';
 import type {
+  CreateFeedbackNoteFromCritiqueRequest,
+  FeedbackNotesBridge,
+} from '../shared/ipc/feedbackNotes';
+import type {
   SplitCommandOwnershipSyncMessage,
   SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority';
@@ -77,6 +81,9 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     cancel: 'ai-critique:cancel',
     invalidate: 'ai-critique:invalidate',
     stateChanged: 'ai-critique:state-changed',
+  }),
+  feedbackNotes: Object.freeze({
+    createFromCritique: 'feedback-notes:create-from-critique',
   }),
   diagnostics: 'logging:diagnostics',
 });
@@ -403,6 +410,11 @@ const aiCritique: AiCritiqueBridge = {
   },
 };
 
+const feedbackNotes: FeedbackNotesBridge = {
+  createFromCritique: (request: CreateFeedbackNoteFromCritiqueRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createFromCritique, request),
+};
+
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 const logLevels: Record<ConsoleMethod, 'debug' | 'info' | 'warn' | 'error'> = {
   log: 'info',
@@ -445,4 +457,5 @@ contextBridge.exposeInMainWorld(
 contextBridge.exposeInMainWorld('splitCommand', splitCommand);
 if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
+  contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);
 }
