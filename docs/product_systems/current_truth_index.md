@@ -114,10 +114,13 @@ It does not finalize the entire product vision.
   Outline ecosystem, Command Review, and accessibility/qualification. It keeps
   Human Gate 2 after Program 4. Jason approved the plan, authorized its bounded
   implementation, and confirmed `GPT-5.6 Sol` with `xhigh` reasoning on
-  2026-08-10. P3-A is the next executable batch after the exact authorization
-  record is committed and pushed; all exclusions, batch gates, truth
-  boundaries, current Git controls, and the Human Gate 2 boundary remain in
-  force.
+  2026-08-10. The authorization record was committed and pushed at `6991bfae`.
+  P3-A contracts, deterministic Review fixtures, Feedback Note write
+  serialization, truthful supported-core receipt scope, and automated evidence
+  are complete in the current batch and recorded in
+  `program_3_batch_p3_a_evidence_receipt.md`. Jason's exact P3-A commit and push
+  make P3-B executable; all exclusions, batch gates, truth boundaries, current
+  Git controls, and the Human Gate 2 boundary remain in force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.

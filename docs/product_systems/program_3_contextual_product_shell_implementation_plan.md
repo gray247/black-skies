@@ -185,7 +185,7 @@ SurfaceContextV1
   generation
   logicalSurface
   workspace
-  sourceReturnAnchor? 
+  sourceReturnAnchor?
   physicalPlacement
   focusReturnTarget?
 ```
@@ -310,6 +310,12 @@ Exit:
 - no misleading coverage claim;
 - no second-writer lost-update risk; and
 - later UI batches can consume stable contracts.
+
+Implementation evidence is recorded in
+[Program 3 Batch P3-A Evidence Receipt](program_3_batch_p3_a_evidence_receipt.md).
+The implementation and automated gate are green; the batch becomes durable
+after Jason commits and pushes the exact P3-A file set. P3-B does not begin
+before that Git checkpoint.
 
 ### Batch P3-B - Behavior-locked controller and view seam
 

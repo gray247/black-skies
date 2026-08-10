@@ -10,6 +10,26 @@ import {
 
 export const FEEDBACK_NOTES_FILENAME = 'feedback-notes.json';
 
+const projectWriteQueues = new Map<string, Promise<void>>();
+
+function serializationKey(filePath: string): string {
+  const normalized = path.normalize(filePath);
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+}
+
+async function serializeProjectWrite<T>(filePath: string, operation: () => Promise<T>): Promise<T> {
+  const key = serializationKey(filePath);
+  const previous = projectWriteQueues.get(key) ?? Promise.resolve();
+  const result = previous.catch(() => undefined).then(operation);
+  const tail = result.then(() => undefined, () => undefined);
+  projectWriteQueues.set(key, tail);
+  try {
+    return await result;
+  } finally {
+    if (projectWriteQueues.get(key) === tail) projectWriteQueues.delete(key);
+  }
+}
+
 interface FeedbackNotesEnvelope {
   readonly schemaVersion: typeof FEEDBACK_NOTE_SCHEMA_VERSION;
   readonly projectId: string;
@@ -72,22 +92,25 @@ export class FeedbackNotesRepository {
   }
 
   async create(note: Omit<FeedbackNote, 'id' | 'createdAt' | 'advisory'>): Promise<FeedbackNote> {
-    const current = await this.readEnvelope(note.projectId);
-    const created: FeedbackNote = {
-      ...note,
-      id: `feedback_${randomUUID()}`,
-      createdAt: this.now().toISOString(),
-      advisory: true,
-    };
-    await this.writeEnvelope({
-      schemaVersion: FEEDBACK_NOTE_SCHEMA_VERSION,
-      projectId: note.projectId,
-      notes: [...current.notes, created],
+    return serializeProjectWrite(this.filePath, async () => {
+      const current = await this.readEnvelope(note.projectId);
+      const created: FeedbackNote = {
+        ...note,
+        id: `feedback_${randomUUID()}`,
+        createdAt: this.now().toISOString(),
+        advisory: true,
+      };
+      await this.writeEnvelope({
+        schemaVersion: FEEDBACK_NOTE_SCHEMA_VERSION,
+        projectId: note.projectId,
+        notes: [...current.notes, created],
+      });
+      return created;
     });
-    return created;
   }
 
   async list(projectId: string): Promise<readonly FeedbackNote[]> {
+    await projectWriteQueues.get(serializationKey(this.filePath));
     return (await this.readEnvelope(projectId)).notes;
   }
 

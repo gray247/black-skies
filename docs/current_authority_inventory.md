@@ -23,6 +23,8 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
+- the current Program 3 Batch P3-A implementation and automated-evidence
+  receipt;
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
 - the current Control Point 1 open-work reconciliation;
@@ -65,6 +67,12 @@ plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
 authorization-record baseline is committed and pushed; every stated exclusion,
 truth boundary, batch gate, Git control, and Human Gate 2 boundary remains in
 force.
+
+The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
+deterministic Review fixtures, per-project Feedback Note write serialization,
+truthful v2 supported-core coverage scope, and green changed-boundary and fixed
+regression evidence. Its implementation is complete; durable batch closure and
+P3-B eligibility require Jason's commit and push of the exact batch.
 
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,

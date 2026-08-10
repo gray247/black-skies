@@ -339,7 +339,7 @@ not another general audit campaign.
 
 ### Program 3 - Contextual Product Shell
 
-Status: `APPROVED AND BOUNDED RUNTIME AUTHORIZED; P3-A NEXT AFTER AUTHORITY BASELINE PUSH`
+Status: `ACTIVE; P3-A GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
 
 Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
@@ -376,8 +376,9 @@ workflow is whole.
 The detailed seven-batch proposal is
 [program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
 Jason approved it, authorized its bounded implementation, and confirmed
-`GPT-5.6 Sol` with `xhigh` reasoning on 2026-08-10. The first runtime batch is
-P3-A after the authorization-record baseline is committed and pushed.
+`GPT-5.6 Sol` with `xhigh` reasoning on 2026-08-10. The authorization-record
+baseline is pushed at `6991bfae`. P3-A implementation and automation are green;
+P3-B follows after Jason commits and pushes the exact P3-A batch.
 
 ### Program 4 - Companion And Owner Routing
 
@@ -667,9 +668,8 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the approved Program 3 plan, bounded runtime authorization,
-   and confirmed implementation model as one exact authority baseline,
-2. execute Program 3's seven automated batches for the Writing Studio shell,
+1. commit and push the green P3-A implementation and evidence batch,
+2. continue Program 3's remaining automated batches for the Writing Studio shell,
    plain Living Outline, edge rails, logical surface host, and Command Center
    critique-result handoff,
 3. complete Program 4's minimal Companion entry and owner-routing slice,

@@ -33,17 +33,46 @@ def main() -> int:
             f"Supported-core coverage requires Python 3.11 exactly; received {sys.version.split()[0]}."
         )
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    if manifest.get("schema") != "black-skies.foundation-supported-core-coverage.v1":
+    if manifest.get("schema") != "black-skies.foundation-supported-core-coverage.v2":
         raise RuntimeError("Supported-core coverage manifest schema is invalid.")
+    percentage_scope = manifest.get("percentageScope")
     minimum = manifest.get("minimumBranchCoverage")
-    included = manifest.get("included")
-    if minimum != 60 or not isinstance(included, list) or not included:
+    measured = manifest.get("measured")
+    verified_outside_percentage = manifest.get("verifiedOutsidePercentage")
+    excluded = manifest.get("excluded")
+    if percentage_scope != "Python supported core":
+        raise RuntimeError("Supported-core coverage percentage scope is invalid.")
+    if minimum != 60 or not isinstance(measured, list) or not measured:
         raise RuntimeError("Supported-core coverage policy is incomplete.")
-    modules = [entry.get("pythonModule") for entry in included if entry.get("pythonModule")]
+    if not isinstance(verified_outside_percentage, list) or not verified_outside_percentage:
+        raise RuntimeError("Supported-core behavior verified outside the percentage is missing.")
+    if not isinstance(excluded, list) or not excluded:
+        raise RuntimeError("Supported-core coverage exclusions are missing.")
+    for entry in [*measured, *verified_outside_percentage]:
+        if any(
+            not isinstance(entry.get(field), str) or not entry[field]
+            for field in ("path", "owner", "verification")
+        ):
+            raise RuntimeError("Supported-core coverage entry is incomplete.")
+        if not (ROOT / entry["path"]).exists():
+            raise RuntimeError(f"Supported-core path is missing: {entry['path']}.")
+        if not (ROOT / entry["verification"]).is_file():
+            raise RuntimeError(f"Supported-core verification is missing: {entry['verification']}.")
+    if any("pythonModule" in entry for entry in verified_outside_percentage):
+        raise RuntimeError(
+            "Behavior verified outside the percentage must not claim Python measurement."
+        )
+    for entry in excluded:
+        if any(
+            not isinstance(entry.get(field), str) or not entry[field]
+            for field in ("surface", "owner", "reopeningTrigger")
+        ):
+            raise RuntimeError("Supported-core coverage exclusion is incomplete.")
+    modules = [entry.get("pythonModule") for entry in measured]
     test_paths = sorted(
         {
             entry["verification"]
-            for entry in included
+            for entry in measured
             if isinstance(entry.get("verification"), str)
             and entry["verification"].startswith("services/")
         }
@@ -95,13 +124,15 @@ def main() -> int:
     if test_counts["failures"] or test_counts["errors"] or test_counts["skips"]:
         raise RuntimeError(f"Supported-core coverage test counts are not clean: {test_counts}.")
     receipt = {
-        "schema": "black-skies.foundation-supported-core-coverage-receipt.v1",
+        "schema": "black-skies.foundation-supported-core-coverage-receipt.v2",
         "qualifiedCommit": git_head(),
         "generatedAtUtc": datetime.now(UTC).isoformat(),
+        "percentageScope": percentage_scope,
         "minimumBranchCoverage": minimum,
-        "actualBranchCoverage": percent,
-        "included": included,
-        "excluded": manifest["excluded"],
+        "actualPythonBranchCoverage": percent,
+        "measured": measured,
+        "verifiedOutsidePercentage": verified_outside_percentage,
+        "excluded": excluded,
         "totals": totals,
         "testCounts": test_counts,
         "status": "passed" if percent >= minimum else "failed",

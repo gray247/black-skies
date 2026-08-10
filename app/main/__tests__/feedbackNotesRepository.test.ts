@@ -1,7 +1,7 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import fs, { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FEEDBACK_NOTE_SCHEMA_VERSION } from '../../shared/ipc/feedbackNotes';
 import {
@@ -28,6 +28,7 @@ const source = {
 
 describe('Feedback Notes sidecar', () => {
   afterEach(async () => {
+    vi.restoreAllMocks();
     await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
   });
 
@@ -84,5 +85,46 @@ describe('Feedback Notes sidecar', () => {
       code: 'UNAVAILABLE',
     } satisfies Partial<FeedbackNotesRepositoryError>);
     await expect(readFile(filePath, 'utf8')).resolves.toBe('{not valid JSON');
+  });
+
+  it('serializes concurrent creates across repository instances without losing a note', async () => {
+    const projectPath = await temporaryProject();
+    const creates = Array.from({ length: 24 }, (_, index) => new FeedbackNotesRepository(
+      projectPath,
+      () => new Date(`2026-08-07T12:00:${String(index).padStart(2, '0')}.000Z`),
+    ).create({
+      ...source,
+      sourceCritiqueRequestId: `critique-${index}`,
+      selectionFingerprint: `selection-${index}`,
+      body: `Author-selected note ${index}.`,
+    }));
+
+    const created = await Promise.all(creates);
+    const saved = await new FeedbackNotesRepository(projectPath).list('project-a');
+
+    expect(saved).toHaveLength(24);
+    expect(new Set(saved.map((note) => note.id))).toEqual(new Set(created.map((note) => note.id)));
+    expect(saved.map((note) => note.sourceCritiqueRequestId)).toEqual(
+      Array.from({ length: 24 }, (_, index) => `critique-${index}`),
+    );
+  });
+
+  it('reports one failed write honestly without poisoning the next queued create', async () => {
+    const projectPath = await temporaryProject();
+    vi.spyOn(fs, 'rename').mockRejectedValueOnce(new Error('synthetic rename failure'));
+    const firstRepository = new FeedbackNotesRepository(projectPath);
+    const secondRepository = new FeedbackNotesRepository(projectPath);
+
+    const first = firstRepository.create(source);
+    const second = secondRepository.create({
+      ...source,
+      sourceCritiqueRequestId: 'critique-after-failure',
+      selectionFingerprint: 'selection-after-failure',
+      body: 'This note must survive the prior failed write.',
+    });
+
+    await expect(first).rejects.toMatchObject({ code: 'WRITE_FAILED' } satisfies Partial<FeedbackNotesRepositoryError>);
+    await expect(second).resolves.toMatchObject({ sourceCritiqueRequestId: 'critique-after-failure' });
+    await expect(new FeedbackNotesRepository(projectPath).list('project-a')).resolves.toHaveLength(1);
   });
 });

@@ -15,13 +15,23 @@ function invariant(condition, message) {
 }
 
 function verifyCoverageManifest(manifest) {
-  invariant(manifest.schema === 'black-skies.foundation-supported-core-coverage.v1', 'Supported-core coverage manifest schema is invalid.');
+  invariant(manifest.schema === 'black-skies.foundation-supported-core-coverage.v2', 'Supported-core coverage manifest schema is invalid.');
+  invariant(manifest.percentageScope === 'Python supported core', 'Supported-core coverage percentage scope is invalid.');
   invariant(manifest.minimumBranchCoverage === 60, 'Supported-core coverage minimum must remain 60%.');
-  invariant(Array.isArray(manifest.included) && manifest.included.length > 0, 'Supported-core coverage paths are missing.');
+  invariant(Array.isArray(manifest.measured) && manifest.measured.length > 0, 'Supported-core measured coverage paths are missing.');
+  invariant(Array.isArray(manifest.verifiedOutsidePercentage) && manifest.verifiedOutsidePercentage.length > 0, 'Supported-core behavior verified outside the percentage is missing.');
   invariant(Array.isArray(manifest.excluded) && manifest.excluded.length > 0, 'Supported-core exclusions are missing.');
-  for (const entry of manifest.included) {
+  for (const entry of manifest.measured) {
     invariant(typeof entry.path === 'string' && entry.path && typeof entry.owner === 'string' && entry.owner && typeof entry.verification === 'string' && entry.verification, 'Supported-core entry is incomplete.');
+    invariant(typeof entry.pythonModule === 'string' && entry.pythonModule, `Measured supported-core entry has no Python module: ${entry.path}.`);
     invariant(existsSync(path.join(repoRoot, entry.path)), `Supported-core path is missing: ${entry.path}.`);
+    invariant(existsSync(path.join(repoRoot, entry.verification)), `Supported-core verification is missing: ${entry.verification}.`);
+  }
+  for (const entry of manifest.verifiedOutsidePercentage) {
+    invariant(typeof entry.path === 'string' && entry.path && typeof entry.owner === 'string' && entry.owner && typeof entry.verification === 'string' && entry.verification, 'Supported-core outside-percentage entry is incomplete.');
+    invariant(!Object.hasOwn(entry, 'pythonModule'), `Outside-percentage entry must not claim Python measurement: ${entry.path}.`);
+    invariant(existsSync(path.join(repoRoot, entry.path)), `Supported-core path is missing: ${entry.path}.`);
+    invariant(existsSync(path.join(repoRoot, entry.verification)), `Supported-core verification is missing: ${entry.verification}.`);
   }
   for (const entry of manifest.excluded) invariant(typeof entry.surface === 'string' && entry.surface && typeof entry.owner === 'string' && entry.owner && typeof entry.reopeningTrigger === 'string' && entry.reopeningTrigger, 'Supported-core exclusion is incomplete.');
 }
