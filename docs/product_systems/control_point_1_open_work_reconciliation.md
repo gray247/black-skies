@@ -2,7 +2,8 @@
 
 ## 1. Status And Execution Identity
 
-- Status: `BATCH CP1-A COMPLETE; AWAITING EVIDENCE COMMIT`
+- Status: `BATCH CP1-A CLOSED`
+- Evidence commit: `8351ff5ee3b59976181b72bb579ea9cbc12f8630`
 - Review date: `2026-08-10`
 - Model: `GPT-5.6 Sol`
 - Reasoning effort: `xhigh`

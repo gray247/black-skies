@@ -86,6 +86,14 @@ It does not finalize the entire product vision.
   historical, current deferrals and skips have exact owners and triggers, and
   architecture and test-strength audits precede the human-approved Visual
   Design Foundation.
+- The Control Point 1 architecture and maintainability audit is recorded in
+  `control_point_1_architecture_maintainability_audit.md`. It preserves the V1
+  Project Session, Project Spine, recovery, critique-lifecycle, role-scoped
+  bridge, and optional-sidecar foundations; bounds the Program 3 work to
+  explicit surface-host, renderer-view, Review-projection, preload/typecheck,
+  styling, presentation-state, and Feedback Note concurrency seams; and keeps
+  legacy consolidation and deletion in the approved cleanup waves. The
+  test-strength audit is next.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.
@@ -465,12 +473,14 @@ thread:
 2. [author_experience_direction_lock.md](/C:/Dev/black-skies/docs/product_systems/author_experience_direction_lock.md)
 3. [post_v1_execution_control_and_handoff_plan.md](/C:/Dev/black-skies/docs/product_systems/post_v1_execution_control_and_handoff_plan.md)
 4. [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
-5. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-6. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
-7. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-8. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-9. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-10. the current active workflow dossier, when a workflow is authorized.
+5. [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
+6. [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
+7. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+8. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+9. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+10. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+11. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+12. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -502,6 +512,8 @@ Current canonical repo-tracked sources include:
 - [author_experience_direction_lock.md](/C:/Dev/black-skies/docs/product_systems/author_experience_direction_lock.md)
 - [post_v1_execution_control_and_handoff_plan.md](/C:/Dev/black-skies/docs/product_systems/post_v1_execution_control_and_handoff_plan.md)
 - [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
+- [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
+- [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
