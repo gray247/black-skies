@@ -26,6 +26,11 @@ import type {
   LivingOutlineItemState,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
+import type {
+  SplitCommandLogicalSurface,
+  SplitCommandOwnershipBridge,
+  SplitCommandSurfaceHostState,
+} from '../shared/ipc/splitCommand';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
   type MarkdownExportNotice,
@@ -462,6 +467,7 @@ export interface Stage19WritingSpineAppProps {
   readonly aiBridge?: AiCritiqueBridge;
   readonly feedbackNotesBridge?: FeedbackNotesBridge;
   readonly livingOutlineBridge?: LivingOutlineBridge;
+  readonly surfaceBridge?: SplitCommandOwnershipBridge;
 }
 
 export default function Stage19WritingSpineApp({
@@ -470,6 +476,7 @@ export default function Stage19WritingSpineApp({
   aiBridge = window.aiCritique,
   feedbackNotesBridge = window.feedbackNotes,
   livingOutlineBridge = window.livingOutline,
+  surfaceBridge = window.splitCommand,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -507,6 +514,10 @@ export default function Stage19WritingSpineApp({
   const [outlineKind, setOutlineKind] = useState<LivingOutlineItemKind>('fragment');
   const [outlineState, setOutlineState] = useState<LivingOutlineItemState>('planned');
   const [outlineLinkActiveUnit, setOutlineLinkActiveUnit] = useState(true);
+  const [surfaceHostState, setSurfaceHostState] = useState<SplitCommandSurfaceHostState | null>(
+    () => surfaceBridge?.readSurfaceHostState() ?? null,
+  );
+  const [surfaceHostError, setSurfaceHostError] = useState<string | null>(null);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -556,6 +567,22 @@ export default function Stage19WritingSpineApp({
       delete document.body.dataset.stage19Spine;
     };
   }, [windowRole]);
+
+  useEffect(() => {
+    if (!surfaceBridge) return;
+    let active = true;
+    const applySurfaceHostState = (state: SplitCommandSurfaceHostState) => {
+      if (active) setSurfaceHostState(state);
+    };
+    const unsubscribe = surfaceBridge.subscribeSurfaceHostState(applySurfaceHostState);
+    void surfaceBridge.requestSurfaceHostState().then((state) => {
+      if (active && state) setSurfaceHostState(state);
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [surfaceBridge]);
 
   const applySnapshot = useCallback((next: ProjectSpineSessionSnapshot) => {
     const previousSnapshot = snapshotRef.current;
@@ -827,7 +854,31 @@ export default function Stage19WritingSpineApp({
     markdownExportRequiresSave,
   } = deriveStage19WritingAvailability(snapshot, dirtyUnitIds);
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
-  const viewPhase = deriveStage19ViewPhase(windowRole, loading, projectionUnavailable, snapshot);
+  const logicalSurface: SplitCommandLogicalSurface = windowRole === 'command'
+    ? 'command'
+    : surfaceHostState?.primarySurface ?? 'writing';
+  const commandSnapshot = windowRole === 'command'
+    ? snapshot
+    : surfaceHostState &&
+        surfaceHostState.projectId === (snapshot.project?.projectId ?? null) &&
+        surfaceHostState.generation === snapshot.generation
+      ? surfaceHostState.commandSnapshot
+      : null;
+  const viewPhase = deriveStage19ViewPhase(
+    logicalSurface,
+    loading,
+    projectionUnavailable || (logicalSurface === 'command' && !commandSnapshot),
+    logicalSurface === 'command' ? commandSnapshot ?? emptySnapshot('command') : snapshot,
+  );
+
+  const previousLogicalSurfaceRef = useRef<SplitCommandLogicalSurface>(logicalSurface);
+  useEffect(() => {
+    const previous = previousLogicalSurfaceRef.current;
+    previousLogicalSurfaceRef.current = logicalSurface;
+    if (windowRole === 'writing' && previous === 'command' && logicalSurface === 'writing') {
+      window.setTimeout(focusWritingEditor, 0);
+    }
+  }, [logicalSurface, windowRole]);
 
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
@@ -1821,9 +1872,43 @@ export default function Stage19WritingSpineApp({
     }
   }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.generation, snapshot.project]);
 
+  const activateSurface = useCallback(async (
+    targetSurface: SplitCommandLogicalSurface,
+    placement: 'current-window' | 'secondary-window',
+  ): Promise<void> => {
+    if (!surfaceBridge) {
+      setSurfaceHostError('Surface switching is unavailable in this window.');
+      return;
+    }
+    const current = snapshotRef.current;
+    setSurfaceHostError(null);
+    try {
+      const result = await surfaceBridge.activateSurface({
+        operationId: operationId(`surface-${targetSurface}-${placement}`),
+        projectId: current.project?.projectId ?? null,
+        generation: current.generation,
+        targetSurface,
+        placement,
+      });
+      setSurfaceHostState(result.state);
+      if (!result.ok) setSurfaceHostError(result.error.message);
+    } catch {
+      setSurfaceHostError(
+        'The requested surface could not be moved. Writing and saved project truth remain available.',
+      );
+    }
+  }, [surfaceBridge]);
+
   const viewModel: Stage19WritingSpineViewModel = {
     phase: viewPhase,
     windowRole,
+    logicalSurface,
+    commandSnapshot,
+    surfaceHostAvailable: Boolean(surfaceBridge && surfaceHostState),
+    commandPlacement: surfaceHostState?.commandPlacement ?? 'current-window',
+    secondarySurfaceStatus: surfaceHostState?.secondaryStatus ?? 'closed',
+    surfaceHostNotice: surfaceHostState?.notice ?? null,
+    surfaceHostError,
     snapshot,
     notice,
     activeUnit,
@@ -1880,6 +1965,9 @@ export default function Stage19WritingSpineApp({
     ),
   };
   const viewActions: Stage19WritingSpineViewActions = {
+    showWritingSurface: () => activateSurface('writing', 'current-window'),
+    showCommandSurface: () => activateSurface('command', 'current-window'),
+    openCommandInSecondaryWindow: () => activateSurface('command', 'secondary-window'),
     exportMarkdown: handleExportMarkdown,
     toggleFocusMode: () => setFocusMode((current) => !current),
     submitRecoveryDecision,

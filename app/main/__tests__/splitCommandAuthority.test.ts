@@ -737,6 +737,34 @@ describe('splitCommandAuthority', () => {
     });
   });
 
+  it('allows an explicit secondary rebuild only while the primary remains authoritative', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    registry.registerPrimaryWindow();
+    registry.registerSecondaryWindow();
+    registry.markSecondaryLost('closed');
+
+    expect(registry.prepareSecondaryRebuild()).toEqual({
+      pairHealthStatus: 'healthy',
+      primaryCollapseReason: null,
+      secondaryLossReason: null,
+      rebuildBlockReason: null,
+    });
+    expect(registry.primaryWindowRegistered).toBe(true);
+    expect(registry.secondaryWindowRegistered).toBe(false);
+    expect(() => registry.registerSecondaryWindow()).not.toThrow();
+    expect(() => registry.prepareSecondaryRebuild()).toThrow(
+      'Secondary Split command window is already registered.',
+    );
+
+    registry.markPrimaryCollapsed('closed');
+    expect(() => registry.prepareSecondaryRebuild()).toThrow(
+      'Split command pair was invalidated by primary collapse.',
+    );
+  });
+
   it('invalidates stale pair identity when the primary collapses', () => {
     const registry = createSplitCommandLifecycleRegistry({
       sessionGeneration: 'session-123',

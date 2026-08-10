@@ -59,6 +59,7 @@ const electronFiles = [
   "tests/e2e/stage19-command-center-integrity.spec.ts",
   "tests/e2e/stage19-ai-critique.spec.ts",
   "tests/e2e/stage19-gate1-workflows.spec.ts",
+  "tests/e2e/stage19-surface-host.spec.ts",
   "tests/e2e/stage19-accessibility.spec.ts",
   "tests/e2e/stage19-performance.spec.ts"
 ];

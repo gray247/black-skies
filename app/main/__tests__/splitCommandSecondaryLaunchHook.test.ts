@@ -1,13 +1,28 @@
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
-import { PROJECT_SPINE_CHANNELS } from '../../shared/ipc/projectSpine';
+import {
+  SPLIT_COMMAND_CHANNELS,
+  type ActivateSplitCommandSurfaceRequest,
+  type SplitCommandSurfaceHostResult,
+  type SplitCommandSurfaceHostState,
+} from '../../shared/ipc/splitCommand';
+import {
+  PROJECT_SPINE_CHANNELS,
+  type ProjectSpineSessionSnapshot,
+} from '../../shared/ipc/projectSpine';
 
 const browserWindowState = {
   instances: [] as BrowserWindowMock[],
   failOnInstance: 0,
 };
 const electronAppState = vi.hoisted(() => ({ isPackaged: false }));
+const screenState = vi.hoisted(() => ({
+  displays: [
+    { id: 1, workArea: { x: 0, y: 0, width: 1920, height: 1040 } },
+    { id: 2, workArea: { x: 1920, y: 0, width: 1920, height: 1040 } },
+  ],
+  listeners: new Map<string, Array<(...args: unknown[]) => void>>(),
+}));
 const fileSystemMocks = vi.hoisted(() => ({
   existsSync: vi.fn((path: string) => String(path).replace(/\\/g, '/').includes('/dist/index.html')),
 }));
@@ -52,6 +67,7 @@ class BrowserWindowMock {
         handler(...args);
       }
     },
+    focus: vi.fn(),
     openDevTools: vi.fn(),
     isDestroyed: vi.fn(() => false),
   };
@@ -151,14 +167,13 @@ vi.mock('electron', () => ({
     openPath: vi.fn(),
   },
   screen: {
-    getPrimaryDisplay: vi.fn(() => ({
-      id: 1,
-      workArea: { x: 0, y: 0, width: 1920, height: 1040 },
-    })),
-    getAllDisplays: vi.fn(() => [
-      { id: 1, workArea: { x: 0, y: 0, width: 1920, height: 1040 } },
-      { id: 2, workArea: { x: 1920, y: 0, width: 1920, height: 1040 } },
-    ]),
+    getPrimaryDisplay: vi.fn(() => screenState.displays[0]),
+    getAllDisplays: vi.fn(() => screenState.displays),
+    on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+      const handlers = screenState.listeners.get(event) ?? [];
+      handlers.push(handler);
+      screenState.listeners.set(event, handlers);
+    }),
   },
 }));
 
@@ -275,12 +290,96 @@ function getOwnershipSyncPayloads(window: BrowserWindowMock): unknown[] {
     .map(([, payload]) => payload);
 }
 
+function getSurfaceHostPayloads(window: BrowserWindowMock): SplitCommandSurfaceHostState[] {
+  return vi
+    .mocked(window.webContents.send)
+    .mock.calls.filter(([channel]) => channel === SPLIT_COMMAND_CHANNELS.surfaceHostChanged)
+    .map(([, payload]) => payload as SplitCommandSurfaceHostState);
+}
+
 function getSplitCommandRequestHandler():
   | ((event: { sender: unknown }) => unknown | Promise<unknown>)
   | undefined {
   return ipcHandlers.get(SPLIT_COMMAND_CHANNELS.requestOwnershipSync) as
     | ((event: { sender: unknown }) => unknown | Promise<unknown>)
     | undefined;
+}
+
+function getSurfaceHostRequestHandler():
+  | ((event: { sender: unknown }) => SplitCommandSurfaceHostState | null)
+  | undefined {
+  return ipcHandlers.get(SPLIT_COMMAND_CHANNELS.requestSurfaceHostState) as
+    | ((event: { sender: unknown }) => SplitCommandSurfaceHostState | null)
+    | undefined;
+}
+
+function getSurfaceActivationHandler():
+  | ((
+      event: { sender: unknown },
+      request: ActivateSplitCommandSurfaceRequest,
+    ) => SplitCommandSurfaceHostResult | null | Promise<SplitCommandSurfaceHostResult | null>)
+  | undefined {
+  return ipcHandlers.get(SPLIT_COMMAND_CHANNELS.activateSurface) as
+    | ((
+        event: { sender: unknown },
+        request: ActivateSplitCommandSurfaceRequest,
+      ) => SplitCommandSurfaceHostResult | null | Promise<SplitCommandSurfaceHostResult | null>)
+    | undefined;
+}
+
+function activeCommandSnapshot(
+  projectId = 'project-surface-host',
+  generation = 7,
+  revision = 11,
+): ProjectSpineSessionSnapshot {
+  return {
+    schemaVersion: 1,
+    role: 'command',
+    generation,
+    revision,
+    project: {
+      projectId,
+      path: `C:\\projects\\${projectId}`,
+      title: 'Surface Host Project',
+      schemaVersion: 'ProjectMetadataSchema v1',
+      units: [{ id: 'unit-1', title: 'One', displayTitle: 'One', order: 1 }],
+    },
+    activeUnitId: 'unit-1',
+    recentProjects: [],
+    dirtyUnitIds: [],
+    saveState: { status: 'clean', unitId: null, message: null },
+    lastError: null,
+    commandStatus: {
+      schemaVersion: 1,
+      projectId,
+      generation,
+      revision,
+      lifecycle: 'active',
+      recovery: 'none',
+      save: 'clean',
+    },
+  };
+}
+
+function surfaceRequest(
+  targetSurface: 'writing' | 'command',
+  placement: 'current-window' | 'secondary-window' = 'current-window',
+  overrides: Partial<ActivateSplitCommandSurfaceRequest> = {},
+): ActivateSplitCommandSurfaceRequest {
+  return {
+    operationId: `surface-${targetSurface}-${placement}`,
+    projectId: 'project-surface-host',
+    generation: 7,
+    targetSurface,
+    placement,
+    ...overrides,
+  };
+}
+
+function emitScreenEvent(event: string, ...args: unknown[]): void {
+  for (const listener of screenState.listeners.get(event) ?? []) {
+    listener(...args);
+  }
 }
 
 function resolveRegisteredProjectSpineRole(webContentsId: number): 'writing' | 'command' | null {
@@ -304,6 +403,11 @@ describe('main split command launch hook', () => {
       String(path).replace(/\\/g, '/').includes('/dist/index.html'),
     );
     ipcHandlers.clear();
+    screenState.displays = [
+      { id: 1, workArea: { x: 0, y: 0, width: 1920, height: 1040 } },
+      { id: 2, workArea: { x: 1920, y: 0, width: 1920, height: 1040 } },
+    ];
+    screenState.listeners.clear();
     experimentalSplitCommandWorkspace = false;
     showMessageBoxSync.mockReset();
     showMessageBoxSync.mockReturnValue(0);
@@ -588,6 +692,239 @@ describe('main split command launch hook', () => {
     expect(logger.warn).toHaveBeenCalledWith(
       'Unable to dispatch close confirmation to Writing Studio',
       { error: 'IPC unavailable' },
+    );
+  });
+
+  it('hosts Writing Studio and Command Center completely in one window on one display', async () => {
+    experimentalSplitCommandWorkspace = true;
+    screenState.displays = [screenState.displays[0]];
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
+    const [primaryWindow] = browserWindowState.instances;
+    const readHostState = getSurfaceHostRequestHandler();
+    const activateSurface = getSurfaceActivationHandler();
+    expect(readHostState).toBeDefined();
+    expect(activateSurface).toBeDefined();
+    expect(readHostState?.({ sender: primaryWindow.webContents })).toEqual(
+      expect.objectContaining({
+        primarySurface: 'writing',
+        commandPlacement: 'current-window',
+        secondaryStatus: 'closed',
+        projectId: 'project-surface-host',
+        generation: 7,
+      }),
+    );
+
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: primaryWindow.webContents },
+          surfaceRequest('command'),
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        ok: true,
+        state: expect.objectContaining({
+          primarySurface: 'command',
+          commandPlacement: 'current-window',
+          secondaryStatus: 'closed',
+        }),
+      }),
+    );
+    expect(browserWindowState.instances).toHaveLength(1);
+
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: primaryWindow.webContents },
+          surfaceRequest('writing'),
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        ok: true,
+        state: expect.objectContaining({ primarySurface: 'writing' }),
+      }),
+    );
+    expect(primaryWindow.webContents.focus).toHaveBeenCalled();
+    expect(getSurfaceHostPayloads(primaryWindow).at(-1)).toEqual(
+      expect.objectContaining({
+        primarySurface: 'writing',
+        commandPlacement: 'current-window',
+      }),
+    );
+  });
+
+  it('moves Command Center to an optional second window, returns it, and reopens it', async () => {
+    experimentalSplitCommandWorkspace = true;
+    screenState.displays = [screenState.displays[0]];
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+
+    await loadMainModule();
+
+    const [primaryWindow] = browserWindowState.instances;
+    const activateSurface = getSurfaceActivationHandler();
+    const firstOpen = await activateSurface?.(
+      { sender: primaryWindow.webContents },
+      surfaceRequest('command', 'secondary-window'),
+    );
+    expect(firstOpen).toEqual(
+      expect.objectContaining({
+        ok: true,
+        state: expect.objectContaining({
+          primarySurface: 'writing',
+          commandPlacement: 'secondary-window',
+          secondaryStatus: 'open',
+        }),
+      }),
+    );
+    expect(browserWindowState.instances).toHaveLength(2);
+    const secondaryWindow = browserWindowState.instances[1];
+
+    const returned = await activateSurface?.(
+      { sender: secondaryWindow.webContents },
+      surfaceRequest('writing'),
+    );
+    expect(returned).toEqual(
+      expect.objectContaining({
+        ok: true,
+        state: expect.objectContaining({
+          primarySurface: 'writing',
+          commandPlacement: 'current-window',
+          secondaryStatus: 'closed',
+          notice: 'secondary-closed',
+        }),
+      }),
+    );
+    expect(secondaryWindow.isDestroyed()).toBe(true);
+    expect(primaryWindow.webContents.focus).toHaveBeenCalled();
+
+    const reopened = await activateSurface?.(
+      { sender: primaryWindow.webContents },
+      surfaceRequest('command', 'secondary-window', { operationId: 'surface-reopen' }),
+    );
+    expect(reopened).toEqual(
+      expect.objectContaining({
+        ok: true,
+        state: expect.objectContaining({
+          primarySurface: 'writing',
+          commandPlacement: 'secondary-window',
+          secondaryStatus: 'open',
+          notice: null,
+        }),
+      }),
+    );
+    expect(browserWindowState.instances).toHaveLength(3);
+  });
+
+  it('returns Command Center to primary after secondary loss or display removal and can restore it', async () => {
+    experimentalSplitCommandWorkspace = true;
+    screenState.displays = [screenState.displays[0]];
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+
+    await loadMainModule();
+
+    const [primaryWindow] = browserWindowState.instances;
+    const activateSurface = getSurfaceActivationHandler();
+    await activateSurface?.(
+      { sender: primaryWindow.webContents },
+      surfaceRequest('command', 'secondary-window'),
+    );
+    const firstSecondary = browserWindowState.instances[1];
+    firstSecondary.destroy();
+
+    expect(getSurfaceHostPayloads(primaryWindow).at(-1)).toEqual(
+      expect.objectContaining({
+        primarySurface: 'command',
+        commandPlacement: 'current-window',
+        secondaryStatus: 'lost',
+        notice: 'secondary-closed',
+      }),
+    );
+
+    await activateSurface?.(
+      { sender: primaryWindow.webContents },
+      surfaceRequest('command', 'secondary-window', { operationId: 'surface-restore' }),
+    );
+    const restoredSecondary = browserWindowState.instances[2];
+    expect(restoredSecondary.isDestroyed()).toBe(false);
+
+    emitScreenEvent('display-removed', {}, { id: 2 });
+    expect(restoredSecondary.isDestroyed()).toBe(true);
+    expect(getSurfaceHostPayloads(primaryWindow).at(-1)).toEqual(
+      expect.objectContaining({
+        primarySurface: 'command',
+        commandPlacement: 'current-window',
+        secondaryStatus: 'lost',
+        notice: 'display-removed',
+      }),
+    );
+  });
+
+  it('rejects malformed, unbound, stale, and wrong-role surface requests', async () => {
+    experimentalSplitCommandWorkspace = true;
+    screenState.displays = [screenState.displays[0]];
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+
+    await loadMainModule();
+
+    const [primaryWindow] = browserWindowState.instances;
+    const activateSurface = getSurfaceActivationHandler();
+    await expect(
+      Promise.resolve(activateSurface?.({ sender: {} }, surfaceRequest('command'))),
+    ).resolves.toEqual(
+      expect.objectContaining({ ok: false, error: expect.objectContaining({ code: 'WRONG_WINDOW_ROLE' }) }),
+    );
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: primaryWindow.webContents },
+          { ...surfaceRequest('command'), operationId: '' },
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({ ok: false, error: expect.objectContaining({ code: 'INVALID_REQUEST' }) }),
+    );
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: primaryWindow.webContents },
+          surfaceRequest('command', 'current-window', { projectId: 'project-stale' }),
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({ ok: false, error: expect.objectContaining({ code: 'STALE_PROJECT' }) }),
+    );
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: primaryWindow.webContents },
+          surfaceRequest('command', 'current-window', { generation: 6 }),
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({ ok: false, error: expect.objectContaining({ code: 'STALE_GENERATION' }) }),
+    );
+    expect(browserWindowState.instances).toHaveLength(1);
+
+    await activateSurface?.(
+      { sender: primaryWindow.webContents },
+      surfaceRequest('command', 'secondary-window'),
+    );
+    const secondaryWindow = browserWindowState.instances[1];
+    await expect(
+      Promise.resolve(
+        activateSurface?.(
+          { sender: secondaryWindow.webContents },
+          surfaceRequest('command'),
+        ),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({ ok: false, error: expect.objectContaining({ code: 'WRONG_WINDOW_ROLE' }) }),
     );
   });
 

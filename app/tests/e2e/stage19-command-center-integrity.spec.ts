@@ -162,7 +162,16 @@ async function expectCommandPrivacyAndAuthority(
     ['getSession', 'selectUnit', 'subscribeSession', 'windowRole'].sort(),
   );
   expect(evidence.splitCommandKeys).toEqual(
-    ['readOwnershipSync', 'requestOwnershipSync', 'subscribeOwnershipSync', 'windowRole'].sort(),
+    [
+      'activateSurface',
+      'readOwnershipSync',
+      'readSurfaceHostState',
+      'requestOwnershipSync',
+      'requestSurfaceHostState',
+      'subscribeOwnershipSync',
+      'subscribeSurfaceHostState',
+      'windowRole',
+    ].sort(),
   );
   expect(evidence.prohibitedGlobalTypes).toEqual(
     Object.fromEntries(Object.keys(evidence.prohibitedGlobalTypes).map((name) => [name, 'undefined'])),

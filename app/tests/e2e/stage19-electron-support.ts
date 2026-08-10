@@ -239,17 +239,17 @@ export async function requestWritingStudioClose(electronApp: ElectronApplication
         .map(async (window) => ({
           window,
           role: await window.webContents.executeJavaScript(
-            "document.querySelector('[data-stage19-role=\"writing\"]') ? 'writing' : document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'unknown'",
+            "document.querySelector('[data-stage19-logical-surface]') || document.querySelector('[data-stage19-role=\"writing\"]') ? 'primary' : document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'unknown'",
           ),
         })),
     );
-    const writingWindows = candidates.filter((candidate) => candidate.role === 'writing');
+    const writingWindows = candidates.filter((candidate) => candidate.role === 'primary');
     const commandWindows = candidates.filter((candidate) => candidate.role === 'command');
     if (writingWindows.length !== 1) {
       throw new Error(`Expected exactly one Writing Studio BrowserWindow; found ${writingWindows.length}.`);
     }
-    if (commandWindows.length !== 1 || commandWindows[0].window.id === writingWindows[0].window.id) {
-      throw new Error(`Expected exactly one distinct Command Center BrowserWindow; found ${commandWindows.length}.`);
+    if (commandWindows.length > 1 || commandWindows[0]?.window.id === writingWindows[0].window.id) {
+      throw new Error(`Expected at most one distinct Command Center BrowserWindow; found ${commandWindows.length}.`);
     }
     writingWindows[0].window.close();
   });
@@ -260,13 +260,36 @@ export async function getStage19Windows(
   fixturePage?: Page,
 ): Promise<{ writing: Page; command: Page }> {
   await expect.poll(async () => {
-    const roles = await Promise.all(electronApp.windows().map(async (candidate) => ({
-      writing: await candidate.locator('[data-stage19-role="writing"]').count(),
+    return (await Promise.all(electronApp.windows().map((candidate) =>
+      candidate.locator('[data-stage19-role="writing"]').count(),
+    ))).filter((count) => count > 0).length;
+  }, { timeout: 30_000 }).toBe(1);
+
+  const writingCandidate = (fixturePage &&
+    await fixturePage.locator('[data-stage19-role="writing"]').count() > 0)
+    ? fixturePage
+    : (await Promise.all(electronApp.windows().map(async (candidate) => ({
+        candidate,
+        writing: await candidate.locator('[data-stage19-role="writing"]').count(),
+      })))).find((entry) => entry.writing > 0)?.candidate;
+  if (!writingCandidate) {
+    throw new Error('Stage 19 did not expose Writing Studio.');
+  }
+
+  const hasDistinctCommand = async (): Promise<boolean> =>
+    (await Promise.all(electronApp.windows().map(async (candidate) => ({
+      candidate,
       command: await candidate.locator('[data-stage19-role="command"]').count(),
-    })));
-    return roles.filter((role) => role.writing > 0).length === 1 &&
-      roles.filter((role) => role.command > 0).length === 1;
-  }, { timeout: 30_000 }).toBe(true);
+    })))).some((entry) => entry.command > 0 && entry.candidate !== writingCandidate);
+
+  const displayCount = await electronApp.evaluate(({ screen }) => screen.getAllDisplays().length);
+  if (!(await hasDistinctCommand()) && displayCount <= 1) {
+    await writingCandidate.getByRole('button', {
+      name: 'Open Command Center in second window',
+    }).click();
+  }
+
+  await expect.poll(hasDistinctCommand, { timeout: 30_000 }).toBe(true);
 
   const candidates = fixturePage
     ? [fixturePage, ...electronApp.windows().filter((candidate) => candidate !== fixturePage)]
@@ -279,7 +302,7 @@ export async function getStage19Windows(
   const writing = identified.find((entry) => entry.writing > 0)?.candidate;
   const command = identified.find((entry) => entry.command > 0)?.candidate;
   if (!writing || !command || writing === command) {
-    throw new Error('Stage 19 did not expose one distinct Writing Studio and Command Center.');
+    throw new Error('Stage 19 did not expose its optional distinct Command Center.');
   }
   return { writing, command };
 }

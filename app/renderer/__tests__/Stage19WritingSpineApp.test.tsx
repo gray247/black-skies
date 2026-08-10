@@ -19,6 +19,11 @@ import type {
   LivingOutlineDocumentV1,
   LivingOutlineSnapshotV1,
 } from '../../shared/ipc/livingOutline';
+import type {
+  SplitCommandOwnershipBridge,
+  SplitCommandSurfaceHostResult,
+  SplitCommandSurfaceHostState,
+} from '../../shared/ipc/splitCommand';
 import Stage19WritingSpineApp, {
   deriveDirtyUnitIds,
   useCloseConfirmationRequest,
@@ -262,6 +267,73 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
     emitCloseConfirmation: (request: ProjectSpineCloseConfirmationRequest) => {
       for (const listener of closeConfirmationListeners) listener(request);
     },
+    get current() { return current; },
+  };
+}
+
+function createSurfaceBridge(
+  commandSnapshot: ProjectSpineSessionSnapshot,
+  options: {
+    initialSurface?: 'writing' | 'command';
+    activationFailure?: { code: 'STALE_GENERATION' | 'SECONDARY_UNAVAILABLE'; message: string };
+  } = {},
+) {
+  let current: SplitCommandSurfaceHostState = {
+    schemaVersion: 1,
+    primarySurface: options.initialSurface ?? 'writing',
+    commandPlacement: 'current-window',
+    secondaryStatus: 'closed',
+    notice: null,
+    projectId: commandSnapshot.project?.projectId ?? null,
+    generation: commandSnapshot.generation,
+    revision: commandSnapshot.revision,
+    commandSnapshot,
+  };
+  const listeners = new Set<(state: SplitCommandSurfaceHostState) => void>();
+  const publish = (next: SplitCommandSurfaceHostState) => {
+    current = next;
+    for (const listener of listeners) listener(next);
+  };
+  const activateSurface = vi.fn(async (request): Promise<SplitCommandSurfaceHostResult> => {
+    if (options.activationFailure) {
+      return { ok: false, error: options.activationFailure, state: current };
+    }
+    const next: SplitCommandSurfaceHostState = request.placement === 'secondary-window'
+      ? {
+          ...current,
+          primarySurface: 'writing',
+          commandPlacement: 'secondary-window',
+          secondaryStatus: 'open',
+          notice: null,
+        }
+      : {
+          ...current,
+          primarySurface: request.targetSurface,
+          commandPlacement: 'current-window',
+          secondaryStatus: 'closed',
+          notice: null,
+        };
+    publish(next);
+    return { ok: true, state: next };
+  });
+  const bridge: SplitCommandOwnershipBridge = {
+    windowRole: 'primary',
+    requestOwnershipSync: vi.fn(async () => null),
+    readOwnershipSync: vi.fn(() => null),
+    subscribeOwnershipSync: vi.fn(() => () => undefined),
+    requestSurfaceHostState: vi.fn(async () => current),
+    activateSurface,
+    readSurfaceHostState: vi.fn(() => current),
+    subscribeSurfaceHostState: vi.fn((listener) => {
+      listeners.add(listener);
+      listener(current);
+      return () => listeners.delete(listener);
+    }),
+  };
+  return {
+    bridge,
+    activateSurface,
+    publish,
     get current() { return current; },
   };
 }
@@ -614,6 +686,91 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => closeRequestState.discardChanges());
     expect(closeRequestState.activeRequest).toEqual(request);
     expect(closeRequestState.responseError).toBe('response unavailable');
+  });
+
+  it('switches logical surfaces in one window without losing unsaved prose or return focus', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={writing.bridge}
+        surfaceBridge={surfaces.bridge}
+      />,
+    );
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Unsaved surface-preserved prose' } });
+    expect(editor).toHaveValue('Unsaved surface-preserved prose');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    expect(await screen.findByRole('region', { name: 'Command Center' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Manuscript editor: First Unit' }))
+      .not.toBeInTheDocument();
+    expect(document.querySelector('textarea')).toHaveValue('Unsaved surface-preserved prose');
+    expect(screen.queryByRole('button', { name: /^Save$/ })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
+    const restoredEditor = await screen.findByRole('textbox', {
+      name: 'Manuscript editor: First Unit',
+    });
+    expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
+    await waitFor(() => expect(restoredEditor).toHaveFocus());
+    expect(surfaces.activateSurface).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        projectId: 'proj_a',
+        generation: 1,
+        targetSurface: 'command',
+        placement: 'current-window',
+      }),
+    );
+    expect(surfaces.activateSurface).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        projectId: 'proj_a',
+        generation: 1,
+        targetSurface: 'writing',
+        placement: 'current-window',
+      }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center in second window' }));
+    await waitFor(() => expect(surfaces.activateSurface).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        targetSurface: 'command',
+        placement: 'secondary-window',
+      }),
+    ));
+    expect(screen.getByRole('button', { name: 'Command Center open in second window' }))
+      .toBeDisabled();
+    expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
+  });
+
+  it('keeps Writing Studio usable when a surface transition is rejected', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'), {
+      activationFailure: {
+        code: 'STALE_GENERATION',
+        message: 'The project changed before Command Center could move.',
+      },
+    });
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={writing.bridge}
+        surfaceBridge={surfaces.bridge}
+      />,
+    );
+
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' }))
+      .toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    expect((await screen.findAllByText(
+      'The project changed before Command Center could move.',
+    ))[0]).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' })).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Command Center' })).not.toBeInTheDocument();
   });
 
   it('renders a role-projected Command Center with no prose or structural mutation controls', async () => {

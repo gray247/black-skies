@@ -23,7 +23,13 @@ import type {
   SelectManuscriptUnitRequest,
   SetManuscriptUnitDirtyRequest,
 } from '../shared/ipc/projectSpine';
-import type { SplitCommandOwnershipBridge } from '../shared/ipc/splitCommand';
+import type {
+  ActivateSplitCommandSurfaceRequest,
+  SplitCommandOwnershipBridge,
+  SplitCommandSurfaceHostErrorCode,
+  SplitCommandSurfaceHostResult,
+  SplitCommandSurfaceHostState,
+} from '../shared/ipc/splitCommand';
 import type {
   AiCritiqueApprovalRequest,
   AiCritiqueBridge,
@@ -81,6 +87,9 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
   splitCommand: Object.freeze({
     requestOwnershipSync: 'split-command:ownership-sync:request',
     ownershipSync: 'split-command:ownership-sync',
+    requestSurfaceHostState: 'split-command:surface-host:request',
+    activateSurface: 'split-command:surface-host:activate',
+    surfaceHostChanged: 'split-command:surface-host:changed',
   }),
   aiCritique: Object.freeze({
     credentialStatus: 'ai-critique:credential-status',
@@ -218,10 +227,69 @@ function normalizeOwnership(value: unknown): SplitCommandOwnershipSyncMessage | 
   return message as SplitCommandOwnershipSyncMessage;
 }
 
+function normalizeSurfaceHostState(value: unknown): SplitCommandSurfaceHostState | null {
+  if (!value || typeof value !== 'object') return null;
+  const state = value as Partial<SplitCommandSurfaceHostState>;
+  const commandSnapshot = normalizeSnapshot(state.commandSnapshot, 'command');
+  if (
+    state.schemaVersion !== 1 ||
+    (state.primarySurface !== 'writing' && state.primarySurface !== 'command') ||
+    (state.commandPlacement !== 'current-window' &&
+      state.commandPlacement !== 'secondary-window') ||
+    !['closed', 'opening', 'open', 'lost', 'unavailable'].includes(
+      state.secondaryStatus ?? '',
+    ) ||
+    ![null, 'secondary-closed', 'secondary-lost', 'display-removed', 'secondary-launch-failed'].includes(
+      state.notice ?? null,
+    ) ||
+    (state.projectId !== null && typeof state.projectId !== 'string') ||
+    !Number.isInteger(state.generation) ||
+    !Number.isInteger(state.revision) ||
+    !commandSnapshot ||
+    (commandSnapshot.project?.projectId ?? null) !== state.projectId ||
+    commandSnapshot.generation !== state.generation ||
+    commandSnapshot.revision !== state.revision
+  ) {
+    return null;
+  }
+  return { ...state, commandSnapshot } as SplitCommandSurfaceHostState;
+}
+
+function normalizeSurfaceHostResult(value: unknown): SplitCommandSurfaceHostResult | null {
+  if (!value || typeof value !== 'object') return null;
+  const result = value as Partial<SplitCommandSurfaceHostResult> & {
+    state?: unknown;
+    error?: { code?: unknown; message?: unknown };
+  };
+  const state = normalizeSurfaceHostState(result.state);
+  if (!state) return null;
+  if (result.ok === true) return { ok: true, state };
+  if (
+    result.ok === false &&
+    result.error &&
+    ['INVALID_REQUEST', 'WRONG_WINDOW_ROLE', 'STALE_PROJECT', 'STALE_GENERATION', 'SECONDARY_UNAVAILABLE'].includes(
+      String(result.error.code),
+    ) &&
+    typeof result.error.message === 'string'
+  ) {
+    return {
+      ok: false,
+      error: {
+        code: result.error.code as SplitCommandSurfaceHostErrorCode,
+        message: result.error.message,
+      },
+      state,
+    };
+  }
+  return null;
+}
+
 const launch = readLaunchContext();
 const projectRole = launch.windowRole === 'secondary' ? 'command' : 'writing';
 let ownership: SplitCommandOwnershipSyncMessage | null = null;
 const ownershipListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
+let surfaceHostState: SplitCommandSurfaceHostState | null = null;
+const surfaceHostListeners = new Set<(state: SplitCommandSurfaceHostState) => void>();
 
 function applyOwnership(message: SplitCommandOwnershipSyncMessage): boolean {
   if (
@@ -250,6 +318,25 @@ ipcRenderer.on(
   (_event, value: unknown) => {
     const message = normalizeOwnership(value);
     if (message) applyOwnership(message);
+  },
+);
+
+function applySurfaceHostState(state: SplitCommandSurfaceHostState): void {
+  surfaceHostState = state;
+  for (const listener of surfaceHostListeners) {
+    try {
+      listener(state);
+    } catch (error) {
+      console.warn('[stage19-preload] surface-host listener failed', error);
+    }
+  }
+}
+
+ipcRenderer.on(
+  STAGE19_PRELOAD_CHANNELS.splitCommand.surfaceHostChanged,
+  (_event, value: unknown) => {
+    const state = normalizeSurfaceHostState(value);
+    if (state) applySurfaceHostState(state);
   },
 );
 
@@ -396,6 +483,37 @@ const splitCommand: SplitCommandOwnershipBridge = {
     ownershipListeners.add(listener);
     if (ownership) listener(ownership);
     return () => ownershipListeners.delete(listener);
+  },
+  async requestSurfaceHostState() {
+    try {
+      const state = normalizeSurfaceHostState(
+        await ipcRenderer.invoke(
+          STAGE19_PRELOAD_CHANNELS.splitCommand.requestSurfaceHostState,
+        ),
+      );
+      if (state) applySurfaceHostState(state);
+      return state;
+    } catch (error) {
+      console.warn('[stage19-preload] surface-host sync failed', error);
+      return surfaceHostState;
+    }
+  },
+  async activateSurface(request: ActivateSplitCommandSurfaceRequest) {
+    const result = normalizeSurfaceHostResult(
+      await ipcRenderer.invoke(
+        STAGE19_PRELOAD_CHANNELS.splitCommand.activateSurface,
+        request,
+      ),
+    );
+    if (!result) throw new Error('Surface host returned an invalid result.');
+    applySurfaceHostState(result.state);
+    return result;
+  },
+  readSurfaceHostState: () => surfaceHostState,
+  subscribeSurfaceHostState(listener: (state: SplitCommandSurfaceHostState) => void) {
+    surfaceHostListeners.add(listener);
+    if (surfaceHostState) listener(surfaceHostState);
+    return () => surfaceHostListeners.delete(listener);
   },
 };
 

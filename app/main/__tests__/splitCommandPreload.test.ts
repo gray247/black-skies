@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SplitCommandOwnershipSyncMessage } from '../../shared/splitCommandAuthority';
-import { SPLIT_COMMAND_CHANNELS } from '../../shared/ipc/splitCommand';
+import {
+  SPLIT_COMMAND_CHANNELS,
+  type SplitCommandOwnershipBridge,
+  type SplitCommandSurfaceHostState,
+} from '../../shared/ipc/splitCommand';
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineBridge } from '../../shared/ipc/projectSpine';
 import { AI_CRITIQUE_CHANNELS, type AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS, type FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
@@ -110,22 +114,10 @@ function setArgv(args: string[]): void {
   process.argv = ['node', 'preload.js', ...args];
 }
 
-function getSplitCommandBridge():
-  | {
-      windowRole: string;
-      requestOwnershipSync: () => Promise<SplitCommandOwnershipSyncMessage | null>;
-      readOwnershipSync: () => SplitCommandOwnershipSyncMessage | null;
-      subscribeOwnershipSync: (listener: (message: SplitCommandOwnershipSyncMessage) => void) => () => void;
-    }
-  | undefined {
+function getSplitCommandBridge(): SplitCommandOwnershipBridge | undefined {
   const exposeCalls = vi.mocked(contextBridgeMock.exposeInMainWorld).mock.calls;
   return exposeCalls.find(([key]) => key === 'splitCommand')?.[1] as
-    | {
-        windowRole: string;
-        requestOwnershipSync: () => Promise<SplitCommandOwnershipSyncMessage | null>;
-        readOwnershipSync: () => SplitCommandOwnershipSyncMessage | null;
-        subscribeOwnershipSync: (listener: (message: SplitCommandOwnershipSyncMessage) => void) => () => void;
-      }
+    | SplitCommandOwnershipBridge
     | undefined;
 }
 
@@ -322,7 +314,16 @@ describe('splitCommand preload bridge', () => {
     expect(bridge).toBeDefined();
     expect(bridge?.windowRole).toBe('secondary');
     expect(Object.keys(bridge!).sort()).toEqual(
-      ['readOwnershipSync', 'requestOwnershipSync', 'subscribeOwnershipSync', 'windowRole'].sort(),
+      [
+        'activateSurface',
+        'readOwnershipSync',
+        'readSurfaceHostState',
+        'requestOwnershipSync',
+        'requestSurfaceHostState',
+        'subscribeOwnershipSync',
+        'subscribeSurfaceHostState',
+        'windowRole',
+      ].sort(),
     );
     const projectSpine = getProjectSpineBridge();
     expect(projectSpine?.windowRole).toBe('command');
@@ -519,6 +520,72 @@ describe('splitCommand preload bridge', () => {
     }
 
     expect(bridge!.readOwnershipSync()).toEqual(sampleMessage);
+
+    const surfaceHostState: SplitCommandSurfaceHostState = {
+      schemaVersion: 1,
+      primarySurface: 'command',
+      commandPlacement: 'current-window',
+      secondaryStatus: 'lost',
+      notice: 'secondary-lost',
+      projectId: null,
+      generation: 2,
+      revision: 3,
+      commandSnapshot,
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce(surfaceHostState);
+    await expect(bridge!.requestSurfaceHostState()).resolves.toEqual(surfaceHostState);
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(
+      SPLIT_COMMAND_CHANNELS.requestSurfaceHostState,
+    );
+    expect(bridge!.readSurfaceHostState()).toEqual(surfaceHostState);
+
+    const surfaceListener = vi.fn();
+    const unsubscribeSurface = bridge!.subscribeSurfaceHostState(surfaceListener);
+    expect(surfaceListener).toHaveBeenCalledWith(surfaceHostState);
+    surfaceListener.mockClear();
+    for (const listener of ipcListeners.get(SPLIT_COMMAND_CHANNELS.surfaceHostChanged) ?? []) {
+      listener({}, { ...surfaceHostState, commandSnapshot: { ...commandSnapshot, prose: 'private' } });
+    }
+    expect(surfaceListener).not.toHaveBeenCalled();
+    const restoredSurfaceHostState = {
+      ...surfaceHostState,
+      primarySurface: 'writing' as const,
+      secondaryStatus: 'closed' as const,
+      notice: 'secondary-closed' as const,
+    };
+    for (const listener of ipcListeners.get(SPLIT_COMMAND_CHANNELS.surfaceHostChanged) ?? []) {
+      listener({}, restoredSurfaceHostState);
+    }
+    expect(surfaceListener).toHaveBeenCalledWith(restoredSurfaceHostState);
+    expect(bridge!.readSurfaceHostState()).toEqual(restoredSurfaceHostState);
+    unsubscribeSurface();
+
+    const activationRequest = {
+      operationId: 'surface-return',
+      projectId: null,
+      generation: 2,
+      targetSurface: 'writing' as const,
+      placement: 'current-window' as const,
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce({ ok: true, state: restoredSurfaceHostState });
+    await expect(bridge!.activateSurface(activationRequest)).resolves.toEqual({
+      ok: true,
+      state: restoredSurfaceHostState,
+    });
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(
+      SPLIT_COMMAND_CHANNELS.activateSurface,
+      activationRequest,
+    );
+    ipcRendererInvokeMock.mockResolvedValueOnce({
+      ok: true,
+      state: {
+        ...surfaceHostState,
+        commandSnapshot: { ...commandSnapshot, prose: 'private' },
+      },
+    });
+    await expect(bridge!.activateSurface(activationRequest)).rejects.toThrow(
+      'Surface host returned an invalid result.',
+    );
   });
 
   it('exposes manuscript mutation methods only to the primary Writing Studio role', async () => {

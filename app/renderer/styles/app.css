@@ -4475,6 +4475,11 @@ body[data-stage19-spine] {
   place-items: center;
 }
 
+.stage19-spine-host,
+.stage19-spine-host > div:not([hidden]) {
+  height: 100%;
+}
+
 .stage19-spine__header,
 .stage19-spine__section-heading,
 .stage19-spine__editor-header {
@@ -4494,6 +4499,26 @@ body[data-stage19-spine] {
   flex: 0 0 auto;
   align-items: center;
   gap: 0.65rem;
+}
+
+.stage19-spine__surface-host {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.stage19-spine__surface-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.stage19-spine__surface-notice {
+  max-width: 32rem;
+  margin: 0;
+  color: #a5f3fc;
+  font-size: 0.78rem;
+  text-align: right;
 }
 
 .stage19-spine h1,
@@ -5174,6 +5199,15 @@ body[data-stage19-spine] {
   .stage19-spine__project-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .stage19-spine__surface-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stage19-spine__surface-notice {
+    text-align: left;
   }
 
   .stage19-spine__writing-grid {

@@ -45,7 +45,16 @@ import {
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority.js';
-import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
+import {
+  SPLIT_COMMAND_CHANNELS,
+  type ActivateSplitCommandSurfaceRequest,
+  type SplitCommandLogicalSurface,
+  type SplitCommandSecondarySurfaceStatus,
+  type SplitCommandSurfaceHostErrorCode,
+  type SplitCommandSurfaceHostNotice,
+  type SplitCommandSurfaceHostResult,
+  type SplitCommandSurfaceHostState,
+} from '../shared/ipc/splitCommand.js';
 import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 import { startOptionalServicesForCoreShell } from './optionalServiceStartup.js';
 import { requiresBundledPython } from './pythonExecutablePolicy.js';
@@ -211,6 +220,10 @@ const projectSpineWindows = new Map<
 >();
 
 let splitCommandPairTeardownInProgress = false;
+let splitCommandSecondaryReturnInProgress = false;
+let primaryLogicalSurface: SplitCommandLogicalSurface = 'writing';
+let secondarySurfaceStatus: SplitCommandSecondarySurfaceStatus = 'closed';
+let surfaceHostNotice: SplitCommandSurfaceHostNotice = null;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
 
 let servicesProcess: ServicesProcess | null = null;
@@ -367,6 +380,7 @@ function publishProjectSpineSession(): void {
       getProjectSpineSnapshot(registration.role),
     );
   }
+  publishSplitCommandSurfaceHostState();
 }
 
 function installUnsavedCloseGuard(window: BrowserWindow): void {
@@ -447,8 +461,107 @@ function publishSplitCommandOwnershipSync(
   }
 }
 
+function resolveSplitCommandSenderRole(
+  senderWindow: BrowserWindow | null,
+): SplitCommandWindowRole | null {
+  if (senderWindow === mainWindow) return 'primary';
+  if (senderWindow === splitCommandSecondaryWindow) return 'secondary';
+  return null;
+}
+
+function buildSplitCommandSurfaceHostState(): SplitCommandSurfaceHostState | null {
+  if (!splitCommandLifecycleSeam || !splitCommandLifecycleSeam.registry.isActive) {
+    return null;
+  }
+  const commandSnapshot = getProjectSpineSnapshot('command');
+  const secondaryWindowOpen = Boolean(
+    splitCommandSecondaryWindow && !splitCommandSecondaryWindow.isDestroyed(),
+  );
+  return {
+    schemaVersion: 1,
+    primarySurface: primaryLogicalSurface,
+    commandPlacement:
+      secondaryWindowOpen || secondarySurfaceStatus === 'opening'
+        ? 'secondary-window'
+        : 'current-window',
+    secondaryStatus: secondaryWindowOpen ? 'open' : secondarySurfaceStatus,
+    notice: surfaceHostNotice,
+    projectId: commandSnapshot.project?.projectId ?? null,
+    generation: commandSnapshot.generation,
+    revision: commandSnapshot.revision,
+    commandSnapshot,
+  };
+}
+
+function publishSplitCommandSurfaceHostState(
+  targetRoles: readonly SplitCommandWindowRole[] = ['primary', 'secondary'],
+): void {
+  const state = buildSplitCommandSurfaceHostState();
+  if (!state) return;
+  for (const windowRole of targetRoles) {
+    const targetWindow = getSplitCommandWindowForRole(windowRole);
+    if (
+      !targetWindow ||
+      targetWindow.isDestroyed() ||
+      targetWindow.webContents.isDestroyed()
+    ) continue;
+    targetWindow.webContents.send(SPLIT_COMMAND_CHANNELS.surfaceHostChanged, state);
+  }
+}
+
+function surfaceHostFailure(
+  code: SplitCommandSurfaceHostErrorCode,
+  message: string,
+): SplitCommandSurfaceHostResult | null {
+  const state = buildSplitCommandSurfaceHostState();
+  return state ? { ok: false, error: { code, message }, state } : null;
+}
+
+function validateSurfaceHostRequest(
+  request: unknown,
+  senderRole: SplitCommandWindowRole,
+): SplitCommandSurfaceHostResult | null {
+  if (!request || typeof request !== 'object') {
+    return surfaceHostFailure('INVALID_REQUEST', 'Surface request is malformed.');
+  }
+  const candidate = request as Partial<ActivateSplitCommandSurfaceRequest>;
+  if (
+    typeof candidate.operationId !== 'string' ||
+    candidate.operationId.trim().length === 0 ||
+    (candidate.projectId !== null && typeof candidate.projectId !== 'string') ||
+    !Number.isInteger(candidate.generation) ||
+    (candidate.targetSurface !== 'writing' && candidate.targetSurface !== 'command') ||
+    (candidate.placement !== 'current-window' && candidate.placement !== 'secondary-window') ||
+    (candidate.targetSurface === 'writing' && candidate.placement !== 'current-window')
+  ) {
+    return surfaceHostFailure('INVALID_REQUEST', 'Surface request fields are invalid.');
+  }
+  if (
+    senderRole === 'secondary' &&
+    !(candidate.targetSurface === 'writing' && candidate.placement === 'current-window')
+  ) {
+    return surfaceHostFailure(
+      'WRONG_WINDOW_ROLE',
+      'The secondary Command window may only return control to Writing Studio.',
+    );
+  }
+  const writingSnapshot = getProjectSpineSnapshot('writing');
+  if ((writingSnapshot.project?.projectId ?? null) !== candidate.projectId) {
+    return surfaceHostFailure('STALE_PROJECT', 'The active project changed before the surface request.');
+  }
+  if (writingSnapshot.generation !== candidate.generation) {
+    return surfaceHostFailure(
+      'STALE_GENERATION',
+      'The project generation changed before the surface request.',
+    );
+  }
+  return null;
+}
+
 function registerSplitCommandOwnershipIpc(): void {
   ipcMain.removeHandler(SPLIT_COMMAND_CHANNELS.requestOwnershipSync);
+  ipcMain.removeHandler(SPLIT_COMMAND_CHANNELS.requestSurfaceHostState);
+  ipcMain.removeHandler(SPLIT_COMMAND_CHANNELS.activateSurface);
   ipcMain.handle(SPLIT_COMMAND_CHANNELS.requestOwnershipSync, (event) => {
     if (!splitCommandLifecycleSeam) {
       return null;
@@ -459,17 +572,35 @@ function registerSplitCommandOwnershipIpc(): void {
       return null;
     }
 
-    const windowRole =
-      senderWindow === mainWindow
-        ? 'primary'
-        : senderWindow === splitCommandSecondaryWindow
-          ? 'secondary'
-          : null;
+    const windowRole = resolveSplitCommandSenderRole(senderWindow);
     if (!windowRole) {
       return null;
     }
 
     return buildSplitCommandOwnershipSyncForRole(windowRole);
+  });
+  ipcMain.handle(SPLIT_COMMAND_CHANNELS.requestSurfaceHostState, (event) => {
+    const senderRole = resolveSplitCommandSenderRole(
+      BrowserWindow.fromWebContents(event.sender),
+    );
+    return senderRole ? buildSplitCommandSurfaceHostState() : null;
+  });
+  ipcMain.handle(SPLIT_COMMAND_CHANNELS.activateSurface, async (event, request: unknown) => {
+    const senderRole = resolveSplitCommandSenderRole(
+      BrowserWindow.fromWebContents(event.sender),
+    );
+    if (!senderRole) {
+      return surfaceHostFailure(
+        'WRONG_WINDOW_ROLE',
+        'This window is not part of the active Writing/Command surface host.',
+      );
+    }
+    const invalid = validateSurfaceHostRequest(request, senderRole);
+    if (invalid) return invalid;
+    return activateSplitCommandSurface(
+      request as ActivateSplitCommandSurfaceRequest,
+      senderRole,
+    );
   });
 }
 
@@ -1043,7 +1174,7 @@ async function createSplitCommandSecondaryWindow(
   });
   window.on('closed', () => {
     unregisterProjectSpineWindow();
-    if (splitCommandPairTeardownInProgress) {
+    if (splitCommandPairTeardownInProgress || splitCommandSecondaryReturnInProgress) {
       if (splitCommandSecondaryWindow === window) {
         splitCommandSecondaryWindow = null;
       }
@@ -1088,15 +1219,169 @@ async function createSplitCommandSecondaryWindow(
   return window;
 }
 
+function focusPrimarySurface(): void {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+  mainWindow.webContents.focus();
+}
+
+function closeSecondaryForPrimarySurface(
+  nextPrimarySurface: SplitCommandLogicalSurface,
+  notice: SplitCommandSurfaceHostNotice,
+): void {
+  primaryLogicalSurface = nextPrimarySurface;
+  secondarySurfaceStatus = 'closed';
+  surfaceHostNotice = notice;
+  const secondaryWindow = splitCommandSecondaryWindow;
+  splitCommandSecondaryReturnInProgress = true;
+  try {
+    if (secondaryWindow && !secondaryWindow.isDestroyed()) {
+      secondaryWindow.close();
+    }
+  } finally {
+    splitCommandSecondaryReturnInProgress = false;
+    splitCommandSecondaryWindow = null;
+    splitCommandSecondaryLaunchContract = null;
+    splitCommandLifecycleSeam?.registry.releaseSecondaryWindow();
+    if (
+      splitCommandLifecycleSeam?.registry.isActive &&
+      splitCommandLifecycleSeam.registry.fallbackState.pairHealthStatus !== 'healthy'
+    ) {
+      splitCommandLifecycleSeam.registry.prepareSecondaryRebuild();
+    }
+  }
+  publishSplitCommandOwnershipSync(['primary']);
+  publishSplitCommandSurfaceHostState(['primary']);
+  focusPrimarySurface();
+}
+
+async function openSplitCommandSecondarySurface(
+  initialBounds?: InitialWindowBounds,
+): Promise<boolean> {
+  if (!splitCommandLifecycleSeam) return false;
+  if (splitCommandSecondaryWindow && !splitCommandSecondaryWindow.isDestroyed()) {
+    splitCommandSecondaryWindow.show();
+    splitCommandSecondaryWindow.focus();
+    return true;
+  }
+
+  if (splitCommandLifecycleSeam.registry.fallbackState.pairHealthStatus !== 'healthy') {
+    splitCommandLifecycleSeam.registry.prepareSecondaryRebuild();
+    publishSplitCommandOwnershipSync(['primary']);
+  }
+  secondarySurfaceStatus = 'opening';
+  surfaceHostNotice = null;
+  publishSplitCommandSurfaceHostState(['primary']);
+
+  try {
+    splitCommandSecondaryLaunchContract =
+      splitCommandLifecycleSeam.registry.createSecondaryLaunchContract();
+    ensureMainLogger().info('Split command secondary launch contract prepared', {
+      pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
+      windowRole: splitCommandSecondaryLaunchContract.windowRole,
+    });
+    const secondaryWindow = await createSplitCommandSecondaryWindow(
+      splitCommandSecondaryLaunchContract,
+      initialBounds,
+    );
+    try {
+      splitCommandLifecycleSeam.registry.registerSecondaryWindow();
+      recordSplitCommandFocusOwnership('secondary');
+    } catch (secondaryRegistrationError) {
+      secondaryWindow.destroy();
+      throw secondaryRegistrationError;
+    }
+    splitCommandSecondaryWindow = secondaryWindow;
+    primaryLogicalSurface = 'writing';
+    secondarySurfaceStatus = 'open';
+    surfaceHostNotice = null;
+    publishSplitCommandOwnershipSync(['primary', 'secondary']);
+    publishSplitCommandSurfaceHostState(['primary', 'secondary']);
+    ensureMainLogger().info('Split command secondary window launched', {
+      pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
+      windowRole: splitCommandSecondaryLaunchContract.windowRole,
+    });
+    return true;
+  } catch (error) {
+    noteSplitCommandSecondaryRebuildBlocked(error);
+    splitCommandSecondaryLaunchContract = null;
+    splitCommandSecondaryWindow = null;
+    ensureMainLogger().warn('Split command secondary launch contract unavailable', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
+}
+
+async function activateSplitCommandSurface(
+  request: ActivateSplitCommandSurfaceRequest,
+  senderRole: SplitCommandWindowRole,
+): Promise<SplitCommandSurfaceHostResult | null> {
+  if (request.targetSurface === 'writing') {
+    if (senderRole === 'secondary') {
+      closeSecondaryForPrimarySurface('writing', 'secondary-closed');
+    } else {
+      primaryLogicalSurface = 'writing';
+      surfaceHostNotice = null;
+      publishSplitCommandSurfaceHostState();
+      focusPrimarySurface();
+    }
+    const state = buildSplitCommandSurfaceHostState();
+    return state ? { ok: true, state } : null;
+  }
+
+  if (request.placement === 'current-window') {
+    closeSecondaryForPrimarySurface('command', null);
+    const state = buildSplitCommandSurfaceHostState();
+    return state ? { ok: true, state } : null;
+  }
+
+  primaryLogicalSurface = 'command';
+  surfaceHostNotice = null;
+  const opened = await openSplitCommandSecondarySurface(
+    deriveSplitCommandInitialPlacement(
+      screen.getAllDisplays(),
+      screen.getPrimaryDisplay(),
+    ).commandCenter,
+  );
+  const currentSnapshot = getProjectSpineSnapshot('writing');
+  if (
+    (currentSnapshot.project?.projectId ?? null) !== request.projectId ||
+    currentSnapshot.generation !== request.generation
+  ) {
+    if (opened) closeSecondaryForPrimarySurface('command', 'secondary-closed');
+    return surfaceHostFailure(
+      currentSnapshot.generation !== request.generation ? 'STALE_GENERATION' : 'STALE_PROJECT',
+      'The active project changed while Command Center placement was opening.',
+    );
+  }
+  if (!opened) {
+    return surfaceHostFailure(
+      'SECONDARY_UNAVAILABLE',
+      'Command Center could not open in a second window and remains available here.',
+    );
+  }
+  const state = buildSplitCommandSurfaceHostState();
+  return state ? { ok: true, state } : null;
+}
+
 function noteSplitCommandSecondaryLoss(
   reason: SplitCommandSecondaryLossReason,
   details?: unknown,
+  notice: SplitCommandSurfaceHostNotice = reason === 'closed'
+    ? 'secondary-closed'
+    : 'secondary-lost',
 ): void {
   if (!splitCommandLifecycleSeam || !splitCommandSecondaryWindow) {
     return;
   }
 
   const fallbackState = splitCommandLifecycleSeam.registry.markSecondaryLost(reason);
+  primaryLogicalSurface = 'command';
+  secondarySurfaceStatus = 'lost';
+  surfaceHostNotice = notice;
   ensureMainLogger().warn('Split command secondary window lost', {
     pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
     reason,
@@ -1104,9 +1389,11 @@ function noteSplitCommandSecondaryLoss(
     details,
   });
 
-  publishSplitCommandOwnershipSync(['primary']);
-  recordSplitCommandFocusOwnership('secondary', details);
   clearSplitCommandPairRuntimeReferences();
+  publishSplitCommandOwnershipSync(['primary']);
+  publishSplitCommandSurfaceHostState(['primary']);
+  recordSplitCommandFocusOwnership('secondary', details);
+  focusPrimarySurface();
 }
 
 function noteSplitCommandSecondaryRebuildBlocked(details?: unknown): void {
@@ -1116,6 +1403,8 @@ function noteSplitCommandSecondaryRebuildBlocked(details?: unknown): void {
 
   const fallbackState =
     splitCommandLifecycleSeam.registry.markSecondaryRebuildBlocked('secondary-launch-failed');
+  secondarySurfaceStatus = 'unavailable';
+  surfaceHostNotice = 'secondary-launch-failed';
   ensureMainLogger().warn('Split command secondary rebuild blocked', {
     pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
     fallbackState,
@@ -1123,6 +1412,7 @@ function noteSplitCommandSecondaryRebuildBlocked(details?: unknown): void {
   });
 
   publishSplitCommandOwnershipSync(['primary']);
+  publishSplitCommandSurfaceHostState(['primary']);
 }
 
 function noteSplitCommandPrimaryCollapse(
@@ -1269,40 +1559,13 @@ async function bootstrap(): Promise<void> {
     splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
     recordSplitCommandFocusOwnership('primary');
     mainWindow = window;
+    primaryLogicalSurface = 'writing';
+    secondarySurfaceStatus = 'closed';
+    surfaceHostNotice = null;
     publishSplitCommandOwnershipSync(['primary']);
-    if (splitCommandLifecycleSeam) {
-      try {
-        splitCommandSecondaryLaunchContract =
-          splitCommandLifecycleSeam.registry.createSecondaryLaunchContract();
-        ensureMainLogger().info('Split command secondary launch contract prepared', {
-          pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
-          windowRole: splitCommandSecondaryLaunchContract.windowRole,
-        });
-        const secondaryWindow = await createSplitCommandSecondaryWindow(
-          splitCommandSecondaryLaunchContract,
-          initialPlacement?.commandCenter,
-        );
-        try {
-          splitCommandLifecycleSeam.registry.registerSecondaryWindow();
-          recordSplitCommandFocusOwnership('secondary');
-        } catch (secondaryRegistrationError) {
-          secondaryWindow.destroy();
-          throw secondaryRegistrationError;
-        }
-        splitCommandSecondaryWindow = secondaryWindow;
-        publishSplitCommandOwnershipSync(['primary', 'secondary']);
-        ensureMainLogger().info('Split command secondary window launched', {
-          pairId: splitCommandSecondaryLaunchContract.pairIdentity.pairId,
-          windowRole: splitCommandSecondaryLaunchContract.windowRole,
-        });
-      } catch (error) {
-        noteSplitCommandSecondaryRebuildBlocked(error);
-        splitCommandSecondaryLaunchContract = null;
-        splitCommandSecondaryWindow = null;
-        ensureMainLogger().warn('Split command secondary launch contract unavailable', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
+    publishSplitCommandSurfaceHostState(['primary']);
+    if (splitCommandLifecycleSeam && initialPlacement?.displayMode === 'dual-display') {
+      await openSplitCommandSecondarySurface(initialPlacement.commandCenter);
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';
@@ -1314,6 +1577,15 @@ async function bootstrap(): Promise<void> {
 }
 
 function setupAppEventHandlers(): void {
+  screen.on('display-removed', (_event, display) => {
+    if (!splitCommandSecondaryWindow || splitCommandSecondaryWindow.isDestroyed()) return;
+    noteSplitCommandSecondaryLoss(
+      'destroyed',
+      { displayId: display.id },
+      'display-removed',
+    );
+  });
+
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit();

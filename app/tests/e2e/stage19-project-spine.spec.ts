@@ -38,12 +38,9 @@ function observeElectronBeforeUnload(page: Page): {
 }
 
 test('Stage 19 dedicated windows reach stable startup', async ({ electronApp, page }) => {
-  await expect(page.locator('[data-stage19-role="writing"]')).toBeVisible();
-  await expect.poll(async () =>
-    (await Promise.all(electronApp.windows().map((candidate) =>
-      candidate.locator('[data-stage19-role="command"]').count(),
-    ))).some((count) => count > 0),
-  { timeout: 30_000 }).toBe(true);
+  const { writing, command } = await getStage19Windows(electronApp, page);
+  await expect(writing.locator('[data-stage19-role="writing"]')).toBeVisible();
+  await expect(command.locator('[data-stage19-role="command"]')).toBeVisible();
   await expect.poll(() => electronApp.process()?.exitCode ?? null, { timeout: 2_000 }).toBeNull();
 });
 

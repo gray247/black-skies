@@ -19,6 +19,11 @@ import type {
   LivingOutlineItemV1,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
+import type {
+  SplitCommandLogicalSurface,
+  SplitCommandSecondarySurfaceStatus,
+  SplitCommandSurfaceHostNotice,
+} from '../shared/ipc/splitCommand';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
@@ -32,6 +37,13 @@ export interface MarkdownExportNotice {
 export interface Stage19WritingSpineViewModel {
   readonly phase: Stage19ViewPhase;
   readonly windowRole: ProjectSpineWindowRole;
+  readonly logicalSurface: SplitCommandLogicalSurface;
+  readonly commandSnapshot: ProjectSpineSessionSnapshot | null;
+  readonly surfaceHostAvailable: boolean;
+  readonly commandPlacement: 'current-window' | 'secondary-window';
+  readonly secondarySurfaceStatus: SplitCommandSecondarySurfaceStatus;
+  readonly surfaceHostNotice: SplitCommandSurfaceHostNotice;
+  readonly surfaceHostError: string | null;
   readonly snapshot: ProjectSpineSessionSnapshot;
   readonly notice: string | null;
   readonly activeUnit: ProjectSpineUnitSummary | null;
@@ -85,6 +97,9 @@ export interface Stage19WritingSpineViewModel {
 type MaybeAsync = void | Promise<void>;
 
 export interface Stage19WritingSpineViewActions {
+  readonly showWritingSurface: () => MaybeAsync;
+  readonly showCommandSurface: () => MaybeAsync;
+  readonly openCommandInSecondaryWindow: () => MaybeAsync;
   readonly exportMarkdown: () => MaybeAsync;
   readonly toggleFocusMode: () => void;
   readonly submitRecoveryDecision: (
@@ -177,16 +192,80 @@ function commandSaveLabel(
   return 'Saved durably';
 }
 
-function CommandUnavailableView(): JSX.Element {
+function surfaceHostNoticeLabel(notice: SplitCommandSurfaceHostNotice): string | null {
+  switch (notice) {
+    case 'secondary-closed':
+      return 'Command Center returned to this window after its second window closed.';
+    case 'secondary-lost':
+      return 'Command Center returned safely after its second window stopped responding.';
+    case 'display-removed':
+      return 'Command Center returned safely because the second display was disconnected.';
+    case 'secondary-launch-failed':
+      return 'The second window was unavailable. Command Center remains available here.';
+    default:
+      return null;
+  }
+}
+
+function SurfaceControlsView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
+  if (!model.surfaceHostAvailable) return null;
+  const secondaryBusy = model.secondarySurfaceStatus === 'opening';
+  const secondaryOpen = model.commandPlacement === 'secondary-window' &&
+    model.secondarySurfaceStatus === 'open';
+  const notice = model.surfaceHostError ?? surfaceHostNoticeLabel(model.surfaceHostNotice);
   return (
-    <main className="stage19-spine stage19-spine--command" data-stage19-role="command" data-primary-scroll-container="true" role="region" aria-label="Command Center">
+    <div className="stage19-spine__surface-host">
+      <nav className="stage19-spine__surface-actions" aria-label="Writing and Command surfaces">
+        {model.logicalSurface === 'writing' ? (
+          <>
+            <button type="button" onClick={() => void actions.showCommandSurface()}>
+              Open Command Center here
+            </button>
+            <button
+              type="button"
+              onClick={() => void actions.openCommandInSecondaryWindow()}
+              disabled={secondaryBusy || secondaryOpen}
+            >
+              {secondaryBusy ? 'Opening second window…' : secondaryOpen
+                ? 'Command Center open in second window'
+                : 'Open Command Center in second window'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={() => void actions.showWritingSurface()}>
+              Return to Writing Studio
+            </button>
+            {model.windowRole === 'writing' ? (
+              <button
+                type="button"
+                onClick={() => void actions.openCommandInSecondaryWindow()}
+                disabled={secondaryBusy || secondaryOpen}
+              >
+                {secondaryBusy ? 'Opening second window…' : 'Move Command Center to second window'}
+              </button>
+            ) : null}
+          </>
+        )}
+      </nav>
+      {notice ? <p className="stage19-spine__surface-notice" role="status">{notice}</p> : null}
+    </div>
+  );
+}
+
+function CommandUnavailableView(props: Stage19WritingSpineViewProps): JSX.Element {
+  return (
+    <main className="stage19-spine stage19-spine--command" data-stage19-role={props.model.logicalSurface === 'command' ? 'command' : undefined} data-primary-scroll-container="true" role="region" aria-label="Command Center">
       <header className="stage19-spine__header">
         <div>
           <span className="stage19-spine__eyebrow">Command Center</span>
           <h1>Command status unavailable</h1>
           <p>Writing Studio authority could not be reached. No saved or recovery claim is shown.</p>
         </div>
-        <span className="stage19-spine__save-state stage19-spine__save-state--save-failed" role="status">Status unavailable</span>
+        <div className="stage19-spine__project-actions">
+          <span className="stage19-spine__save-state stage19-spine__save-state--save-failed" role="status">Status unavailable</span>
+          <SurfaceControlsView {...props} />
+        </div>
       </header>
       <p className="stage19-spine__notice" role="alert">The authoritative project-session bridge is unavailable.</p>
       <section className="stage19-spine__empty-state">
@@ -200,7 +279,7 @@ function CommandUnavailableView(): JSX.Element {
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const { snapshot, notice, activeUnit } = model;
   const commandStatus = snapshot.commandStatus;
-  if (!commandStatus) return <CommandUnavailableView />;
+  if (!commandStatus) return <CommandUnavailableView model={model} actions={actions} />;
   const commandAlert = notice ?? (
     commandStatus.lifecycle === 'operation-failed'
       ? 'A Writing Studio project operation failed. Current project identity is preserved.'
@@ -209,14 +288,17 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         : null
   );
   return (
-    <main className="stage19-spine stage19-spine--command" data-stage19-role="command" data-primary-scroll-container="true" role="region" aria-label="Command Center">
+    <main className="stage19-spine stage19-spine--command" data-stage19-role={model.logicalSurface === 'command' ? 'command' : undefined} data-primary-scroll-container="true" role="region" aria-label="Command Center">
       <header className="stage19-spine__header">
         <div>
           <span className="stage19-spine__eyebrow">Command Center</span>
           <h1>{snapshot.project?.title ?? 'No project open'}</h1>
           <p>Navigation, project status, and durable save truth. Manuscript mutation is unavailable here.</p>
         </div>
-        <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">{commandSaveLabel(snapshot, commandStatus)}</span>
+        <div className="stage19-spine__project-actions">
+          <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">{commandSaveLabel(snapshot, commandStatus)}</span>
+          <SurfaceControlsView model={model} actions={actions} />
+        </div>
       </header>
       {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
       {snapshot.project ? (
@@ -676,7 +758,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
   const { snapshot } = model;
   return (
-    <main className="stage19-spine stage19-spine--writing" data-stage19-role="writing" data-primary-scroll-container="true" role="region" aria-label="Writing Studio">
+    <main className="stage19-spine stage19-spine--writing" data-stage19-role={model.logicalSurface === 'writing' ? 'writing' : undefined} data-primary-scroll-container="true" role="region" aria-label="Writing Studio">
       <header className="stage19-spine__header">
         <div>
           <span className="stage19-spine__eyebrow">Writing Studio</span>
@@ -691,6 +773,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           <button type="button" aria-pressed={model.focusMode} onClick={actions.toggleFocusMode}>
             {model.focusMode ? 'Exit Focus mode' : 'Enter Focus mode'}
           </button>
+          <SurfaceControlsView {...props} />
         </div>
       </header>
       {model.markdownExportRequiresSave ? <p className="stage19-spine__export-remedy" role="status">Save the project successfully before exporting.</p> : null}
@@ -715,11 +798,46 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
 }
 
 export default function Stage19WritingSpineView(props: Stage19WritingSpineViewProps): JSX.Element {
+  if (
+    props.model.windowRole === 'writing' &&
+    props.model.surfaceHostAvailable &&
+    props.model.phase !== 'loading'
+  ) {
+    const commandSnapshot = props.model.commandSnapshot;
+    const commandActiveUnit = commandSnapshot?.project?.units.find(
+      (unit) => unit.id === commandSnapshot.activeUnitId,
+    ) ?? null;
+    const commandProps: Stage19WritingSpineViewProps = {
+      actions: props.actions,
+      model: {
+        ...props.model,
+        phase: commandSnapshot ? 'command' : 'command-unavailable',
+        snapshot: commandSnapshot ?? props.model.snapshot,
+        activeUnit: commandActiveUnit,
+      },
+    };
+    return (
+      <div
+        className="stage19-spine-host"
+        data-stage19-logical-surface={props.model.logicalSurface}
+        data-stage19-command-placement={props.model.commandPlacement}
+      >
+        <div hidden={props.model.logicalSurface !== 'writing'}>
+          <WritingStudioView {...props} />
+        </div>
+        <div hidden={props.model.logicalSurface !== 'command'}>
+          {commandSnapshot
+            ? <CommandCenterView {...commandProps} />
+            : <CommandUnavailableView {...commandProps} />}
+        </div>
+      </div>
+    );
+  }
   switch (props.model.phase) {
     case 'loading':
       return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
     case 'command-unavailable':
-      return <CommandUnavailableView />;
+      return <CommandUnavailableView {...props} />;
     case 'command':
       return <CommandCenterView {...props} />;
     default:

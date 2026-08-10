@@ -148,6 +148,7 @@ export interface SplitCommandLifecycleRegistry {
   registerPrimaryWindow(): SplitCommandWindowLifecycleState;
   registerSecondaryWindow(): SplitCommandWindowLifecycleState;
   releaseSecondaryWindow(): void;
+  prepareSecondaryRebuild(): SplitCommandPairFallbackState;
   markSecondaryLost(reason: SplitCommandSecondaryLossReason): SplitCommandPairFallbackState;
   markPrimaryCollapsed(reason: SplitCommandPrimaryCollapseReason): SplitCommandPairFallbackState;
   markSecondaryRebuildBlocked(reason: SplitCommandRebuildBlockReason): SplitCommandPairFallbackState;
@@ -408,6 +409,9 @@ export function createSplitCommandLifecycleRegistry(
   };
 
   function assertActive(): void {
+    if (!active && fallbackState.pairHealthStatus === 'primary-lost') {
+      throw new Error('Split command pair was invalidated by primary collapse.');
+    }
     if (!active) {
       throw new Error('Split command lifecycle registry has been cleared.');
     }
@@ -470,6 +474,22 @@ export function createSplitCommandLifecycleRegistry(
         return;
       }
       secondaryWindowRegistered = false;
+    },
+    prepareSecondaryRebuild() {
+      assertActive();
+      if (!primaryWindowRegistered) {
+        throw new Error('Primary Split command window must remain registered for secondary rebuild.');
+      }
+      if (secondaryWindowRegistered) {
+        throw new Error('Secondary Split command window is already registered.');
+      }
+      fallbackState = {
+        pairHealthStatus: 'healthy',
+        primaryCollapseReason: null,
+        secondaryLossReason: null,
+        rebuildBlockReason: null,
+      };
+      return fallbackState;
     },
     markSecondaryLost(reason: SplitCommandSecondaryLossReason) {
       if (!active) {

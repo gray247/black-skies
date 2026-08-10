@@ -118,11 +118,13 @@ It does not finalize the entire product vision.
   P3-A contracts, deterministic Review fixtures, Feedback Note write
   serialization, and truthful supported-core receipt scope are durable at
   `4007e12a` and recorded in `program_3_batch_p3_a_evidence_receipt.md`. P3-B's
-  behavior-locked controller/view seam and automated evidence are complete and
-  recorded in `program_3_batch_p3_b_evidence_receipt.md`. Jason's exact P3-B
-  commit and push make P3-C executable; all exclusions, batch gates, truth
-  boundaries, current Git controls, and the Human Gate 2 boundary remain in
-  force.
+  behavior-locked controller/view seam is durable at `2ff0361c` and recorded
+  in `program_3_batch_p3_b_evidence_receipt.md`. P3-C's logical surface host,
+  optional-secondary placement, loss recovery, preload parity, and automated
+  evidence are complete and recorded in
+  `program_3_batch_p3_c_evidence_receipt.md`. Jason's exact P3-C commit and
+  push make P3-D executable; all exclusions, batch gates, truth boundaries,
+  current Git controls, and the Human Gate 2 boundary remain in force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.
