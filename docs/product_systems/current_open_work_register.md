@@ -29,12 +29,21 @@ register or a currently authorized program promotes it.
 | ID | Current item | Source | Status | Owner / resolution point | Trigger or exit condition |
 | --- | --- | --- | --- | --- | --- |
 | DOC-01 | Author-experience, execution-control, roadmap, truth-index, and Gate 1 reconciliation | Current documentation batch | closed | Documentation reconciliation | Committed and pushed at `f73f6880`; current-authority lint passed |
-| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, exact snapshots verified, and Jason approved the non-destructive disposition on 2026-08-10; closure becomes durable with the evidence commit and push |
+| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, exact snapshots verified, Jason approved the non-destructive disposition, and the receipt was pushed at `c668586f` |
 | RCP-01 | Canonical continuing development line | Approved author decision and RCP0 ledger | closed | Repository Control Point 0 | Jason approved `codex/foundation-audit` as the sole continuing line; legacy worktrees remain quarantined until Cleanup Wave A |
-| OWR-01 | Reconcile live items from fix tracker, dossiers, deferral table, skip inventory, reachability inventory, and workflow ledgers | Execution-control plan | next | Control Point 1 | Canonical development line is established |
-| ARC-01 | Architecture and maintainability baseline | Large responsibility concentrations and cross-process boundaries | next | Control Point 1 | Repository Control Point 0 closes |
+| OWR-01 | Reconcile live items from fix tracker, dossiers, deferral table, skip inventory, reachability inventory, and workflow ledgers | [Control Point 1 open-work reconciliation](control_point_1_open_work_reconciliation.md) | closed | Control Point 1 Batch A | Evidence batch is committed and pushed; architecture and test audits use this ownership map |
+| ARC-01 | Architecture and maintainability baseline | Large responsibility concentrations and cross-process boundaries | active | Control Point 1 Batch B | Repository Control Point 0 and open-work reconciliation close |
 | TST-01 | Test-strength and intentional-skip review | Supported-core coverage, skip inventory, current harnesses | next | Control Point 1 | Repository Control Point 0 closes |
 | DES-01 | Restrained professional literary visual foundation | Author Experience Direction Lock | next | Control Point 1 | Architecture and workflow constraints are available |
+| ARC-02 | Startup assumptions, workflow duplication, CI narrowing, snapshot authority, and runtime-truth monitors | Fix-tracker normalized issues 6, 9, 10, 14, and 18 | active | Control Point 1 architecture/test audits | Admit a refactor only when current evidence identifies a bounded defect or replacement need |
+| TST-02 | Risk-led capability coverage gaps | Fix-tracker normalized issue 12 | next | Control Point 1 test audit and each changed-boundary program | Prioritized behavioral gaps have exact owners; no blind coverage-percentage campaign |
+| ENV-01 | Local harness preflight, port, temp-directory, and ACL constraints | Fix-tracker normalized issues 21 and 30 | next | Control Point 1 test audit / final qualification | Reproducible host constraints are documented; host cleanup remains separately authorized |
+| UX-01 | Project creation and startup experience is mechanically sound but visually weak | Fix-tracker normalized issue 26 and Human Gate 1 synthesis | owned-later | Program 3 | Contextual shell design supplies the accepted startup/project-entry treatment |
+| SKP-01 | Budget-indicator UI opt-in skip | Intentional-skip inventory | owned-later | Program 9 / final qualification | Scoped budget-indicator qualification is authorized |
+| SKP-02 | Snapshots-panel UI opt-in skip | Intentional-skip inventory | owned-later | Program 9 / final qualification | Scoped snapshots-panel qualification is authorized |
+| SKP-03 | Real-service truth lane opt-in skip | Intentional-skip inventory | owned-later | Program 9 or an earlier real-service boundary change | Controlled real-service environment is provided |
+| SKP-04 | Strict visual snapshot lane opt-in skip | Intentional-skip inventory and fix tracker issue 43 | next | Control Point 1 test/design audit and Program 3 | Fixed visual host or approved replacement assertion strategy exists |
+| SKP-05 | Live-provider qualification skip | Intentional-skip inventory | owned-later | Program 9 or a named provider package | Credentialed provider qualification is explicitly authorized |
 | P3-01 | Contextual product shell | Post-V1 Master Program, Program 3 | owned-later | Program 3 | Control Point 1 closes and design direction is approved |
 | P4-01 | Minimal Companion and owner routing | Post-V1 Master Program, Program 4 | owned-later | Program 4 | Program 3 automated evidence is green |
 | HG-02 | Shell and Companion human gate | Execution-control plan | owned-later | Human Gate 2 | Programs 3 and 4 form one complete candidate |
@@ -58,6 +67,12 @@ register or a currently authorized program promotes it.
 | DEF-06 | Branching / what-if architecture | Master-program deferral table | owned-later | Later structural review | Prototype arrangements cannot satisfy a real workflow |
 | DEF-07 | Repository-wide historical archive completion | Roadmap and cleanup policy | owned-later | Cleanup Wave B / final audit | Current authority and replacement map make archival safe |
 | DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | owned-later | Cleanup Wave A | RCP0 disposition is approved; one exact-target cleanup list and recovery check are reviewed before any removal |
+| DEF-09 | Dossier-completion wording and field detail | Master-program deferral table | owned-later | First workflow planning batch that needs it | Category-4 doctrine cannot support a stable contract or understandable UI |
+| DEF-10 | Paid or outbound expansion | Master-program deferral table | owned-later | Separately named task package | Proven local/manual workflow justifies privacy, cost, and approval work |
+| DEF-11 | Third-party plugin ecosystem | Master-program deferral table | owned-later | Post-first-party analyzer review | Repeated demand cannot be met through internal rubrics or first-party analyzers |
+| DEF-12 | Broader document interchange and Google Docs adapters | Master-program deferral table | owned-later | Program 8 after Program 5 | Proven workflow requires an external format or service |
+| DEF-13 | Research / Deep Research | Roadmap scope correction | owned-later | Explicit scope reopening | Jason establishes a current owner and workflow |
+| DEF-14 | Voice, dictation, and transcription | Roadmap scope correction | owned-later | Explicit scope reopening | Jason defines accessibility and provenance boundaries |
 
 ## 4. Existing Source Treatment
 

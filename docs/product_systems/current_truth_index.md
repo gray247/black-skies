@@ -79,8 +79,13 @@ It does not finalize the entire product vision.
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
   named `codex/foundation-audit` as the sole continuing development line on
-  2026-08-10. The two dirty worktrees remain quarantined until Cleanup Wave A;
-  Control Point 1 begins after the RCP0 evidence commit and push.
+  2026-08-10. Receipt commit `c668586f` is pushed. The two dirty worktrees
+  remain quarantined until Cleanup Wave A.
+- Control Point 1 is active. Its open-work reconciliation is recorded in
+  `control_point_1_open_work_reconciliation.md`: old phase queues remain
+  historical, current deferrals and skips have exact owners and triggers, and
+  architecture and test-strength audits precede the human-approved Visual
+  Design Foundation.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.

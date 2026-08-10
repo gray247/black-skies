@@ -22,6 +22,7 @@ The inventory includes:
 - the accepted author-experience direction lock;
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the current open-work register;
+- the current Control Point 1 open-work reconciliation;
 - the current Repository Control Point 0 reconciliation ledger;
 - the accepted post-V1 master product program;
 - the completed V2 Human Gate 1 execution ledger and evidence receipt;
@@ -50,6 +51,11 @@ professionalization, the nine-program order, six human gates, required
 model-change warnings, and handoff completeness. The open-work register is the
 single current index for unfinished work; it points to detailed owners rather
 than duplicating their contents.
+
+The Control Point 1 open-work reconciliation records the current disposition
+of fix-tracker residuals, dossier questions, deferrals, intentional skips,
+reachability findings, roadmap residuals, and workflow-proof questions before
+Program 3. It does not authorize implementation or cleanup.
 
 The Repository Control Point 0 ledger is current evidence for legacy dirty
 state, worktree classification, recoverable snapshots, and the proposed
