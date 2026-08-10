@@ -12,7 +12,7 @@
 - Exact committed planning baseline: `1698a44604e8fab6c47948a5128e911bf8d9916b`
 - Branch: `codex/foundation-audit`
 - Current mutation authority: `PROGRAM 3 ONLY, WITH THIS PLAN'S INCLUDED SCOPE, EXCLUSIONS, BATCH GATES, TRUTH BOUNDARIES, AND HUMAN GATE 2 BOUNDARY IN FORCE`
-- Runtime implementation: `AUTHORIZED TO BEGIN WITH P3-A AFTER THIS AUTHORIZATION RECORD IS COMMITTED AND PUSHED`
+- Runtime implementation: `P3-A DURABLE AT 4007e12a; P3-B GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
 - Git authority: `Jason alone stages, commits, and pushes under current repository governance`
 
 This plan is the complete handoff from Control Point 1 into Program 3. It is
@@ -313,9 +313,7 @@ Exit:
 
 Implementation evidence is recorded in
 [Program 3 Batch P3-A Evidence Receipt](program_3_batch_p3_a_evidence_receipt.md).
-The implementation and automated gate are green; the batch becomes durable
-after Jason commits and pushes the exact P3-A file set. P3-B does not begin
-before that Git checkpoint.
+The implementation and automated gate are durable at `4007e12a`.
 
 ### Batch P3-B - Behavior-locked controller and view seam
 
@@ -340,6 +338,12 @@ Exit:
 
 - the new visual shell can change without rewriting workflow state machines;
 - old source-regex layout confidence is no longer the sole layout guard.
+
+Implementation evidence is recorded in
+[Program 3 Batch P3-B Evidence Receipt](program_3_batch_p3_b_evidence_receipt.md).
+The implementation and automated gate are green; the batch becomes durable
+after Jason commits and pushes the exact P3-B file set. P3-C begins from that
+exact pushed checkpoint.
 
 ### Batch P3-C - Logical surface host and placement
 

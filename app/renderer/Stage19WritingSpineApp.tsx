@@ -4,7 +4,6 @@ import type {
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineBinding,
   ProjectSpineBridge,
-  ProjectSpineCommandStatusProjection,
   ProjectSpineRecoveryCandidateProjection,
   ProjectSpineResult,
   ProjectSpineSessionSnapshot,
@@ -27,7 +26,17 @@ import type {
   LivingOutlineItemState,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
-import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
+import type { DraftEditorSelectionEvidence } from './DraftEditor';
+import Stage19WritingSpineView, {
+  type MarkdownExportNotice,
+  type Stage19WritingSpineViewActions,
+  type Stage19WritingSpineViewModel,
+} from './Stage19WritingSpineView';
+import {
+  decideStage19SessionProjection,
+  deriveStage19ViewPhase,
+  deriveStage19WritingAvailability,
+} from './stage19WritingSpineController';
 
 interface DraftEnvelope {
   readonly header: string;
@@ -160,67 +169,6 @@ function saveSummaryLabel(snapshot: ProjectSpineSessionSnapshot, dirtyUnitIds: R
     return `${dirtyUnitIds.size} unsaved unit${dirtyUnitIds.size === 1 ? '' : 's'}`;
   }
   return saveStatusLabel(snapshot);
-}
-
-function commandLifecycleLabel(status: ProjectSpineCommandStatusProjection): string {
-  switch (status.lifecycle) {
-    case 'active':
-      return 'Active and available';
-    case 'operation-failed':
-      return 'Project operation failed';
-    default:
-      return 'No active project';
-  }
-}
-
-function commandRecoveryLabel(status: ProjectSpineCommandStatusProjection): string {
-  switch (status.recovery) {
-    case 'decision-required':
-      return 'Recovery decision required in Writing Studio';
-    case 'accepted-pending-save':
-      return 'Recovered work is unsaved and pending normal Save';
-    case 'degraded':
-      return 'Recovery evidence is degraded or unavailable';
-    default:
-      return 'No recovery action required';
-  }
-}
-
-function commandSaveLabel(
-  snapshot: ProjectSpineSessionSnapshot,
-  status: ProjectSpineCommandStatusProjection,
-): string {
-  if (status.save === 'save-failed') {
-    return 'Save failed in Writing Studio';
-  }
-  if (status.save === 'saving') {
-    return 'Saving…';
-  }
-  if (status.recovery === 'decision-required' || status.recovery === 'degraded') {
-    return commandRecoveryLabel(status);
-  }
-  if (status.save === 'accepted-recovery-pending-save') {
-    return 'Recovered work pending Save';
-  }
-  if (!snapshot.project) {
-    return 'No active project';
-  }
-  switch (status.save) {
-    case 'dirty':
-      return `${snapshot.dirtyUnitIds.length} unsaved unit${snapshot.dirtyUnitIds.length === 1 ? '' : 's'}`;
-    default:
-      return 'Saved durably';
-  }
-}
-
-function commandStatusMatchesSnapshot(snapshot: ProjectSpineSessionSnapshot): boolean {
-  const status = snapshot.commandStatus;
-  return Boolean(
-    status &&
-    status.projectId === (snapshot.project?.projectId ?? null) &&
-    status.generation === snapshot.generation &&
-    status.revision === snapshot.revision,
-  );
 }
 
 function emptySnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapshot {
@@ -516,13 +464,6 @@ export interface Stage19WritingSpineAppProps {
   readonly livingOutlineBridge?: LivingOutlineBridge;
 }
 
-interface MarkdownExportNotice {
-  readonly projectId: string;
-  readonly projectTitle: string;
-  readonly tone: 'neutral' | 'success' | 'failure';
-  readonly message: string;
-}
-
 export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
@@ -617,20 +558,10 @@ export default function Stage19WritingSpineApp({
   }, [windowRole]);
 
   const applySnapshot = useCallback((next: ProjectSpineSessionSnapshot) => {
-    if (next.role !== windowRole) {
-      return;
-    }
-    if (windowRole === 'command' && !commandStatusMatchesSnapshot(next)) {
-      return;
-    }
     const previousSnapshot = snapshotRef.current;
-    if (
-      next.generation < previousSnapshot.generation ||
-      (next.generation === previousSnapshot.generation && next.revision < previousSnapshot.revision)
-    ) {
-      return;
-    }
-    const generationChanged = next.generation !== previousSnapshot.generation;
+    const decision = decideStage19SessionProjection(previousSnapshot, next, windowRole);
+    if (!decision.accepted) return;
+    const { generationChanged } = decision;
     hasAuthoritativeSnapshotRef.current = true;
     setProjectionUnavailable(false);
     appliedGenerationRef.current = next.generation;
@@ -889,15 +820,14 @@ export default function Stage19WritingSpineApp({
     [livingOutline?.document.items, snapshot.activeUnitId],
   );
   const dirtyUnitIds = useMemo(() => deriveDirtyUnitIds(snapshot, buffers), [buffers, snapshot]);
-  const activeDirty = Boolean(activeUnit && dirtyUnitIds.has(activeUnit.id));
-  const hasLocalUnsaved = dirtyUnitIds.size > 0;
+  const {
+    activeDirty,
+    hasLocalUnsaved,
+    recoveryBlocksEditing,
+    markdownExportRequiresSave,
+  } = deriveStage19WritingAvailability(snapshot, dirtyUnitIds);
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
-  const recoveryBlocksEditing = snapshot.recovery?.status === 'decision-required' || snapshot.recovery?.status === 'degraded';
-  const markdownExportRequiresSave = Boolean(snapshot.project) && (
-    hasLocalUnsaved ||
-    (snapshot.saveState.status !== 'clean' && snapshot.saveState.status !== 'saved') ||
-    snapshot.recovery?.status !== 'none'
-  );
+  const viewPhase = deriveStage19ViewPhase(windowRole, loading, projectionUnavailable, snapshot);
 
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
@@ -1891,536 +1821,107 @@ export default function Stage19WritingSpineApp({
     }
   }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.generation, snapshot.project]);
 
-  if (loading) {
-    return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
-  }
+  const viewModel: Stage19WritingSpineViewModel = {
+    phase: viewPhase,
+    windowRole,
+    snapshot,
+    notice,
+    activeUnit,
+    writingSaveSummary,
+    projectBridgeAvailable: Boolean(bridge),
+    markdownExportAvailable: Boolean(bridge?.exportMarkdown),
+    exportingMarkdown,
+    markdownExportRequiresSave,
+    markdownExportNotice,
+    focusMode,
+    recoveryDecisionUnitId,
+    projectTitle,
+    reviewPaneOpen,
+    newUnitTitle,
+    renameTitle,
+    dirtyUnitIds,
+    recoveryBlocksEditing,
+    livingOutline,
+    livingOutlineLoading,
+    livingOutlineNotice,
+    selectedOutlineItem,
+    selectedOutlineItemId,
+    outlineLabel,
+    outlineKind,
+    outlineState,
+    outlineLinkActiveUnit,
+    projectedWritingOrder,
+    activeBuffer,
+    activeDirty,
+    aiBridgeAvailable: Boolean(aiBridge),
+    aiSelection,
+    aiCredential,
+    aiCredentialConfigured,
+    aiPreview,
+    aiClearanceConfirmed,
+    aiState,
+    aiResult,
+    aiResultStale,
+    aiNotice,
+    feedbackNotesAvailable: Boolean(feedbackNotesBridge),
+    feedbackNoteBody,
+    feedbackNoteSaving,
+    feedbackNoteNotice,
+    savedFeedbackNotes,
+    overlays: (
+      <>
+        <CloseConfirmationDialog windowRole={windowRole} {...closeConfirmation} />
+        <ProjectSwitchConfirmationDialog
+          open={projectSwitchConfirmationOpen}
+          continueEditing={() => resolveProjectSwitchDecision(false)}
+          discardChanges={() => resolveProjectSwitchDecision(true)}
+        />
+      </>
+    ),
+  };
+  const viewActions: Stage19WritingSpineViewActions = {
+    exportMarkdown: handleExportMarkdown,
+    toggleFocusMode: () => setFocusMode((current) => !current),
+    submitRecoveryDecision,
+    openProject: handleOpenProject,
+    setProjectTitle,
+    createProject: handleCreateProject,
+    setNewUnitTitle,
+    createUnit: handleCreateUnit,
+    selectUnit: handleSelectUnit,
+    setRenameTitle,
+    renameUnit: handleRenameUnit,
+    moveActiveUnit,
+    deleteUnit: handleDeleteUnit,
+    setOutlineLabel,
+    setOutlineKind,
+    setOutlineState,
+    setOutlineLinkActiveUnit,
+    createOutlineItem: createLivingOutlineItem,
+    updateOutlineItem: updateLivingOutlineItem,
+    selectOutlineItem: selectLivingOutlineItem,
+    moveOutlineItem: moveLivingOutlineItem,
+    linkOutlineItem: linkLivingOutlineItem,
+    deleteOutlineItem: deleteLivingOutlineItem,
+    saveUnit,
+    changeBuffer: handleBufferChange,
+    changeAiSelection: handleAiSelection,
+    setAiCredential,
+    configureAiCredential,
+    clearAiCredential,
+    prepareAiCritique,
+    setAiClearanceConfirmed,
+    approveAiCritique,
+    stopWaitingForAi,
+    dismissAiCritique,
+    openReviewPane: () => setReviewPaneOpen(true),
+    closeReviewPane: () => setReviewPaneOpen(false),
+    copyAiResult,
+    setFeedbackNoteBody,
+    saveFeedbackNote,
+    openRecent: handleOpenRecent,
+    removeRecent: handleRemoveRecent,
+  };
 
-  if (windowRole === 'command') {
-    const commandStatus = snapshot.commandStatus;
-    if (projectionUnavailable || !commandStatus) {
-      return (
-        <main
-          className="stage19-spine stage19-spine--command"
-          data-stage19-role="command"
-          data-primary-scroll-container="true"
-          role="region"
-          aria-label="Command Center"
-        >
-          <header className="stage19-spine__header">
-            <div>
-              <span className="stage19-spine__eyebrow">Command Center</span>
-              <h1>Command status unavailable</h1>
-              <p>Writing Studio authority could not be reached. No saved or recovery claim is shown.</p>
-            </div>
-            <span className="stage19-spine__save-state stage19-spine__save-state--save-failed" role="status">
-              Status unavailable
-            </span>
-          </header>
-          <p className="stage19-spine__notice" role="alert">
-            The authoritative project-session bridge is unavailable.
-          </p>
-          <section className="stage19-spine__empty-state">
-            <h2>Project status unavailable</h2>
-            <p>Continue in Writing Studio and wait for Command Center synchronization.</p>
-          </section>
-        </main>
-      );
-    }
-    const commandAlert = notice ?? (
-      commandStatus.lifecycle === 'operation-failed'
-        ? 'A Writing Studio project operation failed. Current project identity is preserved.'
-        : commandStatus.save === 'save-failed'
-          ? 'Durable Save failed in Writing Studio. Unsaved local content remains.'
-          : null
-    );
-    return (
-      <main
-        className="stage19-spine stage19-spine--command"
-        data-stage19-role="command"
-        data-primary-scroll-container="true"
-        role="region"
-        aria-label="Command Center"
-      >
-        <header className="stage19-spine__header">
-          <div>
-            <span className="stage19-spine__eyebrow">Command Center</span>
-            <h1>{snapshot.project?.title ?? 'No project open'}</h1>
-            <p>Navigation, project status, and durable save truth. Manuscript mutation is unavailable here.</p>
-          </div>
-          <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">
-            {commandSaveLabel(snapshot, commandStatus)}
-          </span>
-        </header>
-        {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
-        {snapshot.project ? (
-          <div className="stage19-spine__command-grid">
-            <section className="stage19-spine__card">
-              <h2>Active project</h2>
-              <dl className="stage19-spine__facts">
-                <div><dt>Title</dt><dd>{snapshot.project.title}</dd></div>
-                <div><dt>Identity</dt><dd>{snapshot.project.projectId}</dd></div>
-                <div><dt>Location</dt><dd>{snapshot.project.path}</dd></div>
-                <div><dt>Units</dt><dd>{snapshot.project.units.length}</dd></div>
-              </dl>
-            </section>
-            <section className="stage19-spine__card stage19-spine__card--units">
-              <h2>Manuscript navigation</h2>
-              {snapshot.project.units.length > 0 ? (
-                <ol className="stage19-spine__unit-list">
-                  {snapshot.project.units.map((unit) => (
-                    <li key={unit.id}>
-                      <button
-                        type="button"
-                        className={unit.id === snapshot.activeUnitId ? 'is-active' : ''}
-                        onClick={() => void handleSelectUnit(unit.id)}
-                        aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined}
-                      >
-                        <span>{String(unit.order).padStart(2, '0')}</span>
-                        <strong>{unit.displayTitle}</strong>
-                      </button>
-                    </li>
-                  ))}
-                </ol>
-              ) : <p className="stage19-spine__empty">This project has no manuscript units yet.</p>}
-            </section>
-            <section className="stage19-spine__card">
-              <h2>Writing state</h2>
-              <p><strong>Project:</strong> {commandLifecycleLabel(commandStatus)}</p>
-              <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
-              <p><strong>Save:</strong> {commandSaveLabel(snapshot, commandStatus)}</p>
-              <p>{snapshot.activeUnitId ? `Selected unit: ${activeUnit?.displayTitle ?? snapshot.activeUnitId}` : 'No unit selected'}</p>
-              <p className="stage19-spine__mutability-note">Advisory/status/navigation only. No prose editor or structural mutation controls are exposed.</p>
-            </section>
-          </div>
-        ) : (
-          <section className="stage19-spine__empty-state">
-            <h2>No active project</h2>
-            <p>Create or open a project in Writing Studio. Command Center will synchronize automatically.</p>
-            <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
-          </section>
-        )}
-      </main>
-    );
-  }
-
-  return (
-    <main
-      className="stage19-spine stage19-spine--writing"
-      data-stage19-role="writing"
-      data-primary-scroll-container="true"
-      role="region"
-      aria-label="Writing Studio"
-    >
-      <header className="stage19-spine__header">
-        <div>
-          <span className="stage19-spine__eyebrow">Writing Studio</span>
-          <h1>{snapshot.project?.title ?? 'Your local writing workspace'}</h1>
-          <p>{snapshot.project ? `Project identity: ${snapshot.project.projectId}` : 'Create or open an isolated local project to begin.'}</p>
-        </div>
-        <div className="stage19-spine__project-actions">
-          <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">
-            {writingSaveSummary}
-          </span>
-          <button
-            type="button"
-            onClick={() => void handleExportMarkdown()}
-            disabled={
-              !snapshot.project ||
-              !bridge?.exportMarkdown ||
-              markdownExportRequiresSave ||
-              exportingMarkdown
-            }
-          >
-            {exportingMarkdown ? 'Exporting…' : 'Export Markdown…'}
-          </button>
-          <button type="button" aria-pressed={focusMode} onClick={() => setFocusMode((current) => !current)}>
-            {focusMode ? 'Exit Focus mode' : 'Enter Focus mode'}
-          </button>
-        </div>
-      </header>
-      {markdownExportRequiresSave ? (
-        <p className="stage19-spine__export-remedy" role="status">
-          Save the project successfully before exporting.
-        </p>
-      ) : null}
-      {markdownExportNotice ? (
-        <p
-          className={`stage19-spine__export-notice stage19-spine__export-notice--${markdownExportNotice.tone}`}
-          role={markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}
-        >
-          <strong>Markdown export for {markdownExportNotice.projectTitle}</strong>
-          {' — '}
-          {markdownExportNotice.message}
-        </p>
-      ) : null}
-      {notice || snapshot.lastError ? (
-        <p className="stage19-spine__notice" role="alert">{notice ?? snapshot.lastError?.message}</p>
-      ) : null}
-      {snapshot.recovery?.status === 'decision-required' ? (
-        <section className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
-          <h2 id="stage19-recovery-title">Recover unsaved Writing Studio prose</h2>
-          <p>Review every candidate. Recovered prose remains unsaved until you use the normal Save action.</p>
-          {snapshot.recovery.candidates.map((candidate) => {
-            const allSelected = snapshot.recovery?.status === 'decision-required' &&
-              snapshot.recovery.candidates.every((entry) => entry.decision === 'accept-selected');
-            const submitting = recoveryDecisionUnitId !== null;
-            return (
-              <article key={`${candidate.unitId}:${candidate.originSessionId}:${candidate.candidateVersion}`}>
-                <h3>{candidate.unitTitle.trim() || 'Untitled'}</h3>
-                <pre aria-label={`Recovered prose for ${candidate.unitTitle.trim() || 'Untitled'}`}>
-                  {candidate.prose === '' ? '(Empty manuscript prose)' : candidate.prose}
-                </pre>
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => void submitRecoveryDecision(candidate, 'accept')}
-                    disabled={submitting || (candidate.decision === 'accept-selected' && !allSelected)}
-                  >
-                    {candidate.decision === 'accept-selected'
-                      ? allSelected ? 'Retry accepted recovery' : 'Accepted — finish remaining choices'
-                      : 'Recover this prose'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void submitRecoveryDecision(candidate, 'reject')}
-                    disabled={submitting}
-                  >Reject and delete candidate</button>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      ) : snapshot.recovery?.status === 'degraded' ? (
-        <section className="stage19-spine__card stage19-spine__recovery" role="alert">
-          <h2>Recovery evidence needs attention</h2>
-          <p>{snapshot.recovery.message}</p>
-          <p>Editing is blocked and the recovery artifact has not been deleted. Open another project or close Writing Studio to preserve it.</p>
-        </section>
-      ) : snapshot.recovery?.status === 'accepted-pending-save' ? (
-        <p className="stage19-spine__notice" role="status">Recovered prose is applied and remains unsaved. Use Save for each recovered unit to make it durable.</p>
-      ) : null}
-      <section className="stage19-spine__lifecycle" aria-label="Project lifecycle">
-        <p className="stage19-spine__lifecycle-help">Open: select the actual Black Skies project folder containing <code>project.json</code>.</p>
-        <button type="button" onClick={() => void handleOpenProject()} disabled={!bridge}>Open project…</button>
-        <label>
-          <span>New project title</span>
-          <input value={projectTitle} onChange={(event) => setProjectTitle(event.target.value)} />
-        </label>
-        <p className="stage19-spine__lifecycle-help">Create: choose a parent folder; Black Skies creates a new project folder inside it.</p>
-        <button type="button" onClick={() => void handleCreateProject()} disabled={!bridge}>Create project…</button>
-      </section>
-      {snapshot.project ? (
-        <div className={`stage19-spine__writing-grid ${reviewPaneOpen && !focusMode ? 'is-review-open' : ''} ${focusMode ? 'is-focus-mode' : ''}`}>
-          {!focusMode ? <aside className="stage19-spine__binder" aria-label="Manuscript binder and Living Outline">
-            <div className="stage19-spine__section-heading">
-              <div><span className="stage19-spine__eyebrow">Binder</span><h2>Manuscript units</h2></div>
-              <span>{snapshot.project.units.length}</span>
-            </div>
-            <div className="stage19-spine__create-unit">
-              <label>
-                <span>Unit title (optional)</span>
-                <input
-                  value={newUnitTitle}
-                  onChange={(event) => setNewUnitTitle(event.target.value)}
-                  placeholder="Untitled"
-                  disabled={recoveryBlocksEditing}
-                />
-              </label>
-              <button type="button" onClick={() => void handleCreateUnit()} disabled={recoveryBlocksEditing}>Create unit</button>
-            </div>
-            {snapshot.project.units.length > 0 ? (
-              <ol className="stage19-spine__unit-list">
-                {snapshot.project.units.map((unit) => (
-                  <li key={unit.id}>
-                    <button
-                      type="button"
-                      className={unit.id === snapshot.activeUnitId ? 'is-active' : ''}
-                      onClick={() => void handleSelectUnit(unit.id)}
-                      aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined}
-                      disabled={recoveryBlocksEditing}
-                    >
-                      <span>{String(unit.order).padStart(2, '0')}</span>
-                      <strong>{unit.displayTitle}</strong>
-          {dirtyUnitIds.has(unit.id) ? <em>Unsaved</em> : null}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            ) : <p className="stage19-spine__empty">Create the first manuscript unit when you are ready to write.</p>}
-            {activeUnit ? (
-              <div className="stage19-spine__unit-actions">
-                <label>
-                  <span>Selected unit title</span>
-                  <input value={renameTitle} onChange={(event) => setRenameTitle(event.target.value)} placeholder="Untitled" disabled={recoveryBlocksEditing} />
-                </label>
-                <button type="button" onClick={() => void handleRenameUnit()} disabled={recoveryBlocksEditing}>Update title</button>
-                <div className="stage19-spine__reorder-actions">
-                  <button type="button" onClick={() => void moveActiveUnit(-1)} disabled={recoveryBlocksEditing || activeUnit.order <= 1}>Move up</button>
-                  <button type="button" onClick={() => void moveActiveUnit(1)} disabled={recoveryBlocksEditing || activeUnit.order >= snapshot.project.units.length}>Move down</button>
-                </div>
-                <button type="button" className="stage19-spine__danger" onClick={() => void handleDeleteUnit()} disabled={recoveryBlocksEditing}>Delete unit…</button>
-              </div>
-            ) : null}
-            <section className="stage19-living-outline" aria-label="Living Outline">
-              <div className="stage19-spine__section-heading">
-                <div><span className="stage19-spine__eyebrow">Optional planning layer</span><h2>Living Outline</h2></div>
-                <span>{livingOutline?.document.items.length ?? 0}</span>
-              </div>
-              <p className="stage19-living-outline__boundary">Planning only. It can point to writing, but it cannot rewrite prose or reorder the accepted manuscript.</p>
-              {livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
-              {livingOutlineLoading && !livingOutline ? <p>Loading outline…</p> : null}
-              {livingOutline?.availability === 'ready' ? (
-                <>
-                  <div className="stage19-living-outline__editor">
-                    <label>
-                      <span>Outline item</span>
-                      <input value={outlineLabel} maxLength={240} onChange={(event) => setOutlineLabel(event.target.value)} placeholder="A fragment, gap, or planning area" />
-                    </label>
-                    <label>
-                      <span>Shape</span>
-                      <select value={outlineKind} onChange={(event) => setOutlineKind(event.target.value as LivingOutlineItemKind)}>
-                        <option value="fragment">Fragment</option>
-                        <option value="gap">Gap</option>
-                        <option value="container">Planning area</option>
-                      </select>
-                    </label>
-                    <label>
-                      <span>Status</span>
-                      <select value={outlineState} onChange={(event) => setOutlineState(event.target.value as LivingOutlineItemState)}>
-                        <option value="authored">Authored</option>
-                        <option value="planned">Planned</option>
-                        <option value="inferred">Inferred</option>
-                        <option value="proposed">Proposed</option>
-                      </select>
-                    </label>
-                    <label className="stage19-living-outline__checkbox">
-                      <input type="checkbox" checked={outlineLinkActiveUnit} onChange={(event) => setOutlineLinkActiveUnit(event.target.checked)} disabled={!activeUnit} />
-                      <span>{activeUnit ? `Link new item to ${activeUnit.displayTitle}` : 'Create unlinked (no active writing)'}</span>
-                    </label>
-                    <div className="stage19-living-outline__actions">
-                      <button type="button" onClick={() => void createLivingOutlineItem()} disabled={livingOutlineLoading || !outlineLabel.trim()}>Add outline item</button>
-                      <button type="button" onClick={() => void updateLivingOutlineItem()} disabled={livingOutlineLoading || !selectedOutlineItem || !outlineLabel.trim()}>Update selected</button>
-                    </div>
-                  </div>
-                  {livingOutline.document.items.length > 0 ? (
-                    <ol className="stage19-living-outline__items">
-                      {livingOutline.document.items.map((item, index) => {
-                        const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
-                        return (
-                          <li key={item.id}>
-                            <button
-                              type="button"
-                              className={`${item.id === selectedOutlineItemId ? 'is-active' : ''} ${item.manuscriptUnitId === snapshot.activeUnitId ? 'is-writing-linked' : ''}`}
-                              aria-current={item.id === selectedOutlineItemId ? 'true' : undefined}
-                              onClick={() => void selectLivingOutlineItem(item.id)}
-                            >
-                              <span>{String(index + 1).padStart(2, '0')}</span>
-                              <strong>{item.label}</strong>
-                              <em>{item.kind} · {item.state}</em>
-                              <small>{linkedUnit ? `Writing: ${linkedUnit.displayTitle}` : 'Unlinked planning'}</small>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  ) : <p className="stage19-spine__empty">Start with a fragment, a gap, or an empty planning area. No warnings are generated.</p>}
-                  {selectedOutlineItem ? (
-                    <div className="stage19-living-outline__selected-actions">
-                      <button type="button" onClick={() => void moveLivingOutlineItem(-1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === selectedOutlineItem.id}>Move planning up</button>
-                      <button type="button" onClick={() => void moveLivingOutlineItem(1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === selectedOutlineItem.id}>Move planning down</button>
-                      <button type="button" onClick={() => void linkLivingOutlineItem(snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || selectedOutlineItem.manuscriptUnitId === snapshot.activeUnitId}>Link to active writing</button>
-                      <button type="button" onClick={() => void linkLivingOutlineItem(null)} disabled={livingOutlineLoading || !selectedOutlineItem.manuscriptUnitId}>Unlink</button>
-                      <button type="button" className="stage19-spine__danger" onClick={() => void deleteLivingOutlineItem()} disabled={livingOutlineLoading}>Delete planning item</button>
-                    </div>
-                  ) : null}
-                  <details className="stage19-living-outline__preview">
-                    <summary>Preview linked writing order</summary>
-                    <p>Preview only. Moving this list never moves accepted manuscript units.</p>
-                    {projectedWritingOrder.length > 0 ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol> : <p>No outline items are linked to writing yet.</p>}
-                  </details>
-                </>
-              ) : null}
-            </section>
-          </aside> : null}
-          <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
-            {activeUnit ? (
-              <>
-                <div className="stage19-spine__editor-header">
-                  <div><span className="stage19-spine__eyebrow">Active manuscript unit</span><h2>{activeUnit.displayTitle}</h2></div>
-                  <button
-                    type="button"
-                    onClick={() => void saveUnit(activeUnit.id)}
-                    disabled={recoveryBlocksEditing || !activeDirty || snapshot.saveState.status === 'saving'}
-                  >
-                    {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
-                  </button>
-                </div>
-                <p className="stage19-spine__shortcut">Ctrl+S saves the selected unit. Ctrl+Z undoes and Ctrl+Y redoes editor changes. Switching units preserves unsaved buffers.</p>
-                <div className="stage19-spine__editor">
-                  <DraftEditor
-                    key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${snapshot.activeUnitId ?? 'no-unit'}`}
-                    value={activeBuffer}
-                    onChange={(body) => handleBufferChange(activeUnit.id, body)}
-                    onSave={(body) => void saveUnit(activeUnit.id, body)}
-                    onSelectionChange={handleAiSelection}
-                    readOnly={recoveryBlocksEditing}
-                    placeholder="Start writing…"
-                    ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
-                  />
-                </div>
-                {!focusMode ? <section className="stage19-ai" aria-label="Selected prose AI critique">
-                  <div className="stage19-ai__heading">
-                    <div><span className="stage19-spine__eyebrow">Optional remote critique</span><h3>Selected prose only</h3></div>
-                    <span className={aiCredentialConfigured ? 'is-ready' : ''}>
-                      {aiCredentialConfigured ? 'Session credential ready' : 'No session credential'}
-                    </span>
-                  </div>
-                  {!aiBridge ? (
-                    <p>AI critique is unavailable. Writing, Save, recovery, and close remain local and available.</p>
-                  ) : (
-                    <>
-                      <div className="stage19-ai__credential">
-                        <label>
-                          <span>OpenAI API key (session only; no readback)</span>
-                          <input type="password" autoComplete="off" value={aiCredential} onChange={(event) => setAiCredential(event.target.value)} />
-                        </label>
-                        <button type="button" onClick={() => void configureAiCredential()} disabled={!aiCredential}>Set session key</button>
-                        <button type="button" onClick={() => void clearAiCredential()} disabled={!aiCredentialConfigured}>Clear key</button>
-                      </div>
-                      <div className="stage19-ai__selection">
-                        <p>{aiSelection?.selectedText
-                          ? `${aiSelection.selectedText.replace(/\s/g, '').length.toLocaleString()} non-whitespace characters selected`
-                          : 'Select 200–12,000 non-whitespace characters in the manuscript editor.'}</p>
-                        <button
-                          type="button"
-                          onClick={() => void prepareAiCritique()}
-                          disabled={!aiSelection || aiSelection.selectedText.replace(/\s/g, '').length < AI_CRITIQUE_MIN_SELECTION_LENGTH || aiSelection.selectedText.replace(/\s/g, '').length > AI_CRITIQUE_MAX_SELECTION_LENGTH || aiState?.status === 'executing'}
-                        >
-                          Review outbound critique request
-                        </button>
-                      </div>
-                      {aiPreview ? (
-                        <div className="stage19-ai__preview">
-                          <h4>Exact outbound preview</h4>
-                          <dl>
-                            <div><dt>Provider</dt><dd>{aiPreview.provider}</dd></div>
-                            <div><dt>Pinned model</dt><dd>{aiPreview.model}</dd></div>
-                            <div><dt>Processing</dt><dd>Remote OpenAI Responses API</dd></div>
-                            <div><dt>Pricing verified</dt><dd>{aiPreview.cost.pricingVerifiedAt}</dd></div>
-                            <div><dt>Current text pricing</dt><dd>${aiPreview.cost.inputUsdPerMillionTokens.toFixed(2)} input / ${aiPreview.cost.cachedInputUsdPerMillionTokens.toFixed(2)} cached input / ${aiPreview.cost.outputUsdPerMillionTokens.toFixed(2)} output per 1M tokens</dd></div>
-                            <div><dt>Preview expires</dt><dd>{aiPreview.expiresAt}</dd></div>
-                            <div><dt>Estimated usage cost</dt><dd>${aiPreview.cost.estimatedUsd.toFixed(6)} USD</dd></div>
-                            <div><dt>Calculated maximum</dt><dd>${aiPreview.cost.maximumCalculatedUsd.toFixed(6)} USD under the $0.10 local ceiling</dd></div>
-                            <div><dt>Payload SHA-256</dt><dd><code>{aiPreview.payloadHash}</code></dd></div>
-                          </dl>
-                          <p>{aiPreview.cost.invoiceDisclaimer}</p>
-                          <p>{aiPreview.retentionDisclosure}</p>
-                          <p>{aiPreview.cancellationDisclosure}</p>
-                          <details><summary>Frozen critique instructions</summary><pre>{aiPreview.instructions}</pre></details>
-                          <details><summary>Exact provider request JSON</summary><pre>{aiPreview.providerBodyJson}</pre></details>
-                          <label><span>Exact selected prose to transmit</span><textarea readOnly value={aiPreview.selectedText} rows={8} /></label>
-                          <label className="stage19-ai__clearance">
-                            <input type="checkbox" checked={aiClearanceConfirmed} onChange={(event) => setAiClearanceConfirmed(event.target.checked)} />
-                            <span>{aiPreview.clearanceDisclosure}</span>
-                          </label>
-                          <button type="button" onClick={() => void approveAiCritique()} disabled={!aiClearanceConfirmed || !aiCredentialConfigured || aiState?.status !== 'prepared'}>
-                            Approve and send exact payload
-                          </button>
-                        </div>
-                      ) : null}
-                      {aiState && ['approved', 'executing'].includes(aiState.status) ? (
-                        <div className="stage19-ai__progress" role="status"><p>Waiting for advisory critique. Editing will invalidate and discard this request.</p><button type="button" onClick={() => void stopWaitingForAi()}>Stop waiting</button></div>
-                      ) : null}
-                      {aiNotice ? <p className="stage19-ai__notice" role="status">{aiNotice}</p> : null}
-                      {aiState && ['failed', 'cancelled', 'expired', 'invalidated'].includes(aiState.status) && !aiResult ? <button type="button" onClick={dismissAiCritique}>Dismiss critique status</button> : null}
-                    </>
-                  )}
-                  {(aiResult || savedFeedbackNotes.length > 0) && !reviewPaneOpen ? <button type="button" onClick={() => setReviewPaneOpen(true)}>{aiResult ? 'Open Critique Workbench' : `Open Feedback Notes (${savedFeedbackNotes.length})`}</button> : null}
-                  {!reviewPaneOpen && feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{feedbackNoteNotice}</p> : null}
-                </section> : null}
-              </>
-            ) : (
-              <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>
-            )}
-          </section>
-          {reviewPaneOpen && !focusMode ? (
-            <aside className="stage19-spine__review-pane" aria-label="Critique Workbench">
-              <div className="stage19-ai__heading">
-                <div><span className="stage19-spine__eyebrow">Summonable review pane</span><h3>Critique Workbench</h3></div>
-                <button type="button" onClick={() => setReviewPaneOpen(false)}>Hide pane</button>
-              </div>
-              {aiResult ? (
-                <div className={`stage19-ai__result ${aiResultStale ? 'is-stale' : ''}`}>
-                  {aiResultStale ? <p className="stage19-ai__stale" role="status">Stale: the manuscript changed after this critique completed.</p> : null}
-                  <p><strong>Advisory only.</strong> This is a suggestion about the original selected prose, not story truth and never a manuscript change.</p>
-                  <dl className="stage19-ai__summary">
-                    <div><dt>Scope</dt><dd>Selected prose in {activeUnit?.displayTitle ?? 'the active unit'}</dd></div>
-                    <div><dt>Provider / model</dt><dd>{aiResult.provider} / {aiResult.model}</dd></div>
-                    <div><dt>Calculated cost</dt><dd>${aiResult.usage.calculatedUsd.toFixed(6)} (not an invoice)</dd></div>
-                    <div><dt>Privacy</dt><dd>Only the previewed selection was sent after approval.</dd></div>
-                  </dl>
-                  <h4>Advisory critique</h4>
-                  <p>{aiResult.content.overview}</p>
-                  {aiResult.content.strengths.length > 0 ? <><h5>Strengths</h5><ul>{aiResult.content.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-                  {aiResult.content.priorities.length > 0 ? <><h5>Priorities</h5><ol>{aiResult.content.priorities.map((item, index) => <li key={`${index}-${item.evidence}`}><blockquote>{item.evidence}</blockquote><p>{item.observation}</p><p>{item.impact}</p><p>{item.revisionQuestion}</p></li>)}</ol></> : null}
-                  {aiResult.content.uncertainties.length > 0 ? <><h5>Uncertainties</h5><ul>{aiResult.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-                  {aiResult.content.limitations.length > 0 ? <><h5>Limitations</h5><ul>{aiResult.content.limitations.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-                  <p>{aiResult.usage.inputTokens} input tokens; {aiResult.usage.outputTokens} output tokens; {aiResult.usage.invoiceDisclaimer}</p>
-                  <div className="stage19-ai__actions">
-                    <button type="button" onClick={() => void copyAiResult()}>Copy result text</button>
-                    <button type="button" onClick={dismissAiCritique}>Dismiss critique</button>
-                  </div>
-                  <label className="stage19-ai__note">
-                    <span>Save a concise advisory project note</span>
-                    <textarea value={feedbackNoteBody} maxLength={4000} rows={4} onChange={(event) => setFeedbackNoteBody(event.target.value)} />
-                  </label>
-                  <button type="button" onClick={() => void saveFeedbackNote()} disabled={!feedbackNotesBridge || feedbackNoteSaving}>
-                    {feedbackNoteSaving ? 'Saving note…' : 'Save advisory note'}
-                  </button>
-                  {!feedbackNotesBridge ? <p className="stage19-ai__notice">Saving notes is unavailable in this window. The critique remains temporary.</p> : null}
-                  {feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{feedbackNoteNotice}</p> : null}
-                </div>
-              ) : (
-                <p>No completed critique is open. Keep writing, or select prose to review an exact outbound request.</p>
-              )}
-              <section className="stage19-ai__saved-notes" aria-label="Saved advisory Feedback Notes">
-                <h4>Saved advisory Feedback Notes</h4>
-                {savedFeedbackNotes.length > 0 ? (
-                  <ol>{savedFeedbackNotes.map((note) => <li key={note.id}><p>{note.body}</p><small>Advisory · {note.createdAt} · source request {note.sourceCritiqueRequestId}</small></li>)}</ol>
-                ) : <p>No author-saved feedback notes in this project.</p>}
-              </section>
-            </aside>
-          ) : null}
-        </div>
-      ) : (
-        <div className="stage19-spine__welcome-grid">
-          <section className="stage19-spine__empty-state">
-            <h2>No active project</h2>
-            <p>Projects are isolated local folders with durable identity and versioned metadata.</p>
-          </section>
-          <section className="stage19-spine__card">
-            <h2>Recent projects</h2>
-            {snapshot.recentProjects.length > 0 ? (
-              <ul className="stage19-spine__recent-list">
-                {snapshot.recentProjects.map((recent) => (
-                  <li key={recent.path}>
-                    <button type="button" onClick={() => void handleOpenRecent(recent.path)}>
-                      <strong>{recent.title}</strong><span>{recent.path}</span>{recent.stale ? <em>Missing</em> : null}
-                    </button>
-                    <button type="button" onClick={() => void handleRemoveRecent(recent.path)} aria-label={`Remove ${recent.title} from recent projects`}>Remove</button>
-                  </li>
-                ))}
-              </ul>
-            ) : <p className="stage19-spine__empty">No recent project references.</p>}
-          </section>
-        </div>
-      )}
-      <CloseConfirmationDialog windowRole={windowRole} {...closeConfirmation} />
-      <ProjectSwitchConfirmationDialog
-        open={projectSwitchConfirmationOpen}
-        continueEditing={() => resolveProjectSwitchDecision(false)}
-        discardChanges={() => resolveProjectSwitchDecision(true)}
-      />
-    </main>
-  );
+  return <Stage19WritingSpineView model={viewModel} actions={viewActions} />;
 }

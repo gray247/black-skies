@@ -29,9 +29,9 @@ Current status:
   after the required model change. Control Point 1 is complete. Jason approved
   the seven-batch Program 3 implementation plan, authorized its bounded
   implementation, and confirmed `GPT-5.6 Sol` with `xhigh` reasoning on
-  2026-08-10. The authorization baseline is pushed at `6991bfae`; P3-A
-  implementation and automation are green, and P3-B follows after Jason commits
-  and pushes the exact P3-A batch
+  2026-08-10. The authorization baseline is pushed at `6991bfae`; P3-A is
+  durable at `4007e12a`; P3-B implementation and automation are green; and
+  P3-C follows after Jason commits and pushes the exact P3-B batch
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates

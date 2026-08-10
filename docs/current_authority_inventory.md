@@ -23,8 +23,8 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
-- the current Program 3 Batch P3-A implementation and automated-evidence
-  receipt;
+- the current Program 3 Batch P3-A and P3-B implementation and
+  automated-evidence receipts;
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
 - the current Control Point 1 open-work reconciliation;
@@ -63,16 +63,21 @@ The approved Program 3 implementation plan converts the approved Control Point
 1 architecture, testing, and design boundaries into seven automated shell
 batches, a Program 4 handoff, and one later Human Gate 2. Jason approved the
 plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
-`xhigh` reasoning on 2026-08-10. P3-A becomes executable after the exact
-authorization-record baseline is committed and pushed; every stated exclusion,
-truth boundary, batch gate, Git control, and Human Gate 2 boundary remains in
-force.
+`xhigh` reasoning on 2026-08-10. The authorization baseline and P3-A are now
+durable; P3-B is green and awaits Jason's exact commit and push. Every stated
+exclusion, truth boundary, batch gate, Git control, and Human Gate 2 boundary
+remains in force.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,
 truthful v2 supported-core coverage scope, and green changed-boundary and fixed
-regression evidence. Its implementation is complete; durable batch closure and
-P3-B eligibility require Jason's commit and push of the exact batch.
+regression evidence. P3-A is durable at `4007e12a`.
+
+The Program 3 Batch P3-B receipt records the behavior-locked controller/view
+seam, pure session-projection and availability decisions, explicit stateless
+view contract, and green focused and fixed-regression evidence. Its
+implementation is complete; durable batch closure and P3-C eligibility require
+Jason's commit and push of the exact batch.
 
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,
