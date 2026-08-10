@@ -21,10 +21,13 @@ The inventory includes:
 - the current product-roadmap and truth-index entry points;
 - the accepted author-experience direction lock;
 - the accepted post-V1 execution-control and cross-task handoff plan;
+- the approved and bounded-runtime-authorized Program 3 Contextual Product
+  Shell implementation plan;
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
 - the current Control Point 1 open-work reconciliation;
 - the current Control Point 1 test-strength audit;
+- the current Control Point 1 Visual Design Foundation decision packet;
 - the current Repository Control Point 0 reconciliation ledger;
 - the accepted post-V1 master product program;
 - the completed V2 Human Gate 1 execution ledger and evidence receipt;
@@ -54,6 +57,15 @@ model-change warnings, and handoff completeness. The open-work register is the
 single current index for unfinished work; it points to detailed owners rather
 than duplicating their contents.
 
+The approved Program 3 implementation plan converts the approved Control Point
+1 architecture, testing, and design boundaries into seven automated shell
+batches, a Program 4 handoff, and one later Human Gate 2. Jason approved the
+plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
+`xhigh` reasoning on 2026-08-10. P3-A becomes executable after the exact
+authorization-record baseline is committed and pushed; every stated exclusion,
+truth boundary, batch gate, Git control, and Human Gate 2 boundary remains in
+force.
+
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,
 reachability findings, roadmap residuals, and workflow-proof questions before
@@ -69,6 +81,12 @@ exact-candidate evidence, the truthful-denominator repair, the bounded Program
 3 evidence matrix, the layered visual assertion strategy, and the exact later
 homes for long-manuscript, provider, service, Emotion Graph, and legacy test
 work. It authorizes no test or runtime mutation by itself.
+
+The approved Control Point 1 Visual Design Foundation translates accepted
+author direction into a concrete literary-instrument hierarchy, token
+direction, surface composition, edge-rail language, Living Outline
+interaction, Command Center posture, states, and anti-drift rules. It is
+Program 3 design authority but does not independently authorize runtime work.
 
 The Repository Control Point 0 ledger is current evidence for legacy dirty
 state, worktree classification, recoverable snapshots, and the proposed

@@ -339,6 +339,8 @@ not another general audit campaign.
 
 ### Program 3 - Contextual Product Shell
 
+Status: `APPROVED AND BOUNDED RUNTIME AUTHORIZED; P3-A NEXT AFTER AUTHORITY BASELINE PUSH`
+
 Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
 Starting layout:
@@ -370,6 +372,12 @@ accessibility, built-Electron, regression, and packaging-safe batches without
 requesting human validation after each small UI change. Human review waits
 until Program 4 adds the bounded Companion entry and the combined Human Gate 2
 workflow is whole.
+
+The detailed seven-batch proposal is
+[program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
+Jason approved it, authorized its bounded implementation, and confirmed
+`GPT-5.6 Sol` with `xhigh` reasoning on 2026-08-10. The first runtime batch is
+P3-A after the authorization-record baseline is committed and pushed.
 
 ### Program 4 - Companion And Owner Routing
 
@@ -659,23 +667,18 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the accepted planning authority as one documentation-only
-   batch,
-2. perform Repository Control Point 0 from the execution-control plan,
-   reconciling the dirty legacy checkout without wholesale merge, reset,
-   clean, or deletion,
-3. complete the open-work, architecture, test-strength, and visual-foundation
-   reviews in Control Point 1,
-4. prepare and execute one bounded Program 3 implementation plan for the
-   Writing Studio shell, plain Living Outline, edge rails, and Command Center
+1. commit and push the approved Program 3 plan, bounded runtime authorization,
+   and confirmed implementation model as one exact authority baseline,
+2. execute Program 3's seven automated batches for the Writing Studio shell,
+   plain Living Outline, edge rails, logical surface host, and Command Center
    critique-result handoff,
-5. complete Program 4's minimal Companion entry and owner-routing slice,
-6. perform Human Gate 2 only when the contextual shell and Companion workflow
+3. complete Program 4's minimal Companion entry and owner-routing slice,
+4. perform Human Gate 2 only when the contextual shell and Companion workflow
    are whole,
-7. perform Cleanup Wave A and its professionalization checks,
-8. build Program 5 long-manuscript intake and stable structural anchors,
-9. perform Human Gate 3 only when that complete workflow is ready,
-10. begin Program 6 and Emotion Graph V1 using the proven anchors and Command
+5. perform Cleanup Wave A and its professionalization checks,
+6. build Program 5 long-manuscript intake and stable structural anchors,
+7. perform Human Gate 3 only when that complete workflow is ready,
+8. begin Program 6 and Emotion Graph V1 using the proven anchors and Command
     Center home.
 
 No repository cleanup, second provider, automatic routing, background queue,
@@ -684,8 +687,8 @@ that immediate scope.
 
 ## 13. Approved Author Decisions
 
-Jason approved the first three decisions on 2026-08-09 and the next three on
-2026-08-10:
+Jason approved the first three decisions on 2026-08-09 and the remaining
+decisions on 2026-08-10:
 
 1. `Living Outline` is the writer-facing name for the existing Outline system
    working bidirectionally with the Writing Surface.
@@ -702,6 +705,8 @@ Jason approved the first three decisions on 2026-08-09 and the next three on
 6. The visual direction is a restrained professional literary instrument with
    subtle Black Skies atmosphere, not a dense science-fiction command console
    and not a generic component-library dashboard.
+7. The complete Control Point 1 Visual Design Foundation is approved as
+   written and is the design authority for the Program 3 implementation plan.
 
 These decisions freeze direction and sequencing. They do not authorize all
 programs at once. Each next workflow remains separately bounded.

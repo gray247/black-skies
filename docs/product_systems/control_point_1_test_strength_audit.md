@@ -2,7 +2,8 @@
 
 ## 1. Status And Execution Identity
 
-- Status: `BATCH CP1-C COMPLETE; AWAITING EVIDENCE COMMIT`
+- Status: `BATCH CP1-C CLOSED; EVIDENCE COMMITTED AND PUSHED`
+- Evidence commit: `1698a44604e8fab6c47948a5128e911bf8d9916b`
 - Review date: `2026-08-10`
 - Model: `GPT-5.6 Sol`
 - Reasoning effort: `xhigh`
@@ -347,7 +348,8 @@ It establishes that:
 - no runtime, test, package, cleanup, provider, or human visual decision has
   been authorized by this audit.
 
-Next action after Jason commits and pushes this evidence: stop and issue the
-required model-change warning for Batch CP1-D, then begin the human-approved
-Visual Design Foundation only after Jason confirms the model and reasoning
-change.
+Jason committed and pushed this evidence at `1698a446`. The required model
+change was confirmed before Batch CP1-D began. The proposed Visual Design
+Foundation is recorded in
+[control_point_1_visual_design_foundation.md](control_point_1_visual_design_foundation.md)
+and now awaits Jason's human decision.

@@ -71,17 +71,16 @@ It does not finalize the entire product vision.
   accepted; the required author-experience composition repair is governed by
   `author_experience_direction_lock.md` and moves into Programs 3 and 4 rather
   than reopening V1.
-- Program 3, the contextual product shell, is the next product program.
-  Repository Control Points 0 and 1 are the immediate execution work before
-  implementation. Human Gate 2 remains the next human validation after the
-  shell and minimal Companion workflow are complete.
+- Program 3, the contextual product shell, is the active product program.
+  Repository Control Points 0 and 1 are complete. Human Gate 2 remains the next
+  human validation after the shell and minimal Companion workflow are complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
   named `codex/foundation-audit` as the sole continuing development line on
   2026-08-10. Receipt commit `c668586f` is pushed. The two dirty worktrees
   remain quarantined until Cleanup Wave A.
-- Control Point 1 is active. Its open-work reconciliation is recorded in
+- Control Point 1 is complete. Its open-work reconciliation is recorded in
   `control_point_1_open_work_reconciliation.md`: old phase queues remain
   historical, current deferrals and skips have exact owners and triggers, and
   the completed architecture and test-strength audits precede the
@@ -100,8 +99,25 @@ It does not finalize the entire product vision.
   bounded Program 3 changed-boundary evidence families; resolves the visual
   skip through an approved layered strategy; and keeps long-manuscript,
   Emotion Graph, provider, service, and legacy evidence at their named later
-  programs. The Visual Design Foundation is next and requires the documented
-  model-change warning and Jason's approval.
+  programs.
+- The approved Control Point 1 Visual Design Foundation is recorded in
+  `control_point_1_visual_design_foundation.md`. It defines the true-black
+  page-first Writing Studio, unboxed Living Outline, accessible thin edge
+  rails, minimal bottom Companion entry, task-canvas Command Center,
+  single-screen surface switching, optional monitor placement, restrained
+  tokens and motion, complete state language, and anti-vibe-coded rules. Jason
+  approved it as written on 2026-08-10. Control Point 1 is complete.
+- The approved Program 3 implementation plan is recorded in
+  `program_3_contextual_product_shell_implementation_plan.md`. It defines seven
+  automated batches covering contracts and concurrency, controller/view
+  separation, logical surface hosting, the Writing Studio shell, the Living
+  Outline ecosystem, Command Review, and accessibility/qualification. It keeps
+  Human Gate 2 after Program 4. Jason approved the plan, authorized its bounded
+  implementation, and confirmed `GPT-5.6 Sol` with `xhigh` reasoning on
+  2026-08-10. P3-A is the next executable batch after the exact authorization
+  record is committed and pushed; all exclusions, batch gates, truth
+  boundaries, current Git controls, and the Human Gate 2 boundary remain in
+  force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.
@@ -484,12 +500,14 @@ thread:
 5. [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
 6. [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
 7. [control_point_1_test_strength_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_test_strength_audit.md)
-8. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-9. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
-10. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-11. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-12. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-13. the current active workflow dossier, when a workflow is authorized.
+8. [control_point_1_visual_design_foundation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_visual_design_foundation.md)
+9. [program_3_contextual_product_shell_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_3_contextual_product_shell_implementation_plan.md)
+10. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+11. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+12. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+13. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+14. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+15. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -524,6 +542,8 @@ Current canonical repo-tracked sources include:
 - [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
 - [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
 - [control_point_1_test_strength_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_test_strength_audit.md)
+- [control_point_1_visual_design_foundation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_visual_design_foundation.md)
+- [program_3_contextual_product_shell_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_3_contextual_product_shell_implementation_plan.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)

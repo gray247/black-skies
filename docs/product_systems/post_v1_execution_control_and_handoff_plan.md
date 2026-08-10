@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `CONTROL POINT 1 ACTIVE; OPEN-WORK, ARCHITECTURE, AND TEST-STRENGTH AUDITS COMPLETE`
-- Next implementation control point: `CONTROL POINT 1 VISUAL DESIGN FOUNDATION; MODEL CHANGE AND HUMAN APPROVAL REQUIRED`
+- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 APPROVED AND BOUNDED RUNTIME AUTHORIZED`
+- Next implementation control point: `COMMIT AND PUSH THE AUTHORIZATION BASELINE, THEN BEGIN PROGRAM 3 BATCH P3-A`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -122,6 +122,13 @@ must not silently substitute another model.
 | Human-gate synthesis, ambiguous product evidence, or deciding what the next program learned | Change to `GPT-5.6 Sol`, `high` reasoning |
 | Security, privacy, protected content, destructive cleanup disposition, restore-over-current, durable memory, paid/outbound behavior, or final release-risk review | Change to `GPT-5.6 Sol`, `xhigh` reasoning |
 | Final adversarial review still containing unresolved high-impact ambiguity after an xhigh pass | Warn Jason that `GPT-5.6 Sol`, `max` reasoning is recommended for one bounded final review; do not use `max` routinely |
+
+The approved Program 3 implementation plan is a specific exception to the
+generic bounded-implementation row: because P3-A through P3-G cross the
+surface-host, state-owner, Review-projection, concurrency, accessibility, and
+qualification boundaries as one continuous program, Jason confirmed
+`GPT-5.6 Sol` with `xhigh` reasoning through Program 3 unless a later explicit
+model decision changes it.
 
 The model roles above follow current official OpenAI guidance: Sol is the
 frontier-capability model, Terra balances intelligence and cost, Luna targets
@@ -343,6 +350,12 @@ coverage-percentage campaign.
 
 ### 7.4 Visual Design Foundation
 
+Execution status: `COMPLETE; JASON APPROVED AS WRITTEN ON 2026-08-10`. The
+approved decision packet is recorded in
+[control_point_1_visual_design_foundation.md](control_point_1_visual_design_foundation.md).
+It is Program 3 design authority but grants no runtime mutation outside the
+separately approved Program 3 implementation plan.
+
 Before Program 3 GUI implementation, define and obtain Jason's approval for:
 
 - typography and manuscript reading rhythm,
@@ -399,6 +412,14 @@ Build the true-black, manuscript-first Writing Studio, plain Living Outline,
 thin edge controls, direct manipulation, Focus behavior, restrained design
 system, and Command Center result handoff. Apply only the refactors required to
 make the changed boundary professional and testable.
+
+The complete seven-batch implementation proposal is recorded in
+[program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
+Jason approved that plan, explicitly authorized its bounded GUI, source, test,
+and qualification mutations, and confirmed `GPT-5.6 Sol` with `xhigh`
+reasoning on 2026-08-10. Runtime work begins with P3-A after this authorization
+record is committed and pushed. All plan exclusions and current Git controls
+remain in force.
 
 ### Program 4 — Companion And Owner Routing
 
@@ -609,16 +630,15 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. Complete this documentation-only reconciliation.
-2. Run current-authority documentation validation.
-3. Jason reviews, stages, commits, and pushes the documentation batch.
-4. The agent issues the required model warning for Repository Control Point 0.
-5. Jason changes the task to `GPT-5.6 Sol` with `xhigh` reasoning and confirms.
-6. Execute Repository Control Point 0 without beginning Program 3 code.
-7. Establish the canonical development line.
-8. Execute Control Point 1 using separate bounded tasks where useful.
-9. Obtain visual-direction approval.
-10. Prepare and execute Program 3 in automated batches.
+1. Run current-authority validation for the approved Program 3 authorization
+   record.
+2. Jason reviews, stages, commits, and pushes that exact documentation batch.
+3. Begin Program 3 Batch P3-A from the exact pushed baseline using `GPT-5.6
+   Sol` with `xhigh` reasoning.
+4. Continue through the seven Program 3 automated batches using the plan's
+   changed-boundary gates and per-batch Git checkpoints.
+5. Do not request subjective human product validation before the combined
+   Program 3 and Program 4 Human Gate 2 candidate is whole.
 
 No other prerequisite is currently known. A new blocker discovered during
 repository reconciliation or Control Point 1 must be recorded and resolved at
