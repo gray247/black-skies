@@ -28,9 +28,9 @@ register or a currently authorized program promotes it.
 
 | ID | Current item | Source | Status | Owner / resolution point | Trigger or exit condition |
 | --- | --- | --- | --- | --- | --- |
-| DOC-01 | Author-experience, execution-control, roadmap, truth-index, and Gate 1 reconciliation | Current documentation batch | active | Documentation reconciliation | Current-authority lint passes; Jason commits and pushes |
-| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` | Repository Control Point 0 | next | Pre-Program-3 repository control | Documentation batch is clean and pushed |
-| RCP-01 | Canonical continuing development line | Approved author decision | next | Repository Control Point 0 | Dirty hunks reconciled; Jason approves old-checkout disposition |
+| DOC-01 | Author-experience, execution-control, roadmap, truth-index, and Gate 1 reconciliation | Current documentation batch | closed | Documentation reconciliation | Committed and pushed at `f73f6880`; current-authority lint passed |
+| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, exact snapshots verified, and Jason approved the non-destructive disposition on 2026-08-10; closure becomes durable with the evidence commit and push |
+| RCP-01 | Canonical continuing development line | Approved author decision and RCP0 ledger | closed | Repository Control Point 0 | Jason approved `codex/foundation-audit` as the sole continuing line; legacy worktrees remain quarantined until Cleanup Wave A |
 | OWR-01 | Reconcile live items from fix tracker, dossiers, deferral table, skip inventory, reachability inventory, and workflow ledgers | Execution-control plan | next | Control Point 1 | Canonical development line is established |
 | ARC-01 | Architecture and maintainability baseline | Large responsibility concentrations and cross-process boundaries | next | Control Point 1 | Repository Control Point 0 closes |
 | TST-01 | Test-strength and intentional-skip review | Supported-core coverage, skip inventory, current harnesses | next | Control Point 1 | Repository Control Point 0 closes |
@@ -57,6 +57,7 @@ register or a currently authorized program promotes it.
 | DEF-05 | Third-party connectors | Master-program deferral table | owned-later | Existing Workflow Proof plus Missing Connector Review | Proven workflow demonstrates necessity rather than convenience |
 | DEF-06 | Branching / what-if architecture | Master-program deferral table | owned-later | Later structural review | Prototype arrangements cannot satisfy a real workflow |
 | DEF-07 | Repository-wide historical archive completion | Roadmap and cleanup policy | owned-later | Cleanup Wave B / final audit | Current authority and replacement map make archival safe |
+| DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | owned-later | Cleanup Wave A | RCP0 disposition is approved; one exact-target cleanup list and recovery check are reviewed before any removal |
 
 ## 4. Existing Source Treatment
 

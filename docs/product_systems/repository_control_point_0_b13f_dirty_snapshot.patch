@@ -1,0 +1,631 @@
+diff --git a/app/renderer/Stage19WritingSpineApp.tsx b/app/renderer/Stage19WritingSpineApp.tsx
+index 99e37fe7b8b6c304c576bd6868b1154d08477592..10d79ff177a024410dda5864a5726bd431748892 100644
+--- a/app/renderer/Stage19WritingSpineApp.tsx
++++ b/app/renderer/Stage19WritingSpineApp.tsx
+@@ -505,6 +505,8 @@ export default function Stage19WritingSpineApp({
+       return;
+     }
+     const generationChanged = next.generation !== previousSnapshot.generation;
++    const projectChanged =
++      previousSnapshot.project?.projectId !== next.project?.projectId;
+     hasAuthoritativeSnapshotRef.current = true;
+     setProjectionUnavailable(false);
+     appliedGenerationRef.current = next.generation;
+@@ -515,6 +517,9 @@ export default function Stage19WritingSpineApp({
+     }
+     setSnapshot(next);
+     snapshotRef.current = next;
++    if (projectChanged) {
++      setMarkdownExportNotice(null);
++    }
+     if (windowRole !== 'writing') {
+       return;
+     }
+@@ -1265,10 +1270,15 @@ export default function Stage19WritingSpineApp({
+       projectId: current.project.projectId,
+       projectTitle: current.project.title.trim() || 'Untitled Project',
+     };
++    const sourceIsStillActive = () =>
++      snapshotRef.current.project?.projectId === source.projectId;
+     setExportingMarkdown(true);
+     setMarkdownExportNotice(null);
+     try {
+       const result = await api({ ...binding, revision: current.revision });
++      if (!sourceIsStillActive()) {
++        return;
++      }
+       if (!result.ok) {
+         setMarkdownExportNotice({
+           ...source,
+diff --git a/app/renderer/__tests__/Stage19WritingSpineApp.test.tsx b/app/renderer/__tests__/Stage19WritingSpineApp.test.tsx
+index 1e279561bbb2c229dea6fd7f9e5d30fb1ddbb595..5714e0c22bfba1400a187cc2202e9840b04cbce9 100644
+--- a/app/renderer/__tests__/Stage19WritingSpineApp.test.tsx
++++ b/app/renderer/__tests__/Stage19WritingSpineApp.test.tsx
+@@ -867,7 +867,7 @@ describe('Stage19WritingSpineApp', () => {
+     expect(screen.queryByText(/failed/i)).not.toBeInTheDocument();
+   });
+ 
+-  it('attributes delayed export completion to its original project after a project switch', async () => {
++  it('does not reintroduce a delayed export result after its source project is no longer active', async () => {
+     const projectA = snapshot('writing');
+     const harness = createBridge(projectA);
+     let resolveExport: ((result: ProjectSpineResult<ExportMarkdownResultData>) => void) | null = null;
+@@ -913,11 +913,11 @@ describe('Stage19WritingSpineApp', () => {
+       await Promise.resolve();
+     });
+ 
+-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+     expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
++    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+   });
+ 
+-  it('keeps a prior export cancellation isolated from the active project and its next export', async () => {
++  it('clears a prior export cancellation when project authority changes', async () => {
+     const projectA = snapshot('writing');
+     const projectB = snapshot('writing', {
+       projectId: 'proj_b',
+@@ -970,7 +970,7 @@ describe('Stage19WritingSpineApp', () => {
+     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+     expect(screen.getByText('Saved durably')).toBeVisible();
+     expect(screen.getByRole('button', { name: 'Export Markdown…' })).toBeEnabled();
+-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
++    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+ 
+     await act(async () => {
+       await userEvent.click(screen.getByRole('button', { name: 'Export Markdown…' }));
+@@ -1082,7 +1082,7 @@ describe('Stage19WritingSpineApp', () => {
+     const editor = await screen.findByLabelText('Manuscript editor: First Unit');
+     expect(editor).toHaveValue('Recovered prose');
+ 
+-    act(() => {
++    await act(async () => {
+       fireEvent.change(editor, { target: { value: 'Newer local prose' } });
+       harness.emit(snapshot('writing', {
+         revision: 2,
+@@ -1094,6 +1094,7 @@ describe('Stage19WritingSpineApp', () => {
+           }],
+         },
+       }));
++      await Promise.resolve();
+     });
+     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveValue('Newer local prose');
+   });
+@@ -1703,9 +1704,13 @@ describe('Stage19WritingSpineApp', () => {
+     const ai = createAiBridge(`${prose}\n`);
+     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} />);
+     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
+-    (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
+-    fireEvent.select(editor);
+-    fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
++    await act(async () => {
++      (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
++      fireEvent.select(editor);
++    });
++    await act(async () => {
++      fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
++    });
+     await screen.findByRole('heading', { name: 'Exact outbound preview' });
+ 
+     act(() => {
+@@ -1739,7 +1744,10 @@ describe('Stage19WritingSpineApp', () => {
+       });
+     });
+     expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+-    fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
++    await act(async () => {
++      fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
++      await Promise.resolve();
++    });
+     expect(screen.getByText('Stale: the manuscript changed after this critique completed.')).toBeVisible();
+     expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+   });
+diff --git a/docs/current_authority_inventory.json b/docs/current_authority_inventory.json
+index e3e30f2380e639819f2f7ef7e69afd4bc1d0e4d2..c153bdce880a8227da239551d3dd67eefbe13e43 100644
+--- a/docs/current_authority_inventory.json
++++ b/docs/current_authority_inventory.json
+@@ -16,6 +16,7 @@
+     "docs/packaging.md",
+     "docs/product_systems/current_product_roadmap.md",
+     "docs/product_systems/current_truth_index.md",
++    "docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md",
+     "docs/product_systems/stage19_package_19_21_closure.md",
+     "docs/product_systems/stage19_package_19_22_plan_and_findings.md",
+     "docs/product_systems/stage19_packages_19_21_19_22_handover.md",
+diff --git a/docs/current_authority_inventory.md b/docs/current_authority_inventory.md
+index 6cf0e9bea7a6e03cddbdf3177bc2939d9ac4f06a..8b8518fa2f956a5a42fd3730e0465736b289a4e3 100644
+--- a/docs/current_authority_inventory.md
++++ b/docs/current_authority_inventory.md
+@@ -19,7 +19,7 @@ The inventory includes:
+   guidance;
+ - the current product-roadmap and truth-index entry points;
+ - the Stage 19 scope, master plan, Package `19.21` receipt, Package `19.22`
+-  ledger, and final handover; and
++  ledger, Foundation Spine acceptance reconciliation, and final handover; and
+ - the internal build record retained under the filename `RELEASE.md`.
+ 
+ Package closure records not listed here remain immutable historical receipts.
+diff --git a/docs/product_systems/current_product_roadmap.md b/docs/product_systems/current_product_roadmap.md
+index 7c4917615172f89ea57ce5956321129a4759b5e7..3bd58eeadc9181530fdfbbd8c4edfd4cd7b896d3 100644
+--- a/docs/product_systems/current_product_roadmap.md
++++ b/docs/product_systems/current_product_roadmap.md
+@@ -11,7 +11,7 @@ Current status:
+ 
+ - Stage 19 is open and Package `19.22` is active as the governed internal barebones V1.0 closure and repository-hardening package
+ - V1.0 is the product milestone reached through Stage 19, not a competing stage system
+-- Packages `19.1` through `19.5` are the `Foundation Spine` package group; they complete, or await final package acceptance for, only the initial bounded local project-open/save/re-entry sequence and do not close Stage 19 or prove V1.0
++- Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group. Their scope is only the initial bounded local project-open/save/re-entry sequence and they do not close Stage 19 or prove V1.0; `stage19_foundation_spine_acceptance_reconciliation.md` records the current status without backdating Package `19.5` evidence
+ - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
+ - Packages `19.9` through `19.11` are formally closed by commit `d780f52`; this package-horizon closure does not close Stage 19 or complete V1.0
+ - Package `19.12`, `history/recovery/interruption safety`, was separately authorized and completed incrementally through accepted commits `3253a00`, `0f5280b`, `60a8ec7`, and `67e250b`; it is formally closed by commit `b793998`
+diff --git a/docs/product_systems/current_truth_index.md b/docs/product_systems/current_truth_index.md
+index ab89b2ff963e1ed3c7402fcb9f94bfdfc1c74832..deaffdcf97480f2887a0ba5c962cf38a7a666de0 100644
+--- a/docs/product_systems/current_truth_index.md
++++ b/docs/product_systems/current_truth_index.md
+@@ -12,8 +12,7 @@ It does not finalize the entire product vision.
+ 
+ - Stage 19 is open and Package `19.22` is active as the implementation, repository-hardening, and acceptance authority for a bounded internal barebones V1.0 baseline
+ - V1.0 is the product milestone, not a separate or competing stage system
+-- Packages `19.1` through `19.5` are the `Foundation Spine` package group; they cover only the initial bounded local writing-spine sequence and do not close Stage 19, prove V1.0, or establish release readiness
+-- Package `19.5` awaits final package acceptance through its narrowed verification record
++- Packages `19.1` through `19.5` are the `Foundation Spine` package group; they are accepted only as the initial bounded local writing-spine prerequisite and do not close Stage 19, prove V1.0, or establish release readiness. `stage19_foundation_spine_acceptance_reconciliation.md` is the current reconciliation authority; Package `19.5` remains its immutable focused automated verification record
+ - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827`; its read-only baseline and Package `19.8` boundary preceded the later host and Project Spine work
+ - Packages `19.9` through `19.11` are formally closed by commit `d780f52`; Stage 19 remains open
+ - Package `19.12`, `history/recovery/interruption safety`, was separately authorized and completed incrementally through accepted commits `3253a00`, `0f5280b`, `60a8ec7`, and `67e250b`; it is formally closed by commit `b793998`
+diff --git a/docs/product_systems/stage19_package_19_22_plan_and_findings.md b/docs/product_systems/stage19_package_19_22_plan_and_findings.md
+index bddb4eed6cf39358384c90d744333f262baa3008..9bd0353011718ba12b08c8e1dfa358276d7bce79 100644
+--- a/docs/product_systems/stage19_package_19_22_plan_and_findings.md
++++ b/docs/product_systems/stage19_package_19_22_plan_and_findings.md
+@@ -75,6 +75,8 @@ or weakened assertion may substitute for repair.
+ | BS-19.22-P1-20 | P1 | The first exact-commit candidate built successfully but package verification rejected legitimate third-party JavaScript modules as credential material. | `pnpm --dir app run package:win` rejected Lezer `tokens.js`, `js-tokens`, and React `ReactPropTypesSecret.js`. The credential basename rule matched keyword substrings without distinguishing executable source from credential-like data/key files. | Yes. The packaging verifier is candidate-affecting under the Package 19.22 boundary, so the verifier repair requires a new exact commit and candidate qualification even though the first artifact bytes were valid. | Package `19.22`: retain `.env` rejection; restrict credential-name matching to delimited credential terms with data, certificate, or key extensions; add the exact third-party false positives as acceptance witnesses. | The focused verifier suite passes (`3/3`). The repaired verifier accepts the built ASAR with `2,571` entries, `2,334` integrity records, and zero forbidden paths while reporting both executable and installer `NotSigned`. New exact-commit rebuild and CI remain. | LOCALLY_CLOSED_PENDING_NEW_CANDIDATE. Reopen if a credential-like data/key file passes, an ordinary dependency source file is rejected, or the exact candidate reports any forbidden path. |
+ | BS-19.22-P1-21 | P1 | The exact-commit Linux full unit inventory failed one recovery-context assertion although Windows passed. | CI run `30567954794`, job `90957091052`: the fixture supplied a Windows-form path on Linux, while the coordinator correctly returned its canonical `path.resolve` identity. The assertion compared canonical output with unnormalized fixture input. | No packaged input; test expectation only. | Package `19.22`: assert the coordinator's cross-platform canonical path contract explicitly without changing runtime normalization. | The focused coordinator suite passes (`12/12`) and app lint is clean. Exact-commit CI rerun remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on any platform-dependent identity assertion or mismatch between binding validation and returned recovery context. |
+ | BS-19.22-P1-22 | P1 | The exact-commit Linux Playwright inventory observed enabled actions during the transition from no-project startup to automatic sample-project rehydration. | CI run `30568418898`, job `90958648413`: canary launch, fixture preparation, and `62` other tests passed; `startup_authority_contract` sampled the project-loaded marker once before the authority state settled, then asserted the earlier no-project branch against buttons already enabled by completed rehydration. | No packaged input; Electron contract test only. | Package `19.22`: use the suite's existing bounded authority-settlement helper before classifying the initial state, so the witness accepts either a stably disabled no-project state or completed project rehydration, never a mixed transition. | The complete focused startup-authority Electron suite passes `11/11` outside the nested sandbox with zero retries. Exact-commit Linux CI remains. | LOCALLY_CLOSED_PENDING_CI. Reopen on any mixed startup classification, falsely enabled no-project action, or failure to enable actions after authoritative project/scene activation. |
++| BS-19.22-P1-23 | P1 | The ledger names `a88ed9b` as the exact candidate and states that Jason's final judgment is recorded, but the repository's current authority still says Package `19.22` is active and requires Jason's final verification; no listed final-closure receipt records a qualifying exact-commit CI result or reconciles those statements. | On 2026-08-03, clean `HEAD` and `origin/salvage/minimal-two-surface-shell` are `0d4e05d`; `591e9ee`, `1e87a56`, and `0d4e05d` follow `a88ed9b` and change test/ledger inputs. `current_authority_inventory.md`, `current_truth_index.md`, and the master plan retain `ACTIVE`, `OPEN`, and final-Jason-verification language. The inventory lists no Package `19.22` closure receipt. | No packaged-runtime change is evidenced by the three later test-only commits, but their gates must be qualified at current `HEAD`; closure cannot inherit an earlier CI run or an untraceable judgment. | Package `19.22`: preserve the current `ACTIVE` status, obtain a successful exact-commit CI/qualification record for `0d4e05d` (or a later clean exact commit), then obtain or reconcile Jason's final internal-milestone judgment in the final closure receipt. | This audit established the clean source identity and the documentation conflict; no closure status has been changed. | OPEN_BLOCKED_BY_REQUIRED_EVIDENCE. Reopen or remain open until an exact-commit green record, current candidate/installer receipt, and traceable final Jason judgment all agree. |
++| BS-19.22-P3-24 | P3 | A truthful export notice could remain visible after authoritative project identity changed. | The notice was scoped to its source project but was retained after the active project changed, leaving an unnecessary stale-status lifetime. | Yes. The Writing Studio now clears the notice on project identity change and suppresses delayed results from a no-longer-active source project. | Package `19.22`: retain same-project success, cancellation, and failure notices; clear notices on authoritative project change; never allow delayed Project A output to appear in Project B. | Focused renderer regression covers cancellation then project switch, delayed completion after project switch, and ordinary same-project notice behavior. Candidate qualification remains required. | IMPLEMENTED_PENDING_CANDIDATE_QUALIFICATION. Reopen if a stale export notice appears after authoritative project change, a delayed result changes active-project truth, or a same-project result is hidden. |
+ 
+ ## 5. Exact candidate and installed evidence
+ 
+@@ -102,7 +104,10 @@ or weakened assertion may substitute for repair.
+ ## 6. Retained boundary dispositions
+ 
+ - Package `19.14` numeric scoring, packet finalization, and another provider
+-  capture remain inactive and unauthorized.
++  capture are explicitly **retained in place as historical qualification
++  tooling**, inactive and unauthorized. Package `19.22` neither reactivates,
++  archives, nor removes them; a later separately authorized program may revisit
++  that disposition.
+ - Package `19.14` output-quality limitations remain limitations of an optional
+   advisory route, not proof of broad editorial intelligence.
+ - Package `19.18` monitor displacement remains bounded only while both windows
+@@ -117,3 +122,57 @@ Package `19.22` cannot close while any active first-party lint warning, test
+ failure, unexpected skip, flaky retry dependency, leaked process, build
+ failure, CI failure, unowned P2/P3, candidate-identity ambiguity, or
+ contradictory public-release language remains.
++
++## 8. Audit 19.22 -- reviewed 2026-08-03
++
++This audit treats the user's `199.22` reference as Package `19.22`; no
++separate `199.22` authority exists in the repository.
++
++### Completed and evidenced
++
++- `BS-19.22-P1-23` now has a candidate-bound Package `19.22` qualification
++  witness. It consumes the verifier receipt and rejects source-SHA, installer,
++  installed-artifact, signature, lifecycle, runtime-descendant, and external
++  preservation mismatches without altering the historical Package `19.20`
++  witness. It remains open until a clean committed candidate produces real
++  Windows, Linux CI, artifact, lifecycle, and Computer Use evidence.
++- `BS-19.22-P3-24` is corrected in the Writing Studio: export notices clear
++  on authoritative project change and delayed results from an inactive source
++  project are suppressed. It remains pending clean-candidate qualification.
++- The Foundation Spine (`19.1` through `19.5`) is accepted only through the
++  current reconciliation record; Package `19.5` remains its immutable focused
++  automated verification evidence. Packages `19.12` through `19.21` have their
++  recorded closure receipts, with Package `19.21` documentation closure at
++  `2dc8010`.
++- Findings `BS-19.22-P1-01` through `P1-22` have a recorded repair,
++  regression witness, and at least local/focused evidence. The package,
++  installed-lifecycle, uninstall/reinstall, and Computer Use evidence in
++  section 5 is evidence for the `a88ed9b` candidate, not closure evidence for
++  the current source.
++- The worktree is clean and `HEAD` equals
++  `origin/salvage/minimal-two-surface-shell` at `0d4e05d` at audit time.
++- The required inactive Package `19.14` tooling disposition is now explicit:
++  retain in place as historical and unauthorized.
++
++### Still required before closure
++
++1. Resolve `P1-23`: qualify the clean exact current commit through the
++   required Windows, Linux CI, artifact, installed-offline lifecycle, and
++   Computer Use evidence; record candidate identity, hashes, signature truth,
++   and zero-retry/process-leak results in a traceable receipt.
++2. Verify the P3-24 renderer correction in the clean exact candidate. No future
++   V3 owner is required because the stale notice is eliminated in Package 19.22.
++3. After the automated evidence is current, obtain and record Jason's final
++   internal-milestone judgment in a final Package
++   `19.22` closure receipt. Only that receipt may update the current status
++   lines; it still may not authorize public release actions.
++
++### Reviewed execution plan
++
++| Step | Action | Status | Boundary |
++| --- | --- | --- | --- |
++| 1 | Reconcile source, authority, ledger, and closure-artifact evidence. | COMPLETE | Documentation/governance audit completed 2026-08-03. |
++| 2 | Reconcile Foundation Spine status and resolve retained notice lifetime. | IMPLEMENTED_PENDING_CANDIDATE_QUALIFICATION | The Foundation Spine has a current non-retroactive reconciliation record; P3-24 is corrected in the Writing Studio and needs candidate evidence. |
++| 3 | Run the complete exact-commit qualification ladder and preserve receipts. | READY_AFTER_CANDIDATE_COMMIT | Requires a clean committed candidate, exact Windows/Linux CI, artifact, installed-offline lifecycle, and Computer Use evidence. |
++| 4 | Record the final human internal-milestone judgment. | BLOCKED | Requires Jason after step 3 and traceable current-candidate evidence. |
++| 5 | Create the final closure receipt and update current status only if all stop conditions are cleared. | BLOCKED | Prohibited until steps 2-4 are complete; no public-release action follows. |
+diff --git a/docs/product_systems/stage19_v1_master_implementation_and_acceptance_plan.md b/docs/product_systems/stage19_v1_master_implementation_and_acceptance_plan.md
+index b84e0570da10e4f4487cfa08a13a4fa37cf7b714..90876850193294ae4e87ec7760011891b4785ecd 100644
+--- a/docs/product_systems/stage19_v1_master_implementation_and_acceptance_plan.md
++++ b/docs/product_systems/stage19_v1_master_implementation_and_acceptance_plan.md
+@@ -100,6 +100,11 @@ SHA-256
+ `93220059613b1fd8fb78cdbbe08539b033c4d93c2e30cb8abe0d67a95623458b`,
+ `NotSigned`).
+ 
++The Foundation Spine (`19.1` through `19.5`) is accepted as a narrow historical
++prerequisite by `stage19_foundation_spine_acceptance_reconciliation.md`.
++Package `19.5` remains focused automated verification only; this does not
++backdate manual acceptance or release readiness.
++
+ Package `19.21`, **user/release/operator documentation**, aligned current
+ release-facing records to that accepted product, passed static documentation
+ checks, and passed a real installed-app Computer Use rehearsal. Its nine P1/P2
+diff --git a/app/main/__tests__/stage19_22QualificationWitness.test.ts b/app/main/__tests__/stage19_22QualificationWitness.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..cd83e12089dfec7f464b28acdc1549db7bdaa95f
+--- /dev/null
++++ b/app/main/__tests__/stage19_22QualificationWitness.test.ts
+@@ -0,0 +1,71 @@
++import { describe, expect, it } from "vitest";
++
++// @ts-expect-error Plain Node.js qualification tooling has no declaration file.
++import {
++  validateCandidateReceipt,
++  validateInstalledCandidate,
++  validateLifecycleEvidence,
++  validatePreservation
++} from "../../../scripts/stage19-22-qualification-witness.mjs";
++
++const commit = "a".repeat(40);
++const installer = {
++  filename: "BlackSkies-Setup-1.0.0-rc1.exe",
++  byteLength: 100,
++  sha256: "b".repeat(64)
++};
++const receipt = {
++  schema: "black-skies.stage19.package-receipt.v1",
++  qualifiedCommit: commit,
++  protectedEvidenceUsed: false,
++  signatureStatus: "NotSigned",
++  installer: { ...installer, signatureStatus: "NotSigned" },
++  unpacked: {
++    executable: { sha256: "c".repeat(64) },
++    asar: { sha256: "d".repeat(64) }
++  }
++};
++
++describe("Package 19.22 candidate-bound qualification witness", () => {
++  it("accepts an exact candidate receipt", () => {
++    expect(validateCandidateReceipt(receipt, installer, commit)).toEqual([]);
++  });
++
++  it.each([
++    ["source SHA", { qualifiedCommit: "later" }],
++    ["installer hash", { installer: { ...receipt.installer, sha256: "changed" } }],
++    ["signature status", { signatureStatus: "Valid" }],
++    ["protected evidence", { protectedEvidenceUsed: true }]
++  ])("rejects changed %s", (_label, change) => {
++    expect(validateCandidateReceipt({ ...receipt, ...change }, installer, commit)).not.toEqual([]);
++  });
++
++  it("rejects altered installed executable, ASAR, and signature truth", () => {
++    const installed = {
++      executable: { sha256: receipt.unpacked.executable.sha256 },
++      asar: { sha256: receipt.unpacked.asar.sha256 },
++      signatureStatus: "NotSigned"
++    };
++    expect(validateInstalledCandidate(receipt, installed)).toEqual([]);
++    expect(validateInstalledCandidate(receipt, { ...installed, signatureStatus: "Valid" })).not.toEqual([]);
++    expect(validateInstalledCandidate(receipt, { ...installed, asar: { sha256: "changed" } })).not.toEqual([]);
++  });
++
++  it("rejects incomplete lifecycle and altered external preservation evidence", () => {
++    const lifecycle = {
++      qualifiedCommit: commit,
++      installedOffline: true,
++      representativeWorkloadPassed: true,
++      forbiddenRuntimeProcessCount: 0,
++      uninstallRemovedApplication: true,
++      externalDataPreserved: true,
++      sameInstallerReinstallPassed: true
++    };
++    expect(validateLifecycleEvidence(lifecycle, commit)).toEqual([]);
++    expect(validateLifecycleEvidence({ ...lifecycle, qualifiedCommit: "wrong" }, commit)).not.toEqual([]);
++    expect(validateLifecycleEvidence({ ...lifecycle, externalDataPreserved: false }, commit)).not.toEqual([]);
++    const expected = [{ path: "project.json", byteLength: 10, sha256: "abc" }];
++    expect(validatePreservation(expected, expected)).toEqual([]);
++    expect(validatePreservation(expected, [{ ...expected[0], sha256: "changed" }])).not.toEqual([]);
++  });
++});
+diff --git a/docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md b/docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..38be1e377cb08285014e452e1f9033930e92b819
+--- /dev/null
++++ b/docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md
+@@ -0,0 +1,43 @@
++# Stage 19 Foundation Spine Acceptance Reconciliation
++
++## Decision
++
++The Foundation Spine package group (`19.1` through `19.5`) is accepted as a
++completed historical prerequisite for the narrow local project-open, bounded
++editing, durable-save, and normal-reentry sequence.
++
++This decision resolves the current-status ambiguity left by the Package `19.5`
++verification record. It does not amend that record, backdate human acceptance,
++or convert its focused automated evidence into release evidence.
++
++## Evidence boundary
++
++- Package `19.5` remains the immutable focused automated verification record.
++  It passed its bounded integrated-spine criteria at commit `9e99a335`.
++- Packages `19.18` and `19.20` later supplied broader manual and packaged
++  acceptance evidence for the V1 baseline.
++- This reconciliation relies on that later evidence only to confirm that the
++  Foundation Spine remained a valid prerequisite; it does not claim that
++  Package `19.5` itself performed manual acceptance, packaging, or release
++  qualification.
++
++## Status and limits
++
++```text
++FOUNDATION_SPINE_19_1_THROUGH_19_5: ACCEPTED_AS_NARROW_PREREQUISITE
++PACKAGE_19_5_AUTOMATED_VERIFICATION: PASS
++PACKAGE_19_5_MANUAL_ACCEPTANCE: NOT_CLAIMED
++PACKAGE_19_5_RELEASE_READINESS: NOT_CLAIMED
++STAGE_19: OPEN_PENDING_PACKAGE_19_22_CLOSURE
++```
++
++This record neither closes Stage 19 nor completes the internal V1 baseline.
++It authorizes no runtime work, release action, tag, signing request,
++publication, public distribution, or alpha/beta claim.
++
++## Reopening
++
++Reopen this reconciliation if the immutable Package `19.5` evidence is shown
++to be materially false, if a later accepted record contradicts its bounded
++project-open/save/reentry scope, or if a current authority record again states
++that Package `19.5` is awaiting acceptance.
+diff --git a/scripts/stage19-22-qualification-witness.mjs b/scripts/stage19-22-qualification-witness.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..b5e96235c12ac00a19bd6119fd69afd60a62a95a
+--- /dev/null
++++ b/scripts/stage19-22-qualification-witness.mjs
+@@ -0,0 +1,227 @@
++import { execFileSync } from "node:child_process";
++import { createHash } from "node:crypto";
++import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
++import path from "node:path";
++import process from "node:process";
++import { fileURLToPath } from "node:url";
++
++const modulePath = fileURLToPath(import.meta.url);
++const repoRoot = path.resolve(path.dirname(modulePath), "..");
++
++export function sha256File(filePath) {
++  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
++}
++
++function fileIdentity(filePath) {
++  return {
++    filename: path.basename(filePath),
++    byteLength: statSync(filePath).size,
++    sha256: sha256File(filePath)
++  };
++}
++
++function currentCommit() {
++  return execFileSync("git", ["rev-parse", "HEAD"], {
++    cwd: repoRoot,
++    encoding: "utf8"
++  }).trim();
++}
++
++export function validateCandidateReceipt(receipt, installer, commit = currentCommit()) {
++  const errors = [];
++  if (receipt?.schema !== "black-skies.stage19.package-receipt.v1") {
++    errors.push("The package receipt schema is not the Stage 19 package receipt schema.");
++  }
++  if (receipt?.qualifiedCommit !== commit) {
++    errors.push(`Receipt SHA differed: expected ${commit}, received ${receipt?.qualifiedCommit ?? "missing"}.`);
++  }
++  if (receipt?.protectedEvidenceUsed !== false) {
++    errors.push("The receipt must declare protectedEvidenceUsed=false.");
++  }
++  if (receipt?.signatureStatus !== "NotSigned") {
++    errors.push(`Receipt signature status differed: ${receipt?.signatureStatus ?? "missing"}.`);
++  }
++  const receiptInstaller = receipt?.installer;
++  for (const key of ["filename", "byteLength", "sha256"]) {
++    if (receiptInstaller?.[key] !== installer?.[key]) {
++      errors.push(`Installer ${key} differed from the receipt.`);
++    }
++  }
++  if (receiptInstaller?.signatureStatus !== "NotSigned") {
++    errors.push("The receipt installer is not explicitly NotSigned.");
++  }
++  return errors;
++}
++
++export function validateInstalledCandidate(receipt, installed) {
++  const errors = [];
++  const unpacked = receipt?.unpacked;
++  if (!unpacked?.executable?.sha256 || !unpacked?.asar?.sha256) {
++    errors.push("The package receipt has no verified unpacked executable and ASAR identities.");
++    return errors;
++  }
++  if (installed?.executable?.sha256 !== unpacked.executable.sha256) {
++    errors.push("Installed executable SHA-256 differed from the verified unpacked executable.");
++  }
++  if (installed?.asar?.sha256 !== unpacked.asar.sha256) {
++    errors.push("Installed ASAR SHA-256 differed from the verified unpacked ASAR.");
++  }
++  if (installed?.signatureStatus !== "NotSigned") {
++    errors.push("Installed executable is not explicitly NotSigned.");
++  }
++  return errors;
++}
++
++export function validateLifecycleEvidence(evidence, commit = currentCommit()) {
++  const errors = [];
++  if (evidence?.qualifiedCommit !== commit) {
++    errors.push("Lifecycle evidence is not bound to the checked-out candidate SHA.");
++  }
++  for (const key of [
++    "installedOffline",
++    "representativeWorkloadPassed",
++    "forbiddenRuntimeProcessCount",
++    "uninstallRemovedApplication",
++    "externalDataPreserved",
++    "sameInstallerReinstallPassed"
++  ]) {
++    if (key === "forbiddenRuntimeProcessCount") {
++      if (evidence?.[key] !== 0) errors.push("Lifecycle evidence found a forbidden runtime descendant.");
++    } else if (evidence?.[key] !== true) {
++      errors.push(`Lifecycle evidence did not prove ${key}.`);
++    }
++  }
++  return errors;
++}
++
++export function fileManifest(rootPath) {
++  const root = path.resolve(rootPath);
++  if (!existsSync(root)) return [];
++  const visit = (directory) =>
++    readdirSync(directory, { withFileTypes: true })
++      .sort((left, right) => left.name.localeCompare(right.name))
++      .flatMap((entry) => {
++        const absolute = path.join(directory, entry.name);
++        if (entry.isDirectory()) return visit(absolute);
++        if (!entry.isFile()) throw new Error(`Unexpected external-data entry: ${absolute}.`);
++        return [{
++          path: path.relative(root, absolute).replaceAll("\\", "/"),
++          byteLength: statSync(absolute).size,
++          sha256: sha256File(absolute)
++        }];
++      });
++  return visit(root);
++}
++
++export function validatePreservation(expected, actual) {
++  const errors = [];
++  const actualByPath = new Map(actual.map((entry) => [entry.path, entry]));
++  if (expected.length !== actual.length) {
++    errors.push(`External manifest count differed: expected ${expected.length}, received ${actual.length}.`);
++  }
++  for (const entry of expected) {
++    const found = actualByPath.get(entry.path);
++    if (!found) {
++      errors.push(`External file is missing: ${entry.path}.`);
++    } else if (found.byteLength !== entry.byteLength || found.sha256 !== entry.sha256) {
++      errors.push(`External file changed: ${entry.path}.`);
++    }
++  }
++  return errors;
++}
++
++function windowsSignatureStatus(filePath) {
++  if (process.platform !== "win32") return "NotInspectedOnThisPlatform";
++  const command = [
++    "$signature = Get-AuthenticodeSignature -LiteralPath $env:BLACK_SKIES_ARTIFACT;",
++    "$signature.Status.ToString()"
++  ].join(" ");
++  return execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
++    encoding: "utf8",
++    env: { ...process.env, BLACK_SKIES_ARTIFACT: filePath }
++  }).trim();
++}
++
++function required(options, name) {
++  const value = options[name];
++  if (typeof value !== "string" || !value.trim()) throw new Error(`Missing --${name}.`);
++  return path.resolve(value);
++}
++
++function parseArguments(argv) {
++  const options = {};
++  for (let index = 0; index < argv.length; index += 1) {
++    const name = argv[index];
++    if (!name.startsWith("--")) continue;
++    const value = argv[index + 1];
++    if (!value || value.startsWith("--")) throw new Error(`Missing value for ${name}.`);
++    options[name.slice(2)] = value;
++    index += 1;
++  }
++  return options;
++}
++
++function readJson(filePath, label) {
++  if (!existsSync(filePath)) throw new Error(`${label} is missing: ${filePath}.`);
++  return JSON.parse(readFileSync(filePath, "utf8"));
++}
++
++function ensure(label, errors) {
++  if (errors.length) throw new Error(`${label}\n${errors.join("\n")}`);
++}
++
++export function runWitness(argv = process.argv.slice(2)) {
++  if (process.platform !== "win32") {
++    throw new Error("The Package 19.22 qualification witness requires Windows.");
++  }
++  const options = parseArguments(argv);
++  const receiptPath = required(options, "receipt");
++  const installerPath = required(options, "installer");
++  const installDirectory = required(options, "install-dir");
++  const externalRoot = required(options, "external-root");
++  const lifecyclePath = required(options, "lifecycle-evidence");
++  const expectedManifestPath = required(options, "expected-manifest");
++  const receipt = readJson(receiptPath, "Package receipt");
++  const lifecycle = readJson(lifecyclePath, "Lifecycle evidence");
++  const expectedManifest = readJson(expectedManifestPath, "External preservation manifest");
++  const installer = fileIdentity(installerPath);
++  ensure("Candidate receipt validation failed.", validateCandidateReceipt(receipt, installer));
++  ensure("Lifecycle validation failed.", validateLifecycleEvidence(lifecycle));
++
++  const executablePath = path.join(installDirectory, "Black Skies.exe");
++  const asarPath = path.join(installDirectory, "resources", "app.asar");
++  if (!existsSync(executablePath) || !existsSync(asarPath)) {
++    throw new Error("Installed executable or ASAR is missing.");
++  }
++  const installed = {
++    executable: fileIdentity(executablePath),
++    asar: fileIdentity(asarPath),
++    signatureStatus: windowsSignatureStatus(executablePath)
++  };
++  ensure("Installed candidate validation failed.", validateInstalledCandidate(receipt, installed));
++  ensure("External-data preservation failed.", validatePreservation(expectedManifest, fileManifest(externalRoot)));
++
++  return {
++    schema: "black-skies.stage19-22.qualification-witness.v1",
++    status: "passed",
++    qualifiedCommit: currentCommit(),
++    installer,
++    installed,
++    lifecycleEvidencePath: lifecyclePath,
++    externalRoot,
++    externalFileCount: expectedManifest.length,
++    protectedEvidenceUsed: false,
++    completedAtUtc: new Date().toISOString()
++  };
++}
++
++if (process.argv[1] && path.resolve(process.argv[1]) === modulePath) {
++  try {
++    const result = runWitness();
++    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
++    process.stdout.write("STAGE19_22_QUALIFICATION_WITNESS_PASS\n");
++  } catch (error) {
++    process.stderr.write(`[stage19-22-witness] ${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
++    process.exit(1);
++  }
++}

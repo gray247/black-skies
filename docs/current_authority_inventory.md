@@ -22,6 +22,7 @@ The inventory includes:
 - the accepted author-experience direction lock;
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the current open-work register;
+- the current Repository Control Point 0 reconciliation ledger;
 - the accepted post-V1 master product program;
 - the completed V2 Human Gate 1 execution ledger and evidence receipt;
 - the Stage 19 scope, master plan, Package `19.22` ledger and closure receipt,
@@ -49,6 +50,10 @@ professionalization, the nine-program order, six human gates, required
 model-change warnings, and handoff completeness. The open-work register is the
 single current index for unfinished work; it points to detailed owners rather
 than duplicating their contents.
+
+The Repository Control Point 0 ledger is current evidence for legacy dirty
+state, worktree classification, recoverable snapshots, and the proposed
+canonical-line disposition. It authorizes no cleanup by itself.
 
 The following roots are explicitly historical or non-current for this gate:
 

@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `DOCUMENTATION RECONCILED; AWAITING AUTHOR COMMIT AND PUSH`
-- Next implementation control point: `REPOSITORY CONTROL POINT 0`
+- Current implementation state: `REPOSITORY CONTROL POINT 0 APPROVED; AWAITING EVIDENCE COMMIT AND PUSH`
+- Next implementation control point: `CONTROL POINT 1 AFTER THE RCP0 EVIDENCE COMMIT`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in

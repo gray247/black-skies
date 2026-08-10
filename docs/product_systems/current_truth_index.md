@@ -75,6 +75,12 @@ It does not finalize the entire product vision.
   Repository Control Points 0 and 1 are the immediate execution work before
   implementation. Human Gate 2 remains the next human validation after the
   shell and minimal Companion workflow are complete.
+- Repository Control Point 0 forensics are recorded in
+  `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
+  requires carry-forward. Jason approved the non-destructive disposition and
+  named `codex/foundation-audit` as the sole continuing development line on
+  2026-08-10. The two dirty worktrees remain quarantined until Cleanup Wave A;
+  Control Point 1 begins after the RCP0 evidence commit and push.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.
