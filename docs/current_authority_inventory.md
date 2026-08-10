@@ -19,7 +19,11 @@ The inventory includes:
 - current user, support, security, developer, package, rollback, and UI
   guidance;
 - the current product-roadmap and truth-index entry points;
+- the accepted author-experience direction lock;
+- the accepted post-V1 execution-control and cross-task handoff plan;
+- the current open-work register;
 - the accepted post-V1 master product program;
+- the completed V2 Human Gate 1 execution ledger and evidence receipt;
 - the Stage 19 scope, master plan, Package `19.22` ledger and closure receipt,
   Foundation Spine acceptance reconciliation, and final handover; and
 - the internal build record retained under the filename `RELEASE.md`.
@@ -34,6 +38,17 @@ inventory.
 The accepted post-V1 master program governs direction and sequencing only. It
 does not grant public-release authority or automatically authorize a runtime
 workflow.
+
+The author-experience direction lock governs how the Writing Studio, Living
+Outline, Command Center, Companion, import workflow, and dossier families are
+composed for the writer. It does not replace dossier ownership or authorize
+implementation by itself.
+
+The post-V1 execution-control plan governs repository reconciliation,
+professionalization, the nine-program order, six human gates, required
+model-change warnings, and handoff completeness. The open-work register is the
+single current index for unfinished work; it points to detailed owners rather
+than duplicating their contents.
 
 The following roots are explicitly historical or non-current for this gate:
 

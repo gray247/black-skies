@@ -35,7 +35,20 @@ It does not finalize the entire product vision.
 ## Post-V1 Product Program Authority
 
 - Jason accepted `black_skies_post_v1_master_product_program.md` on 2026-08-09.
-- The accepted program owns the post-V1 product constitution, eight-program
+- `author_experience_direction_lock.md` is the required current composition
+  authority for the Writing Studio, Living Outline, Command Center,
+  Companion, long-manuscript import, progressive disclosure, and
+  dossier-to-surface placement. It preserves Jason's 2026-08-10 review so
+  later planning does not reinterpret the dossiers as forms, dashboard
+  tiles, or a serial feature queue.
+- `post_v1_execution_control_and_handoff_plan.md` owns the accepted execution
+  order, repository-control checkpoints, open-work treatment,
+  professionalization rhythm, six human gates, mandatory model-change
+  warnings, and cross-task handoff requirements.
+- `current_open_work_register.md` is the single current index for unfinished
+  work; historical trackers and ledgers remain source evidence rather than
+  competing current queues.
+- The accepted program owns the post-V1 product constitution, nine-program
   workflow sequence, dossier-to-program map, evidence rhythm, and named
   deferral triggers.
 - The forty-five category-4 dossiers are product boundaries and deferral
@@ -49,13 +62,22 @@ It does not finalize the entire product vision.
   V2; unified layout and polish belong to V3 after the two-workflow synthesis.
 - The first V3 shell includes a minimal Companion bar, routes results into the
   Command Center, and keeps conversation memory non-durable by default.
-- Human validation is consolidated into five gates: combined V2 workflows,
-  V3 shell and Companion, story intelligence and creation or revision,
-  high-risk behavior, and the final installed product. Low-risk automated work
-  may continue between those gates.
-- Emotion Graph V1 is the first visual story-intelligence lens after the V3
-  shell and Companion gate. It uses Living Outline story positions and keeps
-  author-planned, manuscript-observed, and inferred emotion distinct.
+- Human validation is consolidated into six gates: combined V2 workflows, V3
+  shell and Companion, long-manuscript intake and anchors, story intelligence
+  and creation or revision, high-risk behavior, and the final installed
+  product. Low-risk automated work may continue between those gates.
+- Human Gate 1 was completed on 2026-08-10 against candidate `2b9f707d` after
+  local and GitHub automation passed. The mechanical and safety workflow was
+  accepted; the required author-experience composition repair is governed by
+  `author_experience_direction_lock.md` and moves into Programs 3 and 4 rather
+  than reopening V1.
+- Program 3, the contextual product shell, is the next product program.
+  Repository Control Points 0 and 1 are the immediate execution work before
+  implementation. Human Gate 2 remains the next human validation after the
+  shell and minimal Companion workflow are complete.
+- Program 5 proves long-manuscript intake and stable structural anchors before
+  Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
+  keeps author-planned, manuscript-observed, and inferred emotion distinct.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 
@@ -429,12 +451,15 @@ Mandatory current-authority reading for a new Governance / Orchestrator
 thread:
 
 1. [current_truth_index.md](/C:/Dev/black-skies/docs/product_systems/current_truth_index.md)
-2. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-3. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
-4. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-5. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-6. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-7. the current active workflow dossier, when a workflow is authorized.
+2. [author_experience_direction_lock.md](/C:/Dev/black-skies/docs/product_systems/author_experience_direction_lock.md)
+3. [post_v1_execution_control_and_handoff_plan.md](/C:/Dev/black-skies/docs/product_systems/post_v1_execution_control_and_handoff_plan.md)
+4. [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
+5. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+6. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+7. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+8. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+9. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+10. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -463,9 +488,14 @@ If two sources disagree, the higher item in this order wins unless a newer accep
 Current canonical repo-tracked sources include:
 
 - [README.md](/C:/Dev/black-skies/docs/product_systems/README.md)
+- [author_experience_direction_lock.md](/C:/Dev/black-skies/docs/product_systems/author_experience_direction_lock.md)
+- [post_v1_execution_control_and_handoff_plan.md](/C:/Dev/black-skies/docs/product_systems/post_v1_execution_control_and_handoff_plan.md)
+- [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+- [v2_human_gate_1_evidence_receipt.md](/C:/Dev/black-skies/docs/product_systems/v2_human_gate_1_evidence_receipt.md)
+- [v2_gate1_execution_ledger.md](/C:/Dev/black-skies/docs/product_systems/v2_gate1_execution_ledger.md)
 - [_dossier_template.md](/C:/Dev/black-skies/docs/product_systems/_dossier_template.md)
 - [truth_and_state_ownership_matrix.md](/C:/Dev/black-skies/docs/product_systems/truth_and_state_ownership_matrix.md)
 - [surface_to_owner_action_handoff_contract.md](/C:/Dev/black-skies/docs/product_systems/surface_to_owner_action_handoff_contract.md)

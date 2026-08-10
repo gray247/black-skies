@@ -1,10 +1,10 @@
 # V2 Human Gate 1 Evidence Receipt
 
-Status: ready for one combined author review  
-Automated qualification: passed  
-Human acceptance: pending  
-Source base: `8fff84434ef138444df45be424cac386ddf5589e` plus the Gate 1 change set  
-Git control: the author alone stages, commits, and pushes
+- Status: human review completed; learning gate closed with required composition repair
+- Automated qualification: passed
+- Human acceptance: mechanical and safety workflow accepted; intuitive composition not accepted as final
+- Reviewed candidate: `2b9f707d`
+- Git control: the author alone stages, commits, and pushes
 
 ## What Is Ready
 
@@ -138,14 +138,50 @@ A failed review does not restart tiny manual checks. Record the failure, repair
 it as one bounded automation batch, rerun the full automated gate, and repeat
 this complete 20-minute review once.
 
+## Human Review Result
+
+Jason completed the combined workflow review on 2026-08-10 after all
+repository and GitHub checks were green.
+
+The mechanical and safety findings passed:
+
+- project creation, manuscript units, save, reopen, isolation, and navigation
+  worked,
+- Living Outline persistence and manuscript separation worked,
+- the Critique Workbench and advisory Feedback Note path worked,
+- no silent prose or accepted-order change was observed,
+- the automated and GitHub evidence remained green.
+
+The author-experience finding requires directional repair:
+
+- manuscript units and Living Outline feel separate instead of forming one
+  living ecosystem,
+- shape, status, and link choices expose unexplained internal concepts,
+- the boxed form presentation is too heavy for the intended Writing Studio,
+- rich Critique Workbench presentation belongs in the Command Center rather
+  than permanently competing with the manuscript,
+- the Writing Studio needs the plain outline, direct manipulation, thin edge
+  controls, and progressive disclosure preserved in
+  `author_experience_direction_lock.md`.
+
+This result does not reopen V1 and does not reject the proven persistence or
+safety foundation. It closes the intended V2 learning loop and routes the
+composition repair into the next contextual product-shell program. The shell
+and Companion human gate must confirm the repaired experience before that GUI
+direction is accepted as polished.
+
 ## Author Decision
 
-- [ ] Human Gate 1 accepted
-- [ ] Repair batch required
+- [x] Human Gate 1 learning review completed
+- [x] Mechanical and safety workflow accepted
+- [x] Composition repair required in the contextual product-shell program
 
-Notes:
+Synthesized author answers:
 
-- Could I understand it?
-- Could I safely act on it?
-- Did it interrupt writing?
-
+- Could I understand it? The mechanics became understandable, but the default
+  shape, status, and link language did not explain itself naturally.
+- Could I safely act on it? Yes at the proven manuscript, outline-sidecar, and
+  advisory-result boundaries.
+- Did it interrupt writing? The current forms and rich Workbench placement add
+  more Writing Studio friction than the intended calm, hidden-until-needed
+  design allows.

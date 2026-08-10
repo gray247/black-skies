@@ -138,11 +138,15 @@ registry itself.
 For a new Governance / Orchestrator thread, start with:
 
 1. [Current Truth Index](current_truth_index.md)
-2. [Current Product Roadmap](current_product_roadmap.md)
-3. [Dossier Maturity Inventory](dossier_maturity_inventory.md)
-4. [Capability Ownership Map](capability_ownership_map.md)
-5. [System Interaction Map](system_interaction_map.md)
-6. the current active campaign dossier named by the truth index
+2. [Author Experience Direction Lock](author_experience_direction_lock.md)
+3. [Post-V1 Execution Control And Handoff Plan](post_v1_execution_control_and_handoff_plan.md)
+4. [Current Open Work Register](current_open_work_register.md)
+5. [Current Product Roadmap](current_product_roadmap.md)
+6. [Black Skies Post-V1 Master Product Program](black_skies_post_v1_master_product_program.md)
+7. [Dossier Maturity Inventory](dossier_maturity_inventory.md)
+8. [Capability Ownership Map](capability_ownership_map.md)
+9. [System Interaction Map](system_interaction_map.md)
+10. the current active campaign dossier named by the truth index
 
 Keep this list short.
 Do not treat historical audit passes as mandatory current-authority

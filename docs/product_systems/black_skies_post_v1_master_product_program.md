@@ -10,10 +10,25 @@ Purpose: freeze a durable product direction and efficient delivery rhythm
 for the work after the private V1.0 foundation.
 
 This document is current authority for the post-V1 product constitution,
-eight-program sequence, dossier-to-program map, evidence rhythm, and named
+nine-program sequence, dossier-to-program map, evidence rhythm, and named
 deferral triggers. It does not replace system-specific dossier ownership,
 truth or approval contracts, the current truth index, or the roadmap's broad
 product horizons. It does not authorize source-code work by itself.
+
+The accepted execution order, repository-control checkpoints, open-work
+handling, professionalization rhythm, human gates, and required model-change
+warnings are owned by
+[post_v1_execution_control_and_handoff_plan.md](post_v1_execution_control_and_handoff_plan.md).
+[current_open_work_register.md](current_open_work_register.md) is the single
+current index for unfinished work. If older sequencing language in this
+document conflicts with those records, the execution-control plan governs.
+
+The detailed author-experience composition established after the first
+post-V1 hands-on workflow review is preserved in
+[author_experience_direction_lock.md](author_experience_direction_lock.md).
+The next plan revision must reconcile this program against that record rather
+than treating the current GUI or concept images as final interaction
+authority.
 
 The accepted program authorizes documentation reconciliation only. Each named
 runtime workflow remains separately bounded and authorized.
@@ -92,15 +107,30 @@ which the next workflows may be built.
 
 ### 4.2 Current Post-V1 Work
 
-The first V2 workflow, Critique Workbench, has three committed batches:
+The combined V2 learning candidate is committed at `2b9f707d` and its local
+and GitHub automation is green. It contains:
 
 1. project-local advisory Feedback Notes persistence,
 2. Writing-side IPC and project-binding bridge,
-3. contextual Critique Workbench pane.
+3. the bounded Critique Workbench workflow,
+4. optional project-local Living Outline persistence and interaction,
+5. combined reopen, isolation, failure, Focus, regression, and packaging-safe
+   evidence.
 
-The remaining work is the complete end-to-end evidence batch and one human
-workflow review. Those are the immediate next steps after this program is
-approved and reconciled.
+Jason completed Human Gate 1 on 2026-08-10. The persistence, isolation,
+advisory, and manuscript-sovereignty mechanics passed. The review also found
+that the manuscript-unit and Living Outline interfaces feel fragmented, their
+shape/status/link vocabulary is not self-explaining, and rich Critique
+Workbench presentation belongs in the Command Center.
+
+The detailed evidence and author finding are preserved in
+[v2_human_gate_1_evidence_receipt.md](v2_human_gate_1_evidence_receipt.md) and
+[v2_gate1_execution_ledger.md](v2_gate1_execution_ledger.md).
+
+That is the required two-workflow learning result. It does not reopen V1 or
+discard the proven mechanics. The current next program is the contextual
+product shell and its required composition repair, governed by
+`author_experience_direction_lock.md`.
 
 ## 5. Frozen Product Constitution
 
@@ -203,11 +233,13 @@ polish program after at least two V2 workflows produce real author evidence.
 
 ## 6. Product Sequence
 
-This sequence contains eight programs, not forty-five serial dossier builds.
+This sequence contains nine programs, not forty-five serial dossier builds.
 Each program may contain several automated batches, but it must end in a
 complete author workflow.
 
 ### Program 1 - Complete Critique Workbench
+
+Status: `MECHANICALLY QUALIFIED; PLACEMENT FINDING ROUTED TO PROGRAM 3`
 
 Goal: finish the already-started selected-prose critique-to-advisory-note
 workflow.
@@ -230,6 +262,8 @@ Exit evidence:
 - no broad critique-quality or provider-ranking claim is made.
 
 ### Program 2 - Prove The Living Outline Loop
+
+Status: `MECHANICALLY QUALIFIED; INTERACTION-LANGUAGE FINDING ROUTED TO PROGRAM 3`
 
 Goal: make the Writing Surface and Living Outline operate as one useful,
 bidirectional author workflow.
@@ -264,6 +298,8 @@ Exit evidence:
 
 ### Gate A - Two-Workflow Learning Synthesis
 
+Status: `COMPLETED 2026-08-10`
+
 After Programs 1 and 2, record a short synthesis:
 
 - what the author repeatedly needed visible,
@@ -277,6 +313,27 @@ After Programs 1 and 2, record a short synthesis:
 This synthesis follows Human Gate 1, the combined V2 review of Critique
 Workbench and Living Outline.
 
+Recorded synthesis:
+
+- the manuscript and Living Outline must look and behave like one ecosystem,
+- the ordinary outline path should be plain `+`, inline title, click-to-locate,
+  drag-to-place, and right-click for advanced options,
+- internal shape, status, provenance, and link vocabulary must not be required
+  during ordinary creation,
+- Writing Studio support should use thin edge controls and progressive
+  disclosure around a dominant black manuscript canvas,
+- rich critique results, review, import decisions, graphs, comparisons, and
+  analytics belong in the Command Center,
+- the Writing Studio keeps only minimal contextual requests, cues, and clear
+  return paths,
+- Companion remains a small text entry whose richer result opens in the
+  Command Center,
+- forty-five dossiers must collapse into a few access families and workspaces,
+  not forty-five icons or tiles.
+
+The full accepted synthesis is
+[author_experience_direction_lock.md](author_experience_direction_lock.md).
+
 V3 interface work begins only after this synthesis. This is a learning gate,
 not another general audit campaign.
 
@@ -286,17 +343,33 @@ Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
 Starting layout:
 
-- editor in the center,
-- project navigation and Living Outline available beside it,
+- true-black, dominant editor in the center,
+- a plain Living Outline available beside it without boxed setup cards,
+- direct `+`, inline naming, click-to-locate, drag-to-place, and contextual
+  advanced actions,
+- contextual auto-linking at the cursor or selection and an ordinary
+  `Not placed yet` path when no manuscript context exists,
+- shape, status, link, and provenance detail hidden until it changes a writer
+  decision,
+- thin left, right, top, and bottom activation rails organized by task family,
 - only small relevant context visible by default,
 - one-click Focus mode hides support panels,
-- deeper review opens on demand,
-- Command Center remains a separate supportive workspace,
+- richer Critique Workbench results open in the Command Center with source and
+  return context preserved,
+- Command Center work is grouped into Review, Structure, Story Knowledge,
+  Create / Develop, Project Interchange, and Operations / Approvals rather than
+  permanent dashboard cards,
 - panels are resizable, collapsible, and remembered safely,
 - the same product remains usable on one or two monitors.
 
 This is where the visual concepts are reconciled into one product language.
 It is not permission to build every dashboard card shown in a concept image.
+
+Program 3 may proceed through grouped automated contract, component,
+accessibility, built-Electron, regression, and packaging-safe batches without
+requesting human validation after each small UI change. Human review waits
+until Program 4 adds the bounded Companion entry and the combined Human Gate 2
+workflow is whole.
 
 ### Program 4 - Companion And Owner Routing
 
@@ -316,7 +389,31 @@ First bounded workflow:
 Conversation history remains temporary by default. Durable memory is not
 introduced through this program.
 
-### Program 5 - Signals And Story Intelligence
+### Program 5 - Long-Manuscript Intake And Structural Anchors
+
+Goal: let an author bring in a long existing manuscript without manually
+recreating every unit, while preserving the Writing Surface to Living Outline
+loop as one ecosystem.
+
+First bounded workflow:
+
+1. accept a long, explicitly author-selected manuscript through a staged
+   intake path,
+2. preserve the original manuscript and its order unchanged,
+3. derive stable source-linked structural anchors,
+4. propose likely chapters or units only where evidence supports them,
+5. represent uncertain divisions, gaps, and unplaced material as proposals
+   rather than accepted structure,
+6. allow the author to accept, rename, move, combine, split, or dismiss those
+   proposals,
+7. prove that reopening retains accepted anchors and does not silently promote
+   rejected or inferred structure.
+
+This program establishes the continuous-manuscript positions required by
+later graphs and signals. It does not grant broad document-interchange,
+Google Docs, bulk accepted-manuscript reorder, or automatic canon authority.
+
+### Program 6 - Signals And Story Intelligence
 
 Goal: add useful lenses without creating an alarm dashboard.
 
@@ -340,9 +437,9 @@ Likely order after the shared signal contract:
 - theme and relationship views,
 - richer multi-character and intended-versus-observed emotion overlays.
 
-Emotion Graph V1 begins after Human Gate 2 confirms the contextual V3 shell
-and Companion placement. It depends on the Living Outline's stable story
-positions so graph points can link back to real writing and structure.
+Emotion Graph V1 begins after Human Gate 3 confirms long-manuscript intake and
+stable structural anchors. It depends on those Living Outline story positions
+so graph points can link back to real writing and structure.
 
 Its first bounded slice includes:
 
@@ -359,7 +456,7 @@ Its first bounded slice includes:
 The order may change from author evidence. No analyzer earns a permanent
 dashboard tile merely because a dossier exists.
 
-### Program 6 - Creation, Revision, And Story Development
+### Program 7 - Creation, Revision, And Story Development
 
 Goal: support discovery and deliberate revision without taking authorship.
 
@@ -375,7 +472,7 @@ Candidate workflows:
 This program may begin with any one workflow that real use proves valuable.
 It does not activate all systems together.
 
-### Program 7 - Knowledge, Organization, And Interchange
+### Program 8 - Knowledge, Organization, And Interchange
 
 Goal: help the author find, connect, preserve, and move project knowledge.
 
@@ -393,7 +490,7 @@ Candidate workflows:
 Search is not memory. Memory is not canon. Cards own only explicitly accepted
 fact classes. Import never silently becomes truth.
 
-### Program 8 - Heavy Intelligence And Release Hardening
+### Program 9 - Heavy Intelligence, Durability, And Operationalization
 
 Goal: introduce expensive, long-running, outbound, or broadly operational
 capabilities only after the ordinary author workflows justify them.
@@ -423,12 +520,13 @@ other programs, but it does not become a separate serial phase.
 | --- | --- |
 | 1. Critique Workbench | Critique / Evaluation; Feedback Notes / Revision Resolution |
 | 2. Living Outline Loop | Writing Surface; Outline; Narrative Insertion / Assertion; Story Unit; Prose / Scene Projection; Visual Arrangement View |
-| 3. Contextual Product Shell | Command Center Surface; Workflow Spine / Author Journey; Companion; Accessibility / Hotkeys / Large-Font Mode; Settings / Preferences / Workspace Layout; Splash / Startup Experience |
-| 4. Signals And Story Intelligence | Timeline / Pacing / Pressure; Relationship Map; Emotion Graph; Continuity; Senses Usage; Overused Words; Cliche Detection; Foreshadow / Payoff; Theme System; Plugin / Rubric System |
-| 5. Creation And Revision | Author Intent / Story Setup; Ideation / Premise Discovery; Draft Generation / Rewrite Loop |
-| 6. Knowledge And Interchange | Binder / Project Library; Lore Cards; Character Cards; Project Index / Search / Retrieval; Series Binder / Cross-Story Linking; Memory Lab; Import / Export / Google Docs; File Manager / Asset Pane |
-| 7. Heavy Intelligence Operations | Explicit-Content Marker / Send-Package Censor; Local LLM vs Paid API Routing; Model Router / Provider Execution Policy; Budget / Token / Cost Guardrails; Async Job Queue / Task Runner |
-| 8. Durability And Release | Snapshots / Backup / Restore / History; Project Persistence / Local Save; Service Health / Offline / Degraded Mode; Diagnostics / Error Visibility / Debug Console; Testing / Harness / Evidence Contract |
+| 3. Contextual Product Shell | Command Center Surface; Workflow Spine / Author Journey; Accessibility / Hotkeys / Large-Font Mode; Settings / Preferences / Workspace Layout; Splash / Startup Experience |
+| 4. Companion And Owner Routing | Companion |
+| 5. Long-Manuscript Intake And Structural Anchors | Import / Export / Google Docs for staged manuscript intake and source preservation; broader interchange remains Program 8 |
+| 6. Signals And Story Intelligence | Timeline / Pacing / Pressure; Relationship Map; Emotion Graph; Continuity; Senses Usage; Overused Words; Cliche Detection; Foreshadow / Payoff; Theme System; Plugin / Rubric System |
+| 7. Creation And Revision | Author Intent / Story Setup; Ideation / Premise Discovery; Draft Generation / Rewrite Loop |
+| 8. Knowledge And Interchange | Binder / Project Library; Lore Cards; Character Cards; Project Index / Search / Retrieval; Series Binder / Cross-Story Linking; Memory Lab; broader Import / Export / Google Docs; File Manager / Asset Pane |
+| 9. Heavy Intelligence, Durability, And Operationalization | Explicit-Content Marker / Send-Package Censor; Local LLM vs Paid API Routing; Model Router / Provider Execution Policy; Budget / Token / Cost Guardrails; Async Job Queue / Task Runner; Snapshots / Backup / Restore / History; Project Persistence / Local Save; Service Health / Offline / Degraded Mode; Diagnostics / Error Visibility / Debug Console; Testing / Harness / Evidence Contract |
 
 Cross-cutting contracts such as Signal Architecture, truth ownership,
 provenance, protected content, approval lifecycle, action handoff, and degraded
@@ -436,7 +534,7 @@ mode constrain every applicable program without becoming extra programs.
 
 ## 8. Efficient Delivery Rhythm
 
-### 8.1 Long Automated Runs And Five Human Gates
+### 8.1 Long Automated Runs And Six Human Gates
 
 Within and across adjacent low-risk workflow slices, the agent may run for
 extended periods through:
@@ -448,20 +546,26 @@ extended periods through:
 5. automated repair and regression batches.
 
 The exact number of automated batches may shrink or grow with risk. Human
-review is consolidated into five gates:
+review is consolidated into six gates:
 
 1. `V2 combined review`: Critique Workbench plus Living Outline.
 2. `V3 shell review`: contextual layout, Focus mode, and Companion bar.
-3. `Intelligence review`: signal posture, Emotion Graph V1, the first useful
-   analyzers, and the first bounded creation or revision workflow.
-4. `High-risk review`: paid or outbound AI, durable memory, background jobs,
+3. `Long-manuscript review`: staged intake, proposed structure, accepted
+   anchors, reopen behavior, and manuscript preservation.
+4. `Intelligence and creation review`: signal posture, Emotion Graph V1, the
+   first useful analyzers, and the first bounded creation or revision workflow.
+5. `High-risk review`: paid or outbound AI, durable memory, background jobs,
    restore-over-current, destructive work, or truth-changing actions. Fresh
    approvals still apply where governing contracts require them.
-5. `Final product review`: installed application and complete author journey
+6. `Final product review`: installed application and complete author journey
    before any later public milestone decision.
 
 If a human gate fails, create a bounded repair batch, rerun automation, and
 repeat the human gate only when the grouped workflow is whole again.
+
+Human Gate 1 is complete as a learning gate. Its mechanical and safety
+boundaries passed, and its required composition findings are routed to
+Programs 3 and 4. Human Gate 2 is the next scheduled author validation.
 
 Human validation is not required between these gates unless work encounters a
 new product choice, owner conflict, destructive boundary, protected-content
@@ -514,6 +618,7 @@ Every deferral needs a named trigger. `Later` by itself is invalid.
 | Third-party plugins | Post-first-party analyzer review | Repeated demand cannot be met through internal rubrics or first-party analyzers |
 | Connectors | Existing Workflow Proof plus Missing Connector Review gate | A complete author workflow demonstrates that a connector is necessary rather than convenient |
 | Branching / what-if architecture | Later structural review | Prototype arrangements cannot satisfy a real author workflow without durable branches |
+| Broader document interchange and Google Docs adapters | Program 8 planning after the Program 5 intake boundary is proven | The proven intake workflow requires an external format or service to complete a real author journey |
 | Research / Deep Research | Remains non-promoted | Jason explicitly reopens product scope and establishes a current owner and workflow |
 | Voice / dictation | Remains excluded | Jason explicitly reopens product scope and defines accessibility and provenance boundaries |
 | Repository cleanup and archive | Separate later cleanup milestone, before public release | The post-V1 product authority map is stable enough that historical material can be classified without losing needed evidence |
@@ -554,21 +659,33 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. reconcile this program into the current roadmap and truth index in one
-   documentation-only batch,
-2. authorize only Critique Workbench Program 1 completion,
-3. run its end-to-end evidence batch,
-4. perform its single human review,
-5. close or repair the complete slice,
-6. prepare the bounded Living Outline Program 2 slice from the existing
-   dossiers and handwritten-note decisions.
+1. commit and push the accepted planning authority as one documentation-only
+   batch,
+2. perform Repository Control Point 0 from the execution-control plan,
+   reconciling the dirty legacy checkout without wholesale merge, reset,
+   clean, or deletion,
+3. complete the open-work, architecture, test-strength, and visual-foundation
+   reviews in Control Point 1,
+4. prepare and execute one bounded Program 3 implementation plan for the
+   Writing Studio shell, plain Living Outline, edge rails, and Command Center
+   critique-result handoff,
+5. complete Program 4's minimal Companion entry and owner-routing slice,
+6. perform Human Gate 2 only when the contextual shell and Companion workflow
+   are whole,
+7. perform Cleanup Wave A and its professionalization checks,
+8. build Program 5 long-manuscript intake and stable structural anchors,
+9. perform Human Gate 3 only when that complete workflow is ready,
+10. begin Program 6 and Emotion Graph V1 using the proven anchors and Command
+    Center home.
 
 No repository cleanup, second provider, automatic routing, background queue,
-durable AI memory, or broad GUI rebuild enters that immediate scope.
+durable AI memory, broad connector work, or unrelated analyzer build enters
+that immediate scope.
 
 ## 13. Approved Author Decisions
 
-Jason approved all three decisions on 2026-08-09:
+Jason approved the first three decisions on 2026-08-09 and the next three on
+2026-08-10:
 
 1. `Living Outline` is the writer-facing name for the existing Outline system
    working bidirectionally with the Writing Surface.
@@ -576,6 +693,15 @@ Jason approved all three decisions on 2026-08-09:
    workflows required before the major V3 product-shell program.
 3. The minimal Companion bar enters with the first V3 shell, results open in
    the Command Center, and conversation memory is not durable by default.
+4. `codex/foundation-audit` is the intended continuing development line after
+   repository reconciliation; the older checkout is retired only after every
+   dirty item is deliberately classified and any valid unique work is carried
+   forward.
+5. Long-manuscript intake and stable structural anchors are proven before
+   Emotion Graph V1.
+6. The visual direction is a restrained professional literary instrument with
+   subtle Black Skies atmosphere, not a dense science-fiction command console
+   and not a generic component-library dashboard.
 
 These decisions freeze direction and sequencing. They do not authorize all
 programs at once. Each next workflow remains separately bounded.

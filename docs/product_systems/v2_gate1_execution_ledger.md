@@ -1,10 +1,10 @@
 # V2 Human Gate 1 Execution Ledger
 
-Status: active implementation evidence ledger  
-Started from: `8fff84434ef138444df45be424cac386ddf5589e`  
-Human validation: deferred until the complete Critique Workbench and Living
-Outline workflow is ready  
-Git control: the author alone stages, commits, and pushes
+- Status: automation and human learning review complete
+- Started from: `8fff84434ef138444df45be424cac386ddf5589e`
+- Human validation: completed on candidate `2b9f707d`; mechanics accepted and
+  composition repair routed to the contextual product shell
+- Git control: the author alone stages, commits, and pushes
 
 ## Governing Outcome
 
@@ -205,3 +205,25 @@ Automation status: passed. Human acceptance status: not yet performed.
 Next action: use `v2_human_gate_1_evidence_receipt.md` for the single combined
 20-minute author review. A failure creates one bounded repair batch, followed by
 automation and one complete-workflow retest rather than tiny manual checks.
+
+### Checkpoint 5 - Human Learning Review And Directional Synthesis
+
+- Jason completed the combined hands-on review after the local and GitHub
+  workflows were green.
+- The persistence, isolation, reopen, advisory, and manuscript-sovereignty
+  boundaries behaved correctly.
+- The review found that the manuscript-unit and Living Outline experiences are
+  mechanically connected but visually and conceptually fragmented.
+- Default shape, status, and link controls expose system vocabulary before the
+  writer needs it.
+- Rich Critique Workbench presentation should move to the Command Center while
+  the Writing Studio retains a minimal contextual request and return path.
+- The required interaction and placement correction is frozen in
+  `author_experience_direction_lock.md`.
+
+Gate result: `LEARNING_COMPLETE_WITH_CONTEXTUAL_SHELL_REPAIR`.
+
+This result does not reopen the V1 baseline or require repeated testing of each
+small correction. The next program may automate the bounded shell and
+composition work, then present the complete shell and Companion workflow at
+Human Gate 2.

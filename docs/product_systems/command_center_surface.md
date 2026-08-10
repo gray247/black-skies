@@ -19,6 +19,12 @@ Define the separate support, planning, inspection, and orchestration workspace t
 
 This surface inherits action and ownership boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `shared_output_vocabulary_contract.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
 
+Current composition and interaction direction is constrained by
+[author_experience_direction_lock.md](author_experience_direction_lock.md),
+including Command Center ownership of rich critique results, import review,
+graphs, comparison, deeper history, and analytics organized into a small
+number of contextual workspaces rather than permanent dashboard tiles.
+
 ## 3. User Problem Solved
 
 The writer needs a place to inspect structure, review support signals, summon tools, and organize narrative work without crowding the main drafting area or turning every writing session into a setup ritual.

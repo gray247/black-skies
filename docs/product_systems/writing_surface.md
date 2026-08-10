@@ -19,6 +19,12 @@ Define the sovereign writer-facing surface where Black Skies writing begins and 
 
 This surface inherits its ownership and approval boundaries from `truth_and_state_ownership_matrix.md`, `surface_to_owner_action_handoff_contract.md`, `ai_lifecycle_and_approval_matrix.md`, `protected_content_permission_matrix.md`, `provenance_state_model.md`, and `degraded_mode_execution_contract.md`.
 
+Current composition and interaction direction is constrained by
+[author_experience_direction_lock.md](author_experience_direction_lock.md),
+including the dominant black writing canvas, plain Living Outline, thin edge
+rails, direct manipulation, minimal Companion entry, and removal of internal
+ontology from the ordinary writing path.
+
 ## 3. User Problem Solved
 
 The writer needs a place to enter prose quickly, continue prose with low friction, and stay inside an uncluttered writing flow without being blocked by planning tools, Story Unit setup, or AI workflow ceremony.
