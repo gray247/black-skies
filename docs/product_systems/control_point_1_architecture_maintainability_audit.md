@@ -2,7 +2,8 @@
 
 ## 1. Status And Execution Identity
 
-- Status: `BATCH CP1-B COMPLETE; AWAITING EVIDENCE COMMIT`
+- Status: `BATCH CP1-B CLOSED; EVIDENCE COMMITTED AND PUSHED`
+- Evidence commit: `fe73293e53086c2d8bc8e4d914add60a92714202`
 - Review date: `2026-08-10`
 - Model: `GPT-5.6 Sol`
 - Reasoning effort: `xhigh`
@@ -298,5 +299,6 @@ It establishes that:
 - no implementation, cleanup, migration, provider, connector, or human visual
   decision has been authorized by this audit.
 
-Next action: perform Batch CP1-C, the read-only test-strength and
-intentional-skip audit, from the exact committed CP1-B evidence baseline.
+Batch CP1-C was performed from this exact committed evidence baseline. Its
+result is recorded in
+[control_point_1_test_strength_audit.md](control_point_1_test_strength_audit.md).

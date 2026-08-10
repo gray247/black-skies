@@ -24,6 +24,7 @@ The inventory includes:
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
 - the current Control Point 1 open-work reconciliation;
+- the current Control Point 1 test-strength audit;
 - the current Repository Control Point 0 reconciliation ledger;
 - the accepted post-V1 master product program;
 - the completed V2 Human Gate 1 execution ledger and evidence receipt;
@@ -62,6 +63,12 @@ The Control Point 1 architecture and maintainability audit records the proven
 foundation strengths, the bounded Program 3 architecture seams, the Feedback
 Note concurrency prerequisite, and the legacy work deliberately reserved for
 later cleanup waves. It authorizes no runtime refactor or migration by itself.
+
+The Control Point 1 test-strength audit records the strong V1 behavioral and
+exact-candidate evidence, the truthful-denominator repair, the bounded Program
+3 evidence matrix, the layered visual assertion strategy, and the exact later
+homes for long-manuscript, provider, service, Emotion Graph, and legacy test
+work. It authorizes no test or runtime mutation by itself.
 
 The Repository Control Point 0 ledger is current evidence for legacy dirty
 state, worktree classification, recoverable snapshots, and the proposed

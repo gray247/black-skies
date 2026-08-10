@@ -84,16 +84,24 @@ It does not finalize the entire product vision.
 - Control Point 1 is active. Its open-work reconciliation is recorded in
   `control_point_1_open_work_reconciliation.md`: old phase queues remain
   historical, current deferrals and skips have exact owners and triggers, and
-  architecture and test-strength audits precede the human-approved Visual
-  Design Foundation.
+  the completed architecture and test-strength audits precede the
+  human-approved Visual Design Foundation.
 - The Control Point 1 architecture and maintainability audit is recorded in
   `control_point_1_architecture_maintainability_audit.md`. It preserves the V1
   Project Session, Project Spine, recovery, critique-lifecycle, role-scoped
   bridge, and optional-sidecar foundations; bounds the Program 3 work to
   explicit surface-host, renderer-view, Review-projection, preload/typecheck,
   styling, presentation-state, and Feedback Note concurrency seams; and keeps
-  legacy consolidation and deletion in the approved cleanup waves. The
-  test-strength audit is next.
+  legacy consolidation and deletion in the approved cleanup waves.
+- The Control Point 1 test-strength audit is recorded in
+  `control_point_1_test_strength_audit.md`. It preserves the strong V1
+  behavioral, deterministic, package, and installed evidence; requires a
+  truthful denominator for the supported-core coverage receipt; assigns seven
+  bounded Program 3 changed-boundary evidence families; resolves the visual
+  skip through an approved layered strategy; and keeps long-manuscript,
+  Emotion Graph, provider, service, and legacy evidence at their named later
+  programs. The Visual Design Foundation is next and requires the documented
+  model-change warning and Jason's approval.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.
@@ -475,12 +483,13 @@ thread:
 4. [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
 5. [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
 6. [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
-7. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-8. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
-9. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-10. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-11. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-12. the current active workflow dossier, when a workflow is authorized.
+7. [control_point_1_test_strength_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_test_strength_audit.md)
+8. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+9. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+10. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+11. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+12. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+13. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -514,6 +523,7 @@ Current canonical repo-tracked sources include:
 - [current_open_work_register.md](/C:/Dev/black-skies/docs/product_systems/current_open_work_register.md)
 - [control_point_1_open_work_reconciliation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_open_work_reconciliation.md)
 - [control_point_1_architecture_maintainability_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_architecture_maintainability_audit.md)
+- [control_point_1_test_strength_audit.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_test_strength_audit.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)

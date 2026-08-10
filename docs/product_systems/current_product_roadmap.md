@@ -23,6 +23,11 @@ Current status:
   next product program, but Repository Control Points 0 and 1 must reconcile
   the dirty legacy checkout, open work, architecture, test strength, and visual
   foundation before Program 3 implementation begins
+- Repository Control Point 0 is closed on `codex/foundation-audit`; Control
+  Point 1 open-work, architecture, and test-strength batches are complete. The
+  Visual Design Foundation is the next control-point batch and requires the
+  documented model-change warning plus Jason's approval before it becomes
+  Program 3 design authority
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates
