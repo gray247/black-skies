@@ -6,6 +6,7 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
+  openWritingStudioRail,
   removeTemporaryDirectory,
   requestWritingStudioClose,
   waitForCleanElectronApplicationExit,
@@ -65,6 +66,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     }, parent);
 
     const openingProse = `${'Rain marked the station glass while Mara waited beneath a clock that had stopped before midnight. '.repeat(5)}End.`;
+    await openWritingStudioRail(writing, 'manuscript tools');
     await writing.getByRole('button', { name: /^01 Opening Signal$/ }).click();
     const openingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' });
     await openingEditor.fill(openingProse);
@@ -109,6 +111,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: /^01 Opening Signal$/ }).click();
     await openingEditor.focus();
     await writing.keyboard.press('Control+A');
+    await openWritingStudioRail(writing, 'writing support');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await expect(writing.getByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
     await writing.getByLabel('OpenAI API key (session only; no readback)').fill('synthetic-session-credential-123456');
@@ -153,9 +156,11 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       if (!opened.ok) throw new Error(opened.error.message);
     }, created.projectPath);
     await expect(reopened.writing.getByRole('heading', { name: 'Gate One Project' })).toBeVisible();
+    await openWritingStudioRail(reopened.writing, 'manuscript tools');
     await expect(reopened.writing.getByRole('button', { name: /Bridge into the impossible arrival.*gap.*proposed/i })).toBeVisible();
     await reopened.writing.getByRole('button', { name: /Opening question.*fragment.*authored/i }).click();
     await expect(reopened.writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' })).toContainText(openingProse);
+    await openWritingStudioRail(reopened.writing, 'writing support');
     await reopened.writing.getByRole('button', { name: 'Open Feedback Notes (1)' }).click();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toBeVisible();
 
@@ -166,6 +171,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       if (!isolated.ok) throw new Error(isolated.error.message);
     }, parent);
     await expect(reopened.writing.getByRole('heading', { name: 'Isolated Empty Project' })).toBeVisible();
+    await openWritingStudioRail(reopened.writing, 'manuscript tools');
     await expect(reopened.writing.getByRole('region', { name: 'Living Outline' }).getByText('0', { exact: true })).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
 

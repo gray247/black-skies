@@ -34,6 +34,8 @@ export interface MarkdownExportNotice {
   readonly message: string;
 }
 
+export type Stage19WritingRail = 'top' | 'left' | 'right' | 'bottom';
+
 export interface Stage19WritingSpineViewModel {
   readonly phase: Stage19ViewPhase;
   readonly windowRole: ProjectSpineWindowRole;
@@ -54,6 +56,7 @@ export interface Stage19WritingSpineViewModel {
   readonly markdownExportRequiresSave: boolean;
   readonly markdownExportNotice: MarkdownExportNotice | null;
   readonly focusMode: boolean;
+  readonly openWritingRail: Stage19WritingRail | null;
   readonly recoveryDecisionUnitId: string | null;
   readonly projectTitle: string;
   readonly reviewPaneOpen: boolean;
@@ -102,6 +105,8 @@ export interface Stage19WritingSpineViewActions {
   readonly openCommandInSecondaryWindow: () => MaybeAsync;
   readonly exportMarkdown: () => MaybeAsync;
   readonly toggleFocusMode: () => void;
+  readonly toggleWritingRail: (rail: Stage19WritingRail) => void;
+  readonly closeWritingRail: (rail: Stage19WritingRail) => void;
   readonly submitRecoveryDecision: (
     candidate: ProjectSpineRecoveryCandidateProjection,
     decision: 'accept' | 'reject',
@@ -667,7 +672,6 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
               ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
             />
           </div>
-          <SelectedProseCritiqueView {...props} />
         </>
       ) : (
         <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>
@@ -728,12 +732,145 @@ function CritiqueReviewPaneView({ model, actions }: Stage19WritingSpineViewProps
   );
 }
 
-function WelcomeView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+const WRITING_RAIL_LABELS: Record<Stage19WritingRail, {
+  readonly shortLabel: string;
+  readonly accessibleLabel: string;
+}> = {
+  top: { shortLabel: 'Project', accessibleLabel: 'project tools' },
+  left: { shortLabel: 'Manuscript', accessibleLabel: 'manuscript tools' },
+  right: { shortLabel: 'Review', accessibleLabel: 'writing support' },
+  bottom: { shortLabel: 'Session', accessibleLabel: 'session tools' },
+};
+
+function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
+  if (model.focusMode) return null;
+  return (
+    <nav className="stage19-writing-shell__edge-controls" aria-label="Writing Studio edge controls">
+      {(Object.keys(WRITING_RAIL_LABELS) as Stage19WritingRail[]).map((rail) => {
+        const label = WRITING_RAIL_LABELS[rail];
+        const open = model.openWritingRail === rail;
+        return (
+          <button
+            key={rail}
+            id={`stage19-writing-edge-${rail}`}
+            type="button"
+            className={`stage19-writing-shell__edge stage19-writing-shell__edge--${rail}`}
+            aria-label={`${open ? 'Close' : 'Open'} ${label.accessibleLabel}`}
+            aria-expanded={open}
+            aria-controls={`stage19-writing-rail-${rail}`}
+            onClick={() => actions.toggleWritingRail(rail)}
+          >
+            <span className="stage19-writing-shell__edge-mark" aria-hidden="true" />
+            <span className="stage19-writing-shell__edge-label">{label.shortLabel}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function WritingRailHeading({
+  rail,
+  title,
+  actions,
+}: {
+  readonly rail: Stage19WritingRail;
+  readonly title: string;
+  readonly actions: Stage19WritingSpineViewActions;
+}): JSX.Element {
+  return (
+    <div className="stage19-writing-shell__rail-heading">
+      <h2>{title}</h2>
+      <button type="button" onClick={() => actions.closeWritingRail(rail)}>
+        Close
+      </button>
+    </div>
+  );
+}
+
+function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
+  const { model, actions } = props;
+  return (
+    <section
+      id="stage19-writing-rail-top"
+      className="stage19-writing-shell__rail stage19-writing-shell__rail--top"
+      aria-label="Project tools"
+    >
+      <WritingRailHeading rail="top" title="Project tools" actions={actions} />
+      <ProjectLifecycleView {...props} />
+      {model.snapshot.project ? (
+        <div className="stage19-writing-shell__project-tools">
+          <button
+            type="button"
+            onClick={() => void actions.exportMarkdown()}
+            disabled={!model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown}
+          >
+            {model.exportingMarkdown ? 'Exporting...' : 'Export Markdown...'}
+          </button>
+          <p>Export follows the saved manuscript order and never includes unsaved prose.</p>
+        </div>
+      ) : null}
+      {model.markdownExportRequiresSave ? <p className="stage19-spine__export-remedy" role="status">Save the project successfully before exporting.</p> : null}
+      {model.markdownExportNotice ? (
+        <p className={`stage19-spine__export-notice stage19-spine__export-notice--${model.markdownExportNotice.tone}`} role={model.markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}>
+          <strong>Markdown export for {model.markdownExportNotice.projectTitle}</strong>{' - '}{model.markdownExportNotice.message}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element {
+  return (
+    <aside
+      id="stage19-writing-rail-right"
+      className="stage19-writing-shell__rail stage19-writing-shell__rail--right"
+      aria-label="Writing support"
+    >
+      <WritingRailHeading rail="right" title="Writing support" actions={props.actions} />
+      <SelectedProseCritiqueView {...props} />
+      <CritiqueReviewPaneView {...props} />
+    </aside>
+  );
+}
+
+function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const { activeUnit, snapshot } = model;
+  return (
+    <section
+      id="stage19-writing-rail-bottom"
+      className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
+      aria-label="Writing session tools"
+    >
+      <WritingRailHeading rail="bottom" title="Writing session" actions={actions} />
+      <div className="stage19-writing-shell__session-summary">
+        <p><strong>Current writing</strong><span>{activeUnit?.displayTitle ?? 'No manuscript unit selected'}</span></p>
+        <p><strong>Save state</strong><span>{model.writingSaveSummary}</span></p>
+        {activeUnit ? (
+          <button
+            type="button"
+            onClick={() => void actions.saveUnit(activeUnit.id)}
+            disabled={model.recoveryBlocksEditing || !model.activeDirty || snapshot.saveState.status === 'saving'}
+          >
+            {snapshot.saveState.status === 'saving' ? 'Saving...' : 'Save current writing'}
+          </button>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function WelcomeView({
+  model,
+  actions,
+  showProjectLifecycle = true,
+}: Stage19WritingSpineViewProps & { readonly showProjectLifecycle?: boolean }): JSX.Element {
   return (
     <div className="stage19-spine__welcome-grid">
       <section className="stage19-spine__empty-state">
         <h2>No active project</h2>
-        <p>Projects are isolated local folders with durable identity and versioned metadata.</p>
+        <p>Open a project or begin a new local manuscript. You can start writing before building an outline.</p>
+        {showProjectLifecycle ? <ProjectLifecycleView model={model} actions={actions} /> : null}
       </section>
       <section className="stage19-spine__card">
         <h2>Recent projects</h2>
@@ -756,43 +893,57 @@ function WelcomeView({ model, actions }: Stage19WritingSpineViewProps): JSX.Elem
 
 function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
-  const { snapshot } = model;
+  const { activeUnit, snapshot } = model;
+  const supportOpen = !model.focusMode && model.openWritingRail !== null;
   return (
-    <main className="stage19-spine stage19-spine--writing" data-stage19-role={model.logicalSurface === 'writing' ? 'writing' : undefined} data-primary-scroll-container="true" role="region" aria-label="Writing Studio">
-      <header className="stage19-spine__header">
-        <div>
-          <span className="stage19-spine__eyebrow">Writing Studio</span>
-          <h1>{snapshot.project?.title ?? 'Your local writing workspace'}</h1>
-          <p>{snapshot.project ? `Project identity: ${snapshot.project.projectId}` : 'Create or open an isolated local project to begin.'}</p>
+    <main
+      className={`stage19-spine stage19-spine--writing ${model.focusMode ? 'is-focus-mode' : ''}`}
+      data-stage19-role={model.logicalSurface === 'writing' ? 'writing' : undefined}
+      data-stage19-writing-rail={model.focusMode ? 'focus' : model.openWritingRail ?? 'closed'}
+      data-primary-scroll-container="true"
+      role="region"
+      aria-label="Writing Studio"
+    >
+      <div className="stage19-writing-shell">
+      <header className="stage19-writing-shell__topbar">
+        <div className="stage19-writing-shell__identity">
+          {!model.focusMode ? <span className="stage19-writing-shell__brand">Black Skies</span> : null}
+          <h1 className="stage19-writing-shell__project">{snapshot.project?.title ?? 'Writing Studio'}</h1>
+          {activeUnit ? <span className="stage19-writing-shell__location">{activeUnit.displayTitle}</span> : null}
         </div>
-        <div className="stage19-spine__project-actions">
+        <div className="stage19-writing-shell__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">{model.writingSaveSummary}</span>
-          <button type="button" onClick={() => void actions.exportMarkdown()} disabled={!snapshot.project || !model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown}>
-            {model.exportingMarkdown ? 'Exporting…' : 'Export Markdown…'}
-          </button>
-          <button type="button" aria-pressed={model.focusMode} onClick={actions.toggleFocusMode}>
+          {!model.focusMode ? <SurfaceControlsView {...props} /> : null}
+          <button type="button" className="stage19-writing-shell__focus" aria-pressed={model.focusMode} onClick={actions.toggleFocusMode}>
             {model.focusMode ? 'Exit Focus mode' : 'Enter Focus mode'}
           </button>
-          <SurfaceControlsView {...props} />
         </div>
       </header>
-      {model.markdownExportRequiresSave ? <p className="stage19-spine__export-remedy" role="status">Save the project successfully before exporting.</p> : null}
-      {model.markdownExportNotice ? (
-        <p className={`stage19-spine__export-notice stage19-spine__export-notice--${model.markdownExportNotice.tone}`} role={model.markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}>
-          <strong>Markdown export for {model.markdownExportNotice.projectTitle}</strong>{' — '}{model.markdownExportNotice.message}
-        </p>
-      ) : null}
       {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
-      <RecoveryStateView {...props} />
-      <ProjectLifecycleView {...props} />
-      {snapshot.project ? (
-        <div className={`stage19-spine__writing-grid ${model.reviewPaneOpen && !model.focusMode ? 'is-review-open' : ''} ${model.focusMode ? 'is-focus-mode' : ''}`}>
-          <ManuscriptBinderView {...props} />
-          <ManuscriptCanvasView {...props} />
-          <CritiqueReviewPaneView {...props} />
+      <WritingEdgeControlsView {...props} />
+      {!model.focusMode && model.openWritingRail === 'top' ? <WritingTopRailView {...props} /> : null}
+      <div className={`stage19-writing-shell__workspace ${supportOpen ? 'has-support' : ''}`}>
+        {!model.focusMode && model.openWritingRail === 'left' ? (
+          <section
+            id="stage19-writing-rail-left"
+            className="stage19-writing-shell__rail stage19-writing-shell__rail--left"
+            aria-label="Manuscript tools"
+          >
+            <WritingRailHeading rail="left" title="Manuscript" actions={actions} />
+            <ManuscriptBinderView {...props} />
+          </section>
+        ) : null}
+        <div className="stage19-writing-shell__canvas">
+          <RecoveryStateView {...props} />
+          {snapshot.project
+            ? <ManuscriptCanvasView {...props} />
+            : <WelcomeView {...props} showProjectLifecycle={model.openWritingRail !== 'top'} />}
         </div>
-      ) : <WelcomeView {...props} />}
+        {!model.focusMode && model.openWritingRail === 'right' ? <WritingRightRailView {...props} /> : null}
+      </div>
+      {!model.focusMode && model.openWritingRail === 'bottom' ? <WritingBottomRailView {...props} /> : null}
       {model.overlays}
+      </div>
     </main>
   );
 }

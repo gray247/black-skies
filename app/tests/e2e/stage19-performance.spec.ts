@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { expect, test } from './_electron.fixture';
 import {
   getStage19Windows,
+  openWritingStudioRail,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
 
@@ -40,6 +41,7 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
       return performance.now() - startedAt;
     }, parent);
 
+    await openWritingStudioRail(writing, 'manuscript tools');
     const binderButtons = writing
       .getByRole('complementary', { name: 'Manuscript binder and Living Outline' })
       .locator('.stage19-spine__unit-list button');

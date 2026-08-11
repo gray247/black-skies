@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { expect, markElectronApplicationExitedCleanly, test } from './_electron.fixture';
 import {
   getStage19Windows,
+  openWritingStudioRail,
   removeTemporaryDirectory,
   requestWritingStudioClose,
   waitForCleanElectronApplicationExit,
@@ -68,9 +69,11 @@ test('selected-prose critique is Writing-Studio-only, preview-bound, optional, a
     const prose = `${'Rain marked the station glass while Mara waited beneath a clock that had stopped before midnight. '.repeat(5)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Preview passage' });
     await editor.fill(prose);
+    await openWritingStudioRail(writing, 'manuscript tools');
     await expect(writing.getByRole('button', { name: 'Preview passage Unsaved' })).toBeVisible();
     await editor.focus();
     await writing.keyboard.press('Control+A');
+    await openWritingStudioRail(writing, 'writing support');
     const review = writing.getByRole('button', { name: 'Review outbound critique request' });
     await expect(review).toBeEnabled();
     await review.click();

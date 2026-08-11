@@ -21,4 +21,21 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     );
     expect(css).not.toMatch(/\.stage19-spine__command-grid[\s\S]{0,300}max-width:\s*24rem/);
   });
+
+  it('locks the scoped P3-D literary canvas, responsive rails, and reduced-motion behavior', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const marker = '/* Program 3 / P3-D: scoped literary Writing Studio shell. */';
+    const p3d = css.slice(css.indexOf(marker));
+
+    expect(p3d).toContain('--bs-canvas-black: #000000;');
+    expect(p3d).toContain('--bs-text-primary: #e9e6df;');
+    expect(p3d).toContain('--bs-accent-primary: #8e7cc3;');
+    expect(p3d).toMatch(/\.stage19-spine--writing[\s\S]*?background:\s*var\(--bs-canvas-black\);/);
+    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-scroller[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;/);
+    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*74ch;/);
+    expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)/);
+    expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
+    expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
+    expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
+  });
 });

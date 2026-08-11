@@ -8,6 +8,7 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
+  openWritingStudioRail,
   readDurableDraftByTitle,
   recoveryArtifactPath,
   removeTemporaryDirectory,
@@ -88,6 +89,7 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 }
 
 async function saveCurrentUnit(writing: Page, title: string, prose?: string): Promise<void> {
+  await openWritingStudioRail(writing, 'manuscript tools');
   await writing.getByRole('button', { name: new RegExp(title) }).click();
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
   await writing.getByRole('button', { name: /^Save$/ }).click();

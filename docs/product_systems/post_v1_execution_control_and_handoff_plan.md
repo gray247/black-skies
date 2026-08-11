@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A AND P3-B DURABLE; P3-C IMPLEMENTATION AND AUTOMATION GREEN`
-- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-C BATCH, THEN BEGIN PROGRAM 3 BATCH P3-D`
+- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-C DURABLE; P3-D IMPLEMENTATION AND AUTOMATION GREEN`
+- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-D BATCH, THEN BEGIN PROGRAM 3 BATCH P3-E`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -630,9 +630,9 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. Jason reviews, stages, commits, and pushes the exact green P3-C
+1. Jason reviews, stages, commits, and pushes the exact green P3-D
    implementation and evidence batch.
-2. Begin Program 3 Batch P3-D from that exact pushed baseline using `GPT-5.6
+2. Begin Program 3 Batch P3-E from that exact pushed baseline using `GPT-5.6
    Sol` with `xhigh` reasoning.
 3. Continue through the remaining Program 3 automated batches using the plan's
    changed-boundary gates and per-batch Git checkpoints.

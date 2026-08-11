@@ -38,6 +38,22 @@ export interface LaunchedStage19Application {
   readonly runtimeDirectory: string;
 }
 
+export type WritingStudioRailLabel =
+  | 'project tools'
+  | 'manuscript tools'
+  | 'writing support'
+  | 'session tools';
+
+export async function openWritingStudioRail(
+  writing: Page,
+  label: WritingStudioRailLabel,
+): Promise<void> {
+  const closeControl = writing.getByRole('button', { name: `Close ${label}` });
+  if (await closeControl.count()) return;
+  await writing.getByRole('button', { name: `Open ${label}` }).click();
+  await expect(closeControl).toBeVisible();
+}
+
 const RECOVERY_ARTIFACT_RELATIVE_PATH = join('recovery', 'project-spine-recovery-v1.json');
 const POLL_INTERVAL_MS = 100;
 

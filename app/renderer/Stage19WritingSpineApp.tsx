@@ -34,6 +34,7 @@ import type {
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
   type MarkdownExportNotice,
+  type Stage19WritingRail,
   type Stage19WritingSpineViewActions,
   type Stage19WritingSpineViewModel,
 } from './Stage19WritingSpineView';
@@ -506,6 +507,7 @@ export default function Stage19WritingSpineApp({
   const [feedbackNoteNotice, setFeedbackNoteNotice] = useState<string | null>(null);
   const [savedFeedbackNotes, setSavedFeedbackNotes] = useState<readonly FeedbackNote[]>([]);
   const [focusMode, setFocusMode] = useState(false);
+  const [openWritingRail, setOpenWritingRail] = useState<Stage19WritingRail | null>(null);
   const [livingOutline, setLivingOutline] = useState<LivingOutlineSnapshotV1 | null>(null);
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
@@ -799,6 +801,7 @@ export default function Stage19WritingSpineApp({
         setAiResult(state.result);
         setAiResultStale(false);
         setReviewPaneOpen(true);
+        setOpenWritingRail('right');
         setFeedbackNoteBody('');
         setFeedbackNoteNotice(null);
       }
@@ -1919,6 +1922,7 @@ export default function Stage19WritingSpineApp({
     markdownExportRequiresSave,
     markdownExportNotice,
     focusMode,
+    openWritingRail,
     recoveryDecisionUnitId,
     projectTitle,
     reviewPaneOpen,
@@ -1970,6 +1974,13 @@ export default function Stage19WritingSpineApp({
     openCommandInSecondaryWindow: () => activateSurface('command', 'secondary-window'),
     exportMarkdown: handleExportMarkdown,
     toggleFocusMode: () => setFocusMode((current) => !current),
+    toggleWritingRail: (rail) => setOpenWritingRail((current) => current === rail ? null : rail),
+    closeWritingRail: (rail) => {
+      setOpenWritingRail(null);
+      window.requestAnimationFrame(() => {
+        document.getElementById(`stage19-writing-edge-${rail}`)?.focus();
+      });
+    },
     submitRecoveryDecision,
     openProject: handleOpenProject,
     setProjectTitle,
@@ -2002,7 +2013,10 @@ export default function Stage19WritingSpineApp({
     approveAiCritique,
     stopWaitingForAi,
     dismissAiCritique,
-    openReviewPane: () => setReviewPaneOpen(true),
+    openReviewPane: () => {
+      setReviewPaneOpen(true);
+      setOpenWritingRail('right');
+    },
     closeReviewPane: () => setReviewPaneOpen(false),
     copyAiResult,
     setFeedbackNoteBody,

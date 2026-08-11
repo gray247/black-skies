@@ -14,6 +14,7 @@ const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const unitFiles = [
   "renderer/__tests__/Stage19WritingSpineApp.test.tsx",
+  "renderer/__tests__/Stage19WritingSpineLayout.test.ts",
   "renderer/__tests__/stage19WritingSpineController.test.ts",
   "renderer/__tests__/DraftEditor.test.tsx",
   "renderer/__tests__/splitCommandShellState.test.ts",
@@ -60,6 +61,7 @@ const electronFiles = [
   "tests/e2e/stage19-ai-critique.spec.ts",
   "tests/e2e/stage19-gate1-workflows.spec.ts",
   "tests/e2e/stage19-surface-host.spec.ts",
+  "tests/e2e/stage19-writing-shell.spec.ts",
   "tests/e2e/stage19-accessibility.spec.ts",
   "tests/e2e/stage19-performance.spec.ts"
 ];
