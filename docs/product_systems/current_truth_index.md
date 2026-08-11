@@ -91,10 +91,12 @@ It does not finalize the entire product vision.
   author-requested optional secondary window without comparing this topology
   to V1. Its first clean hosted run passed regression and packaging, then
   exposed a measurement handle being read after teardown; that bounded harness
-  defect is repaired and directly covered locally. It awaits Jason's exact Git
-  checkpoint before repeated combined package/install qualification. Human
-  Gate 2 remains the next human validation after that exact candidate is
-  complete.
+  defect is repaired and directly covered locally. Its second clean hosted run
+  confirmed that repair, then exposed a missing visibility fact in the
+  post-request runtime record; that bounded harness defect is likewise repaired
+  and directly covered locally. It awaits Jason's exact Git checkpoint before
+  repeated combined package/install qualification. Human Gate 2 remains the
+  next human validation after that exact candidate is complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

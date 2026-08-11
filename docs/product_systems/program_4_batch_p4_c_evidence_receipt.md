@@ -95,6 +95,14 @@ that ordering, alongside the existing topology and receipt-validator tests.
 The clean hosted package/install run remains required after this narrow repair
 is committed.
 
+The second clean hosted run passed regression and packaging again and confirmed
+the teardown-order repair. It then found that the post-request runtime window
+record did not carry each window's visibility state, even though the verifier
+correctly required that state. The record now includes the native visibility
+fact and the direct measurement test asserts both post-request visible windows.
+This closes the currently identified measurement-field omission; the exact
+hosted lifecycle remains required after this repair is committed.
+
 ## Delivered Qualification Boundary
 
 P4-C adds a built-Electron route witness for the complete first Companion

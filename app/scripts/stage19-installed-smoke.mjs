@@ -316,6 +316,7 @@ async function runtimeTruth(
       executablePath: app.getPath("exe"),
       windows: await Promise.all(
         windows.map(async (window) => ({
+          visible: window.isVisible(),
           role: await window.webContents.executeJavaScript(
             "document.querySelector('[data-stage19-role=\"writing\"]') ? 'writing' : document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'unknown'"
           ),

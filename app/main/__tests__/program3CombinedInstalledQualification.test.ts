@@ -95,6 +95,7 @@ describe('Program 3/4 installed qualification', () => {
       canonicalVisibleWindowCount: 1,
       canonicalSandboxedWindowCount: 1,
       postOptionalWindowCount: 2,
+      postOptionalVisibleWindowCount: 2,
       postOptionalSandboxedWindowCount: 2,
       currentWindowTransitionMs: 90,
       optionalSecondaryTransitionMs: 180,

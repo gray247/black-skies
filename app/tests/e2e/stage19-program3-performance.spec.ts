@@ -83,6 +83,10 @@ test('Program 3 logical surfaces satisfy the versioned development topology prot
   const secondary = electronApp.windows().find((candidate) => candidate !== page);
   if (!secondary) throw new Error('Program 3 optional secondary Command window did not open.');
   await expect(secondary.locator('[data-stage19-role="command"]')).toBeVisible();
+  const optionalSecondaryVisibleWindowCount = await electronApp.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows().filter((window) => !window.isDestroyed() && window.isVisible()).length,
+  );
+  expect(optionalSecondaryVisibleWindowCount).toBe(2);
   const secondaryTransitionMs = Date.now() - secondaryStartedAt;
   expect(secondaryTransitionMs)
     .toBeLessThan(protocol.developmentHarness.maximumSurfaceTransitionMs);
@@ -97,6 +101,7 @@ test('Program 3 logical surfaces satisfy the versioned development topology prot
     steadyWorkingSetBytes: initial.workingSetBytes,
     currentWindowTransitionMs,
     secondaryTransitionMs,
+    optionalSecondaryVisibleWindowCount,
   });
 });
 

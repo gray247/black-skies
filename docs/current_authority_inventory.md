@@ -98,8 +98,10 @@ historical and separately qualifies the approved Writing-first startup,
 current-window Command transition, and author-requested optional secondary
 window. Its first clean hosted run passed regression and packaging before a
 post-teardown measurement-handle defect stopped the installed lifecycle; the
-directly covered local repair is ready for Jason's P4-C checkpoint before the
-repeated exact package and installed-lifecycle work.
+second clean hosted run confirmed that repair and exposed a missing visibility
+fact in the post-request runtime record. Both directly covered local repairs
+are ready for Jason's P4-C checkpoint before the repeated exact package and
+installed-lifecycle work.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,
