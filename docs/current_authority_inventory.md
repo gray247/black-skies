@@ -23,6 +23,8 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
+- the prepared, bounded Program 4 Minimal Companion and Owner Routing
+  implementation plan;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -63,10 +65,15 @@ The approved Program 3 implementation plan converts the approved Control Point
 1 architecture, testing, and design boundaries into seven automated shell
 batches, a Program 4 handoff, and one later Human Gate 2. Jason approved the
 plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
-`xhigh` reasoning on 2026-08-10. The authorization baseline and P3-A through
-P3-F are durable. P3-G implementation and automation are green and await
-Jason's exact commit and push. Every stated exclusion, truth boundary, batch
-gate, Git control, and Human Gate 2 boundary remains in force.
+`xhigh` reasoning on 2026-08-10. Program 3 is durably closed at
+`9ff07369670d8380e03df3fa6d3aca2e83b338f4`. Every stated exclusion, truth
+boundary, batch gate, Git control, and Human Gate 2 boundary remains in force.
+
+The Program 4 plan confines the first Companion slice to a temporary,
+local orientation route from a quiet bottom Writing Studio entry into the
+existing Command task canvas. It awaits Jason's explicit runtime authorization.
+It does not authorize generic chat, provider calls, durable memory, automatic
+owner routing, or any project mutation.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,
@@ -108,7 +115,7 @@ presentation-state and changed-shell accessibility matrix, targeted Windows
 visual references, the versioned logical-surface performance protocol, full
 application and fixed-regression evidence, retained deferrals, and the exact
 Program 4 handoff. P3-G implementation and automation are complete; durable
-Program 3 closure requires Jason's commit and push of the exact batch.
+Program 3 is durably closed at `9ff07369670d8380e03df3fa6d3aca2e83b338f4`.
 
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,
