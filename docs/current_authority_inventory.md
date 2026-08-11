@@ -25,6 +25,7 @@ The inventory includes:
   Shell implementation plan;
 - the prepared, bounded Program 4 Minimal Companion and Owner Routing
   implementation plan;
+- the current Program 4 Batch P4-A evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -74,6 +75,11 @@ local orientation route from a quiet bottom Writing Studio entry into the
 existing Command task canvas. It awaits Jason's explicit runtime authorization.
 It does not authorize generic chat, provider calls, durable memory, automatic
 owner routing, or any project mutation.
+
+The Program 4 P4-A receipt records the deterministic, local orientation
+contract and its no-prose/no-provider/no-mutation evidence. Its implementation
+and automation are green; it becomes durable only after Jason commits and
+pushes the exact batch.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

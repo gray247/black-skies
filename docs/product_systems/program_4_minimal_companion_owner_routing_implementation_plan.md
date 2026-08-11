@@ -2,11 +2,11 @@
 
 ## 1. Status And Authority
 
-- Status: `PREPARED; AWAITING JASON'S RUNTIME AUTHORIZATION`
+- Status: `APPROVED; P4-A IMPLEMENTATION AND AUTOMATION GREEN; AWAITING JASON'S GIT CHECKPOINT`
 - Prepared: `2026-08-11`
 - Planning and implementation model: `GPT-5.6 Terra`
 - Planning and implementation reasoning effort: `high`
-- Exact planning baseline: `9ff07369670d8380e03df3fa6d3aca2e83b338f4`
+- Exact planning baseline: `294274e8e4a31398d064b23b0adf57cac62f3479`
 - Branch: `codex/foundation-audit`
 - Git authority: `Jason alone stages, commits, and pushes`
 - Intended human boundary: `Human Gate 2 only after the complete Program 3 plus Program 4 candidate is qualified`
@@ -23,9 +23,9 @@ non-ownership rules. It is constrained by:
 - [Workflow Proof WP-05](workflow_proof_WP-05_companion_reentry_nonownership.md); and
 - [Current Open Work Register](current_open_work_register.md).
 
-No runtime work begins until Jason approves this exact bounded plan. Approval
-does not authorize a generic chat system, a second AI provider, durable AI
-memory, automatic routing, or any owner mutation.
+Jason approved this exact bounded plan and authorized its implementation on
+2026-08-11. Approval does not authorize a generic chat system, a second AI
+provider, durable AI memory, automatic routing, or any owner mutation.
 
 ## 2. Outcome
 
@@ -224,6 +224,10 @@ Exit:
 - a stable local, non-AI route exists;
 - it has no durable or mutation capability; and
 - the view batch can consume a small explicit state instead of ad-hoc strings.
+
+P4-A implementation and automation are green. Evidence is recorded in
+[Program 4 Batch P4-A Evidence Receipt](program_4_batch_p4_a_evidence_receipt.md).
+The batch becomes durable after Jason commits and pushes its exact file set.
 
 ### P4-B — Writing entry and Command task-canvas result
 

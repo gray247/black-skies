@@ -76,9 +76,11 @@ It does not finalize the entire product vision.
   exact P3-G commit and push makes Program 3 durably complete and Program 4
   next. The bounded Program 4 implementation plan now defines one local
   orientation route through a quiet Companion entry and the existing Command
-  task canvas; runtime work awaits Jason's explicit approval. Human Gate 2
-  remains the next human validation after that minimal Companion workflow and
-  combined exact package/install candidate are complete.
+  task canvas. Jason approved its bounded implementation on 2026-08-11;
+  P4-A local contract and automation are green and await Jason's exact Git
+  checkpoint before P4-B. Human Gate 2 remains the next human validation after
+  that minimal Companion workflow and combined exact package/install candidate
+  are complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
@@ -530,12 +532,13 @@ thread:
 8. [control_point_1_visual_design_foundation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_visual_design_foundation.md)
 9. [program_3_contextual_product_shell_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_3_contextual_product_shell_implementation_plan.md)
 10. [program_4_minimal_companion_owner_routing_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_4_minimal_companion_owner_routing_implementation_plan.md)
-11. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
-12. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
-13. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
-14. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
-15. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
-16. the current active workflow dossier, when a workflow is authorized.
+11. [program_4_batch_p4_a_evidence_receipt.md](/C:/Dev/black-skies/docs/product_systems/program_4_batch_p4_a_evidence_receipt.md)
+12. [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
+13. [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
+14. [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
+15. [capability_ownership_map.md](/C:/Dev/black-skies/docs/product_systems/capability_ownership_map.md)
+16. [system_interaction_map.md](/C:/Dev/black-skies/docs/product_systems/system_interaction_map.md)
+17. the current active workflow dossier, when a workflow is authorized.
 
 When a campaign is active, its dossier is mandatory reading.
 When no campaign is active, `current_product_roadmap.md` identifies the
@@ -573,6 +576,7 @@ Current canonical repo-tracked sources include:
 - [control_point_1_visual_design_foundation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_visual_design_foundation.md)
 - [program_3_contextual_product_shell_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_3_contextual_product_shell_implementation_plan.md)
 - [program_4_minimal_companion_owner_routing_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_4_minimal_companion_owner_routing_implementation_plan.md)
+- [program_4_batch_p4_a_evidence_receipt.md](/C:/Dev/black-skies/docs/product_systems/program_4_batch_p4_a_evidence_receipt.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)
 - [black_skies_post_v1_master_product_program.md](/C:/Dev/black-skies/docs/product_systems/black_skies_post_v1_master_product_program.md)
