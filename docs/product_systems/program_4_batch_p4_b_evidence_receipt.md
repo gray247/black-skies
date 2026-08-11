@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `IMPLEMENTATION AND AUTOMATION GREEN; AWAITING JASON'S GIT CHECKPOINT`
+- Status: `DURABLY CLOSED`
 - Date: `2026-08-11`
 - Starting commit: `fc759a6847d82531eb4a8939d20a71d90ab423d7`
 - Branch: `codex/foundation-audit`
@@ -79,8 +79,10 @@ The focused checks prove:
 - no legacy Companion overlay, generic chat, new Command workspace, or
   secondary-window state projection.
 
-## Next Step
+## Closure
 
-Jason commits and pushes this exact P4-B batch. P4-C then qualifies the full
-temporary workflow against project reopen, isolation, changed-surface checks,
-and the combined Program 3 plus Program 4 candidate.
+Jason committed and pushed this exact P4-B batch at
+`f6090498a8ea04f011fc30c890af521aa712940e` on `codex/foundation-audit`.
+P4-C is the active batch. It qualifies the full temporary workflow against
+project reopen, isolation, changed-surface checks, and the combined Program 3
+plus Program 4 candidate.

@@ -77,12 +77,13 @@ It does not finalize the entire product vision.
   next. The bounded Program 4 implementation plan now defines one local
   orientation route through a quiet Companion entry and the existing Command
   task canvas. Jason approved its bounded implementation on 2026-08-11.
-  P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`; P4-B adds the
+  P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`; P4-B is
+  durable at `f6090498a8ea04f011fc30c890af521aa712940e` and adds the
   closed-by-default bottom entry and a current-window temporary Command result.
-  Its implementation and automation are green, awaiting Jason's exact Git
-  checkpoint before P4-C. Human Gate 2 remains the next human validation after
-  that minimal Companion workflow and combined exact package/install candidate
-  are complete.
+  P4-C built-Electron temporary-state/reopen evidence and package-safe
+  preflight are green, awaiting Jason's exact Git checkpoint before combined
+  package/install qualification. Human Gate 2 remains the next human
+  validation after that exact candidate is complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `APPROVED; P4-A IMPLEMENTATION AND AUTOMATION GREEN; AWAITING JASON'S GIT CHECKPOINT`
+- Status: `APPROVED; P4-A AND P4-B DURABLE; P4-C PRE-CANDIDATE AUTOMATION GREEN; AWAITING JASON'S P4-C CHECKPOINT`
 - Prepared: `2026-08-11`
 - Planning and implementation model: `GPT-5.6 Terra`
 - Planning and implementation reasoning effort: `high`
@@ -229,9 +229,9 @@ Exit:
 - it has no durable or mutation capability; and
 - the view batch can consume a small explicit state instead of ad-hoc strings.
 
-P4-A implementation and automation are green. Evidence is recorded in
+P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`. Evidence is
+recorded in
 [Program 4 Batch P4-A Evidence Receipt](program_4_batch_p4_a_evidence_receipt.md).
-The batch becomes durable after Jason commits and pushes its exact file set.
 
 ### P4-B — Writing entry and Command task-canvas result
 
@@ -260,9 +260,9 @@ Exit:
 - the author can ask one useful local question and see a truthful answer in
   Command Center without creating a second dashboard or AI system.
 
-P4-B implementation and automation are green. Evidence is recorded in
+P4-B is durable at `f6090498a8ea04f011fc30c890af521aa712940e`. Evidence is
+recorded in
 [Program 4 Batch P4-B Evidence Receipt](program_4_batch_p4_b_evidence_receipt.md).
-The batch becomes durable after Jason commits and pushes its exact file set.
 
 ### P4-C — End-to-end qualification and combined-candidate preparation
 
@@ -289,6 +289,11 @@ Exit:
 - Programs 3 and 4 form one mechanically qualified candidate;
 - all remaining subjective shell-and-Companion evaluation is deliberately
   concentrated at Human Gate 2.
+
+P4-C pre-candidate automation is green. Evidence is recorded in
+[Program 4 Batch P4-C Evidence Receipt](program_4_batch_p4_c_evidence_receipt.md).
+Jason's P4-C checkpoint is required before the exact combined package and
+installed offline lifecycle can run against a stable candidate.
 
 ## 9. Evidence, Deferrals, And Human Gate
 

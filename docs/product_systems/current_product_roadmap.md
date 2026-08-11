@@ -21,9 +21,11 @@ Current status:
   `author_experience_direction_lock.md`
 - Human Gate 1 supplied the required two-workflow synthesis. Repository Control
   Points 0 and 1 are complete, Program 3 is durably closed through P3-G, and
-  Program 4 P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`.
-  Program 4 P4-B implementation and automation are green, awaiting its exact
-  Git checkpoint before P4-C
+  Program 4 P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7` and
+  P4-B is durable at `f6090498a8ea04f011fc30c890af521aa712940e`. P4-C
+  built-Electron temporary-state/reopen and package-safe preflight evidence are
+  green, awaiting its exact Git checkpoint before combined package/install
+  qualification
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

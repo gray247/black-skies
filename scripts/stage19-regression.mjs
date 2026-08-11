@@ -14,6 +14,7 @@ const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const unitFiles = [
   "renderer/__tests__/Stage19WritingSpineApp.test.tsx",
+  "renderer/__tests__/companionOrientation.test.ts",
   "renderer/__tests__/Stage19WritingSpineLayout.test.ts",
   "renderer/__tests__/stage19WritingSpineController.test.ts",
   "renderer/__tests__/DraftEditor.test.tsx",
@@ -68,7 +69,8 @@ const electronFiles = [
   "tests/e2e/stage19-performance.spec.ts",
   "tests/e2e/stage19-program3-performance.spec.ts",
   "tests/e2e/stage19-program3-presentation.spec.ts",
-  "tests/e2e/stage19-program3-visual.spec.ts"
+  "tests/e2e/stage19-program3-visual.spec.ts",
+  "tests/e2e/stage19-companion-orientation.spec.ts"
 ];
 
 function run(command, args, options = {}) {

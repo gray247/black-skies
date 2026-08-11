@@ -25,7 +25,7 @@ The inventory includes:
   Shell implementation plan;
 - the approved, bounded-runtime-authorized Program 4 Minimal Companion and
   Owner Routing implementation plan;
-- the current Program 4 Batch P4-A and P4-B evidence receipts;
+- the current Program 4 Batch P4-A through P4-C evidence receipts;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -83,8 +83,13 @@ contract and its no-prose/no-provider/no-mutation evidence. It is durable at
 The Program 4 P4-B receipt records the closed-by-default bottom entry,
 current-window temporary Command result, safe optional-secondary return,
 return/dismiss discipline, and no-AI/no-mutation evidence. Its implementation
-and automation are green; it becomes durable only after Jason commits and
-pushes the exact batch.
+and automation are durable at
+`f6090498a8ea04f011fc30c890af521aa712940e`.
+
+The Program 4 P4-C receipt records the built-Electron temporary-state and
+project-reopen proof, the relevant Program 3 topology regression group, and
+the pre-candidate package-safe evidence. Its pre-candidate automation is green;
+Jason's P4-C checkpoint precedes exact package and installed-lifecycle work.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,
