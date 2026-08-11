@@ -23,6 +23,7 @@
         "foundation:inventory": "node scripts/verify-foundation-inventory.mjs",
         "foundation:coverage": "python scripts/run_foundation_supported_core_coverage.py",
         "foundation:performance": "node scripts/verify-foundation-performance-budget.mjs",
+        "program3:performance": "node scripts/verify-program3-combined-performance.mjs",
         "stage19:lint": "node ./scripts/run-stage19-eslint.mjs",
         "stage19:regression": "node ./scripts/stage19-regression.mjs"
     },

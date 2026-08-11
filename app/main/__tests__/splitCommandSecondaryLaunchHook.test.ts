@@ -419,6 +419,7 @@ describe('main split command launch hook', () => {
       dirtyUnitIds: [],
     });
     process.env.PLAYWRIGHT = '1';
+    process.env.BLACKSKIES_TEST_AUTOMATIC_SECONDARY = '1';
     delete process.env.VITE_DEV_SERVER_URL;
     delete process.env.ELECTRON_RENDERER_URL;
     delete process.env.BLACKSKIES_FORCE_SERVICES;
@@ -436,6 +437,7 @@ describe('main split command launch hook', () => {
     delete process.env.BLACKSKIES_SERVICES_PORT;
     delete process.env.BLACKSKIES_CONFIG_PATH;
     delete process.env.STAGE19_INTERNAL_STARTUP_PROBE;
+    delete process.env.BLACKSKIES_TEST_AUTOMATIC_SECONDARY;
   });
 
   it('keeps the stable path at one BrowserWindow with no secondary launch', async () => {
@@ -458,6 +460,15 @@ describe('main split command launch hook', () => {
       'Split command mutation ownership classified',
       expect.anything(),
     );
+  });
+
+  it('keeps a dual-display author launch Writing-first until a secondary surface is explicitly requested', async () => {
+    experimentalSplitCommandWorkspace = true;
+    delete process.env.BLACKSKIES_TEST_AUTOMATIC_SECONDARY;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
   });
 
   it('records the qualification-only startup probe when both windows become visible', async () => {

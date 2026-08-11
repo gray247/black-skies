@@ -48,19 +48,10 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
   try {
     await expect(page.locator('[data-stage19-role="writing"]')).toBeVisible();
 
-    const displayCount = await electronApp.evaluate(({ screen }) => screen.getAllDisplays().length);
     await expect.poll(
       () => electronApp.windows().length,
       { timeout: 30_000 },
-    ).toBe(displayCount > 1 ? 2 : 1);
-    if (displayCount > 1) {
-      await findCommandWindow(electronApp, page);
-      await closeOptionalCommandWindow(electronApp);
-      await expect.poll(() => electronApp.windows().length, { timeout: 30_000 }).toBe(1);
-      await expect(page.getByRole('region', { name: 'Command Center' })).toBeVisible();
-      await page.locator('.stage19-spine__surface-actions').getByRole('button', { name: 'Return to Writing Studio' }).click();
-      await expect(page.locator('[data-stage19-role="writing"]')).toBeVisible();
-    }
+    ).toBe(1);
 
     await page.evaluate(async (parentPath) => {
       const bridge = window.projectSpine!;

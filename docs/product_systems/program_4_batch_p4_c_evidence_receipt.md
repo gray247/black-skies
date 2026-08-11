@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `P4-C FOLLOW-UP REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
+- Status: `P4-C COMPREHENSIVE INSTALLED-QUALIFICATION REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
 - Date: `2026-08-11`
 - Starting commit: `f6090498a8ea04f011fc30c890af521aa712940e`
 - Branch: `codex/foundation-audit`
@@ -47,6 +47,38 @@ Stage 19 lint, application type check, and documentation check are green
 locally. The full exact clean-candidate regression, package, and installed
 lifecycle remain required after this repair is committed.
 
+## Installed-Qualification Reconciliation
+
+The repeated hosted installed-lifecycle failure was not a third instance of
+the earlier visual or editor-harness defects. It exposed a qualification
+boundary that still mixed the retained V1 startup topology with the approved
+Program 3 and Program 4 topology:
+
+- the historical V1 reference starts two physical windows; but
+- the current product must start one sandboxed Writing Studio window, use an
+  explicit in-window transition to Command Center when summoned, and create a
+  second physical Command Center window only when the author asks for it.
+
+The repair therefore separates the historical V1 record from the current
+combined-candidate qualification rather than weakening either one. The
+current installed protocol now proves all of the following independently:
+
+1. canonical startup has exactly one Writing Studio window;
+2. the author can move to and return from current-window Command Center;
+3. an explicit request can open the optional second Command Center window;
+4. both final windows retain their narrow, role-specific preload contracts;
+5. no packaged launch can silently enable a second window merely because two
+   displays are connected; and
+6. the combined receipt uses a Program 3 and Program 4 verifier with no V1
+   paired-reference comparison.
+
+The historical V1 two-window performance evidence remains intact for its own
+accepted V1 claim. It is no longer a comparison candidate for this different
+product topology. A focused contract test, the affected Electron paths, and
+the complete dirty-development regression cover the new qualification lane
+locally. The exact hosted package/install lifecycle remains the authority for
+the clean candidate.
+
 ## Delivered Qualification Boundary
 
 P4-C adds a built-Electron route witness for the complete first Companion
@@ -71,6 +103,16 @@ credentials, provider activity, or a human visual judgment.
 - `app/renderer/Stage19WritingSpineView.tsx`
 - `app/renderer/styles/app.css`
 - `scripts/stage19-regression.mjs`
+- `app/scripts/stage19-installed-smoke.mjs`
+- `scripts/stage19-installed-lifecycle.ps1`
+- `scripts/verify-program3-combined-performance.mjs`
+- `app/main/main.ts`
+- `app/main/__tests__/program3CombinedInstalledQualification.test.ts`
+- `app/main/__tests__/splitCommandSecondaryLaunchHook.test.ts`
+- `app/tests/e2e/stage19-electron-support.ts`
+- `app/tests/e2e/stage19-surface-host.spec.ts`
+- `.github/workflows/stage19-packaging.yml`
+- `docs/testing/program3_surface_performance_protocol.json`
 - `docs/product_systems/program_4_batch_p4_b_evidence_receipt.md`
 - `docs/product_systems/program_4_minimal_companion_owner_routing_implementation_plan.md`
 - this receipt and current-authority/register records
@@ -92,14 +134,18 @@ credentials, provider activity, or a human visual judgment.
 | Follow-up P3 visual-reference frame witness | Green locally: 1 journey |
 | Follow-up DraftEditor selection-restore suite | Green locally: 1 file, 8 tests |
 | Follow-up Stage 19 lint | Green |
+| Current Program 3/4 installed-qualification contracts | Green: 34 focused tests |
+| Current Writing-first and optional-secondary Electron paths | Green: 5 targeted journeys |
+| Affected split-command, spine, and recovery Electron paths | Green: 14 targeted journeys |
+| Comprehensive Stage 19 regression with dirty-development override | Green; protected evidence not used |
 
 ## Exact-Candidate Next Sequence
 
-Jason first commits and pushes the P4-C follow-up repair. The next automated
-step runs the exact combined Program 3 plus Program 4 regression, packaging,
-and installed offline lifecycle against that pushed runtime candidate. It
-remains automation, not a human product review. Only after that evidence is
-green is the complete candidate ready for Human Gate 2.
+Jason first commits and pushes the P4-C comprehensive repair. The next
+automated step runs the exact combined Program 3 plus Program 4 regression,
+packaging, and installed offline lifecycle against that pushed runtime
+candidate. It remains automation, not a human product review. Only after that
+evidence is green is the complete candidate ready for Human Gate 2.
 
 The fixed regression now includes both the P4 local-orientation contract and
 the P4 built-Electron temporary-state/reopen witness. Its exact clean-candidate

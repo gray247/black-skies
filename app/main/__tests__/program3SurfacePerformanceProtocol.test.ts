@@ -66,16 +66,18 @@ describe('Program 3 logical-surface performance protocol', () => {
       zeroSurvivorTeardownRequired: true,
     });
     expect(program3.exactCombinedCandidate).toMatchObject({
-      status: 'deferred-until-program4',
+      status: 'active',
       requiredColdLaunchSampleCount: 5,
       baseline: null,
     });
     expect(program3.exactCombinedCandidate.requiredMeasurements).toEqual(expect.arrayContaining([
       'coldLaunchDurationMs',
       'steadyStateWorkingSetBytes',
-      'logicalSurfaceCount',
-      'visibleWindowCount',
-      'surfaceTransitionMs',
+      'canonicalWindowCount',
+      'canonicalWritingVisibleMs',
+      'currentWindowTransitionMs',
+      'optionalSecondaryTransitionMs',
+      'optionalSecondaryWindowCount',
       'zeroSurvivorProcessCount',
     ]));
   });

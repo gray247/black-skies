@@ -31,18 +31,21 @@
     "zeroSurvivorTeardownRequired": true
   },
   "exactCombinedCandidate": {
-    "status": "deferred-until-program4",
-    "resolutionPoint": "Program 3 plus Program 4 exact packaged Human Gate 2 candidate",
+    "status": "active",
+    "resolutionPoint": "Program 3 plus Program 4 exact packaged Human Gate 2 candidate; capture this candidate's installed evidence without comparing it to the immutable V1 mandatory-two-window baseline.",
     "requiredColdLaunchSampleCount": 5,
     "requiredMeasurements": [
       "coldLaunchDurationMs",
       "steadyStateWorkingSetBytes",
-      "logicalSurfaceCount",
-      "visibleWindowCount",
-      "surfaceTransitionMs",
+      "canonicalWindowCount",
+      "canonicalWritingVisibleMs",
+      "currentWindowTransitionMs",
+      "optionalSecondaryTransitionMs",
+      "optionalSecondaryWindowCount",
       "zeroSurvivorProcessCount"
     ],
     "baseline": null,
-    "baselineRule": "Establish a new exact installed baseline only for the complete Program 3 plus Program 4 topology. Never rewrite or compare it as though it were the immutable V1 mandatory-two-window baseline."
+    "baselineStatus": "captured-pending-human-gate-review",
+    "baselineRule": "This qualification uses governed absolute limits and five exact Writing-first samples. Record its reviewed measurements as the later Program 3/4 baseline only after Human Gate 2. Never rewrite or compare it as though it were the immutable V1 mandatory-two-window baseline."
   }
 }

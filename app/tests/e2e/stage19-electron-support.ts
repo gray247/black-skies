@@ -298,8 +298,7 @@ export async function getStage19Windows(
       command: await candidate.locator('[data-stage19-role="command"]').count(),
     })))).some((entry) => entry.command > 0 && entry.candidate !== writingCandidate);
 
-  const displayCount = await electronApp.evaluate(({ screen }) => screen.getAllDisplays().length);
-  if (!(await hasDistinctCommand()) && displayCount <= 1) {
+  if (!(await hasDistinctCommand())) {
     await writingCandidate.getByRole('button', {
       name: 'Open Command Center in second window',
     }).click();

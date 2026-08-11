@@ -30,7 +30,28 @@ const expectedMarkdown = [
 ].join("\n");
 const representativeUnitCount = 100;
 const coldLaunchSampleCount = 5;
-const coldLaunchProtocol = "interleaved-main-process-monotonic-two-window-median-v5";
+const coldLaunchProtocol = "program3-writing-first-installed-median-v1";
+// A packaged qualification must describe the topology it is actually testing.
+// The immutable V1 two-window reference remains historical evidence; it is not
+// a valid startup reference for the later Writing-first product shell.
+export const installedQualificationProfiles = Object.freeze({
+  "current-program3-program4": Object.freeze({
+    initialVisibleWindowCount: 1,
+    postOptionalSecondaryVisibleWindowCount: 2,
+    writingGlobalNames: Object.freeze([
+      "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand"
+    ]),
+    commandGlobalNames: Object.freeze(["critiqueReview", "projectSpine", "splitCommand"])
+  }),
+  "historical-v1-reference": Object.freeze({
+    initialVisibleWindowCount: 2,
+    postOptionalSecondaryVisibleWindowCount: 2,
+    writingGlobalNames: Object.freeze(["aiCritique", "projectSpine", "splitCommand"]),
+    commandGlobalNames: Object.freeze(["projectSpine", "splitCommand"])
+  })
+});
+
+const currentInstalledProfile = installedQualificationProfiles["current-program3-program4"];
 const representativeProjectTitle = "Packaged 100 Unit Ω";
 const representativeOpening = "Packaged scale opening — Café 🌌 **bold**";
 const representativeClosing = "[Closing](https://example.invalid/closing)";
@@ -54,11 +75,6 @@ function requireValue(flag) {
   const value = index >= 0 ? process.argv[index + 1] : undefined;
   if (!value) fail(`Missing ${flag}.`);
   return path.resolve(value);
-}
-
-function optionalValue(flag) {
-  const index = process.argv.indexOf(flag);
-  return index >= 0 ? path.resolve(process.argv[index + 1]) : null;
 }
 
 function assert(condition, message) {
@@ -252,14 +268,26 @@ async function canonicalWritingLaunchReadiness(application) {
   return windows;
 }
 
+async function assertCurrentWindowCommandTransition(writing) {
+  const startedAt = performance.now();
+  await writing.getByRole("button", { name: "Open Command Center here" }).click();
+  await writing.locator('[data-stage19-role="command"]').waitFor();
+  const durationMs = performance.now() - startedAt;
+  await writing.getByRole("button", { name: "Return to Writing Studio" }).click();
+  await writing.locator('[data-stage19-role="writing"]').waitFor();
+  return durationMs;
+}
+
 async function openOptionalCommandWindow(application, writing) {
   const current = await identifyWindows(application);
   if (current.command) return current;
+  const startedAt = performance.now();
   await writing.getByRole("button", { name: "Open Command Center in second window" }).click();
-  return identifyWindows(application, { requireCommand: true });
+  const windows = await identifyWindows(application, { requireCommand: true });
+  return { ...windows, durationMs: performance.now() - startedAt };
 }
 
-async function launchInstalled(executablePath, userDataPath) {
+async function launchInstalled(executablePath, userDataPath, { openOptionalSecondary = true } = {}) {
   const application = await electron.launch({
     executablePath,
     args: ["--disable-gpu", `--user-data-dir=${userDataPath}`],
@@ -267,16 +295,18 @@ async function launchInstalled(executablePath, userDataPath) {
   });
   const initial = await identifyWindows(application);
   const canonicalReadiness = await canonicalWritingLaunchReadiness(application);
-  const windows = await openOptionalCommandWindow(application, initial.writing);
-  return { application, canonicalReadiness, ...windows };
+  const currentWindowTransitionMs = await assertCurrentWindowCommandTransition(initial.writing);
+  const windows = openOptionalSecondary
+    ? await openOptionalCommandWindow(application, initial.writing)
+    : { ...initial, durationMs: null };
+  return { application, canonicalReadiness, currentWindowTransitionMs, ...windows };
 }
 
 async function runtimeTruth(
   application,
   writing,
   command,
-  executablePath,
-  { allowLegacyWritingBridge = false } = {}
+  executablePath
 ) {
   const mainTruth = await application.evaluate(async ({ app, BrowserWindow }) => {
     const windows = BrowserWindow.getAllWindows().filter((window) => !window.isDestroyed());
@@ -318,16 +348,25 @@ async function runtimeTruth(
     "Installed windows did not have distinct Writing and Command roles."
   );
 
+  assert(command, "Current qualification did not expose the requested optional Command Center.");
   const writingGlobals = await writing.evaluate(() => ({
     projectSpine: Object.keys(window.projectSpine ?? {}).sort(),
     splitCommand: Object.keys(window.splitCommand ?? {}).sort(),
+    critiqueReview: Object.keys(window.critiqueReview ?? {}).sort(),
     aiCritique: Object.keys(window.aiCritique ?? {}).sort(),
+    feedbackNotes: Object.keys(window.feedbackNotes ?? {}).sort(),
+    livingOutline: Object.keys(window.livingOutline ?? {}).sort(),
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline"]
+      .filter((name) => typeof window[name] !== "undefined").sort(),
     requireType: typeof window.require,
     processType: typeof window.process
   }));
   const commandGlobals = await command.evaluate(() => ({
     projectSpine: Object.keys(window.projectSpine ?? {}).sort(),
     splitCommand: Object.keys(window.splitCommand ?? {}).sort(),
+    critiqueReview: Object.keys(window.critiqueReview ?? {}).sort(),
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline"]
+      .filter((name) => typeof window[name] !== "undefined").sort(),
     aiCritiqueType: typeof window.aiCritique,
     requireType: typeof window.require,
     processType: typeof window.process
@@ -354,10 +393,7 @@ async function runtimeTruth(
     "subscribeSession",
     "windowRole"
   ].sort();
-  const expectedWritingProjectSpine = (allowLegacyWritingBridge
-    ? writingProjectSpine
-    : [...writingProjectSpine, "focusWritingWindow"]
-  ).sort();
+  const expectedWritingProjectSpine = [...writingProjectSpine, "focusWritingWindow"].sort();
   const commandProjectSpine = [
     "getSession",
     "selectUnit",
@@ -384,6 +420,12 @@ async function runtimeTruth(
     "setCredential",
     "subscribeState"
   ].sort();
+  const critiqueReview = [
+    "dismiss", "markStale", "readState", "requestState", "returnToSource",
+    "saveFeedbackNote", "subscribeSourceReturn", "subscribeState"
+  ].sort();
+  const feedbackNotes = ["createFromCritique", "list"].sort();
+  const livingOutline = ["createItem", "deleteItem", "get", "linkItem", "moveItem", "updateItem"].sort();
   assert(
     JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(expectedWritingProjectSpine),
     `Writing Project Spine allowlist differed: ${JSON.stringify(writingGlobals.projectSpine)}`
@@ -401,6 +443,21 @@ async function runtimeTruth(
     JSON.stringify(writingGlobals.aiCritique) === JSON.stringify(aiCritique) &&
       commandGlobals.aiCritiqueType === "undefined",
     "AI critique bridge role boundary differed."
+  );
+  assert(
+    JSON.stringify(writingGlobals.critiqueReview) === JSON.stringify(critiqueReview) &&
+      JSON.stringify(commandGlobals.critiqueReview) === JSON.stringify(critiqueReview),
+    "Critique review bridge allowlist differed."
+  );
+  assert(
+    JSON.stringify(writingGlobals.feedbackNotes) === JSON.stringify(feedbackNotes) &&
+      JSON.stringify(writingGlobals.livingOutline) === JSON.stringify(livingOutline),
+    "Writing-only advisory bridge allowlist differed."
+  );
+  assert(
+    JSON.stringify(writingGlobals.names) === JSON.stringify([...currentInstalledProfile.writingGlobalNames].sort()) &&
+      JSON.stringify(commandGlobals.names) === JSON.stringify([...currentInstalledProfile.commandGlobalNames].sort()),
+    `Installed surface bridge profile differed: ${JSON.stringify({ writing: writingGlobals.names, command: commandGlobals.names })}`
   );
   assert(
     writingGlobals.requireType === "undefined" &&
@@ -500,48 +557,22 @@ function summarizeColdLaunchPerformance(coldLaunchPreparation, coldLaunchSamples
     coldLaunchProbeSchema: coldLaunchPreparation.probe.schema,
     coldLaunchPreparationMs: coldLaunchPreparation.durationMs,
     coldLaunchPreparationHarnessReadyAtMs: coldLaunchPreparation.harnessReadyAtMs,
-    coldLaunchPreparationWindowCount: coldLaunchPreparation.windowCount,
-    coldLaunchPreparationVisibleWindowCount: coldLaunchPreparation.visibleWindowCount,
-    coldLaunchPreparationSandboxedWindowCount: coldLaunchPreparation.sandboxedWindowCount,
+    coldLaunchPreparationCanonicalWindowCount: coldLaunchPreparation.canonicalWindowCount,
+    coldLaunchPreparationCanonicalVisibleWindowCount: coldLaunchPreparation.canonicalVisibleWindowCount,
+    coldLaunchPreparationCanonicalSandboxedWindowCount: coldLaunchPreparation.canonicalSandboxedWindowCount,
     coldLaunchDurationMs: median(coldLaunchSamplesMs),
     coldLaunchSamplesMs,
     coldLaunchHarnessReadyAtSamplesMs: coldLaunchSamples.map((sample) => sample.harnessReadyAtMs),
     coldLaunchSampleCount,
-    coldLaunchSampleWindowCounts: coldLaunchSamples.map((sample) => sample.windowCount),
-    coldLaunchSampleVisibleWindowCounts: coldLaunchSamples.map((sample) => sample.visibleWindowCount),
-    coldLaunchSampleSandboxedWindowCounts: coldLaunchSamples.map(
-      (sample) => sample.sandboxedWindowCount
-    ),
+    coldLaunchSampleCanonicalWindowCounts: coldLaunchSamples.map((sample) => sample.canonicalWindowCount),
+    coldLaunchSampleCanonicalVisibleWindowCounts: coldLaunchSamples.map((sample) => sample.canonicalVisibleWindowCount),
+    coldLaunchSampleCanonicalSandboxedWindowCounts: coldLaunchSamples.map((sample) => sample.canonicalSandboxedWindowCount),
+    currentWindowTransitionSamplesMs: coldLaunchSamples.map((sample) => sample.currentWindowTransitionMs),
+    optionalSecondaryTransitionSamplesMs: coldLaunchSamples.map((sample) => sample.optionalSecondaryTransitionMs),
+    optionalSecondaryWindowCounts: coldLaunchSamples.map((sample) => sample.postOptionalWindowCount),
+    optionalSecondarySandboxedWindowCounts: coldLaunchSamples.map((sample) => sample.postOptionalSandboxedWindowCount),
     coldLaunchStatistic: "median"
   };
-}
-
-async function coldLaunchReadiness(application) {
-  const windows = await application.evaluate(({ BrowserWindow }) =>
-    BrowserWindow.getAllWindows()
-      .filter((window) => !window.isDestroyed())
-      .map((window) => {
-        const preferences = window.webContents.getLastWebPreferences();
-        return {
-          visible: window.isVisible(),
-          sandbox: preferences.sandbox,
-          contextIsolation: preferences.contextIsolation,
-          nodeIntegration: preferences.nodeIntegration
-        };
-      })
-  );
-  assert(windows.length === 2, `Cold launch did not expose two windows: ${windows.length}.`);
-  assert(windows.every((window) => window.visible), "Cold launch did not expose two visible windows.");
-  assert(
-    windows.every(
-      (window) =>
-        window.sandbox === true &&
-        window.contextIsolation === true &&
-        window.nodeIntegration === false
-    ),
-    "Cold launch did not expose two sandboxed windows."
-  );
-  return windows;
 }
 
 async function readColdLaunchProbe(application) {
@@ -562,34 +593,29 @@ async function readColdLaunchProbe(application) {
     "Installed startup probe was unavailable or malformed."
   );
   assert(
-    Number.isFinite(probe.writingVisibleMs) &&
-      Number.isFinite(probe.commandVisibleMs) &&
-      Number.isFinite(probe.twoWindowVisibleMs),
-    "Installed startup probe did not record both visible windows."
+    Number.isFinite(probe.writingVisibleMs),
+    "Installed startup probe did not record the canonical Writing Studio."
   );
   return probe;
 }
 
 async function measureColdLaunch(
   executablePath,
-  userDataPath,
-  { allowLegacyWritingBridge = false } = {}
+  userDataPath
 ) {
   mkdirSync(userDataPath, { recursive: true });
   let launched;
   try {
     const startedAt = performance.now();
     launched = await launchInstalled(executablePath, userDataPath);
-    const readiness = await coldLaunchReadiness(launched.application);
     const probe = await readColdLaunchProbe(launched.application);
     const harnessReadyAtMs = performance.now() - startedAt;
-    const durationMs = probe.twoWindowVisibleMs;
+    const durationMs = probe.writingVisibleMs;
     const truth = await runtimeTruth(
       launched.application,
       launched.writing,
       launched.command,
-      executablePath,
-      { allowLegacyWritingBridge }
+      executablePath
     );
     const rootPid = launched.application.process()?.pid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
@@ -610,9 +636,14 @@ async function measureColdLaunch(
       probe,
       isPackaged: truth.isPackaged,
       version: truth.version,
-      windowCount: truth.windows.length,
-      visibleWindowCount: readiness.filter((window) => window.visible).length,
-      sandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length,
+      canonicalWindowCount: launched.canonicalReadiness.length,
+      canonicalVisibleWindowCount: launched.canonicalReadiness.filter((window) => window.visible).length,
+      canonicalSandboxedWindowCount: launched.canonicalReadiness.filter((window) => window.sandbox).length,
+      postOptionalWindowCount: truth.windows.length,
+      postOptionalVisibleWindowCount: truth.windows.filter((window) => window.visible).length,
+      postOptionalSandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length,
+      currentWindowTransitionMs: launched.currentWindowTransitionMs,
+      optionalSecondaryTransitionMs: launched.durationMs,
       forbiddenRuntimeProcessCount: forbiddenProcesses.length
     };
   } finally {
@@ -638,13 +669,10 @@ async function main() {
   const executablePath = requireValue("--executable");
   const smokeRoot = requireValue("--root");
   const resultPath = requireValue("--result");
-  const pairedReferenceExecutable = optionalValue("--paired-reference-executable");
-  const pairedReferenceCommit = process.argv.includes("--paired-reference-commit")
-    ? process.argv[process.argv.indexOf("--paired-reference-commit") + 1]
-    : null;
   assert(
-    !pairedReferenceExecutable || /^[0-9a-f]{40}$/iu.test(pairedReferenceCommit ?? ""),
-    "Paired reference commit must be a full SHA when a paired reference executable is provided."
+    !process.argv.includes("--paired-reference-executable") &&
+      !process.argv.includes("--paired-reference-commit"),
+    "The immutable V1 paired reference is not a valid Program 3/4 Writing-first qualification input."
   );
   const runRepresentative = process.argv.includes("--representative");
   const performanceOnly = process.argv.includes("--performance-only");
@@ -660,91 +688,27 @@ async function main() {
   let first;
   let second;
   let third;
+  let firstCanonicalReadiness = null;
   try {
     // First-profile initialization and host executable preparation are not the
-    // cold-process launch being budgeted. Prepare one disposable profile with a
-    // complete two-window lifecycle, then use that same prepared profile for a
-    // fixed sequence of fully closed process launches. No sample is retried or
-    // discarded; the median of all five is the governed metric.
+    // cold-process launch being budgeted. Every governed sample begins with the
+    // one-window Writing Studio, then proves the current-window and optional
+    // secondary Command transitions before teardown. No sample is retried.
     const coldLaunchUserDataPath = path.join(smokeRoot, "cold-launch-user-data", "prepared");
     const coldLaunchPreparation = await measureColdLaunch(
       executablePath,
-      coldLaunchUserDataPath,
-      { allowLegacyWritingBridge: performanceOnly }
+      coldLaunchUserDataPath
     );
-    let referenceLaunchPerformance = null;
-    let pairedReference = null;
-    let referenceColdLaunchPreparation = null;
-    const referenceColdLaunchSamples = [];
     const coldLaunchSamples = [];
-    if (pairedReferenceExecutable) {
-      const referenceSmokeRoot = path.join(smokeRoot, "paired-reference");
-      referenceColdLaunchPreparation = await measureColdLaunch(
-        pairedReferenceExecutable,
-        path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
-        { allowLegacyWritingBridge: false }
+    for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
+      coldLaunchSamples.push(
+        await measureColdLaunch(executablePath, coldLaunchUserDataPath)
       );
-      for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
-        coldLaunchSamples.push(
-          await measureColdLaunch(
-            executablePath,
-            coldLaunchUserDataPath,
-            { allowLegacyWritingBridge: performanceOnly }
-          )
-        );
-        referenceColdLaunchSamples.push(
-          await measureColdLaunch(
-            pairedReferenceExecutable,
-            path.join(referenceSmokeRoot, "cold-launch-user-data", "prepared"),
-            { allowLegacyWritingBridge: false }
-          )
-        );
-      }
-      referenceLaunchPerformance = summarizeColdLaunchPerformance(
-        referenceColdLaunchPreparation,
-        referenceColdLaunchSamples
-      );
-      pairedReference = {
-        sourceCandidate: pairedReferenceCommit,
-        performance: referenceLaunchPerformance,
-        candidateToReferenceRatio: 0
-      };
-      const referenceMeasurements = [
-        referenceColdLaunchPreparation,
-        ...referenceColdLaunchSamples
-      ];
-      assert(
-        referenceMeasurements.every((sample) => sample.isPackaged),
-        "Paired reference samples did not prove packaged runtime truth."
-      );
-      assert(
-        referenceMeasurements.every((sample) => sample.windowCount === 2 && sample.sandboxedWindowCount === 2),
-        "Paired reference samples did not prove two sandboxed windows."
-      );
-      assert(
-        referenceMeasurements.every((sample) => sample.forbiddenRuntimeProcessCount === 0),
-        "Paired reference samples found a forbidden runtime process."
-      );
-    } else {
-      for (let sampleIndex = 1; sampleIndex <= coldLaunchSampleCount; sampleIndex += 1) {
-        coldLaunchSamples.push(
-          await measureColdLaunch(
-            executablePath,
-            coldLaunchUserDataPath,
-            { allowLegacyWritingBridge: performanceOnly }
-          )
-        );
-      }
     }
     const launchPerformance = summarizeColdLaunchPerformance(
       coldLaunchPreparation,
       coldLaunchSamples
     );
-    if (pairedReference) {
-      pairedReference.candidateToReferenceRatio =
-        launchPerformance.coldLaunchDurationMs / pairedReference.performance.coldLaunchDurationMs;
-      launchPerformance.pairedReference = pairedReference;
-    }
     assert(
       coldLaunchSamples.every((sample) => sample.isPackaged),
       "Cold-launch samples did not prove packaged runtime truth."
@@ -753,15 +717,30 @@ async function main() {
       coldLaunchSamples.every((sample) => sample.forbiddenRuntimeProcessCount === 0),
       "Cold-launch samples found a forbidden runtime process."
     );
+    assert(
+      coldLaunchSamples.every((sample) =>
+        sample.canonicalWindowCount === currentInstalledProfile.initialVisibleWindowCount &&
+        sample.canonicalVisibleWindowCount === currentInstalledProfile.initialVisibleWindowCount &&
+        sample.canonicalSandboxedWindowCount === currentInstalledProfile.initialVisibleWindowCount &&
+        sample.postOptionalWindowCount === currentInstalledProfile.postOptionalSecondaryVisibleWindowCount &&
+        sample.postOptionalVisibleWindowCount === currentInstalledProfile.postOptionalSecondaryVisibleWindowCount &&
+        sample.postOptionalSandboxedWindowCount === currentInstalledProfile.postOptionalSecondaryVisibleWindowCount &&
+        Number.isFinite(sample.currentWindowTransitionMs) &&
+        Number.isFinite(sample.optionalSecondaryTransitionMs)
+      ),
+      "Cold-launch samples did not prove the governed Writing-first surface topology."
+    );
     if (performanceOnly) {
       const firstSample = coldLaunchSamples[0];
       const result = {
         schema: "black-skies.stage19.installed-smoke.v1",
-        qualificationMode: "paired-startup-reference",
+        qualificationMode: "program3-program4-writing-first",
         appIsPackaged: true,
         version: firstSample.version,
-        windowCount: firstSample.windowCount,
-        sandboxedWindowCount: firstSample.sandboxedWindowCount,
+        canonicalWindowCount: firstSample.canonicalWindowCount,
+        canonicalSandboxedWindowCount: firstSample.canonicalSandboxedWindowCount,
+        postOptionalWindowCount: firstSample.postOptionalWindowCount,
+        postOptionalSandboxedWindowCount: firstSample.postOptionalSandboxedWindowCount,
         forbiddenRuntimeProcessCount: 0,
         zeroSurvivorProcessCount: 0,
         performance: launchPerformance,
@@ -778,6 +757,7 @@ async function main() {
       first.command,
       executablePath
     );
+    firstCanonicalReadiness = first.canonicalReadiness;
     const rootPid = first.application.process()?.pid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
     const firstTree = processTree(rootPid);
@@ -1031,8 +1011,10 @@ async function main() {
       schema: "black-skies.stage19.installed-smoke.v1",
       appIsPackaged: firstTruth.isPackaged && secondTruth.isPackaged,
       version: firstTruth.version,
-      windowCount: firstTruth.windows.length,
-      sandboxedWindowCount: firstTruth.windows.filter((window) => window.sandbox).length,
+      canonicalWindowCount: firstCanonicalReadiness.length,
+      canonicalSandboxedWindowCount: firstCanonicalReadiness.filter((window) => window.sandbox).length,
+      postOptionalWindowCount: firstTruth.windows.length,
+      postOptionalSandboxedWindowCount: firstTruth.windows.filter((window) => window.sandbox).length,
       forbiddenRuntimeProcessCount: forbiddenProcesses.length,
       zeroSurvivorProcessCount: 0,
       performance: {

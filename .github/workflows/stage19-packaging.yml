@@ -49,25 +49,13 @@ jobs:
         run: pnpm stage19:regression
       - name: Build and verify unsigned NSIS installer
         run: pnpm --filter app run package:win
-      - name: Build paired foundation startup reference
-        shell: pwsh
-        run: |
-          $budget = Get-Content -LiteralPath ./docs/testing/foundation_performance_budget.json -Raw | ConvertFrom-Json
-          $referenceCandidate = if ($null -eq $budget.baseline) { $env:GITHUB_SHA } else { $budget.baseline.reference.sourceCandidate }
-          ./scripts/build-foundation-performance-reference.ps1 `
-            -SourceCandidate $referenceCandidate `
-            -WorkingRoot ./.tmp/foundation-startup-reference `
-            -ResultPath ./.tmp/foundation-startup-reference.json
       - name: Install, run offline lifecycle, and uninstall
         shell: pwsh
         run: |
-          $reference = Get-Content -LiteralPath ./.tmp/foundation-startup-reference.json -Raw | ConvertFrom-Json
           ./scripts/stage19-installed-lifecycle.ps1 `
             -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
             -ReceiptPath ./app/release/stage19-package-receipt.json `
-            -WorkingRoot ./.tmp/stage19-22-lifecycle `
-            -PerformanceReferenceExecutable $reference.executablePath `
-            -PerformanceReferenceCommit $reference.sourceCandidate
+            -WorkingRoot ./.tmp/stage19-22-lifecycle
       - name: Verify receipt-bound installed candidate
         shell: pwsh
         run: |
@@ -89,8 +77,8 @@ jobs:
             app/release/stage19-package-receipt.json
             .tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json
             .tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
-      - name: Enforce foundation performance baseline
-        run: pnpm foundation:performance -- --receipt app/release/stage19-package-receipt.json
+      - name: Enforce Program 3/4 Writing-first installed qualification
+        run: pnpm program3:performance -- --receipt app/release/stage19-package-receipt.json
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v6

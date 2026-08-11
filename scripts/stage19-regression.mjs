@@ -50,6 +50,7 @@ const unitFiles = [
   "main/__tests__/contextualProductShellContracts.test.ts",
   "main/__tests__/critiqueReviewIpc.test.ts",
   "main/__tests__/program3SurfacePerformanceProtocol.test.ts",
+  "main/__tests__/program3CombinedInstalledQualification.test.ts",
   "main/__tests__/livingOutlineRepository.test.ts",
   "main/__tests__/livingOutlineIpc.test.ts",
   "main/__tests__/runtimeSessionTruthMain.test.ts",

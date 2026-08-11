@@ -1596,7 +1596,15 @@ async function bootstrap(): Promise<void> {
     surfaceHostNotice = null;
     publishSplitCommandOwnershipSync(['primary']);
     publishSplitCommandSurfaceHostState(['primary']);
-    if (splitCommandLifecycleSeam && initialPlacement?.displayMode === 'dual-display') {
+    // A second display expands an author-requested Command surface; it never
+    // changes the Writing-first startup contract. The explicit test hook keeps
+    // legacy lifecycle witnesses able to exercise the optional path without
+    // making physical monitor count product authority.
+    if (
+      splitCommandLifecycleSeam &&
+      initialPlacement?.displayMode === 'dual-display' &&
+      process.env.BLACKSKIES_TEST_AUTOMATIC_SECONDARY === '1'
+    ) {
       await openSplitCommandSecondarySurface(initialPlacement.commandCenter);
     }
   } catch (error) {

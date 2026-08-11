@@ -91,9 +91,13 @@ project-reopen proof, the relevant Program 3 topology regression group, and
 the pre-candidate package-safe evidence. The first exact checkpoint exposed a
 Windows-only capture-frame seam in the visual harness, not a product-behavior
 failure. The subsequent exact run exposed a JSDOM-only CodeMirror layout-API
-gap after all tests had passed. The bounded follow-up frame and
-layout-capability guard repairs are qualified locally; Jason's follow-up P4-C
-checkpoint precedes the repeated exact package and installed-lifecycle work.
+gap after all tests had passed. A later repeated installed-lifecycle failure
+identified a stale V1 two-window startup assumption inside the current
+qualification lane. The comprehensive P4-C repair now keeps the V1 record
+historical and separately qualifies the approved Writing-first startup,
+current-window Command transition, and author-requested optional secondary
+window. The local repair evidence is green; Jason's P4-C checkpoint precedes
+the repeated exact package and installed-lifecycle work.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

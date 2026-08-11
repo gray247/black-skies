@@ -84,10 +84,14 @@ It does not finalize the entire product vision.
   repair, and package-safe preflight are green. The first exact checkpoint
   exposed a Windows visual-capture-frame seam and a JSDOM CodeMirror geometry
   gap after all tests had passed; their bounded follow-up frame and
-  layout-capability guard repairs are qualified locally, awaiting Jason's
-  exact Git checkpoint before repeated combined
-  package/install qualification. Human Gate 2 remains the next human
-  validation after that exact candidate is complete.
+  layout-capability guard repairs are qualified locally. A repeated installed
+  failure then exposed a stale V1 two-window startup assumption in the current
+  qualification lane. The comprehensive P4-C repair now proves the approved
+  Writing-first startup, explicit current-window Command transition, and
+  author-requested optional secondary window without comparing this topology
+  to V1. It is green locally and awaits Jason's exact Git checkpoint before
+  repeated combined package/install qualification. Human Gate 2 remains the
+  next human validation after that exact candidate is complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
