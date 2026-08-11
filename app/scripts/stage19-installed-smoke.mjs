@@ -196,7 +196,7 @@ function ownedProcessIdsForExecutable(rootPid, executablePath) {
   return [rootPid, ...descendants.map((entry) => entry.pid)];
 }
 
-async function identifyWindows(application) {
+async function identifyWindows(application, { requireCommand = false } = {}) {
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
     const candidates = application.windows();
@@ -209,10 +209,54 @@ async function identifyWindows(application) {
     );
     const writing = roles.find((role) => role.writing === 1)?.page;
     const command = roles.find((role) => role.command === 1)?.page;
-    if (writing && command && writing !== command) return { writing, command };
+    if (writing && (!requireCommand || (command && writing !== command))) {
+      return { writing, command: command && writing !== command ? command : null };
+    }
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  fail("The installed application did not expose one Writing Studio and one Command Center.");
+  fail(
+    requireCommand
+      ? "The installed application did not expose an optional distinct Command Center."
+      : "The installed application did not expose one Writing Studio."
+  );
+}
+
+async function canonicalWritingLaunchReadiness(application) {
+  const windows = await application.evaluate(({ BrowserWindow }) =>
+    Promise.all(
+      BrowserWindow.getAllWindows()
+        .filter((window) => !window.isDestroyed())
+        .map(async (window) => {
+          const preferences = window.webContents.getLastWebPreferences();
+          return {
+            visible: window.isVisible(),
+            role: await window.webContents.executeJavaScript(
+              "document.querySelector('[data-stage19-role=\"writing\"]') ? 'writing' : document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'unknown'"
+            ),
+            sandbox: preferences.sandbox,
+            contextIsolation: preferences.contextIsolation,
+            nodeIntegration: preferences.nodeIntegration
+          };
+        })
+    )
+  );
+  assert(windows.length === 1, `Canonical launch did not expose one window: ${windows.length}.`);
+  assert(windows[0]?.visible, "Canonical launch did not expose a visible Writing Studio.");
+  assert(windows[0]?.role === "writing", "Canonical launch did not open Writing Studio.");
+  assert(
+    windows[0]?.sandbox === true &&
+      windows[0]?.contextIsolation === true &&
+      windows[0]?.nodeIntegration === false,
+    "Canonical launch did not expose a sandboxed Writing Studio."
+  );
+  return windows;
+}
+
+async function openOptionalCommandWindow(application, writing) {
+  const current = await identifyWindows(application);
+  if (current.command) return current;
+  await writing.getByRole("button", { name: "Open Command Center in second window" }).click();
+  return identifyWindows(application, { requireCommand: true });
 }
 
 async function launchInstalled(executablePath, userDataPath) {
@@ -221,8 +265,10 @@ async function launchInstalled(executablePath, userDataPath) {
     args: ["--disable-gpu", `--user-data-dir=${userDataPath}`],
     env: sanitizedLaunchEnvironment()
   });
-  const windows = await identifyWindows(application);
-  return { application, ...windows };
+  const initial = await identifyWindows(application);
+  const canonicalReadiness = await canonicalWritingLaunchReadiness(application);
+  const windows = await openOptionalCommandWindow(application, initial.writing);
+  return { application, canonicalReadiness, ...windows };
 }
 
 async function runtimeTruth(
