@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `APPROVED; P4-A AND P4-B DURABLE; P4-C PRE-CANDIDATE AUTOMATION GREEN; AWAITING JASON'S P4-C CHECKPOINT`
+- Status: `APPROVED; P4-A AND P4-B DURABLE; P4-C REPAIR QUALIFIED; AWAITING JASON'S EXACT-CANDIDATE CHECKPOINT`
 - Prepared: `2026-08-11`
 - Planning and implementation model: `GPT-5.6 Terra`
 - Planning and implementation reasoning effort: `high`
@@ -290,9 +290,9 @@ Exit:
 - all remaining subjective shell-and-Companion evaluation is deliberately
   concentrated at Human Gate 2.
 
-P4-C pre-candidate automation is green. Evidence is recorded in
+P4-C repair-qualified automation is green. Evidence is recorded in
 [Program 4 Batch P4-C Evidence Receipt](program_4_batch_p4_c_evidence_receipt.md).
-Jason's P4-C checkpoint is required before the exact combined package and
+Jason's exact-candidate checkpoint is required before the exact combined package and
 installed offline lifecycle can run against a stable candidate.
 
 ## 9. Evidence, Deferrals, And Human Gate

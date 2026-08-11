@@ -80,8 +80,9 @@ It does not finalize the entire product vision.
   P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`; P4-B is
   durable at `f6090498a8ea04f011fc30c890af521aa712940e` and adds the
   closed-by-default bottom entry and a current-window temporary Command result.
-  P4-C built-Electron temporary-state/reopen evidence and package-safe
-  preflight are green, awaiting Jason's exact Git checkpoint before combined
+  P4-C built-Electron temporary-state/reopen evidence, Command-canvas layout
+  repair, and package-safe preflight are green, awaiting Jason's exact Git
+  checkpoint before combined
   package/install qualification. Human Gate 2 remains the next human
   validation after that exact candidate is complete.
 - Repository Control Point 0 forensics are recorded in

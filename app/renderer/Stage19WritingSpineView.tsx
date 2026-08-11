@@ -437,7 +437,9 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           <SurfaceControlsView model={model} actions={actions} />
         </div>
       </header>
-      {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
+      <div className="stage19-command__notice-slot">
+        {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
+      </div>
       <nav className="stage19-command__workspace-switcher" aria-label="Command Center workspaces">
         {COMMAND_WORKSPACES.map((workspace) => (
           <button

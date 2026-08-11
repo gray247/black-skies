@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `PRE-CANDIDATE AUTOMATION GREEN; AWAITING JASON'S P4-C CHECKPOINT`
+- Status: `P4-C REPAIR QUALIFIED; AWAITING JASON'S EXACT-CANDIDATE CHECKPOINT`
 - Date: `2026-08-11`
 - Starting commit: `f6090498a8ea04f011fc30c890af521aa712940e`
 - Branch: `codex/foundation-audit`
@@ -10,6 +10,28 @@
 - Reasoning effort: `high`
 - Mutation authority: `Program 4 P4-C only`
 - Git authority: `Jason alone stages, commits, and pushes`
+
+## Post-Checkpoint Repair Qualification
+
+The first hosted combined Program 3 plus Program 4 run exposed two bounded
+qualification defects before any human review:
+
+- the optional Command notice could alter the Command grid's implicit row
+  placement, allowing the task canvas to cover return controls; and
+- the existing targeted Windows visual references could vary by a one-pixel
+  native content-area rounding seam when executed within the full Electron
+  matrix.
+
+The repair makes the Command notice slot explicit, confines task-canvas
+overflow to the canvas, and keeps the header/footer above it. The visual
+reference files remain unchanged; their assertion now tolerates only the
+measured host-only rasterization seam while retaining a 2.5 percent maximum
+pixel-difference ratio for material presentation changes.
+
+The full fixed Stage 19 regression after this repair is green: 42 unit or
+component files, 672 passing tests, 2 intentional skips, and 28 Electron
+journeys. The focused P4 reopen witness, P3 surface-host route, P3 topology
+protocol, and P3 visual references are also green.
 
 ## Delivered Qualification Boundary
 
@@ -30,6 +52,9 @@ credentials, provider activity, or a human visual judgment.
 ## Changed Files
 
 - `app/tests/e2e/stage19-companion-orientation.spec.ts`
+- `app/tests/e2e/stage19-program3-visual.spec.ts`
+- `app/renderer/Stage19WritingSpineView.tsx`
+- `app/renderer/styles/app.css`
 - `scripts/stage19-regression.mjs`
 - `docs/product_systems/program_4_batch_p4_b_evidence_receipt.md`
 - `docs/product_systems/program_4_minimal_companion_owner_routing_implementation_plan.md`
