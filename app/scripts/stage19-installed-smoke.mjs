@@ -599,6 +599,34 @@ async function readColdLaunchProbe(application) {
   return probe;
 }
 
+export function createColdLaunchMeasurement({
+  durationMs,
+  harnessReadyAtMs,
+  probe,
+  truth,
+  canonicalReadiness,
+  currentWindowTransitionMs,
+  optionalSecondaryTransitionMs,
+  forbiddenRuntimeProcessCount
+}) {
+  return {
+    durationMs,
+    harnessReadyAtMs,
+    probe,
+    isPackaged: truth.isPackaged,
+    version: truth.version,
+    canonicalWindowCount: canonicalReadiness.length,
+    canonicalVisibleWindowCount: canonicalReadiness.filter((window) => window.visible).length,
+    canonicalSandboxedWindowCount: canonicalReadiness.filter((window) => window.sandbox).length,
+    postOptionalWindowCount: truth.windows.length,
+    postOptionalVisibleWindowCount: truth.windows.filter((window) => window.visible).length,
+    postOptionalSandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length,
+    currentWindowTransitionMs,
+    optionalSecondaryTransitionMs,
+    forbiddenRuntimeProcessCount
+  };
+}
+
 async function measureColdLaunch(
   executablePath,
   userDataPath
@@ -628,24 +656,19 @@ async function measureColdLaunch(
       forbiddenProcesses.length === 0,
       `Installed process tree contained forbidden runtimes: ${JSON.stringify(forbiddenProcesses)}`
     );
-    await closeClean(launched.application, ownedProcessIds);
-    launched = undefined;
-    return {
+    const measurement = createColdLaunchMeasurement({
       durationMs,
       harnessReadyAtMs,
       probe,
-      isPackaged: truth.isPackaged,
-      version: truth.version,
-      canonicalWindowCount: launched.canonicalReadiness.length,
-      canonicalVisibleWindowCount: launched.canonicalReadiness.filter((window) => window.visible).length,
-      canonicalSandboxedWindowCount: launched.canonicalReadiness.filter((window) => window.sandbox).length,
-      postOptionalWindowCount: truth.windows.length,
-      postOptionalVisibleWindowCount: truth.windows.filter((window) => window.visible).length,
-      postOptionalSandboxedWindowCount: truth.windows.filter((window) => window.sandbox).length,
+      truth,
+      canonicalReadiness: launched.canonicalReadiness,
       currentWindowTransitionMs: launched.currentWindowTransitionMs,
       optionalSecondaryTransitionMs: launched.durationMs,
       forbiddenRuntimeProcessCount: forbiddenProcesses.length
-    };
+    });
+    await closeClean(launched.application, ownedProcessIds);
+    launched = undefined;
+    return measurement;
   } finally {
     if (launched) {
       try {

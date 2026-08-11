@@ -5,7 +5,10 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error The installed qualification verifier is plain Node.js.
 import { validateProgram3CombinedReceipt } from '../../../scripts/verify-program3-combined-performance.mjs';
 // @ts-expect-error The installed smoke witness is plain Node.js.
-import { installedQualificationProfiles } from '../../scripts/stage19-installed-smoke.mjs';
+import {
+  createColdLaunchMeasurement,
+  installedQualificationProfiles,
+} from '../../scripts/stage19-installed-smoke.mjs';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..');
 const protocol = JSON.parse(
@@ -66,5 +69,35 @@ describe('Program 3/4 installed qualification', () => {
     expect(validateProgram3CombinedReceipt(pairedReference, protocol)).toEqual(
       expect.arrayContaining([expect.stringContaining('paired historical reference')]),
     );
+  });
+
+  it('records one-window topology before cleaning up the launched application', () => {
+    const measurement = createColdLaunchMeasurement({
+      durationMs: 420,
+      harnessReadyAtMs: 515,
+      probe: { schema: 'black-skies.stage19.internal-startup-probe.v1', writingVisibleMs: 420 },
+      truth: {
+        isPackaged: true,
+        version: '1.0.0-rc1',
+        windows: [
+          { visible: true, sandbox: true },
+          { visible: true, sandbox: true },
+        ],
+      },
+      canonicalReadiness: [{ visible: true, sandbox: true }],
+      currentWindowTransitionMs: 90,
+      optionalSecondaryTransitionMs: 180,
+      forbiddenRuntimeProcessCount: 0,
+    });
+
+    expect(measurement).toMatchObject({
+      canonicalWindowCount: 1,
+      canonicalVisibleWindowCount: 1,
+      canonicalSandboxedWindowCount: 1,
+      postOptionalWindowCount: 2,
+      postOptionalSandboxedWindowCount: 2,
+      currentWindowTransitionMs: 90,
+      optionalSecondaryTransitionMs: 180,
+    });
   });
 });

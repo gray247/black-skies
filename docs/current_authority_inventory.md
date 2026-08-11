@@ -96,8 +96,10 @@ identified a stale V1 two-window startup assumption inside the current
 qualification lane. The comprehensive P4-C repair now keeps the V1 record
 historical and separately qualifies the approved Writing-first startup,
 current-window Command transition, and author-requested optional secondary
-window. The local repair evidence is green; Jason's P4-C checkpoint precedes
-the repeated exact package and installed-lifecycle work.
+window. Its first clean hosted run passed regression and packaging before a
+post-teardown measurement-handle defect stopped the installed lifecycle; the
+directly covered local repair is ready for Jason's P4-C checkpoint before the
+repeated exact package and installed-lifecycle work.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

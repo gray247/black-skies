@@ -89,9 +89,12 @@ It does not finalize the entire product vision.
   qualification lane. The comprehensive P4-C repair now proves the approved
   Writing-first startup, explicit current-window Command transition, and
   author-requested optional secondary window without comparing this topology
-  to V1. It is green locally and awaits Jason's exact Git checkpoint before
-  repeated combined package/install qualification. Human Gate 2 remains the
-  next human validation after that exact candidate is complete.
+  to V1. Its first clean hosted run passed regression and packaging, then
+  exposed a measurement handle being read after teardown; that bounded harness
+  defect is repaired and directly covered locally. It awaits Jason's exact Git
+  checkpoint before repeated combined package/install qualification. Human
+  Gate 2 remains the next human validation after that exact candidate is
+  complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

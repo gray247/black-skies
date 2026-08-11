@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `P4-C COMPREHENSIVE INSTALLED-QUALIFICATION REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
+- Status: `P4-C INSTALLED-QUALIFICATION MEASUREMENT REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
 - Date: `2026-08-11`
 - Starting commit: `f6090498a8ea04f011fc30c890af521aa712940e`
 - Branch: `codex/foundation-audit`
@@ -79,6 +79,22 @@ the complete dirty-development regression cover the new qualification lane
 locally. The exact hosted package/install lifecycle remains the authority for
 the clean candidate.
 
+## Measurement-Lifecycle Follow-Up
+
+The first clean hosted run of the Writing-first protocol passed the complete
+regression and successfully built the installer. The installed lifecycle then
+reached the new cold-launch measurement and failed before evaluating any
+product qualification because the measurement code cleared its local launch
+handle immediately after clean teardown, then attempted to read its canonical
+window facts from that cleared handle.
+
+This is a harness bookkeeping defect, not a second-window behavior failure.
+The repair snapshots the canonical and optional-window facts before teardown,
+then closes the installed application. A direct deterministic test now covers
+that ordering, alongside the existing topology and receipt-validator tests.
+The clean hosted package/install run remains required after this narrow repair
+is committed.
+
 ## Delivered Qualification Boundary
 
 P4-C adds a built-Electron route witness for the complete first Companion
@@ -138,10 +154,11 @@ credentials, provider activity, or a human visual judgment.
 | Current Writing-first and optional-secondary Electron paths | Green: 5 targeted journeys |
 | Affected split-command, spine, and recovery Electron paths | Green: 14 targeted journeys |
 | Comprehensive Stage 19 regression with dirty-development override | Green; protected evidence not used |
+| Measurement-lifecycle ordering contract | Green: 4 focused tests |
 
 ## Exact-Candidate Next Sequence
 
-Jason first commits and pushes the P4-C comprehensive repair. The next
+Jason first commits and pushes the P4-C measurement repair. The next
 automated step runs the exact combined Program 3 plus Program 4 regression,
 packaging, and installed offline lifecycle against that pushed runtime
 candidate. It remains automation, not a human product review. Only after that
