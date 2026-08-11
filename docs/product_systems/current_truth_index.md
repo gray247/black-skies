@@ -124,9 +124,13 @@ It does not finalize the entire product vision.
   evidence are durable at `3de76ee1` and recorded in
   `program_3_batch_p3_c_evidence_receipt.md`. P3-D's manuscript-first Writing
   Studio, four edge families, Focus behavior, responsive support, and
-  automated evidence are complete and recorded in
-  `program_3_batch_p3_d_evidence_receipt.md`. Jason's exact P3-D commit and
-  push make P3-E executable; all exclusions, batch gates, truth boundaries,
+  automated evidence are durable at `fb232066` and recorded in
+  `program_3_batch_p3_d_evidence_receipt.md`. P3-E's direct contextual Living
+  Outline, plain-language states, inline naming, bidirectional location, drag
+  and keyboard planning movement, manuscript non-mutation, and automated
+  evidence are complete and recorded in
+  `program_3_batch_p3_e_evidence_receipt.md`. Jason's exact P3-E commit and
+  push make P3-F executable; all exclusions, batch gates, truth boundaries,
   current Git controls, and the Human Gate 2 boundary remain in force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and

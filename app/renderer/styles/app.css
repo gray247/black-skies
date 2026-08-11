@@ -5840,3 +5840,373 @@ body[data-stage19-spine] {
     transition: none;
   }
 }
+
+/* Program 3 / P3-E: Living Outline as a quiet structural margin. */
+.stage19-spine__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline {
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-living-outline__heading,
+.stage19-living-outline__heading > div,
+.stage19-living-outline__advanced-heading,
+.stage19-living-outline__move,
+.stage19-living-outline__relationship {
+  display: flex;
+  align-items: center;
+}
+
+.stage19-living-outline__heading,
+.stage19-living-outline__advanced-heading {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stage19-living-outline__heading > div {
+  gap: 8px;
+}
+
+.stage19-living-outline__heading h2,
+.stage19-living-outline__advanced-heading h3 {
+  margin: 0;
+  color: var(--bs-text-primary);
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.stage19-living-outline__count {
+  color: var(--bs-text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage19-spine--writing .stage19-living-outline__add {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--bs-text-secondary);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.stage19-spine--writing .stage19-living-outline__add:hover:not(:disabled),
+.stage19-spine--writing .stage19-living-outline__add:focus-visible {
+  border-color: var(--bs-line-strong);
+  background: var(--bs-surface-hover);
+  color: var(--bs-text-primary);
+}
+
+.stage19-living-outline__context,
+.stage19-living-outline__boundary {
+  margin: 0;
+  color: var(--bs-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.stage19-living-outline__context {
+  color: var(--bs-text-secondary);
+}
+
+.stage19-spine--writing .stage19-living-outline__notice {
+  padding: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--bs-line-quiet);
+  border-bottom: 1px solid var(--bs-line-quiet);
+  border-radius: 0;
+  background: transparent;
+  color: var(--bs-text-secondary);
+}
+
+.stage19-spine--writing .stage19-living-outline__items {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage19-spine--writing .stage19-living-outline__items::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 17px;
+  width: 1px;
+  background: var(--bs-line-quiet);
+  content: "";
+}
+
+.stage19-living-outline__items > li {
+  position: relative;
+  cursor: grab;
+}
+
+.stage19-living-outline__items > li:active {
+  cursor: grabbing;
+}
+
+.stage19-living-outline__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-living-outline__row::after {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 2px;
+  background: transparent;
+  content: "";
+}
+
+.stage19-living-outline__row.is-active::after,
+.stage19-living-outline__row.is-writing-linked::after {
+  background: var(--bs-accent-primary);
+}
+
+.stage19-living-outline__row.is-writing-linked .stage19-living-outline__placement {
+  color: var(--bs-text-secondary);
+}
+
+.stage19-spine--writing .stage19-living-outline__locate,
+.stage19-spine--writing .stage19-living-outline__title,
+.stage19-spine--writing .stage19-living-outline__more {
+  min-height: 36px;
+  padding: 4px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stage19-spine--writing .stage19-living-outline__locate {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  color: var(--bs-text-muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage19-living-outline__marker {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--bs-text-muted);
+  border-radius: 50%;
+  background: var(--bs-canvas-black);
+}
+
+.stage19-living-outline__row.is-writing-linked .stage19-living-outline__marker {
+  border-color: var(--bs-accent-primary);
+  background: var(--bs-accent-primary);
+}
+
+.stage19-living-outline__row.is-suggested .stage19-living-outline__marker {
+  border-style: dashed;
+  background: var(--bs-canvas-black);
+}
+
+.stage19-living-outline__item-main {
+  display: grid;
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline__title {
+  justify-self: start;
+  width: 100%;
+  min-height: 28px;
+  padding: 0;
+  overflow: hidden;
+  color: var(--bs-text-primary);
+  font-size: 0.82rem;
+  font-weight: 560;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-living-outline__title:hover:not(:disabled) {
+  border-color: transparent;
+  background: transparent;
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--bs-line-strong);
+  text-underline-offset: 3px;
+}
+
+.stage19-living-outline__placement,
+.stage19-living-outline__meaning,
+.stage19-living-outline__suggested {
+  color: var(--bs-text-muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.stage19-living-outline__meaning,
+.stage19-living-outline__suggested {
+  color: var(--bs-text-secondary);
+}
+
+.stage19-living-outline__suggested {
+  padding: 2px 5px;
+  border: 1px dashed var(--bs-line-strong);
+  border-radius: 2px;
+}
+
+.stage19-spine--writing .stage19-living-outline__more {
+  color: var(--bs-text-muted);
+  font-size: 0.68rem;
+}
+
+.stage19-living-outline__rename {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 4px;
+}
+
+.stage19-living-outline__rename input {
+  min-width: 0;
+  min-height: 34px;
+}
+
+.stage19-living-outline__rename button {
+  min-height: 34px;
+  padding: 4px 7px;
+  font-size: 0.68rem;
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--bs-line-strong);
+  border-bottom: 1px solid var(--bs-line-quiet);
+  background: transparent;
+}
+
+.stage19-living-outline__advanced-heading > div {
+  min-width: 0;
+}
+
+.stage19-living-outline__advanced-heading h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage19-living-outline__advanced > label {
+  display: grid;
+  gap: 4px;
+  color: var(--bs-text-secondary);
+  font-size: 0.72rem;
+}
+
+.stage19-living-outline__explanation {
+  margin: -4px 0 2px;
+  color: var(--bs-text-muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.stage19-living-outline__relationship,
+.stage19-living-outline__move {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-living-outline__relationship strong,
+.stage19-living-outline__move > span {
+  flex: 1 1 100%;
+  color: var(--bs-text-secondary);
+  font-size: 0.72rem;
+}
+
+.stage19-living-outline__move small {
+  flex: 1 1 100%;
+  color: var(--bs-text-muted);
+  font-size: 0.66rem;
+}
+
+.stage19-living-outline__provenance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  color: var(--bs-text-muted);
+  font-size: 0.64rem;
+}
+
+.stage19-living-outline__provenance div {
+  min-width: 0;
+}
+
+.stage19-living-outline__provenance dt {
+  color: var(--bs-text-secondary);
+}
+
+.stage19-living-outline__provenance dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.stage19-spine--writing .stage19-living-outline__preview {
+  padding-top: 8px;
+  border-top: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-spine--writing .stage19-living-outline__preview summary {
+  color: var(--bs-text-secondary);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .stage19-living-outline__row {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
+  .stage19-living-outline__suggested {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .stage19-living-outline__more {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .stage19-living-outline__rename {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .stage19-living-outline__rename input {
+    grid-column: 1 / -1;
+  }
+}

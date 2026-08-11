@@ -73,29 +73,48 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: /^Save$/ }).click();
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
 
-    await writing.getByLabel('Outline item').fill('Opening question');
-    await writing.getByLabel('Shape').selectOption('fragment');
-    await writing.getByLabel('Status').selectOption('authored');
+    await openingEditor.focus();
+    await writing.keyboard.press('Control+A');
     await writing.getByRole('button', { name: 'Add outline item' }).click();
-    await expect(writing.getByRole('button', { name: /Opening question.*fragment.*authored.*Writing: Opening Signal/i })).toBeVisible();
+    await expect(writing.getByText('Selected passage in Opening Signal')).toBeVisible();
+    const openingOutlineTitle = writing.locator('.stage19-living-outline__rename input');
+    await expect(openingOutlineTitle).toHaveValue(/Rain marked the station glass/);
+    await openingOutlineTitle.fill('Opening question');
+    await openingOutlineTitle.press('Enter');
+    await writing.getByRole('button', { name: 'More options for Opening question' }).click();
+    const openingOptions = writing.getByRole('region', { name: 'More options for Opening question' });
+    await openingOptions.getByLabel('Source state').selectOption('authored');
+    await openingOptions.getByRole('button', { name: 'Save options' }).click();
+    await openingOptions.getByRole('button', { name: 'Close' }).click();
+    await expect(writing.getByRole('button', { name: 'Show Opening question in manuscript' })).toBeVisible();
 
     await writing.getByRole('button', { name: /^02 Impossible Arrival$/ }).click();
     const arrivalEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Impossible Arrival' });
     await arrivalEditor.fill('The ship arrived where no harbor existed.');
     await writing.getByRole('button', { name: /^Save$/ }).click();
-    await writing.getByLabel('Outline item').fill('Bridge into the impossible arrival');
-    await writing.getByLabel('Shape').selectOption('gap');
-    await writing.getByLabel('Status').selectOption('proposed');
     await writing.getByRole('button', { name: 'Add outline item' }).click();
+    const arrivalOutlineTitle = writing.getByRole('textbox', { name: 'Title for New outline item' });
+    await arrivalOutlineTitle.fill('Bridge into the impossible arrival');
+    await arrivalOutlineTitle.press('Enter');
+    await writing.getByRole('button', { name: 'More options for Bridge into the impossible arrival' }).click();
+    const arrivalOptions = writing.getByRole('region', { name: 'More options for Bridge into the impossible arrival' });
+    await arrivalOptions.getByLabel('Structural meaning').selectOption('gap');
+    await arrivalOptions.getByLabel('Source state').selectOption('proposed');
+    await arrivalOptions.getByRole('button', { name: 'Save options' }).click();
 
     const protectedBeforeMove = await Promise.all([
       readFile(join(created.projectPath, 'outline.json'), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.openingUnitId}.md`), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.arrivalUnitId}.md`), 'utf8'),
     ]);
-    await writing.getByRole('button', { name: 'Move planning up' }).click();
+    const outlineItems = writing.locator('.stage19-living-outline__items > li');
+    await expect(outlineItems).toHaveCount(2);
+    const dragData = await writing.evaluateHandle(() => new DataTransfer());
+    await outlineItems.nth(1).dispatchEvent('dragstart', { dataTransfer: dragData });
+    await outlineItems.nth(0).dispatchEvent('dragover', { dataTransfer: dragData });
+    await outlineItems.nth(0).dispatchEvent('drop', { dataTransfer: dragData });
     await expect(writing.getByText('Planning order saved. Accepted manuscript order was not changed.')).toBeVisible();
-    await writing.getByText('Preview linked writing order').click();
+    await writing.getByText('Compare planning and manuscript order').click();
     await expect(writing.getByText('Preview only. Moving this list never moves accepted manuscript units.')).toBeVisible();
     expect(await Promise.all([
       readFile(join(created.projectPath, 'outline.json'), 'utf8'),
@@ -157,8 +176,10 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     }, created.projectPath);
     await expect(reopened.writing.getByRole('heading', { name: 'Gate One Project' })).toBeVisible();
     await openWritingStudioRail(reopened.writing, 'manuscript tools');
-    await expect(reopened.writing.getByRole('button', { name: /Bridge into the impossible arrival.*gap.*proposed/i })).toBeVisible();
-    await reopened.writing.getByRole('button', { name: /Opening question.*fragment.*authored/i }).click();
+    await expect(reopened.writing.getByRole('button', { name: 'Bridge into the impossible arrival', exact: true })).toBeVisible();
+    await expect(reopened.writing.getByText('Something goes here')).toBeVisible();
+    await expect(reopened.writing.getByText('Suggested')).toBeVisible();
+    await reopened.writing.getByRole('button', { name: 'Show Opening question in manuscript' }).click();
     await expect(reopened.writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' })).toContainText(openingProse);
     await openWritingStudioRail(reopened.writing, 'writing support');
     await reopened.writing.getByRole('button', { name: 'Open Feedback Notes (1)' }).click();
@@ -174,6 +195,11 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await openWritingStudioRail(reopened.writing, 'manuscript tools');
     await expect(reopened.writing.getByRole('region', { name: 'Living Outline' }).getByText('0', { exact: true })).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
+    await reopened.writing.getByRole('button', { name: 'Add outline item' }).click();
+    const unplacedTitle = reopened.writing.getByRole('textbox', { name: 'Title for New outline item' });
+    await unplacedTitle.fill('Unplaced thought');
+    await unplacedTitle.press('Enter');
+    await expect(reopened.writing.getByText('Not placed yet', { exact: true })).toBeVisible();
 
     const secondExit = waitForCleanElectronApplicationExit(relaunched.application);
     await requestWritingStudioClose(relaunched.application);

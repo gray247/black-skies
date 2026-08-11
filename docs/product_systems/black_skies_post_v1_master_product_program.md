@@ -669,10 +669,9 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the green P3-D implementation and evidence batch,
-2. begin P3-E and continue Program 3's remaining automated batches for the
-   plain Living Outline, Command Center critique-result handoff, and final
-   shell qualification,
+1. commit and push the green P3-E implementation and evidence batch,
+2. begin P3-F and continue Program 3's remaining automated batches for the
+   Command Center critique-result handoff and final shell qualification,
 3. complete Program 4's minimal Companion entry and owner-routing slice,
 4. perform Human Gate 2 only when the contextual shell and Companion workflow
    are whole,

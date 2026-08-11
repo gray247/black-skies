@@ -69,6 +69,13 @@ function operationId(prefix: string): string {
   return `${prefix}:${suffix}`;
 }
 
+function defaultOutlineLabel(selection: DraftEditorSelectionEvidence | null): string {
+  const selected = selection?.selectedText.replace(/\s+/g, ' ').trim() ?? '';
+  if (!selected) return 'New outline item';
+  if (selected.length <= 96) return selected;
+  return `${selected.slice(0, 95).trimEnd()}…`;
+}
+
 function splitDraft(markdown: string): DraftEnvelope {
   const normalized = markdown.replace(/\r\n/g, '\n');
   const lines = normalized.split('\n');
@@ -512,10 +519,11 @@ export default function Stage19WritingSpineApp({
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
   const [selectedOutlineItemId, setSelectedOutlineItemId] = useState<string | null>(null);
+  const [outlineEditingItemId, setOutlineEditingItemId] = useState<string | null>(null);
+  const [outlineAdvancedItemId, setOutlineAdvancedItemId] = useState<string | null>(null);
   const [outlineLabel, setOutlineLabel] = useState('');
   const [outlineKind, setOutlineKind] = useState<LivingOutlineItemKind>('fragment');
   const [outlineState, setOutlineState] = useState<LivingOutlineItemState>('planned');
-  const [outlineLinkActiveUnit, setOutlineLinkActiveUnit] = useState(true);
   const [surfaceHostState, setSurfaceHostState] = useState<SplitCommandSurfaceHostState | null>(
     () => surfaceBridge?.readSurfaceHostState() ?? null,
   );
@@ -702,10 +710,13 @@ export default function Stage19WritingSpineApp({
   const livingOutlineProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
   useEffect(() => {
     if (windowRole !== 'writing') return;
+    setSelectedOutlineItemId(null);
+    setOutlineEditingItemId(null);
+    setOutlineAdvancedItemId(null);
+    setOutlineLabel('');
     if (!snapshot.project) {
       setLivingOutline(null);
       setLivingOutlineNotice(null);
-      setSelectedOutlineItemId(null);
       return;
     }
     if (!livingOutlineBridge) {
@@ -1177,73 +1188,112 @@ export default function Stage19WritingSpineApp({
     };
   }, [livingOutline]);
 
+  const selectLivingOutlineFields = useCallback((itemId: string) => {
+    const item = livingOutline?.document.items.find((candidate) => candidate.id === itemId);
+    if (!item) return null;
+    setSelectedOutlineItemId(item.id);
+    setOutlineLabel(item.label);
+    setOutlineKind(item.kind);
+    setOutlineState(item.state);
+    return item;
+  }, [livingOutline]);
+
   const createLivingOutlineItem = useCallback(async () => {
     const binding = livingOutlineMutationBinding();
-    if (!binding || !livingOutlineBridge || !outlineLabel.trim()) return;
+    if (!binding || !livingOutlineBridge) return;
+    const selectedProse = aiSelection?.selectedText.trim() ?? '';
+    const manuscriptUnitId = snapshotRef.current.activeUnitId;
     setLivingOutlineLoading(true);
     try {
       const result = await livingOutlineBridge.createItem({
         ...binding,
         operationId: operationId('living-outline-create'),
-        label: outlineLabel,
-        kind: outlineKind,
-        state: outlineState,
-        manuscriptUnitId: outlineLinkActiveUnit ? snapshotRef.current.activeUnitId : null,
+        label: defaultOutlineLabel(aiSelection),
+        kind: 'fragment',
+        state: selectedProse ? 'proposed' : 'planned',
+        manuscriptUnitId,
       });
       if (applyLivingOutlineResult(result) && result.ok) {
         const created = result.data.document.items.at(-1);
         setSelectedOutlineItemId(created?.id ?? null);
-        setOutlineLabel('');
+        setOutlineEditingItemId(created?.id ?? null);
+        setOutlineAdvancedItemId(null);
+        setOutlineLabel(created?.label ?? '');
+        setOutlineKind(created?.kind ?? 'fragment');
+        setOutlineState(created?.state ?? 'planned');
+        setLivingOutlineNotice(
+          selectedProse
+            ? 'Outline item created from the selected passage. Name it when ready; manuscript text was not changed.'
+            : manuscriptUnitId
+              ? 'Outline item created with the current writing. Name it when ready.'
+              : 'Outline item created as Not placed yet. Name it when ready.',
+        );
       }
     } catch {
       setLivingOutlineNotice('The outline item could not be saved. Manuscript text was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
-  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, outlineKind, outlineLabel, outlineLinkActiveUnit, outlineState]);
+  }, [aiSelection, applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding]);
 
   const selectLivingOutlineItem = useCallback(async (itemId: string) => {
-    const item = livingOutline?.document.items.find((candidate) => candidate.id === itemId);
+    const item = selectLivingOutlineFields(itemId);
     if (!item) return;
-    setSelectedOutlineItemId(item.id);
-    setOutlineLabel(item.label);
-    setOutlineKind(item.kind);
-    setOutlineState(item.state);
-    setOutlineLinkActiveUnit(Boolean(item.manuscriptUnitId));
+    setOutlineEditingItemId(null);
+    setOutlineAdvancedItemId(null);
     if (item.manuscriptUnitId && item.manuscriptUnitId !== snapshotRef.current.activeUnitId) {
       await handleSelectUnit(item.manuscriptUnitId);
     }
-  }, [handleSelectUnit, livingOutline]);
+    window.setTimeout(focusWritingEditor, 0);
+  }, [handleSelectUnit, selectLivingOutlineFields]);
 
-  const updateLivingOutlineItem = useCallback(async () => {
+  const editLivingOutlineItem = useCallback((itemId: string) => {
+    if (!selectLivingOutlineFields(itemId)) return;
+    setOutlineAdvancedItemId(null);
+    setOutlineEditingItemId(itemId);
+  }, [selectLivingOutlineFields]);
+
+  const openLivingOutlineOptions = useCallback((itemId: string) => {
+    if (!selectLivingOutlineFields(itemId)) return;
+    setOutlineEditingItemId(null);
+    setOutlineAdvancedItemId(itemId);
+  }, [selectLivingOutlineFields]);
+
+  const updateLivingOutlineItem = useCallback(async (itemId: string) => {
     const binding = livingOutlineMutationBinding();
-    if (!binding || !livingOutlineBridge || !selectedOutlineItem || !outlineLabel.trim()) return;
+    const item = livingOutline?.document.items.find((candidate) => candidate.id === itemId);
+    if (!binding || !livingOutlineBridge || !item || !outlineLabel.trim()) return;
     setLivingOutlineLoading(true);
     try {
-      applyLivingOutlineResult(await livingOutlineBridge.updateItem({
+      const updated = await livingOutlineBridge.updateItem({
         ...binding,
         operationId: operationId('living-outline-update'),
-        itemId: selectedOutlineItem.id,
+        itemId,
         label: outlineLabel,
         kind: outlineKind,
         state: outlineState,
-      }));
+      });
+      if (applyLivingOutlineResult(updated)) {
+        setOutlineEditingItemId(null);
+        setLivingOutlineNotice('Outline item saved. Manuscript text was not changed.');
+      }
     } catch {
       setLivingOutlineNotice('The outline item could not be updated. Manuscript text was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
-  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, outlineKind, outlineLabel, outlineState, selectedOutlineItem]);
+  }, [applyLivingOutlineResult, livingOutline, livingOutlineBridge, livingOutlineMutationBinding, outlineKind, outlineLabel, outlineState]);
 
-  const moveLivingOutlineItem = useCallback(async (direction: -1 | 1) => {
+  const moveLivingOutlineItem = useCallback(async (itemId: string, direction: -1 | 1) => {
     const binding = livingOutlineMutationBinding();
-    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    if (!binding || !livingOutlineBridge || !livingOutline?.document.items.some((item) => item.id === itemId)) return;
+    setSelectedOutlineItemId(itemId);
     setLivingOutlineLoading(true);
     try {
       if (applyLivingOutlineResult(await livingOutlineBridge.moveItem({
         ...binding,
         operationId: operationId('living-outline-move'),
-        itemId: selectedOutlineItem.id,
+        itemId,
         direction,
       }))) {
         setLivingOutlineNotice('Planning order saved. Accepted manuscript order was not changed.');
@@ -1253,37 +1303,80 @@ export default function Stage19WritingSpineApp({
     } finally {
       setLivingOutlineLoading(false);
     }
-  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
+  }, [applyLivingOutlineResult, livingOutline, livingOutlineBridge, livingOutlineMutationBinding]);
 
-  const linkLivingOutlineItem = useCallback(async (manuscriptUnitId: string | null) => {
+  const moveLivingOutlineItemTo = useCallback(async (itemId: string, targetIndex: number) => {
     const binding = livingOutlineMutationBinding();
-    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    if (!binding || !livingOutlineBridge || !livingOutline) return;
+    let working = livingOutline;
+    let currentIndex = working.document.items.findIndex((item) => item.id === itemId);
+    const boundedTarget = Math.max(0, Math.min(targetIndex, working.document.items.length - 1));
+    if (currentIndex < 0 || currentIndex === boundedTarget) return;
+    setSelectedOutlineItemId(itemId);
     setLivingOutlineLoading(true);
     try {
-      applyLivingOutlineResult(await livingOutlineBridge.linkItem({
-        ...binding,
-        operationId: operationId('living-outline-link'),
-        itemId: selectedOutlineItem.id,
-        manuscriptUnitId,
-      }));
+      while (currentIndex !== boundedTarget) {
+        const direction: -1 | 1 = currentIndex < boundedTarget ? 1 : -1;
+        const result = await livingOutlineBridge.moveItem({
+          ...binding,
+          expectedRevision: working.document.revision,
+          operationId: operationId('living-outline-drag-move'),
+          itemId,
+          direction,
+        });
+        if (!result.ok) {
+          applyLivingOutlineResult(result);
+          return;
+        }
+        working = result.data;
+        currentIndex += direction;
+      }
+      applyLivingOutlineResult({ ok: true, data: working });
+      setLivingOutlineNotice('Planning order saved. Accepted manuscript order was not changed.');
     } catch {
-      setLivingOutlineNotice('The outline link could not be saved. Manuscript text was not changed.');
+      setLivingOutlineNotice('The planning order could not be saved. Accepted manuscript order was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
-  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
+  }, [applyLivingOutlineResult, livingOutline, livingOutlineBridge, livingOutlineMutationBinding]);
 
-  const deleteLivingOutlineItem = useCallback(async () => {
+  const linkLivingOutlineItem = useCallback(async (itemId: string, manuscriptUnitId: string | null) => {
     const binding = livingOutlineMutationBinding();
-    if (!binding || !livingOutlineBridge || !selectedOutlineItem) return;
+    if (!binding || !livingOutlineBridge || !livingOutline?.document.items.some((item) => item.id === itemId)) return;
+    setLivingOutlineLoading(true);
+    try {
+      if (applyLivingOutlineResult(await livingOutlineBridge.linkItem({
+        ...binding,
+        operationId: operationId('living-outline-link'),
+        itemId,
+        manuscriptUnitId,
+      }))) {
+        setLivingOutlineNotice(
+          manuscriptUnitId
+            ? 'Outline item placed with the current writing. Manuscript text was not changed.'
+            : 'Outline item is now Not placed yet. Manuscript text was not changed.',
+        );
+      }
+    } catch {
+      setLivingOutlineNotice('The outline relationship could not be saved. Manuscript text was not changed.');
+    } finally {
+      setLivingOutlineLoading(false);
+    }
+  }, [applyLivingOutlineResult, livingOutline, livingOutlineBridge, livingOutlineMutationBinding]);
+
+  const deleteLivingOutlineItem = useCallback(async (itemId: string) => {
+    const binding = livingOutlineMutationBinding();
+    if (!binding || !livingOutlineBridge || !livingOutline?.document.items.some((item) => item.id === itemId)) return;
     setLivingOutlineLoading(true);
     try {
       if (applyLivingOutlineResult(await livingOutlineBridge.deleteItem({
         ...binding,
         operationId: operationId('living-outline-delete'),
-        itemId: selectedOutlineItem.id,
+        itemId,
       }))) {
         setSelectedOutlineItemId(null);
+        setOutlineEditingItemId(null);
+        setOutlineAdvancedItemId(null);
         setOutlineLabel('');
       }
     } catch {
@@ -1291,7 +1384,7 @@ export default function Stage19WritingSpineApp({
     } finally {
       setLivingOutlineLoading(false);
     }
-  }, [applyLivingOutlineResult, livingOutlineBridge, livingOutlineMutationBinding, selectedOutlineItem]);
+  }, [applyLivingOutlineResult, livingOutline, livingOutlineBridge, livingOutlineMutationBinding]);
 
   const submitRecoveryDecision = useCallback(async (
     candidate: ProjectSpineRecoveryCandidateProjection,
@@ -1935,10 +2028,11 @@ export default function Stage19WritingSpineApp({
     livingOutlineNotice,
     selectedOutlineItem,
     selectedOutlineItemId,
+    outlineEditingItemId,
+    outlineAdvancedItemId,
     outlineLabel,
     outlineKind,
     outlineState,
-    outlineLinkActiveUnit,
     projectedWritingOrder,
     activeBuffer,
     activeDirty,
@@ -1995,11 +2089,15 @@ export default function Stage19WritingSpineApp({
     setOutlineLabel,
     setOutlineKind,
     setOutlineState,
-    setOutlineLinkActiveUnit,
     createOutlineItem: createLivingOutlineItem,
     updateOutlineItem: updateLivingOutlineItem,
     selectOutlineItem: selectLivingOutlineItem,
+    editOutlineItem: editLivingOutlineItem,
+    cancelOutlineItemEdit: () => setOutlineEditingItemId(null),
+    openOutlineItemOptions: openLivingOutlineOptions,
+    closeOutlineItemOptions: () => setOutlineAdvancedItemId(null),
     moveOutlineItem: moveLivingOutlineItem,
+    moveOutlineItemTo: moveLivingOutlineItemTo,
     linkOutlineItem: linkLivingOutlineItem,
     deleteOutlineItem: deleteLivingOutlineItem,
     saveUnit,

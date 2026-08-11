@@ -12,7 +12,7 @@
 - Exact committed planning baseline: `1698a44604e8fab6c47948a5128e911bf8d9916b`
 - Branch: `codex/foundation-audit`
 - Current mutation authority: `PROGRAM 3 ONLY, WITH THIS PLAN'S INCLUDED SCOPE, EXCLUSIONS, BATCH GATES, TRUTH BOUNDARIES, AND HUMAN GATE 2 BOUNDARY IN FORCE`
-- Runtime implementation: `P3-A DURABLE AT 4007e12a; P3-B DURABLE AT 2ff0361c; P3-C DURABLE AT 3de76ee1; P3-D GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
+- Runtime implementation: `P3-A DURABLE AT 4007e12a; P3-B DURABLE AT 2ff0361c; P3-C DURABLE AT 3de76ee1; P3-D DURABLE AT fb232066; P3-E GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
 - Git authority: `Jason alone stages, commits, and pushes under current repository governance`
 
 This plan is the complete handoff from Control Point 1 into Program 3. It is
@@ -399,9 +399,7 @@ Exit:
 
 Implementation evidence is recorded in
 [Program 3 Batch P3-D Evidence Receipt](program_3_batch_p3_d_evidence_receipt.md).
-The implementation and automated gate are green; the batch becomes durable
-after Jason commits and pushes the exact P3-D file set. P3-E begins from that
-exact pushed checkpoint.
+The implementation and automated gate are durable at `fb232066`.
 
 ### Batch P3-E - Living Outline ecosystem interaction
 
@@ -431,6 +429,12 @@ Exit:
 
 - manuscript and Living Outline read as one ecosystem;
 - advanced ontology remains available without occupying the ordinary path.
+
+Implementation evidence is recorded in
+[Program 3 Batch P3-E Evidence Receipt](program_3_batch_p3_e_evidence_receipt.md).
+The implementation and automated gate are green; the batch becomes durable
+after Jason commits and pushes the exact P3-E file set. P3-F begins from that
+exact pushed checkpoint.
 
 ### Batch P3-F - Command Center task canvas and Review workspace
 

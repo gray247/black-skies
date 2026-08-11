@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
@@ -2126,21 +2126,60 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('manuscript tools');
     expect(await screen.findByRole('region', { name: 'Living Outline' })).toBeVisible();
-    await user.type(screen.getByLabelText('Outline item'), 'What happens between the signal and arrival?');
-    await user.selectOptions(screen.getByLabelText('Shape'), 'gap');
-    await user.selectOptions(screen.getByLabelText('Status'), 'planned');
+    expect(screen.getByText(/new item will be Not placed yet/i)).toBeVisible();
+    expect(screen.queryByLabelText('Structural meaning')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Source state')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Add outline item' }));
+    const title = await screen.findByRole('textbox', { name: 'Title for New outline item' });
+    await user.clear(title);
+    await user.type(title, 'What happens between the signal and arrival?');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'More options for What happens between the signal and arrival?' }));
+    await user.selectOptions(screen.getByLabelText('Structural meaning'), 'gap');
+    await user.click(screen.getByRole('button', { name: 'Save options' }));
+    await user.click(within(screen.getByRole('region', { name: 'More options for What happens between the signal and arrival?' })).getByRole('button', { name: 'Close' }));
 
     expect(outline.bridge.createItem).toHaveBeenCalledWith(expect.objectContaining({
-      label: 'What happens between the signal and arrival?',
-      kind: 'gap',
+      label: 'New outline item',
+      kind: 'fragment',
       state: 'planned',
       manuscriptUnitId: null,
     }));
-    expect(await screen.findByText('What happens between the signal and arrival?')).toBeVisible();
-    expect(screen.getByText('gap · planned')).toBeVisible();
+    expect(outline.bridge.updateItem).toHaveBeenLastCalledWith(expect.objectContaining({
+      label: 'What happens between the signal and arrival?',
+      kind: 'gap',
+      state: 'planned',
+    }));
+    expect(await screen.findByRole('button', { name: 'What happens between the signal and arrival?' })).toBeVisible();
+    expect(screen.getByText('Something goes here')).toBeVisible();
+    expect(screen.getByText('Not placed yet')).toBeVisible();
     expect(project.bridge.createUnit).not.toHaveBeenCalled();
     expect(screen.queryByText(/warning|alarm/i)).not.toBeInTheDocument();
+  });
+
+  it('uses selected prose as quiet advisory outline context without mandatory setup fields', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge();
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' }) as HTMLTextAreaElement;
+    editor.setSelectionRange(0, 10);
+    fireEvent.select(editor);
+    await openWritingRail('manuscript tools');
+    expect(screen.getByText('Selected passage in First Unit')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Add outline item' }));
+
+    expect(outline.bridge.createItem).toHaveBeenCalledWith(expect.objectContaining({
+      label: 'Alpha body',
+      kind: 'fragment',
+      state: 'proposed',
+      manuscriptUnitId: 'unit_a',
+    }));
+    expect(await screen.findByRole('textbox', { name: 'Title for Alpha body' })).toHaveFocus();
+    expect(screen.getByText('Suggested')).toBeVisible();
+    expect(screen.getByText('Belongs with: First Unit')).toBeVisible();
+    expect(screen.queryByLabelText('Structural meaning')).not.toBeInTheDocument();
   });
 
   it('locates linked writing from either side and previews planning movement without reordering manuscript units', async () => {
@@ -2159,23 +2198,54 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
 
     await openWritingRail('manuscript tools');
-    const opening = await screen.findByRole('button', { name: /Opening.*fragment.*authored.*Writing: First Unit/i });
-    await waitFor(() => expect(opening).toHaveClass('is-writing-linked'));
-    const turn = screen.getByRole('button', { name: /Uncertain turn.*gap.*proposed.*Writing: Untitled/i });
+    const opening = await screen.findByRole('button', { name: 'Show Opening in manuscript' });
+    const openingRow = opening.closest('.stage19-living-outline__row');
+    await waitFor(() => expect(openingRow).toHaveClass('is-writing-linked'));
+    const turn = screen.getByRole('button', { name: 'Show Uncertain turn in manuscript' });
+    const turnRow = turn.closest('.stage19-living-outline__row');
     await user.click(turn);
     await waitFor(() => expect(project.bridge.selectUnit).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'unit_b' })));
     expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Untitled' })).toHaveValue('Beta body');
-    expect(turn).toHaveClass('is-writing-linked');
+    expect(turnRow).toHaveClass('is-writing-linked');
 
     await user.click(screen.getByRole('button', { name: /^01 First Unit$/ }));
-    await waitFor(() => expect(opening).toHaveClass('is-active'));
-    await user.click(turn);
-    await user.click(screen.getByRole('button', { name: 'Move planning up' }));
+    await waitFor(() => expect(openingRow).toHaveClass('is-active'));
+    fireEvent.contextMenu(turn.closest('li') as HTMLLIElement);
+    const advanced = screen.getByRole('region', { name: 'More options for Uncertain turn' });
+    expect(advanced).toBeVisible();
+    await user.click(within(advanced).getByRole('button', { name: 'Move up' }));
     expect(await screen.findByText('Planning order saved. Accepted manuscript order was not changed.')).toBeVisible();
     expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
-    await user.click(screen.getByText('Preview linked writing order'));
+    await user.click(screen.getByText('Compare planning and manuscript order'));
     const preview = screen.getByText('Preview only. Moving this list never moves accepted manuscript units.');
     expect(preview).toBeVisible();
+  });
+
+  it('reorders the planning sidecar from the keyboard without moving accepted manuscript units', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([
+      {
+        id: 'outline-a', label: 'Opening', kind: 'fragment', state: 'authored', manuscriptUnitId: 'unit_a',
+        createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
+      },
+      {
+        id: 'outline-b', label: 'Turn', kind: 'fragment', state: 'planned', manuscriptUnitId: 'unit_b',
+        createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
+      },
+    ]);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+
+    await openWritingRail('manuscript tools');
+    const turnPosition = await screen.findByRole('button', { name: 'Show Turn in manuscript' });
+    fireEvent.keyDown(turnPosition, { key: 'ArrowUp', altKey: true });
+
+    await waitFor(() => expect(outline.bridge.moveItem).toHaveBeenCalledWith(expect.objectContaining({
+      itemId: 'outline-b',
+      direction: -1,
+    })));
+    expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
+    const outlineRegion = screen.getByRole('region', { name: 'Living Outline' });
+    expect((await within(outlineRegion).findAllByRole('listitem'))[0]).toHaveTextContent('Turn');
   });
 
   it('keeps manuscript editing available when the optional outline is malformed', async () => {

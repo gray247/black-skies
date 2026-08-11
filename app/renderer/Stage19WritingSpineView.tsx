@@ -69,10 +69,11 @@ export interface Stage19WritingSpineViewModel {
   readonly livingOutlineNotice: string | null;
   readonly selectedOutlineItem: LivingOutlineItemV1 | null;
   readonly selectedOutlineItemId: string | null;
+  readonly outlineEditingItemId: string | null;
+  readonly outlineAdvancedItemId: string | null;
   readonly outlineLabel: string;
   readonly outlineKind: LivingOutlineItemKind;
   readonly outlineState: LivingOutlineItemState;
-  readonly outlineLinkActiveUnit: boolean;
   readonly projectedWritingOrder: readonly {
     readonly item: LivingOutlineItemV1;
     readonly unit: ProjectSpineUnitSummary;
@@ -124,13 +125,17 @@ export interface Stage19WritingSpineViewActions {
   readonly setOutlineLabel: (value: string) => void;
   readonly setOutlineKind: (value: LivingOutlineItemKind) => void;
   readonly setOutlineState: (value: LivingOutlineItemState) => void;
-  readonly setOutlineLinkActiveUnit: (value: boolean) => void;
   readonly createOutlineItem: () => MaybeAsync;
-  readonly updateOutlineItem: () => MaybeAsync;
+  readonly updateOutlineItem: (itemId: string) => MaybeAsync;
   readonly selectOutlineItem: (itemId: string) => MaybeAsync;
-  readonly moveOutlineItem: (direction: -1 | 1) => MaybeAsync;
-  readonly linkOutlineItem: (unitId: string | null) => MaybeAsync;
-  readonly deleteOutlineItem: () => MaybeAsync;
+  readonly editOutlineItem: (itemId: string) => void;
+  readonly cancelOutlineItemEdit: () => void;
+  readonly openOutlineItemOptions: (itemId: string) => void;
+  readonly closeOutlineItemOptions: () => void;
+  readonly moveOutlineItem: (itemId: string, direction: -1 | 1) => MaybeAsync;
+  readonly moveOutlineItemTo: (itemId: string, targetIndex: number) => MaybeAsync;
+  readonly linkOutlineItem: (itemId: string, unitId: string | null) => MaybeAsync;
+  readonly deleteOutlineItem: (itemId: string) => MaybeAsync;
   readonly saveUnit: (unitId: string, body?: string) => MaybeAsync;
   readonly changeBuffer: (unitId: string, body: string) => void;
   readonly changeAiSelection: (selection: DraftEditorSelectionEvidence) => void;
@@ -411,100 +416,238 @@ function ProjectLifecycleView({ model, actions }: Stage19WritingSpineViewProps):
   );
 }
 
+function focusOutlineTitleInput(element: HTMLInputElement | null): void {
+  element?.focus();
+}
+
+function OutlineTitleEditor({
+  actions,
+  item,
+  livingOutlineLoading,
+  outlineLabel,
+}: {
+  readonly actions: Stage19WritingSpineViewProps['actions'];
+  readonly item: LivingOutlineItemV1;
+  readonly livingOutlineLoading: boolean;
+  readonly outlineLabel: string;
+}): JSX.Element {
+  return (
+    <form className="stage19-living-outline__rename" onSubmit={(event) => {
+      event.preventDefault();
+      void actions.updateOutlineItem(item.id);
+    }}>
+      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Outline item title</label>
+      <input
+        ref={focusOutlineTitleInput}
+        id={`stage19-outline-title-${item.id}`}
+        aria-label={`Title for ${item.label}`}
+        value={outlineLabel}
+        maxLength={240}
+        onChange={(event) => actions.setOutlineLabel(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') actions.cancelOutlineItemEdit();
+        }}
+      />
+      <button type="submit" disabled={livingOutlineLoading || !outlineLabel.trim()}>Save</button>
+      <button type="button" onClick={actions.cancelOutlineItemEdit}>Cancel</button>
+    </form>
+  );
+}
+
 function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const {
     activeUnit,
+    aiSelection,
     livingOutline,
     livingOutlineLoading,
     livingOutlineNotice,
+    outlineAdvancedItemId,
+    outlineEditingItemId,
     outlineKind,
     outlineLabel,
-    outlineLinkActiveUnit,
     outlineState,
     projectedWritingOrder,
-    selectedOutlineItem,
     selectedOutlineItemId,
     snapshot,
   } = model;
+  const advancedItem = livingOutline?.document.items.find((item) => item.id === outlineAdvancedItemId) ?? null;
+  const hasSelectedPassage = Boolean(aiSelection?.selectedText.trim());
+  const creationContext = hasSelectedPassage
+    ? `Selected passage in ${activeUnit?.displayTitle ?? 'the current writing'}`
+    : activeUnit
+      ? `Current position in ${activeUnit.displayTitle}`
+      : 'No manuscript context; the new item will be Not placed yet';
   return (
     <section className="stage19-living-outline" aria-label="Living Outline">
-      <div className="stage19-spine__section-heading">
-        <div><span className="stage19-spine__eyebrow">Optional planning layer</span><h2>Living Outline</h2></div>
-        <span>{livingOutline?.document.items.length ?? 0}</span>
+      <div className="stage19-living-outline__heading">
+        <div>
+          <h2>Outline</h2>
+          <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} outline items`}>
+            {livingOutline?.document.items.length ?? 0}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="stage19-living-outline__add"
+          aria-label="Add outline item"
+          aria-describedby="stage19-outline-creation-context"
+          onClick={() => void actions.createOutlineItem()}
+          disabled={livingOutlineLoading || livingOutline?.availability !== 'ready'}
+        >
+          <span aria-hidden="true">+</span>
+        </button>
       </div>
-      <p className="stage19-living-outline__boundary">Planning only. It can point to writing, but it cannot rewrite prose or reorder the accepted manuscript.</p>
+      <p id="stage19-outline-creation-context" className="stage19-living-outline__context">{creationContext}</p>
+      <p className="stage19-living-outline__boundary">A structural guide beside your writing. It never rewrites prose or accepted manuscript order.</p>
       {livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
       {livingOutlineLoading && !livingOutline ? <p>Loading outline…</p> : null}
       {livingOutline?.availability === 'ready' ? (
         <>
-          <div className="stage19-living-outline__editor">
-            <label>
-              <span>Outline item</span>
-              <input value={outlineLabel} maxLength={240} onChange={(event) => actions.setOutlineLabel(event.target.value)} placeholder="A fragment, gap, or planning area" />
-            </label>
-            <label>
-              <span>Shape</span>
-              <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
-                <option value="fragment">Fragment</option>
-                <option value="gap">Gap</option>
-                <option value="container">Planning area</option>
-              </select>
-            </label>
-            <label>
-              <span>Status</span>
-              <select value={outlineState} onChange={(event) => actions.setOutlineState(event.target.value as LivingOutlineItemState)}>
-                <option value="authored">Authored</option>
-                <option value="planned">Planned</option>
-                <option value="inferred">Inferred</option>
-                <option value="proposed">Proposed</option>
-              </select>
-            </label>
-            <label className="stage19-living-outline__checkbox">
-              <input type="checkbox" checked={outlineLinkActiveUnit} onChange={(event) => actions.setOutlineLinkActiveUnit(event.target.checked)} disabled={!activeUnit} />
-              <span>{activeUnit ? `Link new item to ${activeUnit.displayTitle}` : 'Create unlinked (no active writing)'}</span>
-            </label>
-            <div className="stage19-living-outline__actions">
-              <button type="button" onClick={() => void actions.createOutlineItem()} disabled={livingOutlineLoading || !outlineLabel.trim()}>Add outline item</button>
-              <button type="button" onClick={() => void actions.updateOutlineItem()} disabled={livingOutlineLoading || !selectedOutlineItem || !outlineLabel.trim()}>Update selected</button>
-            </div>
-          </div>
           {livingOutline.document.items.length > 0 ? (
             <ol className="stage19-living-outline__items">
               {livingOutline.document.items.map((item, index) => {
                 const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
+                const isCurrentWriting = item.manuscriptUnitId === snapshot.activeUnitId;
+                const isSuggested = item.state === 'proposed' || item.state === 'inferred';
                 return (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      className={`${item.id === selectedOutlineItemId ? 'is-active' : ''} ${item.manuscriptUnitId === snapshot.activeUnitId ? 'is-writing-linked' : ''}`}
-                      aria-current={item.id === selectedOutlineItemId ? 'true' : undefined}
-                      onClick={() => void actions.selectOutlineItem(item.id)}
-                    >
-                      <span>{String(index + 1).padStart(2, '0')}</span>
-                      <strong>{item.label}</strong>
-                      <em>{item.kind} · {item.state}</em>
-                      <small>{linkedUnit ? `Writing: ${linkedUnit.displayTitle}` : 'Unlinked planning'}</small>
-                    </button>
+                  <li
+                    key={item.id}
+                    draggable={!livingOutlineLoading}
+                    onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = 'move';
+                      event.dataTransfer.setData('application/x-black-skies-outline-item', item.id);
+                      event.dataTransfer.setData('text/plain', item.id);
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
+                      if (movingItemId) void actions.moveOutlineItemTo(movingItemId, index);
+                    }}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      actions.openOutlineItemOptions(item.id);
+                    }}
+                  >
+                    <div className={`stage19-living-outline__row ${item.id === selectedOutlineItemId ? 'is-active' : ''} ${isCurrentWriting ? 'is-writing-linked' : ''} ${isSuggested ? 'is-suggested' : ''}`}>
+                      <button
+                        type="button"
+                        className="stage19-living-outline__locate"
+                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unplaced outline item ${item.label}`}
+                        aria-current={isCurrentWriting ? 'location' : undefined}
+                        onClick={() => void actions.selectOutlineItem(item.id)}
+                        onKeyDown={(event) => {
+                          if (!event.altKey) return;
+                          if (event.key === 'ArrowUp' && index > 0) {
+                            event.preventDefault();
+                            void actions.moveOutlineItem(item.id, -1);
+                          }
+                          if (event.key === 'ArrowDown' && index < livingOutline.document.items.length - 1) {
+                            event.preventDefault();
+                            void actions.moveOutlineItem(item.id, 1);
+                          }
+                        }}
+                      >
+                        <span className="stage19-living-outline__marker" aria-hidden="true" />
+                        <span>{String(index + 1).padStart(2, '0')}</span>
+                      </button>
+                      <div className="stage19-living-outline__item-main">
+                        {outlineEditingItemId === item.id ? (
+                          <OutlineTitleEditor
+                            actions={actions}
+                            item={item}
+                            livingOutlineLoading={livingOutlineLoading}
+                            outlineLabel={outlineLabel}
+                          />
+                        ) : (
+                          <button type="button" className="stage19-living-outline__title" onClick={() => actions.editOutlineItem(item.id)}>{item.label}</button>
+                        )}
+                        <span className="stage19-living-outline__placement">{linkedUnit ? `Belongs with: ${linkedUnit.displayTitle}` : 'Not placed yet'}</span>
+                        {item.kind === 'gap' ? <span className="stage19-living-outline__meaning">Something goes here</span> : null}
+                      </div>
+                      {isSuggested ? <span className="stage19-living-outline__suggested">Suggested</span> : null}
+                      <button
+                        type="button"
+                        className="stage19-living-outline__more"
+                        aria-label={`More options for ${item.label}`}
+                        aria-expanded={outlineAdvancedItemId === item.id}
+                        onClick={() => actions.openOutlineItemOptions(item.id)}
+                      >
+                        More
+                      </button>
+                    </div>
                   </li>
                 );
               })}
             </ol>
-          ) : <p className="stage19-spine__empty">Start with a fragment, a gap, or an empty planning area. No warnings are generated.</p>}
-          {selectedOutlineItem ? (
-            <div className="stage19-living-outline__selected-actions">
-              <button type="button" onClick={() => void actions.moveOutlineItem(-1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === selectedOutlineItem.id}>Move planning up</button>
-              <button type="button" onClick={() => void actions.moveOutlineItem(1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === selectedOutlineItem.id}>Move planning down</button>
-              <button type="button" onClick={() => void actions.linkOutlineItem(snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || selectedOutlineItem.manuscriptUnitId === snapshot.activeUnitId}>Link to active writing</button>
-              <button type="button" onClick={() => void actions.linkOutlineItem(null)} disabled={livingOutlineLoading || !selectedOutlineItem.manuscriptUnitId}>Unlink</button>
-              <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem()} disabled={livingOutlineLoading}>Delete planning item</button>
-            </div>
+          ) : <p className="stage19-spine__empty">No outline yet. Keep writing, or use + when a structural thought matters.</p>}
+          {advancedItem ? (
+            <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
+              <div className="stage19-living-outline__advanced-heading">
+                <div><span className="stage19-spine__eyebrow">Advanced context</span><h3>{advancedItem.label}</h3></div>
+                <button type="button" onClick={actions.closeOutlineItemOptions}>Close</button>
+              </div>
+              <label>
+                <span>Structural meaning</span>
+                <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
+                  <option value="fragment">Outline item</option>
+                  <option value="gap">Something goes here</option>
+                  <option value="container">Planning area</option>
+                </select>
+              </label>
+              <p className="stage19-living-outline__explanation">
+                {outlineKind === 'gap'
+                  ? 'A deliberate empty place you expect to fill later.'
+                  : outlineKind === 'container'
+                    ? 'A planning area that groups or holds structural thoughts.'
+                    : 'An ordinary structural thought beside the manuscript.'}
+              </p>
+              <label>
+                <span>Source state</span>
+                <select value={outlineState} onChange={(event) => actions.setOutlineState(event.target.value as LivingOutlineItemState)}>
+                  <option value="authored">Already in the writing</option>
+                  <option value="planned">Planned by me</option>
+                  <option value="inferred">Observed from the writing</option>
+                  <option value="proposed">Suggested for consideration</option>
+                </select>
+              </label>
+              <p className="stage19-living-outline__explanation">
+                {outlineState === 'authored'
+                  ? 'This reflects writing already accepted on the page.'
+                  : outlineState === 'planned'
+                    ? 'This records your own intention for the story.'
+                    : outlineState === 'inferred'
+                      ? 'This was observed from existing writing and remains advisory.'
+                      : 'This is a suggestion and remains advisory until you decide otherwise.'}
+              </p>
+              <button type="button" onClick={() => void actions.updateOutlineItem(advancedItem.id)} disabled={livingOutlineLoading || !outlineLabel.trim()}>Save options</button>
+              <div className="stage19-living-outline__relationship">
+                <strong>{advancedItem.manuscriptUnitId ? `Belongs with: ${snapshot.project?.units.find((unit) => unit.id === advancedItem.manuscriptUnitId)?.displayTitle ?? 'writing'}` : 'Not placed yet'}</strong>
+                <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || advancedItem.manuscriptUnitId === snapshot.activeUnitId}>Place with current writing</button>
+                <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, null)} disabled={livingOutlineLoading || !advancedItem.manuscriptUnitId}>Mark Not placed yet</button>
+              </div>
+              <div className="stage19-living-outline__move" aria-label="Move in outline">
+                <span>Move in outline</span>
+                <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, -1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === advancedItem.id}>Move up</button>
+                <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, 1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === advancedItem.id}>Move down</button>
+                <small>Keyboard: focus an item&apos;s position and use Alt+Up or Alt+Down.</small>
+              </div>
+              <dl className="stage19-living-outline__provenance">
+                <div><dt>Created</dt><dd>{advancedItem.createdAt}</dd></div>
+                <div><dt>Updated</dt><dd>{advancedItem.updatedAt}</dd></div>
+              </dl>
+              <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem(advancedItem.id)} disabled={livingOutlineLoading}>Delete outline item</button>
+            </section>
           ) : null}
           <details className="stage19-living-outline__preview">
-            <summary>Preview linked writing order</summary>
+            <summary>Compare planning and manuscript order</summary>
             <p>Preview only. Moving this list never moves accepted manuscript units.</p>
             {projectedWritingOrder.length > 0
               ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
-              : <p>No outline items are linked to writing yet.</p>}
+              : <p>No outline items are placed with writing yet.</p>}
           </details>
         </>
       ) : null}
