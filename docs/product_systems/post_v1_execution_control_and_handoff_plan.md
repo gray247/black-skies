@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-D DURABLE; P3-E IMPLEMENTATION AND AUTOMATION GREEN`
-- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-E BATCH, THEN BEGIN PROGRAM 3 BATCH P3-F`
+- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-E DURABLE; P3-F IMPLEMENTATION AND AUTOMATION GREEN`
+- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-F BATCH, THEN BEGIN PROGRAM 3 BATCH P3-G`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -630,12 +630,12 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. Jason reviews, stages, commits, and pushes the exact green P3-E
+1. Jason reviews, stages, commits, and pushes the exact green P3-F
    implementation and evidence batch.
-2. Begin Program 3 Batch P3-F from that exact pushed baseline using `GPT-5.6
+2. Begin Program 3 Batch P3-G from that exact pushed baseline using `GPT-5.6
    Sol` with `xhigh` reasoning.
-3. Continue through the remaining Program 3 automated batches using the plan's
-   changed-boundary gates and per-batch Git checkpoints.
+3. Complete Program 3's final automated closure using the plan's
+   changed-boundary gate and exact Git checkpoint.
 4. Do not request subjective human product validation before the combined
    Program 3 and Program 4 Human Gate 2 candidate is whole.
 

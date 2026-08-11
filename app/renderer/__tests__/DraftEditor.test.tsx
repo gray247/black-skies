@@ -1,4 +1,5 @@
 ﻿import { fireEvent, render, screen } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import DraftEditor, { buildDraftEditorSelectionEvidence } from '../DraftEditor';
@@ -121,5 +122,54 @@ describe('DraftEditor', () => {
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith('Settled editor prose');
+  });
+
+  it('restores and focuses an exact fingerprint-bound source selection', async () => {
+    const source = 'Before the signal, Mara waited. After the signal, she ran.';
+    const selectionStart = source.indexOf('Mara');
+    const selectionEnd = selectionStart + 'Mara waited'.length;
+    const evidence = await buildDraftEditorSelectionEvidence(
+      source,
+      selectionStart,
+      selectionEnd,
+      0,
+    );
+    const onSelectionRestoreResult = vi.fn();
+    render(
+      <DraftEditor
+        value={source}
+        selectionRestore={{
+          requestId: 'review-1',
+          selectionStart,
+          selectionEnd,
+          selectionFingerprint: evidence.selectionFingerprint,
+        }}
+        onSelectionRestoreResult={onSelectionRestoreResult}
+      />,
+    );
+
+    const textbox = await screen.findByRole('textbox', { name: 'Draft editor' });
+    await waitFor(() => expect(onSelectionRestoreResult).toHaveBeenCalledWith('review-1', true));
+    expect(textbox).toHaveFocus();
+  });
+
+  it('refuses a stale source-return selection without moving editor focus', async () => {
+    const onSelectionRestoreResult = vi.fn();
+    render(
+      <DraftEditor
+        value="The source passage changed."
+        selectionRestore={{
+          requestId: 'review-stale',
+          selectionStart: 0,
+          selectionEnd: 10,
+          selectionFingerprint: 'f'.repeat(64),
+        }}
+        onSelectionRestoreResult={onSelectionRestoreResult}
+      />,
+    );
+
+    const textbox = await screen.findByRole('textbox', { name: 'Draft editor' });
+    await waitFor(() => expect(onSelectionRestoreResult).toHaveBeenCalledWith('review-stale', false));
+    expect(textbox).not.toHaveFocus();
   });
 });

@@ -8,6 +8,7 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 import type { AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import type { LivingOutlineBridge } from '../../shared/ipc/livingOutline';
+import type { CritiqueReviewBridge } from '../../shared/ipc/contextualProductShell';
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
@@ -67,6 +68,7 @@ declare global {
     runtimeConfig?: RuntimeConfig;
     layout?: LayoutBridge;
     splitCommand?: SplitCommandOwnershipBridge;
+    critiqueReview?: CritiqueReviewBridge;
     aiCritique?: AiCritiqueBridge;
     feedbackNotes?: FeedbackNotesBridge;
     livingOutline?: LivingOutlineBridge;

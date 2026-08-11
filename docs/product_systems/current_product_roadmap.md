@@ -31,9 +31,9 @@ Current status:
   implementation, and confirmed `GPT-5.6 Sol` with `xhigh` reasoning on
   2026-08-10. The authorization baseline is pushed at `6991bfae`; P3-A is
   durable at `4007e12a`; P3-B is durable at `2ff0361c`; P3-C is durable at
-  `3de76ee1`; P3-D is durable at `fb232066`; P3-E implementation and
-  automation are green; and P3-F follows after Jason commits and pushes the
-  exact P3-E batch
+  `3de76ee1`; P3-D is durable at `fb232066`; P3-E is durable at `fec27147`;
+  P3-F implementation and automation are green; and P3-G follows after Jason
+  commits and pushes the exact P3-F batch
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates

@@ -31,6 +31,14 @@ import type {
   SplitCommandOwnershipBridge,
   SplitCommandSurfaceHostState,
 } from '../shared/ipc/splitCommand';
+import {
+  CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+  type CommandWorkspaceV1,
+  type CritiqueReviewBridge,
+  type CritiqueReviewReferenceV1,
+  type CritiqueReviewSourceReturnMessageV1,
+  type CritiqueReviewSurfaceStateV1,
+} from '../shared/ipc/contextualProductShell';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
   type MarkdownExportNotice,
@@ -67,6 +75,15 @@ const RECOVERY_NOTICE_PREFIX = 'Recovery protection';
 function operationId(prefix: string): string {
   const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
   return `${prefix}:${suffix}`;
+}
+
+async function fingerprintVisibleText(value: string): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, '0')).join('');
 }
 
 function defaultOutlineLabel(selection: DraftEditorSelectionEvidence | null): string {
@@ -476,6 +493,7 @@ export interface Stage19WritingSpineAppProps {
   readonly feedbackNotesBridge?: FeedbackNotesBridge;
   readonly livingOutlineBridge?: LivingOutlineBridge;
   readonly surfaceBridge?: SplitCommandOwnershipBridge;
+  readonly critiqueReviewBridge?: CritiqueReviewBridge;
 }
 
 export default function Stage19WritingSpineApp({
@@ -485,6 +503,7 @@ export default function Stage19WritingSpineApp({
   feedbackNotesBridge = window.feedbackNotes,
   livingOutlineBridge = window.livingOutline,
   surfaceBridge = window.splitCommand,
+  critiqueReviewBridge = window.critiqueReview,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -508,7 +527,6 @@ export default function Stage19WritingSpineApp({
   const [aiResult, setAiResult] = useState<AiCritiqueCompletedResult | null>(null);
   const [aiResultStale, setAiResultStale] = useState(false);
   const [aiNotice, setAiNotice] = useState<string | null>(null);
-  const [reviewPaneOpen, setReviewPaneOpen] = useState(false);
   const [feedbackNoteBody, setFeedbackNoteBody] = useState('');
   const [feedbackNoteSaving, setFeedbackNoteSaving] = useState(false);
   const [feedbackNoteNotice, setFeedbackNoteNotice] = useState<string | null>(null);
@@ -528,6 +546,11 @@ export default function Stage19WritingSpineApp({
     () => surfaceBridge?.readSurfaceHostState() ?? null,
   );
   const [surfaceHostError, setSurfaceHostError] = useState<string | null>(null);
+  const [commandWorkspace, setCommandWorkspace] = useState<CommandWorkspaceV1>('review');
+  const [critiqueReviewState, setCritiqueReviewState] = useState<CritiqueReviewSurfaceStateV1 | null>(
+    () => critiqueReviewBridge?.readState() ?? null,
+  );
+  const [sourceReturnRequest, setSourceReturnRequest] = useState<CritiqueReviewSourceReturnMessageV1 | null>(null);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -593,6 +616,45 @@ export default function Stage19WritingSpineApp({
       unsubscribe();
     };
   }, [surfaceBridge]);
+
+  useEffect(() => {
+    if (!critiqueReviewBridge) return;
+    let active = true;
+    const unsubscribeState = critiqueReviewBridge.subscribeState((state) => {
+      if (active) setCritiqueReviewState(state);
+    });
+    const unsubscribeSourceReturn = critiqueReviewBridge.subscribeSourceReturn((message) => {
+      if (!active || windowRole !== 'writing') return;
+      const current = snapshotRef.current;
+      const exact = Boolean(
+        message.status === 'exact' &&
+        message.anchor &&
+        current.project?.projectId === message.projectId &&
+        current.generation === message.generation &&
+        current.activeUnitId === message.anchor.unitId,
+      );
+      setNotice(exact ? message.message : `${message.message} Exact selection restoration was not attempted.`);
+      setSourceReturnRequest(exact ? message : null);
+    });
+    void critiqueReviewBridge.requestState().then((state) => {
+      if (active) setCritiqueReviewState(state);
+    }).catch(() => {
+      if (active) {
+        setCritiqueReviewState({
+          schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+          projectId: snapshotRef.current.project?.projectId ?? null,
+          generation: snapshotRef.current.generation,
+          availability: 'unavailable',
+          message: 'Review is unavailable. Writing and saving remain available.',
+        });
+      }
+    });
+    return () => {
+      active = false;
+      unsubscribeState();
+      unsubscribeSourceReturn();
+    };
+  }, [critiqueReviewBridge, windowRole]);
 
   const applySnapshot = useCallback((next: ProjectSpineSessionSnapshot) => {
     const previousSnapshot = snapshotRef.current;
@@ -791,7 +853,6 @@ export default function Stage19WritingSpineApp({
     setAiResult(null);
     setAiResultStale(false);
     setAiNotice(null);
-    setReviewPaneOpen(false);
     setFeedbackNoteBody('');
     setFeedbackNoteSaving(false);
     setFeedbackNoteNotice(null);
@@ -811,8 +872,7 @@ export default function Stage19WritingSpineApp({
       if (state.status === 'completed' && state.result) {
         setAiResult(state.result);
         setAiResultStale(false);
-        setReviewPaneOpen(true);
-        setOpenWritingRail('right');
+        setCommandWorkspace('review');
         setFeedbackNoteBody('');
         setFeedbackNoteNotice(null);
       }
@@ -1489,6 +1549,23 @@ export default function Stage19WritingSpineApp({
         setAiState(null);
         setAiClearanceConfirmed(false);
       }
+      const projection = critiqueReviewState?.availability === 'available'
+        ? critiqueReviewState.projection
+        : undefined;
+      if (
+        critiqueReviewBridge &&
+        projection?.unitId === unitId &&
+        projection.lifecycleState !== 'invalidated'
+      ) {
+        void critiqueReviewBridge.markStale({
+          schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+          operationId: operationId('critique-review-stale'),
+          projectId: projection.projectId,
+          generation: projection.generation,
+          requestId: projection.requestId,
+          selectionFingerprint: projection.selectionFingerprint,
+        }).catch(() => undefined);
+      }
       editRevisionRef.current[unitId] = (editRevisionRef.current[unitId] ?? 0) + 1;
       buffersRef.current = { ...buffersRef.current, [unitId]: body };
       setBuffers(buffersRef.current);
@@ -1501,7 +1578,14 @@ export default function Stage19WritingSpineApp({
         editRevision: editRevisionRef.current[unitId],
       });
     },
-    [aiBridge, aiResult, reportDirty, scheduleRecoveryCheckpoint],
+    [
+      aiBridge,
+      aiResult,
+      critiqueReviewBridge,
+      critiqueReviewState,
+      reportDirty,
+      scheduleRecoveryCheckpoint,
+    ],
   );
 
   const saveUnit = useCallback(
@@ -1916,16 +2000,27 @@ export default function Stage19WritingSpineApp({
     setAiSelection(null);
   }, [aiResult, clearAiSurface]);
 
+  const activeReviewReference = useCallback((): CritiqueReviewReferenceV1 | null => {
+    const projection = critiqueReviewState?.availability === 'available'
+      ? critiqueReviewState.projection
+      : undefined;
+    if (!projection) return null;
+    return {
+      schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+      operationId: operationId('critique-review-action'),
+      projectId: projection.projectId,
+      generation: projection.generation,
+      requestId: projection.requestId,
+      selectionFingerprint: projection.selectionFingerprint,
+    };
+  }, [critiqueReviewState]);
+
   const copyAiResult = useCallback(async () => {
-    if (!aiResult) return;
-    const resultText = [
-      'Advisory critique (author review only)',
-      aiResult.content.overview,
-      aiResult.content.strengths.length ? `Strengths:\n${aiResult.content.strengths.map((item) => `- ${item}`).join('\n')}` : '',
-      aiResult.content.priorities.length ? `Priorities:\n${aiResult.content.priorities.map((item) => `- ${item.observation} ${item.revisionQuestion}`).join('\n')}` : '',
-      aiResult.content.uncertainties.length ? `Uncertainties:\n${aiResult.content.uncertainties.map((item) => `- ${item}`).join('\n')}` : '',
-      aiResult.content.limitations.length ? `Limitations:\n${aiResult.content.limitations.map((item) => `- ${item}`).join('\n')}` : '',
-    ].filter(Boolean).join('\n\n');
+    const projection = critiqueReviewState?.availability === 'available'
+      ? critiqueReviewState.projection
+      : undefined;
+    if (!projection?.resultText || !projection.allowedActions.includes('copy-result')) return;
+    const resultText = `Advisory critique (author review only)\n\n${projection.resultText}`;
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Copy is unavailable in this window.');
       await navigator.clipboard.writeText(resultText);
@@ -1933,10 +2028,17 @@ export default function Stage19WritingSpineApp({
     } catch {
       setFeedbackNoteNotice('Could not copy the critique. Select and copy the text manually.');
     }
-  }, [aiResult]);
+  }, [critiqueReviewState]);
 
   const saveFeedbackNote = useCallback(async () => {
-    if (!feedbackNotesBridge || !aiResult || !snapshot.project || !snapshot.activeUnitId) return;
+    const projection = critiqueReviewState?.availability === 'available'
+      ? critiqueReviewState.projection
+      : undefined;
+    if (
+      !critiqueReviewBridge ||
+      !projection?.resultText ||
+      !projection.allowedActions.includes('save-feedback-note')
+    ) return;
     const body = feedbackNoteBody.trim();
     if (!body) {
       setFeedbackNoteNotice('Write the concise advisory note you want to keep.');
@@ -1945,19 +2047,20 @@ export default function Stage19WritingSpineApp({
     setFeedbackNoteSaving(true);
     setFeedbackNoteNotice(null);
     try {
-      const result = await feedbackNotesBridge.createFromCritique({
+      const result = await critiqueReviewBridge.saveFeedbackNote({
+        schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
         operationId: operationId('feedback-note'),
-        projectId: snapshot.project.projectId,
-        projectPath: snapshot.project.path,
-        generation: snapshot.generation,
-        unitId: snapshot.activeUnitId,
-        sourceCritiqueRequestId: aiResult.requestId,
-        selectionFingerprint: aiResult.selectionFingerprint,
+        projectId: projection.projectId,
+        generation: projection.generation,
+        unitId: projection.unitId,
+        sourceCritiqueRequestId: projection.requestId,
+        selectionFingerprint: projection.selectionFingerprint,
+        visibleResultFingerprint: await fingerprintVisibleText(projection.resultText),
         body,
       });
       if (result.ok) {
-        setSavedFeedbackNotes((current) => [...current, result.data]);
         setFeedbackNoteNotice('Advisory project note saved. It is separate from manuscript and outline files.');
+        setFeedbackNoteBody('');
       } else {
         setFeedbackNoteNotice(result.error.message);
       }
@@ -1966,7 +2069,36 @@ export default function Stage19WritingSpineApp({
     } finally {
       setFeedbackNoteSaving(false);
     }
-  }, [aiResult, feedbackNoteBody, feedbackNotesBridge, snapshot.activeUnitId, snapshot.generation, snapshot.project]);
+  }, [critiqueReviewBridge, critiqueReviewState, feedbackNoteBody]);
+
+  const dismissCritiqueReview = useCallback(async () => {
+    const reference = activeReviewReference();
+    if (!critiqueReviewBridge || !reference) return;
+    try {
+      const result = await critiqueReviewBridge.dismiss(reference);
+      setCritiqueReviewState(result.state);
+      setFeedbackNoteBody('');
+      setFeedbackNoteNotice(
+        result.ok
+          ? 'Review dismissed. The Writing owner and manuscript were not changed.'
+          : result.error.message,
+      );
+    } catch {
+      setFeedbackNoteNotice('Review could not be dismissed. Writing remains unchanged.');
+    }
+  }, [activeReviewReference, critiqueReviewBridge]);
+
+  const returnToCritiqueSource = useCallback(async () => {
+    const reference = activeReviewReference();
+    if (!critiqueReviewBridge || !reference) return;
+    try {
+      const result = await critiqueReviewBridge.returnToSource(reference);
+      setCritiqueReviewState(result.state);
+      if (!result.ok) setFeedbackNoteNotice(result.error.message);
+    } catch {
+      setFeedbackNoteNotice('Writing Studio could not be restored from this Review.');
+    }
+  }, [activeReviewReference, critiqueReviewBridge]);
 
   const activateSurface = useCallback(async (
     targetSurface: SplitCommandLogicalSurface,
@@ -1995,6 +2127,37 @@ export default function Stage19WritingSpineApp({
     }
   }, [surfaceBridge]);
 
+  const autoOpenedReviewRequestRef = useRef<string | null>(null);
+  useEffect(() => {
+    const projection = critiqueReviewState?.availability === 'available'
+      ? critiqueReviewState.projection
+      : undefined;
+    if (
+      windowRole !== 'writing' ||
+      !projection ||
+      autoOpenedReviewRequestRef.current === projection.requestId
+    ) return;
+    autoOpenedReviewRequestRef.current = projection.requestId;
+    setCommandWorkspace('review');
+    if (surfaceHostState?.commandPlacement !== 'secondary-window') {
+      void activateSurface('command', 'current-window');
+    }
+  }, [activateSurface, critiqueReviewState, surfaceHostState?.commandPlacement, windowRole]);
+
+  const handleSourceSelectionRestoreResult = useCallback((requestId: string, restored: boolean) => {
+    if (sourceReturnRequest?.requestId !== requestId) return;
+    setSourceReturnRequest(null);
+    if (restored) {
+      setNotice(sourceReturnRequest.message);
+      return;
+    }
+    setNotice('Returned to Writing Studio, but the reviewed passage changed and could not be selected exactly.');
+    const reference = activeReviewReference();
+    if (reference && critiqueReviewBridge) {
+      void critiqueReviewBridge.markStale(reference).catch(() => undefined);
+    }
+  }, [activeReviewReference, critiqueReviewBridge, sourceReturnRequest]);
+
   const viewModel: Stage19WritingSpineViewModel = {
     phase: viewPhase,
     windowRole,
@@ -2018,7 +2181,10 @@ export default function Stage19WritingSpineApp({
     openWritingRail,
     recoveryDecisionUnitId,
     projectTitle,
-    reviewPaneOpen,
+    commandWorkspace,
+    critiqueReviewState,
+    sourceReturnRequest,
+    reviewPaneOpen: false,
     newUnitTitle,
     renameTitle,
     dirtyUnitIds,
@@ -2046,7 +2212,7 @@ export default function Stage19WritingSpineApp({
     aiResult,
     aiResultStale,
     aiNotice,
-    feedbackNotesAvailable: Boolean(feedbackNotesBridge),
+    feedbackNotesAvailable: Boolean(critiqueReviewBridge),
     feedbackNoteBody,
     feedbackNoteSaving,
     feedbackNoteNotice,
@@ -2111,11 +2277,29 @@ export default function Stage19WritingSpineApp({
     approveAiCritique,
     stopWaitingForAi,
     dismissAiCritique,
-    openReviewPane: () => {
-      setReviewPaneOpen(true);
-      setOpenWritingRail('right');
+    selectCommandWorkspace: setCommandWorkspace,
+    openReviewWorkspace: () => {
+      setCommandWorkspace('review');
+      return activateSurface(
+        'command',
+        surfaceHostState?.commandPlacement === 'secondary-window'
+          ? 'secondary-window'
+          : 'current-window',
+      );
     },
-    closeReviewPane: () => setReviewPaneOpen(false),
+    dismissCritiqueReview,
+    returnToCritiqueSource,
+    sourceSelectionRestoreResult: handleSourceSelectionRestoreResult,
+    openReviewPane: () => {
+      setCommandWorkspace('review');
+      return activateSurface(
+        'command',
+        surfaceHostState?.commandPlacement === 'secondary-window'
+          ? 'secondary-window'
+          : 'current-window',
+      );
+    },
+    closeReviewPane: () => undefined,
     copyAiResult,
     setFeedbackNoteBody,
     saveFeedbackNote,

@@ -129,8 +129,12 @@ It does not finalize the entire product vision.
   Outline, plain-language states, inline naming, bidirectional location, drag
   and keyboard planning movement, manuscript non-mutation, and automated
   evidence are complete and recorded in
-  `program_3_batch_p3_e_evidence_receipt.md`. Jason's exact P3-E commit and
-  push make P3-F executable; all exclusions, batch gates, truth boundaries,
+  `program_3_batch_p3_e_evidence_receipt.md` and is durable at `fec27147`.
+  P3-F's task-focused Command Center, stable six-family switcher, rich Review
+  placement, sanitized main-owned projection, narrow owner-routed actions,
+  source return, and terminal/stale state evidence are complete and recorded
+  in `program_3_batch_p3_f_evidence_receipt.md`. Jason's exact P3-F commit and
+  push make P3-G executable; all exclusions, batch gates, truth boundaries,
   current Git controls, and the Human Gate 2 boundary remain in force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and

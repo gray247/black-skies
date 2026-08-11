@@ -9,6 +9,13 @@ import { AI_CRITIQUE_CHANNELS } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS } from '../../shared/ipc/feedbackNotes';
 import { LIVING_OUTLINE_CHANNELS } from '../../shared/ipc/livingOutline';
 import { LOGGING_CHANNELS } from '../../shared/ipc/logging';
+import {
+  COMPLETED_CRITIQUE_REVIEW_ACTIONS,
+  CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+  CRITIQUE_REVIEW_PROJECTION_SCHEMA_VERSION,
+  CRITIQUE_REVIEW_CHANNELS,
+  type CritiqueReviewBridge,
+} from '../../shared/ipc/contextualProductShell';
 
 const exposed = vi.hoisted(() => new Map<string, unknown>());
 const ipcRendererMock = vi.hoisted(() => ({
@@ -62,6 +69,7 @@ describe('dedicated Stage 19 preload', () => {
     const { STAGE19_PRELOAD_CHANNELS } = await import('../stage19Preload');
     expect(STAGE19_PRELOAD_CHANNELS.projectSpine).toEqual(PROJECT_SPINE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.splitCommand).toEqual(SPLIT_COMMAND_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.critiqueReview).toEqual(CRITIQUE_REVIEW_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.aiCritique).toEqual(AI_CRITIQUE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.feedbackNotes).toEqual(FEEDBACK_NOTE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.livingOutline).toEqual(LIVING_OUTLINE_CHANNELS);
@@ -72,6 +80,7 @@ describe('dedicated Stage 19 preload', () => {
     await import('../stage19Preload');
     expect([...exposed.keys()].sort()).toEqual([
       'aiCritique',
+      'critiqueReview',
       'feedbackNotes',
       'livingOutline',
       'projectSpine',
@@ -102,10 +111,20 @@ describe('dedicated Stage 19 preload', () => {
       '--blackskies-split-command-session-generation=generation-1',
     ];
     await import('../stage19Preload');
-    expect([...exposed.keys()].sort()).toEqual(['projectSpine', 'splitCommand']);
+    expect([...exposed.keys()].sort()).toEqual(['critiqueReview', 'projectSpine', 'splitCommand']);
     expect(exposed.has('aiCritique')).toBe(false);
     expect(exposed.has('feedbackNotes')).toBe(false);
     expect(exposed.has('livingOutline')).toBe(false);
+    expect(Object.keys(exposed.get('critiqueReview') as CritiqueReviewBridge).sort()).toEqual([
+      'dismiss',
+      'markStale',
+      'readState',
+      'requestState',
+      'returnToSource',
+      'saveFeedbackNote',
+      'subscribeSourceReturn',
+      'subscribeState',
+    ].sort());
   });
 
   it('fails closed when the split-window identity is incomplete', async () => {
@@ -193,5 +212,70 @@ describe('dedicated Stage 19 preload', () => {
     await expect(bridge.activateSurface(request)).rejects.toThrow(
       'Surface host returned an invalid result.',
     );
+  });
+
+  it('rejects prose-bearing or action-escalated Review projections in the preload', async () => {
+    await import('../stage19Preload');
+    const bridge = exposed.get('critiqueReview') as CritiqueReviewBridge;
+    const projection = {
+      schemaVersion: CRITIQUE_REVIEW_PROJECTION_SCHEMA_VERSION,
+      projectId: 'proj_a',
+      generation: 3,
+      requestId: 'review-a',
+      unitId: 'unit-a',
+      selectionFingerprint: 'f'.repeat(64),
+      sourceLabel: 'Chapter One',
+      selectedCharacterCount: 320,
+      lifecycleState: 'completed' as const,
+      advisoryLabel: 'Advisory critique - the author decides what to keep.',
+      providerDisclosure: 'Remote advisory provider: openai.',
+      modelDisclosure: 'Model: deterministic fixture.',
+      privacyAndCostDisclosure: 'No live provider call occurred in this test.',
+      resultText: 'Visible advisory result.',
+      limitationText: 'Selected passage only.',
+      completedAt: '2026-08-11T00:00:00.000Z',
+      allowedActions: COMPLETED_CRITIQUE_REVIEW_ACTIONS,
+    };
+    const state = {
+      schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+      projectId: 'proj_a',
+      generation: 3,
+      availability: 'available' as const,
+      projection,
+      sourceReturnAnchor: {
+        schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+        projectId: 'proj_a',
+        generation: 3,
+        unitId: 'unit-a',
+        editorRevision: 2,
+        selectionStart: 10,
+        selectionEnd: 330,
+        selectionFingerprint: 'f'.repeat(64),
+      },
+    };
+
+    ipcRendererMock.invoke.mockResolvedValueOnce(state);
+    await expect(bridge.requestState()).resolves.toEqual(state);
+    const listener = vi.fn();
+    bridge.subscribeState(listener);
+    listener.mockClear();
+    const changedHandler = ipcRendererMock.on.mock.calls.find(
+      ([channel]) => channel === CRITIQUE_REVIEW_CHANNELS.stateChanged,
+    )?.[1] as ((event: unknown, state: unknown) => void) | undefined;
+
+    changedHandler?.({}, { ...state, projection: { ...projection, selectedText: 'private prose' } });
+    changedHandler?.({}, {
+      ...state,
+      projection: {
+        ...projection,
+        lifecycleState: 'failed',
+        resultText: undefined,
+        completedAt: undefined,
+        failureClass: 'provider-unavailable',
+      },
+    });
+    expect(listener).not.toHaveBeenCalled();
+    changedHandler?.({}, state);
+    expect(listener).toHaveBeenCalledWith(state);
   });
 });

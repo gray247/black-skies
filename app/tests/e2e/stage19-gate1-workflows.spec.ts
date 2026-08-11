@@ -139,12 +139,12 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       name: /Confirm that the exact visible passage is authorized for remote transmission/i,
     }).check();
     await writing.getByRole('button', { name: 'Approve and send exact payload' }).click();
-    await expect(writing.getByRole('complementary', { name: 'Critique Workbench' })).toBeVisible();
-    await expect(writing.getByText(/Deterministic advisory fixture/)).toBeVisible();
-    await expect(writing.getByText(/no provider request or charge occurred/i)).toBeVisible();
-    await writing.getByLabel('Save a concise advisory project note').fill('Keep the stopped-clock unease, but clarify the arrival trigger.');
-    await writing.getByRole('button', { name: 'Save advisory note' }).click();
-    await expect(writing.getByText('Advisory project note saved. It is separate from manuscript and outline files.')).toBeVisible();
+    await expect(command.getByRole('heading', { name: 'Critique ready for your review' })).toBeVisible();
+    await expect(command.getByRole('region', { name: 'Advisory critique result' })).toContainText('Deterministic advisory fixture');
+    await expect(command.locator('.stage19-command-review__limitation')).toContainText('no provider request or charge occurred');
+    await command.getByLabel('Save only the concise advisory note you choose').fill('Keep the stopped-clock unease, but clarify the arrival trigger.');
+    await command.getByRole('button', { name: 'Save advisory note' }).click();
+    await expect(command.getByText('Advisory project note saved. It is separate from manuscript and outline files.')).toBeVisible();
     await expect(openingEditor).toContainText(openingProse);
 
     const livingSidecar = JSON.parse(await readFile(join(created.projectPath, 'living-outline.json'), 'utf8')) as {
@@ -181,9 +181,11 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await expect(reopened.writing.getByText('Suggested')).toBeVisible();
     await reopened.writing.getByRole('button', { name: 'Show Opening question in manuscript' }).click();
     await expect(reopened.writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' })).toContainText(openingProse);
-    await openWritingStudioRail(reopened.writing, 'writing support');
-    await reopened.writing.getByRole('button', { name: 'Open Feedback Notes (1)' }).click();
-    await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toBeVisible();
+    const reopenedFeedbackSidecar = JSON.parse(await readFile(join(created.projectPath, 'feedback-notes.json'), 'utf8')) as {
+      projectId: string; notes: Array<{ body: string; advisory: boolean }>;
+    };
+    expect(reopenedFeedbackSidecar).toEqual(feedbackSidecar);
+    await expect(reopened.command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
 
     await reopened.writing.evaluate(async (parentPath) => {
       const isolated = await window.projectSpine!.createProject({
@@ -192,6 +194,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       if (!isolated.ok) throw new Error(isolated.error.message);
     }, parent);
     await expect(reopened.writing.getByRole('heading', { name: 'Isolated Empty Project' })).toBeVisible();
+    await expect(reopened.command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
     await openWritingStudioRail(reopened.writing, 'manuscript tools');
     await expect(reopened.writing.getByRole('region', { name: 'Living Outline' }).getByText('0', { exact: true })).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);

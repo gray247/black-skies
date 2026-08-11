@@ -14,6 +14,13 @@ import type {
 } from '../../shared/ipc/projectSpine';
 import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
 import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
+import {
+  CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+  CRITIQUE_REVIEW_PROJECTION_SCHEMA_VERSION,
+  type CritiqueReviewBridge,
+  type CritiqueReviewSourceReturnMessageV1,
+  type CritiqueReviewSurfaceStateV1,
+} from '../../shared/ipc/contextualProductShell';
 import type {
   LivingOutlineBridge,
   LivingOutlineDocumentV1,
@@ -423,6 +430,140 @@ function createAiBridge(selectedText: string) {
   };
 }
 
+function completedReviewState(
+  overrides: Partial<NonNullable<CritiqueReviewSurfaceStateV1['projection']>> = {},
+): CritiqueReviewSurfaceStateV1 {
+  return {
+    schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+    projectId: 'proj_a',
+    generation: 1,
+    availability: 'available',
+    sourceReturnAnchor: {
+      schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+      projectId: 'proj_a',
+      generation: 1,
+      unitId: 'unit_a',
+      editorRevision: 1,
+      selectionStart: 0,
+      selectionEnd: 320,
+      selectionFingerprint: 'b'.repeat(64),
+    },
+    projection: {
+      schemaVersion: CRITIQUE_REVIEW_PROJECTION_SCHEMA_VERSION,
+      projectId: 'proj_a',
+      generation: 1,
+      requestId: 'ai-request-1',
+      unitId: 'unit_a',
+      selectionFingerprint: 'b'.repeat(64),
+      sourceLabel: 'First Unit',
+      selectedCharacterCount: 320,
+      lifecycleState: 'completed',
+      advisoryLabel: 'Advisory critique - the author decides what to keep.',
+      providerDisclosure: 'Remote advisory provider: openai.',
+      modelDisclosure: 'Model: gpt-5.4-2026-03-05.',
+      privacyAndCostDisclosure: 'Only the author-approved selected passage is transmitted. Maximum calculated cost: $0.025000.',
+      resultText: 'The passage sustains a controlled temporal unease.\n\nStrengths\n- The sensory frame is specific.',
+      limitationText: 'Advisory interpretation, not story truth.',
+      completedAt: '2026-08-09T12:00:00.000Z',
+      allowedActions: ['copy-result', 'save-feedback-note', 'dismiss', 'return-to-source'],
+      ...overrides,
+    },
+  };
+}
+
+function createCritiqueReviewBridge(
+  initialState: CritiqueReviewSurfaceStateV1 = {
+    schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+    projectId: 'proj_a',
+    generation: 1,
+    availability: 'empty',
+    message: 'No critique review is waiting in Command Center.',
+  },
+  options: {
+    saveFailure?: string;
+    returnStatus?: 'exact' | 'stale';
+  } = {},
+) {
+  let current = initialState;
+  const stateListeners = new Set<(state: CritiqueReviewSurfaceStateV1) => void>();
+  const sourceListeners = new Set<(message: CritiqueReviewSourceReturnMessageV1) => void>();
+  const publish = (state: CritiqueReviewSurfaceStateV1) => {
+    current = state;
+    for (const listener of stateListeners) listener(state);
+  };
+  const bridge: CritiqueReviewBridge = {
+    requestState: vi.fn(async () => current),
+    readState: vi.fn(() => current),
+    subscribeState: vi.fn((listener) => {
+      stateListeners.add(listener);
+      return () => stateListeners.delete(listener);
+    }),
+    markStale: vi.fn(async () => {
+      if (current.availability === 'available' && current.projection) {
+        publish({
+          ...current,
+          projection: {
+            ...current.projection,
+            lifecycleState: 'invalidated',
+            resultText: undefined,
+            failureClass: 'source-changed',
+            limitationText: 'The source context changed after this review was created.',
+            allowedActions: ['dismiss', 'return-to-source'],
+          },
+        });
+      }
+      return { ok: true as const, data: {}, state: current };
+    }),
+    dismiss: vi.fn(async () => {
+      const requestId = current.projection?.requestId;
+      publish({
+        schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+        projectId: current.projectId,
+        generation: current.generation,
+        availability: 'dismissed',
+        ...(requestId ? { dismissedRequestId: requestId } : {}),
+        message: 'The Review presentation was dismissed. The Writing owner was not changed.',
+      });
+      return { ok: true as const, data: {}, state: current };
+    }),
+    saveFeedbackNote: vi.fn(async () => options.saveFailure
+      ? {
+          ok: false as const,
+          error: { code: 'NOTE_WRITE_FAILED' as const, message: options.saveFailure },
+          state: current,
+        }
+      : { ok: true as const, data: { noteId: 'feedback-note-1' }, state: current }),
+    returnToSource: vi.fn(async () => {
+      const status = options.returnStatus ?? 'exact';
+      const projection = current.projection;
+      const message: CritiqueReviewSourceReturnMessageV1 = {
+        schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+        projectId: current.projectId ?? 'proj_a',
+        generation: current.generation,
+        requestId: projection?.requestId ?? 'ai-request-1',
+        status,
+        message: status === 'exact'
+          ? 'Returned to the reviewed passage in First Unit.'
+          : 'Returned to Writing Studio, but the reviewed passage is no longer current.',
+        ...(status === 'exact' && current.sourceReturnAnchor
+          ? { anchor: current.sourceReturnAnchor }
+          : {}),
+      };
+      for (const listener of sourceListeners) listener(message);
+      return { ok: true as const, data: { status }, state: current };
+    }),
+    subscribeSourceReturn: vi.fn((listener) => {
+      sourceListeners.add(listener);
+      return () => sourceListeners.delete(listener);
+    }),
+  };
+  return {
+    bridge,
+    publish,
+    get current() { return current; },
+  };
+}
+
 function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'] = []) {
   let current: LivingOutlineSnapshotV1 = {
     availability: 'ready',
@@ -795,9 +936,20 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
 
     expect(await screen.findByRole('heading', { name: 'Project A' })).toBeVisible();
-    expect(screen.getByText('proj_a')).toBeVisible();
-    expect(screen.getByRole('button', { name: /First Unit/i })).toBeVisible();
-    expect(screen.getByRole('button', { name: /Untitled/i })).toBeVisible();
+    const workspaces = screen.getByRole('navigation', { name: 'Command Center workspaces' });
+    for (const name of [
+      'Review',
+      'Structure',
+      'Story Knowledge',
+      'Create / Develop',
+      'Project Interchange',
+      'Operations / Approvals',
+    ]) expect(within(workspaces).getByRole('button', { name })).toBeVisible();
+    expect(within(workspaces).getByRole('button', { name: 'Review' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('heading', { name: 'Writing remains available' })).toBeVisible();
+    fireEvent.click(within(workspaces).getByRole('button', { name: 'Structure' }));
+    expect(screen.getByRole('heading', { name: 'Structure' })).toBeVisible();
+    expect(screen.getByText(/will be introduced only by its authorized product program/i)).toBeVisible();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Export Markdown/i })).not.toBeInTheDocument();
@@ -908,7 +1060,8 @@ describe('Stage19WritingSpineApp', () => {
     const harness = createBridge(noProject);
     render(<Stage19WritingSpineApp windowRole="command" bridge={harness.bridge} />);
 
-    expect(await screen.findByRole('heading', { name: 'No active project' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'No project open' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Begin in Writing Studio' })).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('No active project');
     expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
   });
@@ -2291,7 +2444,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(editor).toHaveValue('Alpha body focused words');
   });
 
-  it('finds author-saved advisory Feedback Notes after a project reopen', async () => {
+  it('keeps reopened advisory Feedback Notes out of the Writing canvas', async () => {
     const project = createBridge(snapshot('writing', { generation: 7 }));
     const feedbackNotes: FeedbackNotesBridge = {
       createFromCritique: vi.fn(),
@@ -2305,18 +2458,14 @@ describe('Stage19WritingSpineApp', () => {
         }],
       })),
     };
-    const user = userEvent.setup();
     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} feedbackNotesBridge={feedbackNotes} />);
 
     await openWritingRail('writing support');
-    const open = await screen.findByRole('button', { name: 'Open Feedback Notes (1)' });
-    expect(feedbackNotes.list).toHaveBeenCalledWith(expect.objectContaining({
+    await waitFor(() => expect(feedbackNotes.list).toHaveBeenCalledWith(expect.objectContaining({
       projectId: 'proj_a', projectPath: 'C:\\projects\\a', generation: 7,
-    }));
-    await user.click(open);
-    expect(screen.getByRole('region', { name: 'Saved advisory Feedback Notes' })).toBeVisible();
-    expect(screen.getByText('Reconsider whether the signal arrives too early.')).toBeVisible();
-    expect(screen.getByText(/Advisory.*source request critique-prior-session/)).toBeVisible();
+    })));
+    expect(screen.queryByRole('region', { name: 'Saved advisory Feedback Notes' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Reconsider whether the signal arrives too early.')).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
   });
 
@@ -2408,126 +2557,136 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('textbox', { name: 'Manuscript editor: Terminal state' })).toHaveValue(prose);
   });
 
-  it('keeps completed critique failures advisory, focus-safe, and unable to change prose', async () => {
-    const prose = `${'A narrow beam crossed the empty hall while the clock repeated. '.repeat(5)}End.`;
-    const project = createBridge(snapshot('writing', {
-      units: [{ id: 'unit_a', title: 'Failure honesty', order: 1, body: prose }],
-    }));
-    const ai = createAiBridge(prose);
-    const feedbackNotes: FeedbackNotesBridge = {
-      createFromCritique: vi.fn(async () => ({
-        ok: false as const,
-        error: { code: 'FEEDBACK_NOTE_WRITE_FAILED' as const, message: 'The advisory note could not be written.' },
-      })),
-    };
+  it('keeps completed Command Review actions advisory and failure-honest', async () => {
+    const project = createBridge(snapshot('command'));
+    const review = createCritiqueReviewBridge(completedReviewState(), {
+      saveFailure: 'The advisory note could not be written.',
+    });
     const user = userEvent.setup();
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText: vi.fn().mockRejectedValue(new Error('clipboard unavailable')) },
     });
-    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} feedbackNotesBridge={feedbackNotes} />);
-    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Failure honesty' });
-    (editor as HTMLTextAreaElement).setSelectionRange(0, prose.length);
-    fireEvent.select(editor);
-    await openWritingRail('writing support');
-    fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
-    await screen.findByRole('heading', { name: 'Exact outbound preview' });
-    act(() => ai.emit(completedCritiqueState()));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="command"
+        bridge={project.bridge}
+        critiqueReviewBridge={review.bridge}
+      />,
+    );
 
-    expect(screen.getByRole('complementary', { name: 'Critique Workbench' })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Enter Focus mode' }));
-    expect(screen.queryByRole('complementary', { name: 'Critique Workbench' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Exit Focus mode' }));
-    expect(screen.getByRole('complementary', { name: 'Critique Workbench' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Critique ready for your review' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Advisory critique result' })).toHaveTextContent(
+      'The passage sustains a controlled temporal unease.',
+    );
+    expect(screen.getByText(/These actions cannot accept text into the manuscript/i)).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Copy result text' }));
+    await user.click(screen.getByRole('button', { name: 'Copy result' }));
     expect(await screen.findByText('Could not copy the critique. Select and copy the text manually.')).toBeVisible();
-    await user.type(screen.getByLabelText('Save a concise advisory project note'), 'Keep the temporal unease.');
+    await user.type(screen.getByLabelText('Save only the concise advisory note you choose'), 'Keep the temporal unease.');
     await user.click(screen.getByRole('button', { name: 'Save advisory note' }));
     expect(await screen.findByText('The advisory note could not be written.')).toBeVisible();
-    expect(editor).toHaveValue(prose);
-    expect(project.bridge.saveUnit).not.toHaveBeenCalled();
-    expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Dismiss critique' }));
-    expect(screen.queryByRole('complementary', { name: 'Critique Workbench' })).not.toBeInTheDocument();
+    expect(project.bridge.saveUnit).toBeUndefined();
+    expect(project.bridge.reorderUnits).toBeUndefined();
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(await screen.findByRole('heading', { name: 'Nothing is waiting for a decision' })).toBeVisible();
+    expect(review.bridge.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps completed same-unit advice visible but unmistakably stale after editing', async () => {
+  it('copies visible Review text and saves only an author-selected advisory note', async () => {
+    const project = createBridge(snapshot('command'));
+    const review = createCritiqueReviewBridge(completedReviewState());
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    render(
+      <Stage19WritingSpineApp
+        windowRole="command"
+        bridge={project.bridge}
+        critiqueReviewBridge={review.bridge}
+      />,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Critique ready for your review' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Copy result' }));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('The passage sustains a controlled temporal unease.'));
+    expect(await screen.findByText('Critique copied. This copy is temporary and does not alter the manuscript.')).toBeVisible();
+
+    await user.type(screen.getByLabelText('Save only the concise advisory note you choose'), 'Keep the temporal unease.');
+    await user.click(screen.getByRole('button', { name: 'Save advisory note' }));
+    await waitFor(() => expect(review.bridge.saveFeedbackNote).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a',
+      unitId: 'unit_a',
+      sourceCritiqueRequestId: 'ai-request-1',
+      body: 'Keep the temporal unease.',
+    })));
+    expect(await screen.findByText('Advisory project note saved. It is separate from manuscript and outline files.')).toBeVisible();
+    expect(project.bridge.saveUnit).toBeUndefined();
+    expect(project.bridge.reorderUnits).toBeUndefined();
+  });
+
+  it.each([
+    ['failed', 'provider-unavailable'],
+    ['cancelled', 'request-cancelled'],
+    ['expired', 'request-expired'],
+    ['invalidated', 'source-changed'],
+  ] as const)('renders a bounded %s Command Review state', async (lifecycleState, failureClass) => {
+    const project = createBridge(snapshot('command'));
+    const review = createCritiqueReviewBridge(completedReviewState({
+      lifecycleState,
+      failureClass,
+      resultText: undefined,
+      completedAt: undefined,
+      limitationText: 'No advisory result is available for this request.',
+      allowedActions: ['dismiss', 'return-to-source'],
+    }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="command"
+        bridge={project.bridge}
+        critiqueReviewBridge={review.bridge}
+      />,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Critique did not complete' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: failureClass.replace(/-/g, ' ') })).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Advisory critique result' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Copy result' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save advisory note' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dismiss' })).toBeVisible();
+  });
+
+  it('marks a main-owned same-unit Review stale after Writing changes', async () => {
     const prose = `${'A narrow beam crossed the empty hall while the clock repeated the same minute. '.repeat(5)}End.`;
     const project = createBridge(snapshot('writing', {
       units: [{ id: 'unit_a', title: 'Staleness', order: 1, body: prose }],
     }));
-    const ai = createAiBridge(`${prose}\n`);
-    const feedbackNotes: FeedbackNotesBridge = {
-      createFromCritique: vi.fn(async () => ({
-        ok: true as const,
-        data: {
-          id: 'feedback-a', projectId: 'proj_a', unitId: 'unit_a', sourceCritiqueRequestId: 'ai-request-1',
-          selectionFingerprint: 'b'.repeat(64), createdAt: '2026-07-14T12:00:00.000Z', advisory: true as const,
-          body: 'Keep the temporal unease.',
-        },
-      })),
-    };
-    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} aiBridge={ai.bridge} feedbackNotesBridge={feedbackNotes} />);
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const review = createCritiqueReviewBridge();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        surfaceBridge={surfaces.bridge}
+        critiqueReviewBridge={review.bridge}
+      />,
+    );
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
-    await act(async () => {
-      (editor as HTMLTextAreaElement).setSelectionRange(0, (editor as HTMLTextAreaElement).value.length);
-      fireEvent.select(editor);
-      await Promise.resolve();
-    });
-    await openWritingRail('writing support');
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Review outbound critique request' }));
-      await Promise.resolve();
-    });
-    await screen.findByRole('heading', { name: 'Exact outbound preview' });
-
-    await act(async () => {
-      ai.emit({
-        requestId: 'ai-request-1',
-        status: 'completed',
-        result: {
-          requestId: 'ai-request-1',
-          provider: 'openai',
-          model: 'gpt-5.4-2026-03-05',
-          taskContractVersion: 'black_skies_critique_v2',
-          sourceFingerprint: 'a'.repeat(64),
-          selectionFingerprint: 'b'.repeat(64),
-          editorRevision: 1,
-          completedAt: '2026-07-14T12:00:00.000Z',
-          content: {
-            overview: 'The passage sustains a controlled temporal unease.',
-            strengths: [],
-            priorities: [],
-            uncertainties: [],
-            limitations: ['Selected passage only.'],
-          },
-          usage: {
-            inputTokens: 100,
-            cachedInputTokens: 0,
-            outputTokens: 50,
-            calculatedUsd: 0.001,
-            invoiceDisclaimer: 'Calculated usage cost - not provider invoice.',
-          },
-        },
-      });
-      await Promise.resolve();
-    });
-    expect(screen.getByRole('complementary', { name: 'Critique Workbench' })).toBeVisible();
-    expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
-    const note = screen.getByLabelText('Save a concise advisory project note');
-    fireEvent.change(note, { target: { value: 'Keep the temporal unease.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save advisory note' }));
-    await waitFor(() => expect(feedbackNotes.createFromCritique).toHaveBeenCalledWith(expect.objectContaining({
-      projectId: 'proj_a', unitId: 'unit_a', sourceCritiqueRequestId: 'ai-request-1', body: 'Keep the temporal unease.',
-    })));
-    expect(await screen.findByText('Advisory project note saved. It is separate from manuscript and outline files.')).toBeVisible();
-    await act(async () => {
-      fireEvent.change(editor, { target: { value: `${prose}\nChanged.` } });
-      await Promise.resolve();
-    });
-    expect(screen.getByText('Stale: the manuscript changed after this critique completed.')).toBeVisible();
-    expect(screen.getByText('The passage sustains a controlled temporal unease.')).toBeVisible();
+    act(() => review.publish(completedReviewState({ sourceLabel: 'Staleness' })));
+    expect(await screen.findByRole('heading', { name: 'Critique ready for your review' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
+    const restoredEditor = await screen.findByRole('textbox', { name: 'Manuscript editor: Staleness' });
+    fireEvent.change(restoredEditor, { target: { value: `${prose}\nChanged.` } });
+    await waitFor(() => expect(review.bridge.markStale).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    expect(await screen.findByText('Source changed')).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Critique did not complete' })).toBeVisible();
+    expect(screen.queryByText('The passage sustains a controlled temporal unease.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save advisory note' })).not.toBeInTheDocument();
+    expect(editor).not.toBeVisible();
   });
 
   it('visibly invalidates a prepared approval when the selected range changes', async () => {

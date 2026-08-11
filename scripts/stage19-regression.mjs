@@ -47,6 +47,7 @@ const unitFiles = [
   "main/__tests__/feedbackNotesRepository.test.ts",
   "main/__tests__/feedbackNotesIpc.test.ts",
   "main/__tests__/contextualProductShellContracts.test.ts",
+  "main/__tests__/critiqueReviewIpc.test.ts",
   "main/__tests__/livingOutlineRepository.test.ts",
   "main/__tests__/livingOutlineIpc.test.ts",
   "main/__tests__/runtimeSessionTruthMain.test.ts",

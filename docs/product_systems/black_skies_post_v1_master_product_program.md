@@ -339,7 +339,7 @@ not another general audit campaign.
 
 ### Program 3 - Contextual Product Shell
 
-Status: `ACTIVE; P3-A DURABLE; P3-B GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
+Status: `ACTIVE; P3-A THROUGH P3-E DURABLE; P3-F GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
 
 Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
@@ -377,9 +377,11 @@ The detailed seven-batch proposal is
 [program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
 Jason approved it, authorized its bounded implementation, and confirmed
 `GPT-5.6 Sol` with `xhigh` reasoning on 2026-08-10. The authorization-record
-baseline is pushed at `6991bfae`. P3-A is durable at `4007e12a`. P3-B
-implementation and automation are green;
-P3-C follows after Jason commits and pushes the exact P3-B batch.
+baseline is pushed at `6991bfae`. P3-A through P3-E are durable at
+`4007e12a`, `2ff0361c`, `3de76ee1`, `fb232066`, and `fec27147`. P3-F's
+task-focused Command canvas, sanitized Review projection, owner-routed
+actions, and automated qualification are green. P3-G follows after Jason
+commits and pushes the exact P3-F batch.
 
 ### Program 4 - Companion And Owner Routing
 
@@ -669,9 +671,10 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the green P3-E implementation and evidence batch,
-2. begin P3-F and continue Program 3's remaining automated batches for the
-   Command Center critique-result handoff and final shell qualification,
+1. commit and push the green P3-F implementation and evidence batch,
+2. begin P3-G and complete Program 3's accessibility, responsive,
+   degraded-state, visual-reference, performance, duplicate-path, and final
+   automated qualification work,
 3. complete Program 4's minimal Companion entry and owner-routing slice,
 4. perform Human Gate 2 only when the contextual shell and Companion workflow
    are whole,

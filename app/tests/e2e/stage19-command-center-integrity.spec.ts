@@ -443,9 +443,10 @@ test('Command Center replaces Project A dirty state with Project B and restores 
       save: 'clean',
     });
     await expect(command.getByRole('heading', { name: 'P19.13 Command Project B' })).toBeVisible();
-    await expect(command.getByText(titleB, { exact: true })).toBeVisible();
+    await expect(command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
     await expect(command.getByText('P19.13 Command Project A', { exact: true })).toHaveCount(0);
     await expect(command.getByText(titleA, { exact: true })).toHaveCount(0);
+    await expect(command.getByText(titleB, { exact: true })).toHaveCount(0);
     await expect(command.getByText('1 unsaved unit', { exact: true })).toHaveCount(0);
     await expect(command.getByText('No recovery action required').first()).toBeVisible();
     const commandProjectB = await command.evaluate(() => window.projectSpine!.getSession());
@@ -467,8 +468,9 @@ test('Command Center replaces Project A dirty state with Project B and restores 
       save: 'clean',
     });
     await expect(command.getByRole('heading', { name: 'P19.13 Command Project A' })).toBeVisible();
-    await expect(command.getByText(titleA, { exact: true })).toBeVisible();
+    await expect(command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
     await expect(command.getByText('P19.13 Command Project B', { exact: true })).toHaveCount(0);
+    await expect(command.getByText(titleA, { exact: true })).toHaveCount(0);
     await expect(command.getByText(titleB, { exact: true })).toHaveCount(0);
     await expect(editorFor(writing, titleA)).toHaveText(baselineA);
     const commandProjectA = await command.evaluate(() => window.projectSpine!.getSession());

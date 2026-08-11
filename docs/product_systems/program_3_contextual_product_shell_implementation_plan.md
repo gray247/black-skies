@@ -12,7 +12,7 @@
 - Exact committed planning baseline: `1698a44604e8fab6c47948a5128e911bf8d9916b`
 - Branch: `codex/foundation-audit`
 - Current mutation authority: `PROGRAM 3 ONLY, WITH THIS PLAN'S INCLUDED SCOPE, EXCLUSIONS, BATCH GATES, TRUTH BOUNDARIES, AND HUMAN GATE 2 BOUNDARY IN FORCE`
-- Runtime implementation: `P3-A DURABLE AT 4007e12a; P3-B DURABLE AT 2ff0361c; P3-C DURABLE AT 3de76ee1; P3-D DURABLE AT fb232066; P3-E GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
+- Runtime implementation: `P3-A DURABLE AT 4007e12a; P3-B DURABLE AT 2ff0361c; P3-C DURABLE AT 3de76ee1; P3-D DURABLE AT fb232066; P3-E DURABLE AT fec27147; P3-F GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
 - Git authority: `Jason alone stages, commits, and pushes under current repository governance`
 
 This plan is the complete handoff from Control Point 1 into Program 3. It is
@@ -464,6 +464,12 @@ Exit:
 
 - the Critique placement finding from Human Gate 1 is resolved;
 - Command Center is a real task surface, not a dashboard mockup.
+
+Implementation evidence is recorded in
+[Program 3 Batch P3-F Evidence Receipt](program_3_batch_p3_f_evidence_receipt.md).
+The implementation and automated gate are green; the batch becomes durable
+after Jason commits and pushes the exact P3-F file set. P3-G begins from that
+exact pushed checkpoint.
 
 ### Batch P3-G - Accessibility, responsive, degraded, and performance closure
 

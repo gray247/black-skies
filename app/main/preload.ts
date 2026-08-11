@@ -38,6 +38,17 @@ import {
   type UpdateLivingOutlineItemRequest,
 } from '../shared/ipc/livingOutline';
 import {
+  CRITIQUE_REVIEW_CHANNELS,
+  normalizeCritiqueReviewSourceReturnMessage,
+  normalizeCritiqueReviewSurfaceState,
+  type CritiqueReviewActionResultV1,
+  type CritiqueReviewBridge,
+  type CritiqueReviewReferenceV1,
+  type CritiqueReviewSourceReturnMessageV1,
+  type CritiqueReviewSurfaceStateV1,
+  type SaveCritiqueReviewFeedbackNoteActionV1,
+} from '../shared/ipc/contextualProductShell';
+import {
   matchesSplitCommandOwnershipSyncMessagePairIdentity,
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
@@ -110,6 +121,11 @@ let splitCommandOwnershipSync: SplitCommandOwnershipSyncMessage | null = null;
 const splitCommandOwnershipSyncListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
 let splitCommandSurfaceHostState: SplitCommandSurfaceHostState | null = null;
 const splitCommandSurfaceHostListeners = new Set<(state: SplitCommandSurfaceHostState) => void>();
+let critiqueReviewState: CritiqueReviewSurfaceStateV1 | null = null;
+const critiqueReviewListeners = new Set<(state: CritiqueReviewSurfaceStateV1) => void>();
+const critiqueSourceReturnListeners = new Set<(
+  message: CritiqueReviewSourceReturnMessageV1,
+) => void>();
 
 function notifySplitCommandOwnershipSyncListeners(
   message: SplitCommandOwnershipSyncMessage,
@@ -186,6 +202,17 @@ if (splitCommandLaunchContext) {
         console.warn('[preload] split command surface-host listener failed', error);
       }
     }
+  });
+  ipcRenderer.on(CRITIQUE_REVIEW_CHANNELS.stateChanged, (_event, payload) => {
+    const state = normalizeCritiqueReviewSurfaceState(payload);
+    if (!state) return;
+    critiqueReviewState = state;
+    for (const listener of critiqueReviewListeners) listener(state);
+  });
+  ipcRenderer.on(CRITIQUE_REVIEW_CHANNELS.sourceReturnRequested, (_event, payload) => {
+    const message = normalizeCritiqueReviewSourceReturnMessage(payload);
+    if (!message) return;
+    for (const listener of critiqueSourceReturnListeners) listener(message);
   });
 }
 
@@ -2648,6 +2675,56 @@ const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunc
     }
   : null;
 
+async function invokeCritiqueReviewAction<T>(
+  channel: string,
+  request: unknown,
+): Promise<CritiqueReviewActionResultV1<T>> {
+  const result = await ipcRenderer.invoke(channel, request) as CritiqueReviewActionResultV1<T>;
+  const state = normalizeCritiqueReviewSurfaceState(result?.state);
+  if (!state || (result.ok !== true && result.ok !== false)) {
+    throw new Error('Review returned an invalid result.');
+  }
+  critiqueReviewState = state;
+  return { ...result, state } as CritiqueReviewActionResultV1<T>;
+}
+
+const critiqueReviewBridge: CritiqueReviewBridge | null = splitCommandLaunchContext
+  ? {
+      async requestState() {
+        const state = normalizeCritiqueReviewSurfaceState(
+          await ipcRenderer.invoke(CRITIQUE_REVIEW_CHANNELS.requestState),
+        );
+        if (!state) throw new Error('Review returned an invalid state.');
+        critiqueReviewState = state;
+        return state;
+      },
+      readState: () => critiqueReviewState,
+      subscribeState(listener) {
+        critiqueReviewListeners.add(listener);
+        if (critiqueReviewState) listener(critiqueReviewState);
+        return () => critiqueReviewListeners.delete(listener);
+      },
+      markStale: (request: CritiqueReviewReferenceV1) =>
+        invokeCritiqueReviewAction(CRITIQUE_REVIEW_CHANNELS.markStale, request),
+      dismiss: (request: CritiqueReviewReferenceV1) =>
+        invokeCritiqueReviewAction(CRITIQUE_REVIEW_CHANNELS.dismiss, request),
+      saveFeedbackNote: (request: SaveCritiqueReviewFeedbackNoteActionV1) =>
+        invokeCritiqueReviewAction<{ readonly noteId: string }>(
+          CRITIQUE_REVIEW_CHANNELS.saveFeedbackNote,
+          request,
+        ),
+      returnToSource: (request: CritiqueReviewReferenceV1) =>
+        invokeCritiqueReviewAction<{ readonly status: 'exact' | 'stale' }>(
+          CRITIQUE_REVIEW_CHANNELS.returnToSource,
+          request,
+        ),
+      subscribeSourceReturn(listener) {
+        critiqueSourceReturnListeners.add(listener);
+        return () => critiqueSourceReturnListeners.delete(listener);
+      },
+    }
+  : null;
+
 const aiCritiqueBridge: AiCritiqueBridge = {
   credentialStatus: () => ipcRenderer.invoke(AI_CRITIQUE_CHANNELS.credentialStatus),
   setCredential: (credential: string) =>
@@ -2702,6 +2779,9 @@ if (!isCommandCenterPreload) {
 }
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);
+}
+if (critiqueReviewBridge) {
+  safeExpose('critiqueReview', critiqueReviewBridge);
 }
 
 if (process.env.PLAYWRIGHT === '1') {

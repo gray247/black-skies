@@ -5,6 +5,7 @@ import {
   CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
   CRITIQUE_REVIEW_PROJECTION_SCHEMA_VERSION,
   TERMINAL_CRITIQUE_REVIEW_ACTIONS,
+  normalizeCritiqueReviewSurfaceState,
   type SaveCritiqueReviewFeedbackNoteActionV1,
   type SourceReturnAnchorV1,
   type SurfaceContextV1,
@@ -88,5 +89,47 @@ describe('Program 3 contextual product shell contracts', () => {
 
     expect(action).toMatchObject({ projectId: 'project-review-fixture', generation: 7 });
     expect(serialized).not.toMatch(/projectPath|manuscript|outline|acceptedTruth|providerBodyJson/);
+  });
+
+  it('fails closed when a Review projection carries prose, credentials, or escalated actions', () => {
+    const sourceReturnAnchor: SourceReturnAnchorV1 = {
+      schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+      projectId: completedCritiqueReviewFixture.projectId,
+      generation: completedCritiqueReviewFixture.generation,
+      unitId: completedCritiqueReviewFixture.unitId,
+      editorRevision: 11,
+      selectionStart: 120,
+      selectionEnd: 962,
+      selectionFingerprint: completedCritiqueReviewFixture.selectionFingerprint,
+    };
+    const validState = {
+      schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+      projectId: completedCritiqueReviewFixture.projectId,
+      generation: completedCritiqueReviewFixture.generation,
+      availability: 'available',
+      projection: completedCritiqueReviewFixture,
+      sourceReturnAnchor,
+    } as const;
+
+    expect(normalizeCritiqueReviewSurfaceState(validState)).toEqual(validState);
+    expect(normalizeCritiqueReviewSurfaceState({
+      ...validState,
+      projection: { ...completedCritiqueReviewFixture, selectedText: 'private prose' },
+    })).toBeNull();
+    expect(normalizeCritiqueReviewSurfaceState({
+      ...validState,
+      projection: { ...completedCritiqueReviewFixture, credential: 'secret' },
+    })).toBeNull();
+    expect(normalizeCritiqueReviewSurfaceState({
+      ...validState,
+      projection: {
+        ...completedCritiqueReviewFixture,
+        lifecycleState: 'failed',
+        resultText: undefined,
+        completedAt: undefined,
+        failureClass: 'provider-unavailable',
+        allowedActions: COMPLETED_CRITIQUE_REVIEW_ACTIONS,
+      },
+    })).toBeNull();
   });
 });

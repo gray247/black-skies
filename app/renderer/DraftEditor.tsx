@@ -28,10 +28,19 @@ export interface DraftEditorProps {
   onChange?: (nextValue: string) => void;
   onSave?: (currentValue: string) => void;
   onSelectionChange?: (selection: DraftEditorSelectionEvidence) => void;
+  selectionRestore?: DraftEditorSelectionRestore | null;
+  onSelectionRestoreResult?: (requestId: string, restored: boolean) => void;
   diffConfig?: DraftEditorDiffConfig | null;
   ariaLabel?: string | null;
   ariaLabelledBy?: string | null;
   ariaDescribedBy?: string | null;
+}
+
+export interface DraftEditorSelectionRestore {
+  readonly requestId: string;
+  readonly selectionStart: number;
+  readonly selectionEnd: number;
+  readonly selectionFingerprint: string;
 }
 
 export interface DraftEditorSelectionEvidence {
@@ -126,6 +135,8 @@ export default function DraftEditor({
   onChange,
   onSave,
   onSelectionChange,
+  selectionRestore,
+  onSelectionRestoreResult,
   diffConfig,
   ariaLabel,
   ariaLabelledBy,
@@ -395,6 +406,43 @@ export default function DraftEditor({
       changes: { from: 0, to: currentValue.length, insert: value },
     });
   }, [value]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view || !selectionRestore) return;
+    const source = view.state.doc.toString();
+    const { requestId, selectionStart, selectionEnd, selectionFingerprint } = selectionRestore;
+    if (
+      selectionStart < 0 ||
+      selectionEnd <= selectionStart ||
+      selectionEnd > source.length
+    ) {
+      onSelectionRestoreResult?.(requestId, false);
+      return;
+    }
+    let cancelled = false;
+    void buildDraftEditorSelectionEvidence(
+      source,
+      selectionStart,
+      selectionEnd,
+      editorRevisionRef.current,
+    ).then((evidence) => {
+      if (cancelled) return;
+      if (evidence.selectionFingerprint !== selectionFingerprint) {
+        onSelectionRestoreResult?.(requestId, false);
+        return;
+      }
+      view.dispatch({
+        selection: { anchor: selectionStart, head: selectionEnd },
+        effects: EditorView.scrollIntoView(selectionStart, { y: 'center' }),
+      });
+      view.focus();
+      onSelectionRestoreResult?.(requestId, true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [onSelectionRestoreResult, selectionRestore]);
 
   useEffect(() => {
     const view = viewRef.current;

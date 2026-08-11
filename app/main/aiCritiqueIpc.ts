@@ -21,6 +21,10 @@ import {
   type AiCritiqueMainAuthority,
 } from './aiCritiqueCoordinator.js';
 import { AiCritiqueGateway, AiCritiqueGatewayError } from './aiCritiqueGateway.js';
+import {
+  publishCritiqueReviewOwnerState,
+  registerPreparedCritiqueReview,
+} from './critiqueReviewIpc.js';
 
 export interface AiCritiqueExecutionContext {
   readonly requestId: string;
@@ -146,6 +150,7 @@ function senderSession(event: IpcMainInvokeEvent): SenderSession {
       if (!event.sender.isDestroyed()) {
         event.sender.send(AI_CRITIQUE_CHANNELS.stateChanged, state);
       }
+      publishCritiqueReviewOwnerState(senderId, state);
     },
   };
   senderSessions.set(senderId, session);
@@ -263,6 +268,12 @@ export function registerAiCritiqueIpc(nextOptions: RegisterAiCritiqueIpcOptions)
       const session = senderSession(event);
       const preview = session.coordinator.prepare(request);
       session.operationIds.set(preview.requestId, request.operationId);
+      registerPreparedCritiqueReview(
+        event.sender.id,
+        request,
+        preview,
+        options!.getWritingSnapshot(),
+      );
       return success(preview);
     } catch (error) {
       return failure(error);

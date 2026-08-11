@@ -23,7 +23,7 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
-- the current Program 3 Batch P3-A through P3-E implementation and
+- the current Program 3 Batch P3-A through P3-F implementation and
   automated-evidence receipts;
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
@@ -64,7 +64,7 @@ The approved Program 3 implementation plan converts the approved Control Point
 batches, a Program 4 handoff, and one later Human Gate 2. Jason approved the
 plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
 `xhigh` reasoning on 2026-08-10. The authorization baseline and P3-A through
-P3-D are durable; P3-E is green and awaits Jason's exact commit and push.
+P3-E are durable; P3-F is green and awaits Jason's exact commit and push.
 Every stated exclusion, truth boundary, batch gate, Git control, and Human
 Gate 2 boundary remains in force.
 
@@ -94,8 +94,15 @@ Living Outline interaction; selected-prose, current-writing, and unplaced
 defaults; inline naming; bidirectional location; drag and keyboard planning
 movement; explained advanced meaning; manuscript non-mutation; and green
 focused, fixed-regression, all-test, Electron, and package-preflight evidence.
-Its implementation is complete; durable batch closure and P3-F eligibility
-require Jason's commit and push of the exact batch.
+P3-E is durable at `fec27147`.
+
+The Program 3 Batch P3-F receipt records the task-focused Command Center,
+six stable workspace families, rich advisory Review placement, main-owned
+sanitized projection, narrow copy/note/dismiss/source-return actions, explicit
+terminal and stale states, and green focused, full-suite, Electron,
+performance, regression, and package-preflight evidence. Its implementation
+is complete; durable batch closure and P3-G eligibility require Jason's commit
+and push of the exact batch.
 
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,

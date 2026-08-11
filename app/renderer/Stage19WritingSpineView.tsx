@@ -24,6 +24,11 @@ import type {
   SplitCommandSecondarySurfaceStatus,
   SplitCommandSurfaceHostNotice,
 } from '../shared/ipc/splitCommand';
+import type {
+  CommandWorkspaceV1,
+  CritiqueReviewSourceReturnMessageV1,
+  CritiqueReviewSurfaceStateV1,
+} from '../shared/ipc/contextualProductShell';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
@@ -59,6 +64,10 @@ export interface Stage19WritingSpineViewModel {
   readonly openWritingRail: Stage19WritingRail | null;
   readonly recoveryDecisionUnitId: string | null;
   readonly projectTitle: string;
+  readonly commandWorkspace: CommandWorkspaceV1;
+  readonly critiqueReviewState: CritiqueReviewSurfaceStateV1 | null;
+  readonly sourceReturnRequest: CritiqueReviewSourceReturnMessageV1 | null;
+  /** Temporary compatibility flag. P3-F keeps the Writing-side result pane closed. */
   readonly reviewPaneOpen: boolean;
   readonly newUnitTitle: string;
   readonly renameTitle: string;
@@ -147,7 +156,12 @@ export interface Stage19WritingSpineViewActions {
   readonly approveAiCritique: () => MaybeAsync;
   readonly stopWaitingForAi: () => MaybeAsync;
   readonly dismissAiCritique: () => void;
-  readonly openReviewPane: () => void;
+  readonly selectCommandWorkspace: (workspace: CommandWorkspaceV1) => void;
+  readonly openReviewWorkspace: () => MaybeAsync;
+  readonly dismissCritiqueReview: () => MaybeAsync;
+  readonly returnToCritiqueSource: () => MaybeAsync;
+  readonly sourceSelectionRestoreResult: (requestId: string, restored: boolean) => void;
+  readonly openReviewPane: () => MaybeAsync;
   readonly closeReviewPane: () => void;
   readonly copyAiResult: () => MaybeAsync;
   readonly setFeedbackNoteBody: (value: string) => void;
@@ -286,8 +300,118 @@ function CommandUnavailableView(props: Stage19WritingSpineViewProps): JSX.Elemen
   );
 }
 
+const COMMAND_WORKSPACES: readonly {
+  readonly id: CommandWorkspaceV1;
+  readonly label: string;
+  readonly purpose: string;
+}[] = [
+  { id: 'review', label: 'Review', purpose: 'Advisory critique and author decisions' },
+  { id: 'structure', label: 'Structure', purpose: 'Living Outline and structural work' },
+  { id: 'story-knowledge', label: 'Story Knowledge', purpose: 'Characters, world, and continuity' },
+  { id: 'create-develop', label: 'Create / Develop', purpose: 'Bounded development tools' },
+  { id: 'project-interchange', label: 'Project Interchange', purpose: 'Import, export, and handoff' },
+  { id: 'operations-approvals', label: 'Operations / Approvals', purpose: 'Explicit project operations' },
+] as const;
+
+function ReviewWorkspaceView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const state = model.critiqueReviewState;
+  if (!state || state.availability === 'unavailable') {
+    return (
+      <section className="stage19-command__empty-state" aria-live="polite">
+        <span className="stage19-spine__eyebrow">Review unavailable</span>
+        <h2>Writing remains available</h2>
+        <p>{state?.message ?? 'The Review projection is not connected in this window.'}</p>
+      </section>
+    );
+  }
+  if (state.availability === 'dismissed') {
+    return (
+      <section className="stage19-command__empty-state" aria-live="polite">
+        <span className="stage19-spine__eyebrow">Review dismissed</span>
+        <h2>Nothing is waiting for a decision</h2>
+        <p>{state.message}</p>
+        {model.feedbackNoteNotice ? <p className="stage19-ai__notice">{model.feedbackNoteNotice}</p> : null}
+      </section>
+    );
+  }
+  if (state.availability !== 'available' || !state.projection) {
+    return (
+      <section className="stage19-command__empty-state">
+        <span className="stage19-spine__eyebrow">Review workspace</span>
+        <h2>No critique is waiting</h2>
+        <p>{state.message ?? 'Select prose in Writing Studio when you want a bounded advisory review.'}</p>
+        {!model.surfaceHostAvailable
+          ? <button type="button" onClick={() => void actions.showWritingSurface()}>Return to Writing Studio</button>
+          : null}
+      </section>
+    );
+  }
+  const review = state.projection;
+  const completed = review.lifecycleState === 'completed';
+  const stale = review.lifecycleState === 'invalidated';
+  return (
+    <article className={`stage19-command-review ${stale ? 'is-stale' : ''}`} aria-labelledby="command-review-title">
+      <header className="stage19-command-review__header">
+        <div>
+          <span className="stage19-spine__eyebrow">{review.advisoryLabel}</span>
+          <h2 id="command-review-title">{completed ? 'Critique ready for your review' : 'Critique did not complete'}</h2>
+          <p>{review.sourceLabel} · {review.selectedCharacterCount.toLocaleString()} selected characters</p>
+        </div>
+        <span className={`stage19-command-review__state stage19-command-review__state--${review.lifecycleState}`}>
+          {stale ? 'Source changed' : review.lifecycleState}
+        </span>
+      </header>
+      <div className="stage19-command-review__disclosures">
+        <p><strong>Provider</strong><span>{review.providerDisclosure}</span></p>
+        <p><strong>Model</strong><span>{review.modelDisclosure}</span></p>
+        <p><strong>Privacy and cost</strong><span>{review.privacyAndCostDisclosure}</span></p>
+      </div>
+      {review.resultText ? (
+        <section className="stage19-command-review__result" aria-label="Advisory critique result">
+          <h3>Advisory result</h3>
+          <pre>{review.resultText}</pre>
+        </section>
+      ) : (
+        <section className="stage19-command-review__failure" role="status">
+          <h3>{review.failureClass ? review.failureClass.replace(/-/g, ' ') : 'No result available'}</h3>
+          <p>{review.limitationText}</p>
+        </section>
+      )}
+      {review.resultText ? <p className="stage19-command-review__limitation"><strong>Limits:</strong> {review.limitationText}</p> : null}
+      {review.allowedActions.includes('save-feedback-note') ? (
+        <label className="stage19-command-review__note">
+          <span>Save only the concise advisory note you choose</span>
+          <textarea
+            value={model.feedbackNoteBody}
+            maxLength={4000}
+            rows={4}
+            onChange={(event) => actions.setFeedbackNoteBody(event.target.value)}
+            placeholder="Your note, in your words..."
+          />
+        </label>
+      ) : null}
+      {model.feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{model.feedbackNoteNotice}</p> : null}
+      <div className="stage19-command-review__actions">
+        {review.allowedActions.includes('copy-result')
+          ? <button type="button" onClick={() => void actions.copyAiResult()}>Copy result</button>
+          : null}
+        {review.allowedActions.includes('save-feedback-note')
+          ? <button type="button" onClick={() => void actions.saveFeedbackNote()} disabled={model.feedbackNoteSaving}>{model.feedbackNoteSaving ? 'Saving note...' : 'Save advisory note'}</button>
+          : null}
+        {review.allowedActions.includes('dismiss')
+          ? <button type="button" onClick={() => void actions.dismissCritiqueReview()}>Dismiss</button>
+          : null}
+        {review.allowedActions.includes('return-to-source')
+          ? <button type="button" className="is-primary" onClick={() => void actions.returnToCritiqueSource()}>{stale ? 'Return to Writing' : 'Return to reviewed passage'}</button>
+          : null}
+      </div>
+      <p className="stage19-spine__mutability-note">These actions cannot accept text into the manuscript, reorder the outline, or change story truth.</p>
+    </article>
+  );
+}
+
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
-  const { snapshot, notice, activeUnit } = model;
+  const { snapshot, notice } = model;
   const commandStatus = snapshot.commandStatus;
   if (!commandStatus) return <CommandUnavailableView model={model} actions={actions} />;
   const commandAlert = notice ?? (
@@ -298,60 +422,56 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         : null
   );
   return (
-    <main className="stage19-spine stage19-spine--command" data-stage19-role={model.logicalSurface === 'command' ? 'command' : undefined} data-primary-scroll-container="true" role="region" aria-label="Command Center">
-      <header className="stage19-spine__header">
-        <div>
-          <span className="stage19-spine__eyebrow">Command Center</span>
+    <main className="stage19-spine stage19-spine--command" data-stage19-role={model.logicalSurface === 'command' ? 'command' : undefined} data-command-workspace={model.commandWorkspace} data-primary-scroll-container="true" role="region" aria-label="Command Center">
+      <header className="stage19-command__header">
+        <div className="stage19-command__identity">
+          <span className="stage19-spine__eyebrow">Black Skies · Command Center</span>
           <h1>{snapshot.project?.title ?? 'No project open'}</h1>
-          <p>Navigation, project status, and durable save truth. Manuscript mutation is unavailable here.</p>
         </div>
-        <div className="stage19-spine__project-actions">
+        <div className="stage19-command__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">{commandSaveLabel(snapshot, commandStatus)}</span>
           <SurfaceControlsView model={model} actions={actions} />
         </div>
       </header>
       {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
-      {snapshot.project ? (
-        <div className="stage19-spine__command-grid">
-          <section className="stage19-spine__card">
-            <h2>Active project</h2>
-            <dl className="stage19-spine__facts">
-              <div><dt>Title</dt><dd>{snapshot.project.title}</dd></div>
-              <div><dt>Identity</dt><dd>{snapshot.project.projectId}</dd></div>
-              <div><dt>Location</dt><dd>{snapshot.project.path}</dd></div>
-              <div><dt>Units</dt><dd>{snapshot.project.units.length}</dd></div>
-            </dl>
+      <nav className="stage19-command__workspace-switcher" aria-label="Command Center workspaces">
+        {COMMAND_WORKSPACES.map((workspace) => (
+          <button
+            key={workspace.id}
+            type="button"
+            aria-current={model.commandWorkspace === workspace.id ? 'page' : undefined}
+            className={model.commandWorkspace === workspace.id ? 'is-active' : ''}
+            title={workspace.purpose}
+            onClick={() => actions.selectCommandWorkspace(workspace.id)}
+          >{workspace.label}</button>
+        ))}
+      </nav>
+      <div className="stage19-command__task-canvas">
+        {!snapshot.project ? (
+          <section className="stage19-command__empty-state">
+            <span className="stage19-spine__eyebrow">No active project</span>
+            <h2>Begin in Writing Studio</h2>
+            <p>Command Center follows the active writing project and never gates opening or editing it.</p>
+            {!model.surfaceHostAvailable
+              ? <button type="button" onClick={() => void actions.showWritingSurface()}>Return to Writing Studio</button>
+              : null}
           </section>
-          <section className="stage19-spine__card stage19-spine__card--units">
-            <h2>Manuscript navigation</h2>
-            {snapshot.project.units.length > 0 ? (
-              <ol className="stage19-spine__unit-list">
-                {snapshot.project.units.map((unit) => (
-                  <li key={unit.id}>
-                    <button type="button" className={unit.id === snapshot.activeUnitId ? 'is-active' : ''} onClick={() => void actions.selectUnit(unit.id)} aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined}>
-                      <span>{String(unit.order).padStart(2, '0')}</span><strong>{unit.displayTitle}</strong>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            ) : <p className="stage19-spine__empty">This project has no manuscript units yet.</p>}
+        ) : model.commandWorkspace === 'review' ? (
+          <ReviewWorkspaceView model={model} actions={actions} />
+        ) : (
+          <section className="stage19-command__empty-state">
+            <span className="stage19-spine__eyebrow">Stable workspace location</span>
+            <h2>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.label}</h2>
+            <p>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.purpose} will be introduced only by its authorized product program. This shell does not pretend the tool exists today.</p>
+            <button type="button" onClick={() => actions.selectCommandWorkspace('review')}>Open Review</button>
           </section>
-          <section className="stage19-spine__card">
-            <h2>Writing state</h2>
-            <p><strong>Project:</strong> {commandLifecycleLabel(commandStatus)}</p>
-            <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
-            <p><strong>Save:</strong> {commandSaveLabel(snapshot, commandStatus)}</p>
-            <p>{snapshot.activeUnitId ? `Selected unit: ${activeUnit?.displayTitle ?? snapshot.activeUnitId}` : 'No unit selected'}</p>
-            <p className="stage19-spine__mutability-note">Advisory/status/navigation only. No prose editor or structural mutation controls are exposed.</p>
-          </section>
-        </div>
-      ) : (
-        <section className="stage19-spine__empty-state">
-          <h2>No active project</h2>
-          <p>Create or open a project in Writing Studio. Command Center will synchronize automatically.</p>
-          <p><strong>Recovery:</strong> {commandRecoveryLabel(commandStatus)}</p>
-        </section>
-      )}
+        )}
+      </div>
+      <footer className="stage19-command__footer">
+        <span>{commandLifecycleLabel(commandStatus)}</span>
+        <span>{commandRecoveryLabel(commandStatus)}</span>
+        <span>Command is optional and non-gating</span>
+      </footer>
     </main>
   );
 }
@@ -779,12 +899,12 @@ function SelectedProseCritiqueView({ model, actions }: Stage19WritingSpineViewPr
           {terminalWithoutResult ? <button type="button" onClick={actions.dismissAiCritique}>Dismiss critique status</button> : null}
         </>
       )}
-      {(model.aiResult || model.savedFeedbackNotes.length > 0) && !model.reviewPaneOpen ? (
-        <button type="button" onClick={actions.openReviewPane}>
-          {model.aiResult ? 'Open Critique Workbench' : `Open Feedback Notes (${model.savedFeedbackNotes.length})`}
+      {model.critiqueReviewState?.availability === 'available' ? (
+        <button type="button" onClick={() => void actions.openReviewWorkspace()}>
+          Open Review in Command Center
         </button>
       ) : null}
-      {!model.reviewPaneOpen && model.feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{model.feedbackNoteNotice}</p> : null}
+      {model.feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{model.feedbackNoteNotice}</p> : null}
     </section>
   );
 }
@@ -810,6 +930,17 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
               onChange={(body) => actions.changeBuffer(activeUnit.id, body)}
               onSave={(body) => void actions.saveUnit(activeUnit.id, body)}
               onSelectionChange={actions.changeAiSelection}
+              selectionRestore={
+                model.sourceReturnRequest?.status === 'exact' && model.sourceReturnRequest.anchor
+                  ? {
+                      requestId: model.sourceReturnRequest.requestId,
+                      selectionStart: model.sourceReturnRequest.anchor.selectionStart,
+                      selectionEnd: model.sourceReturnRequest.anchor.selectionEnd,
+                      selectionFingerprint: model.sourceReturnRequest.anchor.selectionFingerprint,
+                    }
+                  : null
+              }
+              onSelectionRestoreResult={actions.sourceSelectionRestoreResult}
               readOnly={model.recoveryBlocksEditing}
               placeholder="Start writing…"
               ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}

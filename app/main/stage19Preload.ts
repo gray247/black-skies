@@ -55,6 +55,14 @@ import type {
   SplitCommandOwnershipSyncMessage,
   SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority';
+import type {
+  CritiqueReviewActionResultV1,
+  CritiqueReviewBridge,
+  CritiqueReviewReferenceV1,
+  CritiqueReviewSourceReturnMessageV1,
+  CritiqueReviewSurfaceStateV1,
+  SaveCritiqueReviewFeedbackNoteActionV1,
+} from '../shared/ipc/contextualProductShell';
 
 /**
  * Electron's sandboxed preload loader cannot require arbitrary local CommonJS
@@ -90,6 +98,15 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     requestSurfaceHostState: 'split-command:surface-host:request',
     activateSurface: 'split-command:surface-host:activate',
     surfaceHostChanged: 'split-command:surface-host:changed',
+  }),
+  critiqueReview: Object.freeze({
+    requestState: 'critique-review:state:request',
+    stateChanged: 'critique-review:state:changed',
+    markStale: 'critique-review:mark-stale',
+    dismiss: 'critique-review:dismiss',
+    saveFeedbackNote: 'critique-review:save-feedback-note',
+    returnToSource: 'critique-review:return-to-source',
+    sourceReturnRequested: 'critique-review:source-return-requested',
   }),
   aiCritique: Object.freeze({
     credentialStatus: 'ai-critique:credential-status',
@@ -284,12 +301,122 @@ function normalizeSurfaceHostResult(value: unknown): SplitCommandSurfaceHostResu
   return null;
 }
 
+function normalizeCritiqueReviewState(value: unknown): CritiqueReviewSurfaceStateV1 | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const state = value as Partial<CritiqueReviewSurfaceStateV1>;
+  const allowedStateKeys = [
+    'schemaVersion',
+    'projectId',
+    'generation',
+    'availability',
+    'projection',
+    'sourceReturnAnchor',
+    'dismissedRequestId',
+    'message',
+  ];
+  if (
+    !Object.keys(state).every((key) => allowedStateKeys.includes(key)) ||
+    state.schemaVersion !== 1 ||
+    (state.projectId !== null && typeof state.projectId !== 'string') ||
+    !Number.isInteger(state.generation) ||
+    !['empty', 'available', 'dismissed', 'unavailable'].includes(state.availability ?? '') ||
+    (state.message !== undefined && (typeof state.message !== 'string' || !state.message.trim())) ||
+    (state.availability !== 'available' && (
+      state.projection !== undefined || state.sourceReturnAnchor !== undefined
+    ))
+  ) return null;
+  if (state.availability === 'available') {
+    const projection = state.projection as Record<string, unknown> | undefined;
+    const anchor = state.sourceReturnAnchor as Record<string, unknown> | undefined;
+    const projectionKeys = [
+      'schemaVersion', 'projectId', 'generation', 'requestId', 'unitId',
+      'selectionFingerprint', 'sourceLabel', 'selectedCharacterCount',
+      'lifecycleState', 'advisoryLabel', 'providerDisclosure', 'modelDisclosure',
+      'privacyAndCostDisclosure', 'resultText', 'limitationText', 'failureClass',
+      'completedAt', 'allowedActions',
+    ];
+    const lifecycle = projection?.lifecycleState;
+    const expectedActions = lifecycle === 'completed'
+      ? ['copy-result', 'save-feedback-note', 'dismiss', 'return-to-source']
+      : ['dismiss', 'return-to-source'];
+    if (
+      !projection || !anchor ||
+      !Object.keys(projection).every((key) => projectionKeys.includes(key)) ||
+      projection.schemaVersion !== 1 ||
+      projection.projectId !== state.projectId ||
+      projection.generation !== state.generation ||
+      typeof projection.requestId !== 'string' || !projection.requestId.trim() ||
+      typeof projection.unitId !== 'string' || !projection.unitId.trim() ||
+      typeof projection.selectionFingerprint !== 'string' || !projection.selectionFingerprint.trim() ||
+      typeof projection.sourceLabel !== 'string' || !projection.sourceLabel.trim() ||
+      !Number.isInteger(projection.selectedCharacterCount) || Number(projection.selectedCharacterCount) < 0 ||
+      !['completed', 'failed', 'cancelled', 'expired', 'invalidated'].includes(String(lifecycle)) ||
+      typeof projection.advisoryLabel !== 'string' || !projection.advisoryLabel.trim() ||
+      typeof projection.providerDisclosure !== 'string' || !projection.providerDisclosure.trim() ||
+      typeof projection.modelDisclosure !== 'string' || !projection.modelDisclosure.trim() ||
+      typeof projection.privacyAndCostDisclosure !== 'string' || !projection.privacyAndCostDisclosure.trim() ||
+      typeof projection.limitationText !== 'string' || !projection.limitationText.trim() ||
+      !Array.isArray(projection.allowedActions) ||
+      projection.allowedActions.length !== expectedActions.length ||
+      projection.allowedActions.some((action, index) => action !== expectedActions[index]) ||
+      (lifecycle === 'completed' && (
+        typeof projection.resultText !== 'string' || !projection.resultText.trim() ||
+        typeof projection.completedAt !== 'string' || !projection.completedAt.trim() ||
+        projection.failureClass !== undefined
+      )) ||
+      (lifecycle !== 'completed' && (
+        projection.resultText !== undefined || projection.completedAt !== undefined ||
+        !['provider-unavailable', 'provider-rejected', 'request-cancelled', 'request-expired', 'source-changed', 'unknown']
+          .includes(String(projection.failureClass))
+      )) ||
+      !exactKeys(anchor, [
+        'schemaVersion', 'projectId', 'generation', 'unitId', 'editorRevision',
+        'selectionStart', 'selectionEnd', 'selectionFingerprint',
+      ]) ||
+      anchor.schemaVersion !== 1 ||
+      anchor.projectId !== state.projectId ||
+      anchor.generation !== state.generation ||
+      anchor.unitId !== projection.unitId ||
+      anchor.selectionFingerprint !== projection.selectionFingerprint ||
+      !Number.isInteger(anchor.editorRevision) || Number(anchor.editorRevision) < 0 ||
+      !Number.isInteger(anchor.selectionStart) || Number(anchor.selectionStart) < 0 ||
+      !Number.isInteger(anchor.selectionEnd) || Number(anchor.selectionEnd) <= Number(anchor.selectionStart)
+    ) return null;
+  }
+  const serialized = JSON.stringify(state);
+  if (/"(?:apiKey|credential|selectedText|providerBodyJson|hiddenContext|manuscript|outline|drafts)"/.test(serialized)) {
+    return null;
+  }
+  return state as CritiqueReviewSurfaceStateV1;
+}
+
+function normalizeSourceReturnMessage(value: unknown): CritiqueReviewSourceReturnMessageV1 | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const message = value as Partial<CritiqueReviewSourceReturnMessageV1>;
+  if (
+    !Object.keys(message).every((key) => [
+      'schemaVersion', 'projectId', 'generation', 'requestId', 'status', 'message', 'anchor',
+    ].includes(key)) ||
+    message.schemaVersion !== 1 ||
+    typeof message.projectId !== 'string' ||
+    !Number.isInteger(message.generation) ||
+    typeof message.requestId !== 'string' ||
+    (message.status !== 'exact' && message.status !== 'stale') ||
+    typeof message.message !== 'string' ||
+    (message.status === 'exact' && !message.anchor)
+  ) return null;
+  return message as CritiqueReviewSourceReturnMessageV1;
+}
+
 const launch = readLaunchContext();
 const projectRole = launch.windowRole === 'secondary' ? 'command' : 'writing';
 let ownership: SplitCommandOwnershipSyncMessage | null = null;
 const ownershipListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
 let surfaceHostState: SplitCommandSurfaceHostState | null = null;
 const surfaceHostListeners = new Set<(state: SplitCommandSurfaceHostState) => void>();
+let critiqueReviewState: CritiqueReviewSurfaceStateV1 | null = null;
+const critiqueReviewListeners = new Set<(state: CritiqueReviewSurfaceStateV1) => void>();
+const sourceReturnListeners = new Set<(message: CritiqueReviewSourceReturnMessageV1) => void>();
 
 function applyOwnership(message: SplitCommandOwnershipSyncMessage): boolean {
   if (
@@ -337,6 +464,25 @@ ipcRenderer.on(
   (_event, value: unknown) => {
     const state = normalizeSurfaceHostState(value);
     if (state) applySurfaceHostState(state);
+  },
+);
+
+ipcRenderer.on(
+  STAGE19_PRELOAD_CHANNELS.critiqueReview.stateChanged,
+  (_event, value: unknown) => {
+    const state = normalizeCritiqueReviewState(value);
+    if (!state) return;
+    critiqueReviewState = state;
+    for (const listener of critiqueReviewListeners) listener(state);
+  },
+);
+
+ipcRenderer.on(
+  STAGE19_PRELOAD_CHANNELS.critiqueReview.sourceReturnRequested,
+  (_event, value: unknown) => {
+    const message = normalizeSourceReturnMessage(value);
+    if (!message) return;
+    for (const listener of sourceReturnListeners) listener(message);
   },
 );
 
@@ -517,6 +663,54 @@ const splitCommand: SplitCommandOwnershipBridge = {
   },
 };
 
+async function invokeCritiqueReviewAction<T>(
+  channel: string,
+  request: unknown,
+): Promise<CritiqueReviewActionResultV1<T>> {
+  const result = await ipcRenderer.invoke(channel, request) as CritiqueReviewActionResultV1<T>;
+  const state = normalizeCritiqueReviewState(result?.state);
+  if (!state || (result.ok !== true && result.ok !== false)) {
+    throw new Error('Review returned an invalid result.');
+  }
+  critiqueReviewState = state;
+  return { ...result, state } as CritiqueReviewActionResultV1<T>;
+}
+
+const critiqueReview: CritiqueReviewBridge = {
+  async requestState() {
+    const state = normalizeCritiqueReviewState(
+      await ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.critiqueReview.requestState),
+    );
+    if (!state) throw new Error('Review returned an invalid state.');
+    critiqueReviewState = state;
+    return state;
+  },
+  readState: () => critiqueReviewState,
+  subscribeState(listener) {
+    critiqueReviewListeners.add(listener);
+    if (critiqueReviewState) listener(critiqueReviewState);
+    return () => critiqueReviewListeners.delete(listener);
+  },
+  markStale: (request: CritiqueReviewReferenceV1) =>
+    invokeCritiqueReviewAction(STAGE19_PRELOAD_CHANNELS.critiqueReview.markStale, request),
+  dismiss: (request: CritiqueReviewReferenceV1) =>
+    invokeCritiqueReviewAction(STAGE19_PRELOAD_CHANNELS.critiqueReview.dismiss, request),
+  saveFeedbackNote: (request: SaveCritiqueReviewFeedbackNoteActionV1) =>
+    invokeCritiqueReviewAction<{ readonly noteId: string }>(
+      STAGE19_PRELOAD_CHANNELS.critiqueReview.saveFeedbackNote,
+      request,
+    ),
+  returnToSource: (request: CritiqueReviewReferenceV1) =>
+    invokeCritiqueReviewAction<{ readonly status: 'exact' | 'stale' }>(
+      STAGE19_PRELOAD_CHANNELS.critiqueReview.returnToSource,
+      request,
+    ),
+  subscribeSourceReturn(listener) {
+    sourceReturnListeners.add(listener);
+    return () => sourceReturnListeners.delete(listener);
+  },
+};
+
 const aiCritique: AiCritiqueBridge = {
   credentialStatus: () =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.aiCritique.credentialStatus),
@@ -609,6 +803,7 @@ contextBridge.exposeInMainWorld(
   projectRole === 'writing' ? writingProjectSpine : commandProjectSpine,
 );
 contextBridge.exposeInMainWorld('splitCommand', splitCommand);
+contextBridge.exposeInMainWorld('critiqueReview', critiqueReview);
 if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);

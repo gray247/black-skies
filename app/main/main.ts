@@ -77,6 +77,16 @@ import {
 import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
 import { registerLivingOutlineIpc } from './livingOutlineIpc.js';
 import {
+  getCritiqueReviewSurfaceState,
+  reconcileCritiqueReviewAuthority,
+  registerCritiqueReviewIpc,
+} from './critiqueReviewIpc.js';
+import {
+  CRITIQUE_REVIEW_CHANNELS,
+  type CritiqueReviewSourceReturnMessageV1,
+  type CritiqueReviewSurfaceStateV1,
+} from '../shared/ipc/contextualProductShell.js';
+import {
   clearPendingCloseRequest,
   consumeCoordinatedCloseAllowance,
   createPendingCloseRequest,
@@ -368,6 +378,7 @@ function resolveProjectSpineWindowRole(webContentsId: number): ProjectSpineWindo
 
 function publishProjectSpineSession(): void {
   invalidateAllAiCritiqueArtifacts();
+  reconcileCritiqueReviewAuthority();
   for (const registration of projectSpineWindows.values()) {
     if (
       registration.window.isDestroyed() ||
@@ -381,6 +392,27 @@ function publishProjectSpineSession(): void {
     );
   }
   publishSplitCommandSurfaceHostState();
+}
+
+function publishCritiqueReviewState(state: CritiqueReviewSurfaceStateV1): void {
+  for (const registration of projectSpineWindows.values()) {
+    if (
+      registration.window.isDestroyed() ||
+      registration.window.webContents.isDestroyed()
+    ) continue;
+    registration.window.webContents.send(CRITIQUE_REVIEW_CHANNELS.stateChanged, state);
+  }
+}
+
+function returnToCritiqueSource(message: CritiqueReviewSourceReturnMessageV1): void {
+  primaryLogicalSurface = 'writing';
+  publishSplitCommandSurfaceHostState();
+  if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+  mainWindow.webContents.focus();
+  mainWindow.webContents.send(CRITIQUE_REVIEW_CHANNELS.sourceReturnRequested, message);
 }
 
 function installUnsavedCloseGuard(window: BrowserWindow): void {
@@ -1673,6 +1705,12 @@ if (!hasSingleInstanceLock) {
           mainWindow.webContents.focus();
         },
       });
+      registerCritiqueReviewIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        publishState: publishCritiqueReviewState,
+        requestSourceReturn: returnToCritiqueSource,
+      });
       registerAiCritiqueIpc({
         processSessionId: projectSpineOriginSessionId,
         resolveWindowRole: resolveProjectSpineWindowRole,
@@ -1689,6 +1727,7 @@ if (!hasSingleInstanceLock) {
       });
       registerDiagnosticsIpc();
       registerSplitCommandOwnershipIpc();
+      publishCritiqueReviewState(getCritiqueReviewSurfaceState());
       registerLayoutIpc({
         devServerUrl: START_URL.startsWith('http') ? START_URL : null,
         rendererIndexFile,

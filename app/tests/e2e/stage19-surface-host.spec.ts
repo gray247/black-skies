@@ -58,7 +58,7 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
       await closeOptionalCommandWindow(electronApp);
       await expect.poll(() => electronApp.windows().length, { timeout: 30_000 }).toBe(1);
       await expect(page.getByRole('region', { name: 'Command Center' })).toBeVisible();
-      await page.getByRole('button', { name: 'Return to Writing Studio' }).click();
+      await page.locator('.stage19-spine__surface-actions').getByRole('button', { name: 'Return to Writing Studio' }).click();
       await expect(page.locator('[data-stage19-role="writing"]')).toBeVisible();
     }
 
@@ -97,7 +97,7 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
       .toHaveCount(0);
     expect(await editor.textContent()).toContain(prose);
 
-    await page.getByRole('button', { name: 'Return to Writing Studio' }).click();
+    await page.locator('.stage19-spine__surface-actions').getByRole('button', { name: 'Return to Writing Studio' }).click();
     await expect(editor).toBeVisible();
     expect(await editor.textContent()).toContain(prose);
     await expect(editor).toBeFocused();
@@ -118,7 +118,7 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
     await page.getByRole('button', { name: 'Move Command Center to second window' }).click();
     const reopenedCommand = await findCommandWindow(electronApp, page);
     await expect(reopenedCommand.getByRole('region', { name: 'Command Center' })).toBeVisible();
-    await reopenedCommand.getByRole('button', { name: 'Return to Writing Studio' }).click();
+    await reopenedCommand.locator('.stage19-spine__surface-actions').getByRole('button', { name: 'Return to Writing Studio' }).click();
 
     await expect.poll(() => electronApp.windows().length, { timeout: 30_000 }).toBe(1);
     await expect(editor).toBeVisible();
