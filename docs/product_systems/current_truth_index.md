@@ -81,8 +81,10 @@ It does not finalize the entire product vision.
   durable at `f6090498a8ea04f011fc30c890af521aa712940e` and adds the
   closed-by-default bottom entry and a current-window temporary Command result.
   P4-C built-Electron temporary-state/reopen evidence, Command-canvas layout
-  repair, and package-safe preflight are green, awaiting Jason's exact Git
-  checkpoint before combined
+  repair, and package-safe preflight are green. The first exact checkpoint
+  exposed a Windows visual-capture-frame seam; its bounded follow-up repair
+  and full dirty-development regression are green locally, awaiting Jason's
+  exact Git checkpoint before repeated combined
   package/install qualification. Human Gate 2 remains the next human
   validation after that exact candidate is complete.
 - Repository Control Point 0 forensics are recorded in

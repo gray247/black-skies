@@ -88,8 +88,11 @@ and automation are durable at
 
 The Program 4 P4-C receipt records the built-Electron temporary-state and
 project-reopen proof, the relevant Program 3 topology regression group, and
-the pre-candidate package-safe evidence. Its pre-candidate automation is green;
-Jason's P4-C checkpoint precedes exact package and installed-lifecycle work.
+the pre-candidate package-safe evidence. The first exact checkpoint exposed a
+Windows-only capture-frame seam in the visual harness, not a product-behavior
+failure. The bounded follow-up frame repair and full dirty-development
+regression are green locally; Jason's follow-up P4-C checkpoint precedes the
+repeated exact package and installed-lifecycle work.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

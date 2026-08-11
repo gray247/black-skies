@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `P4-C REPAIR QUALIFIED; AWAITING JASON'S EXACT-CANDIDATE CHECKPOINT`
+- Status: `P4-C FOLLOW-UP REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
 - Date: `2026-08-11`
 - Starting commit: `f6090498a8ea04f011fc30c890af521aa712940e`
 - Branch: `codex/foundation-audit`
@@ -24,14 +24,19 @@ qualification defects before any human review:
 
 The repair makes the Command notice slot explicit, confines task-canvas
 overflow to the canvas, and keeps the header/footer above it. The visual
-reference files remain unchanged; their assertion now tolerates only the
-measured host-only rasterization seam while retaining a 2.5 percent maximum
-pixel-difference ratio for material presentation changes.
+reference files remain unchanged. A later exact hosted run showed that
+Playwright rejects a changed capture rectangle before it can evaluate the
+measured host-only rasterization seam. The final follow-up repair therefore
+freezes only the test capture frame to the approved reference dimensions,
+while retaining a 2.5 percent maximum pixel-difference ratio for material
+presentation changes. It does not change the product viewport, layout, or
+reference images.
 
-The full fixed Stage 19 regression after this repair is green: 42 unit or
-component files, 672 passing tests, 2 intentional skips, and 28 Electron
-journeys. The focused P4 reopen witness, P3 surface-host route, P3 topology
-protocol, and P3 visual references are also green.
+The pre-follow-up fixed Stage 19 regression was green: 42 unit or component
+files, 672 passing tests, 2 intentional skips, and 28 Electron journeys. The
+follow-up P3 visual reference witness and Stage 19 lint are green locally.
+The full exact clean-candidate regression, package, and installed lifecycle
+remain required after this repair is committed.
 
 ## Delivered Qualification Boundary
 
@@ -74,14 +79,16 @@ credentials, provider activity, or a human visual judgment.
 | Full fixed Stage 19 regression | Green with the dirty-development override; protected evidence not used |
 | Current-authority documentation check | Green: 46 files, local links resolved |
 | Diff whitespace check | Green |
+| Follow-up P3 visual-reference frame witness | Green locally: 1 journey |
+| Follow-up Stage 19 lint | Green |
 
 ## Exact-Candidate Next Sequence
 
-Jason first commits and pushes this P4-C test-and-record batch. The next
-automated step runs the exact combined Program 3 plus Program 4 packaging and
-installed offline lifecycle against that pushed runtime candidate. It remains
-automation, not a human product review. Only after that evidence is green is
-the complete candidate ready for Human Gate 2.
+Jason first commits and pushes the P4-C follow-up repair. The next automated
+step runs the exact combined Program 3 plus Program 4 regression, packaging,
+and installed offline lifecycle against that pushed runtime candidate. It
+remains automation, not a human product review. Only after that evidence is
+green is the complete candidate ready for Human Gate 2.
 
 The fixed regression now includes both the P4 local-orientation contract and
 the P4 built-Electron temporary-state/reopen witness. Its exact clean-candidate
