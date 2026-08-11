@@ -67,8 +67,6 @@ export interface Stage19WritingSpineViewModel {
   readonly commandWorkspace: CommandWorkspaceV1;
   readonly critiqueReviewState: CritiqueReviewSurfaceStateV1 | null;
   readonly sourceReturnRequest: CritiqueReviewSourceReturnMessageV1 | null;
-  /** Temporary compatibility flag. P3-F keeps the Writing-side result pane closed. */
-  readonly reviewPaneOpen: boolean;
   readonly newUnitTitle: string;
   readonly renameTitle: string;
   readonly dirtyUnitIds: ReadonlySet<string>;
@@ -161,8 +159,6 @@ export interface Stage19WritingSpineViewActions {
   readonly dismissCritiqueReview: () => MaybeAsync;
   readonly returnToCritiqueSource: () => MaybeAsync;
   readonly sourceSelectionRestoreResult: (requestId: string, restored: boolean) => void;
-  readonly openReviewPane: () => MaybeAsync;
-  readonly closeReviewPane: () => void;
   readonly copyAiResult: () => MaybeAsync;
   readonly setFeedbackNoteBody: (value: string) => void;
   readonly saveFeedbackNote: () => MaybeAsync;
@@ -954,58 +950,6 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
   );
 }
 
-function CritiqueReviewPaneView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
-  if (!model.reviewPaneOpen || model.focusMode) return null;
-  return (
-    <aside className="stage19-spine__review-pane" aria-label="Critique Workbench">
-      <div className="stage19-ai__heading">
-        <div><span className="stage19-spine__eyebrow">Summonable review pane</span><h3>Critique Workbench</h3></div>
-        <button type="button" onClick={actions.closeReviewPane}>Hide pane</button>
-      </div>
-      {model.aiResult ? (
-        <div className={`stage19-ai__result ${model.aiResultStale ? 'is-stale' : ''}`}>
-          {model.aiResultStale ? <p className="stage19-ai__stale" role="status">Stale: the manuscript changed after this critique completed.</p> : null}
-          <p><strong>Advisory only.</strong> This is a suggestion about the original selected prose, not story truth and never a manuscript change.</p>
-          <dl className="stage19-ai__summary">
-            <div><dt>Scope</dt><dd>Selected prose in {model.activeUnit?.displayTitle ?? 'the active unit'}</dd></div>
-            <div><dt>Provider / model</dt><dd>{model.aiResult.provider} / {model.aiResult.model}</dd></div>
-            <div><dt>Calculated cost</dt><dd>${model.aiResult.usage.calculatedUsd.toFixed(6)} (not an invoice)</dd></div>
-            <div><dt>Privacy</dt><dd>Only the previewed selection was sent after approval.</dd></div>
-          </dl>
-          <h4>Advisory critique</h4>
-          <p>{model.aiResult.content.overview}</p>
-          {model.aiResult.content.strengths.length > 0 ? <><h5>Strengths</h5><ul>{model.aiResult.content.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-          {model.aiResult.content.priorities.length > 0 ? <><h5>Priorities</h5><ol>{model.aiResult.content.priorities.map((item, index) => <li key={`${index}-${item.evidence}`}><blockquote>{item.evidence}</blockquote><p>{item.observation}</p><p>{item.impact}</p><p>{item.revisionQuestion}</p></li>)}</ol></> : null}
-          {model.aiResult.content.uncertainties.length > 0 ? <><h5>Uncertainties</h5><ul>{model.aiResult.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-          {model.aiResult.content.limitations.length > 0 ? <><h5>Limitations</h5><ul>{model.aiResult.content.limitations.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
-          <p>{model.aiResult.usage.inputTokens} input tokens; {model.aiResult.usage.outputTokens} output tokens; {model.aiResult.usage.invoiceDisclaimer}</p>
-          <div className="stage19-ai__actions">
-            <button type="button" onClick={() => void actions.copyAiResult()}>Copy result text</button>
-            <button type="button" onClick={actions.dismissAiCritique}>Dismiss critique</button>
-          </div>
-          <label className="stage19-ai__note">
-            <span>Save a concise advisory project note</span>
-            <textarea value={model.feedbackNoteBody} maxLength={4000} rows={4} onChange={(event) => actions.setFeedbackNoteBody(event.target.value)} />
-          </label>
-          <button type="button" onClick={() => void actions.saveFeedbackNote()} disabled={!model.feedbackNotesAvailable || model.feedbackNoteSaving}>
-            {model.feedbackNoteSaving ? 'Saving note…' : 'Save advisory note'}
-          </button>
-          {!model.feedbackNotesAvailable ? <p className="stage19-ai__notice">Saving notes is unavailable in this window. The critique remains temporary.</p> : null}
-          {model.feedbackNoteNotice ? <p className="stage19-ai__notice" role="status">{model.feedbackNoteNotice}</p> : null}
-        </div>
-      ) : (
-        <p>No completed critique is open. Keep writing, or select prose to review an exact outbound request.</p>
-      )}
-      <section className="stage19-ai__saved-notes" aria-label="Saved advisory Feedback Notes">
-        <h4>Saved advisory Feedback Notes</h4>
-        {model.savedFeedbackNotes.length > 0 ? (
-          <ol>{model.savedFeedbackNotes.map((note) => <li key={note.id}><p>{note.body}</p><small>Advisory · {note.createdAt} · source request {note.sourceCritiqueRequestId}</small></li>)}</ol>
-        ) : <p>No author-saved feedback notes in this project.</p>}
-      </section>
-    </aside>
-  );
-}
-
 const WRITING_RAIL_LABELS: Record<Stage19WritingRail, {
   readonly shortLabel: string;
   readonly accessibleLabel: string;
@@ -1103,7 +1047,6 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
     >
       <WritingRailHeading rail="right" title="Writing support" actions={props.actions} />
       <SelectedProseCritiqueView {...props} />
-      <CritiqueReviewPaneView {...props} />
     </aside>
   );
 }

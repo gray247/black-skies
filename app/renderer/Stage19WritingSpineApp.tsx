@@ -2184,7 +2184,6 @@ export default function Stage19WritingSpineApp({
     commandWorkspace,
     critiqueReviewState,
     sourceReturnRequest,
-    reviewPaneOpen: false,
     newUnitTitle,
     renameTitle,
     dirtyUnitIds,
@@ -2290,16 +2289,6 @@ export default function Stage19WritingSpineApp({
     dismissCritiqueReview,
     returnToCritiqueSource,
     sourceSelectionRestoreResult: handleSourceSelectionRestoreResult,
-    openReviewPane: () => {
-      setCommandWorkspace('review');
-      return activateSurface(
-        'command',
-        surfaceHostState?.commandPlacement === 'secondary-window'
-          ? 'secondary-window'
-          : 'current-window',
-      );
-    },
-    closeReviewPane: () => undefined,
     copyAiResult,
     setFeedbackNoteBody,
     saveFeedbackNote,

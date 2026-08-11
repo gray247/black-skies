@@ -23,8 +23,8 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
-- the current Program 3 Batch P3-A through P3-F implementation and
-  automated-evidence receipts;
+- the current Program 3 Batch P3-A through P3-F receipts and the Program 3
+  P3-G closure receipt;
 - the current open-work register;
 - the current Control Point 1 architecture and maintainability audit;
 - the current Control Point 1 open-work reconciliation;
@@ -64,9 +64,9 @@ The approved Program 3 implementation plan converts the approved Control Point
 batches, a Program 4 handoff, and one later Human Gate 2. Jason approved the
 plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
 `xhigh` reasoning on 2026-08-10. The authorization baseline and P3-A through
-P3-E are durable; P3-F is green and awaits Jason's exact commit and push.
-Every stated exclusion, truth boundary, batch gate, Git control, and Human
-Gate 2 boundary remains in force.
+P3-F are durable. P3-G implementation and automation are green and await
+Jason's exact commit and push. Every stated exclusion, truth boundary, batch
+gate, Git control, and Human Gate 2 boundary remains in force.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,
@@ -100,9 +100,15 @@ The Program 3 Batch P3-F receipt records the task-focused Command Center,
 six stable workspace families, rich advisory Review placement, main-owned
 sanitized projection, narrow copy/note/dismiss/source-return actions, explicit
 terminal and stale states, and green focused, full-suite, Electron,
-performance, regression, and package-preflight evidence. Its implementation
-is complete; durable batch closure and P3-G eligibility require Jason's commit
-and push of the exact batch.
+performance, regression, and package-preflight evidence. P3-F is durable at
+`5d481146`.
+
+The Program 3 closure receipt records P3-G duplicate-path removal, the complete
+presentation-state and changed-shell accessibility matrix, targeted Windows
+visual references, the versioned logical-surface performance protocol, full
+application and fixed-regression evidence, retained deferrals, and the exact
+Program 4 handoff. P3-G implementation and automation are complete; durable
+Program 3 closure requires Jason's commit and push of the exact batch.
 
 The Control Point 1 open-work reconciliation records the current disposition
 of fix-tracker residuals, dossier questions, deferrals, intentional skips,

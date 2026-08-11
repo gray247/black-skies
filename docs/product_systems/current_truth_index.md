@@ -71,9 +71,11 @@ It does not finalize the entire product vision.
   accepted; the required author-experience composition repair is governed by
   `author_experience_direction_lock.md` and moves into Programs 3 and 4 rather
   than reopening V1.
-- Program 3, the contextual product shell, is the active product program.
-  Repository Control Points 0 and 1 are complete. Human Gate 2 remains the next
-  human validation after the shell and minimal Companion workflow are complete.
+- Program 3, the contextual product shell, has complete implementation and
+  automated evidence through P3-G. P3-A through P3-F are durable; Jason's
+  exact P3-G commit and push makes Program 3 durably complete and Program 4
+  next. Human Gate 2 remains the next human validation after the minimal
+  Companion workflow and combined exact package/install candidate are complete.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
@@ -132,10 +134,14 @@ It does not finalize the entire product vision.
   `program_3_batch_p3_e_evidence_receipt.md` and is durable at `fec27147`.
   P3-F's task-focused Command Center, stable six-family switcher, rich Review
   placement, sanitized main-owned projection, narrow owner-routed actions,
-  source return, and terminal/stale state evidence are complete and recorded
-  in `program_3_batch_p3_f_evidence_receipt.md`. Jason's exact P3-F commit and
-  push make P3-G executable; all exclusions, batch gates, truth boundaries,
-  current Git controls, and the Human Gate 2 boundary remain in force.
+  source return, and terminal/stale state evidence are durable at `5d481146`
+  and recorded in `program_3_batch_p3_f_evidence_receipt.md`. P3-G removes the
+  duplicate Writing result path and closes accessibility, presentation-state,
+  responsive, targeted visual-reference, versioned-performance, full-suite,
+  regression, and package-preflight evidence. It is recorded in
+  `program_3_closure_receipt.md`; Jason's exact P3-G commit and push make
+  Program 3 durably complete and Program 4 executable. All exclusions, truth
+  boundaries, Git controls, and the Human Gate 2 boundary remain in force.
 - Program 5 proves long-manuscript intake and stable structural anchors before
   Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
   keeps author-planned, manuscript-observed, and inferred emotion distinct.

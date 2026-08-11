@@ -19,10 +19,9 @@ Current status:
   safety, isolation, advisory behavior, and manuscript sovereignty passed,
   while the required interaction and placement corrections are preserved in
   `author_experience_direction_lock.md`
-- Human Gate 1 supplied the required two-workflow synthesis; Program 3 is the
-  next product program, but Repository Control Points 0 and 1 must reconcile
-  the dirty legacy checkout, open work, architecture, test strength, and visual
-  foundation before Program 3 implementation begins
+- Human Gate 1 supplied the required two-workflow synthesis. Repository Control
+  Points 0 and 1 are complete, and Program 3 implementation and automation are
+  complete through P3-G. Its exact Git checkpoint precedes Program 4
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -32,8 +31,10 @@ Current status:
   2026-08-10. The authorization baseline is pushed at `6991bfae`; P3-A is
   durable at `4007e12a`; P3-B is durable at `2ff0361c`; P3-C is durable at
   `3de76ee1`; P3-D is durable at `fb232066`; P3-E is durable at `fec27147`;
-  P3-F implementation and automation are green; and P3-G follows after Jason
-  commits and pushes the exact P3-F batch
+  P3-F is durable at `5d481146`; and P3-G implementation, accessibility,
+  responsive, targeted visual, performance, full-suite, regression, and
+  package-preflight evidence are green. Jason's exact P3-G commit and push
+  makes Program 3 durably complete and Program 4 next.
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates

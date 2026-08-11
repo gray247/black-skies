@@ -10,16 +10,17 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(resolveStage19RendererRole(undefined)).toBeNull();
   });
 
-  it('keeps one page-level scroll owner and a responsive desktop Command Center grid', () => {
+  it('keeps one page-level scroll owner and the responsive task-focused Command canvas', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     expect(css).toMatch(/\.stage19-spine\s*\{[\s\S]*?overflow-y:\s*auto;/);
     expect(css).toMatch(
-      /\.stage19-spine__command-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*24rem\),\s*1fr\)\);/,
+      /\.stage19-command-review\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(15rem,\s*22rem\);/,
     );
     expect(css).toMatch(
-      /@media\s*\(max-width:\s*900px\)[\s\S]*?\.stage19-spine__writing-grid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+      /@media\s*\(max-width:\s*840px\)[\s\S]*?\.stage19-command-review\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
     );
-    expect(css).not.toMatch(/\.stage19-spine__command-grid[\s\S]{0,300}max-width:\s*24rem/);
+    expect(css).toMatch(/\.stage19-command__workspace-switcher\s*\{[\s\S]*?overflow-x:\s*auto;/);
+    expect(css).not.toContain('.stage19-spine__command-grid');
   });
 
   it('locks the scoped P3-D literary canvas, responsive rails, and reduced-motion behavior', () => {
@@ -37,5 +38,17 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
     expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
     expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
+  });
+
+  it('removes the superseded Writing-side critique result presentation', () => {
+    const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
+    const app = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineApp.tsx'), 'utf8');
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+
+    expect(view).not.toContain('CritiqueReviewPaneView');
+    expect(view).not.toContain('reviewPaneOpen');
+    expect(view).not.toContain('openReviewPane');
+    expect(app).not.toContain('reviewPaneOpen');
+    expect(css).not.toContain('stage19-spine__review-pane');
   });
 });

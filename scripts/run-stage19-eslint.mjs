@@ -37,7 +37,10 @@ const lintTargets = [
   "tests/e2e/stage19-command-center-integrity.spec.ts",
   "tests/e2e/stage19-ai-critique.spec.ts",
   "tests/e2e/stage19-accessibility.spec.ts",
-  "tests/e2e/stage19-performance.spec.ts"
+  "tests/e2e/stage19-performance.spec.ts",
+  "tests/e2e/stage19-program3-performance.spec.ts",
+  "tests/e2e/stage19-program3-presentation.spec.ts",
+  "tests/e2e/stage19-program3-visual.spec.ts"
 ];
 
 const eslintExecutable = require.resolve(".bin/eslint", {

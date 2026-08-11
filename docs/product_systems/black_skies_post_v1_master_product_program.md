@@ -339,7 +339,7 @@ not another general audit campaign.
 
 ### Program 3 - Contextual Product Shell
 
-Status: `ACTIVE; P3-A THROUGH P3-E DURABLE; P3-F GREEN AND AWAITING AUTHOR GIT CHECKPOINT`
+Status: `P3-A THROUGH P3-F DURABLE; P3-G IMPLEMENTATION AND AUTOMATION COMPLETE, AWAITING AUTHOR GIT CHECKPOINT`
 
 Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
@@ -377,11 +377,14 @@ The detailed seven-batch proposal is
 [program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
 Jason approved it, authorized its bounded implementation, and confirmed
 `GPT-5.6 Sol` with `xhigh` reasoning on 2026-08-10. The authorization-record
-baseline is pushed at `6991bfae`. P3-A through P3-E are durable at
-`4007e12a`, `2ff0361c`, `3de76ee1`, `fb232066`, and `fec27147`. P3-F's
-task-focused Command canvas, sanitized Review projection, owner-routed
-actions, and automated qualification are green. P3-G follows after Jason
-commits and pushes the exact P3-F batch.
+baseline is pushed at `6991bfae`. P3-A through P3-F are durable at
+`4007e12a`, `2ff0361c`, `3de76ee1`, `fb232066`, `fec27147`, and `5d481146`.
+P3-G's duplicate-path removal, changed-shell presentation matrix, targeted
+visual references, versioned logical-surface performance protocol, full
+application sweep, fixed regression, and package preflight are green and
+recorded in
+[program_3_closure_receipt.md](program_3_closure_receipt.md). Jason's exact
+P3-G commit and push makes Program 3 durably complete and Program 4 next.
 
 ### Program 4 - Companion And Owner Routing
 
@@ -671,11 +674,11 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the green P3-F implementation and evidence batch,
-2. begin P3-G and complete Program 3's accessibility, responsive,
-   degraded-state, visual-reference, performance, duplicate-path, and final
-   automated qualification work,
-3. complete Program 4's minimal Companion entry and owner-routing slice,
+1. commit and push the green P3-G implementation and Program 3 closure batch,
+2. apply the required model-change warning and complete Program 4's minimal
+   Companion entry and owner-routing slice,
+3. qualify the exact combined Program 3 plus Program 4 Windows package and
+   installed lifecycle,
 4. perform Human Gate 2 only when the contextual shell and Companion workflow
    are whole,
 5. perform Cleanup Wave A and its professionalization checks,

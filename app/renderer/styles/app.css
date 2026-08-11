@@ -4685,27 +4685,9 @@ body[data-stage19-spine] {
   margin: 0 auto;
 }
 
-.stage19-spine__writing-grid.is-review-open {
-  grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr) minmax(20rem, 28rem);
-}
-
 .stage19-spine__writing-grid.is-focus-mode {
   grid-template-columns: minmax(0, 1fr);
   max-width: 82rem;
-}
-
-.stage19-spine__review-pane {
-  align-self: start;
-  position: sticky;
-  top: 1rem;
-  display: grid;
-  gap: 0.85rem;
-  max-height: calc(100vh - 2rem);
-  overflow: auto;
-  padding: 1rem;
-  border: 1px solid rgba(167, 139, 250, 0.48);
-  border-radius: 0.75rem;
-  background: linear-gradient(180deg, rgba(30, 27, 75, 0.32), rgba(15, 23, 42, 0.88));
 }
 
 .stage19-spine__binder,
@@ -5039,40 +5021,6 @@ body[data-stage19-spine] {
   border-left: 3px solid #a78bfa;
 }
 
-.stage19-spine__command-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-  align-items: start;
-  gap: 1rem;
-  width: 100%;
-  max-width: 112rem;
-  margin: 0 auto;
-}
-
-.stage19-spine__card--units {
-  grid-row: span 2;
-}
-
-.stage19-spine__facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0.65rem;
-  margin: 0;
-}
-
-.stage19-spine__facts div {
-  min-width: 0;
-  padding: 0.65rem;
-  border-radius: 0.55rem;
-  background: rgba(30, 41, 59, 0.55);
-}
-
-.stage19-spine__facts dt {
-  color: #94a3b8;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
 .stage19-close-confirmation {
   position: fixed;
   z-index: 1000;
@@ -5157,11 +5105,6 @@ body[data-stage19-spine] {
   }
 }
 
-.stage19-spine__facts dd {
-  overflow-wrap: anywhere;
-  margin: 0.25rem 0 0;
-}
-
 .stage19-spine__welcome-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
@@ -5212,15 +5155,6 @@ body[data-stage19-spine] {
 
   .stage19-spine__writing-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .stage19-spine__writing-grid.is-review-open {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .stage19-spine__review-pane {
-    position: static;
-    max-height: none;
   }
 
   .stage19-spine__binder {
@@ -5661,8 +5595,7 @@ body[data-stage19-spine] {
   background: rgba(142, 124, 195, 0.34);
 }
 
-.stage19-spine--writing .stage19-ai,
-.stage19-spine--writing .stage19-spine__review-pane {
+.stage19-spine--writing .stage19-ai {
   position: static;
   max-height: none;
   margin: 0;

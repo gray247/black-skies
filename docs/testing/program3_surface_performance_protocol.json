@@ -1,0 +1,48 @@
+{
+  "schema": "black-skies.program3-surface-performance-protocol.v1",
+  "topologyVersion": "program3-logical-surfaces-v1",
+  "acceptedLogicalSurfaces": [
+    "writing",
+    "command"
+  ],
+  "physicalPlacementPolicy": {
+    "singleScreenSupported": true,
+    "optionalSecondarySupported": true,
+    "allowedVisibleWindowCounts": [
+      1,
+      2
+    ],
+    "writingMutationOwnerCount": 1
+  },
+  "historicalV1Baseline": {
+    "immutable": true,
+    "sourceFile": "docs/testing/foundation_performance_budget.json",
+    "schema": "black-skies.foundation-performance-budget.v1",
+    "measurementProtocol": "interleaved-main-process-monotonic-two-window-median-v5",
+    "sourceCandidate": "2c29aa11aaab35e01e40cf9b64c7e2c9397b81be"
+  },
+  "developmentHarness": {
+    "startupProbeSchema": "black-skies.stage19.internal-startup-probe.v1",
+    "maximumInitialSurfaceReadyMs": 5000,
+    "maximumSteadyStateWorkingSetBytes": 1073741824,
+    "maximumSurfaceTransitionMs": 2000,
+    "maximumHundredUnitCreateMs": 15000,
+    "maximumUnitSelectionMs": 3000,
+    "zeroSurvivorTeardownRequired": true
+  },
+  "exactCombinedCandidate": {
+    "status": "deferred-until-program4",
+    "resolutionPoint": "Program 3 plus Program 4 exact packaged Human Gate 2 candidate",
+    "requiredColdLaunchSampleCount": 5,
+    "requiredMeasurements": [
+      "coldLaunchDurationMs",
+      "steadyStateWorkingSetBytes",
+      "logicalSurfaceCount",
+      "visibleWindowCount",
+      "surfaceTransitionMs",
+      "zeroSurvivorProcessCount"
+    ],
+    "baseline": null,
+    "baselineRule": "Establish a new exact installed baseline only for the complete Program 3 plus Program 4 topology. Never rewrite or compare it as though it were the immutable V1 mandatory-two-window baseline."
+  }
+}

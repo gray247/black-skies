@@ -439,8 +439,11 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_E2E_PORT: String(servicePort),
       BLACKSKIES_E2E_MODE: '1',
       BLACKSKIES_CONFIG_PATH: runtimeConfigPath,
+      ...(path.basename(testInfo.file) === 'stage19-program3-performance.spec.ts'
+        ? { STAGE19_INTERNAL_STARTUP_PROBE: '1' }
+        : {}),
     };
-    if (path.basename(testInfo.file) === 'visual.home.spec.ts') {
+    if (['visual.home.spec.ts', 'stage19-program3-visual.spec.ts'].includes(path.basename(testInfo.file))) {
       launchEnv.BLACKSKIES_VISUAL_STABLE = '1';
     }
     if (process.platform === 'linux') {

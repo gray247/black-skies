@@ -48,6 +48,7 @@ const unitFiles = [
   "main/__tests__/feedbackNotesIpc.test.ts",
   "main/__tests__/contextualProductShellContracts.test.ts",
   "main/__tests__/critiqueReviewIpc.test.ts",
+  "main/__tests__/program3SurfacePerformanceProtocol.test.ts",
   "main/__tests__/livingOutlineRepository.test.ts",
   "main/__tests__/livingOutlineIpc.test.ts",
   "main/__tests__/runtimeSessionTruthMain.test.ts",
@@ -64,7 +65,10 @@ const electronFiles = [
   "tests/e2e/stage19-surface-host.spec.ts",
   "tests/e2e/stage19-writing-shell.spec.ts",
   "tests/e2e/stage19-accessibility.spec.ts",
-  "tests/e2e/stage19-performance.spec.ts"
+  "tests/e2e/stage19-performance.spec.ts",
+  "tests/e2e/stage19-program3-performance.spec.ts",
+  "tests/e2e/stage19-program3-presentation.spec.ts",
+  "tests/e2e/stage19-program3-visual.spec.ts"
 ];
 
 function run(command, args, options = {}) {

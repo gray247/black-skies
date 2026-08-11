@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-E DURABLE; P3-F IMPLEMENTATION AND AUTOMATION GREEN`
-- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-F BATCH, THEN BEGIN PROGRAM 3 BATCH P3-G`
+- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-F DURABLE; P3-G IMPLEMENTATION AND AUTOMATION GREEN`
+- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-G BATCH, THEN ISSUE THE PROGRAM 4 MODEL-CHANGE WARNING`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -417,9 +417,11 @@ The complete seven-batch implementation proposal is recorded in
 [program_3_contextual_product_shell_implementation_plan.md](program_3_contextual_product_shell_implementation_plan.md).
 Jason approved that plan, explicitly authorized its bounded GUI, source, test,
 and qualification mutations, and confirmed `GPT-5.6 Sol` with `xhigh`
-reasoning on 2026-08-10. Runtime work begins with P3-A after this authorization
-record is committed and pushed. All plan exclusions and current Git controls
-remain in force.
+reasoning on 2026-08-10. P3-A through P3-F are durable; P3-G implementation
+and automation are green and recorded in
+[program_3_closure_receipt.md](program_3_closure_receipt.md). Jason's exact
+P3-G commit and push makes Program 3 durably complete. All plan exclusions and
+current Git controls remain in force.
 
 ### Program 4 — Companion And Owner Routing
 
@@ -630,12 +632,12 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. Jason reviews, stages, commits, and pushes the exact green P3-F
-   implementation and evidence batch.
-2. Begin Program 3 Batch P3-G from that exact pushed baseline using `GPT-5.6
-   Sol` with `xhigh` reasoning.
-3. Complete Program 3's final automated closure using the plan's
-   changed-boundary gate and exact Git checkpoint.
+1. Jason reviews, stages, commits, and pushes the exact green P3-G
+   implementation and Program 3 closure batch.
+2. Issue the required model-change warning for Program 4 bounded
+   implementation before mutating its runtime boundary.
+3. Complete Program 4's minimal Companion and owner-routing slice, then qualify
+   the exact combined Windows package and installed lifecycle.
 4. Do not request subjective human product validation before the combined
    Program 3 and Program 4 Human Gate 2 candidate is whole.
 
