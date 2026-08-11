@@ -365,9 +365,13 @@ async function runtimeTruth(
     "windowRole"
   ].sort();
   const splitCommand = [
+    "activateSurface",
     "readOwnershipSync",
+    "readSurfaceHostState",
     "requestOwnershipSync",
+    "requestSurfaceHostState",
     "subscribeOwnershipSync",
+    "subscribeSurfaceHostState",
     "windowRole"
   ].sort();
   const aiCritique = [
@@ -391,7 +395,7 @@ async function runtimeTruth(
   assert(
     JSON.stringify(writingGlobals.splitCommand) === JSON.stringify(splitCommand) &&
       JSON.stringify(commandGlobals.splitCommand) === JSON.stringify(splitCommand),
-    "Split-window bridge allowlist differed."
+    `Split-window bridge allowlist differed: ${JSON.stringify({ writing: writingGlobals.splitCommand, command: commandGlobals.splitCommand })}`
   );
   assert(
     JSON.stringify(writingGlobals.aiCritique) === JSON.stringify(aiCritique) &&
