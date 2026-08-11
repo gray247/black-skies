@@ -82,8 +82,9 @@ It does not finalize the entire product vision.
   closed-by-default bottom entry and a current-window temporary Command result.
   P4-C built-Electron temporary-state/reopen evidence, Command-canvas layout
   repair, and package-safe preflight are green. The first exact checkpoint
-  exposed a Windows visual-capture-frame seam; its bounded follow-up repair
-  and full dirty-development regression are green locally, awaiting Jason's
+  exposed a Windows visual-capture-frame seam and a JSDOM CodeMirror geometry
+  gap after all tests had passed; their bounded follow-up frame and
+  layout-capability guard repairs are qualified locally, awaiting Jason's
   exact Git checkpoint before repeated combined
   package/install qualification. Human Gate 2 remains the next human
   validation after that exact candidate is complete.

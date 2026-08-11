@@ -20,7 +20,10 @@ qualification defects before any human review:
   placement, allowing the task canvas to cover return controls; and
 - the existing targeted Windows visual references could vary by a one-pixel
   native content-area rounding seam when executed within the full Electron
-  matrix.
+  matrix; and
+- the JSDOM test host did not provide the standard `Range.getClientRects()`
+  layout API that CodeMirror can call after a deferred restored-selection
+  measurement.
 
 The repair makes the Command notice slot explicit, confines task-canvas
 overflow to the canvas, and keeps the header/footer above it. The visual
@@ -30,13 +33,19 @@ measured host-only rasterization seam. The final follow-up repair therefore
 freezes only the test capture frame to the approved reference dimensions,
 while retaining a 2.5 percent maximum pixel-difference ratio for material
 presentation changes. It does not change the product viewport, layout, or
-reference images.
+reference images. That same hosted run showed all 672 tests passing before
+the missing JSDOM geometry method was reported as an unhandled CodeMirror
+error. The editor now requests CodeMirror's scroll-into-view effect only when
+the current runtime exposes Range layout measurement. It still restores and
+focuses the selection in layout-free environments, while production browsers
+and Electron retain the scroll behavior.
 
 The pre-follow-up fixed Stage 19 regression was green: 42 unit or component
 files, 672 passing tests, 2 intentional skips, and 28 Electron journeys. The
-follow-up P3 visual reference witness and Stage 19 lint are green locally.
-The full exact clean-candidate regression, package, and installed lifecycle
-remain required after this repair is committed.
+follow-up P3 visual-reference witness, DraftEditor restored-selection suite,
+Stage 19 lint, application type check, and documentation check are green
+locally. The full exact clean-candidate regression, package, and installed
+lifecycle remain required after this repair is committed.
 
 ## Delivered Qualification Boundary
 
@@ -58,6 +67,7 @@ credentials, provider activity, or a human visual judgment.
 
 - `app/tests/e2e/stage19-companion-orientation.spec.ts`
 - `app/tests/e2e/stage19-program3-visual.spec.ts`
+- `app/renderer/DraftEditor.tsx`
 - `app/renderer/Stage19WritingSpineView.tsx`
 - `app/renderer/styles/app.css`
 - `scripts/stage19-regression.mjs`
@@ -80,6 +90,7 @@ credentials, provider activity, or a human visual judgment.
 | Current-authority documentation check | Green: 46 files, local links resolved |
 | Diff whitespace check | Green |
 | Follow-up P3 visual-reference frame witness | Green locally: 1 journey |
+| Follow-up DraftEditor selection-restore suite | Green locally: 1 file, 8 tests |
 | Follow-up Stage 19 lint | Green |
 
 ## Exact-Candidate Next Sequence

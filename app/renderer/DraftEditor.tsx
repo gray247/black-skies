@@ -119,6 +119,11 @@ const hostClassName = 'draft-editor__mount';
 const MAX_UNDO_ENTRIES = 200;
 const TYPING_GROUP_WINDOW_MS = 1_000;
 
+function supportsSelectionScrollMeasurement(): boolean {
+  if (typeof document === 'undefined') return false;
+  return typeof document.createRange().getClientRects === 'function';
+}
+
 interface DraftHistoryState {
   readonly undo: string[];
   readonly redo: string[];
@@ -432,9 +437,12 @@ export default function DraftEditor({
         onSelectionRestoreResult?.(requestId, false);
         return;
       }
+      const scrollEffect = supportsSelectionScrollMeasurement()
+        ? EditorView.scrollIntoView(selectionStart, { y: 'center' })
+        : null;
       view.dispatch({
         selection: { anchor: selectionStart, head: selectionEnd },
-        effects: EditorView.scrollIntoView(selectionStart, { y: 'center' }),
+        ...(scrollEffect ? { effects: scrollEffect } : {}),
       });
       view.focus();
       onSelectionRestoreResult?.(requestId, true);
