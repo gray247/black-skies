@@ -76,9 +76,11 @@ It does not finalize the entire product vision.
   exact P3-G commit and push makes Program 3 durably complete and Program 4
   next. The bounded Program 4 implementation plan now defines one local
   orientation route through a quiet Companion entry and the existing Command
-  task canvas. Jason approved its bounded implementation on 2026-08-11;
-  P4-A local contract and automation are green and await Jason's exact Git
-  checkpoint before P4-B. Human Gate 2 remains the next human validation after
+  task canvas. Jason approved its bounded implementation on 2026-08-11.
+  P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`; P4-B adds the
+  closed-by-default bottom entry and a current-window temporary Command result.
+  Its implementation and automation are green, awaiting Jason's exact Git
+  checkpoint before P4-C. Human Gate 2 remains the next human validation after
   that minimal Companion workflow and combined exact package/install candidate
   are complete.
 - Repository Control Point 0 forensics are recorded in

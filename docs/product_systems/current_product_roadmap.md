@@ -20,8 +20,10 @@ Current status:
   while the required interaction and placement corrections are preserved in
   `author_experience_direction_lock.md`
 - Human Gate 1 supplied the required two-workflow synthesis. Repository Control
-  Points 0 and 1 are complete, and Program 3 implementation and automation are
-  complete through P3-G. Its exact Git checkpoint precedes Program 4
+  Points 0 and 1 are complete, Program 3 is durably closed through P3-G, and
+  Program 4 P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`.
+  Program 4 P4-B implementation and automation are green, awaiting its exact
+  Git checkpoint before P4-C
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

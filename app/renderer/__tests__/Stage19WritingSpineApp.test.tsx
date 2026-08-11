@@ -905,6 +905,142 @@ describe('Stage19WritingSpineApp', () => {
     expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
   });
 
+  it('routes a local Companion orientation request through the bottom seam without changing writing', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const outline = createLivingOutlineBridge();
+    const user = userEvent.setup();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={writing.bridge}
+        surfaceBridge={surfaces.bridge}
+        livingOutlineBridge={outline.bridge}
+      />,
+    );
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await openWritingRail('session tools');
+    expect(screen.getByText('Uses Project A and First Unit only. No AI is called.')).toBeVisible();
+    const companionInput = screen.getByRole('textbox', { name: 'Ask Black Skies' });
+    await user.type(companionInput, 'Where am I?');
+    await user.keyboard('{Enter}');
+
+    expect(await screen.findByRole('heading', { name: 'Here is where you are' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('Project A · 2 manuscript units');
+    expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('First Unit · unit 1 of 2');
+    expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('No outline item is placed with the current writing');
+    expect(screen.getByText(/It did not read manuscript prose, call AI, create memory/)).toBeVisible();
+    expect(surfaces.activateSurface).toHaveBeenLastCalledWith(expect.objectContaining({
+      targetSurface: 'command', placement: 'current-window', projectId: 'proj_a', generation: 1,
+    }));
+    expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(writing.bridge.reorderUnits).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Return to Writing' }));
+    const restoredEditor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    expect(restoredEditor).toHaveValue('Alpha body');
+    await waitFor(() => expect(restoredEditor).toHaveFocus());
+  });
+
+  it('returns an optional second-window Command placement to the primary surface for a temporary Companion result', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    act(() => surfaces.publish({
+      ...surfaces.current,
+      primarySurface: 'writing',
+      commandPlacement: 'secondary-window',
+      secondaryStatus: 'open',
+    }));
+    await openWritingRail('session tools');
+    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'What am I working on?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+
+    expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+    expect(surfaces.activateSurface).toHaveBeenLastCalledWith(expect.objectContaining({
+      targetSurface: 'command', placement: 'current-window',
+    }));
+    expect(surfaces.current.commandPlacement).toBe('current-window');
+    expect(surfaces.current.secondaryStatus).toBe('closed');
+  });
+
+  it('drops a temporary Companion result when the active project generation changes', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    await openWritingRail('session tools');
+    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+
+    act(() => writing.emit(snapshot('writing', { generation: 2 })));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument());
+  });
+
+  it('states that unsupported Companion questions are not routed without exposing an AI workflow', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={writing.bridge}
+        surfaceBridge={surfaces.bridge}
+      />,
+    );
+
+    await openWritingRail('session tools');
+    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'How should I fix this chapter?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+
+    expect(await screen.findByRole('heading', { name: 'This request is not routed yet' })).toBeVisible();
+    expect(screen.getByText('This first Companion slice only answers where you are in the current project. No AI or provider was called.')).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
+    expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument();
+    expect(screen.getByText('Review unavailable')).toBeVisible();
+  });
+
+  it('keeps Companion hidden in Focus mode and leaves writing usable if Command cannot open', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const rejectedSurfaces = createSurfaceBridge(snapshot('command'), {
+      activationFailure: {
+        code: 'STALE_GENERATION',
+        message: 'The project changed before Command Center could move.',
+      },
+    });
+    const user = userEvent.setup();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={writing.bridge}
+        surfaceBridge={rejectedSurfaces.bridge}
+      />,
+    );
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await openWritingRail('session tools');
+    expect(screen.getByRole('textbox', { name: 'Ask Black Skies' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Enter Focus mode' }));
+    expect(screen.queryByRole('textbox', { name: 'Ask Black Skies' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Exit Focus mode' }));
+
+    await openWritingRail('session tools');
+    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'Where was I?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(await screen.findByText('Companion could not open Command Center. The request was not saved and writing remains unchanged.')).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument();
+    expect(editor).toBeVisible();
+    expect(editor).toHaveValue('Alpha body');
+  });
+
   it('keeps Writing Studio usable when a surface transition is rejected', async () => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'), {

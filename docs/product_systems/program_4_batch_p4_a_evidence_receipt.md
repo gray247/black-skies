@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `IMPLEMENTATION AND AUTOMATION GREEN; AWAITING JASON'S GIT CHECKPOINT`
+- Status: `DURABLY CLOSED`
 - Date: `2026-08-11`
 - Starting commit: `294274e8e4a31398d064b23b0adf57cac62f3479`
 - Branch: `codex/foundation-audit`
@@ -64,7 +64,9 @@ The focused tests prove:
 - no legacy `CompanionOverlay` or old `App` reuse; and
 - no Human Gate 2 product review.
 
-## Next Step
+## Closure
 
-Jason commits and pushes this exact P4-A batch. P4-B then adds the summonable
-bottom entry and temporary Command task-canvas result using this contract.
+Jason committed and pushed this exact P4-A batch at
+`fc759a6847d82531eb4a8939d20a71d90ab423d7` on `codex/foundation-audit`.
+P4-B is the active batch. It adds the summonable bottom entry and temporary
+Command task-canvas result using this contract.

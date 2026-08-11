@@ -23,9 +23,9 @@ The inventory includes:
 - the accepted post-V1 execution-control and cross-task handoff plan;
 - the approved and bounded-runtime-authorized Program 3 Contextual Product
   Shell implementation plan;
-- the prepared, bounded Program 4 Minimal Companion and Owner Routing
-  implementation plan;
-- the current Program 4 Batch P4-A evidence receipt;
+- the approved, bounded-runtime-authorized Program 4 Minimal Companion and
+  Owner Routing implementation plan;
+- the current Program 4 Batch P4-A and P4-B evidence receipts;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -70,14 +70,19 @@ plan, authorized its bounded implementation, and confirmed `GPT-5.6 Sol` with
 `9ff07369670d8380e03df3fa6d3aca2e83b338f4`. Every stated exclusion, truth
 boundary, batch gate, Git control, and Human Gate 2 boundary remains in force.
 
-The Program 4 plan confines the first Companion slice to a temporary,
-local orientation route from a quiet bottom Writing Studio entry into the
-existing Command task canvas. It awaits Jason's explicit runtime authorization.
-It does not authorize generic chat, provider calls, durable memory, automatic
+The Program 4 plan confines the first Companion slice to a temporary, local
+orientation route from a quiet bottom Writing Studio entry into the existing
+Command task canvas. Jason approved its bounded runtime implementation. It
+does not authorize generic chat, provider calls, durable memory, automatic
 owner routing, or any project mutation.
 
 The Program 4 P4-A receipt records the deterministic, local orientation
-contract and its no-prose/no-provider/no-mutation evidence. Its implementation
+contract and its no-prose/no-provider/no-mutation evidence. It is durable at
+`fc759a6847d82531eb4a8939d20a71d90ab423d7`.
+
+The Program 4 P4-B receipt records the closed-by-default bottom entry,
+current-window temporary Command result, safe optional-secondary return,
+return/dismiss discipline, and no-AI/no-mutation evidence. Its implementation
 and automation are green; it becomes durable only after Jason commits and
 pushes the exact batch.
 

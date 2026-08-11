@@ -13,6 +13,7 @@ import type {
   AiCritiqueState,
 } from '../shared/ipc/aiCritique';
 import type { FeedbackNote } from '../shared/ipc/feedbackNotes';
+import type { CompanionOrientationResultV1 } from '../shared/companionOrientation';
 import type {
   LivingOutlineItemKind,
   LivingOutlineItemState,
@@ -62,6 +63,9 @@ export interface Stage19WritingSpineViewModel {
   readonly markdownExportNotice: MarkdownExportNotice | null;
   readonly focusMode: boolean;
   readonly openWritingRail: Stage19WritingRail | null;
+  readonly companionPrompt: string;
+  readonly companionResult: CompanionOrientationResultV1 | null;
+  readonly companionNotice: string | null;
   readonly recoveryDecisionUnitId: string | null;
   readonly projectTitle: string;
   readonly commandWorkspace: CommandWorkspaceV1;
@@ -115,6 +119,10 @@ export interface Stage19WritingSpineViewActions {
   readonly toggleFocusMode: () => void;
   readonly toggleWritingRail: (rail: Stage19WritingRail) => void;
   readonly closeWritingRail: (rail: Stage19WritingRail) => void;
+  readonly setCompanionPrompt: (value: string) => void;
+  readonly submitCompanionOrientation: () => MaybeAsync;
+  readonly dismissCompanion: () => void;
+  readonly returnToCompanionWriting: () => MaybeAsync;
   readonly submitRecoveryDecision: (
     candidate: ProjectSpineRecoveryCandidateProjection,
     decision: 'accept' | 'reject',
@@ -443,7 +451,9 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         ))}
       </nav>
       <div className="stage19-command__task-canvas">
-        {!snapshot.project ? (
+        {model.companionResult ? (
+          <CompanionTaskCanvasView model={model} actions={actions} />
+        ) : !snapshot.project ? (
           <section className="stage19-command__empty-state">
             <span className="stage19-spine__eyebrow">No active project</span>
             <h2>Begin in Writing Studio</h2>
@@ -1059,7 +1069,35 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
       className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
       aria-label="Writing session tools"
     >
-      <WritingRailHeading rail="bottom" title="Writing session" actions={actions} />
+      <WritingRailHeading rail="bottom" title="Companion & session" actions={actions} />
+      <form
+        className="stage19-companion-entry"
+        aria-label="Local Companion orientation"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void actions.submitCompanionOrientation();
+        }}
+      >
+        <label htmlFor="stage19-companion-prompt">Ask Black Skies</label>
+        <div className="stage19-companion-entry__controls">
+          <input
+            id="stage19-companion-prompt"
+            type="text"
+            value={model.companionPrompt}
+            onChange={(event) => actions.setCompanionPrompt(event.target.value)}
+            placeholder="Where am I in this project?"
+            disabled={!snapshot.project}
+            maxLength={500}
+          />
+          <button type="submit" disabled={!snapshot.project || !model.companionPrompt.trim()}>Ask</button>
+        </div>
+        <p className="stage19-companion-entry__scope">
+          {snapshot.project
+            ? `Uses ${snapshot.project.title}${activeUnit ? ` and ${activeUnit.displayTitle}` : ''} only. No AI is called.`
+            : 'Open a project to ask for local orientation. No AI is called.'}
+        </p>
+        {model.companionNotice ? <p className="stage19-companion-entry__notice" role="status">{model.companionNotice}</p> : null}
+      </form>
       <div className="stage19-writing-shell__session-summary">
         <p><strong>Current writing</strong><span>{activeUnit?.displayTitle ?? 'No manuscript unit selected'}</span></p>
         <p><strong>Save state</strong><span>{model.writingSaveSummary}</span></p>
@@ -1072,6 +1110,45 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
             {snapshot.saveState.status === 'saving' ? 'Saving...' : 'Save current writing'}
           </button>
         ) : null}
+      </div>
+    </section>
+  );
+}
+
+function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const result = model.companionResult;
+  if (!result) return <></>;
+  const heading = result.status === 'available'
+    ? 'Here is where you are'
+    : result.status === 'not-routed'
+      ? 'This request is not routed yet'
+      : 'Local orientation is unavailable';
+  return (
+    <section className="stage19-command-companion" aria-label="Companion orientation result">
+      <header className="stage19-command-companion__header">
+        <div>
+          <span className="stage19-spine__eyebrow">Companion · local orientation</span>
+          <h2>{heading}</h2>
+          <p>{result.requestLabel}. This is advisory context, not story truth or a recommendation.</p>
+        </div>
+        <span className={`stage19-command-companion__state stage19-command-companion__state--${result.status}`}>
+          {result.status === 'available' ? 'Local facts' : result.status.replace('-', ' ')}
+        </span>
+      </header>
+      {result.sourceFacts.length > 0 ? (
+        <dl className="stage19-command-companion__facts">
+          {result.sourceFacts.map((fact) => (
+            <div key={`${fact.owner}-${fact.label}`}>
+              <dt><strong>{fact.owner}</strong><span>{fact.label} · {fact.currentness}</span></dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+      <p className="stage19-command-companion__limitation">{result.limitationText}</p>
+      <div className="stage19-command-companion__actions">
+        <button type="button" className="is-primary" onClick={() => void actions.returnToCompanionWriting()}>Return to Writing</button>
+        <button type="button" onClick={actions.dismissCompanion}>Dismiss</button>
       </div>
     </section>
   );

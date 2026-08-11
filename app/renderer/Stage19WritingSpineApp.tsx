@@ -20,6 +20,11 @@ import {
   type AiCritiqueState,
 } from '../shared/ipc/aiCritique';
 import type { FeedbackNote, FeedbackNotesBridge } from '../shared/ipc/feedbackNotes';
+import {
+  deriveCompanionOrientationResult,
+  routeCompanionRequest,
+  type CompanionOrientationResultV1,
+} from '../shared/companionOrientation';
 import type {
   LivingOutlineBridge,
   LivingOutlineItemKind,
@@ -533,6 +538,9 @@ export default function Stage19WritingSpineApp({
   const [savedFeedbackNotes, setSavedFeedbackNotes] = useState<readonly FeedbackNote[]>([]);
   const [focusMode, setFocusMode] = useState(false);
   const [openWritingRail, setOpenWritingRail] = useState<Stage19WritingRail | null>(null);
+  const [companionPrompt, setCompanionPrompt] = useState('');
+  const [companionResult, setCompanionResult] = useState<CompanionOrientationResultV1 | null>(null);
+  const [companionNotice, setCompanionNotice] = useState<string | null>(null);
   const [livingOutline, setLivingOutline] = useState<LivingOutlineSnapshotV1 | null>(null);
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
@@ -593,6 +601,13 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     buffersRef.current = buffers;
   }, [buffers]);
+
+  const companionProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.generation}`;
+  useEffect(() => {
+    setCompanionPrompt('');
+    setCompanionResult(null);
+    setCompanionNotice(null);
+  }, [companionProjectIdentity]);
 
   useEffect(() => {
     document.body.dataset.stage19Spine = windowRole;
@@ -2103,10 +2118,10 @@ export default function Stage19WritingSpineApp({
   const activateSurface = useCallback(async (
     targetSurface: SplitCommandLogicalSurface,
     placement: 'current-window' | 'secondary-window',
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     if (!surfaceBridge) {
       setSurfaceHostError('Surface switching is unavailable in this window.');
-      return;
+      return false;
     }
     const current = snapshotRef.current;
     setSurfaceHostError(null);
@@ -2120,12 +2135,50 @@ export default function Stage19WritingSpineApp({
       });
       setSurfaceHostState(result.state);
       if (!result.ok) setSurfaceHostError(result.error.message);
+      return result.ok;
     } catch {
       setSurfaceHostError(
         'The requested surface could not be moved. Writing and saved project truth remain available.',
       );
+      return false;
     }
   }, [surfaceBridge]);
+
+  const submitCompanionOrientation = useCallback(async () => {
+    const current = snapshotRef.current;
+    if (!current.project) {
+      setCompanionNotice('Open a project before asking for local orientation. Writing remains available.');
+      return;
+    }
+    const request = routeCompanionRequest(companionPrompt, {
+      requestId: operationId('companion-orientation'),
+      projectId: current.project.projectId,
+      generation: current.generation,
+    });
+    if (!request.text) {
+      setCompanionNotice('Ask where you are in this project, where you were, or what you are working on.');
+      return;
+    }
+    const result = deriveCompanionOrientationResult(request, current, livingOutline);
+    setCompanionNotice(null);
+    setCompanionResult(result);
+    setCompanionPrompt('');
+    const opened = await activateSurface('command', 'current-window');
+    if (!opened) {
+      setCompanionResult(null);
+      setCompanionNotice('Companion could not open Command Center. The request was not saved and writing remains unchanged.');
+    }
+  }, [activateSurface, companionPrompt, livingOutline]);
+
+  const dismissCompanion = useCallback(() => {
+    setCompanionResult(null);
+    setCompanionNotice(null);
+  }, []);
+
+  const returnToCompanionWriting = useCallback(async () => {
+    dismissCompanion();
+    await activateSurface('writing', 'current-window');
+  }, [activateSurface, dismissCompanion]);
 
   const autoOpenedReviewRequestRef = useRef<string | null>(null);
   useEffect(() => {
@@ -2179,6 +2232,9 @@ export default function Stage19WritingSpineApp({
     markdownExportNotice,
     focusMode,
     openWritingRail,
+    companionPrompt,
+    companionResult,
+    companionNotice,
     recoveryDecisionUnitId,
     projectTitle,
     commandWorkspace,
@@ -2228,9 +2284,9 @@ export default function Stage19WritingSpineApp({
     ),
   };
   const viewActions: Stage19WritingSpineViewActions = {
-    showWritingSurface: () => activateSurface('writing', 'current-window'),
-    showCommandSurface: () => activateSurface('command', 'current-window'),
-    openCommandInSecondaryWindow: () => activateSurface('command', 'secondary-window'),
+    showWritingSurface: async () => { await activateSurface('writing', 'current-window'); },
+    showCommandSurface: async () => { await activateSurface('command', 'current-window'); },
+    openCommandInSecondaryWindow: async () => { await activateSurface('command', 'secondary-window'); },
     exportMarkdown: handleExportMarkdown,
     toggleFocusMode: () => setFocusMode((current) => !current),
     toggleWritingRail: (rail) => setOpenWritingRail((current) => current === rail ? null : rail),
@@ -2240,6 +2296,10 @@ export default function Stage19WritingSpineApp({
         document.getElementById(`stage19-writing-edge-${rail}`)?.focus();
       });
     },
+    setCompanionPrompt,
+    submitCompanionOrientation,
+    dismissCompanion,
+    returnToCompanionWriting,
     submitRecoveryDecision,
     openProject: handleOpenProject,
     setProjectTitle,
@@ -2277,9 +2337,9 @@ export default function Stage19WritingSpineApp({
     stopWaitingForAi,
     dismissAiCritique,
     selectCommandWorkspace: setCommandWorkspace,
-    openReviewWorkspace: () => {
+    openReviewWorkspace: async () => {
       setCommandWorkspace('review');
-      return activateSurface(
+      await activateSurface(
         'command',
         surfaceHostState?.commandPlacement === 'secondary-window'
           ? 'secondary-window'

@@ -151,8 +151,12 @@ any AI memory store.
 ### Command Center
 
 - A submitted result navigates to Command using the existing logical surface
-  host. It uses the same physical-placement preference already selected by the
-  author.
+  host. For this renderer-local first slice it opens in the current-window
+  Command surface. If an optional secondary Command window is open, the
+  existing host safely returns Command to the primary window instead of adding
+  cross-window result injection, caching, or persistence. A later authorized
+  slice may add temporary secondary presentation only with an explicit owner
+  bridge.
 - A temporary Companion task-canvas view appears above the ordinary workspace
   content. It does not add a permanent tab or alter the workspace switcher.
 - The view shows: request meaning, advisory/non-owning status, exact local
@@ -241,7 +245,8 @@ Purpose:
 Automated gate:
 
 - closed-by-default rail, keyboard submission, and visible scope;
-- one-screen and existing optional-secondary Command placement;
+- one-screen presentation and safe return from an existing optional-secondary
+  Command placement, without cross-window result injection or caching;
 - supported, unsupported, unavailable, no-project, no-unit, and degraded
   outline states;
 - return focus, dismissal, project-generation reset, and Focus-mode hiding;
@@ -254,6 +259,10 @@ Exit:
 
 - the author can ask one useful local question and see a truthful answer in
   Command Center without creating a second dashboard or AI system.
+
+P4-B implementation and automation are green. Evidence is recorded in
+[Program 4 Batch P4-B Evidence Receipt](program_4_batch_p4_b_evidence_receipt.md).
+The batch becomes durable after Jason commits and pushes its exact file set.
 
 ### P4-C — End-to-end qualification and combined-candidate preparation
 
