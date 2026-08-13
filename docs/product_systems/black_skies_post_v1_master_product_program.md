@@ -681,9 +681,11 @@ The current next-action sequence is:
 2. retain the completed Unified Story Rail repair,
 3. make the green Program 5 continuous-manuscript and stable-anchor bridge
    durable before claiming a unified story stream,
-4. complete the real Focus and Companion doorway repair without claiming
-   local-LLM chat,
-5. qualify the complete repaired candidate and repeat Human Gate 2,
+4. retain the durable real Focus and Companion doorway repair without claiming
+   local-LLM chat, then resolve the bounded repeated-identical Electron
+   launch-argument seam found by the first hosted qualification,
+5. qualify the resulting complete repaired candidate in the clean hosted
+   Windows package/install lane and repeat Human Gate 2,
 6. perform Cleanup Wave A only after that repaired gate passes,
 7. complete the remaining Program 5 long-manuscript qualification and Human
    Gate 3, and

@@ -31,10 +31,13 @@ Current status:
 - Human Gate 2 repair Batch A is durable at `28d2294a`, Batch B's unified
   Story Rail is durable at `707dfae6`, and the pulled-forward Program 5
   continuous-manuscript and stable-anchor bridge is durable at `d292e236`.
-  HG2-RPR-C real Focus and Companion-doorway repair passed its complete
-  automated development gate and awaits Jason's manual durable checkpoint.
-  HG2-RPR-D complete candidate qualification is next; no human review is
-  requested between these internal repair batches
+  HG2-RPR-C real Focus and Companion-doorway repair is durable at
+  `1da56446`. The first HG2-RPR-D hosted Windows qualification exposed one
+  repeated-identical Electron launch-argument seam that hid the optional
+  Command bridge. Its bounded preload repair and complete local regression are
+  green; the next durable exact candidate must repeat clean hosted Windows
+  package/install qualification. No human review is requested before that
+  whole candidate is qualified
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

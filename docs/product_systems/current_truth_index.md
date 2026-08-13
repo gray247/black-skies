@@ -122,6 +122,12 @@ It does not finalize the entire product vision.
   route, and narrow/high-zoom no-overlay behavior. It awaits Jason's manual
   durable checkpoint and does not claim local-LLM conversation, provider use,
   Human Gate 2 acceptance, or package/install qualification.
+  The first HG2-RPR-D hosted qualification then found Electron repeating
+  identical renderer launch arguments, which made the preloads fail closed and
+  hid the optional Command bridge. The bounded parity repair accepts only
+  repeated identical values while retaining missing and conflicting identity
+  rejection. Its local regression is green; its receipt does not claim the
+  required clean hosted Windows package/install result.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

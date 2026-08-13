@@ -588,6 +588,22 @@ describe('splitCommand preload bridge', () => {
     );
   });
 
+  it('accepts repeated identical split-window launch arguments', async () => {
+    setArgv([
+      '--blackskies-split-command-role=primary',
+      '--blackskies-split-command-role=primary',
+      '--blackskies-split-command-pair-id=split-command:session-duplicate',
+      '--blackskies-split-command-pair-id=split-command:session-duplicate',
+      '--blackskies-split-command-session-generation=session-duplicate',
+      '--blackskies-split-command-session-generation=session-duplicate',
+    ]);
+
+    await import('../preload');
+
+    expect(getSplitCommandBridge()?.windowRole).toBe('primary');
+    expect(getProjectSpineBridge()?.windowRole).toBe('writing');
+  });
+
   it('exposes manuscript mutation methods only to the primary Writing Studio role', async () => {
     setArgv([
       '--blackskies-split-command-role=primary',

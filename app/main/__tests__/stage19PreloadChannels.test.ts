@@ -103,6 +103,23 @@ describe('dedicated Stage 19 preload', () => {
     );
   });
 
+  it('accepts repeated identical split-window launch arguments', async () => {
+    process.argv = [
+      'electron',
+      '--blackskies-split-command-role=primary',
+      '--blackskies-split-command-role=primary',
+      '--blackskies-split-command-pair-id=pair-1',
+      '--blackskies-split-command-pair-id=pair-1',
+      '--blackskies-split-command-session-generation=generation-1',
+      '--blackskies-split-command-session-generation=generation-1',
+    ];
+
+    await import('../stage19Preload');
+
+    expect(exposed.get('splitCommand')).toBeDefined();
+    expect((exposed.get('projectSpine') as { windowRole?: string }).windowRole).toBe('writing');
+  });
+
   it('exposes only prose-free contracts to the command window', async () => {
     process.argv = [
       'electron',

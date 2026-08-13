@@ -30,7 +30,7 @@ The inventory includes:
   Unified Story Rail, real Focus, Companion-bar repair plan;
 - the Human Gate 2 HG2-RPR-A visual and interaction-language foundation,
   HG2-RPR-B unified Story Rail, and HG2-RPR-C real Focus and Companion-doorway
-  evidence receipts;
+  evidence receipts, plus the HG2-RPR-D qualification-harness repair receipt;
 - the Program 5 Human Gate 2 continuous-manuscript and stable-anchor bridge
   evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
@@ -130,6 +130,14 @@ development gate. It proves one readable story stream, in-place activation,
 no-duplicate-prose anchors, honest relocation/failure outcomes, and the current
 100-unit responsiveness boundary. It does not close full Program 5 intake,
 discovery, Human Gate 3, Focus/Companion repair, or Human Gate 2.
+
+The [HG2-RPR-D evidence receipt](product_systems/program_4_hg2_rpr_d_evidence_receipt.md)
+records the contained split-window preload repair after the first hosted
+qualification found Electron repeating identical renderer launch arguments.
+Its focused and complete local development evidence is green. The receipt is
+intentionally not a hosted package/install claim: the next durable exact
+candidate must pass that clean GitHub Windows qualification before Human Gate 2
+can repeat.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

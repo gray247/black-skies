@@ -140,9 +140,10 @@ interface SplitLaunchContext {
 }
 
 function singleArgument(prefix: string): string | null {
-  const values = process.argv
+  const values = [...new Set(process.argv
     .filter((entry) => entry.startsWith(prefix))
-    .map((entry) => entry.slice(prefix.length));
+    .map((entry) => entry.slice(prefix.length))
+    .filter((entry) => entry.trim().length > 0))];
   return values.length === 1 && values[0]?.trim() ? values[0] : null;
 }
 

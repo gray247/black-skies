@@ -441,8 +441,12 @@ Follow [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_r
 repair the direct story-rail and Focus composition, and pull Program 5's
 continuous-manuscript/stable-anchor bridge forward before repeating this gate.
 The Story Rail is durable at `707dfae6`; the pulled-forward continuous
-projection and anchor bridge has passed its development gate and awaits its
-manual durable checkpoint. Focus and Companion doorway repair remains next.
+projection and anchor bridge is durable at `d292e236`; and the real Focus and
+Companion doorway repair is durable at `1da56446`. The first complete hosted
+qualification found a repeated-identical Electron launch-argument seam that
+hid the optional Command bridge. Its bounded preload repair and complete local
+regression are green; a clean hosted Windows package/install run of the next
+exact candidate remains required before Human Gate 2 repeats.
 
 ### Cleanup Wave A And Professionalization Checkpoint
 

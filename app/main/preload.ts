@@ -73,26 +73,20 @@ function readSplitCommandLaunchContextFromArgv():
       readonly sessionGeneration: string;
     }
   | null {
-  const roleArgs = process.argv.filter((entry) =>
-    entry.startsWith('--blackskies-split-command-role='),
-  );
-  const pairIdArgs = process.argv.filter((entry) =>
-    entry.startsWith('--blackskies-split-command-pair-id='),
-  );
-  const generationArgs = process.argv.filter((entry) =>
-    entry.startsWith('--blackskies-split-command-session-generation='),
-  );
+  const singleValue = (prefix: string): string | null => {
+    const values = [...new Set(process.argv
+      .filter((entry) => entry.startsWith(prefix))
+      .map((entry) => entry.slice(prefix.length))
+      .filter((entry) => entry.trim().length > 0))];
+    return values.length === 1 ? values[0] ?? null : null;
+  };
 
-  if (roleArgs.length !== 1 || pairIdArgs.length !== 1 || generationArgs.length !== 1) {
-    return null;
-  }
-  const [roleArg] = roleArgs;
-  const [pairIdArg] = pairIdArgs;
-  const [generationArg] = generationArgs;
-
-  const windowRole = roleArg.split('=', 2)[1] as SplitCommandWindowRole | undefined;
-  const pairId = pairIdArg.split('=', 2)[1] ?? '';
-  const sessionGeneration = generationArg.split('=', 2)[1] ?? '';
+  // Electron may repeat unchanged `additionalArguments` in a renderer argv on
+  // some hosted runners. Identical values preserve the same authority; only
+  // missing or conflicting values make the launch context unsafe.
+  const windowRole = singleValue('--blackskies-split-command-role=') as SplitCommandWindowRole | null;
+  const pairId = singleValue('--blackskies-split-command-pair-id=');
+  const sessionGeneration = singleValue('--blackskies-split-command-session-generation=');
   if ((windowRole !== 'primary' && windowRole !== 'secondary') || !pairId || !sessionGeneration) {
     return null;
   }
