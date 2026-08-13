@@ -21,11 +21,13 @@ Current status:
   `author_experience_direction_lock.md`
 - Human Gate 1 supplied the required two-workflow synthesis. Repository Control
   Points 0 and 1 are complete, Program 3 is durably closed through P3-G, and
-  Program 4 P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7` and
-  P4-B is durable at `f6090498a8ea04f011fc30c890af521aa712940e`. P4-C
-  built-Electron temporary-state/reopen and package-safe preflight evidence are
-  green, awaiting its exact Git checkpoint before combined package/install
-  qualification
+  Program 4's exact combined candidate `319b9c6` passed GitHub Windows
+  package/install qualification run `31542494314`. Human Gate 2 accepted the
+  mechanical safety evidence but did not accept the current author experience:
+  the separated-unit/form-based Writing Studio, incomplete Focus treatment,
+  blue/purple dashboard styling, and not-yet-useful Companion handoff require
+  the bounded repair plan
+  `program_4_human_gate_2_experience_repair_plan.md`
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -41,7 +43,7 @@ Current status:
   makes Program 3 durably complete and Program 4 next.
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
-- human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates
+- human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates. Human Gate 2 is currently in bounded repair rather than closed
 - Long-manuscript intake and stable structural anchors are Program 5 and Human Gate 3; Emotion Graph V1 begins in Program 6 only after that gate, uses those Living Outline positions, and keeps planned, observed, and inferred emotion distinct
 - Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group, limited to the initial bounded local project-open/save/re-entry sequence; `stage19_foundation_spine_acceptance_reconciliation.md` is the current non-retroactive authority and does not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages

@@ -580,7 +580,10 @@ repeat the human gate only when the grouped workflow is whole again.
 
 Human Gate 1 is complete as a learning gate. Its mechanical and safety
 boundaries passed, and its required composition findings are routed to
-Programs 3 and 4. Human Gate 2 is the next scheduled author validation.
+Programs 3 and 4. Human Gate 2's first exact candidate passed automation but
+was not accepted for author experience; its bounded repair is recorded in
+[Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md).
+The gate repeats only after that complete repair candidate is qualified.
 
 Human validation is not required between these gates unless work encounters a
 new product choice, owner conflict, destructive boundary, protected-content
@@ -674,18 +677,18 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. commit and push the green P3-G implementation and Program 3 closure batch,
-2. apply the required model-change warning and complete Program 4's minimal
-   Companion entry and owner-routing slice,
-3. qualify the exact combined Program 3 plus Program 4 Windows package and
-   installed lifecycle,
-4. perform Human Gate 2 only when the contextual shell and Companion workflow
-   are whole,
-5. perform Cleanup Wave A and its professionalization checks,
-6. build Program 5 long-manuscript intake and stable structural anchors,
-7. perform Human Gate 3 only when that complete workflow is ready,
+1. reconcile and authorize the bounded Human Gate 2 experience repair,
+2. implement the Unified Story Rail and real Focus repair through automated
+   batches,
+3. build Program 5's continuous-manuscript and stable-anchor bridge before
+   claiming a unified story stream,
+4. complete the Companion doorway repair without claiming local-LLM chat,
+5. qualify the complete repaired candidate and repeat Human Gate 2,
+6. perform Cleanup Wave A only after that repaired gate passes,
+7. complete the remaining Program 5 long-manuscript qualification and Human
+   Gate 3, and
 8. begin Program 6 and Emotion Graph V1 using the proven anchors and Command
-    Center home.
+   Center home.
 
 No repository cleanup, second provider, automatic routing, background queue,
 durable AI memory, broad connector work, or unrelated analyzer build enters

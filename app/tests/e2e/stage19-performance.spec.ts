@@ -41,9 +41,9 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
       return performance.now() - startedAt;
     }, parent);
 
-    await openWritingStudioRail(writing, 'manuscript tools');
+    await openWritingStudioRail(writing, 'story tools');
     const binderButtons = writing
-      .getByRole('complementary', { name: 'Manuscript binder and Living Outline' })
+      .getByRole('complementary', { name: 'Story rail' })
       .locator('.stage19-spine__unit-list button');
     await expect(binderButtons).toHaveCount(100);
     await expect(command.getByRole('heading', { name: 'Large manuscript' })).toBeVisible();

@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Private V1.0 baseline complete through Package 19.22; future development requires new scope
-Last Reviewed: 2026-08-07
+Last Reviewed: 2026-08-13
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -16,6 +16,40 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Post-V1 Human Gate 2 Experience Repair — 2026-08-13
+
+### `HG2-RPR-01` — Continuous Manuscript, Unified Story Rail, Focus, and Companion
+
+- Status: `REPAIR_ACTIVE`; Human Gate 2 rejected the mechanically qualified
+  Writing Studio composition while preserving the V1, Program 3, and Program 4
+  safety and package evidence.
+- Author authorization: Jason approved the bounded repair implementation on
+  2026-08-12 after confirming the required model change.
+- Current bounded scope: `HG2-RPR-A` only. Dark and Light are local UI
+  preferences; the supported Writing and Command shells now share neutral/warm
+  semantic tokens; visible left-rail language uses `Story`, `Story plan`, and
+  `Add to story here`; no manuscript, outline, project, provider, or local-LLM
+  storage contract changed.
+- Root cause: the supported Program 3 shell retained a purple primary accent,
+  purple prose selection, and app-wide blue-purple scrollbar treatment, while
+  the visible `Manuscript` / `Living Outline` language reinforced two separate
+  systems instead of the approved one-story mental model.
+- Focused evidence: five theme, Story-language, Companion-fact, repository, and
+  IPC files pass 115/115, covering default/fallback theme, local preference
+  restoration, non-mutation, shared Command appearance, semantic-token
+  constraints, user-facing story language, and the unchanged sidecar boundary.
+- Complete development evidence: application lint and typecheck, production
+  build, current-authority documentation, the full 1,084-test application
+  inventory, and the fixed Stage 19 regression are green. The fixed regression
+  passed 681 tests with 2 intentional skips and all 28 Electron journeys,
+  including axe accessibility and unchanged targeted visual references.
+- Remaining before this batch closes: Jason's manual commit/push checkpoint.
+  `HG2-RPR-B`, Program 5, and `HG2-RPR-C/D` remain unstarted.
+- Reopening/exit trigger: this issue remains active until the complete repaired
+  candidate passes Human Gate 2. Any theme choice that changes project truth,
+  reintroduction of the rejected blue/purple shell language, or loss of the
+  Story/author-safety boundary reopens the relevant batch immediately.
 
 ## Package 19.22 Foundation Closure — 2026-08-07
 

@@ -19,7 +19,7 @@ export interface CompanionRequestV1 {
 export type CompanionOrientationSourceOwnerV1 =
   | 'Project session'
   | 'Manuscript unit'
-  | 'Living Outline';
+  | 'Story plan';
 
 export interface CompanionOrientationSourceFactV1 {
   readonly owner: CompanionOrientationSourceOwnerV1;
@@ -151,20 +151,20 @@ export function deriveCompanionOrientationResult(
     },
     livingOutline?.availability === 'ready'
       ? {
-          owner: 'Living Outline',
+          owner: 'Story plan',
           label: 'Outline relationship',
           currentness: 'current',
           value: activeUnit
             ? linkedOutlineItems.length === 0
-              ? 'No outline item is placed with the current writing'
-              : `${linkedOutlineItems.length} outline item${linkedOutlineItems.length === 1 ? '' : 's'} placed with the current writing`
+              ? 'No story point is placed with the current writing'
+              : `${linkedOutlineItems.length} story point${linkedOutlineItems.length === 1 ? '' : 's'} placed with the current writing`
             : 'No current writing is selected to compare with the outline',
         }
       : {
-          owner: 'Living Outline',
+          owner: 'Story plan',
           label: 'Outline relationship',
           currentness: 'unavailable',
-          value: livingOutline?.message ?? 'Living Outline is unavailable; manuscript writing is unaffected',
+          value: livingOutline?.message ?? 'The story plan is unavailable; manuscript writing is unaffected',
         },
   ];
 

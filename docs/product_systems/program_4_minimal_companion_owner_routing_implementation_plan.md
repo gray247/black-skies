@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `APPROVED; P4-A AND P4-B DURABLE; P4-C REPAIR QUALIFIED; AWAITING JASON'S EXACT-CANDIDATE CHECKPOINT`
+- Status: `P4 MECHANICALLY CLOSED; HUMAN GATE 2 EXPERIENCE REPAIR ACTIVE`
 - Prepared: `2026-08-11`
 - Planning and implementation model: `GPT-5.6 Terra`
 - Planning and implementation reasoning effort: `high`
@@ -290,10 +290,13 @@ Exit:
 - all remaining subjective shell-and-Companion evaluation is deliberately
   concentrated at Human Gate 2.
 
-P4-C repair-qualified automation is green. Evidence is recorded in
+P4-C exact candidate `319b9c6` passed combined package/install qualification
+in GitHub run `31542494314`. Evidence is recorded in
 [Program 4 Batch P4-C Evidence Receipt](program_4_batch_p4_c_evidence_receipt.md).
-Jason's exact-candidate checkpoint is required before the exact combined package and
-installed offline lifecycle can run against a stable candidate.
+Human Gate 2 then found that the mechanically correct Companion doorway and
+Writing Studio composition were not yet author-acceptable. The bounded repair
+is governed by
+[Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md).
 
 ## 9. Evidence, Deferrals, And Human Gate
 
@@ -302,9 +305,9 @@ files, automated commands, results, exclusions, and remaining risk. The final
 receipt must state that Companion history is temporary and that every
 non-orientation request remains not routed.
 
-Human Gate 2 begins only after P4-C is committed and pushed and the combined
-package/install candidate is green. Its detailed author test is created then;
-this plan intentionally does not prescribe it early.
+Human Gate 2 began after P4-C was committed, pushed, and passed exact combined
+package/install qualification. Its author-experience finding requires the
+separate repair plan before the gate repeats.
 
 The next Companion expansion is decided from that human evidence. Likely
 future routes include Critique, Structure, and Feedback Notes, but each needs

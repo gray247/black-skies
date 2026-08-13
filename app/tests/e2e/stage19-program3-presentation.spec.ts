@@ -44,8 +44,8 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     const prose = `${'The signal crossed the empty harbor while Mara counted each unanswered bell. '.repeat(6)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Readable Passage' });
     await editor.fill(prose);
-    await openWritingStudioRail(writing, 'manuscript tools');
-    const manuscriptTools = writing.getByRole('region', { name: 'Manuscript tools' });
+    await openWritingStudioRail(writing, 'story tools');
+    const manuscriptTools = writing.getByRole('region', { name: 'Story tools' });
     const railBox = await manuscriptTools.boundingBox();
     expect(railBox).not.toBeNull();
     expect(railBox!.x).toBeGreaterThanOrEqual(0);

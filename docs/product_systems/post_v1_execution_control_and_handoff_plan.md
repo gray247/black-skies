@@ -434,9 +434,16 @@ Confirm the Writing Studio, Living Outline, Command Center, Focus behavior,
 and Companion operate as one understandable and non-intrusive product. Create
 detailed validation instructions only when the complete candidate is ready.
 
+**Current result:** the exact candidate passed package/install automation, but
+the author did not accept the current separate-unit, form-heavy Writing Studio
+or its incomplete Companion experience. Do not proceed to Cleanup Wave A.
+Follow [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md):
+repair the direct story-rail and Focus composition, and pull Program 5's
+continuous-manuscript/stable-anchor bridge forward before repeating this gate.
+
 ### Cleanup Wave A And Professionalization Checkpoint
 
-After Human Gate 2, use the proven shell to identify pre-salvage GUI and
+After the **repaired** Human Gate 2 passes, use the proven shell to identify pre-salvage GUI and
 runtime surfaces that are replaced or unreachable. Perform bounded module,
 contract, test-fixture, and dependency professionalization. Archive or delete
 only after the disposition and recovery path are approved.
@@ -450,6 +457,11 @@ acceptance, and adjustment without mandatory physical file splitting.
 
 Broader Google Docs, publication interchange, and portable project exchange
 remain in Program 8.
+
+Program 5's anchor foundation is pulled forward into the Human Gate 2 repair
+sequence because the author requires the Writing Studio to read as one story,
+not separate files. Its full long-manuscript qualification and Human Gate 3
+remain distinct.
 
 ### Human Gate 3 — Long-Manuscript Integrity And Usability
 
@@ -632,18 +644,20 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. Jason reviews, stages, commits, and pushes the exact green P3-G
-   implementation and Program 3 closure batch.
-2. Issue the required model-change warning for Program 4 bounded
-   implementation before mutating its runtime boundary.
-3. Complete Program 4's minimal Companion and owner-routing slice, then qualify
-   the exact combined Windows package and installed lifecycle.
-4. Do not request subjective human product validation before the combined
-   Program 3 and Program 4 Human Gate 2 candidate is whole.
+1. reconcile the Human Gate 2 finding into the current authority records and
+   approve the bounded experience-repair plan;
+2. issue the model/effort warning required by that repair before runtime
+   mutation;
+3. complete direct Story Rail, true Focus, theme, rail-geometry, and
+   Companion-doorway automation in bounded batches;
+4. pull Program 5's continuous-manuscript/stable-anchor bridge forward before
+   claiming that the Writing Studio is a unified story stream;
+5. qualify the complete repaired package/install candidate; and
+6. repeat Human Gate 2 only when that candidate is whole.
 
-No other prerequisite is currently known. A new blocker discovered during
-repository reconciliation or Control Point 1 must be recorded and resolved at
-its owning control point rather than silently widening Program 3.
+No broad cleanup, local-LLM/provider work, or generic chat enters this repair.
+A new blocker must be recorded and resolved at its owning boundary rather than
+silently widening the repair.
 
 ## 15. Handoff Completion Checklist
 

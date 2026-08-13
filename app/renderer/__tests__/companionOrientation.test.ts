@@ -97,7 +97,7 @@ describe('minimal Companion orientation route', () => {
       sourceFacts: expect.arrayContaining([
         expect.objectContaining({ owner: 'Project session', currentness: 'current' }),
         expect.objectContaining({ owner: 'Manuscript unit', value: 'Opening · unit 1 of 2' }),
-        expect.objectContaining({ owner: 'Living Outline', value: '1 outline item placed with the current writing' }),
+        expect.objectContaining({ owner: 'Story plan', value: '1 story point placed with the current writing' }),
       ]),
     }));
     expect(rendered).not.toContain('This prose must never enter a Companion result.');
@@ -117,7 +117,7 @@ describe('minimal Companion orientation route', () => {
     expect(degraded).toEqual(expect.objectContaining({ status: 'available' }));
     expect(degraded.sourceFacts).toEqual(expect.arrayContaining([
       expect.objectContaining({ owner: 'Manuscript unit', currentness: 'unavailable' }),
-      expect.objectContaining({ owner: 'Living Outline', currentness: 'unavailable', value: 'Outline sidecar could not be read.' }),
+      expect.objectContaining({ owner: 'Story plan', currentness: 'unavailable', value: 'Outline sidecar could not be read.' }),
     ]));
 
     const stale = deriveCompanionOrientationResult(request, snapshot({ generation: 5 }), outline());

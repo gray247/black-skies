@@ -5163,25 +5163,118 @@ body[data-stage19-spine] {
 }
 
 /* Program 3 / P3-D: scoped literary Writing Studio shell. */
+body[data-stage19-spine] {
+  background: #000000;
+  color: #f0ece3;
+  scrollbar-color: rgba(194, 166, 106, 0.58) #11100e;
+}
+
+body[data-stage19-spine][data-stage19-theme="light"] {
+  background: #fbf8f1;
+  color: #24211d;
+  scrollbar-color: rgba(116, 85, 31, 0.52) #ece5d9;
+}
+
+body[data-stage19-spine] *::-webkit-scrollbar-thumb {
+  background: rgba(194, 166, 106, 0.58);
+}
+
+body[data-stage19-spine] *::-webkit-scrollbar-track {
+  background: #11100e;
+}
+
+body[data-stage19-spine][data-stage19-theme="light"] *::-webkit-scrollbar-thumb {
+  background: rgba(116, 85, 31, 0.52);
+}
+
+body[data-stage19-spine][data-stage19-theme="light"] *::-webkit-scrollbar-track {
+  background: #ece5d9;
+}
+
+body[data-stage19-spine] :focus-visible {
+  outline-color: #c2a66a;
+}
+
+body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
+  outline-color: #74551f;
+}
+
 .stage19-spine--writing {
   --bs-canvas-black: #000000;
-  --bs-surface-base: #050607;
-  --bs-surface-raised: #0b0d10;
-  --bs-surface-hover: #11141a;
-  --bs-line-quiet: #20242b;
-  --bs-text-primary: #e9e6df;
-  --bs-text-secondary: #a8abb2;
-  --bs-text-muted: #737780;
-  --bs-accent-primary: #8e7cc3;
-  --bs-state-info: #7e9dba;
-  --bs-state-success: #6f9b7c;
-  --bs-state-warning: #c7a15a;
-  --bs-state-danger: #c77a7a;
+  --bs-surface-base: #080807;
+  --bs-surface-raised: #11100e;
+  --bs-surface-hover: #191713;
+  --bs-line-quiet: #29261f;
+  --bs-line-strong: #4a4438;
+  --bs-text-primary: #f0ece3;
+  --bs-text-secondary: #b9b2a6;
+  --bs-text-muted: #857f75;
+  --bs-accent-primary: #c2a66a;
+  --bs-state-info: #9d9586;
+  --bs-state-success: #84a28b;
+  --bs-state-warning: #d0aa64;
+  --bs-state-danger: #cf8580;
+  --bs-selection: rgba(194, 166, 106, 0.28);
   min-height: 100%;
   padding: 0;
   color: var(--bs-text-primary);
   background: var(--bs-canvas-black);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.stage19-spine--writing[data-stage19-theme="light"],
+.stage19-spine--command[data-stage19-theme="light"] {
+  --bs-canvas-black: #fbf8f1;
+  --bs-surface-base: #f6f1e7;
+  --bs-surface-raised: #eee7dc;
+  --bs-surface-hover: #e5ddcf;
+  --bs-line-quiet: #d2c9ba;
+  --bs-line-strong: #a99d8b;
+  --bs-text-primary: #24211d;
+  --bs-text-secondary: #575149;
+  --bs-text-muted: #777067;
+  --bs-accent-primary: #74551f;
+  --bs-state-info: #655f56;
+  --bs-state-success: #3e6b4b;
+  --bs-state-warning: #8a5f19;
+  --bs-state-danger: #9a3e3a;
+  --bs-selection: rgba(153, 111, 38, 0.24);
+}
+
+.stage19-theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bs-text-muted);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-theme-switch > button,
+.stage19-spine--command .stage19-theme-switch > button {
+  position: relative;
+  width: 34px;
+  min-width: 34px;
+  height: 20px;
+  min-height: 20px;
+  padding: 2px;
+  border: 1px solid var(--bs-line-strong);
+  border-radius: 999px;
+  background: var(--bs-surface-raised);
+}
+
+.stage19-theme-switch__thumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bs-text-secondary);
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.stage19-theme-switch > button[aria-checked="true"] .stage19-theme-switch__thumb {
+  transform: translateX(14px);
+  background: var(--bs-accent-primary);
 }
 
 .stage19-writing-shell {
@@ -5417,6 +5510,16 @@ body[data-stage19-spine] {
   background: var(--bs-canvas-black);
 }
 
+.stage19-spine-host,
+.stage19-spine-host > div:not([hidden]) {
+  background: #000000;
+}
+
+.stage19-spine-host[data-stage19-theme="light"],
+.stage19-spine-host[data-stage19-theme="light"] > div:not([hidden]) {
+  background: #fbf8f1;
+}
+
 .stage19-writing-shell__rail {
   z-index: 10;
   min-width: 0;
@@ -5582,6 +5685,21 @@ body[data-stage19-spine] {
   caret-color: var(--bs-text-primary);
 }
 
+.stage19-spine--writing .stage19-spine__editor .cm-gutters {
+  border: 0;
+  background: var(--bs-canvas-black);
+  color: var(--bs-text-muted);
+}
+
+.stage19-spine--writing .stage19-spine__editor .cm-activeLine,
+.stage19-spine--writing .stage19-spine__editor .cm-activeLineGutter {
+  background: color-mix(in srgb, var(--bs-surface-hover) 64%, transparent);
+}
+
+.stage19-spine--writing .stage19-spine__editor .cm-placeholder {
+  color: var(--bs-text-muted);
+}
+
 .stage19-spine--writing .stage19-spine__editor .cm-line {
   padding: 0;
 }
@@ -5592,7 +5710,7 @@ body[data-stage19-spine] {
 
 .stage19-spine--writing .stage19-spine__editor .cm-selectionBackground,
 .stage19-spine--writing .stage19-spine__editor .cm-content ::selection {
-  background: rgba(142, 124, 195, 0.34);
+  background: var(--bs-selection);
 }
 
 .stage19-spine--writing .stage19-ai {
@@ -5814,18 +5932,19 @@ body[data-stage19-spine] {
 /* Program 3 / P3-F: one task-focused Command Center canvas. */
 .stage19-spine--command {
   --bs-canvas-black: #000000;
-  --bs-surface-base: #050607;
-  --bs-surface-raised: #0b0d10;
-  --bs-surface-hover: #11141a;
-  --bs-line-quiet: #20242b;
-  --bs-line-strong: #343943;
-  --bs-text-primary: #e9e6df;
-  --bs-text-secondary: #a8abb2;
-  --bs-text-muted: #737780;
-  --bs-accent-primary: #8e7cc3;
-  --bs-state-success: #6f9b7c;
-  --bs-state-warning: #c7a15a;
-  --bs-state-danger: #c77a7a;
+  --bs-surface-base: #080807;
+  --bs-surface-raised: #11100e;
+  --bs-surface-hover: #191713;
+  --bs-line-quiet: #29261f;
+  --bs-line-strong: #4a4438;
+  --bs-text-primary: #f0ece3;
+  --bs-text-secondary: #b9b2a6;
+  --bs-text-muted: #857f75;
+  --bs-accent-primary: #c2a66a;
+  --bs-state-success: #84a28b;
+  --bs-state-warning: #d0aa64;
+  --bs-state-danger: #cf8580;
+  --bs-selection: rgba(194, 166, 106, 0.28);
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   min-height: 100%;
@@ -5916,7 +6035,7 @@ body[data-stage19-spine] {
 }
 
 .stage19-spine--command button:hover:not(:disabled) {
-  border-color: #595f6b;
+  border-color: var(--bs-line-strong);
   background: var(--bs-surface-hover);
 }
 
@@ -6048,7 +6167,7 @@ body[data-stage19-spine] {
 .stage19-command-companion__state--unavailable,
 .stage19-command-companion__state--not-routed {
   border-color: color-mix(in srgb, var(--bs-state-warning) 60%, transparent);
-  color: #d6bd87;
+  color: var(--bs-state-warning);
 }
 
 .stage19-command-companion__facts {
@@ -6171,14 +6290,14 @@ body[data-stage19-spine] {
 
 .stage19-command-review__state--completed {
   border-color: color-mix(in srgb, var(--bs-state-success) 62%, transparent);
-  color: #a9c4b0;
+  color: var(--bs-state-success);
 }
 
 .stage19-command-review__state--failed,
 .stage19-command-review__state--expired,
 .stage19-command-review__state--invalidated {
   border-color: color-mix(in srgb, var(--bs-state-warning) 60%, transparent);
-  color: #d6bd87;
+  color: var(--bs-state-warning);
 }
 
 .stage19-command-review__disclosures {
@@ -6265,7 +6384,7 @@ body[data-stage19-spine] {
 
 .stage19-command-review__actions button.is-primary {
   border-color: var(--bs-accent-primary);
-  background: #171321;
+  background: var(--bs-surface-raised);
 }
 
 .stage19-command__footer {
@@ -6320,7 +6439,7 @@ body[data-stage19-spine] {
   }
 }
 
-/* Program 3 / P3-E: Living Outline as a quiet structural margin. */
+/* Program 3 / P3-E: story planning as a quiet structural margin. */
 .stage19-spine__sr-only {
   position: absolute;
   width: 1px;
@@ -6531,7 +6650,7 @@ body[data-stage19-spine] {
 .stage19-spine--writing .stage19-living-outline__title:hover:not(:disabled) {
   border-color: transparent;
   background: transparent;
-  color: #fff;
+  color: var(--bs-text-primary);
   text-decoration: underline;
   text-decoration-color: var(--bs-line-strong);
   text-underline-offset: 3px;

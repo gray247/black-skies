@@ -52,17 +52,17 @@ function activeProject(
   request: LivingOutlineProjectBinding,
 ): { snapshot: ProjectSpineSessionSnapshot; repository: LivingOutlineRepository } | LivingOutlineResult {
   if (!options || options.resolveWindowRole(event.sender.id) !== 'writing') {
-    return fail('NOT_WRITING_STUDIO', 'The Living Outline is available only in Writing Studio.');
+    return fail('NOT_WRITING_STUDIO', 'The story plan is available only in Writing Studio.');
   }
-  if (!validBinding(request)) return fail('INVALID_REQUEST', 'The Living Outline request is incomplete.');
+  if (!validBinding(request)) return fail('INVALID_REQUEST', 'The story plan request is incomplete.');
   const snapshot = options.getWritingSnapshot();
-  if (!snapshot.project) return fail('NO_ACTIVE_PROJECT', 'Open a project before using the Living Outline.');
+  if (!snapshot.project) return fail('NO_ACTIVE_PROJECT', 'Open a project before using the story plan.');
   if (
     snapshot.project.projectId !== request.projectId ||
     !samePath(snapshot.project.path, request.projectPath) ||
     snapshot.generation !== request.generation
   ) {
-    return fail('STALE_SESSION', 'The active project changed before the Living Outline request completed.');
+    return fail('STALE_SESSION', 'The active project changed before the story plan request completed.');
   }
   return {
     snapshot,
@@ -111,7 +111,7 @@ function repositoryFailure(error: unknown): LivingOutlineResult {
     if (error.code === 'UNAVAILABLE') return fail('LIVING_OUTLINE_UNAVAILABLE', error.message);
     return fail('LIVING_OUTLINE_WRITE_FAILED', error.message);
   }
-  return fail('LIVING_OUTLINE_WRITE_FAILED', 'The Living Outline operation could not be completed.');
+  return fail('LIVING_OUTLINE_WRITE_FAILED', 'The story plan operation could not be completed.');
 }
 
 async function get(event: IpcMainInvokeEvent, request: GetLivingOutlineRequest): Promise<LivingOutlineResult> {
@@ -130,7 +130,7 @@ async function createItem(event: IpcMainInvokeEvent, request: CreateLivingOutlin
   if (
     !validRevision(request.expectedRevision) || !validLabel(request.label) ||
     !validKind(request.kind) || !validState(request.state) || !validUnitReference(request.manuscriptUnitId)
-  ) return fail('INVALID_REQUEST', 'The new outline item is incomplete.');
+  ) return fail('INVALID_REQUEST', 'The new story point is incomplete.');
   if (!unitExists(active.snapshot, request.manuscriptUnitId)) {
     return fail('UNKNOWN_MANUSCRIPT_UNIT', 'The linked manuscript unit no longer exists.');
   }
@@ -156,7 +156,7 @@ async function updateItem(event: IpcMainInvokeEvent, request: UpdateLivingOutlin
   if (
     !validRevision(request.expectedRevision) || !validItemId(request.itemId) ||
     !validLabel(request.label) || !validKind(request.kind) || !validState(request.state)
-  ) return fail('INVALID_REQUEST', 'The outline item update is incomplete.');
+  ) return fail('INVALID_REQUEST', 'The story point update is incomplete.');
   try {
     return { ok: true, data: await active.repository.update(
       active.snapshot.project!.projectId,

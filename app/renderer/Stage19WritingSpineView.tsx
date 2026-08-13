@@ -41,6 +41,7 @@ export interface MarkdownExportNotice {
 }
 
 export type Stage19WritingRail = 'top' | 'left' | 'right' | 'bottom';
+export type Stage19Theme = 'dark' | 'light';
 
 export interface Stage19WritingSpineViewModel {
   readonly phase: Stage19ViewPhase;
@@ -61,6 +62,7 @@ export interface Stage19WritingSpineViewModel {
   readonly exportingMarkdown: boolean;
   readonly markdownExportRequiresSave: boolean;
   readonly markdownExportNotice: MarkdownExportNotice | null;
+  readonly theme: Stage19Theme;
   readonly focusMode: boolean;
   readonly openWritingRail: Stage19WritingRail | null;
   readonly companionPrompt: string;
@@ -116,6 +118,7 @@ export interface Stage19WritingSpineViewActions {
   readonly showCommandSurface: () => MaybeAsync;
   readonly openCommandInSecondaryWindow: () => MaybeAsync;
   readonly exportMarkdown: () => MaybeAsync;
+  readonly toggleTheme: () => void;
   readonly toggleFocusMode: () => void;
   readonly toggleWritingRail: (rail: Stage19WritingRail) => void;
   readonly closeWritingRail: (rail: Stage19WritingRail) => void;
@@ -281,9 +284,28 @@ function SurfaceControlsView({ model, actions }: Stage19WritingSpineViewProps): 
   );
 }
 
+function ThemeSwitchView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  return (
+    <div className="stage19-theme-switch" role="group" aria-label="Appearance">
+      <span aria-hidden="true">Dark</span>
+      <button
+        type="button"
+        role="switch"
+        aria-label="Light theme"
+        aria-checked={model.theme === 'light'}
+        title={model.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+        onClick={actions.toggleTheme}
+      >
+        <span className="stage19-theme-switch__thumb" aria-hidden="true" />
+      </button>
+      <span aria-hidden="true">Light</span>
+    </div>
+  );
+}
+
 function CommandUnavailableView(props: Stage19WritingSpineViewProps): JSX.Element {
   return (
-    <main className="stage19-spine stage19-spine--command" data-stage19-role={props.model.logicalSurface === 'command' ? 'command' : undefined} data-primary-scroll-container="true" role="region" aria-label="Command Center">
+    <main className="stage19-spine stage19-spine--command" data-stage19-role={props.model.logicalSurface === 'command' ? 'command' : undefined} data-stage19-theme={props.model.theme} data-primary-scroll-container="true" role="region" aria-label="Command Center">
       <header className="stage19-spine__header">
         <div>
           <span className="stage19-spine__eyebrow">Command Center</span>
@@ -292,6 +314,7 @@ function CommandUnavailableView(props: Stage19WritingSpineViewProps): JSX.Elemen
         </div>
         <div className="stage19-spine__project-actions">
           <span className="stage19-spine__save-state stage19-spine__save-state--save-failed" role="status">Status unavailable</span>
+          <ThemeSwitchView {...props} />
           <SurfaceControlsView {...props} />
         </div>
       </header>
@@ -310,7 +333,7 @@ const COMMAND_WORKSPACES: readonly {
   readonly purpose: string;
 }[] = [
   { id: 'review', label: 'Review', purpose: 'Advisory critique and author decisions' },
-  { id: 'structure', label: 'Structure', purpose: 'Living Outline and structural work' },
+  { id: 'structure', label: 'Structure', purpose: 'Story planning and structural work' },
   { id: 'story-knowledge', label: 'Story Knowledge', purpose: 'Characters, world, and continuity' },
   { id: 'create-develop', label: 'Create / Develop', purpose: 'Bounded development tools' },
   { id: 'project-interchange', label: 'Project Interchange', purpose: 'Import, export, and handoff' },
@@ -426,7 +449,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         : null
   );
   return (
-    <main className="stage19-spine stage19-spine--command" data-stage19-role={model.logicalSurface === 'command' ? 'command' : undefined} data-command-workspace={model.commandWorkspace} data-primary-scroll-container="true" role="region" aria-label="Command Center">
+    <main className="stage19-spine stage19-spine--command" data-stage19-role={model.logicalSurface === 'command' ? 'command' : undefined} data-stage19-theme={model.theme} data-command-workspace={model.commandWorkspace} data-primary-scroll-container="true" role="region" aria-label="Command Center">
       <header className="stage19-command__header">
         <div className="stage19-command__identity">
           <span className="stage19-spine__eyebrow">Black Skies · Command Center</span>
@@ -434,6 +457,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         </div>
         <div className="stage19-command__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">{commandSaveLabel(snapshot, commandStatus)}</span>
+          <ThemeSwitchView model={model} actions={actions} />
           <SurfaceControlsView model={model} actions={actions} />
         </div>
       </header>
@@ -564,7 +588,7 @@ function OutlineTitleEditor({
       event.preventDefault();
       void actions.updateOutlineItem(item.id);
     }}>
-      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Outline item title</label>
+      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Story point title</label>
       <input
         ref={focusOutlineTitleInput}
         id={`stage19-outline-title-${item.id}`}
@@ -606,19 +630,20 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
       ? `Current position in ${activeUnit.displayTitle}`
       : 'No manuscript context; the new item will be Not placed yet';
   return (
-    <section className="stage19-living-outline" aria-label="Living Outline">
+    <section className="stage19-living-outline" aria-label="Story plan">
       <div className="stage19-living-outline__heading">
         <div>
-          <h2>Outline</h2>
-          <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} outline items`}>
+          <h2>Story plan</h2>
+          <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} story points`}>
             {livingOutline?.document.items.length ?? 0}
           </span>
         </div>
         <button
           type="button"
           className="stage19-living-outline__add"
-          aria-label="Add outline item"
+          aria-label="Add to story here"
           aria-describedby="stage19-outline-creation-context"
+          title="Add a story point at the current writing position"
           onClick={() => void actions.createOutlineItem()}
           disabled={livingOutlineLoading || livingOutline?.availability !== 'ready'}
         >
@@ -626,9 +651,9 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
         </button>
       </div>
       <p id="stage19-outline-creation-context" className="stage19-living-outline__context">{creationContext}</p>
-      <p className="stage19-living-outline__boundary">A structural guide beside your writing. It never rewrites prose or accepted manuscript order.</p>
+      <p className="stage19-living-outline__boundary">A lightweight map beside your writing. It can point to the story, but it never rewrites your words.</p>
       {livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
-      {livingOutlineLoading && !livingOutline ? <p>Loading outline…</p> : null}
+      {livingOutlineLoading && !livingOutline ? <p>Loading story plan…</p> : null}
       {livingOutline?.availability === 'ready' ? (
         <>
           {livingOutline.document.items.length > 0 ? (
@@ -664,7 +689,7 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                       <button
                         type="button"
                         className="stage19-living-outline__locate"
-                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unplaced outline item ${item.label}`}
+                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unplaced story point ${item.label}`}
                         aria-current={isCurrentWriting ? 'location' : undefined}
                         onClick={() => void actions.selectOutlineItem(item.id)}
                         onKeyDown={(event) => {
@@ -711,7 +736,7 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                 );
               })}
             </ol>
-          ) : <p className="stage19-spine__empty">No outline yet. Keep writing, or use + when a structural thought matters.</p>}
+          ) : <p className="stage19-spine__empty">No story points yet. Keep writing, or use + when you want to mark this place.</p>}
           {advancedItem ? (
             <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
               <div className="stage19-living-outline__advanced-heading">
@@ -721,7 +746,7 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
               <label>
                 <span>Structural meaning</span>
                 <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
-                  <option value="fragment">Outline item</option>
+                  <option value="fragment">Story point</option>
                   <option value="gap">Something goes here</option>
                   <option value="container">Planning area</option>
                 </select>
@@ -757,8 +782,8 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                 <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || advancedItem.manuscriptUnitId === snapshot.activeUnitId}>Place with current writing</button>
                 <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, null)} disabled={livingOutlineLoading || !advancedItem.manuscriptUnitId}>Mark Not placed yet</button>
               </div>
-              <div className="stage19-living-outline__move" aria-label="Move in outline">
-                <span>Move in outline</span>
+              <div className="stage19-living-outline__move" aria-label="Move in story plan">
+                <span>Move in story plan</span>
                 <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, -1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === advancedItem.id}>Move up</button>
                 <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, 1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === advancedItem.id}>Move down</button>
                 <small>Keyboard: focus an item&apos;s position and use Alt+Up or Alt+Down.</small>
@@ -767,15 +792,15 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                 <div><dt>Created</dt><dd>{advancedItem.createdAt}</dd></div>
                 <div><dt>Updated</dt><dd>{advancedItem.updatedAt}</dd></div>
               </dl>
-              <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem(advancedItem.id)} disabled={livingOutlineLoading}>Delete outline item</button>
+              <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem(advancedItem.id)} disabled={livingOutlineLoading}>Delete story point</button>
             </section>
           ) : null}
           <details className="stage19-living-outline__preview">
-            <summary>Compare planning and manuscript order</summary>
-            <p>Preview only. Moving this list never moves accepted manuscript units.</p>
+            <summary>Compare the story plan with the manuscript</summary>
+            <p>Preview only. Moving this plan never moves your written pages.</p>
             {projectedWritingOrder.length > 0
               ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
-              : <p>No outline items are placed with writing yet.</p>}
+              : <p>No story points are placed with writing yet.</p>}
           </details>
         </>
       ) : null}
@@ -788,7 +813,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
   const { activeUnit, dirtyUnitIds, newUnitTitle, recoveryBlocksEditing, renameTitle, snapshot } = model;
   if (model.focusMode || !snapshot.project) return <></>;
   return (
-    <aside className="stage19-spine__binder" aria-label="Manuscript binder and Living Outline">
+    <aside className="stage19-spine__binder" aria-label="Story rail">
       <div className="stage19-spine__section-heading">
         <div><span className="stage19-spine__eyebrow">Binder</span><h2>Manuscript units</h2></div>
         <span>{snapshot.project.units.length}</span>
@@ -967,7 +992,7 @@ const WRITING_RAIL_LABELS: Record<Stage19WritingRail, {
   readonly accessibleLabel: string;
 }> = {
   top: { shortLabel: 'Project', accessibleLabel: 'project tools' },
-  left: { shortLabel: 'Manuscript', accessibleLabel: 'manuscript tools' },
+  left: { shortLabel: 'Story', accessibleLabel: 'story tools' },
   right: { shortLabel: 'Review', accessibleLabel: 'writing support' },
   bottom: { shortLabel: 'Session', accessibleLabel: 'session tools' },
 };
@@ -1195,6 +1220,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
     <main
       className={`stage19-spine stage19-spine--writing ${model.focusMode ? 'is-focus-mode' : ''}`}
       data-stage19-role={model.logicalSurface === 'writing' ? 'writing' : undefined}
+      data-stage19-theme={model.theme}
       data-stage19-writing-rail={model.focusMode ? 'focus' : model.openWritingRail ?? 'closed'}
       data-primary-scroll-container="true"
       role="region"
@@ -1209,6 +1235,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
         </div>
         <div className="stage19-writing-shell__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">{model.writingSaveSummary}</span>
+          {!model.focusMode ? <ThemeSwitchView {...props} /> : null}
           {!model.focusMode ? <SurfaceControlsView {...props} /> : null}
           <button type="button" className="stage19-writing-shell__focus" aria-pressed={model.focusMode} onClick={actions.toggleFocusMode}>
             {model.focusMode ? 'Exit Focus mode' : 'Enter Focus mode'}
@@ -1223,9 +1250,9 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           <section
             id="stage19-writing-rail-left"
             className="stage19-writing-shell__rail stage19-writing-shell__rail--left"
-            aria-label="Manuscript tools"
+            aria-label="Story tools"
           >
-            <WritingRailHeading rail="left" title="Manuscript" actions={actions} />
+            <WritingRailHeading rail="left" title="Story" actions={actions} />
             <ManuscriptBinderView {...props} />
           </section>
         ) : null}
@@ -1268,6 +1295,7 @@ export default function Stage19WritingSpineView(props: Stage19WritingSpineViewPr
         className="stage19-spine-host"
         data-stage19-logical-surface={props.model.logicalSurface}
         data-stage19-command-placement={props.model.commandPlacement}
+        data-stage19-theme={props.model.theme}
       >
         <div hidden={props.model.logicalSurface !== 'writing'}>
           <WritingStudioView {...props} />
@@ -1282,7 +1310,7 @@ export default function Stage19WritingSpineView(props: Stage19WritingSpineViewPr
   }
   switch (props.model.phase) {
     case 'loading':
-      return <main className="stage19-spine stage19-spine--loading">Loading local writing session…</main>;
+      return <main className="stage19-spine stage19-spine--loading" data-stage19-theme={props.model.theme}>Loading local writing session…</main>;
     case 'command-unavailable':
       return <CommandUnavailableView {...props} />;
     case 'command':

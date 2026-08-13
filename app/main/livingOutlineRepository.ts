@@ -62,7 +62,7 @@ function emptyDocument(projectId: string): LivingOutlineDocumentV1 {
 
 function validateDocument(value: unknown, projectId: string): LivingOutlineDocumentV1 {
   if (!value || typeof value !== 'object') {
-    throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The Living Outline file is not readable. Writing remains available.');
+    throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The story plan file is not readable. Writing remains available.');
   }
   const candidate = value as Partial<LivingOutlineDocumentV1>;
   if (
@@ -74,7 +74,7 @@ function validateDocument(value: unknown, projectId: string): LivingOutlineDocum
     !candidate.items.every(isItem) ||
     new Set(candidate.items.map((item) => item.id)).size !== candidate.items.length
   ) {
-    throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The Living Outline file has an unsupported format. Writing remains available.');
+    throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The story plan file has an unsupported format. Writing remains available.');
   }
   return candidate as LivingOutlineDocumentV1;
 }
@@ -102,7 +102,7 @@ export class LivingOutlineRepository {
       }
       const message = error instanceof LivingOutlineRepositoryError
         ? error.message
-        : 'The Living Outline file is not readable. Writing remains available.';
+        : 'The story plan file is not readable. Writing remains available.';
       return { availability: 'degraded', document: emptyDocument(projectId), message };
     }
   }
@@ -146,7 +146,7 @@ export class LivingOutlineRepository {
   ): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       const index = document.items.findIndex((item) => item.id === itemId);
-      if (index < 0) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The outline item no longer exists.');
+      if (index < 0) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
       const destination = index + direction;
       if (destination < 0 || destination >= document.items.length) return [...document.items];
       const items = [...document.items];
@@ -171,7 +171,7 @@ export class LivingOutlineRepository {
   async delete(projectId: string, expectedRevision: number, itemId: string): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       if (!document.items.some((item) => item.id === itemId)) {
-        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The outline item no longer exists.');
+        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
       }
       return document.items.filter((item) => item.id !== itemId);
     });
@@ -188,7 +188,7 @@ export class LivingOutlineRepository {
       found = true;
       return update(item);
     });
-    if (!found) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The outline item no longer exists.');
+    if (!found) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
     return items;
   }
 
@@ -206,10 +206,10 @@ export class LivingOutlineRepository {
     try {
       const current = await this.read(projectId);
       if (current.availability === 'degraded') {
-        throw new LivingOutlineRepositoryError('UNAVAILABLE', current.message ?? 'The Living Outline is unavailable.');
+        throw new LivingOutlineRepositoryError('UNAVAILABLE', current.message ?? 'The story plan is unavailable.');
       }
       if (current.document.revision !== expectedRevision) {
-        throw new LivingOutlineRepositoryError('STALE', 'The Living Outline changed. Reload it before trying again.');
+        throw new LivingOutlineRepositoryError('STALE', 'The story plan changed. Reload it before trying again.');
       }
       const next: LivingOutlineDocumentV1 = {
         ...current.document,
@@ -233,7 +233,7 @@ export class LivingOutlineRepository {
       await fs.rename(tempPath, this.filePath);
     } catch {
       await fs.rm(tempPath, { force: true }).catch(() => undefined);
-      throw new LivingOutlineRepositoryError('WRITE_FAILED', 'The Living Outline change could not be saved.');
+      throw new LivingOutlineRepositoryError('WRITE_FAILED', 'The story plan change could not be saved.');
     }
   }
 }

@@ -14,6 +14,8 @@ const BODY_DATASET_KEYS = [
   'testEnvForceOfflineReason',
   'testNeedsRecovery',
   'testModeFreezeServiceHealth',
+  'stage19Spine',
+  'stage19Theme',
 ] as const;
 
 const WINDOW_KEYS = [

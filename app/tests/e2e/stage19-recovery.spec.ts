@@ -80,7 +80,7 @@ function editorFor(writing: Page, title: string) {
 }
 
 async function selectUnit(writing: Page, title: string): Promise<void> {
-  await openWritingStudioRail(writing, 'manuscript tools');
+  await openWritingStudioRail(writing, 'story tools');
   await writing.getByRole('button', { name: new RegExp(title) }).click();
   await expect(editorFor(writing, title)).toBeVisible();
 }
@@ -140,7 +140,7 @@ async function expectRecoveryChoice(
   await expect(writing.getByRole('heading', { name: 'Recover unsaved Writing Studio prose' })).toBeVisible();
   await expect(writing.getByRole('heading', { name: title, level: 3 })).toBeVisible();
   await expect(writing.getByLabel(`Recovered prose for ${title}`)).toHaveText(prose || '(Empty manuscript prose)');
-  await openWritingStudioRail(writing, 'manuscript tools');
+  await openWritingStudioRail(writing, 'story tools');
   await expect(writing.getByRole('button', { name: 'Create unit' })).toBeDisabled();
 }
 

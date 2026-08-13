@@ -89,7 +89,7 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 }
 
 async function saveCurrentUnit(writing: Page, title: string, prose?: string): Promise<void> {
-  await openWritingStudioRail(writing, 'manuscript tools');
+  await openWritingStudioRail(writing, 'story tools');
   await writing.getByRole('button', { name: new RegExp(title) }).click();
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
   await writing.getByRole('button', { name: /^Save$/ }).click();

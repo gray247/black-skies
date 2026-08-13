@@ -46,13 +46,26 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     expect(await studio.evaluate((element) => getComputedStyle(element).backgroundColor))
       .toBe('rgb(0, 0, 0)');
 
+    const themeSwitch = writing.getByRole('switch', { name: 'Light theme' });
+    await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');
+    await themeSwitch.click();
+    await expect(themeSwitch).toHaveAttribute('aria-checked', 'true');
+    await expect(studio).toHaveAttribute('data-stage19-theme', 'light');
+    expect(await studio.evaluate((element) => getComputedStyle(element).backgroundColor))
+      .toBe('rgb(251, 248, 241)');
+    await expect(editor).toContainText(prose);
+    await themeSwitch.click();
+    await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');
+    await expect(studio).toHaveAttribute('data-stage19-theme', 'dark');
+    await expect(editor).toContainText(prose);
+
     const rails: ReadonlyArray<{
       control: WritingStudioRailLabel;
       panel: string;
       role: 'region' | 'complementary';
     }> = [
       { control: 'project tools', panel: 'Project tools', role: 'region' },
-      { control: 'manuscript tools', panel: 'Manuscript tools', role: 'region' },
+      { control: 'story tools', panel: 'Story tools', role: 'region' },
       { control: 'writing support', panel: 'Writing support', role: 'complementary' },
       { control: 'session tools', panel: 'Writing session tools', role: 'region' },
     ];
@@ -67,19 +80,19 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       await expect(editor).toContainText(prose);
     }
 
-    await openWritingStudioRail(writing, 'manuscript tools');
+    await openWritingStudioRail(writing, 'story tools');
     await expect(writing.getByRole('complementary', {
-      name: 'Manuscript binder and Living Outline',
+      name: 'Story rail',
     })).toBeVisible();
     await writing.getByRole('button', { name: 'Enter Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'focus');
     await expect(writing.getByRole('navigation', { name: 'Writing Studio edge controls' })).toHaveCount(0);
-    await expect(writing.getByRole('region', { name: 'Manuscript tools' })).toHaveCount(0);
+    await expect(writing.getByRole('region', { name: 'Story tools' })).toHaveCount(0);
     await expect(editor).toContainText(prose);
 
     await writing.getByRole('button', { name: 'Exit Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'left');
-    await expect(writing.getByRole('region', { name: 'Manuscript tools' })).toBeVisible();
+    await expect(writing.getByRole('region', { name: 'Story tools' })).toBeVisible();
     await expect(editor).toContainText(prose);
 
     await writing.setViewportSize({ width: 1000, height: 800 });

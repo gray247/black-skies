@@ -491,3 +491,24 @@ This direction is grounded in:
 
 The photographs and concept images remain design evidence. This repo-tracked
 record is the durable current synthesis.
+
+## 17. Human Gate 2 Experience Finding
+
+Human Gate 2 began only after the exact combined Program 3 and Program 4
+Windows package/install qualification passed on 2026-08-11. The author found
+the candidate mechanically safe but did **not** accept its ordinary Writing
+Studio experience.
+
+The accepted finding is that the candidate makes manuscript units appear to be
+separate files beside a separate outline form. It also exposes redundant unit
+administration, ambiguous `+` actions, persistent advanced controls,
+overlapping rail geometry, an incomplete Focus state, generic blue/purple
+dashboard styling, and a Companion handoff that is technically routed but not
+yet understandable as a useful interaction.
+
+The repair is governed by
+[Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md).
+It preserves the safety evidence, requires a continuous-manuscript and stable
+anchor bridge before claiming a unified story stream, adds intentional Dark
+and Light themes, and keeps full local-LLM Companion capability as a separately
+authorized later boundary.

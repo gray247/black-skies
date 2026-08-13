@@ -94,9 +94,17 @@ It does not finalize the entire product vision.
   defect is repaired and directly covered locally. Its second clean hosted run
   confirmed that repair, then exposed a missing visibility fact in the
   post-request runtime record; that bounded harness defect is likewise repaired
-  and directly covered locally. It awaits Jason's exact Git checkpoint before
-  repeated combined package/install qualification. Human Gate 2 remains the
-  next human validation after that exact candidate is complete.
+  and directly covered locally. Exact candidate `319b9c6` subsequently passed
+  the repeated combined Windows package/install qualification in GitHub run
+  `31542494314`. Human Gate 2 then found the current author experience not
+  acceptable despite its mechanical safety. Its repair is controlled by
+  [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md),
+  which pulls the continuous-manuscript/stable-anchor bridge forward while
+  keeping full local-LLM Companion capability as a later authorized boundary.
+  Its [HG2-RPR-A evidence receipt](program_4_hg2_rpr_a_evidence_receipt.md)
+  records the green automated Dark/Light, neutral-token, Story-language, and
+  non-mutation foundation. That batch still requires Jason's manual durable
+  checkpoint and does not claim completion of the later repair batches.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

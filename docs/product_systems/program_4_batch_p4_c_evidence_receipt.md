@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `P4-C INSTALLED-QUALIFICATION MEASUREMENT REPAIR QUALIFIED LOCALLY; AWAITING CLEAN-CANDIDATE CHECKPOINT`
+- Status: `P4-C EXACT COMBINED PACKAGE/INSTALL QUALIFICATION PASSED; HUMAN GATE 2 EXPERIENCE FINDING ROUTED TO REPAIR PLAN`
 - Date: `2026-08-11`
 - Starting commit: `f6090498a8ea04f011fc30c890af521aa712940e`
 - Branch: `codex/foundation-audit`
@@ -10,6 +10,24 @@
 - Reasoning effort: `high`
 - Mutation authority: `Program 4 P4-C only`
 - Git authority: `Jason alone stages, commits, and pushes`
+
+## Exact Hosted Qualification
+
+The clean exact candidate `319b9c616c1adae826a5fbec84858ae3ef2eed51`
+passed the combined Windows package, installed lifecycle, receipt, and current
+Program 3/4 performance workflow on 2026-08-11:
+
+- GitHub Actions run `31542494314` completed with `success`;
+- the correct Writing-first startup and explicit optional-second-window
+  qualification completed after the two repaired measurement defects; and
+- no V1 historical two-window baseline was used as the candidate comparison.
+
+This closes the automated P4-C qualification boundary. Human Gate 2 then
+provided a negative author-experience finding: safety and packaging are
+accepted, while the Writing Studio's separate-unit/form-based composition and
+current Companion experience are not. The finding is owned by
+[Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md),
+not by another installed-lifecycle repair.
 
 ## Post-Checkpoint Repair Qualification
 

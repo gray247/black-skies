@@ -50,6 +50,7 @@ import Stage19WritingSpineView, {
   type Stage19WritingRail,
   type Stage19WritingSpineViewActions,
   type Stage19WritingSpineViewModel,
+  type Stage19Theme,
 } from './Stage19WritingSpineView';
 import {
   decideStage19SessionProjection,
@@ -76,6 +77,19 @@ interface RecoveryCheckpointSubmission {
 
 const RECOVERY_CHECKPOINT_DELAY_MS = 750;
 const RECOVERY_NOTICE_PREFIX = 'Recovery protection';
+export const STAGE19_THEME_STORAGE_KEY = 'black-skies.stage19.theme.v1';
+
+export function parseStage19Theme(value: string | null | undefined): Stage19Theme {
+  return value === 'light' ? 'light' : 'dark';
+}
+
+function readStage19ThemePreference(): Stage19Theme {
+  try {
+    return parseStage19Theme(window.localStorage.getItem(STAGE19_THEME_STORAGE_KEY));
+  } catch {
+    return 'dark';
+  }
+}
 
 function operationId(prefix: string): string {
   const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
@@ -93,7 +107,7 @@ async function fingerprintVisibleText(value: string): Promise<string> {
 
 function defaultOutlineLabel(selection: DraftEditorSelectionEvidence | null): string {
   const selected = selection?.selectedText.replace(/\s+/g, ' ').trim() ?? '';
-  if (!selected) return 'New outline item';
+  if (!selected) return 'New story point';
   if (selected.length <= 96) return selected;
   return `${selected.slice(0, 95).trimEnd()}…`;
 }
@@ -536,6 +550,7 @@ export default function Stage19WritingSpineApp({
   const [feedbackNoteSaving, setFeedbackNoteSaving] = useState(false);
   const [feedbackNoteNotice, setFeedbackNoteNotice] = useState<string | null>(null);
   const [savedFeedbackNotes, setSavedFeedbackNotes] = useState<readonly FeedbackNote[]>([]);
+  const [theme, setTheme] = useState<Stage19Theme>(readStage19ThemePreference);
   const [focusMode, setFocusMode] = useState(false);
   const [openWritingRail, setOpenWritingRail] = useState<Stage19WritingRail | null>(null);
   const [companionPrompt, setCompanionPrompt] = useState('');
@@ -611,10 +626,31 @@ export default function Stage19WritingSpineApp({
 
   useEffect(() => {
     document.body.dataset.stage19Spine = windowRole;
+    document.body.dataset.stage19Theme = theme;
+    document.documentElement.dataset.stage19Theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    try {
+      window.localStorage.setItem(STAGE19_THEME_STORAGE_KEY, theme);
+    } catch {
+      // Theme remains usable for this session when local preferences are unavailable.
+    }
     return () => {
       delete document.body.dataset.stage19Spine;
+      delete document.body.dataset.stage19Theme;
+      delete document.documentElement.dataset.stage19Theme;
+      document.documentElement.style.removeProperty('color-scheme');
     };
-  }, [windowRole]);
+  }, [theme, windowRole]);
+
+  useEffect(() => {
+    const receiveThemePreference = (event: StorageEvent) => {
+      if (event.key === STAGE19_THEME_STORAGE_KEY) {
+        setTheme(parseStage19Theme(event.newValue));
+      }
+    };
+    window.addEventListener('storage', receiveThemePreference);
+    return () => window.removeEventListener('storage', receiveThemePreference);
+  }, []);
 
   useEffect(() => {
     if (!surfaceBridge) return;
@@ -798,7 +834,7 @@ export default function Stage19WritingSpineApp({
     }
     if (!livingOutlineBridge) {
       setLivingOutline(null);
-      setLivingOutlineNotice('Living Outline is unavailable. Manuscript writing and saving remain available.');
+      setLivingOutlineNotice('Story planning is unavailable. Manuscript writing and saving remain available.');
       return;
     }
     let cancelled = false;
@@ -819,7 +855,7 @@ export default function Stage19WritingSpineApp({
         setLivingOutlineNotice(result.error.message);
       }
     }).catch(() => {
-      if (!cancelled) setLivingOutlineNotice('Living Outline could not be loaded. Manuscript writing remains available.');
+      if (!cancelled) setLivingOutlineNotice('The story plan could not be loaded. Manuscript writing remains available.');
     }).finally(() => {
       if (!cancelled) setLivingOutlineLoading(false);
     });
@@ -1298,14 +1334,14 @@ export default function Stage19WritingSpineApp({
         setOutlineState(created?.state ?? 'planned');
         setLivingOutlineNotice(
           selectedProse
-            ? 'Outline item created from the selected passage. Name it when ready; manuscript text was not changed.'
+            ? 'Story point created from the selected passage. Name it when ready; manuscript text was not changed.'
             : manuscriptUnitId
-              ? 'Outline item created with the current writing. Name it when ready.'
-              : 'Outline item created as Not placed yet. Name it when ready.',
+              ? 'Story point created with the current writing. Name it when ready.'
+              : 'Story point created as Not placed yet. Name it when ready.',
         );
       }
     } catch {
-      setLivingOutlineNotice('The outline item could not be saved. Manuscript text was not changed.');
+      setLivingOutlineNotice('The story point could not be saved. Manuscript text was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
@@ -1350,10 +1386,10 @@ export default function Stage19WritingSpineApp({
       });
       if (applyLivingOutlineResult(updated)) {
         setOutlineEditingItemId(null);
-        setLivingOutlineNotice('Outline item saved. Manuscript text was not changed.');
+        setLivingOutlineNotice('Story point saved. Manuscript text was not changed.');
       }
     } catch {
-      setLivingOutlineNotice('The outline item could not be updated. Manuscript text was not changed.');
+      setLivingOutlineNotice('The story point could not be updated. Manuscript text was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
@@ -1428,8 +1464,8 @@ export default function Stage19WritingSpineApp({
       }))) {
         setLivingOutlineNotice(
           manuscriptUnitId
-            ? 'Outline item placed with the current writing. Manuscript text was not changed.'
-            : 'Outline item is now Not placed yet. Manuscript text was not changed.',
+            ? 'Story point placed with the current writing. Manuscript text was not changed.'
+            : 'Story point is now Not placed yet. Manuscript text was not changed.',
         );
       }
     } catch {
@@ -1455,7 +1491,7 @@ export default function Stage19WritingSpineApp({
         setOutlineLabel('');
       }
     } catch {
-      setLivingOutlineNotice('The outline item could not be removed. Manuscript text was not changed.');
+      setLivingOutlineNotice('The story point could not be removed. Manuscript text was not changed.');
     } finally {
       setLivingOutlineLoading(false);
     }
@@ -2230,6 +2266,7 @@ export default function Stage19WritingSpineApp({
     exportingMarkdown,
     markdownExportRequiresSave,
     markdownExportNotice,
+    theme,
     focusMode,
     openWritingRail,
     companionPrompt,
@@ -2288,6 +2325,7 @@ export default function Stage19WritingSpineApp({
     showCommandSurface: async () => { await activateSurface('command', 'current-window'); },
     openCommandInSecondaryWindow: async () => { await activateSurface('command', 'secondary-window'); },
     exportMarkdown: handleExportMarkdown,
+    toggleTheme: () => setTheme((current) => current === 'dark' ? 'light' : 'dark'),
     toggleFocusMode: () => setFocusMode((current) => !current),
     toggleWritingRail: (rail) => setOpenWritingRail((current) => current === rail ? null : rail),
     closeWritingRail: (rail) => {

@@ -23,14 +23,18 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(css).not.toContain('.stage19-spine__command-grid');
   });
 
-  it('locks the scoped P3-D literary canvas, responsive rails, and reduced-motion behavior', () => {
+  it('locks the scoped literary canvas, semantic themes, responsive rails, and reduced-motion behavior', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     const marker = '/* Program 3 / P3-D: scoped literary Writing Studio shell. */';
     const p3d = css.slice(css.indexOf(marker));
 
     expect(p3d).toContain('--bs-canvas-black: #000000;');
-    expect(p3d).toContain('--bs-text-primary: #e9e6df;');
-    expect(p3d).toContain('--bs-accent-primary: #8e7cc3;');
+    expect(p3d).toContain('--bs-text-primary: #f0ece3;');
+    expect(p3d).toContain('--bs-accent-primary: #c2a66a;');
+    expect(p3d).toContain('.stage19-spine--writing[data-stage19-theme="light"]');
+    expect(p3d).toContain('--bs-canvas-black: #fbf8f1;');
+    expect(p3d).toContain('--bs-text-primary: #24211d;');
+    expect(p3d).toContain('.stage19-theme-switch');
     expect(p3d).toMatch(/\.stage19-spine--writing[\s\S]*?background:\s*var\(--bs-canvas-black\);/);
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-scroller[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;/);
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*74ch;/);
@@ -38,6 +42,7 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
     expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
     expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
+    expect(p3d).not.toMatch(/#(?:8e7cc3|818cf8|a78bfa)|rgba\(129,\s*140,\s*248|rgba\(142,\s*124,\s*195/i);
   });
 
   it('removes the superseded Writing-side critique result presentation', () => {

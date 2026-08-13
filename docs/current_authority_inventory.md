@@ -26,6 +26,10 @@ The inventory includes:
 - the approved, bounded-runtime-authorized Program 4 Minimal Companion and
   Owner Routing implementation plan;
 - the current Program 4 Batch P4-A through P4-C evidence receipts;
+- the Human Gate 2 experience finding and its bounded Continuous Manuscript,
+  Unified Story Rail, real Focus, Companion-bar repair plan;
+- the Human Gate 2 HG2-RPR-A visual and interaction-language foundation
+  evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -88,7 +92,7 @@ and automation are durable at
 
 The Program 4 P4-C receipt records the built-Electron temporary-state and
 project-reopen proof, the relevant Program 3 topology regression group, and
-the pre-candidate package-safe evidence. The first exact checkpoint exposed a
+the exact candidate package/install evidence. The first exact checkpoint exposed a
 Windows-only capture-frame seam in the visual harness, not a product-behavior
 failure. The subsequent exact run exposed a JSDOM-only CodeMirror layout-API
 gap after all tests had passed. A later repeated installed-lifecycle failure
@@ -99,9 +103,17 @@ current-window Command transition, and author-requested optional secondary
 window. Its first clean hosted run passed regression and packaging before a
 post-teardown measurement-handle defect stopped the installed lifecycle; the
 second clean hosted run confirmed that repair and exposed a missing visibility
-fact in the post-request runtime record. Both directly covered local repairs
-are ready for Jason's P4-C checkpoint before the repeated exact package and
-installed-lifecycle work.
+fact in the post-request runtime record. Exact candidate `319b9c6`
+subsequently passed hosted qualification run `31542494314`. The Human Gate 2
+author-experience finding is now governed by
+[Human Gate 2 Experience Repair Plan](product_systems/program_4_human_gate_2_experience_repair_plan.md).
+
+The [HG2-RPR-A evidence receipt](product_systems/program_4_hg2_rpr_a_evidence_receipt.md)
+records the green automated development gate for the local Dark/Light
+appearance preference, neutral/warm supported-shell tokens, consistent Story
+language, unchanged project truth, and the retained internal sidecar boundary.
+It does not close the Story Rail, continuous manuscript, Focus/Companion
+doorway, complete repair qualification, or Human Gate 2.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

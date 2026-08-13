@@ -40,7 +40,7 @@ export interface LaunchedStage19Application {
 
 export type WritingStudioRailLabel =
   | 'project tools'
-  | 'manuscript tools'
+  | 'story tools'
   | 'writing support'
   | 'session tools';
 

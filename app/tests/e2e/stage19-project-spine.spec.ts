@@ -80,7 +80,7 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
     await writing.keyboard.press('Control+S');
 
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-    await openWritingStudioRail(writing, 'manuscript tools');
+    await openWritingStudioRail(writing, 'story tools');
     await expect(writing.getByRole('button', { name: 'Opening unit Unsaved' })).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
       const current = await window.projectSpine!.getSession();
@@ -297,7 +297,7 @@ test.describe('C1 unsaved close flow', () => {
       await expect(boundaryEditor).toContainText('Start writing…');
       await writing.keyboard.press('Control+Z');
       await expect(boundaryEditor).toContainText('Start writing…');
-      await openWritingStudioRail(writing, 'manuscript tools');
+      await openWritingStudioRail(writing, 'story tools');
       await writing.getByRole('button', { name: /Keep unit/ }).click();
       await expect(editor).toHaveText('Keep this unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
@@ -364,7 +364,7 @@ test.describe('C1 unsaved close flow', () => {
       await editor.pressSequentially('Discard-only unsaved prose');
       await expect(editor).toHaveText('Discard-only unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
-      await openWritingStudioRail(writing, 'manuscript tools');
+      await openWritingStudioRail(writing, 'story tools');
       await expect(writing.getByRole('button', { name: 'Discard-only unit Unsaved' })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
 
@@ -410,7 +410,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       ['Broken Relay', 'RELAY::broken'],
       ['Last Orbit', 'ORBIT::last'],
     ] as const;
-    await openWritingStudioRail(writing, 'manuscript tools');
+    await openWritingStudioRail(writing, 'story tools');
     for (const [title, prose] of expected) {
       const unitButton = writing.getByRole('button', { name: new RegExp(title) });
       await expect(unitButton).toBeEnabled();
@@ -441,7 +441,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       { title: 'Broken Relay', order: 2 },
       { title: 'Last Orbit', order: 3 },
     ]);
-    await openWritingStudioRail(reWriting, 'manuscript tools');
+    await openWritingStudioRail(reWriting, 'story tools');
     for (const [title, prose] of expected) {
       const unitButton = reWriting.getByRole('button', { name: new RegExp(title) });
       await expect(unitButton).toBeEnabled();
