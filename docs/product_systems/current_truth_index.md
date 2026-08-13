@@ -103,8 +103,14 @@ It does not finalize the entire product vision.
   keeping full local-LLM Companion capability as a later authorized boundary.
   Its [HG2-RPR-A evidence receipt](program_4_hg2_rpr_a_evidence_receipt.md)
   records the green automated Dark/Light, neutral-token, Story-language, and
-  non-mutation foundation. That batch still requires Jason's manual durable
-  checkpoint and does not claim completion of the later repair batches.
+  non-mutation foundation, now durable at `28d2294a`. Its
+  [HG2-RPR-B evidence receipt](program_4_hg2_rpr_b_evidence_receipt.md) records
+  the green unified Story Rail development gate: direct contextual creation,
+  inline naming, contextual advanced actions, planning-link drag placement,
+  no-overlay geometry, recovery, reopen persistence, and manuscript
+  non-mutation. Batch B still requires Jason's manual durable checkpoint and
+  does not claim a continuous manuscript, stable anchors, Focus/Companion
+  repair, or Human Gate 2 acceptance.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

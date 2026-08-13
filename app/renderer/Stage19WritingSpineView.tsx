@@ -73,8 +73,9 @@ export interface Stage19WritingSpineViewModel {
   readonly commandWorkspace: CommandWorkspaceV1;
   readonly critiqueReviewState: CritiqueReviewSurfaceStateV1 | null;
   readonly sourceReturnRequest: CritiqueReviewSourceReturnMessageV1 | null;
-  readonly newUnitTitle: string;
   readonly renameTitle: string;
+  readonly unitEditingId: string | null;
+  readonly unitAdvancedId: string | null;
   readonly dirtyUnitIds: ReadonlySet<string>;
   readonly recoveryBlocksEditing: boolean;
   readonly livingOutline: LivingOutlineSnapshotV1 | null;
@@ -133,13 +134,15 @@ export interface Stage19WritingSpineViewActions {
   readonly openProject: () => MaybeAsync;
   readonly setProjectTitle: (value: string) => void;
   readonly createProject: () => MaybeAsync;
-  readonly setNewUnitTitle: (value: string) => void;
   readonly createUnit: () => MaybeAsync;
   readonly selectUnit: (unitId: string) => MaybeAsync;
   readonly setRenameTitle: (value: string) => void;
-  readonly renameUnit: () => MaybeAsync;
-  readonly moveActiveUnit: (direction: -1 | 1) => MaybeAsync;
-  readonly deleteUnit: () => MaybeAsync;
+  readonly editUnit: (unitId: string) => void;
+  readonly cancelUnitEdit: () => void;
+  readonly openUnitOptions: (unitId: string) => void;
+  readonly closeUnitOptions: () => void;
+  readonly renameUnit: (unitId: string) => MaybeAsync;
+  readonly deleteUnit: (unitId: string) => MaybeAsync;
   readonly setOutlineLabel: (value: string) => void;
   readonly setOutlineKind: (value: LivingOutlineItemKind) => void;
   readonly setOutlineState: (value: LivingOutlineItemState) => void;
@@ -606,7 +609,21 @@ function OutlineTitleEditor({
   );
 }
 
-function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+function LivingOutlineView({
+  model,
+  actions,
+  placementUnitId,
+  showAdvanced = true,
+  showChrome = true,
+  showEmpty = true,
+  showPreview = true,
+}: Stage19WritingSpineViewProps & {
+  readonly placementUnitId?: string | null;
+  readonly showAdvanced?: boolean;
+  readonly showChrome?: boolean;
+  readonly showEmpty?: boolean;
+  readonly showPreview?: boolean;
+}): JSX.Element {
   const {
     activeUnit,
     aiSelection,
@@ -623,6 +640,9 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
     snapshot,
   } = model;
   const advancedItem = livingOutline?.document.items.find((item) => item.id === outlineAdvancedItemId) ?? null;
+  const visibleItems = livingOutline?.document.items.filter((item) =>
+    placementUnitId === undefined ? true : item.manuscriptUnitId === placementUnitId,
+  ) ?? [];
   const hasSelectedPassage = Boolean(aiSelection?.selectedText.trim());
   const creationContext = hasSelectedPassage
     ? `Selected passage in ${activeUnit?.displayTitle ?? 'the current writing'}`
@@ -630,8 +650,8 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
       ? `Current position in ${activeUnit.displayTitle}`
       : 'No manuscript context; the new item will be Not placed yet';
   return (
-    <section className="stage19-living-outline" aria-label="Story plan">
-      <div className="stage19-living-outline__heading">
+    <section className={`stage19-living-outline ${showChrome ? '' : 'stage19-living-outline--nested'}`} aria-label={showChrome ? 'Story plan' : undefined}>
+      {showChrome ? <div className="stage19-living-outline__heading">
         <div>
           <h2>Story plan</h2>
           <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} story points`}>
@@ -649,16 +669,17 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
         >
           <span aria-hidden="true">+</span>
         </button>
-      </div>
-      <p id="stage19-outline-creation-context" className="stage19-living-outline__context">{creationContext}</p>
-      <p className="stage19-living-outline__boundary">A lightweight map beside your writing. It can point to the story, but it never rewrites your words.</p>
-      {livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
+      </div> : null}
+      {showChrome ? <p id="stage19-outline-creation-context" className="stage19-living-outline__context">{creationContext}</p> : null}
+      {showChrome ? <p className="stage19-living-outline__boundary">A lightweight map beside your writing. It can point to the story, but it never rewrites your words.</p> : null}
+      {showChrome && livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{livingOutlineNotice}</p> : null}
       {livingOutlineLoading && !livingOutline ? <p>Loading story plan…</p> : null}
       {livingOutline?.availability === 'ready' ? (
         <>
-          {livingOutline.document.items.length > 0 ? (
+          {visibleItems.length > 0 ? (
             <ol className="stage19-living-outline__items">
-              {livingOutline.document.items.map((item, index) => {
+              {visibleItems.map((item) => {
+                const index = livingOutline.document.items.findIndex((candidate) => candidate.id === item.id);
                 const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
                 const isCurrentWriting = item.manuscriptUnitId === snapshot.activeUnitId;
                 const isSuggested = item.state === 'proposed' || item.state === 'inferred';
@@ -677,8 +698,14 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                     }}
                     onDrop={(event) => {
                       event.preventDefault();
+                      event.stopPropagation();
                       const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
-                      if (movingItemId) void actions.moveOutlineItemTo(movingItemId, index);
+                      const movingItem = livingOutline.document.items.find((candidate) => candidate.id === movingItemId);
+                      if (movingItemId && movingItem?.manuscriptUnitId !== item.manuscriptUnitId) {
+                        void actions.linkOutlineItem(movingItemId, item.manuscriptUnitId);
+                      } else if (movingItemId) {
+                        void actions.moveOutlineItemTo(movingItemId, index);
+                      }
                     }}
                     onContextMenu={(event) => {
                       event.preventDefault();
@@ -716,7 +743,15 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                             outlineLabel={outlineLabel}
                           />
                         ) : (
-                          <button type="button" className="stage19-living-outline__title" onClick={() => actions.editOutlineItem(item.id)}>{item.label}</button>
+                          <button
+                            type="button"
+                            className="stage19-living-outline__title"
+                            title="Double-click to rename"
+                            onClick={() => void actions.selectOutlineItem(item.id)}
+                            onDoubleClick={() => actions.editOutlineItem(item.id)}
+                          >
+                            {item.label}
+                          </button>
                         )}
                         <span className="stage19-living-outline__placement">{linkedUnit ? `Belongs with: ${linkedUnit.displayTitle}` : 'Not placed yet'}</span>
                         {item.kind === 'gap' ? <span className="stage19-living-outline__meaning">Something goes here</span> : null}
@@ -736,13 +771,14 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
                 );
               })}
             </ol>
-          ) : <p className="stage19-spine__empty">No story points yet. Keep writing, or use + when you want to mark this place.</p>}
-          {advancedItem ? (
+          ) : showEmpty ? <p className="stage19-spine__empty">No story points yet. Keep writing, or use + when you want to mark this place.</p> : null}
+          {showAdvanced && advancedItem && (placementUnitId === undefined || advancedItem.manuscriptUnitId === placementUnitId) ? (
             <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
               <div className="stage19-living-outline__advanced-heading">
                 <div><span className="stage19-spine__eyebrow">Advanced context</span><h3>{advancedItem.label}</h3></div>
                 <button type="button" onClick={actions.closeOutlineItemOptions}>Close</button>
               </div>
+              <button type="button" onClick={() => actions.editOutlineItem(advancedItem.id)}>Rename story point</button>
               <label>
                 <span>Structural meaning</span>
                 <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
@@ -795,13 +831,13 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
               <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem(advancedItem.id)} disabled={livingOutlineLoading}>Delete story point</button>
             </section>
           ) : null}
-          <details className="stage19-living-outline__preview">
+          {showPreview ? <details className="stage19-living-outline__preview">
             <summary>Compare the story plan with the manuscript</summary>
             <p>Preview only. Moving this plan never moves your written pages.</p>
             {projectedWritingOrder.length > 0
               ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
               : <p>No story points are placed with writing yet.</p>}
-          </details>
+          </details> : null}
         </>
       ) : null}
     </section>
@@ -810,49 +846,136 @@ function LivingOutlineView({ model, actions }: Stage19WritingSpineViewProps): JS
 
 function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
-  const { activeUnit, dirtyUnitIds, newUnitTitle, recoveryBlocksEditing, renameTitle, snapshot } = model;
+  const { dirtyUnitIds, recoveryBlocksEditing, renameTitle, snapshot, unitAdvancedId, unitEditingId } = model;
+  const advancedUnit = snapshot.project?.units.find((unit) => unit.id === unitAdvancedId) ?? null;
+  const outlineItems = model.livingOutline?.document.items ?? [];
+  const unplacedCount = outlineItems.filter((item) => !item.manuscriptUnitId).length;
+  const hasSelectedPassage = Boolean(model.aiSelection?.selectedText.trim());
+  const creationContext = hasSelectedPassage
+    ? `Selected passage in ${model.activeUnit?.displayTitle ?? 'the current writing'}`
+    : model.activeUnit
+      ? `Current position in ${model.activeUnit.displayTitle}`
+      : 'No written section selected; new story points remain Not placed yet';
   if (model.focusMode || !snapshot.project) return <></>;
   return (
     <aside className="stage19-spine__binder" aria-label="Story rail">
-      <div className="stage19-spine__section-heading">
-        <div><span className="stage19-spine__eyebrow">Binder</span><h2>Manuscript units</h2></div>
-        <span>{snapshot.project.units.length}</span>
-      </div>
-      <div className="stage19-spine__create-unit">
-        <label>
-          <span>Unit title (optional)</span>
-          <input value={newUnitTitle} onChange={(event) => actions.setNewUnitTitle(event.target.value)} placeholder="Untitled" disabled={recoveryBlocksEditing} />
-        </label>
-        <button type="button" onClick={() => void actions.createUnit()} disabled={recoveryBlocksEditing}>Create unit</button>
-      </div>
-      {snapshot.project.units.length > 0 ? (
-        <ol className="stage19-spine__unit-list">
-          {snapshot.project.units.map((unit) => (
-            <li key={unit.id}>
-              <button type="button" className={unit.id === snapshot.activeUnitId ? 'is-active' : ''} onClick={() => void actions.selectUnit(unit.id)} aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined} disabled={recoveryBlocksEditing}>
-                <span>{String(unit.order).padStart(2, '0')}</span>
-                <strong>{unit.displayTitle}</strong>
-                {dirtyUnitIds.has(unit.id) ? <em>Unsaved</em> : null}
-              </button>
-            </li>
-          ))}
-        </ol>
-      ) : <p className="stage19-spine__empty">Create the first manuscript unit when you are ready to write.</p>}
-      {activeUnit ? (
-        <div className="stage19-spine__unit-actions">
-          <label>
-            <span>Selected unit title</span>
-            <input value={renameTitle} onChange={(event) => actions.setRenameTitle(event.target.value)} placeholder="Untitled" disabled={recoveryBlocksEditing} />
-          </label>
-          <button type="button" onClick={() => void actions.renameUnit()} disabled={recoveryBlocksEditing}>Update title</button>
-          <div className="stage19-spine__reorder-actions">
-            <button type="button" onClick={() => void actions.moveActiveUnit(-1)} disabled={recoveryBlocksEditing || activeUnit.order <= 1}>Move up</button>
-            <button type="button" onClick={() => void actions.moveActiveUnit(1)} disabled={recoveryBlocksEditing || activeUnit.order >= snapshot.project.units.length}>Move down</button>
-          </div>
-          <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteUnit()} disabled={recoveryBlocksEditing}>Delete unit…</button>
+      <div className="stage19-living-outline__heading stage19-story-rail__heading">
+        <div><span className="stage19-spine__sr-only">Story contents</span><span className="stage19-living-outline__count" aria-label={`${snapshot.project.units.length} written sections and ${outlineItems.length} story points`}>{snapshot.project.units.length + outlineItems.length}</span></div>
+        <div className="stage19-story-rail__heading-actions">
+          <details className="stage19-story-rail__menu">
+            <summary aria-label="More story actions">More</summary>
+            <div>
+              <button type="button" onClick={() => void actions.createUnit()} disabled={recoveryBlocksEditing}>Start a new written section</button>
+              <p>A new writing place is created, then named inline.</p>
+            </div>
+          </details>
+          <button
+            type="button"
+            className="stage19-living-outline__add"
+            aria-label="Add to story here"
+            title="Add a story point at the current writing position"
+            onClick={() => void actions.createOutlineItem()}
+            disabled={model.livingOutlineLoading || model.livingOutline?.availability !== 'ready'}
+          ><span aria-hidden="true">+</span></button>
         </div>
+      </div>
+      <p className="stage19-living-outline__context">{creationContext}</p>
+      <p className="stage19-living-outline__boundary">Written sections and story points share one rail. Moving a story point never moves or rewrites your pages.</p>
+      {model.livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{model.livingOutlineNotice}</p> : null}
+      <ol className="stage19-story-rail__sections" aria-label="Story order">
+        {snapshot.project.units.map((unit) => (
+          <li key={unit.id} className={unit.id === snapshot.activeUnitId ? 'is-current-writing' : ''} onDragOver={(event) => event.preventDefault()} onDrop={(event) => {
+            event.preventDefault();
+            const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
+            if (movingItemId) void actions.linkOutlineItem(movingItemId, unit.id);
+          }}>
+            <div className="stage19-story-rail__unit-row" onContextMenu={(event) => {
+              event.preventDefault();
+              actions.openUnitOptions(unit.id);
+            }}>
+              <span className="stage19-story-rail__unit-order" aria-hidden="true">{String(unit.order).padStart(2, '0')}</span>
+              {unitEditingId === unit.id ? (
+                <form className="stage19-story-rail__unit-rename" onSubmit={(event) => {
+                  event.preventDefault();
+                  void actions.renameUnit(unit.id);
+                }}>
+                  <label className="stage19-spine__sr-only" htmlFor={`stage19-unit-title-${unit.id}`}>Written section title</label>
+                  <input
+                    ref={focusOutlineTitleInput}
+                    id={`stage19-unit-title-${unit.id}`}
+                    aria-label={`Title for ${unit.displayTitle}`}
+                    value={renameTitle}
+                    onChange={(event) => actions.setRenameTitle(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') actions.cancelUnitEdit();
+                    }}
+                    placeholder="Untitled section"
+                    disabled={recoveryBlocksEditing}
+                  />
+                  <button type="submit" disabled={recoveryBlocksEditing}>Save</button>
+                  <button type="button" onClick={actions.cancelUnitEdit}>Cancel</button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  className="stage19-story-rail__unit-title"
+                  aria-label={`${String(unit.order).padStart(2, '0')} ${unit.displayTitle}`}
+                  aria-current={unit.id === snapshot.activeUnitId ? 'page' : undefined}
+                  title="Double-click or press F2 to rename"
+                  onClick={() => void actions.selectUnit(unit.id)}
+                  onDoubleClick={() => actions.editUnit(unit.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'F2') {
+                      event.preventDefault();
+                      actions.editUnit(unit.id);
+                    }
+                  }}
+                  disabled={recoveryBlocksEditing}
+                >{unit.displayTitle}</button>
+              )}
+              {dirtyUnitIds.has(unit.id) ? <span className="stage19-story-rail__dirty">Unsaved</span> : null}
+              <button type="button" className="stage19-living-outline__more" aria-label={`More options for written section ${unit.displayTitle}`} aria-expanded={unitAdvancedId === unit.id} onClick={() => actions.openUnitOptions(unit.id)}>More</button>
+            </div>
+            <LivingOutlineView {...props} placementUnitId={unit.id} showChrome={false} showEmpty={false} showPreview={false} />
+          </li>
+        ))}
+      </ol>
+      {snapshot.project.units.length === 0 && outlineItems.length === 0 ? (
+        <p className="stage19-spine__empty">Nothing has been divided yet. Start writing, or use + to mark a story point.</p>
       ) : null}
-      <LivingOutlineView {...props} />
+      {advancedUnit ? (
+        <section className="stage19-spine__unit-actions stage19-story-rail__unit-advanced" aria-label={`More options for written section ${advancedUnit.displayTitle}`}>
+          <div className="stage19-living-outline__advanced-heading">
+            <div><span className="stage19-spine__eyebrow">Written section</span><h3>{advancedUnit.displayTitle}</h3></div>
+            <button type="button" onClick={actions.closeUnitOptions}>Close</button>
+          </div>
+          <p className="stage19-living-outline__explanation">This is accepted manuscript writing. Story-point placement cannot reorder or rewrite it.</p>
+          <button type="button" onClick={() => actions.editUnit(advancedUnit.id)} disabled={recoveryBlocksEditing}>Rename written section</button>
+          <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteUnit(advancedUnit.id)} disabled={recoveryBlocksEditing}>Delete written section…</button>
+        </section>
+      ) : null}
+      {unplacedCount > 0 ? <section
+        className="stage19-story-rail__unplaced"
+        aria-label="Unplaced story points"
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
+          if (movingItemId) void actions.linkOutlineItem(movingItemId, null);
+        }}
+      >
+        <h3 className="stage19-story-rail__unplaced-heading">Not placed yet</h3>
+        <LivingOutlineView {...props} placementUnitId={null} showChrome={false} showEmpty={false} showPreview={false} />
+      </section> : null}
+      {model.livingOutline?.availability === 'ready' ? (
+        <details className="stage19-living-outline__preview">
+          <summary>Compare the story plan with the manuscript</summary>
+          <p>Preview only. Moving this plan never moves your written pages.</p>
+          {model.projectedWritingOrder.length > 0
+            ? <ol>{model.projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
+            : <p>No story points are placed with writing yet.</p>}
+        </details>
+      ) : null}
     </aside>
   );
 }
@@ -1009,7 +1132,7 @@ function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProp
             key={rail}
             id={`stage19-writing-edge-${rail}`}
             type="button"
-            className={`stage19-writing-shell__edge stage19-writing-shell__edge--${rail}`}
+            className={`stage19-writing-shell__edge stage19-writing-shell__edge--${rail} ${open ? 'stage19-spine__sr-only' : ''}`}
             aria-label={`${open ? 'Close' : 'Open'} ${label.accessibleLabel}`}
             aria-expanded={open}
             aria-controls={`stage19-writing-rail-${rail}`}

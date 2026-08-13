@@ -90,10 +90,10 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 
 async function saveCurrentUnit(writing: Page, title: string, prose?: string): Promise<void> {
   await openWritingStudioRail(writing, 'story tools');
-  await writing.getByRole('button', { name: new RegExp(title) }).click();
+  await writing.locator('.stage19-story-rail__unit-title', { hasText: title }).click();
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
   await writing.getByRole('button', { name: /^Save$/ }).click();
-  await expect(writing.getByRole('button', { name: new RegExp(`${title} Unsaved`) })).toHaveCount(0);
+  await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
 }
 
 async function expectCommandStatus(

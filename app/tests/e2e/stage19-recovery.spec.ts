@@ -81,7 +81,7 @@ function editorFor(writing: Page, title: string) {
 
 async function selectUnit(writing: Page, title: string): Promise<void> {
   await openWritingStudioRail(writing, 'story tools');
-  await writing.getByRole('button', { name: new RegExp(title) }).click();
+  await writing.locator('.stage19-story-rail__unit-title', { hasText: title }).click();
   await expect(editorFor(writing, title)).toBeVisible();
 }
 
@@ -95,7 +95,7 @@ async function saveUnit(writing: Page, title: string, prose?: string): Promise<v
   await selectUnit(writing, title);
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
   await writing.getByRole('button', { name: /^Save$/ }).click();
-  await expect(writing.getByRole('button', { name: new RegExp(`${title} Unsaved`) })).toHaveCount(0);
+  await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
 }
 
 async function closeApplicationCleanly(
@@ -141,7 +141,11 @@ async function expectRecoveryChoice(
   await expect(writing.getByRole('heading', { name: title, level: 3 })).toBeVisible();
   await expect(writing.getByLabel(`Recovered prose for ${title}`)).toHaveText(prose || '(Empty manuscript prose)');
   await openWritingStudioRail(writing, 'story tools');
-  await expect(writing.getByRole('button', { name: 'Create unit' })).toBeDisabled();
+  await expect(
+    writing.locator('.stage19-story-rail__menu button', {
+      hasText: 'Start a new written section'
+    })
+  ).toBeDisabled();
 }
 
 async function cleanupLaunches(launches: LaunchedStage19Application[]): Promise<void> {

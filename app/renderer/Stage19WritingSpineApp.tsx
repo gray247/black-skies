@@ -531,8 +531,9 @@ export default function Stage19WritingSpineApp({
   const [exportingMarkdown, setExportingMarkdown] = useState(false);
   const [markdownExportNotice, setMarkdownExportNotice] = useState<MarkdownExportNotice | null>(null);
   const [projectTitle, setProjectTitle] = useState('Untitled Project');
-  const [newUnitTitle, setNewUnitTitle] = useState('');
   const [renameTitle, setRenameTitle] = useState('');
+  const [unitEditingId, setUnitEditingId] = useState<string | null>(null);
+  const [unitAdvancedId, setUnitAdvancedId] = useState<string | null>(null);
   const [buffers, setBuffers] = useState<Record<string, string>>({});
   const [projectSwitchConfirmationOpen, setProjectSwitchConfirmationOpen] = useState(false);
   const projectSwitchDecisionRef = useRef<((discardChanges: boolean) => void) | null>(null);
@@ -622,6 +623,8 @@ export default function Stage19WritingSpineApp({
     setCompanionPrompt('');
     setCompanionResult(null);
     setCompanionNotice(null);
+    setUnitEditingId(null);
+    setUnitAdvancedId(null);
   }, [companionProjectIdentity]);
 
   useEffect(() => {
@@ -1772,57 +1775,54 @@ export default function Stage19WritingSpineApp({
     }
   }, [closeConfirmation.activeRequest, flushAllRecoveryCheckpoints, windowRole]);
 
+  const editUnit = useCallback((unitId: string) => {
+    const unit = snapshotRef.current.project?.units.find((candidate) => candidate.id === unitId);
+    if (!unit) return;
+    setRenameTitle(unit.title);
+    setUnitAdvancedId(null);
+    setUnitEditingId(unitId);
+  }, []);
+
+  const openUnitOptions = useCallback((unitId: string) => {
+    const unit = snapshotRef.current.project?.units.find((candidate) => candidate.id === unitId);
+    if (!unit) return;
+    setRenameTitle(unit.title);
+    setUnitEditingId(null);
+    setUnitAdvancedId(unitId);
+  }, []);
+
   const handleCreateUnit = useCallback(async () => {
     const binding = bindingFor(snapshotRef.current, 'create-unit');
     if (!binding || !bridge?.createUnit) return;
     try {
-      const result = await bridge.createUnit({ ...binding, title: newUnitTitle });
+      const result = await bridge.createUnit({ ...binding, title: '' });
       applySnapshot(result.snapshot);
-      if (result.ok) setNewUnitTitle('');
+      if (result.ok) {
+        setRenameTitle('');
+        setUnitAdvancedId(null);
+        setUnitEditingId(result.data.unitId);
+      }
       setNotice(resultMessage(result));
     } catch {
       setNotice('The manuscript unit could not be created. No existing manuscript content was changed.');
     }
-  }, [applySnapshot, bridge, newUnitTitle]);
+  }, [applySnapshot, bridge]);
 
-  const handleRenameUnit = useCallback(async () => {
-    const unitId = snapshotRef.current.activeUnitId;
+  const handleRenameUnit = useCallback(async (unitId: string) => {
     const binding = bindingFor(snapshotRef.current, 'rename-unit');
     if (!binding || !unitId || !bridge?.renameUnit) return;
     try {
       const result = await bridge.renameUnit({ ...binding, unitId, title: renameTitle });
       applySnapshot(result.snapshot);
+      if (result.ok) setUnitEditingId(null);
       setNotice(resultMessage(result));
     } catch {
       setNotice('The manuscript title could not be updated. Your current work was preserved.');
     }
   }, [applySnapshot, bridge, renameTitle]);
 
-  const moveActiveUnit = useCallback(
-    async (offset: -1 | 1) => {
-      const current = snapshotRef.current;
-      const binding = bindingFor(current, 'reorder-units');
-      const unitId = current.activeUnitId;
-      if (!binding || !unitId || !bridge?.reorderUnits || !current.project) return;
-      const ordered = current.project.units.map((unit) => unit.id);
-      const index = ordered.indexOf(unitId);
-      const target = index + offset;
-      if (index < 0 || target < 0 || target >= ordered.length) return;
-      [ordered[index], ordered[target]] = [ordered[target], ordered[index]];
-      try {
-        const result = await bridge.reorderUnits({ ...binding, orderedUnitIds: ordered });
-        applySnapshot(result.snapshot);
-        setNotice(resultMessage(result));
-      } catch {
-        setNotice('The manuscript order could not be updated. Your current work was preserved.');
-      }
-    },
-    [applySnapshot, bridge],
-  );
-
-  const handleDeleteUnit = useCallback(async () => {
+  const handleDeleteUnit = useCallback(async (unitId: string) => {
     const initial = snapshotRef.current;
-    const unitId = initial.activeUnitId;
     const unit = initial.project?.units.find((candidate) => candidate.id === unitId);
     if (!unitId || !unit || !bridge?.deleteUnit) return;
     const confirmed = window.confirm(
@@ -1835,6 +1835,10 @@ export default function Stage19WritingSpineApp({
     try {
       const result = await bridge.deleteUnit({ ...binding, unitId, confirmNonEmpty: true });
       applySnapshot(result.snapshot);
+      if (result.ok) {
+        setUnitEditingId(null);
+        setUnitAdvancedId(null);
+      }
       setNotice(resultMessage(result));
     } catch {
       setNotice('The manuscript unit could not be deleted. Its content remains available.');
@@ -2277,8 +2281,9 @@ export default function Stage19WritingSpineApp({
     commandWorkspace,
     critiqueReviewState,
     sourceReturnRequest,
-    newUnitTitle,
     renameTitle,
+    unitEditingId,
+    unitAdvancedId,
     dirtyUnitIds,
     recoveryBlocksEditing,
     livingOutline,
@@ -2342,12 +2347,14 @@ export default function Stage19WritingSpineApp({
     openProject: handleOpenProject,
     setProjectTitle,
     createProject: handleCreateProject,
-    setNewUnitTitle,
     createUnit: handleCreateUnit,
     selectUnit: handleSelectUnit,
     setRenameTitle,
+    editUnit,
+    cancelUnitEdit: () => setUnitEditingId(null),
+    openUnitOptions,
+    closeUnitOptions: () => setUnitAdvancedId(null),
     renameUnit: handleRenameUnit,
-    moveActiveUnit,
     deleteUnit: handleDeleteUnit,
     setOutlineLabel,
     setOutlineKind,

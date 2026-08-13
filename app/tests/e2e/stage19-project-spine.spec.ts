@@ -81,7 +81,7 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
 
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await openWritingStudioRail(writing, 'story tools');
-    await expect(writing.getByRole('button', { name: 'Opening unit Unsaved' })).toHaveCount(0);
+    await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Opening unit' }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
       const current = await window.projectSpine!.getSession();
       return current.project?.drafts[unitId] ?? null;
@@ -298,11 +298,11 @@ test.describe('C1 unsaved close flow', () => {
       await writing.keyboard.press('Control+Z');
       await expect(boundaryEditor).toContainText('Start writing…');
       await openWritingStudioRail(writing, 'story tools');
-      await writing.getByRole('button', { name: /Keep unit/ }).click();
+      await writing.locator('.stage19-story-rail__unit-title', { hasText: 'Keep unit' }).click();
       await expect(editor).toHaveText('Keep this unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
-      await expect(writing.getByRole('button', { name: 'Keep unit Unsaved' })).toBeVisible();
+      await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Keep unit' }).getByText('Unsaved', { exact: true })).toBeVisible();
 
       const beforeUnload = observeElectronBeforeUnload(writing);
       await requestWritingStudioClose(electronApp);
@@ -365,7 +365,7 @@ test.describe('C1 unsaved close flow', () => {
       await expect(editor).toHaveText('Discard-only unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
       await openWritingStudioRail(writing, 'story tools');
-      await expect(writing.getByRole('button', { name: 'Discard-only unit Unsaved' })).toBeVisible();
+      await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Discard-only unit' }).getByText('Unsaved', { exact: true })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
 
       const beforeUnload = observeElectronBeforeUnload(writing);
@@ -412,7 +412,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     ] as const;
     await openWritingStudioRail(writing, 'story tools');
     for (const [title, prose] of expected) {
-      const unitButton = writing.getByRole('button', { name: new RegExp(title) });
+      const unitButton = writing.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();
       await unitButton.click();
       const editor = writing.getByRole('textbox', { name: `Manuscript editor: ${title}` });
@@ -443,11 +443,11 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
     ]);
     await openWritingStudioRail(reWriting, 'story tools');
     for (const [title, prose] of expected) {
-      const unitButton = reWriting.getByRole('button', { name: new RegExp(title) });
+      const unitButton = reWriting.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();
       await unitButton.click();
       await expect(reWriting.getByRole('textbox', { name: `Manuscript editor: ${title}` })).toHaveText(prose);
-      await expect(reWriting.getByRole('button', { name: new RegExp(`${title} Unsaved`) })).toHaveCount(0);
+      await expect(reWriting.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     }
     await expect(reWriting.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await expect(reCommand.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();

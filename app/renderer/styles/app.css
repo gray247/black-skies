@@ -5857,21 +5857,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
   .stage19-writing-shell__rail--left,
   .stage19-writing-shell__rail--right {
-    position: fixed;
-    z-index: 30;
-    top: 56px;
-    bottom: 0;
-    width: min(88vw, 27rem);
-    max-height: none;
-    box-shadow: 0 0 0 1px var(--bs-line-quiet);
-  }
-
-  .stage19-writing-shell__rail--left {
-    left: 0;
-  }
-
-  .stage19-writing-shell__rail--right {
-    right: 0;
+    position: static;
+    z-index: auto;
+    width: auto;
+    max-height: min(48vh, 30rem);
+    box-shadow: none;
   }
 
   .stage19-spine--writing .stage19-spine__lifecycle {
@@ -6806,5 +6796,198 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
   .stage19-living-outline__rename input {
     grid-column: 1 / -1;
+  }
+}
+
+/* Human Gate 2 repair B: one quiet Story rail for writing and planning. */
+.stage19-spine--writing .stage19-writing-shell__rail--left {
+  overflow-x: hidden;
+}
+
+.stage19-story-rail__heading {
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.stage19-story-rail__heading-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.stage19-story-rail__menu {
+  color: var(--bs-text-secondary);
+  font-size: 0.7rem;
+}
+
+.stage19-story-rail__menu > summary {
+  min-height: 36px;
+  padding: 9px 6px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.stage19-story-rail__menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.stage19-story-rail__menu > div {
+  display: grid;
+  gap: 6px;
+  width: min(16rem, calc(100vw - 5rem));
+  padding: 8px 0 4px;
+}
+
+.stage19-story-rail__menu p {
+  margin: 0;
+  color: var(--bs-text-muted);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.stage19-story-rail__sections {
+  display: grid;
+  gap: 0;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage19-story-rail__sections > li {
+  position: relative;
+  min-width: 0;
+  padding: 2px 0 8px;
+  border-bottom: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-story-rail__sections > li::before {
+  position: absolute;
+  top: 10px;
+  bottom: 8px;
+  left: 0;
+  width: 2px;
+  background: transparent;
+  content: "";
+}
+
+.stage19-story-rail__sections > li.is-current-writing::before {
+  background: var(--bs-accent-primary);
+}
+
+.stage19-story-rail__unit-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 3px 0 3px 6px;
+}
+
+.stage19-story-rail__unit-order {
+  color: var(--bs-text-muted);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.stage19-spine--writing .stage19-story-rail__unit-title {
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 2px;
+  overflow: hidden;
+  border-color: transparent;
+  background: transparent;
+  color: var(--bs-text-primary);
+  font-size: 0.84rem;
+  font-weight: 620;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-story-rail__unit-title[aria-current="page"] {
+  color: var(--bs-text-primary);
+}
+
+.stage19-story-rail__dirty {
+  color: var(--bs-text-secondary);
+  font-size: 0.62rem;
+}
+
+.stage19-story-rail__unit-rename {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stage19-story-rail__unit-rename input {
+  min-width: 0;
+  min-height: 34px;
+}
+
+.stage19-story-rail__unit-rename button {
+  min-height: 34px;
+  padding: 4px 6px;
+  font-size: 0.66rem;
+}
+
+.stage19-spine--writing .stage19-living-outline--nested {
+  gap: 0;
+  margin: 0 0 0 18px;
+  padding: 0;
+  border: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline--nested .stage19-living-outline__items {
+  margin-top: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline--nested .stage19-living-outline__row {
+  min-height: 42px;
+  grid-template-columns: 32px minmax(0, 1fr) auto auto;
+}
+
+.stage19-spine--writing .stage19-living-outline--nested .stage19-living-outline__items::before {
+  left: 15px;
+}
+
+.stage19-story-rail__unit-advanced {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 10px 0;
+  border: 0;
+  border-top: 1px solid var(--bs-line-strong);
+  border-bottom: 1px solid var(--bs-line-quiet);
+  border-radius: 0;
+  background: transparent;
+}
+
+.stage19-story-rail__unplaced {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--bs-line-quiet);
+}
+
+.stage19-story-rail__unplaced-heading {
+  margin: 0 0 4px;
+  color: var(--bs-text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 720px) {
+  .stage19-story-rail__unit-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+  }
+
+  .stage19-story-rail__dirty {
+    grid-column: 2;
+  }
+
+  .stage19-story-rail__unit-rename {
+    grid-column: 2 / -1;
   }
 }

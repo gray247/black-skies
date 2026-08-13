@@ -760,7 +760,7 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('story tools');
     expect(screen.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
-    expect(screen.getByRole('region', { name: 'Story plan' })).toBeVisible();
+    expect(screen.getByRole('list', { name: 'Story order' })).toBeVisible();
     const addToStory = screen.getByRole('button', { name: 'Add to story here' });
     expect(addToStory).toHaveAttribute('title', 'Add a story point at the current writing position');
 
@@ -1386,9 +1386,11 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
     expect(screen.queryByText(/id: unit_a/)).not.toBeInTheDocument();
     await openWritingRail('story tools');
-    expect(screen.getByRole('button', { name: 'Create unit' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Update title' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Delete unit…' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Add to story here' })).toBeVisible();
+    expect(screen.getByLabelText('More story actions')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create unit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Update title' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Move down' })).not.toBeInTheDocument();
     expect(await findExportButton()).toBeEnabled();
     expect(document.querySelector('[data-stage19-role="writing"]')).toHaveAttribute(
       'data-primary-scroll-container',
@@ -1787,7 +1789,8 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByText('(Empty manuscript prose)')).toBeVisible();
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveAttribute('readonly');
     await openWritingRail('story tools');
-    expect(screen.getByRole('button', { name: 'Create unit' })).toBeDisabled();
+    await userEvent.click(screen.getByLabelText('More story actions'));
+    expect(screen.getByRole('button', { name: 'Start a new written section' })).toBeDisabled();
     await act(async () => {
       await userEvent.click(screen.getAllByRole('button', { name: 'Recover this prose' })[0]);
     });
@@ -1885,7 +1888,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveValue('Newer local prose');
   });
 
-  it('routes create, title, reorder, and delete actions through Writing-only bindings', async () => {
+  it('routes contextual create, inline rename, and advanced delete through Writing-only bindings', async () => {
     const user = userEvent.setup();
     const harness = createBridge(snapshot('writing'));
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
@@ -1893,8 +1896,9 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     await openWritingRail('story tools');
 
+    await user.click(screen.getByLabelText('More story actions'));
     await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Create unit' }));
+      await user.click(screen.getByRole('button', { name: 'Start a new written section' }));
     });
     expect(harness.bridge.createUnit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1904,25 +1908,25 @@ describe('Stage19WritingSpineApp', () => {
       }),
     );
 
-    const titleInput = screen.getByLabelText('Selected unit title');
+    await user.dblClick(screen.getByRole('button', { name: '01 First Unit' }));
+    const titleInput = screen.getByLabelText('Title for First Unit');
+    const titleForm = titleInput.closest('form');
+    expect(titleForm).not.toBeNull();
     await act(async () => {
       await user.clear(titleInput);
       await user.type(titleInput, 'Renamed Unit');
-      await user.click(screen.getByRole('button', { name: 'Update title' }));
+      await user.click(within(titleForm as HTMLFormElement).getByRole('button', { name: 'Save' }));
     });
     expect(harness.bridge.renameUnit).toHaveBeenCalledWith(
       expect.objectContaining({ unitId: 'unit_a', title: 'Renamed Unit' }),
     );
 
-    await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Move down' }));
-    });
-    expect(harness.bridge.reorderUnits).toHaveBeenCalledWith(
-      expect.objectContaining({ orderedUnitIds: ['unit_b', 'unit_a'] }),
-    );
+    expect(screen.queryByRole('button', { name: 'Move down' })).not.toBeInTheDocument();
+    expect(harness.bridge.reorderUnits).not.toHaveBeenCalled();
 
+    await user.click(screen.getByRole('button', { name: 'More options for written section First Unit' }));
     await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Delete unit…' }));
+      await user.click(screen.getByRole('button', { name: /Delete written section/ }));
     });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(harness.bridge.deleteUnit).toHaveBeenCalledWith(
@@ -1944,8 +1948,9 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     await openWritingRail('story tools');
 
+    await user.click(screen.getByLabelText('More story actions'));
     await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Create unit' }));
+      await user.click(screen.getByRole('button', { name: 'Start a new written section' }));
     });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The manuscript unit could not be created',
@@ -2478,8 +2483,8 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
 
     await openWritingRail('story tools');
-    expect(await screen.findByRole('region', { name: 'Story plan' })).toBeVisible();
-    expect(screen.getByText(/new item will be Not placed yet/i)).toBeVisible();
+    expect(await screen.findByRole('complementary', { name: 'Story rail' })).toBeVisible();
+    expect(screen.getByText(/new story points remain Not placed yet/i)).toBeVisible();
     expect(screen.queryByLabelText('Structural meaning')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Source state')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Add to story here' }));
@@ -2505,7 +2510,7 @@ describe('Stage19WritingSpineApp', () => {
     }));
     expect(await screen.findByRole('button', { name: 'What happens between the signal and arrival?' })).toBeVisible();
     expect(screen.getByText('Something goes here')).toBeVisible();
-    expect(screen.getByText('Not placed yet')).toBeVisible();
+    expect(screen.getAllByText('Not placed yet').length).toBeGreaterThan(0);
     expect(project.bridge.createUnit).not.toHaveBeenCalled();
     expect(screen.queryByText(/warning|alarm/i)).not.toBeInTheDocument();
   });
@@ -2597,8 +2602,40 @@ describe('Stage19WritingSpineApp', () => {
       direction: -1,
     })));
     expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
-    const outlineRegion = screen.getByRole('region', { name: 'Story plan' });
-    expect((await within(outlineRegion).findAllByRole('listitem'))[0]).toHaveTextContent('Turn');
+    expect(screen.getByRole('button', { name: 'Show Turn in manuscript' })).toBeVisible();
+  });
+
+  it('places a story point under another written section by direct drop without reordering prose', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([
+      {
+        id: 'outline-a', label: 'Opening', kind: 'fragment', state: 'authored', manuscriptUnitId: 'unit_a',
+        createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
+      },
+    ]);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+
+    await openWritingRail('story tools');
+    const storyPoint = await screen.findByRole('button', { name: 'Show Opening in manuscript' });
+    const storyPointItem = storyPoint.closest('li') as HTMLLIElement;
+    const targetSection = screen.getByRole('button', { name: '02 Untitled' }).closest('li') as HTMLLIElement;
+    const dataTransfer = {
+      effectAllowed: 'move',
+      dropEffect: 'move',
+      getData: (type: string) => type === 'application/x-black-skies-outline-item' ? 'outline-a' : '',
+      setData: vi.fn(),
+    };
+
+    fireEvent.dragStart(storyPointItem, { dataTransfer });
+    fireEvent.dragOver(targetSection, { dataTransfer });
+    fireEvent.drop(targetSection, { dataTransfer });
+
+    await waitFor(() => expect(outline.bridge.linkItem).toHaveBeenCalledWith(expect.objectContaining({
+      itemId: 'outline-a',
+      manuscriptUnitId: 'unit_b',
+    })));
+    expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
+    expect(project.bridge.saveUnit).not.toHaveBeenCalled();
   });
 
   it('keeps manuscript editing available when the optional outline is malformed', async () => {
@@ -2634,13 +2671,12 @@ describe('Stage19WritingSpineApp', () => {
     const focus = screen.getByRole('button', { name: 'Enter Focus mode' });
     await user.click(focus);
     expect(screen.queryByRole('complementary', { name: 'Story rail' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Story plan' })).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
     expect(editor).toHaveValue('Alpha body focused words');
     expect(screen.getByRole('button', { name: 'Exit Focus mode' })).toHaveFocus();
 
     await user.click(screen.getByRole('button', { name: 'Exit Focus mode' }));
-    expect(await screen.findByRole('region', { name: 'Story plan' })).toBeVisible();
+    expect(await screen.findByRole('complementary', { name: 'Story rail' })).toBeVisible();
     expect(editor).toHaveValue('Alpha body focused words');
   });
 

@@ -107,20 +107,21 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       readFile(join(created.projectPath, 'drafts', `${created.openingUnitId}.md`), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.arrivalUnitId}.md`), 'utf8'),
     ]);
-    const outlineItems = writing.locator('.stage19-living-outline__items > li');
-    await expect(outlineItems).toHaveCount(2);
+    const arrivalItem = writing.getByRole('button', { name: 'Show Bridge into the impossible arrival in manuscript' }).locator('..').locator('..');
+    const openingItem = writing.getByRole('button', { name: 'Show Opening question in manuscript' }).locator('..').locator('..');
     const dragData = await writing.evaluateHandle(() => new DataTransfer());
-    await outlineItems.nth(1).dispatchEvent('dragstart', { dataTransfer: dragData });
-    await outlineItems.nth(0).dispatchEvent('dragover', { dataTransfer: dragData });
-    await outlineItems.nth(0).dispatchEvent('drop', { dataTransfer: dragData });
-    await expect(writing.getByText('Planning order saved. Accepted manuscript order was not changed.')).toBeVisible();
+    await arrivalItem.dispatchEvent('dragstart', { dataTransfer: dragData });
+    await openingItem.dispatchEvent('dragover', { dataTransfer: dragData });
+    await openingItem.dispatchEvent('drop', { dataTransfer: dragData });
+    await expect(writing.getByText('Story point placed with the current writing. Manuscript text was not changed.')).toBeVisible();
     await writing.getByText('Compare the story plan with the manuscript').click();
     await expect(writing.getByText('Preview only. Moving this plan never moves your written pages.')).toBeVisible();
-    expect(await Promise.all([
+    const protectedAfterPlacement = await Promise.all([
       readFile(join(created.projectPath, 'outline.json'), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.openingUnitId}.md`), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.arrivalUnitId}.md`), 'utf8'),
-    ])).toEqual(protectedBeforeMove);
+    ]);
+    expect(protectedAfterPlacement).toEqual(protectedBeforeMove);
 
     await writing.getByRole('button', { name: 'Enter Focus mode' }).click();
     await expect(writing.getByRole('complementary', { name: 'Story rail' })).toHaveCount(0);
@@ -152,8 +153,8 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     };
     expect(livingSidecar.projectId).toBe(created.projectId);
     expect(livingSidecar.items.map((item) => [item.label, item.manuscriptUnitId])).toEqual([
-      ['Bridge into the impossible arrival', created.arrivalUnitId],
       ['Opening question', created.openingUnitId],
+      ['Bridge into the impossible arrival', created.openingUnitId],
     ]);
     const feedbackSidecar = JSON.parse(await readFile(join(created.projectPath, 'feedback-notes.json'), 'utf8')) as {
       projectId: string; notes: Array<{ body: string; advisory: boolean }>;
@@ -196,13 +197,14 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await expect(reopened.writing.getByRole('heading', { name: 'Isolated Empty Project' })).toBeVisible();
     await expect(reopened.command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
     await openWritingStudioRail(reopened.writing, 'story tools');
-    await expect(reopened.writing.getByRole('region', { name: 'Story plan' }).getByText('0', { exact: true })).toBeVisible();
+    await expect(reopened.writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
+    await expect(reopened.writing.getByText('Nothing has been divided yet. Start writing, or use + to mark a story point.')).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
     await reopened.writing.getByRole('button', { name: 'Add to story here' }).click();
     const unplacedTitle = reopened.writing.getByRole('textbox', { name: 'Title for New story point' });
     await unplacedTitle.fill('Unplaced thought');
     await unplacedTitle.press('Enter');
-    await expect(reopened.writing.getByText('Not placed yet', { exact: true })).toBeVisible();
+    await expect(reopened.writing.getByRole('heading', { name: 'Not placed yet' })).toBeVisible();
 
     const secondExit = waitForCleanElectronApplicationExit(relaunched.application);
     await requestWritingStudioClose(relaunched.application);

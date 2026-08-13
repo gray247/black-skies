@@ -28,8 +28,8 @@ The inventory includes:
 - the current Program 4 Batch P4-A through P4-C evidence receipts;
 - the Human Gate 2 experience finding and its bounded Continuous Manuscript,
   Unified Story Rail, real Focus, Companion-bar repair plan;
-- the Human Gate 2 HG2-RPR-A visual and interaction-language foundation
-  evidence receipt;
+- the Human Gate 2 HG2-RPR-A visual and interaction-language foundation and
+  HG2-RPR-B unified Story Rail evidence receipts;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -112,8 +112,14 @@ The [HG2-RPR-A evidence receipt](product_systems/program_4_hg2_rpr_a_evidence_re
 records the green automated development gate for the local Dark/Light
 appearance preference, neutral/warm supported-shell tokens, consistent Story
 language, unchanged project truth, and the retained internal sidecar boundary.
-It does not close the Story Rail, continuous manuscript, Focus/Companion
-doorway, complete repair qualification, or Human Gate 2.
+That batch is durable at `28d2294a03461bd2cdef40ef7a7695a8374c27e2`.
+
+The [HG2-RPR-B evidence receipt](product_systems/program_4_hg2_rpr_b_evidence_receipt.md)
+records the green unified Story Rail development gate: direct contextual
+creation, inline naming, advanced destructive actions, story-point placement,
+non-overlay geometry, project isolation, recovery, reopen persistence, and
+manuscript non-mutation. It does not close the continuous manuscript,
+Focus/Companion doorway, complete repair qualification, or Human Gate 2.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

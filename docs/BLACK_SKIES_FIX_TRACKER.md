@@ -26,26 +26,25 @@ If an issue is not tracked here, it is not part of the active fix scope.
   safety and package evidence.
 - Author authorization: Jason approved the bounded repair implementation on
   2026-08-12 after confirming the required model change.
-- Current bounded scope: `HG2-RPR-A` only. Dark and Light are local UI
-  preferences; the supported Writing and Command shells now share neutral/warm
-  semantic tokens; visible left-rail language uses `Story`, `Story plan`, and
-  `Add to story here`; no manuscript, outline, project, provider, or local-LLM
-  storage contract changed.
+- Current bounded scope: `HG2-RPR-B` unified Story Rail. `HG2-RPR-A` is durable
+  at `28d2294a03461bd2cdef40ef7a7695a8374c27e2`. Written sections and linked
+  story points now share one direct rail while the qualified manuscript-unit
+  and `living-outline.json` storage owners remain unchanged.
 - Root cause: the supported Program 3 shell retained a purple primary accent,
   purple prose selection, and app-wide blue-purple scrollbar treatment, while
   the visible `Manuscript` / `Living Outline` language reinforced two separate
   systems instead of the approved one-story mental model.
-- Focused evidence: five theme, Story-language, Companion-fact, repository, and
-  IPC files pass 115/115, covering default/fallback theme, local preference
-  restoration, non-mutation, shared Command appearance, semantic-token
-  constraints, user-facing story language, and the unchanged sidecar boundary.
+- Focused evidence: the renderer/controller/layout implementation group passed
+  114 tests, the final primary Writing Studio component file passed 96 tests,
+  and the affected built-Electron repair group passed all 7 journeys.
 - Complete development evidence: application lint and typecheck, production
   build, current-authority documentation, the full 1,084-test application
   inventory, and the fixed Stage 19 regression are green. The fixed regression
-  passed 681 tests with 2 intentional skips and all 28 Electron journeys,
+  passed 683 tests with 2 intentional skips and all 28 Electron journeys,
   including axe accessibility and unchanged targeted visual references.
 - Remaining before this batch closes: Jason's manual commit/push checkpoint.
-  `HG2-RPR-B`, Program 5, and `HG2-RPR-C/D` remain unstarted.
+  Program 5 and `HG2-RPR-C/D` remain unstarted. Human review remains deferred
+  until the complete repaired candidate is qualified.
 - Reopening/exit trigger: this issue remains active until the complete repaired
   candidate passes Human Gate 2. Any theme choice that changes project truth,
   reintroduction of the rejected blue/purple shell language, or loss of the

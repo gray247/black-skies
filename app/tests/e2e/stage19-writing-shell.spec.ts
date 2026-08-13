@@ -101,10 +101,12 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     expect(await writingSupport.evaluate((element) => ({
       position: getComputedStyle(element).position,
       width: element.getBoundingClientRect().width,
-    }))).toMatchObject({ position: 'fixed' });
-    expect(await writingSupport.evaluate(
+    }))).toMatchObject({ position: 'static' });
+    const responsiveWidth = await writingSupport.evaluate(
       (element) => element.getBoundingClientRect().width,
-    )).toBeLessThan(500);
+    );
+    expect(responsiveWidth).toBeGreaterThan(700);
+    expect(responsiveWidth).toBeLessThanOrEqual(1_000);
     await expect(editor).toContainText(prose);
   } finally {
     await removeTemporaryDirectory(parent);
@@ -112,6 +114,6 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
 });
 
 // HARNESS_ONLY
-// Reason: Proves the P3-D shell hierarchy, edge rails, Focus restoration, and responsive overlay in built Electron.
+// Reason: Proves the P3-D shell hierarchy, edge rails, Focus restoration, and responsive no-overlay geometry in built Electron.
 // Owner: Program 3 P3-D automated qualification.
 // Retire when: Installed-build Human Gate 2 evidence provides equivalent deterministic coverage.

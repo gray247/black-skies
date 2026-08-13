@@ -39,10 +39,26 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-scroller[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;/);
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*74ch;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)/);
+    expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)[\s\S]*?\.stage19-writing-shell__rail--left,[\s\S]*?position:\s*static;[\s\S]*?box-shadow:\s*none;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
     expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
     expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
     expect(p3d).not.toMatch(/#(?:8e7cc3|818cf8|a78bfa)|rgba\(129,\s*140,\s*248|rgba\(142,\s*124,\s*195/i);
+  });
+
+  it('keeps everyday story structure in one direct-manipulation rail', () => {
+    const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
+
+    expect(view).toContain('aria-label="Story rail"');
+    expect(view).toContain('aria-label="Add to story here"');
+    expect(view).toContain('Start a new written section');
+    expect(view).toContain('Double-click or press F2 to rename');
+    expect(view).toContain('More options for written section');
+    expect(view).not.toContain('Unit title (optional)');
+    expect(view).not.toContain('Selected unit title');
+    expect(view).not.toContain('Create unit');
+    expect(view).not.toContain('Update title');
+    expect(view).not.toContain('Delete unit');
   });
 
   it('removes the superseded Writing-side critique result presentation', () => {

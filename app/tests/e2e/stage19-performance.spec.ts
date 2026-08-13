@@ -44,14 +44,14 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
     await openWritingStudioRail(writing, 'story tools');
     const binderButtons = writing
       .getByRole('complementary', { name: 'Story rail' })
-      .locator('.stage19-spine__unit-list button');
+      .locator('.stage19-story-rail__unit-title');
     await expect(binderButtons).toHaveCount(100);
     await expect(command.getByRole('heading', { name: 'Large manuscript' })).toBeVisible();
     await expect(command.getByRole('navigation', { name: 'Command Center workspaces' })).toBeVisible();
     expect(creationDurationMs).toBeLessThan(15_000);
 
     const selectionStartedAt = Date.now();
-    await writing.getByRole('button', { name: /Performance Unit 100/ }).click();
+    await writing.locator('.stage19-story-rail__unit-title', { hasText: 'Performance Unit 100' }).click();
     await expect(
       writing.getByRole('textbox', { name: 'Manuscript editor: Performance Unit 100' }),
     ).toBeVisible();

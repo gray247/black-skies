@@ -2,7 +2,7 @@
 
 ## Status And Authority
 
-- Status: `AUTHORIZED; HG2-RPR-A AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
+- Status: `AUTHORIZED; HG2-RPR-A DURABLE; HG2-RPR-B AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
 - Established: `2026-08-11`
 - Authorized: `2026-08-12` by Jason after confirming the required model change
 - Owner: `Human Gate 2 author-experience repair`
@@ -226,7 +226,8 @@ Current implementation state:
   2 intentional skips, and all 28 Electron journeys; and
 - the durable evidence is recorded in
   [HG2-RPR-A Evidence Receipt](program_4_hg2_rpr_a_evidence_receipt.md).
-  Batch closure now waits only for Jason's manual commit/push checkpoint.
+  Jason committed and pushed that foundation at
+  `28d2294a03461bd2cdef40ef7a7695a8374c27e2`.
 
 ### HG2-RPR-B — Unified Story Rail
 
@@ -237,6 +238,27 @@ Current implementation state:
 - Verify inline naming, context creation, drag placement, contextual advanced
   actions, no-overlay geometry, keyboard alternatives, narrow widths, and
   dark/light themes.
+
+Current implementation state:
+
+- written sections and their linked story points now share one ordered Story
+  Rail, with unplaced points kept explicit;
+- `+` adds a story point in context, while new written-section creation is a
+  secondary Story action;
+- double-click and `F2` provide inline naming, while `More` and right-click
+  provide advanced rename and explicitly confirmed delete actions;
+- dragging a story point between written sections changes only its planning
+  link; manuscript prose, accepted order, and `outline.json` remain unchanged;
+- narrow layouts put the rail in normal document flow instead of over the
+  writing; and
+- the complete fixed Stage 19 development regression is green with 683 tests,
+  2 intentional skips, and all 28 Electron journeys.
+
+The evidence is recorded in
+[HG2-RPR-B Evidence Receipt](program_4_hg2_rpr_b_evidence_receipt.md). Batch
+closure now waits only for Jason's manual commit/push checkpoint. Continuous
+manuscript projection, stable anchors, and accepted-section drag ordering remain
+owned by the Program 5 bridge.
 
 ### Program 5 Bridge — Continuous Manuscript And Anchors
 
