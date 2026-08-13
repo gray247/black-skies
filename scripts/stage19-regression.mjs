@@ -13,6 +13,7 @@ const allowDirty = process.argv.includes("--allow-dirty");
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const unitFiles = [
+  "shared/__tests__/livingOutlineAnchors.test.ts",
   "renderer/__tests__/Stage19WritingSpineApp.test.tsx",
   "renderer/__tests__/companionOrientation.test.ts",
   "renderer/__tests__/Stage19WritingSpineLayout.test.ts",

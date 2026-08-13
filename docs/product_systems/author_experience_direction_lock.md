@@ -512,3 +512,10 @@ It preserves the safety evidence, requires a continuous-manuscript and stable
 anchor bridge before claiming a unified story stream, adds intentional Dark
 and Light themes, and keeps full local-LLM Companion capability as a separately
 authorized later boundary.
+
+The pulled-forward Program 5 bridge has now passed its automated development
+gate. It projects the current safe sections as one readable manuscript and
+adds compact, no-duplicate-prose position/span anchors with exact, relocated,
+ambiguous, and unresolved outcomes. This establishes the structural basis for
+the repaired experience without claiming full long-manuscript intake,
+automatic structure acceptance, Human Gate 3, or Human Gate 2 acceptance.

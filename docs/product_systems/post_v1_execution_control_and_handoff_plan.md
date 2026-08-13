@@ -440,6 +440,9 @@ or its incomplete Companion experience. Do not proceed to Cleanup Wave A.
 Follow [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md):
 repair the direct story-rail and Focus composition, and pull Program 5's
 continuous-manuscript/stable-anchor bridge forward before repeating this gate.
+The Story Rail is durable at `707dfae6`; the pulled-forward continuous
+projection and anchor bridge has passed its development gate and awaits its
+manual durable checkpoint. Focus and Companion doorway repair remains next.
 
 ### Cleanup Wave A And Professionalization Checkpoint
 
@@ -648,10 +651,9 @@ checkpoint. They do not become an unrelated permanent audit campaign.
    approve the bounded experience-repair plan;
 2. issue the model/effort warning required by that repair before runtime
    mutation;
-3. complete direct Story Rail, true Focus, theme, rail-geometry, and
-   Companion-doorway automation in bounded batches;
-4. pull Program 5's continuous-manuscript/stable-anchor bridge forward before
-   claiming that the Writing Studio is a unified story stream;
+3. retain the completed direct Story Rail, theme, and rail-geometry batches;
+4. make the green Program 5 continuous-manuscript/stable-anchor bridge durable,
+   then complete true Focus and Companion-doorway automation;
 5. qualify the complete repaired package/install candidate; and
 6. repeat Human Gate 2 only when that candidate is whole.
 

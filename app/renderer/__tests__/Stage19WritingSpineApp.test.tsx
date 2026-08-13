@@ -47,6 +47,7 @@ vi.mock('../DraftEditor', () => ({
     ariaLabel,
     placeholder,
     readOnly,
+    selectionRestore,
   }: {
     value: string;
     onChange?: (value: string) => void;
@@ -62,6 +63,7 @@ vi.mock('../DraftEditor', () => ({
     ariaLabel?: string | null;
     placeholder?: string;
     readOnly?: boolean;
+    selectionRestore?: { selectionStart: number; selectionEnd: number } | null;
   }) => (
     <textarea
       aria-label={ariaLabel ?? 'Draft editor'}
@@ -86,6 +88,7 @@ vi.mock('../DraftEditor', () => ({
         });
       }}
       readOnly={readOnly}
+      data-selection-restore={selectionRestore ? `${selectionRestore.selectionStart}:${selectionRestore.selectionEnd}` : undefined}
     />
   ),
 }));
@@ -592,6 +595,7 @@ function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'
       id: `item-${current.document.items.length + 1}`,
       label: request.label.trim(), kind: request.kind, state: request.state,
       manuscriptUnitId: request.manuscriptUnitId,
+      sourceAnchor: request.sourceAnchor,
       createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
     }])),
     updateItem: vi.fn(async (request) => update(current.document.items.map((item) => item.id === request.itemId
@@ -2476,6 +2480,41 @@ describe('Stage19WritingSpineApp', () => {
     expect(event.defaultPrevented).toBe(true);
   });
 
+  it('projects every written section as one stream and preserves unsaved prose while moving through it', async () => {
+    const project = createBridge(snapshot('writing'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+
+    const stream = await screen.findByLabelText('Continuous manuscript');
+    expect(within(stream).getByText('Beta body')).toBeVisible();
+    const firstEditor = screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await user.type(firstEditor, ' still here');
+    await user.click(within(stream).getByRole('button', { name: 'Write in Untitled' }));
+
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Untitled' })).toHaveValue('Beta body');
+    expect(within(stream).getByRole('button', { name: 'Write in First Unit' })).toHaveTextContent('Alpha body still here');
+    await user.click(within(stream).getByRole('button', { name: 'Write in First Unit' }));
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body still here');
+  });
+
+  it('keeps a substantial synthetic manuscript visible with only one live editor', async () => {
+    const units = Array.from({ length: 100 }, (_, index) => ({
+      id: `unit_${index + 1}`,
+      title: `Section ${index + 1}`,
+      order: index + 1,
+      body: `Synthetic paragraph ${index + 1}. `.repeat(40),
+    }));
+    const project = createBridge(snapshot('writing', { units }));
+    const startedAt = performance.now();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+
+    const stream = await screen.findByLabelText('Continuous manuscript');
+    expect(within(stream).getAllByRole('region', { name: /Written section/ })).toHaveLength(100);
+    expect(screen.getAllByRole('textbox', { name: /Manuscript editor:/ })).toHaveLength(1);
+    expect(within(stream).getByText(/Synthetic paragraph 100/)).toBeVisible();
+    expect(performance.now() - startedAt).toBeLessThan(3_000);
+  });
+
   it('supports outline-first planning with quiet gaps and no manufactured manuscript unit', async () => {
     const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
     const outline = createLivingOutlineBridge();
@@ -2538,6 +2577,27 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByText('Suggested')).toBeVisible();
     expect(screen.getByText('Belongs with: First Unit')).toBeVisible();
     expect(screen.queryByLabelText('Structural meaning')).not.toBeInTheDocument();
+  });
+
+  it('saves a prose-free span anchor and returns a Story Rail point to its exact passage', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge();
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' }) as HTMLTextAreaElement;
+    editor.setSelectionRange(0, 5);
+    fireEvent.select(editor);
+    await openWritingRail('story tools');
+    await user.click(screen.getByRole('button', { name: 'Add to story here' }));
+    const request = vi.mocked(outline.bridge.createItem).mock.calls[0]?.[0];
+    expect(request?.sourceAnchor).toMatchObject({
+      anchorKind: 'span', unitId: 'unit_a', selectionStart: 0, selectionEnd: 5,
+    });
+    expect(JSON.stringify(request?.sourceAnchor)).not.toContain('Alpha');
+
+    await user.click(await screen.findByRole('button', { name: 'Show Alpha in manuscript' }));
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveAttribute('data-selection-restore', '0:5'));
   });
 
   it('locates linked writing from either side and previews planning movement without reordering manuscript units', async () => {

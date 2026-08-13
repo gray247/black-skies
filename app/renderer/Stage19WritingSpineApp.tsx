@@ -31,6 +31,7 @@ import type {
   LivingOutlineItemState,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
+import { buildLivingOutlineSourceAnchor, resolveLivingOutlineAnchor } from '../shared/livingOutlineAnchors';
 import type {
   SplitCommandLogicalSurface,
   SplitCommandOwnershipBridge,
@@ -181,8 +182,11 @@ export function deriveDirtyUnitIds(
   return dirty;
 }
 
-function focusWritingEditor(): void {
+function focusWritingEditor(unitId?: string): void {
+  const escapedUnitId = unitId && globalThis.CSS?.escape ? globalThis.CSS.escape(unitId) : unitId;
   const editor =
+    (escapedUnitId ? document.querySelector<HTMLElement>(`[data-manuscript-unit-id="${escapedUnitId}"] [contenteditable="true"]`) : null) ??
+    (escapedUnitId ? document.querySelector<HTMLElement>(`[data-manuscript-unit-id="${escapedUnitId}"] [aria-label^="Manuscript editor:"]`) : null) ??
     document.querySelector<HTMLElement>(
       '[contenteditable="true"][aria-label^="Manuscript editor:"]',
     ) ?? document.querySelector<HTMLElement>('[aria-label^="Manuscript editor:"]');
@@ -1317,6 +1321,14 @@ export default function Stage19WritingSpineApp({
     if (!binding || !livingOutlineBridge) return;
     const selectedProse = aiSelection?.selectedText.trim() ?? '';
     const manuscriptUnitId = snapshotRef.current.activeUnitId;
+    const sourceAnchor = manuscriptUnitId && aiSelection
+      ? await buildLivingOutlineSourceAnchor(
+          manuscriptUnitId,
+          buffersRef.current[manuscriptUnitId] ?? '',
+          aiSelection.selectionStart,
+          aiSelection.selectionEnd,
+        )
+      : null;
     setLivingOutlineLoading(true);
     try {
       const result = await livingOutlineBridge.createItem({
@@ -1326,6 +1338,7 @@ export default function Stage19WritingSpineApp({
         kind: 'fragment',
         state: selectedProse ? 'proposed' : 'planned',
         manuscriptUnitId,
+        sourceAnchor,
       });
       if (applyLivingOutlineResult(result) && result.ok) {
         const created = result.data.document.items.at(-1);
@@ -1358,8 +1371,50 @@ export default function Stage19WritingSpineApp({
     if (item.manuscriptUnitId && item.manuscriptUnitId !== snapshotRef.current.activeUnitId) {
       await handleSelectUnit(item.manuscriptUnitId);
     }
-    window.setTimeout(focusWritingEditor, 0);
+    if (item.sourceAnchor && item.manuscriptUnitId) {
+      const currentProse = buffersRef.current[item.manuscriptUnitId] ?? splitDraft(
+        snapshotRef.current.project?.drafts?.[item.manuscriptUnitId] ?? '',
+      ).body;
+      const resolution = await resolveLivingOutlineAnchor(item.sourceAnchor, currentProse);
+      if (resolution.status === 'exact' || resolution.status === 'relocated') {
+        setSourceReturnRequest({
+          schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+          requestId: operationId('story-anchor-return'),
+          projectId: snapshotRef.current.project!.projectId,
+          generation: snapshotRef.current.generation,
+          status: 'exact',
+          message: resolution.status === 'exact'
+            ? `Returned to ${item.label}.`
+            : `Returned to ${item.label} after the unchanged passage moved.`,
+          anchor: {
+            schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+            projectId: snapshotRef.current.project!.projectId,
+            generation: snapshotRef.current.generation,
+            unitId: item.manuscriptUnitId,
+            editorRevision: editRevisionRef.current[item.manuscriptUnitId] ?? 0,
+            selectionStart: resolution.selectionStart,
+            selectionEnd: resolution.selectionEnd,
+            selectionFingerprint: item.sourceAnchor.selectionFingerprint,
+          },
+        });
+        return;
+      }
+      setSourceReturnRequest(null);
+      setLivingOutlineNotice(
+        resolution.status === 'ambiguous'
+          ? `${item.label} matches more than one place. The story point remains, but Black Skies did not guess which passage you meant.`
+          : `${item.label} no longer matches its source passage. The story point remains, but its place needs review; Black Skies did not guess.`,
+      );
+    }
+    window.setTimeout(() => focusWritingEditor(item.manuscriptUnitId ?? undefined), 0);
   }, [handleSelectUnit, selectLivingOutlineFields]);
+
+  const activateUnitInStream = useCallback(async (unitId: string) => {
+    if (unitId !== snapshotRef.current.activeUnitId) {
+      await handleSelectUnit(unitId);
+    }
+    window.requestAnimationFrame(() => focusWritingEditor(unitId));
+  }, [handleSelectUnit]);
 
   const editLivingOutlineItem = useCallback((itemId: string) => {
     if (!selectLivingOutlineFields(itemId)) return;
@@ -2297,6 +2352,7 @@ export default function Stage19WritingSpineApp({
     outlineKind,
     outlineState,
     projectedWritingOrder,
+    buffers,
     activeBuffer,
     activeDirty,
     aiBridgeAvailable: Boolean(aiBridge),
@@ -2349,6 +2405,7 @@ export default function Stage19WritingSpineApp({
     createProject: handleCreateProject,
     createUnit: handleCreateUnit,
     selectUnit: handleSelectUnit,
+    activateUnitInStream,
     setRenameTitle,
     editUnit,
     cancelUnitEdit: () => setUnitEditingId(null),

@@ -14,7 +14,7 @@ export default defineConfig({
     // worker concurrency prevents host I/O saturation from turning the
     // unchanged five-second assertion budget into an order-dependent result.
     maxWorkers: 4,
-    include: ['renderer/**/*.test.{ts,tsx}', 'main/**/*.test.{ts,tsx}'],
+    include: ['renderer/**/*.test.{ts,tsx}', 'main/**/*.test.{ts,tsx}', 'shared/**/*.test.{ts,tsx}'],
     environmentMatchGlobs: [['main/**/*.test.{ts,tsx}', 'node']],
     setupFiles: ['./renderer/testSetup.ts', './renderer/vitest.setup.ts'],
   },

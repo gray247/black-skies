@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LIVING_OUTLINE_CHANNELS } from '../../shared/ipc/livingOutline';
+import { buildLivingOutlineSourceAnchor } from '../../shared/livingOutlineAnchors';
 
 const electronMocks = vi.hoisted(() => {
   const handlers = new Map<string, (event: any, request?: unknown) => Promise<unknown> | unknown>();
@@ -98,6 +99,25 @@ describe('Living Outline IPC authority', () => {
       ok: false, error: { code: 'UNKNOWN_MANUSCRIPT_UNIT' },
     });
     expect(repository.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts a bounded source anchor only for its active manuscript unit', async () => {
+    const sourceAnchor = await buildLivingOutlineSourceAnchor('unit-a', 'Protected manuscript prose.', 0, 9);
+    const create = {
+      ...binding, expectedRevision: 0, label: 'Protected', kind: 'fragment', state: 'authored',
+      manuscriptUnitId: 'unit-a', sourceAnchor,
+    };
+    await expect(invoke(LIVING_OUTLINE_CHANNELS.createItem, 1, create)).resolves.toEqual({ ok: true, data: ready });
+    expect(repository.create).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({ sourceAnchor }));
+
+    await expect(invoke(LIVING_OUTLINE_CHANNELS.createItem, 1, {
+      ...create,
+      sourceAnchor: { ...sourceAnchor, unitId: 'unit-other' },
+    })).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
+    await expect(invoke(LIVING_OUTLINE_CHANNELS.createItem, 1, {
+      ...create,
+      sourceAnchor: { ...sourceAnchor, selectionFingerprint: 'not-a-fingerprint' },
+    })).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
   });
 
   it('binds update, movement, linking, and deletion without manuscript mutation authority', async () => {

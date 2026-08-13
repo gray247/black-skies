@@ -2,7 +2,7 @@
 
 ## Status And Authority
 
-- Status: `AUTHORIZED; HG2-RPR-A DURABLE; HG2-RPR-B AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
+- Status: `AUTHORIZED; HG2-RPR-A AND HG2-RPR-B DURABLE; PROGRAM 5 BRIDGE AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
 - Established: `2026-08-11`
 - Authorized: `2026-08-12` by Jason after confirming the required model change
 - Owner: `Human Gate 2 author-experience repair`
@@ -255,10 +255,11 @@ Current implementation state:
   2 intentional skips, and all 28 Electron journeys.
 
 The evidence is recorded in
-[HG2-RPR-B Evidence Receipt](program_4_hg2_rpr_b_evidence_receipt.md). Batch
-closure now waits only for Jason's manual commit/push checkpoint. Continuous
-manuscript projection, stable anchors, and accepted-section drag ordering remain
-owned by the Program 5 bridge.
+[HG2-RPR-B Evidence Receipt](program_4_hg2_rpr_b_evidence_receipt.md). Jason
+committed and pushed Batch B at
+`707dfae60fdcc0752e5f638b94105e90418bfd4d`. Continuous manuscript projection
+and stable anchors are delivered by the next bridge below; accepted-section
+drag ordering remains in full Program 5.
 
 ### Program 5 Bridge — Continuous Manuscript And Anchors
 
@@ -269,6 +270,26 @@ owned by the Program 5 bridge.
 - Design import/discovery as ghost proposals; do not silently create accepted
   chapters or physically split imported prose merely to render navigation.
 - This retains Program 5's full long-manuscript and Human Gate 3 ownership.
+
+Current implementation state:
+
+- all written sections now appear in one continuous reading stream, with one
+  live editor at the current section and readable in-place activation for the
+  others;
+- story points created at a cursor or passage can retain compact position/span
+  fingerprints without storing duplicate prose;
+- exact and safely relocated returns select the source, while ambiguous or
+  missing anchors remain explicit and never guess;
+- legacy unanchored story points remain valid, incompatible relinking clears
+  an old anchor, and manuscript truth ownership is unchanged; and
+- the full development gate is green with 1,101 application tests plus 2
+  intentional skips, 694 critical tests plus 2 intentional skips, and all 29
+  built-Electron journeys.
+
+The evidence is recorded in
+[Program 5 Human Gate 2 Bridge Evidence Receipt](program_5_hg2_bridge_evidence_receipt.md).
+The bridge waits only for Jason's manual commit/push checkpoint. It does not
+claim full long-manuscript import/discovery or Human Gate 3.
 
 ### HG2-RPR-C — Focus And Companion Doorway
 

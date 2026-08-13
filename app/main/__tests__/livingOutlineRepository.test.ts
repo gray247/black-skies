@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { LIVING_OUTLINE_SCHEMA_VERSION } from '../../shared/ipc/livingOutline';
+import { buildLivingOutlineSourceAnchor } from '../../shared/livingOutlineAnchors';
 import {
   LIVING_OUTLINE_FILENAME,
   LivingOutlineRepository,
@@ -64,6 +65,23 @@ describe('Living Outline project-local planning sidecar', () => {
     for (const [name, body] of Object.entries(protectedFiles)) {
       await expect(readFile(join(projectPath, name), 'utf8')).resolves.toBe(body);
     }
+  });
+
+  it('persists source anchors without duplicating manuscript prose and clears them on relink', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new LivingOutlineRepository(projectPath, () => new Date('2026-08-09T12:00:00.000Z'));
+    const source = 'The signal crossed the water without a sound.';
+    const sourceAnchor = await buildLivingOutlineSourceAnchor('unit-a', source, 4, 10);
+    const created = await repository.create('project-a', 0, {
+      label: 'Signal', kind: 'fragment', state: 'authored', manuscriptUnitId: 'unit-a', sourceAnchor,
+    });
+    const raw = await readFile(join(projectPath, LIVING_OUTLINE_FILENAME), 'utf8');
+
+    expect(created.document.items[0]?.sourceAnchor).toEqual(sourceAnchor);
+    expect(raw).not.toContain('signal');
+    await expect(new LivingOutlineRepository(projectPath).read('project-a')).resolves.toEqual(created);
+    const relinked = await repository.link('project-a', 1, created.document.items[0]!.id, 'unit-b');
+    expect(relinked.document.items[0]?.sourceAnchor).toBeNull();
   });
 
   it('keeps malformed and wrong-project files intact while writing remains independently available', async () => {

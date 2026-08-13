@@ -153,6 +153,25 @@ describe('DraftEditor', () => {
     expect(textbox).toHaveFocus();
   });
 
+  it('restores an exact cursor-position anchor', async () => {
+    const source = 'A cursor belongs here.';
+    const evidence = await buildDraftEditorSelectionEvidence(source, 9, 9, 2);
+    const onSelectionRestoreResult = vi.fn();
+    render(
+      <DraftEditor
+        value={source}
+        selectionRestore={{
+          requestId: 'cursor-return',
+          selectionStart: 9,
+          selectionEnd: 9,
+          selectionFingerprint: evidence.selectionFingerprint,
+        }}
+        onSelectionRestoreResult={onSelectionRestoreResult}
+      />,
+    );
+    await waitFor(() => expect(onSelectionRestoreResult).toHaveBeenCalledWith('cursor-return', true));
+  });
+
   it('refuses a stale source-return selection without moving editor focus', async () => {
     const onSelectionRestoreResult = vi.fn();
     render(

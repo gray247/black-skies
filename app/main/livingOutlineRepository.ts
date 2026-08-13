@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import {
+  LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION,
   LIVING_OUTLINE_MAX_LABEL_LENGTH,
   LIVING_OUTLINE_SCHEMA_VERSION,
   type LivingOutlineDocumentV1,
@@ -37,6 +38,33 @@ function isState(value: unknown): value is LivingOutlineItemState {
   return value === 'authored' || value === 'planned' || value === 'inferred' || value === 'proposed';
 }
 
+function isSha256(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value);
+}
+
+function isSourceAnchor(value: unknown): boolean {
+  if (value === null || value === undefined) return true;
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as NonNullable<LivingOutlineItemV1['sourceAnchor']>;
+  return candidate.schemaVersion === LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION &&
+    isNonEmptyString(candidate.unitId) &&
+    (candidate.anchorKind === 'position' || candidate.anchorKind === 'span') &&
+    Number.isInteger(candidate.selectionStart) && candidate.selectionStart >= 0 &&
+    Number.isInteger(candidate.selectionEnd) && candidate.selectionEnd >= candidate.selectionStart &&
+    (candidate.anchorKind === 'position'
+      ? candidate.selectionEnd === candidate.selectionStart
+      : candidate.selectionEnd > candidate.selectionStart) &&
+    isSha256(candidate.selectionFingerprint) &&
+    typeof candidate.selectionSearchFingerprint === 'string' && /^[a-f0-9]{8}$/i.test(candidate.selectionSearchFingerprint) &&
+    isSha256(candidate.sourceFingerprint) &&
+    Number.isInteger(candidate.prefixLength) && candidate.prefixLength >= 0 && candidate.prefixLength <= 32 &&
+    typeof candidate.prefixSearchFingerprint === 'string' && /^[a-f0-9]{8}$/i.test(candidate.prefixSearchFingerprint) &&
+    isSha256(candidate.prefixFingerprint) &&
+    Number.isInteger(candidate.suffixLength) && candidate.suffixLength >= 0 && candidate.suffixLength <= 32 &&
+    typeof candidate.suffixSearchFingerprint === 'string' && /^[a-f0-9]{8}$/i.test(candidate.suffixSearchFingerprint) &&
+    isSha256(candidate.suffixFingerprint);
+}
+
 function isItem(value: unknown): value is LivingOutlineItemV1 {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Partial<LivingOutlineItemV1>;
@@ -47,6 +75,8 @@ function isItem(value: unknown): value is LivingOutlineItemV1 {
     isKind(candidate.kind) &&
     isState(candidate.state) &&
     (candidate.manuscriptUnitId === null || isNonEmptyString(candidate.manuscriptUnitId)) &&
+    isSourceAnchor(candidate.sourceAnchor) &&
+    (!candidate.sourceAnchor || candidate.sourceAnchor.unitId === candidate.manuscriptUnitId) &&
     isNonEmptyString(candidate.createdAt) &&
     isNonEmptyString(candidate.updatedAt);
 }
@@ -110,7 +140,7 @@ export class LivingOutlineRepository {
   async create(
     projectId: string,
     expectedRevision: number,
-    input: Pick<LivingOutlineItemV1, 'label' | 'kind' | 'state' | 'manuscriptUnitId'>,
+    input: Pick<LivingOutlineItemV1, 'label' | 'kind' | 'state' | 'manuscriptUnitId' | 'sourceAnchor'>,
   ): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       const timestamp = this.now().toISOString();
@@ -164,6 +194,7 @@ export class LivingOutlineRepository {
     return this.mutate(projectId, expectedRevision, (document) => this.replaceItem(document, itemId, (item) => ({
       ...item,
       manuscriptUnitId,
+      sourceAnchor: manuscriptUnitId === item.sourceAnchor?.unitId ? item.sourceAnchor : null,
       updatedAt: this.now().toISOString(),
     })));
   }

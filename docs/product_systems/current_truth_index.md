@@ -108,9 +108,14 @@ It does not finalize the entire product vision.
   the green unified Story Rail development gate: direct contextual creation,
   inline naming, contextual advanced actions, planning-link drag placement,
   no-overlay geometry, recovery, reopen persistence, and manuscript
-  non-mutation. Batch B still requires Jason's manual durable checkpoint and
-  does not claim a continuous manuscript, stable anchors, Focus/Companion
-  repair, or Human Gate 2 acceptance.
+  non-mutation. Batch B is durable at `707dfae6`. The
+  [Program 5 Human Gate 2 bridge receipt](program_5_hg2_bridge_evidence_receipt.md)
+  records the next green development gate: one continuous readable manuscript,
+  in-place section activation, compact no-duplicate-prose position/span
+  anchors, honest exact/relocated/ambiguous/unresolved source return, and the
+  100-unit performance boundary. The bridge awaits Jason's manual durable
+  checkpoint and does not claim full long-manuscript intake/discovery,
+  Focus/Companion repair, Human Gate 3, or Human Gate 2 acceptance.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and

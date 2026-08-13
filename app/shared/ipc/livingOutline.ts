@@ -9,9 +9,27 @@ export const LIVING_OUTLINE_CHANNELS = {
 
 export const LIVING_OUTLINE_SCHEMA_VERSION = 'BlackSkiesLivingOutline v1' as const;
 export const LIVING_OUTLINE_MAX_LABEL_LENGTH = 240;
+export const LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION = 1 as const;
 
 export type LivingOutlineItemKind = 'fragment' | 'gap' | 'container';
 export type LivingOutlineItemState = 'authored' | 'planned' | 'inferred' | 'proposed';
+
+export interface LivingOutlineSourceAnchorV1 {
+  readonly schemaVersion: typeof LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION;
+  readonly unitId: string;
+  readonly anchorKind: 'position' | 'span';
+  readonly selectionStart: number;
+  readonly selectionEnd: number;
+  readonly selectionSearchFingerprint: string;
+  readonly sourceFingerprint: string;
+  readonly selectionFingerprint: string;
+  readonly prefixLength: number;
+  readonly prefixSearchFingerprint: string;
+  readonly prefixFingerprint: string;
+  readonly suffixLength: number;
+  readonly suffixSearchFingerprint: string;
+  readonly suffixFingerprint: string;
+}
 
 export interface LivingOutlineItemV1 {
   readonly id: string;
@@ -19,6 +37,7 @@ export interface LivingOutlineItemV1 {
   readonly kind: LivingOutlineItemKind;
   readonly state: LivingOutlineItemState;
   readonly manuscriptUnitId: string | null;
+  readonly sourceAnchor?: LivingOutlineSourceAnchorV1 | null;
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -69,6 +88,7 @@ export interface CreateLivingOutlineItemRequest extends LivingOutlineProjectBind
   readonly kind: LivingOutlineItemKind;
   readonly state: LivingOutlineItemState;
   readonly manuscriptUnitId: string | null;
+  readonly sourceAnchor?: LivingOutlineSourceAnchorV1 | null;
 }
 
 export interface UpdateLivingOutlineItemRequest extends LivingOutlineProjectBinding {

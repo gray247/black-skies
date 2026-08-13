@@ -71,7 +71,7 @@ test('selected-prose critique is Writing-Studio-only, preview-bound, optional, a
     await editor.fill(prose);
     await openWritingStudioRail(writing, 'story tools');
     await expect(writing.getByRole('button', { name: '01 Preview passage' })).toBeVisible();
-    await expect(writing.getByText('Unsaved', { exact: true })).toBeVisible();
+    await expect(writing.getByRole('list', { name: 'Story order' }).getByText('Unsaved', { exact: true })).toBeVisible();
     await editor.focus();
     await writing.keyboard.press('Control+A');
     await openWritingStudioRail(writing, 'writing support');

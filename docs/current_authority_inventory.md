@@ -30,6 +30,8 @@ The inventory includes:
   Unified Story Rail, real Focus, Companion-bar repair plan;
 - the Human Gate 2 HG2-RPR-A visual and interaction-language foundation and
   HG2-RPR-B unified Story Rail evidence receipts;
+- the Program 5 Human Gate 2 continuous-manuscript and stable-anchor bridge
+  evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -120,6 +122,13 @@ creation, inline naming, advanced destructive actions, story-point placement,
 non-overlay geometry, project isolation, recovery, reopen persistence, and
 manuscript non-mutation. It does not close the continuous manuscript,
 Focus/Companion doorway, complete repair qualification, or Human Gate 2.
+
+The [Program 5 Human Gate 2 bridge evidence receipt](product_systems/program_5_hg2_bridge_evidence_receipt.md)
+records the green continuous-manuscript projection and stable-anchor
+development gate. It proves one readable story stream, in-place activation,
+no-duplicate-prose anchors, honest relocation/failure outcomes, and the current
+100-unit responsiveness boundary. It does not close full Program 5 intake,
+discovery, Human Gate 3, Focus/Companion repair, or Human Gate 2.
 
 The Program 3 Batch P3-A receipt records the stable contextual-shell contracts,
 deterministic Review fixtures, per-project Feedback Note write serialization,

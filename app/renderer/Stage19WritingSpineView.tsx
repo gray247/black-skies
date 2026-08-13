@@ -92,6 +92,7 @@ export interface Stage19WritingSpineViewModel {
     readonly item: LivingOutlineItemV1;
     readonly unit: ProjectSpineUnitSummary;
   }[];
+  readonly buffers: Readonly<Record<string, string>>;
   readonly activeBuffer: string;
   readonly activeDirty: boolean;
   readonly aiBridgeAvailable: boolean;
@@ -136,6 +137,7 @@ export interface Stage19WritingSpineViewActions {
   readonly createProject: () => MaybeAsync;
   readonly createUnit: () => MaybeAsync;
   readonly selectUnit: (unitId: string) => MaybeAsync;
+  readonly activateUnitInStream: (unitId: string) => MaybeAsync;
   readonly setRenameTitle: (value: string) => void;
   readonly editUnit: (unitId: string) => void;
   readonly cancelUnitEdit: () => void;
@@ -1068,39 +1070,79 @@ function SelectedProseCritiqueView({ model, actions }: Stage19WritingSpineViewPr
 function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
   const { activeUnit, snapshot } = model;
+  const units = snapshot.project?.units ?? [];
   return (
     <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
       {activeUnit ? (
         <>
           <div className="stage19-spine__editor-header">
-            <div><span className="stage19-spine__eyebrow">Active manuscript unit</span><h2>{activeUnit.displayTitle}</h2></div>
+            <div><span className="stage19-spine__eyebrow">Manuscript</span><h2>One continuous story</h2></div>
             <button type="button" onClick={() => void actions.saveUnit(activeUnit.id)} disabled={model.recoveryBlocksEditing || !model.activeDirty || snapshot.saveState.status === 'saving'}>
               {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
             </button>
           </div>
-          <p className="stage19-spine__shortcut">Ctrl+S saves the selected unit. Ctrl+Z undoes and Ctrl+Y redoes editor changes. Switching units preserves unsaved buffers.</p>
-          <div className="stage19-spine__editor">
-            <DraftEditor
-              key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${snapshot.activeUnitId ?? 'no-unit'}`}
-              value={model.activeBuffer}
-              onChange={(body) => actions.changeBuffer(activeUnit.id, body)}
-              onSave={(body) => void actions.saveUnit(activeUnit.id, body)}
-              onSelectionChange={actions.changeAiSelection}
-              selectionRestore={
-                model.sourceReturnRequest?.status === 'exact' && model.sourceReturnRequest.anchor
-                  ? {
-                      requestId: model.sourceReturnRequest.requestId,
-                      selectionStart: model.sourceReturnRequest.anchor.selectionStart,
-                      selectionEnd: model.sourceReturnRequest.anchor.selectionEnd,
-                      selectionFingerprint: model.sourceReturnRequest.anchor.selectionFingerprint,
-                    }
-                  : null
-              }
-              onSelectionRestoreResult={actions.sourceSelectionRestoreResult}
-              readOnly={model.recoveryBlocksEditing}
-              placeholder="Start writing…"
-              ariaLabel={`Manuscript editor: ${activeUnit.displayTitle}`}
-            />
+          <p className="stage19-spine__shortcut">Scroll through the whole story. Click any section to write there. Ctrl+S saves the section you are writing.</p>
+          <div className="stage19-continuous-manuscript" aria-label="Continuous manuscript">
+            {units.map((unit, index) => {
+              const active = unit.id === activeUnit.id;
+              const body = model.buffers[unit.id] ?? '';
+              return (
+                <section
+                  key={unit.id}
+                  id={`stage19-manuscript-unit-${unit.id}`}
+                  data-manuscript-unit-id={unit.id}
+                  className={`stage19-continuous-manuscript__section ${active ? 'is-active' : ''}`}
+                  aria-label={`Written section ${unit.displayTitle}`}
+                >
+                  <button
+                    type="button"
+                    className="stage19-continuous-manuscript__heading"
+                    aria-current={active ? 'location' : undefined}
+                    aria-label={`Write here: ${unit.displayTitle}, section ${index + 1}`}
+                    onClick={() => void actions.activateUnitInStream(unit.id)}
+                  >
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{unit.displayTitle}</strong>
+                    {model.dirtyUnitIds.has(unit.id) ? <em>Unsaved</em> : null}
+                  </button>
+                  {active ? (
+                    <div className="stage19-spine__editor">
+                      <DraftEditor
+                        key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${unit.id}`}
+                        value={body}
+                        onChange={(nextBody) => actions.changeBuffer(unit.id, nextBody)}
+                        onSave={(nextBody) => void actions.saveUnit(unit.id, nextBody)}
+                        onSelectionChange={actions.changeAiSelection}
+                        selectionRestore={
+                          model.sourceReturnRequest?.status === 'exact' &&
+                          model.sourceReturnRequest.anchor?.unitId === unit.id
+                            ? {
+                                requestId: model.sourceReturnRequest.requestId,
+                                selectionStart: model.sourceReturnRequest.anchor.selectionStart,
+                                selectionEnd: model.sourceReturnRequest.anchor.selectionEnd,
+                                selectionFingerprint: model.sourceReturnRequest.anchor.selectionFingerprint,
+                              }
+                            : null
+                        }
+                        onSelectionRestoreResult={actions.sourceSelectionRestoreResult}
+                        readOnly={model.recoveryBlocksEditing}
+                        placeholder="Start writing…"
+                        ariaLabel={`Manuscript editor: ${unit.displayTitle}`}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="stage19-continuous-manuscript__prose"
+                      aria-label={`Write in ${unit.displayTitle}`}
+                      onClick={() => void actions.activateUnitInStream(unit.id)}
+                    >
+                      {body || 'This section is empty. Click to begin writing.'}
+                    </button>
+                  )}
+                </section>
+              );
+            })}
           </div>
         </>
       ) : (

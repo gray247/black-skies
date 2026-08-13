@@ -419,7 +419,7 @@ export default function DraftEditor({
     const { requestId, selectionStart, selectionEnd, selectionFingerprint } = selectionRestore;
     if (
       selectionStart < 0 ||
-      selectionEnd <= selectionStart ||
+      selectionEnd < selectionStart ||
       selectionEnd > source.length
     ) {
       onSelectionRestoreResult?.(requestId, false);

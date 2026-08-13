@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import {
   LIVING_OUTLINE_CHANNELS,
+  LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION,
   LIVING_OUTLINE_MAX_LABEL_LENGTH,
   type CreateLivingOutlineItemRequest,
   type DeleteLivingOutlineItemRequest,
@@ -100,6 +101,27 @@ function validUnitReference(value: unknown): value is string | null {
   return value === null || (typeof value === 'string' && value.trim().length > 0);
 }
 
+function validSourceAnchor(value: CreateLivingOutlineItemRequest['sourceAnchor']): boolean {
+  if (value === null || value === undefined) return true;
+  return value.schemaVersion === LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION &&
+    validItemId(value.unitId) &&
+    (value.anchorKind === 'position' || value.anchorKind === 'span') &&
+    Number.isInteger(value.selectionStart) && value.selectionStart >= 0 &&
+    Number.isInteger(value.selectionEnd) && value.selectionEnd >= value.selectionStart &&
+    (value.anchorKind === 'position'
+      ? value.selectionEnd === value.selectionStart
+      : value.selectionEnd > value.selectionStart) &&
+    /^[a-f0-9]{64}$/i.test(value.sourceFingerprint) &&
+    /^[a-f0-9]{64}$/i.test(value.selectionFingerprint) &&
+    /^[a-f0-9]{8}$/i.test(value.selectionSearchFingerprint) &&
+    Number.isInteger(value.prefixLength) && value.prefixLength >= 0 && value.prefixLength <= 32 &&
+    /^[a-f0-9]{8}$/i.test(value.prefixSearchFingerprint) &&
+    /^[a-f0-9]{64}$/i.test(value.prefixFingerprint) &&
+    Number.isInteger(value.suffixLength) && value.suffixLength >= 0 && value.suffixLength <= 32 &&
+    /^[a-f0-9]{8}$/i.test(value.suffixSearchFingerprint) &&
+    /^[a-f0-9]{64}$/i.test(value.suffixFingerprint);
+}
+
 function unitExists(snapshot: ProjectSpineSessionSnapshot, unitId: string | null): boolean {
   return unitId === null || Boolean(snapshot.project?.units.some((unit) => unit.id === unitId));
 }
@@ -129,7 +151,9 @@ async function createItem(event: IpcMainInvokeEvent, request: CreateLivingOutlin
   if (isFailure(active)) return active;
   if (
     !validRevision(request.expectedRevision) || !validLabel(request.label) ||
-    !validKind(request.kind) || !validState(request.state) || !validUnitReference(request.manuscriptUnitId)
+    !validKind(request.kind) || !validState(request.state) || !validUnitReference(request.manuscriptUnitId) ||
+    !validSourceAnchor(request.sourceAnchor) ||
+    (request.sourceAnchor != null && request.sourceAnchor.unitId !== request.manuscriptUnitId)
   ) return fail('INVALID_REQUEST', 'The new story point is incomplete.');
   if (!unitExists(active.snapshot, request.manuscriptUnitId)) {
     return fail('UNKNOWN_MANUSCRIPT_UNIT', 'The linked manuscript unit no longer exists.');
@@ -143,6 +167,7 @@ async function createItem(event: IpcMainInvokeEvent, request: CreateLivingOutlin
         kind: request.kind,
         state: request.state,
         manuscriptUnitId: request.manuscriptUnitId,
+        sourceAnchor: request.sourceAnchor ?? null,
       },
     ) };
   } catch (error) {

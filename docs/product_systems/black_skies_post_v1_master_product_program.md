@@ -678,11 +678,11 @@ A workflow program is complete only when:
 The current next-action sequence is:
 
 1. reconcile and authorize the bounded Human Gate 2 experience repair,
-2. implement the Unified Story Rail and real Focus repair through automated
-   batches,
-3. build Program 5's continuous-manuscript and stable-anchor bridge before
-   claiming a unified story stream,
-4. complete the Companion doorway repair without claiming local-LLM chat,
+2. retain the completed Unified Story Rail repair,
+3. make the green Program 5 continuous-manuscript and stable-anchor bridge
+   durable before claiming a unified story stream,
+4. complete the real Focus and Companion doorway repair without claiming
+   local-LLM chat,
 5. qualify the complete repaired candidate and repeat Human Gate 2,
 6. perform Cleanup Wave A only after that repaired gate passes,
 7. complete the remaining Program 5 long-manuscript qualification and Human

@@ -5654,7 +5654,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-spine__editor {
   flex: 1;
-  min-height: 36rem;
+  min-height: 20rem;
   overflow: visible;
   border: 0;
   border-radius: 0;
@@ -5679,10 +5679,106 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-spine--writing .stage19-spine__editor .cm-content {
   width: min(100%, 74ch);
   max-width: 74ch;
-  min-height: 32rem;
+  min-height: 18rem;
   margin: 0 auto;
   padding: 0 0 32px;
   caret-color: var(--bs-text-primary);
+}
+
+.stage19-continuous-manuscript {
+  width: min(100%, 74ch);
+  margin: 0 auto;
+}
+
+.stage19-continuous-manuscript__section {
+  position: relative;
+  padding: 18px 0 64px;
+}
+
+.stage19-continuous-manuscript__section + .stage19-continuous-manuscript__section::before {
+  position: absolute;
+  top: -14px;
+  right: 34%;
+  left: 34%;
+  height: 1px;
+  background: var(--bs-line-quiet);
+  content: "";
+}
+
+.stage19-continuous-manuscript__heading,
+.stage19-continuous-manuscript__prose {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  text-align: left;
+}
+
+.stage19-continuous-manuscript__heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--bs-text-muted);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stage19-continuous-manuscript__heading strong {
+  color: var(--bs-text-secondary);
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.stage19-continuous-manuscript__heading em {
+  margin-left: auto;
+  color: var(--bs-state-warning);
+  font-size: 0.62rem;
+  font-style: normal;
+}
+
+.stage19-continuous-manuscript__heading:hover,
+.stage19-continuous-manuscript__heading:focus-visible {
+  color: var(--bs-accent-primary);
+  background: transparent;
+}
+
+.stage19-continuous-manuscript__prose {
+  display: block;
+  min-height: 3rem;
+  white-space: pre-wrap;
+  cursor: text;
+  color: var(--bs-text-primary);
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.stage19-continuous-manuscript__prose:hover,
+.stage19-continuous-manuscript__prose:focus-visible {
+  background: transparent;
+  color: var(--bs-text-primary);
+  outline: 1px solid var(--bs-line-quiet);
+  outline-offset: 10px;
+}
+
+.stage19-continuous-manuscript__section.is-active .stage19-continuous-manuscript__heading strong {
+  color: var(--bs-text-primary);
+}
+
+.stage19-continuous-manuscript .stage19-spine__editor,
+.stage19-continuous-manuscript .stage19-spine__editor .cm-content {
+  width: 100%;
+  max-width: none;
 }
 
 .stage19-spine--writing .stage19-spine__editor .cm-gutters {
