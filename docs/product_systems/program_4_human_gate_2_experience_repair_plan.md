@@ -2,7 +2,7 @@
 
 ## Status And Authority
 
-- Status: `AUTHORIZED; HG2-RPR-A AND HG2-RPR-B DURABLE; PROGRAM 5 BRIDGE AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
+- Status: `AUTHORIZED; HG2-RPR-A, HG2-RPR-B, AND PROGRAM 5 BRIDGE DURABLE; HG2-RPR-C AUTOMATED GATE PASSED; MANUAL CHECKPOINT REQUIRED`
 - Established: `2026-08-11`
 - Authorized: `2026-08-12` by Jason after confirming the required model change
 - Owner: `Human Gate 2 author-experience repair`
@@ -288,8 +288,8 @@ Current implementation state:
 
 The evidence is recorded in
 [Program 5 Human Gate 2 Bridge Evidence Receipt](program_5_hg2_bridge_evidence_receipt.md).
-The bridge waits only for Jason's manual commit/push checkpoint. It does not
-claim full long-manuscript import/discovery or Human Gate 3.
+The bridge is durable at `d292e23604b28edbdfc6d8c4f3e16c6ec0c6fb0f`. It does
+not claim full long-manuscript import/discovery or Human Gate 3.
 
 ### HG2-RPR-C — Focus And Companion Doorway
 
@@ -298,6 +298,26 @@ claim full long-manuscript import/discovery or Human Gate 3.
   Center, with a direct exact return path.
 - Verify unsupported requests are explicit and non-confusing, that writing
   remains unchanged, and that the route uses no provider or local model.
+
+Current implementation state:
+
+- the Companion is now a labelled bottom bar visible without opening a
+  session-tools rail, with its local-only/no-AI scope visible before use;
+- supported orientation and unsupported requests both reach a non-blank,
+  temporary Command result with an exact return-to-writing action;
+- Focus now removes surface controls, rails, Companion, editor framing,
+  shortcut copy, and line-number gutters while retaining only the quiet
+  project/current-section marker, save state, prose, and explicit exit;
+- narrow and large-text layouts move the Companion into normal document flow
+  and keep the bottom session edge control clear of it; and
+- the primary component suite, TypeScript, lint, production build, targeted
+  built-Electron journeys, and complete fixed development regression are
+  green.
+
+The evidence is recorded in
+[HG2-RPR-C Evidence Receipt](program_4_hg2_rpr_c_evidence_receipt.md). It
+awaits Jason's manual commit/push checkpoint. It does not claim a local LLM,
+generic chat, provider use, or Human Gate 2 acceptance.
 
 ### HG2-RPR-D — Complete Candidate Qualification
 

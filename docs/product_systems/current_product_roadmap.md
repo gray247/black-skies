@@ -28,11 +28,12 @@ Current status:
   blue/purple dashboard styling, and not-yet-useful Companion handoff require
   the bounded repair plan
   `program_4_human_gate_2_experience_repair_plan.md`
-- Human Gate 2 repair Batch A is durable at `28d2294a`, and Batch B's unified
-  Story Rail is durable at `707dfae6`. The pulled-forward Program 5
-  continuous-manuscript and stable-anchor bridge has passed its complete
-  automated development gate and waits for Jason's manual durable checkpoint.
-  HG2-RPR-C Focus and Companion doorway repair is next; no human review is
+- Human Gate 2 repair Batch A is durable at `28d2294a`, Batch B's unified
+  Story Rail is durable at `707dfae6`, and the pulled-forward Program 5
+  continuous-manuscript and stable-anchor bridge is durable at `d292e236`.
+  HG2-RPR-C real Focus and Companion-doorway repair passed its complete
+  automated development gate and awaits Jason's manual durable checkpoint.
+  HG2-RPR-D complete candidate qualification is next; no human review is
   requested between these internal repair batches
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The

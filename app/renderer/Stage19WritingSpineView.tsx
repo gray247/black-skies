@@ -1075,13 +1075,17 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
     <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
       {activeUnit ? (
         <>
-          <div className="stage19-spine__editor-header">
-            <div><span className="stage19-spine__eyebrow">Manuscript</span><h2>One continuous story</h2></div>
-            <button type="button" onClick={() => void actions.saveUnit(activeUnit.id)} disabled={model.recoveryBlocksEditing || !model.activeDirty || snapshot.saveState.status === 'saving'}>
-              {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
-            </button>
-          </div>
-          <p className="stage19-spine__shortcut">Scroll through the whole story. Click any section to write there. Ctrl+S saves the section you are writing.</p>
+          {!model.focusMode ? (
+            <>
+              <div className="stage19-spine__editor-header">
+                <div><span className="stage19-spine__eyebrow">Manuscript</span><h2>One continuous story</h2></div>
+                <button type="button" onClick={() => void actions.saveUnit(activeUnit.id)} disabled={model.recoveryBlocksEditing || !model.activeDirty || snapshot.saveState.status === 'saving'}>
+                  {snapshot.saveState.status === 'saving' ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+              <p className="stage19-spine__shortcut">Scroll through the whole story. Click any section to write there. Ctrl+S saves the section you are writing.</p>
+            </>
+          ) : null}
           <div className="stage19-continuous-manuscript" aria-label="Continuous manuscript">
             {units.map((unit, index) => {
               const active = unit.id === activeUnit.id;
@@ -1261,35 +1265,7 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
       className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
       aria-label="Writing session tools"
     >
-      <WritingRailHeading rail="bottom" title="Companion & session" actions={actions} />
-      <form
-        className="stage19-companion-entry"
-        aria-label="Local Companion orientation"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void actions.submitCompanionOrientation();
-        }}
-      >
-        <label htmlFor="stage19-companion-prompt">Ask Black Skies</label>
-        <div className="stage19-companion-entry__controls">
-          <input
-            id="stage19-companion-prompt"
-            type="text"
-            value={model.companionPrompt}
-            onChange={(event) => actions.setCompanionPrompt(event.target.value)}
-            placeholder="Where am I in this project?"
-            disabled={!snapshot.project}
-            maxLength={500}
-          />
-          <button type="submit" disabled={!snapshot.project || !model.companionPrompt.trim()}>Ask</button>
-        </div>
-        <p className="stage19-companion-entry__scope">
-          {snapshot.project
-            ? `Uses ${snapshot.project.title}${activeUnit ? ` and ${activeUnit.displayTitle}` : ''} only. No AI is called.`
-            : 'Open a project to ask for local orientation. No AI is called.'}
-        </p>
-        {model.companionNotice ? <p className="stage19-companion-entry__notice" role="status">{model.companionNotice}</p> : null}
-      </form>
+      <WritingRailHeading rail="bottom" title="Writing session" actions={actions} />
       <div className="stage19-writing-shell__session-summary">
         <p><strong>Current writing</strong><span>{activeUnit?.displayTitle ?? 'No manuscript unit selected'}</span></p>
         <p><strong>Save state</strong><span>{model.writingSaveSummary}</span></p>
@@ -1304,6 +1280,40 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
         ) : null}
       </div>
     </section>
+  );
+}
+
+function CompanionBarView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
+  const { activeUnit, snapshot } = model;
+  if (model.focusMode) return null;
+  return (
+    <form
+      className="stage19-companion-bar"
+      aria-label="Local Companion orientation"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void actions.submitCompanionOrientation();
+      }}
+    >
+      <label htmlFor="stage19-companion-prompt">Companion</label>
+      <input
+        id="stage19-companion-prompt"
+        aria-label="Ask Black Skies"
+        type="text"
+        value={model.companionPrompt}
+        onChange={(event) => actions.setCompanionPrompt(event.target.value)}
+        placeholder="Ask where you are in this project"
+        disabled={!snapshot.project}
+        maxLength={500}
+      />
+      <button type="submit" disabled={!snapshot.project || !model.companionPrompt.trim()}>Ask</button>
+      <span className="stage19-companion-bar__scope">
+        {snapshot.project
+          ? `Local project and current writing only${activeUnit ? `: ${activeUnit.displayTitle}` : ''}. No AI.`
+          : 'Open a project to ask. No AI.'}
+      </span>
+      {model.companionNotice ? <span className="stage19-companion-bar__notice" role="status">{model.companionNotice}</span> : null}
+    </form>
   );
 }
 
@@ -1393,11 +1403,18 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
     >
       <div className="stage19-writing-shell">
       <header className="stage19-writing-shell__topbar">
-        <div className="stage19-writing-shell__identity">
-          {!model.focusMode ? <span className="stage19-writing-shell__brand">Black Skies</span> : null}
-          <h1 className="stage19-writing-shell__project">{snapshot.project?.title ?? 'Writing Studio'}</h1>
-          {activeUnit ? <span className="stage19-writing-shell__location">{activeUnit.displayTitle}</span> : null}
-        </div>
+        {model.focusMode ? (
+          <div className="stage19-writing-shell__focus-context">
+            <span>{snapshot.project?.title ?? 'Writing Studio'}</span>
+            {activeUnit ? <span>{activeUnit.displayTitle}</span> : null}
+          </div>
+        ) : (
+          <div className="stage19-writing-shell__identity">
+            <span className="stage19-writing-shell__brand">Black Skies</span>
+            <h1 className="stage19-writing-shell__project">{snapshot.project?.title ?? 'Writing Studio'}</h1>
+            {activeUnit ? <span className="stage19-writing-shell__location">{activeUnit.displayTitle}</span> : null}
+          </div>
+        )}
         <div className="stage19-writing-shell__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">{model.writingSaveSummary}</span>
           {!model.focusMode ? <ThemeSwitchView {...props} /> : null}
@@ -1430,6 +1447,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
         {!model.focusMode && model.openWritingRail === 'right' ? <WritingRightRailView {...props} /> : null}
       </div>
       {!model.focusMode && model.openWritingRail === 'bottom' ? <WritingBottomRailView {...props} /> : null}
+      <CompanionBarView {...props} />
       {model.overlays}
       </div>
     </main>

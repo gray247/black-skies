@@ -88,6 +88,9 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'focus');
     await expect(writing.getByRole('navigation', { name: 'Writing Studio edge controls' })).toHaveCount(0);
     await expect(writing.getByRole('region', { name: 'Story tools' })).toHaveCount(0);
+    await expect(writing.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveCount(0);
+    await expect(writing.getByRole('heading', { name: 'One continuous story' })).toHaveCount(0);
+    await expect(writing.getByText(/Scroll through the whole story/)).toHaveCount(0);
     await expect(editor).toContainText(prose);
 
     await writing.getByRole('button', { name: 'Exit Focus mode' }).click();

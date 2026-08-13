@@ -28,8 +28,9 @@ The inventory includes:
 - the current Program 4 Batch P4-A through P4-C evidence receipts;
 - the Human Gate 2 experience finding and its bounded Continuous Manuscript,
   Unified Story Rail, real Focus, Companion-bar repair plan;
-- the Human Gate 2 HG2-RPR-A visual and interaction-language foundation and
-  HG2-RPR-B unified Story Rail evidence receipts;
+- the Human Gate 2 HG2-RPR-A visual and interaction-language foundation,
+  HG2-RPR-B unified Story Rail, and HG2-RPR-C real Focus and Companion-doorway
+  evidence receipts;
 - the Program 5 Human Gate 2 continuous-manuscript and stable-anchor bridge
   evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3

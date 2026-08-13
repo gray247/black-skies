@@ -5308,6 +5308,28 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-width: 0;
 }
 
+.stage19-writing-shell__focus-context {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  color: var(--bs-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.stage19-writing-shell__focus-context span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage19-writing-shell__focus-context span + span::before {
+  margin-right: 8px;
+  color: var(--bs-line-quiet);
+  content: "/";
+}
+
 .stage19-writing-shell__brand {
   color: var(--bs-text-primary);
   font-size: 0.78rem;
@@ -5439,7 +5461,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__edge--bottom {
-  bottom: 2px;
+  bottom: 58px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column-reverse;
@@ -5507,7 +5529,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-writing-shell__canvas {
   min-width: 0;
+  padding-bottom: 56px;
   background: var(--bs-canvas-black);
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] {
+  background: #fbf8f1;
 }
 
 .stage19-spine-host,
@@ -5529,6 +5556,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-radius: 4px;
   background: var(--bs-surface-raised);
   color: var(--bs-text-primary);
+}
+
+.stage19-writing-shell__rail button,
+.stage19-writing-shell__rail input,
+.stage19-writing-shell__rail select,
+.stage19-writing-shell__rail textarea {
+  scroll-margin-bottom: 72px;
 }
 
 .stage19-writing-shell__rail--top,
@@ -5878,6 +5912,53 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   font-size: 0.82rem;
 }
 
+.stage19-companion-bar {
+  position: fixed;
+  z-index: 24;
+  right: 48px;
+  bottom: 0;
+  left: 48px;
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 44rem) auto minmax(12rem, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+  min-height: 48px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--bs-line-quiet);
+  background: var(--bs-surface-base);
+  box-shadow: 0 -8px 18px color-mix(in srgb, #000000 24%, transparent);
+}
+
+.stage19-companion-bar > label {
+  color: var(--bs-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.stage19-companion-bar input {
+  min-width: 0;
+  min-height: 34px;
+  padding: 6px 9px;
+}
+
+.stage19-companion-bar button {
+  min-height: 34px;
+  padding: 6px 12px;
+}
+
+.stage19-companion-bar__scope,
+.stage19-companion-bar__notice {
+  color: var(--bs-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.stage19-companion-bar__notice {
+  grid-column: 2 / -1;
+  color: var(--bs-text-secondary);
+}
+
 .stage19-companion-entry {
   display: grid;
   gap: 7px;
@@ -5937,12 +6018,40 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing.is-focus-mode .stage19-writing-shell__topbar {
+  min-height: 42px;
+  padding: 6px 28px;
   border-bottom-color: transparent;
   background: var(--bs-canvas-black);
 }
 
-.stage19-spine--writing.is-focus-mode .stage19-writing-shell__project::before {
-  content: none;
+.stage19-spine--writing.is-focus-mode .stage19-writing-shell__workspace {
+  min-height: calc(100vh - 42px);
+}
+
+.stage19-spine--writing.is-focus-mode .stage19-writing-shell__canvas {
+  padding-bottom: 0;
+}
+
+.stage19-spine--writing.is-focus-mode .stage19-spine__editor-card {
+  min-height: calc(100vh - 42px);
+  padding-top: clamp(48px, 10vh, 136px);
+  padding-bottom: clamp(64px, 14vh, 180px);
+}
+
+.stage19-spine--writing.is-focus-mode .stage19-spine__editor-header,
+.stage19-spine--writing.is-focus-mode .stage19-spine__shortcut,
+.stage19-spine--writing.is-focus-mode .cm-gutters {
+  display: none;
+}
+
+.stage19-spine--writing.is-focus-mode .stage19-continuous-manuscript__section {
+  padding-top: 0;
+  padding-bottom: 96px;
+}
+
+.stage19-spine--writing.is-focus-mode .stage19-continuous-manuscript__heading,
+.stage19-spine--writing.is-focus-mode .stage19-continuous-manuscript__section + .stage19-continuous-manuscript__section::before {
+  display: none;
 }
 
 @media (max-width: 1100px) {
@@ -5970,7 +6079,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px), (min-resolution: 1.5dppx) and (max-height: 1000px) {
   .stage19-writing-shell__topbar {
     align-items: flex-start;
     padding: 8px 40px 8px 16px;
@@ -6012,6 +6121,24 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   .stage19-writing-shell__session-summary {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .stage19-companion-bar {
+    position: static;
+    right: 8px;
+    left: 8px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    margin: 8px 8px 0;
+    box-shadow: none;
+  }
+
+  .stage19-companion-bar__scope,
+  .stage19-companion-bar__notice {
+    grid-column: 2 / -1;
+  }
+
+  .stage19-writing-shell__edge--bottom {
+    bottom: 2px;
   }
 }
 

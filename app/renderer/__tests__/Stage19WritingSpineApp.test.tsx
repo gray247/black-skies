@@ -973,7 +973,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
   });
 
-  it('routes a local Companion orientation request through the bottom seam without changing writing', async () => {
+  it('routes a local Companion orientation request through the persistent Companion bar without changing writing', async () => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'));
     const outline = createLivingOutlineBridge();
@@ -988,8 +988,7 @@ describe('Stage19WritingSpineApp', () => {
     );
 
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
-    await openWritingRail('session tools');
-    expect(screen.getByText('Uses Project A and First Unit only. No AI is called.')).toBeVisible();
+    expect(screen.getByText('Local project and current writing only: First Unit. No AI.')).toBeVisible();
     const companionInput = screen.getByRole('textbox', { name: 'Ask Black Skies' });
     await user.type(companionInput, 'Where am I?');
     await user.keyboard('{Enter}');
@@ -1023,8 +1022,8 @@ describe('Stage19WritingSpineApp', () => {
       commandPlacement: 'secondary-window',
       secondaryStatus: 'open',
     }));
-    await openWritingRail('session tools');
-    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'What am I working on?');
+    const companionInput = await screen.findByRole('textbox', { name: 'Ask Black Skies' });
+    await user.type(companionInput, 'What am I working on?');
     await user.click(screen.getByRole('button', { name: 'Ask' }));
 
     expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
@@ -1041,8 +1040,7 @@ describe('Stage19WritingSpineApp', () => {
     const user = userEvent.setup();
     render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
 
-    await openWritingRail('session tools');
-    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
     await user.keyboard('{Enter}');
     expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
 
@@ -1062,8 +1060,7 @@ describe('Stage19WritingSpineApp', () => {
       />,
     );
 
-    await openWritingRail('session tools');
-    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'How should I fix this chapter?');
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'How should I fix this chapter?');
     await user.click(screen.getByRole('button', { name: 'Ask' }));
 
     expect(await screen.findByRole('heading', { name: 'This request is not routed yet' })).toBeVisible();
@@ -1094,14 +1091,18 @@ describe('Stage19WritingSpineApp', () => {
     );
 
     const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
-    await openWritingRail('session tools');
-    expect(screen.getByRole('textbox', { name: 'Ask Black Skies' })).toBeVisible();
+    expect(await screen.findByRole('textbox', { name: 'Ask Black Skies' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Enter Focus mode' }));
     expect(screen.queryByRole('textbox', { name: 'Ask Black Skies' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Writing Studio edge controls' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'One continuous story' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Scroll through the whole story/)).not.toBeInTheDocument();
+    expect(document.querySelector('.stage19-writing-shell__focus-context')).toHaveTextContent('Project A');
+    expect(screen.getByRole('button', { name: 'Exit Focus mode' })).toBeVisible();
+    expect(editor).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Exit Focus mode' }));
 
-    await openWritingRail('session tools');
-    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'Where was I?');
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'Where was I?');
     await user.click(screen.getByRole('button', { name: 'Ask' }));
     expect(await screen.findByText('Companion could not open Command Center. The request was not saved and writing remains unchanged.')).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument();

@@ -7,7 +7,6 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
-  openWritingStudioRail,
   removeTemporaryDirectory,
   requestWritingStudioClose,
   waitForCleanElectronApplicationExit,
@@ -55,7 +54,6 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
       readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),
     ]);
 
-    await openWritingStudioRail(writing, 'session tools');
     const prompt = writing.getByRole('textbox', { name: 'Ask Black Skies' });
     await prompt.fill('Where am I?');
     await prompt.press('Enter');
@@ -75,6 +73,18 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await writing.getByRole('button', { name: 'Return to Writing', exact: true }).click();
     await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Orientation Passage' }))
       .toBeFocused();
+
+    await writing.getByRole('textbox', { name: 'Ask Black Skies' })
+      .fill('How should I rewrite this?');
+    await writing.getByRole('button', { name: 'Ask', exact: true }).click();
+    await expect(writing.getByRole('region', { name: 'Companion orientation result' }))
+      .toContainText('This request is not routed yet');
+    await expect(writing.getByText(/No AI or provider was called/)).toBeVisible();
+    expect(await Promise.all([
+      readFile(join(created.projectPath, 'project.json'), 'utf8'),
+      readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),
+    ])).toEqual(protectedBefore);
+    await writing.getByRole('button', { name: 'Return to Writing', exact: true }).click();
 
     const firstExit = waitForCleanElectronApplicationExit(electronApp);
     await requestWritingStudioClose(electronApp);
@@ -96,7 +106,6 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
       .toHaveCount(0);
     await expect(reopened.command.getByRole('region', { name: 'Companion orientation result' }))
       .toHaveCount(0);
-    await openWritingStudioRail(reopened.writing, 'session tools');
     await expect(reopened.writing.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveValue('');
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),

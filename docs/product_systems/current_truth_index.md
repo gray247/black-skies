@@ -113,9 +113,15 @@ It does not finalize the entire product vision.
   records the next green development gate: one continuous readable manuscript,
   in-place section activation, compact no-duplicate-prose position/span
   anchors, honest exact/relocated/ambiguous/unresolved source return, and the
-  100-unit performance boundary. The bridge awaits Jason's manual durable
-  checkpoint and does not claim full long-manuscript intake/discovery,
-  Focus/Companion repair, Human Gate 3, or Human Gate 2 acceptance.
+  100-unit performance boundary. The bridge is durable at `d292e236` and does
+  not claim full long-manuscript intake/discovery or Human Gate 3. The next
+  [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)
+  records the green real-Focus and local-facts Companion-doorway gate: a
+  labelled bottom entry, immediate non-blank Command result for supported and
+  unsupported requests, exact return to Writing, no persistence or provider
+  route, and narrow/high-zoom no-overlay behavior. It awaits Jason's manual
+  durable checkpoint and does not claim local-LLM conversation, provider use,
+  Human Gate 2 acceptance, or package/install qualification.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
