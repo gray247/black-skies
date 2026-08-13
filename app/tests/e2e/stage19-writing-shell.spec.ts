@@ -12,6 +12,23 @@ import {
 
 test.use({ splitCommandRuntimeConfig: true });
 
+test('P3-D starts in dark appearance even when a prior preference exists', async ({ page }) => {
+  await page.evaluate(() => window.localStorage.setItem('black-skies.stage19.theme.v1', 'light'));
+  await page.reload();
+  await expect(page.getByRole('region', { name: 'Writing Studio' })).toHaveAttribute('data-stage19-theme', 'light');
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'black-skies.stage19.theme.v1',
+      oldValue: 'light',
+      newValue: null,
+      storageArea: window.localStorage,
+      url: window.location.href,
+    }));
+  });
+  await expect(page.getByRole('region', { name: 'Writing Studio' })).toHaveAttribute('data-stage19-theme', 'dark');
+});
+
 test('P3-D keeps the literary manuscript primary while edge families and Focus remain reversible', async ({
   electronApp,
   page,

@@ -74,6 +74,8 @@ const RESETTABLE_DATASET_KEYS = [
   'projectId',
 ] as const;
 
+const STAGE19_THEME_STORAGE_KEY = 'black-skies.stage19.theme.v1';
+
 const BASELINE_DATASET_KEYS = [
   'testEnv',
   'testActiveFlow',
@@ -173,7 +175,7 @@ async function resetMutableHarnessState(
   baseline?: { body: Record<string, string>; html: Record<string, string> },
 ): Promise<void> {
   await page.evaluate(
-    async ({ resetKeys, baselineFlags }) => {
+    async ({ resetKeys, baselineFlags, stage19ThemeStorageKey }) => {
       const clearAllDatasetKeys = (target: HTMLElement | null) => {
         if (!target) {
           return;
@@ -235,6 +237,13 @@ async function resetMutableHarnessState(
 
       window.localStorage.clear();
       window.sessionStorage.clear();
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: stage19ThemeStorageKey,
+        oldValue: null,
+        newValue: null,
+        storageArea: window.localStorage,
+        url: window.location.href,
+      }));
 
       if (typeof window.indexedDB !== 'undefined' && typeof window.indexedDB.databases === 'function') {
         try {
@@ -260,6 +269,7 @@ async function resetMutableHarnessState(
     {
       resetKeys: [...RESETTABLE_DATASET_KEYS],
       baselineFlags: baseline ?? { body: {}, html: {} },
+      stage19ThemeStorageKey: STAGE19_THEME_STORAGE_KEY,
     },
   );
 }

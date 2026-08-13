@@ -444,9 +444,13 @@ The Story Rail is durable at `707dfae6`; the pulled-forward continuous
 projection and anchor bridge is durable at `d292e236`; and the real Focus and
 Companion doorway repair is durable at `1da56446`. The first complete hosted
 qualification found a repeated-identical Electron launch-argument seam that
-hid the optional Command bridge. Its bounded preload repair and complete local
-regression are green; a clean hosted Windows package/install run of the next
-exact candidate remains required before Human Gate 2 repeats.
+hid the optional Command bridge. The following hosted run isolated a separate
+first-host-state startup race despite a confirmed lifecycle seam. Full local
+qualification then isolated a persisted-theme test-isolation race. The bounded
+preload, renderer-handshake, and fixture-isolation repairs are green locally,
+including CI-mode built-Electron evidence; a clean hosted Windows
+package/install run of the next exact candidate remains required before Human
+Gate 2 repeats.
 
 ### Cleanup Wave A And Professionalization Checkpoint
 

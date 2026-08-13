@@ -288,6 +288,9 @@ function createSurfaceBridge(
   options: {
     initialSurface?: 'writing' | 'command';
     activationFailure?: { code: 'STALE_GENERATION' | 'SECONDARY_UNAVAILABLE'; message: string };
+    initialRequestMisses?: number;
+    initialReadUnavailable?: boolean;
+    suppressInitialSubscriptionState?: boolean;
   } = {},
 ) {
   let current: SplitCommandSurfaceHostState = {
@@ -302,6 +305,7 @@ function createSurfaceBridge(
     commandSnapshot,
   };
   const listeners = new Set<(state: SplitCommandSurfaceHostState) => void>();
+  let remainingInitialRequestMisses = options.initialRequestMisses ?? 0;
   const publish = (next: SplitCommandSurfaceHostState) => {
     current = next;
     for (const listener of listeners) listener(next);
@@ -333,12 +337,18 @@ function createSurfaceBridge(
     requestOwnershipSync: vi.fn(async () => null),
     readOwnershipSync: vi.fn(() => null),
     subscribeOwnershipSync: vi.fn(() => () => undefined),
-    requestSurfaceHostState: vi.fn(async () => current),
+    requestSurfaceHostState: vi.fn(async () => {
+      if (remainingInitialRequestMisses > 0) {
+        remainingInitialRequestMisses -= 1;
+        return null;
+      }
+      return current;
+    }),
     activateSurface,
-    readSurfaceHostState: vi.fn(() => current),
+    readSurfaceHostState: vi.fn(() => options.initialReadUnavailable ? null : current),
     subscribeSurfaceHostState: vi.fn((listener) => {
       listeners.add(listener);
-      listener(current);
+      if (!options.suppressInitialSubscriptionState) listener(current);
       return () => listeners.delete(listener);
     }),
   };
@@ -971,6 +981,20 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('button', { name: 'Command Center open in second window' }))
       .toBeDisabled();
     expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
+  });
+
+  it('recovers the surface controls when the initial host-state handshake races startup', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'), {
+      initialRequestMisses: 1,
+      initialReadUnavailable: true,
+      suppressInitialSubscriptionState: true,
+    });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    expect(screen.queryByRole('button', { name: 'Open Command Center in second window' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Open Command Center in second window' })).toBeVisible();
+    expect(surfaces.bridge.requestSurfaceHostState).toHaveBeenCalledTimes(2);
   });
 
   it('routes a local Companion orientation request through the persistent Companion bar without changing writing', async () => {

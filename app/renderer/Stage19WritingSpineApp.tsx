@@ -662,15 +662,38 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     if (!surfaceBridge) return;
     let active = true;
+    let receivedSurfaceHostState = false;
+    let retryTimer: number | null = null;
+    let retryIndex = 0;
+    const retryDelaysMs = [25, 50, 100, 200, 400] as const;
     const applySurfaceHostState = (state: SplitCommandSurfaceHostState) => {
-      if (active) setSurfaceHostState(state);
+      if (!active) return;
+      receivedSurfaceHostState = true;
+      setSurfaceHostState(state);
     };
     const unsubscribe = surfaceBridge.subscribeSurfaceHostState(applySurfaceHostState);
-    void surfaceBridge.requestSurfaceHostState().then((state) => {
-      if (active && state) setSurfaceHostState(state);
-    });
+    const requestSurfaceHostState = () => {
+      void surfaceBridge.requestSurfaceHostState()
+        .then((state) => {
+          if (!active) return;
+          if (state) {
+            applySurfaceHostState(state);
+            return;
+          }
+          if (receivedSurfaceHostState) return;
+          const delay = retryDelaysMs[retryIndex++];
+          if (delay !== undefined) retryTimer = window.setTimeout(requestSurfaceHostState, delay);
+        })
+        .catch(() => {
+          if (!active || receivedSurfaceHostState) return;
+          const delay = retryDelaysMs[retryIndex++];
+          if (delay !== undefined) retryTimer = window.setTimeout(requestSurfaceHostState, delay);
+        });
+    };
+    requestSurfaceHostState();
     return () => {
       active = false;
+      if (retryTimer !== null) window.clearTimeout(retryTimer);
       unsubscribe();
     };
   }, [surfaceBridge]);

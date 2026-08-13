@@ -133,8 +133,10 @@ discovery, Human Gate 3, Focus/Companion repair, or Human Gate 2.
 
 The [HG2-RPR-D evidence receipt](product_systems/program_4_hg2_rpr_d_evidence_receipt.md)
 records the contained split-window preload repair after the first hosted
-qualification found Electron repeating identical renderer launch arguments.
-Its focused and complete local development evidence is green. The receipt is
+qualification found Electron repeating identical renderer launch arguments,
+and the following bounded first-host-state startup recovery after the next
+hosted run. It also records the local persisted-theme test-isolation repair.
+Its focused local and CI-mode built-Electron evidence is green. The receipt is
 intentionally not a hosted package/install claim: the next durable exact
 candidate must pass that clean GitHub Windows qualification before Human Gate 2
 can repeat.
