@@ -508,11 +508,14 @@ function readSplitCommandWebContentsId(window: BrowserWindow | null): number | n
 
 function resolveSplitCommandSenderRole(
   senderWindow: BrowserWindow | null,
+  senderWebContentsId?: number,
 ): SplitCommandWindowRole | null {
   // BrowserWindow wrappers returned by fromWebContents are not guaranteed to
   // preserve object identity across Electron's Windows implementation. The
   // webContents id is the stable identity for the lifetime of the renderer.
-  const senderId = readSplitCommandWebContentsId(senderWindow);
+  const senderId = Number.isInteger(senderWebContentsId)
+    ? senderWebContentsId
+    : readSplitCommandWebContentsId(senderWindow);
   if (senderId === null) return null;
   if (senderId === readSplitCommandWebContentsId(mainWindow)) return 'primary';
   if (senderId === readSplitCommandWebContentsId(splitCommandSecondaryWindow)) {
@@ -619,12 +622,7 @@ function registerSplitCommandOwnershipIpc(): void {
       return null;
     }
 
-    const senderWindow = BrowserWindow.fromWebContents(event.sender);
-    if (!senderWindow) {
-      return null;
-    }
-
-    const windowRole = resolveSplitCommandSenderRole(senderWindow);
+    const windowRole = resolveSplitCommandSenderRole(null, event.sender.id);
     if (!windowRole) {
       return null;
     }
@@ -632,15 +630,23 @@ function registerSplitCommandOwnershipIpc(): void {
     return buildSplitCommandOwnershipSyncForRole(windowRole);
   });
   ipcMain.handle(SPLIT_COMMAND_CHANNELS.requestSurfaceHostState, (event) => {
-    const senderRole = resolveSplitCommandSenderRole(
-      BrowserWindow.fromWebContents(event.sender),
-    );
-    return senderRole ? buildSplitCommandSurfaceHostState() : null;
+    const senderRole = resolveSplitCommandSenderRole(null, event.sender.id);
+    const state = senderRole ? buildSplitCommandSurfaceHostState() : null;
+    if (!state) {
+      console.warn('[main] Split command surface-host state unavailable', {
+        senderWebContentsId: event.sender.id,
+        senderRole,
+        primaryWebContentsId: readSplitCommandWebContentsId(mainWindow),
+        secondaryWebContentsId: readSplitCommandWebContentsId(splitCommandSecondaryWindow),
+        seamEnabled: Boolean(splitCommandLifecycleSeam),
+        registryActive: splitCommandLifecycleSeam?.registry.isActive ?? false,
+        primaryWindowRegistered: splitCommandLifecycleSeam?.registry.primaryWindowRegistered ?? false,
+      });
+    }
+    return state;
   });
   ipcMain.handle(SPLIT_COMMAND_CHANNELS.activateSurface, async (event, request: unknown) => {
-    const senderRole = resolveSplitCommandSenderRole(
-      BrowserWindow.fromWebContents(event.sender),
-    );
+    const senderRole = resolveSplitCommandSenderRole(null, event.sender.id);
     if (!senderRole) {
       return surfaceHostFailure(
         'WRONG_WINDOW_ROLE',

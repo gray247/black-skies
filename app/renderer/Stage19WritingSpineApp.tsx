@@ -665,7 +665,10 @@ export default function Stage19WritingSpineApp({
     let receivedSurfaceHostState = false;
     let retryTimer: number | null = null;
     let retryIndex = 0;
-    const retryDelaysMs = [25, 50, 100, 200, 400] as const;
+    // Hosted Windows startup can take longer than the local renderer handshake.
+    // Keep retrying for a bounded interval so a transient main-process race does
+    // not permanently hide the surface controls.
+    const retryDelaysMs = [50, 100, 200, 400, 800, 1200, 1600, 2400] as const;
     const applySurfaceHostState = (state: SplitCommandSurfaceHostState) => {
       if (!active) return;
       receivedSurfaceHostState = true;
