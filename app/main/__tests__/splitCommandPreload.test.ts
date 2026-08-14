@@ -613,6 +613,19 @@ describe('splitCommand preload bridge', () => {
     );
   });
 
+  it('exposes the hosted Writing Studio bridge when Electron omits the context hint', async () => {
+    setSplitCommandRuntimeEnabled(true);
+    Object.defineProperty(process, 'contextIsolated', {
+      configurable: true,
+      value: undefined,
+    });
+
+    await import('../preload');
+
+    expect(getSplitCommandBridge()?.windowRole).toBe('primary');
+    expect(getExposedGlobalNames()).toContain('splitCommand');
+  });
+
   it('accepts repeated identical split-window launch arguments', async () => {
     setArgv([
       '--blackskies-split-command-role=primary',

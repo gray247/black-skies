@@ -80,6 +80,14 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
     await editor.fill(prose);
     expect(await editor.textContent()).toContain(prose);
 
+    await expect.poll(
+      () => page.evaluate(() => ({
+        bridgePresent: Boolean(window.splitCommand),
+        bridgeRole: window.splitCommand?.windowRole ?? null,
+      })),
+      { timeout: 5_000 },
+    ).toEqual({ bridgePresent: true, bridgeRole: 'primary' });
+
     await page.getByRole('button', { name: 'Open Command Center here' }).click();
     await expect(page.getByRole('region', { name: 'Command Center' })).toBeVisible();
     await expect(page.locator('[data-stage19-logical-surface="command"]')).toBeVisible();

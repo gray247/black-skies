@@ -57,11 +57,12 @@ import { loadRuntimeConfig } from '../shared/config/runtime.js';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
-    if ((process as NodeJS.Process & { contextIsolated?: boolean }).contextIsolated) {
-      contextBridge.exposeInMainWorld(key, api);
-    } else {
-      console.warn(`[preload] contextIsolation=false; skipping expose ${key}`);
-    }
+    // Electron's hosted Windows preload can report an absent or stale
+    // process.contextIsolated value even while contextBridge exposure is
+    // available. Let Electron enforce the actual boundary and handle a real
+    // exposure failure explicitly instead of hiding the bridge behind a
+    // renderer-process hint.
+    contextBridge.exposeInMainWorld(key, api);
   } catch (err) {
     console.warn(`[preload] expose ${key} failed:`, err);
   }
