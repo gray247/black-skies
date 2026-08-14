@@ -493,11 +493,31 @@ function publishSplitCommandOwnershipSync(
   }
 }
 
+function readSplitCommandWebContentsId(window: BrowserWindow | null): number | null {
+  if (!window) return null;
+  try {
+    if (window.isDestroyed() || window.webContents.isDestroyed()) {
+      return null;
+    }
+    const id = window.webContents.id;
+    return Number.isInteger(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 function resolveSplitCommandSenderRole(
   senderWindow: BrowserWindow | null,
 ): SplitCommandWindowRole | null {
-  if (senderWindow === mainWindow) return 'primary';
-  if (senderWindow === splitCommandSecondaryWindow) return 'secondary';
+  // BrowserWindow wrappers returned by fromWebContents are not guaranteed to
+  // preserve object identity across Electron's Windows implementation. The
+  // webContents id is the stable identity for the lifetime of the renderer.
+  const senderId = readSplitCommandWebContentsId(senderWindow);
+  if (senderId === null) return null;
+  if (senderId === readSplitCommandWebContentsId(mainWindow)) return 'primary';
+  if (senderId === readSplitCommandWebContentsId(splitCommandSecondaryWindow)) {
+    return 'secondary';
+  }
   return null;
 }
 

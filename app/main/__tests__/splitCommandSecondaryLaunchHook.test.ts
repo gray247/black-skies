@@ -504,6 +504,35 @@ describe('main split command launch hook', () => {
     );
   });
 
+  it('resolves the renderer role when fromWebContents returns a wrapper with the same webContents id', async () => {
+    experimentalSplitCommandWorkspace = true;
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+    delete process.env.BLACKSKIES_TEST_AUTOMATIC_SECONDARY;
+
+    await loadMainModule();
+
+    const [primaryWindow] = browserWindowState.instances;
+    BrowserWindowMock.fromWebContents.mockImplementation((webContents) => {
+      if (!webContents) return null;
+      return {
+        webContents: {
+          id: webContents.owner?.webContents.id ?? -1,
+          isDestroyed: vi.fn(() => false),
+        },
+        isDestroyed: vi.fn(() => false),
+      } as unknown as BrowserWindowMock;
+    });
+
+    const readHostState = getSurfaceHostRequestHandler();
+    expect(readHostState?.({ sender: primaryWindow.webContents })).toEqual(
+      expect.objectContaining({
+        primarySurface: 'writing',
+        commandPlacement: 'current-window',
+        projectId: 'project-surface-host',
+      }),
+    );
+  });
+
   it('records the qualification-only startup probe when both windows become visible', async () => {
     process.env.STAGE19_INTERNAL_STARTUP_PROBE = '1';
     experimentalSplitCommandWorkspace = true;
