@@ -14,6 +14,7 @@ import {
 const browserWindowState = {
   instances: [] as BrowserWindowMock[],
   failOnInstance: 0,
+  onLoadURL: undefined as ((window: BrowserWindowMock) => void) | undefined,
 };
 const electronAppState = vi.hoisted(() => ({ isPackaged: false }));
 const screenState = vi.hoisted(() => ({
@@ -109,7 +110,9 @@ class BrowserWindowMock {
     }
   }
 
-  loadURL = vi.fn(async (_url: string): Promise<void> => {});
+  loadURL = vi.fn(async (_url: string): Promise<void> => {
+    browserWindowState.onLoadURL?.(this);
+  });
 
   loadFile = vi.fn(async (_path: string): Promise<void> => {});
 
@@ -397,6 +400,7 @@ describe('main split command launch hook', () => {
     vi.resetModules();
     browserWindowState.instances = [];
     browserWindowState.failOnInstance = 0;
+    browserWindowState.onLoadURL = undefined;
     electronAppState.isPackaged = false;
     fileSystemMocks.existsSync.mockReset();
     fileSystemMocks.existsSync.mockImplementation((path: string) =>
@@ -469,6 +473,35 @@ describe('main split command launch hook', () => {
     await loadMainModule();
 
     expect(browserWindowState.instances).toHaveLength(1);
+  });
+
+  it('serves Writing Studio host state when the renderer asks during its first load', async () => {
+    experimentalSplitCommandWorkspace = true;
+    projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
+    let initialHostState: SplitCommandSurfaceHostState | null | undefined;
+    let initialHostHandlerPresent = false;
+
+    browserWindowState.onLoadURL = (window) => {
+      if (initialHostState !== undefined) {
+        return;
+      }
+      const readHostState = getSurfaceHostRequestHandler();
+      initialHostHandlerPresent = Boolean(readHostState);
+      initialHostState = readHostState?.({ sender: window.webContents });
+    };
+
+    await loadMainModule();
+
+    expect(initialHostHandlerPresent).toBe(true);
+    expect(initialHostState).toEqual(
+      expect.objectContaining({
+        primarySurface: 'writing',
+        commandPlacement: 'current-window',
+        secondaryStatus: 'closed',
+        projectId: 'project-surface-host',
+        generation: 7,
+      }),
+    );
   });
 
   it('records the qualification-only startup probe when both windows become visible', async () => {

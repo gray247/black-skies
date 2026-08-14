@@ -1098,6 +1098,17 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
   const unregisterProjectSpineWindow = registerProjectSpineWindow(window, 'writing');
+  // The renderer can ask for its surface-host state as soon as loading starts.
+  // Establish the primary host before loadURL so that first request receives
+  // the same authoritative state as every later request.
+  mainWindow = window;
+  if (splitCommandLifecycleSeam && !splitCommandLifecycleSeam.registry.primaryWindowRegistered) {
+    splitCommandLifecycleSeam.registry.registerPrimaryWindow();
+    recordSplitCommandFocusOwnership('primary');
+  }
+  primaryLogicalSurface = 'writing';
+  secondarySurfaceStatus = 'closed';
+  surfaceHostNotice = null;
   installUnsavedCloseGuard(window);
 
   installNavigationGuard(window);
@@ -1587,13 +1598,7 @@ async function bootstrap(): Promise<void> {
     const initialPlacement = splitCommandLifecycleSeam
       ? deriveSplitCommandInitialPlacement(screen.getAllDisplays(), screen.getPrimaryDisplay())
       : null;
-    const window = await createMainWindow(initialPlacement?.writingStudio);
-    splitCommandLifecycleSeam?.registry.registerPrimaryWindow();
-    recordSplitCommandFocusOwnership('primary');
-    mainWindow = window;
-    primaryLogicalSurface = 'writing';
-    secondarySurfaceStatus = 'closed';
-    surfaceHostNotice = null;
+    await createMainWindow(initialPlacement?.writingStudio);
     publishSplitCommandOwnershipSync(['primary']);
     publishSplitCommandSurfaceHostState(['primary']);
     // A second display expands an author-requested Command surface; it never
