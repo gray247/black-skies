@@ -17,6 +17,7 @@ const contextBridgeMock = vi.hoisted(() => ({
 
 const ipcListeners = vi.hoisted(() => new Map<string, Array<(...args: unknown[]) => void>>());
 const ipcRendererInvokeMock = vi.hoisted(() => vi.fn());
+const runtimeConfigState = vi.hoisted(() => ({ experimentalSplitCommandWorkspace: false }));
 
 vi.mock('electron', () => ({
   contextBridge: contextBridgeMock,
@@ -40,7 +41,7 @@ vi.mock('electron', () => ({
   },
 }));
 
-vi.mock('../shared/config/runtime.js', () => ({
+vi.mock('../../shared/config/runtime.js', () => ({
   DEFAULT_HEALTH_PROBE: {
     maxAttempts: 40,
     baseDelayMs: 250,
@@ -67,7 +68,7 @@ vi.mock('../shared/config/runtime.js', () => ({
     ui: {
       enableDocking: false,
       defaultPreset: 'standard',
-      experimentalSplitCommandWorkspace: false,
+      experimentalSplitCommandWorkspace: runtimeConfigState.experimentalSplitCommandWorkspace,
       hotkeys: {
         enablePresetHotkeys: true,
         focusCycleOrder: ['outline', 'draftPreview', 'storyInsights', 'corkboard', 'timeline', 'critique'],
@@ -94,7 +95,7 @@ vi.mock('../shared/config/runtime.js', () => ({
     ui: {
       enableDocking: false,
       defaultPreset: 'standard',
-      experimentalSplitCommandWorkspace: false,
+      experimentalSplitCommandWorkspace: runtimeConfigState.experimentalSplitCommandWorkspace,
       hotkeys: {
         enablePresetHotkeys: true,
         focusCycleOrder: ['outline', 'draftPreview', 'storyInsights', 'corkboard', 'timeline', 'critique'],
@@ -151,6 +152,10 @@ function getExposedGlobalNames(): string[] {
 const originalPlaywright = process.env.PLAYWRIGHT;
 const originalHarnessHooks = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
 
+function setSplitCommandRuntimeEnabled(enabled: boolean): void {
+  runtimeConfigState.experimentalSplitCommandWorkspace = enabled;
+}
+
 function restoreEnvironmentVariable(key: string, value: string | undefined): void {
   if (value === undefined) {
     delete process.env[key];
@@ -169,6 +174,7 @@ describe('splitCommand preload bridge', () => {
     setArgv([]);
     delete process.env.PLAYWRIGHT;
     delete process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
+    setSplitCommandRuntimeEnabled(false);
   });
 
   afterEach(() => {
@@ -585,6 +591,25 @@ describe('splitCommand preload bridge', () => {
     });
     await expect(bridge!.activateSurface(activationRequest)).rejects.toThrow(
       'Surface host returned an invalid result.',
+    );
+  });
+
+  it('uses the enabled runtime to identify Writing Studio when Electron omits primary launch arguments', async () => {
+    setSplitCommandRuntimeEnabled(true);
+
+    await import('../preload');
+
+    expect(getSplitCommandBridge()?.windowRole).toBe('primary');
+    expect(getProjectSpineBridge()?.windowRole).toBe('writing');
+    expect(getExposedGlobalNames().sort()).toEqual(
+      [
+        'aiCritique',
+        'critiqueReview',
+        'feedbackNotes',
+        'livingOutline',
+        'projectSpine',
+        'splitCommand',
+      ].sort(),
     );
   });
 

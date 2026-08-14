@@ -53,6 +53,7 @@ import {
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority';
+import { loadRuntimeConfig } from '../shared/config/runtime.js';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
@@ -65,6 +66,8 @@ const safeExpose = (key: string, api: unknown) => {
     console.warn(`[preload] expose ${key} failed:`, err);
   }
 };
+
+const runtimeConfig = loadRuntimeConfig();
 
 function readSplitCommandLaunchContextFromArgv():
   | {
@@ -109,8 +112,13 @@ const splitCommandLaunchContext = readSplitCommandLaunchContextFromArgv();
 const isCommandCenterPreload =
   splitCommandLaunchContext?.windowRole === 'secondary' ||
   (hasSplitCommandLaunchArguments && !splitCommandLaunchContext);
+const isConfiguredWritingSurface =
+  !hasSplitCommandLaunchArguments &&
+  runtimeConfig.ui.experimentalSplitCommandWorkspace === true;
+const splitCommandWindowRole =
+  splitCommandLaunchContext?.windowRole ?? (isConfiguredWritingSurface ? 'primary' : null);
 const exposesLegacyWritingSurface =
-  !isCommandCenterPreload && splitCommandLaunchContext === null;
+  !isCommandCenterPreload && splitCommandWindowRole === null;
 let splitCommandOwnershipSync: SplitCommandOwnershipSyncMessage | null = null;
 const splitCommandOwnershipSyncListeners = new Set<(message: SplitCommandOwnershipSyncMessage) => void>();
 let splitCommandSurfaceHostState: SplitCommandSurfaceHostState | null = null;
@@ -156,9 +164,11 @@ function normalizeSplitCommandOwnershipSyncMessage(
 
 function applySplitCommandOwnershipSync(nextMessage: SplitCommandOwnershipSyncMessage): boolean {
   if (
-    !splitCommandLaunchContext ||
-    nextMessage.pairIdentity.pairId !== splitCommandLaunchContext.pairId ||
-    nextMessage.pairIdentity.sessionGeneration !== splitCommandLaunchContext.sessionGeneration
+    !splitCommandWindowRole ||
+    (splitCommandLaunchContext && (
+      nextMessage.pairIdentity.pairId !== splitCommandLaunchContext.pairId ||
+      nextMessage.pairIdentity.sessionGeneration !== splitCommandLaunchContext.sessionGeneration
+    ))
   ) {
     return false;
   }
@@ -177,7 +187,7 @@ function applySplitCommandOwnershipSync(nextMessage: SplitCommandOwnershipSyncMe
   return true;
 }
 
-if (splitCommandLaunchContext) {
+if (splitCommandWindowRole) {
   ipcRenderer.on(SPLIT_COMMAND_CHANNELS.ownershipSync, (_event, payload) => {
     const message = normalizeSplitCommandOwnershipSyncMessage(payload);
     if (!message) {
@@ -688,7 +698,6 @@ import {
   type DiagnosticsLogPayload,
   type DiagnosticsLogLevel,
 } from '../shared/ipc/logging.js';
-import { loadRuntimeConfig } from '../shared/config/runtime.js';
 import {
   PROJECT_LOADER_CHANNELS,
   type ProjectBootstrapRequest,
@@ -912,7 +921,6 @@ const LOG_LEVEL_MAP: Record<ConsoleMethod, DiagnosticsLogLevel> = {
   debug: 'debug',
 };
 
-const runtimeConfig = loadRuntimeConfig();
 let loggedServicePorts = false;
 
 async function sleep(milliseconds: number): Promise<void> {
@@ -2605,9 +2613,9 @@ const layoutBridge: LayoutBridge = {
   },
 };
 
-const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandLaunchContext
+const splitCommandBridge: SplitCommandOwnershipBridge | null = splitCommandWindowRole
   ? {
-      windowRole: splitCommandLaunchContext.windowRole,
+      windowRole: splitCommandWindowRole,
       async requestOwnershipSync(): Promise<SplitCommandOwnershipSyncMessage | null> {
         try {
           const response = await ipcRenderer.invoke(SPLIT_COMMAND_CHANNELS.requestOwnershipSync);
@@ -2682,7 +2690,7 @@ async function invokeCritiqueReviewAction<T>(
   return { ...result, state } as CritiqueReviewActionResultV1<T>;
 }
 
-const critiqueReviewBridge: CritiqueReviewBridge | null = splitCommandLaunchContext
+const critiqueReviewBridge: CritiqueReviewBridge | null = splitCommandWindowRole
   ? {
       async requestState() {
         const state = normalizeCritiqueReviewSurfaceState(
