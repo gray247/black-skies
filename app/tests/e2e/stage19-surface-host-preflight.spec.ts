@@ -43,6 +43,39 @@ test('Stage 19 startup surface-host preflight completes the authority chain', as
   }
 
   expect(lastSnapshot).not.toBeNull();
+
+  // Hosted Windows can expose a compact CSS viewport even though the native
+  // BrowserWindow was requested at a larger size. Structural surface controls
+  // must remain usable at that width; the regression test below forces the
+  // same compact envelope explicitly.
+  const compactSize = await electronApp.evaluate(({ BrowserWindow }) => {
+    const primary = BrowserWindow.getAllWindows()[0];
+    if (!primary || primary.isDestroyed()) return null;
+    primary.setSize(720, 560);
+    return primary.getContentSize();
+  });
+  expect(compactSize).not.toBeNull();
+  await expect.poll(() => page.evaluate(() => window.innerWidth), { timeout: 5_000 }).toBeLessThanOrEqual(900);
+
+  await expect
+    .poll(
+      async () => readStage19SurfaceHostPreflight(page),
+      { timeout: 8_000, intervals: [100, 250, 500, 1_000] },
+    )
+    .toMatchObject({
+      controls: {
+        currentWindow: 1,
+        secondWindow: 1,
+      },
+    });
+
+  const compactSnapshot = await readStage19SurfaceHostPreflight(page);
+  expect(compactSnapshot.viewport.width).toBeLessThanOrEqual(900);
+  await testInfo.attach('stage19-surface-host-compact.json', {
+    body: Buffer.from(`${JSON.stringify(compactSnapshot, null, 2)}\n`, 'utf8'),
+    contentType: 'application/json',
+  });
+  lastSnapshot = compactSnapshot;
   expect(lastSnapshot?.controls.currentWindow).toBe(1);
   expect(lastSnapshot?.controls.secondWindow).toBe(1);
   expect(lastSnapshot?.controls.currentWindowDom).toBeGreaterThanOrEqual(1);

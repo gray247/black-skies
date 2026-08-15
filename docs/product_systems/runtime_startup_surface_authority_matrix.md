@@ -78,11 +78,21 @@ convenience:
    runner has exposed a timing race. The late-state unit test, visible-control
    preflight, and full Electron matrix are all required before packaging is
    reopened.
+6. **Responsive discoverability:** compact windows must keep the Writing
+   Studio ↔ Command Center controls visible and usable. The qualification
+   gate must exercise a compact viewport; changing the CI window size to avoid
+   the responsive path is not an acceptable repair.
 
 These rules specifically guard against the two repeated failure modes in which
 the bridge and main state were healthy but React had not received the late
 handoff, or the test harness treated hidden duplicate controls as visible
 product controls.
+
+The first compact hosted run after those repairs exposed a third boundary: the
+CSS responsive rule hid the entire surface-control group below 900 CSS pixels.
+That is now treated as a product navigation failure, not a test-harness issue.
+The repair keeps the controls available and wraps them at compact widths, with
+an Electron witness that verifies the behavior at the hosted viewport envelope.
 
 ## Known limitation
 

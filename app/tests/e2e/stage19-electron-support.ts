@@ -39,6 +39,11 @@ export interface LaunchedStage19Application {
 }
 
 export interface Stage19SurfaceHostPreflightSnapshot {
+  readonly viewport: {
+    readonly width: number;
+    readonly height: number;
+    readonly devicePixelRatio: number;
+  };
   readonly bridgePresent: boolean;
   readonly bridgeRole: string | null;
   readonly requestOutcome: 'ok' | 'null' | 'error' | 'unavailable';
@@ -76,6 +81,11 @@ export async function readStage19SurfaceHostPreflight(
 ): Promise<Stage19SurfaceHostPreflightSnapshot> {
   return page.evaluate(async () => {
     const bridge = window.splitCommand;
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      devicePixelRatio: window.devicePixelRatio,
+    };
     const matchesButton = (button: HTMLButtonElement, label: string): boolean =>
       button.textContent?.trim() === label || button.getAttribute('aria-label') === label;
     const isVisible = (button: HTMLButtonElement): boolean => {
@@ -98,6 +108,7 @@ export async function readStage19SurfaceHostPreflight(
     };
     if (!bridge) {
       return {
+        viewport,
         bridgePresent: false,
         bridgeRole: null,
         requestOutcome: 'unavailable' as const,
@@ -130,6 +141,7 @@ export async function readStage19SurfaceHostPreflight(
       const requested = await bridge.requestSurfaceHostState();
       const cached = bridge.readSurfaceHostState();
       return {
+        viewport,
         bridgePresent: true,
         bridgeRole: bridge.windowRole,
         requestOutcome: requested ? ('ok' as const) : ('null' as const),
@@ -141,6 +153,7 @@ export async function readStage19SurfaceHostPreflight(
       };
     } catch (error) {
       return {
+        viewport,
         bridgePresent: true,
         bridgeRole: bridge.windowRole,
         requestOutcome: 'error' as const,

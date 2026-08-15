@@ -6091,9 +6091,21 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 
   .stage19-writing-shell__brand,
-  .stage19-writing-shell__location,
-  .stage19-spine--writing .stage19-spine__surface-host {
+  .stage19-writing-shell__location {
     display: none;
+  }
+
+  /* Surface switching is structural navigation, not optional decoration.
+     Keep it discoverable on compact hosted runners and narrow windows. */
+  .stage19-spine--writing .stage19-spine__surface-host {
+    display: flex;
+    flex: 1 0 100%;
+    justify-content: flex-end;
+  }
+
+  .stage19-spine--writing .stage19-spine__surface-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .stage19-writing-shell__project::before {

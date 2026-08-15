@@ -41,6 +41,8 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)[\s\S]*?\.stage19-writing-shell__rail--left,[\s\S]*?position:\s*static;[\s\S]*?box-shadow:\s*none;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
+    expect(p3d).not.toMatch(/\.stage19-spine--writing \.stage19-spine__surface-host\s*\{\s*display:\s*none;/);
+    expect(p3d).toMatch(/@media\s*\(max-width:\s*900px\)[\s\S]*?\.stage19-spine--writing \.stage19-spine__surface-host[\s\S]*?display:\s*flex;/);
     expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
     expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
     expect(p3d).not.toMatch(/#(?:8e7cc3|818cf8|a78bfa)|rgba\(129,\s*140,\s*248|rgba\(142,\s*124,\s*195/i);

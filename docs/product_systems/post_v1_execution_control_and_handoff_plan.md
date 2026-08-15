@@ -480,6 +480,15 @@ matrix must also pass, because the shared helper is itself a downstream
 consumer of the startup contract and previously repeated the same defect
 across many journeys.
 
+The next repair must also treat responsive visibility as part of the startup
+contract. A hosted Windows viewport below 900 CSS pixels previously caused the
+Writing Studio CSS to hide both surface-switching controls even though the
+bridge state and DOM were healthy. The repair batch must keep structural
+surface navigation discoverable, run the preflight at a compact viewport, and
+record viewport dimensions alongside visible and raw-DOM control counts. It
+must not solve this by widening the CI window or weakening the visible-control
+assertion.
+
 ### Cleanup Wave A And Professionalization Checkpoint
 
 After the **repaired** Human Gate 2 passes, use the proven shell to identify pre-salvage GUI and
