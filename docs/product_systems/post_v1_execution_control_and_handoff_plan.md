@@ -452,6 +452,13 @@ including CI-mode built-Electron evidence; a clean hosted Windows
 package/install run of the next exact candidate remains required before Human
 Gate 2 repeats.
 
+The regression now has a fail-fast built-Electron startup preflight before the
+full Electron matrix. It witnesses the runtime startup and surface authority
+chain once, classifies bridge/IPC/state/renderer failures directly, and prevents
+every dependent journey from repeating the same startup timeout. The operational
+chain is recorded in
+[runtime_startup_surface_authority_matrix.md](runtime_startup_surface_authority_matrix.md).
+
 ### Cleanup Wave A And Professionalization Checkpoint
 
 After the **repaired** Human Gate 2 passes, use the proven shell to identify pre-salvage GUI and

@@ -38,6 +38,111 @@ export interface LaunchedStage19Application {
   readonly runtimeDirectory: string;
 }
 
+export interface Stage19SurfaceHostPreflightSnapshot {
+  readonly bridgePresent: boolean;
+  readonly bridgeRole: string | null;
+  readonly requestOutcome: 'ok' | 'null' | 'error' | 'unavailable';
+  readonly cachedStatePresent: boolean;
+  readonly statePresent: boolean;
+  readonly stateSummary: {
+    readonly schemaVersion: number | null;
+    readonly primarySurface: string | null;
+    readonly commandPlacement: string | null;
+    readonly secondaryStatus: string | null;
+    readonly projectId: string | null;
+    readonly generation: number | null;
+    readonly revision: number | null;
+    readonly commandRole: string | null;
+    readonly commandProjectId: string | null;
+    readonly commandGeneration: number | null;
+    readonly commandRevision: number | null;
+  } | null;
+  readonly controls: {
+    readonly currentWindow: number;
+    readonly secondWindow: number;
+  };
+  readonly error: string | null;
+}
+
+/**
+ * Read the complete startup handoff in one browser-side probe. This is kept
+ * separate from the product UI so a missing control can be classified as a
+ * bridge, IPC, normalization, or renderer-projection failure.
+ */
+export async function readStage19SurfaceHostPreflight(
+  page: Page,
+): Promise<Stage19SurfaceHostPreflightSnapshot> {
+  return page.evaluate(async () => {
+    const bridge = window.splitCommand;
+    const countButton = (label: string): number =>
+      Array.from(document.querySelectorAll('button')).filter(
+        (button) => button.textContent?.trim() === label || button.getAttribute('aria-label') === label,
+      ).length;
+    const controls = {
+      currentWindow: countButton('Open Command Center here'),
+      secondWindow: countButton('Open Command Center in second window'),
+    };
+    if (!bridge) {
+      return {
+        bridgePresent: false,
+        bridgeRole: null,
+        requestOutcome: 'unavailable' as const,
+        cachedStatePresent: false,
+        statePresent: false,
+        stateSummary: null,
+        controls,
+        error: 'window.splitCommand is not exposed.',
+      };
+    }
+
+    const summarize = (state: Awaited<ReturnType<typeof bridge.readSurfaceHostState>>) => {
+      if (!state) return null;
+      return {
+        schemaVersion: state.schemaVersion,
+        primarySurface: state.primarySurface,
+        commandPlacement: state.commandPlacement,
+        secondaryStatus: state.secondaryStatus,
+        projectId: state.projectId,
+        generation: state.generation,
+        revision: state.revision,
+        commandRole: state.commandSnapshot.role,
+        commandProjectId: state.commandSnapshot.project?.projectId ?? null,
+        commandGeneration: state.commandSnapshot.generation,
+        commandRevision: state.commandSnapshot.revision,
+      };
+    };
+
+    try {
+      const requested = await bridge.requestSurfaceHostState();
+      const cached = bridge.readSurfaceHostState();
+      return {
+        bridgePresent: true,
+        bridgeRole: bridge.windowRole,
+        requestOutcome: requested ? ('ok' as const) : ('null' as const),
+        cachedStatePresent: Boolean(cached),
+        statePresent: Boolean(requested ?? cached),
+        stateSummary: summarize(requested ?? cached),
+        controls: {
+          currentWindow: countButton('Open Command Center here'),
+          secondWindow: countButton('Open Command Center in second window'),
+        },
+        error: null,
+      };
+    } catch (error) {
+      return {
+        bridgePresent: true,
+        bridgeRole: bridge.windowRole,
+        requestOutcome: 'error' as const,
+        cachedStatePresent: Boolean(bridge.readSurfaceHostState()),
+        statePresent: Boolean(bridge.readSurfaceHostState()),
+        stateSummary: summarize(bridge.readSurfaceHostState()),
+        controls,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+}
+
 export type WritingStudioRailLabel =
   | 'project tools'
   | 'story tools'
@@ -290,6 +395,50 @@ export async function getStage19Windows(
       })))).find((entry) => entry.writing > 0)?.candidate;
   if (!writingCandidate) {
     throw new Error('Stage 19 did not expose Writing Studio.');
+  }
+
+  let lastSurfaceHostPreflight: Stage19SurfaceHostPreflightSnapshot | null = null;
+  try {
+    await expect
+      .poll(
+        async () => {
+          lastSurfaceHostPreflight = await readStage19SurfaceHostPreflight(writingCandidate);
+          return lastSurfaceHostPreflight;
+        },
+        { timeout: 8_000, intervals: [100, 250, 500, 1_000] },
+      )
+      .toMatchObject({
+        bridgePresent: true,
+        requestOutcome: 'ok',
+        statePresent: true,
+      });
+  } catch (error) {
+    throw new Error(
+      `[SURFACE_HOST_PREFLIGHT_FAILED] ${JSON.stringify(lastSurfaceHostPreflight)}` +
+        (error instanceof Error ? ` cause="${error.message}"` : ''),
+    );
+  }
+
+  try {
+    await expect
+      .poll(
+        async () => {
+          lastSurfaceHostPreflight = await readStage19SurfaceHostPreflight(writingCandidate);
+          return lastSurfaceHostPreflight;
+        },
+        { timeout: 4_000, intervals: [100, 250, 500, 1_000] },
+      )
+      .toMatchObject({
+        controls: {
+          currentWindow: 1,
+          secondWindow: 1,
+        },
+      });
+  } catch (error) {
+    throw new Error(
+      `[SURFACE_HOST_CONTROLS_MISSING] ${JSON.stringify(lastSurfaceHostPreflight)}` +
+        (error instanceof Error ? ` cause="${error.message}"` : ''),
+    );
   }
 
   const hasDistinctCommand = async (): Promise<boolean> =>

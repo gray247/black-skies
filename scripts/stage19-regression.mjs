@@ -75,6 +75,10 @@ const electronFiles = [
   "tests/e2e/stage19-companion-orientation.spec.ts"
 ];
 
+const electronPreflightFiles = [
+  "tests/e2e/stage19-surface-host-preflight.spec.ts"
+];
+
 function run(command, args, options = {}) {
   return spawnSync(command, args, {
     cwd: repoRoot,
@@ -125,14 +129,14 @@ function assertWorktreePolicy() {
   );
 }
 
-function electronCommand() {
+function electronCommand(files) {
   const args = [
     "--dir",
     "app",
     "exec",
     "playwright",
     "test",
-    ...electronFiles,
+    ...files,
     "--project=electron",
     "--workers=1",
     "--reporter=list",
@@ -191,7 +195,13 @@ phase("Critical unit, component, and contract matrix", pnpm, [
   "--maxWorkers=1",
   ...unitFiles
 ]);
-const electron = electronCommand();
+const electronPreflight = electronCommand(electronPreflightFiles);
+phase(
+  "Critical Stage 19 Electron startup preflight",
+  electronPreflight.command,
+  electronPreflight.args,
+);
+const electron = electronCommand(electronFiles);
 phase("Critical Stage 19 Electron matrix", electron.command, electron.args);
 
 process.stdout.write(
