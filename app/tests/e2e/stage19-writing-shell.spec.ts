@@ -87,6 +87,31 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       { control: 'session tools', panel: 'Writing session tools', role: 'region' },
     ];
     for (const rail of rails) {
+      if (rail.control === 'session tools') {
+        const hitTest = await writing.evaluate(() => {
+          const button = document.getElementById('stage19-writing-edge-bottom');
+          if (!button) return { targetId: null, viewport: null, button: null, companion: null };
+          const buttonRect = button.getBoundingClientRect();
+          const target = document.elementFromPoint(
+            buttonRect.left + buttonRect.width / 2,
+            buttonRect.top + buttonRect.height / 2,
+          );
+          const companion = document.querySelector('.stage19-companion-bar')?.getBoundingClientRect();
+          return {
+            targetId: target?.closest('button')?.id ?? null,
+            viewport: {
+              width: window.innerWidth,
+              height: window.innerHeight,
+              devicePixelRatio: window.devicePixelRatio,
+            },
+            button: { top: buttonRect.top, bottom: buttonRect.bottom, height: buttonRect.height },
+            companion: companion
+              ? { top: companion.top, bottom: companion.bottom, height: companion.height }
+              : null,
+          };
+        });
+        expect(hitTest).toMatchObject({ targetId: 'stage19-writing-edge-bottom' });
+      }
       await openWritingStudioRail(writing, rail.control);
       await expect(writing.getByRole(rail.role, { name: rail.panel })).toBeVisible();
       await expect(editor).toContainText(prose);
