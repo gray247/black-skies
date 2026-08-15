@@ -42,6 +42,12 @@ test('Stage 19 startup surface-host preflight completes the authority chain', as
     }
   }
 
+  expect(lastSnapshot).not.toBeNull();
+  expect(lastSnapshot?.controls.currentWindow).toBe(1);
+  expect(lastSnapshot?.controls.secondWindow).toBe(1);
+  expect(lastSnapshot?.controls.currentWindowDom).toBeGreaterThanOrEqual(1);
+  expect(lastSnapshot?.controls.secondWindowDom).toBeGreaterThanOrEqual(1);
+
   await expect(page.getByRole('button', { name: 'Open Command Center here' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Open Command Center in second window' })).toBeVisible();
 

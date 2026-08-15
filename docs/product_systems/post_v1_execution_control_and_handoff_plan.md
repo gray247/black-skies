@@ -459,6 +459,27 @@ every dependent journey from repeating the same startup timeout. The operational
 chain is recorded in
 [runtime_startup_surface_authority_matrix.md](runtime_startup_surface_authority_matrix.md).
 
+The hosted qualification exposed two recurring defects in the first version of
+that guard: a late Windows state handoff could arrive after the renderer had
+stopped retrying, and the helper counted hidden duplicate controls from the
+inactive logical surface as if they were visible controls. These are one
+bounded startup-hardening repair batch. It must include:
+
+- a renderer test with several consecutive empty startup responses, proving a
+  late valid state still exposes the Writing Studio controls;
+- a built-Electron preflight that records visible and raw-DOM control counts;
+- visible-only control assertions in every shared Electron helper;
+- a standalone preflight run followed by the full Electron matrix;
+- the runtime authority matrix updated with the late-state and visible-control
+  invariants; and
+- a clean hosted Windows run before the package/install lane or Human Gate 2
+  is reopened.
+
+The batch is not complete when only the isolated preflight passes. The full
+matrix must also pass, because the shared helper is itself a downstream
+consumer of the startup contract and previously repeated the same defect
+across many journeys.
+
 ### Cleanup Wave A And Professionalization Checkpoint
 
 After the **repaired** Human Gate 2 passes, use the proven shell to identify pre-salvage GUI and

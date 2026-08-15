@@ -53,10 +53,40 @@ The preflight is intentionally narrow. It does not replace the full matrix,
 the package/install lane, or Human Gate 2. It prevents those later checks from
 spending time repeating a known startup failure.
 
+## Regression hardening invariants
+
+The following invariants are part of the startup contract, not optional test
+convenience:
+
+1. **Late-state recovery:** a valid state that arrives after the first
+   renderer request must still update the Writing Studio projection. The
+   renderer retry window must cover the hosted Windows startup envelope, and a
+   delayed state must be witnessed by a renderer test that begins with several
+   rejected or empty requests.
+2. **Visible-control counting:** control witnesses count only controls that a
+   writer can see and use. A unified logical host may keep the inactive surface
+   mounted but hidden; hidden duplicate controls must never be counted as
+   missing or as a second usable control.
+3. **Two-sided evidence:** the preflight must report both visible control
+   counts and raw DOM counts. A mismatch is diagnostic evidence about hidden
+   projections, not a reason to fail the product on its own.
+4. **Matrix ordering:** the standalone preflight must pass before the dependent
+   Electron matrix. The dependent helper may repeat the probe, but it must
+   preserve the same visible-only semantics and classify a failure by the last
+   observed bridge, state, or control boundary.
+5. **No green-by-accident:** a local pass is insufficient when the hosted
+   runner has exposed a timing race. The late-state unit test, visible-control
+   preflight, and full Electron matrix are all required before packaging is
+   reopened.
+
+These rules specifically guard against the two repeated failure modes in which
+the bridge and main state were healthy but React had not received the late
+handoff, or the test harness treated hidden duplicate controls as visible
+product controls.
+
 ## Known limitation
 
-The current hosted failure is classified as a state-handoff failure after
-bridge exposure. The matrix does not claim which internal sub-boundary is at
-fault until the new request/normalization diagnostics identify it. That is
-intentional: the next repair must produce evidence before changing runtime
-authority.
+The current repair batch addresses the known state-handoff race and the
+visible-control counting error together. A hosted run remains required before
+Human Gate 2; a local pass cannot close the hosted Windows qualification
+obligation.

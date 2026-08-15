@@ -628,29 +628,6 @@ function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'
   return { bridge, get current() { return current; } };
 }
 
-function completedCritiqueState(): AiCritiqueState {
-  return {
-    requestId: 'ai-request-1',
-    status: 'completed',
-    result: {
-      requestId: 'ai-request-1', provider: 'openai', model: 'gpt-5.4-2026-03-05',
-      taskContractVersion: 'black_skies_critique_v2', sourceFingerprint: 'a'.repeat(64),
-      selectionFingerprint: 'b'.repeat(64), editorRevision: 1,
-      completedAt: '2026-08-09T12:00:00.000Z',
-      content: {
-        overview: 'The passage sustains a controlled temporal unease.',
-        strengths: ['The sensory frame is specific.'], priorities: [],
-        uncertainties: ['The critique saw only the selected passage.'],
-        limitations: ['Advisory interpretation, not story truth.'],
-      },
-      usage: {
-        inputTokens: 100, cachedInputTokens: 0, outputTokens: 50, calculatedUsd: 0.001,
-        invoiceDisclaimer: 'Calculated usage cost - not provider invoice.',
-      },
-    },
-  };
-}
-
 let closeRequestState: ReturnType<typeof useCloseConfirmationRequest>;
 
 function CloseRequestHarness({
@@ -997,6 +974,23 @@ describe('Stage19WritingSpineApp', () => {
     expect(surfaces.bridge.requestSurfaceHostState).toHaveBeenCalledTimes(2);
   });
 
+  it('keeps retrying until a late hosted-Windows handoff exposes one visible control set', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'), {
+      // Nine misses place the successful response beyond the old retry burst.
+      initialRequestMisses: 9,
+      initialReadUnavailable: true,
+      suppressInitialSubscriptionState: true,
+    });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Open Command Center here' })).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Open Command Center in second window' })).toBeVisible();
+    }, { timeout: 15_000 });
+    expect(surfaces.bridge.requestSurfaceHostState).toHaveBeenCalledTimes(10);
+  }, 20_000);
+
   it('routes a local Companion orientation request through the persistent Companion bar without changing writing', async () => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'));
@@ -1011,7 +1005,7 @@ describe('Stage19WritingSpineApp', () => {
       />,
     );
 
-    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     expect(screen.getByText('Local project and current writing only: First Unit. No AI.')).toBeVisible();
     const companionInput = screen.getByRole('textbox', { name: 'Ask Black Skies' });
     await user.type(companionInput, 'Where am I?');

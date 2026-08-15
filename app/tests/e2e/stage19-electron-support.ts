@@ -60,6 +60,8 @@ export interface Stage19SurfaceHostPreflightSnapshot {
   readonly controls: {
     readonly currentWindow: number;
     readonly secondWindow: number;
+    readonly currentWindowDom: number;
+    readonly secondWindowDom: number;
   };
   readonly error: string | null;
 }
@@ -74,13 +76,25 @@ export async function readStage19SurfaceHostPreflight(
 ): Promise<Stage19SurfaceHostPreflightSnapshot> {
   return page.evaluate(async () => {
     const bridge = window.splitCommand;
-    const countButton = (label: string): number =>
-      Array.from(document.querySelectorAll('button')).filter(
-        (button) => button.textContent?.trim() === label || button.getAttribute('aria-label') === label,
+    const matchesButton = (button: HTMLButtonElement, label: string): boolean =>
+      button.textContent?.trim() === label || button.getAttribute('aria-label') === label;
+    const isVisible = (button: HTMLButtonElement): boolean => {
+      if (button.hidden || button.getAttribute('aria-hidden') === 'true') return false;
+      const style = window.getComputedStyle(button);
+      return style.display !== 'none' && style.visibility !== 'hidden' && button.getClientRects().length > 0;
+    };
+    const countButton = (label: string, visibleOnly: boolean): number =>
+      Array.from(document.querySelectorAll<HTMLButtonElement>('button')).filter(
+        (button) => matchesButton(button, label) && (!visibleOnly || isVisible(button)),
       ).length;
+    const readControls = () => ({
+      currentWindow: countButton('Open Command Center here', true),
+      secondWindow: countButton('Open Command Center in second window', true),
+      currentWindowDom: countButton('Open Command Center here', false),
+      secondWindowDom: countButton('Open Command Center in second window', false),
+    });
     const controls = {
-      currentWindow: countButton('Open Command Center here'),
-      secondWindow: countButton('Open Command Center in second window'),
+      ...readControls(),
     };
     if (!bridge) {
       return {
@@ -122,10 +136,7 @@ export async function readStage19SurfaceHostPreflight(
         cachedStatePresent: Boolean(cached),
         statePresent: Boolean(requested ?? cached),
         stateSummary: summarize(requested ?? cached),
-        controls: {
-          currentWindow: countButton('Open Command Center here'),
-          secondWindow: countButton('Open Command Center in second window'),
-        },
+        controls: readControls(),
         error: null,
       };
     } catch (error) {
