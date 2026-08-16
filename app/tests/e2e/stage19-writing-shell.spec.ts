@@ -200,6 +200,14 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await writing.getByRole('button', { name: 'Close', exact: true }).click();
 
+    // Rail selection, rather than the in-manuscript jump control, must bring
+    // the selected unit into view in a long continuous manuscript.
+    await openWritingStudioRail(writing, 'story tools');
+    await writing.getByRole('button', { name: '02 Crossing' }).click();
+    await expect(crossingEditor).toBeInViewport();
+    await writing.getByRole('button', { name: '01 Opening' }).click();
+    await writing.getByRole('button', { name: 'Close', exact: true }).click();
+
     const manuscript = writing.getByLabel('Continuous manuscript');
     await expect(manuscript.locator('[data-manuscript-unit-id]')).toHaveCount(2);
     await expect(openingEditor).toContainText(openingProse);
@@ -212,7 +220,8 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
 
     await activeCrossingEditor.selectText();
     await openWritingStudioRail(writing, 'story tools');
-    await writing.getByRole('button', { name: 'Add to story here' }).click();
+    await writing.getByRole('button', { name: 'Add story content' }).click();
+    await writing.getByRole('button', { name: 'Story point' }).click();
     const title = writing.getByRole('textbox', { name: `Title for ${crossingProse}` });
     await title.fill('Lantern crossing');
     await writing.locator('.stage19-living-outline__rename').getByRole('button', { name: 'Save' }).click();

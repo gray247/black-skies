@@ -31,6 +31,8 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toContain('--bs-canvas-black: #000000;');
     expect(p3d).toContain('--bs-text-primary: #f0ece3;');
     expect(p3d).toContain('--bs-accent-primary: #c2a66a;');
+    expect(p3d).toContain('--bs-status-success: #a7f3d0;');
+    expect(p3d).toContain('--bs-editor-gutter:');
     expect(p3d).toContain('.stage19-spine--writing[data-stage19-theme="light"]');
     expect(p3d).toContain('--bs-canvas-black: #fbf8f1;');
     expect(p3d).toContain('--bs-text-primary: #24211d;');
@@ -50,10 +52,15 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
 
   it('keeps everyday story structure in one direct-manipulation rail', () => {
     const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
+    const app = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineApp.tsx'), 'utf8');
 
     expect(view).toContain('aria-label="Story rail"');
-    expect(view).toContain('aria-label="Add to story here"');
-    expect(view).toContain('Start a new written section');
+    expect(view).toContain('aria-label="Add story content"');
+    expect(view).toContain('Writing section');
+    expect(view).toContain('Story point');
+    expect(view).toContain('Delete selected story item');
+    expect(view).toContain('data-manuscript-unit-anchor="true"');
+    expect(app).toContain('scrollIntoView');
     expect(view).toContain('Double-click or press F2 to rename');
     expect(view).toContain('More options for written section');
     expect(view).not.toContain('Unit title (optional)');

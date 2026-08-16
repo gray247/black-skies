@@ -565,6 +565,8 @@ export default function Stage19WritingSpineApp({
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
   const [selectedOutlineItemId, setSelectedOutlineItemId] = useState<string | null>(null);
+  const [storyRailAddMenuOpen, setStoryRailAddMenuOpen] = useState(false);
+  const [selectedRailKind, setSelectedRailKind] = useState<'unit' | 'outline'>('outline');
   const [outlineEditingItemId, setOutlineEditingItemId] = useState<string | null>(null);
   const [outlineAdvancedItemId, setOutlineAdvancedItemId] = useState<string | null>(null);
   const [outlineLabel, setOutlineLabel] = useState('');
@@ -1048,7 +1050,8 @@ export default function Stage19WritingSpineApp({
 
   useEffect(() => {
     if (activeLinkedOutlineItemId) setSelectedOutlineItemId(activeLinkedOutlineItemId);
-  }, [activeLinkedOutlineItemId]);
+    else if (selectedRailKind === 'unit') setSelectedOutlineItemId(null);
+  }, [activeLinkedOutlineItemId, selectedRailKind]);
 
   const submitRecoveryCheckpoint = useCallback(async (
     unitId: string,
@@ -1307,6 +1310,12 @@ export default function Stage19WritingSpineApp({
       try {
         const result = await bridge.selectUnit({ ...binding, unitId });
         applySnapshot(result.snapshot);
+        window.requestAnimationFrame(() => {
+          const target = document.getElementById(`stage19-manuscript-unit-${unitId}`);
+          if (target && typeof target.scrollIntoView === 'function') {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
         setNotice(resultMessage(result));
       } catch {
         setNotice('The manuscript unit could not be selected. Your current work was preserved; try again.');
@@ -1339,12 +1348,21 @@ export default function Stage19WritingSpineApp({
   const selectLivingOutlineFields = useCallback((itemId: string) => {
     const item = livingOutline?.document.items.find((candidate) => candidate.id === itemId);
     if (!item) return null;
+    setSelectedRailKind('outline');
     setSelectedOutlineItemId(item.id);
     setOutlineLabel(item.label);
     setOutlineKind(item.kind);
     setOutlineState(item.state);
     return item;
   }, [livingOutline]);
+
+  const clearOutlineSelection = useCallback(() => {
+    setSelectedRailKind('unit');
+    setSelectedOutlineItemId(activeLinkedOutlineItemId);
+    setOutlineEditingItemId(null);
+    setOutlineAdvancedItemId(null);
+    setOutlineLabel('');
+  }, [activeLinkedOutlineItemId]);
 
   const createLivingOutlineItem = useCallback(async () => {
     const binding = livingOutlineMutationBinding();
@@ -1440,11 +1458,12 @@ export default function Stage19WritingSpineApp({
   }, [handleSelectUnit, selectLivingOutlineFields]);
 
   const activateUnitInStream = useCallback(async (unitId: string) => {
+    clearOutlineSelection();
     if (unitId !== snapshotRef.current.activeUnitId) {
       await handleSelectUnit(unitId);
     }
     window.requestAnimationFrame(() => focusWritingEditor(unitId));
-  }, [handleSelectUnit]);
+  }, [clearOutlineSelection, handleSelectUnit]);
 
   const editLivingOutlineItem = useCallback((itemId: string) => {
     if (!selectLivingOutlineFields(itemId)) return;
@@ -1863,18 +1882,20 @@ export default function Stage19WritingSpineApp({
   const editUnit = useCallback((unitId: string) => {
     const unit = snapshotRef.current.project?.units.find((candidate) => candidate.id === unitId);
     if (!unit) return;
+    clearOutlineSelection();
     setRenameTitle(unit.title);
     setUnitAdvancedId(null);
     setUnitEditingId(unitId);
-  }, []);
+  }, [clearOutlineSelection]);
 
   const openUnitOptions = useCallback((unitId: string) => {
     const unit = snapshotRef.current.project?.units.find((candidate) => candidate.id === unitId);
     if (!unit) return;
+    clearOutlineSelection();
     setRenameTitle(unit.title);
     setUnitEditingId(null);
     setUnitAdvancedId(unitId);
-  }, []);
+  }, [clearOutlineSelection]);
 
   const handleCreateUnit = useCallback(async () => {
     const binding = bindingFor(snapshotRef.current, 'create-unit');
@@ -1929,6 +1950,20 @@ export default function Stage19WritingSpineApp({
       setNotice('The manuscript unit could not be deleted. Its content remains available.');
     }
   }, [applySnapshot, bridge, flushRecoveryCheckpoint]);
+
+  const deleteSelectedStoryItem = useCallback(async () => {
+    const selectedOutlineId = selectedRailKind === 'outline'
+      ? selectedOutlineItemId ?? outlineAdvancedItemId
+      : null;
+    const selectedOutline = livingOutline?.document.items.find((item) => item.id === selectedOutlineId);
+    if (selectedOutline) {
+      if (!window.confirm(`Delete “${selectedOutline.label}” from the story plan?`)) return;
+      await deleteLivingOutlineItem(selectedOutline.id);
+      return;
+    }
+    const unitId = snapshotRef.current.activeUnitId;
+    if (unitId) await handleDeleteUnit(unitId);
+  }, [deleteLivingOutlineItem, handleDeleteUnit, livingOutline, outlineAdvancedItemId, selectedOutlineItemId, selectedRailKind]);
 
   const handleExportMarkdown = useCallback(async () => {
     const current = snapshotRef.current;
@@ -2376,6 +2411,7 @@ export default function Stage19WritingSpineApp({
     livingOutlineNotice,
     selectedOutlineItem,
     selectedOutlineItemId,
+    storyRailAddMenuOpen,
     outlineEditingItemId,
     outlineAdvancedItemId,
     outlineLabel,
@@ -2435,7 +2471,10 @@ export default function Stage19WritingSpineApp({
     createProject: handleCreateProject,
     createUnit: handleCreateUnit,
     selectUnit: handleSelectUnit,
+    clearOutlineSelection,
+    setStoryRailAddMenuOpen,
     activateUnitInStream,
+    deleteSelectedStoryItem,
     setRenameTitle,
     editUnit,
     cancelUnitEdit: () => setUnitEditingId(null),

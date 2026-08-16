@@ -699,6 +699,11 @@ async function openWritingRail(label: WritingRailLabel): Promise<void> {
   await screen.findByRole('button', { name: `Close ${label}` });
 }
 
+async function addStoryPoint(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+  await user.click(screen.getByRole('button', { name: 'Add story content' }));
+  await user.click(screen.getByRole('button', { name: 'Story point' }));
+}
+
 async function findExportButton(): Promise<HTMLElement> {
   await openWritingRail('project tools');
   return screen.findByRole('button', { name: /Export Markdown/ });
@@ -752,10 +757,10 @@ describe('Stage19WritingSpineApp', () => {
     await openWritingRail('story tools');
     expect(screen.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
     expect(screen.getByRole('list', { name: 'Story order' })).toBeVisible();
-    const addToStory = screen.getByRole('button', { name: 'Add to story here' });
-    expect(addToStory).toHaveAttribute('title', 'Add a story point at the current writing position');
+    const addToStory = screen.getByRole('button', { name: 'Add story content' });
+    expect(addToStory).toHaveAttribute('title', 'Add a writing section or story point');
 
-    await user.click(addToStory);
+    await addStoryPoint(user);
 
     expect(outline.bridge.createItem).toHaveBeenCalledWith(expect.objectContaining({
       label: 'New story point',
@@ -763,6 +768,34 @@ describe('Stage19WritingSpineApp', () => {
     }));
     expect(project.bridge.saveUnit).not.toHaveBeenCalled();
     expect(project.bridge.reorderUnits).not.toHaveBeenCalled();
+  });
+
+  it('uses the compact plus chooser and selected-item minus confirmation', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([{
+      id: 'outline-a', label: 'Opening', kind: 'fragment', state: 'authored', manuscriptUnitId: 'unit_a',
+      createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
+    }]);
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    await openWritingRail('story tools');
+
+    await user.click(screen.getByRole('button', { name: 'Add story content' }));
+    expect(screen.getByRole('button', { name: 'Writing section' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Story point' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Story point' }));
+    expect(outline.bridge.createItem).toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Opening' }));
+    await user.click(screen.getByRole('button', { name: 'Delete selected story item' }));
+    expect(confirm).toHaveBeenCalled();
+    expect(outline.bridge.deleteItem).not.toHaveBeenCalled();
+
+    confirm.mockReturnValue(true);
+    await user.click(screen.getByRole('button', { name: 'Delete selected story item' }));
+    expect(outline.bridge.deleteItem).toHaveBeenCalledWith(expect.objectContaining({ itemId: 'outline-a' }));
+    confirm.mockRestore();
   });
 
   it('treats the durable Markdown terminal newline as file framing, not visible prose', () => {
@@ -1409,9 +1442,9 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
     expect(screen.queryByText(/id: unit_a/)).not.toBeInTheDocument();
     await openWritingRail('story tools');
-    expect(screen.getByRole('button', { name: 'Add to story here' })).toBeVisible();
-    expect(screen.getByLabelText('More story actions')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Create unit' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add story content' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Delete selected story item' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Writing section' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Update title' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Move down' })).not.toBeInTheDocument();
     expect(await findExportButton()).toBeEnabled();
@@ -1812,8 +1845,8 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByText('(Empty manuscript prose)')).toBeVisible();
     expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveAttribute('readonly');
     await openWritingRail('story tools');
-    await userEvent.click(screen.getByLabelText('More story actions'));
-    expect(screen.getByRole('button', { name: 'Start a new written section' })).toBeDisabled();
+    await userEvent.click(screen.getByRole('button', { name: 'Add story content' }));
+    expect(screen.getByRole('button', { name: 'Writing section' })).toBeDisabled();
     await act(async () => {
       await userEvent.click(screen.getAllByRole('button', { name: 'Recover this prose' })[0]);
     });
@@ -1919,9 +1952,9 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     await openWritingRail('story tools');
 
-    await user.click(screen.getByLabelText('More story actions'));
+    await user.click(screen.getByRole('button', { name: 'Add story content' }));
     await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Start a new written section' }));
+      await user.click(screen.getByRole('button', { name: 'Writing section' }));
     });
     expect(harness.bridge.createUnit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1971,9 +2004,9 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     await openWritingRail('story tools');
 
-    await user.click(screen.getByLabelText('More story actions'));
+    await user.click(screen.getByRole('button', { name: 'Add story content' }));
     await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'Start a new written section' }));
+      await user.click(screen.getByRole('button', { name: 'Writing section' }));
     });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The manuscript unit could not be created',
@@ -2534,6 +2567,33 @@ describe('Stage19WritingSpineApp', () => {
     expect(performance.now() - startedAt).toBeLessThan(3_000);
   });
 
+  it('jumps the continuous manuscript to the selected rail unit', async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+    try {
+      const project = createBridge(snapshot('writing'));
+      const user = userEvent.setup();
+      render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+      await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+      await openWritingRail('story tools');
+      scrollIntoView.mockClear();
+
+      await user.click(screen.getByRole('button', { name: '02 Untitled' }));
+
+      await waitFor(() => expect(project.bridge.selectUnit).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'unit_b' })));
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' }));
+      expect(document.getElementById('stage19-manuscript-unit-unit_b')).toHaveAttribute('data-manuscript-unit-anchor', 'true');
+      expect(screen.getByRole('textbox', { name: 'Manuscript editor: Untitled' })).toHaveValue('Beta body');
+    } finally {
+      if (originalScrollIntoView) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: originalScrollIntoView });
+      } else {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+      }
+    }
+  });
+
   it('supports outline-first planning with quiet gaps and no manufactured manuscript unit', async () => {
     const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
     const outline = createLivingOutlineBridge();
@@ -2545,7 +2605,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByText(/new story points remain Not placed yet/i)).toBeVisible();
     expect(screen.queryByLabelText('Structural meaning')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Source state')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Add to story here' }));
+    await addStoryPoint(user);
     const title = await screen.findByRole('textbox', { name: 'Title for New story point' });
     await user.clear(title);
     await user.type(title, 'What happens between the signal and arrival?');
@@ -2584,7 +2644,7 @@ describe('Stage19WritingSpineApp', () => {
     fireEvent.select(editor);
     await openWritingRail('story tools');
     expect(screen.getByText('Selected passage in First Unit')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Add to story here' }));
+    await addStoryPoint(user);
 
     expect(outline.bridge.createItem).toHaveBeenCalledWith(expect.objectContaining({
       label: 'Alpha body',
@@ -2608,7 +2668,7 @@ describe('Stage19WritingSpineApp', () => {
     editor.setSelectionRange(0, 5);
     fireEvent.select(editor);
     await openWritingRail('story tools');
-    await user.click(screen.getByRole('button', { name: 'Add to story here' }));
+    await addStoryPoint(user);
     const request = vi.mocked(outline.bridge.createItem).mock.calls[0]?.[0];
     expect(request?.sourceAnchor).toMatchObject({
       anchorKind: 'span', unitId: 'unit_a', selectionStart: 0, selectionEnd: 5,

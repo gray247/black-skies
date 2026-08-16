@@ -52,6 +52,25 @@ describe('DraftEditor', () => {
     expect(bodyLine).toBeTruthy();
   });
 
+  it('keeps line numbers as unit-local presentation references, never saved prose', async () => {
+    const onSave = vi.fn();
+    const source = 'First line\n\nThird line\n';
+    const { container, rerender } = render(<DraftEditor value={source} onSave={onSave} />);
+    const textbox = await screen.findByRole('textbox', { name: 'Draft editor' });
+    const gutterLines = () => [...container.querySelectorAll('.cm-lineNumbers .cm-gutterElement')]
+      .filter((node) => (node as HTMLElement).style.visibility !== 'hidden')
+      .map((node) => node.textContent);
+
+    await waitFor(() => expect(gutterLines()).toEqual(['1', '2', '3', '4']));
+    expect(container.querySelector('.cm-content')).toHaveTextContent('First line');
+    fireEvent.keyDown(textbox, { key: 's', ctrlKey: true });
+    expect(onSave).toHaveBeenCalledWith(source);
+
+    rerender(<DraftEditor value="Second unit only" onSave={onSave} />);
+    await waitFor(() => expect(gutterLines()).toEqual(['1']));
+    expect(onSave.mock.calls[0]?.[0]).not.toContain('1First line');
+  });
+
   it('keeps the editor shell full-height so the preview can occupy a visible viewport', () => {
     const { container } = render(
       <DraftEditor

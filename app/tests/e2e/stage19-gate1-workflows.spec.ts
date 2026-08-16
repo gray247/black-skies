@@ -75,7 +75,9 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
 
     await openingEditor.focus();
     await writing.keyboard.press('Control+A');
-    await writing.getByRole('button', { name: 'Add to story here' }).click();
+    await writing.getByRole('button', { name: 'Add story content' }).click();
+    await expect(writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
+    await writing.getByRole('button', { name: 'Story point' }).click();
     await expect(writing.getByText('Selected passage in Opening Signal')).toBeVisible();
     const openingOutlineTitle = writing.locator('.stage19-living-outline__rename input');
     await expect(openingOutlineTitle).toHaveValue(/Rain marked the station glass/);
@@ -92,7 +94,9 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     const arrivalEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Impossible Arrival' });
     await arrivalEditor.fill('The ship arrived where no harbor existed.');
     await writing.getByRole('button', { name: /^Save$/ }).click();
-    await writing.getByRole('button', { name: 'Add to story here' }).click();
+    await writing.getByRole('button', { name: 'Add story content' }).click();
+    await expect(writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
+    await writing.getByRole('button', { name: 'Story point' }).click();
     const arrivalOutlineTitle = writing.getByRole('textbox', { name: 'Title for New story point' });
     await arrivalOutlineTitle.fill('Bridge into the impossible arrival');
     await arrivalOutlineTitle.press('Enter');
@@ -200,7 +204,9 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await expect(reopened.writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
     await expect(reopened.writing.getByText('Nothing has been divided yet. Start writing, or use + to mark a story point.')).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
-    await reopened.writing.getByRole('button', { name: 'Add to story here' }).click();
+    await reopened.writing.getByRole('button', { name: 'Add story content' }).click();
+    await expect(reopened.writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
+    await reopened.writing.getByRole('button', { name: 'Story point' }).click();
     const unplacedTitle = reopened.writing.getByRole('textbox', { name: 'Title for New story point' });
     await unplacedTitle.fill('Unplaced thought');
     await unplacedTitle.press('Enter');

@@ -141,11 +141,10 @@ async function expectRecoveryChoice(
   await expect(writing.getByRole('heading', { name: title, level: 3 })).toBeVisible();
   await expect(writing.getByLabel(`Recovered prose for ${title}`)).toHaveText(prose || '(Empty manuscript prose)');
   await openWritingStudioRail(writing, 'story tools');
-  await expect(
-    writing.locator('.stage19-story-rail__menu button', {
-      hasText: 'Start a new written section'
-    })
-  ).toBeDisabled();
+  const addMenu = writing.locator('#stage19-story-rail-add-menu');
+  const writingSectionChoice = addMenu.locator('button').filter({ hasText: 'Writing section' });
+  await expect(writingSectionChoice).toHaveCount(1);
+  await expect(writingSectionChoice).toBeDisabled();
 }
 
 async function cleanupLaunches(launches: LaunchedStage19Application[]): Promise<void> {

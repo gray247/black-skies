@@ -94,21 +94,21 @@ const editorTheme = EditorView.theme(
       lineHeight: '1.75',
     },
     '.cm-content': {
-      caretColor: '#cbd5f5',
+      caretColor: 'var(--bs-editor-caret, #cbd5f5)',
     },
     '.cm-gutters': {
       backgroundColor: 'transparent',
       border: 'none',
-      color: 'rgba(148, 163, 184, 0.58)',
+      color: 'var(--bs-editor-gutter, rgba(148, 163, 184, 0.78))',
     },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(148, 163, 184, 0.08)',
+      backgroundColor: 'var(--bs-editor-active-line, rgba(148, 163, 184, 0.08))',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: 'rgba(148, 163, 184, 0.14)',
+      backgroundColor: 'var(--bs-editor-active-gutter, rgba(148, 163, 184, 0.14))',
     },
     '.cm-placeholder': {
-      color: 'rgba(148, 163, 184, 0.45)',
+      color: 'var(--bs-editor-placeholder, rgba(148, 163, 184, 0.7))',
       fontStyle: 'italic',
     },
   },

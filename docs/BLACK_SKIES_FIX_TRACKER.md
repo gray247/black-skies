@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Private V1.0 baseline complete through Package 19.22; future development requires new scope
-Last Reviewed: 2026-08-13
+Last Reviewed: 2026-08-16
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -35,20 +35,58 @@ If an issue is not tracked here, it is not part of the active fix scope.
   the visible `Manuscript` / `Living Outline` language reinforced two separate
   systems instead of the approved one-story mental model.
 - Focused evidence: the renderer/controller/layout implementation group passed
-  114 tests, the final primary Writing Studio component file passed 96 tests,
-  and the affected built-Electron repair group passed all 7 journeys.
+  123 tests across 4 files; the focused Gate 1 journey passed; and all 5
+  recovery journeys passed after the compact-menu overflow guard was repaired.
 - Complete development evidence: application lint and typecheck, production
   build, current-authority documentation, the full 1,084-test application
   inventory, and the fixed Stage 19 regression are green. The fixed regression
   passed 683 tests with 2 intentional skips and all 28 Electron journeys,
   including axe accessibility and unchanged targeted visual references.
-- Remaining before this batch closes: Jason's manual commit/push checkpoint.
-  Program 5 and `HG2-RPR-C/D` remain unstarted. Human review remains deferred
-  until the complete repaired candidate is qualified.
+- Complete local automated evidence: `pnpm stage19:regression -- --allow-dirty`
+  passed repository hygiene, lint, typecheck, production build, 44 test
+  files/705 tests (2 intentional skips), startup preflight, and all 30 Stage
+  19 Electron journeys. Packaging workflow/CI evidence and Jason's manual
+  commit/push checkpoint remain. Program 5 and `HG2-RPR-C/D` remain unstarted.
+  Human review remains deferred until the complete repaired candidate is
+  qualified.
 - Reopening/exit trigger: this issue remains active until the complete repaired
   candidate passes Human Gate 2. Any theme choice that changes project truth,
   reintroduction of the rejected blue/purple shell language, or loss of the
   Story/author-safety boundary reopens the relevant batch immediately.
+
+### `HG2-RPR-01` bounded rail-repair update — 2026-08-16
+
+- Status: `REPAIR_ACTIVE`; Jason approved the next bounded Writing Studio repair
+  batch, **Continuous Manuscript Navigation and Rail Repair**.
+- Scope lock: manuscript prose remains authoritative; this pass changes only
+  Writing Studio navigation, rail controls, rail overflow, shared status/theme
+  tokens, and presentation-only line references. No backend, provider,
+  local-LLM, or Command Center feature work is admitted.
+- Implemented in the current worktree: unit-scoped manuscript anchors and
+  selection-to-scroll navigation; a compact `+` chooser for Writing Section or
+  Story Point; selected-item `−` deletion with type-specific confirmation;
+  unit-versus-planning selection ownership; inline/double-click rename remains;
+  rail overflow containment; semantic light/dark editor and status tokens; and
+  tests proving CodeMirror line numbers restart per unit without entering saved
+  prose.
+- Local focused evidence: `pnpm --dir app exec vitest run
+  renderer/__tests__/Stage19WritingSpineApp.test.tsx
+  renderer/__tests__/stage19WritingSpineController.test.ts
+  renderer/__tests__/DraftEditor.test.tsx
+  renderer/__tests__/Stage19WritingSpineLayout.test.ts` passed 123 tests in 4
+  files. Focused Gate 1 and recovery Electron runs also passed. This is
+  development evidence only; it is not a Human Gate 2 verdict.
+- Remaining: complete packaging/CI evidence for the exact candidate, then
+  perform one complete human review. Do not mark this issue `VERIFIED` until
+  those artifacts and the human verdict exist for the same exact candidate.
+- Packaging note: local `pnpm --dir app package:dir` is blocked only by the
+  worktree `app/release` staging path, which reproduces an electron-builder
+  rename `EPERM` even after the app is closed and the stale directory is
+  removed. A clean system-temp output path completed electron-builder and
+  passed `stage19-package-verify.mjs --preflight --unpacked`: app.asar,
+  renderer chunks, executable metadata, integrity records, and forbidden-path
+  checks all passed. CI packaging remains the exact-candidate evidence for the
+  standard release path.
 
 ## Package 19.22 Foundation Closure — 2026-08-07
 
