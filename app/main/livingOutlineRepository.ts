@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION,
   LIVING_OUTLINE_MAX_LABEL_LENGTH,
+  LIVING_OUTLINE_MAX_BODY_LENGTH,
   LIVING_OUTLINE_SCHEMA_VERSION,
   type LivingOutlineDocumentV1,
   type LivingOutlineItemKind,
@@ -72,6 +73,7 @@ function isItem(value: unknown): value is LivingOutlineItemV1 {
     typeof candidate.label === 'string' &&
     candidate.label.trim().length > 0 &&
     candidate.label.length <= LIVING_OUTLINE_MAX_LABEL_LENGTH &&
+    (candidate.body === undefined || (typeof candidate.body === 'string' && candidate.body.length <= LIVING_OUTLINE_MAX_BODY_LENGTH)) &&
     isKind(candidate.kind) &&
     isState(candidate.state) &&
     (candidate.manuscriptUnitId === null || isNonEmptyString(candidate.manuscriptUnitId)) &&
@@ -140,13 +142,14 @@ export class LivingOutlineRepository {
   async create(
     projectId: string,
     expectedRevision: number,
-    input: Pick<LivingOutlineItemV1, 'label' | 'kind' | 'state' | 'manuscriptUnitId' | 'sourceAnchor'>,
+    input: Pick<LivingOutlineItemV1, 'label' | 'body' | 'kind' | 'state' | 'manuscriptUnitId' | 'sourceAnchor'>,
   ): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       const timestamp = this.now().toISOString();
       return [...document.items, {
         ...input,
         label: input.label.trim(),
+        body: input.body?.trim() ?? '',
         id: `outline_${randomUUID()}`,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -158,12 +161,13 @@ export class LivingOutlineRepository {
     projectId: string,
     expectedRevision: number,
     itemId: string,
-    input: Pick<LivingOutlineItemV1, 'label' | 'kind' | 'state'>,
+    input: Pick<LivingOutlineItemV1, 'label' | 'body' | 'kind' | 'state'>,
   ): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => this.replaceItem(document, itemId, (item) => ({
       ...item,
       ...input,
       label: input.label.trim(),
+      body: input.body?.trim() ?? '',
       updatedAt: this.now().toISOString(),
     })));
   }
@@ -176,7 +180,7 @@ export class LivingOutlineRepository {
   ): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       const index = document.items.findIndex((item) => item.id === itemId);
-      if (index < 0) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
+      if (index < 0) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The Note no longer exists.');
       const destination = index + direction;
       if (destination < 0 || destination >= document.items.length) return [...document.items];
       const items = [...document.items];
@@ -202,7 +206,7 @@ export class LivingOutlineRepository {
   async delete(projectId: string, expectedRevision: number, itemId: string): Promise<LivingOutlineSnapshotV1> {
     return this.mutate(projectId, expectedRevision, (document) => {
       if (!document.items.some((item) => item.id === itemId)) {
-        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
+        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The Note no longer exists.');
       }
       return document.items.filter((item) => item.id !== itemId);
     });
@@ -219,7 +223,7 @@ export class LivingOutlineRepository {
       found = true;
       return update(item);
     });
-    if (!found) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The story point no longer exists.');
+    if (!found) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The Note no longer exists.');
     return items;
   }
 

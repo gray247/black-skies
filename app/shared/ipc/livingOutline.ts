@@ -9,6 +9,7 @@ export const LIVING_OUTLINE_CHANNELS = {
 
 export const LIVING_OUTLINE_SCHEMA_VERSION = 'BlackSkiesLivingOutline v1' as const;
 export const LIVING_OUTLINE_MAX_LABEL_LENGTH = 240;
+export const LIVING_OUTLINE_MAX_BODY_LENGTH = 4000;
 export const LIVING_OUTLINE_ANCHOR_SCHEMA_VERSION = 1 as const;
 
 export type LivingOutlineItemKind = 'fragment' | 'gap' | 'container';
@@ -34,6 +35,8 @@ export interface LivingOutlineSourceAnchorV1 {
 export interface LivingOutlineItemV1 {
   readonly id: string;
   readonly label: string;
+  /** Author-entered planning note body. It is advisory and never manuscript prose. */
+  readonly body?: string;
   readonly kind: LivingOutlineItemKind;
   readonly state: LivingOutlineItemState;
   readonly manuscriptUnitId: string | null;
@@ -85,6 +88,7 @@ export interface GetLivingOutlineRequest extends LivingOutlineProjectBinding {}
 export interface CreateLivingOutlineItemRequest extends LivingOutlineProjectBinding {
   readonly expectedRevision: number;
   readonly label: string;
+  readonly body?: string;
   readonly kind: LivingOutlineItemKind;
   readonly state: LivingOutlineItemState;
   readonly manuscriptUnitId: string | null;
@@ -95,6 +99,7 @@ export interface UpdateLivingOutlineItemRequest extends LivingOutlineProjectBind
   readonly expectedRevision: number;
   readonly itemId: string;
   readonly label: string;
+  readonly body?: string;
   readonly kind: LivingOutlineItemKind;
   readonly state: LivingOutlineItemState;
 }

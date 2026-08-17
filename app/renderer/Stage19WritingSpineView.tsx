@@ -83,10 +83,14 @@ export interface Stage19WritingSpineViewModel {
   readonly livingOutlineNotice: string | null;
   readonly selectedOutlineItem: LivingOutlineItemV1 | null;
   readonly selectedOutlineItemId: string | null;
+  readonly multiSelectMode: boolean;
+  readonly selectedStoryItemIds: readonly string[];
+  readonly storyRailHelpOpen: boolean;
   readonly storyRailAddMenuOpen: boolean;
   readonly outlineEditingItemId: string | null;
   readonly outlineAdvancedItemId: string | null;
   readonly outlineLabel: string;
+  readonly outlineBody: string;
   readonly outlineKind: LivingOutlineItemKind;
   readonly outlineState: LivingOutlineItemState;
   readonly projectedWritingOrder: readonly {
@@ -140,23 +144,28 @@ export interface Stage19WritingSpineViewActions {
   readonly selectUnit: (unitId: string) => MaybeAsync;
   readonly clearOutlineSelection: () => void;
   readonly setStoryRailAddMenuOpen: (open: boolean) => void;
+  readonly toggleMultiSelectMode: () => void;
+  readonly toggleStorySelection: (itemId: string) => void;
+  readonly clearStorySelection: () => void;
+  readonly toggleStoryRailHelp: () => void;
   readonly activateUnitInStream: (unitId: string) => MaybeAsync;
   readonly deleteSelectedStoryItem: () => MaybeAsync;
   readonly setRenameTitle: (value: string) => void;
   readonly editUnit: (unitId: string) => void;
-  readonly cancelUnitEdit: () => void;
+  readonly cancelUnitEdit: () => MaybeAsync;
   readonly openUnitOptions: (unitId: string) => void;
   readonly closeUnitOptions: () => void;
   readonly renameUnit: (unitId: string) => MaybeAsync;
   readonly deleteUnit: (unitId: string) => MaybeAsync;
   readonly setOutlineLabel: (value: string) => void;
+  readonly setOutlineBody: (value: string) => void;
   readonly setOutlineKind: (value: LivingOutlineItemKind) => void;
   readonly setOutlineState: (value: LivingOutlineItemState) => void;
   readonly createOutlineItem: () => MaybeAsync;
   readonly updateOutlineItem: (itemId: string) => MaybeAsync;
   readonly selectOutlineItem: (itemId: string) => MaybeAsync;
   readonly editOutlineItem: (itemId: string) => void;
-  readonly cancelOutlineItemEdit: () => void;
+  readonly cancelOutlineItemEdit: () => MaybeAsync;
   readonly openOutlineItemOptions: (itemId: string) => void;
   readonly closeOutlineItemOptions: () => void;
   readonly moveOutlineItem: (itemId: string, direction: -1 | 1) => MaybeAsync;
@@ -586,18 +595,20 @@ function OutlineTitleEditor({
   item,
   livingOutlineLoading,
   outlineLabel,
+  outlineBody,
 }: {
   readonly actions: Stage19WritingSpineViewProps['actions'];
   readonly item: LivingOutlineItemV1;
   readonly livingOutlineLoading: boolean;
   readonly outlineLabel: string;
+  readonly outlineBody: string;
 }): JSX.Element {
   return (
     <form className="stage19-living-outline__rename" onSubmit={(event) => {
       event.preventDefault();
       void actions.updateOutlineItem(item.id);
     }}>
-      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Story point title</label>
+      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Note title</label>
       <input
         ref={focusOutlineTitleInput}
         id={`stage19-outline-title-${item.id}`}
@@ -608,6 +619,15 @@ function OutlineTitleEditor({
         onKeyDown={(event) => {
           if (event.key === 'Escape') actions.cancelOutlineItemEdit();
         }}
+      />
+      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-body-${item.id}`}>Note body</label>
+      <textarea
+        id={`stage19-outline-body-${item.id}`}
+        aria-label={`Body for ${item.label}`}
+        value={outlineBody}
+        maxLength={4000}
+        rows={3}
+        onChange={(event) => actions.setOutlineBody(event.target.value)}
       />
       <button type="submit" disabled={livingOutlineLoading || !outlineLabel.trim()}>Save</button>
       <button type="button" onClick={actions.cancelOutlineItemEdit}>Cancel</button>
@@ -640,9 +660,12 @@ function LivingOutlineView({
     outlineEditingItemId,
     outlineKind,
     outlineLabel,
+    outlineBody,
     outlineState,
     projectedWritingOrder,
     selectedOutlineItemId,
+    multiSelectMode,
+    selectedStoryItemIds,
     snapshot,
   } = model;
   const advancedItem = livingOutline?.document.items.find((item) => item.id === outlineAdvancedItemId) ?? null;
@@ -660,7 +683,7 @@ function LivingOutlineView({
       {showChrome ? <div className="stage19-living-outline__heading">
         <div>
           <h2>Story plan</h2>
-          <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} story points`}>
+          <span className="stage19-living-outline__count" aria-label={`${livingOutline?.document.items.length ?? 0} Notes`}>
             {livingOutline?.document.items.length ?? 0}
           </span>
         </div>
@@ -669,7 +692,7 @@ function LivingOutlineView({
           className="stage19-living-outline__add"
           aria-label="Add to story here"
           aria-describedby="stage19-outline-creation-context"
-          title="Add a story point at the current writing position"
+          title="Add a Note at the current writing position"
           onClick={() => void actions.createOutlineItem()}
           disabled={livingOutlineLoading || livingOutline?.availability !== 'ready'}
         >
@@ -689,6 +712,8 @@ function LivingOutlineView({
                 const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
                 const isCurrentWriting = item.manuscriptUnitId === snapshot.activeUnitId;
                 const isSuggested = item.state === 'proposed' || item.state === 'inferred';
+                const isMultiSelected = selectedStoryItemIds.includes(item.id);
+                const isDerivedContext = Boolean(item.manuscriptUnitId && item.manuscriptUnitId === snapshot.activeUnitId);
                 return (
                   <li
                     key={item.id}
@@ -718,11 +743,19 @@ function LivingOutlineView({
                       actions.openOutlineItemOptions(item.id);
                     }}
                   >
-                    <div className={`stage19-living-outline__row ${item.id === selectedOutlineItemId ? 'is-active' : ''} ${isCurrentWriting ? 'is-writing-linked' : ''} ${isSuggested ? 'is-suggested' : ''}`}>
+                    <div className={`stage19-living-outline__row ${item.id === selectedOutlineItemId ? 'is-active' : ''} ${isCurrentWriting ? 'is-writing-linked' : ''} ${isSuggested ? 'is-suggested' : ''} ${isDerivedContext ? 'is-derived-context' : ''} ${isMultiSelected ? 'is-multi-selected' : ''}`}>
+                      {multiSelectMode ? <label className="stage19-story-rail__selection">
+                        <input
+                          type="checkbox"
+                          aria-label={`Select Note ${item.label}`}
+                          checked={isMultiSelected}
+                          onChange={() => actions.toggleStorySelection(item.id)}
+                        />
+                      </label> : null}
                       <button
                         type="button"
                         className="stage19-living-outline__locate"
-                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unplaced story point ${item.label}`}
+                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unlinked Note ${item.label}`}
                         aria-current={isCurrentWriting ? 'location' : undefined}
                         onClick={() => void actions.selectOutlineItem(item.id)}
                         onKeyDown={(event) => {
@@ -747,6 +780,7 @@ function LivingOutlineView({
                             item={item}
                             livingOutlineLoading={livingOutlineLoading}
                             outlineLabel={outlineLabel}
+                            outlineBody={outlineBody}
                           />
                         ) : (
                           <button
@@ -777,18 +811,20 @@ function LivingOutlineView({
                 );
               })}
             </ol>
-          ) : showEmpty ? <p className="stage19-spine__empty">No story points yet. Keep writing, or use + when you want to mark this place.</p> : null}
+          ) : showEmpty ? <p className="stage19-spine__empty">No notes yet. Keep writing, or use + when a planning thought matters.</p> : null}
           {showAdvanced && advancedItem && (placementUnitId === undefined || advancedItem.manuscriptUnitId === placementUnitId) ? (
             <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
               <div className="stage19-living-outline__advanced-heading">
                 <div><span className="stage19-spine__eyebrow">Advanced context</span><h3>{advancedItem.label}</h3></div>
                 <button type="button" onClick={actions.closeOutlineItemOptions}>Close</button>
               </div>
-              <button type="button" onClick={() => actions.editOutlineItem(advancedItem.id)}>Rename story point</button>
+              <p className="stage19-living-outline__explanation">
+                Double-click the note to rename it. Use − in the Story rail to delete it.
+              </p>
               <label>
                 <span>Structural meaning</span>
                 <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
-                  <option value="fragment">Story point</option>
+                  <option value="fragment">Note</option>
                   <option value="gap">Something goes here</option>
                   <option value="container">Planning area</option>
                 </select>
@@ -818,23 +854,20 @@ function LivingOutlineView({
                       ? 'This was observed from existing writing and remains advisory.'
                       : 'This is a suggestion and remains advisory until you decide otherwise.'}
               </p>
-              <button type="button" onClick={() => void actions.updateOutlineItem(advancedItem.id)} disabled={livingOutlineLoading || !outlineLabel.trim()}>Save options</button>
+              <label>
+                <span>Note body</span>
+                <textarea aria-label={`Body for ${advancedItem.label}`} value={outlineBody} maxLength={4000} rows={4} onChange={(event) => actions.setOutlineBody(event.target.value)} />
+              </label>
+              <button type="button" onClick={() => void actions.updateOutlineItem(advancedItem.id)} disabled={livingOutlineLoading || !outlineLabel.trim()}>Save note</button>
               <div className="stage19-living-outline__relationship">
                 <strong>{advancedItem.manuscriptUnitId ? `Belongs with: ${snapshot.project?.units.find((unit) => unit.id === advancedItem.manuscriptUnitId)?.displayTitle ?? 'writing'}` : 'Not placed yet'}</strong>
                 <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || advancedItem.manuscriptUnitId === snapshot.activeUnitId}>Place with current writing</button>
                 <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, null)} disabled={livingOutlineLoading || !advancedItem.manuscriptUnitId}>Mark Not placed yet</button>
               </div>
-              <div className="stage19-living-outline__move" aria-label="Move in story plan">
-                <span>Move in story plan</span>
-                <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, -1)} disabled={livingOutlineLoading || livingOutline.document.items[0]?.id === advancedItem.id}>Move up</button>
-                <button type="button" onClick={() => void actions.moveOutlineItem(advancedItem.id, 1)} disabled={livingOutlineLoading || livingOutline.document.items.at(-1)?.id === advancedItem.id}>Move down</button>
-                <small>Keyboard: focus an item&apos;s position and use Alt+Up or Alt+Down.</small>
-              </div>
               <dl className="stage19-living-outline__provenance">
                 <div><dt>Created</dt><dd>{advancedItem.createdAt}</dd></div>
                 <div><dt>Updated</dt><dd>{advancedItem.updatedAt}</dd></div>
               </dl>
-              <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteOutlineItem(advancedItem.id)} disabled={livingOutlineLoading}>Delete story point</button>
             </section>
           ) : null}
           {showPreview ? <details className="stage19-living-outline__preview">
@@ -842,7 +875,7 @@ function LivingOutlineView({
             <p>Preview only. Moving this plan never moves your written pages.</p>
             {projectedWritingOrder.length > 0
               ? <ol>{projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
-              : <p>No story points are placed with writing yet.</p>}
+              : <p>No notes are placed with writing yet.</p>}
           </details> : null}
         </>
       ) : null}
@@ -852,7 +885,7 @@ function LivingOutlineView({
 
 function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
-  const { dirtyUnitIds, recoveryBlocksEditing, renameTitle, snapshot, unitAdvancedId, unitEditingId } = model;
+  const { dirtyUnitIds, multiSelectMode, recoveryBlocksEditing, renameTitle, selectedStoryItemIds, snapshot, storyRailHelpOpen, unitAdvancedId, unitEditingId } = model;
   const advancedUnit = snapshot.project?.units.find((unit) => unit.id === unitAdvancedId) ?? null;
   const outlineItems = model.livingOutline?.document.items ?? [];
   const unplacedCount = outlineItems.filter((item) => !item.manuscriptUnitId).length;
@@ -861,13 +894,27 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
     ? `Selected passage in ${model.activeUnit?.displayTitle ?? 'the current writing'}`
     : model.activeUnit
       ? `Current position in ${model.activeUnit.displayTitle}`
-      : 'No written section selected; new story points remain Not placed yet';
+      : 'No Unit selected; new Notes remain unlinked';
   if (model.focusMode || !snapshot.project) return <></>;
   return (
     <aside className="stage19-spine__binder" aria-label="Story rail">
       <div className="stage19-living-outline__heading stage19-story-rail__heading">
-        <div><span className="stage19-spine__sr-only">Story contents</span><span className="stage19-living-outline__count" aria-label={`${snapshot.project.units.length} written sections and ${outlineItems.length} story points`}>{snapshot.project.units.length + outlineItems.length}</span></div>
+        <div><span className="stage19-spine__sr-only">Story contents</span><span className="stage19-living-outline__count" aria-label={`${snapshot.project.units.length} Units and ${outlineItems.length} Notes`}>{snapshot.project.units.length + outlineItems.length}</span></div>
         <div className="stage19-story-rail__heading-actions">
+          <button
+            type="button"
+            className="stage19-story-rail__help"
+            aria-label="Story rail help"
+            aria-expanded={storyRailHelpOpen}
+            title="Explain Units, Notes, and rail controls"
+            onClick={actions.toggleStoryRailHelp}
+          >?</button>
+          <button
+            type="button"
+            className={`stage19-story-rail__multi-select ${multiSelectMode ? 'is-active' : ''}`}
+            aria-pressed={multiSelectMode}
+            onClick={actions.toggleMultiSelectMode}
+          >{multiSelectMode ? 'Done selecting' : 'Select multiple'}</button>
           <div className="stage19-story-rail__add-details">
             <button
               type="button"
@@ -875,7 +922,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
               aria-label="Add story content"
               aria-expanded={model.storyRailAddMenuOpen}
               aria-controls="stage19-story-rail-add-menu"
-              title="Add a writing section or story point"
+              title="Add a Unit or Note"
               onClick={() => actions.setStoryRailAddMenuOpen(!model.storyRailAddMenuOpen)}
             ><span aria-hidden="true">+</span></button>
             <div id="stage19-story-rail-add-menu" className="stage19-story-rail__add-menu" role="group" aria-label="Add story content options" hidden={!model.storyRailAddMenuOpen}>
@@ -886,7 +933,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
                   void actions.createUnit();
                 }}
                 disabled={recoveryBlocksEditing}
-              >Writing section</button>
+              >Unit</button>
               <button
                 type="button"
                 onClick={() => {
@@ -894,22 +941,29 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
                   void actions.createOutlineItem();
                 }}
                 disabled={model.livingOutlineLoading || model.livingOutline?.availability !== 'ready'}
-              >Story point</button>
-              <p>Writing sections hold prose. Story points hold planning thoughts beside it.</p>
+              >Note</button>
+              <button type="button" onClick={() => actions.setStoryRailAddMenuOpen(false)}>Cancel</button>
+              <p>Units hold manuscript prose. Notes hold lightweight planning thoughts.</p>
             </div>
           </div>
           <button
             type="button"
             className="stage19-living-outline__remove"
             aria-label="Delete selected story item"
-            title="Delete the selected writing section or story point"
+            title="Delete the selected Unit or Note"
             onClick={() => void actions.deleteSelectedStoryItem()}
             disabled={recoveryBlocksEditing || !snapshot.activeUnitId && !model.selectedOutlineItemId}
           ><span aria-hidden="true">−</span></button>
         </div>
       </div>
+      {storyRailHelpOpen ? <section className="stage19-story-rail__help-panel" role="note" aria-label="Story rail help">
+        <strong>How the story rail works</strong>
+        <p><b>Unit</b> is a piece of your manuscript. <b>Note</b> is a quiet planning thought beside it.</p>
+        <p>Notes can belong to a Unit or stay unlinked until you choose a place. Use <b>+</b> to add, <b>−</b> to delete the selected item, and <b>More</b> for extra details.</p>
+        <p>Select multiple lets you compare Units and Notes. It never changes your prose.</p>
+      </section> : null}
       <p className="stage19-living-outline__context">{creationContext}</p>
-      <p className="stage19-living-outline__boundary">Written sections and story points share one rail. Moving a story point never moves or rewrites your pages.</p>
+      {/* The ? help control owns the durable explanation so the rail stays quiet while writing. */}
       {model.livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{model.livingOutlineNotice}</p> : null}
       <ol className="stage19-story-rail__sections" aria-label="Story order">
         {snapshot.project.units.map((unit) => (
@@ -918,17 +972,25 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
             const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
             if (movingItemId) void actions.linkOutlineItem(movingItemId, unit.id);
           }}>
-            <div className="stage19-story-rail__unit-row" onContextMenu={(event) => {
+            <div className={`stage19-story-rail__unit-row ${unit.id === snapshot.activeUnitId ? 'is-derived-context' : ''} ${selectedStoryItemIds.includes(unit.id) ? 'is-multi-selected' : ''}`} onContextMenu={(event) => {
               event.preventDefault();
               actions.openUnitOptions(unit.id);
             }}>
               <span className="stage19-story-rail__unit-order" aria-hidden="true">{String(unit.order).padStart(2, '0')}</span>
+              {multiSelectMode ? <label className="stage19-story-rail__selection">
+                <input
+                  type="checkbox"
+                  aria-label={`Select Unit ${unit.displayTitle}`}
+                  checked={selectedStoryItemIds.includes(unit.id)}
+                  onChange={() => actions.toggleStorySelection(unit.id)}
+                />
+              </label> : null}
               {unitEditingId === unit.id ? (
                 <form className="stage19-story-rail__unit-rename" onSubmit={(event) => {
                   event.preventDefault();
                   void actions.renameUnit(unit.id);
                 }}>
-                  <label className="stage19-spine__sr-only" htmlFor={`stage19-unit-title-${unit.id}`}>Written section title</label>
+                  <label className="stage19-spine__sr-only" htmlFor={`stage19-unit-title-${unit.id}`}>Unit title</label>
                   <input
                     ref={focusOutlineTitleInput}
                     id={`stage19-unit-title-${unit.id}`}
@@ -938,7 +1000,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
                     onKeyDown={(event) => {
                       if (event.key === 'Escape') actions.cancelUnitEdit();
                     }}
-                    placeholder="Untitled section"
+                    placeholder="Untitled Unit"
                     disabled={recoveryBlocksEditing}
                   />
                   <button type="submit" disabled={recoveryBlocksEditing}>Save</button>
@@ -963,29 +1025,28 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
                 >{unit.displayTitle}</button>
               )}
               {dirtyUnitIds.has(unit.id) ? <span className="stage19-story-rail__dirty">Unsaved</span> : null}
-              <button type="button" className="stage19-living-outline__more" aria-label={`More options for written section ${unit.displayTitle}`} aria-expanded={unitAdvancedId === unit.id} onClick={() => actions.openUnitOptions(unit.id)}>More</button>
+              <button type="button" className="stage19-living-outline__more" aria-label={`More options for Unit ${unit.displayTitle}`} aria-expanded={unitAdvancedId === unit.id} onClick={() => actions.openUnitOptions(unit.id)}>More</button>
             </div>
             <LivingOutlineView {...props} placementUnitId={unit.id} showChrome={false} showEmpty={false} showPreview={false} />
           </li>
         ))}
       </ol>
       {snapshot.project.units.length === 0 && outlineItems.length === 0 ? (
-        <p className="stage19-spine__empty">Nothing has been divided yet. Start writing, or use + to mark a story point.</p>
+        <p className="stage19-spine__empty">Nothing has been divided yet. Start writing, or use + to add a Unit or Note.</p>
       ) : null}
       {advancedUnit ? (
-        <section className="stage19-spine__unit-actions stage19-story-rail__unit-advanced" aria-label={`More options for written section ${advancedUnit.displayTitle}`}>
+        <section className="stage19-spine__unit-actions stage19-story-rail__unit-advanced" aria-label={`More options for Unit ${advancedUnit.displayTitle}`}>
           <div className="stage19-living-outline__advanced-heading">
-            <div><span className="stage19-spine__eyebrow">Written section</span><h3>{advancedUnit.displayTitle}</h3></div>
+            <div><span className="stage19-spine__eyebrow">Unit</span><h3>{advancedUnit.displayTitle}</h3></div>
             <button type="button" onClick={actions.closeUnitOptions}>Close</button>
           </div>
-          <p className="stage19-living-outline__explanation">This is accepted manuscript writing. Story-point placement cannot reorder or rewrite it.</p>
-          <button type="button" onClick={() => actions.editUnit(advancedUnit.id)} disabled={recoveryBlocksEditing}>Rename written section</button>
-          <button type="button" className="stage19-spine__danger" onClick={() => void actions.deleteUnit(advancedUnit.id)} disabled={recoveryBlocksEditing}>Delete written section…</button>
+          <p className="stage19-living-outline__explanation">This is accepted manuscript writing. Notes cannot reorder or rewrite it.</p>
+          <p className="stage19-living-outline__explanation">Double-click the section title to rename it. Use − in the Story rail to delete it.</p>
         </section>
       ) : null}
       {unplacedCount > 0 ? <section
         className="stage19-story-rail__unplaced"
-        aria-label="Unplaced story points"
+        aria-label="Unlinked notes"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
@@ -1002,7 +1063,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
           <p>Preview only. Moving this plan never moves your written pages.</p>
           {model.projectedWritingOrder.length > 0
             ? <ol>{model.projectedWritingOrder.map(({ item, unit }) => <li key={item.id}>{unit.displayTitle}</li>)}</ol>
-            : <p>No story points are placed with writing yet.</p>}
+            : <p>No Notes are placed with writing yet.</p>}
         </details>
       ) : null}
     </aside>
@@ -1431,7 +1492,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
       role="region"
       aria-label="Writing Studio"
     >
-      <div className="stage19-writing-shell">
+      <div className={`stage19-writing-shell ${model.openWritingRail === 'bottom' && !model.focusMode ? 'has-session-rail' : ''}`}>
       <header className="stage19-writing-shell__topbar">
         {model.focusMode ? (
           <div className="stage19-writing-shell__focus-context">
@@ -1468,7 +1529,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
             <ManuscriptBinderView {...props} />
           </section>
         ) : null}
-        <div className="stage19-writing-shell__canvas">
+        <div className="stage19-writing-shell__canvas" data-manuscript-scroll-owner="true">
           <RecoveryStateView {...props} />
           {snapshot.project
             ? <ManuscriptCanvasView {...props} />

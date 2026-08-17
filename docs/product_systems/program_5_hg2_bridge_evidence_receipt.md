@@ -77,10 +77,62 @@ This receipt does not claim:
 - package/install or hosted exact-candidate qualification; or
 - Human Gate 2 author acceptance.
 
+## Post-bridge author findings / pre-closure requirement
+
+The automated bridge evidence above remains green for its stated mechanical
+boundary. Jason's follow-up screenshots nevertheless opened `P5-UX-01` before
+Program 5 can close: the manuscript canvas must own long-document scrolling;
+Story, Review, Project, and Writing Session rails must remain stable and
+independently usable; Unit must be the stacked spine while Notes are quiet
+subordinate title/body markers with a selected-Unit default and optional
+unlinked path; `+` creation must support Cancel, outside-click, and Escape
+without leaving a placeholder; Unit navigation and rename must remain reliable;
+top notices and Companion/session surfaces must not overlap writing; and help
+plus story-plan comparison must be summonable, readable, and preview-only.
+
+These are author-experience findings, not a retroactive failure of the bridge
+receipt. They are not verified yet, and they do not authorize local-LLM,
+provider, broad import, accepted-prose mutation, or Human Gate 3 work. Program
+5 and Human Gate 2 remain open until `P5-UX-01` has its own automated geometry
+and workflow evidence and the complete candidate is re-qualified.
+
+## P5-UX-01 three-slice automated qualification update
+
+The approved repair was implemented as three bounded slices without changing
+manuscript authority or opening backend, provider, local-LLM, Wizard, Emotion
+Graph, or broad interchange work.
+
+- Slice 1 made the Writing Studio a stable workspace: the manuscript canvas is
+  the long-document scroll owner, the outer viewport and open rails remain
+  stable, Unit selection navigates only the canvas, Companion/session surfaces
+  do not cover prose, and Focus mode removes support chrome.
+- Slice 2 aligned the rail with the writer model: Units are the manuscript
+  spine, Notes are subordinate title/body planning records with linked and
+  explicitly unlinked paths, creation is transactional, and `+`, `−`, inline
+  rename, and `More` are the primary controls.
+- Slice 3 added derived-context highlighting and optional multi-select, a
+  summonable help explanation, shared light/dark semantic tokens, readable
+  status/export/destructive/disabled states, and unit-local presentation-only
+  line references. Runtime warnings were classified without hiding actionable
+  signals.
+
+Focused renderer, editor-reference, outline persistence/IPC, and companion
+boundary tests passed 145/145. The complete Stage 19 regression then passed:
+44 critical test files, 709 passing tests, 2 skipped, startup preflight 1/1,
+Electron matrix 31/31, plus typecheck, lint, and production builds. The
+development dirty-worktree override was used; protected exact-candidate
+evidence and package/install qualification were not used for this receipt.
+
+The automated P5-UX-01 candidate is green. Human Gate 2 is the next required
+step: one complete author review of the whole Writing Studio. Program 5 must
+remain open until that review is recorded and any resulting bounded repair is
+qualified; automation alone does not authorize closure or Human Gate 3.
+
 ## Next Exact Step
 
-Jason manually stages, commits, and pushes this complete bridge batch. After
-that durable checkpoint, `HG2-RPR-C` repairs true Focus and the supported
-local-facts Companion doorway. `HG2-RPR-D` then qualifies the complete
-package/install candidate before Human Gate 2 is repeated. Full Program 5
-intake/discovery and Human Gate 3 remain later work.
+The automated `P5-UX-01` candidate is green. The next exact step is one
+complete Human Gate 2 review of the whole Writing Studio against the approved
+author-experience contract. Do not close Program 5 from automation alone; any
+failed human finding becomes a new bounded repair slice. Exact package/install
+qualification, full Program 5 intake/discovery, local-LLM Companion capability,
+Emotion Graph computation, and Human Gate 3 remain later authorized work.

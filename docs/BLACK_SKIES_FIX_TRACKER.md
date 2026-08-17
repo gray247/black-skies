@@ -88,6 +88,49 @@ If an issue is not tracked here, it is not part of the active fix scope.
   checks all passed. CI packaging remains the exact-candidate evidence for the
   standard release path.
 
+### `HG2-RPR-01` pre-closure author findings — 2026-08-16
+
+- Status: `DISCOVERED; P5-UX-01 REQUIRED; NOT VERIFIED`. These findings came
+  from Jason's manual review of the repaired Writing Studio screenshots and
+  are not claims that the current implementation has passed or failed a new
+  automated gate.
+- The page-level scroll still carries the long manuscript, Story/Review/
+  Project rails, and Writing Session surface together. After scrolling into a
+  substantial manuscript, the author must return to the top or bottom to use
+  a rail. The Writing Session surface is especially hard to reach and is
+  crowded by the fixed Companion bar. The required correction is a
+  canvas-owned manuscript scroll with independently usable, stable rails.
+- Top notices, edge controls, and shell headers can overlap or visually crowd
+  the manuscript title and first lines. Toasts and edge affordances must stay
+  within reserved shell regions and never cover writing.
+- Unit selection/navigation and double-click rename are not yet reliable as a
+  single interaction after the canvas has moved. A Unit selection must scroll
+  the manuscript canvas only, preserve the rest of the shell, and keep the
+  selected rail item synchronized with the active editor.
+- The `+` chooser has no explicit Cancel/outside-click/Escape dismissal, and a
+  cancelled creation can leave a durable placeholder. Unit and Note creation
+  must be transactional: cancel means no item is created.
+- The writer-facing spine is a stack of Units. The current `Writing section`
+  wording is misleading; a Story point is a lightweight Note attached below a
+  Unit or explicitly unlinked, not a peer chapter/scene card. Notes need a
+  title and author body, should render as quiet markers/icons, and should
+  default to the selected Unit while retaining an optional unlinked path.
+- Repeated permanent instructional copy makes the rail dominant. A single
+  summonable `?` help affordance (or bottom help entry) should explain rail
+  vocabulary and controls only when requested.
+- `Compare the story plan with the manuscript` is currently unclear and low
+  contrast. Its intended meaning is a preview-only alignment of planning
+  items against manuscript order; it must never move, rewrite, or accept
+  prose. The label, explanation, and controls must be readable in both themes.
+- Existing Playwright coverage proves broad startup/rail behavior but does not
+  yet prove internal canvas scrolling, stable rail geometry, chooser dismissal,
+  transactional cancellation, Note body persistence, quiet Unit/Note
+  hierarchy, reliable rename after navigation, or comparison/help readability.
+- No implementation, hosted package qualification, Human Gate 2 acceptance,
+  or Phase 5 / Program 5 closure is claimed by this entry. The findings are
+  routed to `P5-UX-01` in the current open-work register and must be resolved
+  and re-qualified before closure.
+
 ## Package 19.22 Foundation Closure — 2026-08-07
 
 ### Current exact closure
@@ -3539,3 +3582,12 @@ Backlog note drifted after phase-log cleanup.
 - [2026-05-20] Phase 24C.4 bounded ownership-sync IPC implemented: the experimental Split Command path now exposes a narrow preload bridge plus a bounded main-process request/sync channel for ownership snapshots and fallback-state updates, with stale-generation rejection and stable-path protection. No broad IPC mesh, save/export routing, monitor placement, reconnect choreography, or default promotion was added.
 - [2026-05-20] Phase 24C.5 atomic cross-window update semantics implemented: Split Command ownership sync now publishes the current pair identity and fallback state atomically across live windows, and late sync messages are rejected when they do not match the active launch context. This remains bounded IPC/sync proof only; no monitor placement, reconnect choreography, or broad sync mesh was added.
 - [2026-05-20] Phase 24D closure review completed: Phase 24 is now closed as documented authority, fallback, routing, IPC, and proof closure. The experimental Split Command path remains flag-gated; the stable GUI remains sacred/default; and the remaining gaps are explicitly deferred rather than hidden. This does not claim physical two-monitor proof, monitor placement proof, reconnect proof, or broad IPC mesh proof.
+- [2026-08-16] Writing Studio contrast repair started: Command Center saved status now uses the saved-state semantic token instead of the muted header rule, and light-theme export-success notices now use dark readable text with a light success surface. Focused renderer and Electron evidence is required before this repair can be marked verified.
+- [2026-08-16] Writing Studio contrast repair evidence: focused renderer suite passed 124/124; typecheck, lint, and renderer build passed; Command Center and Writing Studio Electron suites passed 8/8. The repair remains pending visual confirmation of light-theme Saved durably and Markdown export success states.
+- [2026-08-16] Writing Studio contrast repair follow-up: light-mode save-state pills now receive explicit readable surfaces for saved, warning, and failure states so dark-theme backgrounds cannot leak into light mode. Rebuilt renderer and reran the focused layout test, lint, and the 8-test Command Center/Writing Studio Electron suite successfully. Visual confirmation remains the only open check.
+- [2026-08-16] Continuous Manuscript Navigation and Rail Repair started: advanced context panels no longer expose redundant rename, delete, or move buttons; the Story rail remains the single primary place for `+`, `−`, double-click/F2 rename, and `More` context. Planning changes now close the panel and report a durable advisory save instead of appearing inert. Focused renderer tests and the affected Gate 1 end-to-end workflow were updated to pin this interaction contract.
+- [2026-08-16] Development startup noise narrowed: `scripts/electron-dev.mjs` no longer exports an inaccessible `.venv` interpreter path, and the missing bundled-Python warning is reserved for packaged launches. DevTools Autofill protocol messages remain Chromium tooling noise; long-click `[Violation]` messages remain a performance signal and are not classified as application errors without a reproducible slow interaction trace.
+- [2026-08-16] Continuous Manuscript Navigation and Rail Repair evidence: focused renderer tests passed 109/109; typecheck, lint, renderer build, main build, and `git diff --check` passed; the affected Electron Gate 1/Writing Studio suite passed 4/4. Full Stage 19 regression and packaging evidence remain required before verification closure.
+- [2026-08-17] P5-UX-01 Slice 1 geometry/navigation evidence: the Writing Studio now owns its shell height and keeps the outer viewport fixed; the manuscript canvas is the long-document scroll owner while Story, Review, Project, and Writing Session rails remain independently scrollable. Focus and Companion boundaries remain intact, and the bottom session rail reserves space for the Companion. Focused renderer layout/app tests passed 109/109, the renderer/main bundle rebuilt, and the Writing Studio Electron suite passed 4/4 including long-manuscript canvas-only scrolling and fixed-rail geometry. The full Stage 19 qualification later passed, so Slice 1 is green and retained as part of the complete candidate.
+- [2026-08-17] P5-UX-01 Slice 2 transactional rail evidence: the Story rail now presents writer-facing Units as the manuscript spine and Notes as subordinate planning records while preserving internal section/story-point compatibility. Note title/body persistence, selected-Unit defaults, explicit unlinked Notes, transactional `+` creation with Cancel/outside-click/Escape dismissal, selected-item `−` deletion, inline rename after navigation, and context-specific save behavior are covered. Duplicate visible rename/delete/reorder controls were removed from detail panels and primary rail controls. Focused renderer, editor-reference, outline persistence/IPC, and companion-boundary tests passed 145/145 before the full gate; Slice 2 is green.
+- [2026-08-17] P5-UX-01 Slice 3 visual/reference/qualification evidence: the rail supports derived-context highlighting with optional explicit multi-select, a summonable `?` explanation, quiet subordinate Notes, shared light/dark semantic status tokens, readable saved/export/help/destructive/disabled states, and unit-local presentation-only line references. Runtime messages were classified separately: missing optional Python is startup configuration noise in development, Chromium Autofill protocol messages are DevTools tooling noise, and long-click violations remain a performance signal requiring evidence rather than suppression. Typecheck, lint, production builds, focused tests, Electron startup preflight, and the complete Stage 19 regression all passed: 44 critical test files with 709 passing tests and 2 skips, startup preflight 1/1, and Electron matrix 31/31. The automated three-slice candidate is green; Human Gate 2 remains pending.

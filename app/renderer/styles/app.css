@@ -4607,6 +4607,43 @@ body[data-stage19-spine] {
   color: #a7f3d0;
 }
 
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__export-notice--success,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__export-notice--success {
+  border-color: #15803d;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__save-state,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__save-state {
+  border-color: var(--bs-line-strong);
+  background: var(--bs-surface-raised);
+  color: var(--bs-text-secondary);
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__save-state--saved,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__save-state--saved {
+  border-color: #15803d;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__save-state--dirty,
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__save-state--saving,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__save-state--dirty,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__save-state--saving {
+  border-color: #b45309;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-spine__save-state--save-failed,
+.stage19-spine--command[data-stage19-theme="light"] .stage19-spine__save-state--save-failed {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
 .stage19-spine__export-notice--neutral {
   border-color: rgba(71, 85, 105, 0.8);
   background: rgba(15, 23, 42, 0.72);
@@ -5225,11 +5262,26 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --bs-editor-active-gutter: rgba(194, 166, 106, 0.18);
   --bs-editor-placeholder: #b9b2a6;
   --bs-selection: rgba(194, 166, 106, 0.28);
+  --stage19-semantic-text: #f0ece3;
+  --stage19-semantic-muted: #b9b2a6;
+  --stage19-semantic-border: #4a4438;
+  --stage19-semantic-success-text: #a7f3d0;
+  --stage19-semantic-success-bg: #064e3b;
+  --stage19-semantic-warning-text: #fde68a;
+  --stage19-semantic-warning-bg: #78350f;
+  --stage19-semantic-danger-text: #fecaca;
+  --stage19-semantic-danger-bg: #7f1d1d;
+  --stage19-semantic-disabled: #857f75;
+  --stage19-semantic-focus: #c2a66a;
   min-height: 100%;
   padding: 0;
   color: var(--bs-text-primary);
   background: var(--bs-canvas-black);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .stage19-spine--writing[data-stage19-theme="light"],
@@ -5245,10 +5297,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --bs-text-muted: #777067;
   --bs-accent-primary: #74551f;
   --bs-state-info: #655f56;
-  --bs-state-success: #3e6b4b;
+  --bs-state-success: #166534;
   --bs-state-warning: #8a5f19;
   --bs-state-danger: #9a3e3a;
-  --bs-status-success: #245a37;
+  --bs-status-success: #166534;
   --bs-status-warning: #70490b;
   --bs-status-danger: #7e2928;
   --bs-status-info: #403b35;
@@ -5259,6 +5311,17 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --bs-editor-active-gutter: rgba(116, 85, 31, 0.18);
   --bs-editor-placeholder: #625b52;
   --bs-selection: rgba(153, 111, 38, 0.24);
+  --stage19-semantic-text: #24211d;
+  --stage19-semantic-muted: #575149;
+  --stage19-semantic-border: #a99d8b;
+  --stage19-semantic-success-text: #166534;
+  --stage19-semantic-success-bg: #dcfce7;
+  --stage19-semantic-warning-text: #78350f;
+  --stage19-semantic-warning-bg: #fef3c7;
+  --stage19-semantic-danger-text: #7f1d1d;
+  --stage19-semantic-danger-bg: #fee2e2;
+  --stage19-semantic-disabled: #625b52;
+  --stage19-semantic-focus: #74551f;
 }
 
 .stage19-theme-switch {
@@ -5300,8 +5363,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-writing-shell {
   position: relative;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   background: var(--bs-canvas-black);
 }
 
@@ -5549,7 +5615,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   flex: 1;
-  min-height: calc(100vh - 56px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .stage19-spine--writing[data-stage19-writing-rail="left"] .stage19-writing-shell__workspace {
@@ -5562,6 +5629,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-writing-shell__canvas {
   min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding-bottom: 56px;
   background: var(--bs-canvas-black);
 }
@@ -5581,14 +5652,24 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__rail {
+  position: relative;
   z-index: 10;
   min-width: 0;
+  min-height: 0;
   padding: 16px;
+  padding-bottom: 8rem;
   overflow: auto;
+  scroll-padding-bottom: max(72px, calc(72px + 8rem));
   border: 1px solid var(--bs-line-quiet);
   border-radius: 4px;
   background: var(--bs-surface-raised);
   color: var(--bs-text-primary);
+}
+
+/* Rails own their actions.  Keep them above the optional Companion strip so a
+   large-text session cannot make a rail button physically unreachable. */
+.stage19-writing-shell__rail {
+  z-index: 30;
 }
 
 .stage19-writing-shell__rail button,
@@ -5600,7 +5681,14 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-writing-shell__rail--top,
 .stage19-writing-shell__rail--bottom {
+  flex: 0 1 auto;
   margin: 12px 48px;
+}
+
+.stage19-writing-shell__rail--bottom,
+.stage19-writing-shell.has-session-rail .stage19-writing-shell__rail--bottom {
+  /* Reserve the Companion strip plus its large-text reflow height. */
+  margin-bottom: max(68px, calc(68px + 8rem));
 }
 
 .stage19-writing-shell__rail--top {
@@ -5609,7 +5697,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-writing-shell__rail--left,
 .stage19-writing-shell__rail--right {
-  max-height: calc(100vh - 56px);
+  height: 100%;
+  max-height: none;
   border-top: 0;
   border-bottom: 0;
   border-radius: 0;
@@ -5947,7 +6036,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-companion-bar {
-  position: fixed;
+  position: absolute;
   z-index: 24;
   right: 48px;
   bottom: 0;
@@ -5961,6 +6050,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-top: 1px solid var(--bs-line-quiet);
   background: var(--bs-surface-base);
   box-shadow: 0 -8px 18px color-mix(in srgb, #000000 24%, transparent);
+  /* The bar owns its controls, but its empty footprint must never block a rail
+     action underneath it at large text sizes. */
+  pointer-events: none;
+}
+
+.stage19-companion-bar > * {
+  pointer-events: auto;
 }
 
 .stage19-companion-bar > label {
@@ -6059,7 +6155,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing.is-focus-mode .stage19-writing-shell__workspace {
-  min-height: calc(100vh - 42px);
+  min-height: 0;
 }
 
 .stage19-spine--writing.is-focus-mode .stage19-writing-shell__canvas {
@@ -6170,11 +6266,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 
   .stage19-companion-bar {
-    position: static;
+    position: absolute;
+    bottom: 0;
     right: 8px;
     left: 8px;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    margin: 8px 8px 0;
+    margin: 0;
     box-shadow: none;
   }
 
@@ -6219,7 +6316,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--command[data-stage19-theme="light"] {
-  --bs-status-success: #245a37;
+  --bs-state-success: #166534;
+  --bs-status-success: #166534;
   --bs-status-warning: #70490b;
   --bs-status-danger: #7e2928;
   --bs-status-info: #403b35;
@@ -6293,6 +6391,19 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-command__status .stage19-spine__save-state {
   color: var(--bs-text-secondary);
   font-size: 0.75rem;
+}
+
+.stage19-command__status .stage19-spine__save-state--saved {
+  color: var(--bs-status-success);
+}
+
+.stage19-command__status .stage19-spine__save-state--dirty,
+.stage19-command__status .stage19-spine__save-state--saving {
+  color: var(--bs-status-warning);
+}
+
+.stage19-command__status .stage19-spine__save-state--save-failed {
+  color: var(--bs-status-danger);
 }
 
 .stage19-spine--command .stage19-spine__surface-host {
@@ -7092,6 +7203,120 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   .stage19-living-outline__rename input {
     grid-column: 1 / -1;
   }
+}
+
+/* P5-UX-01 Slice 3: shared semantic readability and quiet story-rail context. */
+.stage19-spine--writing .stage19-spine__save-state,
+.stage19-spine--command .stage19-spine__save-state {
+  border-color: var(--stage19-semantic-border);
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-spine__save-state--saved,
+.stage19-spine--command .stage19-spine__save-state--saved,
+.stage19-spine--writing .stage19-spine__export-notice--success,
+.stage19-spine--command .stage19-spine__export-notice--success {
+  border-color: var(--stage19-semantic-success-text);
+  background: var(--stage19-semantic-success-bg);
+  color: var(--stage19-semantic-success-text);
+}
+
+.stage19-spine--writing .stage19-spine__save-state--dirty,
+.stage19-spine--writing .stage19-spine__save-state--saving,
+.stage19-spine--command .stage19-spine__save-state--dirty,
+.stage19-spine--command .stage19-spine__save-state--saving,
+.stage19-spine--writing .stage19-spine__export-remedy,
+.stage19-spine--command .stage19-spine__export-remedy {
+  border-color: var(--stage19-semantic-warning-text);
+  background: var(--stage19-semantic-warning-bg);
+  color: var(--stage19-semantic-warning-text);
+}
+
+.stage19-spine--writing .stage19-spine__save-state--save-failed,
+.stage19-spine--command .stage19-spine__save-state--save-failed,
+.stage19-spine--writing .stage19-spine__notice,
+.stage19-spine--command .stage19-spine__notice,
+.stage19-spine--writing .stage19-spine__export-notice--failure,
+.stage19-spine--command .stage19-spine__export-notice--failure {
+  border-color: var(--stage19-semantic-danger-text);
+  background: var(--stage19-semantic-danger-bg);
+  color: var(--stage19-semantic-danger-text);
+}
+
+.stage19-spine--writing .stage19-living-outline__preview,
+.stage19-spine--writing .stage19-living-outline__boundary,
+.stage19-spine--writing .stage19-story-rail__help-panel,
+.stage19-spine--command .stage19-spine__export-notice--neutral {
+  color: var(--stage19-semantic-muted);
+}
+
+.stage19-spine--writing .stage19-story-rail__help-panel {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--stage19-semantic-border);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bs-surface-raised) 86%, var(--bs-accent-primary));
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.stage19-story-rail__help-panel strong {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-story-rail__help-panel p {
+  margin: 5px 0 0;
+}
+
+.stage19-story-rail__help,
+.stage19-story-rail__multi-select {
+  color: var(--stage19-semantic-muted) !important;
+}
+
+.stage19-story-rail__multi-select {
+  min-width: 0 !important;
+  font-size: 0.64rem !important;
+  white-space: nowrap;
+}
+
+.stage19-story-rail__selection {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+}
+
+.stage19-story-rail__selection input {
+  accent-color: var(--stage19-semantic-focus);
+}
+
+.stage19-story-rail__unit-row.is-derived-context,
+.stage19-living-outline__row.is-derived-context {
+  background: rgba(194, 166, 106, 0.09);
+}
+
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-story-rail__unit-row.is-derived-context,
+.stage19-spine--writing[data-stage19-theme="light"] .stage19-living-outline__row.is-derived-context {
+  background: rgba(116, 85, 31, 0.09);
+}
+
+.stage19-story-rail__unit-row.is-multi-selected,
+.stage19-living-outline__row.is-multi-selected {
+  outline: 1px solid var(--stage19-semantic-focus);
+  outline-offset: -1px;
+}
+
+.stage19-spine--writing .stage19-living-outline__row:has(.stage19-story-rail__selection) {
+  grid-template-columns: 28px 32px minmax(0, 1fr) auto auto;
+}
+
+.stage19-spine--writing .stage19-living-outline--nested .stage19-living-outline__row {
+  min-height: 38px;
+  opacity: 0.84;
+}
+
+.stage19-spine--writing .stage19-story-rail__add-menu p,
+.stage19-spine--writing .stage19-living-outline__preview p {
+  color: var(--stage19-semantic-muted);
 }
 
 /* Human Gate 2 repair B: one quiet Story rail for writing and planning. */

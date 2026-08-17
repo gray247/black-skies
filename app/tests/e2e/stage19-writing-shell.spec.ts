@@ -158,6 +158,81 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
   }
 });
 
+test('Slice 1 keeps long prose in a private canvas scroll region while rails stay fixed', async ({
+  electronApp,
+  page,
+}) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-slice1-geometry-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    await writing.evaluate(async (parentPath) => {
+      const bridge = window.projectSpine!;
+      const project = await bridge.createProject({
+        parentPath,
+        title: 'Slice 1 Geometry',
+        operationId: 'slice1-geometry-create-project',
+      });
+      if (!project.ok) throw new Error(project.error.message);
+      const unit = await bridge.createUnit!({
+        projectId: project.snapshot.project!.projectId,
+        projectPath: project.snapshot.project!.path,
+        generation: project.snapshot.generation,
+        operationId: 'slice1-geometry-create-unit',
+        title: 'Long Draft',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+    }, parent);
+
+    const studio = writing.getByRole('region', { name: 'Writing Studio' });
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Long Draft' });
+    await editor.fill(Array.from({ length: 180 }, (_, index) => `Line ${index + 1}: the manuscript remains one continuous draft.`).join('\n'));
+    await openWritingStudioRail(writing, 'story tools');
+    const geometryBefore = await writing.evaluate(() => {
+      const shell = document.querySelector('.stage19-writing-shell');
+      const canvas = document.querySelector('[data-manuscript-scroll-owner="true"]');
+      const rail = document.querySelector('#stage19-writing-rail-left');
+      if (!(shell instanceof HTMLElement) || !(canvas instanceof HTMLElement) || !(rail instanceof HTMLElement)) {
+        throw new Error('Slice 1 geometry nodes are missing');
+      }
+      const railRect = rail.getBoundingClientRect();
+      return {
+        shellOverflow: getComputedStyle(shell).overflowY,
+        canvasOverflow: getComputedStyle(canvas).overflowY,
+        canvasScrollHeight: canvas.scrollHeight,
+        canvasClientHeight: canvas.clientHeight,
+        canvasTop: canvas.getBoundingClientRect().top,
+        railTop: railRect.top,
+        railBottom: railRect.bottom,
+      };
+    });
+    expect(geometryBefore.shellOverflow).toBe('hidden');
+    expect(geometryBefore.canvasOverflow).toBe('auto');
+    expect(geometryBefore.canvasScrollHeight).toBeGreaterThan(geometryBefore.canvasClientHeight);
+
+    const geometryAfter = await writing.evaluate(() => {
+      const canvas = document.querySelector('[data-manuscript-scroll-owner="true"]');
+      const rail = document.querySelector('#stage19-writing-rail-left');
+      if (!(canvas instanceof HTMLElement) || !(rail instanceof HTMLElement)) throw new Error('Slice 1 nodes are missing');
+      canvas.scrollTop = canvas.scrollHeight;
+      const railRect = rail.getBoundingClientRect();
+      return {
+        canvasTop: canvas.getBoundingClientRect().top,
+        railTop: railRect.top,
+        railBottom: railRect.bottom,
+        canvasScrollTop: canvas.scrollTop,
+      };
+    });
+    expect(geometryAfter.canvasScrollTop).toBeGreaterThan(0);
+    expect(geometryAfter.canvasTop).toBe(geometryBefore.canvasTop);
+    expect(geometryAfter.railTop).toBe(geometryBefore.railTop);
+    expect(geometryAfter.railBottom).toBe(geometryBefore.railBottom);
+    await expect(editor).toBeInViewport();
+    await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'left');
+  } finally {
+    await removeTemporaryDirectory(parent);
+  }
+});
+
 test('Program 5 bridge reads as one manuscript and returns a story point to its source passage', async ({
   electronApp,
   page,
@@ -221,7 +296,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await activeCrossingEditor.selectText();
     await openWritingStudioRail(writing, 'story tools');
     await writing.getByRole('button', { name: 'Add story content' }).click();
-    await writing.getByRole('button', { name: 'Story point' }).click();
+    await writing.getByRole('button', { name: 'Note' }).click();
     const title = writing.getByRole('textbox', { name: `Title for ${crossingProse}` });
     await title.fill('Lantern crossing');
     await writing.locator('.stage19-living-outline__rename').getByRole('button', { name: 'Save' }).click();

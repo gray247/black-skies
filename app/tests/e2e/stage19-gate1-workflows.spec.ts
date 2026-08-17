@@ -76,8 +76,8 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await openingEditor.focus();
     await writing.keyboard.press('Control+A');
     await writing.getByRole('button', { name: 'Add story content' }).click();
-    await expect(writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
-    await writing.getByRole('button', { name: 'Story point' }).click();
+    await expect(writing.getByRole('button', { name: 'Note' })).toBeEnabled();
+    await writing.getByRole('button', { name: 'Note' }).click();
     await expect(writing.getByText('Selected passage in Opening Signal')).toBeVisible();
     const openingOutlineTitle = writing.locator('.stage19-living-outline__rename input');
     await expect(openingOutlineTitle).toHaveValue(/Rain marked the station glass/);
@@ -86,8 +86,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: 'More options for Opening question' }).click();
     const openingOptions = writing.getByRole('region', { name: 'More options for Opening question' });
     await openingOptions.getByLabel('Source state').selectOption('authored');
-    await openingOptions.getByRole('button', { name: 'Save options' }).click();
-    await openingOptions.getByRole('button', { name: 'Close' }).click();
+    await openingOptions.getByRole('button', { name: 'Save note' }).click();
     await expect(writing.getByRole('button', { name: 'Show Opening question in manuscript' })).toBeVisible();
 
     await writing.getByRole('button', { name: /^02 Impossible Arrival$/ }).click();
@@ -95,16 +94,16 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await arrivalEditor.fill('The ship arrived where no harbor existed.');
     await writing.getByRole('button', { name: /^Save$/ }).click();
     await writing.getByRole('button', { name: 'Add story content' }).click();
-    await expect(writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
-    await writing.getByRole('button', { name: 'Story point' }).click();
-    const arrivalOutlineTitle = writing.getByRole('textbox', { name: 'Title for New story point' });
+    await expect(writing.getByRole('button', { name: 'Note' })).toBeEnabled();
+    await writing.getByRole('button', { name: 'Note' }).click();
+    const arrivalOutlineTitle = writing.locator('.stage19-living-outline__rename input').last();
     await arrivalOutlineTitle.fill('Bridge into the impossible arrival');
     await arrivalOutlineTitle.press('Enter');
     await writing.getByRole('button', { name: 'More options for Bridge into the impossible arrival' }).click();
     const arrivalOptions = writing.getByRole('region', { name: 'More options for Bridge into the impossible arrival' });
     await arrivalOptions.getByLabel('Structural meaning').selectOption('gap');
     await arrivalOptions.getByLabel('Source state').selectOption('proposed');
-    await arrivalOptions.getByRole('button', { name: 'Save options' }).click();
+    await arrivalOptions.getByRole('button', { name: 'Save note' }).click();
 
     const protectedBeforeMove = await Promise.all([
       readFile(join(created.projectPath, 'outline.json'), 'utf8'),
@@ -117,7 +116,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await arrivalItem.dispatchEvent('dragstart', { dataTransfer: dragData });
     await openingItem.dispatchEvent('dragover', { dataTransfer: dragData });
     await openingItem.dispatchEvent('drop', { dataTransfer: dragData });
-    await expect(writing.getByText('Story point placed with the current writing. Manuscript text was not changed.')).toBeVisible();
+    await expect(writing.getByText('Note placed with the current writing. Manuscript text was not changed.')).toBeVisible();
     await writing.getByText('Compare the story plan with the manuscript').click();
     await expect(writing.getByText('Preview only. Moving this plan never moves your written pages.')).toBeVisible();
     const protectedAfterPlacement = await Promise.all([
@@ -202,12 +201,12 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await expect(reopened.command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
     await openWritingStudioRail(reopened.writing, 'story tools');
     await expect(reopened.writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
-    await expect(reopened.writing.getByText('Nothing has been divided yet. Start writing, or use + to mark a story point.')).toBeVisible();
+    await expect(reopened.writing.getByText('Nothing has been divided yet. Start writing, or use + to add a Unit or Note.')).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
     await reopened.writing.getByRole('button', { name: 'Add story content' }).click();
-    await expect(reopened.writing.getByRole('button', { name: 'Story point' })).toBeEnabled();
-    await reopened.writing.getByRole('button', { name: 'Story point' }).click();
-    const unplacedTitle = reopened.writing.getByRole('textbox', { name: 'Title for New story point' });
+    await expect(reopened.writing.getByRole('button', { name: 'Note' })).toBeEnabled();
+    await reopened.writing.getByRole('button', { name: 'Note' }).click();
+    const unplacedTitle = reopened.writing.locator('.stage19-living-outline__rename input').last();
     await unplacedTitle.fill('Unplaced thought');
     await unplacedTitle.press('Enter');
     await expect(reopened.writing.getByRole('heading', { name: 'Not placed yet' })).toBeVisible();

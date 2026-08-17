@@ -153,8 +153,9 @@ async function createItem(event: IpcMainInvokeEvent, request: CreateLivingOutlin
     !validRevision(request.expectedRevision) || !validLabel(request.label) ||
     !validKind(request.kind) || !validState(request.state) || !validUnitReference(request.manuscriptUnitId) ||
     !validSourceAnchor(request.sourceAnchor) ||
-    (request.sourceAnchor != null && request.sourceAnchor.unitId !== request.manuscriptUnitId)
-  ) return fail('INVALID_REQUEST', 'The new story point is incomplete.');
+    (request.sourceAnchor != null && request.sourceAnchor.unitId !== request.manuscriptUnitId) ||
+    (request.body !== undefined && (typeof request.body !== 'string' || request.body.length > 4000))
+  ) return fail('INVALID_REQUEST', 'The new note is incomplete.');
   if (!unitExists(active.snapshot, request.manuscriptUnitId)) {
     return fail('UNKNOWN_MANUSCRIPT_UNIT', 'The linked manuscript unit no longer exists.');
   }
@@ -164,6 +165,7 @@ async function createItem(event: IpcMainInvokeEvent, request: CreateLivingOutlin
       request.expectedRevision,
       {
         label: request.label,
+        body: request.body,
         kind: request.kind,
         state: request.state,
         manuscriptUnitId: request.manuscriptUnitId,
@@ -180,14 +182,15 @@ async function updateItem(event: IpcMainInvokeEvent, request: UpdateLivingOutlin
   if (isFailure(active)) return active;
   if (
     !validRevision(request.expectedRevision) || !validItemId(request.itemId) ||
-    !validLabel(request.label) || !validKind(request.kind) || !validState(request.state)
-  ) return fail('INVALID_REQUEST', 'The story point update is incomplete.');
+    !validLabel(request.label) || !validKind(request.kind) || !validState(request.state) ||
+    (request.body !== undefined && (typeof request.body !== 'string' || request.body.length > 4000))
+  ) return fail('INVALID_REQUEST', 'The note update is incomplete.');
   try {
     return { ok: true, data: await active.repository.update(
       active.snapshot.project!.projectId,
       request.expectedRevision,
       request.itemId,
-      { label: request.label, kind: request.kind, state: request.state },
+      { label: request.label, body: request.body, kind: request.kind, state: request.state },
     ) };
   } catch (error) {
     return repositoryFailure(error);
