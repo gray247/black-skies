@@ -68,8 +68,10 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     await themeSwitch.click();
     await expect(themeSwitch).toHaveAttribute('aria-checked', 'true');
     await expect(studio).toHaveAttribute('data-stage19-theme', 'light');
-    expect(await studio.evaluate((element) => getComputedStyle(element).backgroundColor))
-      .toBe('rgb(251, 248, 241)');
+    await expect.poll(
+      () => studio.evaluate((element) => getComputedStyle(element).backgroundColor),
+      { message: 'Writing Studio should apply the light canvas surface after the theme state changes' },
+    ).toBe('rgb(251, 248, 241)');
     await expect(editor).toContainText(prose);
     await themeSwitch.click();
     await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');

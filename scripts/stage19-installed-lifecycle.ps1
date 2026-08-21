@@ -5,7 +5,9 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$ReceiptPath,
 
-  [string]$WorkingRoot = (Join-Path $env:LOCALAPPDATA ("BlackSkiesQualification\19-19-" + [guid]::NewGuid().ToString("N")))
+  [string]$WorkingRoot = (Join-Path $env:LOCALAPPDATA ("BlackSkiesQualification\19-19-" + [guid]::NewGuid().ToString("N"))),
+
+  [switch]$SkipFirewallIsolation
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,12 +25,19 @@ $firewallCreated = $false
 $shortcutPaths = @()
 $registrationPath = $null
 $smoke = $null
+$offlineFirewallRuleApplied = -not $SkipFirewallIsolation
 
 function Assert-Stage19 {
   param([bool]$Condition, [string]$Message)
   if (-not $Condition) {
     throw "[stage19-installed] $Message"
   }
+}
+
+function Test-IsElevated {
+  $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+  $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+  return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 function Wait-PathState {
@@ -102,6 +111,11 @@ New-Item -ItemType Directory -Path $working -Force | Out-Null
 Assert-Stage19 (Test-Path -LiteralPath $installer -PathType Leaf) "Installer is missing."
 Assert-Stage19 (Test-Path -LiteralPath $receipt -PathType Leaf) "Qualification receipt is missing."
 Assert-Stage19 ((Get-AuthenticodeSignature -LiteralPath $installer).Status -eq "NotSigned") "Installer signature truth is not NotSigned."
+if (-not $SkipFirewallIsolation) {
+  Assert-Stage19 (Test-IsElevated) "Exact offline lifecycle qualification requires an elevated PowerShell because it creates a temporary outbound firewall rule. Black Skies does not create firewall rules during normal runtime. Rerun this command as Administrator, or pass -SkipFirewallIsolation for an application-only install/smoke/uninstall check."
+} else {
+  Write-Warning "[stage19-installed] Firewall isolation is disabled by explicit request; this is application-only smoke evidence and cannot qualify the exact offline lifecycle gate."
+}
 
 try {
   $installerProcess = Start-Process -FilePath $installer -ArgumentList @("/S", "/D=$installDirectory") -Wait -PassThru -WindowStyle Hidden
@@ -137,10 +151,12 @@ try {
   Assert-Stage19 ($executableIconHash -eq $installerIconHash) "Installer and installed executable embedded icons differ."
   Assert-Stage19 ($executableIconHash -ne $defaultElectronIconHash) "Packaged executables still use the Electron default icon."
 
-  New-NetFirewallRule -DisplayName $firewallRuleName -Direction Outbound -Program $installedExecutable -Action Block -Profile Any | Out-Null
-  $firewallCreated = $true
-  $firewall = Get-NetFirewallRule -DisplayName $firewallRuleName
-  Assert-Stage19 ($firewall.Enabled -eq "True" -and $firewall.Action -eq "Block") "Outbound firewall isolation was not active."
+  if (-not $SkipFirewallIsolation) {
+    New-NetFirewallRule -DisplayName $firewallRuleName -Direction Outbound -Program $installedExecutable -Action Block -Profile Any | Out-Null
+    $firewallCreated = $true
+    $firewall = Get-NetFirewallRule -DisplayName $firewallRuleName
+    Assert-Stage19 ($firewall.Enabled -eq "True" -and $firewall.Action -eq "Block") "Outbound firewall isolation was not active."
+  }
 
   $smokeArguments = @(
     "--executable", $installedExecutable,
@@ -219,7 +235,8 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount
   zeroSurvivorProcessCount = $smoke.zeroSurvivorProcessCount
   performance = $performanceReceipt
-  offlineFirewallRuleApplied = $true
+  offlineFirewallRuleApplied = $offlineFirewallRuleApplied
+  qualificationMode = if ($offlineFirewallRuleApplied) { "offline-firewall-isolated" } else { "application-only-no-firewall" }
   exactMarkdownMatched = $smoke.exactMarkdownMatched
   exportedUnitCount = $smoke.exportedUnitCount
   externalProjectPreserved = $true
@@ -233,7 +250,8 @@ $receiptDocument | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $receipt 
 [ordered]@{
   schema = "black-skies.stage19-22.lifecycle-evidence.v1"
   qualifiedCommit = $receiptDocument.qualifiedCommit
-  installedOffline = $true
+  installedOffline = $offlineFirewallRuleApplied
+  qualificationMode = if ($offlineFirewallRuleApplied) { "offline-firewall-isolated" } else { "application-only-no-firewall" }
   representativeWorkloadPassed = $smoke.exactMarkdownMatched -eq $true
   forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount
   uninstallRemovedApplication = $true

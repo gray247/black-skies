@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Private V1.0 baseline complete through Package 19.22; future development requires new scope
-Last Reviewed: 2026-08-16
+Last Reviewed: 2026-08-20
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -130,6 +130,38 @@ If an issue is not tracked here, it is not part of the active fix scope.
   or Phase 5 / Program 5 closure is claimed by this entry. The findings are
   routed to `P5-UX-01` in the current open-work register and must be resolved
   and re-qualified before closure.
+
+### `P5-UX-01` launcher qualification follow-up — 2026-08-20
+
+- Status: `PARTIAL; LAUNCHER QUALIFICATION GREEN; HUMAN GATE 2 OPEN`.
+- Port-health handling was ported to the canonical candidate only. `pnpm dev`
+  now reuses a healthy Black Skies renderer on `127.0.0.1:5173`, refuses a
+  non-Black-Skies listener with owner/PID information, and waits for a newly
+  started renderer before launching Electron. Shutdown only terminates a
+  renderer created by this invocation.
+- Focused evidence passed: `node --test scripts/dev-runner.test.mjs` (4/4),
+  including healthy, available, occupied, listener-identification, and timeout
+  classifications. This does not qualify packaged behavior and does not close
+  P5-UX-01, Program 5, or Human Gate 2.
+
+### `P5-UX-01` exact-candidate package follow-up — 2026-08-20
+
+- Status: `PARTIAL; UNPACKED PACKAGE GREEN; NSIS INSTALLER BLOCKED; HUMAN GATE 2 OPEN`.
+- Fresh current-candidate unpacked output passed `package:verify:unpacked` and
+  representative installed smoke: packaged runtime, one canonical sandboxed
+  window, zero forbidden runtime descendants, durable project files, exact
+  Markdown export, and the 100-unit representative workflow all passed.
+- `pnpm --filter app run package:win` reached the current unpacked/7z assembly
+  but failed before producing a new installer or receipt with
+  `ERR_ELECTRON_BUILDER_CANNOT_EXECUTE`: NSIS could not open the existing
+  `allowOnlyOneInstallerInstance.nsh` through the canonical long pnpm
+  virtual-store path. A short-path junction and a drive-mapping retry reproduced
+  the same host-side failure. The older 2026-08-11 installer/receipt were not
+  reused, so no exact installer install/uninstall claim is made.
+- The full Electron matrix also emitted two non-failing `Viewport failed to
+  stabilize` warnings in the P3-D journey. They remain a harness/viewport
+  signal to classify separately from the passing product assertions; they do
+  not change the P5-UX-01 status without a reproducible product failure.
 
 ## Package 19.22 Foundation Closure — 2026-08-07
 
@@ -3591,3 +3623,5 @@ Backlog note drifted after phase-log cleanup.
 - [2026-08-17] P5-UX-01 Slice 1 geometry/navigation evidence: the Writing Studio now owns its shell height and keeps the outer viewport fixed; the manuscript canvas is the long-document scroll owner while Story, Review, Project, and Writing Session rails remain independently scrollable. Focus and Companion boundaries remain intact, and the bottom session rail reserves space for the Companion. Focused renderer layout/app tests passed 109/109, the renderer/main bundle rebuilt, and the Writing Studio Electron suite passed 4/4 including long-manuscript canvas-only scrolling and fixed-rail geometry. The full Stage 19 qualification later passed, so Slice 1 is green and retained as part of the complete candidate.
 - [2026-08-17] P5-UX-01 Slice 2 transactional rail evidence: the Story rail now presents writer-facing Units as the manuscript spine and Notes as subordinate planning records while preserving internal section/story-point compatibility. Note title/body persistence, selected-Unit defaults, explicit unlinked Notes, transactional `+` creation with Cancel/outside-click/Escape dismissal, selected-item `−` deletion, inline rename after navigation, and context-specific save behavior are covered. Duplicate visible rename/delete/reorder controls were removed from detail panels and primary rail controls. Focused renderer, editor-reference, outline persistence/IPC, and companion-boundary tests passed 145/145 before the full gate; Slice 2 is green.
 - [2026-08-17] P5-UX-01 Slice 3 visual/reference/qualification evidence: the rail supports derived-context highlighting with optional explicit multi-select, a summonable `?` explanation, quiet subordinate Notes, shared light/dark semantic status tokens, readable saved/export/help/destructive/disabled states, and unit-local presentation-only line references. Runtime messages were classified separately: missing optional Python is startup configuration noise in development, Chromium Autofill protocol messages are DevTools tooling noise, and long-click violations remain a performance signal requiring evidence rather than suppression. Typecheck, lint, production builds, focused tests, Electron startup preflight, and the complete Stage 19 regression all passed: 44 critical test files with 709 passing tests and 2 skips, startup preflight 1/1, and Electron matrix 31/31. The automated three-slice candidate is green; Human Gate 2 remains pending.
+- [2026-08-20] P5-UX-01 exact-candidate package repair and qualification follow-up: the NSIS failure was isolated to electron-builder 26.15.3 emitting an absolute template include through pnpm's 274-character virtual-store path. The narrow dependency patch now stages the NSIS include directory under a short per-process temporary path and emits short absolute include paths, while retaining the existing per-user installer correction. `pnpm install --offline --frozen-lockfile`, fresh `package:win`, and `package:verify:installer` passed for qualified commit `985dd98d892db20bcc101b9b148d24c7a42d16f6`; the latest installer SHA-256 is `2e762ad6fb147aa5ddfdd7fef68c4725f4e94eb7a164ad2c10ab828aa08204ad`. The installer install, packaged smoke (including exact Markdown export and 100-unit representative), and silent uninstall also passed. The exact firewall-isolated lifecycle witness stopped only because `New-NetFirewallRule` returned Windows `Access is denied` in this session and cleaned up; this remains a host privilege blocker, not a product failure. Final Stage 19 regression passed unchanged: 44 critical files, 709 passed, 2 skipped, startup preflight 1/1, Electron matrix 31/31. Human Gate 2 remains required.
+- [2026-08-21] P5-UX-01 firewall qualification clarification: the application contains no firewall command or runtime firewall setup; only the offline qualification harness creates a temporary outbound block. `scripts/stage19-installed-lifecycle.ps1` now checks elevation before installation and explains the boundary, while explicit `-SkipFirewallIsolation` runs an application-only lifecycle witness and records that it is not exact offline qualification. The app-only lane passed packaged startup, optional Command transition, zero forbidden descendants, exact Markdown export, the 100-unit representative, uninstall, external-data preservation, and same-installer reinstall. Focused P5 renderer tests passed 141/141 and the targeted Writing Studio/performance Electron matrix passed 5/5. The exact elevated firewall lane and Human Gate 2 remain open.

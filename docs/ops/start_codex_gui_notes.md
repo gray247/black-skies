@@ -44,7 +44,13 @@ pnpm run bootstrap
 pnpm dev
 ```
 
-`pnpm dev` starts two concurrent tasks:
+`pnpm dev` starts the Electron dev launcher and a Vite renderer when port
+`5173` is available. If port `5173` already serves the Black Skies document,
+the launcher reuses it and does not start or stop a second renderer. If the
+port belongs to another process, startup stops with that process's owner/PID;
+the launcher never kills an arbitrary listener.
+
+The normal owned-start path runs two concurrent tasks:
 
 - `pnpm --filter app dev` - the Vite dev server for the renderer
 - `node scripts/electron-dev.mjs` - the Electron dev launcher that builds the main process and starts Electron against the renderer URL

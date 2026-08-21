@@ -26,3 +26,46 @@ index a810c8237ce630df986f91b54510e899b8dc80ad..d6b7d466e5db3cc8ca2c0356f35e9827
 -      ${endif}
 -      Pop $2
 -      Pop $1
+diff --git a/out/targets/nsis/NsisScriptGenerator.js b/out/targets/nsis/NsisScriptGenerator.js
+index 729cdc8..41caed9 100644
+--- a/out/targets/nsis/NsisScriptGenerator.js
++++ b/out/targets/nsis/NsisScriptGenerator.js
+@@ -2,19 +2,36 @@
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.NsisScriptGenerator = void 0;
+ exports.nsisEscapeString = nsisEscapeString;
++const fs = require("fs");
++const os = require("os");
++const path = require("path");
+ const builder_util_1 = require("builder-util");
++function stageNsisIncludeDir(file) {
++    const templateMatch = file.match(/(?:^|[\\/])templates[\\/]nsis[\\/]include$/);
++    if (!templateMatch) {
++        return file;
++    }
++    const stagedDir = path.join(os.tmpdir(), `electron-builder-nsis-includes-${process.pid}`);
++    fs.rmSync(stagedDir, { recursive: true, force: true });
++    fs.cpSync(file, stagedDir, { recursive: true });
++    return stagedDir;
++}
+ class NsisScriptGenerator {
+     constructor() {
+         this.lines = [];
+     }
+     addIncludeDir(file) {
+-        this.lines.push(`!addincludedir "${file}"`);
++        this.lines.push(`!addincludedir "${stageNsisIncludeDir(file)}"`);
+     }
+     addPluginDir(pluginArch, dir) {
+         this.lines.push(`!addplugindir /${pluginArch} "${dir}"`);
+     }
+     include(file) {
+-        this.lines.push(`!include "${file}"`);
++        const templateMatch = file.match(/(?:^|[\\/])templates[\\/]nsis[\\/]include[\\/](.+)$/);
++        const includePath = templateMatch
++            ? path.join(stageNsisIncludeDir(path.dirname(file)), path.basename(templateMatch[1]))
++            : file;
++        this.lines.push(`!include "${includePath}"`);
+     }
+     macro(name, lines) {
+         this.lines.push(`!macro ${name}`, `  ${(Array.isArray(lines) ? lines : lines.lines).join("\n  ")}`, `!macroend\n`);

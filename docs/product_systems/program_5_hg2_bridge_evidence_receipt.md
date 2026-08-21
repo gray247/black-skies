@@ -2,8 +2,8 @@
 
 ## Status
 
-- Status: `AUTOMATED DEVELOPMENT GATE PASSED; MANUAL COMMIT/PUSH CHECKPOINT REQUIRED`
-- Date: `2026-08-13`
+- Status: `AUTOMATED CANDIDATE GREEN; ELEVATED LIFECYCLE WITNESS AND HUMAN GATE 2 REQUIRED`
+- Date: `2026-08-20`
 - Starting commit: `707dfae60fdcc0752e5f638b94105e90418bfd4d`
 - Branch: `codex/foundation-audit`
 - Scope: `Program 5 continuous-manuscript projection and stable-anchor bridge only`
@@ -128,11 +128,67 @@ step: one complete author review of the whole Writing Studio. Program 5 must
 remain open until that review is recorded and any resulting bounded repair is
 qualified; automation alone does not authorize closure or Human Gate 3.
 
+## Launcher qualification follow-up — 2026-08-20
+
+The development launcher was reconciled into the canonical candidate as a
+separate operational slice. `pnpm dev` probes `127.0.0.1:5173` before starting
+Vite, reuses an existing healthy Black Skies document, reports the owner/PID
+when another listener occupies the port, and never terminates a renderer it did
+not create. A newly owned renderer must become healthy before Electron starts.
+
+Focused evidence passed with `node --test scripts/dev-runner.test.mjs` (4/4),
+covering healthy, available, occupied, listener-identification, and timeout
+classification. This is development-launch evidence only; it does not replace
+the exact Windows package/install qualification and does not change the
+automated P5-UX-01 or Human Gate 2 status.
+
+## Exact-candidate package follow-up — 2026-08-20
+
+The original exact Windows installer failure was isolated to electron-builder's
+NSIS generator emitting an absolute template include through the canonical pnpm
+virtual-store path (274 characters). NSIS rejected that path even though the
+include file existed. The narrow `patches/app-builder-lib@26.15.3.patch` repair
+stages the NSIS include directory under a short per-process temporary path and
+emits short absolute include paths; the existing per-user installer patch is
+retained in the same dependency patch.
+
+After `pnpm install --offline --frozen-lockfile`, fresh
+`package:win` and `package:verify:installer` runs passed. The receipt-bound
+installer is `BlackSkies-Setup-1.0.0-rc1.exe`, SHA-256
+`2e762ad6fb147aa5ddfdd7fef68c4725f4e94eb7a164ad2c10ab828aa08204ad`, for
+qualified commit `985dd98d892db20bcc101b9b148d24c7a42d16f6`; unpacked forbidden
+runtime descendants remain zero.
+
+The installer then installed successfully, the packaged runtime passed the
+installed smoke witness (including exact Markdown export and the 100-unit
+representative workflow), and silent uninstall removed the installed
+executable. The exact lifecycle witness also requires outbound firewall
+isolation; this session could not create `New-NetFirewallRule` and Windows
+returned `Access is denied`. That is a host-privilege qualification blocker,
+not a package or application failure, and the supplemental no-firewall
+install/smoke/uninstall witness must not be promoted to the exact gate.
+
+The lifecycle harness was hardened after that observation: the default exact
+lane now checks elevation before installation and explains that firewall rules
+belong only to qualification; `-SkipFirewallIsolation` provides an explicit
+application-only install/smoke/uninstall lane and records
+`qualificationMode=application-only-no-firewall`. The app-only lane passed the
+packaged one-window/optional-Command smoke, zero-forbidden-process check,
+exact Markdown export, 100-unit representative workflow, uninstall, external
+data preservation, and same-installer reinstall checks.
+
+The full Electron matrix also produced two non-failing `Viewport failed to
+stabilize` warnings in the P3-D journey. They are recorded as a harness/viewport
+signal, not as a P5 product failure, unless a reproducible user-facing failure
+is found.
+
 ## Next Exact Step
 
-The automated `P5-UX-01` candidate is green. The next exact step is one
-complete Human Gate 2 review of the whole Writing Studio against the approved
-author-experience contract. Do not close Program 5 from automation alone; any
-failed human finding becomes a new bounded repair slice. Exact package/install
-qualification, full Program 5 intake/discovery, local-LLM Companion capability,
-Emotion Graph computation, and Human Gate 3 remain later authorized work.
+The exact installer build and receipt verification are green. The remaining
+qualification step is one elevated clean Windows lifecycle witness that can
+create and remove the outbound firewall rule, followed by one complete Human
+Gate 2 review of the whole Writing Studio against the approved author-
+experience contract. Do not close Program 5 from automation alone; any failed
+human finding becomes a new bounded repair slice. Full Program 5
+intake/discovery, local-LLM Companion capability, Emotion Graph computation,
+and Human Gate 3 remain later authorized work.

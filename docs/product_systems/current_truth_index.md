@@ -114,7 +114,21 @@ It does not finalize the entire product vision.
   in-place section activation, compact no-duplicate-prose position/span
   anchors, honest exact/relocated/ambiguous/unresolved source return, and the
   100-unit performance boundary. The bridge is durable at `d292e236` and does
-  not claim full long-manuscript intake/discovery or Human Gate 3. The next
+  not claim full long-manuscript intake/discovery or Human Gate 3. The
+  mechanical bridge is durable. The subsequent `P5-UX-01` repair candidate is
+  green in focused renderer/Electron/regression evidence for canvas-owned
+  scrolling, stable independent rails, Writing Session/Companion separation,
+  Unit-as-spine and quiet Note hierarchy, transactional chooser cancellation,
+  Note title/body editing, reliable navigation/rename, reserved top geometry,
+  summonable help, and readable preview-only comparison. The canonical
+  development launcher now also has focused port-health evidence: it reuses a
+  healthy Black Skies renderer, reports an occupied port owner/PID, and never
+  kills a renderer it did not create. Exact Windows package/install
+  The fresh NSIS installer build and receipt verification are green, but the
+  elevated firewall-isolated lifecycle witness and one complete Human Gate 2
+  review remain open; do not infer
+  Program 5 completion or Human Gate 3 readiness from the automated candidate.
+  The next
   [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)
   records the green real-Focus and local-facts Companion-doorway gate: a
   labelled bottom entry, immediate non-blank Command result for supported and
