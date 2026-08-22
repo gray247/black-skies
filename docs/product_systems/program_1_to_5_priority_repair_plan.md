@@ -284,13 +284,13 @@ or Human Gate 2 status.
 
 ### Exact package/install qualification update
 
-The clean exact candidate is now `e12eb17b3e33725383e6cbf43659530cb865a43b`.
+The package-qualified exact candidate is `e3b6ea95cafd3eac35d5c72f09b1f20408a8aab9`.
 `pnpm --filter @blackskies/app package:win` passed from that commit and
 produced:
 
 - installer: `app/release/BlackSkies-Setup-1.0.0-rc1.exe`;
 - installer SHA-256:
-  `1c4e6e97b8be2884a158501446bae4dfc58c5bbcdc273c7f209205c84f5a83bd`;
+  `88bed96614a1ff674593749c71505f5ea943c3a55ca4ec1d94b28de0ad08c866`;
 - unpacked forbidden-path count: `0`;
 - package receipt commit and installer hash: exact match;
 - signature: `NotSigned`, consistent with the private unsigned-internal-RC
@@ -309,7 +309,11 @@ installation because the current host is not elevated. No Black Skies firewall
 rule exists after the probe, and no normal application lane creates one. The
 exact package is therefore package-qualified and application-only installed,
 but not exact-installed and not eligible for Human Gate 2 until an elevated
-firewall-isolated witness passes.
+  firewall-isolated witness passes.
+
+The final evidence reconciliation that records this artifact is documentation-
+only and does not change product/runtime files; the package receipt remains
+bound to `e3b6ea95`.
 
 The first application-only witness exposed and repaired a qualification-script
 compatibility defect: Windows PowerShell on this host does not implement
