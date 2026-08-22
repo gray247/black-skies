@@ -284,13 +284,13 @@ or Human Gate 2 status.
 
 ### Exact package/install qualification update
 
-The clean exact candidate is now `7208b8b88b13230e19fcdedebf42568e48ade7a1`.
+The clean exact candidate is now `e12eb17b3e33725383e6cbf43659530cb865a43b`.
 `pnpm --filter @blackskies/app package:win` passed from that commit and
 produced:
 
 - installer: `app/release/BlackSkies-Setup-1.0.0-rc1.exe`;
 - installer SHA-256:
-  `17b4a42ef9bbfa101f4443af0bdd1bcb4812ef86db83ac07f4c12bfdf1fffec2`;
+  `1c4e6e97b8be2884a158501446bae4dfc58c5bbcdc273c7f209205c84f5a83bd`;
 - unpacked forbidden-path count: `0`;
 - package receipt commit and installer hash: exact match;
 - signature: `NotSigned`, consistent with the private unsigned-internal-RC

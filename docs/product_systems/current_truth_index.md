@@ -116,9 +116,9 @@ It does not finalize the entire product vision.
   100-unit performance boundary. The bridge is durable at `d292e236` and does
   not claim full long-manuscript intake/discovery or Human Gate 3. The
   mechanical bridge is durable. The subsequent `P5-UX-01` repair candidate at
-  `7208b8b8` is mechanically tested and package-qualified, with application-only
+  `e12eb17b` is mechanically tested and package-qualified, with application-only
   installed evidence bound to installer SHA
-  `17b4a42ef9bbfa101f4443af0bdd1bcb4812ef86db83ac07f4c12bfdf1fffec2`. It is
+  `1c4e6e97b8be2884a158501446bae4dfc58c5bbcdc273c7f209205c84f5a83bd`. It is
   green in focused renderer/Electron/regression evidence for canvas-owned
   scrolling, stable independent rails, Writing Session/Companion separation,
   Unit-as-spine and quiet Note hierarchy, transactional chooser cancellation,
