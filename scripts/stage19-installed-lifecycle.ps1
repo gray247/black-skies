@@ -117,6 +117,17 @@ if (-not $SkipFirewallIsolation) {
   Write-Warning "[stage19-installed] Firewall isolation is disabled by explicit request; this is application-only smoke evidence and cannot qualify the exact offline lifecycle gate."
 }
 
+function Get-RelativePathCompat {
+  param(
+    [string]$BasePath,
+    [string]$TargetPath
+  )
+  $base = [System.IO.Path]::GetFullPath($BasePath).TrimEnd('\', '/')
+  $target = [System.IO.Path]::GetFullPath($TargetPath)
+  Assert-Stage19 ($target.StartsWith($base + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) "Target path escaped the expected base directory: $target"
+  return $target.Substring($base.Length).TrimStart('\', '/').Replace('\', '/')
+}
+
 try {
   $installerProcess = Start-Process -FilePath $installer -ArgumentList @("/S", "/D=$installDirectory") -Wait -PassThru -WindowStyle Hidden
   Assert-Stage19 ($installerProcess.ExitCode -eq 0) "NSIS install exited with code $($installerProcess.ExitCode)."
@@ -208,7 +219,7 @@ $externalManifest = @(
     Sort-Object FullName |
     ForEach-Object {
       [ordered]@{
-        path = [System.IO.Path]::GetRelativePath($smokeDirectory, $_.FullName).Replace("\", "/")
+        path = Get-RelativePathCompat -BasePath $smokeDirectory -TargetPath $_.FullName
         byteLength = $_.Length
         sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
       }
