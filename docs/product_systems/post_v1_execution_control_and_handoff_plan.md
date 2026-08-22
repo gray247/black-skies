@@ -511,6 +511,14 @@ sequence because the author requires the Writing Studio to read as one story,
 not separate files. Its full long-manuscript qualification and Human Gate 3
 remain distinct.
 
+Before Program 5 can close or advance to Human Gate 3, its pre-closure UX item
+`P5-UX-01` must also pass. That item owns the manuscript-canvas scroll boundary,
+stable independently usable rails, Unit-as-spine and subordinate Note
+semantics, transactional `+` cancellation, Note title/body editing, reliable
+Unit navigation and rename, non-overlapping notices, summonable help, and
+readable preview-only story-plan comparison. A green continuous-manuscript
+bridge alone is not closure evidence.
+
 ### Human Gate 3 — Long-Manuscript Integrity And Usability
 
 Confirm substantial author material remains intact, navigable, understandable,
@@ -698,7 +706,7 @@ checkpoint. They do not become an unrelated permanent audit campaign.
    mutation;
 3. retain the completed direct Story Rail, theme, and rail-geometry batches;
 4. make the green Program 5 continuous-manuscript/stable-anchor bridge durable,
-   then complete true Focus and Companion-doorway automation;
+   then complete `P5-UX-01` and true Focus/Companion-doorway automation;
 5. qualify the complete repaired package/install candidate; and
 6. repeat Human Gate 2 only when that candidate is whole.
 

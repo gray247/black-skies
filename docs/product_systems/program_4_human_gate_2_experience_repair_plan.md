@@ -104,6 +104,16 @@ shell has a proven replacement map; no broad cleanup enters this repair.
   writer must not be asked to manage it as separate files.
 - A continuous manuscript with no accepted divisions remains valid.
 
+#### Pre-closure navigation correction
+
+The manuscript stream and the Writing Studio shell must not share one
+unbounded page scroll. The writing canvas owns the long-document vertical
+scroll; the opened Story, Review, Project, and Writing Session rails remain
+available within the application viewport. Selecting a Unit scrolls the
+writing canvas to that Unit while leaving the rail position and the rest of
+the shell stable. This is a usability requirement for substantial manuscripts,
+not an optional polish item.
+
 ### 4.2 Unified Story Rail
 
 - The left rail is one lightweight `Story` rail. It contains chapters, scenes,
@@ -119,12 +129,24 @@ shell has a proven replacement map; no broad cleanup enters this repair.
 - A right-click or compact `More` menu owns uncommon actions: delete, change
   placement, convert structural meaning, inspect source/provenance, split, or
   merge. Destructive actions require their existing appropriate confirmation.
-- The rail uses writer language: `Chapter`, `Scene`, `Story point`,
-  `Something goes here`, and `Not placed yet`. Internal kinds and source
-  states appear only when an advanced decision actually needs them.
+- The rail uses writer language. The primary spine item is a **Unit**. A
+  **Note** is a lightweight planning thought that hangs from a Unit or may be
+  explicitly left unlinked. Notes are not peer chapters, scenes, or manuscript
+  files. Internal kinds and source states appear only when an advanced
+  decision actually needs them.
+- Units remain visually dominant and form one continuous stacked spine. Notes
+  appear as small markers or quiet subordinate rows beneath their Unit (or in
+  a separate unlinked-note group); they must not expand the rail into a second
+  stack of equally weighted cards.
+- A Note has a title and an author-entered body. Creating a Note on a selected
+  Unit links it there by default; the author may choose `Unlinked note` in
+  advanced options. A cancelled Note draft creates no durable item.
 - A `+` used for a note, a story item, or another action must carry a visible
   nearby label or precise tooltip. The same glyph must never silently mean
   several different things in the same surface.
+- The `+` chooser has an explicit Cancel action, closes on Escape or an
+  outside click, and never requires creating then deleting an item merely to
+  dismiss it.
 
 ### 4.3 Rail Geometry
 
@@ -136,6 +158,30 @@ shell has a proven replacement map; no broad cleanup enters this repair.
   remembered per local workspace only after a separate persistence decision.
 - The story rail cannot horizontally scroll merely because a title or advanced
   panel is long. Labels wrap or truncate with accessible full text.
+- Rail content is independently scrollable when its own contents exceed the
+  viewport. Opening a rail must not move the writer into a separate page
+  position or hide the manuscript behind an overlay.
+- The Writing Session rail is a compact utility surface for active-unit
+  identity and save state. It is not a second manuscript editor and must stay
+  reachable without scrolling to the end of the story. The Companion bar must
+  reserve space rather than cover it.
+- The top Project rail and right Review rail follow the same viewport rule:
+  their access and close controls remain usable while the manuscript canvas
+  scrolls.
+- The shell must not place toast notices, edge controls, or rail headers on top
+  of the manuscript title or first readable lines. Layering and reserved
+  spacing are part of the acceptance contract.
+
+### 4.3.1 Plain-language help and comparison
+
+- Unfamiliar rail vocabulary and the purpose of `Compare the story plan with
+  the manuscript` are explained through one summonable `?` help affordance or
+  an equivalent bottom help entry, not repeated permanent instructional
+  paragraphs.
+- The comparison is a preview-only alignment view: it shows the current
+  planning order beside manuscript order and does not move, rewrite, or
+  accept prose. Its label, explanatory text, open state, and controls must
+  meet the shared light/dark contrast contract.
 
 ### 4.4 Real Focus Mode
 
@@ -290,6 +336,42 @@ The evidence is recorded in
 [Program 5 Human Gate 2 Bridge Evidence Receipt](program_5_hg2_bridge_evidence_receipt.md).
 The bridge is durable at `d292e23604b28edbdfc6d8c4f3e16c6ec0c6fb0f`. It does
 not claim full long-manuscript import/discovery or Human Gate 3.
+
+### Program 5 pre-closure follow-up — Writing Studio Navigation And Note Rail
+
+The continuous-manuscript bridge is mechanically green but is not yet
+experience-complete. Before Phase 5 / Program 5 may be closed or advanced to
+Human Gate 3 qualification, the following bounded follow-up must be complete:
+
+- give the manuscript canvas its own vertical scroll owner;
+- keep opened rails static and independently usable while the canvas scrolls;
+- make Unit selection scroll only the canvas to the selected Unit;
+- keep the Writing Session utility rail reachable and unobstructed by the
+  Companion bar;
+- prevent top notices, edge controls, and rail headers from covering the first
+  readable manuscript lines;
+- make the `+` chooser explicitly cancellable and dismissible without creating
+  an item;
+- make Unit and Note creation transactional, so Cancel leaves no durable
+  placeholder;
+- rename the writer-facing concepts to Unit and Note while preserving internal
+  storage compatibility;
+- make Notes subordinate visual markers with a title and body, defaulting to
+  the selected Unit with an explicit unlinked-note option;
+- make double-click rename reliable after navigation;
+- make `Compare the story plan with the manuscript` understandable as a
+  preview-only, non-mutating comparison; and
+- provide one summonable help explanation for rail vocabulary and controls.
+
+This follow-up is named `P5-UX-01` in the current open-work register. It is a
+pre-closure requirement, not a claim that full import, structural discovery,
+automatic chapter proposals, or Human Gate 3 has already passed.
+
+Required automated evidence includes renderer and built-Electron tests for
+internal canvas scrolling, static rail geometry, Unit-to-canvas navigation,
+compact viewport overflow, Companion/session separation, chooser dismissal,
+transactional cancellation, Unit/Note hierarchy, Note body persistence,
+double-click rename, comparison/help readability, and manuscript non-mutation.
 
 ### HG2-RPR-C — Focus And Companion Doorway
 

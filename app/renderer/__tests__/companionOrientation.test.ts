@@ -97,7 +97,7 @@ describe('minimal Companion orientation route', () => {
       sourceFacts: expect.arrayContaining([
         expect.objectContaining({ owner: 'Project session', currentness: 'current' }),
         expect.objectContaining({ owner: 'Manuscript unit', value: 'Opening · unit 1 of 2' }),
-        expect.objectContaining({ owner: 'Story plan', value: '1 story point placed with the current writing' }),
+        expect.objectContaining({ owner: 'Story plan', value: '1 Note placed with the current writing' }),
       ]),
     }));
     expect(rendered).not.toContain('This prose must never enter a Companion result.');

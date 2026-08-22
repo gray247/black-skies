@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import process from 'node:process';
@@ -37,15 +38,21 @@ function startElectron() {
     }
   }
 
+  const env = {
+    ...process.env,
+    ELECTRON_RENDERER_URL: rendererUrl,
+  };
+  if (pythonExecutable && existsSync(pythonExecutable)) {
+    env.BLACKSKIES_PYTHON = pythonExecutable;
+  } else {
+    delete env.BLACKSKIES_PYTHON;
+  }
+
   const child = spawn(electronBin, ['./dist-electron/main/main.js'], {
     cwd: appRoot,
     stdio: 'inherit',
     shell: process.platform === 'win32',
-    env: {
-      ...process.env,
-      ELECTRON_RENDERER_URL: rendererUrl,
-      BLACKSKIES_PYTHON: pythonExecutable,
-    },
+    env,
   });
 
   child.on('exit', (code) => process.exit(code ?? 0));

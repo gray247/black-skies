@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: validates the optional Command surface-host transition and recovery contract in the deterministic Stage 19 harness.
+// Owner: app/tests/e2e/stage19-surface-host.spec.ts
+// Retire when: the surface-host transition is covered by a protected exact-candidate truth receipt with no harness-only dependency.
+
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

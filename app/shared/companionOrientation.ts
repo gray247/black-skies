@@ -156,8 +156,8 @@ export function deriveCompanionOrientationResult(
           currentness: 'current',
           value: activeUnit
             ? linkedOutlineItems.length === 0
-              ? 'No story point is placed with the current writing'
-              : `${linkedOutlineItems.length} story point${linkedOutlineItems.length === 1 ? '' : 's'} placed with the current writing`
+              ? 'No Note is placed with the current writing'
+              : `${linkedOutlineItems.length} Note${linkedOutlineItems.length === 1 ? '' : 's'} placed with the current writing`
             : 'No current writing is selected to compare with the outline',
         }
       : {

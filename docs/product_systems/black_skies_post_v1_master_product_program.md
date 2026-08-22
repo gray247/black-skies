@@ -428,6 +428,20 @@ This program establishes the continuous-manuscript positions required by
 later graphs and signals. It does not grant broad document-interchange,
 Google Docs, bulk accepted-manuscript reorder, or automatic canon authority.
 
+#### Pre-closure Writing Studio usability boundary
+
+The continuous projection and anchor foundation is necessary but not
+sufficient to close Program 5. `P5-UX-01` must first qualify the author-facing
+workflow: the manuscript canvas owns long-document scrolling; opened rails stay
+stable and independently usable; Unit is the stacked story spine; Notes are
+quiet subordinate markers with a title and author body, linked to the selected
+Unit by default or explicitly unlinked; `+` creation is cancellable and
+transactional; Unit navigation and rename are reliable; notices and edge
+controls do not cover writing; and help plus the story-plan comparison are
+summonable, readable, and preview-only. The mechanical bridge receipt must not
+be treated as Program 5 completion or Human Gate 3 readiness until this
+follow-up and its geometry/workflow evidence are green.
+
 ### Program 6 - Signals And Story Intelligence
 
 Goal: add useful lenses without creating an alarm dashboard.

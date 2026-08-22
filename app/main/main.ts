@@ -330,7 +330,7 @@ function fallbackPythonExecutable(): string {
       } catch (error) {
         console.warn('[main] Bundled Python path probe failed; ignoring.', error);
       }
-    } else {
+    } else if (app.isPackaged) {
       console.warn('[main] Bundled Python path is not accessible or missing.', {
         path: resolvedBundled,
       });

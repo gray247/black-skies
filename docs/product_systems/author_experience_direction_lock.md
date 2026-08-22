@@ -124,10 +124,16 @@ The default outline is not a stack of boxed configuration cards.
 
 Starting interaction:
 
-- `+` at the outline header creates a new outline item,
-- clicking an item title edits it inline,
+- `+` at the outline header opens a small chooser for a Unit or a Note, with
+  explicit Cancel and dismissal without creating an item,
+- Units form the visible stacked story spine; Notes are quiet subordinate
+  markers beneath a Unit or in an explicitly unlinked area,
+- clicking a Unit locates it in the manuscript canvas without moving the rest
+  of the shell,
+- clicking an item title or double-clicking a Unit/Note edits its title inline,
 - dragging an item changes its proposed placement,
-- clicking an item locates and highlights the related writing,
+- clicking a Note opens its lightweight title/body context rather than making
+  it a peer chapter card,
 - selecting writing locates and highlights its outline context,
 - right-click opens advanced options for that item,
 - Focus mode hides the outline and support controls immediately.
@@ -169,6 +175,15 @@ The relationship is bidirectional:
   action,
 - an author may write with no outline at all,
 - structure may emerge before, during, or after prose.
+
+The ordinary writer mental model is one continuous manuscript with a Unit
+spine. Notes record subordinate thoughts: they default to the selected Unit,
+may be explicitly unlinked, and never gain authority to rewrite prose or
+reorder accepted Units. The manuscript canvas owns long-document scrolling;
+rails may be opened beside it but must remain independently usable. Repeated
+instructional paragraphs are replaced by one summonable `?` help affordance.
+`Compare the story plan with the manuscript` is a readable, preview-only
+alignment view; it never mutates manuscript text or order.
 
 ### 7.1 Natural Creation Defaults
 
@@ -519,3 +534,8 @@ adds compact, no-duplicate-prose position/span anchors with exact, relocated,
 ambiguous, and unresolved outcomes. This establishes the structural basis for
 the repaired experience without claiming full long-manuscript intake,
 automatic structure acceptance, Human Gate 3, or Human Gate 2 acceptance.
+The author review also opened `P5-UX-01` for canvas-owned scrolling, stable
+rails, Unit/Note hierarchy and Note bodies, transactional chooser cancellation,
+reliable navigation/rename, non-overlapping shell geometry, summonable help,
+and readable preview-only comparison. These remain unqualified until the
+required evidence exists.

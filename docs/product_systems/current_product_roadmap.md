@@ -39,7 +39,15 @@ Current status:
   test-isolation race. All three bounded repairs are green in focused CI-mode
   built-Electron evidence; the next durable exact candidate must repeat clean
   hosted Windows package/install qualification. No human review is requested
-  before that whole candidate is qualified
+  before that whole candidate is qualified.
+- The continuous-manuscript bridge is mechanically green, but the subsequent
+  author review found that page-level scrolling still hides the rails, the
+  Writing Session surface is crowded by the Companion bar, Unit/Note hierarchy
+  and transactional creation are not yet intuitive, top notices can overlap
+  writing, and comparison/help copy is unclear or low contrast. `P5-UX-01` is
+  now active; no Human Gate 2 or Program 5 closure is claimed until its
+  internal-scroll, stable-rail, Unit/Note, help/comparison, and geometry
+  evidence is green.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

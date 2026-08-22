@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: validates the built-Electron surface-host authority and compact-viewport contract in the deterministic Stage 19 harness.
+// Owner: app/tests/e2e/stage19-surface-host-preflight.spec.ts
+// Retire when: the surface-host contract is covered by a protected exact-candidate truth receipt with no harness-only dependency.
+
 import { test, expect } from './_electron.fixture';
 import {
   readStage19SurfaceHostPreflight,
