@@ -281,3 +281,38 @@ or Human Gate 2 status.
   guards; no provider-quality or broad analytics claim is made.
 - P15 Programs 1–4 reconciliation: documented non-claims remain active;
   deferred Program 5 intake/discovery and Human Gate 3 remain open.
+
+### Exact package/install qualification update
+
+The clean exact candidate is now `7208b8b88b13230e19fcdedebf42568e48ade7a1`.
+`pnpm --filter @blackskies/app package:win` passed from that commit and
+produced:
+
+- installer: `app/release/BlackSkies-Setup-1.0.0-rc1.exe`;
+- installer SHA-256:
+  `17b4a42ef9bbfa101f4443af0bdd1bcb4812ef86db83ac07f4c12bfdf1fffec2`;
+- unpacked forbidden-path count: `0`;
+- package receipt commit and installer hash: exact match;
+- signature: `NotSigned`, consistent with the private unsigned-internal-RC
+  policy;
+- application-only installed lifecycle: `passed`;
+- qualification mode: `application-only-no-firewall`;
+- packaged startup: one canonical sandboxed Writing window;
+- optional Command transition: two sandboxed windows;
+- forbidden runtime processes: `0`;
+- exact Markdown export: passed;
+- representative 100-unit workflow: passed;
+- uninstall, external-data preservation, and same-installer reinstall: passed.
+
+The no-skip firewall probe correctly returned `exact-blocked-external` before
+installation because the current host is not elevated. No Black Skies firewall
+rule exists after the probe, and no normal application lane creates one. The
+exact package is therefore package-qualified and application-only installed,
+but not exact-installed and not eligible for Human Gate 2 until an elevated
+firewall-isolated witness passes.
+
+The first application-only witness exposed and repaired a qualification-script
+compatibility defect: Windows PowerShell on this host does not implement
+`[System.IO.Path]::GetRelativePath`. The bounded compatibility helper is in
+`scripts/stage19-installed-lifecycle.ps1`, committed in `7208b8b8`, and the
+full lifecycle was rerun successfully afterward.
