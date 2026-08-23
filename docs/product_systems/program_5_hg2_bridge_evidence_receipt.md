@@ -336,3 +336,44 @@ created nor required a firewall rule. This candidate is implemented,
 mechanically tested, package-qualified, and application-only installed. It is
 ready for resumed author review, but human acceptance, exact-installed status,
 Human Gate 2/3 closure, and Program 5 closure remain unclaimed.
+
+## Long-title containment replacement candidate — 2026-08-23
+
+The resumed author review accepted the repaired startup and broader Writing
+Studio presentation, then found one remaining long-title defect: focusing a
+very long Note title could expose an intrinsic-width descendant and scroll the
+fixed-width Story rail sideways. Compact Note title displays, selection rows,
+detail choices, headings, editors, and comparison entries are now constrained
+to the rail. Compact views ellipsize; the full persisted title remains
+available in the editor and accessibility name.
+
+The regression journey saves a near-limit multiword Note title and requires
+the Story rail to retain `scrollLeft=0` with no measurable horizontal overflow.
+The focused built-Electron Writing Studio file passed `6/6`. The complete clean
+`pnpm stage19:regression` command passed exact product commit
+`565bc9722624bbda4dc66f9435be3d8327715eb4` with `49` critical files, `748`
+tests passed, `2` skipped, startup preflight `1/1`, and Electron `33/33`. The
+clean 100-Unit journey measured `3.660s` creation and `55ms` selection.
+
+The exact Windows installer SHA-256 is
+`d6b6cba0cd0cf1652369f494575801534f08e3d84c2c7f60d531f826abffe3f6`.
+The unpacked executable SHA-256 is
+`86c399d92a6f9a44709ec1c3f758dc6ab3f814424f491188e3399dfaedc6a2cc`, and
+the ASAR SHA-256 is
+`4b82c59e576e0b1ffb930bd6f6334c8158d651fe753615d2aeb8d5a65bf9b98f`.
+Package verification found zero forbidden descendants and records `NotSigned`
+under the private unsigned-internal-RC policy.
+
+The application-only installed lifecycle passed packaged startup, one
+sandboxed Writing window, the optional two-window sandboxed Command
+transition, zero forbidden processes and survivors, exact Markdown export, and
+the representative 100-Unit workflow (`1.781s` creation, `10ms` selection).
+Uninstall preserved the external project and export, and same-installer
+reinstall passed. The executable for the final author check is
+`C:\Users\gray2\AppData\Local\BlackSkiesQualification\Program5-565bc972-20260823\installed\Black Skies.exe`.
+
+This evidence is explicitly `application-only-no-firewall`; normal runtime did
+not create or require a firewall rule. The candidate is implemented,
+mechanically tested, package-qualified, application-only installed, and ready
+for the final long-title visual check. Human Gate 2 acceptance and Program 5
+closure remain unclaimed until that check is recorded.
