@@ -126,6 +126,7 @@ import "./styles/stable-dock.css";
 
 declare global {
   interface Window {
+    manuscriptStructure?: import("../shared/ipc/manuscriptStructure").ManuscriptStructureBridge;
     __test?: {
       markBoot?: () => void;
     };

@@ -10,6 +10,7 @@ import { PROJECT_SPINE_CHANNELS, type ProjectSpineBridge } from '../../shared/ip
 import { AI_CRITIQUE_CHANNELS, type AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS, type FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import { LIVING_OUTLINE_CHANNELS, type LivingOutlineBridge } from '../../shared/ipc/livingOutline';
+import { MANUSCRIPT_STRUCTURE_CHANNELS } from '../../shared/ipc/manuscriptStructure';
 
 const contextBridgeMock = vi.hoisted(() => ({
   exposeInMainWorld: vi.fn(),
@@ -195,6 +196,7 @@ describe('splitCommand preload bridge', () => {
         'aiCritique',
         'feedbackNotes',
         'livingOutline',
+        'manuscriptStructure',
         'diagnostics',
         'layout',
         'projectLoader',
@@ -607,6 +609,7 @@ describe('splitCommand preload bridge', () => {
         'critiqueReview',
         'feedbackNotes',
         'livingOutline',
+        'manuscriptStructure',
         'projectSpine',
         'splitCommand',
       ].sort(),
@@ -657,6 +660,7 @@ describe('splitCommand preload bridge', () => {
         'critiqueReview',
         'feedbackNotes',
         'livingOutline',
+        'manuscriptStructure',
         'projectSpine',
         'splitCommand',
       ].sort(),
@@ -676,6 +680,7 @@ describe('splitCommand preload bridge', () => {
         'getSession',
         'onCloseConfirmationRequest',
         'openProject',
+        'reloadActiveProject',
         'rejectRecoveryCandidate',
         'removeRecent',
         'renameUnit',
@@ -689,12 +694,48 @@ describe('splitCommand preload bridge', () => {
       ].sort(),
     );
     expect(projectSpine?.saveUnit).toEqual(expect.any(Function));
+    ipcRendererInvokeMock.mockResolvedValueOnce({ ok: true });
+    await expect(projectSpine?.reloadActiveProject?.({} as never)).resolves.toEqual({ ok: true });
+    expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(PROJECT_SPINE_CHANNELS.reloadActiveProject, {});
     const aiCritique = getAiCritiqueBridge();
     const feedbackNotes = getFeedbackNotesBridge();
     const livingOutline = getLivingOutlineBridge();
+    const manuscriptStructure = getExposedGlobal('manuscriptStructure') as Record<string, (...args: unknown[]) => Promise<unknown>>;
     expect(aiCritique).toBeDefined();
     expect(feedbackNotes).toBeDefined();
     expect(livingOutline).toBeDefined();
+    expect(Object.keys(manuscriptStructure).sort()).toEqual([
+      'acceptProposal', 'apply', 'chooseMarkdown', 'discover', 'get', 'importMarkdown',
+      'mergeGroups', 'renameProposal', 'rejectProposal', 'reorderGroups', 'setBoundary', 'splitGroup',
+    ].sort());
+    ipcRendererInvokeMock.mockClear();
+    ipcRendererInvokeMock.mockResolvedValue({ ok: true });
+    await manuscriptStructure.chooseMarkdown();
+    await manuscriptStructure.importMarkdown({});
+    await manuscriptStructure.get({});
+    await manuscriptStructure.discover({});
+    await manuscriptStructure.setBoundary({});
+    await manuscriptStructure.acceptProposal({});
+    await manuscriptStructure.rejectProposal({});
+    await manuscriptStructure.renameProposal({});
+    await manuscriptStructure.splitGroup({});
+    await manuscriptStructure.mergeGroups({});
+    await manuscriptStructure.reorderGroups({});
+    await manuscriptStructure.apply({});
+    expect(ipcRendererInvokeMock.mock.calls.map(([channel]) => channel)).toEqual([
+      MANUSCRIPT_STRUCTURE_CHANNELS.chooseMarkdown,
+      MANUSCRIPT_STRUCTURE_CHANNELS.importMarkdown,
+      MANUSCRIPT_STRUCTURE_CHANNELS.get,
+      MANUSCRIPT_STRUCTURE_CHANNELS.discover,
+      MANUSCRIPT_STRUCTURE_CHANNELS.setBoundary,
+      MANUSCRIPT_STRUCTURE_CHANNELS.acceptProposal,
+      MANUSCRIPT_STRUCTURE_CHANNELS.rejectProposal,
+      MANUSCRIPT_STRUCTURE_CHANNELS.renameProposal,
+      MANUSCRIPT_STRUCTURE_CHANNELS.splitGroup,
+      MANUSCRIPT_STRUCTURE_CHANNELS.mergeGroups,
+      MANUSCRIPT_STRUCTURE_CHANNELS.reorderGroups,
+      MANUSCRIPT_STRUCTURE_CHANNELS.apply,
+    ]);
     expect(getExposedGlobal('projectLoader')).toBeUndefined();
     expect(getExposedGlobal('services')).toBeUndefined();
     expect(getExposedGlobal('__electronApi')).toBeUndefined();

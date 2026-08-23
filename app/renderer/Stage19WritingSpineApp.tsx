@@ -31,6 +31,10 @@ import type {
   LivingOutlineItemState,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
+import type {
+  ManuscriptStructureBridge,
+  ManuscriptStructureSnapshotV1,
+} from '../shared/ipc/manuscriptStructure';
 import { buildLivingOutlineSourceAnchor, resolveLivingOutlineAnchor } from '../shared/livingOutlineAnchors';
 import type {
   SplitCommandLogicalSurface,
@@ -515,6 +519,7 @@ export interface Stage19WritingSpineAppProps {
   readonly aiBridge?: AiCritiqueBridge;
   readonly feedbackNotesBridge?: FeedbackNotesBridge;
   readonly livingOutlineBridge?: LivingOutlineBridge;
+  readonly manuscriptStructureBridge?: ManuscriptStructureBridge;
   readonly surfaceBridge?: SplitCommandOwnershipBridge;
   readonly critiqueReviewBridge?: CritiqueReviewBridge;
 }
@@ -525,6 +530,7 @@ export default function Stage19WritingSpineApp({
   aiBridge = window.aiCritique,
   feedbackNotesBridge = window.feedbackNotes,
   livingOutlineBridge = window.livingOutline,
+  manuscriptStructureBridge = window.manuscriptStructure,
   surfaceBridge = window.splitCommand,
   critiqueReviewBridge = window.critiqueReview,
 }: Stage19WritingSpineAppProps): JSX.Element {
@@ -565,6 +571,13 @@ export default function Stage19WritingSpineApp({
   const [livingOutline, setLivingOutline] = useState<LivingOutlineSnapshotV1 | null>(null);
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
+  const [manuscriptStructure, setManuscriptStructure] = useState<ManuscriptStructureSnapshotV1 | null>(null);
+  const [manuscriptStructureLoading, setManuscriptStructureLoading] = useState(false);
+  const [manuscriptStructureNotice, setManuscriptStructureNotice] = useState<string | null>(null);
+  const [manuscriptStructurePage, setManuscriptStructurePage] = useState(0);
+  const [manuscriptStructureOrder, setManuscriptStructureOrder] = useState<readonly string[] | null>(null);
+  const [structureBoundaryStart, setStructureBoundaryStart] = useState<number | null>(null);
+  const [structureBoundaryEnd, setStructureBoundaryEnd] = useState<number | null>(null);
   const [selectedOutlineItemId, setSelectedOutlineItemId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedStoryItemIds, setSelectedStoryItemIds] = useState<string[]>([]);
@@ -914,6 +927,70 @@ export default function Stage19WritingSpineApp({
   // The stable identity deliberately avoids reloading after ordinary manuscript revisions.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [livingOutlineBridge, livingOutlineProjectIdentity, windowRole]);
+
+  const manuscriptStructureProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
+  useEffect(() => {
+    if (windowRole !== 'writing') return;
+    if (!snapshot.project) {
+      setManuscriptStructure(null);
+      setManuscriptStructureNotice(null);
+      setManuscriptStructurePage(0);
+      setManuscriptStructureOrder(null);
+      setStructureBoundaryStart(null);
+      setStructureBoundaryEnd(null);
+      return;
+    }
+    if (!manuscriptStructureBridge) {
+      setManuscriptStructure(null);
+      setManuscriptStructureNotice('Structure intake is unavailable. Manuscript writing remains available.');
+      return;
+    }
+    let cancelled = false;
+    setManuscriptStructureLoading(true);
+    setManuscriptStructureNotice(null);
+    void manuscriptStructureBridge.get({
+      operationId: operationId('manuscript-structure-load'),
+      projectId: snapshot.project.projectId,
+      projectPath: snapshot.project.path,
+      generation: snapshot.generation,
+    }).then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        setManuscriptStructure(result.data);
+        setManuscriptStructureNotice(result.data.message);
+        setManuscriptStructurePage(0);
+        setManuscriptStructureOrder(null);
+        setStructureBoundaryStart(null);
+        setStructureBoundaryEnd(null);
+      } else {
+        setManuscriptStructure(null);
+        setManuscriptStructureNotice(result.error.message);
+      }
+    }).catch(() => {
+      if (!cancelled) setManuscriptStructureNotice('The structure workspace could not be loaded.');
+    }).finally(() => {
+      if (!cancelled) setManuscriptStructureLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  // The stable identity avoids reloads after ordinary manuscript revisions.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [manuscriptStructureBridge, manuscriptStructureProjectIdentity, windowRole]);
+
+  useEffect(() => {
+    if (!outlineAdvancedItemId) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setOutlineAdvancedItemId(null);
+      window.requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>('[data-note-marker-cluster="true"] button')?.focus();
+      });
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [outlineAdvancedItemId]);
 
   useEffect(() => {
     if (windowRole !== 'writing') return;
@@ -1300,6 +1377,225 @@ export default function Stage19WritingSpineApp({
     }
   }, [bridge, projectTitle, runLifecycleRequest]);
 
+  const importManuscriptStructure = useCallback(async () => {
+    if (!bridge || !manuscriptStructureBridge) return;
+    if (hasLocalUnsaved) {
+      setManuscriptStructureNotice('Save or discard the active project before starting a disposable manuscript intake.');
+      return;
+    }
+    try {
+      const sourceSelection = await manuscriptStructureBridge.chooseMarkdown();
+      if (sourceSelection.canceled || !sourceSelection.filePath) return;
+      const parentSelection = await bridge.chooseDirectory();
+      if (parentSelection.canceled || !parentSelection.path) return;
+      const result = await manuscriptStructureBridge.importMarkdown({
+        operationId: operationId('manuscript-structure-import'),
+        projectId: snapshotRef.current.project?.projectId ?? '',
+        projectPath: snapshotRef.current.project?.path ?? '',
+        generation: snapshotRef.current.generation,
+        parentPath: parentSelection.path,
+        filePath: sourceSelection.filePath,
+      });
+      if (!result.ok) {
+        setManuscriptStructureNotice(result.error.message);
+        return;
+      }
+      const activation = await bridge.openProject({
+        path: result.data.projectPath,
+        operationId: operationId('manuscript-structure-activate'),
+        discardUnsaved: true,
+      });
+      applySnapshot(activation.snapshot);
+      setManuscriptStructureNotice(result.data.message ?? 'Markdown intake created a new disposable project.');
+    } catch {
+      setManuscriptStructureNotice('The Markdown intake could not be created. No active manuscript was changed.');
+    }
+  }, [applySnapshot, bridge, hasLocalUnsaved, manuscriptStructureBridge]);
+
+  const structureMutationBinding = useCallback((prefix: string) => {
+    if (!snapshotRef.current.project || !manuscriptStructure) return null;
+    return {
+      operationId: operationId(prefix),
+      projectId: snapshotRef.current.project.projectId,
+      projectPath: snapshotRef.current.project.path,
+      generation: snapshotRef.current.generation,
+      expectedRevision: manuscriptStructure.document.revision,
+    };
+  }, [manuscriptStructure]);
+
+  const applyManuscriptStructureResult = useCallback((result: Awaited<ReturnType<ManuscriptStructureBridge['get']>>) => {
+    if (result.ok) {
+      setManuscriptStructure(result.data);
+      setManuscriptStructureOrder(null);
+      setManuscriptStructureNotice(result.data.message);
+    } else {
+      setManuscriptStructureNotice(result.error.message);
+    }
+  }, []);
+
+  const discoverManuscriptStructure = useCallback(async () => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-discover');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      applyManuscriptStructureResult(await manuscriptStructureBridge.discover(binding));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const mutateStructureProposal = useCallback(async (proposalId: string, mutation: 'accept' | 'reject') => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding(`manuscript-structure-${mutation}`);
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      const request = { ...binding, proposalId };
+      applyManuscriptStructureResult(await (mutation === 'accept'
+        ? manuscriptStructureBridge.acceptProposal(request)
+        : manuscriptStructureBridge.rejectProposal(request)));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const renameStructureProposal = useCallback(async (proposalId: string, label: string) => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-rename');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      applyManuscriptStructureResult(await manuscriptStructureBridge.renameProposal({ ...binding, proposalId, label }));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const setStructureBoundary = useCallback(async (start: number, end: number, label: string) => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-boundary');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      applyManuscriptStructureResult(await manuscriptStructureBridge.setBoundary({ ...binding, start, end, label }));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const selectStructureBoundary = useCallback((offset: number, role?: 'start' | 'end') => {
+    if (role === 'start') {
+      setStructureBoundaryStart(offset);
+      setStructureBoundaryEnd(null);
+      return;
+    }
+    if (role === 'end') {
+      if (structureBoundaryStart === null || offset <= structureBoundaryStart) {
+        setStructureBoundaryStart(null);
+        setStructureBoundaryEnd(null);
+        setManuscriptStructureNotice('Select the end boundary after the start boundary. The reversed selection was cleared.');
+        return;
+      }
+      setStructureBoundaryEnd(offset);
+      return;
+    }
+    if (structureBoundaryStart === null || structureBoundaryEnd !== null) {
+      setStructureBoundaryStart(offset);
+      setStructureBoundaryEnd(null);
+      return;
+    }
+    if (offset <= structureBoundaryStart) {
+      setStructureBoundaryStart(null);
+      setStructureBoundaryEnd(null);
+      setManuscriptStructureNotice('Select the end boundary after the start boundary. The reversed selection was cleared.');
+      return;
+    }
+    setStructureBoundaryEnd(offset);
+  }, [structureBoundaryEnd, structureBoundaryStart]);
+
+  const pinSelectedStructureBoundary = useCallback(async (label: string) => {
+    if (structureBoundaryStart === null || structureBoundaryEnd === null) {
+      setManuscriptStructureNotice('Select a visible start and end boundary first.');
+      return;
+    }
+    await setStructureBoundary(structureBoundaryStart, structureBoundaryEnd, label);
+  }, [setStructureBoundary, structureBoundaryEnd, structureBoundaryStart]);
+
+  const splitStructureProposal = useCallback(async (proposalId: string, boundary: number) => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-split');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      applyManuscriptStructureResult(await manuscriptStructureBridge.splitGroup({ ...binding, proposalId, boundary }));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const mergeStructureProposals = useCallback(async (proposalIds: readonly string[]) => {
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-merge');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      applyManuscriptStructureResult(await manuscriptStructureBridge.mergeGroups({ ...binding, proposalIds }));
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+
+  const saveStructureOrder = useCallback(async () => {
+    const orderedProposalIds = manuscriptStructureOrder;
+    if (!orderedProposalIds || !manuscriptStructureBridge) return;
+    if (!manuscriptStructureBridge) return;
+    const binding = structureMutationBinding('manuscript-structure-reorder');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      const result = await manuscriptStructureBridge.reorderGroups({ ...binding, orderedProposalIds });
+      applyManuscriptStructureResult(result);
+      if (result.ok) setManuscriptStructureOrder(null);
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, manuscriptStructureOrder, structureMutationBinding]);
+
+  const applyManuscriptStructure = useCallback(async () => {
+    if (!manuscriptStructureBridge) return;
+    if (hasLocalUnsaved || dirtyUnitIds.size > 0 || !['clean', 'saved'].includes(snapshot.saveState.status)) {
+      setManuscriptStructureNotice('Save all manuscript Units before applying structure. No structural files were changed.');
+      return;
+    }
+    if (!bridge?.reloadActiveProject) {
+      setManuscriptStructureNotice('The active project reload bridge is unavailable. No structural files were changed.');
+      return;
+    }
+    const binding = structureMutationBinding('manuscript-structure-apply');
+    if (!binding) return;
+    setManuscriptStructureLoading(true);
+    try {
+      const result = await manuscriptStructureBridge.apply(binding);
+      applyManuscriptStructureResult(result);
+      if (result.ok) {
+        const refreshed = await bridge.reloadActiveProject({
+          projectId: binding.projectId,
+          projectPath: result.data.projectPath,
+          generation: binding.generation,
+          operationId: operationId('manuscript-structure-refresh'),
+        });
+        if (refreshed.ok) {
+          applySnapshot(refreshed.snapshot);
+        } else {
+          setManuscriptStructureNotice(`Structure was applied to disk, but the active session could not reload: ${refreshed.error.message} Do not retry Apply; reopen the project after resolving this error.`);
+        }
+      }
+    } finally {
+      setManuscriptStructureLoading(false);
+    }
+  }, [applyManuscriptStructureResult, applySnapshot, bridge, dirtyUnitIds, hasLocalUnsaved, manuscriptStructureBridge, snapshot.saveState.status, structureMutationBinding]);
+
   const handleOpenRecent = useCallback(
     async (projectPath: string) => {
       if (!bridge) return;
@@ -1528,6 +1824,7 @@ export default function Stage19WritingSpineApp({
     if (!selectLivingOutlineFields(itemId)) return;
     setOutlineEditingItemId(null);
     setOutlineAdvancedItemId(itemId);
+    window.requestAnimationFrame(() => document.getElementById(`stage19-outline-detail-title-${itemId}`)?.focus());
   }, [selectLivingOutlineFields]);
 
   const updateLivingOutlineItem = useCallback(async (itemId: string) => {
@@ -2503,6 +2800,13 @@ export default function Stage19WritingSpineApp({
     livingOutline,
     livingOutlineLoading,
     livingOutlineNotice,
+    manuscriptStructure,
+    manuscriptStructureLoading,
+    manuscriptStructureNotice,
+    manuscriptStructurePage,
+    manuscriptStructureOrder,
+    structureBoundaryStart,
+    structureBoundaryEnd,
     selectedOutlineItem,
     selectedOutlineItemId,
     multiSelectMode,
@@ -2595,6 +2899,21 @@ export default function Stage19WritingSpineApp({
     cancelOutlineItemEdit,
     openOutlineItemOptions: openLivingOutlineOptions,
     closeOutlineItemOptions: () => setOutlineAdvancedItemId(null),
+    importManuscriptStructure,
+    discoverManuscriptStructure,
+    acceptStructureProposal: (proposalId) => mutateStructureProposal(proposalId, 'accept'),
+    rejectStructureProposal: (proposalId) => mutateStructureProposal(proposalId, 'reject'),
+    renameStructureProposal,
+    setStructureBoundary,
+    selectStructureBoundary,
+    pinSelectedStructureBoundary,
+    splitStructureProposal,
+    mergeStructureProposals,
+    stageStructureOrder: setManuscriptStructureOrder,
+    saveStructureOrder,
+    cancelStructureOrder: () => setManuscriptStructureOrder(null),
+    setManuscriptStructurePage,
+    applyManuscriptStructure,
     moveOutlineItem: moveLivingOutlineItem,
     moveOutlineItemTo: moveLivingOutlineItemTo,
     linkOutlineItem: linkLivingOutlineItem,

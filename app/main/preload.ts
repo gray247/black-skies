@@ -38,6 +38,20 @@ import {
   type UpdateLivingOutlineItemRequest,
 } from '../shared/ipc/livingOutline';
 import {
+  MANUSCRIPT_STRUCTURE_CHANNELS,
+  type ApplyManuscriptStructureRequest,
+  type DiscoverManuscriptStructureRequest,
+  type GetManuscriptStructureRequest,
+  type ImportMarkdownRequest,
+  type ManuscriptStructureBridge,
+  type MergeManuscriptStructureGroupsRequest,
+  type ProposalMutationRequest,
+  type RenameManuscriptStructureProposalRequest,
+  type ReorderManuscriptStructureGroupsRequest,
+  type SetManuscriptStructureBoundaryRequest,
+  type SplitManuscriptStructureGroupRequest,
+} from '../shared/ipc/manuscriptStructure';
+import {
   CRITIQUE_REVIEW_CHANNELS,
   normalizeCritiqueReviewSourceReturnMessage,
   normalizeCritiqueReviewSurfaceState,
@@ -2344,6 +2358,11 @@ const projectSpineBaseBridge: ProjectSpineBridge = {
       ProjectSpineResult<{ activation: 'activated' | 'already-active' }>
     >;
   },
+  async reloadActiveProject(request) {
+    return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.reloadActiveProject, request) as Promise<
+      ProjectSpineResult<{ activation: 'reloaded' }>
+    >;
+  },
   async createProject(request: ProjectSpineCreateProjectRequest) {
     return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.createProject, request) as Promise<
       ProjectSpineResult<{ activation: 'activated' }>
@@ -2763,6 +2782,21 @@ const livingOutlineBridge: LivingOutlineBridge = {
   deleteItem: (request: DeleteLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.deleteItem, request),
 };
 
+const manuscriptStructureBridge: ManuscriptStructureBridge = {
+  chooseMarkdown: () => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.chooseMarkdown),
+  importMarkdown: (request: ImportMarkdownRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.importMarkdown, request),
+  get: (request: GetManuscriptStructureRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.get, request),
+  discover: (request: DiscoverManuscriptStructureRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.discover, request),
+  setBoundary: (request: SetManuscriptStructureBoundaryRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.setBoundary, request),
+  acceptProposal: (request: ProposalMutationRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.acceptProposal, request),
+  rejectProposal: (request: ProposalMutationRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.rejectProposal, request),
+  renameProposal: (request: RenameManuscriptStructureProposalRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.renameProposal, request),
+  splitGroup: (request: SplitManuscriptStructureGroupRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.splitGroup, request),
+  mergeGroups: (request: MergeManuscriptStructureGroupsRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.mergeGroups, request),
+  reorderGroups: (request: ReorderManuscriptStructureGroupsRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.reorderGroups, request),
+  apply: (request: ApplyManuscriptStructureRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.apply, request),
+};
+
 registerConsoleForwarding();
 
 if (exposesLegacyWritingSurface) {
@@ -2779,6 +2813,7 @@ if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotesBridge);
   contextBridge.exposeInMainWorld('livingOutline', livingOutlineBridge);
+  contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructureBridge);
 }
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);

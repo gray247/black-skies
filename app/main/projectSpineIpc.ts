@@ -13,6 +13,7 @@ import {
   type ExportMarkdownRequest,
   type ExportMarkdownResultData,
   type OpenProjectRequest,
+  type ReloadActiveProjectRequest,
   type ProjectSpineError,
   type ProjectSpineCloseConfirmationResponse,
   type ProjectSpineResult,
@@ -29,6 +30,7 @@ import {
   type SelectManuscriptUnitRequest,
   type SetManuscriptUnitDirtyRequest,
 } from '../shared/ipc/projectSpine';
+import { getHarnessDialogPath } from '../shared/modePolicy';
 import {
   bootstrapFreshProject,
   PROJECT_METADATA_SCHEMA_VERSION,
@@ -706,6 +708,8 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
 
   ipcMain.handle(PROJECT_SPINE_CHANNELS.chooseDirectory, async (event) => {
     requireWritingRole(event);
+    const harnessPath = getHarnessDialogPath('directory');
+    if (harnessPath) return { canceled: false, path: harnessPath };
     const result = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
     return { canceled: result.canceled, path: result.filePaths?.[0] };
   });
@@ -811,6 +815,23 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       await persistRecentStore().catch(() => undefined);
       publish(event.sender.id);
       return result;
+    }
+  });
+
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.reloadActiveProject, async (event, request: ReloadActiveProjectRequest) => {
+    const role = requireWritingRole(event);
+    const operationId = requireOperationId(request?.operationId);
+    try {
+      const typedRequest = request as ReloadActiveProjectRequest;
+      const project = await (registrationOptions.loadProject ?? loadProjectForSpine)(typedRequest.projectPath);
+      const activation = coordinator.reloadActiveProject(
+        { ...typedRequest, operationId },
+        project,
+      );
+      publish(event.sender.id);
+      return success(role, { activation: activation.activation as 'reloaded' });
+    } catch (error) {
+      return failure<{ activation: 'reloaded' }>(role, error);
     }
   });
 

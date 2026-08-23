@@ -134,6 +134,32 @@ describe('project-spine IPC', () => {
     expect(command.generation).toBe(writing.generation);
   });
 
+  it('reloads the active Writing Studio project after durable Apply and invalidates the prior generation', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Reload Project' });
+    await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, { path: created.projectPath, operationId: 'open-reload' });
+    const before = await invoke(PROJECT_SPINE_CHANNELS.getSession, 1);
+    const createdOnDisk = await createManuscriptUnit(testCoordinator.getActiveProject()!, 'Applied Unit');
+
+    const reloaded = await invoke(PROJECT_SPINE_CHANNELS.reloadActiveProject, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: before.generation,
+      operationId: 'reload-after-apply',
+    });
+    expect(reloaded).toMatchObject({ ok: true, data: { activation: 'reloaded' } });
+    expect(reloaded.snapshot.generation).toBe(before.generation + 1);
+    expect(reloaded.snapshot.project.units).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: createdOnDisk.unitId, title: 'Applied Unit' }),
+    ]));
+    await expect(invoke(PROJECT_SPINE_CHANNELS.reloadActiveProject, 2, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: reloaded.snapshot.generation,
+      operationId: 'command-reload',
+    })).rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
+  });
+
   it('exports a clean immutable main-owned Markdown snapshot with exact evidence', async () => {
     const root = await temporaryRoot();
     const target = join(root, 'outside-project.md');

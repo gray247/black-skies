@@ -131,6 +131,16 @@ no-duplicate-prose anchors, honest relocation/failure outcomes, and the current
 100-unit responsiveness boundary. It does not close full Program 5 intake,
 discovery, Human Gate 3, Focus/Companion repair, or Human Gate 2.
 
+The corrected Program 5 intake adds `manuscript-intake.md` and the versioned
+`manuscript-structure.json` as project-local provisional structure metadata.
+Existing Units, drafts, and outline entries remain canonical manuscript truth.
+The Writing Studio-only structure IPC seam binds import, discovery, proposal
+mutations, and apply to project identity, generation, and expected revision;
+accepted groups materialize transactionally and later source edits are surfaced
+as stale rather than guessed or silently re-imported. This is implementation and
+focused-test evidence only; package qualification and Human Gates 2/3 remain
+open.
+
 The [HG2-RPR-D evidence receipt](product_systems/program_4_hg2_rpr_d_evidence_receipt.md)
 records the contained split-window preload repair after the first hosted
 qualification found Electron repeating identical renderer launch arguments,

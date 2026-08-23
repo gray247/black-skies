@@ -252,13 +252,26 @@ Manual `+` behavior remains useful after import:
 - around selected prose: create a span anchor,
 - with no selection: create an unplaced planning idea.
 
-The full import-review experience belongs in the Command Center. The Writing
-Studio may show quiet ghost anchors and direct corrections, but it must not
-become an import-configuration dashboard.
+The current Program 5 intake is deliberately bounded to the Writing Studio:
+one Markdown file is normalized to LF and copied into a new disposable project
+as `manuscript-intake.md`. Discovery creates ghost proposals in the versioned
+`manuscript-structure.json` sidecar; it never silently accepts structure or
+mutates the source. Structural review is compact and paginated, with visible
+source boundaries, explicit accept/reject/rename/split/adjacent-merge actions,
+proposal-sidecar reorder Save/Cancel, and a source-range overlap guard.
 
-The present V1 editor has not been qualified for a single two-hundred-page
-paste. This section defines intended V2/V3 behavior, not a claim that the
-current build already supports it.
+Apply materializes only explicitly accepted, non-overlapping ranges into the
+existing Units, drafts, and outline in a durable staged commit. The journal is
+recovered before structure is exposed, and a later source change after Apply
+blocks rediscovery and Apply with a machine-readable state. Applied proposals
+are immutable; reorder and manual boundaries cannot intersect applied prose.
+The deterministic chooser seam is harness-only; normal users receive the
+native Markdown and directory choosers.
+
+Large sources must remain excerpt/pagination based rather than one DOM row per
+manuscript line. Automated implementation evidence does not claim Human Gate 2,
+Human Gate 3, package qualification, exact-installed status, or human
+acceptance.
 
 ## 9. Command Center Direction
 
@@ -528,12 +541,12 @@ anchor bridge before claiming a unified story stream, adds intentional Dark
 and Light themes, and keeps full local-LLM Companion capability as a separately
 authorized later boundary.
 
-The pulled-forward Program 5 bridge has now passed its automated development
-gate. It projects the current safe sections as one readable manuscript and
-adds compact, no-duplicate-prose position/span anchors with exact, relocated,
-ambiguous, and unresolved outcomes. This establishes the structural basis for
-the repaired experience without claiming full long-manuscript intake,
-automatic structure acceptance, Human Gate 3, or Human Gate 2 acceptance.
+The pulled-forward Program 5 bridge now has deterministic Markdown intake,
+stable position/span anchors, compact paginated ghost proposals, durable
+crash-recoverable Apply, exact source-range materialization, and active-session
+reload. This establishes the structural basis for the repaired experience
+without claiming Human Gate 3, Human Gate 2, package qualification,
+exact-installed status, or human acceptance.
 The author review also opened `P5-UX-01` for canvas-owned scrolling, stable
 rails, Unit/Note hierarchy and Note bodies, transactional chooser cancellation,
 reliable navigation/rename, non-overlapping shell geometry, summonable help,

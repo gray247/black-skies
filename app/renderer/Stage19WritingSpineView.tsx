@@ -20,6 +20,7 @@ import type {
   LivingOutlineItemV1,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
+import type { ManuscriptStructureSnapshotV1 } from '../shared/ipc/manuscriptStructure';
 import type {
   SplitCommandLogicalSurface,
   SplitCommandSecondarySurfaceStatus,
@@ -81,6 +82,13 @@ export interface Stage19WritingSpineViewModel {
   readonly livingOutline: LivingOutlineSnapshotV1 | null;
   readonly livingOutlineLoading: boolean;
   readonly livingOutlineNotice: string | null;
+  readonly manuscriptStructure: ManuscriptStructureSnapshotV1 | null;
+  readonly manuscriptStructureLoading: boolean;
+  readonly manuscriptStructureNotice: string | null;
+  readonly manuscriptStructurePage: number;
+  readonly manuscriptStructureOrder: readonly string[] | null;
+  readonly structureBoundaryStart: number | null;
+  readonly structureBoundaryEnd: number | null;
   readonly selectedOutlineItem: LivingOutlineItemV1 | null;
   readonly selectedOutlineItemId: string | null;
   readonly multiSelectMode: boolean;
@@ -168,6 +176,21 @@ export interface Stage19WritingSpineViewActions {
   readonly cancelOutlineItemEdit: () => MaybeAsync;
   readonly openOutlineItemOptions: (itemId: string) => void;
   readonly closeOutlineItemOptions: () => void;
+  readonly importManuscriptStructure: () => MaybeAsync;
+  readonly discoverManuscriptStructure: () => MaybeAsync;
+  readonly acceptStructureProposal: (proposalId: string) => MaybeAsync;
+  readonly rejectStructureProposal: (proposalId: string) => MaybeAsync;
+  readonly renameStructureProposal: (proposalId: string, label: string) => MaybeAsync;
+  readonly setStructureBoundary: (start: number, end: number, label: string) => MaybeAsync;
+  readonly selectStructureBoundary: (offset: number, role?: 'start' | 'end') => void;
+  readonly pinSelectedStructureBoundary: (label: string) => MaybeAsync;
+  readonly splitStructureProposal: (proposalId: string, boundary: number) => MaybeAsync;
+  readonly mergeStructureProposals: (proposalIds: readonly string[]) => MaybeAsync;
+  readonly stageStructureOrder: (orderedProposalIds: readonly string[]) => void;
+  readonly saveStructureOrder: () => MaybeAsync;
+  readonly cancelStructureOrder: () => void;
+  readonly setManuscriptStructurePage: (page: number) => void;
+  readonly applyManuscriptStructure: () => MaybeAsync;
   readonly moveOutlineItem: (itemId: string, direction: -1 | 1) => MaybeAsync;
   readonly moveOutlineItemTo: (itemId: string, targetIndex: number) => MaybeAsync;
   readonly linkOutlineItem: (itemId: string, unitId: string | null) => MaybeAsync;
@@ -590,51 +613,6 @@ function focusOutlineTitleInput(element: HTMLInputElement | null): void {
   element?.focus();
 }
 
-function OutlineTitleEditor({
-  actions,
-  item,
-  livingOutlineLoading,
-  outlineLabel,
-  outlineBody,
-}: {
-  readonly actions: Stage19WritingSpineViewProps['actions'];
-  readonly item: LivingOutlineItemV1;
-  readonly livingOutlineLoading: boolean;
-  readonly outlineLabel: string;
-  readonly outlineBody: string;
-}): JSX.Element {
-  return (
-    <form className="stage19-living-outline__rename" onSubmit={(event) => {
-      event.preventDefault();
-      void actions.updateOutlineItem(item.id);
-    }}>
-      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-title-${item.id}`}>Note title</label>
-      <input
-        ref={focusOutlineTitleInput}
-        id={`stage19-outline-title-${item.id}`}
-        aria-label={`Title for ${item.label}`}
-        value={outlineLabel}
-        maxLength={240}
-        onChange={(event) => actions.setOutlineLabel(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') actions.cancelOutlineItemEdit();
-        }}
-      />
-      <label className="stage19-spine__sr-only" htmlFor={`stage19-outline-body-${item.id}`}>Note body</label>
-      <textarea
-        id={`stage19-outline-body-${item.id}`}
-        aria-label={`Body for ${item.label}`}
-        value={outlineBody}
-        maxLength={4000}
-        rows={3}
-        onChange={(event) => actions.setOutlineBody(event.target.value)}
-      />
-      <button type="submit" disabled={livingOutlineLoading || !outlineLabel.trim()}>Save</button>
-      <button type="button" onClick={actions.cancelOutlineItemEdit}>Cancel</button>
-    </form>
-  );
-}
-
 function LivingOutlineView({
   model,
   actions,
@@ -668,7 +646,8 @@ function LivingOutlineView({
     selectedStoryItemIds,
     snapshot,
   } = model;
-  const advancedItem = livingOutline?.document.items.find((item) => item.id === outlineAdvancedItemId) ?? null;
+  const detailItemId = outlineAdvancedItemId ?? outlineEditingItemId;
+  const advancedItem = livingOutline?.document.items.find((item) => item.id === detailItemId) ?? null;
   const visibleItems = livingOutline?.document.items.filter((item) =>
     placementUnitId === undefined ? true : item.manuscriptUnitId === placementUnitId,
   ) ?? [];
@@ -706,111 +685,31 @@ function LivingOutlineView({
       {livingOutline?.availability === 'ready' ? (
         <>
           {visibleItems.length > 0 ? (
-            <ol className="stage19-living-outline__items">
-              {visibleItems.map((item) => {
-                const index = livingOutline.document.items.findIndex((candidate) => candidate.id === item.id);
-                const linkedUnit = snapshot.project?.units.find((unit) => unit.id === item.manuscriptUnitId);
-                const isCurrentWriting = item.manuscriptUnitId === snapshot.activeUnitId;
-                const isSuggested = item.state === 'proposed' || item.state === 'inferred';
-                const isMultiSelected = selectedStoryItemIds.includes(item.id);
-                const isDerivedContext = Boolean(item.manuscriptUnitId && item.manuscriptUnitId === snapshot.activeUnitId);
-                return (
-                  <li
-                    key={item.id}
-                    draggable={!livingOutlineLoading}
-                    onDragStart={(event) => {
-                      event.dataTransfer.effectAllowed = 'move';
-                      event.dataTransfer.setData('application/x-black-skies-outline-item', item.id);
-                      event.dataTransfer.setData('text/plain', item.id);
-                    }}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      event.dataTransfer.dropEffect = 'move';
-                    }}
-                    onDrop={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
-                      const movingItem = livingOutline.document.items.find((candidate) => candidate.id === movingItemId);
-                      if (movingItemId && movingItem?.manuscriptUnitId !== item.manuscriptUnitId) {
-                        void actions.linkOutlineItem(movingItemId, item.manuscriptUnitId);
-                      } else if (movingItemId) {
-                        void actions.moveOutlineItemTo(movingItemId, index);
-                      }
-                    }}
-                    onContextMenu={(event) => {
-                      event.preventDefault();
-                      actions.openOutlineItemOptions(item.id);
-                    }}
-                  >
-                    <div className={`stage19-living-outline__row ${item.id === selectedOutlineItemId ? 'is-active' : ''} ${isCurrentWriting ? 'is-writing-linked' : ''} ${isSuggested ? 'is-suggested' : ''} ${isDerivedContext ? 'is-derived-context' : ''} ${isMultiSelected ? 'is-multi-selected' : ''}`}>
-                      {multiSelectMode ? <label className="stage19-story-rail__selection">
-                        <input
-                          type="checkbox"
-                          aria-label={`Select Note ${item.label}`}
-                          checked={isMultiSelected}
-                          onChange={() => actions.toggleStorySelection(item.id)}
-                        />
-                      </label> : null}
-                      <button
-                        type="button"
-                        className="stage19-living-outline__locate"
-                        aria-label={linkedUnit ? `Show ${item.label} in manuscript` : `Select unlinked Note ${item.label}`}
-                        aria-current={isCurrentWriting ? 'location' : undefined}
-                        onClick={() => void actions.selectOutlineItem(item.id)}
-                        onKeyDown={(event) => {
-                          if (!event.altKey) return;
-                          if (event.key === 'ArrowUp' && index > 0) {
-                            event.preventDefault();
-                            void actions.moveOutlineItem(item.id, -1);
-                          }
-                          if (event.key === 'ArrowDown' && index < livingOutline.document.items.length - 1) {
-                            event.preventDefault();
-                            void actions.moveOutlineItem(item.id, 1);
-                          }
-                        }}
-                      >
-                        <span className="stage19-living-outline__marker" aria-hidden="true" />
-                        <span>{String(index + 1).padStart(2, '0')}</span>
-                      </button>
-                      <div className="stage19-living-outline__item-main">
-                        {outlineEditingItemId === item.id ? (
-                          <OutlineTitleEditor
-                            actions={actions}
-                            item={item}
-                            livingOutlineLoading={livingOutlineLoading}
-                            outlineLabel={outlineLabel}
-                            outlineBody={outlineBody}
-                          />
-                        ) : (
-                          <button
-                            type="button"
-                            className="stage19-living-outline__title"
-                            title="Double-click to rename"
-                            onClick={() => void actions.selectOutlineItem(item.id)}
-                            onDoubleClick={() => actions.editOutlineItem(item.id)}
-                          >
-                            {item.label}
-                          </button>
-                        )}
-                        <span className="stage19-living-outline__placement">{linkedUnit ? `Belongs with: ${linkedUnit.displayTitle}` : 'Not placed yet'}</span>
-                        {item.kind === 'gap' ? <span className="stage19-living-outline__meaning">Something goes here</span> : null}
-                      </div>
-                      {isSuggested ? <span className="stage19-living-outline__suggested">Suggested</span> : null}
-                      <button
-                        type="button"
-                        className="stage19-living-outline__more"
-                        aria-label={`More options for ${item.label}`}
-                        aria-expanded={outlineAdvancedItemId === item.id}
-                        onClick={() => actions.openOutlineItemOptions(item.id)}
-                      >
-                        More
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+            <div className={`stage19-note-marker-cluster ${visibleItems.some((item) => selectedStoryItemIds.includes(item.id)) ? 'is-multi-selected' : ''}`} data-note-marker-cluster="true" data-note-cluster-count={visibleItems.length}>
+              <button
+                type="button"
+                className={`stage19-note-marker-cluster__button ${visibleItems.some((item) => item.id === selectedOutlineItemId) ? 'is-active' : ''}`}
+                aria-label={`Open ${visibleItems.length} Note${visibleItems.length === 1 ? '' : 's'}${placementUnitId ? ` for ${snapshot.project?.units.find((unit) => unit.id === placementUnitId)?.displayTitle ?? 'this Unit'}` : ' not placed yet'}`}
+                aria-expanded={Boolean(advancedItem && visibleItems.some((item) => item.id === advancedItem.id))}
+                onClick={() => actions.openOutlineItemOptions(selectedOutlineItemId && visibleItems.some((item) => item.id === selectedOutlineItemId) ? selectedOutlineItemId : visibleItems[0]!.id)}
+              >
+                <span className="stage19-note-marker-cluster__marker" aria-hidden="true" />
+                <span>{visibleItems.length} {visibleItems.length === 1 ? 'Note' : 'Notes'}</span>
+              </button>
+              {multiSelectMode ? <div className="stage19-note-marker-cluster__selection" role="group" aria-label="Select Notes in this marker cluster">
+                {visibleItems.map((item) => (
+                  <label key={item.id}>
+                    <input
+                      type="checkbox"
+                      aria-label={`Select Note ${item.label}`}
+                      checked={selectedStoryItemIds.includes(item.id)}
+                      onChange={() => actions.toggleStorySelection(item.id)}
+                    />
+                    <span>{item.label}</span>
+                  </label>
+                ))}
+              </div> : null}
+            </div>
           ) : showEmpty ? <p className="stage19-spine__empty">No notes yet. Keep writing, or use + when a planning thought matters.</p> : null}
           {showAdvanced && advancedItem && (placementUnitId === undefined || advancedItem.manuscriptUnitId === placementUnitId) ? (
             <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
@@ -818,42 +717,54 @@ function LivingOutlineView({
                 <div><span className="stage19-spine__eyebrow">Advanced context</span><h3>{advancedItem.label}</h3></div>
                 <button type="button" onClick={actions.closeOutlineItemOptions}>Close</button>
               </div>
+              {visibleItems.length > 1 ? <div className="stage19-note-marker-cluster__details" role="group" aria-label="Notes in this marker cluster">
+                {visibleItems.map((item) => <button key={item.id} type="button" className={item.id === advancedItem.id ? 'is-active' : ''} onClick={() => actions.openOutlineItemOptions(item.id)}>{item.label}</button>)}
+              </div> : null}
               <p className="stage19-living-outline__explanation">
                 Double-click the note to rename it. Use − in the Story rail to delete it.
               </p>
+              <button type="button" onClick={() => void actions.selectOutlineItem(advancedItem.id)}>Locate in manuscript</button>
               <label>
-                <span>Structural meaning</span>
-                <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
-                  <option value="fragment">Note</option>
-                  <option value="gap">Something goes here</option>
-                  <option value="container">Planning area</option>
-                </select>
+                <span>Note title</span>
+                <input ref={detailItemId === advancedItem.id ? focusOutlineTitleInput : undefined} id={`stage19-outline-detail-title-${advancedItem.id}`} aria-label={`Title for ${advancedItem.label}`} value={outlineLabel} maxLength={240} onChange={(event) => actions.setOutlineLabel(event.target.value)} />
               </label>
-              <p className="stage19-living-outline__explanation">
-                {outlineKind === 'gap'
-                  ? 'A deliberate empty place you expect to fill later.'
-                  : outlineKind === 'container'
-                    ? 'A planning area that groups or holds structural thoughts.'
-                    : 'An ordinary structural thought beside the manuscript.'}
-              </p>
-              <label>
-                <span>Source state</span>
-                <select value={outlineState} onChange={(event) => actions.setOutlineState(event.target.value as LivingOutlineItemState)}>
-                  <option value="authored">Already in the writing</option>
-                  <option value="planned">Planned by me</option>
-                  <option value="inferred">Observed from the writing</option>
-                  <option value="proposed">Suggested for consideration</option>
-                </select>
-              </label>
-              <p className="stage19-living-outline__explanation">
-                {outlineState === 'authored'
-                  ? 'This reflects writing already accepted on the page.'
-                  : outlineState === 'planned'
-                    ? 'This records your own intention for the story.'
-                    : outlineState === 'inferred'
-                      ? 'This was observed from existing writing and remains advisory.'
-                      : 'This is a suggestion and remains advisory until you decide otherwise.'}
-              </p>
+              {outlineKind === 'gap' ? <span className="stage19-living-outline__meaning">Something goes here</span> : null}
+              {outlineState === 'proposed' ? <span className="stage19-living-outline__suggested">Suggested</span> : null}
+              {outlineAdvancedItemId ? <>
+                <label>
+                  <span>Structural meaning</span>
+                  <select value={outlineKind} onChange={(event) => actions.setOutlineKind(event.target.value as LivingOutlineItemKind)}>
+                    <option value="fragment">Note</option>
+                    <option value="gap">Something goes here</option>
+                    <option value="container">Planning area</option>
+                  </select>
+                </label>
+                <p className="stage19-living-outline__explanation">
+                  {outlineKind === 'gap'
+                    ? 'A deliberate empty place you expect to fill later.'
+                    : outlineKind === 'container'
+                      ? 'A planning area that groups or holds structural thoughts.'
+                      : 'An ordinary structural thought beside the manuscript.'}
+                </p>
+                <label>
+                  <span>Source state</span>
+                  <select value={outlineState} onChange={(event) => actions.setOutlineState(event.target.value as LivingOutlineItemState)}>
+                    <option value="authored">Already in the writing</option>
+                    <option value="planned">Planned by me</option>
+                    <option value="inferred">Observed from the writing</option>
+                    <option value="proposed">Suggested for consideration</option>
+                  </select>
+                </label>
+                <p className="stage19-living-outline__explanation">
+                  {outlineState === 'authored'
+                    ? 'This reflects writing already accepted on the page.'
+                    : outlineState === 'planned'
+                      ? 'This records your own intention for the story.'
+                      : outlineState === 'inferred'
+                        ? 'This was observed from existing writing and remains advisory.'
+                        : 'This is a suggestion and remains advisory until you decide otherwise.'}
+                </p>
+              </> : null}
               <label>
                 <span>Note body</span>
                 <textarea aria-label={`Body for ${advancedItem.label}`} value={outlineBody} maxLength={4000} rows={4} onChange={(event) => actions.setOutlineBody(event.target.value)} />
@@ -883,6 +794,95 @@ function LivingOutlineView({
   );
 }
 
+export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const structure = model.manuscriptStructure;
+  const proposals = structure?.document.proposals ?? [];
+  const pageSize = 12;
+  const stagedOrder = model.manuscriptStructureOrder ?? proposals.map((proposal) => proposal.id);
+  const proposalById = new Map(proposals.map((proposal) => [proposal.id, proposal]));
+  const orderedProposals = stagedOrder.map((proposalId) => proposalById.get(proposalId)).filter((proposal): proposal is typeof proposals[number] => Boolean(proposal));
+  const pageCount = Math.max(1, Math.ceil(orderedProposals.length / pageSize));
+  const page = Math.min(model.manuscriptStructurePage, pageCount - 1);
+  const pageProposals = orderedProposals.slice(page * pageSize, (page + 1) * pageSize);
+  const acceptedCount = proposals.filter((proposal) => proposal.state === 'accepted').length;
+  const unappliedAcceptedCount = proposals.filter((proposal) => proposal.state === 'accepted' && !proposal.appliedUnitId).length;
+  const hasAppliedProposal = proposals.some((proposal) => Boolean(proposal.appliedUnitId));
+  const excerpt = (start: number, end: number): string => {
+    const source = structure?.sourceText ?? '';
+    const excerptStart = Math.max(0, start - 180);
+    const excerptEnd = Math.min(source.length, Math.max(end, start + 1) + 260);
+    return source.slice(excerptStart, excerptEnd);
+  };
+  return (
+    <details className="stage19-manuscript-structure" aria-label="Manuscript structure intake">
+      <summary><span>Structure</span>{structure ? <span className="stage19-manuscript-structure__summary">{acceptedCount} accepted / {proposals.length} proposals</span> : <span>Optional Markdown intake</span>}</summary>
+      <div className="stage19-manuscript-structure__workspace">
+        <div className="stage19-manuscript-structure__heading">
+          <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure workspace</h3></div>
+          <div className="stage19-manuscript-structure__actions">
+            <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown</button>
+            {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || structure.sourceStatus !== 'current'}>Rediscover</button> : null}
+          </div>
+        </div>
+        <p className="stage19-manuscript-structure__boundary">Read-only source excerpts. Proposals stay provisional until explicitly applied to Units.</p>
+        {model.manuscriptStructureNotice ? <p className="stage19-manuscript-structure__notice" role="status">{model.manuscriptStructureNotice}</p> : null}
+        {structure?.message ? <p className="stage19-manuscript-structure__notice" role="status">{structure.message}</p> : null}
+        {model.manuscriptStructureLoading && !structure ? <p>Loading structure…</p> : null}
+        {structure?.availability === 'ready' ? (
+          <>
+            <div className="stage19-manuscript-structure__summary"><span>{structure.document.source.fileName}</span><span>{structure.document.source.normalizedLength.toLocaleString()} characters</span></div>
+            <div className="stage19-manuscript-structure__boundary-form">
+              <span>Visible boundary selection</span>
+              <span>{model.structureBoundaryStart === null ? 'Choose a start' : model.structureBoundaryEnd === null ? 'Choose an end' : 'Range selected'}</span>
+              <input aria-label="Boundary label" placeholder="Label" data-structure-boundary-label />
+              <button type="button" onClick={(event) => void actions.pinSelectedStructureBoundary((event.currentTarget.parentElement?.querySelector<HTMLInputElement>('[data-structure-boundary-label]')?.value ?? '').trim())} disabled={model.manuscriptStructureLoading || model.structureBoundaryStart === null || model.structureBoundaryEnd === null}>Pin boundary</button>
+            </div>
+            {pageProposals.length > 0 ? (
+              <form onSubmit={(event) => { event.preventDefault(); void actions.mergeStructureProposals(new FormData(event.currentTarget).getAll('proposalId').map(String)); }}>
+                <ol className="stage19-manuscript-structure__proposals" aria-label="Structure proposals">
+                  {pageProposals.map((proposal) => {
+                    const applied = Boolean(proposal.appliedUnitId);
+                    const index = orderedProposals.findIndex((candidate) => candidate.id === proposal.id);
+                    const splitBoundaries = Array.from(structure.sourceText.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).matchAll(/\n/g), (match) => proposal.anchor.selectionStart + (match.index ?? 0) + 1).filter((offset) => offset > proposal.anchor.selectionStart && offset < proposal.anchor.selectionEnd).slice(0, 4);
+                    const canSplit = splitBoundaries.length > 0 && !applied;
+                    return <li key={proposal.id} className={`is-${proposal.state}`} data-structure-proposal="true">
+                      <div className="stage19-manuscript-structure__excerpt-wrap">
+                        <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionStart, 'start')} disabled={applied}>Start boundary</button>
+                        <pre className="stage19-manuscript-structure__source" aria-label={`Excerpt for ${proposal.label}`} data-structure-excerpt="true">{excerpt(proposal.anchor.selectionStart, proposal.anchor.selectionEnd)}</pre>
+                        <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionEnd, 'end')} disabled={applied}>End boundary</button>
+                      </div>
+                      {splitBoundaries.length > 0 ? <div className="stage19-manuscript-structure__source-rows" aria-label={`Internal boundaries for ${proposal.label}`}>
+                        {splitBoundaries.map((boundary, boundaryIndex) => <div key={boundary} className="stage19-manuscript-structure__source-row" data-structure-source-row="true">
+                          <span>Internal source boundary {boundaryIndex + 1}</span>
+                          <button type="button" onClick={() => actions.selectStructureBoundary(boundary, 'start')} disabled={applied}>Set start boundary</button>
+                          <button type="button" onClick={() => actions.selectStructureBoundary(boundary, 'end')} disabled={applied}>Set end boundary</button>
+                        </div>)}
+                      </div> : null}
+                      <div><label><input type="checkbox" name="proposalId" value={proposal.id} disabled={applied} /> Select</label> <strong>{proposal.label}</strong> <span>{proposal.provenance} · {applied ? 'Applied' : proposal.state}</span></div>
+                      <div className="stage19-manuscript-structure__proposal-actions">
+                        <button type="button" onClick={() => void actions.acceptStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'accepted' || proposal.state === 'stale'}>Accept</button>
+                        <button type="button" onClick={() => void actions.rejectStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'rejected' || proposal.state === 'stale'}>Reject</button>
+                        <button type="button" onClick={(event) => event.currentTarget.closest('li')?.querySelector<HTMLInputElement>('input[data-proposal-label]')?.focus()} disabled={applied}>Rename</button>
+                        {splitBoundaries.map((boundary) => <button key={boundary} type="button" onClick={() => void actions.splitStructureProposal(proposal.id, boundary)} disabled={!canSplit || model.manuscriptStructureLoading}>Split at paragraph boundary</button>)}
+                        <button type="button" onClick={() => { if (index <= 0 || hasAppliedProposal) return; const ordered = orderedProposals.map((candidate) => candidate.id); [ordered[index - 1], ordered[index]] = [ordered[index]!, ordered[index - 1]!]; actions.stageStructureOrder(ordered); }} disabled={index <= 0 || hasAppliedProposal || model.manuscriptStructureLoading}>Move up</button>
+                      </div>
+                      <div className="stage19-manuscript-structure__rename"><label><span className="stage19-spine__sr-only">Proposal name</span><input data-proposal-label defaultValue={proposal.label} maxLength={240} disabled={applied} /></label><button type="button" onClick={(event) => void actions.renameStructureProposal(proposal.id, event.currentTarget.parentElement?.querySelector<HTMLInputElement>('[data-proposal-label]')?.value ?? '')} disabled={model.manuscriptStructureLoading || applied}>Save name</button></div>
+                    </li>;
+                  })}
+                </ol>
+                <div className="stage19-manuscript-structure__actions"><button type="submit" disabled={model.manuscriptStructureLoading || hasAppliedProposal}>Merge selected</button></div>
+              </form>
+            ) : <pre className="stage19-manuscript-structure__source" data-structure-excerpt="true">{structure.sourceText.slice(0, 2000)}</pre>}
+            {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><span>Proposal order is staged locally.</span><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
+            <nav className="stage19-manuscript-structure__pagination" aria-label="Structure pages"><button type="button" onClick={() => model.manuscriptStructurePage > 0 && actions.setManuscriptStructurePage(model.manuscriptStructurePage - 1)} disabled={page === 0}>Previous</button><span>Page {page + 1} of {pageCount}</span><button type="button" onClick={() => model.manuscriptStructurePage < pageCount - 1 && actions.setManuscriptStructurePage(model.manuscriptStructurePage + 1)} disabled={page >= pageCount - 1}>Next</button></nav>
+            <button type="button" onClick={() => void actions.applyManuscriptStructure()} disabled={model.manuscriptStructureLoading || unappliedAcceptedCount === 0 || structure.sourceStatus !== 'current'}>Apply accepted structure to Units</button>
+          </>
+        ) : null}
+      </div>
+    </details>
+  );
+}
+
 function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
   const { dirtyUnitIds, multiSelectMode, recoveryBlocksEditing, renameTitle, selectedStoryItemIds, snapshot, storyRailHelpOpen, unitAdvancedId, unitEditingId } = model;
@@ -898,6 +898,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
   if (model.focusMode || !snapshot.project) return <></>;
   return (
     <aside className="stage19-spine__binder" aria-label="Story rail">
+      <ManuscriptStructureView {...props} />
       <div className="stage19-living-outline__heading stage19-story-rail__heading">
         <div><span className="stage19-spine__sr-only">Story contents</span><span className="stage19-living-outline__count" aria-label={`${snapshot.project.units.length} Units and ${outlineItems.length} Notes`}>{snapshot.project.units.length + outlineItems.length}</span></div>
         <div className="stage19-story-rail__heading-actions">
@@ -967,11 +968,7 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
       {model.livingOutlineNotice ? <p className="stage19-living-outline__notice" role="status">{model.livingOutlineNotice}</p> : null}
       <ol className="stage19-story-rail__sections" aria-label="Story order">
         {snapshot.project.units.map((unit) => (
-          <li key={unit.id} className={unit.id === snapshot.activeUnitId ? 'is-current-writing' : ''} onDragOver={(event) => event.preventDefault()} onDrop={(event) => {
-            event.preventDefault();
-            const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
-            if (movingItemId) void actions.linkOutlineItem(movingItemId, unit.id);
-          }}>
+          <li key={unit.id} className={unit.id === snapshot.activeUnitId ? 'is-current-writing' : ''}>
             <div className={`stage19-story-rail__unit-row ${unit.id === snapshot.activeUnitId ? 'is-derived-context' : ''} ${selectedStoryItemIds.includes(unit.id) ? 'is-multi-selected' : ''}`} onContextMenu={(event) => {
               event.preventDefault();
               actions.openUnitOptions(unit.id);
@@ -1047,12 +1044,6 @@ function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element 
       {unplacedCount > 0 ? <section
         className="stage19-story-rail__unplaced"
         aria-label="Unlinked notes"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          const movingItemId = event.dataTransfer.getData('application/x-black-skies-outline-item') || event.dataTransfer.getData('text/plain');
-          if (movingItemId) void actions.linkOutlineItem(movingItemId, null);
-        }}
       >
         <h3 className="stage19-story-rail__unplaced-heading">Not placed yet</h3>
         <LivingOutlineView {...props} placementUnitId={null} showChrome={false} showEmpty={false} showPreview={false} />

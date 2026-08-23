@@ -39,7 +39,7 @@ export const installedQualificationProfiles = Object.freeze({
     initialVisibleWindowCount: 1,
     postOptionalSecondaryVisibleWindowCount: 2,
     writingGlobalNames: Object.freeze([
-      "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand"
+      "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand", "manuscriptStructure"
     ]),
     commandGlobalNames: Object.freeze(["critiqueReview", "projectSpine", "splitCommand"])
   }),
@@ -357,7 +357,8 @@ async function runtimeTruth(
     aiCritique: Object.keys(window.aiCritique ?? {}).sort(),
     feedbackNotes: Object.keys(window.feedbackNotes ?? {}).sort(),
     livingOutline: Object.keys(window.livingOutline ?? {}).sort(),
-    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline"]
+    manuscriptStructure: Object.keys(window.manuscriptStructure ?? {}).sort(),
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure"]
       .filter((name) => typeof window[name] !== "undefined").sort(),
     requireType: typeof window.require,
     processType: typeof window.process
@@ -366,7 +367,7 @@ async function runtimeTruth(
     projectSpine: Object.keys(window.projectSpine ?? {}).sort(),
     splitCommand: Object.keys(window.splitCommand ?? {}).sort(),
     critiqueReview: Object.keys(window.critiqueReview ?? {}).sort(),
-    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline"]
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure"]
       .filter((name) => typeof window[name] !== "undefined").sort(),
     aiCritiqueType: typeof window.aiCritique,
     requireType: typeof window.require,
@@ -386,6 +387,7 @@ async function runtimeTruth(
     "rejectRecoveryCandidate",
     "removeRecent",
     "renameUnit",
+    "reloadActiveProject",
     "reorderUnits",
     "respondToCloseConfirmation",
     "saveUnit",
@@ -393,6 +395,20 @@ async function runtimeTruth(
     "setUnitDirty",
     "subscribeSession",
     "windowRole"
+  ].sort();
+  const manuscriptStructure = [
+    "acceptProposal",
+    "apply",
+    "chooseMarkdown",
+    "discover",
+    "get",
+    "importMarkdown",
+    "mergeGroups",
+    "renameProposal",
+    "rejectProposal",
+    "reorderGroups",
+    "setBoundary",
+    "splitGroup"
   ].sort();
   const expectedWritingProjectSpine = [...writingProjectSpine, "focusWritingWindow"].sort();
   const commandProjectSpine = [
@@ -430,6 +446,10 @@ async function runtimeTruth(
   assert(
     JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(expectedWritingProjectSpine),
     `Writing Project Spine allowlist differed: ${JSON.stringify(writingGlobals.projectSpine)}`
+  );
+  assert(
+    JSON.stringify(writingGlobals.manuscriptStructure) === JSON.stringify(manuscriptStructure),
+    `Writing Manuscript Structure allowlist differed: ${JSON.stringify(writingGlobals.manuscriptStructure)}`
   );
   assert(
     JSON.stringify(commandGlobals.projectSpine) === JSON.stringify(commandProjectSpine),

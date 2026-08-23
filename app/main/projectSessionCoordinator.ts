@@ -46,7 +46,7 @@ export interface ProjectRecoveryDecisionToken extends ProjectStructureToken {
 }
 
 export interface ProjectActivationResult {
-  readonly activation: 'activated' | 'already-active';
+  readonly activation: 'activated' | 'already-active' | 'reloaded';
   readonly generation: number;
 }
 
@@ -512,6 +512,42 @@ export class ProjectSessionCoordinator {
       .sort((left, right) => left.order - right.order)[0]?.id ?? null;
     this.upsertRecent(normalizedProject, false);
     return { activation: 'activated', generation: this.generation };
+  }
+
+  reloadActiveProject(binding: ProjectSpineBinding, project: LoadedProject): ProjectActivationResult {
+    this.assertBinding(binding);
+    validateProjectIdentity(project);
+    if (this.hasOperationInFlight()) {
+      throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Wait for the current project operation to finish before reloading it.');
+    }
+    if (this.hasUnsavedWork()) {
+      throw new ProjectSessionError('UNSAVED_CHANGES', 'Save all manuscript units before reloading the active project.');
+    }
+    if (
+      project.projectId !== binding.projectId ||
+      canonicalPathKey(project.path) !== canonicalPathKey(binding.projectPath)
+    ) {
+      throw new ProjectSessionError('PROJECT_IDENTITY_CHANGED', 'The reloaded project no longer matches the active project identity.');
+    }
+    const normalizedProject = cloneProject({ ...project, path: path.resolve(project.path) });
+    const priorActiveUnitId = this.activeUnitId;
+    this.activeProject = normalizedProject;
+    this.generation += 1;
+    this.revision += 1;
+    this.dirtyUnitIds.clear();
+    this.activeSaveToken = null;
+    this.activeStructureToken = null;
+    this.activeRecoveryDecisionToken = null;
+    this.recoveryState = { status: 'none', candidates: [] };
+    this.saveState = { status: 'clean', unitId: null, message: null };
+    this.lastError = null;
+    this.activeUnitId = priorActiveUnitId && normalizedProject.scenes.some((unit) => unit.id === priorActiveUnitId)
+      ? priorActiveUnitId
+      : [...normalizedProject.scenes].sort((left, right) => left.order - right.order)[0]?.id ?? null;
+    this.projectPathById.set(normalizedProject.projectId!, normalizedProject.path);
+    this.projectIdByPath.set(canonicalPathKey(normalizedProject.path), normalizedProject.projectId!);
+    this.upsertRecent(normalizedProject, false);
+    return { activation: 'reloaded', generation: this.generation };
   }
 
   noteFailure(error: ProjectSpineError, targetPath?: string): void {

@@ -93,6 +93,38 @@ describe('ProjectSessionCoordinator', () => {
     expect(coordinator.snapshot('writing').dirtyUnitIds).toEqual(['unit_1']);
   });
 
+  it('reloads the same clean project, increments generation, and exposes disk Units immediately', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_reload', 'C:\\projects\\reload', 'Reload me');
+    coordinator.activateProject(active);
+    const before = coordinator.snapshot('writing');
+    const refreshed = project('proj_reload', 'C:\\projects\\reload', 'Reload me', ['unit_1', 'unit_2']);
+    const result = coordinator.reloadActiveProject({
+      projectId: active.projectId!,
+      projectPath: active.path,
+      generation: before.generation,
+      operationId: 'reload-1',
+    }, refreshed);
+
+    expect(result).toEqual({ activation: 'reloaded', generation: before.generation + 1 });
+    expect(coordinator.snapshot('writing').project?.units).toHaveLength(2);
+    expect(coordinator.snapshot('writing').generation).toBe(before.generation + 1);
+  });
+
+  it('rejects reload when the binding is stale or manuscript work is dirty', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_reload_dirty', 'C:\\projects\\reload-dirty');
+    coordinator.activateProject(active);
+    const bindingForCurrent = binding(coordinator, active, 'reload-dirty');
+    coordinator.setUnitDirty(bindingForCurrent, 'unit_1', true);
+    expect(() => coordinator.reloadActiveProject(bindingForCurrent, active)).toThrowError(
+      expect.objectContaining({ code: 'UNSAVED_CHANGES' }),
+    );
+    expect(() => coordinator.reloadActiveProject({ ...bindingForCurrent, generation: 0 }, active)).toThrowError(
+      expect.objectContaining({ code: 'STALE_SESSION' }),
+    );
+  });
+
   it('fails closed when a known durable identity appears at a different path', () => {
     const coordinator = new ProjectSessionCoordinator();
     coordinator.activateProject(project('proj_duplicate', 'C:\\projects\\a'));

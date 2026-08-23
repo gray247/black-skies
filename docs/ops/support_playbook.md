@@ -88,6 +88,22 @@ For an invalid project:
 
 Removing a recent-project reference does not delete project files.
 
+## Markdown structure intake
+
+Program 5 Markdown intake creates a new disposable project and preserves the
+normalized source in `manuscript-intake.md`. Detected structure is provisional
+sidecar metadata in `manuscript-structure.json`; it is not accepted manuscript
+truth until the writer explicitly accepts proposals and applies them.
+
+Apply requires durably saved Units and rejects stale, unresolved, ambiguous, or
+overlapping source ranges. Applied ranges are immutable. If the source changes
+after Apply, the Writing Studio reports the machine-readable
+`SOURCE_CHANGED_AFTER_APPLY` state and blocks rediscovery and Apply; do not
+repair this by editing the sidecar or drafts manually. A crash-safe Apply
+journal is recovered before structure is shown. If recovery reports a blocking
+error, preserve the project directory and escalate with the journal and exact
+error code.
+
 ## Save failure
 
 If **Save failed** appears:

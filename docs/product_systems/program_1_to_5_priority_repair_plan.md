@@ -133,14 +133,27 @@ state is `exact-pass`, no P1/P2 product failure remains, and Jason accepts the
 Writing Studio. A failure creates exactly one bounded repair slice, preserves
 passing evidence, reruns the affected full matrix, and repeats review.
 
+## Program 5 corrected closeout implementation boundary
+
+The corrected closeout implementation now provides one-Markdown-file intake into
+a new disposable project, LF normalization, a versioned project-local structure
+sidecar, deterministic heading/separator/paragraph/fallback discovery, stable
+source-offset anchors, ghost proposal state, explicit proposal mutations, and
+transactional materialization into existing Units and `outline.json` entries.
+Existing Units and drafts remain canonical manuscript truth; the intake source
+and sidecar are provisional structure metadata. The renderer and IPC seam bind
+every read and mutation to Writing Studio project identity, generation, and
+expected revision. Discovery and proposals never silently become accepted
+structure, reorder canonical Units, or overwrite later manuscript edits.
+
+This implementation is mechanically tested development evidence only. It is not
+package qualification, exact-installed evidence, Human Gate 2 acceptance, or
+Human Gate 3 closure.
+
 ## Deferred Program 5 follow-up
 
 Track separately with an owner and reopening trigger:
 
-- staged long-manuscript import;
-- structural discovery and ghost proposals;
-- proposal accept/reject/rename/split/merge;
-- accepted-anchor persistence and rejected/inferred non-promotion;
 - substantial-manuscript reopen qualification;
 - Human Gate 3.
 

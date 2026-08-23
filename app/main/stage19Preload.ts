@@ -7,6 +7,7 @@ import type {
   ExportMarkdownRequest,
   ExportMarkdownResultData,
   OpenProjectRequest,
+  ReloadActiveProjectRequest,
   ProjectSpineBridge,
   ProjectSpineCloseConfirmationRequest,
   ProjectSpineCloseConfirmationResponse,
@@ -63,6 +64,19 @@ import type {
   CritiqueReviewSurfaceStateV1,
   SaveCritiqueReviewFeedbackNoteActionV1,
 } from '../shared/ipc/contextualProductShell';
+import type {
+  ApplyManuscriptStructureRequest,
+  DiscoverManuscriptStructureRequest,
+  GetManuscriptStructureRequest,
+  ImportMarkdownRequest,
+  ManuscriptStructureBridge,
+  MergeManuscriptStructureGroupsRequest,
+  ProposalMutationRequest,
+  RenameManuscriptStructureProposalRequest,
+  ReorderManuscriptStructureGroupsRequest,
+  SetManuscriptStructureBoundaryRequest,
+  SplitManuscriptStructureGroupRequest,
+} from '../shared/ipc/manuscriptStructure';
 
 /**
  * Electron's sandboxed preload loader cannot require arbitrary local CommonJS
@@ -74,6 +88,7 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     chooseDirectory: 'project-spine:choose-directory',
     focusWritingWindow: 'project-spine:focus-writing-window',
     openProject: 'project-spine:open-project',
+    reloadActiveProject: 'project-spine:reload-active-project',
     createProject: 'project-spine:create-project',
     getSession: 'project-spine:get-session',
     removeRecent: 'project-spine:remove-recent',
@@ -129,6 +144,20 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     moveItem: 'living-outline:move-item',
     linkItem: 'living-outline:link-item',
     deleteItem: 'living-outline:delete-item',
+  }),
+  manuscriptStructure: Object.freeze({
+    chooseMarkdown: 'manuscript-structure:choose-markdown',
+    importMarkdown: 'manuscript-structure:import-markdown',
+    get: 'manuscript-structure:get',
+    discover: 'manuscript-structure:discover',
+    setBoundary: 'manuscript-structure:set-boundary',
+    acceptProposal: 'manuscript-structure:accept-proposal',
+    rejectProposal: 'manuscript-structure:reject-proposal',
+    renameProposal: 'manuscript-structure:rename-proposal',
+    splitGroup: 'manuscript-structure:split-group',
+    mergeGroups: 'manuscript-structure:merge-groups',
+    reorderGroups: 'manuscript-structure:reorder-groups',
+    apply: 'manuscript-structure:apply',
   }),
   diagnostics: 'logging:diagnostics',
 });
@@ -492,6 +521,7 @@ type BaseProjectSpineBridge = Pick<
   | 'windowRole'
   | 'chooseDirectory'
   | 'openProject'
+  | 'reloadActiveProject'
   | 'createProject'
   | 'getSession'
   | 'removeRecent'
@@ -505,6 +535,8 @@ const baseProjectSpine: BaseProjectSpineBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.chooseDirectory),
   openProject: (request: OpenProjectRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.openProject, request),
+  reloadActiveProject: (request: ReloadActiveProjectRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.reloadActiveProject, request),
   createProject: (request: CreateProjectRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.createProject, request),
   async getSession() {
@@ -764,6 +796,32 @@ const livingOutline: LivingOutlineBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.deleteItem, request),
 };
 
+const manuscriptStructure: ManuscriptStructureBridge = {
+  chooseMarkdown: () => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.chooseMarkdown),
+  importMarkdown: (request: ImportMarkdownRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.importMarkdown, request),
+  get: (request: GetManuscriptStructureRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.get, request),
+  discover: (request: DiscoverManuscriptStructureRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.discover, request),
+  setBoundary: (request: SetManuscriptStructureBoundaryRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.setBoundary, request),
+  acceptProposal: (request: ProposalMutationRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.acceptProposal, request),
+  rejectProposal: (request: ProposalMutationRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.rejectProposal, request),
+  renameProposal: (request: RenameManuscriptStructureProposalRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.renameProposal, request),
+  splitGroup: (request: SplitManuscriptStructureGroupRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.splitGroup, request),
+  mergeGroups: (request: MergeManuscriptStructureGroupsRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.mergeGroups, request),
+  reorderGroups: (request: ReorderManuscriptStructureGroupsRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.reorderGroups, request),
+  apply: (request: ApplyManuscriptStructureRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.apply, request),
+};
+
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 const logLevels: Record<ConsoleMethod, 'debug' | 'info' | 'warn' | 'error'> = {
   log: 'info',
@@ -809,4 +867,5 @@ if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);
   contextBridge.exposeInMainWorld('livingOutline', livingOutline);
+  contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructure);
 }

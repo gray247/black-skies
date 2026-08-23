@@ -178,7 +178,7 @@ export async function openWritingStudioRail(
   label: WritingStudioRailLabel,
 ): Promise<void> {
   const closeControl = writing.getByRole('button', { name: `Close ${label}` });
-  if (await closeControl.count()) return;
+  if (await closeControl.isVisible()) return;
   await writing.getByRole('button', { name: `Open ${label}` }).click();
   await expect(closeControl).toBeVisible();
 }

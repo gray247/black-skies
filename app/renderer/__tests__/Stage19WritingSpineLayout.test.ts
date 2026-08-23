@@ -43,7 +43,7 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toContain('.stage19-theme-switch');
     expect(p3d).toMatch(/\.stage19-spine--writing[\s\S]*?background:\s*var\(--bs-canvas-black\);/);
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-scroller[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;/);
-    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*74ch;/);
+    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*90ch;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)[\s\S]*?\.stage19-writing-shell__rail--left,[\s\S]*?position:\s*static;[\s\S]*?box-shadow:\s*none;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
@@ -127,5 +127,37 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(view).not.toContain('openReviewPane');
     expect(app).not.toContain('reviewPaneOpen');
     expect(css).not.toContain('stage19-spine__review-pane');
+  });
+
+  it('keeps required Writing Studio context readable in both themes and at the scoped text size', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const writingSlice = css.slice(css.indexOf('/* Program 3 / P3-D: scoped literary Writing Studio shell. */'));
+    expect(writingSlice).toContain('.stage19-spine--writing .stage19-living-outline__count');
+    expect(writingSlice).toContain('.stage19-spine--writing .stage19-story-rail__menu p');
+    expect(writingSlice).toContain('color: var(--stage19-semantic-muted);');
+    expect(writingSlice).toContain('font-size: 0.8rem;');
+    expect(writingSlice).not.toMatch(/\.stage19-spine--writing[\s\S]{0,240}color:\s*var\(--bs-text-muted\)/);
+
+    const luminance = (hex: string): number => {
+      const channels = [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset + 1, offset + 3), 16) / 255);
+      const linear = channels.map((channel) => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
+    };
+    const ratio = (foreground: string, background: string): number => {
+      const light = Math.max(luminance(foreground), luminance(background));
+      const dark = Math.min(luminance(foreground), luminance(background));
+      return (light + 0.05) / (dark + 0.05);
+    };
+    for (const [canvas, secondary] of [['#000000', '#b9b2a6'], ['#fbf8f1', '#575149']] as const) {
+      const node = document.createElement('span');
+      node.style.color = secondary;
+      node.style.backgroundColor = canvas;
+      document.body.append(node);
+      const computed = getComputedStyle(node);
+      expect(computed.color).toBeTruthy();
+      expect(computed.backgroundColor).toBeTruthy();
+      expect(ratio(secondary, canvas)).toBeGreaterThanOrEqual(4.5);
+      node.remove();
+    }
   });
 });

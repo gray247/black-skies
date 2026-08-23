@@ -2,6 +2,7 @@ export const PROJECT_SPINE_CHANNELS = {
   chooseDirectory: 'project-spine:choose-directory',
   focusWritingWindow: 'project-spine:focus-writing-window',
   openProject: 'project-spine:open-project',
+  reloadActiveProject: 'project-spine:reload-active-project',
   createProject: 'project-spine:create-project',
   getSession: 'project-spine:get-session',
   removeRecent: 'project-spine:remove-recent',
@@ -223,6 +224,8 @@ export interface OpenProjectRequest {
   readonly discardUnsaved?: boolean;
 }
 
+export type ReloadActiveProjectRequest = ProjectSpineBinding;
+
 export interface CreateProjectRequest {
   readonly parentPath: string;
   readonly title: string;
@@ -340,6 +343,8 @@ export interface ProjectSpineBridge {
   focusWritingWindow?(): Promise<ProjectSpineResult>;
   chooseDirectory(): Promise<{ canceled: boolean; path?: string }>;
   openProject(request: OpenProjectRequest): Promise<ProjectSpineResult<{ activation: 'activated' | 'already-active' }>>;
+  /** Writing Studio only. Reloads the active project after a durable cross-file mutation. */
+  reloadActiveProject?(request: ReloadActiveProjectRequest): Promise<ProjectSpineResult<{ activation: 'reloaded' }>>;
   createProject(request: CreateProjectRequest): Promise<ProjectSpineResult<{ activation: 'activated' }>>;
   getSession(): Promise<ProjectSpineSessionSnapshot>;
   removeRecent(request: RemoveRecentProjectRequest): Promise<ProjectSpineResult>;
