@@ -106,4 +106,18 @@ describe('ManuscriptStructureView renderer contract', () => {
     expect(screen.getByRole('button', { name: 'Apply accepted structure to Units' })).toBeDisabled();
     rerender(<ManuscriptStructureView model={model(structure())} actions={viewActions} />);
   });
+
+  it('discards staged proposal order when the Structure workspace closes', () => {
+    const viewActions = actions();
+    render(<ManuscriptStructureView model={model(structure(), ['p2', 'p1'])} actions={viewActions} />);
+    const disclosure = screen.getByText('Structure').closest('details');
+    expect(disclosure).not.toBeNull();
+
+    disclosure!.open = true;
+    fireEvent(disclosure!, new Event('toggle', { bubbles: true }));
+    expect(viewActions.cancelStructureOrder).not.toHaveBeenCalled();
+    disclosure!.open = false;
+    fireEvent(disclosure!, new Event('toggle', { bubbles: true }));
+    expect(viewActions.cancelStructureOrder).toHaveBeenCalledTimes(1);
+  });
 });

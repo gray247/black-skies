@@ -9,6 +9,7 @@ afterEach(() => {
   process.env.BLACKSKIES_E2E_SYNTHETIC_MODE = originalEnv.BLACKSKIES_E2E_SYNTHETIC_MODE;
   process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE = originalEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE;
   process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS = originalEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS;
+  process.env.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH = originalEnv.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH;
   process.env.VISUAL_STRICT = originalEnv.VISUAL_STRICT;
 });
 
@@ -56,5 +57,14 @@ describe('modePolicy', () => {
     expect(() => modePolicy.assertValidMode()).toThrow(
       'Harness hooks are forbidden in production mode',
     );
+  });
+
+  it('does not expose deterministic dialog paths to packaged applications', () => {
+    delete process.env.NODE_ENV;
+    process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS = '1';
+    process.env.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH = 'C:/fixtures/intake.md';
+
+    expect(modePolicy.getHarnessDialogPath('markdown', true)).toBeUndefined();
+    expect(modePolicy.getHarnessDialogPath('markdown', false)).toBe('C:/fixtures/intake.md');
   });
 });

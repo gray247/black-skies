@@ -85,8 +85,8 @@ export function isHarnessEnabled(): boolean {
   return isPlaywrightHarness();
 }
 
-export function getHarnessDialogPath(kind: 'markdown' | 'directory'): string | undefined {
-  if (!isHarnessEnabled() || isProduction()) return undefined;
+export function getHarnessDialogPath(kind: 'markdown' | 'directory', isPackaged: boolean): string | undefined {
+  if (isPackaged || !isHarnessEnabled() || isProduction()) return undefined;
   const key = kind === 'markdown'
     ? 'BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH'
     : 'BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH';

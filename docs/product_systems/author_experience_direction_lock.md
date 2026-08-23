@@ -259,14 +259,18 @@ as `manuscript-intake.md`. Discovery creates ghost proposals in the versioned
 mutates the source. Structural review is compact and paginated, with visible
 source boundaries, explicit accept/reject/rename/split/adjacent-merge actions,
 proposal-sidecar reorder Save/Cancel, and a source-range overlap guard.
+Closing the Structure disclosure also cancels any unsaved staged order. A
+later reopen must show the last durable sidecar order rather than preserving a
+hidden in-memory arrangement.
 
 Apply materializes only explicitly accepted, non-overlapping ranges into the
 existing Units, drafts, and outline in a durable staged commit. The journal is
 recovered before structure is exposed, and a later source change after Apply
 blocks rediscovery and Apply with a machine-readable state. Applied proposals
 are immutable; reorder and manual boundaries cannot intersect applied prose.
-The deterministic chooser seam is harness-only; normal users receive the
-native Markdown and directory choosers.
+The deterministic chooser seam is harness-only and is disabled whenever
+Electron reports a packaged application, even if test environment variables
+are present. Normal users receive the native Markdown and directory choosers.
 
 Large sources must remain excerpt/pagination based rather than one DOM row per
 manuscript line. Automated implementation evidence does not claim Human Gate 2,

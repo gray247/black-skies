@@ -708,7 +708,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
 
   ipcMain.handle(PROJECT_SPINE_CHANNELS.chooseDirectory, async (event) => {
     requireWritingRole(event);
-    const harnessPath = getHarnessDialogPath('directory');
+    const harnessPath = getHarnessDialogPath('directory', app.isPackaged);
     if (harnessPath) return { canceled: false, path: harnessPath };
     const result = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
     return { canceled: result.canceled, path: result.filePaths?.[0] };

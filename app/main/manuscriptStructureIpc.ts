@@ -1,4 +1,4 @@
-import { dialog, ipcMain, type IpcMainInvokeEvent } from 'electron';
+import { app, dialog, ipcMain, type IpcMainInvokeEvent } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -100,7 +100,7 @@ export function registerManuscriptStructureIpc(nextOptions: RegisterManuscriptSt
 
   ipcMain.handle(MANUSCRIPT_STRUCTURE_CHANNELS.chooseMarkdown, async (event) => {
     requireWritingRole(event);
-    const harnessPath = getHarnessDialogPath('markdown');
+    const harnessPath = getHarnessDialogPath('markdown', app.isPackaged);
     if (harnessPath) return { canceled: false, filePath: harnessPath };
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],

@@ -333,3 +333,29 @@ compatibility defect: Windows PowerShell on this host does not implement
 `[System.IO.Path]::GetRelativePath`. The bounded compatibility helper is in
 `scripts/stage19-installed-lifecycle.ps1`, committed in `7208b8b8`, and the
 full lifecycle was rerun successfully afterward.
+
+### 2026-08-23 pre-human correction pass
+
+The clean `8e54788e` candidate audit identified bounded gaps that must close
+before a new exact candidate is offered for Human Gate 2: closing Structure
+did not cancel an unsaved staged order; a small set of Writing Studio labels
+fell below the scoped `0.8rem` text floor; packaged-state fencing for
+deterministic chooser paths was implicit; and renderer bridge plus post-Apply
+immutability evidence was incomplete. The current repair cancels hidden staged
+order on disclosure close, raises the scoped text floor, forces packaged
+native choosers, and adds controller, repository, IPC, layout/contrast, and
+Electron evidence for those boundaries. Focused verification is green at
+`7` files / `172` tests plus production build, typecheck, and the targeted
+Electron Structure journey. Full dirty regression, exact clean commit,
+clean regression, and exact package/install qualification remain the next
+mechanical gates; Human Gate 2/3 and human acceptance remain unclaimed.
+
+The complete dirty-candidate gate subsequently passed `49` critical files
+with `745` tests passed and `2` skipped, startup preflight `1/1`, and Electron
+`32/32`. One earlier run and its immediate isolated rerun exceeded the fixed
+100-Unit creation ceiling at `18.4s`; controlled prior/current comparisons
+ruled out the readability and Structure-close changes, and the successful full
+rerun measured `4.17s` creation and `156ms` selection. The signal remains a
+documented host/filesystem-contention reopening trigger; the ceiling was not
+raised and the failure was not waived. Clean commit/regression and exact
+package/install qualification are still required before Human Gate 2.

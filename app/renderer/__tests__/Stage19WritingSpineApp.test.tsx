@@ -27,6 +27,10 @@ import type {
   LivingOutlineSnapshotV1,
 } from '../../shared/ipc/livingOutline';
 import type {
+  ManuscriptStructureBridge,
+  ManuscriptStructureSnapshotV1,
+} from '../../shared/ipc/manuscriptStructure';
+import type {
   SplitCommandOwnershipBridge,
   SplitCommandSurfaceHostResult,
   SplitCommandSurfaceHostState,
@@ -164,6 +168,84 @@ function snapshot(
   };
 }
 
+function structureAnchor(start: number, end: number) {
+  return {
+    schemaVersion: 1 as const,
+    anchorKind: 'span' as const,
+    selectionStart: start,
+    selectionEnd: end,
+    selectionSearchFingerprint: '00000001',
+    sourceFingerprint: 'a'.repeat(64),
+    selectionFingerprint: 'b'.repeat(64),
+    prefixLength: 0,
+    prefixSearchFingerprint: '00000000',
+    prefixFingerprint: 'c'.repeat(64),
+    suffixLength: 0,
+    suffixSearchFingerprint: '00000000',
+    suffixFingerprint: 'd'.repeat(64),
+  };
+}
+
+function structureSnapshot(): ManuscriptStructureSnapshotV1 {
+  const sourceText = '# One\nFirst prose\n\n# Two\nSecond prose\n\n# Three\nThird prose';
+  const boundaries = [0, sourceText.indexOf('# Two'), sourceText.indexOf('# Three'), sourceText.length];
+  return {
+    availability: 'ready',
+    sourceStatus: 'current',
+    projectId: 'proj_a',
+    projectPath: 'C:\\projects\\a',
+    sourceText,
+    message: null,
+    document: {
+      schemaVersion: 'BlackSkiesManuscriptStructure v1',
+      projectId: 'proj_a',
+      revision: 7,
+      source: {
+        fileName: 'intake.md',
+        sourceFingerprint: 'a'.repeat(64),
+        normalizedLength: sourceText.length,
+        lineEnding: 'lf',
+      },
+      blocks: boundaries.slice(0, 3).map((start, index) => ({
+        id: `block-${index + 1}`,
+        kind: 'heading' as const,
+        label: ['One', 'Two', 'Three'][index]!,
+        order: index + 1,
+        anchor: structureAnchor(start, boundaries[index + 1]!),
+      })),
+      proposals: boundaries.slice(0, 3).map((start, index) => ({
+        id: `proposal-${index + 1}`,
+        label: ['One', 'Two', 'Three'][index]!,
+        state: index === 0 ? 'accepted' as const : 'proposed' as const,
+        provenance: 'heading' as const,
+        blockIds: [`block-${index + 1}`],
+        anchor: structureAnchor(start, boundaries[index + 1]!),
+        appliedUnitId: null,
+        createdAt: '2026-08-22T00:00:00.000Z',
+        updatedAt: '2026-08-22T00:00:00.000Z',
+      })),
+    },
+  };
+}
+
+function createManuscriptStructureBridge(value = structureSnapshot()): ManuscriptStructureBridge {
+  const result = () => Promise.resolve({ ok: true as const, data: value });
+  return {
+    chooseMarkdown: vi.fn(async () => ({ canceled: true })),
+    importMarkdown: vi.fn(result),
+    get: vi.fn(result),
+    discover: vi.fn(result),
+    setBoundary: vi.fn(result),
+    acceptProposal: vi.fn(result),
+    rejectProposal: vi.fn(result),
+    renameProposal: vi.fn(result),
+    splitGroup: vi.fn(result),
+    mergeGroups: vi.fn(result),
+    reorderGroups: vi.fn(result),
+    apply: vi.fn(result),
+  };
+}
+
 function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConfirmations?: boolean } = {}) {
   let current = initial;
   const listeners = new Set<(next: ProjectSpineSessionSnapshot) => void>();
@@ -248,6 +330,7 @@ function createBridge(initial: ProjectSpineSessionSnapshot, options: { closeConf
           renameUnit: vi.fn(async () => ok({})),
           reorderUnits: vi.fn(async () => ok({})),
           deleteUnit: vi.fn(async () => ok({})),
+          reloadActiveProject: vi.fn(async () => ok({ activation: 'reloaded' as const })),
           exportMarkdown: vi.fn(async (request: {
             projectId: string;
             generation: number;
@@ -3127,5 +3210,124 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('region', { name: 'Command Center' })).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
     expect(ai.bridge.credentialStatus).not.toHaveBeenCalled();
+  });
+
+  it('drives the Structure controller through discovery, mutations, staged ordering, Apply, and reload', async () => {
+    const project = createBridge(snapshot('writing'));
+    const structureBridge = createManuscriptStructureBridge();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={structureBridge}
+      />,
+    );
+
+    await openWritingRail('story tools');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    const proposals = await screen.findByRole('list', { name: 'Structure proposals' });
+    const rows = within(proposals).getAllByRole('listitem');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rediscover' }));
+    await waitFor(() => expect(structureBridge.discover).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a',
+      generation: 1,
+      expectedRevision: 7,
+    })));
+
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Accept' }));
+    await waitFor(() => expect(structureBridge.acceptProposal).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-2' })));
+    fireEvent.click(within(rows[2]!).getByRole('button', { name: 'Reject' }));
+    await waitFor(() => expect(structureBridge.rejectProposal).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-3' })));
+
+    const secondLabel = within(rows[1]!).getByRole('textbox', { name: 'Proposal name' });
+    fireEvent.change(secondLabel, { target: { value: 'Renamed Two' } });
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Save name' }));
+    await waitFor(() => expect(structureBridge.renameProposal).toHaveBeenCalledWith(expect.objectContaining({
+      proposalId: 'proposal-2',
+      label: 'Renamed Two',
+    })));
+
+    fireEvent.click(within(rows[1]!).getAllByRole('button', { name: 'Split at paragraph boundary' })[0]!);
+    await waitFor(() => expect(structureBridge.splitGroup).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-2' })));
+    fireEvent.click(within(rows[1]!).getByRole('checkbox', { name: 'Select' }));
+    fireEvent.click(within(rows[2]!).getByRole('checkbox', { name: 'Select' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Merge selected' }));
+    await waitFor(() => expect(structureBridge.mergeGroups).toHaveBeenCalledWith(expect.objectContaining({
+      proposalIds: ['proposal-2', 'proposal-3'],
+    })));
+
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Move up' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel order' }));
+    expect(structureBridge.reorderGroups).not.toHaveBeenCalled();
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Move up' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Save order' }));
+    await waitFor(() => expect(structureBridge.reorderGroups).toHaveBeenCalledWith(expect.objectContaining({
+      orderedProposalIds: ['proposal-2', 'proposal-1', 'proposal-3'],
+    })));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apply accepted structure to Units' }));
+    await waitFor(() => expect(structureBridge.apply).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(project.bridge.reloadActiveProject).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'proj_a',
+      generation: 1,
+    })));
+  });
+
+  it('imports Markdown through the Structure controller into a disposable project', async () => {
+    const project = createBridge(snapshot('writing'));
+    project.bridge.chooseDirectory = vi.fn(async () => ({ canceled: false, path: 'C:\\imports' }));
+    const imported = { ...structureSnapshot(), projectId: 'imported', projectPath: 'C:\\imports\\Imported Manuscript' };
+    const structureBridge = createManuscriptStructureBridge(imported);
+    structureBridge.chooseMarkdown = vi.fn(async () => ({ canceled: false, filePath: 'C:\\fixtures\\intake.md' }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={structureBridge}
+      />,
+    );
+
+    await openWritingRail('story tools');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Import Markdown' }));
+
+    await waitFor(() => expect(structureBridge.importMarkdown).toHaveBeenCalledWith(expect.objectContaining({
+      parentPath: 'C:\\imports',
+      filePath: 'C:\\fixtures\\intake.md',
+    })));
+    await waitFor(() => expect(project.bridge.openProject).toHaveBeenCalledWith(expect.objectContaining({
+      path: 'C:\\imports\\Imported Manuscript',
+      discardUnsaved: true,
+    })));
+  });
+
+  it('does not retry Apply when disk Apply succeeds but active-project reload fails', async () => {
+    const project = createBridge(snapshot('writing'));
+    project.bridge.reloadActiveProject = vi.fn(async () => ({
+      ok: false as const,
+      error: { code: 'PROJECT_INVALID' as const, message: 'Reload failed.' },
+      snapshot: project.current,
+    }));
+    const structureBridge = createManuscriptStructureBridge();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={structureBridge}
+      />,
+    );
+
+    await openWritingRail('story tools');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Apply accepted structure to Units' }));
+
+    expect(await screen.findByText(/Structure was applied to disk, but the active session could not reload/)).toBeVisible();
+    expect(screen.getByText(/Do not retry Apply/)).toBeVisible();
+    expect(structureBridge.apply).toHaveBeenCalledTimes(1);
+    expect(project.bridge.reloadActiveProject).toHaveBeenCalledTimes(1);
   });
 });

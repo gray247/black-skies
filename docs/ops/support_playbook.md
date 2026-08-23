@@ -104,6 +104,12 @@ journal is recovered before structure is shown. If recovery reports a blocking
 error, preserve the project directory and escalate with the journal and exact
 error code.
 
+Reordering proposals is staged until **Save order** is used. **Cancel order**
+or closing the Structure disclosure discards the staged order and restores the
+last durable sidecar order. Reopening Structure must not revive an unsaved
+arrangement. Packaged applications always use native Markdown and directory
+choosers; deterministic chooser paths are test-harness behavior only.
+
 ## Save failure
 
 If **Save failed** appears:

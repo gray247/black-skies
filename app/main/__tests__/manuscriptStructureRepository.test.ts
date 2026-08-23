@@ -33,6 +33,35 @@ async function captureProjectFiles(projectPath: string): Promise<Record<string, 
   return entries;
 }
 
+async function appliedProject(): Promise<{
+  projectPath: string;
+  repository: ManuscriptStructureRepository;
+  snapshot: Awaited<ReturnType<ManuscriptStructureRepository['apply']>>;
+  appliedProposalId: string;
+  unappliedProposalId: string;
+}> {
+  const projectPath = await temporaryProject();
+  await writeFile(join(projectPath, 'outline.json'), JSON.stringify(buildBlankOutline('project-a')));
+  const repository = new ManuscriptStructureRepository(projectPath, () => new Date('2026-08-22T00:00:00.000Z'));
+  let snapshot = await repository.importSource(
+    'project-a',
+    'source.md',
+    '# One\nFirst paragraph\n\n# Two\nSecond paragraph',
+  );
+  snapshot = await repository.discover('project-a', snapshot.document.revision);
+  const [first, second] = snapshot.document.proposals;
+  if (!first || !second) throw new Error('Expected two deterministic heading proposals.');
+  snapshot = await repository.setProposalState('project-a', snapshot.document.revision, first.id, 'accepted');
+  const applied = await repository.apply('project-a', snapshot.document.revision);
+  return {
+    projectPath,
+    repository,
+    snapshot: applied,
+    appliedProposalId: first.id,
+    unappliedProposalId: second.id,
+  };
+}
+
 describe('Manuscript Structure project-local repository', () => {
   afterEach(async () => {
     await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
@@ -186,5 +215,57 @@ describe('Manuscript Structure project-local repository', () => {
     const repeated = await new ManuscriptStructureRepository(projectPath).apply('project-a', reopened.document.revision);
     expect(repeated.document.revision).toBe(applied.document.revision);
     expect(JSON.parse(await readFile(join(projectPath, 'outline.json'), 'utf8')).scenes).toHaveLength(1);
+  });
+
+  it.each([
+    ['accept', async (repository: ManuscriptStructureRepository, revision: number, appliedId: string) => repository.setProposalState('project-a', revision, appliedId, 'accepted')],
+    ['reject', async (repository: ManuscriptStructureRepository, revision: number, appliedId: string) => repository.setProposalState('project-a', revision, appliedId, 'rejected')],
+    ['rename', async (repository: ManuscriptStructureRepository, revision: number, appliedId: string) => repository.renameProposal('project-a', revision, appliedId, 'Changed label')],
+    ['split', async (repository: ManuscriptStructureRepository, revision: number, appliedId: string, _otherId: string, snapshot: Awaited<ReturnType<ManuscriptStructureRepository['apply']>>) => {
+      const proposal = snapshot.document.proposals.find((candidate) => candidate.id === appliedId)!;
+      const boundary = snapshot.sourceText.indexOf('\n', proposal.anchor.selectionStart) + 1;
+      return repository.splitGroup('project-a', revision, appliedId, boundary);
+    }],
+    ['merge', async (repository: ManuscriptStructureRepository, revision: number, appliedId: string, otherId: string) => repository.mergeGroups('project-a', revision, [appliedId, otherId])],
+    ['reorder', async (repository: ManuscriptStructureRepository, revision: number, _appliedId: string, _otherId: string, snapshot: Awaited<ReturnType<ManuscriptStructureRepository['apply']>>) => repository.reorderGroups('project-a', revision, snapshot.document.proposals.map((proposal) => proposal.id).reverse())],
+  ] as const)('rejects %s of applied proposals without changing files or revision', async (_name, mutate) => {
+    const { projectPath, repository, snapshot, appliedProposalId, unappliedProposalId } = await appliedProject();
+    const before = await captureProjectFiles(projectPath);
+
+    await expect(mutate(repository, snapshot.document.revision, appliedProposalId, unappliedProposalId, snapshot))
+      .rejects.toMatchObject<ManuscriptStructureRepositoryError>({ code: 'APPLIED_PROPOSAL' });
+
+    expect(await captureProjectFiles(projectPath)).toEqual(before);
+    expect((await repository.read('project-a')).document.revision).toBe(snapshot.document.revision);
+  });
+
+  it('preserves an applied proposal byte-for-byte during unchanged-source rediscovery', async () => {
+    const { repository, snapshot, appliedProposalId } = await appliedProject();
+    const appliedProposal = snapshot.document.proposals.find((proposal) => proposal.id === appliedProposalId)!;
+
+    const rediscovered = await repository.discover('project-a', snapshot.document.revision);
+
+    expect(rediscovered.document.proposals.find((proposal) => proposal.id === appliedProposalId)).toEqual(appliedProposal);
+  });
+
+  it('persists only proposal-sidecar ordering and increments only its revision', async () => {
+    const projectPath = await temporaryProject();
+    await writeFile(join(projectPath, 'outline.json'), JSON.stringify(buildBlankOutline('project-a')));
+    const repository = new ManuscriptStructureRepository(projectPath);
+    let snapshot = await repository.importSource('project-a', 'source.md', '# One\nFirst\n\n# Two\nSecond');
+    snapshot = await repository.discover('project-a', snapshot.document.revision);
+    const before = await captureProjectFiles(projectPath);
+    const reversed = snapshot.document.proposals.map((proposal) => proposal.id).reverse();
+
+    const reordered = await repository.reorderGroups('project-a', snapshot.document.revision, reversed);
+    const after = await captureProjectFiles(projectPath);
+
+    expect(reordered.document.revision).toBe(snapshot.document.revision + 1);
+    expect(reordered.document.proposals.map((proposal) => proposal.id)).toEqual(reversed);
+    expect(after[MANUSCRIPT_INTAKE_FILENAME]).toBe(before[MANUSCRIPT_INTAKE_FILENAME]);
+    expect(after['outline.json']).toBe(before['outline.json']);
+    expect(Object.entries(after).filter(([name]) => name.startsWith('drafts/')))
+      .toEqual(Object.entries(before).filter(([name]) => name.startsWith('drafts/')));
+    expect(after[MANUSCRIPT_STRUCTURE_FILENAME]).not.toBe(before[MANUSCRIPT_STRUCTURE_FILENAME]);
   });
 });

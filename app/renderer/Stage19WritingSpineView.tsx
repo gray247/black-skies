@@ -814,7 +814,15 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
     return source.slice(excerptStart, excerptEnd);
   };
   return (
-    <details className="stage19-manuscript-structure" aria-label="Manuscript structure intake">
+    <details
+      className="stage19-manuscript-structure"
+      aria-label="Manuscript structure intake"
+      onToggle={(event) => {
+        if (!event.currentTarget.open && model.manuscriptStructureOrder) {
+          actions.cancelStructureOrder();
+        }
+      }}
+    >
       <summary><span>Structure</span>{structure ? <span className="stage19-manuscript-structure__summary">{acceptedCount} accepted / {proposals.length} proposals</span> : <span>Optional Markdown intake</span>}</summary>
       <div className="stage19-manuscript-structure__workspace">
         <div className="stage19-manuscript-structure__heading">

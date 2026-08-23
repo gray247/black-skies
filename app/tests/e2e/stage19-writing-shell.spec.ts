@@ -379,9 +379,18 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     await writing.getByRole('button', { name: 'Merge selected' }).click();
     await proposals.getByRole('button', { name: 'Accept' }).nth(1).click();
     await proposals.getByRole('button', { name: 'Reject' }).nth(2).click();
+    const structureDisclosure = writing.locator('details.stage19-manuscript-structure');
+    const persistedBeforeStaging = await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8');
     await proposals.getByRole('button', { name: 'Move up' }).nth(1).click();
     await expect(writing.getByRole('button', { name: 'Save order' })).toBeVisible();
+    await structureDisclosure.locator('summary').click();
+    await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
+    await structureDisclosure.locator('summary').click();
+    await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
+    expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
+    await proposals.getByRole('button', { name: 'Move up' }).nth(1).click();
     await writing.getByRole('button', { name: 'Cancel order' }).click();
+    expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
     await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
 
     const sourceOnDisk = await readFile(`${imported.projectPath}/manuscript-intake.md`, 'utf8');

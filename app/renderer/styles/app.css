@@ -7103,7 +7103,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-living-outline__rename button {
   min-height: 34px;
   padding: 4px 7px;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
 }
 
 .stage19-spine--writing .stage19-living-outline__advanced {
@@ -7130,7 +7130,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: grid;
   gap: 4px;
   color: var(--bs-text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
 }
 
 .stage19-living-outline__explanation {
@@ -7152,7 +7152,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-living-outline__move > span {
   flex: 1 1 100%;
   color: var(--bs-text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
 }
 
 .stage19-living-outline__move small {
@@ -7437,20 +7437,20 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-color: var(--bs-line-quiet);
   background: transparent;
   color: var(--bs-text-primary);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
 }
 
 .stage19-story-rail__add-menu p {
   grid-column: 1 / -1;
   margin: 0;
   color: var(--bs-text-secondary);
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   line-height: 1.4;
 }
 
 .stage19-story-rail__menu {
   color: var(--bs-text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
 }
 
 .stage19-story-rail__menu > summary {
@@ -7546,7 +7546,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-story-rail__dirty {
   color: var(--bs-text-secondary);
-  font-size: 0.62rem;
+  font-size: 0.8rem;
 }
 
 .stage19-story-rail__unit-rename {
@@ -7564,7 +7564,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-story-rail__unit-rename button {
   min-height: 34px;
   padding: 4px 6px;
-  font-size: 0.66rem;
+  font-size: 0.8rem;
 }
 
 .stage19-spine--writing .stage19-living-outline--nested {

@@ -138,6 +138,22 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(writingSlice).toContain('font-size: 0.8rem;');
     expect(writingSlice).not.toMatch(/\.stage19-spine--writing[\s\S]{0,240}color:\s*var\(--bs-text-muted\)/);
 
+    for (const selector of [
+      '.stage19-living-outline__rename button',
+      '.stage19-living-outline__advanced > label',
+      '.stage19-living-outline__relationship strong,',
+      '.stage19-story-rail__add-menu button',
+      '.stage19-story-rail__add-menu p',
+      '.stage19-story-rail__menu',
+      '.stage19-story-rail__dirty',
+      '.stage19-story-rail__unit-rename button',
+    ]) {
+      const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      expect(writingSlice, selector).toMatch(
+        new RegExp(`${escapedSelector}[\\s\\S]{0,180}?\\{[^}]*font-size:\\s*0\\.8rem;`),
+      );
+    }
+
     const luminance = (hex: string): number => {
       const channels = [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset + 1, offset + 3), 16) / 255);
       const linear = channels.map((channel) => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4));
@@ -148,16 +164,23 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
       const dark = Math.min(luminance(foreground), luminance(background));
       return (light + 0.05) / (dark + 0.05);
     };
-    for (const [canvas, secondary] of [['#000000', '#b9b2a6'], ['#fbf8f1', '#575149']] as const) {
-      const node = document.createElement('span');
-      node.style.color = secondary;
-      node.style.backgroundColor = canvas;
-      document.body.append(node);
-      const computed = getComputedStyle(node);
-      expect(computed.color).toBeTruthy();
-      expect(computed.backgroundColor).toBeTruthy();
-      expect(ratio(secondary, canvas)).toBeGreaterThanOrEqual(4.5);
-      node.remove();
+    for (const [secondary, backgrounds] of [
+      ['#b9b2a6', ['#000000', '#080807', '#11100e']],
+      ['#575149', ['#fbf8f1', '#f6f1e7', '#eee7dc']],
+    ] as const) {
+      for (const background of backgrounds) {
+        const node = document.createElement('span');
+        node.style.color = secondary;
+        node.style.backgroundColor = background;
+        node.style.fontSize = '0.8rem';
+        document.body.append(node);
+        const computed = getComputedStyle(node);
+        expect(computed.color).toBeTruthy();
+        expect(computed.backgroundColor).toBeTruthy();
+        expect(computed.fontSize).toBe('0.8rem');
+        expect(ratio(secondary, background)).toBeGreaterThanOrEqual(4.5);
+        node.remove();
+      }
     }
   });
 });
