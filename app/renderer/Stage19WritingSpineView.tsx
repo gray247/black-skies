@@ -598,26 +598,31 @@ function ProjectLifecycleView({ model, actions }: Stage19WritingSpineViewProps):
   return (
     <section className="stage19-spine__lifecycle" aria-label="Project lifecycle">
       <div className="stage19-writing-shell__project-tool-group" data-project-tool="open">
-        <div>
-          <strong>Open project</strong>
+        <div className="stage19-writing-shell__project-tool-copy">
+          <h3>Open existing project</h3>
           <p className="stage19-spine__lifecycle-help">Select a Black Skies folder containing <code>project.json</code>.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => void actions.openProject()}
-          disabled={!model.projectBridgeAvailable}
-          title={model.projectBridgeAvailable ? 'Choose an existing Black Skies project folder' : 'Project tools are unavailable in this window'}
-        >
-          Open project…
-        </button>
+        <div className="stage19-writing-shell__project-tool-controls">
+          <button
+            type="button"
+            onClick={() => void actions.openProject()}
+            disabled={!model.projectBridgeAvailable}
+            title={model.projectBridgeAvailable ? 'Choose an existing Black Skies project folder' : 'Project tools are unavailable in this window'}
+          >
+            Open project…
+          </button>
+        </div>
       </div>
       <div className="stage19-writing-shell__project-tool-group" data-project-tool="create">
-        <label>
-          <span>New project title</span>
-          <input value={model.projectTitle} onChange={(event) => actions.setProjectTitle(event.target.value)} />
-        </label>
-        <div>
+        <div className="stage19-writing-shell__project-tool-copy">
+          <h3>Create new project</h3>
           <p className="stage19-spine__lifecycle-help">Choose a parent folder; Black Skies creates the project folder inside it.</p>
+        </div>
+        <div className="stage19-writing-shell__project-tool-controls">
+          <label>
+            <span>Project title</span>
+            <input value={model.projectTitle} onChange={(event) => actions.setProjectTitle(event.target.value)} />
+          </label>
           <button
             type="button"
             onClick={() => void actions.createProject()}
@@ -1340,9 +1345,11 @@ const WRITING_RAIL_LABELS: Record<Stage19WritingRail, {
 
 function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
   if (model.focusMode) return null;
+  const availableRails = (Object.keys(WRITING_RAIL_LABELS) as Stage19WritingRail[])
+    .filter((rail) => model.snapshot.project !== null || rail !== 'bottom');
   return (
     <nav className="stage19-writing-shell__edge-controls" aria-label="Writing Studio edge controls">
-      {(Object.keys(WRITING_RAIL_LABELS) as Stage19WritingRail[]).map((rail) => {
+      {availableRails.map((rail) => {
         const label = WRITING_RAIL_LABELS[rail];
         const open = model.openWritingRail === rail;
         return (

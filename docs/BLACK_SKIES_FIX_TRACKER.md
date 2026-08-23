@@ -17,6 +17,31 @@ If an issue is not tracked here, it is not part of the active fix scope.
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
 
+## Program 5 final self-service closeout repair — 2026-08-23
+
+The author accepted the prior Writing Studio surfaces and identified one final
+opening-page composition weakness. Root cause was an asymmetric component
+contract: Open was one grouped action while title entry and Create were split
+across nested columns. The opening lifecycle now presents equal `Open existing
+project` and `Create new project` action cards with aligned headings and action
+baselines; the title field remains inside the Create card. The no-project
+Writing Session edge control is omitted because there is no current writing to
+summarize, removing its startup-page overlap without deleting or changing
+recent-project history.
+
+A deterministic substantial-manuscript journey now generates 120 ordered
+Markdown chapters and more than 300,000 characters, proving 120 unique stable
+anchors, 12-row pagination, exact source preservation,
+rename/accept/reject/Apply, and durable accepted/rejected/applied/current-source
+state across reopen. Focused renderer evidence passed `110/110`. The complete
+dirty command `pnpm stage19:regression -- --allow-dirty` returned
+`STAGE19_REGRESSION_PASS`: `49` critical files / `748` passed / `2` skipped,
+startup preflight `1/1`, and Electron `34/34`; the 100-Unit result was `3.954s`
+creation / `82ms` selection. Classification: implemented and mechanically
+tested dirty evidence. Clean commit/regression, exact package/install
+qualification, authority reconciliation, push, and final author acceptance
+remain open.
+
 ## Post-V1 Human Gate 2 Experience Repair — 2026-08-13
 
 ### `HG2-RPR-01` — Continuous Manuscript, Unified Story Rail, Focus, and Companion

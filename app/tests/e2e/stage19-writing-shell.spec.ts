@@ -71,6 +71,10 @@ test('P5-UX-01 keeps no-project startup tools composed and unavailable controls 
         left.left < right.right - 1 && left.right > right.left + 1 &&
         left.top < right.bottom - 1 && left.bottom > right.top + 1;
       const groupRects = groups.map((group) => group.getBoundingClientRect());
+      const actionBottoms = groups.map((group) =>
+        group.querySelector('button')?.getBoundingClientRect().bottom ?? null);
+      const headingTops = groups.map((group) =>
+        group.querySelector('h3')?.getBoundingClientRect().top ?? null);
       const groupOverlap = groupRects.some((rect, index) =>
         groupRects.slice(index + 1).some((candidate) => overlaps(rect, candidate)));
       const overlapPairs = groups.flatMap((group) => {
@@ -87,6 +91,12 @@ test('P5-UX-01 keeps no-project startup tools composed and unavailable controls 
       return {
         groupCount: groups.length,
         groupOverlap,
+        aligned: window.innerWidth < 1400 || (
+          Math.max(...groupRects.map((rect) => rect.top)) - Math.min(...groupRects.map((rect) => rect.top)) <= 1 &&
+          Math.max(...groupRects.map((rect) => rect.bottom)) - Math.min(...groupRects.map((rect) => rect.bottom)) <= 1 &&
+          Math.max(...headingTops.filter((value): value is number => value !== null)) - Math.min(...headingTops.filter((value): value is number => value !== null)) <= 1 &&
+          Math.max(...actionBottoms.filter((value): value is number => value !== null)) - Math.min(...actionBottoms.filter((value): value is number => value !== null)) <= 1
+        ),
         overlapPairs,
         overflow: groups.some((group) =>
           group.scrollWidth > group.clientWidth + 1 || group.scrollHeight > group.clientHeight + 1),
@@ -95,10 +105,13 @@ test('P5-UX-01 keeps no-project startup tools composed and unavailable controls 
     expect(composition).toEqual({
       groupCount: 2,
       groupOverlap: false,
+      aligned: true,
       overlapPairs: [],
       overflow: false,
     });
   }
+
+  await expect(writing.getByRole('button', { name: 'Open Writing Session' })).toHaveCount(0);
 
   const askButton = writing.getByRole('button', { name: 'Ask' });
   await expect(askButton).toBeDisabled();
@@ -655,6 +668,130 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     expect(reopened.result.snapshot.project?.path).toBe(imported.projectPath);
     expect(reopened.result.snapshot.generation).toBeGreaterThan(reopened.generation);
     expect(imported.projectPath).not.toBe(parent);
+  } finally {
+    await removeTemporaryDirectory(parent);
+  }
+});
+
+test('Program 5 keeps a substantial Markdown intake bounded, exact, and durable across reopen', async ({
+  electronApp,
+  page,
+}) => {
+  test.setTimeout(90_000);
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-program5-substantial-'));
+  const sourcePath = join(parent, 'substantial-manuscript.md');
+  const destinationPath = join(parent, 'destination');
+  const paragraph = Array.from({ length: 8 }, (_, sentenceIndex) =>
+    `Sentence ${sentenceIndex + 1} keeps this deterministic chapter substantial while preserving exact source order, punctuation, and stable anchor evidence.`,
+  ).join(' ');
+  const source = Array.from({ length: 120 }, (_, chapterIndex) => {
+    const chapter = String(chapterIndex + 1).padStart(3, '0');
+    return `# Chapter ${chapter}\n\n${Array.from({ length: 4 }, (_, paragraphIndex) =>
+      `Chapter ${chapter}, paragraph ${paragraphIndex + 1}. ${paragraph}`,
+    ).join('\n\n')}\n`;
+  }).join('\n');
+  expect(source.length).toBeGreaterThan(300_000);
+  await writeFile(sourcePath, source, 'utf8');
+  await mkdir(destinationPath);
+
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    await writing.evaluate(async (parentPath) => {
+      const created = await window.projectSpine!.createProject({
+        parentPath,
+        title: 'Program 5 Substantial Structure Host',
+        operationId: 'program5-substantial-host',
+      });
+      if (!created.ok) throw new Error(created.error.message);
+    }, parent);
+    await writing.keyboard.press('Control+s');
+    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await electronApp.evaluate(({}, paths) => {
+      process.env.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH = paths.filePath;
+      process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;
+    }, { parentPath: destinationPath, filePath: sourcePath });
+
+    await openWritingStudioRail(writing, 'Story');
+    await writing.locator('details.stage19-manuscript-structure').evaluate((element) => {
+      (element as HTMLDetailsElement).open = true;
+    });
+    await writing.getByRole('button', { name: 'Import Markdown' }).click();
+    await expect.poll(async () => (await readdir(destinationPath)).filter((entry) => entry.startsWith('proj_substantial-manuscript_')).length).toBe(1);
+    const importedDirectory = (await readdir(destinationPath)).find((entry) => entry.startsWith('proj_substantial-manuscript_'))!;
+    const projectPath = join(destinationPath, importedDirectory);
+    await writing.getByRole('button', { name: 'Rediscover' }).click();
+
+    await expect.poll(async () => {
+      const persisted = JSON.parse(await readFile(join(projectPath, 'manuscript-structure.json'), 'utf8')) as { proposals: unknown[] };
+      return persisted.proposals.length;
+    }).toBe(120);
+    const proposals = writing.getByRole('list', { name: 'Structure proposals' });
+    await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(12);
+    await expect(writing.getByRole('navigation', { name: 'Structure pages' })).toContainText('Page 1 of 10');
+    const renderedProposalTextLength = await proposals.evaluate((element) => element.textContent?.length ?? 0);
+    expect(renderedProposalTextLength).toBeLessThan(80_000);
+    expect(renderedProposalTextLength).toBeLessThan(source.length / 5);
+
+    const firstLabel = proposals.locator('[data-proposal-label]').first();
+    await firstLabel.fill('Qualified opening');
+    await proposals.getByRole('button', { name: 'Save name' }).first().click();
+    await proposals.getByRole('button', { name: 'Accept' }).first().click();
+    await proposals.getByRole('button', { name: 'Reject' }).nth(1).click();
+    await writing.getByRole('button', { name: 'Next' }).click();
+    await expect(writing.getByRole('navigation', { name: 'Structure pages' })).toContainText('Page 2 of 10');
+    await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(12);
+    await writing.getByRole('button', { name: 'Previous' }).click();
+    await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
+
+    await expect.poll(async () => {
+      const persisted = JSON.parse(await readFile(join(projectPath, 'manuscript-structure.json'), 'utf8')) as { proposals: Array<{ appliedUnitId: string | null }> };
+      return persisted.proposals.filter((proposal) => proposal.appliedUnitId).length;
+    }).toBe(1);
+    expect(await readFile(join(projectPath, 'manuscript-intake.md'), 'utf8')).toBe(source);
+
+    const reopened = await writing.evaluate(async (path) => {
+      const opened = await window.projectSpine!.openProject({
+        path,
+        operationId: 'program5-substantial-reopen',
+      });
+      if (!opened.ok) throw new Error(opened.error.message);
+      const reloaded = await window.projectSpine!.reloadActiveProject!({
+        projectId: opened.snapshot.project!.projectId,
+        projectPath: path,
+        generation: opened.snapshot.generation,
+        operationId: 'program5-substantial-reload',
+      });
+      if (!reloaded.ok) throw new Error(reloaded.error.message);
+      const structure = await window.manuscriptStructure!.get({
+        projectId: reloaded.snapshot.project!.projectId,
+        projectPath: path,
+        generation: reloaded.snapshot.generation,
+        operationId: 'program5-substantial-structure-get',
+      });
+      if (!structure.ok || structure.data.availability !== 'ready') {
+        throw new Error(structure.ok ? 'Structure was not ready after reopen' : structure.error.message);
+      }
+      return {
+        proposalCount: structure.data.document.proposals.length,
+        accepted: structure.data.document.proposals.filter((proposal) => proposal.state === 'accepted').length,
+        rejected: structure.data.document.proposals.filter((proposal) => proposal.state === 'rejected').length,
+        applied: structure.data.document.proposals.filter((proposal) => proposal.appliedUnitId).length,
+        qualifiedOpeningApplied: structure.data.document.proposals.some((proposal) =>
+          proposal.label === 'Qualified opening' && proposal.state === 'accepted' && Boolean(proposal.appliedUnitId)),
+        uniqueAnchors: new Set(structure.data.document.proposals.map((proposal) =>
+          `${proposal.anchor.selectionStart}:${proposal.anchor.selectionEnd}:${proposal.anchor.selectionFingerprint}`)).size,
+        sourceStatus: structure.data.sourceStatus,
+      };
+    }, projectPath);
+    expect(reopened).toEqual({
+      proposalCount: 120,
+      accepted: 1,
+      rejected: 1,
+      applied: 1,
+      qualifiedOpeningApplied: true,
+      uniqueAnchors: 120,
+      sourceStatus: 'current',
+    });
   } finally {
     await removeTemporaryDirectory(parent);
   }

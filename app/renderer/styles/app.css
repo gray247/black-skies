@@ -6160,7 +6160,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-spine--writing .stage19-spine__welcome-grid {
   grid-template-columns: minmax(0, 1fr);
   width: min(100%, 72rem);
-  padding: clamp(32px, 8vw, 96px) clamp(24px, 7vw, 80px);
+  padding: clamp(32px, 8vw, 96px) clamp(24px, 7vw, 80px) max(128px, 14vh);
 }
 
 .stage19-spine--writing .stage19-spine__empty-state,
@@ -7326,20 +7326,40 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-writing-shell__project-tool-group {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  grid-template-rows: auto 1fr;
+  align-items: start;
   gap: 10px 14px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--bs-line-quiet);
+  padding: 12px;
+  border: 1px solid var(--bs-line-quiet);
+  border-radius: 4px;
 }
 
-.stage19-spine--writing .stage19-writing-shell__project-tool-group > div,
-.stage19-spine--writing .stage19-writing-shell__project-tool-group > label {
+.stage19-spine--writing .stage19-writing-shell__project-tool-copy,
+.stage19-spine--writing .stage19-writing-shell__project-tool-controls,
+.stage19-spine--writing .stage19-writing-shell__project-tool-controls > label {
   min-width: 0;
 }
 
-.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] {
-  grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1fr);
+.stage19-spine--writing .stage19-writing-shell__project-tool-copy {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  align-self: end;
+  gap: 10px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="open"] .stage19-writing-shell__project-tool-controls {
+  grid-template-columns: auto;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="open"] button {
+  justify-self: start;
 }
 
 .stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] input {
@@ -7347,21 +7367,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-width: 0;
 }
 
-.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] > div {
-  display: grid;
-  gap: 6px;
-}
-
-.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] button {
-  justify-self: start;
-}
-
-.stage19-spine--writing .stage19-writing-shell__project-tool-group:last-child {
-  border-bottom: 0;
-}
-
-.stage19-spine--writing .stage19-writing-shell__project-tool-group strong,
+.stage19-spine--writing .stage19-writing-shell__project-tool-group h3,
 .stage19-spine--writing .stage19-writing-shell__project-tool-group label > span {
+  margin: 0;
   color: var(--stage19-semantic-text);
   font-size: 0.82rem;
   font-weight: 650;
@@ -7473,6 +7481,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
   .stage19-spine--writing .stage19-writing-shell__session-summary,
   .stage19-spine--writing .stage19-writing-shell__project-tool-group,
+  .stage19-spine--writing .stage19-writing-shell__project-tool-controls,
   .stage19-spine--writing .stage19-writing-shell__project-tools {
     grid-template-columns: minmax(0, 1fr);
   }

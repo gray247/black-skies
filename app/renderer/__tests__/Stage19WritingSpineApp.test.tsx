@@ -1652,6 +1652,10 @@ describe('Stage19WritingSpineApp', () => {
       'title',
       'Open a project before asking Companion',
     );
+    expect(screen.getByRole('heading', { name: 'Open existing project' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Create new project' })).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Project title' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Open Writing Session' })).not.toBeInTheDocument();
   });
 
   it('keeps a directly writable manuscript at the center while every support family starts closed', async () => {
