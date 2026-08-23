@@ -602,7 +602,14 @@ function ProjectLifecycleView({ model, actions }: Stage19WritingSpineViewProps):
           <strong>Open project</strong>
           <p className="stage19-spine__lifecycle-help">Select a Black Skies folder containing <code>project.json</code>.</p>
         </div>
-        <button type="button" onClick={() => void actions.openProject()} disabled={!model.projectBridgeAvailable}>Open project…</button>
+        <button
+          type="button"
+          onClick={() => void actions.openProject()}
+          disabled={!model.projectBridgeAvailable}
+          title={model.projectBridgeAvailable ? 'Choose an existing Black Skies project folder' : 'Project tools are unavailable in this window'}
+        >
+          Open project…
+        </button>
       </div>
       <div className="stage19-writing-shell__project-tool-group" data-project-tool="create">
         <label>
@@ -611,7 +618,14 @@ function ProjectLifecycleView({ model, actions }: Stage19WritingSpineViewProps):
         </label>
         <div>
           <p className="stage19-spine__lifecycle-help">Choose a parent folder; Black Skies creates the project folder inside it.</p>
-          <button type="button" onClick={() => void actions.createProject()} disabled={!model.projectBridgeAvailable}>Create project…</button>
+          <button
+            type="button"
+            onClick={() => void actions.createProject()}
+            disabled={!model.projectBridgeAvailable}
+            title={model.projectBridgeAvailable ? 'Choose a parent folder and create this project' : 'Project tools are unavailable in this window'}
+          >
+            Create project…
+          </button>
         </div>
       </div>
     </section>
@@ -1137,14 +1151,39 @@ function SelectedProseCritiqueView({ model, actions }: Stage19WritingSpineViewPr
               <span>OpenAI API key (session only; no readback)</span>
               <input type="password" autoComplete="off" value={model.aiCredential} onChange={(event) => actions.setAiCredential(event.target.value)} />
             </label>
-            <button type="button" onClick={() => void actions.configureAiCredential()} disabled={!model.aiCredential}>Set session key</button>
-            <button type="button" onClick={() => void actions.clearAiCredential()} disabled={!model.aiCredentialConfigured}>Clear key</button>
+            <button
+              type="button"
+              onClick={() => void actions.configureAiCredential()}
+              disabled={!model.aiCredential}
+              title={model.aiCredential ? 'Use this API key for the current session only' : 'Enter a session API key first'}
+            >
+              Set session key
+            </button>
+            <button
+              type="button"
+              onClick={() => void actions.clearAiCredential()}
+              disabled={!model.aiCredentialConfigured}
+              title={model.aiCredentialConfigured ? 'Remove the current session API key' : 'No session credential to clear'}
+            >
+              Clear key
+            </button>
           </div>
           <div className="stage19-ai__selection">
             <p>{model.aiSelection?.selectedText
               ? `${selectedCharacters.toLocaleString()} non-whitespace characters selected`
               : 'Select 200–12,000 non-whitespace characters in the manuscript editor.'}</p>
-            <button type="button" onClick={() => void actions.prepareAiCritique()} disabled={!model.aiSelection || !selectionIsValid || model.aiState?.status === 'executing'}>
+            <button
+              type="button"
+              onClick={() => void actions.prepareAiCritique()}
+              disabled={!model.aiSelection || !selectionIsValid || model.aiState?.status === 'executing'}
+              title={!model.aiSelection
+                ? 'Select 200–12,000 non-whitespace characters first'
+                : !selectionIsValid
+                  ? 'The selected passage must contain 200–12,000 non-whitespace characters'
+                  : model.aiState?.status === 'executing'
+                    ? 'The current critique request is still running'
+                    : 'Review the exact text and cost before sending'}
+            >
               Review outbound critique request
             </button>
           </div>
@@ -1439,9 +1478,20 @@ function CompanionBarView({ model, actions }: Stage19WritingSpineViewProps): JSX
         onChange={(event) => actions.setCompanionPrompt(event.target.value)}
         placeholder="Ask where you are in this project"
         disabled={!snapshot.project}
+        title={snapshot.project ? 'Ask for local orientation within this project' : 'Open a project before asking Companion'}
         maxLength={500}
       />
-      <button type="submit" disabled={!snapshot.project || !model.companionPrompt.trim()}>Ask</button>
+      <button
+        type="submit"
+        disabled={!snapshot.project || !model.companionPrompt.trim()}
+        title={!snapshot.project
+          ? 'Open a project before asking Companion'
+          : model.companionPrompt.trim()
+            ? 'Ask Companion using local project facts only'
+            : 'Enter a question first'}
+      >
+        Ask
+      </button>
       <span className="stage19-companion-bar__scope">
         {snapshot.project
           ? `Local project and current writing only${activeUnit ? `: ${activeUnit.displayTitle}` : ''}. No AI.`

@@ -244,14 +244,17 @@ regression, exact package/install evidence, and separate human review.
 
 ## Rail-and-controls replacement candidate — 2026-08-23
 
-The bounded rail-and-controls repair was committed as one focused conventional
-candidate after the dirty evidence passed. The clean Stage 19 regression passed
+The bounded rail-and-controls repair was committed and pushed as focused
+candidate `b47caa3e2ee4fa6d9a855a69c9364527fbb7aa38` after the dirty evidence passed.
+The clean Stage 19 regression passed
 `49` critical files with `747` tests passed and `2` skipped, startup preflight
 `1/1`, and Electron `32/32`; no viewport-stabilization warning recurred.
 
 The replacement Windows installer was rebuilt and verified against that exact
-candidate. The package receipt records the exact candidate binding, installer
-fingerprint, zero unpacked forbidden paths, and `NotSigned` signature truth
+candidate. Its SHA-256 was
+`e65e851b62f55dfd2e61db97d7aaae27c57f35a0c2da6cb6a9f61868098eb140`.
+The package receipt records the exact candidate binding, zero unpacked
+forbidden paths, and `NotSigned` signature truth
 under the private unsigned-internal-RC policy.
 
 The explicit application-only lifecycle passed packaged startup, optional
@@ -261,4 +264,40 @@ and same-installer reinstall. The elevated firewall-isolated lane was not run
 because this session is not elevated; no firewall rule was created. This is
 application-only installed evidence, not exact-installed qualification.
 
-Human Gate 2/3 acceptance, Program 5 closure, and push remain unclaimed.
+Human Gate 2/3 acceptance and Program 5 closure remain unclaimed.
+
+## No-project startup composition follow-up — 2026-08-23
+
+The author review of installed candidate `b47caa3e` found one blocking startup
+composition defect and one misleading disabled-state presentation. The
+no-project lifecycle parent still used the pre-grouping five-column template
+after Open and Create had become two grouped tool blocks. That mismatch
+squeezed the Create title, helper, input, and button into intersecting columns
+even at the photographed desktop width. The non-color disabled treatment also
+explicitly applied `line-through`, making unavailable actions appear deleted.
+The no-project save summary still said `All changes saved`, and recent-project
+paths inherited an old low-contrast color outside the scoped semantic repair.
+
+The bounded repair changes the lifecycle parent to two auto-fitting grouped
+columns with a one-column compact fallback, constrains the Create input and
+helper block inside their group, removes strikethrough while retaining dashed
+disabled borders and a not-allowed cursor, adds reason-specific action
+tooltips, reports `No project open`, and maps recent paths to the scoped
+semantic text colors. It does not change project persistence, provider access,
+firewall behavior, manuscript authority, or deferred Program 5 capability.
+
+A new built-Electron journey now opens the empty Story rail over the no-project
+startup and checks the photographed `1900x1000` viewport plus a compact
+`1000x800` viewport. It rejects overlapping lifecycle groups, helper text,
+inputs, or buttons; group overflow; crossed-out disabled text; and missing
+unavailable-state explanation. Focused renderer evidence passed `110/110` and
+the complete Writing Studio Electron file passed `6/6`. The exact dirty command
+`node .\\scripts\\stage19-regression.mjs --allow-dirty` passed `49` critical
+files with `748` tests passed and `2` skipped, startup preflight `1/1`, and the
+expanded Electron matrix `33/33`; no viewport-stabilization warning recurred.
+
+This section is implemented and mechanically tested dirty evidence only. The
+`b47caa3e` installer is superseded for Human Gate purposes. A clean commit,
+clean regression, replacement package/install evidence, push, and the resumed
+author review remain required; Human Gate 2/3 and Program 5 closure remain
+unclaimed.

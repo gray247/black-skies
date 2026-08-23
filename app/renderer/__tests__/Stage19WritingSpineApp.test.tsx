@@ -1622,6 +1622,38 @@ describe('Stage19WritingSpineApp', () => {
     );
   });
 
+  it('labels the no-project Writing Studio without a saved claim and explains unavailable actions', async () => {
+    const current = snapshot('writing');
+    const noProject: ProjectSpineSessionSnapshot = {
+      ...current,
+      project: null,
+      activeUnitId: null,
+      dirtyUnitIds: [],
+      saveState: { status: 'clean', unitId: null, message: null },
+      recentProjects: [{
+        title: 'Recent manuscript',
+        path: 'C:\\projects\\recent',
+        lastOpened: Date.parse('2026-08-23T20:00:00.000Z'),
+        stale: false,
+      }],
+    };
+    const harness = createBridge(noProject);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+
+    expect(await screen.findByRole('heading', { name: 'No active project' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('No project open');
+    expect(screen.queryByText('All changes saved')).not.toBeInTheDocument();
+    expect(screen.getByText('C:\\projects\\recent')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveAttribute(
+      'title',
+      'Open a project before asking Companion',
+    );
+    expect(screen.getByRole('button', { name: 'Ask' })).toHaveAttribute(
+      'title',
+      'Open a project before asking Companion',
+    );
+  });
+
   it('keeps a directly writable manuscript at the center while every support family starts closed', async () => {
     const harness = createBridge(snapshot('writing'));
     render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);

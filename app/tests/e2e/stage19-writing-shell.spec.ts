@@ -44,6 +44,80 @@ test('P3-D starts in dark appearance even when a prior preference exists', async
   await expect(page.getByRole('region', { name: 'Writing Studio' })).toHaveAttribute('data-stage19-theme', 'dark');
 });
 
+test('P5-UX-01 keeps no-project startup tools composed and unavailable controls readable', async ({
+  electronApp,
+  page,
+}) => {
+  const { writing } = await getStage19Windows(electronApp, page);
+  const studio = writing.getByRole('region', { name: 'Writing Studio' });
+  await writing.setViewportSize({ width: 1900, height: 1000 });
+  const themeSwitch = writing.getByRole('switch', { name: 'Light theme' });
+  if (await themeSwitch.getAttribute('aria-checked') !== 'true') await themeSwitch.click();
+  await expect(studio).toHaveAttribute('data-stage19-theme', 'light');
+  await openWritingStudioRail(writing, 'Story');
+  await expect(writing.getByRole('heading', { name: 'No active project' })).toBeVisible();
+  await expect(writing.getByRole('status')).toContainText('No project open');
+
+  for (const viewport of [
+    { width: 1900, height: 1000 },
+    { width: 1000, height: 800 },
+  ]) {
+    await writing.setViewportSize(viewport);
+    const composition = await writing.evaluate(() => {
+      const lifecycle = document.querySelector('.stage19-spine__welcome-grid .stage19-spine__lifecycle');
+      if (!(lifecycle instanceof HTMLElement)) throw new Error('No-project lifecycle controls are unavailable');
+      const groups = Array.from(lifecycle.querySelectorAll<HTMLElement>('[data-project-tool]'));
+      const overlaps = (left: DOMRect, right: DOMRect): boolean =>
+        left.left < right.right - 1 && left.right > right.left + 1 &&
+        left.top < right.bottom - 1 && left.bottom > right.top + 1;
+      const groupRects = groups.map((group) => group.getBoundingClientRect());
+      const groupOverlap = groupRects.some((rect, index) =>
+        groupRects.slice(index + 1).some((candidate) => overlaps(rect, candidate)));
+      const overlapPairs = groups.flatMap((group) => {
+        const content = Array.from(group.querySelectorAll<HTMLElement>(
+          'button, input, .stage19-spine__lifecycle-help',
+        )).filter((element) => element.getClientRects().length > 0);
+        const rects = content.map((element) => element.getBoundingClientRect());
+        return rects.flatMap((rect, index) =>
+          rects.slice(index + 1).flatMap((candidate, candidateIndex) =>
+            overlaps(rect, candidate)
+              ? [`${content[index]?.tagName}:${content[index]?.textContent?.trim() ?? ''} / ${content[index + candidateIndex + 1]?.tagName}:${content[index + candidateIndex + 1]?.textContent?.trim() ?? ''}`]
+              : []));
+      });
+      return {
+        groupCount: groups.length,
+        groupOverlap,
+        overlapPairs,
+        overflow: groups.some((group) =>
+          group.scrollWidth > group.clientWidth + 1 || group.scrollHeight > group.clientHeight + 1),
+      };
+    });
+    expect(composition).toEqual({
+      groupCount: 2,
+      groupOverlap: false,
+      overlapPairs: [],
+      overflow: false,
+    });
+  }
+
+  const askButton = writing.getByRole('button', { name: 'Ask' });
+  await expect(askButton).toBeDisabled();
+  expect(await askButton.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      borderStyle: style.borderStyle,
+      cursor: style.cursor,
+      textDecorationLine: style.textDecorationLine,
+      title: element.title,
+    };
+  })).toEqual({
+    borderStyle: 'dashed',
+    cursor: 'not-allowed',
+    textDecorationLine: 'none',
+    title: 'Open a project before asking Companion',
+  });
+});
+
 test('P3-D keeps the literary manuscript primary while edge families and Focus remain reversible', async ({
   electronApp,
   page,

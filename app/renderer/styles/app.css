@@ -5738,8 +5738,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-spine__lifecycle {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) auto minmax(14rem, 1fr) minmax(12rem, 1fr) auto;
-  align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  align-items: stretch;
+  gap: 12px;
   max-width: none;
   margin: 0;
   padding: 0;
@@ -6170,6 +6171,30 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   box-shadow: none;
 }
 
+.stage19-spine--writing .stage19-spine__recent-list button {
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-spine__recent-list button strong {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-spine__recent-list button span {
+  overflow-wrap: anywhere;
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.stage19-spine--writing .stage19-spine__recent-list button:hover span,
+.stage19-spine--writing .stage19-spine__recent-list button:focus-visible span {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-spine__recent-list li > button:last-child {
+  align-self: stretch;
+}
+
 .stage19-spine--writing.is-focus-mode .stage19-writing-shell__topbar {
   min-height: 42px;
   padding: 6px 28px;
@@ -6223,7 +6248,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 
   .stage19-spine--writing .stage19-spine__lifecycle {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .stage19-spine--writing .stage19-spine__lifecycle-help {
@@ -7308,6 +7333,29 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-bottom: 1px solid var(--bs-line-quiet);
 }
 
+.stage19-spine--writing .stage19-writing-shell__project-tool-group > div,
+.stage19-spine--writing .stage19-writing-shell__project-tool-group > label {
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] {
+  grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1fr);
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] input {
+  width: 100%;
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] > div {
+  display: grid;
+  gap: 6px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group[data-project-tool="create"] button {
+  justify-self: start;
+}
+
 .stage19-spine--writing .stage19-writing-shell__project-tool-group:last-child {
   border-bottom: 0;
 }
@@ -7408,8 +7456,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-style: dashed;
   background: color-mix(in srgb, var(--bs-surface-hover) 70%, var(--bs-surface-base));
   color: var(--stage19-semantic-disabled);
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
+  cursor: not-allowed;
+  opacity: 1;
+  text-decoration: none;
 }
 
 @media (max-width: 900px), (min-resolution: 1.5dppx) and (max-height: 1000px) {

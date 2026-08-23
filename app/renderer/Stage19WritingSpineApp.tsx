@@ -166,7 +166,7 @@ function saveStatusLabel(snapshot: ProjectSpineSessionSnapshot): string {
     case 'save-failed':
       return `Save failed${snapshot.saveState.message ? `: ${snapshot.saveState.message}` : ''}`;
     default:
-      return snapshot.project ? 'Saved durably' : 'All changes saved';
+      return snapshot.project ? 'Saved durably' : 'No project open';
   }
 }
 
