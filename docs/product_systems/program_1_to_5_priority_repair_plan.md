@@ -359,3 +359,14 @@ rerun measured `4.17s` creation and `156ms` selection. The signal remains a
 documented host/filesystem-contention reopening trigger; the ceiling was not
 raised and the failure was not waived. Clean commit/regression and exact
 package/install qualification are still required before Human Gate 2.
+
+The product boundary is now committed at `13da251c`. Its clean regression
+passed `49` files / `745` passed / `2` skipped, startup preflight `1/1`, and
+Electron `32/32`. The exact rebuilt installer SHA-256 is
+`09a41ef179b9d42a32ee42fb2cc0aa3cfe91bae838c2206145d0d30ca056aa69`;
+the receipt matches the product commit, unpacked forbidden paths are zero, and
+the application-only install/smoke/uninstall/reinstall lifecycle passed. The
+candidate is ready for hands-on product review. Exact firewall isolation is
+still `exact-blocked-external` on the non-elevated session, so formal Human
+Gate 2 acceptance remains blocked until that witness and the author review
+both pass.

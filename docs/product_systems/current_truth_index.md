@@ -116,21 +116,25 @@ It does not finalize the entire product vision.
   100-unit performance boundary. The bridge is durable at `d292e236` and does
   not claim full long-manuscript intake/discovery or Human Gate 3. The
   mechanical bridge is durable. The subsequent `P5-UX-01` repair candidate at
-  `e3b6ea95` is mechanically tested and package-qualified, with application-only
+  `13da251c` is mechanically tested and package-qualified, with application-only
   installed evidence bound to installer SHA
-  `88bed96614a1ff674593749c71505f5ea943c3a55ca4ec1d94b28de0ad08c866`. It is
+  `09a41ef179b9d42a32ee42fb2cc0aa3cfe91bae838c2206145d0d30ca056aa69`. It is
   green in focused renderer/Electron/regression evidence for canvas-owned
   scrolling, stable independent rails, Writing Session/Companion separation,
   Unit-as-spine and quiet Note hierarchy, transactional chooser cancellation,
   Note title/body editing, reliable navigation/rename, reserved top geometry,
-  summonable help, and readable preview-only comparison. The canonical
+  summonable help, readable preview-only comparison, discard-on-close staged
+  Structure order, packaged native chooser fencing, and post-Apply immutability.
+  The canonical
   development launcher now also has focused port-health evidence: it reuses a
   healthy Black Skies renderer, reports an occupied port owner/PID, and never
   kills a renderer it did not create. Exact Windows package/install
-  qualification is not yet complete: the application-only lifecycle passed,
+  qualification is not yet exact: the application-only lifecycle passed,
   but the host is non-elevated and the exact firewall state is
   `exact-blocked-external`. The elevated firewall-isolated lifecycle witness and
-  one complete Human Gate 2 review remain open; do not infer
+  one complete Human Gate 2 review remain open. The installed candidate is
+  ready for hands-on product review, but formal gate acceptance remains blocked
+  until both obligations pass; do not infer
   Program 5 completion or Human Gate 3 readiness from the automated candidate.
   The next
   [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)

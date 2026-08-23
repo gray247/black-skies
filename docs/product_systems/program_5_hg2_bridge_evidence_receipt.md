@@ -182,6 +182,30 @@ stabilize` warnings in the P3-D journey. They are recorded as a harness/viewport
 signal, not as a P5 product failure, unless a reproducible user-facing failure
 is found.
 
+## Pre-human exact candidate follow-up — 2026-08-23
+
+The corrected closeout product commit is
+`13da251c516bbed67a1373499c7a81c8e72b9eb3`. Its clean Stage 19 regression
+passed `49` critical files with `745` tests passed and `2` skipped, startup
+preflight `1/1`, and Electron `32/32`. The clean 100-Unit journey measured
+`3.67s` creation and `65ms` Unit selection, and no viewport warning recurred.
+
+The exact NSIS installer is `BlackSkies-Setup-1.0.0-rc1.exe`, SHA-256
+`09a41ef179b9d42a32ee42fb2cc0aa3cfe91bae838c2206145d0d30ca056aa69`.
+The package receipt matches the commit and hash, the unpacked forbidden-path
+count is zero, and signature truth is `NotSigned` under the private
+unsigned-internal-RC policy.
+
+The no-skip lifecycle stopped before installation because this session is not
+elevated, preserving `exact-blocked-external` without creating a firewall rule.
+The explicit application-only lifecycle passed packaged startup, optional
+Command transition, zero forbidden processes, exact Markdown export, the
+representative 100-Unit workflow, uninstall, external-data preservation, and
+same-installer reinstall. The candidate is installed under the qualification
+root for hands-on product review. This permits the author usability review to
+begin but does not satisfy the formal elevated firewall witness or claim Human
+Gate 2 acceptance.
+
 ## Next Exact Step
 
 The exact installer build and receipt verification are green. The remaining
