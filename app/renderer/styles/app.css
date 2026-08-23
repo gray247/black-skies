@@ -7627,6 +7627,60 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-height: 0;
 }
 
+/* A persisted title may be much longer than the rail. Keep every title-bearing
+   child inside the rail so focusing an editor cannot scroll the rail sideways. */
+.stage19-spine--writing .stage19-story-rail__sections,
+.stage19-spine--writing .stage19-living-outline,
+.stage19-spine--writing .stage19-note-marker-cluster,
+.stage19-spine--writing .stage19-living-outline__advanced,
+.stage19-spine--writing .stage19-story-rail__unit-advanced {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced-heading {
+  width: 100%;
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced-heading > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced > label,
+.stage19-spine--writing .stage19-living-outline__advanced > label > input,
+.stage19-spine--writing .stage19-living-outline__advanced > label > select,
+.stage19-spine--writing .stage19-living-outline__advanced > label > textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.stage19-spine--writing .stage19-note-marker-cluster__button,
+.stage19-spine--writing .stage19-note-marker-cluster__selection,
+.stage19-spine--writing .stage19-note-marker-cluster__details,
+.stage19-spine--writing .stage19-note-marker-cluster__details button {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stage19-spine--writing .stage19-note-marker-cluster__details button,
+.stage19-spine--writing .stage19-note-marker-cluster__selection span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-note-marker-cluster__details button {
+  width: 100%;
+}
+
+.stage19-spine--writing .stage19-living-outline__preview li {
+  overflow-wrap: anywhere;
+}
+
 .stage19-story-rail__heading {
   align-items: flex-start;
   margin-bottom: 4px;

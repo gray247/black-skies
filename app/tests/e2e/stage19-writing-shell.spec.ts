@@ -471,12 +471,26 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await writing.getByRole('button', { name: 'Save note and close' }).click();
     const renamedMarker = writing.getByRole('button', { name: 'Open Note Lantern crossing revised for Crossing' });
     await expect(renamedMarker).toContainText('Lantern crossing revised');
+    const longTitle = `${'A deliberately long Note title with ordinary words '.repeat(4)}ending`;
+    await renamedMarker.press('F2');
+    const longTitleEditor = writing.getByRole('textbox', { name: 'Title for Lantern crossing revised' });
+    await longTitleEditor.fill(longTitle);
+    await writing.getByRole('button', { name: 'Save note and close' }).click();
+    const longTitleMarker = writing.getByRole('button', { name: `Open Note ${longTitle} for Crossing` });
+    await expect(longTitleMarker).toBeVisible();
+    expect(await writing.getByRole('complementary', { name: 'Story rail' }).evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollLeft: element.scrollLeft,
+      scrollWidth: element.scrollWidth,
+    }))).toEqual(expect.objectContaining({ scrollLeft: 0 }));
+    expect(await writing.getByRole('complementary', { name: 'Story rail' }).evaluate((element) =>
+      element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
     const canvasScrollBeforeOpen = await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop);
-    await renamedMarker.click();
-    await expect(writing.getByRole('textbox', { name: 'Title for Lantern crossing revised' })).not.toBeFocused();
+    await longTitleMarker.click();
+    await expect(writing.getByRole('textbox', { name: `Title for ${longTitle}` })).not.toBeFocused();
     expect(await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop)).toBe(canvasScrollBeforeOpen);
     await writing.getByRole('button', { name: 'Locate in manuscript' }).click();
-    await expect(writing.getByRole('alert').filter({ hasText: 'Returned to Lantern crossing revised.' })).toBeVisible();
+    await expect(writing.getByRole('alert').filter({ hasText: `Returned to ${longTitle}.` })).toBeVisible();
     expect(await activeCrossingEditor.evaluate(() => window.getSelection()?.toString())).toBe(crossingProse);
   } finally {
     await removeTemporaryDirectory(parent);
@@ -533,8 +547,12 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     await proposals.locator('input[name="proposalId"]').nth(1).check();
     await proposals.locator('input[name="proposalId"]').nth(2).check();
     await writing.getByRole('button', { name: 'Merge selected' }).click();
-    await proposals.getByRole('button', { name: 'Accept' }).nth(1).click();
-    await proposals.getByRole('button', { name: 'Reject' }).nth(2).click();
+    const acceptProposal = proposals.getByRole('button', { name: 'Accept' }).nth(1);
+    await acceptProposal.click();
+    await expect(acceptProposal).toBeDisabled();
+    const rejectProposal = proposals.getByRole('button', { name: 'Reject' }).nth(2);
+    await rejectProposal.click();
+    await expect(rejectProposal).toBeDisabled();
     const structureDisclosure = writing.locator('details.stage19-manuscript-structure');
     const persistedBeforeStaging = await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8');
     await proposals.getByRole('button', { name: 'Move up' }).nth(1).click();
