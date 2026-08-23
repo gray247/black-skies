@@ -301,3 +301,38 @@ This section is implemented and mechanically tested dirty evidence only. The
 clean regression, replacement package/install evidence, push, and the resumed
 author review remain required; Human Gate 2/3 and Program 5 closure remain
 unclaimed.
+
+## No-project startup replacement candidate — 2026-08-23
+
+The bounded startup repair was committed as exact product candidate
+`af60cf281a00604670237bee0c90a2284349d7a6`. The clean
+`pnpm stage19:regression` command returned `STAGE19_REGRESSION_PASS` with `49`
+critical files, `748` tests passed, `2` skipped, startup preflight `1/1`, and
+Electron `33/33`. The clean 100-Unit journey measured `3.713s` creation and
+`64ms` Unit selection, and the viewport-stabilization warning did not recur.
+
+The Windows package was rebuilt from that exact clean commit. The verified
+installer is `app/release/BlackSkies-Setup-1.0.0-rc1.exe`, SHA-256
+`6743f8b51fda75605623e2dfe87371c69cd8c2b55faee6a42b1c9fdbc58447a0`.
+The unpacked executable SHA-256 is
+`5639337737da15a9b9708333f2422c7e409a2ba03f8d64719030b0b3674e6caf`, and
+the ASAR SHA-256 is
+`75446772173deae38329e60418a8685485c3d6e629f7d8265a104124fa0fa4ff`.
+Package verification found zero forbidden descendants and records `NotSigned`
+under the private unsigned-internal-RC policy.
+
+The explicit application-only installed lifecycle passed packaged startup,
+one canonical sandboxed Writing window, the optional two-window sandboxed
+Command transition, zero forbidden runtime processes, zero survivors, exact
+Markdown export, and the representative 100-Unit workflow (`2.635s` creation,
+`9.3ms` selection). Silent uninstall removed the application while preserving
+the external project and export, and reinstalling the same installer passed.
+The installed executable for author review is
+`C:\Users\gray2\AppData\Local\BlackSkiesQualification\Program5-af60cf28-20260823\installed\Black Skies.exe`.
+
+This lifecycle was intentionally recorded as
+`qualificationMode=application-only-no-firewall`; the application neither
+created nor required a firewall rule. This candidate is implemented,
+mechanically tested, package-qualified, and application-only installed. It is
+ready for resumed author review, but human acceptance, exact-installed status,
+Human Gate 2/3 closure, and Program 5 closure remain unclaimed.
