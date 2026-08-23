@@ -3,8 +3,8 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Private V1.0 baseline complete through Package 19.22; future development requires new scope
-Last Reviewed: 2026-08-22
+Status: Program 5 exact candidate is package-qualified and awaiting final human acceptance
+Last Reviewed: 2026-08-23
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -33,14 +33,34 @@ A deterministic substantial-manuscript journey now generates 120 ordered
 Markdown chapters and more than 300,000 characters, proving 120 unique stable
 anchors, 12-row pagination, exact source preservation,
 rename/accept/reject/Apply, and durable accepted/rejected/applied/current-source
-state across reopen. Focused renderer evidence passed `110/110`. The complete
-dirty command `pnpm stage19:regression -- --allow-dirty` returned
-`STAGE19_REGRESSION_PASS`: `49` critical files / `748` passed / `2` skipped,
-startup preflight `1/1`, and Electron `34/34`; the 100-Unit result was `3.954s`
-creation / `82ms` selection. Classification: implemented and mechanically
-tested dirty evidence. Clean commit/regression, exact package/install
-qualification, authority reconciliation, push, and final author acceptance
-remain open.
+state across reopen. Focused renderer evidence passed `110/110`. Exact product
+commit `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b` passed clean
+`pnpm stage19:regression`: `49` critical files / `748` passed / `2` skipped,
+startup preflight `1/1`, and Electron `34/34`; the clean 100-Unit result was
+`3.599s` creation / `150ms` selection, and no viewport warning recurred.
+
+The exact Windows package verified with installer SHA-256
+`86d1d522109daa89022a2079bd1f1c580f64aaf3475a0fb27cf93672b575708c`,
+unpacked executable SHA-256
+`0d27ef881233214fe96b4dfc72c96b8a2a66dad26cca7fada45c7ee08db1c141`,
+ASAR SHA-256
+`ed207a4e762e62071f43bef05f5779d887cdd31d847615cf62d7d8a98cc76526`,
+zero forbidden descendants, and `NotSigned` truth under the private internal-RC
+policy. The application-only installed lifecycle passed packaged startup,
+optional Command transition, zero forbidden processes/survivors, exact
+Markdown export, representative 100-Unit workflow, uninstall, external-data
+preservation, and same-installer reinstall. A Windows Computer Use rehearsal
+of that exact installed candidate verified the opening cards and Project Tools
+rail are aligned and unobstructed, required labels are exposed, Companion does
+not cover the actions, and the empty Writing Session edge is absent.
+
+Normal application startup creates no firewall rule and requires no firewall
+administration. Supplemental outbound-isolation testing is not a Program 5
+product-closure prerequisite. Classification: implemented, mechanically
+tested, package-qualified, application-only installed, and human-review-ready.
+Only final Human Gate 2 author acceptance and Human Gate 3 structural-workflow
+acceptance remain unclaimed; no user-supplied large manuscript is required for
+mechanical qualification.
 
 ## Post-V1 Human Gate 2 Experience Repair — 2026-08-13
 
@@ -3692,3 +3712,4 @@ Backlog note drifted after phase-log cleanup.
 - [2026-08-23] Human Gate startup replacement candidate qualification completed for exact product commit `af60cf281a00604670237bee0c90a2284349d7a6`. The clean `pnpm stage19:regression` returned `STAGE19_REGRESSION_PASS` with `49` critical files / `748` passed / `2` skipped, startup preflight `1/1`, and Electron `33/33`; the clean 100-Unit result was `3.713s` creation / `64ms` selection and no viewport-stabilization warning recurred. `pnpm --filter app package:win` rebuilt and verified the exact NSIS candidate: installer SHA-256 `6743f8b51fda75605623e2dfe87371c69cd8c2b55faee6a42b1c9fdbc58447a0`, unpacked executable SHA-256 `5639337737da15a9b9708333f2422c7e409a2ba03f8d64719030b0b3674e6caf`, ASAR SHA-256 `75446772173deae38329e60418a8685485c3d6e629f7d8265a104124fa0fa4ff`, zero forbidden unpacked paths, and `NotSigned` truth under the private unsigned-internal-RC policy. The explicit application-only lifecycle passed packaged startup, one sandboxed Writing window, optional two-window Command transition, zero forbidden runtime processes and survivors, exact Markdown export, representative 100-Unit workflow (`2.635s` creation / `9.3ms` selection), uninstall, external project/export preservation, and same-installer reinstall. The corrected candidate is installed at `C:\Users\gray2\AppData\Local\BlackSkiesQualification\Program5-af60cf28-20260823\installed\Black Skies.exe`. Classification: implemented, mechanically tested, package-qualified, application-only installed, committed, and ready for the resumed author review. The application did not create or require a firewall rule; firewall isolation was intentionally not invoked by this application-only witness. Human acceptance, Human Gate 2/3 closure, exact-installed status, and Program 5 closure remain unclaimed.
 - [2026-08-23] Resumed author review accepted the replacement startup composition and the broader repaired Writing Studio presentation, then exposed one bounded long-title defect: a very long persisted Note title could enlarge an intrinsic Note detail/selection descendant, and focusing its editor could scroll the otherwise fixed-width Story rail sideways so content appeared clipped. The repair constrains every title-bearing Note detail, selection, advanced-heading, input, and preview descendant to the rail width, ellipsizes compact title displays, and preserves the full durable title in the editor and accessibility name. The Electron Program 5 bridge journey now renames a Note to a near-limit multiword title and rejects any Story rail horizontal overflow or nonzero horizontal scroll. The focused built-Electron Writing Studio file passed `6/6`; an unrelated Structure assertion initially exposed a pending-write test race, so the journey now waits for accepted/rejected UI state before snapshotting durable bytes and then passed. Typecheck, app lint, Stage 19 lint, production build, and diff hygiene passed. The complete dirty Stage 19 regression returned `STAGE19_REGRESSION_PASS` with `49` critical files / `748` passed / `2` skipped, startup preflight `1/1`, and Electron `33/33`; its 100-Unit result was `4.042s` creation / `161ms` selection. Classification: implemented and mechanically tested dirty evidence; the `af60cf28` installer is superseded for Human Gate purposes. Clean commit/regression, exact replacement package/install evidence, push, and one final author visual check remain required.
 - [2026-08-23] Long-title replacement candidate qualification completed for exact product commit `565bc9722624bbda4dc66f9435be3d8327715eb4`. The clean `pnpm stage19:regression` returned `STAGE19_REGRESSION_PASS` with `49` critical files / `748` passed / `2` skipped, startup preflight `1/1`, and Electron `33/33`; the clean 100-Unit result was `3.660s` creation / `55ms` selection. The exact NSIS package verified with installer SHA-256 `d6b6cba0cd0cf1652369f494575801534f08e3d84c2c7f60d531f826abffe3f6`, unpacked executable SHA-256 `86c399d92a6f9a44709ec1c3f758dc6ab3f814424f491188e3399dfaedc6a2cc`, ASAR SHA-256 `4b82c59e576e0b1ffb930bd6f6334c8158d651fe753615d2aeb8d5a65bf9b98f`, zero forbidden unpacked paths, and `NotSigned` truth under the private unsigned-internal-RC policy. The application-only installed lifecycle passed one sandboxed Writing window, optional two-window Command transition, zero forbidden processes/survivors, exact Markdown export, representative 100-Unit workflow (`1.781s` creation / `10ms` selection), uninstall, external project/export preservation, and same-installer reinstall. The final-check executable is `C:\Users\gray2\AppData\Local\BlackSkiesQualification\Program5-565bc972-20260823\installed\Black Skies.exe`. Classification: implemented, mechanically tested, package-qualified, application-only installed, committed, and ready for one final author check of the long-title boundary. The application did not create or require a firewall rule. Human Gate 2 acceptance and Program 5 closure remain unclaimed until that check is recorded.
+- [2026-08-23] Program 5 final self-service candidate qualification completed for exact product commit `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b`. The no-project lifecycle uses aligned equal Open/Create action cards and omits the empty Writing Session edge. A deterministic 120-chapter, 300,000-plus-character Markdown journey proves 120 unique anchors, bounded pagination, exact source preservation, rename/accept/reject/Apply, and durable reopen state. Clean `pnpm stage19:regression` passed `49` critical files / `748` passed / `2` skipped, startup preflight `1/1`, Electron `34/34`, and no viewport warning. Exact package verification recorded installer SHA-256 `86d1d522109daa89022a2079bd1f1c580f64aaf3475a0fb27cf93672b575708c`, unpacked executable SHA-256 `0d27ef881233214fe96b4dfc72c96b8a2a66dad26cca7fada45c7ee08db1c141`, ASAR SHA-256 `ed207a4e762e62071f43bef05f5779d887cdd31d847615cf62d7d8a98cc76526`, zero forbidden descendants, and `NotSigned` private internal-RC truth. The application-only lifecycle returned `STAGE19_INSTALLED_LIFECYCLE_PASS`, and an installed Windows visual rehearsal found no opening or Project Tools overlap. Normal runtime creates no firewall rule; supplemental outbound isolation is not a Program 5 closure prerequisite. Classification: implemented, mechanically tested, package-qualified, application-only installed, and human-review-ready. Human Gate 2/3 acceptance and Program 5 closure remain unclaimed.

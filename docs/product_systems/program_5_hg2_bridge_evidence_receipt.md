@@ -377,3 +377,52 @@ not create or require a firewall rule. The candidate is implemented,
 mechanically tested, package-qualified, application-only installed, and ready
 for the final long-title visual check. Human Gate 2 acceptance and Program 5
 closure remain unclaimed until that check is recorded.
+
+## Final self-service closeout candidate — 2026-08-23
+
+The author accepted the preceding repaired Writing Studio presentation and
+identified one final asymmetry in the no-project Open/Create composition. Exact
+product commit `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b` replaces that layout
+with equal `Open existing project` and `Create new project` action cards,
+aligned action baselines, and a contained Project title field. The empty
+Writing Session edge is absent when no project exists, and recent-project
+history remains unchanged.
+
+The exact clean `pnpm stage19:regression` returned
+`STAGE19_REGRESSION_PASS`: `49` critical files / `748` passed / `2` skipped,
+startup preflight `1/1`, and Electron `34/34`. The clean 100-Unit journey
+measured `3.599s` creation and `150ms` selection, with no recurring viewport
+warning. A deterministic 120-chapter, 300,000-plus-character Markdown journey
+proved bounded 12-row pagination, 120 unique stable anchors, exact source-byte
+preservation, rename/accept/reject/Apply, and durable accepted, rejected,
+applied, and current-source state after reopen.
+
+The exact installer SHA-256 is
+`86d1d522109daa89022a2079bd1f1c580f64aaf3475a0fb27cf93672b575708c`.
+The unpacked executable SHA-256 is
+`0d27ef881233214fe96b4dfc72c96b8a2a66dad26cca7fada45c7ee08db1c141`,
+and the ASAR SHA-256 is
+`ed207a4e762e62071f43bef05f5779d887cdd31d847615cf62d7d8a98cc76526`.
+Package verification found zero forbidden descendants and records `NotSigned`
+under the private unsigned-internal-RC policy.
+
+The application-only lifecycle passed packaged startup, one sandboxed Writing
+window, optional sandboxed Command transition, zero forbidden processes and
+survivors, exact Markdown export, representative 100-Unit workflow, uninstall,
+external-data preservation, and same-installer reinstall. Its final output was
+`STAGE19_INSTALLED_LIFECYCLE_PASS`. The installed executable is
+`C:\Users\gray2\AppData\Local\BlackSkiesQualification\Program5-0735b11d-20260823\installed\Black Skies.exe`.
+
+A Computer Use rehearsal of that exact installed application found no opening
+control collision or prose-covering overlay: the two action cards and Project
+Tools rail are aligned, labels are readable, Companion clears the actions, and
+the empty Writing Session edge is omitted. Normal runtime creates no firewall
+rule and requires no firewall administration. Supplemental outbound-isolation
+testing is separate security evidence and is not a Program 5 product-closure
+prerequisite.
+
+Classification: implemented, mechanically tested, package-qualified,
+application-only installed, and human-review-ready. Human Gate 2 author
+acceptance, Human Gate 3 structural-workflow acceptance, and Program 5 closure
+remain unclaimed. No user-supplied large manuscript is required for the
+remaining review.

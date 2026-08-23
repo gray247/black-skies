@@ -28,26 +28,24 @@ Current status:
   blue/purple dashboard styling, and not-yet-useful Companion handoff require
   the bounded repair plan
   `program_4_human_gate_2_experience_repair_plan.md`
-- Human Gate 2 repair Batch A is durable at `28d2294a`, Batch B's unified
-  Story Rail is durable at `707dfae6`, and the pulled-forward Program 5
-  continuous-manuscript and stable-anchor bridge is durable at `d292e236`.
-  HG2-RPR-C real Focus and Companion-doorway repair is durable at
-  `1da56446`. The first HG2-RPR-D hosted Windows qualification exposed an
-  Electron launch-argument seam. The following hosted run then isolated a
-  separate first-surface-state startup race after the lifecycle seam was known
-  to exist. Full local qualification also isolated a persisted-theme
-  test-isolation race. All three bounded repairs are green in focused CI-mode
-  built-Electron evidence; the next durable exact candidate must repeat clean
-  hosted Windows package/install qualification. No human review is requested
-  before that whole candidate is qualified.
-- The continuous-manuscript bridge is mechanically green, but the subsequent
-  author review found that page-level scrolling still hides the rails, the
-  Writing Session surface is crowded by the Companion bar, Unit/Note hierarchy
-  and transactional creation are not yet intuitive, top notices can overlap
-  writing, and comparison/help copy is unclear or low contrast. `P5-UX-01` is
-  now active; no Human Gate 2 or Program 5 closure is claimed until its
-  internal-scroll, stable-rail, Unit/Note, help/comparison, and geometry
-  evidence is green.
+- Human Gate 2 repair Batch A is durable at `28d2294a`, Batch B's unified Story
+  Rail at `707dfae6`, the Program 5 continuous-manuscript/stable-anchor bridge
+  at `d292e236`, and HG2-RPR-C real Focus/Companion doorway at `1da56446`.
+  Later bounded launcher, shell, rail, Note, contrast, geometry, startup, and
+  long-title repairs culminate in exact product commit `0735b11d`, which passed
+  clean regression, package verification, application-only installed lifecycle,
+  and an installed Windows visual rehearsal. The combined candidate is ready
+  for final human judgment rather than additional pre-review qualification.
+- `P5-UX-01` is implemented and mechanically qualified on exact product commit
+  `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b`. The clean Stage 19 gate passed
+  `49` critical files / `748` passed / `2` skipped, startup preflight `1/1`,
+  and Electron `34/34`; the exact Windows package and application-only
+  install/uninstall/reinstall lifecycle passed. An installed Windows visual
+  rehearsal confirmed the repaired equal-card opening composition and rail
+  containment. Deterministic substantial-manuscript evidence uses 120 chapters
+  and more than 300,000 characters, so no user-supplied manuscript is needed.
+  Human Gate 2 and Human Gate 3 remain open only for author judgment; Program 5
+  is not closed until those decisions are recorded.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -63,7 +61,7 @@ Current status:
   makes Program 3 durably complete and Program 4 next.
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
-- human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates. Human Gate 2 is currently in bounded repair rather than closed
+- human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates. Human Gates 2 and 3 are now ready for final author judgment on the exact qualified Program 5 candidate
 - Long-manuscript intake and stable structural anchors are Program 5 and Human Gate 3; Emotion Graph V1 begins in Program 6 only after that gate, uses those Living Outline positions, and keeps planned, observed, and inferred emotion distinct
 - Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group, limited to the initial bounded local project-open/save/re-entry sequence; `stage19_foundation_spine_acceptance_reconciliation.md` is the current non-retroactive authority and does not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages

@@ -110,32 +110,29 @@ It does not finalize the entire product vision.
   no-overlay geometry, recovery, reopen persistence, and manuscript
   non-mutation. Batch B is durable at `707dfae6`. The
   [Program 5 Human Gate 2 bridge receipt](program_5_hg2_bridge_evidence_receipt.md)
-  records the next green development gate: one continuous readable manuscript,
-  in-place section activation, compact no-duplicate-prose position/span
-  anchors, honest exact/relocated/ambiguous/unresolved source return, and the
-  100-unit performance boundary. The bridge is durable at `d292e236` and does
-  not claim full long-manuscript intake/discovery or Human Gate 3. The
-  mechanical bridge is durable. The subsequent `P5-UX-01` repair candidate at
-  `13da251c` is mechanically tested and package-qualified, with application-only
-  installed evidence bound to installer SHA
-  `09a41ef179b9d42a32ee42fb2cc0aa3cfe91bae838c2206145d0d30ca056aa69`. It is
-  green in focused renderer/Electron/regression evidence for canvas-owned
-  scrolling, stable independent rails, Writing Session/Companion separation,
-  Unit-as-spine and quiet Note hierarchy, transactional chooser cancellation,
-  Note title/body editing, reliable navigation/rename, reserved top geometry,
-  summonable help, readable preview-only comparison, discard-on-close staged
-  Structure order, packaged native chooser fencing, and post-Apply immutability.
-  The canonical
-  development launcher now also has focused port-health evidence: it reuses a
-  healthy Black Skies renderer, reports an occupied port owner/PID, and never
-  kills a renderer it did not create. Exact Windows package/install
-  qualification is not yet exact: the application-only lifecycle passed,
-  but the host is non-elevated and the exact firewall state is
-  `exact-blocked-external`. The elevated firewall-isolated lifecycle witness and
-  one complete Human Gate 2 review remain open. The installed candidate is
-  ready for hands-on product review, but formal gate acceptance remains blocked
-  until both obligations pass; do not infer
-  Program 5 completion or Human Gate 3 readiness from the automated candidate.
+  now records the exact Program 5 self-service closeout candidate at
+  `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b`. The candidate is green for one
+  continuous readable manuscript, canvas-owned scrolling, stable independent
+  rails, Writing Session/Companion separation, Unit-as-spine and quiet Note
+  hierarchy, transactional creation/cancellation, durable Note editing and
+  rename, help/comparison readability, packaged chooser fencing, Structure
+  mutation/Apply/reload safety, and post-Apply immutability. Clean regression
+  passed `49` critical files / `748` passed / `2` skipped, startup preflight
+  `1/1`, and Electron `34/34`. Deterministic substantial-manuscript evidence
+  uses 120 chapters and more than 300,000 characters and proves 120 unique
+  stable anchors, bounded pagination, exact source preservation, mutations,
+  Apply, and durable reopen state. The exact package and application-only
+  install/uninstall/reinstall lifecycle passed with installer SHA-256
+  `86d1d522109daa89022a2079bd1f1c580f64aaf3475a0fb27cf93672b575708c`,
+  and an installed Windows rehearsal found the repaired opening and Project
+  Tools compositions aligned and unobstructed. Normal runtime neither creates
+  nor requires a firewall rule; supplemental outbound isolation is not a
+  Program 5 closure prerequisite. The canonical development launcher also has
+  focused port-health evidence: it reuses a healthy Black Skies renderer,
+  reports an occupied port owner/PID, and never kills a renderer it did not
+  create. The candidate is human-review-ready. Human Gate 2 author acceptance,
+  Human Gate 3 structural-workflow acceptance, and Program 5 closure remain
+  unclaimed; no user-supplied substantial manuscript is required.
   The next
   [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)
   records the green real-Focus and local-facts Companion-doorway gate: a
