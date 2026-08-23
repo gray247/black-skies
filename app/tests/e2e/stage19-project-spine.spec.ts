@@ -80,7 +80,7 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
     await writing.keyboard.press('Control+S');
 
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Opening unit' }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
       const current = await window.projectSpine!.getSession();
@@ -165,7 +165,7 @@ test('cancelled project switch leaves the editor immediately editable', async ({
     }, projects.pathB);
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Cancel focus unit' });
     await editor.fill('Before cancelling the project switch');
-    await openWritingStudioRail(writing, 'project tools');
+    await openWritingStudioRail(writing, 'Project Tools');
     await writing.getByRole('button', { name: 'Open project…' }).click();
     const switchDialog = writing.getByRole('dialog', { name: 'Unsaved manuscript changes' });
     await expect(switchDialog).toBeVisible();
@@ -237,7 +237,7 @@ test('switching back to a saved project does not create a recovery editing lock'
     await electronApp.evaluate(({ dialog }, targetPath) => {
       dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
     }, projects.pathA);
-    await openWritingStudioRail(writing, 'project tools');
+    await openWritingStudioRail(writing, 'Project Tools');
     await writing.getByRole('button', { name: 'Open project…' }).click();
     await expect(writing.getByRole('heading', { name: 'Round trip A' })).toBeVisible();
     await expect(writing.getByText('Editing is blocked')).toHaveCount(0);
@@ -297,7 +297,7 @@ test.describe('C1 unsaved close flow', () => {
       await expect(boundaryEditor).toContainText('Start writing…');
       await writing.keyboard.press('Control+Z');
       await expect(boundaryEditor).toContainText('Start writing…');
-      await openWritingStudioRail(writing, 'story tools');
+      await openWritingStudioRail(writing, 'Story');
       await writing.locator('.stage19-story-rail__unit-title', { hasText: 'Keep unit' }).click();
       await expect(editor).toHaveText('Keep this unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
@@ -364,7 +364,7 @@ test.describe('C1 unsaved close flow', () => {
       await editor.pressSequentially('Discard-only unsaved prose');
       await expect(editor).toHaveText('Discard-only unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
-      await openWritingStudioRail(writing, 'story tools');
+      await openWritingStudioRail(writing, 'Story');
       await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Discard-only unit' }).getByText('Unsaved', { exact: true })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
 
@@ -410,7 +410,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       ['Broken Relay', 'RELAY::broken'],
       ['Last Orbit', 'ORBIT::last'],
     ] as const;
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     for (const [title, prose] of expected) {
       const unitButton = writing.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();
@@ -441,7 +441,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       { title: 'Broken Relay', order: 2 },
       { title: 'Last Orbit', order: 3 },
     ]);
-    await openWritingStudioRail(reWriting, 'story tools');
+    await openWritingStudioRail(reWriting, 'Story');
     for (const [title, prose] of expected) {
       const unitButton = reWriting.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();

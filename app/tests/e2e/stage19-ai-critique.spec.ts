@@ -69,12 +69,12 @@ test('selected-prose critique is Writing-Studio-only, preview-bound, optional, a
     const prose = `${'Rain marked the station glass while Mara waited beneath a clock that had stopped before midnight. '.repeat(5)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Preview passage' });
     await editor.fill(prose);
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await expect(writing.getByRole('button', { name: '01 Preview passage' })).toBeVisible();
     await expect(writing.getByRole('list', { name: 'Story order' }).getByText('Unsaved', { exact: true })).toBeVisible();
     await editor.focus();
     await writing.keyboard.press('Control+A');
-    await openWritingStudioRail(writing, 'writing support');
+    await openWritingStudioRail(writing, 'Review');
     const review = writing.getByRole('button', { name: 'Review outbound critique request' });
     await expect(review).toBeEnabled();
     await review.click();

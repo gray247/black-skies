@@ -66,7 +66,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     }, parent);
 
     const openingProse = `${'Rain marked the station glass while Mara waited beneath a clock that had stopped before midnight. '.repeat(5)}End.`;
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await writing.getByRole('button', { name: /^01 Opening Signal$/ }).click();
     const openingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' });
     await openingEditor.fill(openingProse);
@@ -82,11 +82,11 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     const openingOutlineTitle = writing.getByRole('textbox', { name: /Title for / }).first();
     await expect(openingOutlineTitle).toHaveValue(/Rain marked the station glass/);
     await openingOutlineTitle.fill('Opening question');
-    await writing.getByRole('button', { name: 'Save note' }).click();
+    await writing.getByRole('button', { name: 'Save note and close' }).click();
     await writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' }).click();
     const openingOptions = writing.getByRole('region', { name: 'More options for Opening question' });
     await openingOptions.getByLabel('Source state').selectOption('authored');
-    await openingOptions.getByRole('button', { name: 'Save note' }).click();
+    await openingOptions.getByRole('button', { name: 'Save note and close' }).click();
     await expect(writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' })).toBeVisible();
 
     await writing.getByRole('button', { name: /^02 Impossible Arrival$/ }).click();
@@ -98,12 +98,12 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: 'Note', exact: true }).click();
     const arrivalOutlineTitle = writing.getByRole('textbox', { name: /Title for / }).last();
     await arrivalOutlineTitle.fill('Bridge into the impossible arrival');
-    await writing.getByRole('button', { name: 'Save note' }).click();
+    await writing.getByRole('button', { name: 'Save note and close' }).click();
     await writing.getByRole('button', { name: 'Open Note Bridge into the impossible arrival for Impossible Arrival' }).click();
     const arrivalOptions = writing.getByRole('region', { name: 'More options for Bridge into the impossible arrival' });
     await arrivalOptions.getByLabel('Structural meaning').selectOption('gap');
     await arrivalOptions.getByLabel('Source state').selectOption('proposed');
-    await arrivalOptions.getByRole('button', { name: 'Save note' }).click();
+    await arrivalOptions.getByRole('button', { name: 'Save note and close' }).click();
 
     const protectedBeforeMove = await Promise.all([
       readFile(join(created.projectPath, 'outline.json'), 'utf8'),
@@ -129,7 +129,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: /^01 Opening Signal$/ }).click();
     await openingEditor.focus();
     await writing.keyboard.press('Control+A');
-    await openWritingStudioRail(writing, 'writing support');
+    await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await expect(writing.getByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();
     await writing.getByLabel('OpenAI API key (session only; no readback)').fill('synthetic-session-credential-123456');
@@ -174,7 +174,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       if (!opened.ok) throw new Error(opened.error.message);
     }, created.projectPath);
     await expect(reopened.writing.getByRole('heading', { name: 'Gate One Project' })).toBeVisible();
-    await openWritingStudioRail(reopened.writing, 'story tools');
+    await openWritingStudioRail(reopened.writing, 'Story');
     await expect(reopened.writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' })).toBeVisible();
     await reopened.writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' }).click();
     await reopened.writing.getByRole('button', { name: 'Open Note Bridge into the impossible arrival for Impossible Arrival' }).click();
@@ -195,7 +195,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     }, parent);
     await expect(reopened.writing.getByRole('heading', { name: 'Isolated Empty Project' })).toBeVisible();
     await expect(reopened.command.getByRole('heading', { name: 'No critique is waiting' })).toBeVisible();
-    await openWritingStudioRail(reopened.writing, 'story tools');
+    await openWritingStudioRail(reopened.writing, 'Story');
     await expect(reopened.writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
     await expect(reopened.writing.getByText('Nothing has been divided yet. Start writing, or use + to add a Unit or Note.')).toBeVisible();
     await expect(reopened.writing.getByText('Keep the stopped-clock unease, but clarify the arrival trigger.')).toHaveCount(0);
@@ -204,7 +204,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await reopened.writing.getByRole('button', { name: 'Note', exact: true }).click();
     const unplacedTitle = reopened.writing.getByRole('textbox', { name: /Title for / }).last();
     await unplacedTitle.fill('Unplaced thought');
-    await reopened.writing.getByRole('button', { name: 'Save note' }).click();
+    await reopened.writing.getByRole('button', { name: 'Save note and close' }).click();
     await expect(reopened.writing.getByRole('heading', { name: 'Not placed yet' })).toBeVisible();
 
     const secondExit = waitForCleanElectronApplicationExit(relaunched.application);

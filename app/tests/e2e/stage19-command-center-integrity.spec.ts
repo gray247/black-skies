@@ -89,7 +89,7 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 }
 
 async function saveCurrentUnit(writing: Page, title: string, prose?: string): Promise<void> {
-  await openWritingStudioRail(writing, 'story tools');
+  await openWritingStudioRail(writing, 'Story');
   await writing.locator('.stage19-story-rail__unit-title', { hasText: title }).click();
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
   await writing.getByRole('button', { name: /^Save$/ }).click();

@@ -168,10 +168,10 @@ export async function readStage19SurfaceHostPreflight(
 }
 
 export type WritingStudioRailLabel =
-  | 'project tools'
-  | 'story tools'
-  | 'writing support'
-  | 'session tools';
+  | 'Project Tools'
+  | 'Story'
+  | 'Review'
+  | 'Writing Session';
 
 export async function openWritingStudioRail(
   writing: Page,

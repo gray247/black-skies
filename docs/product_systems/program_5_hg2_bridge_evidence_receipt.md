@@ -216,3 +216,49 @@ experience contract. Do not close Program 5 from automation alone; any failed
 human finding becomes a new bounded repair slice. Full Program 5
 intake/discovery, local-LLM Companion capability, Emotion Graph computation,
 and Human Gate 3 remain later authorized work.
+
+## Bounded rail-and-controls repair — 2026-08-23
+
+The post-review repair stays scoped to the Writing Studio rail and control
+boundary. Note detail now exposes a visible `Save note and close` action plus
+an explicitly labelled discard-close control. Edge controls use the writer
+labels `Project Tools`, `Story`, `Review`, and `Writing Session`; Project Tools
+and Writing Session content is compacted, edge marks and titles are readable,
+and the final empty CodeMirror line keeps source bytes intact without showing
+an orphan gutter number. Required scoped text uses semantic readable aliases
+and the `0.8rem` floor; unrelated renderer palettes remain untouched.
+
+Renderer tests passed `119/119`. The rebuilt Writing Studio Electron shell
+passed `5/5`, including computed action/edge geometry, Note save/reopen, focus
+return, rail containment, and the complete existing Structure journey. The
+exact dirty command `node .\\scripts\\stage19-regression.mjs --allow-dirty`
+passed `49` critical files with `747` tests passed and `2` skipped, startup
+preflight `1/1`, and Electron `32/32`; no viewport-stabilization warning
+recurred. This is mechanically tested dirty evidence only: no clean commit,
+package qualification, exact-installed status, Human Gate 2/3 acceptance, or
+Program 5 closure is claimed.
+
+Gate 1 marker/detail-panel repair is mechanically green and is no longer a
+current blocker. The next steps remain a focused conventional commit, clean
+regression, exact package/install evidence, and separate human review.
+
+## Rail-and-controls replacement candidate — 2026-08-23
+
+The bounded rail-and-controls repair was committed as one focused conventional
+candidate after the dirty evidence passed. The clean Stage 19 regression passed
+`49` critical files with `747` tests passed and `2` skipped, startup preflight
+`1/1`, and Electron `32/32`; no viewport-stabilization warning recurred.
+
+The replacement Windows installer was rebuilt and verified against that exact
+candidate. The package receipt records the exact candidate binding, installer
+fingerprint, zero unpacked forbidden paths, and `NotSigned` signature truth
+under the private unsigned-internal-RC policy.
+
+The explicit application-only lifecycle passed packaged startup, optional
+Command transition, zero forbidden runtime processes, exact Markdown export,
+the representative 100-Unit workflow, uninstall, external-data preservation,
+and same-installer reinstall. The elevated firewall-isolated lane was not run
+because this session is not elevated; no firewall rule was created. This is
+application-only installed evidence, not exact-installed qualification.
+
+Human Gate 2/3 acceptance, Program 5 closure, and push remain unclaimed.

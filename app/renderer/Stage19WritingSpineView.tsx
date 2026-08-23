@@ -597,14 +597,23 @@ function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JS
 function ProjectLifecycleView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   return (
     <section className="stage19-spine__lifecycle" aria-label="Project lifecycle">
-      <p className="stage19-spine__lifecycle-help">Open: select the actual Black Skies project folder containing <code>project.json</code>.</p>
-      <button type="button" onClick={() => void actions.openProject()} disabled={!model.projectBridgeAvailable}>Open project…</button>
-      <label>
-        <span>New project title</span>
-        <input value={model.projectTitle} onChange={(event) => actions.setProjectTitle(event.target.value)} />
-      </label>
-      <p className="stage19-spine__lifecycle-help">Create: choose a parent folder; Black Skies creates a new project folder inside it.</p>
-      <button type="button" onClick={() => void actions.createProject()} disabled={!model.projectBridgeAvailable}>Create project…</button>
+      <div className="stage19-writing-shell__project-tool-group" data-project-tool="open">
+        <div>
+          <strong>Open project</strong>
+          <p className="stage19-spine__lifecycle-help">Select a Black Skies folder containing <code>project.json</code>.</p>
+        </div>
+        <button type="button" onClick={() => void actions.openProject()} disabled={!model.projectBridgeAvailable}>Open project…</button>
+      </div>
+      <div className="stage19-writing-shell__project-tool-group" data-project-tool="create">
+        <label>
+          <span>New project title</span>
+          <input value={model.projectTitle} onChange={(event) => actions.setProjectTitle(event.target.value)} />
+        </label>
+        <div>
+          <p className="stage19-spine__lifecycle-help">Choose a parent folder; Black Skies creates the project folder inside it.</p>
+          <button type="button" onClick={() => void actions.createProject()} disabled={!model.projectBridgeAvailable}>Create project…</button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -728,7 +737,12 @@ function LivingOutlineView({
             <section className="stage19-living-outline__advanced" aria-label={`More options for ${advancedItem.label}`}>
               <div className="stage19-living-outline__advanced-heading">
                 <div><span className="stage19-spine__eyebrow">Advanced context</span><h3>{advancedItem.label}</h3></div>
-                <button type="button" onClick={actions.closeOutlineItemOptions}>Close</button>
+                <button
+                  type="button"
+                  onClick={actions.closeOutlineItemOptions}
+                  aria-label="Close note editor; discard unsaved edits"
+                  title="Close note editor; discard unsaved edits"
+                >Close</button>
               </div>
               {visibleItems.length > 1 ? <div className="stage19-note-marker-cluster__details" role="group" aria-label="Notes in this marker cluster">
                 {visibleItems.map((item) => <button key={item.id} type="button" className={item.id === advancedItem.id ? 'is-active' : ''} onClick={() => actions.openOutlineItemOptions(item.id)}>{item.label}</button>)}
@@ -792,7 +806,13 @@ function LivingOutlineView({
                 <span>Note body</span>
                 <textarea aria-label={`Body for ${advancedItem.label}`} value={outlineBody} maxLength={4000} rows={4} onChange={(event) => actions.setOutlineBody(event.target.value)} />
               </label>
-              <button type="button" onClick={() => void actions.updateOutlineItem(advancedItem.id)} disabled={livingOutlineLoading || !outlineLabel.trim()}>Save note</button>
+              <button
+                type="button"
+                onClick={() => void actions.updateOutlineItem(advancedItem.id)}
+                disabled={livingOutlineLoading || !outlineLabel.trim()}
+                aria-label="Save note and close"
+                title="Save this Note and close the detail panel"
+              >Save note and close</button>
               <div className="stage19-living-outline__relationship">
                 <strong>{advancedItem.manuscriptUnitId ? `Belongs with: ${snapshot.project?.units.find((unit) => unit.id === advancedItem.manuscriptUnitId)?.displayTitle ?? 'writing'}` : 'Not placed yet'}</strong>
                 <button type="button" onClick={() => void actions.linkOutlineItem(advancedItem.id, snapshot.activeUnitId)} disabled={livingOutlineLoading || !snapshot.activeUnitId || advancedItem.manuscriptUnitId === snapshot.activeUnitId}>Place with current writing</button>
@@ -1273,10 +1293,10 @@ const WRITING_RAIL_LABELS: Record<Stage19WritingRail, {
   readonly shortLabel: string;
   readonly accessibleLabel: string;
 }> = {
-  top: { shortLabel: 'Project', accessibleLabel: 'project tools' },
-  left: { shortLabel: 'Story', accessibleLabel: 'story tools' },
-  right: { shortLabel: 'Review', accessibleLabel: 'writing support' },
-  bottom: { shortLabel: 'Session', accessibleLabel: 'session tools' },
+  top: { shortLabel: 'Project Tools', accessibleLabel: 'Project Tools' },
+  left: { shortLabel: 'Story', accessibleLabel: 'Story' },
+  right: { shortLabel: 'Review', accessibleLabel: 'Review' },
+  bottom: { shortLabel: 'Writing Session', accessibleLabel: 'Writing Session' },
 };
 
 function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
@@ -1293,11 +1313,12 @@ function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProp
             type="button"
             className={`stage19-writing-shell__edge stage19-writing-shell__edge--${rail} ${open ? 'stage19-spine__sr-only' : ''}`}
             aria-label={`${open ? 'Close' : 'Open'} ${label.accessibleLabel}`}
+            title={`${open ? 'Close' : 'Open'} ${label.shortLabel}`}
             aria-expanded={open}
             aria-controls={`stage19-writing-rail-${rail}`}
             onClick={() => actions.toggleWritingRail(rail)}
           >
-            <span className="stage19-writing-shell__edge-mark" aria-hidden="true" />
+            <span className="stage19-writing-shell__edge-mark" aria-hidden="true">{open ? '‹' : '›'}</span>
             <span className="stage19-writing-shell__edge-label">{label.shortLabel}</span>
           </button>
         );
@@ -1331,9 +1352,9 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
     <section
       id="stage19-writing-rail-top"
       className="stage19-writing-shell__rail stage19-writing-shell__rail--top"
-      aria-label="Project tools"
+      aria-label="Project Tools"
     >
-      <WritingRailHeading rail="top" title="Project tools" actions={actions} />
+      <WritingRailHeading rail="top" title="Project Tools" actions={actions} />
       <ProjectLifecycleView {...props} />
       {model.snapshot.project ? (
         <div className="stage19-writing-shell__project-tools">
@@ -1362,9 +1383,9 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
     <aside
       id="stage19-writing-rail-right"
       className="stage19-writing-shell__rail stage19-writing-shell__rail--right"
-      aria-label="Writing support"
+      aria-label="Review"
     >
-      <WritingRailHeading rail="right" title="Writing support" actions={props.actions} />
+      <WritingRailHeading rail="right" title="Review" actions={props.actions} />
       <SelectedProseCritiqueView {...props} />
     </aside>
   );
@@ -1376,9 +1397,9 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
     <section
       id="stage19-writing-rail-bottom"
       className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
-      aria-label="Writing session tools"
+      aria-label="Writing Session"
     >
-      <WritingRailHeading rail="bottom" title="Writing session" actions={actions} />
+      <WritingRailHeading rail="bottom" title="Writing Session" actions={actions} />
       <div className="stage19-writing-shell__session-summary">
         <p><strong>Current writing</strong><span>{activeUnit?.displayTitle ?? 'No manuscript unit selected'}</span></p>
         <p><strong>Save state</strong><span>{model.writingSaveSummary}</span></p>
@@ -1387,6 +1408,7 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
             type="button"
             onClick={() => void actions.saveUnit(activeUnit.id)}
             disabled={model.recoveryBlocksEditing || !model.activeDirty || snapshot.saveState.status === 'saving'}
+            title={model.activeDirty ? 'Save the current writing' : 'Nothing is unsaved to save'}
           >
             {snapshot.saveState.status === 'saving' ? 'Saving...' : 'Save current writing'}
           </button>

@@ -41,7 +41,7 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
       return performance.now() - startedAt;
     }, parent);
 
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     const binderButtons = writing
       .getByRole('complementary', { name: 'Story rail' })
       .locator('.stage19-story-rail__unit-title');

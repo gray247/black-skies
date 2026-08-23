@@ -61,7 +61,7 @@ describe('DraftEditor', () => {
       .filter((node) => (node as HTMLElement).style.visibility !== 'hidden')
       .map((node) => node.textContent);
 
-    await waitFor(() => expect(gutterLines()).toEqual(['1', '2', '3', '4']));
+    await waitFor(() => expect(gutterLines()).toEqual(['1', '2', '3', '']));
     expect(container.querySelector('.cm-content')).toHaveTextContent('First line');
     fireEvent.keyDown(textbox, { key: 's', ctrlKey: true });
     expect(onSave).toHaveBeenCalledWith(source);

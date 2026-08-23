@@ -44,13 +44,13 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     const prose = `${'The signal crossed the empty harbor while Mara counted each unanswered bell. '.repeat(6)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Readable Passage' });
     await editor.fill(prose);
-    await openWritingStudioRail(writing, 'story tools');
-    const manuscriptTools = writing.getByRole('region', { name: 'Story tools' });
+    await openWritingStudioRail(writing, 'Story');
+    const manuscriptTools = writing.getByRole('complementary', { name: 'Story rail' });
     const railBox = await manuscriptTools.boundingBox();
     expect(railBox).not.toBeNull();
     expect(railBox!.x).toBeGreaterThanOrEqual(0);
     expect(railBox!.x + railBox!.width).toBeLessThanOrEqual(721);
-    expect(await writing.getByRole('button', { name: 'Open project tools' }).evaluate(
+    expect(await writing.getByRole('button', { name: 'Open Project Tools' }).evaluate(
       (element) => Number.parseFloat(getComputedStyle(element).transitionDuration),
     )).toBeLessThanOrEqual(0.001);
     const enterFocus = writing.getByRole('button', { name: 'Enter Focus mode' });
@@ -65,7 +65,7 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
 
     await editor.focus();
     await writing.keyboard.press('Control+A');
-    await openWritingStudioRail(writing, 'writing support');
+    await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await writing.getByLabel('OpenAI API key (session only; no readback)')
       .fill('synthetic-session-credential-123456');

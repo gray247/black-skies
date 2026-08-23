@@ -100,8 +100,8 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       { message: 'Writing Studio should apply the light canvas surface after the theme state changes' },
     ).toBe('rgb(251, 248, 241)');
     await expect(editor).toContainText(prose);
-    await openWritingStudioRail(writing, 'project tools');
-    const projectTools = writing.getByRole('region', { name: 'Project tools' });
+    await openWritingStudioRail(writing, 'Project Tools');
+    const projectTools = writing.getByRole('region', { name: 'Project Tools' });
     const projectPresentation = await projectTools.evaluate((element) => ({
       height: element.getBoundingClientRect().height,
       helperColors: Array.from(element.querySelectorAll('.stage19-spine__lifecycle-help, .stage19-spine__lifecycle label'))
@@ -110,11 +110,21 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     expect(projectPresentation.height).toBeLessThan(320);
     expect(projectPresentation.helperColors.length).toBeGreaterThan(0);
     expect(projectPresentation.helperColors.every((color) => color === 'rgb(87, 81, 73)')).toBe(true);
+    expect(projectPresentation.helperColors).not.toContain('rgb(119, 112, 103)');
+    const edgePresentation = await writing.locator('#stage19-writing-edge-right').evaluate((element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return { position: style.position, fontSize: style.fontSize, width: rect.width, height: rect.height };
+    });
+    expect(edgePresentation.position).toBe('fixed');
+    expect(parseFloat(edgePresentation.fontSize)).toBeGreaterThanOrEqual(12.8);
+    expect(edgePresentation.width).toBeGreaterThan(0);
+    expect(edgePresentation.height).toBeGreaterThan(0);
     await projectTools.getByRole('button', { name: 'Close', exact: true }).click();
-    await openWritingStudioRail(writing, 'writing support');
+    await openWritingStudioRail(writing, 'Review');
     const credentialLabel = writing.getByText('OpenAI API key (session only; no readback)');
     expect(await credentialLabel.evaluate((element) => getComputedStyle(element).color)).toBe('rgb(87, 81, 73)');
-    await writing.getByRole('complementary', { name: 'Writing support' }).getByRole('button', { name: 'Close', exact: true }).click();
+    await writing.getByRole('complementary', { name: 'Review' }).getByRole('button', { name: 'Close', exact: true }).click();
     await themeSwitch.click();
     await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');
     await expect(studio).toHaveAttribute('data-stage19-theme', 'dark');
@@ -125,13 +135,13 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       panel: string;
       role: 'region' | 'complementary';
     }> = [
-      { control: 'project tools', panel: 'Project tools', role: 'region' },
-      { control: 'story tools', panel: 'Story tools', role: 'region' },
-      { control: 'writing support', panel: 'Writing support', role: 'complementary' },
-      { control: 'session tools', panel: 'Writing session tools', role: 'region' },
+      { control: 'Project Tools', panel: 'Project Tools', role: 'region' },
+      { control: 'Story', panel: 'Story rail', role: 'complementary' },
+      { control: 'Review', panel: 'Review', role: 'complementary' },
+      { control: 'Writing Session', panel: 'Writing Session', role: 'region' },
     ];
     for (const rail of rails) {
-      if (rail.control === 'session tools') {
+      if (rail.control === 'Writing Session') {
         const hitTest = await writing.evaluate(() => {
           const button = document.getElementById('stage19-writing-edge-bottom');
           if (!button) return { targetId: null, viewport: null, button: null, companion: null };
@@ -166,14 +176,14 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       await expect(editor).toContainText(prose);
     }
 
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await expect(writing.getByRole('complementary', {
       name: 'Story rail',
     })).toBeVisible();
     await writing.getByRole('button', { name: 'Enter Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'focus');
     await expect(writing.getByRole('navigation', { name: 'Writing Studio edge controls' })).toHaveCount(0);
-    await expect(writing.getByRole('region', { name: 'Story tools' })).toHaveCount(0);
+    await expect(writing.getByRole('complementary', { name: 'Story rail' })).toHaveCount(0);
     await expect(writing.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveCount(0);
     await expect(writing.getByRole('heading', { name: 'One continuous story' })).toHaveCount(0);
     await expect(writing.getByText(/Scroll through the whole story/)).toHaveCount(0);
@@ -181,12 +191,12 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
 
     await writing.getByRole('button', { name: 'Exit Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'left');
-    await expect(writing.getByRole('region', { name: 'Story tools' })).toBeVisible();
+    await expect(writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
     await expect(editor).toContainText(prose);
 
     await writing.setViewportSize({ width: 1000, height: 800 });
-    await openWritingStudioRail(writing, 'writing support');
-    const writingSupport = writing.getByRole('complementary', { name: 'Writing support' });
+    await openWritingStudioRail(writing, 'Review');
+    const writingSupport = writing.getByRole('complementary', { name: 'Review' });
     expect(await writingSupport.evaluate((element) => ({
       position: getComputedStyle(element).position,
       width: element.getBoundingClientRect().width,
@@ -230,7 +240,7 @@ test('Slice 1 keeps long prose in a private canvas scroll region while rails sta
     const studio = writing.getByRole('region', { name: 'Writing Studio' });
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Long Draft' });
     await editor.fill(Array.from({ length: 180 }, (_, index) => `Line ${index + 1}: the manuscript remains one continuous draft.`).join('\n'));
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     const geometryBefore = await writing.evaluate(() => {
       const shell = document.querySelector('.stage19-writing-shell');
       const canvas = document.querySelector('[data-manuscript-scroll-owner="true"]');
@@ -310,7 +320,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await writing.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
 
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await writing.getByRole('button', { name: '01 Opening' }).click();
     const openingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening' });
     const openingProse = 'Rain crossed the windows before the first passenger arrived.';
@@ -321,7 +331,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
 
     // Rail selection, rather than the in-manuscript jump control, must bring
     // the selected unit into view in a long continuous manuscript.
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await writing.getByRole('button', { name: '02 Crossing' }).click();
     await expect(crossingEditor).toBeInViewport();
     await writing.getByRole('button', { name: '01 Opening' }).click();
@@ -338,12 +348,29 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await expect(writing.getByRole('button', { name: 'Write in Opening' })).toContainText(openingProse);
 
     await activeCrossingEditor.selectText();
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await writing.getByRole('button', { name: 'Add story content' }).click();
     await writing.getByRole('button', { name: 'Note' }).click();
     const title = writing.getByRole('textbox', { name: `Title for ${crossingProse}` });
     await title.fill('Lantern crossing');
-    await writing.getByRole('button', { name: 'Save note' }).click();
+    const saveNote = writing.getByRole('button', { name: 'Save note and close' });
+    await expect(saveNote).toBeVisible();
+    const saveNotePresentation = await saveNote.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return {
+        fontSize: style.fontSize,
+        color: style.color,
+        backgroundColor: style.backgroundColor,
+        width: rect.width,
+        height: rect.height,
+      };
+    });
+    expect(parseFloat(saveNotePresentation.fontSize)).toBeGreaterThanOrEqual(12.8);
+    expect(saveNotePresentation.color).not.toBe('rgb(119, 112, 103)');
+    expect(saveNotePresentation.width).toBeGreaterThan(0);
+    expect(saveNotePresentation.height).toBeGreaterThan(0);
+    await saveNote.click();
 
     const noteMarker = writing.getByRole('button', { name: 'Open Note Lantern crossing for Crossing' });
     await expect(noteMarker).toContainText('Lantern crossing');
@@ -367,7 +394,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     const renamedTitle = writing.getByRole('textbox', { name: 'Title for Lantern crossing' });
     await expect(renamedTitle).toBeFocused();
     await renamedTitle.fill('Lantern crossing revised');
-    await writing.getByRole('button', { name: 'Save note' }).click();
+    await writing.getByRole('button', { name: 'Save note and close' }).click();
     const renamedMarker = writing.getByRole('button', { name: 'Open Note Lantern crossing revised for Crossing' });
     await expect(renamedMarker).toContainText('Lantern crossing revised');
     const canvasScrollBeforeOpen = await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop);
@@ -405,7 +432,7 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
       process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;
     }, { parentPath: destinationPath, filePath: sourcePath });
 
-    await openWritingStudioRail(writing, 'story tools');
+    await openWritingStudioRail(writing, 'Story');
     await writing.locator('details.stage19-manuscript-structure').evaluate((element) => { (element as HTMLDetailsElement).open = true; });
     await writing.getByRole('button', { name: 'Import Markdown' }).click();
     await expect.poll(async () => (await readdir(destinationPath)).filter((entry) => entry.startsWith('proj_intake_')).length).toBe(1);

@@ -7233,6 +7233,207 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 }
 
+/* Bounded Program 5 rail repair: keep the Writing Studio controls readable,
+   compact, and outside the manuscript's scroll path. */
+.stage19-spine--writing[data-stage19-theme="light"] {
+  --bs-text-muted: var(--bs-text-secondary);
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge {
+  min-width: 56px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--bs-line-quiet);
+  background: var(--bs-surface-base);
+  color: var(--stage19-semantic-muted);
+  box-shadow: 0 2px 8px color-mix(in srgb, #000 16%, transparent);
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge--right {
+  right: 22px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge--left {
+  left: 8px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge--top {
+  top: 62px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge--bottom {
+  bottom: 66px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge-mark {
+  display: inline-grid;
+  place-items: center;
+  width: auto;
+  height: auto;
+  color: var(--stage19-semantic-focus);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge--left .stage19-writing-shell__edge-mark,
+.stage19-spine--writing .stage19-writing-shell__edge--right .stage19-writing-shell__edge-mark {
+  width: auto;
+  height: auto;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge-label {
+  max-width: 10rem;
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+  opacity: 1;
+}
+
+.stage19-spine--writing .stage19-writing-shell__edge:hover,
+.stage19-spine--writing .stage19-writing-shell__edge:focus-visible,
+.stage19-spine--writing .stage19-writing-shell__edge[aria-expanded="true"] {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-writing-shell__rail--top {
+  max-height: min(20rem, 34vh);
+  padding: 10px 14px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bs-line-quiet);
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group:last-child {
+  border-bottom: 0;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group strong,
+.stage19-spine--writing .stage19-writing-shell__project-tool-group label > span {
+  color: var(--stage19-semantic-text);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group label {
+  display: grid;
+  gap: 4px;
+  min-width: 12rem;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tool-group .stage19-spine__lifecycle-help {
+  margin: 2px 0 0;
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tools {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__project-tools p {
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.stage19-spine--writing .stage19-writing-shell__rail--bottom {
+  margin: 8px 48px 58px;
+  padding: 10px 14px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__session-summary {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) auto;
+  align-items: center;
+  gap: 10px 18px;
+}
+
+.stage19-spine--writing .stage19-writing-shell__session-summary p {
+  min-width: 0;
+}
+
+.stage19-spine--writing .stage19-writing-shell__session-summary strong,
+.stage19-spine--writing .stage19-writing-shell__session-summary span {
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+}
+
+.stage19-spine--writing .stage19-writing-shell__session-summary strong {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-writing-shell__canvas {
+  scroll-padding-bottom: max(96px, 8rem);
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced > button[aria-label="Save note and close"] {
+  min-height: 40px;
+  width: fit-content;
+  padding: 8px 12px;
+  color: var(--stage19-semantic-text);
+  font-size: 0.85rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-living-outline__advanced-heading button[aria-label*="discard unsaved"] {
+  color: var(--stage19-semantic-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.stage19-spine--writing .stage19-ai,
+.stage19-spine--writing .stage19-ai p,
+.stage19-spine--writing .stage19-ai label,
+.stage19-spine--writing .stage19-ai__heading > span,
+.stage19-spine--writing .stage19-ai__selection p {
+  color: var(--stage19-semantic-muted);
+}
+
+.stage19-spine--writing button:disabled,
+.stage19-spine--writing input:disabled,
+.stage19-spine--writing select:disabled,
+.stage19-spine--writing textarea:disabled {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--bs-surface-hover) 70%, var(--bs-surface-base));
+  color: var(--stage19-semantic-disabled);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+@media (max-width: 900px), (min-resolution: 1.5dppx) and (max-height: 1000px) {
+  .stage19-spine--writing .stage19-writing-shell__edge-label {
+    max-width: 8rem;
+    font-size: 0.78rem;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__rail--bottom {
+    margin: 8px 8px 58px;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__session-summary,
+  .stage19-spine--writing .stage19-writing-shell__project-tool-group,
+  .stage19-spine--writing .stage19-writing-shell__project-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__project-tool-group button,
+  .stage19-spine--writing .stage19-writing-shell__project-tools button {
+    justify-self: start;
+  }
+}
+
 /* P5-UX-01 Slice 3: shared semantic readability and quiet story-rail context. */
 .stage19-spine--writing .stage19-spine__eyebrow,
 .stage19-spine--writing .stage19-living-outline__count,

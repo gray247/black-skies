@@ -52,7 +52,7 @@ test('dedicated Stage 19 writing and command surfaces have no WCAG A/AA axe viol
     await editor.fill(prose);
     await editor.focus();
     await writing.keyboard.press('Control+A');
-    await openWritingStudioRail(writing, 'writing support');
+    await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await writing.getByLabel('OpenAI API key (session only; no readback)')
       .fill('synthetic-session-credential-123456');

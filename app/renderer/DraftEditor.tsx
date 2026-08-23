@@ -131,6 +131,17 @@ interface DraftHistoryState {
   lastEditAt: number;
 }
 
+function formatDraftLineNumber(lineNumber: number, state: EditorState): string {
+  if (lineNumber > state.doc.lines) return String(lineNumber);
+  const line = state.doc.line(lineNumber);
+  // A final empty line is the trailing newline delimiter, not a prose line.
+  // Keep the source byte-for-byte intact while avoiding an orphan gutter mark
+  // at the Unit boundary.
+  return lineNumber === state.doc.lines && line.from === line.to && state.doc.length > 0
+    ? ''
+    : String(lineNumber);
+}
+
 export default function DraftEditor({
   value,
   placeholder,
@@ -339,7 +350,7 @@ export default function DraftEditor({
       return replaceDocument(view, next, 'redo');
     };
     const configuration: Extension[] = [
-      lineNumbers(),
+      lineNumbers({ formatNumber: formatDraftLineNumber }),
       EditorView.lineWrapping,
       keymap.of([
         {
