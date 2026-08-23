@@ -5659,13 +5659,18 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-width: 0;
   min-height: 0;
   padding: 16px;
-  padding-bottom: 8rem;
   overflow: auto;
-  scroll-padding-bottom: max(72px, calc(72px + 8rem));
   border: 1px solid var(--bs-line-quiet);
   border-radius: 4px;
   background: var(--bs-surface-raised);
   color: var(--bs-text-primary);
+}
+
+.stage19-writing-shell__rail--left,
+.stage19-writing-shell__rail--right,
+.stage19-writing-shell__rail--bottom {
+  padding-bottom: 8rem;
+  scroll-padding-bottom: max(72px, calc(72px + 8rem));
 }
 
 /* Rails own their actions.  Keep them above the optional Companion strip so a
@@ -5743,6 +5748,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   background: transparent;
 }
 
+.stage19-spine--writing .stage19-spine__lifecycle-help,
+.stage19-spine--writing .stage19-spine__lifecycle label,
+.stage19-spine--writing .stage19-ai__credential label {
+  color: var(--bs-text-secondary);
+}
+
 .stage19-writing-shell__project-tools {
   justify-content: flex-end;
   margin-top: 12px;
@@ -5766,10 +5777,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing .stage19-spine__editor-card {
-  width: min(100%, 88rem);
+  width: min(100%, 104rem);
   min-height: calc(100vh - 56px);
   margin: 0 auto;
-  padding: clamp(24px, 5vw, 72px) clamp(24px, 7vw, 96px) 56px;
+  padding: clamp(24px, 5vw, 72px) clamp(24px, 4vw, 64px) 56px;
   border: 0;
   border-radius: 0;
   background: var(--bs-canvas-black);
@@ -5778,7 +5789,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-spine__editor-header,
 .stage19-spine--writing .stage19-spine__shortcut {
-  width: min(100%, 90ch);
+  width: min(100%, 126ch);
   margin-right: auto;
   margin-left: auto;
 }
@@ -5845,8 +5856,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing .stage19-spine__editor .cm-content {
-  width: min(100%, 90ch);
-  max-width: 90ch;
+  width: min(100%, 126ch);
+  max-width: 126ch;
   min-height: 18rem;
   margin: 0 auto;
   padding: 0 0 32px;
@@ -5854,7 +5865,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-continuous-manuscript {
-  width: min(100%, 90ch);
+  width: min(100%, 126ch);
   margin: 0 auto;
 }
 
@@ -7111,6 +7122,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   gap: 8px;
   margin-top: 8px;
   padding: 12px 0;
+  max-height: min(44vh, 28rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   border-top: 1px solid var(--bs-line-strong);
   border-bottom: 1px solid var(--bs-line-quiet);
   background: transparent;
@@ -7518,6 +7534,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   padding: 3px 0 3px 6px;
 }
 
+.stage19-story-rail__unit-row:has(.stage19-story-rail__selection) {
+  grid-template-columns: 30px 28px minmax(0, 1fr) auto auto;
+}
+
 .stage19-story-rail__unit-order {
   color: var(--bs-text-secondary);
   font-size: 0.8rem;
@@ -7636,6 +7656,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   text-align: left;
 }
 
+.stage19-note-marker-cluster__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .stage19-note-marker-cluster__button:hover,
 .stage19-note-marker-cluster__button:focus-visible,
 .stage19-note-marker-cluster__button.is-active {
@@ -7656,17 +7683,23 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-note-marker-cluster__selection,
 .stage19-note-marker-cluster__details {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 6px;
 }
 
 .stage19-note-marker-cluster__selection label {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
   gap: 4px;
+  min-width: 0;
   color: var(--bs-text-secondary);
   font-size: 0.8rem;
+}
+
+.stage19-note-marker-cluster__selection input {
+  justify-self: center;
+  accent-color: var(--stage19-semantic-focus);
 }
 
 .stage19-note-marker-cluster__details {

@@ -1824,7 +1824,6 @@ export default function Stage19WritingSpineApp({
     if (!selectLivingOutlineFields(itemId)) return;
     setOutlineEditingItemId(null);
     setOutlineAdvancedItemId(itemId);
-    window.requestAnimationFrame(() => document.getElementById(`stage19-outline-detail-title-${itemId}`)?.focus());
   }, [selectLivingOutlineFields]);
 
   const updateLivingOutlineItem = useCallback(async (itemId: string) => {

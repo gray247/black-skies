@@ -83,11 +83,11 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await expect(openingOutlineTitle).toHaveValue(/Rain marked the station glass/);
     await openingOutlineTitle.fill('Opening question');
     await writing.getByRole('button', { name: 'Save note' }).click();
-    await writing.getByRole('button', { name: 'Open 1 Note for Opening Signal' }).click();
+    await writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' }).click();
     const openingOptions = writing.getByRole('region', { name: 'More options for Opening question' });
     await openingOptions.getByLabel('Source state').selectOption('authored');
     await openingOptions.getByRole('button', { name: 'Save note' }).click();
-    await expect(writing.getByRole('button', { name: 'Open 1 Note for Opening Signal' })).toBeVisible();
+    await expect(writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' })).toBeVisible();
 
     await writing.getByRole('button', { name: /^02 Impossible Arrival$/ }).click();
     const arrivalEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Impossible Arrival' });
@@ -99,7 +99,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     const arrivalOutlineTitle = writing.getByRole('textbox', { name: /Title for / }).last();
     await arrivalOutlineTitle.fill('Bridge into the impossible arrival');
     await writing.getByRole('button', { name: 'Save note' }).click();
-    await writing.getByRole('button', { name: 'Open 1 Note for Impossible Arrival' }).click();
+    await writing.getByRole('button', { name: 'Open Note Bridge into the impossible arrival for Impossible Arrival' }).click();
     const arrivalOptions = writing.getByRole('region', { name: 'More options for Bridge into the impossible arrival' });
     await arrivalOptions.getByLabel('Structural meaning').selectOption('gap');
     await arrivalOptions.getByLabel('Source state').selectOption('proposed');
@@ -175,9 +175,9 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     }, created.projectPath);
     await expect(reopened.writing.getByRole('heading', { name: 'Gate One Project' })).toBeVisible();
     await openWritingStudioRail(reopened.writing, 'story tools');
-    await expect(reopened.writing.getByRole('button', { name: 'Open 1 Note for Opening Signal' })).toBeVisible();
-    await reopened.writing.getByRole('button', { name: 'Open 1 Note for Opening Signal' }).click();
-    await reopened.writing.getByRole('button', { name: 'Open 1 Note for Impossible Arrival' }).click();
+    await expect(reopened.writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' })).toBeVisible();
+    await reopened.writing.getByRole('button', { name: 'Open Note Opening question for Opening Signal' }).click();
+    await reopened.writing.getByRole('button', { name: 'Open Note Bridge into the impossible arrival for Impossible Arrival' }).click();
     await expect(reopened.writing.locator('.stage19-living-outline__meaning')).toHaveText('Something goes here');
     await expect(reopened.writing.locator('.stage19-living-outline__suggested')).toHaveText('Suggested');
     await expect(reopened.writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' })).toContainText(openingProse);

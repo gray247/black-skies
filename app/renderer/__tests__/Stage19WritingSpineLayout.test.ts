@@ -43,7 +43,8 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toContain('.stage19-theme-switch');
     expect(p3d).toMatch(/\.stage19-spine--writing[\s\S]*?background:\s*var\(--bs-canvas-black\);/);
     expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-scroller[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;/);
-    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*90ch;/);
+    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor \.cm-content[\s\S]*?max-width:\s*126ch;/);
+    expect(p3d).toMatch(/\.stage19-spine--writing \.stage19-spine__editor-card[\s\S]*?width:\s*min\(100%,\s*104rem\);/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)[\s\S]*?\.stage19-writing-shell__rail--left,[\s\S]*?position:\s*static;[\s\S]*?box-shadow:\s*none;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
@@ -136,6 +137,8 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(writingSlice).toContain('.stage19-spine--writing .stage19-story-rail__menu p');
     expect(writingSlice).toContain('color: var(--stage19-semantic-muted);');
     expect(writingSlice).toContain('font-size: 0.8rem;');
+    expect(writingSlice).toMatch(/\.stage19-spine--writing \.stage19-spine__lifecycle-help,[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
+    expect(writingSlice).toMatch(/\.stage19-spine--writing \.stage19-ai__credential label[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
     expect(writingSlice).not.toMatch(/\.stage19-spine--writing[\s\S]{0,240}color:\s*var\(--bs-text-muted\)/);
 
     for (const selector of [
@@ -182,5 +185,15 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
         node.remove();
       }
     }
+  });
+
+  it('keeps the top project rail compact and bounds Note details inside the Story rail', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+
+    expect(css).toMatch(/\.stage19-writing-shell__rail--left,[\s\S]*?\.stage19-writing-shell__rail--bottom\s*\{[\s\S]*?padding-bottom:\s*8rem;/);
+    expect(css).not.toMatch(/\.stage19-writing-shell__rail--top[^}]*padding-bottom:\s*8rem;/);
+    expect(css).toMatch(/\.stage19-spine--writing \.stage19-living-outline__advanced\s*\{[\s\S]*?max-height:\s*min\(44vh,\s*28rem\);[\s\S]*?overflow-y:\s*auto;/);
+    expect(css).toMatch(/\.stage19-story-rail__unit-row:has\(\.stage19-story-rail__selection\)[\s\S]*?grid-template-columns:\s*30px 28px minmax\(0,\s*1fr\) auto auto;/);
+    expect(css).toMatch(/\.stage19-note-marker-cluster__selection label[\s\S]*?grid-template-columns:\s*24px minmax\(0,\s*1fr\);/);
   });
 });

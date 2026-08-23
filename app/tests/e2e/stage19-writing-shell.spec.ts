@@ -72,11 +72,23 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     const studio = writing.getByRole('region', { name: 'Writing Studio' });
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Unbroken Draft' });
     const prose = 'The night stayed quiet while the author kept the sentence alive.';
+    await writing.setViewportSize({ width: 1900, height: 1000 });
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'closed');
     await editor.fill(prose);
     await expect(editor).toContainText(prose);
     expect(await studio.evaluate((element) => getComputedStyle(element).backgroundColor))
       .toBe('rgb(0, 0, 0)');
+    const proseGeometry = await writing.evaluate(() => {
+      const content = document.querySelector('.stage19-spine__editor .cm-content');
+      const card = document.querySelector('.stage19-spine__editor-card');
+      if (!(content instanceof HTMLElement) || !(card instanceof HTMLElement)) throw new Error('Prose geometry is unavailable');
+      return {
+        contentWidth: content.getBoundingClientRect().width,
+        cardWidth: card.getBoundingClientRect().width,
+      };
+    });
+    expect(proseGeometry.contentWidth).toBeGreaterThan(950);
+    expect(proseGeometry.contentWidth).toBeLessThanOrEqual(proseGeometry.cardWidth);
 
     const themeSwitch = writing.getByRole('switch', { name: 'Light theme' });
     await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');
@@ -88,6 +100,21 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       { message: 'Writing Studio should apply the light canvas surface after the theme state changes' },
     ).toBe('rgb(251, 248, 241)');
     await expect(editor).toContainText(prose);
+    await openWritingStudioRail(writing, 'project tools');
+    const projectTools = writing.getByRole('region', { name: 'Project tools' });
+    const projectPresentation = await projectTools.evaluate((element) => ({
+      height: element.getBoundingClientRect().height,
+      helperColors: Array.from(element.querySelectorAll('.stage19-spine__lifecycle-help, .stage19-spine__lifecycle label'))
+        .map((node) => getComputedStyle(node).color),
+    }));
+    expect(projectPresentation.height).toBeLessThan(320);
+    expect(projectPresentation.helperColors.length).toBeGreaterThan(0);
+    expect(projectPresentation.helperColors.every((color) => color === 'rgb(87, 81, 73)')).toBe(true);
+    await projectTools.getByRole('button', { name: 'Close', exact: true }).click();
+    await openWritingStudioRail(writing, 'writing support');
+    const credentialLabel = writing.getByText('OpenAI API key (session only; no readback)');
+    expect(await credentialLabel.evaluate((element) => getComputedStyle(element).color)).toBe('rgb(87, 81, 73)');
+    await writing.getByRole('complementary', { name: 'Writing support' }).getByRole('button', { name: 'Close', exact: true }).click();
     await themeSwitch.click();
     await expect(themeSwitch).toHaveAttribute('aria-checked', 'false');
     await expect(studio).toHaveAttribute('data-stage19-theme', 'dark');
@@ -318,9 +345,37 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await title.fill('Lantern crossing');
     await writing.getByRole('button', { name: 'Save note' }).click();
 
-    await writing.getByRole('button', { name: 'Open 1 Note for Crossing' }).click();
+    const noteMarker = writing.getByRole('button', { name: 'Open Note Lantern crossing for Crossing' });
+    await expect(noteMarker).toContainText('Lantern crossing');
+    await writing.getByRole('button', { name: 'Select multiple' }).click();
+    const checkboxCenters = await writing.getByRole('complementary', { name: 'Story rail' }).evaluate((element) => {
+      const centers = (selector: string) => Array.from(element.querySelectorAll<HTMLInputElement>(selector))
+        .map((input) => {
+          const rect = input.getBoundingClientRect();
+          return rect.left + rect.width / 2;
+        });
+      return {
+        units: centers('input[aria-label^="Select Unit"]'),
+        notes: centers('input[aria-label^="Select Note"]'),
+      };
+    });
+    expect(checkboxCenters.units).toHaveLength(2);
+    expect(Math.max(...checkboxCenters.units) - Math.min(...checkboxCenters.units)).toBeLessThan(1);
+    expect(Math.abs(checkboxCenters.units[0]! - checkboxCenters.notes[0]!)).toBeLessThan(16);
+    await writing.getByRole('button', { name: 'Done selecting' }).click();
+    await noteMarker.press('F2');
+    const renamedTitle = writing.getByRole('textbox', { name: 'Title for Lantern crossing' });
+    await expect(renamedTitle).toBeFocused();
+    await renamedTitle.fill('Lantern crossing revised');
+    await writing.getByRole('button', { name: 'Save note' }).click();
+    const renamedMarker = writing.getByRole('button', { name: 'Open Note Lantern crossing revised for Crossing' });
+    await expect(renamedMarker).toContainText('Lantern crossing revised');
+    const canvasScrollBeforeOpen = await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop);
+    await renamedMarker.click();
+    await expect(writing.getByRole('textbox', { name: 'Title for Lantern crossing revised' })).not.toBeFocused();
+    expect(await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop)).toBe(canvasScrollBeforeOpen);
     await writing.getByRole('button', { name: 'Locate in manuscript' }).click();
-    await expect(writing.getByRole('alert').filter({ hasText: 'Returned to Lantern crossing.' })).toBeVisible();
+    await expect(writing.getByRole('alert').filter({ hasText: 'Returned to Lantern crossing revised.' })).toBeVisible();
     expect(await activeCrossingEditor.evaluate(() => window.getSelection()?.toString())).toBe(crossingProse);
   } finally {
     await removeTemporaryDirectory(parent);

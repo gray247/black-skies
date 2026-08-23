@@ -651,6 +651,7 @@ function LivingOutlineView({
   const visibleItems = livingOutline?.document.items.filter((item) =>
     placementUnitId === undefined ? true : item.manuscriptUnitId === placementUnitId,
   ) ?? [];
+  const markerTargetItem = visibleItems.find((item) => item.id === selectedOutlineItemId) ?? visibleItems[0] ?? null;
   const hasSelectedPassage = Boolean(aiSelection?.selectedText.trim());
   const creationContext = hasSelectedPassage
     ? `Selected passage in ${activeUnit?.displayTitle ?? 'the current writing'}`
@@ -689,12 +690,24 @@ function LivingOutlineView({
               <button
                 type="button"
                 className={`stage19-note-marker-cluster__button ${visibleItems.some((item) => item.id === selectedOutlineItemId) ? 'is-active' : ''}`}
-                aria-label={`Open ${visibleItems.length} Note${visibleItems.length === 1 ? '' : 's'}${placementUnitId ? ` for ${snapshot.project?.units.find((unit) => unit.id === placementUnitId)?.displayTitle ?? 'this Unit'}` : ' not placed yet'}`}
+                aria-label={visibleItems.length === 1
+                  ? `Open Note ${visibleItems[0]!.label}${placementUnitId ? ` for ${snapshot.project?.units.find((unit) => unit.id === placementUnitId)?.displayTitle ?? 'this Unit'}` : ' not placed yet'}`
+                  : `Open ${visibleItems.length} Notes${placementUnitId ? ` for ${snapshot.project?.units.find((unit) => unit.id === placementUnitId)?.displayTitle ?? 'this Unit'}` : ' not placed yet'}`}
                 aria-expanded={Boolean(advancedItem && visibleItems.some((item) => item.id === advancedItem.id))}
-                onClick={() => actions.openOutlineItemOptions(selectedOutlineItemId && visibleItems.some((item) => item.id === selectedOutlineItemId) ? selectedOutlineItemId : visibleItems[0]!.id)}
+                title={visibleItems.length === 1 ? 'Double-click or press F2 to rename this Note' : 'Open Notes in this cluster'}
+                onClick={() => markerTargetItem && actions.openOutlineItemOptions(markerTargetItem.id)}
+                onDoubleClick={() => markerTargetItem && actions.editOutlineItem(markerTargetItem.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'F2' && markerTargetItem) {
+                    event.preventDefault();
+                    actions.editOutlineItem(markerTargetItem.id);
+                  }
+                }}
               >
                 <span className="stage19-note-marker-cluster__marker" aria-hidden="true" />
-                <span>{visibleItems.length} {visibleItems.length === 1 ? 'Note' : 'Notes'}</span>
+                <span className="stage19-note-marker-cluster__label">
+                  {visibleItems.length === 1 ? visibleItems[0]!.label : `${visibleItems.length} Notes`}
+                </span>
               </button>
               {multiSelectMode ? <div className="stage19-note-marker-cluster__selection" role="group" aria-label="Select Notes in this marker cluster">
                 {visibleItems.map((item) => (
@@ -726,7 +739,17 @@ function LivingOutlineView({
               <button type="button" onClick={() => void actions.selectOutlineItem(advancedItem.id)}>Locate in manuscript</button>
               <label>
                 <span>Note title</span>
-                <input ref={detailItemId === advancedItem.id ? focusOutlineTitleInput : undefined} id={`stage19-outline-detail-title-${advancedItem.id}`} aria-label={`Title for ${advancedItem.label}`} value={outlineLabel} maxLength={240} onChange={(event) => actions.setOutlineLabel(event.target.value)} />
+                <input
+                  ref={outlineEditingItemId === advancedItem.id ? focusOutlineTitleInput : undefined}
+                  id={`stage19-outline-detail-title-${advancedItem.id}`}
+                  aria-label={`Title for ${advancedItem.label}`}
+                  value={outlineLabel}
+                  maxLength={240}
+                  onChange={(event) => actions.setOutlineLabel(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') void actions.cancelOutlineItemEdit();
+                  }}
+                />
               </label>
               {outlineKind === 'gap' ? <span className="stage19-living-outline__meaning">Something goes here</span> : null}
               {outlineState === 'proposed' ? <span className="stage19-living-outline__suggested">Suggested</span> : null}
