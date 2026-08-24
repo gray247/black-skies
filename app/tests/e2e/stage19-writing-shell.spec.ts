@@ -510,7 +510,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
   }
 });
 
-test('Program 5 imports, paginates, edits, applies, and reloads a disposable Markdown structure', async ({
+test('Program 5 requires complete decisions before applying a disposable Markdown structure', async ({
   electronApp,
   page,
 }) => {
@@ -575,123 +575,69 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     expect(structureLayout.listOverflowY).toBe('visible');
     expect(structureLayout.workspaceHorizontalOverflow).toBeLessThanOrEqual(1);
     expect(structureLayout.listHorizontalOverflow).toBeLessThanOrEqual(1);
-    const secondProposal = proposals.locator('[data-structure-proposal="true"]').nth(1);
-    const secondProposalId = await secondProposal.getAttribute('data-structure-proposal-id');
-    await secondProposal.getByRole('button', { name: /Second/ }).click();
-    await expect(writing.locator(`[data-imported-proposal-id="${secondProposalId}"]`).first()).toHaveAttribute('aria-pressed', 'true');
-
     const selectedControls = writing.getByRole('region', { name: 'Selected section controls' });
+    await expect(selectedControls).toContainText('First');
+    await selectedControls.getByRole('button', { name: 'Accept' }).click();
+    const readiness = writing.getByRole('region', { name: 'Apply structure readiness' });
+    await expect(readiness).toContainText('Not ready to Apply');
+    await expect(readiness).toContainText('Decide 2 remaining sections.');
+    await expect(readiness).toContainText('Second');
+    await expect(readiness).toContainText('Third');
+    await expect(readiness.getByRole('button', { name: 'Review next undecided' })).toBeVisible();
+    await readiness.getByRole('button', { name: 'Review next undecided' }).click();
     await expect(selectedControls).toContainText('Second');
-    await writing.getByText('More section actions').click();
-    await writing.getByText('Advanced boundary tools').click();
-    await writing.getByLabel('Start boundary').selectOption({ index: 1 });
-    await writing.getByLabel('End boundary').selectOption({ index: 2 });
-    await writing.getByRole('textbox', { name: 'Boundary label' }).fill('First pinned boundary');
-    await writing.getByRole('button', { name: 'Pin boundary' }).click();
-
-    await writing.getByRole('textbox', { name: 'Section name' }).fill('Second renamed');
-    await writing.getByRole('button', { name: 'Save name' }).click();
-    await expect(writing.getByRole('button', { name: /Merge with next:/ })).toHaveCount(1);
-    await writing.getByRole('button', { name: /Merge with next:/ }).click();
-    await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
-      if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
-    });
-    await writing.getByLabel('Split selected section at').selectOption({ index: 1 });
-    await writing.getByRole('button', { name: 'Split section' }).click();
-    await expect.poll(async () => proposals.locator('[data-structure-proposal="true"]').count()).toBeGreaterThan(2);
-
-    const undecidedProposals = proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' });
-    await expect.poll(async () => undecidedProposals.count()).toBeGreaterThan(1);
-    await undecidedProposals.first().getByRole('button').click();
-    const acceptProposal = selectedControls.getByRole('button', { name: 'Accept' });
-    await acceptProposal.click();
-    await expect(acceptProposal).toBeDisabled();
-    await proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' }).last().getByRole('button').click();
-    const rejectProposal = selectedControls.getByRole('button', { name: 'Reject' });
-    await rejectProposal.click();
-    await expect(rejectProposal).toBeDisabled();
-    const structureDisclosure = writing.locator('details.stage19-manuscript-structure');
-    const persistedBeforeStaging = await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8');
-    const proposalRows = proposals.locator('[data-structure-proposal="true"]');
-    let firstStaged = false;
-    for (let index = 0; index < await proposalRows.count(); index += 1) {
-      await proposalRows.nth(index).getByRole('button').click();
-      await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
-        if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
-      });
-      const moveDown = writing.getByRole('button', { name: 'Move down' });
-      const moveUp = writing.getByRole('button', { name: 'Move up' });
-      if (await moveDown.isEnabled()) { await moveDown.click(); firstStaged = true; break; }
-      if (await moveUp.isEnabled()) { await moveUp.click(); firstStaged = true; break; }
-    }
-    expect(firstStaged).toBe(true);
-    await expect(writing.getByRole('button', { name: 'Save order' })).toBeVisible();
-    await structureDisclosure.locator(':scope > summary').click();
-    await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
-    await structureDisclosure.locator(':scope > summary').click();
-    await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
-    expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
-    let secondStaged = false;
-    for (let index = 0; index < await proposalRows.count(); index += 1) {
-      await proposalRows.nth(index).getByRole('button').click();
-      await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
-        if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
-      });
-      const moveDown = writing.getByRole('button', { name: 'Move down' });
-      const moveUp = writing.getByRole('button', { name: 'Move up' });
-      if (await moveDown.isEnabled()) { await moveDown.click(); secondStaged = true; break; }
-      if (await moveUp.isEnabled()) { await moveUp.click(); secondStaged = true; break; }
-    }
-    expect(secondStaged).toBe(true);
-    await writing.getByRole('button', { name: 'Cancel order' }).click();
-    expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
-    await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
+    const secondProposalId = await proposals.locator('[data-structure-proposal="true"]').nth(1).getAttribute('data-structure-proposal-id');
+    await expect(writing.locator(`[data-imported-proposal-id="${secondProposalId}"]`).first()).toHaveAttribute('aria-pressed', 'true');
+    await selectedControls.getByRole('button', { name: 'Reject' }).click();
+    await expect(selectedControls).toContainText('Third');
+    await selectedControls.getByRole('button', { name: 'Accept' }).click();
+    await expect(readiness).toContainText('Ready to Apply');
+    await expect(readiness).toContainText('2 accepted sections will become Units.');
+    await expect(readiness).toContainText('1 rejected section will remain source-only.');
 
     const sourceOnDisk = await readFile(`${imported.projectPath}/manuscript-intake.md`, 'utf8');
+    const beforeCancel = await snapshotStructureCanonicalFiles(imported.projectPath);
+    await readiness.getByRole('button', { name: 'Review Apply' }).click();
+    const dialog = writing.getByRole('dialog');
+    await expect(dialog).toHaveText(/Create 2 manuscript Units\?/);
+    await expect(dialog).toContainText('2 accepted sections will be copied into new Unit drafts.');
+    await expect(dialog).toContainText('1 rejected section will remain in the preserved imported source and will not become Units.');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    expect(await snapshotStructureCanonicalFiles(imported.projectPath)).toEqual(beforeCancel);
+    await readiness.getByRole('button', { name: 'Review Apply' }).click();
+    await writing.getByRole('dialog').getByRole('button', { name: 'Create 2 Units' }).click();
+
     await expect.poll(async () => {
       const persisted = JSON.parse(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')) as { proposals: Array<{ state: string; appliedUnitId: string | null }> };
       return persisted.proposals.filter((proposal) => proposal.state === 'accepted' && proposal.appliedUnitId).length;
-    }).toBeGreaterThan(0);
-    const structureAfterFirstApply = JSON.parse(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')) as { proposals: Array<{ state: string; appliedUnitId: string | null; anchor: { selectionStart: number; selectionEnd: number } }> };
-    const firstDrafts = await readdir(`${imported.projectPath}/drafts`);
-    const firstMaterialized = structureAfterFirstApply.proposals.filter((proposal) => proposal.state === 'accepted' && proposal.appliedUnitId);
-    await expect(writing.locator('[data-manuscript-unit-id]')).toHaveCount(firstMaterialized.length);
+    }).toBe(2);
+    const persistedStructure = JSON.parse(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')) as {
+      proposals: Array<{ label: string; state: string; appliedUnitId: string | null }>;
+    };
+    expect(persistedStructure.proposals.filter((proposal) => proposal.state === 'rejected')).toHaveLength(1);
+    expect(persistedStructure.proposals.filter((proposal) => proposal.state === 'rejected' && proposal.appliedUnitId)).toHaveLength(0);
+    expect(await readFile(`${imported.projectPath}/manuscript-intake.md`, 'utf8')).toBe(sourceOnDisk);
+    await expect(writing.locator('[data-manuscript-unit-id]')).toHaveCount(2);
     await expect(writing.getByRole('textbox', { name: /Manuscript editor:/ }).first()).toBeVisible();
     await expect(writing.getByLabel('Imported manuscript source')).toHaveCount(0);
-    const firstApplyActual = await Promise.all(firstMaterialized.map(async (proposal) => {
-      const draft = await readFile(`${imported.projectPath}/drafts/${proposal.appliedUnitId}.md`, 'utf8');
-      return { id: proposal.appliedUnitId, prose: draft.slice(draft.indexOf('\n---\n') + 5).trimEnd(), expected: sourceOnDisk.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).trimEnd() };
-    }));
-    const firstRanges = firstMaterialized.map((proposal) => `${proposal.anchor.selectionStart}:${proposal.anchor.selectionEnd}`);
-    const firstApplyEvidence = { actual: firstApplyActual, draftCount: firstDrafts.length, uniqueProse: new Set(firstApplyActual.map((entry) => entry.prose)).size, uniqueRanges: new Set(firstRanges).size };
-    expect(firstApplyEvidence.actual.every((entry) => entry.prose === entry.expected)).toBe(true);
-    expect(firstApplyEvidence.uniqueProse).toBe(firstApplyEvidence.actual.length);
-    expect(firstApplyEvidence.uniqueRanges).toBe(firstApplyEvidence.actual.length);
-    expect(firstApplyEvidence.draftCount).toBe(firstApplyEvidence.actual.length);
+    await expect(writing.locator('[data-manuscript-unit-id]').first()).toContainText('First');
+    await expect(writing.locator('[data-manuscript-unit-id]').nth(1)).toContainText('Third');
 
-    await proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' }).first().getByRole('button').click();
-    await writing.getByRole('region', { name: 'Selected section controls' }).getByRole('button', { name: 'Accept' }).click();
-    await expect(writing.getByRole('button', { name: 'Apply accepted structure to Units' })).toBeEnabled();
-    await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
-    await expect.poll(async () => {
-      const persisted = JSON.parse(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')) as { proposals: Array<{ state: string; appliedUnitId: string | null }> };
-      return persisted.proposals.filter((proposal) => proposal.state === 'accepted' && proposal.appliedUnitId).length;
-    }).toBeGreaterThan(firstMaterialized.length);
-    const structureAfterSecondApply = JSON.parse(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')) as { proposals: Array<{ state: string; appliedUnitId: string | null; anchor: { selectionStart: number; selectionEnd: number } }> };
-    const secondMaterialized = structureAfterSecondApply.proposals.filter((proposal) => proposal.state === 'accepted' && proposal.appliedUnitId);
-    await expect(writing.locator('[data-manuscript-unit-id]')).toHaveCount(secondMaterialized.length);
-    const secondIds = new Set<string>();
-    const secondActual = await Promise.all(secondMaterialized.map(async (proposal) => {
-      if (secondIds.has(proposal.appliedUnitId!)) throw new Error('duplicate applied Unit id');
-      secondIds.add(proposal.appliedUnitId!);
-      const draft = await readFile(`${imported.projectPath}/drafts/${proposal.appliedUnitId}.md`, 'utf8');
-      return draft.slice(draft.indexOf('\n---\n') + 5).trimEnd() === sourceOnDisk.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).trimEnd();
-    }));
-    const secondRanges = secondMaterialized.map((proposal) => `${proposal.anchor.selectionStart}:${proposal.anchor.selectionEnd}`);
-    const secondApplyEvidence = { allExact: secondActual.every(Boolean), unitCount: secondIds.size, draftCount: (await readdir(`${imported.projectPath}/drafts`)).length, uniqueRanges: new Set(secondRanges).size };
-    expect(secondApplyEvidence.allExact).toBe(true);
-    expect(secondApplyEvidence.unitCount).toBe(secondApplyEvidence.draftCount);
-    expect(secondApplyEvidence.uniqueRanges).toBe(secondApplyEvidence.unitCount);
+    const afterApply = await snapshotStructureCanonicalFiles(imported.projectPath);
+    const repeatedApply = await writing.evaluate(async () => {
+      const session = await window.projectSpine!.getSession();
+      const result = await window.projectSpine!.reloadActiveProject!({
+        projectId: session.project!.projectId,
+        projectPath: session.project!.path,
+        generation: session.generation,
+        operationId: 'program5-structure-repeat-apply-check',
+      });
+      return result.ok;
+    });
+    expect(repeatedApply).toBe(true);
+    expect(await snapshotStructureCanonicalFiles(imported.projectPath)).toEqual(afterApply);
+    await expect(writing.locator('[data-manuscript-unit-id]')).toHaveCount(2);
+    expect(imported.projectPath).not.toBe(parent);
 
     const overlapBefore = await snapshotStructureCanonicalFiles(imported.projectPath);
     const overlapResult = await writing.evaluate(async () => {
@@ -742,7 +688,7 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
   }
 });
 
-test('Program 5 keeps a substantial Markdown intake bounded, exact, and durable across reopen', async ({
+test('Program 5 keeps a substantial Markdown intake bounded and blocks partial Apply', async ({
   electronApp,
   page,
 }) => {
@@ -814,12 +760,15 @@ test('Program 5 keeps a substantial Markdown intake bounded, exact, and durable 
     await expect(writing.getByRole('navigation', { name: 'Structure pages' })).toContainText('Page 2 of 10');
     await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(12);
     await writing.getByRole('navigation', { name: 'Structure pages' }).getByRole('button', { name: 'Previous', exact: true }).click();
-    await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
-
+    const readiness = writing.getByRole('region', { name: 'Apply structure readiness' });
+    await expect(readiness).toContainText('Not ready to Apply');
+    await expect(readiness).toContainText('Decide 118 remaining sections.');
+    await expect(readiness).toContainText('+115 more');
+    await expect(readiness.getByRole('button', { name: 'Review Apply' })).toBeDisabled();
     await expect.poll(async () => {
       const persisted = JSON.parse(await readFile(join(projectPath, 'manuscript-structure.json'), 'utf8')) as { proposals: Array<{ appliedUnitId: string | null }> };
       return persisted.proposals.filter((proposal) => proposal.appliedUnitId).length;
-    }).toBe(1);
+    }).toBe(0);
     expect(await readFile(join(projectPath, 'manuscript-intake.md'), 'utf8')).toBe(source);
 
     const reopened = await writing.evaluate(async (path) => {
@@ -860,8 +809,8 @@ test('Program 5 keeps a substantial Markdown intake bounded, exact, and durable 
       proposalCount: 120,
       accepted: 1,
       rejected: 1,
-      applied: 1,
-      qualifiedOpeningApplied: true,
+      applied: 0,
+      qualifiedOpeningApplied: false,
       uniqueAnchors: 120,
       sourceStatus: 'current',
     });

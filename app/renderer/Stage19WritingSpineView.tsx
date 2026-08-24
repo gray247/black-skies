@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import type {
   ProjectSpineCommandStatusProjection,
@@ -90,6 +90,7 @@ export interface Stage19WritingSpineViewModel {
   readonly manuscriptStructureNotice: string | null;
   readonly manuscriptStructurePage: number;
   readonly manuscriptStructureOrder: readonly string[] | null;
+  readonly manuscriptStructureApplyReadiness?: ManuscriptStructureApplyReadiness;
   readonly structureBoundaryStart: number | null;
   readonly structureBoundaryEnd: number | null;
   readonly selectedManuscriptProposalId: string | null;
@@ -128,6 +129,80 @@ export interface Stage19WritingSpineViewModel {
   readonly feedbackNoteNotice: string | null;
   readonly savedFeedbackNotes: readonly FeedbackNote[];
   readonly overlays: ReactNode;
+}
+
+export interface ManuscriptStructureApplyReadiness {
+  readonly available: boolean;
+  readonly ready: boolean;
+  readonly totalCurrentProposals: number;
+  readonly decisionsCompleted: number;
+  readonly decisionsRemaining: number;
+  readonly acceptedWaiting: number;
+  readonly rejectedSections: number;
+  readonly staleHistorical: number;
+  readonly alreadyApplied: number;
+  readonly undecidedProposals: readonly ManuscriptStructureProposalV1[];
+  readonly blockers: readonly string[];
+}
+
+export function deriveManuscriptStructureApplyReadiness(input: {
+  readonly structure: ManuscriptStructureSnapshotV1 | null;
+  readonly stagedOrder: readonly string[] | null;
+  readonly dirtyUnitCount: number;
+  readonly saveStateStatus: ProjectSpineSessionSnapshot['saveState']['status'];
+  readonly reloadAvailable: boolean;
+  readonly mutationRunning: boolean;
+}): ManuscriptStructureApplyReadiness {
+  const structure = input.structure;
+  const proposals = structure?.document.proposals ?? [];
+  const current = proposals.filter((proposal) => proposal.state !== 'stale');
+  const undecidedProposals = current.filter((proposal) => proposal.state === 'proposed' && !proposal.appliedUnitId);
+  const acceptedWaiting = current.filter((proposal) => proposal.state === 'accepted' && !proposal.appliedUnitId).length;
+  const rejectedSections = current.filter((proposal) => proposal.state === 'rejected').length;
+  const staleHistorical = proposals.filter((proposal) => proposal.state === 'stale').length;
+  const alreadyApplied = proposals.filter((proposal) => Boolean(proposal.appliedUnitId)).length;
+  const blockers: string[] = [];
+
+  if (!structure || structure.availability !== 'ready') {
+    blockers.push('Structure is unavailable. Import or rediscover structure before Apply.');
+  } else {
+    if (structure.sourceStatus === 'changed') {
+      blockers.push('The imported source changed. Rediscover structure before Apply.');
+    } else if (structure.sourceStatus === 'changed-after-apply') {
+      blockers.push('Previously created Units remain authoritative. Rediscovery and replacement are unavailable in this workflow.');
+    }
+    if (undecidedProposals.length > 0) {
+      blockers.push(`Decide ${undecidedProposals.length} remaining section${undecidedProposals.length === 1 ? '' : 's'}.`);
+    }
+    if (acceptedWaiting === 0) {
+      blockers.push('Accept at least one section to create manuscript Units.');
+    }
+    if (input.stagedOrder) blockers.push('Save or cancel the unsaved section order.');
+    if (input.dirtyUnitCount > 0) {
+      blockers.push(`Save ${input.dirtyUnitCount} manuscript Unit${input.dirtyUnitCount === 1 ? '' : 's'} before Apply.`);
+    }
+    if (input.saveStateStatus !== 'clean' && input.saveStateStatus !== 'saved' && input.dirtyUnitCount === 0) {
+      blockers.push('Save the project before Apply.');
+    }
+    if (!input.reloadAvailable) {
+      blockers.push('The active project cannot reload after Apply. Close and reopen with a complete Writing Studio runtime before continuing.');
+    }
+    if (input.mutationRunning) blockers.push('A structure change is still running. Wait for it to finish before Apply.');
+  }
+
+  return {
+    available: Boolean(structure && structure.availability === 'ready'),
+    ready: blockers.length === 0,
+    totalCurrentProposals: current.length,
+    decisionsCompleted: current.length - undecidedProposals.length,
+    decisionsRemaining: undecidedProposals.length,
+    acceptedWaiting,
+    rejectedSections,
+    staleHistorical,
+    alreadyApplied,
+    undecidedProposals,
+    blockers,
+  };
 }
 
 type MaybeAsync = void | Promise<void>;
@@ -1264,6 +1339,132 @@ function SelectedStructureControlPanel({
   );
 }
 
+interface ApplyReadinessPanelProps {
+  readonly model: Stage19WritingSpineViewModel;
+  readonly actions: Stage19WritingSpineViewActions;
+  readonly readiness: ManuscriptStructureApplyReadiness;
+}
+
+function ApplyReadinessPanel({ model, actions, readiness }: ApplyReadinessPanelProps): JSX.Element {
+  const reviewButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const acceptedCount = readiness.acceptedWaiting;
+  const rejectedCount = readiness.rejectedSections;
+  const closeDialog = useCallback(() => {
+    if (submitting) return;
+    setDialogOpen(false);
+    globalThis.requestAnimationFrame(() => reviewButtonRef.current?.focus());
+  }, [submitting]);
+
+  useEffect(() => {
+    if (!dialogOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      closeDialog();
+    };
+    globalThis.addEventListener('keydown', handleEscape);
+    globalThis.requestAnimationFrame(() => document.getElementById('stage19-apply-confirmation-title')?.focus());
+    return () => globalThis.removeEventListener('keydown', handleEscape);
+  }, [closeDialog, dialogOpen]);
+
+  const confirmApply = async () => {
+    if (submitting || !readiness.ready) return;
+    setSubmitting(true);
+    try {
+      await actions.applyManuscriptStructure();
+      setDialogOpen(false);
+      globalThis.requestAnimationFrame(() => reviewButtonRef.current?.focus());
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <section className="stage19-manuscript-structure__apply" aria-label="Apply structure readiness">
+      <div className="stage19-manuscript-structure__apply-heading">
+        <div><span className="stage19-spine__eyebrow">Apply readiness</span><h4>Apply structure</h4></div>
+        <span className={readiness.ready ? 'is-ready' : 'is-blocked'}>{readiness.ready ? 'Ready to Apply' : 'Not ready to Apply'}</span>
+      </div>
+      <dl className="stage19-manuscript-structure__apply-counts">
+        <div><dt>Total current proposals</dt><dd>{readiness.totalCurrentProposals}</dd></div>
+        <div><dt>Decisions completed</dt><dd>{readiness.decisionsCompleted}</dd></div>
+        <div><dt>Decisions remaining</dt><dd>{readiness.decisionsRemaining}</dd></div>
+        <div><dt>Accepted waiting to become Units</dt><dd>{readiness.acceptedWaiting}</dd></div>
+        <div><dt>Rejected sections</dt><dd>{readiness.rejectedSections}</dd></div>
+        <div><dt>Stale historical proposals</dt><dd>{readiness.staleHistorical}</dd></div>
+        <div><dt>Already-applied sections</dt><dd>{readiness.alreadyApplied}</dd></div>
+      </dl>
+      {!readiness.ready ? (
+        <div className="stage19-manuscript-structure__apply-blockers" role="status">
+          <strong>Not ready to Apply</strong>
+          <ul>
+            {readiness.blockers.map((blocker) => {
+              const undecided = blocker.startsWith('Decide ');
+              const changed = blocker === 'The imported source changed. Rediscover structure before Apply.';
+              return (
+                <li key={blocker}>
+                  <span>{blocker}</span>
+                  {undecided ? (
+                    <>
+                      <ul aria-label="Undecided proposal names">
+                        {readiness.undecidedProposals.slice(0, 3).map((proposal) => <li key={proposal.id}>{proposal.label}</li>)}
+                        {readiness.undecidedProposals.length > 3 ? <li>+{readiness.undecidedProposals.length - 3} more</li> : null}
+                      </ul>
+                      <button type="button" onClick={() => {
+                        const first = readiness.undecidedProposals[0];
+                        if (first) actions.selectManuscriptStructureProposal(first.id);
+                      }} disabled={!readiness.undecidedProposals[0] || model.manuscriptStructureLoading}>Review next undecided</button>
+                    </>
+                  ) : null}
+                  {changed ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Rediscover structure</button> : null}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : (
+        <ul className="stage19-manuscript-structure__apply-checklist" aria-label="Apply readiness checklist">
+          <li>All current proposals are decided.</li>
+          <li>{acceptedCount} accepted section{acceptedCount === 1 ? '' : 's'} will become Units.</li>
+          <li>{rejectedCount} rejected section{rejectedCount === 1 ? '' : 's'} will remain source-only.</li>
+          <li>Source is current.</li>
+          <li>Section order is saved.</li>
+          <li>Manuscript work is saved.</li>
+        </ul>
+      )}
+      <button
+        ref={reviewButtonRef}
+        type="button"
+        className="stage19-manuscript-structure__review-apply"
+        onClick={() => setDialogOpen(true)}
+        disabled={!readiness.ready || model.manuscriptStructureLoading || submitting}
+      >Review Apply</button>
+      {dialogOpen ? (
+        <div
+          className="stage19-manuscript-structure__dialog-backdrop"
+          role="presentation"
+          onClick={(event) => { if (event.target === event.currentTarget) closeDialog(); }}
+        >
+          <section className="stage19-manuscript-structure__dialog" role="dialog" aria-modal="true" aria-labelledby="stage19-apply-confirmation-title">
+            <h4 id="stage19-apply-confirmation-title" tabIndex={-1}>Create {acceptedCount} manuscript Unit{acceptedCount === 1 ? '' : 's'}?</h4>
+            <p>{acceptedCount} accepted section{acceptedCount === 1 ? '' : 's'} will be copied into new Unit drafts.</p>
+            <p>{rejectedCount} rejected section{rejectedCount === 1 ? '' : 's'} will remain in the preserved imported source and will not become Units.</p>
+            <p>The imported Markdown source remains unchanged.</p>
+            <p>Applied proposals become immutable.</p>
+            <p>Existing applied Units will not be duplicated.</p>
+            <div className="stage19-manuscript-structure__dialog-actions">
+              <button type="button" onClick={closeDialog} disabled={submitting}>Cancel</button>
+              <button type="button" onClick={() => void confirmApply()} disabled={submitting || !readiness.ready}>{submitting ? 'Creating Units…' : `Create ${acceptedCount} Unit${acceptedCount === 1 ? '' : 's'}`}</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const structure = model.manuscriptStructure;
   const proposals = structure?.document.proposals ?? [];
@@ -1274,17 +1475,23 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
   const pageCount = Math.max(1, Math.ceil(orderedProposals.length / pageSize));
   const page = Math.min(model.manuscriptStructurePage, pageCount - 1);
   const pageProposals = orderedProposals.slice(page * pageSize, (page + 1) * pageSize);
-  const acceptedCount = proposals.filter((proposal) => proposal.state === 'accepted').length;
-  const unappliedAcceptedCount = proposals.filter((proposal) => proposal.state === 'accepted' && !proposal.appliedUnitId).length;
+  const readiness = model.manuscriptStructureApplyReadiness ?? deriveManuscriptStructureApplyReadiness({
+    structure,
+    stagedOrder: model.manuscriptStructureOrder,
+    dirtyUnitCount: model.dirtyUnitIds?.size ?? 0,
+    saveStateStatus: model.snapshot?.saveState.status ?? 'saved',
+    reloadAvailable: model.projectBridgeAvailable ?? true,
+    mutationRunning: model.manuscriptStructureLoading,
+  });
   const selectedProposalId = model.selectedManuscriptProposalId;
   const selectedProposal = orderedProposals.find((proposal) => proposal.id === selectedProposalId) ?? null;
   const selectedProposalIndex = selectedProposal ? orderedProposals.findIndex((proposal) => proposal.id === selectedProposal.id) : -1;
   const decisionCounts = [
-    `${proposals.filter((proposal) => proposal.state === 'proposed' && !proposal.appliedUnitId).length} needs decision`,
-    `${acceptedCount} accepted`,
-    `${proposals.filter((proposal) => proposal.state === 'rejected').length} rejected`,
-    `${proposals.filter((proposal) => proposal.state === 'stale').length} stale`,
-    `${proposals.filter((proposal) => proposal.appliedUnitId).length} applied`,
+    `${readiness.decisionsRemaining} needs decision`,
+    `${readiness.acceptedWaiting} accepted waiting`,
+    `${readiness.rejectedSections} rejected`,
+    `${readiness.staleHistorical} stale`,
+    `${readiness.alreadyApplied} applied`,
   ];
   return (
     <details
@@ -1296,13 +1503,13 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
         }
       }}
     >
-      <summary><span>Structure</span>{structure ? <span className="stage19-manuscript-structure__summary">{acceptedCount} accepted / {proposals.length} proposals</span> : <span>Optional Markdown intake</span>}</summary>
+      <summary><span>Structure</span>{structure ? <span className="stage19-manuscript-structure__summary">{readiness.acceptedWaiting} accepted waiting / {readiness.totalCurrentProposals} current proposals</span> : <span>Optional Markdown intake</span>}</summary>
       <div className="stage19-manuscript-structure__workspace">
         <div className="stage19-manuscript-structure__heading">
           <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure</h3></div>
           <div className="stage19-manuscript-structure__actions">
             <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown</button>
-            {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || structure.sourceStatus !== 'current'}>Rediscover</button> : null}
+            {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || !['current', 'changed'].includes(structure.sourceStatus)}>Rediscover</button> : null}
           </div>
         </div>
         <p className="stage19-manuscript-structure__boundary">The central manuscript is the source of truth. Structure decisions stay provisional until explicitly applied to Units.</p>
@@ -1350,7 +1557,7 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
             </ol>
             {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><strong>Section order has unsaved changes.</strong><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
             <nav className="stage19-manuscript-structure__pagination" aria-label="Structure pages"><button type="button" onClick={() => model.manuscriptStructurePage > 0 && actions.setManuscriptStructurePage(model.manuscriptStructurePage - 1)} disabled={page === 0}>Previous</button><span>Page {page + 1} of {pageCount}</span><button type="button" onClick={() => model.manuscriptStructurePage < pageCount - 1 && actions.setManuscriptStructurePage(model.manuscriptStructurePage + 1)} disabled={page >= pageCount - 1}>Next</button></nav>
-            <button type="button" onClick={() => void actions.applyManuscriptStructure()} disabled={model.manuscriptStructureLoading || unappliedAcceptedCount === 0 || structure.sourceStatus !== 'current'}>Apply accepted structure to Units</button>
+            <ApplyReadinessPanel model={model} actions={actions} readiness={readiness} />
           </>
         ) : null}
       </div>

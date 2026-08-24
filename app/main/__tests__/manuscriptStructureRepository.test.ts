@@ -52,6 +52,7 @@ async function appliedProject(): Promise<{
   const [first, second] = snapshot.document.proposals;
   if (!first || !second) throw new Error('Expected two deterministic heading proposals.');
   snapshot = await repository.setProposalState('project-a', snapshot.document.revision, first.id, 'accepted');
+  snapshot = await repository.setProposalState('project-a', snapshot.document.revision, second.id, 'rejected');
   const applied = await repository.apply('project-a', snapshot.document.revision);
   return {
     projectPath,
@@ -97,6 +98,23 @@ describe('Manuscript Structure project-local repository', () => {
     expect(await readFile(join(projectPath, 'drafts', `${appliedSecond!.appliedUnitId}.md`), 'utf8')).toContain('# Two\nSecond');
     const reopened = await new ManuscriptStructureRepository(projectPath).read('project-a');
     expect(reopened.document.proposals.find((proposal) => proposal.id === first!.id)?.state).toBe('rejected');
+  });
+
+  it('rejects direct Apply with an unresolved current proposal before any filesystem write', async () => {
+    const projectPath = await temporaryProject();
+    await writeFile(join(projectPath, 'outline.json'), JSON.stringify(buildBlankOutline('project-a')));
+    const repository = new ManuscriptStructureRepository(projectPath);
+    let snapshot = await repository.importSource('project-a', 'source.md', '# One\nFirst\n\n# Two\nSecond');
+    snapshot = await repository.discover('project-a', snapshot.document.revision);
+    snapshot = await repository.setProposalState('project-a', snapshot.document.revision, snapshot.document.proposals[0]!.id, 'accepted');
+    const before = await captureProjectFiles(projectPath);
+
+    await expect(repository.apply('project-a', snapshot.document.revision))
+      .rejects.toMatchObject<ManuscriptStructureRepositoryError>({ code: 'INVALID_STRUCTURE' });
+    await expect(repository.apply('project-a', snapshot.document.revision))
+      .rejects.toThrow('Decide 1 remaining section before applying structure.');
+    expect(await captureProjectFiles(projectPath)).toEqual(before);
+    expect((await repository.read('project-a')).document.revision).toBe(snapshot.document.revision);
   });
 
   it('rejects stale revisions and source crossover instead of guessing', async () => {

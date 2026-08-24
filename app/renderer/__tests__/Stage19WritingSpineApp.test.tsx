@@ -3283,7 +3283,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(ai.bridge.credentialStatus).not.toHaveBeenCalled();
   });
 
-  it('drives the Structure controller through discovery, mutations, staged ordering, Apply, and reload', async () => {
+  it('drives the Structure controller through discovery, mutations, and staged ordering', async () => {
     const project = createBridge(snapshot('writing'));
     const structureBridge = createManuscriptStructureBridge();
     render(
@@ -3342,12 +3342,8 @@ describe('Stage19WritingSpineApp', () => {
       orderedProposalIds: ['proposal-2', 'proposal-1', 'proposal-3'],
     })));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Apply accepted structure to Units' }));
-    await waitFor(() => expect(structureBridge.apply).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(project.bridge.reloadActiveProject).toHaveBeenCalledWith(expect.objectContaining({
-      projectId: 'proj_a',
-      generation: 1,
-    })));
+    expect(screen.getByRole('button', { name: 'Review Apply' })).toBeDisabled();
+    expect(structureBridge.apply).not.toHaveBeenCalled();
   });
 
   it('renders the pre-Apply imported manuscript once in the central read-only canvas', async () => {
@@ -3632,7 +3628,13 @@ describe('Stage19WritingSpineApp', () => {
 
   it('returns to the normal Unit canvas after Apply reload creates Units', async () => {
     const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
-    const structureBridge = createManuscriptStructureBridge();
+    const structureBridge = createManuscriptStructureBridge({
+      ...structureSnapshot(),
+      document: {
+        ...structureSnapshot().document,
+        proposals: structureSnapshot().document.proposals.map((proposal) => ({ ...proposal, state: 'accepted' as const })),
+      },
+    });
     const appliedSnapshot = snapshot('writing', {
       generation: 2,
       units: [{ id: 'unit_after_apply', title: 'Applied section', order: 1, body: 'Applied prose' }],
@@ -3654,7 +3656,8 @@ describe('Stage19WritingSpineApp', () => {
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
     fireEvent.click(disclosure.querySelector('summary')!);
-    fireEvent.click(screen.getByRole('button', { name: 'Apply accepted structure to Units' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review Apply' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create 3 Units' }));
 
     expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Applied section' })).toHaveValue('Applied prose');
     expect(screen.queryByLabelText('Imported manuscript source')).not.toBeInTheDocument();
@@ -3697,7 +3700,13 @@ describe('Stage19WritingSpineApp', () => {
       error: { code: 'PROJECT_INVALID' as const, message: 'Reload failed.' },
       snapshot: project.current,
     }));
-    const structureBridge = createManuscriptStructureBridge();
+    const structureBridge = createManuscriptStructureBridge({
+      ...structureSnapshot(),
+      document: {
+        ...structureSnapshot().document,
+        proposals: structureSnapshot().document.proposals.map((proposal) => ({ ...proposal, state: 'accepted' as const })),
+      },
+    });
     render(
       <Stage19WritingSpineApp
         windowRole="writing"
@@ -3709,9 +3718,10 @@ describe('Stage19WritingSpineApp', () => {
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
     fireEvent.click(disclosure.querySelector('summary')!);
-    fireEvent.click(await screen.findByRole('button', { name: 'Apply accepted structure to Units' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Review Apply' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Create 3 Units' }));
 
-    expect(await screen.findByText(/Structure was applied to disk, but the active session could not reload/)).toBeVisible();
+    expect(await screen.findByText(/Apply completed on disk, but the active session could not reload/)).toBeVisible();
     expect(screen.getByText(/Do not retry Apply/)).toBeVisible();
     expect(structureBridge.apply).toHaveBeenCalledTimes(1);
     expect(project.bridge.reloadActiveProject).toHaveBeenCalledTimes(1);

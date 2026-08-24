@@ -535,6 +535,10 @@ export class ManuscriptStructureRepository {
       if (current.availability === 'degraded') throw new ManuscriptStructureRepositoryError('UNAVAILABLE', current.message ?? 'The manuscript structure is unavailable.');
       if (current.sourceStatus === 'changed-after-apply') throw new ManuscriptStructureRepositoryError('SOURCE_CHANGED_AFTER_APPLY', current.message ?? 'The imported manuscript changed after structure was applied.');
       if (current.document.revision !== expectedRevision) throw new ManuscriptStructureRepositoryError('STALE', 'The manuscript structure changed. Reload it before applying.');
+      const unresolved = current.document.proposals.filter((proposal) => proposal.state === 'proposed' && !proposal.appliedUnitId);
+      if (unresolved.length > 0) {
+        throw new ManuscriptStructureRepositoryError('INVALID_STRUCTURE', `Decide ${unresolved.length} remaining section${unresolved.length === 1 ? '' : 's'} before applying structure.`);
+      }
       const accepted = current.document.proposals.filter((proposal) => proposal.state === 'accepted');
       if (accepted.length === 0) throw new ManuscriptStructureRepositoryError('APPLY_FAILED', 'Accept at least one structure proposal before applying.');
       validateAcceptedRanges(current.document, current.sourceText);

@@ -52,7 +52,9 @@ import {
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
   getSelectableImportedManuscriptProposalIds,
+  deriveManuscriptStructureApplyReadiness,
   type MarkdownExportNotice,
+  type ManuscriptStructureApplyReadiness,
   type Stage19WritingRail,
   type Stage19WritingSpineViewActions,
   type Stage19WritingSpineViewModel,
@@ -196,6 +198,21 @@ function focusWritingEditor(unitId?: string): void {
       '[contenteditable="true"][aria-label^="Manuscript editor:"]',
     ) ?? document.querySelector<HTMLElement>('[aria-label^="Manuscript editor:"]');
   editor?.focus({ preventScroll: true });
+}
+
+function revealStructureProposal(proposalId: string): void {
+  window.requestAnimationFrame(() => {
+    const disclosure = document.querySelector<HTMLDetailsElement>('details.stage19-manuscript-structure');
+    if (disclosure && !disclosure.open) disclosure.open = true;
+    window.requestAnimationFrame(() => {
+      const railTarget = Array.from(document.querySelectorAll<HTMLElement>('[data-structure-proposal-id]'))
+        .find((element) => element.dataset.structureProposalId === proposalId);
+      railTarget?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const canvasTarget = Array.from(document.querySelectorAll<HTMLElement>('[data-imported-proposal-id]'))
+        .find((element) => element.dataset.importedProposalId === proposalId);
+      canvasTarget?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
 }
 
 async function restoreWritingWindowFocus(
@@ -1127,6 +1144,14 @@ export default function Stage19WritingSpineApp({
     recoveryBlocksEditing,
     markdownExportRequiresSave,
   } = deriveStage19WritingAvailability(snapshot, dirtyUnitIds);
+  const manuscriptStructureApplyReadiness: ManuscriptStructureApplyReadiness = deriveManuscriptStructureApplyReadiness({
+    structure: manuscriptStructure,
+    stagedOrder: manuscriptStructureOrder,
+    dirtyUnitCount: dirtyUnitIds.size,
+    saveStateStatus: snapshot.saveState.status,
+    reloadAvailable: Boolean(bridge?.reloadActiveProject),
+    mutationRunning: manuscriptStructureLoading,
+  });
   const writingSaveSummary = saveSummaryLabel(snapshot, dirtyUnitIds);
   const logicalSurface: SplitCommandLogicalSurface = windowRole === 'command'
     ? 'command'
@@ -1475,13 +1500,29 @@ export default function Stage19WritingSpineApp({
     setManuscriptStructureLoading(true);
     try {
       const request = { ...binding, proposalId };
-      applyManuscriptStructureResult(await (mutation === 'accept'
+      const result = await (mutation === 'accept'
         ? manuscriptStructureBridge.acceptProposal(request)
-        : manuscriptStructureBridge.rejectProposal(request)));
+        : manuscriptStructureBridge.rejectProposal(request));
+      applyManuscriptStructureResult(result);
+      if (result.ok) {
+        const orderedIds = manuscriptStructureOrder ?? result.data.document.proposals.map((proposal) => proposal.id);
+        const unresolvedIds = orderedIds.filter((id) => {
+          const proposal = result.data.document.proposals.find((candidate) => candidate.id === id);
+          return proposal?.state === 'proposed' && !proposal.appliedUnitId;
+        });
+        const currentIndex = orderedIds.indexOf(proposalId);
+        const nextId = unresolvedIds.find((id) => orderedIds.indexOf(id) > currentIndex) ?? unresolvedIds[0] ?? null;
+        if (nextId) {
+          setSelectedManuscriptProposalId(nextId);
+          const nextIndex = orderedIds.indexOf(nextId);
+          if (nextIndex >= 0) setManuscriptStructurePage(Math.floor(nextIndex / 12));
+          revealStructureProposal(nextId);
+        }
+      }
     } finally {
       setManuscriptStructureLoading(false);
     }
-  }, [applyManuscriptStructureResult, manuscriptStructureBridge, structureMutationBinding]);
+  }, [applyManuscriptStructureResult, manuscriptStructureBridge, manuscriptStructureOrder, structureMutationBinding]);
 
   const renameStructureProposal = useCallback(async (proposalId: string, label: string) => {
     if (!manuscriptStructureBridge) return;
@@ -1546,17 +1587,7 @@ export default function Stage19WritingSpineApp({
     const orderedIds = manuscriptStructureOrder ?? structureProposalIds;
     const proposalIndex = orderedIds.indexOf(proposalId);
     if (proposalIndex >= 0) setManuscriptStructurePage(Math.floor(proposalIndex / 12));
-    window.requestAnimationFrame(() => {
-      const disclosure = document.querySelector<HTMLDetailsElement>('details.stage19-manuscript-structure');
-      if (disclosure && !disclosure.open) disclosure.open = true;
-      window.requestAnimationFrame(() => {
-        const railTarget = document.querySelector<HTMLElement>(`[data-structure-proposal-id="${CSS.escape(proposalId)}"]`);
-        railTarget?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        const canvasTarget = Array.from(document.querySelectorAll<HTMLElement>('[data-imported-proposal-id]'))
-          .find((element) => element.dataset.importedProposalId === proposalId);
-        canvasTarget?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
-    });
+    revealStructureProposal(proposalId);
   }, [manuscriptStructureOrder, structureProposalIds]);
 
   const pinSelectedStructureBoundary = useCallback(async (label: string) => {
@@ -1609,21 +1640,22 @@ export default function Stage19WritingSpineApp({
 
   const applyManuscriptStructure = useCallback(async () => {
     if (!manuscriptStructureBridge) return;
-    if (hasLocalUnsaved || dirtyUnitIds.size > 0 || !['clean', 'saved'].includes(snapshot.saveState.status)) {
-      setManuscriptStructureNotice('Save all manuscript Units before applying structure. No structural files were changed.');
-      return;
-    }
-    if (!bridge?.reloadActiveProject) {
-      setManuscriptStructureNotice('The active project reload bridge is unavailable. No structural files were changed.');
+    if (!manuscriptStructureApplyReadiness.ready) {
+      setManuscriptStructureNotice(manuscriptStructureApplyReadiness.blockers.join(' '));
       return;
     }
     const binding = structureMutationBinding('manuscript-structure-apply');
     if (!binding) return;
+    const unitsToCreate = manuscriptStructureApplyReadiness.acceptedWaiting;
     setManuscriptStructureLoading(true);
     try {
       const result = await manuscriptStructureBridge.apply(binding);
       applyManuscriptStructureResult(result);
       if (result.ok) {
+        if (!bridge?.reloadActiveProject) {
+          setManuscriptStructureNotice('Apply completed on disk, but the active project cannot reload after Apply. Do not retry Apply; close and reopen with a complete Writing Studio runtime.');
+          return;
+        }
         const refreshed = await bridge.reloadActiveProject({
           projectId: binding.projectId,
           projectPath: result.data.projectPath,
@@ -1632,14 +1664,17 @@ export default function Stage19WritingSpineApp({
         });
         if (refreshed.ok) {
           applySnapshot(refreshed.snapshot);
+          setManuscriptStructureNotice(`Created ${unitsToCreate} manuscript Unit${unitsToCreate === 1 ? '' : 's'} from accepted structure. The imported Markdown source was preserved.`);
         } else {
-          setManuscriptStructureNotice(`Structure was applied to disk, but the active session could not reload: ${refreshed.error.message} Do not retry Apply; reopen the project after resolving this error.`);
+          setManuscriptStructureNotice(`Apply completed on disk, but the active session could not reload: ${refreshed.error.message} Do not retry Apply; reopen the project after resolving this error.`);
         }
       }
+    } catch (error) {
+      setManuscriptStructureNotice(error instanceof Error ? error.message : 'The accepted structure could not be applied. No project reload was attempted.');
     } finally {
       setManuscriptStructureLoading(false);
     }
-  }, [applyManuscriptStructureResult, applySnapshot, bridge, dirtyUnitIds, hasLocalUnsaved, manuscriptStructureBridge, snapshot.saveState.status, structureMutationBinding]);
+  }, [applyManuscriptStructureResult, applySnapshot, bridge, manuscriptStructureApplyReadiness, manuscriptStructureBridge, structureMutationBinding]);
 
   const handleOpenRecent = useCallback(
     async (projectPath: string) => {
@@ -2849,6 +2884,7 @@ export default function Stage19WritingSpineApp({
     manuscriptStructureNotice,
     manuscriptStructurePage,
     manuscriptStructureOrder,
+    manuscriptStructureApplyReadiness,
     structureBoundaryStart,
     structureBoundaryEnd,
     selectedManuscriptProposalId,
