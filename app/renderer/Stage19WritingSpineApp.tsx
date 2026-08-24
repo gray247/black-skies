@@ -51,6 +51,7 @@ import {
 } from '../shared/ipc/contextualProductShell';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
+  getSelectableImportedManuscriptProposalIds,
   type MarkdownExportNotice,
   type Stage19WritingRail,
   type Stage19WritingSpineViewActions,
@@ -578,6 +579,7 @@ export default function Stage19WritingSpineApp({
   const [manuscriptStructureOrder, setManuscriptStructureOrder] = useState<readonly string[] | null>(null);
   const [structureBoundaryStart, setStructureBoundaryStart] = useState<number | null>(null);
   const [structureBoundaryEnd, setStructureBoundaryEnd] = useState<number | null>(null);
+  const [selectedManuscriptProposalId, setSelectedManuscriptProposalId] = useState<string | null>(null);
   const [selectedOutlineItemId, setSelectedOutlineItemId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedStoryItemIds, setSelectedStoryItemIds] = useState<string[]>([]);
@@ -931,6 +933,7 @@ export default function Stage19WritingSpineApp({
   const manuscriptStructureProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
   useEffect(() => {
     if (windowRole !== 'writing') return;
+    setSelectedManuscriptProposalId(null);
     if (!snapshot.project) {
       setManuscriptStructure(null);
       setManuscriptStructureNotice(null);
@@ -977,6 +980,27 @@ export default function Stage19WritingSpineApp({
   // The stable identity avoids reloads after ordinary manuscript revisions.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [manuscriptStructureBridge, manuscriptStructureProjectIdentity, windowRole]);
+
+  const selectableImportedProposalIds = useMemo(
+    () => getSelectableImportedManuscriptProposalIds(manuscriptStructure),
+    [manuscriptStructure],
+  );
+  useEffect(() => {
+    const previewUnavailable = !snapshot.project ||
+      snapshot.project.units.length > 0 ||
+      manuscriptStructure?.availability !== 'ready' ||
+      manuscriptStructure.sourceStatus === 'changed-after-apply' ||
+      manuscriptStructure.sourceText.length === 0;
+    if (previewUnavailable) {
+      setSelectedManuscriptProposalId(null);
+      return;
+    }
+    setSelectedManuscriptProposalId((current) =>
+      current && selectableImportedProposalIds.includes(current)
+        ? current
+        : selectableImportedProposalIds[0] ?? null,
+    );
+  }, [manuscriptStructure, selectableImportedProposalIds, snapshot.project]);
 
   useEffect(() => {
     if (!outlineAdvancedItemId) return;
@@ -1513,6 +1537,19 @@ export default function Stage19WritingSpineApp({
     }
     setStructureBoundaryEnd(offset);
   }, [structureBoundaryEnd, structureBoundaryStart]);
+
+  const selectManuscriptStructureProposal = useCallback((proposalId: string) => {
+    if (!selectableImportedProposalIds.includes(proposalId)) {
+      setSelectedManuscriptProposalId(null);
+      return;
+    }
+    setSelectedManuscriptProposalId(proposalId);
+    window.requestAnimationFrame(() => {
+      const target = Array.from(document.querySelectorAll<HTMLElement>('[data-imported-proposal-id]'))
+        .find((element) => element.dataset.importedProposalId === proposalId);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, [selectableImportedProposalIds]);
 
   const pinSelectedStructureBoundary = useCallback(async (label: string) => {
     if (structureBoundaryStart === null || structureBoundaryEnd === null) {
@@ -2806,6 +2843,7 @@ export default function Stage19WritingSpineApp({
     manuscriptStructureOrder,
     structureBoundaryStart,
     structureBoundaryEnd,
+    selectedManuscriptProposalId,
     selectedOutlineItem,
     selectedOutlineItemId,
     multiSelectMode,
@@ -2913,6 +2951,7 @@ export default function Stage19WritingSpineApp({
     cancelStructureOrder: () => setManuscriptStructureOrder(null),
     setManuscriptStructurePage,
     applyManuscriptStructure,
+    selectManuscriptStructureProposal,
     moveOutlineItem: moveLivingOutlineItem,
     moveOutlineItemTo: moveLivingOutlineItemTo,
     linkOutlineItem: linkLivingOutlineItem,

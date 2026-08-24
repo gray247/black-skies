@@ -542,11 +542,23 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     await expect(writing.getByRole('button', { name: 'Rediscover' })).toBeVisible();
     await writing.getByRole('button', { name: 'Rediscover' }).click();
     await expect(writing.getByRole('heading', { name: 'Structure workspace' })).toBeVisible();
+    const importedPreview = writing.getByRole('region', { name: 'Imported manuscript structure review' });
+    const importedSource = writing.getByLabel('Imported manuscript source');
+    await expect(importedPreview).toBeVisible();
+    await expect(importedSource).toHaveText(source);
+    await expect(writing.getByRole('heading', { name: 'Imported manuscript — structure review' })).toBeVisible();
+    await expect(writing.getByText('Read-only until accepted structure is applied.')).toBeVisible();
+    await expect(writing.getByRole('heading', { name: 'No manuscript unit selected' })).toHaveCount(0);
+    await expect(writing.getByRole('textbox', { name: /Manuscript editor:/ })).toHaveCount(0);
     await writing.waitForTimeout(250);
     const proposals = writing.getByRole('list', { name: 'Structure proposals' });
     await expect(proposals).toBeVisible();
     await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(3);
     await expect(proposals.locator('[data-structure-source-row="true"]')).toHaveCount(5);
+    const secondProposal = proposals.locator('[data-structure-proposal="true"]').nth(1);
+    const secondProposalId = await secondProposal.getAttribute('data-structure-proposal-id');
+    await secondProposal.getByRole('button', { name: /Second.*heading.*proposed/i }).click();
+    await expect(writing.locator(`[data-imported-proposal-id="${secondProposalId}"]`).first()).toHaveAttribute('aria-pressed', 'true');
     await proposals.getByRole('button', { name: 'Start boundary' }).first().click();
     await proposals.getByRole('button', { name: 'End boundary' }).first().click();
     await writing.getByRole('textbox', { name: 'Boundary label' }).fill('First pinned boundary');
@@ -590,6 +602,7 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     const firstMaterialized = structureAfterFirstApply.proposals.filter((proposal) => proposal.state === 'accepted' && proposal.appliedUnitId);
     await expect(writing.locator('[data-manuscript-unit-id]')).toHaveCount(firstMaterialized.length);
     await expect(writing.getByRole('textbox', { name: /Manuscript editor:/ }).first()).toBeVisible();
+    await expect(writing.getByLabel('Imported manuscript source')).toHaveCount(0);
     const firstApplyActual = await Promise.all(firstMaterialized.map(async (proposal) => {
       const draft = await readFile(`${imported.projectPath}/drafts/${proposal.appliedUnitId}.md`, 'utf8');
       return { id: proposal.appliedUnitId, prose: draft.slice(draft.indexOf('\n---\n') + 5).trimEnd(), expected: sourceOnDisk.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).trimEnd() };

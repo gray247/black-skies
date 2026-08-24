@@ -3346,6 +3346,276 @@ describe('Stage19WritingSpineApp', () => {
     })));
   });
 
+  it('renders the pre-Apply imported manuscript once in the central read-only canvas', async () => {
+    const imported = structureSnapshot();
+    const sourceText = `${imported.sourceText}\n<script>literal source, never markup</script>`;
+    const structure = {
+      ...imported,
+      sourceText,
+      document: {
+        ...imported.document,
+        source: { ...imported.document.source, normalizedLength: sourceText.length },
+      },
+    };
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    const structureBridge = createManuscriptStructureBridge(structure);
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={structureBridge}
+      />,
+    );
+
+    const source = await screen.findByLabelText('Imported manuscript source');
+    expect(screen.getByRole('heading', { name: 'Imported manuscript — structure review' })).toBeVisible();
+    expect(screen.getByText('Read-only until accepted structure is applied.')).toBeVisible();
+    expect(source.textContent).toBe(sourceText);
+    expect(source.querySelectorAll('[data-imported-manuscript-line="true"]')).toHaveLength(sourceText.split('\n').length);
+    expect(source.querySelector('script')).toBeNull();
+    expect(source).toHaveTextContent('# One');
+    expect(source).toHaveTextContent('Third prose');
+    expect(screen.queryByRole('heading', { name: 'No manuscript unit selected' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /Manuscript editor:/ })).not.toBeInTheDocument();
+    expect(document.querySelector('textarea, [contenteditable="true"]')).toBeNull();
+
+    fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+    expect(project.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(structureBridge.acceptProposal).not.toHaveBeenCalled();
+
+    await openWritingRail('Story');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    expect(document.querySelectorAll('[data-structure-excerpt="true"]')).toHaveLength(0);
+    expect(document.body.textContent?.split('First prose').length).toBe(2);
+  });
+
+  it('synchronizes selected imported proposal ranges between the Story rail and central canvas', async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+    try {
+      const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+      const structureBridge = createManuscriptStructureBridge();
+      const user = userEvent.setup();
+      render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} manuscriptStructureBridge={structureBridge} />);
+
+      await screen.findByLabelText('Imported manuscript source');
+      await openWritingRail('Story');
+      const disclosure = await screen.findByLabelText('Manuscript structure intake');
+      fireEvent.click(within(disclosure).getByText('Structure'));
+      scrollIntoView.mockClear();
+
+      await user.click(screen.getByRole('button', { name: /Two heading.*proposed/i }));
+      const secondRange = document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]');
+      const secondRailRow = document.querySelector<HTMLElement>('[data-structure-proposal-id="proposal-2"]');
+      expect(secondRange).toHaveAttribute('aria-pressed', 'true');
+      expect(secondRange).toHaveAttribute('aria-current', 'true');
+      expect(secondRange).toHaveClass('is-selected');
+      expect(secondRailRow).toHaveClass('is-selected');
+      expect(secondRailRow?.querySelector('[aria-pressed="true"]')).toBeTruthy();
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' }));
+
+      const thirdRange = document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-3"]')!;
+      thirdRange.focus();
+      fireEvent.keyDown(thirdRange, { key: 'Enter' });
+      await waitFor(() => expect(thirdRange).toHaveAttribute('aria-pressed', 'true'));
+      expect(document.querySelector('[data-structure-proposal-id="proposal-3"] [aria-pressed="true"]')).toBeTruthy();
+    } finally {
+      if (originalScrollIntoView) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: originalScrollIntoView });
+      } else {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+      }
+    }
+  });
+
+  it('keeps changed imported source visible and suppresses stale or overlapping anchor ranges', async () => {
+    const imported = structureSnapshot();
+    const changed = {
+      ...imported,
+      sourceStatus: 'changed' as const,
+      document: {
+        ...imported.document,
+        proposals: imported.document.proposals.map((proposal, index) => index === 2
+          ? { ...proposal, state: 'stale' as const }
+          : index === 1
+            ? { ...proposal, anchor: imported.document.proposals[0]!.anchor }
+            : proposal),
+      },
+    };
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={createManuscriptStructureBridge(changed)}
+      />,
+    );
+
+    const source = await screen.findByLabelText('Imported manuscript source');
+    expect(source.textContent).toBe(imported.sourceText);
+    expect(screen.getByText(/The imported source changed. Rediscover structure/i)).toBeVisible();
+    expect(source.querySelectorAll('[data-imported-proposal-range="true"]')).toHaveLength(0);
+    expect(screen.queryByRole('heading', { name: 'No manuscript unit selected' })).not.toBeInTheDocument();
+  });
+
+  it('renders current overlapping proposal source once as ordinary read-only text', async () => {
+    const imported = structureSnapshot();
+    const overlapping = {
+      ...imported,
+      document: {
+        ...imported.document,
+        proposals: imported.document.proposals.map((proposal, index) => index === 2
+          ? { ...proposal, state: 'stale' as const }
+          : index === 1
+            ? { ...proposal, anchor: imported.document.proposals[0]!.anchor }
+            : proposal),
+      },
+    };
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={createManuscriptStructureBridge(overlapping)}
+      />,
+    );
+
+    const source = await screen.findByLabelText('Imported manuscript source');
+    expect(source.textContent).toBe(imported.sourceText);
+    expect(source.querySelectorAll('[data-imported-proposal-range="true"]')).toHaveLength(0);
+    expect(screen.getByText(/Some current proposal ranges overlap/i)).toBeVisible();
+  });
+
+  it('invalidates a selected imported proposal on project generation change while retaining it across an ordinary revision', async () => {
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={createManuscriptStructureBridge()}
+      />,
+    );
+    await screen.findByLabelText('Imported manuscript source');
+    await openWritingRail('Story');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(screen.getByRole('button', { name: /Two heading.*proposed/i }));
+    const secondRange = document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]')!;
+    expect(secondRange).toHaveAttribute('aria-pressed', 'true');
+
+    act(() => project.emit(snapshot('writing', {
+      projectId: 'proj_a',
+      generation: 1,
+      revision: 2,
+      units: [],
+      activeUnitId: null,
+    })));
+    expect(secondRange).toHaveAttribute('aria-pressed', 'true');
+
+    act(() => project.emit(snapshot('writing', {
+      projectId: 'proj_b',
+      path: 'C:\\projects\\b',
+      generation: 2,
+      units: [],
+      activeUnitId: null,
+    })));
+    await waitFor(() => expect(document.querySelector('[data-imported-proposal-id="proposal-1"]')).toHaveAttribute('aria-pressed', 'true'));
+    expect(document.querySelector('[data-imported-proposal-id="proposal-2"]')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('preserves imported source selection and canvas position in Focus mode without moving the Story rail', async () => {
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    const user = userEvent.setup();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={createManuscriptStructureBridge()}
+      />,
+    );
+    const source = await screen.findByLabelText('Imported manuscript source');
+    await openWritingRail('Story');
+    const canvas = document.querySelector<HTMLElement>('[data-manuscript-scroll-owner="true"]')!;
+    const rail = document.querySelector<HTMLElement>('.stage19-writing-shell__rail--left')!;
+    canvas.scrollTop = 240;
+    rail.scrollTop = 73;
+    fireEvent.click(document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]')!);
+    await user.click(screen.getByRole('button', { name: 'Enter Focus mode' }));
+
+    expect(source).toBeVisible();
+    expect(document.querySelector('[data-imported-proposal-id="proposal-2"]')).toHaveAttribute('aria-pressed', 'true');
+    expect(canvas.scrollTop).toBe(240);
+    expect(rail.scrollTop).toBe(73);
+  });
+
+  it('keeps substantial imported-source DOM proportional to source lines and proposals', async () => {
+    const sourceText = Array.from({ length: 80 }, (_, index) => `# Section ${index + 1}\nText outside anchors ${index + 1}.`).join('\n\n');
+    const starts = Array.from(sourceText.matchAll(/^# Section /gm), (match) => match.index!);
+    const baseline = structureSnapshot();
+    const proposals = starts.map((start, index) => ({
+      ...baseline.document.proposals[0]!,
+      id: `large-proposal-${index + 1}`,
+      label: `Section ${index + 1}`,
+      state: 'proposed' as const,
+      anchor: structureAnchor(start, starts[index + 1] ?? sourceText.length),
+    }));
+    const structure = {
+      ...baseline,
+      sourceText,
+      document: {
+        ...baseline.document,
+        source: { ...baseline.document.source, normalizedLength: sourceText.length },
+        proposals,
+      },
+    };
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={createManuscriptStructureBridge(structure)}
+      />,
+    );
+    const source = await screen.findByLabelText('Imported manuscript source');
+    expect(source.textContent).toBe(sourceText);
+    expect(source.querySelectorAll('[data-imported-manuscript-line="true"]')).toHaveLength(sourceText.split('\n').length);
+    expect(source.querySelectorAll('[data-imported-proposal-range="true"]').length).toBeLessThanOrEqual(sourceText.split('\n').length);
+    expect(source.querySelectorAll('*').length).toBeLessThan(sourceText.split('\n').length * 4);
+  });
+
+  it('returns to the normal Unit canvas after Apply reload creates Units', async () => {
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    const structureBridge = createManuscriptStructureBridge();
+    const appliedSnapshot = snapshot('writing', {
+      generation: 2,
+      units: [{ id: 'unit_after_apply', title: 'Applied section', order: 1, body: 'Applied prose' }],
+      activeUnitId: 'unit_after_apply',
+    });
+    project.bridge.reloadActiveProject = vi.fn(async () => ({
+      ok: true as const,
+      data: { activation: 'reloaded' as const },
+      snapshot: appliedSnapshot,
+    }));
+    render(
+      <Stage19WritingSpineApp
+        windowRole="writing"
+        bridge={project.bridge}
+        manuscriptStructureBridge={structureBridge}
+      />,
+    );
+    await screen.findByLabelText('Imported manuscript source');
+    await openWritingRail('Story');
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply accepted structure to Units' }));
+
+    expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Applied section' })).toHaveValue('Applied prose');
+    expect(screen.queryByLabelText('Imported manuscript source')).not.toBeInTheDocument();
+    expect(project.bridge.reloadActiveProject).toHaveBeenCalledTimes(1);
+  });
+
   it('imports Markdown through the Structure controller into a disposable project', async () => {
     const project = createBridge(snapshot('writing'));
     project.bridge.chooseDirectory = vi.fn(async () => ({ canceled: false, path: 'C:\\imports' }));

@@ -27,6 +27,24 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(css).not.toContain('.stage19-spine__command-grid');
   });
 
+  it('keeps imported structure review on the manuscript canvas without a nested source scroller', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
+
+    expect(view).toContain('Imported manuscript — structure review');
+    expect(view).toContain('Read-only until accepted structure is applied.');
+    expect(view).toContain('data-imported-manuscript-source="true"');
+    expect(view).toContain('data-imported-proposal-id={range.id}');
+    expect(view).toContain('aria-pressed={selected}');
+    expect(view).not.toContain('dangerouslySetInnerHTML');
+    expect(css).toMatch(/\.stage19-imported-manuscript\s*\{[\s\S]*?width:\s*min\(100%,\s*126ch\);/);
+    expect(css).toMatch(/\.stage19-imported-manuscript__source\s*\{[\s\S]*?font-size:\s*19px;[\s\S]*?line-height:\s*1\.65;[\s\S]*?white-space:\s*pre-wrap;/);
+    expect(css).not.toMatch(/\.stage19-imported-manuscript__source\s*\{[^}]*overflow(?:-y)?:\s*(?:auto|scroll)/);
+    expect(css).toContain('.stage19-imported-manuscript__proposal.is-selected');
+    expect(css).toContain('.stage19-imported-manuscript__proposal:focus-visible');
+    expect(css).toContain('.stage19-spine--writing.is-focus-mode .stage19-imported-manuscript__header');
+  });
+
   it('locks the scoped literary canvas, semantic themes, responsive rails, and reduced-motion behavior', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     const marker = '/* Program 3 / P3-D: scoped literary Writing Studio shell. */';

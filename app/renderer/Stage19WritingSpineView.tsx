@@ -20,7 +20,10 @@ import type {
   LivingOutlineItemV1,
   LivingOutlineSnapshotV1,
 } from '../shared/ipc/livingOutline';
-import type { ManuscriptStructureSnapshotV1 } from '../shared/ipc/manuscriptStructure';
+import type {
+  ManuscriptStructureProposalV1,
+  ManuscriptStructureSnapshotV1,
+} from '../shared/ipc/manuscriptStructure';
 import type {
   SplitCommandLogicalSurface,
   SplitCommandSecondarySurfaceStatus,
@@ -89,6 +92,7 @@ export interface Stage19WritingSpineViewModel {
   readonly manuscriptStructureOrder: readonly string[] | null;
   readonly structureBoundaryStart: number | null;
   readonly structureBoundaryEnd: number | null;
+  readonly selectedManuscriptProposalId: string | null;
   readonly selectedOutlineItem: LivingOutlineItemV1 | null;
   readonly selectedOutlineItemId: string | null;
   readonly multiSelectMode: boolean;
@@ -191,6 +195,7 @@ export interface Stage19WritingSpineViewActions {
   readonly cancelStructureOrder: () => void;
   readonly setManuscriptStructurePage: (page: number) => void;
   readonly applyManuscriptStructure: () => MaybeAsync;
+  readonly selectManuscriptStructureProposal: (proposalId: string) => void;
   readonly moveOutlineItem: (itemId: string, direction: -1 | 1) => MaybeAsync;
   readonly moveOutlineItemTo: (itemId: string, targetIndex: number) => MaybeAsync;
   readonly linkOutlineItem: (itemId: string, unitId: string | null) => MaybeAsync;
@@ -856,6 +861,213 @@ function LivingOutlineView({
   );
 }
 
+interface ImportedManuscriptProposalRange {
+  readonly id: string;
+  readonly label: string;
+  readonly start: number;
+  readonly end: number;
+}
+
+interface ImportedManuscriptRanges {
+  readonly ranges: readonly ImportedManuscriptProposalRange[];
+  readonly invalidProposalIds: readonly string[];
+  readonly overlappingProposalIds: readonly string[];
+}
+
+function hasCurrentImportedAnchor(
+  proposal: ManuscriptStructureProposalV1,
+  structure: ManuscriptStructureSnapshotV1,
+): boolean {
+  const { anchor } = proposal;
+  return structure.sourceStatus === 'current' &&
+    proposal.state !== 'stale' &&
+    !proposal.appliedUnitId &&
+    anchor.sourceFingerprint === structure.document.source.sourceFingerprint &&
+    Number.isSafeInteger(anchor.selectionStart) &&
+    Number.isSafeInteger(anchor.selectionEnd) &&
+    anchor.selectionStart >= 0 &&
+    anchor.selectionEnd > anchor.selectionStart &&
+    anchor.selectionEnd <= structure.sourceText.length;
+}
+
+function resolveImportedManuscriptRanges(structure: ManuscriptStructureSnapshotV1): ImportedManuscriptRanges {
+  if (structure.sourceStatus !== 'current') {
+    return { ranges: [], invalidProposalIds: [], overlappingProposalIds: [] };
+  }
+  const invalidProposalIds: string[] = [];
+  const candidates: ImportedManuscriptProposalRange[] = [];
+  for (const proposal of structure.document.proposals) {
+    if (proposal.state === 'stale' || proposal.appliedUnitId) continue;
+    if (!hasCurrentImportedAnchor(proposal, structure)) {
+      invalidProposalIds.push(proposal.id);
+      continue;
+    }
+    candidates.push({
+      id: proposal.id,
+      label: proposal.label,
+      start: proposal.anchor.selectionStart,
+      end: proposal.anchor.selectionEnd,
+    });
+  }
+  candidates.sort((left, right) => left.start - right.start || left.end - right.end);
+  const overlapping = new Set<string>();
+  let previous: ImportedManuscriptProposalRange | null = null;
+  for (const candidate of candidates) {
+    if (previous && candidate.start < previous.end) {
+      overlapping.add(previous.id);
+      overlapping.add(candidate.id);
+    }
+    if (!previous || candidate.end > previous.end) previous = candidate;
+  }
+  return {
+    ranges: candidates.filter((candidate) => !overlapping.has(candidate.id)),
+    invalidProposalIds,
+    overlappingProposalIds: [...overlapping],
+  };
+}
+
+export function getSelectableImportedManuscriptProposalIds(
+  structure: ManuscriptStructureSnapshotV1 | null,
+): readonly string[] {
+  return structure ? resolveImportedManuscriptRanges(structure).ranges.map((range) => range.id) : [];
+}
+
+function ImportedManuscriptSourceLine({
+  line,
+  lineStart,
+  ranges,
+  selectedProposalId,
+  selectProposal,
+}: {
+  readonly line: string;
+  readonly lineStart: number;
+  readonly ranges: readonly ImportedManuscriptProposalRange[];
+  readonly selectedProposalId: string | null;
+  readonly selectProposal: (proposalId: string) => void;
+}): JSX.Element {
+  const lineEnd = lineStart + line.length;
+  const lineRanges = ranges.filter((range) => range.start < lineEnd && range.end > lineStart);
+  const points = [...new Set([
+    lineStart,
+    lineEnd,
+    ...lineRanges.flatMap((range) => [
+      Math.max(lineStart, range.start),
+      Math.min(lineEnd, range.end),
+    ]),
+  ])].sort((left, right) => left - right);
+  const heading = /^\s{0,3}#{1,6}\s+/.test(line);
+  return (
+    <span
+      className={`stage19-imported-manuscript__line ${heading ? 'is-heading' : ''}`}
+      data-imported-manuscript-line="true"
+    >
+      {points.slice(0, -1).map((start, index) => {
+        const end = points[index + 1]!;
+        const range = lineRanges.find((candidate) => candidate.start <= start && candidate.end >= end);
+        const value = line.slice(start - lineStart, end - lineStart);
+        if (!range) return <span key={`${start}:${end}`}>{value}</span>;
+        const selected = range.id === selectedProposalId;
+        const startsRange = range.start >= lineStart && range.start < lineEnd;
+        return (
+          <button
+            key={`${range.id}:${start}:${end}`}
+            id={startsRange ? `stage19-imported-proposal-${range.id}` : undefined}
+            type="button"
+            className={`stage19-imported-manuscript__proposal ${selected ? 'is-selected' : ''} ${startsRange ? 'is-range-start' : ''}`}
+            data-imported-proposal-range="true"
+            data-imported-proposal-id={range.id}
+            aria-current={selected ? 'true' : undefined}
+            aria-pressed={selected}
+            aria-label={`${selected ? 'Selected' : 'Select'} proposal range: ${range.label}`}
+            onClick={() => selectProposal(range.id)}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              selectProposal(range.id);
+            }}
+          >
+            {value}
+          </button>
+        );
+      })}
+    </span>
+  );
+}
+
+function ImportedManuscriptPreviewView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const structure = model.manuscriptStructure!;
+  const sourceLines = structure.sourceText.split('\n');
+  const { ranges, invalidProposalIds, overlappingProposalIds } = resolveImportedManuscriptRanges(structure);
+  const counts = structure.document.proposals.reduce<Record<ManuscriptStructureProposalV1['state'], number>>(
+    (result, proposal) => ({ ...result, [proposal.state]: result[proposal.state] + 1 }),
+    { proposed: 0, accepted: 0, rejected: 0, stale: 0 },
+  );
+  const sourceWarning = structure.sourceStatus === 'changed'
+    ? 'The imported source changed. Rediscover structure before making further structural changes.'
+    : structure.sourceStatus === 'changed-after-apply'
+      ? 'The imported source changed after Apply. The existing manuscript remains authoritative.'
+      : null;
+  const anchorWarning = overlappingProposalIds.length > 0
+    ? 'Some current proposal ranges overlap. Their source is shown once as ordinary read-only text.'
+    : invalidProposalIds.length > 0
+      ? 'Some proposal anchors are not valid for the current source and are shown as ordinary read-only text.'
+      : null;
+  let lineStart = 0;
+  return (
+    <section
+      className="stage19-imported-manuscript"
+      aria-label="Imported manuscript structure review"
+      data-imported-manuscript-preview="true"
+    >
+      <header className="stage19-imported-manuscript__header">
+        <div>
+          <span className="stage19-spine__eyebrow">Imported manuscript — structure review</span>
+          <h2>Imported manuscript — structure review</h2>
+          <p>Read-only until accepted structure is applied.</p>
+        </div>
+        <dl className="stage19-imported-manuscript__metadata">
+          <div><dt>Source</dt><dd>{structure.document.source.fileName}</dd></div>
+          <div><dt>Characters</dt><dd>{structure.document.source.normalizedLength.toLocaleString()}</dd></div>
+          <div><dt>Proposals</dt><dd>{counts.proposed} proposed · {counts.accepted} accepted · {counts.rejected} rejected · {counts.stale} stale</dd></div>
+        </dl>
+      </header>
+      {sourceWarning ? <p className="stage19-imported-manuscript__warning" role="status">{sourceWarning}</p> : null}
+      {anchorWarning ? <p className="stage19-imported-manuscript__warning" role="status">{anchorWarning}</p> : null}
+      <div className="stage19-imported-manuscript__source" aria-label="Imported manuscript source" data-imported-manuscript-source="true">
+        {sourceLines.map((line, index) => {
+          const currentLineStart = lineStart;
+          lineStart += line.length + 1;
+          return (
+            <span key={`${currentLineStart}:${index}`}>
+              <ImportedManuscriptSourceLine
+                line={line}
+                lineStart={currentLineStart}
+                ranges={ranges}
+                selectedProposalId={model.selectedManuscriptProposalId}
+                selectProposal={actions.selectManuscriptStructureProposal}
+              />
+              {index < sourceLines.length - 1 ? '\n' : null}
+            </span>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function shouldShowImportedManuscriptPreview(model: Stage19WritingSpineViewModel): boolean {
+  const structure = model.manuscriptStructure;
+  const project = model.snapshot?.project;
+  return Boolean(
+    project &&
+    project.units.length === 0 &&
+    structure?.availability === 'ready' &&
+    structure.sourceStatus !== 'changed-after-apply' &&
+    structure.sourceText.length > 0 &&
+    structure.document.proposals.some((proposal) => !proposal.appliedUnitId),
+  );
+}
+
 export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const structure = model.manuscriptStructure;
   const proposals = structure?.document.proposals ?? [];
@@ -869,6 +1081,8 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
   const acceptedCount = proposals.filter((proposal) => proposal.state === 'accepted').length;
   const unappliedAcceptedCount = proposals.filter((proposal) => proposal.state === 'accepted' && !proposal.appliedUnitId).length;
   const hasAppliedProposal = proposals.some((proposal) => Boolean(proposal.appliedUnitId));
+  const selectedProposalId = model.selectedManuscriptProposalId;
+  const centralPreviewActive = shouldShowImportedManuscriptPreview(model);
   const excerpt = (start: number, end: number): string => {
     const source = structure?.sourceText ?? '';
     const excerptStart = Math.max(0, start - 180);
@@ -915,10 +1129,18 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
                     const index = orderedProposals.findIndex((candidate) => candidate.id === proposal.id);
                     const splitBoundaries = Array.from(structure.sourceText.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).matchAll(/\n/g), (match) => proposal.anchor.selectionStart + (match.index ?? 0) + 1).filter((offset) => offset > proposal.anchor.selectionStart && offset < proposal.anchor.selectionEnd).slice(0, 4);
                     const canSplit = splitBoundaries.length > 0 && !applied;
-                    return <li key={proposal.id} className={`is-${proposal.state}`} data-structure-proposal="true">
+                    const selected = proposal.id === selectedProposalId;
+                    return <li
+                      key={proposal.id}
+                      className={`is-${proposal.state} ${selected ? 'is-selected' : ''}`}
+                      data-structure-proposal="true"
+                      data-structure-proposal-id={proposal.id}
+                    >
                       <div className="stage19-manuscript-structure__excerpt-wrap">
                         <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionStart, 'start')} disabled={applied}>Start boundary</button>
-                        <pre className="stage19-manuscript-structure__source" aria-label={`Excerpt for ${proposal.label}`} data-structure-excerpt="true">{excerpt(proposal.anchor.selectionStart, proposal.anchor.selectionEnd)}</pre>
+                        {centralPreviewActive
+                          ? <p className="stage19-manuscript-structure__canvas-link">Source is visible in the manuscript canvas.</p>
+                          : <pre className="stage19-manuscript-structure__source" aria-label={`Excerpt for ${proposal.label}`} data-structure-excerpt="true">{excerpt(proposal.anchor.selectionStart, proposal.anchor.selectionEnd)}</pre>}
                         <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionEnd, 'end')} disabled={applied}>End boundary</button>
                       </div>
                       {splitBoundaries.length > 0 ? <div className="stage19-manuscript-structure__source-rows" aria-label={`Internal boundaries for ${proposal.label}`}>
@@ -928,7 +1150,19 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
                           <button type="button" onClick={() => actions.selectStructureBoundary(boundary, 'end')} disabled={applied}>Set end boundary</button>
                         </div>)}
                       </div> : null}
-                      <div><label><input type="checkbox" name="proposalId" value={proposal.id} disabled={applied} /> Select</label> <strong>{proposal.label}</strong> <span>{proposal.provenance} · {applied ? 'Applied' : proposal.state}</span></div>
+                      <div>
+                        <label><input type="checkbox" name="proposalId" value={proposal.id} disabled={applied} /> Select</label>
+                        <button
+                          type="button"
+                          className="stage19-manuscript-structure__proposal-select"
+                          aria-current={selected ? 'true' : undefined}
+                          aria-pressed={selected}
+                          onClick={() => actions.selectManuscriptStructureProposal(proposal.id)}
+                        >
+                          <strong>{proposal.label}</strong>
+                          <span>{proposal.provenance} · {applied ? 'Applied' : proposal.state}</span>
+                        </button>
+                      </div>
                       <div className="stage19-manuscript-structure__proposal-actions">
                         <button type="button" onClick={() => void actions.acceptStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'accepted' || proposal.state === 'stale'}>Accept</button>
                         <button type="button" onClick={() => void actions.rejectStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'rejected' || proposal.state === 'stale'}>Reject</button>
@@ -942,7 +1176,9 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
                 </ol>
                 <div className="stage19-manuscript-structure__actions"><button type="submit" disabled={model.manuscriptStructureLoading || hasAppliedProposal}>Merge selected</button></div>
               </form>
-            ) : <pre className="stage19-manuscript-structure__source" data-structure-excerpt="true">{structure.sourceText.slice(0, 2000)}</pre>}
+            ) : centralPreviewActive
+              ? <p className="stage19-manuscript-structure__canvas-link">Source is visible in the manuscript canvas.</p>
+              : <pre className="stage19-manuscript-structure__source" data-structure-excerpt="true">{structure.sourceText.slice(0, 2000)}</pre>}
             {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><span>Proposal order is staged locally.</span><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
             <nav className="stage19-manuscript-structure__pagination" aria-label="Structure pages"><button type="button" onClick={() => model.manuscriptStructurePage > 0 && actions.setManuscriptStructurePage(model.manuscriptStructurePage - 1)} disabled={page === 0}>Previous</button><span>Page {page + 1} of {pageCount}</span><button type="button" onClick={() => model.manuscriptStructurePage < pageCount - 1 && actions.setManuscriptStructurePage(model.manuscriptStructurePage + 1)} disabled={page >= pageCount - 1}>Next</button></nav>
             <button type="button" onClick={() => void actions.applyManuscriptStructure()} disabled={model.manuscriptStructureLoading || unappliedAcceptedCount === 0 || structure.sourceStatus !== 'current'}>Apply accepted structure to Units</button>
@@ -1245,6 +1481,7 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
   const { model, actions } = props;
   const { activeUnit, snapshot } = model;
   const units = snapshot.project?.units ?? [];
+  const importedManuscriptPreview = shouldShowImportedManuscriptPreview(model);
 
   return (
     <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
@@ -1326,6 +1563,8 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
             })}
           </div>
         </>
+      ) : importedManuscriptPreview ? (
+        <ImportedManuscriptPreviewView {...props} />
       ) : (
         <div className="stage19-spine__empty-state"><h2>No manuscript unit selected</h2><p>Create or select a unit from the binder.</p></div>
       )}
