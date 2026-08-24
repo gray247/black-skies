@@ -45,6 +45,26 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(css).toContain('.stage19-spine--writing.is-focus-mode .stage19-imported-manuscript__header');
   });
 
+  it('keeps the Structure rail compact and gives its selected panel the only structural controls', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
+    const workspace = css.slice(css.indexOf('.stage19-manuscript-structure__workspace'));
+    const proposals = css.slice(css.indexOf('.stage19-manuscript-structure__proposals'));
+
+    expect(workspace).toMatch(/max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
+    expect(proposals).toMatch(/overflow:\s*visible;/);
+    expect(proposals).not.toMatch(/max-height:\s*(?:\d|var\()/);
+    expect(proposals).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+    expect(view).toContain('aria-label="Selected section controls"');
+    expect(view).toContain('aria-label="Structure proposals"');
+    expect(view).toContain('Structure decision counts');
+    expect(view).toContain('Advanced boundary tools');
+    expect(view).toContain('Section order has unsaved changes.');
+    expect(view).not.toContain('data-structure-excerpt');
+    expect(view).not.toContain('Merge selected');
+    expect(view).not.toContain('proposal-actions');
+  });
+
   it('locks the scoped literary canvas, semantic themes, responsive rails, and reduced-motion behavior', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     const marker = '/* Program 3 / P3-D: scoped literary Writing Studio shell. */';

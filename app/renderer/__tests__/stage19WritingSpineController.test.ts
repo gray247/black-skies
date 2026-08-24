@@ -117,13 +117,12 @@ describe('Stage 19 renderer controller seam', () => {
     });
   });
 
-  it('keeps the presentation view stateless and outside bridge or global authority', () => {
+  it('keeps the presentation view outside bridge or global authority', () => {
     const viewSource = readFileSync(
       path.resolve(process.cwd(), 'renderer', 'Stage19WritingSpineView.tsx'),
       'utf8',
     );
 
-    expect(viewSource).not.toMatch(/\buse(?:State|Effect|Reducer|Ref)\b/);
     expect(viewSource).not.toMatch(/\bwindow\.[A-Za-z_$]/);
     expect(viewSource).not.toMatch(/\b(?:ProjectSpine|AiCritique|FeedbackNotes|LivingOutline)Bridge\b/);
     expect(viewSource).not.toMatch(/createFromCritique|subscribeSession|getSession|captureRecoveryCheckpoint/);

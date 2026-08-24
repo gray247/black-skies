@@ -541,7 +541,7 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     const imported = { projectPath: join(destinationPath, importedDirectory) };
     await expect(writing.getByRole('button', { name: 'Rediscover' })).toBeVisible();
     await writing.getByRole('button', { name: 'Rediscover' }).click();
-    await expect(writing.getByRole('heading', { name: 'Structure workspace' })).toBeVisible();
+    await expect(writing.getByRole('heading', { name: 'Structure', exact: true })).toBeVisible();
     const importedPreview = writing.getByRole('region', { name: 'Imported manuscript structure review' });
     const importedSource = writing.getByLabel('Imported manuscript source');
     await expect(importedPreview).toBeVisible();
@@ -554,40 +554,95 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     const proposals = writing.getByRole('list', { name: 'Structure proposals' });
     await expect(proposals).toBeVisible();
     await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(3);
-    await expect(proposals.locator('[data-structure-source-row="true"]')).toHaveCount(5);
+    await expect(proposals.locator('[data-structure-source-row="true"]')).toHaveCount(0);
+    await expect(proposals.locator('input[type="checkbox"]')).toHaveCount(0);
+    await expect(writing.getByRole('button', { name: 'Merge selected' })).toHaveCount(0);
+    const structureLayout = await writing.locator('details.stage19-manuscript-structure').evaluate((element) => {
+      const workspace = element.querySelector<HTMLElement>('.stage19-manuscript-structure__workspace')!;
+      const list = element.querySelector<HTMLElement>('.stage19-manuscript-structure__proposals')!;
+      return {
+        workspaceOverflowX: getComputedStyle(workspace).overflowX,
+        workspaceOverflowY: getComputedStyle(workspace).overflowY,
+        listOverflowX: getComputedStyle(list).overflowX,
+        listOverflowY: getComputedStyle(list).overflowY,
+        workspaceHorizontalOverflow: workspace.scrollWidth - workspace.clientWidth,
+        listHorizontalOverflow: list.scrollWidth - list.clientWidth,
+      };
+    });
+    expect(structureLayout.workspaceOverflowX).toBe('visible');
+    expect(structureLayout.workspaceOverflowY).toBe('visible');
+    expect(structureLayout.listOverflowX).toBe('visible');
+    expect(structureLayout.listOverflowY).toBe('visible');
+    expect(structureLayout.workspaceHorizontalOverflow).toBeLessThanOrEqual(1);
+    expect(structureLayout.listHorizontalOverflow).toBeLessThanOrEqual(1);
     const secondProposal = proposals.locator('[data-structure-proposal="true"]').nth(1);
     const secondProposalId = await secondProposal.getAttribute('data-structure-proposal-id');
-    await secondProposal.getByRole('button', { name: /Second.*heading.*proposed/i }).click();
+    await secondProposal.getByRole('button', { name: /Second/ }).click();
     await expect(writing.locator(`[data-imported-proposal-id="${secondProposalId}"]`).first()).toHaveAttribute('aria-pressed', 'true');
-    await proposals.getByRole('button', { name: 'Start boundary' }).first().click();
-    await proposals.getByRole('button', { name: 'End boundary' }).first().click();
+
+    const selectedControls = writing.getByRole('region', { name: 'Selected section controls' });
+    await expect(selectedControls).toContainText('Second');
+    await writing.getByText('More section actions').click();
+    await writing.getByText('Advanced boundary tools').click();
+    await writing.getByLabel('Start boundary').selectOption({ index: 1 });
+    await writing.getByLabel('End boundary').selectOption({ index: 2 });
     await writing.getByRole('textbox', { name: 'Boundary label' }).fill('First pinned boundary');
     await writing.getByRole('button', { name: 'Pin boundary' }).click();
 
-    const firstLabel = proposals.locator('[data-proposal-label]').first();
-    await firstLabel.fill('First renamed');
-    await proposals.getByRole('button', { name: 'Save name' }).first().click();
-    await proposals.getByRole('button', { name: 'Split at paragraph boundary' }).first().click();
-    await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(6);
-    await proposals.locator('input[name="proposalId"]').nth(1).check();
-    await proposals.locator('input[name="proposalId"]').nth(2).check();
-    await writing.getByRole('button', { name: 'Merge selected' }).click();
-    const acceptProposal = proposals.getByRole('button', { name: 'Accept' }).nth(1);
+    await writing.getByRole('textbox', { name: 'Section name' }).fill('Second renamed');
+    await writing.getByRole('button', { name: 'Save name' }).click();
+    await expect(writing.getByRole('button', { name: /Merge with next:/ })).toHaveCount(1);
+    await writing.getByRole('button', { name: /Merge with next:/ }).click();
+    await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
+      if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
+    });
+    await writing.getByLabel('Split selected section at').selectOption({ index: 1 });
+    await writing.getByRole('button', { name: 'Split section' }).click();
+    await expect.poll(async () => proposals.locator('[data-structure-proposal="true"]').count()).toBeGreaterThan(2);
+
+    const undecidedProposals = proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' });
+    await expect.poll(async () => undecidedProposals.count()).toBeGreaterThan(1);
+    await undecidedProposals.first().getByRole('button').click();
+    const acceptProposal = selectedControls.getByRole('button', { name: 'Accept' });
     await acceptProposal.click();
     await expect(acceptProposal).toBeDisabled();
-    const rejectProposal = proposals.getByRole('button', { name: 'Reject' }).nth(2);
+    await proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' }).last().getByRole('button').click();
+    const rejectProposal = selectedControls.getByRole('button', { name: 'Reject' });
     await rejectProposal.click();
     await expect(rejectProposal).toBeDisabled();
     const structureDisclosure = writing.locator('details.stage19-manuscript-structure');
     const persistedBeforeStaging = await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8');
-    await proposals.getByRole('button', { name: 'Move up' }).nth(1).click();
+    const proposalRows = proposals.locator('[data-structure-proposal="true"]');
+    let firstStaged = false;
+    for (let index = 0; index < await proposalRows.count(); index += 1) {
+      await proposalRows.nth(index).getByRole('button').click();
+      await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
+        if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
+      });
+      const moveDown = writing.getByRole('button', { name: 'Move down' });
+      const moveUp = writing.getByRole('button', { name: 'Move up' });
+      if (await moveDown.isEnabled()) { await moveDown.click(); firstStaged = true; break; }
+      if (await moveUp.isEnabled()) { await moveUp.click(); firstStaged = true; break; }
+    }
+    expect(firstStaged).toBe(true);
     await expect(writing.getByRole('button', { name: 'Save order' })).toBeVisible();
-    await structureDisclosure.locator('summary').click();
+    await structureDisclosure.locator(':scope > summary').click();
     await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
-    await structureDisclosure.locator('summary').click();
+    await structureDisclosure.locator(':scope > summary').click();
     await expect(writing.getByRole('button', { name: 'Save order' })).toHaveCount(0);
     expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
-    await proposals.getByRole('button', { name: 'Move up' }).nth(1).click();
+    let secondStaged = false;
+    for (let index = 0; index < await proposalRows.count(); index += 1) {
+      await proposalRows.nth(index).getByRole('button').click();
+      await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
+        if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
+      });
+      const moveDown = writing.getByRole('button', { name: 'Move down' });
+      const moveUp = writing.getByRole('button', { name: 'Move up' });
+      if (await moveDown.isEnabled()) { await moveDown.click(); secondStaged = true; break; }
+      if (await moveUp.isEnabled()) { await moveUp.click(); secondStaged = true; break; }
+    }
+    expect(secondStaged).toBe(true);
     await writing.getByRole('button', { name: 'Cancel order' }).click();
     expect(await readFile(`${imported.projectPath}/manuscript-structure.json`, 'utf8')).toBe(persistedBeforeStaging);
     await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
@@ -614,7 +669,8 @@ test('Program 5 imports, paginates, edits, applies, and reloads a disposable Mar
     expect(firstApplyEvidence.uniqueRanges).toBe(firstApplyEvidence.actual.length);
     expect(firstApplyEvidence.draftCount).toBe(firstApplyEvidence.actual.length);
 
-    await proposals.locator('[data-structure-proposal="true"]').nth(3).getByRole('button', { name: 'Accept' }).click();
+    await proposals.locator('[data-structure-proposal="true"]').filter({ hasText: 'Needs decision' }).first().getByRole('button').click();
+    await writing.getByRole('region', { name: 'Selected section controls' }).getByRole('button', { name: 'Accept' }).click();
     await expect(writing.getByRole('button', { name: 'Apply accepted structure to Units' })).toBeEnabled();
     await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
     await expect.poll(async () => {
@@ -745,15 +801,19 @@ test('Program 5 keeps a substantial Markdown intake bounded, exact, and durable 
     expect(renderedProposalTextLength).toBeLessThan(80_000);
     expect(renderedProposalTextLength).toBeLessThan(source.length / 5);
 
-    const firstLabel = proposals.locator('[data-proposal-label]').first();
-    await firstLabel.fill('Qualified opening');
-    await proposals.getByRole('button', { name: 'Save name' }).first().click();
-    await proposals.getByRole('button', { name: 'Accept' }).first().click();
-    await proposals.getByRole('button', { name: 'Reject' }).nth(1).click();
-    await writing.getByRole('button', { name: 'Next' }).click();
+    await proposals.locator('[data-structure-proposal="true"]').first().getByRole('button').click();
+    await writing.locator('details.stage19-manuscript-structure__more-actions').evaluate((element) => {
+      if (!(element as HTMLDetailsElement).open) (element.querySelector('summary') as HTMLElement).click();
+    });
+    await writing.getByRole('textbox', { name: 'Section name' }).fill('Qualified opening');
+    await writing.getByRole('button', { name: 'Save name' }).click();
+    await writing.getByRole('region', { name: 'Selected section controls' }).getByRole('button', { name: 'Accept' }).click();
+    await proposals.locator('[data-structure-proposal="true"]').nth(1).getByRole('button').click();
+    await writing.getByRole('region', { name: 'Selected section controls' }).getByRole('button', { name: 'Reject' }).click();
+    await writing.getByRole('navigation', { name: 'Structure pages' }).getByRole('button', { name: 'Next', exact: true }).click();
     await expect(writing.getByRole('navigation', { name: 'Structure pages' })).toContainText('Page 2 of 10');
     await expect(proposals.locator('[data-structure-proposal="true"]')).toHaveCount(12);
-    await writing.getByRole('button', { name: 'Previous' }).click();
+    await writing.getByRole('navigation', { name: 'Structure pages' }).getByRole('button', { name: 'Previous', exact: true }).click();
     await writing.getByRole('button', { name: 'Apply accepted structure to Units' }).click();
 
     await expect.poll(async () => {

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import type {
   ProjectSpineCommandStatusProjection,
@@ -1068,6 +1068,202 @@ function shouldShowImportedManuscriptPreview(model: Stage19WritingSpineViewModel
   );
 }
 
+function structureProposalStateLabel(proposal: ManuscriptStructureProposalV1): string {
+  if (proposal.appliedUnitId) return 'Applied';
+  if (proposal.state === 'accepted') return 'Accepted';
+  if (proposal.state === 'rejected') return 'Rejected';
+  if (proposal.state === 'stale') return 'Stale — rediscover';
+  return 'Needs decision';
+}
+
+function structureProposalStateMarker(proposal: ManuscriptStructureProposalV1): string {
+  if (proposal.appliedUnitId) return '✓';
+  if (proposal.state === 'accepted') return '●';
+  if (proposal.state === 'rejected') return '×';
+  if (proposal.state === 'stale') return '!';
+  return '○';
+}
+
+interface StructureSplitBoundary {
+  readonly offset: number;
+  readonly ordinal: number;
+  readonly preview: string;
+}
+
+function getStructureSplitBoundaries(
+  sourceText: string,
+  proposal: ManuscriptStructureProposalV1,
+): readonly StructureSplitBoundary[] {
+  const { selectionStart, selectionEnd } = proposal.anchor;
+  return Array.from(
+    sourceText.slice(selectionStart, selectionEnd).matchAll(/\n/g),
+    (match, index) => {
+      const offset = selectionStart + (match.index ?? 0) + 1;
+      const preview = sourceText.slice(offset).split('\n')[0]?.replace(/\s+/g, ' ').trim() ?? '';
+      return { offset, ordinal: index + 1, preview: preview.slice(0, 72) || '(blank paragraph)' };
+    },
+  ).filter(({ offset }) => offset > selectionStart && offset < selectionEnd);
+}
+
+function getStructureBoundaryOffsets(
+  sourceText: string,
+  proposal: ManuscriptStructureProposalV1,
+): readonly number[] {
+  return [
+    proposal.anchor.selectionStart,
+    ...getStructureSplitBoundaries(sourceText, proposal).map((boundary) => boundary.offset),
+    proposal.anchor.selectionEnd,
+  ];
+}
+
+function structureMutationDisabledReason(
+  structure: ManuscriptStructureSnapshotV1,
+  proposal: ManuscriptStructureProposalV1,
+  loading: boolean,
+): string | null {
+  if (loading) return 'A structure change is already running.';
+  if (proposal.appliedUnitId) return 'Applied sections are immutable.';
+  if (proposal.state === 'stale') return 'Stale sections require Rediscover before editing.';
+  if (structure.sourceStatus !== 'current') return 'The imported source is not current.';
+  return null;
+}
+
+interface SelectedStructureControlPanelProps {
+  readonly structure: ManuscriptStructureSnapshotV1;
+  readonly proposal: ManuscriptStructureProposalV1;
+  readonly orderedProposals: readonly ManuscriptStructureProposalV1[];
+  readonly selectedIndex: number;
+  readonly model: Stage19WritingSpineViewModel;
+  readonly actions: Stage19WritingSpineViewActions;
+}
+
+function SelectedStructureControlPanel({
+  structure,
+  proposal,
+  orderedProposals,
+  selectedIndex,
+  model,
+  actions,
+}: SelectedStructureControlPanelProps): JSX.Element {
+  const [renameValue, setRenameValue] = useState(proposal.label);
+  const [splitBoundary, setSplitBoundary] = useState<number | ''>('');
+  const [boundaryLabel, setBoundaryLabel] = useState('');
+  const splitBoundaries = getStructureSplitBoundaries(structure.sourceText, proposal);
+  const boundaryOffsets = getStructureBoundaryOffsets(structure.sourceText, proposal);
+  const previous = orderedProposals[selectedIndex - 1] ?? null;
+  const next = orderedProposals[selectedIndex + 1] ?? null;
+  const mutationDisabledReason = structureMutationDisabledReason(structure, proposal, model.manuscriptStructureLoading);
+  const canMutate = mutationDisabledReason === null;
+  const canRename = canMutate;
+  const canSplit = canMutate && splitBoundaries.length > 0 && splitBoundary !== '';
+  const canPin = canMutate && model.structureBoundaryStart !== null && model.structureBoundaryEnd !== null && boundaryLabel.trim().length > 0;
+  const startBoundaryValid = model.structureBoundaryStart !== null && boundaryOffsets.includes(model.structureBoundaryStart);
+  const endBoundaryValid = model.structureBoundaryEnd !== null && boundaryOffsets.includes(model.structureBoundaryEnd);
+  const mergeable = (candidate: ManuscriptStructureProposalV1 | null): boolean => Boolean(
+    candidate &&
+    canMutate &&
+    !candidate.appliedUnitId &&
+    candidate.state !== 'stale',
+  );
+
+  useEffect(() => {
+    setRenameValue(proposal.label);
+    setSplitBoundary('');
+    setBoundaryLabel('');
+  }, [proposal.id, proposal.label]);
+
+  const stageMove = (direction: -1 | 1) => {
+    const targetIndex = selectedIndex + direction;
+    if (targetIndex < 0 || targetIndex >= orderedProposals.length) return;
+    const target = orderedProposals[targetIndex]!;
+    if (!canMutate || target.appliedUnitId || target.state === 'stale') return;
+    const orderedIds = orderedProposals.map((candidate) => candidate.id);
+    [orderedIds[selectedIndex], orderedIds[targetIndex]] = [orderedIds[targetIndex]!, orderedIds[selectedIndex]!];
+    actions.stageStructureOrder(orderedIds);
+  };
+
+  return (
+    <section className="stage19-manuscript-structure__selected" aria-label="Selected section controls">
+      <div className="stage19-manuscript-structure__selected-heading">
+        <div>
+          <span className="stage19-spine__eyebrow">Selected section</span>
+          <h4>{proposal.label}</h4>
+        </div>
+        <span className="stage19-manuscript-structure__state-marker" aria-label={structureProposalStateLabel(proposal)}>{structureProposalStateMarker(proposal)}</span>
+      </div>
+      <dl className="stage19-manuscript-structure__selected-summary">
+        <div><dt>Order</dt><dd>{selectedIndex + 1} of {orderedProposals.length}</dd></div>
+        <div><dt>State</dt><dd>{structureProposalStateLabel(proposal)}</dd></div>
+        <div><dt>Provenance</dt><dd>{proposal.provenance === 'heading' ? 'Detected from a Markdown heading.' : `Detected from ${proposal.provenance} structure.`}</dd></div>
+      </dl>
+      {mutationDisabledReason ? <p className="stage19-manuscript-structure__disabled-reason" role="status">{mutationDisabledReason}</p> : null}
+      <div className="stage19-manuscript-structure__decision-actions">
+        <button type="button" onClick={() => void actions.acceptStructureProposal(proposal.id)} disabled={!canMutate || proposal.state === 'accepted'}>Accept</button>
+        <button type="button" onClick={() => void actions.rejectStructureProposal(proposal.id)} disabled={!canMutate || proposal.state === 'rejected'}>Reject</button>
+      </div>
+      <details className="stage19-manuscript-structure__more-actions">
+        <summary>More section actions</summary>
+        <div className="stage19-manuscript-structure__more-content">
+          <fieldset className="stage19-manuscript-structure__action-group">
+            <legend>Rename</legend>
+            <label htmlFor={`structure-section-name-${proposal.id}`}>Section name</label>
+            <input id={`structure-section-name-${proposal.id}`} value={renameValue} maxLength={240} onChange={(event) => setRenameValue(event.target.value)} disabled={!canRename} />
+            <div className="stage19-manuscript-structure__actions">
+              <button type="button" onClick={() => void actions.renameStructureProposal(proposal.id, renameValue)} disabled={!canRename || renameValue.trim().length === 0}>Save name</button>
+              <button type="button" onClick={() => setRenameValue(proposal.label)} disabled={!canRename}>Cancel</button>
+            </div>
+          </fieldset>
+          <fieldset className="stage19-manuscript-structure__action-group">
+            <legend>Split</legend>
+            <label htmlFor={`structure-split-${proposal.id}`}>Split selected section at</label>
+            <select id={`structure-split-${proposal.id}`} value={splitBoundary} onChange={(event) => setSplitBoundary(event.target.value ? Number(event.target.value) : '')} disabled={!canMutate || splitBoundaries.length === 0}>
+              <option value="">{splitBoundaries.length > 0 ? 'Choose a paragraph boundary' : 'No valid internal boundary'}</option>
+              {splitBoundaries.map((boundary) => <option key={boundary.offset} value={boundary.offset}>Paragraph {boundary.ordinal} — {boundary.preview}</option>)}
+            </select>
+            {splitBoundaries.length === 0 ? <p className="stage19-manuscript-structure__disabled-reason">This section has no valid internal paragraph boundary.</p> : null}
+            <button type="button" onClick={() => typeof splitBoundary === 'number' && void actions.splitStructureProposal(proposal.id, splitBoundary)} disabled={!canSplit}>Split section</button>
+          </fieldset>
+          <fieldset className="stage19-manuscript-structure__action-group">
+            <legend>Merge</legend>
+            <div className="stage19-manuscript-structure__actions">
+              {previous && mergeable(previous) ? <button type="button" onClick={() => void actions.mergeStructureProposals([previous.id, proposal.id])}>Merge with previous: {previous.label}</button> : null}
+              {next && mergeable(next) ? <button type="button" onClick={() => void actions.mergeStructureProposals([proposal.id, next.id])}>Merge with next: {next.label}</button> : null}
+            </div>
+            {!previous && !next ? <p className="stage19-manuscript-structure__disabled-reason">No adjacent section is available.</p> : null}
+          </fieldset>
+          <fieldset className="stage19-manuscript-structure__action-group">
+            <legend>Reorder</legend>
+            <div className="stage19-manuscript-structure__actions">
+              <button type="button" onClick={() => stageMove(-1)} disabled={!canMutate || !previous || Boolean(previous.appliedUnitId) || previous.state === 'stale'}>Move up</button>
+              <button type="button" onClick={() => stageMove(1)} disabled={!canMutate || !next || Boolean(next.appliedUnitId) || next.state === 'stale'}>Move down</button>
+            </div>
+          </fieldset>
+          <details className="stage19-manuscript-structure__advanced">
+            <summary>Advanced boundary tools</summary>
+            <div className="stage19-manuscript-structure__advanced-content">
+              <p>Advanced: create a custom structural range. Most manuscripts do not need this.</p>
+              <label htmlFor={`structure-boundary-start-${proposal.id}`}>Start boundary</label>
+              <select id={`structure-boundary-start-${proposal.id}`} value={startBoundaryValid ? String(model.structureBoundaryStart) : ''} onChange={(event) => event.target.value && actions.selectStructureBoundary(Number(event.target.value), 'start')} disabled={!canMutate}>
+                <option value="">Choose a start boundary</option>
+                {boundaryOffsets.map((offset, index) => <option key={offset} value={offset}>{index === 0 ? 'Section start' : index === boundaryOffsets.length - 1 ? 'Section end' : `Internal boundary ${index}`}</option>)}
+              </select>
+              <label htmlFor={`structure-boundary-end-${proposal.id}`}>End boundary</label>
+              <select id={`structure-boundary-end-${proposal.id}`} value={endBoundaryValid ? String(model.structureBoundaryEnd) : ''} onChange={(event) => event.target.value && actions.selectStructureBoundary(Number(event.target.value), 'end')} disabled={!canMutate}>
+                <option value="">Choose an end boundary</option>
+                {boundaryOffsets.map((offset, index) => <option key={offset} value={offset}>{index === 0 ? 'Section start' : index === boundaryOffsets.length - 1 ? 'Section end' : `Internal boundary ${index}`}</option>)}
+              </select>
+              <label htmlFor={`structure-boundary-label-${proposal.id}`}>Boundary label</label>
+              <input id={`structure-boundary-label-${proposal.id}`} value={boundaryLabel} maxLength={240} onChange={(event) => setBoundaryLabel(event.target.value)} disabled={!canMutate} />
+              <button type="button" onClick={() => void actions.pinSelectedStructureBoundary(boundaryLabel.trim())} disabled={!canPin || !startBoundaryValid || !endBoundaryValid}>Pin boundary</button>
+              {model.structureBoundaryStart !== null && model.structureBoundaryEnd !== null && (!startBoundaryValid || !endBoundaryValid || model.structureBoundaryStart >= model.structureBoundaryEnd) ? <p className="stage19-manuscript-structure__disabled-reason" role="status">Choose a valid start before the end. The invalid range will not be pinned.</p> : null}
+            </div>
+          </details>
+        </div>
+      </details>
+    </section>
+  );
+}
+
 export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const structure = model.manuscriptStructure;
   const proposals = structure?.document.proposals ?? [];
@@ -1080,15 +1276,16 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
   const pageProposals = orderedProposals.slice(page * pageSize, (page + 1) * pageSize);
   const acceptedCount = proposals.filter((proposal) => proposal.state === 'accepted').length;
   const unappliedAcceptedCount = proposals.filter((proposal) => proposal.state === 'accepted' && !proposal.appliedUnitId).length;
-  const hasAppliedProposal = proposals.some((proposal) => Boolean(proposal.appliedUnitId));
   const selectedProposalId = model.selectedManuscriptProposalId;
-  const centralPreviewActive = shouldShowImportedManuscriptPreview(model);
-  const excerpt = (start: number, end: number): string => {
-    const source = structure?.sourceText ?? '';
-    const excerptStart = Math.max(0, start - 180);
-    const excerptEnd = Math.min(source.length, Math.max(end, start + 1) + 260);
-    return source.slice(excerptStart, excerptEnd);
-  };
+  const selectedProposal = orderedProposals.find((proposal) => proposal.id === selectedProposalId) ?? null;
+  const selectedProposalIndex = selectedProposal ? orderedProposals.findIndex((proposal) => proposal.id === selectedProposal.id) : -1;
+  const decisionCounts = [
+    `${proposals.filter((proposal) => proposal.state === 'proposed' && !proposal.appliedUnitId).length} needs decision`,
+    `${acceptedCount} accepted`,
+    `${proposals.filter((proposal) => proposal.state === 'rejected').length} rejected`,
+    `${proposals.filter((proposal) => proposal.state === 'stale').length} stale`,
+    `${proposals.filter((proposal) => proposal.appliedUnitId).length} applied`,
+  ];
   return (
     <details
       className="stage19-manuscript-structure"
@@ -1102,84 +1299,56 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
       <summary><span>Structure</span>{structure ? <span className="stage19-manuscript-structure__summary">{acceptedCount} accepted / {proposals.length} proposals</span> : <span>Optional Markdown intake</span>}</summary>
       <div className="stage19-manuscript-structure__workspace">
         <div className="stage19-manuscript-structure__heading">
-          <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure workspace</h3></div>
+          <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure</h3></div>
           <div className="stage19-manuscript-structure__actions">
             <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown</button>
             {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || structure.sourceStatus !== 'current'}>Rediscover</button> : null}
           </div>
         </div>
-        <p className="stage19-manuscript-structure__boundary">Read-only source excerpts. Proposals stay provisional until explicitly applied to Units.</p>
+        <p className="stage19-manuscript-structure__boundary">The central manuscript is the source of truth. Structure decisions stay provisional until explicitly applied to Units.</p>
         {model.manuscriptStructureNotice ? <p className="stage19-manuscript-structure__notice" role="status">{model.manuscriptStructureNotice}</p> : null}
         {structure?.message ? <p className="stage19-manuscript-structure__notice" role="status">{structure.message}</p> : null}
         {model.manuscriptStructureLoading && !structure ? <p>Loading structure…</p> : null}
         {structure?.availability === 'ready' ? (
           <>
             <div className="stage19-manuscript-structure__summary"><span>{structure.document.source.fileName}</span><span>{structure.document.source.normalizedLength.toLocaleString()} characters</span></div>
-            <div className="stage19-manuscript-structure__boundary-form">
-              <span>Visible boundary selection</span>
-              <span>{model.structureBoundaryStart === null ? 'Choose a start' : model.structureBoundaryEnd === null ? 'Choose an end' : 'Range selected'}</span>
-              <input aria-label="Boundary label" placeholder="Label" data-structure-boundary-label />
-              <button type="button" onClick={(event) => void actions.pinSelectedStructureBoundary((event.currentTarget.parentElement?.querySelector<HTMLInputElement>('[data-structure-boundary-label]')?.value ?? '').trim())} disabled={model.manuscriptStructureLoading || model.structureBoundaryStart === null || model.structureBoundaryEnd === null}>Pin boundary</button>
+            <div className="stage19-manuscript-structure__decision-summary" aria-label="Structure decision counts">
+              <span>{decisionCounts.join(' · ')}</span>
             </div>
-            {pageProposals.length > 0 ? (
-              <form onSubmit={(event) => { event.preventDefault(); void actions.mergeStructureProposals(new FormData(event.currentTarget).getAll('proposalId').map(String)); }}>
-                <ol className="stage19-manuscript-structure__proposals" aria-label="Structure proposals">
-                  {pageProposals.map((proposal) => {
-                    const applied = Boolean(proposal.appliedUnitId);
-                    const index = orderedProposals.findIndex((candidate) => candidate.id === proposal.id);
-                    const splitBoundaries = Array.from(structure.sourceText.slice(proposal.anchor.selectionStart, proposal.anchor.selectionEnd).matchAll(/\n/g), (match) => proposal.anchor.selectionStart + (match.index ?? 0) + 1).filter((offset) => offset > proposal.anchor.selectionStart && offset < proposal.anchor.selectionEnd).slice(0, 4);
-                    const canSplit = splitBoundaries.length > 0 && !applied;
-                    const selected = proposal.id === selectedProposalId;
-                    return <li
-                      key={proposal.id}
-                      className={`is-${proposal.state} ${selected ? 'is-selected' : ''}`}
-                      data-structure-proposal="true"
-                      data-structure-proposal-id={proposal.id}
-                    >
-                      <div className="stage19-manuscript-structure__excerpt-wrap">
-                        <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionStart, 'start')} disabled={applied}>Start boundary</button>
-                        {centralPreviewActive
-                          ? <p className="stage19-manuscript-structure__canvas-link">Source is visible in the manuscript canvas.</p>
-                          : <pre className="stage19-manuscript-structure__source" aria-label={`Excerpt for ${proposal.label}`} data-structure-excerpt="true">{excerpt(proposal.anchor.selectionStart, proposal.anchor.selectionEnd)}</pre>}
-                        <button type="button" className="stage19-manuscript-structure__boundary-button" onClick={() => actions.selectStructureBoundary(proposal.anchor.selectionEnd, 'end')} disabled={applied}>End boundary</button>
-                      </div>
-                      {splitBoundaries.length > 0 ? <div className="stage19-manuscript-structure__source-rows" aria-label={`Internal boundaries for ${proposal.label}`}>
-                        {splitBoundaries.map((boundary, boundaryIndex) => <div key={boundary} className="stage19-manuscript-structure__source-row" data-structure-source-row="true">
-                          <span>Internal source boundary {boundaryIndex + 1}</span>
-                          <button type="button" onClick={() => actions.selectStructureBoundary(boundary, 'start')} disabled={applied}>Set start boundary</button>
-                          <button type="button" onClick={() => actions.selectStructureBoundary(boundary, 'end')} disabled={applied}>Set end boundary</button>
-                        </div>)}
-                      </div> : null}
-                      <div>
-                        <label><input type="checkbox" name="proposalId" value={proposal.id} disabled={applied} /> Select</label>
-                        <button
-                          type="button"
-                          className="stage19-manuscript-structure__proposal-select"
-                          aria-current={selected ? 'true' : undefined}
-                          aria-pressed={selected}
-                          onClick={() => actions.selectManuscriptStructureProposal(proposal.id)}
-                        >
-                          <strong>{proposal.label}</strong>
-                          <span>{proposal.provenance} · {applied ? 'Applied' : proposal.state}</span>
-                        </button>
-                      </div>
-                      <div className="stage19-manuscript-structure__proposal-actions">
-                        <button type="button" onClick={() => void actions.acceptStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'accepted' || proposal.state === 'stale'}>Accept</button>
-                        <button type="button" onClick={() => void actions.rejectStructureProposal(proposal.id)} disabled={model.manuscriptStructureLoading || applied || proposal.state === 'rejected' || proposal.state === 'stale'}>Reject</button>
-                        <button type="button" onClick={(event) => event.currentTarget.closest('li')?.querySelector<HTMLInputElement>('input[data-proposal-label]')?.focus()} disabled={applied}>Rename</button>
-                        {splitBoundaries.map((boundary) => <button key={boundary} type="button" onClick={() => void actions.splitStructureProposal(proposal.id, boundary)} disabled={!canSplit || model.manuscriptStructureLoading}>Split at paragraph boundary</button>)}
-                        <button type="button" onClick={() => { if (index <= 0 || hasAppliedProposal) return; const ordered = orderedProposals.map((candidate) => candidate.id); [ordered[index - 1], ordered[index]] = [ordered[index]!, ordered[index - 1]!]; actions.stageStructureOrder(ordered); }} disabled={index <= 0 || hasAppliedProposal || model.manuscriptStructureLoading}>Move up</button>
-                      </div>
-                      <div className="stage19-manuscript-structure__rename"><label><span className="stage19-spine__sr-only">Proposal name</span><input data-proposal-label defaultValue={proposal.label} maxLength={240} disabled={applied} /></label><button type="button" onClick={(event) => void actions.renameStructureProposal(proposal.id, event.currentTarget.parentElement?.querySelector<HTMLInputElement>('[data-proposal-label]')?.value ?? '')} disabled={model.manuscriptStructureLoading || applied}>Save name</button></div>
-                    </li>;
-                  })}
-                </ol>
-                <div className="stage19-manuscript-structure__actions"><button type="submit" disabled={model.manuscriptStructureLoading || hasAppliedProposal}>Merge selected</button></div>
-              </form>
-            ) : centralPreviewActive
-              ? <p className="stage19-manuscript-structure__canvas-link">Source is visible in the manuscript canvas.</p>
-              : <pre className="stage19-manuscript-structure__source" data-structure-excerpt="true">{structure.sourceText.slice(0, 2000)}</pre>}
-            {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><span>Proposal order is staged locally.</span><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
+            {selectedProposal && selectedProposalIndex >= 0 ? <SelectedStructureControlPanel
+              structure={structure}
+              proposal={selectedProposal}
+              orderedProposals={orderedProposals}
+              selectedIndex={selectedProposalIndex}
+              model={model}
+              actions={actions}
+            /> : <p className="stage19-manuscript-structure__notice" role="status">Select a section to review its structural controls.</p>}
+            <ol className="stage19-manuscript-structure__proposals" aria-label="Structure proposals">
+              {pageProposals.map((proposal, pageIndex) => {
+                const index = page * pageSize + pageIndex;
+                const selected = proposal.id === selectedProposalId;
+                return <li
+                  key={proposal.id}
+                  className={`is-${proposal.state} ${proposal.appliedUnitId ? 'is-applied' : ''} ${selected ? 'is-selected' : ''}`}
+                  data-structure-proposal="true"
+                  data-structure-proposal-id={proposal.id}
+                  aria-current={selected ? 'true' : undefined}
+                >
+                  <span className="stage19-manuscript-structure__proposal-order" aria-label={`Proposal order ${index + 1}`}>{index + 1}</span>
+                  <span className="stage19-manuscript-structure__state-marker" aria-hidden="true">{structureProposalStateMarker(proposal)}</span>
+                  <button
+                    type="button"
+                    className="stage19-manuscript-structure__proposal-select"
+                    aria-pressed={selected}
+                    onClick={() => actions.selectManuscriptStructureProposal(proposal.id)}
+                  >
+                    <strong>{proposal.label}</strong>
+                    <span>{structureProposalStateLabel(proposal)}</span>
+                  </button>
+                </li>;
+              })}
+            </ol>
+            {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><strong>Section order has unsaved changes.</strong><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
             <nav className="stage19-manuscript-structure__pagination" aria-label="Structure pages"><button type="button" onClick={() => model.manuscriptStructurePage > 0 && actions.setManuscriptStructurePage(model.manuscriptStructurePage - 1)} disabled={page === 0}>Previous</button><span>Page {page + 1} of {pageCount}</span><button type="button" onClick={() => model.manuscriptStructurePage < pageCount - 1 && actions.setManuscriptStructurePage(model.manuscriptStructurePage + 1)} disabled={page >= pageCount - 1}>Next</button></nav>
             <button type="button" onClick={() => void actions.applyManuscriptStructure()} disabled={model.manuscriptStructureLoading || unappliedAcceptedCount === 0 || structure.sourceStatus !== 'current'}>Apply accepted structure to Units</button>
           </>

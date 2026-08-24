@@ -3296,7 +3296,7 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(disclosure.querySelector('summary')!);
     const proposals = await screen.findByRole('list', { name: 'Structure proposals' });
     const rows = within(proposals).getAllByRole('listitem');
 
@@ -3307,32 +3307,36 @@ describe('Stage19WritingSpineApp', () => {
       expectedRevision: 7,
     })));
 
-    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Accept' }));
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: /Two/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Accept' }));
     await waitFor(() => expect(structureBridge.acceptProposal).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-2' })));
-    fireEvent.click(within(rows[2]!).getByRole('button', { name: 'Reject' }));
+    fireEvent.click(within(rows[2]!).getByRole('button', { name: /Three/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }));
     await waitFor(() => expect(structureBridge.rejectProposal).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-3' })));
 
-    const secondLabel = within(rows[1]!).getByRole('textbox', { name: 'Proposal name' });
+    fireEvent.click(within(rows[1]!).getByRole('button', { name: /Two/ }));
+    fireEvent.click(screen.getByText('More section actions'));
+    const secondLabel = screen.getByRole('textbox', { name: 'Section name' });
     fireEvent.change(secondLabel, { target: { value: 'Renamed Two' } });
-    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Save name' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save name' }));
     await waitFor(() => expect(structureBridge.renameProposal).toHaveBeenCalledWith(expect.objectContaining({
       proposalId: 'proposal-2',
       label: 'Renamed Two',
     })));
 
-    fireEvent.click(within(rows[1]!).getAllByRole('button', { name: 'Split at paragraph boundary' })[0]!);
+    const splitSelect = screen.getByLabelText('Split selected section at') as HTMLSelectElement;
+    fireEvent.change(splitSelect, { target: { value: splitSelect.options[1]!.value } });
+    fireEvent.click(screen.getByRole('button', { name: 'Split section' }));
     await waitFor(() => expect(structureBridge.splitGroup).toHaveBeenCalledWith(expect.objectContaining({ proposalId: 'proposal-2' })));
-    fireEvent.click(within(rows[1]!).getByRole('checkbox', { name: 'Select' }));
-    fireEvent.click(within(rows[2]!).getByRole('checkbox', { name: 'Select' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Merge selected' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Merge with next: Three' }));
     await waitFor(() => expect(structureBridge.mergeGroups).toHaveBeenCalledWith(expect.objectContaining({
       proposalIds: ['proposal-2', 'proposal-3'],
     })));
 
-    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Move up' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Move up' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Cancel order' }));
     expect(structureBridge.reorderGroups).not.toHaveBeenCalled();
-    fireEvent.click(within(rows[1]!).getByRole('button', { name: 'Move up' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Move up' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Save order' }));
     await waitFor(() => expect(structureBridge.reorderGroups).toHaveBeenCalledWith(expect.objectContaining({
       orderedProposalIds: ['proposal-2', 'proposal-1', 'proposal-3'],
@@ -3385,9 +3389,9 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(disclosure.querySelector('summary')!);
     expect(document.querySelectorAll('[data-structure-excerpt="true"]')).toHaveLength(0);
-    expect(document.body.textContent?.split('First prose').length).toBe(2);
+    expect(screen.getAllByLabelText('Imported manuscript source')).toHaveLength(1);
   });
 
   it('synchronizes selected imported proposal ranges between the Story rail and central canvas', async () => {
@@ -3403,10 +3407,10 @@ describe('Stage19WritingSpineApp', () => {
       await screen.findByLabelText('Imported manuscript source');
       await openWritingRail('Story');
       const disclosure = await screen.findByLabelText('Manuscript structure intake');
-      fireEvent.click(within(disclosure).getByText('Structure'));
+      fireEvent.click(disclosure.querySelector('summary')!);
       scrollIntoView.mockClear();
 
-      await user.click(screen.getByRole('button', { name: /Two heading.*proposed/i }));
+      await user.click(document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]')!);
       const secondRange = document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]');
       const secondRailRow = document.querySelector<HTMLElement>('[data-structure-proposal-id="proposal-2"]');
       expect(secondRange).toHaveAttribute('aria-pressed', 'true');
@@ -3428,6 +3432,47 @@ describe('Stage19WritingSpineApp', () => {
         delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
       }
     }
+  });
+
+  it('opens the correct Structure page when central selection targets a later proposal', async () => {
+    const base = structureSnapshot();
+    const sections = Array.from({ length: 13 }, (_, index) => `# Section ${index + 1}\nProse ${index + 1}\n`);
+    const sourceText = sections.join('\n');
+    let offset = 0;
+    const proposals = sections.map((section, index) => {
+      const start = offset;
+      offset += section.length + 1;
+      return {
+        id: `proposal-${index + 1}`,
+        label: `Section ${index + 1}`,
+        state: index === 0 ? 'accepted' as const : 'proposed' as const,
+        provenance: 'heading' as const,
+        blockIds: [`block-${index + 1}`],
+        anchor: structureAnchor(start, start + section.length),
+        appliedUnitId: null,
+        createdAt: '2026-08-22T00:00:00.000Z',
+        updatedAt: '2026-08-22T00:00:00.000Z',
+      };
+    });
+    const structure = {
+      ...base,
+      sourceText,
+      document: {
+        ...base.document,
+        source: { ...base.document.source, normalizedLength: sourceText.length },
+        proposals,
+      },
+    };
+    const project = createBridge(snapshot('writing', { units: [], activeUnitId: null }));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} manuscriptStructureBridge={createManuscriptStructureBridge(structure)} />);
+    await screen.findByLabelText('Imported manuscript source');
+    await openWritingRail('Story');
+
+    fireEvent.click(document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-13"]')!);
+    const disclosure = await screen.findByLabelText('Manuscript structure intake');
+    await waitFor(() => expect(disclosure).toHaveAttribute('open'));
+    expect(screen.getByText('Page 2 of 2')).toBeVisible();
+    expect(document.querySelector('[data-structure-proposal-id="proposal-13"] [aria-pressed="true"]')).toBeTruthy();
   });
 
   it('keeps changed imported source visible and suppresses stale or overlapping anchor ranges', async () => {
@@ -3500,8 +3545,8 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByLabelText('Imported manuscript source');
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
-    fireEvent.click(screen.getByRole('button', { name: /Two heading.*proposed/i }));
+    fireEvent.click(disclosure.querySelector('summary')!);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]')!);
     const secondRange = document.querySelector<HTMLElement>('[data-imported-proposal-id="proposal-2"]')!;
     expect(secondRange).toHaveAttribute('aria-pressed', 'true');
 
@@ -3608,7 +3653,7 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByLabelText('Imported manuscript source');
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(disclosure.querySelector('summary')!);
     fireEvent.click(screen.getByRole('button', { name: 'Apply accepted structure to Units' }));
 
     expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Applied section' })).toHaveValue('Applied prose');
@@ -3632,7 +3677,7 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(disclosure.querySelector('summary')!);
     fireEvent.click(await screen.findByRole('button', { name: 'Import Markdown' }));
 
     await waitFor(() => expect(structureBridge.importMarkdown).toHaveBeenCalledWith(expect.objectContaining({
@@ -3663,7 +3708,7 @@ describe('Stage19WritingSpineApp', () => {
 
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
-    fireEvent.click(within(disclosure).getByText('Structure'));
+    fireEvent.click(disclosure.querySelector('summary')!);
     fireEvent.click(await screen.findByRole('button', { name: 'Apply accepted structure to Units' }));
 
     expect(await screen.findByText(/Structure was applied to disk, but the active session could not reload/)).toBeVisible();

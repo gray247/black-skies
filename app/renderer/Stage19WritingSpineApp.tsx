@@ -985,22 +985,21 @@ export default function Stage19WritingSpineApp({
     () => getSelectableImportedManuscriptProposalIds(manuscriptStructure),
     [manuscriptStructure],
   );
+  const structureProposalIds = useMemo(
+    () => manuscriptStructure?.document.proposals.map((proposal) => proposal.id) ?? [],
+    [manuscriptStructure],
+  );
   useEffect(() => {
-    const previewUnavailable = !snapshot.project ||
-      snapshot.project.units.length > 0 ||
-      manuscriptStructure?.availability !== 'ready' ||
-      manuscriptStructure.sourceStatus === 'changed-after-apply' ||
-      manuscriptStructure.sourceText.length === 0;
-    if (previewUnavailable) {
+    if (!snapshot.project || manuscriptStructure?.availability !== 'ready' || structureProposalIds.length === 0) {
       setSelectedManuscriptProposalId(null);
       return;
     }
     setSelectedManuscriptProposalId((current) =>
-      current && selectableImportedProposalIds.includes(current)
+      current && structureProposalIds.includes(current)
         ? current
-        : selectableImportedProposalIds[0] ?? null,
+        : selectableImportedProposalIds[0] ?? structureProposalIds[0] ?? null,
     );
-  }, [manuscriptStructure, selectableImportedProposalIds, snapshot.project]);
+  }, [manuscriptStructure, selectableImportedProposalIds, snapshot.project, structureProposalIds]);
 
   useEffect(() => {
     if (!outlineAdvancedItemId) return;
@@ -1539,17 +1538,26 @@ export default function Stage19WritingSpineApp({
   }, [structureBoundaryEnd, structureBoundaryStart]);
 
   const selectManuscriptStructureProposal = useCallback((proposalId: string) => {
-    if (!selectableImportedProposalIds.includes(proposalId)) {
+    if (!structureProposalIds.includes(proposalId)) {
       setSelectedManuscriptProposalId(null);
       return;
     }
     setSelectedManuscriptProposalId(proposalId);
+    const orderedIds = manuscriptStructureOrder ?? structureProposalIds;
+    const proposalIndex = orderedIds.indexOf(proposalId);
+    if (proposalIndex >= 0) setManuscriptStructurePage(Math.floor(proposalIndex / 12));
     window.requestAnimationFrame(() => {
-      const target = Array.from(document.querySelectorAll<HTMLElement>('[data-imported-proposal-id]'))
-        .find((element) => element.dataset.importedProposalId === proposalId);
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const disclosure = document.querySelector<HTMLDetailsElement>('details.stage19-manuscript-structure');
+      if (disclosure && !disclosure.open) disclosure.open = true;
+      window.requestAnimationFrame(() => {
+        const railTarget = document.querySelector<HTMLElement>(`[data-structure-proposal-id="${CSS.escape(proposalId)}"]`);
+        railTarget?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const canvasTarget = Array.from(document.querySelectorAll<HTMLElement>('[data-imported-proposal-id]'))
+          .find((element) => element.dataset.importedProposalId === proposalId);
+        canvasTarget?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
     });
-  }, [selectableImportedProposalIds]);
+  }, [manuscriptStructureOrder, structureProposalIds]);
 
   const pinSelectedStructureBoundary = useCallback(async (label: string) => {
     if (structureBoundaryStart === null || structureBoundaryEnd === null) {

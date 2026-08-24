@@ -64,10 +64,11 @@ describe('paginated manuscript Structure rendering', () => {
       } as unknown as Stage19WritingSpineViewModel}
       actions={actions}
     />);
-    fireEvent.click(screen.getByText('Structure'));
+    const disclosure = screen.getByLabelText('Manuscript structure intake');
+    fireEvent.click(disclosure.querySelector(':scope > summary')!);
     const elapsed = performance.now() - started;
     expect(document.querySelectorAll('[data-structure-proposal="true"]')).toHaveLength(12);
-    expect(document.querySelectorAll('[data-structure-excerpt="true"]').length).toBeLessThanOrEqual(12);
+    expect(document.querySelectorAll('[data-structure-excerpt="true"]')).toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
     expect(elapsed).toBeLessThan(1000);
     expect(screen.queryByText('Paragraph 4999')).not.toBeInTheDocument();
