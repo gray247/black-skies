@@ -131,6 +131,201 @@ test('P5-UX-01 keeps no-project startup tools composed and unavailable controls 
   });
 });
 
+test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardized', async ({
+  electronApp,
+  page,
+}) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-p5-hg3-chrome-'));
+  const projectTitle = `${'A deliberately long project title for shared application chrome '.repeat(8)}ending`;
+  try {
+    const { writing, command } = await getStage19Windows(electronApp, page);
+    await Promise.all([
+      writing.setViewportSize({ width: 1900, height: 1000 }),
+      command.setViewportSize({ width: 1900, height: 1000 }),
+    ]);
+    await writing.evaluate(async ({ parentPath, title }) => {
+      const bridge = window.projectSpine!;
+      const project = await bridge.createProject({
+        parentPath,
+        title,
+        operationId: 'p5-hg3-chrome-create-project',
+      });
+      if (!project.ok) throw new Error(project.error.message);
+      const unit = await bridge.createUnit!({
+        projectId: project.snapshot.project!.projectId,
+        projectPath: project.snapshot.project!.path,
+        generation: project.snapshot.generation,
+        operationId: 'p5-hg3-chrome-create-unit',
+        title: 'Current manuscript location',
+      });
+      if (!unit.ok) throw new Error(unit.error.message);
+    }, { parentPath: parent, title: projectTitle });
+
+    const writingTitle = writing.locator('.stage19-writing-shell__project');
+    const commandTitle = command.locator('.stage19-command__identity h1');
+    await expect(writingTitle).toHaveText(projectTitle);
+    await expect(commandTitle).toHaveText(projectTitle);
+    await expect(writingTitle).toHaveAttribute('title', projectTitle);
+    await expect(commandTitle).toHaveAttribute('title', projectTitle);
+    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+
+    const writingChrome = await writing.evaluate(() => {
+      const header = document.querySelector<HTMLElement>('.stage19-writing-shell__topbar');
+      const title = document.querySelector<HTMLElement>('.stage19-writing-shell__project');
+      const statusGroup = document.querySelector<HTMLElement>('.stage19-writing-shell__status');
+      const status = statusGroup?.querySelector<HTMLElement>('.stage19-spine__save-state');
+      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button');
+      const editor = document.querySelector<HTMLElement>('.stage19-spine__editor .cm-scroller');
+      if (!header || !title || !statusGroup || !status || !action || !editor) {
+        throw new Error('Writing Studio chrome nodes are unavailable');
+      }
+      const titleStyle = getComputedStyle(title);
+      const statusStyle = getComputedStyle(status);
+      const actionStyle = getComputedStyle(action);
+      const headerStyle = getComputedStyle(header);
+      const titleRect = title.getBoundingClientRect();
+      const statusRect = statusGroup.getBoundingClientRect();
+      return {
+        title: {
+          fontFamily: titleStyle.fontFamily,
+          fontSize: titleStyle.fontSize,
+          fontWeight: titleStyle.fontWeight,
+          lineHeight: titleStyle.lineHeight,
+          color: titleStyle.color,
+          overflow: titleStyle.overflow,
+          textOverflow: titleStyle.textOverflow,
+          whiteSpace: titleStyle.whiteSpace,
+        },
+        status: {
+          fontSize: statusStyle.fontSize,
+          fontWeight: statusStyle.fontWeight,
+          padding: statusStyle.padding,
+          borderRadius: statusStyle.borderRadius,
+          borderWidth: statusStyle.borderWidth,
+          height: status.getBoundingClientRect().height,
+        },
+        action: {
+          fontFamily: actionStyle.fontFamily,
+          fontSize: actionStyle.fontSize,
+          minHeight: actionStyle.minHeight,
+          padding: actionStyle.padding,
+          borderRadius: actionStyle.borderRadius,
+          borderWidth: actionStyle.borderWidth,
+          color: actionStyle.color,
+          height: action.getBoundingClientRect().height,
+        },
+        header: {
+          gap: headerStyle.gap,
+          minHeight: headerStyle.minHeight,
+          padding: headerStyle.padding,
+          height: header.getBoundingClientRect().height,
+        },
+        titleIsClipped: title.scrollWidth > title.clientWidth,
+        titleOverlapsStatus:
+          titleRect.left < statusRect.right - 1 && titleRect.right > statusRect.left + 1 &&
+          titleRect.top < statusRect.bottom - 1 && titleRect.bottom > statusRect.top + 1,
+        horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        manuscriptFontFamily: getComputedStyle(editor).fontFamily,
+      };
+    });
+    const commandChrome = await command.evaluate(() => {
+      const header = document.querySelector<HTMLElement>('.stage19-command__header');
+      const title = document.querySelector<HTMLElement>('.stage19-command__identity h1');
+      const statusGroup = document.querySelector<HTMLElement>('.stage19-command__status');
+      const status = statusGroup?.querySelector<HTMLElement>('.stage19-spine__save-state');
+      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button');
+      if (!header || !title || !statusGroup || !status || !action) {
+        throw new Error('Command Center chrome nodes are unavailable');
+      }
+      const titleStyle = getComputedStyle(title);
+      const statusStyle = getComputedStyle(status);
+      const actionStyle = getComputedStyle(action);
+      const headerStyle = getComputedStyle(header);
+      const titleRect = title.getBoundingClientRect();
+      const statusRect = statusGroup.getBoundingClientRect();
+      return {
+        title: {
+          fontFamily: titleStyle.fontFamily,
+          fontSize: titleStyle.fontSize,
+          fontWeight: titleStyle.fontWeight,
+          lineHeight: titleStyle.lineHeight,
+          color: titleStyle.color,
+          overflow: titleStyle.overflow,
+          textOverflow: titleStyle.textOverflow,
+          whiteSpace: titleStyle.whiteSpace,
+        },
+        status: {
+          fontSize: statusStyle.fontSize,
+          fontWeight: statusStyle.fontWeight,
+          padding: statusStyle.padding,
+          borderRadius: statusStyle.borderRadius,
+          borderWidth: statusStyle.borderWidth,
+          height: status.getBoundingClientRect().height,
+        },
+        action: {
+          fontFamily: actionStyle.fontFamily,
+          fontSize: actionStyle.fontSize,
+          minHeight: actionStyle.minHeight,
+          padding: actionStyle.padding,
+          borderRadius: actionStyle.borderRadius,
+          borderWidth: actionStyle.borderWidth,
+          color: actionStyle.color,
+          height: action.getBoundingClientRect().height,
+        },
+        header: {
+          gap: headerStyle.gap,
+          minHeight: headerStyle.minHeight,
+          padding: headerStyle.padding,
+          height: header.getBoundingClientRect().height,
+        },
+        titleIsClipped: title.scrollWidth > title.clientWidth,
+        titleOverlapsStatus:
+          titleRect.left < statusRect.right - 1 && titleRect.right > statusRect.left + 1 &&
+          titleRect.top < statusRect.bottom - 1 && titleRect.bottom > statusRect.top + 1,
+        horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+
+    expect(writingChrome.title).toEqual(commandChrome.title);
+    expect(writingChrome.status).toEqual(commandChrome.status);
+    expect(writingChrome.action).toEqual(commandChrome.action);
+    expect(writingChrome.header).toEqual(commandChrome.header);
+    expect(writingChrome.titleIsClipped).toBe(true);
+    expect(commandChrome.titleIsClipped).toBe(true);
+    expect(writingChrome.titleOverlapsStatus).toBe(false);
+    expect(commandChrome.titleOverlapsStatus).toBe(false);
+    expect(writingChrome.horizontalOverflow).toBeLessThanOrEqual(1);
+    expect(commandChrome.horizontalOverflow).toBeLessThanOrEqual(1);
+    expect(writingChrome.manuscriptFontFamily).toContain('Georgia');
+
+    await writing.setViewportSize({ width: 1000, height: 800 });
+    const compactWriting = await writing.evaluate(() => {
+      const header = document.querySelector<HTMLElement>('.stage19-writing-shell__topbar');
+      const identity = document.querySelector<HTMLElement>('.stage19-writing-shell__identity');
+      const title = document.querySelector<HTMLElement>('.stage19-writing-shell__project');
+      const status = document.querySelector<HTMLElement>('.stage19-writing-shell__status');
+      if (!header || !identity || !title || !status) throw new Error('Compact Writing Studio chrome nodes are unavailable');
+      const titleRect = title.getBoundingClientRect();
+      const statusRect = status.getBoundingClientRect();
+      return {
+        compactQuery: matchMedia('(max-width: 1200px)').matches,
+        titleWidth: titleRect.width,
+        titleOverlapsStatus:
+          titleRect.left < statusRect.right - 1 && titleRect.right > statusRect.left + 1 &&
+          titleRect.top < statusRect.bottom - 1 && titleRect.bottom > statusRect.top + 1,
+        horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+    expect(compactWriting.compactQuery).toBe(true);
+    expect(compactWriting.titleWidth).toBeGreaterThan(0);
+    expect(compactWriting.titleOverlapsStatus).toBe(false);
+    expect(compactWriting.horizontalOverflow).toBeLessThanOrEqual(1);
+  } finally {
+    await removeTemporaryDirectory(parent);
+  }
+});
+
 test('P3-D keeps the literary manuscript primary while edge families and Focus remain reversible', async ({
   electronApp,
   page,

@@ -5379,9 +5379,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 56px;
-  padding: 8px 48px;
+  gap: 24px;
+  height: 64px;
+  min-height: 64px;
+  padding: 10px clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--bs-line-quiet);
   background: var(--bs-surface-base);
 }
@@ -5393,6 +5394,21 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.stage19-writing-shell__identity {
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.stage19-writing-shell__context {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -5419,60 +5435,91 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__brand {
-  color: var(--bs-text-primary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  margin: 0;
+  color: var(--bs-text-muted);
+  font-size: 0.66rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
 }
 
-.stage19-writing-shell__project,
-.stage19-writing-shell__location {
+.stage19-spine--writing .stage19-writing-shell__project {
+  flex: 1 1 auto;
   min-width: 0;
-  margin: 0;
+  margin: 2px 0 0;
   overflow: hidden;
-  color: var(--bs-text-secondary);
-  font-size: 0.82rem;
+  color: var(--bs-text-primary);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
   font-weight: 500;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.stage19-writing-shell__project::before,
+.stage19-writing-shell__location {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(28vw, 32rem);
+  overflow: hidden;
+  color: var(--bs-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .stage19-writing-shell__location::before {
   content: "/";
-  margin-right: 12px;
+  margin-right: 10px;
   color: var(--bs-text-secondary);
 }
 
 .stage19-writing-shell__status {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  gap: 10px;
+}
+
+.stage19-writing-shell__status .stage19-spine__save-state {
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .stage19-spine--writing .stage19-spine__surface-host {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .stage19-spine--writing .stage19-spine__surface-actions {
+  display: flex;
   flex-wrap: nowrap;
+  align-items: center;
+  flex-direction: row;
+  gap: 6px;
 }
 
 .stage19-spine--writing .stage19-spine__surface-actions button,
 .stage19-writing-shell__focus {
-  min-height: 36px;
-  padding: 7px 10px;
-  border-color: var(--bs-line-quiet);
+  align-self: center;
+  height: 34px;
+  min-height: 34px;
+  padding: 6px 11px;
+  border-color: var(--bs-line-strong);
   border-radius: 4px;
   background: transparent;
-  color: var(--bs-text-secondary);
-  font-size: 0.78rem;
+  color: var(--bs-text-primary);
+  font-size: 1rem;
 }
 
 .stage19-spine--writing .stage19-spine__surface-notice {
   position: fixed;
   z-index: 40;
-  top: 64px;
+  top: 72px;
   right: 16px;
   padding: 8px 12px;
   border: 1px solid var(--bs-state-info);
@@ -5497,7 +5544,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-writing-shell__edge-controls {
   position: absolute;
   z-index: 25;
-  inset: 56px 0 0;
+  inset: 64px 0 0;
   pointer-events: none;
 }
 
@@ -5519,7 +5566,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__edge--top {
-  top: 58px;
+  top: 66px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column;
@@ -6286,6 +6333,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing.is-focus-mode .stage19-writing-shell__topbar {
+  height: 42px;
   min-height: 42px;
   padding: 6px 28px;
   border-bottom-color: transparent;
@@ -6349,15 +6397,25 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 }
 
-@media (max-width: 900px), (min-resolution: 1.5dppx) and (max-height: 1000px) {
+@media (max-width: 1200px) {
   .stage19-writing-shell__topbar {
-    align-items: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    height: 96px;
     padding: 8px 40px 8px 16px;
   }
 
-  .stage19-writing-shell__identity,
+  .stage19-writing-shell__identity {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
   .stage19-writing-shell__status {
-    flex-wrap: wrap;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    width: 100%;
   }
 
   .stage19-writing-shell__brand,
@@ -6369,17 +6427,32 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
      Keep it discoverable on compact hosted runners and narrow windows. */
   .stage19-spine--writing .stage19-spine__surface-host {
     display: flex;
-    flex: 1 0 100%;
+    flex: 0 0 auto;
     justify-content: flex-end;
   }
 
   .stage19-spine--writing .stage19-spine__surface-actions {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-end;
   }
 
-  .stage19-writing-shell__project::before {
-    content: none;
+  .stage19-spine--writing .stage19-spine__surface-actions button,
+  .stage19-writing-shell__focus {
+    padding-right: 8px;
+    padding-left: 8px;
+    font-size: 0.72rem;
+  }
+
+  .stage19-spine--writing .stage19-spine__surface-notice {
+    top: 104px;
+  }
+
+  .stage19-writing-shell__edge-controls {
+    inset: 96px 0 0;
+  }
+
+  .stage19-writing-shell__edge--top {
+    top: 98px;
   }
 
   .stage19-spine--writing .stage19-spine__editor-card {
@@ -6446,6 +6519,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --bs-status-info: #cbd5e1;
   --bs-status-danger-surface: rgba(127, 29, 29, 0.42);
   --bs-selection: rgba(194, 166, 106, 0.28);
+  --stage19-semantic-text: var(--bs-text-primary);
+  --stage19-semantic-muted: var(--bs-text-secondary);
+  --stage19-semantic-border: var(--bs-line-strong);
+  --stage19-semantic-success-text: var(--bs-status-success);
+  --stage19-semantic-warning-text: var(--bs-status-warning);
+  --stage19-semantic-danger-text: var(--bs-status-danger);
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   min-height: 100%;
@@ -6484,6 +6563,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  height: 64px;
   min-height: 64px;
   padding: 10px clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--bs-line-quiet);
@@ -6505,6 +6585,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.15rem, 2vw, 1.55rem);
   font-weight: 500;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -6515,7 +6596,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   color: var(--bs-text-muted);
   font-size: 0.66rem;
   font-weight: 650;
+  line-height: 1.2;
   letter-spacing: 0.13em;
+  margin: 0;
   text-transform: uppercase;
 }
 
@@ -6528,9 +6611,15 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   gap: 10px;
 }
 
+.stage19-command__status {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
 .stage19-command__status .stage19-spine__save-state {
   color: var(--bs-text-secondary);
   font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .stage19-command__status .stage19-spine__save-state--saved {
@@ -6554,7 +6643,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--command .stage19-spine__surface-actions {
   display: flex;
+  align-items: center;
   gap: 6px;
+}
+
+.stage19-spine--command .stage19-spine__surface-actions button {
+  align-self: center;
+  height: 34px;
 }
 
 .stage19-spine--command button,
@@ -6568,6 +6663,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-spine--command button {
   min-height: 34px;
   padding: 6px 11px;
+  font-size: 1rem;
 }
 
 .stage19-spine--command button:hover:not(:disabled) {
@@ -6939,6 +7035,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   .stage19-command__header {
     align-items: flex-start;
     flex-direction: column;
+    height: auto;
+  }
+
+  .stage19-command__status {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
   }
 
   .stage19-command-review {

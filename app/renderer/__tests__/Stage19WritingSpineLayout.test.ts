@@ -80,9 +80,12 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     );
   });
 
-  it('keeps Writing Studio Saved durably as the shared bordered pill', () => {
+  it('keeps Writing Studio and Command Center on one shared application-chrome contract', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
 
+    expect(view).toContain('Black Skies · Writing Studio');
+    expect(view).toContain('stage19-writing-shell__context');
     expect(css).toMatch(
       /\.stage19-spine__save-state\s*\{[\s\S]*?padding:\s*0\.55rem 0\.8rem;[\s\S]*?border:\s*1px solid #334155;[\s\S]*?border-radius:\s*999px;/,
     );
@@ -90,6 +93,18 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
       /\.stage19-spine--writing \.stage19-spine__save-state,[\s\S]*?border-color:\s*var\(--stage19-semantic-border\);/,
     );
     expect(css).not.toMatch(/\.stage19-spine--writing \.stage19-spine__save-state\s*\{[\s\S]*?border:\s*0;/);
+    expect(css).toMatch(
+      /\.stage19-writing-shell__topbar\s*\{[\s\S]*?gap:\s*24px;[\s\S]*?min-height:\s*64px;[\s\S]*?padding:\s*10px clamp\(20px, 4vw, 64px\);/,
+    );
+    expect(css).toMatch(
+      /\.stage19-spine--writing \.stage19-writing-shell__project\s*\{[\s\S]*?font-family:\s*Georgia, "Times New Roman", serif;[\s\S]*?font-size:\s*clamp\(1\.15rem, 2vw, 1\.55rem\);[\s\S]*?font-weight:\s*500;[\s\S]*?text-overflow:\s*ellipsis;/,
+    );
+    expect(css).toMatch(
+      /\.stage19-writing-shell__status \.stage19-spine__save-state\s*\{[\s\S]*?font-size:\s*0\.75rem;[\s\S]*?white-space:\s*nowrap;/,
+    );
+    expect(css).toMatch(
+      /\.stage19-spine--writing \.stage19-spine__surface-actions button,[\s\S]*?min-height:\s*34px;[\s\S]*?padding:\s*6px 11px;[\s\S]*?border-color:\s*var\(--bs-line-strong\);[\s\S]*?font-size:\s*1rem;/,
+    );
   });
 
   it('locks the scoped literary canvas, semantic themes, responsive rails, and reduced-motion behavior', () => {
@@ -114,7 +129,7 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(p3d).toMatch(/@media\s*\(max-width:\s*1100px\)[\s\S]*?\.stage19-writing-shell__rail--left,[\s\S]*?position:\s*static;[\s\S]*?box-shadow:\s*none;/);
     expect(p3d).toMatch(/@media\s*\(max-width:\s*720px\)/);
     expect(p3d).not.toMatch(/\.stage19-spine--writing \.stage19-spine__surface-host\s*\{\s*display:\s*none;/);
-    expect(p3d).toMatch(/@media\s*\(max-width:\s*900px\)[\s\S]*?\.stage19-spine--writing \.stage19-spine__surface-host[\s\S]*?display:\s*flex;/);
+    expect(p3d).toMatch(/@media\s*\(max-width:\s*1200px\)[\s\S]*?\.stage19-spine--writing \.stage19-spine__surface-host[\s\S]*?display:\s*flex;/);
     expect(p3d).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none;/);
     expect(p3d).not.toMatch(/(?:linear|radial|conic)-gradient\(/);
     expect(p3d).not.toMatch(/#(?:8e7cc3|818cf8|a78bfa)|rgba\(129,\s*140,\s*248|rgba\(142,\s*124,\s*195/i);

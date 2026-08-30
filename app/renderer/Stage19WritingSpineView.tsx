@@ -577,6 +577,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
   const { snapshot, notice } = model;
   const commandStatus = snapshot.commandStatus;
   if (!commandStatus) return <CommandUnavailableView model={model} actions={actions} />;
+  const projectTitle = snapshot.project?.title ?? 'No project open';
   const commandAlert = notice ?? (
     commandStatus.lifecycle === 'operation-failed'
       ? 'A Writing Studio project operation failed. Current project identity is preserved.'
@@ -589,7 +590,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
       <header className="stage19-command__header">
         <div className="stage19-command__identity">
           <span className="stage19-spine__eyebrow">Black Skies · Command Center</span>
-          <h1>{snapshot.project?.title ?? 'No project open'}</h1>
+          <h1 title={projectTitle}>{projectTitle}</h1>
         </div>
         <div className="stage19-command__status">
           <span className={`stage19-spine__save-state stage19-spine__save-state--${commandStatus.save}`} role="status">{commandSaveLabel(snapshot, commandStatus)}</span>
@@ -2254,6 +2255,7 @@ function WelcomeView({
 function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
   const { activeUnit, snapshot } = model;
+  const projectTitle = snapshot.project?.title ?? 'Writing Studio';
   const supportOpen = !model.focusMode && model.openWritingRail !== null;
   return (
     <main
@@ -2269,14 +2271,16 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
       <header className="stage19-writing-shell__topbar">
         {model.focusMode ? (
           <div className="stage19-writing-shell__focus-context">
-            <span>{snapshot.project?.title ?? 'Writing Studio'}</span>
+            <span>{projectTitle}</span>
             {activeUnit ? <span>{activeUnit.displayTitle}</span> : null}
           </div>
         ) : (
           <div className="stage19-writing-shell__identity">
-            <span className="stage19-writing-shell__brand">Black Skies</span>
-            <h1 className="stage19-writing-shell__project">{snapshot.project?.title ?? 'Writing Studio'}</h1>
-            {activeUnit ? <span className="stage19-writing-shell__location">{activeUnit.displayTitle}</span> : null}
+            <span className="stage19-writing-shell__brand">Black Skies · Writing Studio</span>
+            <div className="stage19-writing-shell__context">
+              <h1 className="stage19-writing-shell__project" title={projectTitle}>{projectTitle}</h1>
+              {activeUnit ? <span className="stage19-writing-shell__location" title={activeUnit.displayTitle}>{activeUnit.displayTitle}</span> : null}
+            </div>
           </div>
         )}
         <div className="stage19-writing-shell__status">
