@@ -34,6 +34,25 @@ function Assert-Stage19 {
   }
 }
 
+function Write-JsonUtf8NoBom {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$LiteralPath,
+
+    [Parameter(Mandatory = $true)]
+    [object]$Value,
+
+    [Parameter(Mandatory = $true)]
+    [int]$Depth
+  )
+  $json = $Value | ConvertTo-Json -Depth $Depth
+  [System.IO.File]::WriteAllText(
+    $LiteralPath,
+    $json + [System.Environment]::NewLine,
+    [System.Text.UTF8Encoding]::new($false)
+  )
+}
+
 function Test-IsElevated {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
   $principal = New-Object Security.Principal.WindowsPrincipal($identity)
@@ -226,7 +245,7 @@ $externalManifest = @(
     }
 )
 Assert-Stage19 ($externalManifest.Count -gt 0) "External preservation manifest is empty."
-$externalManifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $externalManifestPath -Encoding utf8
+Write-JsonUtf8NoBom -LiteralPath $externalManifestPath -Value $externalManifest -Depth 5
 
 $reinstallProcess = Start-Process -FilePath $installer -ArgumentList @("/S", "/D=$installDirectory") -Wait -PassThru -WindowStyle Hidden
 Assert-Stage19 ($reinstallProcess.ExitCode -eq 0) "NSIS same-installer reinstall exited with code $($reinstallProcess.ExitCode)."
@@ -256,9 +275,9 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   sameInstallerReinstallPassed = $true
   completedAtUtc = [DateTime]::UtcNow.ToString("o")
 })
-$receiptDocument | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $receipt -Encoding utf8
+Write-JsonUtf8NoBom -LiteralPath $receipt -Value $receiptDocument -Depth 20
 
-[ordered]@{
+$lifecycleEvidence = [ordered]@{
   schema = "black-skies.stage19-22.lifecycle-evidence.v1"
   qualifiedCommit = $receiptDocument.qualifiedCommit
   installedOffline = $offlineFirewallRuleApplied
@@ -269,6 +288,7 @@ $receiptDocument | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $receipt 
   externalDataPreserved = $true
   sameInstallerReinstallPassed = $true
   completedAtUtc = [DateTime]::UtcNow.ToString("o")
-} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $lifecycleEvidencePath -Encoding utf8
+}
+Write-JsonUtf8NoBom -LiteralPath $lifecycleEvidencePath -Value $lifecycleEvidence -Depth 5
 
 Write-Host "STAGE19_INSTALLED_LIFECYCLE_PASS"

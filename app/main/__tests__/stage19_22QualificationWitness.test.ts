@@ -1,3 +1,7 @@
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // @ts-expect-error Plain Node.js qualification tooling has no declaration file.
@@ -20,6 +24,35 @@ const receipt = {
 };
 
 describe("Package 19.22 candidate-bound qualification witness", () => {
+  it("writes all lifecycle JSON outputs as BOM-free UTF-8 with a trailing newline", () => {
+    const lifecycleScript = readFileSync(resolve(import.meta.dirname, "../../../scripts/stage19-installed-lifecycle.ps1"), "utf8");
+    const helper = lifecycleScript.match(/function Write-JsonUtf8NoBom \{[\s\S]*?\r?\n\}/)?.[0];
+    expect(helper).toBeDefined();
+    expect(lifecycleScript).toMatch(/Write-JsonUtf8NoBom -LiteralPath \$externalManifestPath -Value \$externalManifest -Depth 5/);
+    expect(lifecycleScript).toMatch(/Write-JsonUtf8NoBom -LiteralPath \$receipt -Value \$receiptDocument -Depth 20/);
+    expect(lifecycleScript).toMatch(/Write-JsonUtf8NoBom -LiteralPath \$lifecycleEvidencePath -Value \$lifecycleEvidence -Depth 5/);
+
+    const working = mkdtempSync(join(tmpdir(), "black-skies-json-writer-"));
+    const outputPaths = ["external-manifest.json", "receipt.json", "lifecycle-evidence.json"].map((name) => join(working, name));
+    try {
+      const command = `${helper}\n$sample = [ordered]@{ schema = 'test'; nested = [ordered]@{ value = 'ok' } }\nWrite-JsonUtf8NoBom -LiteralPath $env:MANIFEST_PATH -Value $sample -Depth 5\nWrite-JsonUtf8NoBom -LiteralPath $env:RECEIPT_PATH -Value $sample -Depth 20\nWrite-JsonUtf8NoBom -LiteralPath $env:LIFECYCLE_PATH -Value $sample -Depth 5`;
+      execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
+        env: { ...process.env, MANIFEST_PATH: outputPaths[0]!, RECEIPT_PATH: outputPaths[1]!, LIFECYCLE_PATH: outputPaths[2]! },
+        stdio: "pipe",
+      });
+
+      for (const outputPath of outputPaths) {
+        const bytes = readFileSync(outputPath);
+        expect(bytes[0]).toBe(0x7b);
+        expect(bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf]))).toBe(false);
+        expect(bytes.subarray(-2).equals(Buffer.from([0x0d, 0x0a]))).toBe(true);
+        expect(JSON.parse(bytes.toString("utf8"))).toMatchObject({ schema: "test", nested: { value: "ok" } });
+      }
+    } finally {
+      rmSync(working, { recursive: true, force: true });
+    }
+  });
+
   it("accepts an exact candidate receipt", () => {
     expect(validateCandidateReceipt(receipt, installer, commit)).toEqual([]);
   });
