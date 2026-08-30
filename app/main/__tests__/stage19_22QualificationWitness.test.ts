@@ -53,6 +53,27 @@ describe("Package 19.22 candidate-bound qualification witness", () => {
     }
   });
 
+  it("updates an existing installedLifecycle receipt property without a duplicate-member error", () => {
+    const lifecycleScript = readFileSync(resolve(import.meta.dirname, "../../../scripts/stage19-installed-lifecycle.ps1"), "utf8");
+    const updater = lifecycleScript.match(/function Set-ReceiptInstalledLifecycle \{[\s\S]*?\r?\n\}\r?\n\r?\n(?=function Test-IsElevated)/)?.[0]?.trim();
+    expect(updater).toBeDefined();
+    if (!updater) throw new Error("Set-ReceiptInstalledLifecycle helper was not found");
+
+    const command = `${updater}
+$receipt = [pscustomobject]@{ schema = 'black-skies.stage19.package-receipt.v1'; unrelated = 'preserve'; installedLifecycle = [ordered]@{ status = 'old'; staleGuidance = 'remove' } }
+$replacement = [ordered]@{ status = 'passed'; qualificationMode = 'offline-firewall-isolated' }
+Set-ReceiptInstalledLifecycle -ReceiptDocument $receipt -Value $replacement
+$receipt | ConvertTo-Json -Depth 10`;
+    const updated = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", stdio: "pipe" }));
+
+    expect(updated).toMatchObject({
+      schema: "black-skies.stage19.package-receipt.v1",
+      unrelated: "preserve",
+      installedLifecycle: { status: "passed", qualificationMode: "offline-firewall-isolated" },
+    });
+    expect(updated.installedLifecycle).not.toHaveProperty("staleGuidance");
+  });
+
   it("accepts an exact candidate receipt", () => {
     expect(validateCandidateReceipt(receipt, installer, commit)).toEqual([]);
   });

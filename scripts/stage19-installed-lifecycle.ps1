@@ -53,6 +53,22 @@ function Write-JsonUtf8NoBom {
   )
 }
 
+function Set-ReceiptInstalledLifecycle {
+  param(
+    [Parameter(Mandatory = $true)]
+    [object]$ReceiptDocument,
+
+    [Parameter(Mandatory = $true)]
+    [object]$Value
+  )
+  $property = $ReceiptDocument.PSObject.Properties["installedLifecycle"]
+  if ($null -eq $property) {
+    $ReceiptDocument | Add-Member -NotePropertyName installedLifecycle -NotePropertyValue $Value
+  } else {
+    $property.Value = $Value
+  }
+}
+
 function Test-IsElevated {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
   $principal = New-Object Security.Principal.WindowsPrincipal($identity)
@@ -254,7 +270,7 @@ Wait-PathState -LiteralPath (Join-Path $installDirectory "resources\app.asar") -
 Assert-Stage19 ((Get-AuthenticodeSignature -LiteralPath $installedExecutable).Status -eq "NotSigned") "Reinstalled executable signature truth is not NotSigned."
 
 $performanceReceipt = $smoke.performance
-$receiptDocument | Add-Member -NotePropertyName installedLifecycle -NotePropertyValue ([ordered]@{
+$installedLifecycle = [ordered]@{
   status = "passed"
   installationDirectory = $installDirectory
   appIsPackaged = $smoke.appIsPackaged
@@ -274,7 +290,8 @@ $receiptDocument | Add-Member -NotePropertyName installedLifecycle -NoteProperty
   uninstallRemovedApplication = $true
   sameInstallerReinstallPassed = $true
   completedAtUtc = [DateTime]::UtcNow.ToString("o")
-})
+}
+Set-ReceiptInstalledLifecycle -ReceiptDocument $receiptDocument -Value $installedLifecycle
 Write-JsonUtf8NoBom -LiteralPath $receipt -Value $receiptDocument -Depth 20
 
 $lifecycleEvidence = [ordered]@{
