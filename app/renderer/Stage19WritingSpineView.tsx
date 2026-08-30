@@ -205,6 +205,21 @@ export function deriveManuscriptStructureApplyReadiness(input: {
   };
 }
 
+function isManuscriptStructureUpToDate(
+  structure: ManuscriptStructureSnapshotV1 | null,
+  readiness: ManuscriptStructureApplyReadiness,
+): boolean {
+  return Boolean(
+    structure?.availability === 'ready' &&
+    structure.sourceStatus === 'current' &&
+    readiness.decisionsRemaining === 0 &&
+    readiness.acceptedWaiting === 0 &&
+    readiness.alreadyApplied > 0 &&
+    readiness.blockers.length === 1 &&
+    readiness.blockers[0] === 'Accept at least one section to create manuscript Units.',
+  );
+}
+
 type MaybeAsync = void | Promise<void>;
 
 export interface Stage19WritingSpineViewActions {
@@ -1147,7 +1162,7 @@ function structureProposalStateLabel(proposal: ManuscriptStructureProposalV1): s
   if (proposal.appliedUnitId) return 'Applied';
   if (proposal.state === 'accepted') return 'Accepted';
   if (proposal.state === 'rejected') return 'Rejected';
-  if (proposal.state === 'stale') return 'Stale — rediscover';
+  if (proposal.state === 'stale') return 'Superseded history';
   return 'Needs decision';
 }
 
@@ -1161,7 +1176,6 @@ function structureProposalStateMarker(proposal: ManuscriptStructureProposalV1): 
 
 interface StructureSplitBoundary {
   readonly offset: number;
-  readonly ordinal: number;
   readonly preview: string;
 }
 
@@ -1172,10 +1186,10 @@ function getStructureSplitBoundaries(
   const { selectionStart, selectionEnd } = proposal.anchor;
   return Array.from(
     sourceText.slice(selectionStart, selectionEnd).matchAll(/\n/g),
-    (match, index) => {
+    (match) => {
       const offset = selectionStart + (match.index ?? 0) + 1;
       const preview = sourceText.slice(offset).split('\n')[0]?.replace(/\s+/g, ' ').trim() ?? '';
-      return { offset, ordinal: index + 1, preview: preview.slice(0, 72) || '(blank paragraph)' };
+      return { offset, preview: preview.slice(0, 72) || '(blank paragraph)' };
     },
   ).filter(({ offset }) => offset > selectionStart && offset < selectionEnd);
 }
@@ -1198,7 +1212,11 @@ function structureMutationDisabledReason(
 ): string | null {
   if (loading) return 'A structure change is already running.';
   if (proposal.appliedUnitId) return 'Applied sections are immutable.';
-  if (proposal.state === 'stale') return 'Stale sections require Rediscover before editing.';
+  if (proposal.state === 'stale') {
+    return structure.sourceStatus === 'changed'
+      ? 'The imported source changed. Rediscover structure before editing.'
+      : 'Superseded history is immutable. No action required.';
+  }
   if (structure.sourceStatus !== 'current') return 'The imported source is not current.';
   return null;
 }
@@ -1293,7 +1311,7 @@ function SelectedStructureControlPanel({
             <label htmlFor={`structure-split-${proposal.id}`}>Split selected section at</label>
             <select id={`structure-split-${proposal.id}`} value={splitBoundary} onChange={(event) => setSplitBoundary(event.target.value ? Number(event.target.value) : '')} disabled={!canMutate || splitBoundaries.length === 0}>
               <option value="">{splitBoundaries.length > 0 ? 'Choose a paragraph boundary' : 'No valid internal boundary'}</option>
-              {splitBoundaries.map((boundary) => <option key={boundary.offset} value={boundary.offset}>Paragraph {boundary.ordinal} — {boundary.preview}</option>)}
+              {splitBoundaries.map((boundary) => <option key={boundary.offset} value={boundary.offset}>Before: {boundary.preview}</option>)}
             </select>
             {splitBoundaries.length === 0 ? <p className="stage19-manuscript-structure__disabled-reason">This section has no valid internal paragraph boundary.</p> : null}
             <button type="button" onClick={() => typeof splitBoundary === 'number' && void actions.splitStructureProposal(proposal.id, splitBoundary)} disabled={!canSplit}>Split section</button>
@@ -1351,6 +1369,7 @@ function ApplyReadinessPanel({ model, actions, readiness }: ApplyReadinessPanelP
   const [submitting, setSubmitting] = useState(false);
   const acceptedCount = readiness.acceptedWaiting;
   const rejectedCount = readiness.rejectedSections;
+  const structureUpToDate = isManuscriptStructureUpToDate(model.manuscriptStructure, readiness);
   const closeDialog = useCallback(() => {
     if (submitting) return;
     setDialogOpen(false);
@@ -1385,7 +1404,7 @@ function ApplyReadinessPanel({ model, actions, readiness }: ApplyReadinessPanelP
     <section className="stage19-manuscript-structure__apply" aria-label="Apply structure readiness">
       <div className="stage19-manuscript-structure__apply-heading">
         <div><span className="stage19-spine__eyebrow">Apply readiness</span><h4>Apply structure</h4></div>
-        <span className={readiness.ready ? 'is-ready' : 'is-blocked'}>{readiness.ready ? 'Ready to Apply' : 'Not ready to Apply'}</span>
+        <span className={readiness.ready || structureUpToDate ? 'is-ready' : 'is-blocked'}>{readiness.ready ? 'Ready to Apply' : structureUpToDate ? 'Structure up to date' : 'Not ready to Apply'}</span>
       </div>
       <dl className="stage19-manuscript-structure__apply-counts">
         <div><dt>Total current proposals</dt><dd>{readiness.totalCurrentProposals}</dd></div>
@@ -1396,7 +1415,12 @@ function ApplyReadinessPanel({ model, actions, readiness }: ApplyReadinessPanelP
         <div><dt>Stale historical proposals</dt><dd>{readiness.staleHistorical}</dd></div>
         <div><dt>Already-applied sections</dt><dd>{readiness.alreadyApplied}</dd></div>
       </dl>
-      {!readiness.ready ? (
+      {structureUpToDate ? (
+        <div className="stage19-manuscript-structure__apply-up-to-date" role="status">
+          <strong>Structure up to date</strong>
+          <p>There is nothing new to apply. Review Apply stays disabled until a new section is accepted.</p>
+        </div>
+      ) : !readiness.ready ? (
         <div className="stage19-manuscript-structure__apply-blockers" role="status">
           <strong>Not ready to Apply</strong>
           <ul>
@@ -1472,9 +1496,11 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
   const stagedOrder = model.manuscriptStructureOrder ?? proposals.map((proposal) => proposal.id);
   const proposalById = new Map(proposals.map((proposal) => [proposal.id, proposal]));
   const orderedProposals = stagedOrder.map((proposalId) => proposalById.get(proposalId)).filter((proposal): proposal is typeof proposals[number] => Boolean(proposal));
-  const pageCount = Math.max(1, Math.ceil(orderedProposals.length / pageSize));
+  const currentProposals = orderedProposals.filter((proposal) => proposal.state !== 'stale');
+  const staleProposals = orderedProposals.filter((proposal) => proposal.state === 'stale');
+  const pageCount = Math.max(1, Math.ceil(currentProposals.length / pageSize));
   const page = Math.min(model.manuscriptStructurePage, pageCount - 1);
-  const pageProposals = orderedProposals.slice(page * pageSize, (page + 1) * pageSize);
+  const pageProposals = currentProposals.slice(page * pageSize, (page + 1) * pageSize);
   const readiness = model.manuscriptStructureApplyReadiness ?? deriveManuscriptStructureApplyReadiness({
     structure,
     stagedOrder: model.manuscriptStructureOrder,
@@ -1555,6 +1581,37 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
                 </li>;
               })}
             </ol>
+            {staleProposals.length > 0 ? (
+              <details className="stage19-manuscript-structure__history">
+                <summary>Superseded history ({staleProposals.length})</summary>
+                <p className="stage19-manuscript-structure__history-note">Superseded history — no action required.</p>
+                <ol className="stage19-manuscript-structure__proposals" aria-label="Superseded structure history">
+                  {staleProposals.map((proposal, historyIndex) => {
+                    const selected = proposal.id === selectedProposalId;
+                    return <li
+                      key={proposal.id}
+                      className={`is-${proposal.state} ${selected ? 'is-selected' : ''}`}
+                      data-structure-proposal="true"
+                      data-structure-history="true"
+                      data-structure-proposal-id={proposal.id}
+                      aria-current={selected ? 'true' : undefined}
+                    >
+                      <span className="stage19-manuscript-structure__proposal-order" aria-label={`Superseded history item ${historyIndex + 1}`}>—</span>
+                      <span className="stage19-manuscript-structure__state-marker" aria-hidden="true">{structureProposalStateMarker(proposal)}</span>
+                      <button
+                        type="button"
+                        className="stage19-manuscript-structure__proposal-select"
+                        aria-pressed={selected}
+                        onClick={() => actions.selectManuscriptStructureProposal(proposal.id)}
+                      >
+                        <strong>{proposal.label}</strong>
+                        <span>{structureProposalStateLabel(proposal)}</span>
+                      </button>
+                    </li>;
+                  })}
+                </ol>
+              </details>
+            ) : null}
             {model.manuscriptStructureOrder ? <div className="stage19-manuscript-structure__actions" aria-label="Staged structure order"><strong>Section order has unsaved changes.</strong><button type="button" onClick={() => void actions.saveStructureOrder()} disabled={model.manuscriptStructureLoading}>Save order</button><button type="button" onClick={actions.cancelStructureOrder} disabled={model.manuscriptStructureLoading}>Cancel order</button></div> : null}
             <nav className="stage19-manuscript-structure__pagination" aria-label="Structure pages"><button type="button" onClick={() => model.manuscriptStructurePage > 0 && actions.setManuscriptStructurePage(model.manuscriptStructurePage - 1)} disabled={page === 0}>Previous</button><span>Page {page + 1} of {pageCount}</span><button type="button" onClick={() => model.manuscriptStructurePage < pageCount - 1 && actions.setManuscriptStructurePage(model.manuscriptStructurePage + 1)} disabled={page >= pageCount - 1}>Next</button></nav>
             <ApplyReadinessPanel model={model} actions={actions} readiness={readiness} />

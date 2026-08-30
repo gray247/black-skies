@@ -1006,6 +1006,11 @@ export default function Stage19WritingSpineApp({
     () => manuscriptStructure?.document.proposals.map((proposal) => proposal.id) ?? [],
     [manuscriptStructure],
   );
+  const currentStructureProposalIds = useMemo(() => {
+    const proposalsById = new Map(manuscriptStructure?.document.proposals.map((proposal) => [proposal.id, proposal]) ?? []);
+    const orderedIds = manuscriptStructureOrder ?? structureProposalIds;
+    return orderedIds.filter((proposalId) => proposalsById.get(proposalId)?.state !== 'stale');
+  }, [manuscriptStructure, manuscriptStructureOrder, structureProposalIds]);
   useEffect(() => {
     if (!snapshot.project || manuscriptStructure?.availability !== 'ready' || structureProposalIds.length === 0) {
       setSelectedManuscriptProposalId(null);
@@ -1014,9 +1019,9 @@ export default function Stage19WritingSpineApp({
     setSelectedManuscriptProposalId((current) =>
       current && structureProposalIds.includes(current)
         ? current
-        : selectableImportedProposalIds[0] ?? structureProposalIds[0] ?? null,
+        : selectableImportedProposalIds[0] ?? currentStructureProposalIds[0] ?? structureProposalIds[0] ?? null,
     );
-  }, [manuscriptStructure, selectableImportedProposalIds, snapshot.project, structureProposalIds]);
+  }, [currentStructureProposalIds, manuscriptStructure, selectableImportedProposalIds, snapshot.project, structureProposalIds]);
 
   useEffect(() => {
     if (!outlineAdvancedItemId) return;
@@ -1514,7 +1519,7 @@ export default function Stage19WritingSpineApp({
         const nextId = unresolvedIds.find((id) => orderedIds.indexOf(id) > currentIndex) ?? unresolvedIds[0] ?? null;
         if (nextId) {
           setSelectedManuscriptProposalId(nextId);
-          const nextIndex = orderedIds.indexOf(nextId);
+          const nextIndex = orderedIds.filter((id) => result.data.document.proposals.find((proposal) => proposal.id === id)?.state !== 'stale').indexOf(nextId);
           if (nextIndex >= 0) setManuscriptStructurePage(Math.floor(nextIndex / 12));
           revealStructureProposal(nextId);
         }
@@ -1584,11 +1589,10 @@ export default function Stage19WritingSpineApp({
       return;
     }
     setSelectedManuscriptProposalId(proposalId);
-    const orderedIds = manuscriptStructureOrder ?? structureProposalIds;
-    const proposalIndex = orderedIds.indexOf(proposalId);
+    const proposalIndex = currentStructureProposalIds.indexOf(proposalId);
     if (proposalIndex >= 0) setManuscriptStructurePage(Math.floor(proposalIndex / 12));
     revealStructureProposal(proposalId);
-  }, [manuscriptStructureOrder, structureProposalIds]);
+  }, [currentStructureProposalIds, structureProposalIds]);
 
   const pinSelectedStructureBoundary = useCallback(async (label: string) => {
     if (structureBoundaryStart === null || structureBoundaryEnd === null) {

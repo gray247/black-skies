@@ -117,7 +117,9 @@ describe('ManuscriptStructureView renderer contract', () => {
     expect(within(rows[0]!).queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('More section actions'));
-    const split = screen.getByLabelText('Split selected section at');
+    const split = screen.getByLabelText('Split selected section at') as HTMLSelectElement;
+    expect(split.options[1]).toHaveTextContent('Before: Second prose');
+    expect(split.options[1]).not.toHaveTextContent('Paragraph');
     fireEvent.change(split, { target: { value: '29' } });
     fireEvent.click(screen.getByRole('button', { name: 'Split section' }));
     expect(viewActions.splitStructureProposal).toHaveBeenCalledWith('p2', 29);
@@ -249,6 +251,49 @@ describe('ManuscriptStructureView renderer contract', () => {
     expect(readiness.rejectedSections).toBe(1);
     expect(readiness.staleHistorical).toBe(1);
     expect(readiness.blockers).toEqual(['Accept at least one section to create manuscript Units.']);
+  });
+
+  it('keeps stale proposals in collapsed superseded history without false rediscovery guidance', () => {
+    const base = structure('current', false);
+    const value = {
+      ...base,
+      document: {
+        ...base.document,
+        proposals: base.document.proposals.map((proposal, index) => index === 0
+          ? { ...proposal, state: 'accepted' as const }
+          : { ...proposal, state: 'stale' as const }),
+      },
+    };
+    renderStructure(value, null, 'p2');
+
+    expect(within(screen.getByRole('list', { name: 'Structure proposals' })).getAllByRole('listitem')).toHaveLength(1);
+    const historySummary = screen.getByText('Superseded history (1)');
+    const history = historySummary.closest('details') as HTMLDetailsElement;
+    expect(history.open).toBe(false);
+    fireEvent.click(historySummary);
+    expect(screen.getByText('Superseded history — no action required.')).toBeVisible();
+    expect(screen.getByText('Superseded history is immutable. No action required.')).toBeVisible();
+    expect(screen.queryByText('Stale — rediscover')).not.toBeInTheDocument();
+  });
+
+  it('reports structure up to date after Apply and keeps Review Apply disabled', () => {
+    const base = structure('current', true);
+    const value = {
+      ...base,
+      document: {
+        ...base.document,
+        proposals: base.document.proposals.map((proposal, index) => index === 0
+          ? { ...proposal, state: 'accepted' as const }
+          : { ...proposal, state: 'rejected' as const }),
+      },
+    };
+    renderStructure(value, null, 'p1');
+
+    const readiness = screen.getByRole('region', { name: 'Apply structure readiness' });
+    expect(readiness).toHaveTextContent('Structure up to date');
+    expect(readiness).toHaveTextContent('There is nothing new to apply. Review Apply stays disabled until a new section is accepted.');
+    expect(readiness).not.toHaveTextContent('Not ready to Apply');
+    expect(within(readiness).getByRole('button', { name: 'Review Apply' })).toBeDisabled();
   });
 
   it('offers valid rediscovery for changed source and no false repair after Apply', () => {

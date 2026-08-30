@@ -5481,29 +5481,6 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   color: var(--bs-text-primary);
 }
 
-.stage19-spine--writing .stage19-spine__save-state {
-  padding: 4px 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--bs-text-secondary);
-  font-size: 0.76rem;
-  font-weight: 600;
-}
-
-.stage19-spine--writing .stage19-spine__save-state--dirty,
-.stage19-spine--writing .stage19-spine__save-state--saving {
-  color: var(--bs-status-warning);
-}
-
-.stage19-spine--writing .stage19-spine__save-state--saved {
-  color: var(--bs-status-success);
-}
-
-.stage19-spine--writing .stage19-spine__save-state--save-failed {
-  color: var(--bs-status-danger);
-}
-
 .stage19-spine--writing .stage19-spine__notice,
 .stage19-spine--writing .stage19-living-outline__notice,
 .stage19-spine--writing .stage19-ai__notice {
@@ -8570,6 +8547,60 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 5px;
+}
+
+.stage19-spine--writing .stage19-manuscript-structure label,
+.stage19-spine--writing .stage19-manuscript-structure legend,
+.stage19-spine--writing .stage19-manuscript-structure__more-actions > summary,
+.stage19-spine--writing .stage19-manuscript-structure__advanced > summary {
+  color: var(--stage19-semantic-text);
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__boundary,
+.stage19-spine--writing .stage19-manuscript-structure__notice,
+.stage19-spine--writing .stage19-manuscript-structure__decision-summary,
+.stage19-spine--writing .stage19-manuscript-structure__disabled-reason,
+.stage19-spine--writing .stage19-manuscript-structure__advanced-content p,
+.stage19-spine--writing .stage19-manuscript-structure__history-note,
+.stage19-spine--writing .stage19-manuscript-structure__apply-up-to-date p {
+  color: var(--stage19-semantic-muted);
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__history {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--stage19-semantic-border);
+  background: var(--bs-surface-raised);
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__history > summary {
+  cursor: pointer;
+  color: var(--stage19-semantic-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__history-note {
+  margin: 7px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__history .stage19-manuscript-structure__proposals {
+  margin-top: 7px;
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__apply-up-to-date {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--stage19-semantic-success-text);
+  background: var(--stage19-semantic-success-bg);
+}
+
+.stage19-spine--writing .stage19-manuscript-structure__apply-up-to-date strong {
+  color: var(--stage19-semantic-success-text);
 }
 
 @media (max-width: 720px) {

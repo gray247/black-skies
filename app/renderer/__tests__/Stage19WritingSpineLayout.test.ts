@@ -65,6 +65,33 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
     expect(view).not.toContain('proposal-actions');
   });
 
+  it('keeps active Structure labels and helpers readable without recoloring disabled controls', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+    const writingSlice = css.slice(css.indexOf('/* P5-UX-01 Slice 3: shared semantic readability'));
+
+    expect(writingSlice).toMatch(
+      /\.stage19-spine--writing \.stage19-manuscript-structure label,[\s\S]*?color:\s*var\(--stage19-semantic-text\);/,
+    );
+    expect(writingSlice).toMatch(
+      /\.stage19-spine--writing \.stage19-manuscript-structure__boundary,[\s\S]*?color:\s*var\(--stage19-semantic-muted\);/,
+    );
+    expect(css).toMatch(
+      /\.stage19-spine--writing button:disabled,[\s\S]*?color:\s*var\(--bs-text-secondary\);[\s\S]*?opacity:\s*1;/,
+    );
+  });
+
+  it('keeps Writing Studio Saved durably as the shared bordered pill', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
+
+    expect(css).toMatch(
+      /\.stage19-spine__save-state\s*\{[\s\S]*?padding:\s*0\.55rem 0\.8rem;[\s\S]*?border:\s*1px solid #334155;[\s\S]*?border-radius:\s*999px;/,
+    );
+    expect(css).toMatch(
+      /\.stage19-spine--writing \.stage19-spine__save-state,[\s\S]*?border-color:\s*var\(--stage19-semantic-border\);/,
+    );
+    expect(css).not.toMatch(/\.stage19-spine--writing \.stage19-spine__save-state\s*\{[\s\S]*?border:\s*0;/);
+  });
+
   it('locks the scoped literary canvas, semantic themes, responsive rails, and reduced-motion behavior', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     const marker = '/* Program 3 / P3-D: scoped literary Writing Studio shell. */';
