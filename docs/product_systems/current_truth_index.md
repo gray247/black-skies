@@ -110,37 +110,32 @@ It does not finalize the entire product vision.
   no-overlay geometry, recovery, reopen persistence, and manuscript
   non-mutation. Batch B is durable at `707dfae6`. The
   [Program 5 Human Gate 2 bridge receipt](program_5_hg2_bridge_evidence_receipt.md)
-  now records the exact Program 5 self-service closeout candidate at
-  `0735b11d49383f09e8a0a02a8fc09f14b0f6aa4b`. The candidate is green for one
-  continuous readable manuscript, canvas-owned scrolling, stable independent
-  rails, Writing Session/Companion separation, Unit-as-spine and quiet Note
-  hierarchy, transactional creation/cancellation, durable Note editing and
-  rename, help/comparison readability, packaged chooser fencing, Structure
-  mutation/Apply/reload safety, and post-Apply immutability. Clean regression
-  passed `49` critical files / `748` passed / `2` skipped, startup preflight
-  `1/1`, and Electron `34/34`. Deterministic substantial-manuscript evidence
-  uses 120 chapters and more than 300,000 characters and proves 120 unique
-  stable anchors, bounded pagination, exact source preservation, mutations,
-  Apply, and durable reopen state. The exact package and application-only
-  install/uninstall/reinstall lifecycle passed with installer SHA-256
-  `86d1d522109daa89022a2079bd1f1c580f64aaf3475a0fb27cf93672b575708c`,
-  and an installed Windows rehearsal found the repaired opening and Project
-  Tools compositions aligned and unobstructed. Normal runtime neither creates
-  nor requires a firewall rule; supplemental outbound isolation is not a
-  Program 5 closure prerequisite. The canonical development launcher also has
-  focused port-health evidence: it reuses a healthy Black Skies renderer,
-  reports an occupied port owner/PID, and never kills a renderer it did not
-  create. The candidate is human-review-ready. Human Gate 2 author acceptance,
-  Human Gate 3 structural-workflow acceptance, and Program 5 closure remain
-  unclaimed; no user-supplied substantial manuscript is required.
-  The next
+  now records final Program 5 closure on exact product commit
+  `6efec7b95c82759f51f6d8f47d4400637f48837a`. The candidate is green for one
+  continuous readable manuscript, bounded independent rails, central imported
+  Markdown review, selected-only structural controls, complete Apply-readiness
+  guidance, source-byte preservation, stable anchors, transactional Apply,
+  post-Apply immutability, shared application chrome, and durable reopen state.
+  Clean regression passed `49` critical files / `774` passed / `2` skipped,
+  startup `1/1`, and Electron `35/35`; the standalone 120-chapter,
+  300,000-plus-character journey also passed. Exact package verification,
+  elevated `offline-firewall-isolated` install/smoke/uninstall/preservation/
+  reinstall, and the strict receipt-bound witness passed with installer
+  SHA-256 `76e23d66c6e2bd7b8034eef5d63a9322e9f4b09ccf16749cfab11d13ebe14d8e`,
+  zero forbidden descendants, zero residual firewall rules, and no protected
+  evidence. Jason explicitly recorded `Program 5 final check passed` on
+  2026-08-31 after the Human Gate 2 and Human Gate 3 reviews. Those gates and
+  Program 5 are closed; no user-supplied substantial manuscript was required.
+  Cleanup Wave A is the next execution-control checkpoint, and Program 6 is
+  eligible for bounded planning but not implicitly authorized for runtime work.
+  The earlier
   [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)
   records the green real-Focus and local-facts Companion-doorway gate: a
   labelled bottom entry, immediate non-blank Command result for supported and
   unsupported requests, exact return to Writing, no persistence or provider
-  route, and narrow/high-zoom no-overlay behavior. It awaits Jason's manual
-  durable checkpoint and does not claim local-LLM conversation, provider use,
-  Human Gate 2 acceptance, or package/install qualification.
+  route, and narrow/high-zoom no-overlay behavior. Its then-current nonclaims
+  are retained as historical evidence; the final Program 5 candidate and
+  closure receipt above supersede its pending Human Gate 2 status.
   The first HG2-RPR-D hosted qualification then found Electron repeating
   identical renderer launch arguments, which made the preloads fail closed and
   hid the optional Command bridge. The bounded parity repair accepts only
@@ -149,10 +144,10 @@ It does not finalize the entire product vision.
   isolated a separate first-host-state startup race. The bounded renderer
   recovery retries only the initial missing state for a finite interval and
   stops on a valid state or unmount. Its local and CI-mode built-Electron
-  evidence is green. Full local qualification also exposed a persisted-theme
+  evidence was green. Full local qualification also exposed a persisted-theme
   test-isolation race, repaired by notifying the existing theme listener after
-  fixture storage cleanup. Its receipt does not claim the required clean
-  hosted Windows package/install result.
+  fixture storage cleanup. Its then-current package/install nonclaim remains
+  historical and is superseded by the final exact evidence recorded above.
 - Repository Control Point 0 forensics are recorded in
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
@@ -217,11 +212,12 @@ It does not finalize the entire product vision.
   responsive, targeted visual-reference, versioned-performance, full-suite,
   regression, and package-preflight evidence. It is recorded in
   `program_3_closure_receipt.md`; Jason's exact P3-G commit and push make
-  Program 3 durably complete and Program 4 executable. All exclusions, truth
-  boundaries, Git controls, and the Human Gate 2 boundary remain in force.
-- Program 5 proves long-manuscript intake and stable structural anchors before
-  Human Gate 3. Emotion Graph V1 begins in Program 6 only after that gate and
-  keeps author-planned, manuscript-observed, and inferred emotion distinct.
+  Program 3 durably complete and Program 4 executable. Its exclusions, truth
+  boundaries, and Git controls remain in force; the then-pending Human Gate 2
+  boundary was later satisfied by the exact Program 5 closure evidence above.
+- Program 5 and Human Gate 3 are closed with long-manuscript intake and stable
+  structural anchors proven. Emotion Graph V1 remains Program 6 work and keeps
+  author-planned, manuscript-observed, and inferred emotion distinct.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 

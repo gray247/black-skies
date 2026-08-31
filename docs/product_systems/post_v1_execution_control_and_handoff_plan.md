@@ -434,10 +434,18 @@ Confirm the Writing Studio, Living Outline, Command Center, Focus behavior,
 and Companion operate as one understandable and non-intrusive product. Create
 detailed validation instructions only when the complete candidate is ready.
 
-**Current result:** the exact candidate passed package/install automation, but
-the author did not accept the current separate-unit, form-heavy Writing Studio
-or its incomplete Companion experience. Do not proceed to Cleanup Wave A.
-Follow [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md):
+**Current result (2026-08-31):** the repaired Human Gate 2 passed. The pulled-
+forward Program 5 bridge and later bounded usability repairs culminated in
+exact product commit `6efec7b9`; clean regression, exact package verification,
+elevated offline installed lifecycle, strict witness, and installed author
+acceptance passed. Cleanup Wave A is therefore the next execution-control
+checkpoint.
+
+**Superseded rejected-candidate record:** the earlier exact candidate passed package/install automation, but
+the author did not accept the then-current separate-unit, form-heavy Writing
+Studio or its incomplete Companion experience. Work did not proceed to Cleanup
+Wave A at that point. The team followed the
+[Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md) to
 repair the direct story-rail and Focus composition, and pull Program 5's
 continuous-manuscript/stable-anchor bridge forward before repeating this gate.
 The Story Rail is durable at `707dfae6`; the pulled-forward continuous
@@ -496,6 +504,10 @@ runtime surfaces that are replaced or unreachable. Perform bounded module,
 contract, test-fixture, and dependency professionalization. Archive or delete
 only after the disposition and recovery path are approved.
 
+**Current state (2026-08-31):** repaired Human Gate 2 has passed, so this is the
+next checkpoint. No archive, deletion, consolidation, or dependency mutation is
+authorized by that acceptance alone.
+
 ### Program 5 — Long-Manuscript Intake And Structural Anchors
 
 Prove continuous-manuscript identity, durable position and span anchors,
@@ -518,6 +530,13 @@ semantics, transactional `+` cancellation, Note title/body editing, reliable
 Unit navigation and rename, non-overlapping notices, summonable help, and
 readable preview-only story-plan comparison. A green continuous-manuscript
 bridge alone is not closure evidence.
+
+**Closure result (2026-08-31):** `P5-UX-01`, Human Gate 3, and Program 5 passed
+on exact product commit `6efec7b9`. The current bridge/closure receipt binds the
+clean regression, substantial-manuscript, package, elevated installed-
+lifecycle, strict-witness, and final author-acceptance evidence. Program 6 may
+enter bounded planning; implementation remains behind Cleanup Wave A and its
+own explicit authorization.
 
 ### Human Gate 3 — Long-Manuscript Integrity And Usability
 

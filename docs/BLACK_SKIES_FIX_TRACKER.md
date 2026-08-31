@@ -3,8 +3,8 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 exact candidate is package-qualified and awaiting final human acceptance
-Last Reviewed: 2026-08-23
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A is next before Program 6 implementation
+Last Reviewed: 2026-08-31
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -16,6 +16,39 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Program 5 closure — 2026-08-31
+
+Program 5 is closed on exact product commit
+`6efec7b95c82759f51f6d8f47d4400637f48837a`. Its clean fixed regression
+returned `STAGE19_REGRESSION_PASS`: `49` critical files / `774` passed / `2`
+skipped, startup preflight `1/1`, and Electron `35/35`. The standalone
+120-chapter, 300,000-plus-character Markdown journey passed `1/1`, preserving
+bounded navigation, unique stable anchors, complete decisions, exact source
+bytes, transactional Apply, and durable reopen state.
+
+The exact private Windows candidate verified with installer SHA-256
+`76e23d66c6e2bd7b8034eef5d63a9322e9f4b09ccf16749cfab11d13ebe14d8e`,
+installed executable SHA-256
+`9493febb92b6dafe379cd79394f193b4ea9d6c3ea11375ea73af47ada275ae19`,
+and ASAR SHA-256
+`a442647597bfac7240f2049f6843a9616abc374047ff5e04c767566b9f047ec9`.
+Verification found zero forbidden unpacked paths and recorded `NotSigned` under
+the accepted private unsigned-internal-RC policy. The elevated
+`offline-firewall-isolated` lifecycle passed packaged startup, optional Command
+placement, zero forbidden runtime descendants, exact Markdown, the
+representative 100-Unit workflow, uninstall, 196-file external-data
+preservation, same-installer reinstall, and firewall cleanup. The strict
+receipt-bound witness returned `STAGE19_22_QUALIFICATION_WITNESS_PASS` with no
+protected evidence.
+
+Jason previously recorded Human Gate 2 as passed and completed the Human Gate
+3 structural sequence. After the final shared-chrome repair and exact installed
+requalification, he explicitly recorded `Program 5 final check passed` on
+2026-08-31. Human Gate 3 and Program 5 are therefore accepted and closed. This
+closure does not authorize Program 6 implementation or destructive cleanup;
+the accepted execution-control plan makes bounded Cleanup Wave A the next
+checkpoint, while Program 6 can proceed to planning and separate authorization.
 
 ## Program 5 final self-service closeout repair — 2026-08-23
 

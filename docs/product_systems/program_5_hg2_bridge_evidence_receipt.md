@@ -426,3 +426,42 @@ application-only installed, and human-review-ready. Human Gate 2 author
 acceptance, Human Gate 3 structural-workflow acceptance, and Program 5 closure
 remain unclaimed. No user-supplied large manuscript is required for the
 remaining review.
+
+## Final Program 5 closure — 2026-08-31
+
+The preceding candidate and non-claims remain immutable historical evidence.
+The final exact product candidate is
+`6efec7b95c82759f51f6d8f47d4400637f48837a`, which includes the three bounded
+Human Gate 3 workflow repairs, stale-history/readability correction, shared
+Writing Studio and Command Center chrome correction, and the strengthened
+qualification harnesses.
+
+Exact evidence:
+
+- clean `pnpm stage19:regression`: `49` critical files / `774` passed / `2`
+  skipped, startup `1/1`, Electron `35/35`, `CLEAN_RC_ELIGIBLE`;
+- substantial Markdown journey: `1/1` with 120 chapters and more than 300,000
+  characters;
+- installer SHA-256:
+  `76e23d66c6e2bd7b8034eef5d63a9322e9f4b09ccf16749cfab11d13ebe14d8e`;
+- installed executable SHA-256:
+  `9493febb92b6dafe379cd79394f193b4ea9d6c3ea11375ea73af47ada275ae19`;
+- installed ASAR SHA-256:
+  `a442647597bfac7240f2049f6843a9616abc374047ff5e04c767566b9f047ec9`;
+- `NotSigned` under `unsigned-internal-rc`, zero forbidden unpacked paths;
+- elevated `offline-firewall-isolated` installed lifecycle passed packaged
+  startup, optional Command placement, zero forbidden processes, exact
+  Markdown, representative 100-Unit behavior, uninstall, 196-file external
+  preservation, same-installer reinstall, and zero residual firewall rules;
+- strict receipt-bound witness:
+  `STAGE19_22_QUALIFICATION_WITNESS_PASS`, exact commit and hashes, no protected
+  evidence.
+
+The installed acceptance candidate is
+`C:\Users\gray2\AppData\Local\BlackSkiesQualification\P5-HG3-RPR-05-6efec7b9-20260830\installed\Black Skies.exe`.
+Jason had already recorded Human Gate 2 as passed and completed the Human Gate
+3 structural sequence. After reviewing this exact installed candidate, he
+explicitly recorded `Program 5 final check passed` on 2026-08-31. Human Gate 3
+and Program 5 are closed. This receipt does not authorize Program 6 runtime
+work, broaden private-RC distribution authority, or waive the separately
+governed Cleanup Wave A checkpoint.
