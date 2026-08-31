@@ -1,0 +1,93 @@
+diff --git a/AGENTS.override.md b/AGENTS.override.md
+deleted file mode 100644
+index 12a31e5afa83afc17a016b5d5cdb1720fe93672c..0000000000000000000000000000000000000000
+--- a/AGENTS.override.md
++++ /dev/null
+@@ -1,38 +0,0 @@
+-# Black Skies Governance Override
+-
+-This file has precedence over `AGENTS.md` for the repository root `C:\Dev\black-skies`.
+-
+-## Operating Lane
+-
+-- Limit work to documentation, governance, discovery, audit, and salvage-planning.
+-- Keep implementation blocked unless a later task explicitly lifts that restriction.
+-- Do not do runtime, GUI, dependency, packaging, refactor, migration, cleanup, or test-repair work.
+-- Follow the controlling 19-stage sequence and the current authority precedence exactly.
+-- Maintain findings-ledger updates during constellation work.
+-
+-## Change Control
+-
+-- Manual commits and pushes are performed by the user only.
+-- Do not change branches.
+-- Do not stash, reset, clean, rename, delete, or rewrite history.
+-- Do not execute salvage actions.
+-- Do not widen scope silently.
+-
+-## Connector and Workflow Gates
+-
+-- Do not admit connectors before workflow proofs and the Missing Connector Review.
+-- Preserve one exact resolution stage and reopening trigger for every deferral.
+-- Subagents are read-only unless a later task explicitly grants edit scope.
+-
+-## Automation control
+-
+-- `update-agents-md` is intentionally disabled for the current governance campaign and must not be re-enabled, duplicated, replaced, or retargeted without explicit author approval.
+-- No automation may rewrite `AGENTS.md`, `AGENTS.override.md`, or other Black Skies instruction files during this campaign.
+-- Reconsider `update-agents-md` only during the planned GO10 loose-thread review, GO10-to-GO11 handoff preparation, or a later explicit governance decision.
+-- Disabling the automation does not authorize deleting its schedule, prompt, memory, or historical records.
+-
+-## Safety and Scope
+-
+-- Keep the worktree unchanged except for files explicitly authorized by a later task.
+-- Do not edit `AGENTS.md`, `update-agents-md`, global Codex configuration, rules, skills, automations, product documentation, source code, or tests under this instruction.
+-- Prefer stopping and asking for direction over guessing when a request conflicts with this override.
+diff --git a/docs/BLACK_SKIES_FIX_TRACKER.md b/docs/BLACK_SKIES_FIX_TRACKER.md
+index 3d979f5b045e3830d5897b25ba8cf6846e755223..23e272f8314209aa30760af53fc9c15809414425 100644
+--- a/docs/BLACK_SKIES_FIX_TRACKER.md
++++ b/docs/BLACK_SKIES_FIX_TRACKER.md
+@@ -4,7 +4,7 @@
+ # BLACK SKIES - FIX TRACKER
+ 
+ Status: Active
+-Last Reviewed: 2026-06-08
++Last Reviewed: 2026-08-20
+ 
+ ## Purpose
+ This document tracks defects, technical debt, and instability across Black Skies.
+@@ -18,6 +18,16 @@ If an issue is not tracked here, it is not part of the active fix scope.
+ 5. Regressions stay under the same issue ID.
+ 
+ ## Documentation Continuity Updates
++- [2026-08-20] P5-UX-01 qualification boundary reviewed against the current
++  `salvage/minimal-two-surface-shell` checkout. The independent development
++  launcher slice is partially fixed: `pnpm dev` now reuses a healthy Black
++  Skies renderer on port 5173, reports a non-Black-Skies owner/PID without
++  killing it, and waits for a newly started renderer before launching
++  Electron. Focused launcher tests pass (`node --test
++  scripts/dev-runner.test.mjs`). The first three P5 slices remain blocked in
++  this checkout because the Living Outline/Note contracts and their
++  prerequisite renderer/view boundary are not present; no P5 completion or
++  VERIFIED claim is made.
+ - [2026-07-29] Package 19.20 packaged-RC acceptance authorized and twice-reviewed:
+   - binds the first human pass to exact installer `BlackSkies-Setup-1.0.0-rc1.exe`, 89,318,050 bytes, SHA-256 `3f59db2f17566a99a269968cd9dba7785646cc7652f4948cb99dc4d1c163a0e0`, from implementation commit `85c1524`,
+   - separates carried-forward Package 19.19 automation from the smaller human trust boundary and consolidates installed happy path, defect retest, isolation, failures, recovery, offline core, physical windows, uninstall, and reinstall,
+diff --git a/docs/ops/start_codex_gui_notes.md b/docs/ops/start_codex_gui_notes.md
+index 4801461435685fae2a27e3b18e2e1fdb780193d7..3079add0874729df256f55c32f1b4674427895c2 100644
+--- a/docs/ops/start_codex_gui_notes.md
++++ b/docs/ops/start_codex_gui_notes.md
+@@ -44,7 +44,13 @@ pnpm run bootstrap
+ pnpm dev
+ ```
+ 
+-`pnpm dev` starts two concurrent tasks:
++`pnpm dev` starts the Electron dev launcher and a Vite renderer when port
++`5173` is available. If port `5173` already serves the Black Skies document,
++the launcher reuses it and does not start or stop a second renderer. If the
++port belongs to another process, startup stops with that process's owner/PID;
++the launcher never kills an arbitrary listener.
++
++The normal owned-start path runs two concurrent tasks:
+ 
+ - `pnpm --filter app dev` - the Vite dev server for the renderer
+ - `node scripts/electron-dev.mjs` - the Electron dev launcher that builds the main process and starts Electron against the renderer URL

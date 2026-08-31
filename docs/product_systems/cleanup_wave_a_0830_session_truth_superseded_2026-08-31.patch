@@ -1,0 +1,191 @@
+diff --git a/app/main/__tests__/sessionTruth.test.ts b/app/main/__tests__/sessionTruth.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b7c7dbb6bc1fa5859a8bbd685e414ebcdd1390c
+--- /dev/null
++++ b/app/main/__tests__/sessionTruth.test.ts
+@@ -0,0 +1,81 @@
++import { describe, expect, it } from 'vitest';
++
++import {
++  classifySessionLifecycleState,
++  isProjectTruthState,
++  isRuntimeTruthState,
++  SESSION_LIFECYCLE_PRIORITY,
++  TRUTH_OWNERSHIP_BOUNDARIES,
++} from '../../shared/sessionTruth';
++
++describe('sessionTruth', () => {
++  it('defines explicit ownership boundaries for runtime and project truth', () => {
++    expect(TRUTH_OWNERSHIP_BOUNDARIES).toMatchObject({
++      'main-process': {
++        owner: 'main-process',
++        domain: 'runtime-truth',
++        authority: 'authoritative',
++        persistence: 'volatile',
++      },
++      renderer: {
++        owner: 'renderer',
++        domain: 'runtime-truth',
++        authority: 'derived',
++        persistence: 'volatile',
++      },
++      'backend-service': {
++        owner: 'backend-service',
++        domain: 'runtime-truth',
++        authority: 'authoritative',
++        persistence: 'volatile',
++      },
++      'project-files': {
++        owner: 'project-files',
++        domain: 'project-truth',
++        authority: 'authoritative',
++        persistence: 'persisted',
++      },
++    });
++  });
++
++  it('classifies recovery and partial states ahead of weaker lifecycle states', () => {
++    expect(classifySessionLifecycleState({ recoveryRequired: true, projectFilesPresent: true })).toBe(
++      'recovery-required',
++    );
++    expect(classifySessionLifecycleState({ partial: true, projectFilesPresent: true })).toBe('partial');
++    expect(classifySessionLifecycleState({ stale: true, dirty: true, projectFilesPresent: true })).toBe(
++      'stale',
++    );
++  });
++
++  it('keeps dirty, unsaved, persisted, and runtime-only states distinct', () => {
++    expect(classifySessionLifecycleState({ unsaved: true, dirty: true, projectFilesPresent: true })).toBe(
++      'unsaved',
++    );
++    expect(classifySessionLifecycleState({ dirty: true, projectFilesPresent: true })).toBe('dirty');
++    expect(classifySessionLifecycleState({ projectFilesPresent: true })).toBe('persisted');
++    expect(classifySessionLifecycleState({})).toBe('runtime-only');
++  });
++
++  it('exposes the priority order for the lifecycle contract', () => {
++    expect(SESSION_LIFECYCLE_PRIORITY).toEqual([
++      'recovery-required',
++      'partial',
++      'stale',
++      'unsaved',
++      'dirty',
++      'persisted',
++      'runtime-only',
++    ]);
++  });
++
++  it('separates runtime truth states from project truth states', () => {
++    expect(isRuntimeTruthState('runtime-only')).toBe(true);
++    expect(isRuntimeTruthState('dirty')).toBe(true);
++    expect(isRuntimeTruthState('unsaved')).toBe(true);
++    expect(isRuntimeTruthState('persisted')).toBe(false);
++    expect(isProjectTruthState('persisted')).toBe(true);
++    expect(isProjectTruthState('stale')).toBe(true);
++    expect(isProjectTruthState('recovery-required')).toBe(true);
++  });
++});
+diff --git a/app/shared/sessionTruth.ts b/app/shared/sessionTruth.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..67796db09515e9eb65bd1008049f7e5c7e5254db
+--- /dev/null
++++ b/app/shared/sessionTruth.ts
+@@ -0,0 +1,98 @@
++export type TruthDomain = 'runtime-truth' | 'project-truth';
++
++export type TruthOwner = 'main-process' | 'renderer' | 'backend-service' | 'project-files';
++
++export interface TruthOwnershipBoundary {
++  readonly owner: TruthOwner;
++  readonly domain: TruthDomain;
++  readonly authority: 'authoritative' | 'derived';
++  readonly persistence: 'volatile' | 'persisted';
++}
++
++export const TRUTH_OWNERSHIP_BOUNDARIES: Readonly<Record<TruthOwner, TruthOwnershipBoundary>> =
++  Object.freeze({
++    'main-process': Object.freeze({
++      owner: 'main-process',
++      domain: 'runtime-truth',
++      authority: 'authoritative',
++      persistence: 'volatile',
++    }),
++    renderer: Object.freeze({
++      owner: 'renderer',
++      domain: 'runtime-truth',
++      authority: 'derived',
++      persistence: 'volatile',
++    }),
++    'backend-service': Object.freeze({
++      owner: 'backend-service',
++      domain: 'runtime-truth',
++      authority: 'authoritative',
++      persistence: 'volatile',
++    }),
++    'project-files': Object.freeze({
++      owner: 'project-files',
++      domain: 'project-truth',
++      authority: 'authoritative',
++      persistence: 'persisted',
++    }),
++  });
++
++export type SessionLifecycleState =
++  | 'runtime-only'
++  | 'persisted'
++  | 'dirty'
++  | 'unsaved'
++  | 'stale'
++  | 'partial'
++  | 'recovery-required';
++
++export interface SessionLifecycleSignals {
++  readonly projectFilesPresent?: boolean;
++  readonly dirty?: boolean;
++  readonly unsaved?: boolean;
++  readonly stale?: boolean;
++  readonly partial?: boolean;
++  readonly recoveryRequired?: boolean;
++}
++
++export const SESSION_LIFECYCLE_PRIORITY = Object.freeze([
++  'recovery-required',
++  'partial',
++  'stale',
++  'unsaved',
++  'dirty',
++  'persisted',
++  'runtime-only',
++] as const satisfies readonly SessionLifecycleState[]);
++
++export function classifySessionLifecycleState(
++  signals: SessionLifecycleSignals,
++): SessionLifecycleState {
++  if (signals.recoveryRequired) {
++    return 'recovery-required';
++  }
++  if (signals.partial) {
++    return 'partial';
++  }
++  if (signals.stale) {
++    return 'stale';
++  }
++  if (signals.unsaved) {
++    return 'unsaved';
++  }
++  if (signals.dirty) {
++    return 'dirty';
++  }
++  if (signals.projectFilesPresent) {
++    return 'persisted';
++  }
++  return 'runtime-only';
++}
++
++export function isRuntimeTruthState(state: SessionLifecycleState): boolean {
++  return state === 'runtime-only' || state === 'dirty' || state === 'unsaved';
++}
++
++export function isProjectTruthState(state: SessionLifecycleState): boolean {
++  return !isRuntimeTruthState(state);
++}

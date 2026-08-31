@@ -33,7 +33,7 @@ register or a currently authorized program promotes it.
 | ID | Current item | Source | Status | Owner / resolution point | Trigger or exit condition |
 | --- | --- | --- | --- | --- | --- |
 | DOC-01 | Author-experience, execution-control, roadmap, truth-index, and Gate 1 reconciliation | Current documentation batch | closed | Documentation reconciliation | Committed and pushed at `f73f6880`; current-authority lint passed |
-| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, exact snapshots verified, Jason approved the non-destructive disposition, and the receipt was pushed at `c668586f` |
+| RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, original and supplemental exact snapshots verified, Jason approved the non-destructive disposition, and the receipt was pushed at `c668586f`; Pass 1A closes the previously uncaptured three-path evidence gap |
 | RCP-01 | Canonical continuing development line | Approved author decision and RCP0 ledger | closed | Repository Control Point 0 | Jason approved `codex/foundation-audit` as the sole continuing line; legacy worktrees remain quarantined until Cleanup Wave A |
 | OWR-01 | Reconcile live items from fix tracker, dossiers, deferral table, skip inventory, reachability inventory, and workflow ledgers | [Control Point 1 open-work reconciliation](control_point_1_open_work_reconciliation.md) | closed | Control Point 1 Batch A | Evidence batch is committed and pushed; architecture and test audits use this ownership map |
 | ARC-01 | Architecture and maintainability baseline | [Control Point 1 architecture and maintainability audit](control_point_1_architecture_maintainability_audit.md) | closed | Control Point 1 Batch B | Evidence batch is committed and pushed; Program 3 uses the bounded refactor budget |
@@ -69,7 +69,7 @@ register or a currently authorized program promotes it.
 | P4-01 | Minimal Companion and owner routing | [Program 4 implementation plan](program_4_minimal_companion_owner_routing_implementation_plan.md) and [P4-A through P4-C evidence receipts](program_4_batch_p4_c_evidence_receipt.md) | closed-mechanical | Program 4 | Exact candidate `319b9c6` passed hosted Windows package/install qualification run `31542494314`; the local-facts route is mechanically safe but does not claim local-LLM conversation capability |
 | HG-02 | Shell and Companion human gate | [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md) and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 2 | Jason explicitly recorded Human Gate 2 passed; its final repaired surfaces were requalified and accepted on exact Program 5 product commit `6efec7b9` |
 | HG2-RPR-01 | Continuous Manuscript + Unified Story Rail + Real Focus Mode + Companion Bar | [Human Gate 2 Experience Repair Plan](program_4_human_gate_2_experience_repair_plan.md), [HG2-RPR-A receipt](program_4_hg2_rpr_a_evidence_receipt.md), [HG2-RPR-B receipt](program_4_hg2_rpr_b_evidence_receipt.md), [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md), [HG2-RPR-C receipt](program_4_hg2_rpr_c_evidence_receipt.md), and [HG2-RPR-D receipt](program_4_hg2_rpr_d_evidence_receipt.md) | closed | Human Gate 2 | Bounded repairs culminated in exact product commit `6efec7b9`; clean/package/installed/strict-witness evidence and final author acceptance are complete |
-| CLN-A | First legacy disposition, archive/delete, and professionalization wave | Reachability inventory and current code audit | next | Cleanup Wave A authorization | Repaired Human Gate 2 passed. Approve an exact bounded disposition and recovery plan before any archive, deletion, module consolidation, or dependency cleanup |
+| CLN-A | First legacy disposition, archive/delete, and professionalization wave | Reachability inventory and current code audit | closed | Cleanup Wave A final integration | Passes 1A, 1B/1B-R, 2A, 2B, 2C, 3, and 3R are complete; the exact 13-path integration was committed and pushed on `codex/foundation-audit`, local/upstream HEADs match, and the four-worktree inventory is retained with C:\Dev, 46bb, and b13f protected/quarantined |
 | P5-01 | Long-manuscript intake and stable structural anchors | Direction Lock, Program 5, [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 / Human Gate 3 | Exact product commit `6efec7b9` passed clean regression, substantial-manuscript qualification, exact package verification, elevated offline installed lifecycle, strict witness, and final author acceptance |
 | P5-UX-01 | Program 5 pre-closure Writing Studio navigation and Unit/Note rail semantics | [Corrected Programs 1–5 repair plan](program_1_to_5_priority_repair_plan.md), [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), [Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 | Navigation, rails, Note semantics, startup composition, Structure workflow, readability, stale history, and shared chrome passed exact-candidate automation and installed author review at `6efec7b9` |
 | HG-03 | Long-manuscript integrity and usability | Execution-control plan and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 3 | Jason completed the structural sequence and recorded `Program 5 final check passed` on the exact installed candidate on 2026-08-31 |
@@ -89,13 +89,163 @@ register or a currently authorized program promotes it.
 | DEF-05 | Third-party connectors | Master-program deferral table | owned-later | Existing Workflow Proof plus Missing Connector Review | Proven workflow demonstrates necessity rather than convenience |
 | DEF-06 | Branching / what-if architecture | Master-program deferral table | owned-later | Later structural review | Prototype arrangements cannot satisfy a real workflow |
 | DEF-07 | Repository-wide historical archive completion | Roadmap and cleanup policy | owned-later | Cleanup Wave B / final audit | Current authority and replacement map make archival safe |
-| DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | owned-later | Cleanup Wave A | RCP0 disposition is approved; one exact-target cleanup list and recovery check are reviewed before any removal |
+| DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | owned-later | Cleanup Wave A | Original and supplemental recovery evidence is complete; Pass 1B removed the eleven approved duplicate registrations, including the bounded 1612 repair, and Pass 3R removed the proven orphaned 0830 directory and clean fc8b worktree. Separate dispositions and recovery checks remain for the four protected worktrees before closure |
 | DEF-09 | Dossier-completion wording and field detail | Master-program deferral table | owned-later | First workflow planning batch that needs it | Category-4 doctrine cannot support a stable contract or understandable UI |
 | DEF-10 | Paid or outbound expansion | Master-program deferral table | owned-later | Separately named task package | Proven local/manual workflow justifies privacy, cost, and approval work |
 | DEF-11 | Third-party plugin ecosystem | Master-program deferral table | owned-later | Post-first-party analyzer review | Repeated demand cannot be met through internal rubrics or first-party analyzers |
 | DEF-12 | Broader document interchange and Google Docs adapters | Master-program deferral table | owned-later | Program 8 after Program 5 | Proven workflow requires an external format or service |
 | DEF-13 | Research / Deep Research | Roadmap scope correction | owned-later | Explicit scope reopening | Jason establishes a current owner and workflow |
 | DEF-14 | Voice, dictation, and transcription | Roadmap scope correction | owned-later | Explicit scope reopening | Jason defines accessibility and provenance boundaries |
+
+### Pass 1A recovery-evidence reconciliation — 2026-08-31
+
+The preserved `C:\Dev\black-skies` checkout contained three current deltas
+outside the original RCP0 snapshot: the uncommitted deletion of
+`AGENTS.override.md`, a legacy launcher/port-5173 update in
+`docs/BLACK_SKIES_FIX_TRACKER.md`, and the incorporated launcher guidance in
+`docs/ops/start_codex_gui_notes.md`. They are preserved as evidence only in
+[`repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch`](repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch),
+SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+Reverse-apply validation passed against the unchanged legacy checkout. No
+canonical behavior is imported; Cleanup Wave A remains open and Program 6 is
+not current implementation scope.
+
+### Pass 1B duplicate worktree removal — 2026-08-31
+
+The eleven approved duplicate registrations were removed in bounded Git-only
+steps: the orphaned `1612` administrative registration was repaired by the
+separately authorized Pass 1B-R prune, followed by the ten exact clean,
+detached `d2b50a8ee9fbf33784e860040c8836b5c52ea106` registrations at `3515`,
+`3811`, `5e84`, `63cc`, `67d7`, `7e81`, `806a`, `98ff`, `eeea`, and `f05d`.
+The commit remains recoverable through `origin/main`. Elevated Git was
+required because ordinary sandbox execution could not remove the shared Git
+administrative directory. No force, broad prune, manual deletion, ACL change,
+branch/ref deletion, commit, or push occurred. The six protected worktrees
+remain registered with their prior dispositions; Cleanup Wave A remains open
+and Program 6 remains excluded.
+
+### Pass 2A unused layout dependency removal — 2026-08-31
+
+The canonical `4f0b` reachability audit found no active tracked source, test,
+script, build, or CSS reference to `react-resizable` or `react-rnd`. Their only
+active references were the four direct `app/package.json` declarations, the
+corresponding lockfile records, and the obsolete Vite `layout-tools` manual
+chunk condition. `react-mosaic-component` remains declared and actively used
+by the docking workspace, pane tile, shared layout types, and docking tests;
+its stylesheet import and `mosaic` chunk rule were retained.
+
+Pass 2A removed exactly `react-resizable`, `react-rnd`,
+`@types/react-resizable`, and `@types/react-rnd` from the app manifest and
+removed only that Vite condition. The lockfile was regenerated with pinned
+pnpm `8.15.9` using the offline lockfile-only workflow and passed frozen
+offline installation. Focused docking/layout tests passed 5 files / 29 tests;
+typecheck, repository lint, production build, package preflight, docs lint,
+and diff hygiene passed.
+
+The required Stage 19 regression was run twice. Its non-Electron gates, 49-file
+unit matrix (774 passed, 2 skipped), startup preflight, and 34 of 35 Electron
+tests passed. The same unrelated `P5-HG3` subpixel chrome mismatch reproduced
+in unchanged Writing Studio / Command Center test surfaces; no dependency,
+runtime, UI, or test workaround was authorized or made. Cleanup Wave A remains
+open and Program 6 remains excluded.
+
+### Pass 2C orphan Electron retirement and P5-HG3 geometry characterization — 2026-08-31
+
+The first attempt correctly blocked and restored after the stale
+`electron/**/*.ts` lint target was exposed. The retry removed exactly
+`app/electron/preload.ts` and `app/electron/projectLoader.ts`, removed the
+retired `electron` TypeScript include, and removed the matching lint glob.
+No active caller was found; current `app/main` preloads, loader/Project Spine,
+shared IPC, `App.tsx`, docking, and `react-mosaic-component` paths remain
+unchanged and retained.
+
+The status-only hardening exposed the same fractional BrowserWindow mapping on
+action geometry. Stable authored properties remain exact. Only five geometry
+fields receive bounded tolerance: status border width `0.5` CSS px, status
+height `1` CSS px, action border width `0.5` CSS px, action height `1` CSS px,
+and header height `1` CSS px; border-width parsing must be finite. The focused
+P5-HG3 gate passed 3/3. The complete Stage 19 matrix remains the resolution
+gate for the Pass 2A 34/35 blocker. Final validation passed the 49-file unit
+matrix with 774 passed and 2 authorized skips, startup preflight, and the
+complete 35/35 Electron matrix, resolving that blocker. Cleanup Wave A remains
+open and Program 6 remains excluded.
+
+### Pass 3R orphaned 0830 directory and final worktree reconciliation — 2026-08-31
+
+The first Pass 3 git worktree remove removed the 0830 registration but left
+its directory because Git reported "Directory not empty". The exact residual
+was independently proved disposable: the resolved target and parent were
+exact, the root was not a reparse point, .git was absent, no registration or
+running process referenced it, and commit 929a0c3f remained readable. The
+recovery artifact remained unchanged at SHA-256
+A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044 and stable
+patch ID ecb56ad4cad2b8956560fc6df3faa530e9bb884c; it contains only the
+additions app/main/__tests__/sessionTruth.test.ts and
+app/shared/sessionTruth.ts. The supplemental artifact remained
+2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937; the
+ledger hash before this authorized documentation update was
+9DF4B998DF63F3412DAADC7C4CC404B433E191C23BE8171F535FEA29A522F5F3.
+
+The complete residual proof found ignored, install-generated node_modules
+content, 2,243 internal reparse points, zero external or unresolved targets,
+504 non-dependency files, 497 exact commit-blob matches, six approved
+CRLF-normalized PowerShell matches, and exactly one untracked accidental
+path-list file: ted memory docs, services, and tests. Its SHA-256 was
+DA7DF35A687BB642633BFCE51ADC6685CFF93D6C3602CC62795F6C874BF924BD; its 95
+nonempty lines were only a path inventory, so it was not separately archived.
+
+After proof, elevated native PowerShell removed only
+C:\Users\gray2\.codex\worktrees\0830\black-skies. The clean detached fc8b
+checkout at 7017c34a equal to origin/main was then removed only by the exact
+non-force git worktree remove command. The final registered set is exactly
+C:\Dev\black-skies, 46bb, canonical 4f0b, and b13f; C:\Dev, 46bb, and b13f
+remain quarantined/protected, while canonical 4f0b remains the active cleanup
+worktree. Sample-project aliases, fixtures, and linked historical documents
+remain retained. No source, tests, configuration, lockfiles, fixtures, or
+historical source documents changed; Cleanup Wave A remains open for final
+ integration and Program 6 was not started.
+
+### Cleanup Wave A final integration — 2026-08-31
+
+Passes 1A, 1B/1B-R, 2A, 2B, 2C, 3, and 3R are complete. The final integration
+boundary is exactly 13 paths: the two unreachable `app/electron` deletions;
+the app manifest, P5-HG3 Electron test, TypeScript and Vite configuration,
+tracker, current register, RCP0 ledger, lockfile, and app ESLint launcher
+modifications; and the two historical recovery patch additions. No runtime
+behavior, persistence contract, IPC schema, fixture, CSS, snapshot, or Program
+6 capability changed.
+
+The dependency closure and orphan-code dispositions are limited to the four
+unused layout declarations and their unreachable lockfile closure, the
+obsolete `layout-tools` Vite condition, the two unreachable Electron files,
+and their empty TypeScript/ESLint targets. Mosaic/docking behavior, tests,
+stylesheet, and `mosaic` chunk remain. P5-HG3 retains exact stable/authored
+properties and tolerates only the five bounded geometry fields already
+recorded in the tracker, with finite-number parsing for border widths.
+
+Recovery artifacts remain retained as historical evidence: the 0830 artifact
+is SHA-256
+`A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044` with
+stable patch ID `ecb56ad4cad2b8956560fc6df3faa530e9bb884c`, and the legacy
+dirty supplement is SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+Both are UTF-8 without BOM and contain no credentials or secrets.
+
+The final registered inventory is exactly `C:\Dev\black-skies`, `46bb`,
+canonical `4f0b`, and `b13f`; `C:\Dev`, `46bb`, and `b13f` are deliberately
+retained protected quarantines. Sample-project aliases, active fixtures, and
+linked historical documents remain retained.
+
+Complete dirty-regression evidence: pnpm `8.15.9` offline frozen install,
+focused P5-HG3 `3/3`, typecheck, repository lint, production build, package
+preflight, docs lint, and diff hygiene passed; the full dirty Stage 19 gate
+returned `STAGE19_REGRESSION_PASS` with `49` critical unit files, `774`
+passed, `2` authorized skips, startup preflight `1/1`, and Electron `35/35`.
+Cleanup Wave A closes when the containing commit is pushed and local/upstream
+HEADs match. Program 5 remains complete; Program 6 was not started; and no
+installer or release-candidate qualification is claimed by this cleanup
+commit.
 
 ## 4. Existing Source Treatment
 

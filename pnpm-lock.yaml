@@ -65,12 +65,6 @@ importers:
       react-mosaic-component:
         specifier: ^6.2.0
         version: 6.2.0(@types/node@20.19.17)(@types/react@18.3.24)(dnd-core@16.0.1)(react-dom@18.3.1)(react@18.3.1)
-      react-resizable:
-        specifier: ^3.0.5
-        version: 3.0.5(react-dom@18.3.1)(react@18.3.1)
-      react-rnd:
-        specifier: ^10.4.1
-        version: 10.5.2(react-dom@18.3.1)(react@18.3.1)
       yaml:
         specifier: ^2.8.3
         version: 2.8.3
@@ -102,12 +96,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.22
         version: 18.3.7(@types/react@18.3.24)
-      '@types/react-resizable':
-        specifier: ^3.0.8
-        version: 3.0.8
-      '@types/react-rnd':
-        specifier: ^8.0.0
-        version: 8.0.0(react-dom@18.3.1)(react@18.3.1)
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.59.1
         version: 8.59.1(@typescript-eslint/parser@8.59.1)(eslint@9.39.4)(typescript@5.9.2)
@@ -1248,22 +1236,6 @@ packages:
       '@types/react': 18.3.24
     dev: true
 
-  /@types/react-resizable@3.0.8:
-    resolution: {integrity: sha512-Pcvt2eGA7KNXldt1hkhVhAgZ8hK41m0mp89mFgQi7LAAEZiaLgm4fHJ5zbJZ/4m2LVaAyYrrRRv1LHDcrGQanA==}
-    dependencies:
-      '@types/react': 18.3.24
-    dev: true
-
-  /@types/react-rnd@8.0.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-k/exWCXCY3CDqyJUJeny2SgsfWslWh6XU32/S0YJH6p4E8q2FK89WAPzdG0AECA2k95UC75YKErDRQ/IyvDz6g==}
-    deprecated: This is a stub types definition. react-rnd provides its own type definitions, so you do not need this installed.
-    dependencies:
-      react-rnd: 10.5.2(react-dom@18.3.1)(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-    dev: true
-
   /@types/react@18.3.24:
     resolution: {integrity: sha512-0dLEBsA1kI3OezMBF8nSsb7Nk19ZnsyE1LLhB8r27KbgU5H4pvuqZLdtE+aUkJVoXgTVuA+iLIwmZ0TuK4tx6A==}
     dependencies:
@@ -2051,15 +2023,6 @@ packages:
     dependencies:
       mimic-response: 1.0.1
     dev: true
-
-  /clsx@1.2.1:
-    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
-    engines: {node: '>=6'}
-
-  /clsx@2.1.1:
-    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
-    engines: {node: '>=6'}
-    dev: false
 
   /color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
@@ -4811,15 +4774,6 @@ packages:
       - dnd-core
     dev: false
 
-  /re-resizable@6.11.2(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-2xI2P3OHs5qw7K0Ud1aLILK6MQxW50TcO+DetD9eIV58j84TqYeHoZcL9H4GXFXXIh7afhH8mv5iUCXII7OW7A==}
-    peerDependencies:
-      react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   /react-dnd-html5-backend@16.0.1:
     resolution: {integrity: sha512-Wu3dw5aDJmOGw8WjH1I1/yTH+vlXEL4vmjk5p+MHxP8HuHJS1lAGeIdG/hze1AvNeXWo/JgULV87LyQOr+r5jw==}
     dependencies:
@@ -4893,29 +4847,6 @@ packages:
       react: 18.3.1
       scheduler: 0.23.2
 
-  /react-draggable@4.4.6(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-LtY5Xw1zTPqHkVmtM3X8MUOxNDOUhv/khTgBgrUvwaS064bwVvxT+q5El0uUFNx5IEPKXuRejr7UqLwBIg5pdw==}
-    peerDependencies:
-      react: '>= 16.3.0'
-      react-dom: '>= 16.3.0'
-    dependencies:
-      clsx: 1.2.1
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  /react-draggable@4.5.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-VC+HBLEZ0XJxnOxVAZsdRi8rD04Iz3SiiKOoYzamjylUcju/hP9np/aZdLHf/7WOD268WMoNJMvYfB5yAK45cw==}
-    peerDependencies:
-      react: '>= 16.3.0'
-      react-dom: '>= 16.3.0'
-    dependencies:
-      clsx: 2.1.1
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: false
-
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -4946,30 +4877,6 @@ packages:
       - dnd-core
       - react-dom
     dev: false
-
-  /react-resizable@3.0.5(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-vKpeHhI5OZvYn82kXOs1bC8aOXktGU5AmKAgaZS4F5JPburCtbmDPqE7Pzp+1kN4+Wb81LlF33VpGwWwtXem+w==}
-    peerDependencies:
-      react: '>= 16.3'
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-draggable: 4.5.0(react-dom@18.3.1)(react@18.3.1)
-    transitivePeerDependencies:
-      - react-dom
-    dev: false
-
-  /react-rnd@10.5.2(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-0Tm4x7k7pfHf2snewJA8x7Nwgt3LV+58MVEWOVsFjk51eYruFEa6Wy7BNdxt4/lH0wIRsu7Gm3KjSXY2w7YaNw==}
-    peerDependencies:
-      react: '>=16.3.0'
-      react-dom: '>=16.3.0'
-    dependencies:
-      re-resizable: 6.11.2(react-dom@18.3.1)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-draggable: 4.4.6(react-dom@18.3.1)(react@18.3.1)
-      tslib: 2.6.2
 
   /react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -5644,9 +5551,6 @@ packages:
     dependencies:
       typescript: 5.9.2
     dev: true
-
-  /tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
   /tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}

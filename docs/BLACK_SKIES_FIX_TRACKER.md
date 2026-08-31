@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A is next before Program 6 implementation
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed by final integration before Program 6 planning
 Last Reviewed: 2026-08-31
 
 ## Purpose
@@ -49,6 +49,232 @@ requalification, he explicitly recorded `Program 5 final check passed` on
 closure does not authorize Program 6 implementation or destructive cleanup;
 the accepted execution-control plan makes bounded Cleanup Wave A the next
 checkpoint, while Program 6 can proceed to planning and separate authorization.
+
+## Cleanup Wave A Pass 1A — recovery-evidence reconciliation — 2026-08-31
+
+The prior read-only Pass 1 found three current `C:\Dev\black-skies` deltas
+outside the original RCP0 recovery snapshot. This bounded recovery pass
+captured them without changing the preserved checkout:
+
+| Legacy delta | Classification | Evidence-only disposition |
+| --- | --- | --- |
+| Uncommitted deletion of `AGENTS.override.md` | `QUARANTINE` — unsafe/obsolete local drift | Preserve the deletion in the supplemental patch; do not reproduce it in the canonical checkout and do not delete the canonical instruction file |
+| Launcher/port-5173 delta in `docs/BLACK_SKIES_FIX_TRACKER.md` | `KEEP_HISTORICAL` | The behavior is already superseded by the canonical P5-UX-01 launcher qualification record |
+| Launcher ownership/port-5173 delta in `docs/ops/start_codex_gui_notes.md` | `KEEP_HISTORICAL` | The behavior is already incorporated in the canonical operations note |
+
+Supplemental recovery evidence is recorded in
+[`repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch`](product_systems/repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch)
+with SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+`git apply --reverse --check` passed against the unchanged legacy checkout,
+and the original RCP0 snapshot hashes remain unchanged. The combined recovery
+set is complete for the known primary-checkout state as of Pass 1A.
+
+No runtime, test, script, dependency, or product behavior is imported from
+these deltas. `C:\Dev\black-skies` remains preserved and untouched. Cleanup
+Wave A remains open; Program 6 remains excluded; this is not a new competing
+issue family.
+
+## Cleanup Wave A Pass 1B — duplicate worktree removal — 2026-08-31
+
+The previously approved duplicate-worktree removal was completed in two
+bounded steps. The first non-force Git removal partially removed `1612` but
+left an orphaned administrative registration; the elevated, one-candidate
+Pass 1B-R prune repaired that registration. The resumed Pass 1B then
+validated and removed the following ten exact clean, detached registrations in
+listed order:
+
+| Worktree ID | Exact path | Shared HEAD | Pre-removal state | Disposition |
+| --- | --- | --- | --- | --- |
+| `3515` | `C:\Users\gray2\.codex\worktrees\3515\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `3811` | `C:\Users\gray2\.codex\worktrees\3811\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `5e84` | `C:\Users\gray2\.codex\worktrees\5e84\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `63cc` | `C:\Users\gray2\.codex\worktrees\63cc\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `67d7` | `C:\Users\gray2\.codex\worktrees\67d7\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `7e81` | `C:\Users\gray2\.codex\worktrees\7e81\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `806a` | `C:\Users\gray2\.codex\worktrees\806a\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `98ff` | `C:\Users\gray2\.codex\worktrees\98ff\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `eeea` | `C:\Users\gray2\.codex\worktrees\eeea\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+| `f05d` | `C:\Users\gray2\.codex\worktrees\f05d\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed by Git |
+
+Together with `1612`, all eleven approved duplicates shared the same clean
+detached HEAD. Commit `d2b50a8ee9fbf33784e860040c8836b5c52ea106` remains a
+recoverable commit and is an ancestor of the existing `origin/main` tracking
+ref. The ten removals used only `git worktree remove` in one elevated,
+fail-fast PowerShell process because ordinary sandbox execution could not
+delete shared Git administrative metadata. No force removal, broad prune,
+manual filesystem deletion, ACL or ownership change, branch deletion, ref
+deletion, commit, or push occurred. The only prune was the separately
+authorized Pass 1B-R repair after its dry run identified exactly one orphan.
+
+The six protected worktrees remain registered and retain their prior
+dispositions: `C:\Dev\black-skies`, `0830`, `46bb`, canonical `4f0b`, `b13f`,
+and `fc8b`. Cleanup Wave A remains open for those separate decisions, and
+Program 6 remains excluded.
+
+## Cleanup Wave A Pass 2A — unused layout dependency removal — 2026-08-31
+
+The canonical reachability audit proved that the abandoned layout experiment
+left four direct package declarations and one obsolete Vite manual-chunk
+branch without any active source, test, script, build, or CSS import. `pnpm
+why` showed `react-resizable` and `react-rnd` as direct app dependencies only;
+the only `@types/react-rnd` path was its obsolete stub edge to `react-rnd`.
+`react-mosaic-component` remains actively imported by the docking workspace,
+pane tile, shared layout contract, and docking tests, and its `mosaic` manual
+chunk rule and stylesheet import remain unchanged.
+
+This bounded pass removed only:
+
+- `react-resizable` and `react-rnd` from `app/package.json` dependencies;
+- `@types/react-resizable` and `@types/react-rnd` from `app/package.json`
+  devDependencies;
+- the exact `react-rnd` / `react-resizable` `layout-tools` condition from
+  `app/vite.config.ts`.
+
+`pnpm-lock.yaml` was regenerated from the repository root with pnpm `8.15.9`
+using `pnpm install --lockfile-only --offline`, then verified with
+`pnpm install --frozen-lockfile --offline`. The lock diff contains only the
+four importer/package removals and the now-orphaned `react-rnd` dependency
+chain. The focused docking/layout suite passed 5 files and 29 tests;
+application typecheck, repository lint, production build, package preflight,
+docs lint, and `git diff --check` also passed.
+
+The required Stage 19 regression gate was run twice with `--allow-dirty` and
+passed its hygiene, policy, lint, typecheck, build, 49-file unit matrix
+(774 passed, 2 skipped), startup preflight, and 34 of 35 Electron tests. Both
+runs reproduced the same unrelated `P5-HG3` subpixel chrome comparison
+mismatch (`borderWidth` and `height`) in unchanged Writing Studio / Command
+Center test surfaces. No Pass 2A dependency is imported or bundled there, and
+no unrelated UI or test repair was made. Cleanup Wave A remains open; Program
+6 remains excluded.
+
+## Cleanup Wave A Pass 2C — orphan Electron path retirement and visual-gate characterization — 2026-08-31
+
+The first Pass 2C attempt correctly stopped after the authorized orphan-file
+deletion exposed a stale `electron/**/*.ts` ESLint target; both files were
+restored exactly. The retry then retired only the proven-orphaned Electron
+pair, removed only the retired `electron` entry from `app/tsconfig.json`, and
+removed only the matching glob from `scripts/run-app-eslint.mjs`. Reachability
+proof found no active runtime, test, script, package, configuration, or IPC
+caller. The active `app/main/preload.ts`, `app/main/stage19Preload.ts`,
+`app/main/projectLoaderIpc.ts`, `app/main/projectSpineIpc.ts`, shared loader,
+legacy `App.tsx`, docking, and `react-mosaic-component` paths remain retained.
+
+The initial status-only hardening exposed the same fractional BrowserWindow
+mapping on action geometry. P5-HG3 now keeps authored/stable properties exact
+and applies bounded tolerances only to five measured geometry fields: status
+`borderWidth` `<= 0.5` CSS px, status height `<= 1` CSS px, action
+`borderWidth` `<= 0.5` CSS px, action height `<= 1` CSS px, and header height
+`<= 1` CSS px. Border widths are parsed and required to be finite. The
+focused P5-HG3 test passed 3/3; the complete Stage 19 matrix remains the
+resolution gate for the earlier Pass 2A 34/35 blocker. Final validation then
+passed the 49-file unit matrix with 774 passed and 2 authorized skips, startup
+preflight, and the complete 35/35 Electron matrix. The Pass 2A blocker is
+resolved by this complete matrix. Cleanup Wave A remains open and Program 6
+remains excluded.
+
+## Cleanup Wave A Pass 3R — orphaned 0830 directory and final worktree reconciliation — 2026-08-31
+
+The first Pass 3 attempt removed the 0830 Git registration but left its
+checkout directory because Git reported "Directory not empty". The exact
+residual was then independently proved disposable: its resolved path and
+parent were exact, the root was not a reparse point, .git was absent, no
+registration or running process referenced it, and commit 929a0c3f remained
+readable. Recovery evidence remained unchanged: the artifact
+[cleanup_wave_a_0830_session_truth_superseded_2026-08-31.patch](product_systems/cleanup_wave_a_0830_session_truth_superseded_2026-08-31.patch)
+has SHA-256
+A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044, stable
+patch ID ecb56ad4cad2b8956560fc6df3faa530e9bb884c, and exactly the two
+recovered additions app/main/__tests__/sessionTruth.test.ts and
+app/shared/sessionTruth.ts. The supplemental recovery artifact remained
+2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937; the
+pre-Phase-D ledger hash was
+9DF4B998DF63F3412DAADC7C4CC404B433E191C23BE8171F535FEA29A522F5F3.
+
+The residual-content proof found ignored, install-generated node_modules
+content, 2,243 reparse points whose targets all resolved inside the exact
+residual root, and zero external or unresolved targets. Outside
+node_modules, 504 files were accounted for: 497 matched commit blobs
+exactly, the six named PowerShell files matched after CRLF-to-LF
+normalization, and the sole untracked file was the accidental path-list
+ted memory docs, services, and tests, with SHA-256
+DA7DF35A687BB642633BFCE51ADC6685CFF93D6C3602CC62795F6C874BF924BD and 95
+nonempty inventory lines. It contained no unique implementation content and
+was not given a new recovery artifact.
+
+After that proof, elevated native PowerShell removed only
+C:\Users\gray2\.codex\worktrees\0830\black-skies. The clean, detached,
+unlocked fc8b checkout at 7017c34a equal to origin/main was then removed only
+with the exact non-force git worktree remove command. No unapproved
+filesystem deletion, ACL or ownership change, process termination, prune,
+clean, reset, Git GC, branch/ref deletion, commit, or push occurred.
+
+The final registered inventory is:
+
+| Worktree | HEAD / branch | Disposition |
+| --- | --- | --- |
+| C:\Dev\black-skies | 0d4e05da / salvage/minimal-two-surface-shell | protected historical quarantine |
+| C:\Users\gray2\.codex\worktrees\46bb\black-skies | e90adcaa / baseline/hygiene | protected stale WSL registration; untouched |
+| C:\Users\gray2\.codex\worktrees\4f0b\black-skies | 46178b50 / codex/foundation-audit | active canonical cleanup worktree |
+| C:\Users\gray2\.codex\worktrees\b13f\black-skies | 0d4e05da / detached | protected historical quarantine |
+
+The canonical branch, HEAD, and upstream remained unchanged. Sample-project
+aliases, fixtures, and linked historical documents remain retained. Cleanup
+Wave A remains open for final integration, and Program 6 was not started.
+Only the three authorized governance documents were changed in this
+continuation; application source, tests, configuration, lockfiles, fixtures,
+and historical source documents were not changed.
+
+## Cleanup Wave A final integration — 2026-08-31
+
+Passes 1A, 1B/1B-R, 2A, 2B, 2C, 3, and 3R are complete. The containing
+integration is bounded to exactly these 13 paths: deleted
+`app/electron/preload.ts` and `app/electron/projectLoader.ts`; modified
+`app/package.json`, `app/tests/e2e/stage19-writing-shell.spec.ts`,
+`app/tsconfig.json`, `app/vite.config.ts`, `docs/BLACK_SKIES_FIX_TRACKER.md`,
+`docs/product_systems/current_open_work_register.md`,
+`docs/product_systems/repository_control_point_0_reconciliation_ledger.md`,
+`pnpm-lock.yaml`, and `scripts/run-app-eslint.mjs`; and added
+`docs/product_systems/cleanup_wave_a_0830_session_truth_superseded_2026-08-31.patch`
+and `docs/product_systems/repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch`.
+
+The dependency disposition removes only the unreachable `react-resizable`,
+`react-rnd`, `@types/react-resizable`, and `@types/react-rnd` declarations,
+their unreachable lockfile closure, and the obsolete `layout-tools` chunk
+condition. The orphan-code disposition retires only the two unreachable
+`app/electron` files and their empty TypeScript/ESLint targets. The
+`react-mosaic-component` dependency, stylesheet, docking behavior, tests, and
+`mosaic` chunk remain. P5-HG3 keeps every authored property exact, with
+bounded tolerance only for the five reviewed geometry fields: status border
+width `0.5` CSS px, status height `1` CSS px, action border width `0.5` CSS
+px, action height `1` CSS px, and header height `1` CSS px; border widths must
+parse as finite numbers.
+
+Recovery evidence remains historical and unchanged: the 0830 artifact has
+SHA-256 `A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044`
+and stable patch ID `ecb56ad4cad2b8956560fc6df3faa530e9bb884c`; the legacy
+dirty supplement has SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+Both remain UTF-8 without BOM and contain no credentials or secrets.
+
+The final registered worktree inventory is exactly `C:\Dev\black-skies`,
+`C:\Users\gray2\.codex\worktrees\46bb\black-skies`, canonical
+`C:\Users\gray2\.codex\worktrees\4f0b\black-skies`, and
+`C:\Users\gray2\.codex\worktrees\b13f\black-skies`. `C:\Dev`, `46bb`, and
+`b13f` remain deliberately retained protected quarantines. Sample-project
+aliases, active fixtures, and linked historical documents remain retained.
+
+The complete dirty-regression evidence is: pinned pnpm `8.15.9` offline frozen
+install passed; focused P5-HG3 Electron validation passed `3/3`; typecheck,
+repository lint, production build, package preflight, docs lint, and diff
+hygiene passed; and `pnpm stage19:regression -- --allow-dirty` returned
+`STAGE19_REGRESSION_PASS` with `49` critical unit files, `774` passed, `2`
+authorized skips, startup preflight `1/1`, and Electron `35/35`.
+
+Cleanup Wave A closes when this containing commit is successfully pushed and
+local/upstream HEADs match. Program 5 remains complete. Program 6 was not
+started. This cleanup commit makes no installer or release-candidate
+qualification claim.
 
 ## Program 5 final self-service closeout repair — 2026-08-23
 

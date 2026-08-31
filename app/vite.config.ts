@@ -48,9 +48,6 @@ export default defineConfig({
           if (id.includes('react-mosaic-component')) {
             return 'mosaic';
           }
-          if (id.includes('react-rnd') || id.includes('react-resizable')) {
-            return 'layout-tools';
-          }
           if (id.includes('node_modules')) {
             return 'vendor';
           }

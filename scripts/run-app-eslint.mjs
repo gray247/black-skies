@@ -11,7 +11,6 @@ const appDir = path.join(repoRoot, "app");
 
 const lintTargets = [
   "renderer/**/*.{ts,tsx}",
-  "electron/**/*.ts",
   "shared/**/*.ts"
 ];
 

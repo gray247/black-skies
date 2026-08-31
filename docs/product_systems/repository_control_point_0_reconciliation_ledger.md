@@ -2,7 +2,7 @@
 
 ## 1. Status And Execution Identity
 
-- Status: `APPROVED; CLOSES WHEN THIS EVIDENCE BATCH IS COMMITTED AND PUSHED`
+- Status: `CLOSED BY CLEANUP WAVE A FINAL INTEGRATION AFTER COMMIT AND PUSH`
 - Author decision: `JASON APPROVED THE RECOMMENDED DISPOSITION ON 2026-08-10`
 - Review date: `2026-08-10`
 - Model: `GPT-5.6 Sol`
@@ -63,6 +63,114 @@ The patch files include the tracked diffs and complete contents of all
 untracked files. The old worktrees also remain unchanged. This gives both a
 recoverable evidence copy and the original source state until Jason approves a
 later cleanup action.
+
+### Supplemental current primary-checkout evidence — 2026-08-31
+
+Cleanup Wave A Pass 1A found three current deltas in the preserved primary
+checkout that were not covered by the original legacy snapshot:
+
+| Legacy path | Observed delta | Classification | Disposition |
+| --- | --- | --- | --- |
+| `AGENTS.override.md` | Uncommitted deletion | `QUARANTINE` — unsafe/obsolete local drift | Preserve the deletion in supplemental recovery evidence only; do not reproduce it in the canonical checkout and do not delete the canonical file |
+| `docs/BLACK_SKIES_FIX_TRACKER.md` | Launcher/port-5173 documentation delta | `KEEP_HISTORICAL` | Retain as evidence only; the behavior is already covered by the stronger canonical P5-UX-01 launcher record |
+| `docs/ops/start_codex_gui_notes.md` | Launcher ownership and port-5173 guidance delta | `KEEP_HISTORICAL` | Retain as evidence only; the behavior is already incorporated in the canonical document |
+
+The exact supplemental patch is
+[`repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch`](repository_control_point_0_legacy_dirty_supplement_2026-08-31.patch)
+with SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+`git apply --reverse --check` passed against the unchanged
+`C:\Dev\black-skies` checkout. The original two snapshot hashes were
+rechecked and remain unchanged.
+
+No current runtime, test, script, dependency, or product behavior needs to be
+imported from these three deltas. `C:\Dev\black-skies` remains preserved and
+untouched. The original and supplemental patches together complete recovery
+evidence for the known primary-checkout state as of this Pass 1A review.
+Cleanup Wave A remains open; Program 6 remains excluded.
+
+### Cleanup Wave A Pass 1B — duplicate worktree removal — 2026-08-31
+
+The earlier bounded removal of `1612` removed its checkout but left one
+orphaned administrative registration. Pass 1B-R ran the required dry run,
+identified exactly that one candidate, and then used the authorized elevated
+`git worktree prune --verbose --expire now` repair. The `1612` registration and
+its administrative directory are now absent.
+
+The resumed Pass 1B then validated all ten remaining approved targets before
+the first mutation and removed them in listed order using only
+`git worktree remove`:
+
+| Worktree ID | Exact path | Shared HEAD | Verified state | Result |
+| --- | --- | --- | --- | --- |
+| `3515` | `C:\Users\gray2\.codex\worktrees\3515\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `3811` | `C:\Users\gray2\.codex\worktrees\3811\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `5e84` | `C:\Users\gray2\.codex\worktrees\5e84\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `63cc` | `C:\Users\gray2\.codex\worktrees\63cc\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `67d7` | `C:\Users\gray2\.codex\worktrees\67d7\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `7e81` | `C:\Users\gray2\.codex\worktrees\7e81\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `806a` | `C:\Users\gray2\.codex\worktrees\806a\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `98ff` | `C:\Users\gray2\.codex\worktrees\98ff\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `eeea` | `C:\Users\gray2\.codex\worktrees\eeea\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+| `f05d` | `C:\Users\gray2\.codex\worktrees\f05d\black-skies` | `d2b50a8ee9fbf33784e860040c8836b5c52ea106` | clean, detached, unlocked | removed |
+
+All eleven approved duplicates therefore shared one clean detached HEAD.
+The commit remains recoverable and is an ancestor of `origin/main`. Elevated
+Git was required because ordinary sandbox execution could not delete shared
+Git administrative metadata. No force removal, broad prune, manual
+filesystem deletion, ACL or ownership change, branch deletion, ref deletion,
+commit, or push occurred. The only prune was the one-candidate Pass 1B-R
+repair authorized after its dry run.
+
+The six protected worktrees remain registered and untouched: `C:\Dev\black-skies`,
+`0830`, `46bb`, canonical `4f0b`, `b13f`, and `fc8b`. Their prior dispositions
+remain in force. Cleanup Wave A remains open; Program 6 remains excluded.
+
+### Cleanup Wave A Pass 3R — orphaned 0830 directory and final worktree reconciliation — 2026-08-31
+
+The first Pass 3 removal of 0830 removed its Git registration but left the
+checkout directory because Git reported "Directory not empty". Phase A proved
+the exact residual disposable: its resolved path and parent were exact, the
+root was not a reparse point, .git was absent, no registration or running
+process referenced it, and commit 929a0c3f remained readable. The recovery
+artifact remained unchanged at SHA-256
+A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044 and stable
+patch ID ecb56ad4cad2b8956560fc6df3faa530e9bb884c, with exactly the two
+recovered additions app/main/__tests__/sessionTruth.test.ts and
+app/shared/sessionTruth.ts. The supplemental recovery hash remained
+2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937; the
+ledger hash before this authorized append was
+9DF4B998DF63F3412DAADC7C4CC404B433E191C23BE8171F535FEA29A522F5F3.
+
+The residual proof found ignored, install-generated node_modules content,
+2,243 reparse points whose targets all resolved inside the exact residual
+root, zero external or unresolved targets, and 504 files outside
+node_modules. Of those, 497 matched commit blobs exactly and the six named
+PowerShell files matched after CRLF-to-LF normalization. The only untracked
+file was the accidental path-list ted memory docs, services, and tests,
+SHA-256
+DA7DF35A687BB642633BFCE51ADC6685CFF93D6C3602CC62795F6C874BF924BD, with
+95 nonempty path-inventory lines and no unique implementation content. No
+additional recovery artifact was created for it.
+
+After proof, elevated native PowerShell removed only
+C:\Users\gray2\.codex\worktrees\0830\black-skies. The clean, detached,
+unlocked fc8b checkout at 7017c34a equal to origin/main was then removed
+only with the exact non-force git worktree remove command. The final
+registered inventory is exactly:
+
+| Worktree | HEAD / branch | Disposition |
+| --- | --- | --- |
+| C:\Dev\black-skies | 0d4e05da / salvage/minimal-two-surface-shell | protected historical quarantine |
+| C:\Users\gray2\.codex\worktrees\46bb\black-skies | e90adcaa / baseline/hygiene | protected stale WSL registration; untouched |
+| C:\Users\gray2\.codex\worktrees\4f0b\black-skies | 46178b50 / codex/foundation-audit | active canonical cleanup worktree |
+| C:\Users\gray2\.codex\worktrees\b13f\black-skies | 0d4e05da / detached | protected historical quarantine |
+
+The canonical branch, HEAD, and upstream remained unchanged. Sample-project
+aliases, fixtures, and linked historical documents remain retained. No
+source, tests, configuration, lockfiles, fixtures, or historical source
+documents were changed. Cleanup Wave A remains open for final integration, and
+Program 6 was not started.
 
 ## 4. Primary Legacy Hunk Disposition
 
@@ -150,3 +258,48 @@ is required before Control Point 1.
 
 No recovered-code qualification is required because no legacy hunk is being
 carried forward.
+
+Pass 1A closes the previously identified recovery-evidence gap only. It does
+not authorize worktree removal, archival, deletion, consolidation, dependency
+mutation, or Program 6 runtime work.
+
+### Cleanup Wave A final integration — 2026-08-31
+
+Passes 1A, 1B/1B-R, 2A, 2B, 2C, 3, and 3R are complete. The final integration
+contains exactly 13 paths: the two unreachable `app/electron` deletions; the
+app manifest, P5-HG3 Electron test, TypeScript/Vite configuration, three
+governance documents, lockfile, and app ESLint launcher modifications; and the
+two historical recovery patch additions. No runtime behavior, persistence
+contract, IPC schema, fixture, CSS, snapshot, or Program 6 capability changed.
+
+The dependency disposition is limited to the four unused layout declarations,
+their unreachable lockfile closure, and the obsolete Vite `layout-tools`
+condition. The orphan-code disposition is limited to the two unreachable
+Electron files and their empty TypeScript/ESLint targets. The active
+`app/main` preload, loader, Project Spine, shared IPC, renderer, docking, CSS,
+and snapshots remain unchanged. P5-HG3 retains all stable/authored properties
+exact and applies only the five bounded geometry tolerances already recorded,
+with finite border-width parsing.
+
+The 0830 recovery artifact remains SHA-256
+`A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044` with
+stable patch ID `ecb56ad4cad2b8956560fc6df3faa530e9bb884c`; the legacy dirty
+supplement remains SHA-256
+`2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937`.
+Both remain UTF-8 without BOM and contain no credentials or secrets.
+
+The final registered inventory is exactly `C:\Dev\black-skies`, `46bb`,
+canonical `4f0b`, and `b13f`. `C:\Dev`, `46bb`, and `b13f` remain deliberately
+retained protected quarantines. Sample-project aliases, active fixtures, and
+linked historical documents remain retained.
+
+Phase B evidence is complete: pinned pnpm `8.15.9` offline frozen install,
+focused P5-HG3 `3/3`, typecheck, lint, production build, package preflight,
+docs lint, diff hygiene, and dirty Stage 19 all passed. Stage 19 returned
+`STAGE19_REGRESSION_PASS` with `49` critical unit files, `774` passed, `2`
+authorized skips, startup preflight `1/1`, and Electron `35/35`.
+
+Cleanup Wave A closes when the containing commit is successfully pushed and
+local/upstream HEADs match. Program 5 remains complete. Program 6 was not
+started. This cleanup commit claims no installer or release-candidate
+qualification.

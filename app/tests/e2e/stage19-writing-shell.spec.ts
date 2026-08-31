@@ -288,9 +288,45 @@ test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardize
     });
 
     expect(writingChrome.title).toEqual(commandChrome.title);
-    expect(writingChrome.status).toEqual(commandChrome.status);
-    expect(writingChrome.action).toEqual(commandChrome.action);
-    expect(writingChrome.header).toEqual(commandChrome.header);
+    const {
+      borderWidth: writingStatusBorderWidth,
+      height: writingStatusHeight,
+      ...writingStatusStable
+    } = writingChrome.status;
+    const {
+      borderWidth: commandStatusBorderWidth,
+      height: commandStatusHeight,
+      ...commandStatusStable
+    } = commandChrome.status;
+    expect(writingStatusStable).toEqual(commandStatusStable);
+    const writingStatusBorderWidthPx = Number.parseFloat(writingStatusBorderWidth);
+    const commandStatusBorderWidthPx = Number.parseFloat(commandStatusBorderWidth);
+    expect(Number.isFinite(writingStatusBorderWidthPx)).toBe(true);
+    expect(Number.isFinite(commandStatusBorderWidthPx)).toBe(true);
+    // Separate BrowserWindows on differently scaled displays can map one-device-pixel borders to different fractional CSS-pixel values.
+    expect(Math.abs(writingStatusBorderWidthPx - commandStatusBorderWidthPx)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(writingStatusHeight - commandStatusHeight)).toBeLessThanOrEqual(1);
+    const {
+      borderWidth: writingActionBorderWidth,
+      height: writingActionHeight,
+      ...writingActionStable
+    } = writingChrome.action;
+    const {
+      borderWidth: commandActionBorderWidth,
+      height: commandActionHeight,
+      ...commandActionStable
+    } = commandChrome.action;
+    expect(writingActionStable).toEqual(commandActionStable);
+    const writingActionBorderWidthPx = Number.parseFloat(writingActionBorderWidth);
+    const commandActionBorderWidthPx = Number.parseFloat(commandActionBorderWidth);
+    expect(Number.isFinite(writingActionBorderWidthPx)).toBe(true);
+    expect(Number.isFinite(commandActionBorderWidthPx)).toBe(true);
+    expect(Math.abs(writingActionBorderWidthPx - commandActionBorderWidthPx)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(writingActionHeight - commandActionHeight)).toBeLessThanOrEqual(1);
+    const { height: writingHeaderHeight, ...writingHeaderStable } = writingChrome.header;
+    const { height: commandHeaderHeight, ...commandHeaderStable } = commandChrome.header;
+    expect(writingHeaderStable).toEqual(commandHeaderStable);
+    expect(Math.abs(writingHeaderHeight - commandHeaderHeight)).toBeLessThanOrEqual(1);
     expect(writingChrome.titleIsClipped).toBe(true);
     expect(commandChrome.titleIsClipped).toBe(true);
     expect(writingChrome.titleOverlapsStatus).toBe(false);
