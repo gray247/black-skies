@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `CONTROL POINT 1 COMPLETE; PROGRAM 3 P3-A THROUGH P3-F DURABLE; P3-G IMPLEMENTATION AND AUTOMATION GREEN`
-- Next implementation control point: `COMMIT AND PUSH THE EXACT P3-G BATCH, THEN ISSUE THE PROGRAM 4 MODEL-CHANGE WARNING`
+- Current implementation state: `PROGRAMS 1–5 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED`
+- Next implementation control point: `BEGIN BOUNDED PROGRAM 6 PLANNING; RUNTIME IMPLEMENTATION REQUIRES EXPLICIT FUTURE AUTHORIZATION`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -436,10 +436,12 @@ detailed validation instructions only when the complete candidate is ready.
 
 **Current result (2026-08-31):** the repaired Human Gate 2 passed. The pulled-
 forward Program 5 bridge and later bounded usability repairs culminated in
-exact product commit `6efec7b9`; clean regression, exact package verification,
+exact product commit `6efec7b95`; clean regression, exact package verification,
 elevated offline installed lifecycle, strict witness, and installed author
-acceptance passed. Cleanup Wave A is therefore the next execution-control
-checkpoint.
+acceptance passed. Program 5 and Human Gate 3 are closed. Cleanup Wave A then
+closed at `dcf340a2db8033a679c8227a62a050ec47bb951b`; exactly four worktrees
+remain intentionally protected or quarantined, and their retention does not
+leave the cleanup wave open.
 
 **Superseded rejected-candidate record:** the earlier exact candidate passed package/install automation, but
 the author did not accept the then-current separate-unit, form-heavy Writing
@@ -504,9 +506,11 @@ runtime surfaces that are replaced or unreachable. Perform bounded module,
 contract, test-fixture, and dependency professionalization. Archive or delete
 only after the disposition and recovery path are approved.
 
-**Current state (2026-08-31):** repaired Human Gate 2 has passed, so this is the
-next checkpoint. No archive, deletion, consolidation, or dependency mutation is
-authorized by that acceptance alone.
+**Current state (2026-08-31):** Cleanup Wave A is closed at
+`dcf340a2db8033a679c8227a62a050ec47bb951b`. The four retained protected or
+quarantined worktrees are intentional and unchanged. No further archive,
+deletion, consolidation, or dependency mutation is authorized by that closure
+alone.
 
 ### Program 5 — Long-Manuscript Intake And Structural Anchors
 
@@ -535,8 +539,8 @@ bridge alone is not closure evidence.
 on exact product commit `6efec7b9`. The current bridge/closure receipt binds the
 clean regression, substantial-manuscript, package, elevated installed-
 lifecycle, strict-witness, and final author-acceptance evidence. Program 6 may
-enter bounded planning; implementation remains behind Cleanup Wave A and its
-own explicit authorization.
+enter bounded planning; runtime implementation still requires its own explicit
+future authorization and is not blocked by retained protected worktrees.
 
 ### Human Gate 3 — Long-Manuscript Integrity And Usability
 
@@ -719,15 +723,10 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. reconcile the Human Gate 2 finding into the current authority records and
-   approve the bounded experience-repair plan;
-2. issue the model/effort warning required by that repair before runtime
-   mutation;
-3. retain the completed direct Story Rail, theme, and rail-geometry batches;
-4. make the green Program 5 continuous-manuscript/stable-anchor bridge durable,
-   then complete `P5-UX-01` and true Focus/Companion-doorway automation;
-5. qualify the complete repaired package/install candidate; and
-6. repeat Human Gate 2 only when that candidate is whole.
+1. begin bounded Program 6 planning using the proven Program 5 anchors and
+   Command Center home; and
+2. obtain separate explicit authorization before any Program 6 runtime or
+   implementation work.
 
 No broad cleanup, local-LLM/provider work, or generic chat enters this repair.
 A new blocker must be recorded and resolved at its owning boundary rather than

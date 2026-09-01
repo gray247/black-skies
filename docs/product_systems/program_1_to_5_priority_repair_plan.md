@@ -2,13 +2,31 @@
 
 ## Status and authority
 
-- Status: `IMPLEMENTATION ACTIVE; HUMAN GATE 2 NOT YET READY`
+- Status: `CLOSED; PROGRAMS 1–5 AUDIT/QUALIFICATION COMPLETE; CLEANUP WAVE A CLOSED`
 - Canonical branch: `codex/foundation-audit`
 - Canonical worktree: `C:/Users/gray2/.codex/worktrees/4f0b/black-skies`
 - Preserved comparison worktree: `C:/Dev/black-skies`
-- Execution/review posture: `ChatGPT Luna, high`
+- Execution/review posture: `GPT-5.6 Luna, high`
 - Model-change warning: runtime work is being executed under the requested Luna/high posture rather than the earlier Sol/Terra receipts; this change is recorded here and in subsequent receipts.
 - Public release, signing, provider calls, local-LLM work, destructive cleanup, branch reset, and broad refactor are excluded.
+
+## Current authority reconciliation — 2026-08-31
+
+Programs 1 and 2 passed their bounded scopes and Human Gate 1 is closed. Program
+3 is closed at `9ff07369`; Program 4 is closed-mechanical at `319b9c61` and
+provides bounded orientation/routing only, without generic chat, a local
+language model, or durable conversational memory. Program 5 and Human Gates 2
+and 3 are closed at exact installed candidate
+`6efec7b95c82759f51f6d8f47d4400637f48837a`. Cleanup Wave A is closed at
+`dcf340a2db8033a679c8227a62a050ec47bb951b`; exactly four worktrees remain
+intentionally protected or quarantined and do not reopen that closure.
+
+Program 6 bounded planning is eligible and has not started. Runtime or
+implementation work requires explicit future authorization. The current cleanup
+HEAD is regression-validated, not a newly installed or package-qualified
+release candidate, and this reconciliation makes no Programs 1–5 capability
+claim beyond the established bounded evidence. Dated sections below retain
+historical qualification chronology and are not current blockers.
 
 This document is the implementation control point for the bounded Programs 1–5
 repair work. It separates implementation, mechanical qualification, exact

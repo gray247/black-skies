@@ -73,8 +73,10 @@ It does not finalize the entire product vision.
   than reopening V1.
 - Program 3, the contextual product shell, has complete implementation and
   automated evidence through P3-G. P3-A through P3-F are durable; Jason's
-  exact P3-G commit and push makes Program 3 durably complete and Program 4
-  next. The bounded Program 4 implementation plan now defines one local
+  exact P3-G commit and push makes Program 3 durably complete. The dated
+  Program 4 handoff that followed is historical; its bounded orientation and
+  routing work is closed-mechanical at `319b9c61`. The bounded Program 4
+  implementation plan defined one local
   orientation route through a quiet Companion entry and the existing Command
   task canvas. Jason approved its bounded implementation on 2026-08-11.
   P4-A is durable at `fc759a6847d82531eb4a8939d20a71d90ab423d7`; P4-B is
@@ -126,8 +128,13 @@ It does not finalize the entire product vision.
   evidence. Jason explicitly recorded `Program 5 final check passed` on
   2026-08-31 after the Human Gate 2 and Human Gate 3 reviews. Those gates and
   Program 5 are closed; no user-supplied substantial manuscript was required.
-  Cleanup Wave A is the next execution-control checkpoint, and Program 6 is
-  eligible for bounded planning but not implicitly authorized for runtime work.
+  Cleanup Wave A closed at `dcf340a2db8033a679c8227a62a050ec47bb951b`.
+  Exactly four worktrees remain intentionally protected or quarantined; their
+  retention does not leave Cleanup Wave A open. Program 6 is eligible for
+  bounded planning, but runtime or implementation work still requires explicit
+  future authorization. The cleanup HEAD is regression-validated only and is
+  not a newly installed or package-qualified release candidate; the exact
+  installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
   The earlier
   [HG2-RPR-C evidence receipt](program_4_hg2_rpr_c_evidence_receipt.md)
   records the green real-Focus and local-facts Companion-doorway gate: a
@@ -152,8 +159,9 @@ It does not finalize the entire product vision.
   `repository_control_point_0_reconciliation_ledger.md`. No dirty legacy hunk
   requires carry-forward. Jason approved the non-destructive disposition and
   named `codex/foundation-audit` as the sole continuing development line on
-  2026-08-10. Receipt commit `c668586f` is pushed. The two dirty worktrees
-  remain quarantined until Cleanup Wave A.
+  2026-08-10. Receipt commit `c668586f` is pushed. The four intentionally
+  retained protected or quarantined worktrees remain outside the active line;
+  their retention does not reopen Cleanup Wave A.
 - Control Point 1 is complete. Its open-work reconciliation is recorded in
   `control_point_1_open_work_reconciliation.md`: old phase queues remain
   historical, current deferrals and skips have exact owners and triggers, and

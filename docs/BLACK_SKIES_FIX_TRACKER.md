@@ -46,9 +46,61 @@ Jason previously recorded Human Gate 2 as passed and completed the Human Gate
 3 structural sequence. After the final shared-chrome repair and exact installed
 requalification, he explicitly recorded `Program 5 final check passed` on
 2026-08-31. Human Gate 3 and Program 5 are therefore accepted and closed. This
-closure does not authorize Program 6 implementation or destructive cleanup;
-the accepted execution-control plan makes bounded Cleanup Wave A the next
-checkpoint, while Program 6 can proceed to planning and separate authorization.
+closure does not authorize Program 6 implementation or destructive cleanup.
+Cleanup Wave A subsequently closed at
+`dcf340a2db8033a679c8227a62a050ec47bb951b` after the bounded recovery,
+worktree, dependency, and orphan-path integration. Exactly four intentionally
+protected or quarantined worktrees remain; their retention does not reopen the
+cleanup wave. Program 6 is eligible for bounded planning but has not started,
+and runtime or implementation still requires explicit future authorization. The
+cleanup HEAD is regression-validated only and is not a newly installed or
+package-qualified release candidate; the exact installed Program 5 candidate
+remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
+
+The dated Cleanup Wave A pass records below preserve their historical
+chronology. Statements that the wave remained open or Program 6 was excluded
+were true at the time and are superseded by the final integration and this
+current status block.
+
+## Programs 1–5 post-audit cleanup — 2026-08-31
+
+This bounded reconciliation was explicitly authorized for `GPT-5.6 Luna` at
+high reasoning. It is limited to current-authority documentation and the two
+named renderer test surfaces; Program 6 runtime/implementation, product
+behavior, IPC, persistence, schemas, dependencies, packaging, installer work,
+and protected worktrees remain excluded.
+
+Documentation authority now records Programs 1 and 2 and Human Gate 1 closed,
+Program 3 closed at `9ff07369`, Program 4 closed-mechanical at `319b9c61`
+with bounded orientation/routing only, and Program 5 plus Human Gates 2 and 3
+closed at exact installed candidate `6efec7b95`. Cleanup Wave A is closed at
+`dcf340a2db8033a679c8227a62a050ec47bb951b`; the four intentionally retained
+protected/quarantined worktrees do not reopen it. Program 6 bounded planning is
+eligible but not started, and runtime/implementation requires separate explicit
+authorization. The cleanup HEAD has regression evidence only and is not a new
+installed or package-qualified release-candidate claim.
+
+The audit's React warning signal was traced to earlier renderer interactions
+whose asynchronous state transitions were not synchronized. At this exact
+cleanup HEAD, the named synchronization patterns are already present in the
+two authorized files (`await userEvent`, `act`, and `waitFor` at the relevant
+state-transition boundaries). The mandated seven-file reproduction passed
+`182/182` tests across `7/7` files and emitted zero `not wrapped in act(...)`
+warnings, with no new warning class. No test-source edit was necessary, so
+behavioral coverage was preserved without filtering or intercepting warnings.
+
+Final validation in the authoritative worktree passed in order: `pnpm
+lint:docs` (52 files and local links verified), the focused seven-file matrix
+(`182/182`), `pnpm --filter @blackskies/app typecheck:all`, `pnpm lint`,
+`pnpm --filter @blackskies/app build:production`, package verification
+preflight (receipt `qualifiedCommit` `dcf340a2`, `NotYetInspected` because no
+package was built), `git diff --check`, and
+`pnpm stage19:regression -- --allow-dirty`. The regression returned
+`STAGE19_REGRESSION_PASS` with `49` critical files / `774` passed / `2`
+authorized skips, startup preflight `1/1`, Electron `35/35`, and
+`protectedEvidence=NOT_USED`. The final gate used the explicitly authorized
+dirty-development validation override; it makes no installer, installed
+lifecycle, or new release-candidate qualification claim.
 
 ## Cleanup Wave A Pass 1A — recovery-evidence reconciliation — 2026-08-31
 

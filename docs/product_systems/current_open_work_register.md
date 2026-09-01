@@ -34,7 +34,7 @@ register or a currently authorized program promotes it.
 | --- | --- | --- | --- | --- | --- |
 | DOC-01 | Author-experience, execution-control, roadmap, truth-index, and Gate 1 reconciliation | Current documentation batch | closed | Documentation reconciliation | Committed and pushed at `f73f6880`; current-authority lint passed |
 | RCP-00 | Dirty primary checkout at `salvage/minimal-two-surface-shell` / `0d4e05da` plus duplicate `b13f` state | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Pre-Program-3 repository control | All hunks classified, original and supplemental exact snapshots verified, Jason approved the non-destructive disposition, and the receipt was pushed at `c668586f`; Pass 1A closes the previously uncaptured three-path evidence gap |
-| RCP-01 | Canonical continuing development line | Approved author decision and RCP0 ledger | closed | Repository Control Point 0 | Jason approved `codex/foundation-audit` as the sole continuing line; legacy worktrees remain quarantined until Cleanup Wave A |
+| RCP-01 | Canonical continuing development line | Approved author decision and RCP0 ledger | closed | Repository Control Point 0 | Jason approved `codex/foundation-audit` as the sole continuing line; four intentionally retained protected/quarantined worktrees remain outside it and do not reopen Cleanup Wave A |
 | OWR-01 | Reconcile live items from fix tracker, dossiers, deferral table, skip inventory, reachability inventory, and workflow ledgers | [Control Point 1 open-work reconciliation](control_point_1_open_work_reconciliation.md) | closed | Control Point 1 Batch A | Evidence batch is committed and pushed; architecture and test audits use this ownership map |
 | ARC-01 | Architecture and maintainability baseline | [Control Point 1 architecture and maintainability audit](control_point_1_architecture_maintainability_audit.md) | closed | Control Point 1 Batch B | Evidence batch is committed and pushed; Program 3 uses the bounded refactor budget |
 | TST-01 | Test-strength and intentional-skip review | [Control Point 1 test-strength audit](control_point_1_test_strength_audit.md) | closed | Control Point 1 Batch C | Evidence batch is complete; Program 3 and later programs use its risk-led ownership map |
@@ -73,7 +73,7 @@ register or a currently authorized program promotes it.
 | P5-01 | Long-manuscript intake and stable structural anchors | Direction Lock, Program 5, [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 / Human Gate 3 | Exact product commit `6efec7b9` passed clean regression, substantial-manuscript qualification, exact package verification, elevated offline installed lifecycle, strict witness, and final author acceptance |
 | P5-UX-01 | Program 5 pre-closure Writing Studio navigation and Unit/Note rail semantics | [Corrected Programs 1–5 repair plan](program_1_to_5_priority_repair_plan.md), [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), [Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 | Navigation, rails, Note semantics, startup composition, Structure workflow, readability, stale history, and shared chrome passed exact-candidate automation and installed author review at `6efec7b9` |
 | HG-03 | Long-manuscript integrity and usability | Execution-control plan and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 3 | Jason completed the structural sequence and recorded `Program 5 final check passed` on the exact installed candidate on 2026-08-31 |
-| P6-01 | Signal posture and Emotion Graph V1 | Program 6 | owned-later | After Cleanup Wave A and explicit Program 6 authorization | Human Gate 3 has established stable positions and anchors; bounded planning may begin, but runtime implementation remains unauthorized until the cleanup checkpoint is resolved |
+| P6-01 | Signal posture and Emotion Graph V1 | Program 6 | next | Program 6 bounded-planning review | Human Gate 3 established stable positions and anchors; bounded planning is eligible now, while runtime implementation requires explicit future authorization |
 | P7-01 | First creation or revision workflow | Program 7 | owned-later | Program 7 | Initial story-intelligence workflow is coherent enough to support it |
 | HG-04 | Intelligence and creation review | Execution-control plan | owned-later | Human Gate 4 | Programs 6 and 7 provide complete reviewable workflows |
 | P8-01 | Knowledge, organization, and broader interchange | Program 8 | owned-later | Program 8 | Human Gate 4 synthesis identifies the highest-value workflow order |
@@ -89,13 +89,17 @@ register or a currently authorized program promotes it.
 | DEF-05 | Third-party connectors | Master-program deferral table | owned-later | Existing Workflow Proof plus Missing Connector Review | Proven workflow demonstrates necessity rather than convenience |
 | DEF-06 | Branching / what-if architecture | Master-program deferral table | owned-later | Later structural review | Prototype arrangements cannot satisfy a real workflow |
 | DEF-07 | Repository-wide historical archive completion | Roadmap and cleanup policy | owned-later | Cleanup Wave B / final audit | Current authority and replacement map make archival safe |
-| DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | owned-later | Cleanup Wave A | Original and supplemental recovery evidence is complete; Pass 1B removed the eleven approved duplicate registrations, including the bounded 1612 repair, and Pass 3R removed the proven orphaned 0830 directory and clean fc8b worktree. Separate dispositions and recovery checks remain for the four protected worktrees before closure |
+| DEF-08 | Stale, detached, duplicate, and broken worktree registrations | [Repository Control Point 0 ledger](repository_control_point_0_reconciliation_ledger.md) | closed | Cleanup Wave A final integration | All approved stale, duplicate, broken, and orphaned registrations were reconciled at `dcf340a2`; exactly four intentionally protected/quarantined worktrees remain retained, and that retention does not reopen Cleanup Wave A |
 | DEF-09 | Dossier-completion wording and field detail | Master-program deferral table | owned-later | First workflow planning batch that needs it | Category-4 doctrine cannot support a stable contract or understandable UI |
 | DEF-10 | Paid or outbound expansion | Master-program deferral table | owned-later | Separately named task package | Proven local/manual workflow justifies privacy, cost, and approval work |
 | DEF-11 | Third-party plugin ecosystem | Master-program deferral table | owned-later | Post-first-party analyzer review | Repeated demand cannot be met through internal rubrics or first-party analyzers |
 | DEF-12 | Broader document interchange and Google Docs adapters | Master-program deferral table | owned-later | Program 8 after Program 5 | Proven workflow requires an external format or service |
 | DEF-13 | Research / Deep Research | Roadmap scope correction | owned-later | Explicit scope reopening | Jason establishes a current owner and workflow |
 | DEF-14 | Voice, dictation, and transcription | Roadmap scope correction | owned-later | Explicit scope reopening | Jason defines accessibility and provenance boundaries |
+
+The pass records below preserve historical chronology. Their then-current
+statements that Cleanup Wave A remained open or Program 6 was excluded are
+superseded by the final integration record and the current register above.
 
 ### Pass 1A recovery-evidence reconciliation — 2026-08-31
 
@@ -242,10 +246,13 @@ focused P5-HG3 `3/3`, typecheck, repository lint, production build, package
 preflight, docs lint, and diff hygiene passed; the full dirty Stage 19 gate
 returned `STAGE19_REGRESSION_PASS` with `49` critical unit files, `774`
 passed, `2` authorized skips, startup preflight `1/1`, and Electron `35/35`.
-Cleanup Wave A closes when the containing commit is pushed and local/upstream
-HEADs match. Program 5 remains complete; Program 6 was not started; and no
-installer or release-candidate qualification is claimed by this cleanup
-commit.
+Cleanup Wave A is closed by containing commit
+`dcf340a2db8033a679c8227a62a050ec47bb951b`, which is pushed with matching
+local/upstream HEADs. Program 5 remains complete; Program 6 was not started,
+but bounded planning is eligible. This cleanup HEAD is regression-validated
+only and makes no new installer, installed-lifecycle, or release-candidate
+qualification claim; the exact installed Program 5 candidate remains
+`6efec7b95c82759f51f6d8f47d4400637f48837a`.
 
 ## 4. Existing Source Treatment
 

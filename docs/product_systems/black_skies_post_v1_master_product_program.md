@@ -33,6 +33,25 @@ authority.
 The accepted program authorizes documentation reconciliation only. Each named
 runtime workflow remains separately bounded and authorized.
 
+### Current authority status — 2026-08-31
+
+Programs 1 and 2 passed their bounded scopes and Human Gate 1 is closed. Program
+3 is closed at `9ff07369`; Program 4 is closed-mechanical at `319b9c61` and
+provides bounded orientation/routing only, not generic chat, a local language
+model, or durable conversational memory. Human Gate 2 was subsequently passed
+on the Program 5 candidate. Program 5 and Human Gates 2 and 3 are closed at
+exact installed candidate `6efec7b95c82759f51f6d8f47d4400637f48837a`.
+
+Cleanup Wave A is closed at
+`dcf340a2db8033a679c8227a62a050ec47bb951b`. Exactly four worktrees remain
+intentionally protected or quarantined; their retention does not reopen the
+cleanup wave. Program 6 bounded planning is eligible and has not started;
+runtime or implementation work requires explicit future authorization. The
+cleanup HEAD is regression-validated, but is not a newly installed or
+package-qualified release candidate, and no Programs 1–5 capability claim is
+expanded by this status reconciliation. The dated program sections below
+preserve historical chronology where their earlier sequencing was true.
+
 ## 2. Executive Decision
 
 Black Skies will move forward from the foundation already built.
@@ -339,7 +358,7 @@ not another general audit campaign.
 
 ### Program 3 - Contextual Product Shell
 
-Status: `P3-A THROUGH P3-F DURABLE; P3-G IMPLEMENTATION AND AUTOMATION COMPLETE, AWAITING AUTHOR GIT CHECKPOINT`
+Status: `CLOSED; EXACT CLOSURE COMMIT 9FF07369`
 
 Goal: build the coherent V3 single-screen shell from proven workflow needs.
 
@@ -443,6 +462,8 @@ be treated as Program 5 completion or Human Gate 3 readiness until this
 follow-up and its geometry/workflow evidence are green.
 
 ### Program 6 - Signals And Story Intelligence
+
+Status: `BOUNDED PLANNING ELIGIBLE; NOT STARTED; RUNTIME REQUIRES EXPLICIT FUTURE AUTHORIZATION`
 
 Goal: add useful lenses without creating an alarm dashboard.
 
@@ -691,20 +712,10 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. reconcile and authorize the bounded Human Gate 2 experience repair,
-2. retain the completed Unified Story Rail repair,
-3. make the green Program 5 continuous-manuscript and stable-anchor bridge
-   durable before claiming a unified story stream,
-4. retain the durable real Focus and Companion doorway repair without claiming
-   local-LLM chat, then resolve the bounded repeated-identical Electron
-   launch-argument seam found by the first hosted qualification,
-5. qualify the resulting complete repaired candidate in the clean hosted
-   Windows package/install lane and repeat Human Gate 2,
-6. perform Cleanup Wave A only after that repaired gate passes,
-7. complete the remaining Program 5 long-manuscript qualification and Human
-   Gate 3, and
-8. begin Program 6 and Emotion Graph V1 using the proven anchors and Command
-   Center home.
+1. begin bounded Program 6 planning using the proven Program 5 anchors and
+   Command Center home, and
+2. obtain separate explicit authorization before any Program 6 runtime or
+   implementation work.
 
 No repository cleanup, second provider, automatic routing, background queue,
 durable AI memory, broad connector work, or unrelated analyzer build enters

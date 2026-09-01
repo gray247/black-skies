@@ -39,11 +39,14 @@ Current status:
   on 2026-08-31 after reviewing the installed candidate. The detailed evidence
   and immutable earlier checkpoints remain in
   `program_5_hg2_bridge_evidence_receipt.md`.
-- Cleanup Wave A is the next execution-control checkpoint because repaired
-  Human Gate 2 has passed. Program 6 is ready for bounded planning, but its
-  implementation still requires separate authorization after that checkpoint;
-  Program 5 acceptance does not authorize destructive cleanup or story-
-  intelligence runtime work.
+- Cleanup Wave A closed at `dcf340a2db8033a679c8227a62a050ec47bb951b` after
+  the repaired Human Gates and Program 5 closure. Exactly four worktrees remain
+  intentionally protected or quarantined; their retention does not reopen the
+  cleanup wave. Program 6 is eligible for bounded planning, but runtime or
+  implementation still requires explicit future authorization. The cleanup
+  HEAD is regression-validated only, not a newly installed or package-qualified
+  release candidate; the exact installed Program 5 candidate remains
+  `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -909,7 +912,9 @@ Product-version horizons are explicit:
 - `V2.0-to-V3.0` begins only after the two-workflow learning synthesis and
   holds the contextual product shell, minimal Companion bar, major GUI and
   layout convergence, comparison behavior, and broader product polish. That
-  synthesis is now recorded, so Program 3 is the current planning target.
+  synthesis is now recorded; Program 3 is completed historical work, not the
+  current planning target. Program 6 bounded planning is the eligible next
+  planning slice, while its runtime implementation remains separately gated.
 - later V2 and V3 programs add long-manuscript intake and stable anchors,
   signals, story intelligence, creation, revision, organization, interchange,
   heavy intelligence, durability, and release hardening according to the
