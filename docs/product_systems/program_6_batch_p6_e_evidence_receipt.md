@@ -42,7 +42,7 @@ changed.
 | Documentation lint | PASS — 63 authority files; local links resolved; no stale public-release claim |
 | `git diff --check` | PASS |
 | Complete dirty Stage 19 regression | PASS — critical matrix 49 files / 774 passed / 2 skipped; startup preflight 1/1; Electron matrix 35/35 |
-| Exact P6-E commit, clean gate, push, upstream equality | PENDING — required after staging |
+| Exact P6-E commit, clean gate, push, upstream equality | PASS — `bb7f45db8f095cbab6d0780512db82e0c60f37c0`; clean and synchronized |
 
 ## Explicit residuals and non-claims
 

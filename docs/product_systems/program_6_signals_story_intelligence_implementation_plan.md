@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `P6-E ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
+- Status: `P6-F ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
 - Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
@@ -104,7 +104,7 @@ editing.
 
 ### 3.3 Program boundary
 
-P6-A, P6-B, and P6-C remain completed bounded implementation slices with their
+P6-A, P6-B, P6-C, P6-D, and P6-E remain completed bounded implementation slices with their
 separate evidence receipts. The newest explicit user instruction admits the
 existing P6-C implementation and sequentially admits P6-D through P6-G only
 after each preceding batch's required gates and evidence receipt are green.
@@ -1012,11 +1012,11 @@ its own bounded plan and explicit authorization record.
 
 ## 14. Current Handoff
 
-P6-A, P6-B, P6-C, and P6-D are mechanically complete within their separately
-authorized boundaries. P6-C is durable at `7536431d`; P6-D is durable at
-`32d0c61757126a1da4c812bfee0ace62759f5694` after green focused, static,
-documentation, dirty, clean, and synchronized evidence. The newest explicit
-user instruction admits P6-E, whose bounded local-inference gateway and
-quiet/product-surface work is now active.
+P6-A, P6-B, P6-C, P6-D, and P6-E are mechanically complete within their
+separately authorized boundaries. P6-C is durable at `7536431d`, P6-D at
+`32d0c61757126a1da4c812bfee0ace62759f5694`, and P6-E at
+`bb7f45db8f095cbab6d0780512db82e0c60f37c0` after their green focused, static,
+dirty, clean, and synchronized evidence. The newest explicit user instruction
+admits P6-F, whose bounded qualification evidence is now active.
 P6-F and P6-G remain sequentially admitted only after the preceding batch is
 complete; no Program 7 implementation or Program 6 closure is implied.

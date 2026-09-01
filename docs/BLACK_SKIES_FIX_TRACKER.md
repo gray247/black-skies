@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C and P6-D complete, P6-E active under explicit sequential authorization; P6-F and P6-G admitted sequentially after preceding-batch gates
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C, P6-D, and P6-E complete, P6-F active under explicit sequential authorization; P6-G admitted after the P6-F gate
 Last Reviewed: 2026-09-01
 
 ## Purpose
@@ -121,7 +121,7 @@ conversion denial, sidecar rejection coverage, and a bounded accessible review
  / `0xC0000135` host blocker on the original run, the earlier authorized retry,
  and the resumed authorized rerun, even after the exact cached Electron
   39.8.10 payload was restored and verified byte-for-byte. Status is
- `P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D COMPLETE; P6-E ACTIVE`. A newer
+ `P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D COMPLETE; P6-E COMPLETE`. A newer
  explicit user instruction supersedes the older batch-specific later-work
  prohibition, renews bounded diagnosis/repair and git authority, and admits
 P6-D through P6-G sequentially after the preceding batch is complete; Program
@@ -130,11 +130,12 @@ P6-D through P6-G sequentially after the preceding batch is complete; Program
  Stage 19 regression passed `49` critical files / `774` tests / `2` skips with
  Electron `35/35`. Exact P6-C commit `7536431d`, clean regression, push, and
  synchronization passed. P6-D Timeline V1 chronology, pacing, and pressure
- work passed its clean exact-commit handoff at `32d0c617`. P6-E is now the
- active bounded batch under its own handoff.
+ work passed its clean exact-commit handoff at `32d0c617`. P6-E quiet-surface
+ and local-inference gateway work passed its clean exact-commit handoff at
+ `bb7f45db`. P6-F is now the active bounded batch under its own handoff.
 
 No raw-prose scan, regex analysis, embedding, model/provider call, network,
-dependency, startup, Electron, production mounting, P6-E integration,
+dependency, startup, Electron, production mounting,
 creation/revision workflow, packaging,
 installed qualification, Human Gate 4, or later Program 6 batch was opened.
 No manuscript, outline, draft, notes, settings, signals, memory, or other
