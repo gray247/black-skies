@@ -84,10 +84,10 @@ function isIsoDate(value: unknown): value is string {
   return typeof value === 'string' && !Number.isNaN(Date.parse(value));
 }
 
-function isPositionRef(value: unknown, projectId: string): value is StoryPositionRefV1 {
+export function isStoryPositionRefV1(value: unknown, projectId: string): value is StoryPositionRefV1 {
   if (!isRecord(value) || !hasExactKeys(value,
     ['projectId', 'sourceKind', 'sourceId', 'sourceRevision', 'sourceFingerprint'],
-    ['anchorId', 'unitId', 'selectionFingerprint', 'orderBasis'])) return false;
+    ['anchorId', 'unitId', 'selectionFingerprint', 'orderIndex', 'orderBasis'])) return false;
   return value.projectId === projectId &&
     isOneOf(value.sourceKind, ['manuscript', 'assertion', 'outline', 'story-unit', 'character', 'lore', 'author-intent']) &&
     isBoundedString(value.sourceId, 240) &&
@@ -96,10 +96,11 @@ function isPositionRef(value: unknown, projectId: string): value is StoryPositio
     isOptionalBoundedString(value.anchorId, 240) &&
     isOptionalBoundedString(value.unitId, 240) &&
     isOptionalBoundedString(value.selectionFingerprint, 128) &&
+    (value.orderIndex === undefined || isInteger(value.orderIndex)) &&
     (value.orderBasis === undefined || isOneOf(value.orderBasis, ['manuscript', 'story-world', 'planning', 'reveal', 'projection']));
 }
 
-function isProvenance(value: unknown): value is StoryIntelligenceProvenanceV1 {
+export function isStoryIntelligenceProvenanceV1(value: unknown): value is StoryIntelligenceProvenanceV1 {
   if (!isRecord(value) || !hasExactKeys(value,
     ['sourceOwner', 'origin', 'visibility', 'citationRequired', 'protectionClass'])) return false;
   return isBoundedString(value.sourceOwner, 160) &&
@@ -131,15 +132,23 @@ function isPolicy(value: unknown): value is StoryIntelligenceAnalysisPolicyV1 {
 function isAuthorRecord(value: unknown, projectId: string): value is StoryIntelligenceAuthorRecordV1 {
   if (!isRecord(value) || !hasExactKeys(value,
     ['recordId', 'projectId', 'evidenceClass', 'label', 'positionRefs', 'provenance', 'createdAt', 'updatedAt'],
-    ['unitId', 'intensityBand'])) return false;
+    ['unitId', 'intensityBand', 'recordKind', 'emotionLane', 'emotionIntensity', 'subjectLabel', 'currentness'])) return false;
+  const emotionRecord = value.recordKind === 'emotion-graph';
   return value.projectId === projectId &&
     isBoundedString(value.recordId, 160) &&
     (value.unitId === undefined || isBoundedString(value.unitId, 160)) &&
     isOneOf(value.evidenceClass, ['planned', 'observed', 'reader-effect-optional']) &&
     isBoundedString(value.label, 240) &&
     (value.intensityBand === undefined || isOneOf(value.intensityBand, INTENSITY_BANDS_V1)) &&
-    Array.isArray(value.positionRefs) && value.positionRefs.every((ref) => isPositionRef(ref, projectId)) &&
-    isProvenance(value.provenance) && isIsoDate(value.createdAt) && isIsoDate(value.updatedAt);
+    (value.recordKind === undefined || isOneOf(value.recordKind, ['general', 'emotion-graph'])) &&
+    (!emotionRecord || (isOneOf(value.emotionLane, ['planned', 'observed', 'reader-effect-optional']) &&
+      isOneOf(value.emotionIntensity, ['very-low', 'low', 'medium', 'high', 'very-high', 'unknown']))) &&
+    (value.emotionLane === undefined || isOneOf(value.emotionLane, ['planned', 'observed', 'reader-effect-optional'])) &&
+    (value.emotionIntensity === undefined || isOneOf(value.emotionIntensity, ['very-low', 'low', 'medium', 'high', 'very-high', 'unknown'])) &&
+    (value.subjectLabel === undefined || isBoundedString(value.subjectLabel, 160)) &&
+    (value.currentness === undefined || isOneOf(value.currentness, CURRENTNESS_VALUES_V1)) &&
+    Array.isArray(value.positionRefs) && value.positionRefs.every((ref) => isStoryPositionRefV1(ref, projectId)) &&
+    isStoryIntelligenceProvenanceV1(value.provenance) && isIsoDate(value.createdAt) && isIsoDate(value.updatedAt);
 }
 
 function isDurableSignal(value: unknown, projectId: string): value is DurableSignalV1 {
@@ -151,12 +160,12 @@ function isDurableSignal(value: unknown, projectId: string): value is DurableSig
   return value.schemaVersion === STORY_INTELLIGENCE_SCHEMA_VERSION &&
     isBoundedString(value.signalId, 160) && value.projectId === projectId &&
     isOptionalBoundedString(value.sourceFindingId, 160) &&
-    Array.isArray(value.positionRefs) && value.positionRefs.every((ref) => isPositionRef(ref, projectId)) &&
+    Array.isArray(value.positionRefs) && value.positionRefs.every((ref) => isStoryPositionRefV1(ref, projectId)) &&
     isBoundedString(value.sourceOwner, 160) && isOneOf(value.evidenceClass, EVIDENCE_CLASSES_V1) &&
     isOneOf(value.impact, SIGNAL_IMPACTS_V1) && isOneOf(value.confidenceBand, CONFIDENCE_BANDS_V1) &&
     isOneOf(value.currentness, CURRENTNESS_VALUES_V1) && value.lifecycle !== 'candidate' &&
     isOneOf(value.lifecycle, SIGNAL_LIFECYCLES_V1) && isBoundedString(value.summary, 800) &&
-    isBoundedString(value.evidenceSummary, 1200) && isProvenance(value.provenance) &&
+    isBoundedString(value.evidenceSummary, 1200) && isStoryIntelligenceProvenanceV1(value.provenance) &&
     (value.disposition === undefined || isOneOf(value.disposition, ['dismissed', 'suppressed', 'expired', 'converted', 'resolved', 'superseded'])) &&
     isIsoDate(value.createdAt) && isIsoDate(value.updatedAt);
 }

@@ -3,8 +3,8 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-A mechanically complete
-Last Reviewed: 2026-08-31
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-B mechanically complete; P6-C not started
+Last Reviewed: 2026-09-01
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -51,8 +51,9 @@ Cleanup Wave A subsequently closed at
 `dcf340a2db8033a679c8227a62a050ec47bb951b` after the bounded recovery,
 worktree, dependency, and orphan-path integration. Exactly four intentionally
 protected or quarantined worktrees remain; their retention does not reopen the
-cleanup wave. Program 6 P6-A is now a bounded mechanical foundation; P6-B and
-product-facing intelligence work still require separate explicit authorization.
+cleanup wave. Program 6 P6-A and P6-B are bounded mechanical foundations. P6-C
+and product-facing intelligence work still require separate explicit
+authorization.
 The cleanup HEAD is regression-validated only and is not a newly installed or
 package-qualified release candidate; the exact installed Program 5 candidate
 remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -84,6 +85,28 @@ No UI/CSS, analyzer, provider/Ollama/model call, dependency, packaging,
 installed qualification, creation/revision workflow, human Gate 4, or later
 Program 6 batch was opened. No manuscript, outline, draft, notes, settings,
 signals, memory, or other truth owner was mutated.
+
+## Program 6 P6-B implementation — 2026-09-01
+
+The explicit `GPT-5.6 Luna` high-reasoning P6-B handoff was executed within its
+stored boundary. The [P6-B evidence receipt](product_systems/program_6_batch_p6_b_evidence_receipt.md)
+records deterministic Emotion Graph contracts and projections, compatible
+P6-A persistence for planned/observed/optional reader-effect records,
+temporary inferred candidates, reusable accessible rendering, focused tests,
+and the required build, lint, documentation, and Stage 19 gates.
+Status is `P6-B MECHANICAL IMPLEMENTATION COMPLETE; P6-C NOT STARTED`.
+
+The unchanged targeted startup preflight passed `1/1` on the qualified host.
+The complete dirty-development fixed regression passed `49` critical files /
+`774` tests / `2` skips, startup `1/1`, and Electron `35/35`. The prior
+transient host/GPU startup diagnostic (`gpu_process_host.cc:999`,
+`-1073741515`) remains a reopening diagnostic only if it recurs.
+
+No production Writing Surface or Story Knowledge mounting, continuity,
+chronology/pacing/pressure analyzer, provider/Ollama/model call, dependency,
+packaging, installed qualification, Human Gate 4, or later Program 6 batch was
+opened. No manuscript, outline, draft, notes, settings, signals, memory, or
+other truth owner was mutated.
 
 ## Programs 1–5 post-audit cleanup — 2026-08-31
 

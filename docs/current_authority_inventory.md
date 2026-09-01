@@ -34,6 +34,8 @@ The inventory includes:
 - the Program 5 Human Gate 2 continuous-manuscript and stable-anchor bridge
   evidence receipt;
 - the Program 6 Batch P6-A bounded contract and persistence evidence receipt;
+- the Program 6 Batch P6-B handoff and deterministic Emotion Graph evidence
+  receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -64,11 +66,15 @@ Outline, Command Center, Companion, import workflow, and dossier families are
 composed for the writer. It does not replace dossier ownership or authorize
 implementation by itself.
 
-The Program 6 Batch P6-A evidence receipt is current authority only for the
+The Program 6 Batch P6-A evidence receipt remains current authority for its
 bounded mechanical contract, policy, project-local metadata persistence, typed
-Writing Studio IPC, preload parity, and listed focused gates. It does not
-authorize P6-B, UI, analyzers, providers, model calls, packaging, installed
-qualification, creation/revision, or Program 6 closure.
+Writing Studio IPC, preload parity, and listed focused gates. The P6-B
+handoff and evidence receipt are current authority only for the deterministic
+Emotion Graph contracts, compatible author-record persistence, temporary
+candidate projection, reusable component, and listed green P6-B gates.
+Neither receipt authorizes P6-C, production surface integration, providers, model
+calls, packaging, installed qualification, creation/revision, or Program 6
+closure.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

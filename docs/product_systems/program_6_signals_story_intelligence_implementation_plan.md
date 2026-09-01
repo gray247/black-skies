@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `PLAN APPROVED; P6-A NOT STARTED`
+- Status: `P6-B MECHANICAL IMPLEMENTATION COMPLETE; P6-C NOT STARTED`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
 - Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
@@ -10,8 +10,8 @@
 - Observed planning baseline: `235f42d7599aff5662eb1f65a0c0b201b4857e0c`
 - Planning model: `GPT-5.6 Luna`
 - Planning reasoning effort: `high`
-- Runtime implementation authority: `NOT GRANTED BY THIS PLAN`
-- Git authority: Jason alone stages, commits, and pushes
+- Runtime implementation authority: `P6-B explicitly granted by the stored handoff; P6-C through P6-G not granted`
+- Git authority: Jason alone stages, commits, and pushes, except for the bounded P6-B override explicitly recorded in its handoff
 
 This document is the bounded planning handoff for Program 6. It is current
 planning authority for the Program 6 shape, contracts, batches, evidence
@@ -35,11 +35,12 @@ The plan is constrained by:
 - [Protected Content Permission Matrix](protected_content_permission_matrix.md); and
 - [AI Lifecycle And Approval Matrix](ai_lifecycle_and_approval_matrix.md).
 
-The only planned implementation authorization is the separately stored
-[P6-A Luna high handoff prompt](program_6_batch_p6_a_luna_high_handoff_prompt.md).
-That prompt becomes an execution authorization only when Jason sends or pastes
-it into a task. Storing it in the repository, linking it, or referring to it
-does not authorize execution.
+The separately stored [P6-A Luna high handoff prompt](program_6_batch_p6_a_luna_high_handoff_prompt.md)
+and [P6-B Luna high handoff prompt](program_6_batch_p6_b_luna_high_handoff_prompt.md)
+are authorization records only. P6-A and P6-B became execution authorizations
+only when Jason sent the corresponding prompt into a task. Storing either
+prompt in the repository, linking it, or referring to it does not authorize
+another run.
 
 ## 2. Program Outcome
 
@@ -100,10 +101,10 @@ editing.
 
 ### 3.3 Program boundary
 
-P6-A is the only shared-contract and bridge implementation slice described
-here that may receive a direct future authorization. P6-B through P6-G remain
-planned work until each is admitted by the program owner. No task may begin
-P6-B merely because P6-A is green.
+P6-A and P6-B are separately bounded implementation slices with separate
+authorization records. P6-C through P6-G remain planned work until each is
+admitted by the program owner. No later batch may begin merely because P6-B is
+green.
 
 ## 4. Frozen Product Decisions
 
@@ -638,6 +639,24 @@ model call. The default presentation emphasizes observed manuscript movement
 and clearly labels planned overlays; the product decision to keep the Writing
 Surface quiet remains in force.
 
+P6-B implementation evidence:
+
+- deterministic Emotion Graph V1 contracts and pure projection/comparison logic
+  are implemented over stable `StoryPositionRefV1` values;
+- planned, observed, and optional reader-effect records persist through the
+  P6-A project-local repository, while inferred candidates remain temporary;
+- the reusable graph component provides text-equivalent accessible output,
+  keyboard selection, stale/unavailable states, reduced-motion handling, and
+  token-driven light/dark styling;
+- focused shared, renderer, repository, and P6-A compatibility coverage is
+  green, with renderer/shared typecheck, main compile, production build, app
+  lint, documentation lint, diff hygiene, and the fixed Stage 19 regression
+  green, with the P6-B receipt recording `49` critical files / `774` passed /
+  `2` skipped, startup `1/1`, and Electron `35/35`; and
+- Writing Surface/Story Knowledge production mounting, continuity, chronology,
+  pacing, pressure, providers, model calls, packaging, and Human Gate 4 remain
+  outside this batch.
+
 ### P6-C — Continuity through the same contract
 
 Purpose:
@@ -927,7 +946,7 @@ Stop the active batch and record an open-work finding if it discovers:
 - a stale source that cannot be labeled honestly;
 - a failure that would require weakening project binding, revision checks,
   atomic replacement, or protection boundaries;
-- a request to begin P6-B or later from a P6-A task; or
+- a request to begin P6-C or later from a P6-B task; or
 - a branch, upstream, clean-state, descendant, or four-worktree preflight
   mismatch.
 
@@ -936,8 +955,8 @@ deferral may become a second roadmap or a silent later-program admission.
 
 Named current deferrals include:
 
-- analyzer implementation: P6-B or P6-C, reopened when P6-A contracts are
-  durably accepted and the batch owner is explicitly authorized;
+- continuity analyzer implementation: P6-C, reopened only when P6-B is
+  durably accepted and the P6-C owner is explicitly authorized;
 - local inference gateway: P6-E, reopened only after deterministic evidence,
   privacy review, and explicit local-only authorization;
 - provider/model qualification: P6-E or Program 9 as explicitly assigned,
@@ -987,9 +1006,12 @@ its own bounded plan and explicit authorization record.
 
 ## 14. Current Handoff
 
-At the planning baseline, P6-A is not started. No runtime, GUI, IPC,
-persistence, schema, analyzer, provider, model, dependency, packaging, test,
-branch, worktree, commit, or push mutation is implied by this document.
+P6-A and P6-B are mechanically complete within their separately authorized
+boundaries. P6-B is durable at the exact commit whose subject is recorded in
+[the P6-B evidence receipt](program_6_batch_p6_b_evidence_receipt.md).
+No P6-C or later runtime, GUI integration, analyzer, provider, model,
+dependency, packaging, human-gate, branch, worktree, or release mutation is
+implied by this document.
 
-The next eligible action is a separately authorized P6-A implementation task
-using the exact [P6-A Luna high handoff prompt](program_6_batch_p6_a_luna_high_handoff_prompt.md).
+The next eligible action is a separately authorized P6-C implementation task
+using its own exact handoff prompt. P6-C has not started.

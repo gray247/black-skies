@@ -25,6 +25,7 @@ export type SignalLifecycleV1 =
   | 'superseded';
 export type CurrentnessV1 = 'current' | 'stale' | 'unavailable' | 'trimmed';
 export type IntensityBandV1 = 'very-low' | 'low' | 'medium' | 'high' | 'very-high';
+export type EmotionGraphIntensityV1 = IntensityBandV1 | 'unknown';
 
 export type StoryIntelligenceSourceClassV1 =
   | 'included'
@@ -98,6 +99,7 @@ export interface StoryPositionRefV1 {
   readonly anchorId?: string;
   readonly unitId?: string;
   readonly selectionFingerprint?: string;
+  readonly orderIndex?: number;
   readonly orderBasis?: 'manuscript' | 'story-world' | 'planning' | 'reveal' | 'projection';
 }
 
@@ -158,6 +160,11 @@ export interface StoryIntelligenceAuthorRecordV1 {
   readonly evidenceClass: Exclude<EvidenceClassV1, 'inferred'>;
   readonly label: string;
   readonly intensityBand?: IntensityBandV1;
+  readonly recordKind?: 'general' | 'emotion-graph';
+  readonly emotionLane?: 'planned' | 'observed' | 'reader-effect-optional';
+  readonly emotionIntensity?: EmotionGraphIntensityV1;
+  readonly subjectLabel?: string;
+  readonly currentness?: CurrentnessV1;
   readonly positionRefs: readonly StoryPositionRefV1[];
   readonly provenance: StoryIntelligenceProvenanceV1;
   readonly createdAt: string;
