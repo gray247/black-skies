@@ -1013,10 +1013,10 @@ its own bounded plan and explicit authorization record.
 ## 14. Current Handoff
 
 P6-A, P6-B, P6-C, and P6-D are mechanically complete within their separately
-authorized boundaries. P6-C is durable at `7536431d`; P6-D has green focused,
-typecheck, build, lint, documentation, diff, and complete dirty Stage 19
-evidence, with its exact commit/clean/push closure recorded by the next
-handoff update. The newest explicit user instruction admits P6-E, whose
-bounded local-inference gateway and quiet/product-surface work is now active.
+authorized boundaries. P6-C is durable at `7536431d`; P6-D is durable at
+`32d0c61757126a1da4c812bfee0ace62759f5694` after green focused, static,
+documentation, dirty, clean, and synchronized evidence. The newest explicit
+user instruction admits P6-E, whose bounded local-inference gateway and
+quiet/product-surface work is now active.
 P6-F and P6-G remain sequentially admitted only after the preceding batch is
 complete; no Program 7 implementation or Program 6 closure is implied.

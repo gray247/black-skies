@@ -40,6 +40,8 @@ The inventory includes:
   receipt;
 - the Program 6 Batch P6-D handoff and deterministic Timeline V1 evidence
   receipt;
+- the Program 6 Batch P6-E handoff and bounded local-inference/surface
+  evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -88,8 +90,9 @@ all pass. P6-D's deterministic Timeline V1 focused, static, documentation,
 diff, and complete dirty Stage 19 gates are green; its exact commit/clean/push
 closure is the remaining mechanical handoff item. The newest explicit user
 authorization admits P6-E as the next sequential batch after P6-D closes.
-P6-F and P6-G remain sequential after preceding-batch completion; none of these receipts authorizes
-production mounting beyond the named bounded
+P6-F and P6-G remain sequential after preceding-batch completion; P6-E is the
+active bounded batch under its own handoff and receipt. None of these receipts
+authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,
 creation/revision, or Program 6 closure.
 

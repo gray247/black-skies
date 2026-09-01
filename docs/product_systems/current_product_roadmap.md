@@ -46,10 +46,10 @@ Current status:
   P6-C implementation is mechanically complete at `7536431d` after its
   unchanged qualified-host Electron startup preflight, dirty regression, clean
   fixed gate, and push passed. P6-D Timeline V1 chronology, pacing, and pressure
-  contracts have passed their complete dirty Stage 19 gate and are closing
-  through the bounded exact commit/clean/push handoff. P6-E is admitted next
-  under the newest explicit sequential authorization; product-facing surface
-  and local-inference work remains bounded by its handoff. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
+  contracts passed their complete dirty Stage 19 gate and exact clean/push
+  handoff at `32d0c617`. P6-E is active under the newest explicit sequential
+  authorization; its product-facing surface and local-inference work remain
+  bounded by the P6-E handoff. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Program 6 planning is documented in
@@ -58,10 +58,11 @@ Current status:
   projection, reusable-component, focused-test, and fixed-regression layers.
   P6-C deterministic Continuity V1 implementation and all required fixed gates
   are green at `7536431d`; P6-D Timeline V1 chronology, pacing, and pressure
-  work has green dirty-development evidence and P6-E is the next bounded batch.
+  work has green dirty and clean-development evidence at `32d0c617`; P6-E is
+  the active bounded batch.
   The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
   records the exact status and residual. P6-D chronology/pacing/pressure
-  closure and P6-E bounded production-surface/local-inference work,
+  closure passed; P6-E bounded production-surface/local-inference work,
   provider/model, dependency, packaging,
   installed qualification, creation/revision, and later-batch work remain
   deferred; Program 7 remains blocked until the Program 6 author checkpoint is

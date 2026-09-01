@@ -40,12 +40,12 @@ truth owner was changed.
 | Documentation lint | PASS — 61 authority files; local links resolved; no stale public-release claim |
 | `git diff --check` | PASS |
 | Complete dirty Stage 19 regression | PASS — critical matrix 49 files / 774 passed / 2 skipped; startup preflight 1/1; Electron matrix 35/35 |
-| Exact P6-D commit, clean gate, push, upstream equality | PENDING |
+| Exact P6-D commit, clean gate, push, upstream equality | PASS — `32d0c61757126a1da4c812bfee0ace62759f5694`; clean and synchronized |
 
 ## Explicit residuals and non-claims
 
 - Timeline remains advisory and does not establish accepted chronology, pacing,
   pressure, emotion, manuscript order, or any other truth.
-- P6-E local inference and production surfaces are admitted next but not yet
-  implemented. P6-F complete qualification, P6-G author checkpoint, Program 7,
-  and Program 6 closure are not claimed.
+- P6-E local inference and production surfaces are the active next bounded
+  batch. P6-F complete qualification, P6-G author checkpoint, Program 7, and
+  Program 6 closure are not claimed.

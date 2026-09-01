@@ -5,6 +5,8 @@ import type { CommandRegistryEntry } from "../../commands/commandRegistry";
 import { listCommandRegistryEntries } from "../../commands/commandRegistry";
 import type { ActiveOutlineV1, StoryUnitV1 } from "../../utils/storyUnits";
 import { deriveActiveOutline } from "../../utils/storyUnits";
+import StoryKnowledgePanel from "../StoryKnowledgePanel";
+import WritingIntelligenceCue from "../WritingIntelligenceCue";
 import StoryNavigationPanel from "./StoryNavigationPanel";
 
 interface SplitCommandWorkspaceProps {
@@ -332,61 +334,6 @@ function GlobalToolsPanel({
   );
 }
 
-function IntelligenceReadinessPanel({
-  project,
-}: {
-  readonly project: LoadedProject | null;
-}): JSX.Element {
-  const sceneCount = project?.scenes.length ?? 0;
-
-  return (
-    <section
-      className="split-command__panel split-command__panel--tertiary split-command__intelligence-readiness"
-      aria-label="Intelligence Readiness"
-      data-panel-id="intelligence-readiness"
-      data-panel-authority="deferred"
-      data-panel-priority="tertiary"
-      data-intelligence-scope="current-project scoped"
-      data-intelligence-state="deferred"
-    >
-      <div className="split-command__panel-heading">
-        <div>
-          <h3>Intelligence Readiness</h3>
-          <p>Future intelligence surfaces stay deferred until their authority is proven</p>
-        </div>
-      </div>
-      <dl className="split-command__tools-summary">
-        <div>
-          <dt>Scope</dt>
-          <dd>Current project only</dd>
-        </div>
-        <div>
-          <dt>Available</dt>
-          <dd>{sceneCount > 0 ? `${sceneCount} scenes` : "Unavailable"}</dd>
-        </div>
-        <div>
-          <dt>States</dt>
-          <dd>generated / verified / speculative / deferred / unavailable</dd>
-        </div>
-      </dl>
-      <p className="split-command__panel-note">
-        Generated claims stay generated unless verified separately. Speculative claims stay
-        speculative. Unavailable data remains unavailable instead of being guessed.
-      </p>
-      <p className="split-command__panel-note">
-        No AI certainty, hidden inference, or story-quality judgment is active here.
-      </p>
-      <ul className="split-command__panel-bullets" aria-label="Intelligence panel admission rules">
-        <li>Owner required before a panel can leave deferred status.</li>
-        <li>Authority level and provenance sources must be explicit.</li>
-        <li>Trust language, fallback behavior, and proof class must be named.</li>
-        <li>Current-project scope must stay narrow and visible.</li>
-        <li>Separate panels need a reason not to stay embedded, status-only, or deferred.</li>
-      </ul>
-    </section>
-  );
-}
-
 export default function SplitCommandWorkspace({
   windowRole = "combined",
   project,
@@ -483,7 +430,7 @@ export default function SplitCommandWorkspace({
                 activeUnit={activeUnit}
               />
 
-              <IntelligenceReadinessPanel project={project} />
+              <StoryKnowledgePanel project={project} outline={activeOutline} activeUnit={activeUnit} />
 
               <GlobalToolsPanel commands={commands} />
             </div>
@@ -522,7 +469,8 @@ export default function SplitCommandWorkspace({
               activeUnit={activeUnit}
             />
           </div>
-          <div className="split-command__writing-frame">{writingStudio}</div>
+           <WritingIntelligenceCue projectLoaded={Boolean(project)} />
+           <div className="split-command__writing-frame">{writingStudio}</div>
         </div>
       </section> : null}
     </div>

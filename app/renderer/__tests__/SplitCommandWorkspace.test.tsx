@@ -246,30 +246,10 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByLabelText("Structure Overview")).toHaveTextContent(/Act I/i);
     expect(screen.getByLabelText("Project Stats")).toHaveTextContent(/Deterministic counts only/i);
     expect(screen.getByLabelText("Project Stats")).toHaveTextContent(/Drafts/i);
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /Future intelligence surfaces stay deferred until their authority is proven/i,
-    );
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /Current project only/i,
-    );
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /generated \/ verified \/ speculative \/ deferred \/ unavailable/i,
-    );
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /Generated claims stay generated unless verified separately/i,
-    );
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /No AI certainty, hidden inference, or story-quality judgment is active here/i,
-    );
-    expect(screen.getByLabelText("Intelligence panel admission rules")).toHaveTextContent(
-      /Owner required before a panel can leave deferred status/i,
-    );
-    expect(screen.getByLabelText("Intelligence panel admission rules")).toHaveTextContent(
-      /Authority level and provenance sources must be explicit/i,
-    );
-    expect(screen.getByLabelText("Intelligence panel admission rules")).toHaveTextContent(
-      /Separate panels need a reason not to stay embedded, status-only, or deferred/i,
-    );
+    expect(screen.getByLabelText("Story Knowledge")).toHaveTextContent(/Source-linked workspace detail/i);
+    expect(screen.getByLabelText("Story Knowledge")).toHaveTextContent(/Current project only/i);
+    expect(screen.getByLabelText("Story Knowledge")).toHaveTextContent(/does not assert canon/i);
+    expect(screen.getByRole("button", { name: "Open Story Knowledge detail" })).toBeInTheDocument();
     expect(screen.getByLabelText("Global Tools Metadata")).toHaveTextContent(
       /Metadata-only command registry/i,
     );
@@ -299,11 +279,10 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByLabelText("Structure Overview")).toHaveTextContent(
       /Scene-only structure loaded/i,
     );
-    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
-      /Unavailable/i,
-    );
-    expect(screen.getByLabelText("Intelligence panel admission rules")).toHaveTextContent(
-      /Owner required before a panel can leave deferred status/i,
+    expect(screen.getByLabelText("Story Knowledge")).toHaveTextContent(/Current project only/i);
+    expect(screen.getByTestId("writing-intelligence-cue")).toHaveAttribute(
+      "data-intelligence-state",
+      "quiet",
     );
   });
 

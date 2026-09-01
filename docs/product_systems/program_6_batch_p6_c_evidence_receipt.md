@@ -2,7 +2,7 @@
 
 ## Status
 
-`P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D ACTIVE`
+`P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D COMPLETE; P6-E ACTIVE`
 
 This receipt records the bounded deterministic Continuity V1 implementation
 authorized by the P6-C Luna/high handoff. The implementation gates are green,
@@ -13,7 +13,9 @@ P6-D through P6-G after preceding-batch completion; it supersedes older
 batch-specific “do not begin later batches” wording. The bounded implementation
 is durable at commit `7536431d2d742bb37d5dd502672633e46796c616`, whose subject
 is `feat(program-6): add continuity contracts`; its clean fixed gate and push
-passed. P6-D is now the active batch.
+passed. P6-D is now durable at `32d0c61757126a1da4c812bfee0ace62759f5694`
+with its clean fixed regression and synchronized push passed. P6-E is now the
+active batch.
 
 ## Implemented boundary
 

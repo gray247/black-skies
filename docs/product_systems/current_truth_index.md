@@ -134,9 +134,9 @@ It does not finalize the entire product vision.
   bounded mechanical foundations; P6-C is mechanically complete at `7536431d`
   after its unchanged host Electron startup preflight, complete dirty
   regression, clean fixed gate, and push passed. P6-D Timeline V1 chronology,
-  pacing, and pressure work has green dirty-development evidence and is closing
-  through its exact bounded commit/clean/push handoff. P6-E product-facing
-  intelligence work is the next explicitly admitted bounded batch. The cleanup HEAD is
+  pacing, and pressure work passed its exact bounded commit/clean/push handoff
+  at `32d0c617`. P6-E product-facing intelligence work is the active next
+  explicitly admitted bounded batch. The cleanup HEAD is
   regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
   installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -240,8 +240,8 @@ It does not finalize the entire product vision.
   the exact validation status. Its focused implementation gates are green,
   and Stage 19 passed on the unchanged qualified host after bounded diagnosis;
   the exact commit and synchronized push are `7536431d`. P6-D
-  chronology/pacing/pressure gates are green in dirty development; P6-E
-  production surface/local-inference work is next. Providers/models,
+  chronology/pacing/pressure gates and clean handoff are green at `32d0c617`;
+  P6-E production surface/local-inference work is active. Providers/models,
   dependencies, packaging, installed qualification, creation/revision, and
   later-batch work remain bounded by their sequential handoffs.
 - Program acceptance does not authorize all runtime work. Each named workflow

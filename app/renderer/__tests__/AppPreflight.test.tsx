@@ -1895,22 +1895,10 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Writing Workspace snapshot')).toHaveTextContent(
       /Deterministic writer-facing context/i,
     );
-    expect(screen.getByLabelText('Intelligence Readiness')).toBeInTheDocument();
-    expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
-      /Current project only/i,
-    );
-    expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
-      /generated \/ verified \/ speculative \/ deferred \/ unavailable/i,
-    );
-    expect(screen.getByLabelText('Intelligence Readiness')).toHaveTextContent(
-      /Generated claims stay generated unless verified separately/i,
-    );
-    expect(screen.getByLabelText('Intelligence panel admission rules')).toHaveTextContent(
-      /Owner required before a panel can leave deferred status/i,
-    );
-    expect(screen.getByLabelText('Intelligence panel admission rules')).toHaveTextContent(
-      /Authority level and provenance sources must be explicit/i,
-    );
+    expect(screen.getByLabelText('Story Knowledge')).toBeInTheDocument();
+    expect(screen.getByLabelText('Story Knowledge')).toHaveTextContent(/Current project only/i);
+    expect(screen.getByLabelText('Story Knowledge')).toHaveTextContent(/does not assert canon/i);
+    expect(screen.getByRole('button', { name: 'Open Story Knowledge detail' })).toBeInTheDocument();
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',

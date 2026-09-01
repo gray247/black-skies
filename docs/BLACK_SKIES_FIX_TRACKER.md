@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C complete and P6-D active under explicit sequential authorization; P6-E through P6-G admitted sequentially after preceding-batch gates
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C and P6-D complete, P6-E active under explicit sequential authorization; P6-F and P6-G admitted sequentially after preceding-batch gates
 Last Reviewed: 2026-09-01
 
 ## Purpose
@@ -121,20 +121,21 @@ conversion denial, sidecar rejection coverage, and a bounded accessible review
  / `0xC0000135` host blocker on the original run, the earlier authorized retry,
  and the resumed authorized rerun, even after the exact cached Electron
   39.8.10 payload was restored and verified byte-for-byte. Status is
- `P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D ACTIVE`. A newer
+ `P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D COMPLETE; P6-E ACTIVE`. A newer
  explicit user instruction supersedes the older batch-specific later-work
  prohibition, renews bounded diagnosis/repair and git authority, and admits
- P6-D through P6-G sequentially after the preceding batch is complete; Program
+P6-D through P6-G sequentially after the preceding batch is complete; Program
  7 and Program 6 closure remain outside scope until final author acceptance.
  The renewed unchanged preflight then passed `1/1`, and the complete dirty
  Stage 19 regression passed `49` critical files / `774` tests / `2` skips with
  Electron `35/35`. Exact P6-C commit `7536431d`, clean regression, push, and
  synchronization passed. P6-D Timeline V1 chronology, pacing, and pressure
- work is now the active bounded batch.
+ work passed its clean exact-commit handoff at `32d0c617`. P6-E is now the
+ active bounded batch under its own handoff.
 
 No raw-prose scan, regex analysis, embedding, model/provider call, network,
-dependency, startup, Electron, production mounting, P6-D chronology/pacing/
-pressure analyzer, P6-E integration, creation/revision workflow, packaging,
+dependency, startup, Electron, production mounting, P6-E integration,
+creation/revision workflow, packaging,
 installed qualification, Human Gate 4, or later Program 6 batch was opened.
 No manuscript, outline, draft, notes, settings, signals, memory, or other
 truth owner was mutated.
