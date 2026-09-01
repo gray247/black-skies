@@ -53,6 +53,12 @@ import type {
   UpdateLivingOutlineItemRequest,
 } from '../shared/ipc/livingOutline';
 import type {
+  CheckStoryIntelligencePermissionRequestV1,
+  GetStoryIntelligenceRequestV1,
+  StoryIntelligenceBridge,
+  WriteStoryIntelligenceRequestV1,
+} from '../shared/ipc/storyIntelligence';
+import type {
   SplitCommandOwnershipSyncMessage,
   SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority';
@@ -144,6 +150,11 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     moveItem: 'living-outline:move-item',
     linkItem: 'living-outline:link-item',
     deleteItem: 'living-outline:delete-item',
+  }),
+  storyIntelligence: Object.freeze({
+    read: 'story-intelligence:read',
+    write: 'story-intelligence:write',
+    checkPermission: 'story-intelligence:check-permission',
   }),
   manuscriptStructure: Object.freeze({
     chooseMarkdown: 'manuscript-structure:choose-markdown',
@@ -796,6 +807,15 @@ const livingOutline: LivingOutlineBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.deleteItem, request),
 };
 
+const storyIntelligence: StoryIntelligenceBridge = {
+  read: (request: GetStoryIntelligenceRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.read, request),
+  write: (request: WriteStoryIntelligenceRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.write, request),
+  checkPermission: (request: CheckStoryIntelligencePermissionRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.checkPermission, request),
+};
+
 const manuscriptStructure: ManuscriptStructureBridge = {
   chooseMarkdown: () => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.manuscriptStructure.chooseMarkdown),
   importMarkdown: (request: ImportMarkdownRequest) =>
@@ -867,5 +887,6 @@ if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);
   contextBridge.exposeInMainWorld('livingOutline', livingOutline);
+  contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligence);
   contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructure);
 }

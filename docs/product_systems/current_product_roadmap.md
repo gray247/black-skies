@@ -42,18 +42,20 @@ Current status:
 - Cleanup Wave A closed at `dcf340a2db8033a679c8227a62a050ec47bb951b` after
   the repaired Human Gates and Program 5 closure. Exactly four worktrees remain
   intentionally protected or quarantined; their retention does not reopen the
-  cleanup wave. Program 6 is eligible for bounded planning, but runtime or
-  implementation still requires explicit future authorization. The cleanup
-  HEAD is regression-validated only, not a newly installed or package-qualified
+  cleanup wave. Program 6 P6-A is now a bounded mechanical foundation; P6-B
+  and product-facing intelligence work still require separate explicit
+  authorization. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
-- Program 6 planning is now documented in
-  `program_6_signals_story_intelligence_implementation_plan.md` and the
-  paste-ready P6-A boundary is recorded in
-  `program_6_batch_p6_a_luna_high_handoff_prompt.md`. Current planning status
-  is `PLAN APPROVED; P6-A NOT STARTED`; the prompt becomes implementation
-  authority only when Jason sends or pastes it, and Program 7 remains blocked
-  until the Program 6 author checkpoint is explicitly accepted.
+- Program 6 planning is documented in
+  `program_6_signals_story_intelligence_implementation_plan.md`; the explicit
+  P6-A handoff is complete at the bounded contract, policy, project-local
+  persistence, typed Writing Studio IPC, and focused-test layer. The
+  [P6-A evidence receipt](program_6_batch_p6_a_evidence_receipt.md) records
+  `P6-A MECHANICAL IMPLEMENTATION COMPLETE; P6-B NOT STARTED`. UI, CSS,
+  analyzer, provider/model, dependency, packaging, installed qualification,
+  creation/revision, and later-batch work remain deferred; Program 7 remains
+  blocked until the Program 6 author checkpoint is explicitly accepted.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -920,8 +922,9 @@ Product-version horizons are explicit:
   holds the contextual product shell, minimal Companion bar, major GUI and
   layout convergence, comparison behavior, and broader product polish. That
   synthesis is now recorded; Program 3 is completed historical work, not the
-  current planning target. Program 6 bounded planning is the eligible next
-  planning slice, while its runtime implementation remains separately gated.
+  current planning target. Program 6 P6-A is now a bounded mechanical
+  foundation, while P6-B and all product-facing intelligence behavior remain
+  separately gated.
 - later V2 and V3 programs add long-manuscript intake and stable anchors,
   signals, story intelligence, creation, revision, organization, interchange,
   heavy intelligence, durability, and release hardening according to the

@@ -38,6 +38,13 @@ import {
   type UpdateLivingOutlineItemRequest,
 } from '../shared/ipc/livingOutline';
 import {
+  STORY_INTELLIGENCE_CHANNELS,
+  type CheckStoryIntelligencePermissionRequestV1,
+  type GetStoryIntelligenceRequestV1,
+  type StoryIntelligenceBridge,
+  type WriteStoryIntelligenceRequestV1,
+} from '../shared/ipc/storyIntelligence';
+import {
   MANUSCRIPT_STRUCTURE_CHANNELS,
   type ApplyManuscriptStructureRequest,
   type DiscoverManuscriptStructureRequest,
@@ -2782,6 +2789,15 @@ const livingOutlineBridge: LivingOutlineBridge = {
   deleteItem: (request: DeleteLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.deleteItem, request),
 };
 
+const storyIntelligenceBridge: StoryIntelligenceBridge = {
+  read: (request: GetStoryIntelligenceRequestV1) =>
+    ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.read, request),
+  write: (request: WriteStoryIntelligenceRequestV1) =>
+    ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.write, request),
+  checkPermission: (request: CheckStoryIntelligencePermissionRequestV1) =>
+    ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.checkPermission, request),
+};
+
 const manuscriptStructureBridge: ManuscriptStructureBridge = {
   chooseMarkdown: () => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.chooseMarkdown),
   importMarkdown: (request: ImportMarkdownRequest) => ipcRenderer.invoke(MANUSCRIPT_STRUCTURE_CHANNELS.importMarkdown, request),
@@ -2813,6 +2829,7 @@ if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotesBridge);
   contextBridge.exposeInMainWorld('livingOutline', livingOutlineBridge);
+  contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligenceBridge);
   contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructureBridge);
 }
 if (splitCommandBridge) {

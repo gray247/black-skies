@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed by final integration before Program 6 planning
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-A mechanically complete
 Last Reviewed: 2026-08-31
 
 ## Purpose
@@ -51,9 +51,9 @@ Cleanup Wave A subsequently closed at
 `dcf340a2db8033a679c8227a62a050ec47bb951b` after the bounded recovery,
 worktree, dependency, and orphan-path integration. Exactly four intentionally
 protected or quarantined worktrees remain; their retention does not reopen the
-cleanup wave. Program 6 is eligible for bounded planning but has not started,
-and runtime or implementation still requires explicit future authorization. The
-cleanup HEAD is regression-validated only and is not a newly installed or
+cleanup wave. Program 6 P6-A is now a bounded mechanical foundation; P6-B and
+product-facing intelligence work still require separate explicit authorization.
+The cleanup HEAD is regression-validated only and is not a newly installed or
 package-qualified release candidate; the exact installed Program 5 candidate
 remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 
@@ -67,11 +67,23 @@ current status block.
 Program 6 bounded planning is documented in
 [the Signals And Story Intelligence Implementation Plan](product_systems/program_6_signals_story_intelligence_implementation_plan.md)
 and [the P6-A Luna high handoff prompt](product_systems/program_6_batch_p6_a_luna_high_handoff_prompt.md).
-The recorded status is `PLAN APPROVED; P6-A NOT STARTED`. This documentation
-does not authorize runtime, GUI, analyzer, provider, model, dependency,
-packaging, or later-batch work. P6-A requires Jason to send or paste the
-handoff prompt into a task; Program 7 remains blocked until the Program 6
-author checkpoint is explicitly accepted.
+The planning-only status in this historical section was superseded when Jason
+sent the stored handoff into the implementation task. The current status and
+bounded implementation evidence are recorded in the P6-A section below.
+
+## Program 6 P6-A implementation — 2026-08-31
+
+The explicit `GPT-5.6 Luna` high-reasoning P6-A handoff was executed within its
+stored boundary. The [P6-A evidence receipt](product_systems/program_6_batch_p6_a_evidence_receipt.md)
+records the shared contracts, policy and permission separation, project-local
+metadata-only sidecar, typed Writing Studio IPC, preload parity, focused
+automation, typecheck, main compile, lint, and documentation gates. Status is
+`P6-A MECHANICAL IMPLEMENTATION COMPLETE; P6-B NOT STARTED`.
+
+No UI/CSS, analyzer, provider/Ollama/model call, dependency, packaging,
+installed qualification, creation/revision workflow, human Gate 4, or later
+Program 6 batch was opened. No manuscript, outline, draft, notes, settings,
+signals, memory, or other truth owner was mutated.
 
 ## Programs 1–5 post-audit cleanup — 2026-08-31
 

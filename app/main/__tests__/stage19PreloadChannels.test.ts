@@ -8,6 +8,7 @@ import {
 import { AI_CRITIQUE_CHANNELS } from '../../shared/ipc/aiCritique';
 import { FEEDBACK_NOTE_CHANNELS } from '../../shared/ipc/feedbackNotes';
 import { LIVING_OUTLINE_CHANNELS } from '../../shared/ipc/livingOutline';
+import { STORY_INTELLIGENCE_CHANNELS } from '../../shared/ipc/storyIntelligence';
 import { MANUSCRIPT_STRUCTURE_CHANNELS } from '../../shared/ipc/manuscriptStructure';
 import { LOGGING_CHANNELS } from '../../shared/ipc/logging';
 import {
@@ -74,6 +75,7 @@ describe('dedicated Stage 19 preload', () => {
     expect(STAGE19_PRELOAD_CHANNELS.aiCritique).toEqual(AI_CRITIQUE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.feedbackNotes).toEqual(FEEDBACK_NOTE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.livingOutline).toEqual(LIVING_OUTLINE_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.storyIntelligence).toEqual(STORY_INTELLIGENCE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.manuscriptStructure).toEqual(MANUSCRIPT_STRUCTURE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.diagnostics).toBe(LOGGING_CHANNELS.diagnostics);
   });
@@ -88,6 +90,7 @@ describe('dedicated Stage 19 preload', () => {
       'manuscriptStructure',
       'projectSpine',
       'splitCommand',
+      'storyIntelligence',
     ]);
     expect(exposed.has('services')).toBe(false);
     expect(exposed.has('projectLoader')).toBe(false);
@@ -150,6 +153,7 @@ describe('dedicated Stage 19 preload', () => {
     expect(exposed.has('feedbackNotes')).toBe(false);
     expect(exposed.has('livingOutline')).toBe(false);
     expect(exposed.has('manuscriptStructure')).toBe(false);
+    expect(exposed.has('storyIntelligence')).toBe(false);
     expect(Object.keys(exposed.get('critiqueReview') as CritiqueReviewBridge).sort()).toEqual([
       'dismiss',
       'markStale',

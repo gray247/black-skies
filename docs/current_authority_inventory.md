@@ -33,6 +33,7 @@ The inventory includes:
   evidence receipts, plus the HG2-RPR-D qualification-harness repair receipt;
 - the Program 5 Human Gate 2 continuous-manuscript and stable-anchor bridge
   evidence receipt;
+- the Program 6 Batch P6-A bounded contract and persistence evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -62,6 +63,12 @@ The author-experience direction lock governs how the Writing Studio, Living
 Outline, Command Center, Companion, import workflow, and dossier families are
 composed for the writer. It does not replace dossier ownership or authorize
 implementation by itself.
+
+The Program 6 Batch P6-A evidence receipt is current authority only for the
+bounded mechanical contract, policy, project-local metadata persistence, typed
+Writing Studio IPC, preload parity, and listed focused gates. It does not
+authorize P6-B, UI, analyzers, providers, model calls, packaging, installed
+qualification, creation/revision, or Program 6 closure.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

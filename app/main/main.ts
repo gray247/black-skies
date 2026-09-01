@@ -76,6 +76,7 @@ import {
 } from './aiCritiqueIpc.js';
 import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
 import { registerLivingOutlineIpc } from './livingOutlineIpc.js';
+import { registerStoryIntelligenceIpc } from './storyIntelligenceIpc.js';
 import { registerManuscriptStructureIpc } from './manuscriptStructureIpc.js';
 import {
   getCritiqueReviewSurfaceState,
@@ -1762,6 +1763,10 @@ if (!hasSingleInstanceLock) {
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
       });
       registerLivingOutlineIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
+      registerStoryIntelligenceIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
       });

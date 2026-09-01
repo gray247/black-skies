@@ -130,9 +130,10 @@ It does not finalize the entire product vision.
   Program 5 are closed; no user-supplied substantial manuscript was required.
   Cleanup Wave A closed at `dcf340a2db8033a679c8227a62a050ec47bb951b`.
   Exactly four worktrees remain intentionally protected or quarantined; their
-  retention does not leave Cleanup Wave A open. Program 6 is eligible for
-  bounded planning, but runtime or implementation work still requires explicit
-  future authorization. The cleanup HEAD is regression-validated only and is
+  retention does not leave Cleanup Wave A open. Program 6 P6-A is now a
+  bounded mechanical foundation; P6-B and product-facing intelligence work
+  still require separate explicit authorization. The cleanup HEAD is
+  regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
   installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
   The earlier
@@ -227,11 +228,15 @@ It does not finalize the entire product vision.
   structural anchors proven. Emotion Graph V1 remains Program 6 work and keeps
   author-planned, manuscript-observed, and inferred emotion distinct.
 - Program 6 bounded planning is documented in
-  `program_6_signals_story_intelligence_implementation_plan.md`, with the
-  separately stored `program_6_batch_p6_a_luna_high_handoff_prompt.md` as the
-  only planned P6-A execution authorization path. Status is `PLAN APPROVED;
-  P6-A NOT STARTED`; runtime, GUI, analyzer, provider, model, dependency,
-  packaging, and later-batch work remain separately unauthorized.
+  `program_6_signals_story_intelligence_implementation_plan.md`; its P6-A
+  handoff was explicitly executed with `GPT-5.6 Luna` at high reasoning. The
+  [P6-A evidence receipt](program_6_batch_p6_a_evidence_receipt.md) records
+  green contract, policy, project-local persistence, typed Writing Studio IPC,
+  preload-parity, focused-test, typecheck, compile, lint, and docs gates.
+  Status is `P6-A MECHANICAL IMPLEMENTATION COMPLETE; P6-B NOT STARTED`.
+  UI, CSS, analyzer, provider, model, dependency, packaging, installed
+  qualification, creation/revision, and later-batch work remain separately
+  unauthorized.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 

@@ -39,7 +39,7 @@ export const installedQualificationProfiles = Object.freeze({
     initialVisibleWindowCount: 1,
     postOptionalSecondaryVisibleWindowCount: 2,
     writingGlobalNames: Object.freeze([
-      "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand", "manuscriptStructure"
+      "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand", "manuscriptStructure", "storyIntelligence"
     ]),
     commandGlobalNames: Object.freeze(["critiqueReview", "projectSpine", "splitCommand"])
   }),

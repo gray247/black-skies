@@ -8,6 +8,7 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 import type { AiCritiqueBridge } from '../../shared/ipc/aiCritique';
 import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import type { LivingOutlineBridge } from '../../shared/ipc/livingOutline';
+import type { StoryIntelligenceBridge } from '../../shared/ipc/storyIntelligence';
 import type { CritiqueReviewBridge } from '../../shared/ipc/contextualProductShell';
 
 type DevHarness = {
@@ -72,6 +73,7 @@ declare global {
     aiCritique?: AiCritiqueBridge;
     feedbackNotes?: FeedbackNotesBridge;
     livingOutline?: LivingOutlineBridge;
+    storyIntelligence?: StoryIntelligenceBridge;
     __dev?: DevHarness;
     __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     __serviceHealthRetry?: () => Promise<void>;
