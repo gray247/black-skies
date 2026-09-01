@@ -47,6 +47,13 @@ Current status:
   HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
+- Program 6 planning is now documented in
+  `program_6_signals_story_intelligence_implementation_plan.md` and the
+  paste-ready P6-A boundary is recorded in
+  `program_6_batch_p6_a_luna_high_handoff_prompt.md`. Current planning status
+  is `PLAN APPROVED; P6-A NOT STARTED`; the prompt becomes implementation
+  authority only when Jason sends or pastes it, and Program 7 remains blocked
+  until the Program 6 author checkpoint is explicitly accepted.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

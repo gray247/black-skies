@@ -226,6 +226,12 @@ It does not finalize the entire product vision.
 - Program 5 and Human Gate 3 are closed with long-manuscript intake and stable
   structural anchors proven. Emotion Graph V1 remains Program 6 work and keeps
   author-planned, manuscript-observed, and inferred emotion distinct.
+- Program 6 bounded planning is documented in
+  `program_6_signals_story_intelligence_implementation_plan.md`, with the
+  separately stored `program_6_batch_p6_a_luna_high_handoff_prompt.md` as the
+  only planned P6-A execution authorization path. Status is `PLAN APPROVED;
+  P6-A NOT STARTED`; runtime, GUI, analyzer, provider, model, dependency,
+  packaging, and later-batch work remain separately unauthorized.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 
@@ -652,6 +658,8 @@ Current canonical repo-tracked sources include:
 - [control_point_1_visual_design_foundation.md](/C:/Dev/black-skies/docs/product_systems/control_point_1_visual_design_foundation.md)
 - [program_3_contextual_product_shell_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_3_contextual_product_shell_implementation_plan.md)
 - [program_4_minimal_companion_owner_routing_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_4_minimal_companion_owner_routing_implementation_plan.md)
+- [program_6_batch_p6_a_luna_high_handoff_prompt.md](/C:/Dev/black-skies/docs/product_systems/program_6_batch_p6_a_luna_high_handoff_prompt.md)
+- [program_6_signals_story_intelligence_implementation_plan.md](/C:/Dev/black-skies/docs/product_systems/program_6_signals_story_intelligence_implementation_plan.md)
 - [program_4_batch_p4_a_evidence_receipt.md](/C:/Dev/black-skies/docs/product_systems/program_4_batch_p4_a_evidence_receipt.md)
 - [dossier_maturity_inventory.md](/C:/Dev/black-skies/docs/product_systems/dossier_maturity_inventory.md)
 - [current_product_roadmap.md](/C:/Dev/black-skies/docs/product_systems/current_product_roadmap.md)

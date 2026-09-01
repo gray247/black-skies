@@ -62,6 +62,17 @@ chronology. Statements that the wave remained open or Program 6 was excluded
 were true at the time and are superseded by the final integration and this
 current status block.
 
+## Program 6 planning — 2026-08-31
+
+Program 6 bounded planning is documented in
+[the Signals And Story Intelligence Implementation Plan](product_systems/program_6_signals_story_intelligence_implementation_plan.md)
+and [the P6-A Luna high handoff prompt](product_systems/program_6_batch_p6_a_luna_high_handoff_prompt.md).
+The recorded status is `PLAN APPROVED; P6-A NOT STARTED`. This documentation
+does not authorize runtime, GUI, analyzer, provider, model, dependency,
+packaging, or later-batch work. P6-A requires Jason to send or paste the
+handoff prompt into a task; Program 7 remains blocked until the Program 6
+author checkpoint is explicitly accepted.
+
 ## Programs 1–5 post-audit cleanup — 2026-08-31
 
 This bounded reconciliation was explicitly authorized for `GPT-5.6 Luna` at
