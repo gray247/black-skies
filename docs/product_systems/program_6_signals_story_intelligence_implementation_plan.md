@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `P6-B MECHANICAL IMPLEMENTATION COMPLETE; P6-C NOT STARTED`
+- Status: `P6-C ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
 - Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
@@ -10,8 +10,8 @@
 - Observed planning baseline: `235f42d7599aff5662eb1f65a0c0b201b4857e0c`
 - Planning model: `GPT-5.6 Luna`
 - Planning reasoning effort: `high`
-- Runtime implementation authority: `P6-B explicitly granted by the stored handoff; P6-C through P6-G not granted`
-- Git authority: Jason alone stages, commits, and pushes, except for the bounded P6-B override explicitly recorded in its handoff
+- Runtime implementation authority: `The newest explicit user instruction authorizes the existing P6-C implementation and sequential continuation through P6-G, subject to each preceding batch's green gates and evidence receipt`
+- Git authority: `The newest explicit user instruction authorizes bounded staging, commits, and pushes for P6-C through P6-G; no force-push, amend, branch change, worktree change, or unrelated file inclusion is authorized`
 
 This document is the bounded planning handoff for Program 6. It is current
 planning authority for the Program 6 shape, contracts, batches, evidence
@@ -37,10 +37,12 @@ The plan is constrained by:
 
 The separately stored [P6-A Luna high handoff prompt](program_6_batch_p6_a_luna_high_handoff_prompt.md)
 and [P6-B Luna high handoff prompt](program_6_batch_p6_b_luna_high_handoff_prompt.md)
-are authorization records only. P6-A and P6-B became execution authorizations
-only when Jason sent the corresponding prompt into a task. Storing either
-prompt in the repository, linking it, or referring to it does not authorize
-another run.
+are historical batch authorization records. The newer explicit user
+instruction recorded on 2026-09-01 supersedes older batch-specific wording
+that prohibited P6-C or later work and authorizes the existing P6-C work plus
+sequential P6-D, P6-E, P6-F, and P6-G continuation after each preceding batch
+passes its required gates. It does not authorize Program 7 or Program 6
+closure without the final author acceptance.
 
 ## 2. Program Outcome
 
@@ -90,9 +92,10 @@ editing.
 
 ### 3.2 Git and model control
 
-- Jason alone stages, commits, and pushes.
-- The agent does not change branches, stash, reset, clean, rename, delete,
-  rewrite history, or execute salvage actions.
+- The newest explicit user instruction authorizes the agent to stage, commit,
+  and push the bounded P6-C through P6-G batch commits. No force-push, amend,
+  branch change, stash, reset, clean, rename, delete, history rewrite, or
+  salvage action is authorized.
 - Each batch gets a bounded evidence receipt before the next batch begins.
 - The implementation task must use `GPT-5.6 Luna` with `high` reasoning after
   the required model warning and explicit authorization.
@@ -101,10 +104,13 @@ editing.
 
 ### 3.3 Program boundary
 
-P6-A and P6-B are separately bounded implementation slices with separate
-authorization records. P6-C through P6-G remain planned work until each is
-admitted by the program owner. No later batch may begin merely because P6-B is
-green.
+P6-A and P6-B remain completed bounded implementation slices with their
+separate evidence receipts. The newest explicit user instruction admits the
+existing P6-C implementation and sequentially admits P6-D through P6-G only
+after each preceding batch's required gates and evidence receipt are green.
+Older batch-specific “do not begin later batches” wording is superseded for
+this task once the preceding batch is complete. Program 7 and Program 6
+closure remain outside this authorization.
 
 ## 4. Frozen Product Decisions
 

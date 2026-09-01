@@ -1,6 +1,14 @@
 {
   "schemaVersion": 1,
   "purpose": "Current V1 closure and accepted post-V1 product-program documentation authority boundary",
+  "currentProgram6Authorization": {
+    "status": "active",
+    "model": "GPT-5.6 Luna",
+    "reasoning": "high",
+    "scope": "P6-C through P6-G sequentially, one bounded tested commit and push per batch",
+    "precedence": "newest explicit user instruction supersedes older batch-specific later-batch prohibitions after preceding-batch completion",
+    "exclusions": ["Program 7", "Program 6 closure without final author acceptance"]
+  },
   "excludedHistoricalRoots": [
     "archive/",
     "docs/archive/",
@@ -46,6 +54,8 @@
     "docs/product_systems/program_6_batch_p6_a_luna_high_handoff_prompt.md",
     "docs/product_systems/program_6_batch_p6_b_evidence_receipt.md",
     "docs/product_systems/program_6_batch_p6_b_luna_high_handoff_prompt.md",
+    "docs/product_systems/program_6_batch_p6_c_evidence_receipt.md",
+    "docs/product_systems/program_6_batch_p6_c_luna_high_handoff_prompt.md",
     "docs/product_systems/program_6_signals_story_intelligence_implementation_plan.md",
     "docs/product_systems/repository_control_point_0_reconciliation_ledger.md",
     "docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md",

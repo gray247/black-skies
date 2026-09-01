@@ -8369,6 +8369,108 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 }
 
+.continuity-review {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--bs-line-quiet);
+  background: var(--bs-surface-raised);
+  color: var(--bs-text-primary);
+}
+
+.continuity-review__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.continuity-review__header h2,
+.continuity-review__header p {
+  margin: 0;
+}
+
+.continuity-review__header p,
+.continuity-review__evidence,
+.continuity-review__refs {
+  color: var(--bs-text-secondary);
+}
+
+.continuity-review__posture {
+  padding: 3px 8px;
+  border: 1px solid var(--bs-line-quiet);
+  color: var(--bs-text-secondary);
+  white-space: nowrap;
+}
+
+.continuity-review__empty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--bs-line-quiet);
+  color: var(--bs-text-secondary);
+}
+
+.continuity-review__table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.continuity-review__table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.continuity-review__table th,
+.continuity-review__table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--bs-line-quiet);
+  text-align: left;
+  vertical-align: top;
+}
+
+.continuity-review__table th {
+  font-weight: 650;
+}
+
+.continuity-review__evidence,
+.continuity-review__refs {
+  display: block;
+  margin-top: 4px;
+}
+
+.continuity-review__refs {
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.continuity-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.continuity-review__actions button {
+  min-height: 32px;
+  padding: 4px 7px;
+  border: 1px solid var(--bs-line-quiet);
+  background: var(--bs-surface-base);
+  color: var(--bs-text-primary);
+  cursor: pointer;
+}
+
+.continuity-review__actions button:focus-visible {
+  outline: 2px solid var(--bs-semantic-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continuity-review__actions button {
+    transition: none;
+  }
+}
+
 .stage19-manuscript-structure {
   display: grid;
   gap: 8px;

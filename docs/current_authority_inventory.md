@@ -36,6 +36,8 @@ The inventory includes:
 - the Program 6 Batch P6-A bounded contract and persistence evidence receipt;
 - the Program 6 Batch P6-B handoff and deterministic Emotion Graph evidence
   receipt;
+- the Program 6 Batch P6-C handoff and deterministic Continuity V1 evidence
+  receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -71,10 +73,19 @@ bounded mechanical contract, policy, project-local metadata persistence, typed
 Writing Studio IPC, preload parity, and listed focused gates. The P6-B
 handoff and evidence receipt are current authority only for the deterministic
 Emotion Graph contracts, compatible author-record persistence, temporary
-candidate projection, reusable component, and listed green P6-B gates.
-Neither receipt authorizes P6-C, production surface integration, providers, model
-calls, packaging, installed qualification, creation/revision, or Program 6
-closure.
+candidate projection, reusable component, and listed green P6-B gates. The
+P6-C handoff and evidence receipt remain current authority for deterministic
+Continuity V1 structured contracts, temporary candidate findings, bounded
+review presentation, and their listed gates. The newest explicit user
+instruction supersedes older batch-specific “do not begin later batches”
+wording, renews bounded P6-C diagnosis/repair and git authority, and admits
+sequential P6-D through P6-G continuation after preceding-batch completion.
+P6-C's unchanged qualified-host Electron startup preflight and complete dirty
+Stage 19 regression now pass after the renewed bounded diagnosis; the exact
+P6-C commit, clean exact-commit gate, and push remain pending. None of these receipts
+authorizes P6-D, P6-E, P6-F, production mounting beyond the named bounded
+components, providers, model calls, packaging, installed qualification,
+creation/revision, or Program 6 closure.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

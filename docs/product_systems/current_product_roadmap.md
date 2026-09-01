@@ -43,7 +43,10 @@ Current status:
   the repaired Human Gates and Program 5 closure. Exactly four worktrees remain
   intentionally protected or quarantined; their retention does not reopen the
   cleanup wave. Program 6 P6-A and P6-B are bounded mechanical foundations;
-  P6-C and product-facing intelligence work still require separate explicit
+  P6-C implementation is active under the newest explicit sequential
+  authorization. Its unchanged qualified-host Electron startup preflight and
+  complete dirty regression now pass after bounded diagnosis; the exact commit
+  and clean gate remain pending before P6-D. P6-D and product-facing intelligence work still require separate
   authorization. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -51,12 +54,15 @@ Current status:
   `program_6_signals_story_intelligence_implementation_plan.md`; P6-A and P6-B
   are complete within their bounded contract, persistence, deterministic
   projection, reusable-component, focused-test, and fixed-regression layers.
-  The [P6-B evidence receipt](program_6_batch_p6_b_evidence_receipt.md) records
-  `P6-B MECHANICAL IMPLEMENTATION COMPLETE; P6-C NOT STARTED`.
-  Production surface integration, continuity, analyzer, provider/model,
-  dependency, packaging, installed qualification, creation/revision, and
-  later-batch work remain deferred; Program 7 remains blocked until the
-  Program 6 author checkpoint is explicitly accepted.
+  P6-C deterministic Continuity V1 implementation and dirty Stage 19 gates are
+  green after the unchanged qualified-host preflight passed; its exact commit
+  and clean gate remain pending before P6-D.
+  The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
+  records the exact status and residual. P6-D chronology/pacing/pressure,
+  production surface integration, provider/model, dependency, packaging,
+  installed qualification, creation/revision, and later-batch work remain
+  deferred; Program 7 remains blocked until the Program 6 author checkpoint is
+  explicitly accepted.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

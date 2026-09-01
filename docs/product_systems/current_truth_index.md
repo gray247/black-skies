@@ -131,8 +131,11 @@ It does not finalize the entire product vision.
   Cleanup Wave A closed at `dcf340a2db8033a679c8227a62a050ec47bb951b`.
   Exactly four worktrees remain intentionally protected or quarantined; their
   retention does not leave Cleanup Wave A open. Program 6 P6-A and P6-B are
-  bounded mechanical foundations; P6-C and product-facing intelligence work
-  still require separate explicit authorization. The cleanup HEAD is
+  bounded mechanical foundations; P6-C implementation is active under explicit
+  sequential authorization and its unchanged host Electron startup preflight
+  plus complete dirty regression now pass after bounded diagnosis; its exact
+  commit and clean gate remain pending before P6-D and product-facing
+  intelligence work. The cleanup HEAD is
   regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
   installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -228,16 +231,18 @@ It does not finalize the entire product vision.
   structural anchors proven. Emotion Graph V1 remains Program 6 work and keeps
   author-planned, manuscript-observed, and inferred emotion distinct.
 - Program 6 bounded planning is documented in
-  `program_6_signals_story_intelligence_implementation_plan.md`; its P6-A and
-  P6-B handoffs were explicitly executed with `GPT-5.6 Luna` at high
-  reasoning. The [P6-B evidence receipt](program_6_batch_p6_b_evidence_receipt.md)
-  records green deterministic contracts, policy-compatible persistence,
-  projection, reusable renderer, focused-test, typecheck, compile, build,
-  lint, documentation, and fixed-regression gates. Status is
-  `P6-B MECHANICAL IMPLEMENTATION COMPLETE; P6-C NOT STARTED`. Production
-  surface integration, continuity, provider/model, dependency, packaging,
+  `program_6_signals_story_intelligence_implementation_plan.md`; its P6-A,
+  P6-B, and P6-C handoffs were explicitly executed with `GPT-5.6 Luna` at
+  high reasoning. The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
+  records deterministic Continuity V1 structured contracts, protected-source
+  handling, temporary candidate findings, bounded review presentation, and
+  the exact validation status. Its focused implementation gates are green,
+  and Stage 19 now passes on the unchanged qualified host after bounded
+  diagnosis, with exact commit and clean-candidate evidence still pending; no
+  P6-C commit or push has yet been made. P6-D chronology/pacing/pressure,
+  production surface integration, providers/models, dependencies, packaging,
   installed qualification, creation/revision, and later-batch work remain
-  separately unauthorized.
+  separately unauthorized until explicitly opened.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 
