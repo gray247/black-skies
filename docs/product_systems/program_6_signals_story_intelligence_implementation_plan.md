@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `P6-C ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
+- Status: `P6-E ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
 - Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
@@ -104,7 +104,7 @@ editing.
 
 ### 3.3 Program boundary
 
-P6-A and P6-B remain completed bounded implementation slices with their
+P6-A, P6-B, and P6-C remain completed bounded implementation slices with their
 separate evidence receipts. The newest explicit user instruction admits the
 existing P6-C implementation and sequentially admits P6-D through P6-G only
 after each preceding batch's required gates and evidence receipt are green.
@@ -1012,12 +1012,11 @@ its own bounded plan and explicit authorization record.
 
 ## 14. Current Handoff
 
-P6-A and P6-B are mechanically complete within their separately authorized
-boundaries. P6-B is durable at the exact commit whose subject is recorded in
-[the P6-B evidence receipt](program_6_batch_p6_b_evidence_receipt.md).
-No P6-C or later runtime, GUI integration, analyzer, provider, model,
-dependency, packaging, human-gate, branch, worktree, or release mutation is
-implied by this document.
-
-The next eligible action is a separately authorized P6-C implementation task
-using its own exact handoff prompt. P6-C has not started.
+P6-A, P6-B, P6-C, and P6-D are mechanically complete within their separately
+authorized boundaries. P6-C is durable at `7536431d`; P6-D has green focused,
+typecheck, build, lint, documentation, diff, and complete dirty Stage 19
+evidence, with its exact commit/clean/push closure recorded by the next
+handoff update. The newest explicit user instruction admits P6-E, whose
+bounded local-inference gateway and quiet/product-surface work is now active.
+P6-F and P6-G remain sequentially admitted only after the preceding batch is
+complete; no Program 7 implementation or Program 6 closure is implied.

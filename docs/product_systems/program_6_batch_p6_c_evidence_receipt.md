@@ -2,7 +2,7 @@
 
 ## Status
 
-`P6-C DIRTY-DEVELOPMENT GATES GREEN; COMMIT AND CLEAN GATE PENDING`
+`P6-C MECHANICAL IMPLEMENTATION COMPLETE; P6-D ACTIVE`
 
 This receipt records the bounded deterministic Continuity V1 implementation
 authorized by the P6-C Luna/high handoff. The implementation gates are green,
@@ -10,8 +10,10 @@ and the required dirty Stage 19 regression now passes on the unchanged
 qualified host. The newest explicit user
 instruction renews bounded diagnosis/repair authority and sequentially admits
 P6-D through P6-G after preceding-batch completion; it supersedes older
-batch-specific “do not begin later batches” wording. No P6-C commit or push has
-yet been made.
+batch-specific “do not begin later batches” wording. The bounded implementation
+is durable at commit `7536431d2d742bb37d5dd502672633e46796c616`, whose subject
+is `feat(program-6): add continuity contracts`; its clean fixed gate and push
+passed. P6-D is now the active batch.
 
 ## Implemented boundary
 
@@ -50,7 +52,7 @@ or other truth owner was changed.
 | Documentation lint | PASS — 59 files, local links resolved |
 | `git diff --check` | PASS |
 | Complete Stage 19 regression | PASS — critical matrix 49 files / 774 passed / 2 skipped; startup preflight 1/1; Electron matrix 35/35 |
-| Exact P6-C commit, push, clean worktree, upstream equality | PENDING — commit and clean exact-candidate gate remain |
+| Exact P6-C commit, push, clean worktree, upstream equality | PASS — `7536431d2d742bb37d5dd502672633e46796c616`; clean and synchronized |
 
 ## Prior blocked-gate diagnostics and renewed gate evidence
 
@@ -105,7 +107,7 @@ typecheck, production renderer/main build, the `49`-file critical matrix with
 Electron matrix `35/35`. No `--disable-gpu`, launch workaround, dependency
 change, Electron startup change, or product workaround was added. The exact
 P6-C commit, clean exact-commit regression, push, and synchronized clean
-worktree remain pending.
+worktree all passed as recorded above.
 
 ## Explicit residuals and non-claims
 

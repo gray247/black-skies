@@ -43,23 +43,26 @@ Current status:
   the repaired Human Gates and Program 5 closure. Exactly four worktrees remain
   intentionally protected or quarantined; their retention does not reopen the
   cleanup wave. Program 6 P6-A and P6-B are bounded mechanical foundations;
-  P6-C implementation is active under the newest explicit sequential
-  authorization. Its unchanged qualified-host Electron startup preflight and
-  complete dirty regression now pass after bounded diagnosis; the exact commit
-  and clean gate remain pending before P6-D. P6-D and product-facing intelligence work still require separate
-  authorization. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
+  P6-C implementation is mechanically complete at `7536431d` after its
+  unchanged qualified-host Electron startup preflight, dirty regression, clean
+  fixed gate, and push passed. P6-D Timeline V1 chronology, pacing, and pressure
+  contracts have passed their complete dirty Stage 19 gate and are closing
+  through the bounded exact commit/clean/push handoff. P6-E is admitted next
+  under the newest explicit sequential authorization; product-facing surface
+  and local-inference work remains bounded by its handoff. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Program 6 planning is documented in
   `program_6_signals_story_intelligence_implementation_plan.md`; P6-A and P6-B
   are complete within their bounded contract, persistence, deterministic
   projection, reusable-component, focused-test, and fixed-regression layers.
-  P6-C deterministic Continuity V1 implementation and dirty Stage 19 gates are
-  green after the unchanged qualified-host preflight passed; its exact commit
-  and clean gate remain pending before P6-D.
+  P6-C deterministic Continuity V1 implementation and all required fixed gates
+  are green at `7536431d`; P6-D Timeline V1 chronology, pacing, and pressure
+  work has green dirty-development evidence and P6-E is the next bounded batch.
   The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
-  records the exact status and residual. P6-D chronology/pacing/pressure,
-  production surface integration, provider/model, dependency, packaging,
+  records the exact status and residual. P6-D chronology/pacing/pressure
+  closure and P6-E bounded production-surface/local-inference work,
+  provider/model, dependency, packaging,
   installed qualification, creation/revision, and later-batch work remain
   deferred; Program 7 remains blocked until the Program 6 author checkpoint is
   explicitly accepted.

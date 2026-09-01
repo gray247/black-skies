@@ -38,6 +38,8 @@ The inventory includes:
   receipt;
 - the Program 6 Batch P6-C handoff and deterministic Continuity V1 evidence
   receipt;
+- the Program 6 Batch P6-D handoff and deterministic Timeline V1 evidence
+  receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -80,10 +82,14 @@ review presentation, and their listed gates. The newest explicit user
 instruction supersedes older batch-specific “do not begin later batches”
 wording, renews bounded P6-C diagnosis/repair and git authority, and admits
 sequential P6-D through P6-G continuation after preceding-batch completion.
-P6-C's unchanged qualified-host Electron startup preflight and complete dirty
-Stage 19 regression now pass after the renewed bounded diagnosis; the exact
-P6-C commit, clean exact-commit gate, and push remain pending. None of these receipts
-authorizes P6-D, P6-E, P6-F, production mounting beyond the named bounded
+P6-C's unchanged qualified-host Electron startup preflight, complete dirty
+Stage 19 regression, exact commit `7536431d`, clean exact-commit gate, and push
+all pass. P6-D's deterministic Timeline V1 focused, static, documentation,
+diff, and complete dirty Stage 19 gates are green; its exact commit/clean/push
+closure is the remaining mechanical handoff item. The newest explicit user
+authorization admits P6-E as the next sequential batch after P6-D closes.
+P6-F and P6-G remain sequential after preceding-batch completion; none of these receipts authorizes
+production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,
 creation/revision, or Program 6 closure.
 
