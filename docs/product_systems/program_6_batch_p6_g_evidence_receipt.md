@@ -50,10 +50,11 @@ plan-authoritative project set `Lantern House`, `Northline Letters`, and
 | Focused Program 6 contracts | PASS — 5 files / 29 tests |
 | App typecheck, production build, app lint | PASS |
 | Dirty Stage 19 regression after repair | PASS — 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36 |
+| Repair commit and exact clean Stage 19 regression | PASS — `1a4a3513cebd2e2d505474422dee8049c934030a`; 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36; clean |
 
-The repair is mechanically qualified locally. The exact commit and clean
-regression/push identity are recorded below only after the bounded commit is
-created; this receipt does not pre-claim that commit or human acceptance.
+The repair commit is mechanically qualified locally. The documentation
+follow-up commit that records this receipt is subject to one final clean gate
+before push; neither commit claims human acceptance.
 
 ## Human-review launch path
 
