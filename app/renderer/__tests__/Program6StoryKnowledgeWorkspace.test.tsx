@@ -89,6 +89,7 @@ describe('Program 6 Story Knowledge workspace', () => {
     renderWorkspace(documentWithSignal('stale'));
     await user.click(screen.getByRole('button', { name: /^Signals$/ }));
 
+    expect(screen.getByText('Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.')).toBeVisible();
     expect(screen.getByRole('button', { name: /^Convert$/ })).toBeDisabled();
   });
 

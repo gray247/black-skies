@@ -8413,16 +8413,24 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: grid;
   gap: 4px;
   min-width: 160px;
-  color: var(--bs-text-secondary);
+  color: var(--stage19-semantic-text);
   font-size: 0.8rem;
+  font-weight: 650;
 }
 
 .emotion-graph__subject-filter select {
   min-height: 34px;
   padding: 4px 8px;
-  border: 1px solid var(--bs-line-quiet);
+  border: 1px solid var(--stage19-semantic-border);
   background: var(--bs-surface-base);
   color: var(--bs-text-primary);
+}
+
+.emotion-graph__subject-context {
+  align-self: center;
+  color: var(--stage19-semantic-text);
+  font-size: 0.8rem;
+  font-weight: 650;
 }
 
 .emotion-graph__visual-wrap {

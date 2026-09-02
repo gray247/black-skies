@@ -63,15 +63,17 @@ export default function EmotionGraph({ projection, onSelectPoint }: EmotionGraph
           <h2 id={titleId}>Emotion Graph</h2>
           <p id={descriptionId}>{projection.accessibleSummary.description}</p>
         </div>
-        {subjects.length > 0 && (
+        {subjects.length === 1 ? (
+          <p className="emotion-graph__subject-context">Subject: {subjects[0]}</p>
+        ) : subjects.length > 1 ? (
           <label className="emotion-graph__subject-filter">
-            <span>Subject lane</span>
+            <span>Subject</span>
             <select aria-label="Emotion Graph subject" value={subject} onChange={(event) => setSubject(event.target.value)}>
-              <option value="">Primary lane</option>
+              <option value="">All subjects</option>
               {subjects.map((value) => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
-        )}
+        ) : null}
       </header>
       {visible.length === 0 ? (
         <p className="emotion-graph__empty" data-testid="emotion-graph-empty">No source-linked emotional points are available for this view.</p>

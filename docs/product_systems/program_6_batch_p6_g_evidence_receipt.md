@@ -74,6 +74,58 @@ window; no automated Electron gate pass is claimed. Subjective author
 acceptance remains outstanding, so this receipt does not close Program 6 or
 admit Program 7.
 
+## P6-G human-gate repair — 2026-09-02
+
+The next renewed review isolated three bounded gaps: same-window `Review
+source` from Pacing, Pressure, and Signals left the user in Command Center;
+Emotion Graph made a single subject look like a selector and did not clearly
+model the no-label case; and Signals copy used internal lifecycle terminology
+instead of plain language. The source-return root cause was the shared
+`windowRole === 'writing'` branch selecting a unit without activating the
+Writing logical surface. The Emotion Graph root cause was one control shape
+regardless of subject count. The copy root cause was a missing presentation
+translation at the Signals lens boundary.
+
+The repair activates Writing Studio in the current window before selecting the
+linked unit, preserves source linkage/currentness and leaves `saveUnit`
+untouched, and adds real Program 6 E2E coverage for all three lenses. Emotion
+Graph now shows noninteractive `Subject: <subject>` for one labelled subject,
+an accessible `All subjects` filter plus actual subjects for multiple labels,
+and no selector or invented subject context when labels are absent. Filtering
+changes the rendered table and points; semantic text/border tokens increase
+contrast without removing established non-color and reduced-motion cues.
+Signals now says: “Signals are saved story concerns or observations the author
+chooses to keep track of. They remain advisory and never change prose or
+canon.” No manuscript, canon, IPC, persistence, or protected-source truth was
+changed.
+
+Renewed verification recorded the focused renderer run as `3` files / `131`
+tests passed. The dirty Stage 19 gate passed its complete mechanical matrix at
+`49` files / `777` passed / `2` skipped, then its startup preflight blocked
+before a first window with the known Electron GPU exit `-1073741515`; packaged
+entry and renderer files existed, but no automated Electron UI pass is
+claimed. The targeted Program 6 Electron journey reached the same zero-window
+condition, so interactive source-return acceptance remains pending. This is
+an environment blocker, not a product-failure finding. Commit, push, renewed
+human verification, and subjective author acceptance remain pending.
+
+## Direct interactive source-app verification — 2026-09-02
+
+The primary agent completed direct checks against the running source app for
+the repaired P6-G route. Emotion Graph with one labelled subject showed the
+static, high-contrast `Subject: protagonist` context and no selector. Signals
+showed the plain-language advisory definition, while protected-content
+redaction and stale `Convert` disabled behavior remained intact. Source return
+checks confirmed `Signals` returned to Writing Studio with `go_01` / `The Empty
+Conservatory` active and Save disabled, `Pacing` returned with `go_02` / `A Red
+Apple` active and Save disabled, and `Pressure` returned with `go_03` / `The
+Frost Line` active and Save disabled.
+
+These are direct interactive checks against the running source app, not an
+automated Electron gate result. Automated Electron remained blocked by the
+known GPU no-window condition before first window. Human subjective acceptance
+remains outstanding, and Program 7 was not started.
+
 ## Mechanical prerequisite
 
 | Evidence | Result |

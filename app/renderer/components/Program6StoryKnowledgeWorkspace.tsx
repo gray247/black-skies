@@ -90,7 +90,7 @@ function SignalsLens({
 }): JSX.Element {
   return (
     <section className="stage19-program6__lens" aria-label="Signals detail" data-testid="program6-signals-lens">
-      <header><h2>Signals</h2><p>Project-local findings remain advisory, qualitative, source-linked, currentness-labelled, and owner-routed.</p></header>
+      <header><h2>Signals</h2><p>Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.</p></header>
       <div className="stage19-program6__signal-posture"><span>Signal posture: <strong>{document.settings.signalPosture}</strong></span><span>Project posture: <strong>{document.settings.projectPosture}</strong></span></div>
       {projection.signals.length === 0 ? <p>No durable signals are waiting for review.</p> : (
         <ul className="stage19-program6__signals">

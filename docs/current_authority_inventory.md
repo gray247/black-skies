@@ -103,6 +103,24 @@ source-unit metric binding, stale-reviewed conversion guard, and recorded
 interactive Electron observations described in that receipt. The automated
 launcher preflight remains blocked before first window and subjective author
 acceptance remains outstanding; this does not close the renewed checkpoint.
+The 2026-09-02 P6-G human-gate repair is the current authority for the shared
+same-window source return from Pacing, Pressure, and Signals, the Emotion Graph
+subject cardinality/filter behavior and semantic contrast treatment, and the
+plain-language Signals advisory copy. Its focused renderer run passed `3`
+files / `131` tests; the dirty Stage 19 mechanical matrix passed `49` files /
+`777` tests / `2` skips, while launcher preflight again stopped before a first
+window with Electron GPU exit `-1073741515`. Interactive acceptance remains
+pending; this launcher result is an environment blocker rather than a product
+result.
+The same 2026-09-02 P6-G authority also includes direct interactive source-app
+checks: one-subject Emotion Graph showed static high-contrast `Subject:
+protagonist` with no selector; Signals showed the plain-language advisory
+definition while protected redaction and stale `Convert` disabled behavior
+remained intact; and Signals/Pacing/Pressure source return selected `go_01` /
+`The Empty Conservatory`, `go_02` / `A Red Apple`, and `go_03` / `The Frost
+Line`, respectively, in Writing Studio with Save disabled. These direct checks
+do not convert the automated Electron no-window blocker into a pass. Human
+subjective acceptance remains outstanding, and Program 7 was not started.
 None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,

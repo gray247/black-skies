@@ -35,6 +35,12 @@ import type {
   SplitCommandSurfaceHostResult,
   SplitCommandSurfaceHostState,
 } from '../../shared/ipc/splitCommand';
+import type {
+  DurableSignalV1,
+  StoryIntelligenceBridge,
+  StoryIntelligenceDocumentV1,
+} from '../../shared/ipc/storyIntelligence';
+import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
 import Stage19WritingSpineApp, {
   deriveDirtyUnitIds,
   parseStage19Theme,
@@ -441,6 +447,49 @@ function createSurfaceBridge(
     publish,
     get current() { return current; },
   };
+}
+
+function createStoryIntelligenceBridge(): StoryIntelligenceBridge {
+  const now = '2026-09-01T12:00:00.000Z';
+  const base = createDefaultStoryIntelligenceDocument('proj_a', new Date(now));
+  const signal: DurableSignalV1 = {
+    schemaVersion: 'BlackSkiesStoryIntelligence v1',
+    signalId: 'signal-source-return',
+    projectId: 'proj_a',
+    positionRefs: [{
+      projectId: 'proj_a',
+      sourceKind: 'story-unit',
+      sourceId: 'unit_a',
+      sourceRevision: 1,
+      sourceFingerprint: 'proj_a:unit_a:fixture',
+      unitId: 'unit_a',
+      orderIndex: 1,
+      orderBasis: 'manuscript',
+    }],
+    sourceOwner: 'Program 6 test fixture',
+    evidenceClass: 'observed',
+    impact: 'attention',
+    confidenceBand: 'medium',
+    currentness: 'current',
+    lifecycle: 'reviewed',
+    summary: 'A source-linked reviewed signal.',
+    evidenceSummary: 'Review the linked source.',
+    provenance: {
+      sourceOwner: 'Program 6 test fixture',
+      origin: 'deterministic',
+      visibility: 'included',
+      citationRequired: true,
+      protectionClass: 'included',
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+  const document: StoryIntelligenceDocumentV1 = { ...base, durableSignals: [signal] };
+  return {
+    read: vi.fn(async () => ({ ok: true as const, data: document })),
+    write: vi.fn(async (request) => ({ ok: true as const, data: request.document })),
+    checkPermission: vi.fn(),
+  } as unknown as StoryIntelligenceBridge;
 }
 
 function recoveryCandidate(
@@ -1160,6 +1209,48 @@ describe('Stage19WritingSpineApp', () => {
       .toBeDisabled();
     expect(restoredEditor).toHaveValue('Unsaved surface-preserved prose');
   });
+
+  it.each(['Pacing', 'Pressure', 'Signals'] as const)(
+    'returns %s source review to Writing Studio and selects the linked unit',
+    async (lens) => {
+      const units = [
+        { id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' },
+        { id: 'unit_b', title: 'Second Unit', order: 2, body: 'Beta body' },
+      ];
+      const writing = createBridge(snapshot('writing', {
+        activeUnitId: 'unit_b',
+        units,
+      }));
+      const surfaces = createSurfaceBridge(snapshot('command', { units }));
+      const storyIntelligence = createStoryIntelligenceBridge();
+      const user = userEvent.setup();
+      render(
+        <Stage19WritingSpineApp
+          windowRole="writing"
+          bridge={writing.bridge}
+          surfaceBridge={surfaces.bridge}
+          storyIntelligenceBridge={storyIntelligence}
+        />,
+      );
+
+      expect(await screen.findByRole('textbox', { name: 'Manuscript editor: Second Unit' })).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+      await screen.findByRole('region', { name: 'Command Center' });
+      await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+      await screen.findByRole('heading', { name: 'Story Knowledge' });
+      await user.click(screen.getByRole('button', { name: lens }));
+      await user.click(screen.getAllByRole('button', { name: 'Review source' })[0]!);
+
+      expect(await screen.findByRole('region', { name: 'Writing Studio' })).toBeVisible();
+      expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toBeVisible();
+      expect(writing.bridge.selectUnit).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'unit_a' }));
+      expect(surfaces.activateSurface).toHaveBeenCalledWith(expect.objectContaining({
+        targetSurface: 'writing',
+        placement: 'current-window',
+      }));
+      expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    },
+  );
 
   it('recovers the surface controls when the initial host-state handshake races startup', async () => {
     const writing = createBridge(snapshot('writing'));

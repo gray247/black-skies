@@ -100,6 +100,27 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
         await expect(command.getByText('Protected signal metadata', { exact: true })).toBeVisible();
         await expect(command.getByText(/content is excluded; no summary is displayed/i)).toBeVisible();
       }
+
+      if (projectId === 'proj_glass_orchard_review') {
+        const sourceReturns = [
+          { lens: 'Pacing', unitId: 'go_01', title: 'The Empty Conservatory' },
+          { lens: 'Pressure', unitId: 'go_02', title: 'A Red Apple' },
+          { lens: 'Signals', unitId: 'go_01', title: 'The Empty Conservatory' },
+        ] as const;
+        for (const sourceReturn of sourceReturns) {
+          const manuscriptBefore = await readFile(path.join(projectPath, 'drafts', `${sourceReturn.unitId}.md`), 'utf8');
+          await writing.getByRole('button', { name: 'Open Command Center here', exact: true }).click();
+          await expect(writing.getByRole('region', { name: 'Command Center' })).toBeVisible();
+          await writing.getByRole('button', { name: 'Story Knowledge', exact: true }).click();
+          await writing.getByRole('button', { name: sourceReturn.lens, exact: true }).click();
+          await expect(writing.getByRole('heading', { name: lensHeadings[sourceReturn.lens], exact: true })).toBeVisible();
+          await writing.getByRole('button', { name: 'Review source', exact: true }).first().click();
+          await expect(writing.getByRole('region', { name: 'Writing Studio' })).toBeVisible();
+          await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${sourceReturn.title}` })).toBeVisible();
+          await expect(writing.locator(`[data-manuscript-unit-id="${sourceReturn.unitId}"] [aria-current="location"]`)).toBeVisible();
+          expect(await readFile(path.join(projectPath, 'drafts', `${sourceReturn.unitId}.md`), 'utf8')).toBe(manuscriptBefore);
+        }
+      }
     }
   } finally {
     await rm(reviewRoot, { recursive: true, force: true });

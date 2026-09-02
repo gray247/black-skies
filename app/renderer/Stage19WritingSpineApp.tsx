@@ -2881,6 +2881,7 @@ export default function Stage19WritingSpineApp({
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
     if (windowRole === 'writing' && source.unitId) {
+      await activateSurface('writing', 'current-window');
       await handleSelectUnit(source.unitId);
       return;
     }

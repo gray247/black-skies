@@ -87,6 +87,63 @@ remains an environment blocker before first window; no automated Electron gate
 pass is claimed. Subjective author acceptance remains outstanding, and
 Program 7 remains blocked.
 
+## Program 6 P6-G human-gate repair — 2026-09-02
+
+The renewed human-gate follow-up found three bounded presentation/return gaps.
+Returning from Pacing, Pressure, or Signals through `Review source` in the
+combined Writing/Command window left the logical surface in Command Center
+instead of returning to Writing Studio and selecting the linked unit. Emotion
+Graph presented the subject lane as a low-contrast selector even when there
+was only one subject, and its empty-label case could imply a subject context
+that the source did not provide. Signals also described durable story
+observations with internal lifecycle language instead of plain author-facing
+copy.
+
+The root causes were a same-window source-return branch that selected the unit
+without activating the Writing surface, a component that rendered one control
+shape for every subject cardinality, and Signals copy that had not been
+translated at the presentation boundary. The bounded repair routes the shared
+source-return path through `activateSurface('writing', 'current-window')`
+before selecting the linked unit, renders one subject as noninteractive
+`Subject: …`, multiple subjects as an `All subjects` filter with visible
+table/point filtering, and renders no subject control or invented context when
+labels are absent. The filter/context now use established semantic text and
+border tokens, while the table, lane labels, and reduced-motion/non-color
+distinctions remain intact. Signals now states: “Signals are saved story
+concerns or observations the author chooses to keep track of. They remain
+advisory and never change prose or canon.” No manuscript, canon, IPC, or
+protected-source truth was changed.
+
+Focused component and app coverage now exercises Emotion Graph zero/one/many
+subject states, filtering, semantic styling, Signals copy, and same-window
+source return from all three named lenses. The real Program 6 E2E journey was
+extended to walk Pacing, Pressure, and Signals source return on the Glass
+Orchard fixture, assert Writing Studio plus the linked unit/source state, and
+leave manuscript bytes untouched. The focused renderer run passed `3` files /
+`131` tests. The dirty Stage 19 gate passed its complete mechanical matrix at
+`49` files / `777` passed / `2` skipped, then its startup preflight blocked
+before a first window with the known Electron GPU exit `-1073741515`; packaged
+entry and renderer files existed, but no automated Electron UI pass is
+claimed. Commit, push, renewed human verification, and subjective author
+acceptance remain pending. Program 7 remains blocked.
+
+## Program 6 P6-G direct interactive source-app verification — 2026-09-02
+
+The primary agent completed direct checks against the running source app for
+the repaired P6-G route. With one labelled subject, Emotion Graph showed the
+static, high-contrast `Subject: protagonist` context and no selector. Signals
+showed the plain-language advisory definition; protected-content redaction and
+stale `Convert` disabled behavior remained intact. Source return checks then
+confirmed `Signals` returned to Writing Studio with `go_01` / `The Empty
+Conservatory` active and Save disabled, `Pacing` returned with `go_02` / `A Red
+Apple` active and Save disabled, and `Pressure` returned with `go_03` / `The
+Frost Line` active and Save disabled.
+
+These were direct interactive checks against the running source app, not an
+automated Electron gate result. Automated Electron remained blocked by the
+known GPU no-window condition before first window. Human subjective acceptance
+remains outstanding; Program 7 was not started.
+
 ## Program 5 closure — 2026-08-31
 
 Program 5 is closed on exact product commit
