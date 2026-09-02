@@ -2832,6 +2832,9 @@ if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligenceBridge);
   contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructureBridge);
 }
+if (isCommandCenterPreload && splitCommandLaunchContext) {
+  safeExpose('storyIntelligence', storyIntelligenceBridge);
+}
 if (splitCommandBridge) {
   safeExpose('splitCommand', splitCommandBridge);
 }

@@ -61,8 +61,9 @@ function activeProject(
   event: IpcMainInvokeEvent,
   request: StoryIntelligenceProjectBindingV1,
 ): { readonly snapshot: ProjectSpineSessionSnapshot; readonly repository: StoryIntelligenceRepository } | StoryIntelligenceFailureV1 {
-  if (!options || options.resolveWindowRole(event.sender.id) !== 'writing') {
-    return fail('NOT_WRITING_STUDIO', 'Story intelligence is available only in Writing Studio.');
+  const windowRole = options?.resolveWindowRole(event.sender.id);
+  if (!options || (windowRole !== 'writing' && windowRole !== 'command')) {
+    return fail('NOT_WRITING_STUDIO', 'Story intelligence is available only in the Stage 19 project surfaces.');
   }
   if (!validBinding(request)) return fail('INVALID_REQUEST', 'The story-intelligence request is incomplete.');
   const snapshot = options.getWritingSnapshot();

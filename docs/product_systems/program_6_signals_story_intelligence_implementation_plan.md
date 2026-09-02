@@ -2,6 +2,19 @@
 
 ## 1. Status And Authority
 
+### Current live-review correction — 2026-09-01
+
+The first P6-G readiness claim is superseded by Jason's live review. It found
+that the named projects were not real openable review roots, the production
+Stage 19 route still exposed a placeholder instead of Story Knowledge, and the
+first source launch required an environment-only Electron dependency restore.
+The bounded repair wires the existing contracts into the actual Stage 19 route,
+adds a deterministic three-project materializer and source-review launcher,
+and adds real Electron coverage for all seven lenses and protected redaction.
+The repair does not change Electron startup code, launch arguments, GPU
+settings, dependencies, package behavior, or Program 7 scope. The renewed
+human checkpoint remains the only closure gate.
+
 - Status: `P6-G HUMAN VERIFICATION CHECKPOINT ACTIVE; PROGRAM 6 OPEN`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`

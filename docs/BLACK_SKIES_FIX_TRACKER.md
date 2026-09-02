@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G human verification checkpoint active; Program 7 remains blocked
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
 Last Reviewed: 2026-09-01
 
 ## Purpose
@@ -16,6 +16,26 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Program 6 live-checkpoint repair — 2026-09-01
+
+Jason's live review superseded the prior P6-G readiness claim. The source
+checkout had no qualified desktop shortcut, the first source launch required a
+frozen-lockfile dependency restore because Electron's CLI artifact was missing,
+the three named projects were not real openable roots, and the production Stage
+19 route still presented the Story Knowledge placeholder. The bounded repair
+wired the existing Story Intelligence bridge and contracts into the actual
+Stage 19 production Writing/Command surfaces, added all seven one-lens-at-a-time
+Story Knowledge lenses and owner-routed signal disposition, added a deterministic
+three-project materializer/launcher, and added a real Electron walkthrough.
+
+Evidence: focused Program 6 contracts passed `5` files / `29` tests; app
+typecheck, production build, and lint passed; the real Electron walkthrough
+passed all three materialized projects and all seven lenses; and the dirty
+Stage 19 regression passed `49` critical unit files / `774` tests / `2` skips,
+startup `1/1`, and Electron `36/36`. No Electron startup code, launch argument,
+GPU setting, dependency, package, or protected author material was changed.
+The renewed P6-G human checkpoint remains open; Program 7 remains blocked.
 
 ## Program 5 closure — 2026-08-31
 

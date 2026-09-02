@@ -318,7 +318,7 @@ describe('splitCommand preload bridge', () => {
 
     await import('../preload');
 
-    expect(getExposedGlobalNames().sort()).toEqual(['critiqueReview', 'projectSpine', 'splitCommand']);
+    expect(getExposedGlobalNames().sort()).toEqual(['critiqueReview', 'projectSpine', 'splitCommand', 'storyIntelligence']);
     const bridge = getSplitCommandBridge();
     expect(bridge).toBeDefined();
     expect(bridge?.windowRole).toBe('secondary');

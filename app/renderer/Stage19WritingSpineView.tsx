@@ -34,7 +34,9 @@ import type {
   CritiqueReviewSourceReturnMessageV1,
   CritiqueReviewSurfaceStateV1,
 } from '../shared/ipc/contextualProductShell';
+import type { StoryIntelligenceDocumentV1, StoryPositionRefV1 } from '../shared/ipc/storyIntelligence';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
+import Program6StoryKnowledgeWorkspace from './components/Program6StoryKnowledgeWorkspace';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
 export interface MarkdownExportNotice {
@@ -123,6 +125,9 @@ export interface Stage19WritingSpineViewModel {
   readonly aiResult: AiCritiqueCompletedResult | null;
   readonly aiResultStale: boolean;
   readonly aiNotice: string | null;
+  readonly storyIntelligenceDocument: StoryIntelligenceDocumentV1 | null;
+  readonly storyIntelligenceLoading: boolean;
+  readonly storyIntelligenceNotice: string | null;
   readonly feedbackNotesAvailable: boolean;
   readonly feedbackNoteBody: string;
   readonly feedbackNoteSaving: boolean;
@@ -309,6 +314,8 @@ export interface Stage19WritingSpineViewActions {
   readonly copyAiResult: () => MaybeAsync;
   readonly setFeedbackNoteBody: (value: string) => void;
   readonly saveFeedbackNote: () => MaybeAsync;
+  readonly returnToStorySource: (source: StoryPositionRefV1) => MaybeAsync;
+  readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
   readonly openRecent: (projectPath: string) => MaybeAsync;
   readonly removeRecent: (projectPath: string) => MaybeAsync;
 }
@@ -627,6 +634,20 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           </section>
         ) : model.commandWorkspace === 'review' ? (
           <ReviewWorkspaceView model={model} actions={actions} />
+        ) : model.commandWorkspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
+          <Program6StoryKnowledgeWorkspace
+            project={snapshot.project}
+            generation={snapshot.generation}
+            document={model.storyIntelligenceDocument}
+            onSourceReturn={(source) => void actions.returnToStorySource(source)}
+            onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
+          />
+        ) : model.commandWorkspace === 'story-knowledge' ? (
+          <section className="stage19-command__empty-state" aria-live="polite">
+            <span className="stage19-spine__eyebrow">Story Knowledge unavailable</span>
+            <h2>Project intelligence is unavailable</h2>
+            <p>{model.storyIntelligenceNotice ?? 'The project-bound story-intelligence record could not be read.'}</p>
+          </section>
         ) : (
           <section className="stage19-command__empty-state">
             <span className="stage19-spine__eyebrow">Stable workspace location</span>

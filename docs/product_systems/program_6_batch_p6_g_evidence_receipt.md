@@ -2,7 +2,26 @@
 
 ## Status
 
-`P6-G HUMAN VERIFICATION CHECKPOINT READY; PROGRAM 6 OPEN`
+`P6-G REPAIR QUALIFIED; NEW HUMAN VERIFICATION CHECKPOINT REQUIRED; PROGRAM 6 OPEN`
+
+## Superseded checkpoint correction — 2026-09-01
+
+Jason's live review of the prior checkpoint exposed a real qualification gap;
+the prior `READY` wording is superseded and must not be used as acceptance.
+The source checkout had no qualified desktop shortcut, the first source launch
+needed a frozen-lockfile dependency restore because Electron's CLI artifact was
+missing, and the prior review could not open three real project roots. The
+Writing Studio showed no useful intelligence cue, while Command Center still
+showed the authorized-workspace placeholder and did not expose the complete
+Story Knowledge workflow through the production Stage 19 route.
+
+The bounded repair wires the existing Story Intelligence bridge and contracts
+into the real Stage 19 Writing/Command surfaces, provides all seven lenses in
+one-lens-at-a-time Story Knowledge detail, preserves source linkage and action
+ownership, redacts protected signal content, and adds a deterministic launcher
+that materializes the three plan-authoritative synthetic projects. No Electron
+startup code, launch workaround, GPU setting, dependency, package, or
+manuscript product truth was changed.
 
 P6-F is durable at exact commit
 `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17`, pushed to
@@ -21,6 +40,37 @@ plan-authoritative project set `Lantern House`, `Northline Letters`, and
 | Complete dirty Stage 19 regression | PASS — 49 critical files / 774 passed / 2 skipped; startup 1/1; Electron 35/35 |
 | Exact P6-F clean Stage 19 regression | PASS — 49 critical files / 774 passed / 2 skipped; startup 1/1; Electron 35/35 |
 | Exact commit push and synchronization | PASS — `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17` |
+
+## Repair evidence
+
+| Evidence | Result |
+| --- | --- |
+| Deterministic human-review materializer | PASS — three openable project roots: Lantern House, Northline Letters, Glass Orchard |
+| Real Electron/Playwright corpus walkthrough | PASS — 1 test; all 3 projects; all 7 lenses; signal disposition persisted; protected content redacted |
+| Focused Program 6 contracts | PASS — 5 files / 29 tests |
+| App typecheck, production build, app lint | PASS |
+| Dirty Stage 19 regression after repair | PASS — 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36 |
+
+The repair is mechanically qualified locally. The exact commit and clean
+regression/push identity are recorded below only after the bounded commit is
+created; this receipt does not pre-claim that commit or human acceptance.
+
+## Human-review launch path
+
+From the canonical checkout, run:
+
+```text
+pnpm program6:human-review
+pnpm dev
+```
+
+The first command prints the exact checkout, branch, commit, and three
+materialized project paths. Open each path through Writing Studio, open
+Command Center, choose Story Knowledge, and walk Overview, Emotion,
+Continuity, Timeline, Pacing, Pressure, and Signals. The Glass Orchard
+protected signal must show metadata-only redaction; its protected summary and
+source prose must not appear. This is a source-checkout review path, not a
+qualified installer or package claim.
 
 ## Human rubric — Jason records one decision and note per row
 

@@ -137,8 +137,11 @@ It does not finalize the entire product vision.
   pacing, and pressure work passed its exact bounded commit/clean/push handoff
   at `32d0c617`. P6-E product-facing intelligence work passed its clean
   handoff at `bb7f45db`; P6-F qualification is complete at `f499bf9a` after
-  its clean fixed regression and synchronized push; P6-G is the active next
-  explicitly admitted bounded author checkpoint. The cleanup HEAD is
+  its clean fixed regression and synchronized push. The first P6-G readiness
+  claim was superseded by Jason's live review, which exposed a missing
+  production-route bridge, absent real review corpus, and placeholder-only
+  Story Knowledge surface. The bounded P6-G repair is mechanically qualified
+  locally and the renewed author checkpoint is active. The cleanup HEAD is
   regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
   installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -244,8 +247,11 @@ It does not finalize the entire product vision.
   the exact commit and synchronized push are `7536431d`. P6-D
   chronology/pacing/pressure gates and clean handoff are green at `32d0c617`;
   P6-E production surface/local-inference work is durable at `bb7f45db`; P6-F
-  qualification is complete at `f499bf9a`; P6-G is the active bounded author
-  checkpoint. Providers/models,
+  qualification is complete at `f499bf9a`; the prior P6-G readiness claim is
+  superseded by the live-review findings, and the repaired production route,
+  deterministic three-project materializer, and 36-test Electron walkthrough
+  are now mechanically qualified for the renewed author checkpoint.
+  Providers/models,
   dependencies, packaging, installed qualification, creation/revision, and
   later-batch work remain bounded by their sequential handoffs.
 - Program acceptance does not authorize all runtime work. Each named workflow

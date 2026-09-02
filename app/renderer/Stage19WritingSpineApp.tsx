@@ -49,6 +49,12 @@ import {
   type CritiqueReviewSourceReturnMessageV1,
   type CritiqueReviewSurfaceStateV1,
 } from '../shared/ipc/contextualProductShell';
+import type {
+  StoryIntelligenceBridge,
+  StoryIntelligenceDocumentV1,
+  StoryIntelligenceHistoryEventV1,
+  StoryPositionRefV1,
+} from '../shared/ipc/storyIntelligence';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import Stage19WritingSpineView, {
   getSelectableImportedManuscriptProposalIds,
@@ -540,6 +546,7 @@ export interface Stage19WritingSpineAppProps {
   readonly manuscriptStructureBridge?: ManuscriptStructureBridge;
   readonly surfaceBridge?: SplitCommandOwnershipBridge;
   readonly critiqueReviewBridge?: CritiqueReviewBridge;
+  readonly storyIntelligenceBridge?: StoryIntelligenceBridge;
 }
 
 export default function Stage19WritingSpineApp({
@@ -551,6 +558,7 @@ export default function Stage19WritingSpineApp({
   manuscriptStructureBridge = window.manuscriptStructure,
   surfaceBridge = window.splitCommand,
   critiqueReviewBridge = window.critiqueReview,
+  storyIntelligenceBridge = window.storyIntelligence,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -618,6 +626,9 @@ export default function Stage19WritingSpineApp({
     () => critiqueReviewBridge?.readState() ?? null,
   );
   const [sourceReturnRequest, setSourceReturnRequest] = useState<CritiqueReviewSourceReturnMessageV1 | null>(null);
+  const [storyIntelligenceDocument, setStoryIntelligenceDocument] = useState<StoryIntelligenceDocumentV1 | null>(null);
+  const [storyIntelligenceLoading, setStoryIntelligenceLoading] = useState(false);
+  const [storyIntelligenceNotice, setStoryIntelligenceNotice] = useState<string | null>(null);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -782,6 +793,37 @@ export default function Stage19WritingSpineApp({
       unsubscribeSourceReturn();
     };
   }, [critiqueReviewBridge, windowRole]);
+
+  useEffect(() => {
+    if (!storyIntelligenceBridge || !snapshot.project) {
+      setStoryIntelligenceDocument(null);
+      setStoryIntelligenceNotice(null);
+      setStoryIntelligenceLoading(false);
+      return;
+    }
+    let active = true;
+    setStoryIntelligenceLoading(true);
+    const binding = bindingFor(snapshot, 'story-intelligence-read');
+    if (!binding) return undefined;
+    void storyIntelligenceBridge.read(binding).then((result) => {
+      if (!active) return;
+      if (result.ok) {
+        setStoryIntelligenceDocument(result.data);
+        setStoryIntelligenceNotice(null);
+      } else {
+        setStoryIntelligenceDocument(null);
+        setStoryIntelligenceNotice(result.error.message);
+      }
+    }).catch(() => {
+      if (active) {
+        setStoryIntelligenceDocument(null);
+        setStoryIntelligenceNotice('The project-bound story-intelligence record could not be read.');
+      }
+    }).finally(() => {
+      if (active) setStoryIntelligenceLoading(false);
+    });
+    return () => { active = false; };
+  }, [snapshot, storyIntelligenceBridge]);
 
   const applySnapshot = useCallback((next: ProjectSpineSessionSnapshot) => {
     const previousSnapshot = snapshotRef.current;
@@ -2749,6 +2791,65 @@ export default function Stage19WritingSpineApp({
     }
   }, [activeReviewReference, critiqueReviewBridge]);
 
+  const disposeStorySignal = useCallback(async (
+    signalId: string,
+    lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted',
+  ) => {
+    const document = storyIntelligenceDocument;
+    const current = snapshotRef.current;
+    const signal = document?.durableSignals.find((candidate) => candidate.signalId === signalId);
+    const binding = bindingFor(current, `story-signal-${lifecycle}`);
+    if (!storyIntelligenceBridge || !document || !signal || !binding) return;
+    const eventType: Record<typeof lifecycle, StoryIntelligenceHistoryEventV1['eventType']> = {
+      dismissed: 'signal-dismissed',
+      suppressed: 'signal-suppressed',
+      resolved: 'signal-resolved',
+      converted: 'signal-converted',
+    };
+    const now = new Date().toISOString();
+    const historyEvent: StoryIntelligenceHistoryEventV1 = {
+      eventId: operationId('story-signal-history'),
+      projectId: signal.projectId,
+      eventType: eventType[lifecycle],
+      subjectId: signal.signalId,
+      lifecycleBefore: signal.lifecycle,
+      lifecycleAfter: lifecycle,
+      currentness: signal.currentness,
+      evidenceClass: signal.evidenceClass,
+      actor: 'author',
+      provenanceRef: signal.provenance.sourceOwner,
+      createdAt: now,
+    };
+    const next: StoryIntelligenceDocumentV1 = {
+      ...document,
+      revision: document.revision + 1,
+      durableSignals: document.durableSignals.map((candidate) => candidate.signalId === signalId
+        ? { ...candidate, lifecycle, disposition: lifecycle, updatedAt: now }
+        : candidate),
+      dispositions: [...document.dispositions, {
+        dispositionId: operationId('story-signal-disposition'),
+        projectId: signal.projectId,
+        signalId,
+        lifecycle,
+        actor: 'author',
+        createdAt: now,
+      }],
+      history: [...document.history, historyEvent],
+      updatedAt: now,
+    };
+    try {
+      const result = await storyIntelligenceBridge.write({ ...binding, expectedRevision: document.revision, document: next });
+      if (result.ok) {
+        setStoryIntelligenceDocument(result.data);
+        setStoryIntelligenceNotice(null);
+      } else {
+        setStoryIntelligenceNotice(result.error.message);
+      }
+    } catch {
+      setStoryIntelligenceNotice('The signal disposition could not be saved. No manuscript content was changed.');
+    }
+  }, [storyIntelligenceBridge, storyIntelligenceDocument]);
+
   const activateSurface = useCallback(async (
     targetSurface: SplitCommandLogicalSurface,
     placement: 'current-window' | 'secondary-window',
@@ -2777,6 +2878,17 @@ export default function Stage19WritingSpineApp({
       return false;
     }
   }, [surfaceBridge]);
+
+  const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
+    if (windowRole === 'writing' && source.unitId) {
+      await handleSelectUnit(source.unitId);
+      return;
+    }
+    if (surfaceBridge) {
+      await activateSurface('writing', 'current-window');
+    }
+    setNotice(`Source return requested for ${source.sourceKind}/${source.sourceId}. Writing remains authoritative.`);
+  }, [activateSurface, handleSelectUnit, surfaceBridge, windowRole]);
 
   const submitCompanionOrientation = useCallback(async () => {
     const current = snapshotRef.current;
@@ -2918,6 +3030,9 @@ export default function Stage19WritingSpineApp({
     aiResult,
     aiResultStale,
     aiNotice,
+    storyIntelligenceDocument,
+    storyIntelligenceLoading,
+    storyIntelligenceNotice,
     feedbackNotesAvailable: Boolean(critiqueReviewBridge),
     feedbackNoteBody,
     feedbackNoteSaving,
@@ -3031,6 +3146,8 @@ export default function Stage19WritingSpineApp({
     copyAiResult,
     setFeedbackNoteBody,
     saveFeedbackNote,
+    returnToStorySource,
+    disposeStorySignal,
     openRecent: handleOpenRecent,
     removeRecent: handleRemoveRecent,
   };

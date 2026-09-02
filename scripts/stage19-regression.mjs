@@ -77,7 +77,8 @@ const electronFiles = [
   "tests/e2e/stage19-program3-performance.spec.ts",
   "tests/e2e/stage19-program3-presentation.spec.ts",
   "tests/e2e/stage19-program3-visual.spec.ts",
-  "tests/e2e/stage19-companion-orientation.spec.ts"
+  "tests/e2e/stage19-companion-orientation.spec.ts",
+  "tests/e2e/program6-story-intelligence.spec.ts"
 ];
 
 const electronPreflightFiles = [

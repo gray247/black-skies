@@ -1,20 +1,32 @@
 # Program 6 Batch P6-G Luna High Handoff Prompt
 
-This is the bounded P6-G author-verification checkpoint for
-`codex/foundation-audit`. It follows the mechanically complete P6-F commit
-`f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17` and uses the controlling Section 11
-rubric in the Program 6 implementation plan.
+This is the renewed bounded P6-G author-verification checkpoint for
+`codex/foundation-audit`. The prior checkpoint was rejected by live review
+because it was not reachable through the real production route. The bounded
+repair is now mechanically qualified locally and uses the controlling Section
+11 rubric in the Program 6 implementation plan. It follows the mechanically
+complete P6-F commit `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17`.
 
 ## Checkpoint scope
 
-Review one complete, source-linked story-intelligence workflow using only the
-three non-protected synthetic projects:
+Run `pnpm program6:human-review` from the canonical checkout, then start the
+printed source checkout with `pnpm dev`. Review one complete, source-linked
+story-intelligence workflow through the actual Stage 19 two-window route using
+only the three materialized synthetic projects:
 
 - `Lantern House` — prose-first basic lens and understandable source linkage;
 - `Northline Letters` — chronology, flashback/reveal order, pacing, and
   independent pressure dimensions; and
 - `Glass Orchard` — protected, excluded, stale, dismissed, unresolved, and
-  optional reader-effect states.
+  optional reader-effect states; protected content must remain redacted.
+
+The repaired Command Center Story Knowledge surface must expose exactly one
+active lens at a time: Overview, Emotion, Continuity, Timeline, Pacing,
+Pressure, and Signals. Verify source return, posture/currentness/provenance,
+the persisted bounded signal disposition, quiet Writing Studio presentation,
+Focus suppression/restoration, and the absence of the old authorized-workspace
+placeholder. The launcher is a reproducible source-review aid, not package or
+installer evidence.
 
 The review covers Story Knowledge detail, the quiet Writing Surface cue,
 Focus suppression and restoration, deterministic operation with AI disabled,

@@ -49,8 +49,12 @@ Current status:
   contracts passed their complete dirty Stage 19 gate and exact clean/push
   handoff at `32d0c617`. P6-E is complete at `bb7f45db` after its clean fixed
   regression and push. P6-F is complete at `f499bf9a` after its qualification
-  suite, clean fixed regression, and synchronized push. P6-G is the active
-  author-verification checkpoint under the newest explicit authorization. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
+  suite, clean fixed regression, and synchronized push. The prior P6-G
+  readiness claim was superseded by live author review, which found the
+  production Story Knowledge route unreachable and the named corpus absent.
+  The bounded repair now wires the real Stage 19 route, materializes all three
+  review projects, and passes a 36-test Electron walkthrough; P6-G is the
+  renewed author-verification checkpoint. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Program 6 planning is documented in
@@ -61,8 +65,9 @@ Current status:
   are green at `7536431d`; P6-D Timeline V1 chronology, pacing, and pressure
   work has green dirty and clean-development evidence at `32d0c617`; P6-E
   quiet-surface/local-inference work is green and durable at `bb7f45db`; P6-F
-  qualification is green and durable at `f499bf9a`; P6-G is the active bounded
-  author checkpoint.
+  qualification is green and durable at `f499bf9a`; the prior P6-G readiness
+  claim is superseded by live review, and the repaired route, materializer, and
+  Electron walkthrough are mechanically green for the renewed author checkpoint.
   The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
   records the exact status and residual. P6-D chronology/pacing/pressure
   closure passed; P6-E bounded production-surface/local-inference work passed;
