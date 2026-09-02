@@ -44,7 +44,7 @@ function LensSummary({ projection, document }: { readonly projection: Program6Pr
       <header><h2>Overview</h2><p>Current-project scope and authority posture.</p></header>
       <dl className="stage19-program6__facts">
         <div><dt>Project scope</dt><dd>Current project only</dd></div>
-        <div><dt>Source units</dt><dd>{projection.timeline.chronology.length}</dd></div>
+        <div><dt>Source units</dt><dd>{projection.sourceUnitCount}</dd></div>
         <div><dt>Signal posture</dt><dd>{document.settings.signalPosture}</dd></div>
         <div><dt>Project posture</dt><dd>{document.settings.projectPosture}</dd></div>
         <div><dt>Deterministic lane</dt><dd>{document.settings.analysisPolicy.deterministicEnabled ? 'Available' : 'Disabled'}</dd></div>
@@ -106,7 +106,7 @@ function SignalsLens({
                   {signal.lifecycle === 'accepted' || signal.lifecycle === 'reviewed' ? <button type="button" onClick={() => onSignalDisposition?.(signal.signalId, 'dismissed')}>Dismiss</button> : null}
                   {signal.lifecycle === 'accepted' ? <button type="button" onClick={() => onSignalDisposition?.(signal.signalId, 'suppressed')}>Suppress</button> : null}
                   {signal.lifecycle === 'reviewed' ? <button type="button" onClick={() => onSignalDisposition?.(signal.signalId, 'resolved')}>Resolve</button> : null}
-                  {signal.lifecycle === 'reviewed' ? <button type="button" onClick={() => onSignalDisposition?.(signal.signalId, 'converted')}>Convert</button> : null}
+                  {signal.lifecycle === 'reviewed' ? <button type="button" disabled={signal.currentness !== 'current'} onClick={() => onSignalDisposition?.(signal.signalId, 'converted')}>Convert</button> : null}
                 </div>
                 {source ? <small>Source: {sourceLabel(source)} · provenance: {signal.provenance.origin} · citation required: {signal.provenance.citationRequired ? 'yes' : 'no'}</small> : null}
               </li>

@@ -4,7 +4,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
-Last Reviewed: 2026-09-01
+Last Reviewed: 2026-09-02
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -36,6 +36,56 @@ Stage 19 regression passed `49` critical unit files / `774` tests / `2` skips,
 startup `1/1`, and Electron `36/36`. No Electron startup code, launch argument,
 GPU setting, dependency, package, or protected author material was changed.
 The renewed P6-G human checkpoint remains open; Program 7 remains blocked.
+
+## Program 6 renewed-checkpoint repair follow-up — 2026-09-02
+
+The renewed GUI review found exactly two remaining defects in the otherwise
+reachable P6-G route. First, the Signals lens rendered `Convert` for every
+`reviewed` signal, including the stale Northline Letters signal, even though
+stale evidence must not be promoted. Second, Story Knowledge Overview labeled
+`projection.timeline.chronology.length` as `Source units`; stale or protected
+source records are correctly omitted from eligible chronology, so the
+four-unit Northline Letters and Glass Orchard fixtures displayed three.
+
+Root cause was presentation code using lifecycle alone for conversion and an
+eligible-analysis row count for the source-unit metric. The bounded repair
+adds `sourceUnitCount` to the existing Program 6 production projection from
+the Project Spine `units` collection, binds Overview to that contract, and
+disables conversion unless a reviewed signal is current. Signal disposition,
+source return, protected-content redaction, truth ownership, and all existing
+Program 6 behavior remain unchanged.
+
+New focused workspace coverage passes `1` file / `3` tests for the four-unit
+projection/workspace metric, stale reviewed conversion blocking, and current
+reviewed conversion routing. The broader localized Program 6 selection passes
+`15` files / `115` tests; app typecheck, renderer build, app lint, and diff
+hygiene pass. The standalone story-intelligence IPC file still has one
+failing role assertion (`3/4` passed) outside this repair scope; no IPC code
+or that unrelated test was changed. The complete dirty Stage 19 attempt
+passed its 49-file / 774-test / 2-skip critical matrix, then blocked at the
+startup preflight before any Electron window appeared; the targeted Program 6
+Electron walkthrough reproduced the same no-window startup failure. Commit,
+push, and renewed human verification remain pending. Program 7 remains
+blocked.
+
+## Program 6 interactive verification follow-up — 2026-09-02
+
+Interactive Electron verification of the current dirty repair, launched with
+`pnpm dev` through an unrestricted interactive host, completed the two repaired
+observations. Northline Letters > Command Center > Story Knowledge > Overview
+displayed `Source units 4`. Its Signals lens displayed planned / low
+confidence / stale / reviewed; `Convert` was present but disabled, while
+`Review source`, `Dismiss`, and `Resolve` remained enabled. Glass Orchard
+Overview displayed `Source units 4`; its Signals lens displayed only
+`Protected signal metadata` and `Content is excluded; no summary is displayed.`
+Neither prohibited protected fixture string appeared, and its stale reviewed
+signal's `Convert` was disabled.
+
+No manuscript or canon mutation was performed. The automated Stage 19 unit
+matrix remains `49` files / `774` passed / `2` skipped, but launcher preflight
+remains an environment blocker before first window; no automated Electron gate
+pass is claimed. Subjective author acceptance remains outstanding, and
+Program 7 remains blocked.
 
 ## Program 5 closure — 2026-08-31
 

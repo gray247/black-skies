@@ -98,7 +98,12 @@ P6-E is durable at `bb7f45db` after its clean fixed regression and synchronized
 push. P6-F is mechanically complete at `f499bf9a` after its qualification
 suite, clean fixed regression, synchronized push, and exact upstream equality.
 P6-G is the active author-verification checkpoint under its own handoff and
-receipt. None of these receipts
+receipt. The 2026-09-02 P6-G repair follow-up is current authority for the
+source-unit metric binding, stale-reviewed conversion guard, and recorded
+interactive Electron observations described in that receipt. The automated
+launcher preflight remains blocked before first window and subjective author
+acceptance remains outstanding; this does not close the renewed checkpoint.
+None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,
 creation/revision, or Program 6 closure.

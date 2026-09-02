@@ -22,6 +22,7 @@ import {
 export interface Program6ProductionProjectionV1 {
   readonly projectId: string;
   readonly generation: number;
+  readonly sourceUnitCount: number;
   readonly emotion: EmotionGraphProjectionV1;
   readonly continuity: ContinuityRunResultV1;
   readonly timeline: TimelineRunResultV1;
@@ -147,6 +148,7 @@ export function buildProgram6ProductionProjection(input: {
   return {
     projectId: project.projectId,
     generation,
+    sourceUnitCount: project.units.length,
     emotion,
     continuity,
     timeline,

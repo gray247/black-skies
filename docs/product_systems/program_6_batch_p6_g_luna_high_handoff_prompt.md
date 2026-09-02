@@ -25,8 +25,12 @@ active lens at a time: Overview, Emotion, Continuity, Timeline, Pacing,
 Pressure, and Signals. Verify source return, posture/currentness/provenance,
 the persisted bounded signal disposition, quiet Writing Studio presentation,
 Focus suppression/restoration, and the absence of the old authorized-workspace
-placeholder. The launcher is a reproducible source-review aid, not package or
-installer evidence.
+placeholder. In Overview, verify that `Source units` equals the actual number
+of Project Spine source units even when stale or protected records reduce the
+eligible timeline rows. In Signals, verify that a stale `reviewed` signal
+shows a disabled `Convert` action while a current `reviewed` signal retains
+the intended conversion action. The launcher is a reproducible source-review
+aid, not package or installer evidence.
 
 The review covers Story Knowledge detail, the quiet Writing Surface cue,
 Focus suppression and restoration, deterministic operation with AI disabled,

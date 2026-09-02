@@ -2,7 +2,7 @@
 
 ## Status
 
-`P6-G REPAIR QUALIFIED; NEW HUMAN VERIFICATION CHECKPOINT REQUIRED; PROGRAM 6 OPEN`
+`P6-G REPAIR QUALIFIED; INTERACTIVE VERIFICATION RECORDED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
 
 ## Superseded checkpoint correction — 2026-09-01
 
@@ -30,6 +30,50 @@ clean worktree. The P6-F qualification record was corrected to use the
 plan-authoritative project set `Lantern House`, `Northline Letters`, and
 `Glass Orchard`; no protected author material was used.
 
+## Renewed checkpoint repair follow-up — 2026-09-02
+
+Renewed GUI review found two bounded defects in the reachable route. The
+Signals lens exposed `Convert` for a stale `reviewed` result, and Overview
+used eligible timeline chronology rows as the `Source units` metric. Because
+stale or protected source records are correctly excluded from eligible
+chronology, the four-unit Northline Letters and Glass Orchard fixtures showed
+three. The repair adds `sourceUnitCount` to the existing production projection
+from Project Spine `units`, binds Overview to it, and disables conversion for
+reviewed signals unless `currentness` is `current`. No IPC, persistence,
+source-return, redaction, truth-ownership, or other Program 6 behavior changed.
+
+Focused workspace coverage proves the metric and both conversion states in
+`1` file / `3` tests. The broader localized Program 6 selection passed `15`
+files / `115` tests; app typecheck, renderer build, app lint, and diff hygiene
+also passed. The standalone story-intelligence IPC file retains one unrelated
+baseline assertion failure (`3/4` passed) and was not changed. Complete Stage
+19 regression was attempted: its critical matrix passed `49` files / `774`
+tests / `2` skips, but startup preflight blocked before a window appeared.
+The targeted Program 6 Electron walkthrough reproduced the same no-window
+startup failure, with no Program 6 UI behavior exercised. A clean synchronized
+commit and renewed human verification remain pending; this receipt continues
+to stop at renewed human verification and does not claim acceptance or Program
+6 closure.
+
+## Interactive verification follow-up — 2026-09-02
+
+On the canonical checkout's current dirty repair, launched with `pnpm dev`
+through an unrestricted interactive host, Northline Letters Story Knowledge
+Overview displayed `Source units 4`. Its Signals lens displayed planned / low
+confidence / stale / reviewed; `Convert` was present but disabled, while
+`Review source`, `Dismiss`, and `Resolve` remained enabled. Glass Orchard
+Overview displayed `Source units 4`; its Signals lens displayed only
+`Protected signal metadata` and `Content is excluded; no summary is displayed.`
+Neither prohibited protected fixture string appeared, and `Convert` was
+disabled for its stale reviewed signal. No manuscript or canon mutation was
+performed.
+
+The automated Stage 19 unit matrix remains `49` files / `774` passed / `2`
+skipped, but launcher preflight remains an environment blocker before first
+window; no automated Electron gate pass is claimed. Subjective author
+acceptance remains outstanding, so this receipt does not close Program 6 or
+admit Program 7.
+
 ## Mechanical prerequisite
 
 | Evidence | Result |
@@ -47,10 +91,16 @@ plan-authoritative project set `Lantern House`, `Northline Letters`, and
 | --- | --- |
 | Deterministic human-review materializer | PASS — three openable project roots: Lantern House, Northline Letters, Glass Orchard |
 | Real Electron/Playwright corpus walkthrough | PASS — 1 test; all 3 projects; all 7 lenses; signal disposition persisted; protected content redacted |
-| Focused Program 6 contracts | PASS — 5 files / 29 tests |
+| Focused Program 6 contracts | PASS — prior repair evidence: 5 files / 29 tests; renewed workspace repair: 1 file / 3 tests |
 | App typecheck, production build, app lint | PASS |
 | Dirty Stage 19 regression after repair | PASS — 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36 |
 | Repair commit and exact clean Stage 19 regression | PASS — `1a4a3513cebd2e2d505474422dee8049c934030a`; 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36; clean |
+
+The renewed 2026-09-02 repair has not yet produced a new clean candidate:
+the dirty Stage 19 rerun passed the critical matrix but failed the startup
+preflight before any Electron window, and the isolated Program 6 Electron
+walkthrough reproduced that no-window condition. These are mechanical gate
+results only; no UI acceptance or Program 6 closure is claimed.
 
 The repair commit is mechanically qualified locally. The documentation
 follow-up commit that records this receipt is subject to one final clean gate
