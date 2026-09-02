@@ -44,6 +44,8 @@ The inventory includes:
   evidence receipt;
 - the Program 6 Batch P6-F handoff and mechanical qualification evidence
   receipt;
+- the Program 6 Batch P6-G author-verification checkpoint handoff and evidence
+  receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -93,8 +95,10 @@ diff, and complete dirty Stage 19 gates are green; its exact commit/clean/push
 closure is the remaining mechanical handoff item. The newest explicit user
 authorization admits P6-E as the next sequential batch after P6-D closes.
 P6-E is durable at `bb7f45db` after its clean fixed regression and synchronized
-push. P6-F is the active bounded batch under its own handoff and receipt. P6-G
-remains sequential after preceding-batch completion. None of these receipts
+push. P6-F is mechanically complete at `f499bf9a` after its qualification
+suite, clean fixed regression, synchronized push, and exact upstream equality.
+P6-G is the active author-verification checkpoint under its own handoff and
+receipt. None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,
 creation/revision, or Program 6 closure.

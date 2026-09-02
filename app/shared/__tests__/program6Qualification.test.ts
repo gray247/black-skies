@@ -4,7 +4,7 @@ import { runLocalInferenceV1, type LocalInferenceRequestV1 } from '../localInfer
 import { defaultStoryIntelligencePolicy } from '../storyIntelligencePolicy';
 import { runTimelineV1, type TimelineInputV1 } from '../timeline';
 
-const CORPUS = ['Lantern House', 'Glass Orchard', 'The Long Return'] as const;
+const CORPUS = ['Lantern House', 'Northline Letters', 'Glass Orchard'] as const;
 
 function source(projectId: string, sourceId: string, orderIndex: number) {
   return {
@@ -107,7 +107,7 @@ describe('Program 6 complete qualification boundary', () => {
 
   it('keeps the AI-disabled default explicit and does not call a transport', async () => {
     const transport = { request: vi.fn() };
-    const result = await runLocalInferenceV1(inferenceRequest('The Long Return', 'unit-1'), {
+    const result = await runLocalInferenceV1(inferenceRequest('Northline Letters', 'unit-1'), {
       policy: defaultStoryIntelligencePolicy(),
       endpoint: { origin: 'http://localhost:11434', modelId: 'qualification-local' },
       transport,

@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C, P6-D, and P6-E complete, P6-F active under explicit sequential authorization; P6-G admitted after the P6-F gate
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G human verification checkpoint active; Program 7 remains blocked
 Last Reviewed: 2026-09-01
 
 ## Purpose

@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `P6-F ACTIVE UNDER EXPLICIT SEQUENTIAL PROGRAM 6 AUTHORIZATION`
+- Status: `P6-G HUMAN VERIFICATION CHECKPOINT ACTIVE; PROGRAM 6 OPEN`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
 - Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
@@ -104,13 +104,14 @@ editing.
 
 ### 3.3 Program boundary
 
-P6-A, P6-B, P6-C, P6-D, and P6-E remain completed bounded implementation slices with their
+P6-A, P6-B, P6-C, P6-D, P6-E, and P6-F remain completed bounded implementation slices with their
 separate evidence receipts. The newest explicit user instruction admits the
 existing P6-C implementation and sequentially admits P6-D through P6-G only
 after each preceding batch's required gates and evidence receipt are green.
 Older batch-specific “do not begin later batches” wording is superseded for
-this task once the preceding batch is complete. Program 7 and Program 6
-closure remain outside this authorization.
+this task once the preceding batch is complete. P6-G is limited to the final
+author verification checkpoint; Program 7 and Program 6 closure remain
+outside this authorization until explicit acceptance.
 
 ## 4. Frozen Product Decisions
 
@@ -1012,11 +1013,11 @@ its own bounded plan and explicit authorization record.
 
 ## 14. Current Handoff
 
-P6-A, P6-B, P6-C, P6-D, and P6-E are mechanically complete within their
+P6-A, P6-B, P6-C, P6-D, P6-E, and P6-F are mechanically complete within their
 separately authorized boundaries. P6-C is durable at `7536431d`, P6-D at
 `32d0c61757126a1da4c812bfee0ace62759f5694`, and P6-E at
 `bb7f45db8f095cbab6d0780512db82e0c60f37c0` after their green focused, static,
 dirty, clean, and synchronized evidence. The newest explicit user instruction
-admits P6-F, whose bounded qualification evidence is now active.
-P6-F and P6-G remain sequentially admitted only after the preceding batch is
-complete; no Program 7 implementation or Program 6 closure is implied.
+admits P6-F, whose bounded qualification evidence is durable at `f499bf9a`.
+P6-G is the active author-verification checkpoint; no Program 7 implementation
+or Program 6 closure is implied until Jason explicitly accepts it.

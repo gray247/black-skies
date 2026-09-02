@@ -5,14 +5,16 @@
 `P6-F MECHANICAL QUALIFICATION COMPLETE; P6-G ACTIVE`
 
 This receipt records the bounded mechanical qualification evidence for Program
-6 after durable P6-E commit `bb7f45db`. It does not claim author acceptance,
+6 after durable P6-F commit `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17`. It does not claim author acceptance,
 Program 6 closure, Program 7, a qualified external provider/model, or protected
 corpus use.
 
 ## Qualification boundary
 
-- The three synthetic review projects are `Lantern House`, `Glass Orchard`, and
-  `The Long Return`; no protected author material is used.
+- The three synthetic review projects are the plan-authoritative `Lantern
+  House`, `Northline Letters`, and `Glass Orchard`; no protected author
+  material is used. The prior receipt draft named `The Long Return`; this
+  correction aligns the evidence with the controlling Section 11 rubric.
 - Deterministic Timeline coverage is isolated per project and proves advisory
   output, separate order bases, no universal pressure score, and no author
   mutation.
@@ -35,7 +37,7 @@ corpus use.
 | Documentation lint | PASS — 65 authority files; local links resolved; no stale public-release claim |
 | `git diff --check` | PASS |
 | Complete dirty Stage 19 regression | PASS — critical matrix 49 files / 774 passed / 2 skipped; startup preflight 1/1; Electron matrix 35/35 |
-| Exact P6-F commit, clean gate, push, upstream equality | PENDING — required after staging |
+| Exact P6-F commit, clean gate, push, upstream equality | PASS — `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17`; clean Stage 19 gate passed; pushed; local/upstream equal |
 
 ## Explicit residuals and non-claims
 
