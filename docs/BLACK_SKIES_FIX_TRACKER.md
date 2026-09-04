@@ -3,8 +3,8 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
-Last Reviewed: 2026-09-02
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, final P6-G repair mechanically qualified and Jason's renewed human verification required; Program 7 remains blocked
+Last Reviewed: 2026-09-03
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -16,6 +16,37 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Program 6 final pre-human repair — 2026-09-03
+
+Jason's latest hands-on review reopened the P6-G checkpoint with bounded defects
+in detached source return, corpus realism, author-entry workflows, Emotion Graph
+subject presentation and contrast, structural pacing evidence, planned versus
+observed pressure, stale-source handling, and protected-content filtering. The
+repair now keeps the detached Command window open while returning the Writing
+window to the exact linked unit, materializes meaningful prose for all three
+review projects, and exposes manual author entry for Emotion, Timeline, Pacing,
+and Pressure. Structural pacing uses prose-free word, sentence, paragraph, and
+dialogue-ratio measurements; it does not infer narrative quality. No workflow
+silently invents timeline, pacing-intent, pressure, emotion, prose, or canon.
+
+Manuscript-linked records now carry normalized-body SHA-256 fingerprints. A
+durable Save recomputes the production projection in the same session, so
+observed records and signals become stale when their cited manuscript body no
+longer matches, while author-planned intent remains separately owned. Legacy
+snapshots without the optional fingerprint remain accepted. The preload keeps
+strict exact-key and hash validation, and Command Center still receives no
+manuscript prose.
+
+Focused qualification passed `7` files / `202` tests. App lint, typecheck,
+production build, and `git diff --check` passed. The real packaged Electron
+Program 6 journey passed `1/1`, covering three projects, seven lenses, durable
+author entry, same-session stale currentness, protected redaction, and exact
+source return. The complete dirty Stage 19 gate returned
+`STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` skipped, startup
+`1/1`, Electron `36/36`, protected evidence not used. Commit, exact clean gate,
+push, and Jason's 15-row human decision remain pending at this entry. Program 6
+is not closed and Program 7 remains blocked.
 
 ## Program 6 live-checkpoint repair — 2026-09-01
 

@@ -132,20 +132,35 @@ function isPolicy(value: unknown): value is StoryIntelligenceAnalysisPolicyV1 {
 function isAuthorRecord(value: unknown, projectId: string): value is StoryIntelligenceAuthorRecordV1 {
   if (!isRecord(value) || !hasExactKeys(value,
     ['recordId', 'projectId', 'evidenceClass', 'label', 'positionRefs', 'provenance', 'createdAt', 'updatedAt'],
-    ['unitId', 'intensityBand', 'recordKind', 'emotionLane', 'emotionIntensity', 'subjectLabel', 'currentness'])) return false;
+    ['unitId', 'intensityBand', 'recordKind', 'emotionLane', 'emotionIntensity', 'subjectLabel', 'currentness',
+      'timelineWorldOrder', 'timelineTemporalState', 'pacingTempo', 'pressureDimension', 'pressureBand'])) return false;
   const emotionRecord = value.recordKind === 'emotion-graph';
+  const timelineRecord = value.recordKind === 'timeline-event';
+  const pacingRecord = value.recordKind === 'pacing-intent';
+  const pressureRecord = value.recordKind === 'pressure-point';
   return value.projectId === projectId &&
     isBoundedString(value.recordId, 160) &&
     (value.unitId === undefined || isBoundedString(value.unitId, 160)) &&
     isOneOf(value.evidenceClass, ['planned', 'observed', 'reader-effect-optional']) &&
     isBoundedString(value.label, 240) &&
     (value.intensityBand === undefined || isOneOf(value.intensityBand, INTENSITY_BANDS_V1)) &&
-    (value.recordKind === undefined || isOneOf(value.recordKind, ['general', 'emotion-graph'])) &&
+    (value.recordKind === undefined || isOneOf(value.recordKind, ['general', 'emotion-graph', 'timeline-event', 'pacing-intent', 'pressure-point'])) &&
     (!emotionRecord || (isOneOf(value.emotionLane, ['planned', 'observed', 'reader-effect-optional']) &&
       isOneOf(value.emotionIntensity, ['very-low', 'low', 'medium', 'high', 'very-high', 'unknown']))) &&
+    (!timelineRecord || (isInteger(value.timelineWorldOrder) &&
+      isOneOf(value.timelineTemporalState, ['certain', 'uncertain', 'disputed', 'simultaneous', 'unavailable']))) &&
+    (!pacingRecord || isOneOf(value.pacingTempo, ['very-slow', 'slow', 'steady', 'fast', 'very-fast'])) &&
+    (!pressureRecord || (isOneOf(value.evidenceClass, ['planned', 'observed']) &&
+      isOneOf(value.pressureDimension, ['urgency', 'consequence', 'constraint', 'conflict']) &&
+      isOneOf(value.pressureBand, ['none', 'low', 'medium', 'high', 'very-high', 'unknown']))) &&
     (value.emotionLane === undefined || isOneOf(value.emotionLane, ['planned', 'observed', 'reader-effect-optional'])) &&
     (value.emotionIntensity === undefined || isOneOf(value.emotionIntensity, ['very-low', 'low', 'medium', 'high', 'very-high', 'unknown'])) &&
     (value.subjectLabel === undefined || isBoundedString(value.subjectLabel, 160)) &&
+    (value.timelineWorldOrder === undefined || isInteger(value.timelineWorldOrder)) &&
+    (value.timelineTemporalState === undefined || isOneOf(value.timelineTemporalState, ['certain', 'uncertain', 'disputed', 'simultaneous', 'unavailable'])) &&
+    (value.pacingTempo === undefined || isOneOf(value.pacingTempo, ['very-slow', 'slow', 'steady', 'fast', 'very-fast'])) &&
+    (value.pressureDimension === undefined || isOneOf(value.pressureDimension, ['urgency', 'consequence', 'constraint', 'conflict'])) &&
+    (value.pressureBand === undefined || isOneOf(value.pressureBand, ['none', 'low', 'medium', 'high', 'very-high', 'unknown'])) &&
     (value.currentness === undefined || isOneOf(value.currentness, CURRENTNESS_VALUES_V1)) &&
     Array.isArray(value.positionRefs) && value.positionRefs.every((ref) => isStoryPositionRefV1(ref, projectId)) &&
     isStoryIntelligenceProvenanceV1(value.provenance) && isIsoDate(value.createdAt) && isIsoDate(value.updatedAt);

@@ -823,7 +823,7 @@ describe('main split command launch hook', () => {
     );
   });
 
-  it('moves Command Center to an optional second window, returns it, and reopens it', async () => {
+  it('moves Command Center to an optional second window and keeps it open when Writing Studio is focused', async () => {
     experimentalSplitCommandWorkspace = true;
     screenState.displays = [screenState.displays[0]];
     projectSpineMocks.getProjectSpineSnapshot.mockReturnValue(activeCommandSnapshot());
@@ -858,31 +858,15 @@ describe('main split command launch hook', () => {
         ok: true,
         state: expect.objectContaining({
           primarySurface: 'writing',
-          commandPlacement: 'current-window',
-          secondaryStatus: 'closed',
-          notice: 'secondary-closed',
-        }),
-      }),
-    );
-    expect(secondaryWindow.isDestroyed()).toBe(true);
-    expect(primaryWindow.webContents.focus).toHaveBeenCalled();
-
-    const reopened = await activateSurface?.(
-      { sender: primaryWindow.webContents },
-      surfaceRequest('command', 'secondary-window', { operationId: 'surface-reopen' }),
-    );
-    expect(reopened).toEqual(
-      expect.objectContaining({
-        ok: true,
-        state: expect.objectContaining({
-          primarySurface: 'writing',
           commandPlacement: 'secondary-window',
           secondaryStatus: 'open',
           notice: null,
         }),
       }),
     );
-    expect(browserWindowState.instances).toHaveLength(3);
+    expect(secondaryWindow.isDestroyed()).toBe(false);
+    expect(primaryWindow.webContents.focus).toHaveBeenCalled();
+    expect(browserWindowState.instances).toHaveLength(2);
   });
 
   it('returns Command Center to primary after secondary loss or display removal and can restore it', async () => {

@@ -45,6 +45,11 @@ export interface TimelinePacingRecordV1 {
   readonly plannedDurationUnits?: number;
   readonly observedDurationUnits?: number;
   readonly observedWordCount?: number;
+  readonly observedSentenceCount?: number;
+  readonly observedParagraphCount?: number;
+  readonly observedDialogueRatio?: number;
+  readonly medianWordCount?: number;
+  readonly relativeLength?: 'shorter' | 'typical' | 'longer';
   readonly observedEventCount?: number;
   readonly positionRefs: readonly StoryPositionRefV1[];
 }
@@ -53,6 +58,7 @@ export interface TimelinePressureRecordV1 {
   readonly eventId: string;
   readonly dimension: TimelinePressureDimensionV1;
   readonly band: TimelinePressureBandV1;
+  readonly evidenceClass?: 'planned' | 'observed';
   readonly positionRefs: readonly StoryPositionRefV1[];
 }
 
@@ -93,6 +99,12 @@ export interface TimelinePacingComparisonV1 {
   readonly observedTempo?: TimelineTempoV1;
   readonly plannedDurationUnits?: number;
   readonly observedDurationUnits?: number;
+  readonly observedWordCount?: number;
+  readonly observedSentenceCount?: number;
+  readonly observedParagraphCount?: number;
+  readonly observedDialogueRatio?: number;
+  readonly medianWordCount?: number;
+  readonly relativeLength?: 'shorter' | 'typical' | 'longer';
   readonly direction: TimelinePacingDirectionV1;
   readonly isReviewOpportunity: boolean;
   readonly positionRefs: readonly StoryPositionRefV1[];
@@ -101,6 +113,8 @@ export interface TimelinePacingComparisonV1 {
 export interface TimelinePressureProfileV1 {
   readonly eventId: string;
   readonly dimensions: Readonly<Partial<Record<TimelinePressureDimensionV1, TimelinePressureBandV1>>>;
+  readonly plannedDimensions: Readonly<Partial<Record<TimelinePressureDimensionV1, TimelinePressureBandV1>>>;
+  readonly observedDimensions: Readonly<Partial<Record<TimelinePressureDimensionV1, TimelinePressureBandV1>>>;
   readonly universalScore: null;
   readonly positionRefs: readonly StoryPositionRefV1[];
 }
@@ -202,18 +216,24 @@ function event(value: unknown, projectId: string): value is TimelineEventRecordV
 }
 
 function pacing(value: unknown, projectId: string): value is TimelinePacingRecordV1 {
-  return record(value) && exactKeys(value, ['unitId', 'positionRefs'], ['plannedTempo', 'observedTempo', 'plannedDurationUnits', 'observedDurationUnits', 'observedWordCount', 'observedEventCount']) &&
+  return record(value) && exactKeys(value, ['unitId', 'positionRefs'], ['plannedTempo', 'observedTempo', 'plannedDurationUnits', 'observedDurationUnits', 'observedWordCount', 'observedSentenceCount', 'observedParagraphCount', 'observedDialogueRatio', 'medianWordCount', 'relativeLength', 'observedEventCount']) &&
     bounded(value.unitId, 160) && (value.plannedTempo === undefined || oneOf(value.plannedTempo, TIMELINE_TEMPOS)) &&
     (value.observedTempo === undefined || oneOf(value.observedTempo, TIMELINE_TEMPOS)) &&
     (value.plannedDurationUnits === undefined || integer(value.plannedDurationUnits)) &&
     (value.observedDurationUnits === undefined || integer(value.observedDurationUnits)) &&
     (value.observedWordCount === undefined || integer(value.observedWordCount)) &&
+    (value.observedSentenceCount === undefined || integer(value.observedSentenceCount)) &&
+    (value.observedParagraphCount === undefined || integer(value.observedParagraphCount)) &&
+    (value.observedDialogueRatio === undefined || (typeof value.observedDialogueRatio === 'number' && value.observedDialogueRatio >= 0 && value.observedDialogueRatio <= 1)) &&
+    (value.medianWordCount === undefined || integer(value.medianWordCount)) &&
+    (value.relativeLength === undefined || oneOf(value.relativeLength, ['shorter', 'typical', 'longer'])) &&
     (value.observedEventCount === undefined || integer(value.observedEventCount)) && refs(value.positionRefs, projectId);
 }
 
 function pressure(value: unknown, projectId: string): value is TimelinePressureRecordV1 {
-  return record(value) && exactKeys(value, ['eventId', 'dimension', 'band', 'positionRefs']) && bounded(value.eventId, 160) &&
-    oneOf(value.dimension, TIMELINE_PRESSURE_DIMENSIONS) && oneOf(value.band, TIMELINE_PRESSURE_BANDS) && refs(value.positionRefs, projectId);
+  return record(value) && exactKeys(value, ['eventId', 'dimension', 'band', 'positionRefs'], ['evidenceClass']) && bounded(value.eventId, 160) &&
+    oneOf(value.dimension, TIMELINE_PRESSURE_DIMENSIONS) && oneOf(value.band, TIMELINE_PRESSURE_BANDS) &&
+    (value.evidenceClass === undefined || oneOf(value.evidenceClass, ['planned', 'observed'])) && refs(value.positionRefs, projectId);
 }
 
 function priorDecision(value: unknown): value is TimelineDecisionLineageV1 {
@@ -294,10 +314,10 @@ export function runTimelineV1(input: TimelineInputV1): TimelineRunResultV1 {
       findings.push(finding(input, 'chronology-review', `${previous.eventId}:${current.eventId}`, 'Story-world order differs from manuscript order', 'The explicit story-world and manuscript order references disagree; this may be an intentional flashback or reveal choice.', [...previous.positionRefs, ...current.positionRefs], [{ recordType: 'event', recordId: previous.eventId }, { recordType: 'event', recordId: current.eventId }], 'observed', input.priorDecisions));
     }
   }
-  const pacingResult = input.pacing.map((item) => {
+  const pacingResult = input.pacing.filter((item) => eligible(item.positionRefs, byKey)).map((item) => {
     const itemDirection = direction(item.plannedTempo, item.observedTempo);
     const durationMismatch = item.plannedDurationUnits !== undefined && item.observedDurationUnits !== undefined && item.plannedDurationUnits !== item.observedDurationUnits;
-    const comparison: TimelinePacingComparisonV1 = { unitId: item.unitId, plannedTempo: item.plannedTempo, observedTempo: item.observedTempo, plannedDurationUnits: item.plannedDurationUnits, observedDurationUnits: item.observedDurationUnits, direction: itemDirection, isReviewOpportunity: itemDirection !== 'unknown' && itemDirection !== 'matches-planned' || durationMismatch, positionRefs: item.positionRefs };
+    const comparison: TimelinePacingComparisonV1 = { unitId: item.unitId, plannedTempo: item.plannedTempo, observedTempo: item.observedTempo, plannedDurationUnits: item.plannedDurationUnits, observedDurationUnits: item.observedDurationUnits, observedWordCount: item.observedWordCount, observedSentenceCount: item.observedSentenceCount, observedParagraphCount: item.observedParagraphCount, observedDialogueRatio: item.observedDialogueRatio, medianWordCount: item.medianWordCount, relativeLength: item.relativeLength, direction: itemDirection, isReviewOpportunity: itemDirection !== 'unknown' && itemDirection !== 'matches-planned' || durationMismatch, positionRefs: item.positionRefs };
     if (eligible(item.positionRefs, byKey) && comparison.isReviewOpportunity) {
       findings.push(finding(input, 'pacing-review', item.unitId, `Observed pacing is ${itemDirection === 'unknown' ? 'different from the planned duration' : itemDirection.replace('-than-planned', ' than planned')}`, 'This is a review opportunity, not an automatic defect; planned intent and observed evidence remain separate.', item.positionRefs, [{ recordType: 'pacing', recordId: item.unitId }], item.plannedTempo === undefined ? 'observed' : 'planned', input.priorDecisions));
     }
@@ -307,7 +327,10 @@ export function runTimelineV1(input: TimelineInputV1): TimelineRunResultV1 {
   for (const item of input.pressure) {
     if (!eligible(item.positionRefs, byKey)) continue;
     const existing = pressureMap.get(item.eventId);
-    pressureMap.set(item.eventId, { eventId: item.eventId, dimensions: { ...(existing?.dimensions ?? {}), [item.dimension]: item.band }, universalScore: null, positionRefs: [...(existing?.positionRefs ?? []), ...item.positionRefs] });
+    const evidenceClass = item.evidenceClass ?? 'observed';
+    const plannedDimensions = { ...(existing?.plannedDimensions ?? {}), ...(evidenceClass === 'planned' ? { [item.dimension]: item.band } : {}) };
+    const observedDimensions = { ...(existing?.observedDimensions ?? {}), ...(evidenceClass === 'observed' ? { [item.dimension]: item.band } : {}) };
+    pressureMap.set(item.eventId, { eventId: item.eventId, dimensions: { ...plannedDimensions, ...observedDimensions }, plannedDimensions, observedDimensions, universalScore: null, positionRefs: [...(existing?.positionRefs ?? []), ...item.positionRefs] });
   }
   const pressureResult = [...pressureMap.values()];
   return { schemaVersion: TIMELINE_SCHEMA_VERSION, projectId: input.projectId, generation: input.generation, analysisId: input.analysisId, chronology, pacing: pacingResult, pressure: pressureResult, findings, blockedSourceCount, advisoryOnly: true, universalPressureScore: null, mutatedAuthorState: false, createdAt: input.createdAt };

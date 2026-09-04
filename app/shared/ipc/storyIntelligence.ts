@@ -26,6 +26,10 @@ export type SignalLifecycleV1 =
 export type CurrentnessV1 = 'current' | 'stale' | 'unavailable' | 'trimmed';
 export type IntensityBandV1 = 'very-low' | 'low' | 'medium' | 'high' | 'very-high';
 export type EmotionGraphIntensityV1 = IntensityBandV1 | 'unknown';
+export type StoryTimelineTemporalStateV1 = 'certain' | 'uncertain' | 'disputed' | 'simultaneous' | 'unavailable';
+export type StoryPacingTempoV1 = 'very-slow' | 'slow' | 'steady' | 'fast' | 'very-fast';
+export type StoryPressureDimensionV1 = 'urgency' | 'consequence' | 'constraint' | 'conflict';
+export type StoryPressureBandV1 = 'none' | 'low' | 'medium' | 'high' | 'very-high' | 'unknown';
 
 export type StoryIntelligenceSourceClassV1 =
   | 'included'
@@ -160,10 +164,15 @@ export interface StoryIntelligenceAuthorRecordV1 {
   readonly evidenceClass: Exclude<EvidenceClassV1, 'inferred'>;
   readonly label: string;
   readonly intensityBand?: IntensityBandV1;
-  readonly recordKind?: 'general' | 'emotion-graph';
+  readonly recordKind?: 'general' | 'emotion-graph' | 'timeline-event' | 'pacing-intent' | 'pressure-point';
   readonly emotionLane?: 'planned' | 'observed' | 'reader-effect-optional';
   readonly emotionIntensity?: EmotionGraphIntensityV1;
   readonly subjectLabel?: string;
+  readonly timelineWorldOrder?: number;
+  readonly timelineTemporalState?: StoryTimelineTemporalStateV1;
+  readonly pacingTempo?: StoryPacingTempoV1;
+  readonly pressureDimension?: StoryPressureDimensionV1;
+  readonly pressureBand?: StoryPressureBandV1;
   readonly currentness?: CurrentnessV1;
   readonly positionRefs: readonly StoryPositionRefV1[];
   readonly provenance: StoryIntelligenceProvenanceV1;

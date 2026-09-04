@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import type { LoadedProject } from '../shared/ipc/projectLoader';
 import type {
   ProjectSpineBinding,
@@ -9,6 +10,7 @@ import type {
   ProjectSpineSessionSnapshot,
   ProjectSpineWritingRecoveryState,
   ProjectSpineWindowRole,
+  ProjectSpineUnitMetrics,
   RecentProjectReference,
 } from '../shared/ipc/projectSpine';
 import type {
@@ -24,6 +26,32 @@ export class ProjectSessionError extends Error {
     super(message);
     this.name = 'ProjectSessionError';
   }
+}
+
+function manuscriptBody(markdown: string): string {
+  if (!markdown.startsWith('---')) return markdown;
+  const closing = markdown.indexOf('\n---', 3);
+  if (closing < 0) return markdown;
+  return markdown.slice(closing + 4).replace(/^\r?\n/, '');
+}
+
+export function measureProjectSpineUnit(markdown: string): ProjectSpineUnitMetrics {
+  const normalizedBody = manuscriptBody(markdown).replace(/\r\n/g, '\n');
+  const body = normalizedBody.trim();
+  const sourceFingerprint = createHash('sha256').update(normalizedBody, 'utf8').digest('hex');
+  if (!body) return { wordCount: 0, sentenceCount: 0, paragraphCount: 0, dialogueRatio: 0, sourceFingerprint };
+  const words = body.match(/[\p{L}\p{N}'’–-]+/gu) ?? [];
+  const sentences = body.match(/[^.!?]+[.!?]+(?:["'”’)]|\s|$)|[^.!?]+$/gu) ?? [];
+  const paragraphs = body.split(/\r?\n\s*\r?\n/u).map((item) => item.trim()).filter(Boolean);
+  const dialogueText = [...body.matchAll(/["“]([^"”]+)["”]/gu)].map((match) => match[1] ?? '').join(' ');
+  const dialogueWords = dialogueText.match(/[\p{L}\p{N}'’–-]+/gu)?.length ?? 0;
+  return {
+    wordCount: words.length,
+    sentenceCount: sentences.map((item) => item.trim()).filter(Boolean).length,
+    paragraphCount: paragraphs.length,
+    dialogueRatio: words.length > 0 ? Number((dialogueWords / words.length).toFixed(3)) : 0,
+    sourceFingerprint,
+  };
 }
 
 export interface ProjectSaveToken {
@@ -740,6 +768,9 @@ export class ProjectSessionCoordinator {
     const dirtyUnitIds = orderedUnits
       .map((unit) => unit.id)
       .filter((unitId) => this.dirtyUnitIds.has(unitId));
+    const unitMetrics = project
+      ? Object.fromEntries(orderedUnits.map((unit) => [unit.id, measureProjectSpineUnit(project.drafts[unit.id] ?? '')]))
+      : {};
     const acceptedRecoveryPendingSave = this.recoveryState.status === 'accepted-pending-save'
       && this.recoveryState.candidates.some((candidate) => dirtyUnitIds.includes(candidate.unitId));
     const commandStatus = {
@@ -772,6 +803,7 @@ export class ProjectSessionCoordinator {
             title: project.name,
             schemaVersion: 'ProjectMetadataSchema v1',
             units: orderedUnits,
+            unitMetrics,
             ...(role === 'writing' ? { drafts: { ...project.drafts } } : {}),
           }
         : null,

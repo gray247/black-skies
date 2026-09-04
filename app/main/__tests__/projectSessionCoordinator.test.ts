@@ -69,6 +69,10 @@ describe('ProjectSessionCoordinator', () => {
     expect(writing.project?.drafts).toEqual(active.drafts);
     expect(command.project).toMatchObject({ projectId: 'proj_a', title: 'Project A' });
     expect(command.project?.drafts).toBeUndefined();
+    expect(command.project?.unitMetrics).toMatchObject({
+      unit_1: { wordCount: 1, sentenceCount: 1, paragraphCount: 1, dialogueRatio: 0 },
+    });
+    expect(command.project?.unitMetrics?.unit_1?.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
     expect(command.commandStatus).toEqual({
       schemaVersion: 1,
       projectId: 'proj_a',
@@ -79,6 +83,7 @@ describe('ProjectSessionCoordinator', () => {
       save: 'clean',
     });
     expect(JSON.stringify(command.commandStatus)).not.toContain('Body');
+    expect(JSON.stringify(command.project)).not.toContain('Body');
     expect(writing.activeUnitId).toBe('unit_1');
     expect(writing).not.toHaveProperty('commandStatus');
   });
@@ -187,6 +192,24 @@ describe('ProjectSessionCoordinator', () => {
     expect(savedRevision).toBeGreaterThan(savingRevision);
     expect(coordinator.snapshot('writing').revision).toBeGreaterThan(savedRevision);
     expect(coordinator.snapshot('writing')).toMatchObject({ dirtyUnitIds: [], saveState: { status: 'saved' } });
+  });
+
+  it('changes the prose fingerprint after a same-session manuscript save', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_fingerprint', 'C:\\projects\\fingerprint');
+    coordinator.activateProject(active);
+    const before = coordinator.snapshot('command');
+    const beforeFingerprint = before.project?.unitMetrics?.unit_1?.sourceFingerprint;
+    coordinator.setUnitDirty(binding(coordinator, active, 'fingerprint-dirty'), 'unit_1', true);
+    const token = coordinator.beginSave(binding(coordinator, active, 'fingerprint-save'), 'unit_1');
+    coordinator.completeSave(token, '---\nid: unit_1\ntitle: Unit\norder: 1\n---\nChanged body.\n');
+    const after = coordinator.snapshot('command');
+
+    expect(after.generation).toBe(before.generation);
+    expect(after.revision).toBeGreaterThan(before.revision);
+    expect(after.project?.unitMetrics?.unit_1?.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
+    expect(after.project?.unitMetrics?.unit_1?.sourceFingerprint).not.toBe(beforeFingerprint);
+    expect(JSON.stringify(after.project)).not.toContain('Changed body');
   });
 
   it('provides recovery context only for the exact active project, generation, path, and unit', () => {

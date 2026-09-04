@@ -9205,6 +9205,71 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   padding: 16px;
 }
 
+.stage19-program6__emotion {
+  display: grid;
+  gap: 16px;
+}
+
+.stage19-program6__emotion-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border-radius: 10px;
+  background: var(--stage19-surface, #fff);
+  padding: 16px;
+}
+
+.stage19-program6__emotion-form header {
+  grid-column: 1 / -1;
+}
+
+.stage19-program6__emotion-form h3,
+.stage19-program6__emotion-form p {
+  margin: 0;
+}
+
+.stage19-program6__emotion-form p {
+  margin-top: 4px;
+  color: var(--stage19-text-secondary, #5e6470);
+  line-height: 1.45;
+}
+
+.stage19-program6__emotion-form label {
+  display: grid;
+  gap: 5px;
+  color: var(--stage19-semantic-text);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.stage19-program6__emotion-form input,
+.stage19-program6__emotion-form select {
+  min-height: 38px;
+  border: 1px solid var(--stage19-semantic-border);
+  border-radius: 6px;
+  background: var(--bs-surface-base);
+  color: var(--bs-text-primary);
+  padding: 6px 8px;
+}
+
+.stage19-program6__emotion-form button {
+  align-self: end;
+  min-height: 38px;
+  border: 1px solid var(--stage19-accent, #3757a6);
+  border-radius: 6px;
+  background: var(--stage19-accent, #3757a6);
+  color: #fff;
+  padding: 7px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stage19-program6__emotion-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .stage19-program6__facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

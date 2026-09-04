@@ -411,6 +411,9 @@ describe('splitCommand preload bridge', () => {
         title: 'Project A',
         schemaVersion: 'ProjectMetadataSchema v1' as const,
         units: [{ id: 'unit_a', title: 'Unit A', displayTitle: 'Unit A', order: 1 }],
+        unitMetrics: {
+          unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.25, sourceFingerprint: 'a'.repeat(64) },
+        },
       },
       activeUnitId: 'unit_a',
       commandStatus: {
@@ -445,6 +448,13 @@ describe('splitCommand preload bridge', () => {
       },
       {
         ...activeCommandSnapshot,
+        project: {
+          ...activeCommandSnapshot.project,
+          unitMetrics: { unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.2, sourceFingerprint: 'not-a-sha256' } },
+        },
+      },
+      {
+        ...activeCommandSnapshot,
         project: { ...activeCommandSnapshot.project, artifactPath: 'C:\\private\\artifact' },
       },
       {
@@ -452,6 +462,20 @@ describe('splitCommand preload bridge', () => {
         project: {
           ...activeCommandSnapshot.project,
           units: [{ ...activeCommandSnapshot.project.units[0], prose: 'private prose' }],
+        },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: {
+          ...activeCommandSnapshot.project,
+          unitMetrics: { unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 2 } },
+        },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: {
+          ...activeCommandSnapshot.project,
+          unitMetrics: { missing_unit: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.2 } },
         },
       },
       {
@@ -492,6 +516,17 @@ describe('splitCommand preload bridge', () => {
     }
     ipcRendererInvokeMock.mockResolvedValueOnce(activeCommandSnapshot);
     await expect(projectSpine!.getSession()).resolves.toEqual(activeCommandSnapshot);
+    const legacyMetricsSnapshot = {
+      ...activeCommandSnapshot,
+      project: {
+        ...activeCommandSnapshot.project,
+        unitMetrics: {
+          unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.25 },
+        },
+      },
+    };
+    ipcRendererInvokeMock.mockResolvedValueOnce(legacyMetricsSnapshot);
+    await expect(projectSpine!.getSession()).resolves.toEqual(legacyMetricsSnapshot);
     const sessionListener = vi.fn();
     const unsubscribeSession = projectSpine!.subscribeSession(sessionListener);
     for (const listener of ipcListeners.get(PROJECT_SPINE_CHANNELS.sessionChanged) ?? []) {

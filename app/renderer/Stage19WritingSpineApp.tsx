@@ -55,7 +55,9 @@ import type {
   StoryIntelligenceHistoryEventV1,
   StoryPositionRefV1,
 } from '../shared/ipc/storyIntelligence';
+import { trimStoryIntelligenceHistory } from '../shared/storyIntelligencePolicy';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
+import type { StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
 import Stage19WritingSpineView, {
   getSelectableImportedManuscriptProposalIds,
   deriveManuscriptStructureApplyReadiness,
@@ -2850,6 +2852,126 @@ export default function Stage19WritingSpineApp({
     }
   }, [storyIntelligenceBridge, storyIntelligenceDocument]);
 
+  const createEmotionRecord = useCallback(async (draft: StoryKnowledgeAuthorRecordDraftV1) => {
+    const document = storyIntelligenceDocument;
+    const current = snapshotRef.current;
+    const binding = bindingFor(current, 'emotion-record-create');
+    const unit = current.project?.units.find((candidate) => candidate.id === draft.unitId);
+    if (!storyIntelligenceBridge || !document || !binding || !current.project || !unit) {
+      setStoryIntelligenceNotice('The emotion point could not be saved because its project or story section is no longer current.');
+      return;
+    }
+    try {
+      const permission = await storyIntelligenceBridge.checkPermission({
+        ...binding,
+        sourceClass: 'included',
+        operation: 'persist',
+      });
+      if (!permission.ok || !permission.data.allowed) {
+        setStoryIntelligenceNotice(permission.ok
+          ? 'Project permissions do not allow this emotion point to be saved.'
+          : permission.error.message);
+        return;
+      }
+      const now = new Date().toISOString();
+      const recordId = operationId('story-knowledge-record');
+      const evidenceClass = draft.kind === 'emotion-graph' || draft.kind === 'pressure-point'
+        ? draft.lane
+        : 'planned';
+      const sourceKind = evidenceClass === 'observed' ? 'manuscript' as const : 'author-intent' as const;
+      const orderBasis = draft.kind === 'timeline-event'
+        ? 'story-world' as const
+        : evidenceClass === 'observed' ? 'manuscript' as const : 'planning' as const;
+      const label = draft.kind === 'emotion-graph' || draft.kind === 'timeline-event'
+        ? draft.label
+        : draft.kind === 'pacing-intent'
+          ? `Pacing intent: ${draft.tempo}`
+          : `${draft.dimension}: ${draft.band}`;
+      const sourceOwner = draft.kind === 'emotion-graph' ? 'Author-entered Emotion Graph point'
+        : draft.kind === 'timeline-event' ? 'Author-entered Timeline event'
+          : draft.kind === 'pacing-intent' ? 'Author-entered pacing intent'
+            : 'Author-entered pressure point';
+      const positionRef: StoryPositionRefV1 = {
+        projectId: current.project.projectId,
+        sourceKind,
+        sourceId: unit.id,
+        sourceRevision: evidenceClass === 'observed' ? 1 : current.generation,
+        sourceFingerprint: evidenceClass === 'observed'
+          ? current.project.unitMetrics?.[unit.id]?.sourceFingerprint
+            ?? `${current.project.projectId}:${unit.id}:${current.generation}:${draft.kind}:${evidenceClass}`
+          : `${current.project.projectId}:${unit.id}:author-intent:${draft.kind}`,
+        unitId: unit.id,
+        orderIndex: unit.order,
+        orderBasis,
+      };
+      const historyEvent: StoryIntelligenceHistoryEventV1 = {
+        eventId: operationId('story-knowledge-record-history'),
+        projectId: current.project.projectId,
+        eventType: 'author-record-created',
+        subjectId: recordId,
+        sourceRevision: positionRef.sourceRevision,
+        currentness: 'current',
+        evidenceClass,
+        actor: 'author',
+        provenanceRef: sourceOwner,
+        createdAt: now,
+      };
+      const next: StoryIntelligenceDocumentV1 = {
+        ...document,
+        revision: document.revision + 1,
+        authorRecords: [...document.authorRecords, {
+          recordId,
+          projectId: current.project.projectId,
+          unitId: unit.id,
+          evidenceClass,
+          label,
+          recordKind: draft.kind,
+          ...(draft.kind === 'emotion-graph' ? {
+            intensityBand: draft.intensity,
+            emotionLane: draft.lane,
+            emotionIntensity: draft.intensity,
+            ...(draft.subjectLabel ? { subjectLabel: draft.subjectLabel } : {}),
+          } : {}),
+          ...(draft.kind === 'timeline-event' ? {
+            timelineWorldOrder: draft.storyWorldOrder,
+            timelineTemporalState: draft.temporalState,
+          } : {}),
+          ...(draft.kind === 'pacing-intent' ? { pacingTempo: draft.tempo } : {}),
+          ...(draft.kind === 'pressure-point' ? {
+            pressureDimension: draft.dimension,
+            pressureBand: draft.band,
+          } : {}),
+          currentness: 'current',
+          positionRefs: [positionRef],
+          provenance: {
+            sourceOwner,
+            origin: 'author',
+            visibility: 'included',
+            citationRequired: true,
+            protectionClass: 'included',
+          },
+          createdAt: now,
+          updatedAt: now,
+        }],
+        history: trimStoryIntelligenceHistory([...document.history, historyEvent]),
+        updatedAt: now,
+      };
+      const result = await storyIntelligenceBridge.write({
+        ...binding,
+        expectedRevision: document.revision,
+        document: next,
+      });
+      if (result.ok) {
+        setStoryIntelligenceDocument(result.data);
+        setStoryIntelligenceNotice(null);
+      } else {
+        setStoryIntelligenceNotice(result.error.message);
+      }
+    } catch {
+      setStoryIntelligenceNotice('The Story Knowledge record could not be saved. No manuscript content was changed.');
+    }
+  }, [storyIntelligenceBridge, storyIntelligenceDocument]);
+
   const activateSurface = useCallback(async (
     targetSurface: SplitCommandLogicalSurface,
     placement: 'current-window' | 'secondary-window',
@@ -2880,15 +3002,15 @@ export default function Stage19WritingSpineApp({
   }, [surfaceBridge]);
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
-    if (windowRole === 'writing' && source.unitId) {
-      await activateSurface('writing', 'current-window');
+    if (source.unitId) {
       await handleSelectUnit(source.unitId);
-      return;
     }
     if (surfaceBridge) {
       await activateSurface('writing', 'current-window');
     }
-    setNotice(`Source return requested for ${source.sourceKind}/${source.sourceId}. Writing remains authoritative.`);
+    if (windowRole === 'command' || !source.unitId) {
+      setNotice(`Source return requested for ${source.sourceKind}/${source.sourceId}. Writing remains authoritative.`);
+    }
   }, [activateSurface, handleSelectUnit, surfaceBridge, windowRole]);
 
   const submitCompanionOrientation = useCallback(async () => {
@@ -3148,6 +3270,7 @@ export default function Stage19WritingSpineApp({
     setFeedbackNoteBody,
     saveFeedbackNote,
     returnToStorySource,
+    createEmotionRecord,
     disposeStorySignal,
     openRecent: handleOpenRecent,
     removeRecent: handleRemoveRecent,

@@ -2,7 +2,41 @@
 
 ## Status
 
-`P6-G REPAIR QUALIFIED; INTERACTIVE VERIFICATION RECORDED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+`FINAL P6-G REPAIR MECHANICALLY QUALIFIED; JASON'S 15-ROW ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+
+## Final pre-human repair qualification — 2026-09-03
+
+This section supersedes earlier readiness descriptions while preserving their
+historical evidence. The latest review defects are repaired in the current
+supplied checkout: detached source return preserves the Command window and
+selects the exact Writing unit; the three corpus projects contain meaningful
+prose; Emotion, Timeline, Pacing, and Pressure accept explicit author entries;
+Emotion Graph presents named subjects and accessible planned/observed lanes;
+Pacing reports prose-free structural measurements; and Pressure keeps planned
+intent separate from observed manuscript claims. No timeline, pacing intent,
+pressure, emotion, prose, or canon value is silently fabricated.
+
+Normalized manuscript-body SHA-256 fingerprints now back source currentness.
+The same-session Save path recomputes the projection, marks mismatched observed
+records/signals stale, retains exact source linkage, and leaves author-planned
+intent independent of manuscript-body changes. The optional field is compatible
+with legacy snapshots and strictly validated when present. Protected and
+ineligible source material remains filtered or metadata-only; Command Center
+receives structural metrics and hashes, never manuscript prose.
+
+Focused qualification passed `7` files / `202` tests. App lint, typecheck,
+production build, and diff hygiene passed. The packaged Program 6 Electron
+journey passed `1/1`, covering all three projects and seven lenses, durable
+author entry, same-session stale currentness, exact detached source return, and
+protected redaction. The complete dirty Stage 19 regression returned
+`STAGE19_REGRESSION_PASS` with `49` files / `782` passed / `2` skipped, startup
+`1/1`, Electron `36/36`, and protected evidence not used. The product commit,
+exact clean regression, documentation follow-up, push, and human acceptance are
+not yet claimed in this entry.
+
+The stop line is unchanged: all 15 rubric rows below remain intentionally blank
+for Jason. Program 6 stays open and Program 7 stays blocked until his explicit
+checkpoint decision.
 
 ## Superseded checkpoint correction — 2026-09-01
 

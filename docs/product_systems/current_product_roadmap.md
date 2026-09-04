@@ -52,9 +52,13 @@ Current status:
   suite, clean fixed regression, and synchronized push. The prior P6-G
   readiness claim was superseded by live author review, which found the
   production Story Knowledge route unreachable and the named corpus absent.
-  The bounded repair now wires the real Stage 19 route, materializes all three
-  review projects, and passes a 36-test Electron walkthrough; P6-G is the
-  renewed author-verification checkpoint. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
+  The final bounded repair now wires the real Stage 19 route, materializes all
+  three meaningful review projects, adds explicit author entry for Emotion,
+  Timeline, Pacing, and Pressure, keeps structural measurements prose-free,
+  and uses manuscript-body fingerprints for same-session stale currentness.
+  Its full dirty gate passes `49` files / `782` tests / `2` skips, startup
+  `1/1`, and Electron `36/36`; P6-G is ready for Jason's renewed 15-row author
+  verification, whose rows remain intentionally blank. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Program 6 planning is documented in
@@ -66,7 +70,8 @@ Current status:
   work has green dirty and clean-development evidence at `32d0c617`; P6-E
   quiet-surface/local-inference work is green and durable at `bb7f45db`; P6-F
   qualification is green and durable at `f499bf9a`; the prior P6-G readiness
-  claim is superseded by live review, and the repaired route, materializer, and
+  claim is superseded by live review, and the repaired route, meaningful
+  materializer, author-entry workflows, source-currentness enforcement, and
   Electron walkthrough are mechanically green for the renewed author checkpoint.
   The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
   records the exact status and residual. P6-D chronology/pacing/pressure

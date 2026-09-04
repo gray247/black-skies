@@ -5,9 +5,10 @@ import type { TimelineFindingV1, TimelineRunResultV1 } from '../../shared/timeli
 export interface TimelineReviewProps {
   readonly result: TimelineRunResultV1;
   readonly onAction?: (finding: TimelineFindingV1, action: string) => void;
+  readonly onSourceReturn?: (source: TimelineRunResultV1['chronology'][number]['positionRefs'][number]) => void;
 }
 
-export default function TimelineReview({ result, onAction }: TimelineReviewProps): JSX.Element {
+export default function TimelineReview({ result, onAction, onSourceReturn }: TimelineReviewProps): JSX.Element {
   const titleId = useId();
   const descriptionId = useId();
   return (
@@ -17,7 +18,7 @@ export default function TimelineReview({ result, onAction }: TimelineReviewProps
         <span className="timeline-review__posture">Support only</span>
       </header>
       <div className="timeline-review__modules">
-        <section aria-labelledby={`${titleId}-chronology`}><h3 id={`${titleId}-chronology`}>Chronology</h3><p>Story-world, manuscript, planning, projection, and reveal orders stay distinct.</p><ol>{result.chronology.map((row) => <li key={row.eventId}><strong>{row.label}</strong><span>{row.temporalState} · manuscript {row.orders.manuscript ?? 'unknown'} · story-world {row.orders['story-world'] ?? 'unknown'}</span></li>)}</ol></section>
+        <section aria-labelledby={`${titleId}-chronology`}><h3 id={`${titleId}-chronology`}>Chronology</h3><p>Story-world, manuscript, planning, projection, and reveal orders stay distinct.</p>{result.chronology.length === 0 ? <p>No author-entered story-world events are available.</p> : <ol>{result.chronology.map((row) => <li key={row.eventId}><strong>{row.label}</strong><span>{row.temporalState} · manuscript {row.orders.manuscript ?? 'unknown'} · story-world {row.orders['story-world'] ?? 'unknown'}</span>{row.positionRefs[0] ? <button type="button" onClick={() => onSourceReturn?.(row.positionRefs[0]!)}>Review source</button> : null}</li>)}</ol>}</section>
         <section aria-labelledby={`${titleId}-pacing`}><h3 id={`${titleId}-pacing`}>Pacing</h3><p>Differences are review opportunities, not automatic defects.</p><ul>{result.pacing.map((item) => <li key={item.unitId}><strong>{item.unitId}</strong><span>{item.direction.replace(/-/g, ' ')}{item.isReviewOpportunity ? ' · review opportunity' : ''}</span></li>)}</ul></section>
         <section aria-labelledby={`${titleId}-pressure`}><h3 id={`${titleId}-pressure`}>Pressure</h3><p>Urgency, consequence, constraint, and conflict remain separate. No universal score.</p><ul>{result.pressure.map((item) => <li key={item.eventId}><strong>{item.eventId}</strong><span>{Object.entries(item.dimensions).map(([dimension, band]) => `${dimension}: ${band}`).join(' · ') || 'No pressure dimensions recorded'}</span></li>)}</ul></section>
       </div>

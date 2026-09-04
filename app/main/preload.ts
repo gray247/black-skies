@@ -2133,6 +2133,7 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
     ];
     const projectKeys = ['projectId', 'path', 'title', 'schemaVersion', 'units'];
     const unitKeys = ['id', 'title', 'displayTitle', 'order'];
+    const unitMetricKeys = ['wordCount', 'sentenceCount', 'paragraphCount', 'dialogueRatio'];
     const recentProjectKeys = ['path', 'title', 'lastOpened', 'stale'];
     const saveStateKeys = ['status', 'unitId', 'message'];
     const lastErrorKeys = ['code', 'message'];
@@ -2160,7 +2161,7 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
         !Number.isFinite(recent.lastOpened) ||
         typeof recent.stale !== 'boolean') ||
       (snapshot.project !== null && (
-        !hasExactOwnKeys(snapshot.project, projectKeys) ||
+        !hasExactOwnKeys(snapshot.project, snapshot.project?.unitMetrics === undefined ? projectKeys : [...projectKeys, 'unitMetrics']) ||
         typeof snapshot.project.projectId !== 'string' ||
         typeof snapshot.project.path !== 'string' ||
         typeof snapshot.project.title !== 'string' ||
@@ -2171,7 +2172,17 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
           typeof unit.id !== 'string' ||
           typeof unit.title !== 'string' ||
           typeof unit.displayTitle !== 'string' ||
-          !Number.isInteger(unit.order))
+          !Number.isInteger(unit.order)) ||
+        (snapshot.project.unitMetrics !== undefined && Object.entries(snapshot.project.unitMetrics).some(([unitId, metrics]) =>
+          !snapshot.project?.units.some((unit) => unit.id === unitId) ||
+          !hasExactOwnKeys(metrics, metrics.sourceFingerprint === undefined
+            ? unitMetricKeys
+            : [...unitMetricKeys, 'sourceFingerprint']) ||
+          !Number.isInteger(metrics.wordCount) || metrics.wordCount < 0 ||
+          !Number.isInteger(metrics.sentenceCount) || metrics.sentenceCount < 0 ||
+          !Number.isInteger(metrics.paragraphCount) || metrics.paragraphCount < 0 ||
+          typeof metrics.dialogueRatio !== 'number' || metrics.dialogueRatio < 0 || metrics.dialogueRatio > 1 ||
+          (metrics.sourceFingerprint !== undefined && (typeof metrics.sourceFingerprint !== 'string' || !/^[a-f0-9]{64}$/i.test(metrics.sourceFingerprint)))))
       ))
     ) {
       return null;

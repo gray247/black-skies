@@ -39,6 +39,8 @@ describe('Timeline V1', () => {
   it('keeps pressure dimensions separate and refuses a universal score', () => {
     const result = runTimelineV1(input());
     expect(result.pressure[0]?.dimensions).toEqual({ urgency: 'high', consequence: 'medium' });
+    expect(result.pressure[0]?.plannedDimensions).toEqual({});
+    expect(result.pressure[0]?.observedDimensions).toEqual({ urgency: 'high', consequence: 'medium' });
     expect(result.pressure[0]?.universalScore).toBeNull();
     expect(result.universalPressureScore).toBeNull();
   });

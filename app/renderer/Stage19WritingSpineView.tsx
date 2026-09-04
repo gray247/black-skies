@@ -36,7 +36,7 @@ import type {
 } from '../shared/ipc/contextualProductShell';
 import type { StoryIntelligenceDocumentV1, StoryPositionRefV1 } from '../shared/ipc/storyIntelligence';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
-import Program6StoryKnowledgeWorkspace from './components/Program6StoryKnowledgeWorkspace';
+import Program6StoryKnowledgeWorkspace, { type StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
 export interface MarkdownExportNotice {
@@ -315,6 +315,7 @@ export interface Stage19WritingSpineViewActions {
   readonly setFeedbackNoteBody: (value: string) => void;
   readonly saveFeedbackNote: () => MaybeAsync;
   readonly returnToStorySource: (source: StoryPositionRefV1) => MaybeAsync;
+  readonly createEmotionRecord: (draft: StoryKnowledgeAuthorRecordDraftV1) => MaybeAsync;
   readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
   readonly openRecent: (projectPath: string) => MaybeAsync;
   readonly removeRecent: (projectPath: string) => MaybeAsync;
@@ -408,7 +409,7 @@ function SurfaceControlsView({ model, actions }: Stage19WritingSpineViewProps): 
         ) : (
           <>
             <button type="button" onClick={() => void actions.showWritingSurface()}>
-              Return to Writing Studio
+              {model.windowRole === 'command' ? 'Focus Writing Studio' : 'Return to Writing Studio'}
             </button>
             {model.windowRole === 'writing' ? (
               <button
@@ -640,6 +641,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             generation={snapshot.generation}
             document={model.storyIntelligenceDocument}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}
+            onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
             onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
           />
         ) : model.commandWorkspace === 'story-knowledge' ? (

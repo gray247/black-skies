@@ -657,10 +657,7 @@ function registerSplitCommandOwnershipIpc(): void {
     }
     const invalid = validateSurfaceHostRequest(request, senderRole);
     if (invalid) return invalid;
-    return activateSplitCommandSurface(
-      request as ActivateSplitCommandSurfaceRequest,
-      senderRole,
-    );
+    return activateSplitCommandSurface(request as ActivateSplitCommandSurfaceRequest);
   });
 }
 
@@ -1388,17 +1385,12 @@ async function openSplitCommandSecondarySurface(
 
 async function activateSplitCommandSurface(
   request: ActivateSplitCommandSurfaceRequest,
-  senderRole: SplitCommandWindowRole,
 ): Promise<SplitCommandSurfaceHostResult | null> {
   if (request.targetSurface === 'writing') {
-    if (senderRole === 'secondary') {
-      closeSecondaryForPrimarySurface('writing', 'secondary-closed');
-    } else {
-      primaryLogicalSurface = 'writing';
-      surfaceHostNotice = null;
-      publishSplitCommandSurfaceHostState();
-      focusPrimarySurface();
-    }
+    primaryLogicalSurface = 'writing';
+    surfaceHostNotice = null;
+    publishSplitCommandSurfaceHostState();
+    focusPrimarySurface();
     const state = buildSplitCommandSurfaceHostState();
     return state ? { ok: true, state } : null;
   }

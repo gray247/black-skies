@@ -122,22 +122,13 @@ test('P3-C preserves one-window writing state and recovers optional Command plac
     await page.getByRole('button', { name: 'Move Command Center to second window' }).click();
     const reopenedCommand = await findCommandWindow(electronApp, page);
     await expect(reopenedCommand.getByRole('region', { name: 'Command Center' })).toBeVisible();
-    // Returning from the optional Command window intentionally closes that
-    // window. Playwright can report the expected self-close as a transport
-    // failure; the assertions below still require the primary Writing Studio
-    // to receive the requested return.
-    try {
-      await reopenedCommand
-        .locator('.stage19-spine__surface-actions')
-        .getByRole('button', { name: 'Return to Writing Studio' })
-        .dispatchEvent('click');
-    } catch (error) {
-      if (!String(error).includes('Target page, context or browser has been closed')) {
-        throw error;
-      }
-    }
+    await reopenedCommand
+      .locator('.stage19-spine__surface-actions')
+      .getByRole('button', { name: 'Focus Writing Studio' })
+      .click();
 
-    await expect.poll(() => electronApp.windows().length, { timeout: 30_000 }).toBe(1);
+    await expect.poll(() => electronApp.windows().length, { timeout: 30_000 }).toBe(2);
+    await expect(reopenedCommand.getByRole('region', { name: 'Command Center' })).toBeVisible();
     await expect(editor).toBeVisible();
     expect(await editor.textContent()).toContain(prose);
     await expect(editor).toBeFocused();

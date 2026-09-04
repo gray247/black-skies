@@ -13,7 +13,9 @@ import type {
   StoryIntelligenceDocumentV1,
   StoryPositionRefV1,
   StoryIntelligenceSourceClassV1,
+  StoryIntelligenceAuthorRecordV1,
 } from './ipc/storyIntelligence.js';
+import { deriveStoryPositionCurrentness } from './storyIntelligencePolicy.js';
 import {
   runTimelineV1,
   type TimelineRunResultV1,
@@ -31,7 +33,7 @@ export interface Program6ProductionProjectionV1 {
 
 function sourceRef(
   project: ProjectSpineProjectContext,
-  generation: number,
+  _generation: number,
   unitId: string,
   order: number,
 ): StoryPositionRefV1 {
@@ -39,24 +41,81 @@ function sourceRef(
     projectId: project.projectId,
     sourceKind: 'story-unit',
     sourceId: unitId,
-    sourceRevision: generation,
-    sourceFingerprint: `${project.projectId}:${unitId}:${generation}`,
+    // Project-session generation is not a durable manuscript revision. The
+    // V1 body fingerprint carries content currentness across reopen/switch.
+    sourceRevision: 1,
+    sourceFingerprint: project.unitMetrics?.[unitId]?.sourceFingerprint
+      ?? `${project.projectId}:${unitId}:${_generation}`,
     unitId,
     orderIndex: order,
     orderBasis: 'manuscript',
   };
 }
 
-function bandFor(order: number): 'none' | 'low' | 'medium' | 'high' {
-  return order % 4 === 1 ? 'low' : order % 4 === 2 ? 'medium' : order % 4 === 3 ? 'high' : 'none';
+function mergeCurrentness(states: readonly CurrentnessV1[]): CurrentnessV1 {
+  if (states.includes('unavailable')) return 'unavailable';
+  if (states.includes('stale')) return 'stale';
+  if (states.includes('trimmed')) return 'trimmed';
+  return 'current';
+}
+
+function resolveStoredCurrentness(
+  explicit: CurrentnessV1,
+  refs: readonly StoryPositionRefV1[],
+  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
+): CurrentnessV1 {
+  const states = refs.map((reference) => {
+    if (explicit !== 'current') return explicit;
+    if (reference.sourceKind !== 'manuscript' && reference.sourceKind !== 'story-unit') return 'current' as const;
+    const current = currentByUnit.get(reference.unitId ?? reference.sourceId);
+    if (!current) return 'unavailable' as const;
+    // Legacy persisted refs and legacy fixture metrics use non-hash identities.
+    // Preserve their explicit state until a fingerprint-bearing snapshot can
+    // establish a safe comparison.
+    if (!/^[a-f0-9]{64}$/i.test(reference.sourceFingerprint) ||
+      !/^[a-f0-9]{64}$/i.test(current.sourceFingerprint)) return 'current' as const;
+    return deriveStoryPositionCurrentness(reference, {
+      available: true,
+      sourceRevision: current.sourceRevision,
+      sourceFingerprint: current.sourceFingerprint,
+    });
+  });
+  return mergeCurrentness(states);
+}
+
+function resolvedAuthorRecord(
+  record: StoryIntelligenceAuthorRecordV1,
+  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
+): StoryIntelligenceAuthorRecordV1 {
+  return {
+    ...record,
+    currentness: resolveStoredCurrentness(record.currentness ?? 'current', record.positionRefs, currentByUnit),
+  };
+}
+
+function median(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  const ordered = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 === 0
+    ? Math.round(((ordered[middle - 1] ?? 0) + (ordered[middle] ?? 0)) / 2)
+    : ordered[middle] ?? 0;
+}
+
+function latestRecord(records: readonly StoryIntelligenceAuthorRecordV1[]): StoryIntelligenceAuthorRecordV1 | undefined {
+  return [...records].sort((left, right) => left.updatedAt.localeCompare(right.updatedAt)).at(-1);
 }
 
 function sourceRecordFor(
   ref: StoryPositionRefV1,
   document: StoryIntelligenceDocumentV1,
+  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
 ): { readonly sourceRef: StoryPositionRefV1; readonly sourceClass: StoryIntelligenceSourceClassV1; readonly currentness: CurrentnessV1 } {
   const relatedSignals = document.durableSignals.filter((signal) => signal.positionRefs.some((candidate) =>
-    candidate.sourceKind === ref.sourceKind && candidate.sourceId === ref.sourceId,
+    (candidate.sourceKind === ref.sourceKind && candidate.sourceId === ref.sourceId) ||
+    ((candidate.sourceKind === 'manuscript' || candidate.sourceKind === 'story-unit') &&
+      (ref.sourceKind === 'manuscript' || ref.sourceKind === 'story-unit') &&
+      (candidate.unitId ?? candidate.sourceId) === (ref.unitId ?? ref.sourceId)),
   ));
   const protectedSignal = relatedSignals.find((signal) =>
     signal.provenance.protectionClass !== 'included' &&
@@ -67,10 +126,11 @@ function sourceRecordFor(
     return {
       sourceRef: ref,
       sourceClass: protectedSignal.provenance.protectionClass,
-      currentness: protectedSignal.currentness,
+      currentness: resolveStoredCurrentness(protectedSignal.currentness, protectedSignal.positionRefs, currentByUnit),
     };
   }
-  const currentness = relatedSignals.find((signal) => signal.currentness !== 'current')?.currentness ?? 'current';
+  const currentness = mergeCurrentness(relatedSignals.map((signal) =>
+    resolveStoredCurrentness(signal.currentness, signal.positionRefs, currentByUnit)));
   return { sourceRef: ref, sourceClass: 'included', currentness };
 }
 
@@ -81,37 +141,73 @@ export function buildProgram6ProductionProjection(input: {
 }): Program6ProductionProjectionV1 {
   const { project, generation, document } = input;
   const refs = project.units.map((unit) => sourceRef(project, generation, unit.id, unit.order));
-  const sourceRecords = refs.map((ref) => sourceRecordFor(ref, document));
-  const events = project.units.map((unit, index) => ({
-    eventId: `event:${unit.id}`,
-    unitId: unit.id,
-    label: unit.title,
-    orders: {
-      manuscript: unit.order,
-      'story-world': unit.order,
-      planning: unit.order,
-      projection: unit.order,
-      reveal: unit.order,
-    },
-    temporalState: 'certain' as const,
-    positionRefs: [refs[index]!],
-  }));
+  const refByUnit = new Map(project.units.map((unit, index) => [unit.id, refs[index]!]));
+  const currentByUnit = refByUnit;
+  const authorRecords = document.authorRecords
+    .filter((record) => record.projectId === project.projectId)
+    .map((record) => resolvedAuthorRecord(record, currentByUnit));
+  const sourceRecords = refs.map((ref) => sourceRecordFor(ref, document, currentByUnit));
+  const events = authorRecords.filter((record) => record.recordKind === 'timeline-event' &&
+    (record.evidenceClass === 'planned' || record.currentness === 'current') &&
+    record.unitId && record.timelineWorldOrder !== undefined && record.timelineTemporalState).flatMap((record) => {
+    const unit = project.units.find((candidate) => candidate.id === record.unitId);
+    const ref = record.unitId ? refByUnit.get(record.unitId) : undefined;
+    if (!unit || !ref) return [];
+    return [{
+      eventId: record.recordId,
+      unitId: unit.id,
+      label: record.label,
+      orders: { manuscript: unit.order, 'story-world': record.timelineWorldOrder },
+      temporalState: record.timelineTemporalState!,
+      positionRefs: [ref],
+    }];
+  });
+  const measuredWordCounts = project.units.map((unit) => project.unitMetrics?.[unit.id]?.wordCount).filter((value): value is number => value !== undefined);
+  const medianWordCount = median(measuredWordCounts);
+  const pacing = project.units.flatMap((unit) => {
+    const ref = refByUnit.get(unit.id);
+    const metrics = project.unitMetrics?.[unit.id];
+    const intent = latestRecord(authorRecords.filter((record) => record.recordKind === 'pacing-intent' && record.unitId === unit.id &&
+      (record.evidenceClass === 'planned' || record.currentness === 'current')));
+    if (!ref || (!metrics && !intent?.pacingTempo)) return [];
+    const relativeLength = !metrics || medianWordCount === 0 ? undefined
+      : metrics.wordCount < medianWordCount * 0.75 ? 'shorter' as const
+        : metrics.wordCount > medianWordCount * 1.25 ? 'longer' as const
+          : 'typical' as const;
+    return [{
+      unitId: unit.id,
+      ...(intent?.pacingTempo ? { plannedTempo: intent.pacingTempo } : {}),
+      ...(metrics ? {
+        observedWordCount: metrics.wordCount,
+        observedSentenceCount: metrics.sentenceCount,
+        observedParagraphCount: metrics.paragraphCount,
+        observedDialogueRatio: metrics.dialogueRatio,
+        medianWordCount,
+        ...(relativeLength ? { relativeLength } : {}),
+      } : {}),
+      positionRefs: [ref],
+    }];
+  });
+  const pressure = authorRecords.filter((record) => record.recordKind === 'pressure-point' && record.unitId && record.pressureDimension && record.pressureBand &&
+    (record.evidenceClass === 'planned' || record.currentness === 'current')).flatMap((record) => {
+    const ref = record.unitId ? refByUnit.get(record.unitId) : undefined;
+    if (!ref) return [];
+    return [{
+      eventId: record.unitId!,
+      dimension: record.pressureDimension!,
+      band: record.pressureBand!,
+      evidenceClass: record.evidenceClass === 'observed' ? 'observed' as const : 'planned' as const,
+      positionRefs: [ref],
+    }];
+  });
   const timeline = runTimelineV1({
     schemaVersion: 'BlackSkiesTimeline v1',
     projectId: project.projectId,
     generation,
     analysisId: `stage19:${project.projectId}:timeline:${generation}`,
     events,
-    pacing: project.units.map((unit, index) => ({
-      unitId: unit.id,
-      plannedTempo: index % 2 === 0 ? 'steady' : 'fast',
-      observedTempo: index % 2 === 0 ? 'steady' : 'slow',
-      positionRefs: [refs[index]!],
-    })),
-    pressure: project.units.flatMap((unit, index) => [
-      { eventId: `event:${unit.id}`, dimension: 'urgency' as const, band: bandFor(index + 1), positionRefs: [refs[index]!] },
-      { eventId: `event:${unit.id}`, dimension: 'consequence' as const, band: index % 2 === 0 ? 'medium' as const : 'low' as const, positionRefs: [refs[index]!] },
-    ]),
+    pacing,
+    pressure,
     sourceRecords,
     priorDecisions: [],
     createdAt: document.updatedAt,
@@ -140,7 +236,7 @@ export function buildProgram6ProductionProjection(input: {
     priorDecisions: [],
     createdAt: document.updatedAt,
   });
-  const points = readEmotionGraphPoints(document).filter((point) => point.projectId === project.projectId);
+  const points = readEmotionGraphPoints({ ...document, authorRecords }).filter((point) => point.projectId === project.projectId);
   const emotion = createEmotionGraphProjection(project.projectId, points, [], {
     showReaderEffect: document.settings.analysisPolicy.readerEffectLaneEnabled,
     multipleSubjects: true,
@@ -152,6 +248,11 @@ export function buildProgram6ProductionProjection(input: {
     emotion,
     continuity,
     timeline,
-    signals: document.durableSignals.filter((signal) => signal.projectId === project.projectId),
+    signals: document.durableSignals
+      .filter((signal) => signal.projectId === project.projectId)
+      .map((signal) => ({
+        ...signal,
+        currentness: resolveStoredCurrentness(signal.currentness, signal.positionRefs, currentByUnit),
+      })),
   };
 }

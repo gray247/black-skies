@@ -18,6 +18,12 @@ const project: ProjectSpineProjectContext = {
     { id: 'nl_03', title: 'The First Letter', displayTitle: 'The First Letter', order: 3 },
     { id: 'nl_04', title: 'The Reply', displayTitle: 'The Reply', order: 4 },
   ],
+  unitMetrics: {
+    nl_01: { wordCount: 90, sentenceCount: 6, paragraphCount: 3, dialogueRatio: 0.1 },
+    nl_02: { wordCount: 180, sentenceCount: 9, paragraphCount: 5, dialogueRatio: 0.25 },
+    nl_03: { wordCount: 120, sentenceCount: 7, paragraphCount: 4, dialogueRatio: 0 },
+    nl_04: { wordCount: 150, sentenceCount: 8, paragraphCount: 4, dialogueRatio: 0.4 },
+  },
 };
 
 function signal(currentness: DurableSignalV1['currentness']): DurableSignalV1 {
@@ -103,5 +109,80 @@ describe('Program 6 Story Knowledge workspace', () => {
     await user.click(convert);
 
     expect(onSignalDisposition).toHaveBeenCalledWith('signal-current', 'converted');
+  });
+
+  it('collects a planned author emotion point without claiming to analyze prose', async () => {
+    const user = userEvent.setup();
+    const onEmotionRecordCreate = vi.fn();
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={documentWithSignal('current')}
+        onAuthorRecordCreate={onEmotionRecordCreate}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /^Emotion$/ }));
+
+    expect(screen.getByText(/No AI reading happens here/i)).toBeVisible();
+    await user.selectOptions(screen.getByLabelText('Emotion point story section'), 'nl_02');
+    await user.type(screen.getByLabelText('Emotion point label'), 'guarded hope');
+    await user.selectOptions(screen.getByLabelText('Emotion point intensity'), 'high');
+    await user.type(screen.getByLabelText('Emotion point subject'), 'Mara');
+    await user.click(screen.getByRole('button', { name: 'Save emotion point' }));
+
+    expect(onEmotionRecordCreate).toHaveBeenCalledWith({
+      kind: 'emotion-graph',
+      unitId: 'nl_02',
+      lane: 'planned',
+      label: 'guarded hope',
+      intensity: 'high',
+      subjectLabel: 'Mara',
+    });
+  });
+
+  it('collects author chronology, pacing intent, and pressure without inventing observations', async () => {
+    const user = userEvent.setup();
+    const onAuthorRecordCreate = vi.fn();
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={documentWithSignal('current')}
+        onAuthorRecordCreate={onAuthorRecordCreate}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
+    expect(screen.getByText('No author-entered story-world events are available.')).toBeVisible();
+    await user.selectOptions(screen.getByLabelText('Timeline event story section'), 'nl_02');
+    await user.type(screen.getByLabelText('Timeline event label'), 'Mara finds the letter');
+    await user.clear(screen.getByLabelText('Timeline story-world order'));
+    await user.type(screen.getByLabelText('Timeline story-world order'), '4');
+    await user.selectOptions(screen.getByLabelText('Timeline certainty'), 'disputed');
+    await user.click(screen.getByRole('button', { name: 'Save timeline event' }));
+
+    await user.click(screen.getByRole('button', { name: /^Pacing$/ }));
+    await user.selectOptions(screen.getByLabelText('Pacing intent story section'), 'nl_03');
+    await user.selectOptions(screen.getByLabelText('Pacing intended tempo'), 'fast');
+    await user.click(screen.getByRole('button', { name: 'Save pacing intent' }));
+
+    await user.click(screen.getByRole('button', { name: /^Pressure$/ }));
+    expect(screen.getByText('No source-linked pressure observations are available.')).toBeVisible();
+    await user.selectOptions(screen.getByLabelText('Pressure point story section'), 'nl_04');
+    await user.selectOptions(screen.getByLabelText('Pressure point lane'), 'observed');
+    await user.selectOptions(screen.getByLabelText('Pressure point dimension'), 'constraint');
+    await user.selectOptions(screen.getByLabelText('Pressure point band'), 'very-high');
+    await user.click(screen.getByRole('button', { name: 'Save pressure point' }));
+
+    expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(1, {
+      kind: 'timeline-event', unitId: 'nl_02', label: 'Mara finds the letter', storyWorldOrder: 4, temporalState: 'disputed',
+    });
+    expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(2, {
+      kind: 'pacing-intent', unitId: 'nl_03', tempo: 'fast',
+    });
+    expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(3, {
+      kind: 'pressure-point', unitId: 'nl_04', lane: 'observed', dimension: 'constraint', band: 'very-high',
+    });
   });
 });

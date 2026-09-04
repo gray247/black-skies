@@ -2,6 +2,25 @@
 
 ## 1. Status And Authority
 
+### Final pre-human repair qualification — 2026-09-03
+
+The latest P6-G repair is mechanically complete in the current supplied
+checkout. It repairs detached exact source return, replaces placeholder review
+copy with meaningful project prose, adds manual author entry for Emotion,
+Timeline, Pacing, and Pressure, keeps measured manuscript structure separate
+from author intent, and separates planned from observed pressure. Manuscript-
+linked records use normalized-body fingerprints so a same-session durable Save
+can mark cited observations stale without treating author-planned intent as
+manuscript evidence. Protected or ineligible material remains filtered and no
+manuscript prose crosses into Command Center.
+
+Focused qualification is `7` files / `202` tests; lint, typecheck, production
+build, and diff hygiene pass; the targeted packaged Electron workflow passes
+`1/1`; and the complete dirty Stage 19 gate passes `49` files / `782` tests /
+`2` skips, startup `1/1`, Electron `36/36`. This evidence establishes readiness
+for Jason's renewed 15-row review only. It does not fill any human rubric row,
+close Program 6, or admit Program 7.
+
 ### Current live-review correction — 2026-09-01
 
 The first P6-G readiness claim is superseded by Jason's live review. It found
@@ -18,7 +37,7 @@ human checkpoint remains the only closure gate.
 - Status: `P6-G HUMAN VERIFICATION CHECKPOINT ACTIVE; PROGRAM 6 OPEN`
 - Prepared: `2026-08-31`
 - Program: `6 - Signals And Story Intelligence`
-- Canonical checkout: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
+- Current supplied checkout: `C:\Users\gray2\.codex\worktrees\be18\black-skies`
 - Branch: `codex/foundation-audit`
 - Observed planning baseline: `235f42d7599aff5662eb1f65a0c0b201b4857e0c`
 - Planning model: `GPT-5.6 Luna`
@@ -1033,4 +1052,8 @@ separately authorized boundaries. P6-C is durable at `7536431d`, P6-D at
 dirty, clean, and synchronized evidence. The newest explicit user instruction
 admits P6-F, whose bounded qualification evidence is durable at `f499bf9a`.
 P6-G is the active author-verification checkpoint; no Program 7 implementation
-or Program 6 closure is implied until Jason explicitly accepts it.
+or Program 6 closure is implied until Jason explicitly accepts it. The final
+pre-human repair is mechanically green with fingerprint-backed manuscript
+currentness, meaningful review prose, author-owned entry workflows, prose-free
+structural metrics, protected filtering, and exact source return; the 15 human
+rubric rows remain intentionally blank for Jason.

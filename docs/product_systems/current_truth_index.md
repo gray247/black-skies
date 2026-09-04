@@ -140,8 +140,13 @@ It does not finalize the entire product vision.
   its clean fixed regression and synchronized push. The first P6-G readiness
   claim was superseded by Jason's live review, which exposed a missing
   production-route bridge, absent real review corpus, and placeholder-only
-  Story Knowledge surface. The bounded P6-G repair is mechanically qualified
-  locally and the renewed author checkpoint is active. The cleanup HEAD is
+  Story Knowledge surface. The final bounded P6-G repair is mechanically
+  qualified locally: its meaningful three-project corpus, explicit author
+  entry workflows, prose-free structural metrics, fingerprint-backed
+  same-session currentness, protected filtering, and exact detached source
+  return passed the complete `49`-file / `782`-test / `2`-skip unit matrix,
+  startup `1/1`, and Electron `36/36`. Jason's renewed 15-row checkpoint is
+  active and remains intentionally unanswered. The cleanup HEAD is
   regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
   installed Program 5 candidate remains `6efec7b95c82759f51f6d8f47d4400637f48837a`.
@@ -249,8 +254,10 @@ It does not finalize the entire product vision.
   P6-E production surface/local-inference work is durable at `bb7f45db`; P6-F
   qualification is complete at `f499bf9a`; the prior P6-G readiness claim is
   superseded by the live-review findings, and the repaired production route,
-  deterministic three-project materializer, and 36-test Electron walkthrough
-  are now mechanically qualified for the renewed author checkpoint.
+  deterministic meaningful three-project materializer, manual Emotion,
+  Timeline, Pacing, and Pressure entry, content-fingerprint currentness, and
+  36-test Electron walkthrough are now mechanically qualified for the renewed
+  author checkpoint. No Program 6 closure or Program 7 admission is implied.
   Providers/models,
   dependencies, packaging, installed qualification, creation/revision, and
   later-batch work remain bounded by their sequential handoffs.

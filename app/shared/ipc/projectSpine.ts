@@ -46,12 +46,24 @@ export interface ProjectSpineUnitSummary {
   readonly order: number;
 }
 
+/** Prose-free structural measurements safe to project to Command Center. */
+export interface ProjectSpineUnitMetrics {
+  readonly wordCount: number;
+  readonly sentenceCount: number;
+  readonly paragraphCount: number;
+  readonly dialogueRatio: number;
+  /** SHA-256 of the normalized manuscript body; omitted by legacy snapshots. */
+  readonly sourceFingerprint?: string;
+}
+
 export interface ProjectSpineProjectContext {
   readonly projectId: string;
   readonly path: string;
   readonly title: string;
   readonly schemaVersion: 'ProjectMetadataSchema v1';
   readonly units: readonly ProjectSpineUnitSummary[];
+  /** Deterministic measurements only. Never contains manuscript excerpts. */
+  readonly unitMetrics?: Readonly<Record<string, ProjectSpineUnitMetrics>>;
   /** Present only in the Writing Studio projection. */
   readonly drafts?: Readonly<Record<string, string>>;
 }
