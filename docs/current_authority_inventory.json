@@ -6,6 +6,8 @@
     "model": "GPT-5.6 Sol orchestrator with delegated GPT-5.6 Luna repair audit",
     "reasoning": "orchestrator default; delegated repair audit high",
     "scope": "Final bounded P6-G repair qualification, evidence synchronization, and Jason handoff only",
+    "qualifiedProductCommit": "7b303a5569b5b6718b7553142963311838f8f6fc",
+    "mechanicalEvidence": "Clean Stage 19 regression: 49 files, 782 passed, 2 skipped; startup 1/1; Electron 36/36; protected evidence not used",
     "precedence": "newest explicit user instruction supersedes older batch-specific later-batch prohibitions after preceding-batch completion",
     "exclusions": ["Program 7", "Program 6 closure without final author acceptance"]
   },

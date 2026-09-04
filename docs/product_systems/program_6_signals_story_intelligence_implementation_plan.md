@@ -17,7 +17,9 @@ manuscript prose crosses into Command Center.
 Focused qualification is `7` files / `202` tests; lint, typecheck, production
 build, and diff hygiene pass; the targeted packaged Electron workflow passes
 `1/1`; and the complete dirty Stage 19 gate passes `49` files / `782` tests /
-`2` skips, startup `1/1`, Electron `36/36`. This evidence establishes readiness
+`2` skips, startup `1/1`, Electron `36/36`. Exact product commit
+`7b303a5569b5b6718b7553142963311838f8f6fc` passed the same clean gate as
+`CLEAN_RC_ELIGIBLE`. This evidence establishes readiness
 for Jason's renewed 15-row review only. It does not fill any human rubric row,
 close Program 6, or admit Program 7.
 
@@ -1055,5 +1057,6 @@ P6-G is the active author-verification checkpoint; no Program 7 implementation
 or Program 6 closure is implied until Jason explicitly accepts it. The final
 pre-human repair is mechanically green with fingerprint-backed manuscript
 currentness, meaningful review prose, author-owned entry workflows, prose-free
-structural metrics, protected filtering, and exact source return; the 15 human
+structural metrics, protected filtering, and exact source return at product
+commit `7b303a5569b5b6718b7553142963311838f8f6fc`; the 15 human
 rubric rows remain intentionally blank for Jason.

@@ -56,8 +56,9 @@ Current status:
   three meaningful review projects, adds explicit author entry for Emotion,
   Timeline, Pacing, and Pressure, keeps structural measurements prose-free,
   and uses manuscript-body fingerprints for same-session stale currentness.
-  Its full dirty gate passes `49` files / `782` tests / `2` skips, startup
-  `1/1`, and Electron `36/36`; P6-G is ready for Jason's renewed 15-row author
+  Its full dirty and exact clean gates pass `49` files / `782` tests / `2`
+  skips, startup `1/1`, and Electron `36/36` at product commit
+  `7b303a5569b5b6718b7553142963311838f8f6fc`; P6-G is ready for Jason's renewed 15-row author
   verification, whose rows remain intentionally blank. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.

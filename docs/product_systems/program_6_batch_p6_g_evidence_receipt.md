@@ -30,9 +30,10 @@ journey passed `1/1`, covering all three projects and seven lenses, durable
 author entry, same-session stale currentness, exact detached source return, and
 protected redaction. The complete dirty Stage 19 regression returned
 `STAGE19_REGRESSION_PASS` with `49` files / `782` passed / `2` skipped, startup
-`1/1`, Electron `36/36`, and protected evidence not used. The product commit,
-exact clean regression, documentation follow-up, push, and human acceptance are
-not yet claimed in this entry.
+`1/1`, Electron `36/36`, and protected evidence not used. Exact product commit
+`7b303a5569b5b6718b7553142963311838f8f6fc` passed the same complete clean gate
+with `worktree=CLEAN_RC_ELIGIBLE`. The documentation-only follow-up must pass its
+own clean gate before push. Human acceptance is not claimed in this entry.
 
 The stop line is unchanged: all 15 rubric rows below remain intentionally blank
 for Jason. Program 6 stays open and Program 7 stays blocked until his explicit

@@ -44,9 +44,11 @@ Program 6 journey passed `1/1`, covering three projects, seven lenses, durable
 author entry, same-session stale currentness, protected redaction, and exact
 source return. The complete dirty Stage 19 gate returned
 `STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` skipped, startup
-`1/1`, Electron `36/36`, protected evidence not used. Commit, exact clean gate,
-push, and Jason's 15-row human decision remain pending at this entry. Program 6
-is not closed and Program 7 remains blocked.
+`1/1`, Electron `36/36`, protected evidence not used. Exact product commit
+`7b303a5569b5b6718b7553142963311838f8f6fc` then passed the same clean gate as
+`CLEAN_RC_ELIGIBLE`. The documentation-only follow-up and synchronized push
+remain gated on their final checks; Jason's 15-row human decision remains
+pending. Program 6 is not closed and Program 7 remains blocked.
 
 ## Program 6 live-checkpoint repair — 2026-09-01
 

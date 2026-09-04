@@ -145,7 +145,8 @@ It does not finalize the entire product vision.
   entry workflows, prose-free structural metrics, fingerprint-backed
   same-session currentness, protected filtering, and exact detached source
   return passed the complete `49`-file / `782`-test / `2`-skip unit matrix,
-  startup `1/1`, and Electron `36/36`. Jason's renewed 15-row checkpoint is
+  startup `1/1`, and Electron `36/36` on exact product commit
+  `7b303a5569b5b6718b7553142963311838f8f6fc`. Jason's renewed 15-row checkpoint is
   active and remains intentionally unanswered. The cleanup HEAD is
   regression-validated only and is
   not a newly installed or package-qualified release candidate; the exact
