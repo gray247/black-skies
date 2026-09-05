@@ -135,9 +135,12 @@ LF-normalized body hashes and ordered source revisions. Focused IPC coverage is
 `1/1`. Dirty Stage 19 passed hygiene, lint, typecheck, production build, and
 the `49`-file / `782`-passed / `2`-skipped critical matrix, then failed startup
 preflight at zero windows with GPU exit `-1073741515`; no Electron matrix ran.
-The branch is reconciled to origin at `02cd278c`, but the candidate is still
-uncommitted and no clean exact regression, Jason acceptance, or Program 7
-admission is claimed.
+The reconciled exact candidate is `e3e94457ccfbf3f4b9be3bd539bb189890dbf44e`;
+clean `pnpm stage19:regression` passed the `49`-file / `782`-passed / `2`-skipped
+critical matrix and all pre-Electron phases, then failed startup preflight at
+zero windows with GPU exit `-1073741515` and a teardown timeout. No Electron
+matrix ran. The candidate is not clean Stage 19 qualified; Jason acceptance
+and Program 7 admission remain unclaimed.
 None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,

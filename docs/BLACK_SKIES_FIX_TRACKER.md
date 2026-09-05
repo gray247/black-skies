@@ -36,11 +36,28 @@ expected skips), but failed startup preflight at zero windows with GPU exit
 `-1073741515`; no Electron matrix ran. The fixture later reported its teardown
 timeout, and no automated GUI acceptance is claimed.
 
-This is dirty and uncommitted `DEVELOPMENT_OVERRIDE` evidence. The branch is
-now reconciled to origin at `02cd278c09c1002331539bbf109379856b1124a7`, but no
-clean exact regression is claimed. Jason's 15 decision rows remain blank,
-Program 6 is open pending the host startup blocker and subjective acceptance,
-and Program 7 remains blocked.
+This was dirty and uncommitted `DEVELOPMENT_OVERRIDE` evidence. The branch was
+then reconciled to origin at `02cd278c09c1002331539bbf109379856b1124a7` and
+the exact candidate/clean-gate result is recorded below. Jason's 15 decision
+rows remain blank, Program 6 is open pending the host startup blocker and
+subjective acceptance, and Program 7 remains blocked.
+
+## Program 6 exact candidate clean gate — 2026-09-04
+
+The reconciled candidate is exact commit
+`e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` on `codex/foundation-audit`, one
+commit ahead of `origin/codex/foundation-audit`, with a clean worktree before
+qualification. Clean `pnpm stage19:regression` passed repository/policy
+hygiene, both lint gates, full app typecheck, production build, and the
+critical matrix: `49` files / `782` passed / `2` expected skips.
+
+The clean Electron startup preflight then failed before a first window with
+`currentWindowCount=0` and GPU exit `-1073741515`; teardown also exceeded its
+timeout for the Electron PID. No Electron matrix ran. This reproduces the
+host-only GPU blocker from the dirty run, with the packaged entry and renderer
+index present. The exact candidate is not clean Stage 19 qualified; no GUI
+acceptance or human acceptance claim is made. Program 6 remains open and
+Program 7 remains blocked.
 
 ## Program 6 source-launch isolation follow-up — 2026-09-04
 

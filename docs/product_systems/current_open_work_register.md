@@ -73,7 +73,7 @@ register or a currently authorized program promotes it.
 | P5-01 | Long-manuscript intake and stable structural anchors | Direction Lock, Program 5, [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 / Human Gate 3 | Exact product commit `6efec7b9` passed clean regression, substantial-manuscript qualification, exact package verification, elevated offline installed lifecycle, strict witness, and final author acceptance |
 | P5-UX-01 | Program 5 pre-closure Writing Studio navigation and Unit/Note rail semantics | [Corrected Programs 1–5 repair plan](program_1_to_5_priority_repair_plan.md), [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), [Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 | Navigation, rails, Note semantics, startup composition, Structure workflow, readability, stale history, and shared chrome passed exact-candidate automation and installed author review at `6efec7b9` |
 | HG-03 | Long-manuscript integrity and usability | Execution-control plan and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 3 | Jason completed the structural sequence and recorded `Program 5 final check passed` on the exact installed candidate on 2026-08-31 |
-| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | active | Program 6 P6-G repair checkpoint | Final dirty evidence has focused IPC `11/11` and an isolated three-project/seven-lens Electron `1/1`; dirty Stage 19 passed its `49`-file critical matrix with `782` passed / `2` expected skips, then failed startup preflight at zero windows with GPU exit `-1073741515`; no Electron matrix ran. Lint/typecheck/build/hygiene pass. Writing Studio and Command Center are authorized; null/unknown roles fail closed. The worktree is dirty/uncommitted but now reconciled to origin at `02cd278c`; no clean exact regression is claimed, Jason rows remain blank, and Program 6 stays open pending the host blocker and subjective acceptance; Program 7 remains blocked |
+| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | active | Program 6 P6-G repair checkpoint | Exact candidate `e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` has focused IPC `11/11`, isolated three-project/seven-lens Electron `1/1`, and a clean Stage 19 critical matrix of `49` files / `782` passed / `2` expected skips; clean startup preflight then failed at zero windows with GPU exit `-1073741515`, so no Electron matrix ran. Lint/typecheck/build/hygiene pass. Writing Studio and Command Center are authorized; null/unknown roles fail closed. The branch is one commit ahead of origin, the worktree is clean, but the exact candidate is not clean Stage 19 qualified; Jason rows remain blank, Program 6 stays open pending the host blocker and subjective acceptance, and Program 7 remains blocked |
 | P7-01 | First creation or revision workflow | Program 7 | owned-later | Program 7 | Initial story-intelligence workflow is coherent enough to support it |
 | HG-04 | Intelligence and creation review | Execution-control plan | owned-later | Human Gate 4 | Programs 6 and 7 provide complete reviewable workflows |
 | P8-01 | Knowledge, organization, and broader interchange | Program 8 | owned-later | Program 8 | Human Gate 4 synthesis identifies the highest-value workflow order |
@@ -100,14 +100,14 @@ register or a currently authorized program promotes it.
 ### P6-G current mechanical checkpoint — 2026-09-04
 
 The current P6-G checkpoint has focused IPC `11/11` and an isolated
-three-project/seven-lens walkthrough `1/1`. Dirty Stage 19 passed hygiene,
-lint, typecheck, production build, and its `49`-file critical matrix with
-`782` passed / `2` expected skips, then failed startup preflight at zero
-windows with GPU exit `-1073741515`; no Electron matrix ran. The branch is now
-reconciled to origin at `02cd278c`, but this evidence is dirty and uncommitted.
-No clean exact regression is claimed; Jason's rows remain blank, Program 6 is
-open, and Program 7 is blocked pending the host startup blocker and subjective
-acceptance.
+three-project/seven-lens walkthrough `1/1`. The exact candidate
+`e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` is one commit ahead of origin with
+a clean worktree. Clean Stage 19 passed hygiene, lint, typecheck, production
+build, and its `49`-file critical matrix with `782` passed / `2` expected
+skips, then failed startup preflight at zero windows with GPU exit
+`-1073741515`; no Electron matrix ran. Jason's rows remain blank, Program 6
+is open, and Program 7 is blocked pending the host startup blocker and
+subjective acceptance.
 
 The pass records below preserve historical chronology. Their then-current
 statements that Cleanup Wave A remained open or Program 6 was excluded are

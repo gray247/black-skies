@@ -2,7 +2,25 @@
 
 ## Status
 
-`P6-G REPAIR IMPLEMENTED; DIRTY MECHANICAL MATRIX PASS; ELECTRON STARTUP BLOCKED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+`P6-G EXACT CANDIDATE CREATED; CLEAN ELECTRON STARTUP BLOCKED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+
+## Exact candidate clean qualification — 2026-09-04
+
+The reconciled Program 6 candidate is exact commit
+`e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` on `codex/foundation-audit`, one
+commit ahead of `origin/codex/foundation-audit`, with a clean worktree before
+the gate. The clean `pnpm stage19:regression` passed repository and policy
+hygiene, both lint gates, full app typecheck, production build, and the
+critical matrix: `49` files / `782` passed / `2` expected skips.
+
+The clean gate then failed its Electron startup preflight before a first
+window: `currentWindowCount=0`, GPU exit `-1073741515`, and the fixture
+reported a teardown timeout for the Electron PID. No Electron matrix ran and
+no automated GUI acceptance is claimed. This is the same host GPU blocker as
+the dirty run; the repository entry and renderer artifacts existed. The exact
+candidate remains mechanically code/test green but not clean Stage 19
+qualified. Jason's 15 decisions remain blank, Program 6 remains open, and
+Program 7 remains blocked.
 
 ## Final surface-authority and dirty qualification correction — 2026-09-04
 
@@ -29,10 +47,10 @@ before a first window: `currentWindowCount=0`, GPU exit `-1073741515`, and
 the Electron fixture later reported its teardown timeout. No Electron matrix
 or automated GUI acceptance was run from this gate.
 
-The branch was safely fast-forwarded to origin at
-`02cd278c09c1002331539bbf109379856b1124a7`; the candidate remains dirty and
-uncommitted, and no clean exact regression is claimed. Jason's 15 decision
-rows remain blank, Program 6 is open pending the host startup blocker and
+At the time of this dirty checkpoint, the branch had been safely fast-forwarded
+to origin at `02cd278c09c1002331539bbf109379856b1124a7`. The exact candidate
+commit and clean-gate result are recorded above; Jason's 15 decision rows
+remain blank, Program 6 is open pending the host startup blocker and
 subjective acceptance, and Program 7 remains blocked.
 
 ## Currentness repair checkpoint — 2026-09-04
