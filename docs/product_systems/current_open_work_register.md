@@ -73,7 +73,7 @@ register or a currently authorized program promotes it.
 | P5-01 | Long-manuscript intake and stable structural anchors | Direction Lock, Program 5, [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 / Human Gate 3 | Exact product commit `6efec7b9` passed clean regression, substantial-manuscript qualification, exact package verification, elevated offline installed lifecycle, strict witness, and final author acceptance |
 | P5-UX-01 | Program 5 pre-closure Writing Studio navigation and Unit/Note rail semantics | [Corrected Programs 1–5 repair plan](program_1_to_5_priority_repair_plan.md), [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), [Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 | Navigation, rails, Note semantics, startup composition, Structure workflow, readability, stale history, and shared chrome passed exact-candidate automation and installed author review at `6efec7b9` |
 | HG-03 | Long-manuscript integrity and usability | Execution-control plan and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 3 | Jason completed the structural sequence and recorded `Program 5 final check passed` on the exact installed candidate on 2026-08-31 |
-| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | active | Program 6 P6-G repair checkpoint | Exact candidate `e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` has focused IPC `11/11`, isolated three-project/seven-lens Electron `1/1`, and a clean Stage 19 critical matrix of `49` files / `782` passed / `2` expected skips; the scoped Electron `dist` ACL repair fixed the earlier loader condition, but standard-GPU startup still fails at zero windows / no `ready-to-show`, so no Electron matrix ran. The `BLACKSKIES_DISABLE_GPU=1` diagnostic opens a visible window but is non-qualifying and not default. Lint/typecheck/build/hygiene pass. Writing Studio and Command Center are authorized; null/unknown roles fail closed. The branch is three commits ahead of origin, the worktree is clean, but the exact candidate is not clean Stage 19 qualified; Jason rows remain blank, Program 6 stays open pending the host blocker and subjective acceptance, and Program 7 remains blocked |
+| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | closed-mechanical | Program 6 P6-G author-verification checkpoint | Exact qualified commit `255b9f32c48022c7b15b24a575eab1043e804bc8` passed `STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` expected skips, startup `1/1`, and Electron `36/36`. The first post-repair clean run's transient line-922 zero-proposal result (`35/36`) was cleared by isolated `1/1`, repeated `3/3`, writing-shell `8/8`, and the exact elevated rerun; no product/parser defect or waived test was identified. The scoped Electron `dist` ACL repair fixed `STATUS_DLL_NOT_FOUND`. Jason's 15 rows remain blank, so Program 6 stays open for subjective acceptance; Program 7 remains blocked. No provider, package/install, push, or Program 7 claim is made |
 | P7-01 | First creation or revision workflow | Program 7 | owned-later | Program 7 | Initial story-intelligence workflow is coherent enough to support it |
 | HG-04 | Intelligence and creation review | Execution-control plan | owned-later | Human Gate 4 | Programs 6 and 7 provide complete reviewable workflows |
 | P8-01 | Knowledge, organization, and broader interchange | Program 8 | owned-later | Program 8 | Human Gate 4 synthesis identifies the highest-value workflow order |
@@ -97,23 +97,19 @@ register or a currently authorized program promotes it.
 | DEF-13 | Research / Deep Research | Roadmap scope correction | owned-later | Explicit scope reopening | Jason establishes a current owner and workflow |
 | DEF-14 | Voice, dictation, and transcription | Roadmap scope correction | owned-later | Explicit scope reopening | Jason defines accessibility and provenance boundaries |
 
-### P6-G current mechanical checkpoint — 2026-09-04
+### P6-G superseding mechanical qualification — 2026-09-05
 
-The current P6-G checkpoint has focused IPC `11/11` and an isolated
-three-project/seven-lens walkthrough `1/1`. The exact candidate
-`e3e94457ccfbf3f4b9be3bd539bb189890dbf44e` is one commit ahead of origin with
-a clean worktree. Clean Stage 19 passed hygiene, lint, typecheck, production
-build, and its `49`-file critical matrix with `782` passed / `2` expected
-skips, then failed startup preflight at zero windows with GPU exit
-`-1073741515`; no Electron matrix ran. Jason's rows remain blank, Program 6
-is open, and Program 7 is blocked pending the host startup blocker and
-subjective acceptance.
-The scoped host ACL repair fixed the earlier Electron loader
-`STATUS_DLL_NOT_FOUND` condition. Standard-GPU development now boots the
-renderer and service health but still produces no HWND or `ready-to-show` in
-15–30 seconds; the diagnostic-only `BLACKSKIES_DISABLE_GPU=1` launch opens a
-visible window and reaches `ready-to-show`, but is non-qualifying and not the
-default path.
+The scoped ACL repair fixed the earlier Electron loader
+`STATUS_DLL_NOT_FOUND` condition. The first full post-repair clean run reached
+startup `1/1` but had one transient line-922 zero-proposal observation and
+reported Electron `35/36`; isolated `1/1`, repeated `3/3`, and writing-shell
+`8/8` runs found no product/parser defect and no waived test. The exact
+elevated clean rerun on `255b9f32c48022c7b15b24a575eab1043e804bc8` returned
+`STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` expected skips,
+startup `1/1`, and Electron `36/36`. The mechanical gate is passed. Jason's
+15 rows remain blank and are the only remaining closure gate; Program 6 stays
+open and Program 7 remains blocked. Computer Use was unavailable because the
+trusted `sky` RPC was not configured, so no rubric decision was fabricated.
 
 The pass records below preserve historical chronology. Their then-current
 statements that Cleanup Wave A remained open or Program 6 was excluded are

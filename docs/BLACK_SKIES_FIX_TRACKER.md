@@ -3,31 +3,38 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G mechanically qualified and awaiting Jason's subjective acceptance; Program 7 remains blocked
 Last Reviewed: 2026-09-05
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.
 
-## Program 6 host ACL and standard-GPU startup follow-up — 2026-09-05
+## Program 6 superseding mechanical qualification — 2026-09-05
 
 The scoped host repair granted RX access only to
 `app\node_modules\electron\dist`; its ACL backup is retained at
 `C:\Users\gray2\AppData\Local\Temp\black-skies-p6-acl-20260905-002225`.
 The earlier Electron loader `STATUS_DLL_NOT_FOUND` condition is repaired.
 
-The standard-GPU canonical development launch now builds, acquires its lock,
-returns FastAPI `200`, and boots Vite/React without GPU, renderer, or load
-errors, but it still produces no HWND or `ready-to-show` within 15–30 seconds.
-The clean Stage 19 run on `19117e11` passed the `49`-file / `782`-passed /
-`2`-skipped critical matrix, then failed startup preflight at zero windows;
-the Electron matrix did not run. The diagnostic-only
-`BLACKSKIES_DISABLE_GPU=1` launch produces a visible `Black Skies`
-`Chrome_WidgetWin_1` window and `ready-to-show`, but is non-qualifying and not
-the default launch path. The remaining blocker is standard-GPU first-paint /
-window presentation. Jason's 15 decisions remain blank, Program 6 remains
-open, and Program 7 remains blocked.
+The first full post-repair clean run reached standard Electron startup preflight
+`1/1`, then had one transient Electron matrix failure at
+`app/tests/e2e/stage19-writing-shell.spec.ts:922`: the 120-proposal Rediscover
+check observed `0` and the matrix reported `35/36`. The isolated scenario then
+passed `1/1`, three repeated runs passed `3/3`, and the complete writing-shell
+file passed `8/8`. An exact elevated rerun of `pnpm stage19:regression` bound to
+qualified commit `255b9f32c48022c7b15b24a575eab1043e804bc8` passed
+`STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` expected skips,
+startup `1/1`, and Electron `36/36`.
+
+The evidence identifies no product or parser defect, and no test was waived.
+The scoped ACL repair fixed the earlier Electron loader
+`STATUS_DLL_NOT_FOUND` condition; no GPU or sandbox bypass is part of the
+qualified run. Computer Use could not connect because the trusted `sky` RPC
+was unavailable, so no subjective rubric decision was fabricated. The
+mechanical gate is passed. Jason's 15 decisions remain blank and are the only
+remaining Program 6 closure gate; Program 6 remains open and Program 7 remains
+blocked. No provider, package/install, push, or Program 7 claim is made.
 
 ## Usage Rules
 1. Issues are never deleted; statuses change instead.

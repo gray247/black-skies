@@ -98,10 +98,14 @@ P6-E is durable at `bb7f45db` after its clean fixed regression and synchronized
 push. P6-F is mechanically complete at `f499bf9a` after its qualification
 suite, clean fixed regression, synchronized push, and exact upstream equality.
 P6-G is the active author-verification checkpoint under its own handoff and
-receipt. The 2026-09-02 P6-G repair follow-up is current authority for the
-source-unit metric binding, stale-reviewed conversion guard, and recorded
-interactive Electron observations described in that receipt. The automated
-launcher preflight remains blocked before first window and subjective author
+receipt. The 2026-09-05 superseding mechanical qualification binds the clean
+Stage 19 result to exact commit `255b9f32c48022c7b15b24a575eab1043e804bc8`:
+`49` files / `782` passed / `2` expected skips, startup `1/1`, and Electron
+`36/36`. The earlier startup-blocker wording and the first post-repair
+`35/36` run with one transient line-922 zero-proposal observation are
+historical; isolated `1/1`, repeated `3/3`, and writing-shell `8/8` runs
+confirmed no product or parser defect and no waived test. The scoped ACL repair
+fixed the earlier `STATUS_DLL_NOT_FOUND` loader condition. Jason's subjective
 acceptance remains outstanding; this does not close the renewed checkpoint.
 The 2026-09-02 P6-G human-gate repair is the current authority for the shared
 same-window source return from Pacing, Pressure, and Signals, the Emotion Graph
@@ -119,8 +123,8 @@ definition while protected redaction and stale `Convert` disabled behavior
 remained intact; and Signals/Pacing/Pressure source return selected `go_01` /
 `The Empty Conservatory`, `go_02` / `A Red Apple`, and `go_03` / `The Frost
 Line`, respectively, in Writing Studio with Save disabled. These direct checks
-do not convert the automated Electron no-window blocker into a pass. Human
-subjective acceptance remains outstanding, and Program 7 was not started.
+do not alter the later exact mechanical qualification. Human subjective
+acceptance remains outstanding, and Program 7 was not started.
 The 2026-09-04 bounded currentness repair checkpoint adds the additive
 Project Spine unit-body SHA-256 metric and applies the existing currentness
 resolver at the production Emotion, Timeline, Pacing, Pressure, and durable
@@ -146,7 +150,12 @@ RX access only to the Electron `dist` directory and repaired the earlier
 the renderer and service health but still produces no HWND or `ready-to-show`
 within 15–30 seconds; the authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic
 opens a visible window and reaches `ready-to-show`, but is non-qualifying and
-not the default launch path.
+not the default launch path. These dated no-window results are superseded by
+the exact `255b9f32c48022c7b15b24a575eab1043e804bc8` qualification above; no
+GPU or sandbox bypass was used for that qualified run. Computer Use could not
+connect because the trusted `sky` RPC was unavailable, so no rubric decision
+was fabricated. No provider, package/install, push, or Program 7 claim is
+made.
 None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,

@@ -2,7 +2,29 @@
 
 ## Status
 
-`P6-G EXACT CANDIDATE CREATED; CLEAN ELECTRON STARTUP BLOCKED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+`P6-G MECHANICALLY QUALIFIED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+
+## Superseding mechanical qualification — 2026-09-05
+
+The scoped ACL repair fixed the earlier Electron loader
+`STATUS_DLL_NOT_FOUND`; its recoverable ACL backup remains at
+`C:\Users\gray2\AppData\Local\Temp\black-skies-p6-acl-20260905-002225`.
+The first full post-repair clean run reached startup `1/1` but had one
+transient line-922 zero-proposal observation and reported Electron `35/36`.
+The isolated scenario passed `1/1`, three repeated runs passed `3/3`, and the
+complete writing-shell file passed `8/8`.
+
+The exact elevated clean rerun of `pnpm stage19:regression` on qualified commit
+`255b9f32c48022c7b15b24a575eab1043e804bc8` returned `STAGE19_REGRESSION_PASS`:
+`49` files / `782` passed / `2` expected skips, startup `1/1`, and Electron
+`36/36`. The evidence identifies no product or parser defect and no waived
+test. No GPU or sandbox bypass was used for the qualified run.
+
+The mechanical gate is passed. Computer Use could not connect because the
+trusted `sky` RPC was unavailable, so no rubric decision was fabricated.
+Jason's 15 rows remain blank and are the only remaining Program 6 closure
+gate. Program 6 remains open until Jason accepts; Program 7 remains blocked.
+No provider, package/install, push, or Program 7 claim is made.
 
 ## Host ACL and standard-GPU startup follow-up — 2026-09-05
 
