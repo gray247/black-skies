@@ -268,11 +268,15 @@ reports a configured-store mismatch but no missing or corrupt Electron payload
 was proven. Recent accessible WER events contained no Electron fault.
 
 The standard launch remains blocked in the GPU subprocess with
-`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The one explicitly
-authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic was rejected by the trusted
-safety gate before execution, so no GPU-disabled result is claimed. No
-dependency reinstall, Windows setting change, runtime-path mutation, GUI
-rehearsal, or acceptance evidence was produced.
+`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The explicitly
+authorized `BLACKSKIES_DISABLE_GPU=1` path was added as an opt-in diagnostic;
+its generated arguments included `--disable-gpu`, but the run reproduced the
+same GPU failure and produced no window. The default launch path remains
+unchanged. No dependency reinstall, Windows setting change, runtime-path
+mutation, GUI rehearsal, or acceptance evidence was produced.
+
+This diagnostic-only launcher change is uncommitted and requires a new clean
+mechanical gate; it is not qualification or acceptance evidence.
 
 ## Human-review launch path
 

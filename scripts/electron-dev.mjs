@@ -26,8 +26,12 @@ export function createDevUserDataDirectory() {
   return mkdtempSync(path.join(tmpdir(), 'black-skies-dev-user-data-'));
 }
 
-export function buildElectronArgs(userDataDirectory) {
-  return [`--user-data-dir=${userDataDirectory}`, './dist-electron/main/main.js'];
+export function buildElectronArgs(userDataDirectory, { disableGpu = false } = {}) {
+  return [
+    ...(disableGpu ? ['--disable-gpu'] : []),
+    `--user-data-dir=${userDataDirectory}`,
+    './dist-electron/main/main.js',
+  ];
 }
 
 export function cleanupDevUserDataDirectory(userDataDirectory) {
@@ -78,7 +82,9 @@ export function startElectron() {
     cleanupDevUserDataDirectory(userDataDirectory);
   };
 
-  const child = spawn(electronBin, buildElectronArgs(userDataDirectory), {
+  const child = spawn(electronBin, buildElectronArgs(userDataDirectory, {
+    disableGpu: process.env.BLACKSKIES_DISABLE_GPU === '1',
+  }), {
     cwd: appRoot,
     stdio: 'inherit',
     shell: process.platform === 'win32',

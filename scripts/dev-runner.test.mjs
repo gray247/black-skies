@@ -52,6 +52,8 @@ test('uses a unique disposable user-data directory for development Electron laun
     assert.notEqual(first, second);
     assert.equal(buildElectronArgs(first)[0], `--user-data-dir=${first}`);
     assert.equal(buildElectronArgs(second)[0], `--user-data-dir=${second}`);
+    assert.equal(buildElectronArgs(first).includes('--disable-gpu'), false);
+    assert.equal(buildElectronArgs(first, { disableGpu: true })[0], '--disable-gpu');
     assert.equal(buildElectronArgs(first).at(-1), './dist-electron/main/main.js');
   } finally {
     cleanupDevUserDataDirectory(first);

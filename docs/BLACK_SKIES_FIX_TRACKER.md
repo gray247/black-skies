@@ -92,11 +92,15 @@ Electron payloads. Recent accessible WER events contained no Electron fault;
 the listed events were unrelated Windows Update or system applications.
 
 The standard launch remains blocked in the GPU subprocess with
-`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The one explicitly
-authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic could not be executed because
-the trusted safety gate rejected the GUI process launch; no GPU-disabled result
-is treated as evidence. No dependency reinstall, Windows setting change, or
-runtime-path mutation was performed.
+`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The explicitly
+authorized `BLACKSKIES_DISABLE_GPU=1` path was added as an opt-in diagnostic;
+its generated arguments included `--disable-gpu`, but the run reproduced the
+same GPU failure and produced no window. The default launch path remains
+unchanged. No dependency reinstall, Windows setting change, or runtime-path
+mutation was performed.
+
+This diagnostic-only launcher change is uncommitted and requires a new clean
+mechanical gate; it is not qualification or acceptance evidence.
 
 ## Program 6 currentness repair checkpoint — 2026-09-04
 
