@@ -4,11 +4,30 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
-Last Reviewed: 2026-09-04
+Last Reviewed: 2026-09-05
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.
+
+## Program 6 host ACL and standard-GPU startup follow-up — 2026-09-05
+
+The scoped host repair granted RX access only to
+`app\node_modules\electron\dist`; its ACL backup is retained at
+`C:\Users\gray2\AppData\Local\Temp\black-skies-p6-acl-20260905-002225`.
+The earlier Electron loader `STATUS_DLL_NOT_FOUND` condition is repaired.
+
+The standard-GPU canonical development launch now builds, acquires its lock,
+returns FastAPI `200`, and boots Vite/React without GPU, renderer, or load
+errors, but it still produces no HWND or `ready-to-show` within 15–30 seconds.
+The clean Stage 19 run on `19117e11` passed the `49`-file / `782`-passed /
+`2`-skipped critical matrix, then failed startup preflight at zero windows;
+the Electron matrix did not run. The diagnostic-only
+`BLACKSKIES_DISABLE_GPU=1` launch produces a visible `Black Skies`
+`Chrome_WidgetWin_1` window and `ready-to-show`, but is non-qualifying and not
+the default launch path. The remaining blocker is standard-GPU first-paint /
+window presentation. Jason's 15 decisions remain blank, Program 6 remains
+open, and Program 7 remains blocked.
 
 ## Usage Rules
 1. Issues are never deleted; statuses change instead.
@@ -91,16 +110,15 @@ reports only a configured-store mismatch and does not prove missing or corrupt
 Electron payloads. Recent accessible WER events contained no Electron fault;
 the listed events were unrelated Windows Update or system applications.
 
-The standard launch remains blocked in the GPU subprocess with
-`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The explicitly
-authorized `BLACKSKIES_DISABLE_GPU=1` path was added as an opt-in diagnostic;
-its generated arguments included `--disable-gpu`, but the run reproduced the
-same GPU failure and produced no window. The default launch path remains
-unchanged. No dependency reinstall, Windows setting change, or runtime-path
-mutation was performed.
-
-This diagnostic-only launcher change is uncommitted and requires a new clean
-mechanical gate; it is not qualification or acceptance evidence.
+The earlier standard-launch loader failure was repaired by the scoped RX ACL
+change. The remaining standard-GPU launch still has a first-paint/window
+presentation blocker: canonical development boots its renderer and service
+health but produces no HWND or `ready-to-show` within 15–30 seconds, while the
+clean Stage 19 preflight remains blocked at zero windows with GPU exit
+`-1073741515`. The opt-in `BLACKSKIES_DISABLE_GPU=1` diagnostic opens a
+visible `Black Skies` `Chrome_WidgetWin_1` window and reaches `ready-to-show`,
+but is non-qualifying and is not the default launch path. No dependency
+reinstall, Windows setting change, or runtime-path mutation was performed.
 
 ## Program 6 currentness repair checkpoint — 2026-09-04
 

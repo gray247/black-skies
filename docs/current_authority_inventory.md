@@ -140,7 +140,13 @@ clean `pnpm stage19:regression` passed the `49`-file / `782`-passed / `2`-skippe
 critical matrix and all pre-Electron phases, then failed startup preflight at
 zero windows with GPU exit `-1073741515` and a teardown timeout. No Electron
 matrix ran. The candidate is not clean Stage 19 qualified; Jason acceptance
-and Program 7 admission remain unclaimed.
+and Program 7 admission remain unclaimed. The scoped host ACL repair granted
+RX access only to the Electron `dist` directory and repaired the earlier
+`STATUS_DLL_NOT_FOUND` loader condition. Standard-GPU development now boots
+the renderer and service health but still produces no HWND or `ready-to-show`
+within 15–30 seconds; the authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic
+opens a visible window and reaches `ready-to-show`, but is non-qualifying and
+not the default launch path.
 None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,
