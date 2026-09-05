@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -169,11 +169,7 @@ He opened the door, then placed the bitten apple in Iris's hands as carefully as
   },
 ];
 
-function ref(projectId, unitId, order, sourceKind = 'story-unit', sourceRevision = 1) {
-  const project = PROJECTS.find((candidate) => candidate.projectId === projectId);
-  const sourceFingerprint = sourceKind === 'manuscript' || sourceKind === 'story-unit'
-    ? createHash('sha256').update(`\n${project?.prose?.[unitId] ?? ''}\n`, 'utf8').digest('hex')
-    : `${projectId}:${unitId}:author-intent`;
+function ref(projectId, unitId, order, sourceKind = 'story-unit', sourceRevision = 1, sourceFingerprint = `${projectId}:${unitId}:fixture`) {
   return {
     projectId,
     sourceKind,
@@ -196,7 +192,10 @@ function provenance(project, protectionClass = 'included', origin = 'author') {
   };
 }
 
-function documentFor(project) {
+function documentFor(project, sourceRevision = 1) {
+  const sourceFingerprint = (unitId) => createHash('sha256')
+    .update(`\n${project.prose[unitId]}\n`.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8')
+    .digest('hex');
   const emotionRecords = project.emotion.map(([unitId, label, intensity, lane, sourceKind], index) => ({
     recordId: `emotion_${project.directory}_${index + 1}`,
     projectId: project.projectId,
@@ -209,7 +208,7 @@ function documentFor(project) {
     emotionIntensity: intensity,
     subjectLabel: project.subjectLabel,
     currentness: 'current',
-    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, sourceKind)],
+    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, sourceKind, sourceRevision, sourceFingerprint(unitId))],
     provenance: provenance(project),
     createdAt: NOW,
     updatedAt: NOW,
@@ -224,7 +223,7 @@ function documentFor(project) {
     timelineWorldOrder,
     timelineTemporalState,
     currentness: 'current',
-    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, 'author-intent')],
+    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, 'author-intent', sourceRevision, sourceFingerprint(unitId))],
     provenance: provenance(project),
     createdAt: NOW,
     updatedAt: NOW,
@@ -238,7 +237,7 @@ function documentFor(project) {
     recordKind: 'pacing-intent',
     pacingTempo,
     currentness: 'current',
-    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, 'author-intent')],
+    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, 'author-intent', sourceRevision, sourceFingerprint(unitId))],
     provenance: provenance(project),
     createdAt: NOW,
     updatedAt: NOW,
@@ -253,13 +252,13 @@ function documentFor(project) {
     pressureDimension,
     pressureBand,
     currentness: 'current',
-    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, lane === 'observed' ? 'manuscript' : 'author-intent')],
+    positionRefs: [ref(project.projectId, unitId, project.units.findIndex(([id]) => id === unitId) + 1, lane === 'observed' ? 'manuscript' : 'author-intent', sourceRevision, sourceFingerprint(unitId))],
     provenance: provenance(project),
     createdAt: NOW,
     updatedAt: NOW,
   }));
   const authorRecords = [...emotionRecords, ...timelineRecords, ...pacingRecords, ...pressureRecords];
-  const signalRef = ref(project.projectId, project.units[0][0], 1);
+  const signalRef = ref(project.projectId, project.units[0][0], 1, 'story-unit', sourceRevision, sourceFingerprint(project.units[0][0]));
   const signal = {
     schemaVersion: 'BlackSkiesStoryIntelligence v1',
     signalId: project.signal.id,
@@ -307,7 +306,7 @@ function documentFor(project) {
   };
 }
 
-async function materializeProject(project, root) {
+async function materializeProject(project, root, sourceRevision) {
   const projectRoot = path.join(root, project.directory);
   await mkdir(path.join(projectRoot, 'drafts'), { recursive: true });
   await writeFile(path.join(projectRoot, 'project.json'), `${JSON.stringify({
@@ -329,7 +328,7 @@ async function materializeProject(project, root) {
     path.join(projectRoot, 'drafts', `${id}.md`),
     `---\nid: ${id}\ntitle: ${title}\norder: ${index + 1}\nchapter_id: ch_0001\n---\n\n${project.prose[id]}\n`,
   )));
-  await writeFile(path.join(projectRoot, 'story-intelligence.json'), `${JSON.stringify(documentFor(project), null, 2)}\n`);
+  await writeFile(path.join(projectRoot, 'story-intelligence.json'), `${JSON.stringify(documentFor(project, sourceRevision), null, 2)}\n`);
   return projectRoot;
 }
 
@@ -341,7 +340,7 @@ export async function materializeProgram6Review(root = REVIEW_ROOT) {
   const resolvedRoot = path.resolve(root);
   await mkdir(resolvedRoot, { recursive: true });
   const paths = [];
-  for (const project of PROJECTS) paths.push(await materializeProject(project, resolvedRoot));
+  for (const [index, project] of PROJECTS.entries()) paths.push(await materializeProject(project, resolvedRoot, index + 1));
   return { root: resolvedRoot, projects: paths };
 }
 

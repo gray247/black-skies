@@ -412,7 +412,7 @@ describe('splitCommand preload bridge', () => {
         schemaVersion: 'ProjectMetadataSchema v1' as const,
         units: [{ id: 'unit_a', title: 'Unit A', displayTitle: 'Unit A', order: 1 }],
         unitMetrics: {
-          unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.25, sourceFingerprint: 'a'.repeat(64) },
+          unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.25 },
         },
       },
       activeUnitId: 'unit_a',
@@ -448,13 +448,6 @@ describe('splitCommand preload bridge', () => {
       },
       {
         ...activeCommandSnapshot,
-        project: {
-          ...activeCommandSnapshot.project,
-          unitMetrics: { unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.2, sourceFingerprint: 'not-a-sha256' } },
-        },
-      },
-      {
-        ...activeCommandSnapshot,
         project: { ...activeCommandSnapshot.project, artifactPath: 'C:\\private\\artifact' },
       },
       {
@@ -477,6 +470,14 @@ describe('splitCommand preload bridge', () => {
           ...activeCommandSnapshot.project,
           unitMetrics: { missing_unit: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.2 } },
         },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: { ...activeCommandSnapshot.project, unitMetrics: null },
+      },
+      {
+        ...activeCommandSnapshot,
+        project: { ...activeCommandSnapshot.project, unitMetrics: { unit_a: null } },
       },
       {
         ...activeCommandSnapshot,
@@ -516,17 +517,6 @@ describe('splitCommand preload bridge', () => {
     }
     ipcRendererInvokeMock.mockResolvedValueOnce(activeCommandSnapshot);
     await expect(projectSpine!.getSession()).resolves.toEqual(activeCommandSnapshot);
-    const legacyMetricsSnapshot = {
-      ...activeCommandSnapshot,
-      project: {
-        ...activeCommandSnapshot.project,
-        unitMetrics: {
-          unit_a: { wordCount: 12, sentenceCount: 2, paragraphCount: 1, dialogueRatio: 0.25 },
-        },
-      },
-    };
-    ipcRendererInvokeMock.mockResolvedValueOnce(legacyMetricsSnapshot);
-    await expect(projectSpine!.getSession()).resolves.toEqual(legacyMetricsSnapshot);
     const sessionListener = vi.fn();
     const unsubscribeSession = projectSpine!.subscribeSession(sessionListener);
     for (const listener of ipcListeners.get(PROJECT_SPINE_CHANNELS.sessionChanged) ?? []) {

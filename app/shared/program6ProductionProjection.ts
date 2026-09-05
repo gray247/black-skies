@@ -1,6 +1,7 @@
 import {
   createEmotionGraphProjection,
   readEmotionGraphPoints,
+  resolveEmotionGraphPointCurrentness,
   type EmotionGraphProjectionV1,
 } from './emotionGraph.js';
 import {
@@ -15,11 +16,11 @@ import type {
   StoryIntelligenceSourceClassV1,
   StoryIntelligenceAuthorRecordV1,
 } from './ipc/storyIntelligence.js';
-import { deriveStoryPositionCurrentness } from './storyIntelligencePolicy.js';
 import {
   runTimelineV1,
   type TimelineRunResultV1,
 } from './timeline.js';
+import { deriveStoryPositionCurrentness } from './storyIntelligencePolicy.js';
 
 export interface Program6ProductionProjectionV1 {
   readonly projectId: string;
@@ -33,64 +34,63 @@ export interface Program6ProductionProjectionV1 {
 
 function sourceRef(
   project: ProjectSpineProjectContext,
-  _generation: number,
+  generation: number,
   unitId: string,
   order: number,
 ): StoryPositionRefV1 {
+  const bodySha256 = project.unitMetrics?.[unitId]?.bodySha256;
   return {
     projectId: project.projectId,
     sourceKind: 'story-unit',
     sourceId: unitId,
-    // Project-session generation is not a durable manuscript revision. The
-    // V1 body fingerprint carries content currentness across reopen/switch.
-    sourceRevision: 1,
-    sourceFingerprint: project.unitMetrics?.[unitId]?.sourceFingerprint
-      ?? `${project.projectId}:${unitId}:${_generation}`,
+    sourceRevision: generation,
+    sourceFingerprint: bodySha256 ?? `${project.projectId}:${unitId}:${generation}`,
     unitId,
     orderIndex: order,
     orderBasis: 'manuscript',
   };
 }
 
-function mergeCurrentness(states: readonly CurrentnessV1[]): CurrentnessV1 {
-  if (states.includes('unavailable')) return 'unavailable';
-  if (states.includes('stale')) return 'stale';
-  if (states.includes('trimmed')) return 'trimmed';
-  return 'current';
+function sourceKey(ref: StoryPositionRefV1): string {
+  return `${ref.sourceKind}:${ref.sourceId}`;
 }
 
-function resolveStoredCurrentness(
-  explicit: CurrentnessV1,
-  refs: readonly StoryPositionRefV1[],
-  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
+function currentnessForReference(
+  reference: StoryPositionRefV1,
+  currentRefs: readonly StoryPositionRefV1[],
 ): CurrentnessV1 {
-  const states = refs.map((reference) => {
-    if (explicit !== 'current') return explicit;
-    if (reference.sourceKind !== 'manuscript' && reference.sourceKind !== 'story-unit') return 'current' as const;
-    const current = currentByUnit.get(reference.unitId ?? reference.sourceId);
-    if (!current) return 'unavailable' as const;
-    // Legacy persisted refs and legacy fixture metrics use non-hash identities.
-    // Preserve their explicit state until a fingerprint-bearing snapshot can
-    // establish a safe comparison.
-    if (!/^[a-f0-9]{64}$/i.test(reference.sourceFingerprint) ||
-      !/^[a-f0-9]{64}$/i.test(current.sourceFingerprint)) return 'current' as const;
-    return deriveStoryPositionCurrentness(reference, {
-      available: true,
-      sourceRevision: current.sourceRevision,
-      sourceFingerprint: current.sourceFingerprint,
-    });
-  });
-  return mergeCurrentness(states);
+  const current = currentRefs.find((candidate) =>
+    (reference.unitId !== undefined && candidate.unitId === reference.unitId) ||
+    (candidate.sourceKind === reference.sourceKind && candidate.sourceId === reference.sourceId),
+  );
+  // Older in-session records used this exact non-hash synthetic fingerprint.
+  // Preserve only that known shape while no body hash exists; arbitrary
+  // non-hash values remain stale rather than bypassing currentness.
+  if (current !== undefined && !/^[a-f0-9]{64}$/iu.test(current.sourceFingerprint) &&
+      reference.sourceRevision === current.sourceRevision) {
+    const prefix = `${current.projectId}:${current.sourceId}:${current.sourceRevision}:`;
+    const suffix = reference.sourceFingerprint.startsWith(prefix) ? reference.sourceFingerprint.slice(prefix.length).split(':') : [];
+    if (suffix.length === 2 &&
+        ['general', 'emotion-graph', 'timeline-event', 'pacing-intent', 'pressure-point'].includes(suffix[0] ?? '') &&
+        ['planned', 'observed', 'reader-effect-optional'].includes(suffix[1] ?? '')) return 'current';
+  }
+  return deriveStoryPositionCurrentness(reference, current === undefined
+    ? { available: false }
+    : { available: true, sourceRevision: current.sourceRevision, sourceFingerprint: current.sourceFingerprint });
 }
 
-function resolvedAuthorRecord(
-  record: StoryIntelligenceAuthorRecordV1,
-  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
-): StoryIntelligenceAuthorRecordV1 {
-  return {
-    ...record,
-    currentness: resolveStoredCurrentness(record.currentness ?? 'current', record.positionRefs, currentByUnit),
-  };
+function currentnessForReferences(
+  references: readonly StoryPositionRefV1[],
+  currentRefs: readonly StoryPositionRefV1[],
+): CurrentnessV1 {
+  const states = references.map((reference) => currentnessForReference(reference, currentRefs));
+  return states.includes('unavailable') ? 'unavailable' : states.includes('stale') ? 'stale' : 'current';
+}
+
+function mergeCurrentness(stored: CurrentnessV1, derived: CurrentnessV1): CurrentnessV1 {
+  if (derived === 'unavailable' || stored === 'unavailable') return 'unavailable';
+  if (derived === 'stale' || stored === 'stale' || stored === 'trimmed') return stored === 'trimmed' ? 'trimmed' : 'stale';
+  return 'current';
 }
 
 function median(values: readonly number[]): number {
@@ -108,14 +108,12 @@ function latestRecord(records: readonly StoryIntelligenceAuthorRecordV1[]): Stor
 
 function sourceRecordFor(
   ref: StoryPositionRefV1,
-  document: StoryIntelligenceDocumentV1,
-  currentByUnit: ReadonlyMap<string, StoryPositionRefV1>,
+  signals: readonly StoryIntelligenceDocumentV1['durableSignals'][number][],
+  currentRefs: readonly StoryPositionRefV1[],
 ): { readonly sourceRef: StoryPositionRefV1; readonly sourceClass: StoryIntelligenceSourceClassV1; readonly currentness: CurrentnessV1 } {
-  const relatedSignals = document.durableSignals.filter((signal) => signal.positionRefs.some((candidate) =>
-    (candidate.sourceKind === ref.sourceKind && candidate.sourceId === ref.sourceId) ||
-    ((candidate.sourceKind === 'manuscript' || candidate.sourceKind === 'story-unit') &&
-      (ref.sourceKind === 'manuscript' || ref.sourceKind === 'story-unit') &&
-      (candidate.unitId ?? candidate.sourceId) === (ref.unitId ?? ref.sourceId)),
+  const relatedSignals = signals.filter((signal) => signal.positionRefs.some((candidate) =>
+    sourceKey(candidate) === sourceKey(ref) ||
+    (candidate.unitId !== undefined && candidate.unitId === ref.unitId),
   ));
   const protectedSignal = relatedSignals.find((signal) =>
     signal.provenance.protectionClass !== 'included' &&
@@ -126,11 +124,17 @@ function sourceRecordFor(
     return {
       sourceRef: ref,
       sourceClass: protectedSignal.provenance.protectionClass,
-      currentness: resolveStoredCurrentness(protectedSignal.currentness, protectedSignal.positionRefs, currentByUnit),
+      currentness: mergeCurrentness(
+        protectedSignal.currentness,
+        currentnessForReferences(protectedSignal.positionRefs, currentRefs),
+      ),
     };
   }
-  const currentness = mergeCurrentness(relatedSignals.map((signal) =>
-    resolveStoredCurrentness(signal.currentness, signal.positionRefs, currentByUnit)));
+  const currentness = relatedSignals.reduce<CurrentnessV1>((state, signal) =>
+    mergeCurrentness(
+      state,
+      mergeCurrentness(signal.currentness, currentnessForReferences(signal.positionRefs, currentRefs)),
+    ), 'current');
   return { sourceRef: ref, sourceClass: 'included', currentness };
 }
 
@@ -142,14 +146,15 @@ export function buildProgram6ProductionProjection(input: {
   const { project, generation, document } = input;
   const refs = project.units.map((unit) => sourceRef(project, generation, unit.id, unit.order));
   const refByUnit = new Map(project.units.map((unit, index) => [unit.id, refs[index]!]));
-  const currentByUnit = refByUnit;
-  const authorRecords = document.authorRecords
-    .filter((record) => record.projectId === project.projectId)
-    .map((record) => resolvedAuthorRecord(record, currentByUnit));
-  const sourceRecords = refs.map((ref) => sourceRecordFor(ref, document, currentByUnit));
-  const events = authorRecords.filter((record) => record.recordKind === 'timeline-event' &&
-    (record.evidenceClass === 'planned' || record.currentness === 'current') &&
-    record.unitId && record.timelineWorldOrder !== undefined && record.timelineTemporalState).flatMap((record) => {
+  const signals = document.durableSignals.filter((signal) => signal.projectId === project.projectId).map((signal) => ({
+    ...signal,
+    currentness: mergeCurrentness(signal.currentness, currentnessForReferences(signal.positionRefs, refs)),
+  }));
+  const sourceRecords = refs.map((ref) => sourceRecordFor(ref, signals, refs));
+  const authorRecords = document.authorRecords.filter((record) => record.projectId === project.projectId);
+  const actionableRecord = (record: StoryIntelligenceAuthorRecordV1): boolean =>
+    currentnessForReferences(record.positionRefs, refs) === 'current' && (record.currentness ?? 'current') === 'current';
+  const events = authorRecords.filter((record) => actionableRecord(record) && record.recordKind === 'timeline-event' && record.unitId && record.timelineWorldOrder !== undefined && record.timelineTemporalState).flatMap((record) => {
     const unit = project.units.find((candidate) => candidate.id === record.unitId);
     const ref = record.unitId ? refByUnit.get(record.unitId) : undefined;
     if (!unit || !ref) return [];
@@ -167,9 +172,8 @@ export function buildProgram6ProductionProjection(input: {
   const pacing = project.units.flatMap((unit) => {
     const ref = refByUnit.get(unit.id);
     const metrics = project.unitMetrics?.[unit.id];
-    const intent = latestRecord(authorRecords.filter((record) => record.recordKind === 'pacing-intent' && record.unitId === unit.id &&
-      (record.evidenceClass === 'planned' || record.currentness === 'current')));
-    if (!ref || (!metrics && !intent?.pacingTempo)) return [];
+    const intent = latestRecord(authorRecords.filter((record) => record.recordKind === 'pacing-intent' && record.unitId === unit.id));
+    if (!ref || (!metrics && !intent?.pacingTempo) || (intent !== undefined && !actionableRecord(intent))) return [];
     const relativeLength = !metrics || medianWordCount === 0 ? undefined
       : metrics.wordCount < medianWordCount * 0.75 ? 'shorter' as const
         : metrics.wordCount > medianWordCount * 1.25 ? 'longer' as const
@@ -188,8 +192,7 @@ export function buildProgram6ProductionProjection(input: {
       positionRefs: [ref],
     }];
   });
-  const pressure = authorRecords.filter((record) => record.recordKind === 'pressure-point' && record.unitId && record.pressureDimension && record.pressureBand &&
-    (record.evidenceClass === 'planned' || record.currentness === 'current')).flatMap((record) => {
+  const pressure = authorRecords.filter((record) => actionableRecord(record) && record.recordKind === 'pressure-point' && record.unitId && record.pressureDimension && record.pressureBand).flatMap((record) => {
     const ref = record.unitId ? refByUnit.get(record.unitId) : undefined;
     if (!ref) return [];
     return [{
@@ -236,7 +239,25 @@ export function buildProgram6ProductionProjection(input: {
     priorDecisions: [],
     createdAt: document.updatedAt,
   });
-  const points = readEmotionGraphPoints({ ...document, authorRecords }).filter((point) => point.projectId === project.projectId);
+  const points = readEmotionGraphPoints(document).filter((point) => point.projectId === project.projectId).map((point) => {
+    const resolved = resolveEmotionGraphPointCurrentness(point, (reference) => {
+      const current = refs.find((candidate) =>
+        (reference.unitId !== undefined && candidate.unitId === reference.unitId) ||
+        (candidate.sourceKind === reference.sourceKind && candidate.sourceId === reference.sourceId),
+      );
+      return current === undefined
+        ? { available: false }
+        : { available: true, sourceRevision: current.sourceRevision, sourceFingerprint: current.sourceFingerprint };
+    });
+    const compatibilityCurrentness = currentnessForReferences(point.positionRefs, refs);
+    return {
+      ...resolved,
+      currentness: mergeCurrentness(
+        point.currentness,
+        compatibilityCurrentness === 'current' ? 'current' : resolved.currentness,
+      ),
+    };
+  });
   const emotion = createEmotionGraphProjection(project.projectId, points, [], {
     showReaderEffect: document.settings.analysisPolicy.readerEffectLaneEnabled,
     multipleSubjects: true,
@@ -248,11 +269,6 @@ export function buildProgram6ProductionProjection(input: {
     emotion,
     continuity,
     timeline,
-    signals: document.durableSignals
-      .filter((signal) => signal.projectId === project.projectId)
-      .map((signal) => ({
-        ...signal,
-        currentness: resolveStoredCurrentness(signal.currentness, signal.positionRefs, currentByUnit),
-      })),
+    signals,
   };
 }

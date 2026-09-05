@@ -2133,7 +2133,7 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
     ];
     const projectKeys = ['projectId', 'path', 'title', 'schemaVersion', 'units'];
     const unitKeys = ['id', 'title', 'displayTitle', 'order'];
-    const unitMetricKeys = ['wordCount', 'sentenceCount', 'paragraphCount', 'dialogueRatio'];
+    const unitMetricKeys = ['wordCount', 'sentenceCount', 'paragraphCount', 'dialogueRatio', 'bodySha256'];
     const recentProjectKeys = ['path', 'title', 'lastOpened', 'stale'];
     const saveStateKeys = ['status', 'unitId', 'message'];
     const lastErrorKeys = ['code', 'message'];
@@ -2173,16 +2173,18 @@ function normalizeProjectSpineSnapshot(value: unknown): ProjectSpineSessionSnaps
           typeof unit.title !== 'string' ||
           typeof unit.displayTitle !== 'string' ||
           !Number.isInteger(unit.order)) ||
-        (snapshot.project.unitMetrics !== undefined && Object.entries(snapshot.project.unitMetrics).some(([unitId, metrics]) =>
+        (snapshot.project.unitMetrics !== undefined && (
+          !snapshot.project.unitMetrics || typeof snapshot.project.unitMetrics !== 'object' || Array.isArray(snapshot.project.unitMetrics) ||
+          Object.entries(snapshot.project.unitMetrics).some(([unitId, metrics]) =>
+          !metrics || typeof metrics !== 'object' || Array.isArray(metrics) ||
           !snapshot.project?.units.some((unit) => unit.id === unitId) ||
-          !hasExactOwnKeys(metrics, metrics.sourceFingerprint === undefined
-            ? unitMetricKeys
-            : [...unitMetricKeys, 'sourceFingerprint']) ||
+          !hasExactOwnKeys(metrics, metrics.bodySha256 === undefined ? unitMetricKeys.slice(0, -1) : unitMetricKeys) ||
           !Number.isInteger(metrics.wordCount) || metrics.wordCount < 0 ||
           !Number.isInteger(metrics.sentenceCount) || metrics.sentenceCount < 0 ||
           !Number.isInteger(metrics.paragraphCount) || metrics.paragraphCount < 0 ||
           typeof metrics.dialogueRatio !== 'number' || metrics.dialogueRatio < 0 || metrics.dialogueRatio > 1 ||
-          (metrics.sourceFingerprint !== undefined && (typeof metrics.sourceFingerprint !== 'string' || !/^[a-f0-9]{64}$/i.test(metrics.sourceFingerprint)))))
+          (metrics.bodySha256 !== undefined && !/^[a-f0-9]{64}$/iu.test(metrics.bodySha256))))
+        )
       ))
     ) {
       return null;

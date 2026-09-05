@@ -55,7 +55,7 @@ import type {
   StoryIntelligenceHistoryEventV1,
   StoryPositionRefV1,
 } from '../shared/ipc/storyIntelligence';
-import { trimStoryIntelligenceHistory } from '../shared/storyIntelligencePolicy';
+import { deriveStoryPositionCurrentness, trimStoryIntelligenceHistory } from '../shared/storyIntelligencePolicy';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import type { StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
 import Stage19WritingSpineView, {
@@ -2802,6 +2802,26 @@ export default function Stage19WritingSpineApp({
     const signal = document?.durableSignals.find((candidate) => candidate.signalId === signalId);
     const binding = bindingFor(current, `story-signal-${lifecycle}`);
     if (!storyIntelligenceBridge || !document || !signal || !binding) return;
+    if (lifecycle === 'converted') {
+      const latest = snapshotRef.current;
+      const latestProject = latest.project;
+      const stillCurrent = latestProject && latest.generation === binding.generation && signal.positionRefs.every((reference) => {
+        const unit = latestProject.units.find((candidate) =>
+          reference.unitId === candidate.id || reference.sourceId === candidate.id,
+        );
+        const bodySha256 = unit ? latestProject.unitMetrics?.[unit.id]?.bodySha256 : undefined;
+        if (!unit || !bodySha256) return false;
+        return deriveStoryPositionCurrentness(reference, {
+          available: true,
+          sourceRevision: latest.generation,
+          sourceFingerprint: bodySha256,
+        }) === 'current';
+      });
+      if (!stillCurrent) {
+        setStoryIntelligenceNotice('This signal is stale against the saved manuscript and cannot be converted.');
+        return;
+      }
+    }
     const eventType: Record<typeof lifecycle, StoryIntelligenceHistoryEventV1['eventType']> = {
       dismissed: 'signal-dismissed',
       suppressed: 'signal-suppressed',
@@ -2895,11 +2915,8 @@ export default function Stage19WritingSpineApp({
         projectId: current.project.projectId,
         sourceKind,
         sourceId: unit.id,
-        sourceRevision: evidenceClass === 'observed' ? 1 : current.generation,
-        sourceFingerprint: evidenceClass === 'observed'
-          ? current.project.unitMetrics?.[unit.id]?.sourceFingerprint
-            ?? `${current.project.projectId}:${unit.id}:${current.generation}:${draft.kind}:${evidenceClass}`
-          : `${current.project.projectId}:${unit.id}:author-intent:${draft.kind}`,
+        sourceRevision: current.generation,
+        sourceFingerprint: current.project.unitMetrics?.[unit.id]?.bodySha256 ?? `${current.project.projectId}:${unit.id}:${current.generation}:${draft.kind}:${evidenceClass}`,
         unitId: unit.id,
         orderIndex: unit.order,
         orderBasis,
@@ -2909,7 +2926,7 @@ export default function Stage19WritingSpineApp({
         projectId: current.project.projectId,
         eventType: 'author-record-created',
         subjectId: recordId,
-        sourceRevision: positionRef.sourceRevision,
+        sourceRevision: current.generation,
         currentness: 'current',
         evidenceClass,
         actor: 'author',

@@ -121,6 +121,23 @@ remained intact; and Signals/Pacing/Pressure source return selected `go_01` /
 Line`, respectively, in Writing Studio with Save disabled. These direct checks
 do not convert the automated Electron no-window blocker into a pass. Human
 subjective acceptance remains outstanding, and Program 7 was not started.
+The 2026-09-04 bounded currentness repair checkpoint adds the additive
+Project Spine unit-body SHA-256 metric and applies the existing currentness
+resolver at the production Emotion, Timeline, Pacing, Pressure, and durable
+Signals projection boundary. Its focused `4`-file / `33`-test run, app
+typecheck, and app lint pass. The subsequent P6-G surface-authority correction
+is current for this candidate: `storyIntelligenceIpc` allows both Writing
+Studio and Command Center Stage 19 project surfaces and fails closed for null
+or unknown roles; conversion remains guarded by a stable Writing snapshot and
+current durable-body fingerprints. The review materializer emits exact
+LF-normalized body hashes and ordered source revisions. Focused IPC coverage is
+`1` file / `11` tests passed; the isolated Program 6 Electron walkthrough is
+`1/1`. Dirty Stage 19 passed hygiene, lint, typecheck, production build, and
+the `49`-file / `782`-passed / `2`-skipped critical matrix, then failed startup
+preflight at zero windows with GPU exit `-1073741515`; no Electron matrix ran.
+The branch is reconciled to origin at `02cd278c`, but the candidate is still
+uncommitted and no clean exact regression, Jason acceptance, or Program 7
+admission is claimed.
 None of these receipts
 authorizes production mounting beyond the named bounded
 components, providers, model calls, packaging, installed qualification,

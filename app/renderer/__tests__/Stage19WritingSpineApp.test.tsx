@@ -470,7 +470,7 @@ function createStoryIntelligenceBridge(): StoryIntelligenceBridge {
       sourceKind: 'story-unit',
       sourceId: 'unit_a',
       sourceRevision: 1,
-      sourceFingerprint: 'proj_a:unit_a:fixture',
+      sourceFingerprint: 'proj_a:unit_a:1:pressure-point:planned',
       unitId: 'unit_a',
       orderIndex: 1,
       orderBasis: 'manuscript',

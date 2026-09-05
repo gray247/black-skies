@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import process from 'node:process';
+import { tmpdir } from 'node:os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,33 @@ function runBuild() {
   }
 }
 
-function startElectron() {
+export function createDevUserDataDirectory() {
+  return mkdtempSync(path.join(tmpdir(), 'black-skies-dev-user-data-'));
+}
+
+export function buildElectronArgs(userDataDirectory) {
+  return [`--user-data-dir=${userDataDirectory}`, './dist-electron/main/main.js'];
+}
+
+export function cleanupDevUserDataDirectory(userDataDirectory) {
+  rmSync(userDataDirectory, { recursive: true, force: true });
+}
+
+export function buildElectronEnvironment(rendererUrl, userDataDirectory, pythonExecutable, baseEnvironment = process.env) {
+  const env = {
+    ...baseEnvironment,
+    ELECTRON_RENDERER_URL: rendererUrl,
+    BLACKSKIES_DEV_LOG_BASE: userDataDirectory,
+  };
+  if (pythonExecutable && existsSync(pythonExecutable)) {
+    env.BLACKSKIES_PYTHON = pythonExecutable;
+  } else {
+    delete env.BLACKSKIES_PYTHON;
+  }
+  return env;
+}
+
+export function startElectron() {
   const electronBin = path.join(
     appRoot,
     'node_modules',
@@ -38,25 +65,38 @@ function startElectron() {
     }
   }
 
-  const env = {
-    ...process.env,
-    ELECTRON_RENDERER_URL: rendererUrl,
-  };
   if (pythonExecutable && existsSync(pythonExecutable)) {
-    env.BLACKSKIES_PYTHON = pythonExecutable;
-  } else {
-    delete env.BLACKSKIES_PYTHON;
+    pythonExecutable = path.resolve(pythonExecutable);
   }
 
-  const child = spawn(electronBin, ['./dist-electron/main/main.js'], {
+  const userDataDirectory = createDevUserDataDirectory();
+  const env = buildElectronEnvironment(rendererUrl, userDataDirectory, pythonExecutable);
+  let cleanedUp = false;
+  const cleanup = () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
+    cleanupDevUserDataDirectory(userDataDirectory);
+  };
+
+  const child = spawn(electronBin, buildElectronArgs(userDataDirectory), {
     cwd: appRoot,
     stdio: 'inherit',
     shell: process.platform === 'win32',
     env,
   });
 
-  child.on('exit', (code) => process.exit(code ?? 0));
+  child.on('error', (error) => {
+    cleanup();
+    console.error('[electron-dev] Electron failed to start', error);
+    process.exit(1);
+  });
+  child.on('exit', (code) => {
+    cleanup();
+    process.exit(code ?? 0);
+  });
 }
 
-runBuild();
-startElectron();
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  runBuild();
+  startElectron();
+}

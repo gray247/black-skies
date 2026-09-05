@@ -36,10 +36,10 @@ function manuscriptBody(markdown: string): string {
 }
 
 export function measureProjectSpineUnit(markdown: string): ProjectSpineUnitMetrics {
-  const normalizedBody = manuscriptBody(markdown).replace(/\r\n/g, '\n');
-  const body = normalizedBody.trim();
-  const sourceFingerprint = createHash('sha256').update(normalizedBody, 'utf8').digest('hex');
-  if (!body) return { wordCount: 0, sentenceCount: 0, paragraphCount: 0, dialogueRatio: 0, sourceFingerprint };
+  const durableBody = manuscriptBody(markdown).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const body = durableBody.trim();
+  const bodySha256 = createHash('sha256').update(durableBody, 'utf8').digest('hex');
+  if (!body) return { wordCount: 0, sentenceCount: 0, paragraphCount: 0, dialogueRatio: 0, bodySha256 };
   const words = body.match(/[\p{L}\p{N}'’–-]+/gu) ?? [];
   const sentences = body.match(/[^.!?]+[.!?]+(?:["'”’)]|\s|$)|[^.!?]+$/gu) ?? [];
   const paragraphs = body.split(/\r?\n\s*\r?\n/u).map((item) => item.trim()).filter(Boolean);
@@ -50,7 +50,7 @@ export function measureProjectSpineUnit(markdown: string): ProjectSpineUnitMetri
     sentenceCount: sentences.map((item) => item.trim()).filter(Boolean).length,
     paragraphCount: paragraphs.length,
     dialogueRatio: words.length > 0 ? Number((dialogueWords / words.length).toFixed(3)) : 0,
-    sourceFingerprint,
+    bodySha256,
   };
 }
 

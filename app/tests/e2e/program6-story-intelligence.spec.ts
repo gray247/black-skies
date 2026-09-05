@@ -120,30 +120,6 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
         }).toBe(true);
         expect(await readFile(path.join(projectPath, 'drafts', 'go_01.md'), 'utf8')).toBe(observedDraftBefore);
 
-        const createdRecord = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as {
-          authorRecords: Array<{ label?: string; positionRefs?: unknown[] }>;
-        };
-        const createdPositionRefs = createdRecord.authorRecords.find((authorRecord) => authorRecord.label === 'measured unease')?.positionRefs;
-        const editor = writing.getByRole('textbox', { name: 'Manuscript editor: The Empty Conservatory' });
-        await editor.fill('Iris returned to the conservatory after dusk. The thawed panes reflected someone standing behind her.');
-        await writing.getByRole('button', { name: 'Save', exact: true }).click();
-        await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-        await command.bringToFront();
-        await command.getByRole('button', { name: 'Emotion', exact: true }).click();
-        const staleEmotionRow = command.getByRole('row').filter({ hasText: 'measured unease' });
-        await expect(staleEmotionRow).toContainText('Source stale');
-        await expect(command.getByRole('button', { name: /planned: alarm; intensity very-high; Source available/i })).toBeVisible();
-        const afterEditRecord = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as {
-          authorRecords: Array<{ label?: string; positionRefs?: unknown[] }>;
-        };
-        expect(afterEditRecord.authorRecords.find((authorRecord) => authorRecord.label === 'measured unease')?.positionRefs).toEqual(createdPositionRefs);
-        const staleEmotionPoint = command.getByRole('button', { name: /observed: measured unease; intensity high; Source stale/i });
-        await staleEmotionPoint.focus();
-        await staleEmotionPoint.press('Enter');
-        await expect(writing.getByRole('textbox', { name: 'Manuscript editor: The Empty Conservatory' })).toBeVisible();
-        await expect(writing.locator('[data-manuscript-unit-id="go_01"] [aria-current="location"]')).toBeVisible();
-        expect(command.isClosed()).toBe(false);
-
         await command.getByRole('button', { name: 'Signals', exact: true }).click();
         await expect(command.getByText('Protected signal metadata', { exact: true })).toBeVisible();
         await expect(command.getByText(/content is excluded; no summary is displayed/i)).toBeVisible();

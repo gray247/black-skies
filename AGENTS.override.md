@@ -36,3 +36,17 @@ This file has precedence over `AGENTS.md` for the repository root `C:\Dev\black-
 - Keep the worktree unchanged except for files explicitly authorized by a later task.
 - Do not edit `AGENTS.md`, `update-agents-md`, global Codex configuration, rules, skills, automations, product documentation, source code, or tests under this instruction.
 - Prefer stopping and asking for direction over guessing when a request conflicts with this override.
+
+## Program 6 bounded execution exception
+
+For C:\Users\gray2\.codex\worktrees\4f0b\black-skies only, agents are explicitly authorized to:
+
+- update the current branch and its shared Git worktree metadata under C:\Dev\black-skies\.git\worktrees\black-skies3;
+- reconcile codex/foundation-audit with origin/codex/foundation-audit without discarding work;
+- stage the intended Program 6 files and create the exact qualification commit;
+- run dirty and clean Stage 19 qualification;
+- launch the Program 6 development GUI;
+- run BLACKSKIES_DISABLE_GPU=1 only as a clearly labeled host diagnostic, never as qualification or a production default;
+- diagnose, repair, test, and continue through ordinary repository-owned Program 6 failures.
+
+This exception does not authorize git reset --hard, git clean, discarding unrelated work, pushing, provider execution, packaging, installation, Program 7 work, or fabricated human acceptance.

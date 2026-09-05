@@ -53,6 +53,11 @@ const CONSOLE_LEVELS: ReadonlyArray<[ConsoleMethod, LogLevel]> = [
 ];
 
 function resolveBaseDirectory(app: App): string {
+  const devLogBase = process.env.BLACKSKIES_DEV_LOG_BASE?.trim();
+  if (!app.isPackaged && devLogBase) {
+    return join(devLogBase, 'BlackSkies');
+  }
+
   if (process.platform === 'win32' && process.env.APPDATA) {
     return join(process.env.APPDATA, 'BlackSkies');
   }

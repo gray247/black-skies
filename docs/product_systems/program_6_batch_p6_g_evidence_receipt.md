@@ -2,42 +2,57 @@
 
 ## Status
 
-`FINAL P6-G REPAIR MECHANICALLY QUALIFIED; JASON'S 15-ROW ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+`P6-G REPAIR IMPLEMENTED; DIRTY MECHANICAL MATRIX PASS; ELECTRON STARTUP BLOCKED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
 
-## Final pre-human repair qualification — 2026-09-03
+## Final surface-authority and dirty qualification correction — 2026-09-04
 
-This section supersedes earlier readiness descriptions while preserving their
-historical evidence. The latest review defects are repaired in the current
-supplied checkout: detached source return preserves the Command window and
-selects the exact Writing unit; the three corpus projects contain meaningful
-prose; Emotion, Timeline, Pacing, and Pressure accept explicit author entries;
-Emotion Graph presents named subjects and accessible planned/observed lanes;
-Pacing reports prose-free structural measurements; and Pressure keeps planned
-intent separate from observed manuscript claims. No timeline, pacing intent,
-pressure, emotion, prose, or canon value is silently fabricated.
+The final bounded repair restores Story Knowledge read/write access through
+both authorized Stage 19 project surfaces: Writing Studio and Command Center.
+The `storyIntelligenceIpc` guard fails closed for null or unknown surface
+roles with `NOT_WRITING_STUDIO`. Conversion remains protected by the stable
+Writing snapshot, current LF-normalized durable-manuscript body fingerprint,
+and current signal-reference checks; stale conversion is not actionable.
 
-Normalized manuscript-body SHA-256 fingerprints now back source currentness.
-The same-session Save path recomputes the projection, marks mismatched observed
-records/signals stale, retains exact source linkage, and leaves author-planned
-intent independent of manuscript-body changes. The optional field is compatible
-with legacy snapshots and strictly validated when present. Protected and
-ineligible source material remains filtered or metadata-only; Command Center
-receives structural metrics and hashes, never manuscript prose.
+The human-review materializer now emits the exact SHA-256 of each durable
+manuscript body and ordered source revisions `1`, `2`, and `3` for the
+documented Lantern House, Northline Letters, and Glass Orchard review order.
+This repairs the fixture evidence without changing manuscript truth or
+introducing provider, package, or Program 7 work.
 
-Focused qualification passed `7` files / `202` tests. App lint, typecheck,
-production build, and diff hygiene passed. The packaged Program 6 Electron
-journey passed `1/1`, covering all three projects and seven lenses, durable
-author entry, same-session stale currentness, exact detached source return, and
-protected redaction. The complete dirty Stage 19 regression returned
-`STAGE19_REGRESSION_PASS` with `49` files / `782` passed / `2` skipped, startup
-`1/1`, Electron `36/36`, and protected evidence not used. Exact product commit
-`7b303a5569b5b6718b7553142963311838f8f6fc` passed the same complete clean gate
-with `worktree=CLEAN_RC_ELIGIBLE`. The documentation-only follow-up must pass its
-own clean gate before push. Human acceptance is not claimed in this entry.
+Focused IPC coverage is `1` file / `11` tests passed, including Command
+Center read/write and null/unknown fail-closed assertions; the isolated
+Program 6 Electron walkthrough is `1/1` passed across all three projects and
+all seven lenses. The dirty `pnpm stage19:regression -- --allow-dirty`
+passed hygiene, lint, typecheck, production build, and the critical matrix
+(`49` files / `782` passed / `2` expected skips), but failed startup preflight
+before a first window: `currentWindowCount=0`, GPU exit `-1073741515`, and
+the Electron fixture later reported its teardown timeout. No Electron matrix
+or automated GUI acceptance was run from this gate.
 
-The stop line is unchanged: all 15 rubric rows below remain intentionally blank
-for Jason. Program 6 stays open and Program 7 stays blocked until his explicit
-checkpoint decision.
+The branch was safely fast-forwarded to origin at
+`02cd278c09c1002331539bbf109379856b1124a7`; the candidate remains dirty and
+uncommitted, and no clean exact regression is claimed. Jason's 15 decision
+rows remain blank, Program 6 is open pending the host startup blocker and
+subjective acceptance, and Program 7 remains blocked.
+
+## Currentness repair checkpoint — 2026-09-04
+
+The bounded repair adds the additive `bodySha256` field to Project Spine unit
+metrics, using the lowercase SHA-256 of each LF-normalized durable manuscript
+body. Production `StoryPositionRefV1` values use that current fingerprint.
+The existing currentness resolver now runs at the production Emotion, Timeline,
+Pacing, Pressure, and durable Signals projection boundary. Prior records remain
+reviewable as stale after a saved body edit, while stale Timeline, Pacing, and
+Pressure records cannot enter actionable output. The IPC surface remains
+backward-compatible for snapshots without the additive metric; manuscript
+mutation behavior is unchanged.
+
+Focused coverage passes `4` files / `33` tests; app typecheck and lint pass.
+This checkpoint is uncommitted and not clean exact-commit qualified. Jason's
+15 human decisions remain blank; Program 6 remains open and Program 7 remains
+blocked.
+The final surface-authority and dirty qualification correction above supersedes
+this preliminary `4`-file / `33`-test count for current mechanical evidence.
 
 ## Superseded checkpoint correction — 2026-09-01
 
@@ -89,6 +104,9 @@ startup failure, with no Program 6 UI behavior exercised. A clean synchronized
 commit and renewed human verification remain pending; this receipt continues
 to stop at renewed human verification and does not claim acceptance or Program
 6 closure.
+The IPC `3/4` statement and no-window result are historical and are superseded
+by the final 2026-09-04 correction above; focused IPC is `11/11` and the
+isolated Program 6 Electron walkthrough is `1/1`.
 
 ## Interactive verification follow-up — 2026-09-02
 
@@ -179,8 +197,10 @@ remains outstanding, and Program 7 was not started.
 | Deterministic human-review materializer | PASS — three openable project roots: Lantern House, Northline Letters, Glass Orchard |
 | Real Electron/Playwright corpus walkthrough | PASS — 1 test; all 3 projects; all 7 lenses; signal disposition persisted; protected content redacted |
 | Focused Program 6 contracts | PASS — prior repair evidence: 5 files / 29 tests; renewed workspace repair: 1 file / 3 tests |
+| Focused IPC surface-authority guard | PASS — 1 file / 11 tests; Writing Studio + Command Center allow; null/unknown roles deny |
 | App typecheck, production build, app lint | PASS |
 | Dirty Stage 19 regression after repair | PASS — 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36 |
+| Final dirty Stage 19 regression after IPC/fixture correction | BLOCKED — 49 critical unit files / 782 passed / 2 skipped; startup preflight failed at zero windows with GPU exit `-1073741515`; no Electron matrix |
 | Repair commit and exact clean Stage 19 regression | PASS — `1a4a3513cebd2e2d505474422dee8049c934030a`; 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36; clean |
 
 The renewed 2026-09-02 repair has not yet produced a new clean candidate:
@@ -192,6 +212,49 @@ results only; no UI acceptance or Program 6 closure is claimed.
 The repair commit is mechanically qualified locally. The documentation
 follow-up commit that records this receipt is subject to one final clean gate
 before push; neither commit claims human acceptance.
+
+## Source-launch isolation follow-up — 2026-09-04
+
+The dirty diagnostic retry identified a repository-owned launcher gap: source
+`pnpm dev` inherited Electron's shared default user-data profile at
+`C:\Users\gray2\AppData\Roaming\@blackskies\app` without a disposable
+per-launch profile. The first retry failed at the shared single-instance lock.
+The dev launcher now creates a unique temporary profile, passes
+`--user-data-dir`, routes only development logging into that profile, and
+cleans it on child exit or launch error. Packaged behavior is unchanged.
+
+The first isolated retry acquired the single-instance lock but exposed the
+shared logging path's `EPERM`; the dev-only logging override removed that
+failure. Focused launcher coverage passed `6/6`; app lint, typecheck,
+production build, repository hygiene, and diff hygiene passed. The subsequent
+source retry still failed before a first window because the host GPU process
+exited with `-1073741515` and Electron reported `GPU process isn't usable`.
+Computer Use observed no app window. The dirty Stage 19 rerun passed the
+mechanical phases and the critical matrix (`49` files / `782` passed / `2`
+skipped), then failed the Electron startup preflight at zero windows; no
+Electron matrix or interactive Program 6 rehearsal is claimed from this run.
+The disposable profile and preflight process were cleaned up. Jason's rubric
+remains blank, Program 6 remains open, and no clean-candidate or acceptance
+claim is made.
+
+## Electron runtime diagnosis — 2026-09-05
+
+Read-only inspection found the 4f0b source launch uses Electron `39.8.10` at
+`app/node_modules/electron/dist/electron.exe`, SHA-256
+`9ba4530b08adeae75c13324a95b0fc8e87c5aa2889cfdc894474f8684b9f6c59`, with
+the expected adjacent Chromium/graphics DLLs and data files present. The
+known `C:\Dev\black-skies` checkout is Electron `39.8.9` with a different
+binary hash and is not a valid same-version repair source. The installed 4f0b
+package is linked from the existing global pnpm store; `pnpm store status`
+reports a configured-store mismatch but no missing or corrupt Electron payload
+was proven. Recent accessible WER events contained no Electron fault.
+
+The standard launch remains blocked in the GPU subprocess with
+`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The one explicitly
+authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic was rejected by the trusted
+safety gate before execution, so no GPU-disabled result is claimed. No
+dependency reinstall, Windows setting change, runtime-path mutation, GUI
+rehearsal, or acceptance evidence was produced.
 
 ## Human-review launch path
 

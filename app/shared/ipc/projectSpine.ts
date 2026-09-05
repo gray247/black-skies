@@ -52,8 +52,8 @@ export interface ProjectSpineUnitMetrics {
   readonly sentenceCount: number;
   readonly paragraphCount: number;
   readonly dialogueRatio: number;
-  /** SHA-256 of the normalized manuscript body; omitted by legacy snapshots. */
-  readonly sourceFingerprint?: string;
+  /** Lowercase SHA-256 of the LF-normalized durable manuscript body. */
+  readonly bodySha256?: string;
 }
 
 export interface ProjectSpineProjectContext {

@@ -7,6 +7,7 @@ import {
   type GetStoryIntelligenceRequestV1,
   type StoryIntelligenceErrorCodeV1,
   type StoryIntelligenceFailureV1,
+  type StoryIntelligenceDocumentV1,
   type StoryIntelligencePermissionResultEnvelopeV1,
   type StoryIntelligenceProjectBindingV1,
   type StoryIntelligenceReadResultV1,
@@ -17,6 +18,7 @@ import {
   PERMISSION_OPERATIONS_V1,
   SOURCE_CLASSES_V1,
   checkStoryIntelligencePermission,
+  deriveStoryPositionCurrentness,
   validateStoryIntelligenceDocument,
   StoryIntelligenceValidationError,
 } from '../shared/storyIntelligencePolicy.js';
@@ -92,6 +94,51 @@ function repositoryFailure(error: unknown): StoryIntelligenceFailureV1 {
   return fail('STORY_INTELLIGENCE_WRITE_FAILED', 'The story-intelligence operation could not be completed.');
 }
 
+function conversionSnapshotKey(snapshot: ProjectSpineSessionSnapshot): string {
+  return JSON.stringify({
+    role: snapshot.role,
+    generation: snapshot.generation,
+    revision: snapshot.revision,
+    project: snapshot.project && {
+      projectId: snapshot.project.projectId,
+      path: snapshot.project.path,
+      units: snapshot.project.units,
+      unitMetrics: snapshot.project.unitMetrics,
+    },
+    activeUnitId: snapshot.activeUnitId,
+    dirtyUnitIds: snapshot.dirtyUnitIds,
+    saveState: snapshot.saveState,
+    lastError: snapshot.lastError,
+    recovery: snapshot.recovery,
+  });
+}
+
+function conversionSnapshotIsStable(snapshot: ProjectSpineSessionSnapshot): boolean {
+  return snapshot.role === 'writing' &&
+    snapshot.dirtyUnitIds.length === 0 &&
+    (snapshot.saveState.status === 'clean' || snapshot.saveState.status === 'saved');
+}
+
+function signalIsCurrentAgainstSnapshot(
+  signal: StoryIntelligenceDocumentV1['durableSignals'][number],
+  snapshot: ProjectSpineSessionSnapshot,
+): boolean {
+  if (signal.currentness !== 'current' || signal.positionRefs.length === 0 || !snapshot.project) return false;
+  const project = snapshot.project;
+  return signal.positionRefs.every((reference) => {
+    const unit = project.units.find((candidate) =>
+      reference.unitId === candidate.id || reference.sourceId === candidate.id,
+    );
+    const bodySha256 = unit ? project.unitMetrics?.[unit.id]?.bodySha256 : undefined;
+    if (!unit || !bodySha256) return false;
+    return deriveStoryPositionCurrentness(reference, {
+      available: true,
+      sourceRevision: snapshot.generation,
+      sourceFingerprint: bodySha256,
+    }) === 'current';
+  });
+}
+
 async function read(event: IpcMainInvokeEvent, request: GetStoryIntelligenceRequestV1): Promise<StoryIntelligenceReadResultV1> {
   const active = activeProject(event, request);
   if (isFailure(active)) return active;
@@ -109,8 +156,35 @@ async function write(event: IpcMainInvokeEvent, request: WriteStoryIntelligenceR
     return fail('INVALID_REQUEST', 'The story-intelligence expected revision is invalid.');
   }
   try {
+    const initialSnapshotKey = conversionSnapshotKey(active.snapshot);
     const validated = validateStoryIntelligenceDocument(request.document, active.snapshot.project!.projectId);
-    return { ok: true, data: await active.repository.write(active.snapshot.project!.projectId, request.expectedRevision, validated) };
+    const current = await active.repository.read(active.snapshot.project!.projectId);
+    const converting = validated.durableSignals.filter((signal) => {
+      const prior = current.durableSignals.find((candidate) => candidate.signalId === signal.signalId);
+      return signal.lifecycle === 'converted' && prior?.lifecycle !== 'converted';
+    });
+    if (converting.length === 0) {
+      return { ok: true, data: await active.repository.write(active.snapshot.project!.projectId, request.expectedRevision, validated) };
+    }
+    if (!conversionSnapshotIsStable(active.snapshot) || conversionSnapshotKey(options!.getWritingSnapshot()) !== initialSnapshotKey) {
+      return fail('STORY_INTELLIGENCE_STALE', 'The Writing Studio manuscript changed or is being saved; reload it before converting a signal.');
+    }
+    if (converting.some((signal) => {
+      const prior = current.durableSignals.find((candidate) => candidate.signalId === signal.signalId);
+      return !prior ||
+        !signalIsCurrentAgainstSnapshot(prior, active.snapshot) ||
+        !signalIsCurrentAgainstSnapshot(signal, active.snapshot);
+    })) {
+      return fail('STORY_INTELLIGENCE_STALE', 'This signal is stale against the saved manuscript and cannot be converted.');
+    }
+    if (conversionSnapshotKey(options!.getWritingSnapshot()) !== initialSnapshotKey) {
+      return fail('STORY_INTELLIGENCE_STALE', 'The Writing Studio manuscript changed during signal conversion; reload it before trying again.');
+    }
+    const saved = await active.repository.write(active.snapshot.project!.projectId, request.expectedRevision, validated);
+    if (conversionSnapshotKey(options!.getWritingSnapshot()) !== initialSnapshotKey) {
+      return fail('STORY_INTELLIGENCE_STALE', 'The Writing Studio manuscript changed during signal conversion; reload it before trying again.');
+    }
+    return { ok: true, data: saved };
   } catch (error) {
     if (error instanceof StoryIntelligenceValidationError) return fail('INVALID_REQUEST', 'The story-intelligence document is invalid.');
     return repositoryFailure(error);

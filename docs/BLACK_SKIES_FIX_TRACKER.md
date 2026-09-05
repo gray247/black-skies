@@ -3,8 +3,8 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, final P6-G repair mechanically qualified and Jason's renewed human verification required; Program 7 remains blocked
-Last Reviewed: 2026-09-03
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G repair qualified and renewed human verification checkpoint required; Program 7 remains blocked
+Last Reviewed: 2026-09-04
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -17,38 +17,85 @@ If an issue is not tracked here, it is not part of the active fix scope.
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
 
-## Program 6 final pre-human repair — 2026-09-03
+## Program 6 final surface-authority and dirty qualification — 2026-09-04
 
-Jason's latest hands-on review reopened the P6-G checkpoint with bounded defects
-in detached source return, corpus realism, author-entry workflows, Emotion Graph
-subject presentation and contrast, structural pacing evidence, planned versus
-observed pressure, stale-source handling, and protected-content filtering. The
-repair now keeps the detached Command window open while returning the Writing
-window to the exact linked unit, materializes meaningful prose for all three
-review projects, and exposes manual author entry for Emotion, Timeline, Pacing,
-and Pressure. Structural pacing uses prose-free word, sentence, paragraph, and
-dialogue-ratio measurements; it does not infer narrative quality. No workflow
-silently invents timeline, pacing-intent, pressure, emotion, prose, or canon.
+The final bounded repair restores authorized Story Knowledge read/write access
+through both Stage 19 project surfaces, Writing Studio and Command Center.
+The `storyIntelligenceIpc` guard fails closed for null or unknown roles with
+`NOT_WRITING_STUDIO`; currentness and stale-conversion guards remain enforced
+at the production projection boundary.
 
-Manuscript-linked records now carry normalized-body SHA-256 fingerprints. A
-durable Save recomputes the production projection in the same session, so
-observed records and signals become stale when their cited manuscript body no
-longer matches, while author-planned intent remains separately owned. Legacy
-snapshots without the optional fingerprint remain accepted. The preload keeps
-strict exact-key and hash validation, and Command Center still receives no
-manuscript prose.
+The Program 6 human-review materializer now emits exact LF-normalized durable-
+body SHA-256 fingerprints and ordered source revisions `1`, `2`, and `3` for
+Lantern House, Northline Letters, and Glass Orchard. Focused IPC coverage is
+`1` file / `11` tests passed; the isolated three-project, seven-lens Program 6
+Electron walkthrough is `1/1` passed. The final dirty
+`pnpm stage19:regression -- --allow-dirty` passed hygiene, lint, typecheck,
+production build, and the critical matrix (`49` files / `782` passed / `2`
+expected skips), but failed startup preflight at zero windows with GPU exit
+`-1073741515`; no Electron matrix ran. The fixture later reported its teardown
+timeout, and no automated GUI acceptance is claimed.
 
-Focused qualification passed `7` files / `202` tests. App lint, typecheck,
-production build, and `git diff --check` passed. The real packaged Electron
-Program 6 journey passed `1/1`, covering three projects, seven lenses, durable
-author entry, same-session stale currentness, protected redaction, and exact
-source return. The complete dirty Stage 19 gate returned
-`STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` skipped, startup
-`1/1`, Electron `36/36`, protected evidence not used. Exact product commit
-`7b303a5569b5b6718b7553142963311838f8f6fc` then passed the same clean gate as
-`CLEAN_RC_ELIGIBLE`. The documentation-only follow-up and synchronized push
-remain gated on their final checks; Jason's 15-row human decision remains
-pending. Program 6 is not closed and Program 7 remains blocked.
+This is dirty and uncommitted `DEVELOPMENT_OVERRIDE` evidence. The branch is
+now reconciled to origin at `02cd278c09c1002331539bbf109379856b1124a7`, but no
+clean exact regression is claimed. Jason's 15 decision rows remain blank,
+Program 6 is open pending the host startup blocker and subjective acceptance,
+and Program 7 remains blocked.
+
+## Program 6 source-launch isolation follow-up — 2026-09-04
+
+The dirty diagnostic retry found that the source launcher inherited Electron's
+shared default user-data profile at `C:\Users\gray2\AppData\Roaming\@blackskies\app`
+and had no per-launch profile isolation. The first retry failed at the shared
+single-instance lock. The launcher now creates a unique disposable profile for
+each `pnpm dev` run, passes it as `--user-data-dir`, routes only development
+logging into that profile, and removes the profile on child exit or launch
+error. Packaged behavior remains unchanged.
+
+Focused launcher coverage passed `6/6`; app lint, typecheck, production build,
+repository hygiene, and `git diff --check` passed. The retry acquired the
+isolated single-instance lock and removed the prior logging `EPERM`, but the
+host GPU process still exited with `-1073741515` and Electron terminated before
+the first window. The dirty Stage 19 rerun passed `49` critical files / `782`
+tests / `2` expected skips, then failed startup preflight with zero windows;
+Electron UI and Program 6 subjective acceptance remain unverified. No GPU
+diagnostic flag, Git mutation, receipt closure, or Jason rubric entry was used.
+
+## Program 6 Electron runtime diagnosis — 2026-09-05
+
+Read-only inspection found the 4f0b source launch uses Electron `39.8.10` at
+`app/node_modules/electron/dist/electron.exe`, SHA-256
+`9ba4530b08adeae75c13324a95b0fc8e87c5aa2889cfdc894474f8684b9f6c59`, with
+the expected adjacent Chromium/graphics DLLs and data files present. The
+known `C:\Dev\black-skies` checkout is Electron `39.8.9` with a different
+binary hash and is not a valid same-version repair source. The installed 4f0b
+package is linked from the existing global pnpm store; `pnpm store status`
+reports only a configured-store mismatch and does not prove missing or corrupt
+Electron payloads. Recent accessible WER events contained no Electron fault;
+the listed events were unrelated Windows Update or system applications.
+
+The standard launch remains blocked in the GPU subprocess with
+`STATUS_DLL_NOT_FOUND` / `-1073741515` before a window. The one explicitly
+authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic could not be executed because
+the trusted safety gate rejected the GUI process launch; no GPU-disabled result
+is treated as evidence. No dependency reinstall, Windows setting change, or
+runtime-path mutation was performed.
+
+## Program 6 currentness repair checkpoint — 2026-09-04
+
+The bounded follow-up uses the existing Project Spine metrics projection to
+emit a lowercase SHA-256 fingerprint of each LF-normalized durable manuscript
+body. Production `StoryPositionRefV1` values now use that fingerprint, and
+the existing currentness resolver is applied at the production Emotion,
+Timeline, Pacing, Pressure, and durable Signals projection boundary. Records
+created against an earlier saved body remain reviewable as stale; stale
+Timeline, Pacing, and Pressure records are excluded from actionable output.
+No manuscript mutation, provider/model call, IPC removal, Program 7 work, or
+human acceptance claim is included.
+
+Focused coverage passes `4` files / `33` tests; app typecheck and lint pass.
+This remains an uncommitted, unqualified repair checkpoint pending the parent
+agent's combined gates and documentation receipt update.
 
 ## Program 6 live-checkpoint repair — 2026-09-01
 
@@ -100,6 +147,11 @@ startup preflight before any Electron window appeared; the targeted Program 6
 Electron walkthrough reproduced the same no-window startup failure. Commit,
 push, and renewed human verification remain pending. Program 7 remains
 blocked.
+The final 2026-09-04 surface-authority and dirty qualification record below
+supersedes this preliminary `4`-file / `33`-test count for current evidence.
+The historical IPC assertion and no-window result are also superseded by that
+correction; focused IPC is `11/11` and the isolated Program 6 Electron
+walkthrough is `1/1`.
 
 ## Program 6 interactive verification follow-up — 2026-09-02
 

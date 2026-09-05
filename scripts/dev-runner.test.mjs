@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { existsSync } from 'node:fs';
 import test from 'node:test';
 
 import { portOwner, probeRenderer, rendererResponseLooksHealthy, waitForRenderer } from './dev-runner.mjs';
+import {
+  buildElectronEnvironment,
+  buildElectronArgs,
+  cleanupDevUserDataDirectory,
+  createDevUserDataDirectory,
+} from './electron-dev.mjs';
 
 test('recognizes the Black Skies Vite document as healthy', () => {
   assert.equal(rendererResponseLooksHealthy('<title>Black Skies</title><div id="root"></div>'), true);
@@ -36,4 +43,34 @@ test('classifies a different HTTP application as occupied and identifies its lis
 test('waits without claiming an unavailable port is healthy', async () => {
   const result = await waitForRenderer('http://127.0.0.1:51739/', 150);
   assert.equal(result.state, 'timeout');
+});
+
+test('uses a unique disposable user-data directory for development Electron launches', () => {
+  const first = createDevUserDataDirectory();
+  const second = createDevUserDataDirectory();
+  try {
+    assert.notEqual(first, second);
+    assert.equal(buildElectronArgs(first)[0], `--user-data-dir=${first}`);
+    assert.equal(buildElectronArgs(second)[0], `--user-data-dir=${second}`);
+    assert.equal(buildElectronArgs(first).at(-1), './dist-electron/main/main.js');
+  } finally {
+    cleanupDevUserDataDirectory(first);
+    cleanupDevUserDataDirectory(second);
+  }
+  assert.equal(existsSync(first), false);
+  assert.equal(existsSync(second), false);
+});
+
+test('reserves the disposable profile for development logging', () => {
+  const userDataDirectory = createDevUserDataDirectory();
+  try {
+    const env = buildElectronEnvironment('http://127.0.0.1:5173/', userDataDirectory, undefined, {
+      EXISTING_ENV: 'preserved',
+    });
+    assert.equal(env.EXISTING_ENV, 'preserved');
+    assert.equal(env.BLACKSKIES_DEV_LOG_BASE, userDataDirectory);
+    assert.equal(env.ELECTRON_RENDERER_URL, 'http://127.0.0.1:5173/');
+  } finally {
+    cleanupDevUserDataDirectory(userDataDirectory);
+  }
 });
