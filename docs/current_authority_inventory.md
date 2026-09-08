@@ -44,8 +44,8 @@ The inventory includes:
   evidence receipt;
 - the Program 6 Batch P6-F handoff and mechanical qualification evidence
   receipt;
-- the Program 6 Batch P6-G author-verification checkpoint handoff and evidence
-  receipt;
+- the Program 6 Batch P6-G final qualification, author acceptance, and closure
+  evidence receipt;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -90,76 +90,29 @@ wording, renews bounded P6-C diagnosis/repair and git authority, and admits
 sequential P6-D through P6-G continuation after preceding-batch completion.
 P6-C's unchanged qualified-host Electron startup preflight, complete dirty
 Stage 19 regression, exact commit `7536431d`, clean exact-commit gate, and push
-all pass. P6-D's deterministic Timeline V1 focused, static, documentation,
-diff, and complete dirty Stage 19 gates are green; its exact commit/clean/push
-closure is the remaining mechanical handoff item. The newest explicit user
-authorization admits P6-E as the next sequential batch after P6-D closes.
-P6-E is durable at `bb7f45db` after its clean fixed regression and synchronized
-push. P6-F is mechanically complete at `f499bf9a` after its qualification
-suite, clean fixed regression, synchronized push, and exact upstream equality.
-P6-G is the active author-verification checkpoint under its own handoff and
-receipt. The 2026-09-05 superseding mechanical qualification binds the clean
-Stage 19 result to exact commit `255b9f32c48022c7b15b24a575eab1043e804bc8`:
-`49` files / `782` passed / `2` expected skips, startup `1/1`, and Electron
-`36/36`. The earlier startup-blocker wording and the first post-repair
-`35/36` run with one transient line-922 zero-proposal observation are
-historical; isolated `1/1`, repeated `3/3`, and writing-shell `8/8` runs
-confirmed no product or parser defect and no waived test. The scoped ACL repair
-fixed the earlier `STATUS_DLL_NOT_FOUND` loader condition. Jason's subjective
-acceptance remains outstanding; this does not close the renewed checkpoint.
-The 2026-09-02 P6-G human-gate repair is the current authority for the shared
-same-window source return from Pacing, Pressure, and Signals, the Emotion Graph
-subject cardinality/filter behavior and semantic contrast treatment, and the
-plain-language Signals advisory copy. Its focused renderer run passed `3`
-files / `131` tests; the dirty Stage 19 mechanical matrix passed `49` files /
-`777` tests / `2` skips, while launcher preflight again stopped before a first
-window with Electron GPU exit `-1073741515`. Interactive acceptance remains
-pending; this launcher result is an environment blocker rather than a product
-result.
-The same 2026-09-02 P6-G authority also includes direct interactive source-app
-checks: one-subject Emotion Graph showed static high-contrast `Subject:
-protagonist` with no selector; Signals showed the plain-language advisory
-definition while protected redaction and stale `Convert` disabled behavior
-remained intact; and Signals/Pacing/Pressure source return selected `go_01` /
-`The Empty Conservatory`, `go_02` / `A Red Apple`, and `go_03` / `The Frost
-Line`, respectively, in Writing Studio with Save disabled. These direct checks
-do not alter the later exact mechanical qualification. Human subjective
-acceptance remains outstanding, and Program 7 was not started.
-The 2026-09-04 bounded currentness repair checkpoint adds the additive
-Project Spine unit-body SHA-256 metric and applies the existing currentness
-resolver at the production Emotion, Timeline, Pacing, Pressure, and durable
-Signals projection boundary. Its focused `4`-file / `33`-test run, app
-typecheck, and app lint pass. The subsequent P6-G surface-authority correction
-is current for this candidate: `storyIntelligenceIpc` allows both Writing
-Studio and Command Center Stage 19 project surfaces and fails closed for null
-or unknown roles; conversion remains guarded by a stable Writing snapshot and
-current durable-body fingerprints. The review materializer emits exact
-LF-normalized body hashes and ordered source revisions. Focused IPC coverage is
-`1` file / `11` tests passed; the isolated Program 6 Electron walkthrough is
-`1/1`. Dirty Stage 19 passed hygiene, lint, typecheck, production build, and
-the `49`-file / `782`-passed / `2`-skipped critical matrix, then failed startup
-preflight at zero windows with GPU exit `-1073741515`; no Electron matrix ran.
-The reconciled exact candidate is `e3e94457ccfbf3f4b9be3bd539bb189890dbf44e`;
-clean `pnpm stage19:regression` passed the `49`-file / `782`-passed / `2`-skipped
-critical matrix and all pre-Electron phases, then failed startup preflight at
-zero windows with GPU exit `-1073741515` and a teardown timeout. No Electron
-matrix ran. The candidate is not clean Stage 19 qualified; Jason acceptance
-and Program 7 admission remain unclaimed. The scoped host ACL repair granted
-RX access only to the Electron `dist` directory and repaired the earlier
-`STATUS_DLL_NOT_FOUND` loader condition. Standard-GPU development now boots
-the renderer and service health but still produces no HWND or `ready-to-show`
-within 15–30 seconds; the authorized `BLACKSKIES_DISABLE_GPU=1` diagnostic
-opens a visible window and reaches `ready-to-show`, but is non-qualifying and
-not the default launch path. These dated no-window results are superseded by
-the exact `255b9f32c48022c7b15b24a575eab1043e804bc8` qualification above; no
-GPU or sandbox bypass was used for that qualified run. Computer Use could not
-connect because the trusted `sky` RPC was unavailable, so no rubric decision
-was fabricated. No provider, package/install, push, or Program 7 claim is
-made.
-None of these receipts
-authorizes production mounting beyond the named bounded
-components, providers, model calls, packaging, installed qualification,
-creation/revision, or Program 6 closure.
+all pass. P6-D's deterministic Timeline V1 work and exact handoff are complete
+at `32d0c617`. P6-E is durable at `bb7f45db` after its clean fixed regression
+and synchronized push. P6-F is mechanically complete at `f499bf9a` after its
+qualification suite, clean fixed regression, synchronized push, and exact
+upstream equality.
+P6-G and Program 6 are closed under the final evidence receipt. The bounded
+currentness, surface-authority, Story Knowledge presentation, and detached
+source-return repairs culminate in exact product commit
+`60e0485ed916ab82f9a597cec9b3a8430e7395b1`. Its clean
+`pnpm stage19:regression` passed `49` critical files / `784` tests with `2`
+expected skips, startup `1/1`, and Electron `36/36` on the normal GPU path.
+Jason completed the 15-row review, confirmed the final linked-unit activation
+and centered scroll, accepted the remaining Program 6 experience, and
+explicitly authorized closure. The earlier P6-G no-window, transient `35/36`,
+and blank-rubric statements remain historical chronology and are superseded by
+the final receipt.
+
+The desire for a representative roughly 20,000-word project and deeper
+cross-lens unification after local-LLM and later-program work is a non-blocking
+maturity observation. No provider/model, package/install, push,
+creation/revision, or Program 7 work is claimed. These receipts authorize no
+production mounting beyond the named bounded Program 6 components; Program 7
+requires its own explicit authorization.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

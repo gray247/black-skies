@@ -3,12 +3,31 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G author-accepted with the final repair dirty-qualified and awaiting exact clean requalification; Program 7 remains blocked
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 awaits separate authorization
 Last Reviewed: 2026-09-07
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.
+
+## Program 6 final closure — 2026-09-07
+
+Jason confirmed the final detached Emotion source return both activates and
+centers the linked Writing Studio unit, accepted the remaining Program 6 human
+rubric, and explicitly authorized closure. Exact product commit
+`60e0485ed916ab82f9a597cec9b3a8430e7395b1` passed the clean
+`pnpm stage19:regression` with no dirty override: `49` critical files / `784`
+tests passed / `2` expected skips, startup `1/1`, and Electron `36/36`. The
+normal GPU path was used; no test, startup failure, or leaked process was
+waived.
+
+The source-return ordering and cross-window centered-scroll repairs, dark-mode
+Story Knowledge contrast, Timeline visual alignment, and writer-facing copy are
+therefore implemented, tested, human-accepted, and closed. Jason's desire for a
+representative roughly 20,000-word project and deeper cross-lens unification
+after local-LLM and later-program work is recorded as non-blocking maturity
+follow-up. No provider/model, package/install, push, creation/revision, or
+Program 7 work is claimed. Program 7 requires its own authorization.
 
 ## Program 6 Story Knowledge presentation repair — 2026-09-05
 
@@ -32,8 +51,8 @@ the copy, theme-token guard, and Timeline card/form uniformity. Jason verified
 the repaired presentation during the Program 6 review and accepted the
 remaining small maturity observations for later programs. The complete dirty
 Stage 19 gate subsequently passed `49` files / `784` tests with `2` expected
-skips, startup `1/1`, and Electron `36/36`; exact clean requalification remains
-pending before closure.
+skips, startup `1/1`, and Electron `36/36`. The exact clean qualification and
+closure are recorded in the final entry above.
 
 ## Program 6 detached Emotion source-return follow-up — 2026-09-07
 
@@ -63,8 +82,8 @@ selection and surface-order checks. The focused renderer selection passed `3`
 files / `142` tests, and Jason's replacement check confirmed both linked-unit
 activation and centered manuscript scrolling. The complete dirty Stage 19 gate
 then passed `49` files / `784` tests with `2` expected skips, startup `1/1`, and
-Electron `36/36` in the normal GPU path. Exact clean requalification remains
-the only closure prerequisite for this repair.
+Electron `36/36` in the normal GPU path. The exact clean qualification and
+successful replacement human check are recorded in the final entry above.
 
 ## Program 6 superseding mechanical qualification — 2026-09-05
 

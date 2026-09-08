@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "purpose": "Current V1 closure and accepted post-V1 product-program documentation authority boundary",
   "currentProgram6Authorization": {
-    "status": "active",
+    "status": "closed",
     "model": "GPT-5.6 Luna",
     "reasoning": "high",
-    "scope": "P6-C through P6-G sequentially, one bounded tested commit and push per batch",
-    "precedence": "newest explicit user instruction supersedes older batch-specific later-batch prohibitions after preceding-batch completion",
-    "exclusions": ["Program 7", "Program 6 closure without final author acceptance"]
+    "scope": "Program 6 P6-A through P6-G closed after exact clean qualification and final author acceptance",
+    "precedence": "the 2026-09-07 P6-G final closure supersedes earlier open-checkpoint and blank-rubric wording",
+    "exclusions": ["Program 7 execution without separate authorization", "provider, package/install, or push claims"]
   },
   "excludedHistoricalRoots": [
     "archive/",

@@ -53,8 +53,10 @@ Current status:
   readiness claim was superseded by live author review, which found the
   production Story Knowledge route unreachable and the named corpus absent.
   The bounded repair now wires the real Stage 19 route, materializes all three
-  review projects, and passes a 36-test Electron walkthrough; P6-G is the
-  renewed author-verification checkpoint. The cleanup HEAD is regression-validated only, not a newly installed or package-qualified
+  review projects, and passes a 36-test Electron walkthrough. The final
+  presentation and detached source-return repairs are clean-qualified at
+  `60e0485e`, Jason accepted the 15-row review, and Program 6 is closed. The
+  cleanup HEAD is regression-validated only, not a newly installed or package-qualified
   release candidate; the exact installed Program 5 candidate remains
   `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 - Program 6 planning is documented in
@@ -66,15 +68,15 @@ Current status:
   work has green dirty and clean-development evidence at `32d0c617`; P6-E
   quiet-surface/local-inference work is green and durable at `bb7f45db`; P6-F
   qualification is green and durable at `f499bf9a`; the prior P6-G readiness
-  claim is superseded by live review, and the repaired route, materializer, and
-  Electron walkthrough are mechanically green for the renewed author checkpoint.
+  claim is superseded by live review; the repaired route, materializer,
+  currentness boundary, presentation, and detached source return are clean
+  qualified and author accepted at `60e0485e`.
   The [P6-C evidence receipt](program_6_batch_p6_c_evidence_receipt.md)
   records the exact status and residual. P6-D chronology/pacing/pressure
   closure passed; P6-E bounded production-surface/local-inference work passed;
-  P6-F qualification, provider/model, dependency, packaging,
-  installed qualification, creation/revision, and later-batch work remain
-  deferred; Program 7 remains blocked until the Program 6 author checkpoint is
-  explicitly accepted.
+  Provider/model, dependency, packaging, installed qualification, and
+  creation/revision work remain deferred. Program 7 is now sequenced next but
+  remains unstarted until separately authorized.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10
@@ -941,9 +943,8 @@ Product-version horizons are explicit:
   holds the contextual product shell, minimal Companion bar, major GUI and
   layout convergence, comparison behavior, and broader product polish. That
   synthesis is now recorded; Program 3 is completed historical work, not the
-  current planning target. Program 6 P6-A and P6-B are bounded mechanical
-  foundations, while P6-C and all product-facing intelligence behavior remain
-  separately gated.
+  current planning target. Program 6 is closed after its bounded P6-A through
+  P6-G work, exact clean qualification, and final author acceptance.
 - later V2 and V3 programs add long-manuscript intake and stable anchors,
   signals, story intelligence, creation, revision, organization, interchange,
   heavy intelligence, durability, and release hardening according to the

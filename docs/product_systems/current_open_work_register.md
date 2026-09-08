@@ -73,8 +73,8 @@ register or a currently authorized program promotes it.
 | P5-01 | Long-manuscript intake and stable structural anchors | Direction Lock, Program 5, [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 / Human Gate 3 | Exact product commit `6efec7b9` passed clean regression, substantial-manuscript qualification, exact package verification, elevated offline installed lifecycle, strict witness, and final author acceptance |
 | P5-UX-01 | Program 5 pre-closure Writing Studio navigation and Unit/Note rail semantics | [Corrected Programs 1–5 repair plan](program_1_to_5_priority_repair_plan.md), [Human Gate 2 repair plan](program_4_human_gate_2_experience_repair_plan.md), [Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md), and [bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Program 5 | Navigation, rails, Note semantics, startup composition, Structure workflow, readability, stale history, and shared chrome passed exact-candidate automation and installed author review at `6efec7b9` |
 | HG-03 | Long-manuscript integrity and usability | Execution-control plan and [Program 5 bridge/closure receipt](program_5_hg2_bridge_evidence_receipt.md) | closed | Human Gate 3 | Jason completed the structural sequence and recorded `Program 5 final check passed` on the exact installed candidate on 2026-08-31 |
-| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | closed-mechanical | Program 6 P6-G author-verification checkpoint | Exact qualified commit `255b9f32c48022c7b15b24a575eab1043e804bc8` passed `STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` expected skips, startup `1/1`, and Electron `36/36`. The first post-repair clean run's transient line-922 zero-proposal result (`35/36`) was cleared by isolated `1/1`, repeated `3/3`, writing-shell `8/8`, and the exact elevated rerun; no product/parser defect or waived test was identified. The scoped Electron `dist` ACL repair fixed `STATUS_DLL_NOT_FOUND`. Jason's 15 rows remain blank, so Program 6 stays open for subjective acceptance; Program 7 remains blocked. No provider, package/install, push, or Program 7 claim is made |
-| P7-01 | First creation or revision workflow | Program 7 | owned-later | Program 7 | Initial story-intelligence workflow is coherent enough to support it |
+| P6-01 | Signal posture and story intelligence | [Program 6 implementation plan](program_6_signals_story_intelligence_implementation_plan.md), [P6-G Luna high handoff prompt](program_6_batch_p6_g_luna_high_handoff_prompt.md), and [P6-G evidence receipt](program_6_batch_p6_g_evidence_receipt.md) | closed | Program 6 P6-G closure | Exact product commit `60e0485ed916ab82f9a597cec9b3a8430e7395b1` passed clean `STAGE19_REGRESSION_PASS`: `49` files / `784` passed / `2` expected skips, startup `1/1`, and Electron `36/36` on the normal GPU path. Jason completed the 15-row author review, confirmed detached Emotion source return activates and centers its Writing Studio unit, accepted the remaining experience, and authorized closure. The roughly 20,000-word project and deeper cross-lens/local-LLM maturity observations are deferred without reopening Program 6. No provider, package/install, push, creation/revision, or Program 7 claim is made |
+| P7-01 | First creation or revision workflow | Program 7 | owned-later | Separate Program 7 authorization | Program 6 is closed and its story-intelligence workflow is coherent enough to support Program 7; execution has not begun |
 | HG-04 | Intelligence and creation review | Execution-control plan | owned-later | Human Gate 4 | Programs 6 and 7 provide complete reviewable workflows |
 | P8-01 | Knowledge, organization, and broader interchange | Program 8 | owned-later | Program 8 | Human Gate 4 synthesis identifies the highest-value workflow order |
 | CLN-B | Second legacy cleanup and professionalization wave | Reachability, dependency, and architecture evidence | owned-later | After Program 8 | Major product families have current owners and replacements |
@@ -97,7 +97,18 @@ register or a currently authorized program promotes it.
 | DEF-13 | Research / Deep Research | Roadmap scope correction | owned-later | Explicit scope reopening | Jason establishes a current owner and workflow |
 | DEF-14 | Voice, dictation, and transcription | Roadmap scope correction | owned-later | Explicit scope reopening | Jason defines accessibility and provenance boundaries |
 
-### P6-G superseding mechanical qualification — 2026-09-05
+### Program 6 final closure — 2026-09-07
+
+Exact product commit `60e0485ed916ab82f9a597cec9b3a8430e7395b1`
+passed the clean `pnpm stage19:regression` with `49` critical files / `784`
+tests passed / `2` expected skips, startup `1/1`, and Electron `36/36` on the
+normal GPU path. Jason completed and accepted the 15-row P6-G review, confirmed
+the repaired detached Emotion source return activates and centers the linked
+Writing Studio unit, and explicitly authorized Program 6 closure. Program 6 is
+closed. The later-maturity observations are retained in the P6-G receipt;
+Program 7 remains unstarted pending its own authorization.
+
+### Historical P6-G superseding mechanical qualification — 2026-09-05
 
 The scoped ACL repair fixed the earlier Electron loader
 `STATUS_DLL_NOT_FOUND` condition. The first full post-repair clean run reached
@@ -107,9 +118,10 @@ reported Electron `35/36`; isolated `1/1`, repeated `3/3`, and writing-shell
 elevated clean rerun on `255b9f32c48022c7b15b24a575eab1043e804bc8` returned
 `STAGE19_REGRESSION_PASS`: `49` files / `782` passed / `2` expected skips,
 startup `1/1`, and Electron `36/36`. The mechanical gate is passed. Jason's
-15 rows remain blank and are the only remaining closure gate; Program 6 stays
-open and Program 7 remains blocked. Computer Use was unavailable because the
-trusted `sky` RPC was not configured, so no rubric decision was fabricated.
+15 rows were blank at that checkpoint, so Program 6 stayed open and Program 7
+was blocked. Computer Use was unavailable because the trusted `sky` RPC was
+not configured, so no rubric decision was fabricated.
+This dated checkpoint is superseded by the 2026-09-07 final closure above.
 
 The pass records below preserve historical chronology. Their then-current
 statements that Cleanup Wave A remained open or Program 6 was excluded are

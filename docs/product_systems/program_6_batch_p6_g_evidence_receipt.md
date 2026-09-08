@@ -2,7 +2,43 @@
 
 ## Status
 
-`P6-G MECHANICALLY QUALIFIED; SUBJECTIVE ACCEPTANCE REQUIRED; PROGRAM 6 OPEN`
+`P6-G MECHANICALLY QUALIFIED; AUTHOR ACCEPTED; PROGRAM 6 CLOSED`
+
+## Final closure — 2026-09-07
+
+Jason completed the Program 6 author review, confirmed that the final detached
+Emotion source return activates and centers the corresponding Writing Studio
+unit, accepted the remaining rubric rows, and explicitly authorized Program 6
+closure. The presentation repair also makes Story Knowledge readable in dark
+mode, aligns Timeline with the other lenses, and replaces engineer-facing
+Overview and author-entry language with writer-facing copy.
+
+Exact product commit
+`60e0485ed916ab82f9a597cec9b3a8430e7395b1` passed the required clean
+`pnpm stage19:regression` with no dirty override:
+
+- repository hygiene, documentation-independent policy checks, both lint
+  lanes, full app typecheck, and production build passed;
+- `49` critical files / `784` tests passed / `2` expected skips;
+- Electron startup preflight passed `1/1`; and
+- the complete Electron matrix passed `36/36` on the normal GPU path.
+
+Before the qualifying run, the same candidate passed the complete dirty gate
+with the same counts. A restricted-shell attempt reproduced the historical
+GPU child exit `-1073741515`; no window appeared and the leaked test process
+was terminated. The authorized elevated rerun passed without disabling GPU,
+skipping tests, retrying a failed assertion, or changing product behavior.
+The inaccessible generated `app/dist` ACL was reset to its inherited worktree
+permissions, including read/execute access for `ALL RESTRICTED APPLICATION
+PACKAGES`; no source or project data was removed.
+
+Jason's later-maturity observations are retained as non-blocking follow-up:
+evaluate the seven lenses with a representative roughly 20,000-word project,
+and revisit deeper cross-lens unification after the local LLM and later product
+programs exist. These observations do not reopen Program 6. No provider/model,
+package/install, push, creation/revision, or Program 7 work is claimed. Program
+7 is eligible for its separately authorized next step but was not started by
+this closure.
 
 ## Superseding mechanical qualification — 2026-09-05
 
@@ -240,7 +276,7 @@ automated Electron gate result. Automated Electron remained blocked by the
 known GPU no-window condition before first window. Human subjective acceptance
 remains outstanding, and Program 7 was not started.
 
-## Mechanical prerequisite
+## Historical mechanical prerequisite
 
 | Evidence | Result |
 | --- | --- |
@@ -251,7 +287,7 @@ remains outstanding, and Program 7 was not started.
 | Exact P6-F clean Stage 19 regression | PASS — 49 critical files / 774 passed / 2 skipped; startup 1/1; Electron 35/35 |
 | Exact commit push and synchronization | PASS — `f499bf9a8c9122a55c6a87b2cf0ecdae4a7d5f17` |
 
-## Repair evidence
+## Historical repair evidence
 
 | Evidence | Result |
 | --- | --- |
@@ -263,16 +299,12 @@ remains outstanding, and Program 7 was not started.
 | Dirty Stage 19 regression after repair | PASS — 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36 |
 | Final dirty Stage 19 regression after IPC/fixture correction | BLOCKED — 49 critical unit files / 782 passed / 2 skipped; startup preflight failed at zero windows with GPU exit `-1073741515`; no Electron matrix |
 | Repair commit and exact clean Stage 19 regression | PASS — `1a4a3513cebd2e2d505474422dee8049c934030a`; 49 critical unit files / 774 passed / 2 skipped; startup 1/1; Electron 36/36; clean |
+| Final author-gate repair and exact clean Stage 19 regression | PASS — `60e0485ed916ab82f9a597cec9b3a8430e7395b1`; 49 critical files / 784 passed / 2 expected skips; startup 1/1; Electron 36/36; clean normal-GPU run |
 
-The renewed 2026-09-02 repair has not yet produced a new clean candidate:
-the dirty Stage 19 rerun passed the critical matrix but failed the startup
-preflight before any Electron window, and the isolated Program 6 Electron
-walkthrough reproduced that no-window condition. These are mechanical gate
-results only; no UI acceptance or Program 6 closure is claimed.
-
-The repair commit is mechanically qualified locally. The documentation
-follow-up commit that records this receipt is subject to one final clean gate
-before push; neither commit claims human acceptance.
+The 2026-09-02 rows above preserve the earlier no-window checkpoint and its
+then-current nonclaims. They are superseded by the final author-gate row,
+exact clean qualification, and accepted rubric recorded in this receipt. The
+closure documentation is local and unpushed.
 
 ## Source-launch isolation follow-up — 2026-09-04
 
@@ -340,21 +372,48 @@ qualified installer or package claim.
 
 ## Human rubric — Jason records one decision and note per row
 
-1. Usefulness — Decision: ; Evidence note:
-2. Source linkage — Decision: ; Evidence note:
-3. Planned / observed / inferred / reader-effect distinction — Decision: ; Evidence note:
-4. Truth ownership: findings are not canon — Decision: ; Evidence note:
-5. Qualitative confidence without false precision — Decision: ; Evidence note:
-6. Ask Only / Quiet interruption behavior — Decision: ; Evidence note:
-7. Signal and project posture control — Decision: ; Evidence note:
-8. Stale / unavailable / trimmed / superseded currentness — Decision: ; Evidence note:
-9. Protection and excluded-content handling — Decision: ; Evidence note:
-10. AI-disabled deterministic and manual workflows — Decision: ; Evidence note:
-11. Safe action ownership and source return — Decision: ; Evidence note:
-12. Keyboard, large text, reduced motion, non-color accessibility — Decision: ; Evidence note:
-13. Story Knowledge detail with a quiet Writing Surface — Decision: ; Evidence note:
-14. Representative-scale responsiveness — Decision: ; Evidence note:
-15. Product boundary: no generic chat, silent prose, automatic canon, durable memory, or Program 7 behavior — Decision: ; Evidence note:
+1. Usefulness — Decision: PASS; Evidence note: Jason completed the seven-lens
+   review and accepted Program 6 for its present maturity.
+2. Source linkage — Decision: PASS; Evidence note: source actions activated the
+   corresponding manuscript unit; the final detached Emotion retest also
+   centered that unit in Writing Studio.
+3. Planned / observed / inferred / reader-effect distinction — Decision: PASS;
+   Evidence note: the lanes remained visibly distinct during review.
+4. Truth ownership: findings are not canon — Decision: PASS; Evidence note:
+   review findings remained advisory and writer-controlled.
+5. Qualitative confidence without false precision — Decision: PASS; Evidence
+   note: the reviewed lenses used qualitative bands and labels.
+6. Ask Only / Quiet interruption behavior — Decision: PASS; Evidence note:
+   Story Knowledge remained user-invoked and did not interrupt writing.
+7. Signal and project posture control — Decision: PASS; Evidence note: the
+   writer-facing `Story concerns` and `Project mode` presentation remained
+   understandable and controllable.
+8. Stale / unavailable / trimmed / superseded currentness — Decision: PASS;
+   Evidence note: stale records stayed reviewable without becoming current
+   actionable evidence.
+9. Protection and excluded-content handling — Decision: PASS; Evidence note:
+   Glass Orchard showed metadata-only protected-signal presentation with no
+   protected summary or source prose.
+10. AI-disabled deterministic and manual workflows — Decision: PASS; Evidence
+    note: the review worked with project-bound AI disabled and retained manual,
+    source-based behavior.
+11. Safe action ownership and source return — Decision: PASS; Evidence note:
+    same-window and detached source returns reached Writing Studio; the final
+    Emotion path activated and centered the linked unit.
+12. Keyboard, large text, reduced motion, non-color accessibility — Decision:
+    PASS; Evidence note: Jason accepted the accessibility row; the exact
+    Electron accessibility journey also passed with no WCAG A/AA axe finding.
+13. Story Knowledge detail with a quiet Writing Surface — Decision: PASS;
+    Evidence note: lens detail stayed in Command Center while Writing Studio
+    remained the quiet manuscript surface.
+14. Representative-scale responsiveness — Decision: PASS for Program 6 scope;
+    Evidence note: current review projects and the automated 100-unit journey
+    passed; a roughly 20,000-word author project is deferred as later-maturity
+    evidence rather than a closure blocker.
+15. Product boundary: no generic chat, silent prose, automatic canon, durable
+    memory, or Program 7 behavior — Decision: PASS; Evidence note: Jason found
+    no silent manuscript mutation and authorized closure; no provider, durable
+    memory, or Program 7 behavior was introduced.
 
 ## Required checkpoint observations
 
@@ -372,8 +431,7 @@ qualified installer or package claim.
 ## Residuals and closure rule
 
 No external provider/model, protected corpus, package/install qualification,
-creation/revision workflow, or Program 7 behavior is claimed. Program 6 stays
-open until Jason records explicit acceptance of this checkpoint. Any `fail` on
-truth ownership, protection, author control, or silent mutation blocks closure;
-`pass with bounded repair` repeats the checkpoint only after the bounded repair
-is whole and requalified. Program 7 must not begin from this receipt.
+creation/revision workflow, push, or Program 7 behavior is claimed. Jason's
+explicit acceptance and the clean exact-candidate gate satisfy the Program 6
+closure rule. Program 6 is closed. Program 7 may begin only under its own
+explicit authorization and execution plan.

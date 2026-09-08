@@ -234,7 +234,7 @@ It does not finalize the entire product vision.
   boundaries, and Git controls remain in force; the then-pending Human Gate 2
   boundary was later satisfied by the exact Program 5 closure evidence above.
 - Program 5 and Human Gate 3 are closed with long-manuscript intake and stable
-  structural anchors proven. Emotion Graph V1 remains Program 6 work and keeps
+  structural anchors proven. Program 6 is also closed; Emotion Graph V1 keeps
   author-planned, manuscript-observed, and inferred emotion distinct.
 - Program 6 bounded planning is documented in
   `program_6_signals_story_intelligence_implementation_plan.md`; its P6-A,
@@ -248,12 +248,12 @@ It does not finalize the entire product vision.
   chronology/pacing/pressure gates and clean handoff are green at `32d0c617`;
   P6-E production surface/local-inference work is durable at `bb7f45db`; P6-F
   qualification is complete at `f499bf9a`; the prior P6-G readiness claim is
-  superseded by the live-review findings, and the repaired production route,
-  deterministic three-project materializer, and 36-test Electron walkthrough
-  are now mechanically qualified for the renewed author checkpoint.
-  Providers/models,
-  dependencies, packaging, installed qualification, creation/revision, and
-  later-batch work remain bounded by their sequential handoffs.
+  superseded by the live-review findings. The repaired production route,
+  deterministic three-project materializer, currentness boundary,
+  presentation, and detached source return are clean-qualified and author
+  accepted at `60e0485e`. Program 6 is closed. Providers/models, dependencies,
+  packaging, installed qualification, creation/revision, and Program 7 remain
+  bounded by their own authorization and handoff.
 - Program acceptance does not authorize all runtime work. Each named workflow
   remains separately bounded and authorized.
 
