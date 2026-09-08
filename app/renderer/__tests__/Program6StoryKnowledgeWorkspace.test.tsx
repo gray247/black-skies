@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -37,7 +39,7 @@ function signal(currentness: DurableSignalV1['currentness']): DurableSignalV1 {
       sourceKind: 'story-unit',
       sourceId: 'nl_01',
       sourceRevision: 1,
-      sourceFingerprint: `${project.projectId}:nl_01:fixture`,
+      sourceFingerprint: `${project.projectId}:nl_01:1:general:planned`,
       unitId: 'nl_01',
       orderIndex: 1,
       orderBasis: 'manuscript',
@@ -82,12 +84,41 @@ function renderWorkspace(document: StoryIntelligenceDocumentV1, onSignalDisposit
 }
 
 describe('Program 6 Story Knowledge workspace', () => {
+  it('uses plain writer-facing overview language and keeps the no-AI boundary clear', () => {
+    renderWorkspace(documentWithSignal('stale'));
+
+    expect(screen.getByText('What this project covers and what remains in your hands.')).toBeVisible();
+    expect(screen.getByText('Story concerns')).toBeVisible();
+    expect(screen.getByText('Project mode')).toBeVisible();
+    expect(screen.getByText('Source-based review')).toBeVisible();
+    expect(screen.getByText('Optional interpretation')).toBeVisible();
+    expect(screen.getByText('Off — no AI is used')).toBeVisible();
+    expect(screen.queryByText('Signal posture')).not.toBeInTheDocument();
+    expect(screen.queryByText('Deterministic lane')).not.toBeInTheDocument();
+  });
+
+  it('keeps Timeline in the shared lens card/form language and uses theme tokens', async () => {
+    const user = userEvent.setup();
+    renderWorkspace(documentWithSignal('current'));
+    await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
+
+    const lens = screen.getByRole('region', { name: 'Timeline detail' });
+    expect(lens.querySelector('.timeline-review')).toBeTruthy();
+    expect(lens.querySelector('form.stage19-program6__emotion-form')).toBeTruthy();
+
+    const css = readFileSync(resolve(import.meta.dirname, '../styles/app.css'), 'utf8');
+    expect(css).toContain('.stage19-program6__lens > .timeline-review');
+    expect(css).toContain('background: var(--bs-surface-base);');
+    expect(css).not.toContain('var(--stage19-surface, #fff)');
+    expect(css).not.toContain('var(--stage19-text-secondary, #5e6470)');
+  });
+
   it('reports all source units through the production projection when eligible timeline rows are fewer', () => {
     renderWorkspace(documentWithSignal('stale'));
 
-    const sourceUnits = screen.getByText('Source units').parentElement;
+    const sourceUnits = screen.getByText('Story sections').parentElement;
     expect(sourceUnits).toHaveTextContent('4');
-    expect(screen.getByText('Source units').nextElementSibling).toHaveTextContent('4');
+    expect(screen.getByText('Story sections').nextElementSibling).toHaveTextContent('4');
   });
 
   it('disables conversion for stale reviewed signals', async () => {
@@ -124,12 +155,12 @@ describe('Program 6 Story Knowledge workspace', () => {
     );
     await user.click(screen.getByRole('button', { name: /^Emotion$/ }));
 
-    expect(screen.getByText(/No AI reading happens here/i)).toBeVisible();
+    expect(screen.getByText(/This is your note; the app does not read the prose/i)).toBeVisible();
     await user.selectOptions(screen.getByLabelText('Emotion point story section'), 'nl_02');
     await user.type(screen.getByLabelText('Emotion point label'), 'guarded hope');
     await user.selectOptions(screen.getByLabelText('Emotion point intensity'), 'high');
     await user.type(screen.getByLabelText('Emotion point subject'), 'Mara');
-    await user.click(screen.getByRole('button', { name: 'Save emotion point' }));
+    await user.click(screen.getByRole('button', { name: 'Save feeling note' }));
 
     expect(onEmotionRecordCreate).toHaveBeenCalledWith({
       kind: 'emotion-graph',
@@ -154,13 +185,13 @@ describe('Program 6 Story Knowledge workspace', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
-    expect(screen.getByText('No author-entered story-world events are available.')).toBeVisible();
+    expect(screen.getByText('No author-entered story events are available.')).toBeVisible();
     await user.selectOptions(screen.getByLabelText('Timeline event story section'), 'nl_02');
     await user.type(screen.getByLabelText('Timeline event label'), 'Mara finds the letter');
     await user.clear(screen.getByLabelText('Timeline story-world order'));
     await user.type(screen.getByLabelText('Timeline story-world order'), '4');
     await user.selectOptions(screen.getByLabelText('Timeline certainty'), 'disputed');
-    await user.click(screen.getByRole('button', { name: 'Save timeline event' }));
+    await user.click(screen.getByRole('button', { name: 'Save story event' }));
 
     await user.click(screen.getByRole('button', { name: /^Pacing$/ }));
     await user.selectOptions(screen.getByLabelText('Pacing intent story section'), 'nl_03');

@@ -9,9 +9,9 @@ function result() { return runTimelineV1({ schemaVersion: 'BlackSkiesTimeline v1
 describe('TimelineReview component', () => {
   it('labels all modules as advisory support and separates pressure dimensions', () => {
     render(<TimelineReview result={result()} />);
-    expect(screen.getByRole('heading', { name: 'Timeline review' })).toBeInTheDocument();
-    expect(screen.getByText('Support only')).toBeInTheDocument();
-    expect(screen.getByText(/No universal score/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Timeline' })).toBeInTheDocument();
+    expect(screen.getByText('For review only')).toBeInTheDocument();
+    expect(screen.getByText(/There is no single pressure score/)).toBeInTheDocument();
     expect(screen.getByText(/urgency: high/)).toBeInTheDocument();
   });
 

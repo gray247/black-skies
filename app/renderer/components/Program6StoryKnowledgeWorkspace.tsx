@@ -66,19 +66,38 @@ function sourceLabel(source: StoryPositionRefV1): string {
   return `${source.sourceKind}/${source.sourceId} · revision ${source.sourceRevision}`;
 }
 
+function signalHandlingLabel(value: StoryIntelligenceDocumentV1['settings']['signalPosture']): string {
+  const labels: Record<typeof value, string> = {
+    off: 'Off — do not collect concerns',
+    'ask-only': 'Ask first — record only when you choose',
+    quiet: 'Quiet — keep concerns out of the way until you review them',
+    alert: 'Alert — bring concerns needing attention forward',
+  };
+  return labels[value];
+}
+
+function projectStageLabel(value: StoryIntelligenceDocumentV1['settings']['projectPosture']): string {
+  const labels: Record<typeof value, string> = {
+    explore: 'Exploring — discovering the story',
+    develop: 'Developing — shaping the story',
+    finish: 'Finishing — preparing the story for completion',
+  };
+  return labels[value];
+}
+
 function LensSummary({ projection, document }: { readonly projection: Program6ProductionProjectionV1; readonly document: StoryIntelligenceDocumentV1 }): JSX.Element {
   return (
     <section className="stage19-program6__overview" aria-label="Story Knowledge overview">
-      <header><h2>Overview</h2><p>Current-project scope and authority posture.</p></header>
+      <header><h2>Overview</h2><p>What this project covers and what remains in your hands.</p></header>
       <dl className="stage19-program6__facts">
-        <div><dt>Project scope</dt><dd>Current project only</dd></div>
-        <div><dt>Source units</dt><dd>{projection.sourceUnitCount}</dd></div>
-        <div><dt>Signal posture</dt><dd>{document.settings.signalPosture}</dd></div>
-        <div><dt>Project posture</dt><dd>{document.settings.projectPosture}</dd></div>
-        <div><dt>Deterministic lane</dt><dd>{document.settings.analysisPolicy.deterministicEnabled ? 'Available' : 'Disabled'}</dd></div>
-        <div><dt>Optional inference</dt><dd>{document.settings.analysisPolicy.optionalInferenceEnabled ? 'Manually enabled' : 'AI disabled'}</dd></div>
+        <div><dt>Project</dt><dd>Current project only</dd></div>
+        <div><dt>Story sections</dt><dd>{projection.sourceUnitCount}</dd></div>
+        <div><dt>Story concerns</dt><dd>{signalHandlingLabel(document.settings.signalPosture)}</dd></div>
+        <div><dt>Project mode</dt><dd>{projectStageLabel(document.settings.projectPosture)}</dd></div>
+        <div><dt>Source-based review</dt><dd>{document.settings.analysisPolicy.deterministicEnabled ? 'Available' : 'Off'}</dd></div>
+        <div><dt>Optional interpretation</dt><dd>{document.settings.analysisPolicy.optionalInferenceEnabled ? 'Available when you choose' : 'Off — no AI is used'}</dd></div>
       </dl>
-      <p className="stage19-program6__boundary">Advisory source-linked support only. Findings do not become canon, prose, outline, quality judgment, or durable memory.</p>
+      <p className="stage19-program6__boundary">This is review support only. It never becomes story canon, edits your prose, judges quality, or saves lasting memory.</p>
     </section>
   );
 }
@@ -124,13 +143,13 @@ function EmotionLens({
     <section className="stage19-program6__emotion" aria-label="Emotion detail">
       <EmotionGraph projection={projection.emotion} onSelectPoint={(selection) => selection.positionRefs[0] && onSourceReturn?.(selection.positionRefs[0])} />
       <form className="stage19-program6__emotion-form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-        <header><h3>Add an emotion point</h3><p>No AI reading happens here. Record what you intend for a section or what you believe the current manuscript conveys.</p></header>
+        <header><h3>Record the feeling for a section</h3><p>Note the feeling you want a section to carry, or the feeling you think it currently conveys. This is your note; the app does not read the prose.</p></header>
         <label><span>Story section</span><select aria-label="Emotion point story section" value={unitId} onChange={(event) => setUnitId(event.target.value)}>{project.units.map((unit) => <option key={unit.id} value={unit.id}>{unit.displayTitle || unit.title}</option>)}</select></label>
-        <label><span>Lane</span><select aria-label="Emotion point lane" value={lane} onChange={(event) => setLane(event.target.value as EmotionRecordDraftV1['lane'])}><option value="planned">Planned intent</option><option value="observed">Observed in manuscript</option></select></label>
-        <label><span>Emotion</span><input aria-label="Emotion point label" value={label} maxLength={240} onChange={(event) => setLabel(event.target.value)} placeholder="e.g. guarded hope" /></label>
+        <label><span>Record as</span><select aria-label="Emotion point lane" value={lane} onChange={(event) => setLane(event.target.value as EmotionRecordDraftV1['lane'])}><option value="planned">Planned intent</option><option value="observed">Observed in manuscript</option></select></label>
+        <label><span>Feeling</span><input aria-label="Emotion point label" value={label} maxLength={240} onChange={(event) => setLabel(event.target.value)} placeholder="e.g. guarded hope" /></label>
         <label><span>Intensity</span><select aria-label="Emotion point intensity" value={intensity} onChange={(event) => setIntensity(event.target.value as EmotionRecordDraftV1['intensity'])}>{['very-low', 'low', 'medium', 'high', 'very-high'].map((value) => <option key={value} value={value}>{value.replace('-', ' ')}</option>)}</select></label>
         <label><span>Subject (optional)</span><input aria-label="Emotion point subject" value={subjectLabel} maxLength={160} onChange={(event) => setSubjectLabel(event.target.value)} placeholder="e.g. Mara" /></label>
-        <button type="submit" disabled={!unitId || !label.trim()}>Save emotion point</button>
+        <button type="submit" disabled={!unitId || !label.trim()}>Save feeling note</button>
       </form>
     </section>
   );
@@ -154,12 +173,12 @@ function TimelineLens({ project, projection, onSourceReturn, onAuthorRecordCreat
   return <section className="stage19-program6__lens" aria-label="Timeline detail">
     <TimelineReview result={projection.timeline} onSourceReturn={onSourceReturn} onAction={(finding) => finding.positionRefs[0] && onSourceReturn?.(finding.positionRefs[0])} />
     <form className="stage19-program6__emotion-form" onSubmit={(event) => { event.preventDefault(); if (!unitId || !label.trim()) return; onAuthorRecordCreate?.({ kind: 'timeline-event', unitId, label: label.trim(), storyWorldOrder, temporalState }); setLabel(''); }}>
-      <header><h3>Add a story-world event</h3><p>You name the event and its story-world order. Manuscript order remains separate.</p></header>
+      <header><h3>Record a story event</h3><p>Name an event and place it in story time. The order in your manuscript stays separate.</p></header>
       <label><span>Story section</span><select aria-label="Timeline event story section" value={unitId} onChange={(event) => setUnitId(event.target.value)}>{project.units.map((unit) => <option key={unit.id} value={unit.id}>{unit.displayTitle}</option>)}</select></label>
       <label><span>Event</span><input aria-label="Timeline event label" value={label} maxLength={240} onChange={(event) => setLabel(event.target.value)} placeholder="e.g. Mara finds the sealed letter" /></label>
-      <label><span>Story-world order</span><input aria-label="Timeline story-world order" type="number" min="0" step="1" value={storyWorldOrder} onChange={(event) => setStoryWorldOrder(Math.max(0, Number.parseInt(event.target.value || '0', 10)))} /></label>
+      <label><span>Story order</span><input aria-label="Timeline story-world order" type="number" min="0" step="1" value={storyWorldOrder} onChange={(event) => setStoryWorldOrder(Math.max(0, Number.parseInt(event.target.value || '0', 10)))} /></label>
       <label><span>Certainty</span><select aria-label="Timeline certainty" value={temporalState} onChange={(event) => setTemporalState(event.target.value as typeof temporalState)}>{['certain', 'uncertain', 'disputed', 'simultaneous', 'unavailable'].map((value) => <option key={value}>{value}</option>)}</select></label>
-      <button type="submit" disabled={!unitId || !label.trim()}>Save timeline event</button>
+      <button type="submit" disabled={!unitId || !label.trim()}>Save story event</button>
     </form>
   </section>;
 }
@@ -176,7 +195,7 @@ function PacingLens({ project, projection, onSourceReturn, onAuthorRecordCreate 
         <ul>{projection.timeline.pacing.map((item) => <li key={item.unitId}><strong>{titleByUnit.get(item.unitId) ?? item.unitId}</strong><span>{item.observedWordCount ?? 0} words · {item.observedSentenceCount ?? 0} sentences · {item.observedParagraphCount ?? 0} paragraphs · {Math.round((item.observedDialogueRatio ?? 0) * 100)}% dialogue · {item.relativeLength ?? 'unclassified'} relative length{item.plannedTempo ? ` · planned ${item.plannedTempo}` : ' · no pacing intent recorded'}</span>{item.positionRefs[0] ? <button type="button" onClick={() => onSourceReturn?.(item.positionRefs[0]!)}>Review source</button> : null}</li>)}</ul>
       )}
       <form className="stage19-program6__emotion-form" onSubmit={(event) => { event.preventDefault(); if (unitId) onAuthorRecordCreate?.({ kind: 'pacing-intent', unitId, tempo }); }}>
-        <header><h3>Add pacing intent</h3><p>Word, sentence, paragraph, and dialogue counts are measured. The intended tempo is yours.</p></header>
+        <header><h3>Set the pace you want</h3><p>Word, sentence, paragraph, and dialogue counts are measured. The pace you want is yours to choose.</p></header>
         <label><span>Story section</span><select aria-label="Pacing intent story section" value={unitId} onChange={(event) => setUnitId(event.target.value)}>{project.units.map((unit) => <option key={unit.id} value={unit.id}>{unit.displayTitle}</option>)}</select></label>
         <label><span>Intended tempo</span><select aria-label="Pacing intended tempo" value={tempo} onChange={(event) => setTempo(event.target.value as typeof tempo)}>{['very-slow', 'slow', 'steady', 'fast', 'very-fast'].map((value) => <option key={value} value={value}>{value.replace('-', ' ')}</option>)}</select></label>
         <button type="submit" disabled={!unitId}>Save pacing intent</button>
@@ -199,11 +218,11 @@ function PressureLens({ project, projection, onSourceReturn, onAuthorRecordCreat
         <ul>{projection.timeline.pressure.map((item) => <li key={item.eventId}><strong>{titleByUnit.get(item.eventId) ?? item.eventId}</strong><span>planned: {Object.entries(item.plannedDimensions).map(([key, value]) => `${key} ${value}`).join(' · ') || 'none'}; observed: {Object.entries(item.observedDimensions).map(([key, value]) => `${key} ${value}`).join(' · ') || 'none'}</span>{item.positionRefs[0] ? <button type="button" onClick={() => onSourceReturn?.(item.positionRefs[0]!)}>Review source</button> : null}</li>)}</ul>
       )}
       <form className="stage19-program6__emotion-form" onSubmit={(event) => { event.preventDefault(); if (unitId) onAuthorRecordCreate?.({ kind: 'pressure-point', unitId, lane, dimension, band }); }}>
-        <header><h3>Add a pressure point</h3><p>Record one dimension at a time. Planned intent and your observation remain visibly separate.</p></header>
+        <header><h3>Note a source of pressure</h3><p>Record one kind of pressure at a time. What you planned and what you observe stay separate.</p></header>
         <label><span>Story section</span><select aria-label="Pressure point story section" value={unitId} onChange={(event) => setUnitId(event.target.value)}>{project.units.map((unit) => <option key={unit.id} value={unit.id}>{unit.displayTitle}</option>)}</select></label>
-        <label><span>Lane</span><select aria-label="Pressure point lane" value={lane} onChange={(event) => setLane(event.target.value as typeof lane)}><option value="planned">Planned intent</option><option value="observed">Observed by author</option></select></label>
-        <label><span>Dimension</span><select aria-label="Pressure point dimension" value={dimension} onChange={(event) => setDimension(event.target.value as typeof dimension)}>{['urgency', 'consequence', 'constraint', 'conflict'].map((value) => <option key={value}>{value}</option>)}</select></label>
-        <label><span>Band</span><select aria-label="Pressure point band" value={band} onChange={(event) => setBand(event.target.value as typeof band)}>{['none', 'low', 'medium', 'high', 'very-high', 'unknown'].map((value) => <option key={value}>{value}</option>)}</select></label>
+        <label><span>Record as</span><select aria-label="Pressure point lane" value={lane} onChange={(event) => setLane(event.target.value as typeof lane)}><option value="planned">Planned intent</option><option value="observed">Observed by author</option></select></label>
+        <label><span>Kind of pressure</span><select aria-label="Pressure point dimension" value={dimension} onChange={(event) => setDimension(event.target.value as typeof dimension)}>{['urgency', 'consequence', 'constraint', 'conflict'].map((value) => <option key={value}>{value}</option>)}</select></label>
+        <label><span>Strength</span><select aria-label="Pressure point band" value={band} onChange={(event) => setBand(event.target.value as typeof band)}>{['none', 'low', 'medium', 'high', 'very-high', 'unknown'].map((value) => <option key={value}>{value}</option>)}</select></label>
         <button type="submit" disabled={!unitId}>Save pressure point</button>
       </form>
     </section>
@@ -224,7 +243,7 @@ function SignalsLens({
   return (
     <section className="stage19-program6__lens" aria-label="Signals detail" data-testid="program6-signals-lens">
       <header><h2>Signals</h2><p>Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.</p></header>
-      <div className="stage19-program6__signal-posture"><span>Signal posture: <strong>{document.settings.signalPosture}</strong></span><span>Project posture: <strong>{document.settings.projectPosture}</strong></span></div>
+      <div className="stage19-program6__signal-posture"><span>Story concerns: <strong>{signalHandlingLabel(document.settings.signalPosture)}</strong></span><span>Project mode: <strong>{projectStageLabel(document.settings.projectPosture)}</strong></span></div>
       {projection.signals.length === 0 ? <p>No durable signals are waiting for review.</p> : (
         <ul className="stage19-program6__signals">
           {projection.signals.map((signal) => {
@@ -282,7 +301,7 @@ export default function Program6StoryKnowledgeWorkspace({
     <section className="stage19-program6" aria-label="Story Knowledge workspace" data-testid="stage19-program6-story-knowledge">
       <header className="stage19-program6__header">
         <div><span className="stage19-spine__eyebrow">Program 6 · {project.title}</span><h2>Story Knowledge</h2><p>Source-linked story lenses for the current project. Advisory only.</p></div>
-        <div className="stage19-program6__status"><span>Project-bound</span><span>{document.settings.analysisPolicy.optionalInferenceEnabled ? 'Manual inference enabled' : 'AI disabled'}</span></div>
+        <div className="stage19-program6__status"><span>This project</span><span>{document.settings.analysisPolicy.optionalInferenceEnabled ? 'Optional interpretation on' : 'No AI is used'}</span></div>
       </header>
       <nav className="stage19-program6__lenses" aria-label="Story Knowledge lenses">
         {LENSES.map((item) => <button key={item.id} type="button" aria-current={lens === item.id ? 'page' : undefined} className={lens === item.id ? 'is-active' : ''} onClick={() => setLens(item.id)}>{item.label}</button>)}

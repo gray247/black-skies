@@ -7496,8 +7496,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   gap: 16px;
   min-width: 0;
   padding: 20px;
-  border: 1px solid var(--bs-border);
-  background: var(--bs-surface);
+  border: 1px solid var(--bs-line-quiet);
+  border-radius: 10px;
+  background: var(--bs-surface-base);
   color: var(--bs-text-primary);
 }
 
@@ -7531,7 +7532,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .timeline-review__posture {
   padding: 4px 8px;
-  border: 1px solid var(--bs-border);
+  border: 1px solid var(--bs-line-strong);
   color: var(--bs-text-secondary);
   font-size: 0.75rem;
   font-weight: 700;
@@ -7548,7 +7549,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   gap: 8px;
   min-width: 0;
   padding: 12px;
-  border: 1px solid var(--bs-border);
+  border: 1px solid var(--bs-line-quiet);
+  border-radius: 8px;
   background: var(--bs-surface-raised);
 }
 
@@ -7578,7 +7580,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .timeline-review__actions button {
-  border: 1px solid var(--bs-border);
+  border: 1px solid var(--bs-line-strong);
+  border-radius: 6px;
   background: transparent;
   color: var(--bs-text-primary);
   cursor: pointer;
@@ -9128,6 +9131,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-program6 {
+  --stage19-surface: var(--bs-surface-base);
+  --stage19-surface-muted: var(--bs-surface-raised);
+  --stage19-border-subtle: var(--bs-line-strong);
+  --stage19-text-primary: var(--bs-text-primary);
+  --stage19-text-secondary: var(--bs-text-secondary);
   display: grid;
   gap: 16px;
   max-width: 1180px;
@@ -9136,6 +9144,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-program6__header,
+.stage19-program6__status,
 .stage19-program6__signal-posture,
 .stage19-program6__actions {
   display: flex;
@@ -9163,13 +9172,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-program6__boundary,
 .stage19-program6__notice,
 .stage19-program6__lens > p {
-  color: var(--stage19-text-secondary, #5e6470);
+  color: var(--stage19-text-secondary);
   line-height: 1.45;
 }
 
 .stage19-program6__status,
 .stage19-program6__signal-posture {
-  color: var(--stage19-text-secondary, #5e6470);
+  color: var(--stage19-text-secondary);
   font-size: 0.85rem;
 }
 
@@ -9180,7 +9189,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-program6__lenses button {
-  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 999px;
   background: transparent;
   color: inherit;
@@ -9199,10 +9208,23 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-program6__lens {
   display: grid;
   gap: 14px;
-  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 10px;
-  background: var(--stage19-surface, #fff);
+  background: var(--stage19-surface);
   padding: 16px;
+}
+
+.stage19-program6__lens > .timeline-review {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.stage19-program6__lens > .timeline-review .timeline-review__modules > section,
+.stage19-program6__lens > .timeline-review .timeline-review__findings {
+  border-color: var(--stage19-border-subtle);
+  background: var(--stage19-surface);
 }
 
 .stage19-program6__emotion {
@@ -9214,9 +9236,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
-  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 10px;
-  background: var(--stage19-surface, #fff);
+  background: var(--stage19-surface);
   padding: 16px;
 }
 
@@ -9231,7 +9253,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-program6__emotion-form p {
   margin-top: 4px;
-  color: var(--stage19-text-secondary, #5e6470);
+  color: var(--stage19-text-secondary);
   line-height: 1.45;
 }
 
@@ -9246,7 +9268,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-program6__emotion-form input,
 .stage19-program6__emotion-form select {
   min-height: 38px;
-  border: 1px solid var(--stage19-semantic-border);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 6px;
   background: var(--bs-surface-base);
   color: var(--bs-text-primary);
@@ -9280,11 +9302,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-program6__facts div {
   border-left: 3px solid var(--stage19-accent, #3757a6);
   padding: 8px 10px;
-  background: var(--stage19-surface-muted, #f6f7f9);
+  background: var(--stage19-surface-muted);
 }
 
 .stage19-program6__facts dt {
-  color: var(--stage19-text-secondary, #5e6470);
+  color: var(--stage19-text-secondary);
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -9306,7 +9328,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-program6__lens li {
   display: grid;
   gap: 8px;
-  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 8px;
   padding: 12px;
 }
@@ -9320,7 +9342,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-program6__lens li span,
 .stage19-program6__lens li small {
-  color: var(--stage19-text-secondary, #5e6470);
+  color: var(--stage19-text-secondary);
 }
 
 .stage19-program6__lens li p {
@@ -9334,7 +9356,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-program6__actions button,
 .stage19-program6__lens li button {
-  border: 1px solid var(--stage19-border-subtle, #d7d9df);
+  border: 1px solid var(--stage19-border-subtle);
   border-radius: 6px;
   background: transparent;
   color: inherit;
@@ -9351,7 +9373,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   margin: 0;
   border-left: 3px solid var(--stage19-accent, #3757a6);
   padding: 8px 10px;
-  background: var(--stage19-surface-muted, #f6f7f9);
+  background: var(--stage19-surface-muted);
 }
 
 .stage19-program6__boundary {

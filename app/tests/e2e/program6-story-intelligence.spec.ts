@@ -15,7 +15,7 @@ const lensHeadings: Record<typeof lenses[number], string> = {
   Overview: 'Overview',
   Emotion: 'Emotion Graph',
   Continuity: 'Continuity review',
-  Timeline: 'Timeline review',
+  Timeline: 'Timeline',
   Pacing: 'Pacing',
   Pressure: 'Pressure',
   Signals: 'Signals',
@@ -110,7 +110,7 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
         await command.getByLabel('Emotion point label').fill('measured unease');
         await command.getByLabel('Emotion point intensity').selectOption('high');
         await command.getByLabel('Emotion point subject').fill('Iris Bell');
-        await command.getByRole('button', { name: 'Save emotion point', exact: true }).click();
+        await command.getByRole('button', { name: 'Save feeling note', exact: true }).click();
         await expect(command.getByRole('cell', { name: 'measured unease', exact: true })).toBeVisible();
         await expect.poll(async () => {
           const next = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as {

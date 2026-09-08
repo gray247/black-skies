@@ -3,12 +3,68 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G mechanically qualified and awaiting Jason's subjective acceptance; Program 7 remains blocked
-Last Reviewed: 2026-09-05
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 P6-C through P6-F complete, P6-G author-accepted with the final repair dirty-qualified and awaiting exact clean requalification; Program 7 remains blocked
+Last Reviewed: 2026-09-07
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.
+
+## Program 6 Story Knowledge presentation repair — 2026-09-05
+
+The supplied dark-mode review found pale Story Knowledge text and controls on
+white cards, a Timeline lens with a separate legacy visual treatment, and
+engineer-facing labels in Overview and author-entry forms. The root cause was
+localized CSS using undefined `--stage19-*` surface/text aliases (falling back
+to white surfaces while inheriting pale dark-theme text); Timeline also used
+undefined legacy surface/border aliases. The bounded repair routes Story
+Knowledge cards, lists, forms, and Timeline modules through the existing
+`--bs-*` theme tokens, removes the nested Timeline card treatment, and adds
+shared borders/radius/backgrounds for the Timeline lens.
+
+Visible copy now uses writer-facing terms such as `Story concerns`, `Project
+mode`, `Source-based review`, `Optional interpretation`, `Record the feeling
+for a section`, `Record a story event`, `Set the pace you want`, and `Note a
+source of pressure`. Underlying settings, values, IPC callbacks, source
+returns, protection/currentness semantics, manuscript behavior, and no-AI
+posture are unchanged. Focused renderer tests were updated and expanded for
+the copy, theme-token guard, and Timeline card/form uniformity. Jason verified
+the repaired presentation during the Program 6 review and accepted the
+remaining small maturity observations for later programs. The complete dirty
+Stage 19 gate subsequently passed `49` files / `784` tests with `2` expected
+skips, startup `1/1`, and Electron `36/36`; exact clean requalification remains
+pending before closure.
+
+## Program 6 detached Emotion source-return follow-up — 2026-09-07
+
+Jason's subjective review found that selecting a source-linked Emotion Graph
+point while Command Center was open in its secondary window displayed the
+correct `manuscript/go_04` source-return notice but did not visibly focus and
+scroll Writing Studio to the corresponding unit. The source reference itself
+was correct and no manuscript content was changed.
+
+The first root cause was ordering in the shared Story Knowledge source-return path:
+the unit selection was requested from the detached Command window before the
+Writing surface was reactivated. The bounded repair reactivates and focuses
+Writing Studio first, then selects the linked unit. A renderer regression now
+exercises an Emotion Graph point from a detached Command Center, verifies the
+linked unit selection, requires surface activation to occur first, and keeps
+the detached Command Center open.
+
+The replacement human check found that the linked unit became active but the
+Writing Studio canvas did not move to it. The second root cause was that the
+selection IPC result is handled in the detached Command renderer, where the
+manuscript unit element is not mounted; the Writing renderer received the
+authoritative active-unit snapshot but had no external-selection scroll effect.
+Writing now observes active-unit changes and centers the corresponding unit in
+the manuscript canvas. Renderer coverage verifies the detached-window snapshot
+handoff requests centered scrolling while preserving the existing source-return
+selection and surface-order checks. The focused renderer selection passed `3`
+files / `142` tests, and Jason's replacement check confirmed both linked-unit
+activation and centered manuscript scrolling. The complete dirty Stage 19 gate
+then passed `49` files / `784` tests with `2` expected skips, startup `1/1`, and
+Electron `36/36` in the normal GPU path. Exact clean requalification remains
+the only closure prerequisite for this repair.
 
 ## Program 6 superseding mechanical qualification — 2026-09-05
 

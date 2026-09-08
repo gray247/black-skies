@@ -496,6 +496,21 @@ function createStoryIntelligenceBridge(): StoryIntelligenceBridge {
   const document: StoryIntelligenceDocumentV1 = {
     ...base,
     authorRecords: [{
+      recordId: 'emotion-source-return',
+      projectId: 'proj_a',
+      unitId: 'unit_a',
+      evidenceClass: 'planned',
+      label: 'guarded hope',
+      recordKind: 'emotion-graph',
+      emotionLane: 'planned',
+      emotionIntensity: 'medium',
+      subjectLabel: 'Mara',
+      currentness: 'current',
+      positionRefs: signal.positionRefs,
+      provenance: { sourceOwner: 'Program 6 test fixture', origin: 'author', visibility: 'included', citationRequired: true, protectionClass: 'included' },
+      createdAt: now,
+      updatedAt: now,
+    }, {
       recordId: 'pressure-source-return',
       projectId: 'proj_a',
       unitId: 'unit_a',
@@ -1314,7 +1329,7 @@ describe('Stage19WritingSpineApp', () => {
     await user.type(screen.getByLabelText('Emotion point label'), 'guarded hope');
     await user.selectOptions(screen.getByLabelText('Emotion point intensity'), 'high');
     await user.type(screen.getByLabelText('Emotion point subject'), 'Mara');
-    await user.click(screen.getByRole('button', { name: 'Save emotion point' }));
+    await user.click(screen.getByRole('button', { name: 'Save feeling note' }));
 
     await waitFor(() => expect(storyIntelligence.write).toHaveBeenCalledTimes(1));
     const request = vi.mocked(storyIntelligence.write).mock.calls[0]![0];
@@ -1351,7 +1366,7 @@ describe('Stage19WritingSpineApp', () => {
     await user.clear(screen.getByLabelText('Timeline story-world order'));
     await user.type(screen.getByLabelText('Timeline story-world order'), '7');
     await user.selectOptions(screen.getByLabelText('Timeline certainty'), 'uncertain');
-    await user.click(screen.getByRole('button', { name: 'Save timeline event' }));
+    await user.click(screen.getByRole('button', { name: 'Save story event' }));
 
     await waitFor(() => expect(storyIntelligence.write).toHaveBeenCalledTimes(1));
     expect(vi.mocked(storyIntelligence.write).mock.calls[0]![0].document.authorRecords.at(-1)).toMatchObject({
@@ -1410,6 +1425,89 @@ describe('Stage19WritingSpineApp', () => {
       });
     },
   );
+
+  it('returns a detached Emotion Graph point to Writing Studio before selecting its linked unit', async () => {
+    const units = [
+      { id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' },
+      { id: 'unit_b', title: 'Second Unit', order: 2, body: 'Beta body' },
+    ];
+    const command = createBridge(snapshot('command', {
+      activeUnitId: 'unit_b',
+      units,
+    }));
+    const surfaces = createSurfaceBridge(snapshot('command', { units }), {
+      initialPlacement: 'secondary-window',
+      windowRole: 'secondary',
+    });
+    const storyIntelligence = createStoryIntelligenceBridge();
+    const user = userEvent.setup();
+    render(
+      <Stage19WritingSpineApp
+        windowRole="command"
+        bridge={command.bridge}
+        surfaceBridge={surfaces.bridge}
+        storyIntelligenceBridge={storyIntelligence}
+      />,
+    );
+
+    expect(await screen.findByRole('region', { name: 'Command Center' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+    await user.click(screen.getByRole('button', { name: 'Emotion' }));
+    await user.click(await screen.findByRole('button', { name: /planned: guarded hope/i }));
+
+    await waitFor(() => expect(command.bridge.selectUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ unitId: 'unit_a' }),
+    ));
+    expect(surfaces.activateSurface).toHaveBeenCalledWith(expect.objectContaining({
+      targetSurface: 'writing',
+      placement: 'current-window',
+    }));
+    expect(vi.mocked(surfaces.activateSurface).mock.invocationCallOrder[0])
+      .toBeLessThan(vi.mocked(command.bridge.selectUnit).mock.invocationCallOrder[0]!);
+    expect(surfaces.current).toMatchObject({
+      primarySurface: 'writing',
+      commandPlacement: 'secondary-window',
+      secondaryStatus: 'open',
+    });
+  });
+
+  it('centers Writing Studio when a detached Command Center selection is broadcast', async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+    try {
+      const writing = createBridge(snapshot('writing', { activeUnitId: 'unit_b' }));
+      const surfaces = createSurfaceBridge(snapshot('command', { activeUnitId: 'unit_b' }), {
+        initialPlacement: 'secondary-window',
+      });
+      render(
+        <Stage19WritingSpineApp
+          windowRole="writing"
+          bridge={writing.bridge}
+          surfaceBridge={surfaces.bridge}
+        />,
+      );
+
+      await screen.findByRole('textbox', { name: 'Manuscript editor: Untitled' });
+      scrollIntoView.mockClear();
+      act(() => writing.emit(snapshot('writing', { activeUnitId: 'unit_a', revision: 2 })));
+
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'center',
+      }));
+      expect(document.getElementById('stage19-manuscript-unit-unit_a')).toHaveAttribute(
+        'data-manuscript-unit-anchor',
+        'true',
+      );
+    } finally {
+      if (originalScrollIntoView) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: originalScrollIntoView });
+      } else {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+      }
+    }
+  });
 
   it('recovers the surface controls when the initial host-state handshake races startup', async () => {
     const writing = createBridge(snapshot('writing'));

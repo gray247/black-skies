@@ -1249,6 +1249,26 @@ export default function Stage19WritingSpineApp({
     }
   }, [logicalSurface, windowRole]);
 
+  const previousActiveUnitIdRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (windowRole !== 'writing') return;
+    const previous = previousActiveUnitIdRef.current;
+    previousActiveUnitIdRef.current = snapshot.activeUnitId;
+    if (
+      previous === undefined ||
+      previous === snapshot.activeUnitId ||
+      !snapshot.activeUnitId
+    ) {
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById(`stage19-manuscript-unit-${snapshot.activeUnitId}`);
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }, [snapshot.activeUnitId, windowRole]);
+
   useEffect(() => {
     setRenameTitle(activeUnit?.title ?? '');
   }, [activeUnit?.id, activeUnit?.title]);
@@ -3019,11 +3039,11 @@ export default function Stage19WritingSpineApp({
   }, [surfaceBridge]);
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
-    if (source.unitId) {
-      await handleSelectUnit(source.unitId);
-    }
     if (surfaceBridge) {
       await activateSurface('writing', 'current-window');
+    }
+    if (source.unitId) {
+      await handleSelectUnit(source.unitId);
     }
     if (windowRole === 'command' || !source.unitId) {
       setNotice(`Source return requested for ${source.sourceKind}/${source.sourceId}. Writing remains authoritative.`);
