@@ -226,6 +226,7 @@ It owns the approval contract, approval vocabulary, approval-state definitions, 
 | `rewrite candidate` | `Draft Generation / Rewrite Loop` until accepted into target truth owner | temporary comparison by default | `T2 + T6` to insert or replace text | candidate -> accepted manuscript text through `Narrative Insertion / Assertion` | may not become manuscript, assertion, note, or memory automatically |
 | `continuity finding` | `Continuity` | temporary or bounded advisory history | `T1` to surface, `T2 + T6` to convert to note or truth via owner | may become signal candidate, continuity-local record, note candidate, or explicit truth update via owner | may not become accepted continuity truth on its own |
 | `critique finding` | `Critique / Evaluation` | temporary or bounded advisory history | `T1` local, higher if paid/outbound; `T2 + T6` to convert | may become note candidate, signal candidate, rewrite prompt candidate | may not become truth, note, signal, or rewrite execution automatically |
+| `revision re-evaluation assessment` | requesting Program 6 lens or `Feedback Notes / Revision Resolution` review path | temporary advisory evidence by default | `T1` to display; Jason's explicit owner action to close the revision item | may say `appears resolved` or `still appears present` and may be cited in the author review | may not close or reopen a revision item, mutate prose, accept a candidate, resolve a Note or Signal, or become truth automatically |
 | `theme finding` | `Theme System` | temporary by default | `T1` to surface, `T2 + T6` to accept theme note or truth elsewhere | may become candidate theme note or author-owned thematic intent through explicit owner path | may not silently canonize theme meaning |
 | `relationship finding` | `Relationship Map` or upstream analysis feeding it | temporary by default | `T1` to surface, `T2 + T6` to accept | may become candidate relationship item or accepted relationship truth via truth owner | may not become accepted relationship fact automatically |
 | `emotional finding` | `Emotion Graph` or upstream analysis feeding it | temporary by default | `T1` to surface, `T2 + T6` to accept | may become candidate emotional interpretation or accepted emotional intent through owner path | may not become accepted emotional truth automatically |
@@ -276,12 +277,22 @@ Rules:
 - `advisory recommendation` -> signal candidate, note candidate, rewrite candidate, or manual action
 - `critique finding` -> note candidate, signal candidate, rewrite prompt candidate
 - `continuity finding` -> continuity-local advisory record, signal candidate, note candidate, or explicit truth update through truth owner
+- `revision re-evaluation assessment` -> author review evidence only; Jason's
+  separate resolution action may close the Program 7 revision item
 - `rewrite candidate` -> accepted manuscript text only through truth owner
 - `memory candidate` -> durable author-approved advisory memory only through `Memory Lab`
 - `signal candidate` -> durable signal only through `Signal Architecture`
 - `feedback-note candidate` -> durable note only through `Feedback Notes / Revision Resolution`
 - `theme`, `relationship`, and `emotional` findings -> candidate items or author-accepted truth elsewhere, never graph or theme-system canon by default
 - `package artifact` -> approved package view or outbound payload, not truth, not memory
+
+For Program 7 recurrence, a resolved revision item stays in provenance-bearing
+history. A recurrence creates a linked new candidate; neither AI nor a recheck
+silently reopens the resolved item. Program 7 qualification agents may record
+objective and UI prechecks as `Pass`, `Fail`, or `Uncertain`, but those labels
+are test evidence rather than approval state, human acceptance, or resolution.
+Jason reviews every failure and uncertainty, every authority-sensitive or
+genuinely subjective result, and a bounded deterministic sample of passes.
 
 ### 9.3 Forbidden Multi-Hop Shortcuts
 

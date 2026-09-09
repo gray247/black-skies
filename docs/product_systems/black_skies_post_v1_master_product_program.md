@@ -33,7 +33,7 @@ authority.
 The accepted program authorizes documentation reconciliation only. Each named
 runtime workflow remains separately bounded and authorized.
 
-### Current authority status — 2026-08-31
+### Current authority status — 2026-09-08
 
 Programs 1 and 2 passed their bounded scopes and Human Gate 1 is closed. Program
 3 is closed at `9ff07369`; Program 4 is closed-mechanical at `319b9c61` and
@@ -45,12 +45,15 @@ exact installed candidate `6efec7b95c82759f51f6d8f47d4400637f48837a`.
 Cleanup Wave A is closed at
 `dcf340a2db8033a679c8227a62a050ec47bb951b`. Exactly four worktrees remain
 intentionally protected or quarantined; their retention does not reopen the
-cleanup wave. Program 6 bounded planning is eligible and has not started;
-runtime or implementation work requires explicit future authorization. The
-cleanup HEAD is regression-validated, but is not a newly installed or
-package-qualified release candidate, and no Programs 1–5 capability claim is
-expanded by this status reconciliation. The dated program sections below
-preserve historical chronology where their earlier sequencing was true.
+cleanup wave. Program 6 is closed after P6-G exact qualification and Jason's
+acceptance. Program 7 is the current planning and next implementation program;
+its accepted charter begins with the Program 6 finding-to-author-resolution
+workflow and includes the bounded Readiness Track. The planning tree remains
+dirty until Jason accepts and manually commits it. Runtime implementation must
+begin in a separately recorded Program 7 implementation worktree with explicit
+package ownership. No earlier capability claim is expanded by this status
+reconciliation. The dated program sections below preserve historical
+chronology only where their earlier sequencing was true.
 
 ## 2. Executive Decision
 
@@ -463,7 +466,7 @@ follow-up and its geometry/workflow evidence are green.
 
 ### Program 6 - Signals And Story Intelligence
 
-Status: `BOUNDED PLANNING ELIGIBLE; NOT STARTED; RUNTIME REQUIRES EXPLICIT FUTURE AUTHORIZATION`
+Status: `CLOSED 2026-09-07; EXACT ACCEPTED PRODUCT COMMIT 60E0485E`
 
 Goal: add useful lenses without creating an alarm dashboard.
 
@@ -508,6 +511,8 @@ dashboard tile merely because a dossier exists.
 
 ### Program 7 - Creation, Revision, And Story Development
 
+Status: `AUTHORIZED; IMPLEMENTATION PLANNED; AWAITING USER-CREATED PLANNING COMMIT AND SEPARATE IMPLEMENTATION WORKTREE`
+
 Goal: support discovery and deliberate revision without taking authorship.
 
 Candidate workflows:
@@ -519,8 +524,38 @@ Candidate workflows:
 - revision-note resolution,
 - outline and card candidate promotion through the correct owner.
 
-This program may begin with any one workflow that real use proves valuable.
-It does not activate all systems together.
+Historical proposal: this program could begin with any one workflow that real
+use proved valuable. The accepted 2026-09-08 amendment below supersedes that
+choice and fixes the first workflow. It still does not activate all systems
+together.
+
+Accepted Program 7 readiness amendment, 2026-09-08:
+
+- the first workflow begins with a Program 6 finding and proves the complete
+  finding -> revision -> recheck -> Jason-resolution path;
+- a Program 7 Readiness Track accompanies the workflow sequence with bounded
+  Program 6 integration repair, a one-model local-AI pilot, and a 20,000 to
+  30,000 word human-authored long-form evidence corpus;
+- the readiness work may pull forward only the minimum integration and evidence
+  needed to prove Program 7; it does not activate the full Program 8 knowledge
+  systems or the full Program 9 provider and operational platform;
+- no-AI review, editing, recheck, and resolution remain first-class;
+- local AI is preserved as an explicit first-class route, with no silent paid
+  fallback and no AI authority to accept prose or resolve revision work; and
+- Program 7 adds no new font or text color token and may not restore the
+  rejected low-contrast light-gray treatment.
+- bounded implementation and computer-operated evidence packages prefer
+  `GPT-5.6 Luna` with high reasoning under stronger coordination; shared host
+  surfaces remain serially owned; and
+- agents record exhaustive objective and UI prechecks as `Pass`, `Fail`, or
+  `Uncertain`; Jason reviews every failure, uncertainty, subjective or
+  authority-sensitive decision, plus a bounded sample of passes. Agent
+  execution is not human acceptance.
+
+The complete planning boundary, worktree, surface direction, concept images,
+evidence requirements, package ownership, and nonclaims are recorded in the
+[`Program 7 charter`](program_7_creation_revision_and_readiness_charter.md) and
+[`Program 7 implementation plan`](program_7_creation_revision_and_readiness_implementation_plan.md).
 
 ### Program 8 - Knowledge, Organization, And Interchange
 
@@ -712,14 +747,15 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. begin bounded Program 6 planning using the proven Program 5 anchors and
-   Command Center home, and
-2. obtain separate explicit authorization before any Program 6 runtime or
-   implementation work.
+1. review and manually commit the intentionally dirty Program 7 planning tree;
+2. record a separate Program 7 implementation worktree based on that accepted
+   planning commit; and
+3. begin the first explicitly owned, non-overlapping Program 7 package with the
+   finding-to-author-resolution contract and Readiness Track boundaries intact.
 
 No repository cleanup, second provider, automatic routing, background queue,
-durable AI memory, broad connector work, or unrelated analyzer build enters
-that immediate scope.
+durable AI memory, broad connector work, full Program 8/9 activation, or
+unrelated analyzer build enters that immediate scope.
 
 ## 13. Approved Author Decisions
 

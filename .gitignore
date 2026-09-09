@@ -59,6 +59,10 @@ workflow results/
 workflow-results/
 vendor/wheels/
 sample_project/
+!sample_project/
+sample_project/*
+!sample_project/program_7_corpus/
+!sample_project/program_7_corpus/**
 sample_project/**/.snapshots/
 _external_archives/
 
@@ -158,6 +162,8 @@ tmp/pytest-of-*/
 *.jpg
 *.jpeg
 *.gif
+!docs/product_systems/program_7_assets/program_7_revision_desk_concept.png
+!docs/product_systems/program_7_assets/program_7_writing_studio_revision_concept.png
 
 # -------------------------
 # KEEP THESE (DO NOT IGNORE)

@@ -46,6 +46,17 @@ The inventory includes:
   receipt;
 - the Program 6 Batch P6-G final qualification, author acceptance, and closure
   evidence receipt;
+- the accepted Program 7 Creation, Revision, and Readiness Charter and bounded
+  implementation plan, including their canonical planning worktree, Program 6 integration,
+  one-model local-AI pilot, long-form corpus, surface concepts, and contrast
+  non-regression boundary;
+- the selected `Carmilla` Program 7 corpus source manifest, including its
+  Project Gutenberg provenance, public-domain posture, immutable source hash,
+  word count, and not-yet-qualified boundary;
+- the verified Program 7 host-feasibility evidence: Ollama `0.13.0` healthy on
+  loopback, six installed models listed, `show` successful for `qwen3:4b` and
+  `qwen3:8b`, and provisional `qwen3:4b` returning exactly `OK` while loaded on
+  CPU; this is not product-model qualification;
 - the current Program 3 Batch P3-A through P3-F receipts and the Program 3
   P3-G closure receipt;
 - the current open-work register;
@@ -109,10 +120,21 @@ the final receipt.
 
 The desire for a representative roughly 20,000-word project and deeper
 cross-lens unification after local-LLM and later-program work is a non-blocking
-maturity observation. No provider/model, package/install, push,
-creation/revision, or Program 7 work is claimed. These receipts authorize no
-production mounting beyond the named bounded Program 6 components; Program 7
-requires its own explicit authorization.
+Program 6 maturity observation now carried into the bounded Program 7 Readiness
+Track. The Program 6 receipts themselves claim no provider/model, package,
+install, push, creation/revision, or Program 7 result and authorize no
+production mounting beyond their named components. Jason's later 2026-09-08
+Program 7 authorization does not retroactively enlarge those receipts.
+
+Program 7 uses Luna-high for bounded implementation and computer-operated test
+packages under stronger coordinator planning, assignment, review, and
+qualification. Central host files remain serially owned. Agents record
+objective and UI prechecks as `Pass`, `Fail`, or `Uncertain`; Jason reviews all
+failures, uncertainties, authority-sensitive and genuinely subjective rows,
+plus a bounded deterministic sample of passes. Agent execution is not human
+acceptance. The intentionally dirty planning tree must first become an accepted
+manual planning commit; implementation then starts only in a separately
+recorded worktree with explicit package ownership.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

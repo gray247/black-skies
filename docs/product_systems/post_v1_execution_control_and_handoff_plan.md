@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `PROGRAMS 1–5 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED`
-- Next implementation control point: `BEGIN BOUNDED PROGRAM 6 PLANNING; RUNTIME IMPLEMENTATION REQUIRES EXPLICIT FUTURE AUTHORIZATION`
+- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 PLANNING TREE DIRTY`
+- Next implementation control point: `ACCEPT AND MANUALLY COMMIT PROGRAM 7 PLANNING; THEN BEGIN AN EXPLICITLY OWNED PACKAGE IN A SEPARATELY RECORDED IMPLEMENTATION WORKTREE`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -122,6 +122,15 @@ must not silently substitute another model.
 | Human-gate synthesis, ambiguous product evidence, or deciding what the next program learned | Change to `GPT-5.6 Sol`, `high` reasoning |
 | Security, privacy, protected content, destructive cleanup disposition, restore-over-current, durable memory, paid/outbound behavior, or final release-risk review | Change to `GPT-5.6 Sol`, `xhigh` reasoning |
 | Final adversarial review still containing unresolved high-impact ambiguity after an xhigh pass | Warn Jason that `GPT-5.6 Sol`, `max` reasoning is recommended for one bounded final review; do not use `max` routinely |
+
+Program 7-specific routing amendment, accepted 2026-09-08: for bounded Program
+7 implementation and computer-operated test packages, prefer `GPT-5.6 Luna`
+with high reasoning to conserve tokens while a stronger coordinator owns
+planning, assignment, review, and qualification. This supersedes the generic
+Terra rows above only for Program 7. Central host files and shared integration
+surfaces must be assigned serially with no overlapping Luna ownership. This
+routing decision does not itself authorize implementation or weaken package
+gates.
 
 The approved Program 3 implementation plan is a specific exception to the
 generic bounded-implementation row: because P3-A through P3-G cross the
@@ -560,10 +569,44 @@ Add bounded author-intent, ideation, proposal-based generation, comparison,
 partial acceptance, and revision-resolution workflows without transferring
 authorship.
 
+Program 7 begins with the finding-to-author-resolution workflow and carries the
+accepted Readiness Track defined in
+[`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md).
+The exact package ownership and sequencing are defined in the
+[`Program 7 implementation plan`](program_7_creation_revision_and_readiness_implementation_plan.md):
+
+- bounded Program 6 integration and maturity repair discovered through real
+  revision use;
+- one explicitly selected and qualified local-model pilot for bounded rewrite,
+  advisory re-evaluation, and later premise alternatives; and
+- a versioned 20,000 to 30,000 word human-authored evidence project with known
+  concerns, protected material, and expected currentness transitions.
+
+This pull-forward is an integration dependency, not authority to activate the
+whole of Programs 8 or 9. Program 7 remains fully useful without AI. No AI may
+accept text or close revision work, and no silent provider fallback is allowed.
+Program 7 UI work adds no new font or text color token; recurrence of the
+rejected low-contrast light-gray treatment is a blocking regression.
+Its concept images are directional composition evidence only. Their bright
+page and blue-action treatments grant no exception to the existing manuscript,
+palette, or contrast authority.
+
 ### Human Gate 4 — Intelligence And Creation
 
 Confirm that the first complete story-intelligence and creation or revision
 workflows are useful, understandable, source-linked, and visibly advisory.
+For the accepted Program 7 entry path, the gate also requires the long-form
+corpus, both no-AI and admitted local-AI evidence, saved-source currentness,
+protected-content behavior, dark/light contrast, and Jason's exclusive
+resolution decision. Passing this first gate validates the Program 7
+foundation; it does not silently close the remaining Program 7 workflow
+families.
+
+Agents perform exhaustive objective and UI prechecks and record `Pass`, `Fail`,
+or `Uncertain` evidence bound to the exact candidate. Jason reviews every
+`Fail` and `Uncertain`, every authority-sensitive or genuinely subjective row,
+and a bounded deterministic sample of passes. Agent execution is never human
+acceptance, and only Jason may resolve a Program 7 revision item.
 
 ### Program 8 — Knowledge, Organization, And Interchange
 
@@ -723,14 +766,17 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. begin bounded Program 6 planning using the proven Program 5 anchors and
-   Command Center home; and
-2. obtain separate explicit authorization before any Program 6 runtime or
-   implementation work.
+1. review and manually commit the intentionally dirty Program 7 planning tree;
+2. record a separate Program 7 implementation worktree based on that accepted
+   planning commit; and
+3. begin the first explicitly owned, non-overlapping Program 7 package under
+   the charter's finding-to-author-resolution and Readiness Track boundaries
+   and the implementation plan's file-ownership map.
 
-No broad cleanup, local-LLM/provider work, or generic chat enters this repair.
-A new blocker must be recorded and resolved at its owning boundary rather than
-silently widening the repair.
+No broad cleanup, second provider, generic chat, or full Program 8/9 activation
+enters this sequence. The one-model local pilot is limited to the charter's
+explicit Program 7 tasks. A new blocker must be recorded and resolved at its
+owning boundary rather than silently widening the package.
 
 ## 15. Handoff Completion Checklist
 

@@ -351,6 +351,31 @@ Rules:
 - pure white is reserved for very small high-emphasis needs, not large text
   fields or page backgrounds.
 
+### 11.1 Program 7 Text-Color Non-Regression Amendment
+
+Jason's accepted Program 7 direction adds no new font or text color token.
+Program 7 reuses the current qualified Black Skies text colors and semantic
+roles. The low-contrast pale/light-gray text removed during Program 6 must not
+return on cards, fields, buttons, headings, labels, metadata, placeholders, or
+status copy.
+
+Required and interactive text must remain clearly readable in both themes and
+may not be weakened with a muted color or opacity merely to create hierarchy.
+Dark surfaces use the established high-contrast warm off-white roles; light
+surfaces use established dark readable roles. Disabled, advisory, stale, and
+secondary states retain readable text and add a label, icon, border, or pattern
+rather than depending on color alone. Every Program 7 UI batch requires
+computed contrast evidence and human dark/light review. Recurrence is a
+blocking regression.
+
+The accepted composition concepts and their non-pixel authority are recorded
+in
+[`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md).
+Those directional concepts grant no exception for a bright manuscript-page
+rectangle, bright-blue primary actions, a new palette role, or a new text-color
+token. Until Jason explicitly revises this foundation, Sections 6 and 11 govern
+Program 7 implementation.
+
 ## 12. Spacing, Shape, And Depth
 
 Use a `4px` base rhythm with the practical set `4, 8, 12, 16, 24, 32, 48`.

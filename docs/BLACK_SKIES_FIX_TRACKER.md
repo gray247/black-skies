@@ -3,8 +3,79 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 awaits separate authorization
-Last Reviewed: 2026-09-07
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 completion authorized, authority reconciliation and bounded implementation planning complete on an intentionally dirty planning tree; implementation awaits the accepted manual planning commit and separately recorded implementation worktree/package
+
+## Program 7 charter and Readiness Track — 2026-09-08
+
+Jason accepted the Program 7 Creation, Revision, and Readiness Charter and
+later authorized completion of the program. The charter and bounded
+implementation plan are anchored to canonical worktree
+`C:\Users\gray2\.codex\worktrees\4f0b\black-skies`, branch
+`codex/foundation-audit`, and exact Program 6 closure base
+`b6bc85b2cf08d53b5906732e4de030cdb3a7e1b7`. The older detached `ecb4`
+checkout remains outside Program 7.
+
+The charter defines the full Program 7 workflow envelope and adds a Readiness
+Track covering bounded Program 6 integration and maturity repair, a one-model
+local-AI pilot, and a versioned 20,000 to 30,000 word human-authored evidence
+corpus. It preserves manual no-AI operation, Jason-only resolution, advisory
+`appears resolved` model language, exact-passage plus unit anchoring,
+potentially-outdated source handling, related-new-issue recurrence, and quiet
+resolved history.
+
+The implementation plan now fixes non-overlapping Luna-high package ownership,
+dependencies, serial central-host integration, Carmilla derivation, local-model
+qualification, evidence rows, stop conditions, and Human Gate 4 review. The
+planning baseline is ready for Jason's manual commit; no implementation agent
+may use this dirty planning tree as its runtime worktree.
+
+The accepted visual direction places Revision Desk, Story Foundation, Ideas,
+and History beneath `Create / Develop`; retains a quiet contextual Revision
+drawer in Writing Studio; and preserves Program 6 Story Knowledge as the
+finding source. Two concept images are retained with the charter. They are
+composition evidence, not pixel or new-palette authority. Program 7 adds no new
+font or text color token, and the low-contrast pale/light-gray treatment removed
+during Program 6 is a blocking regression if it returns.
+
+No runtime code, model installation, provider execution, runtime or product
+tests, branch change, commit, push, package, Human Gate 4, Program 8, or full
+Program 9 work is claimed by this documentation pass.
+
+Jason's 2026-09-08 follow-up selected a free, legal, human-authored horror book
+for the long-form corpus; authorized read-only computer and local-AI runtime
+inspection; and kept `Revision Desk`, `Story Foundation`, `Ideas`, and
+`History` provisional. `Carmilla` by Joseph Sheridan Le Fanu was downloaded
+unchanged from Project Gutenberg eBook 10007. Its `28199`-word body, `181071`
+source bytes, SHA-256
+`F751453EF6AD9363A7E31F63B8D4EF830C7EA20A2ABA465A59FB6FBEE6BBDDCA`,
+public-domain-in-the-United-States source posture, and embedded Project
+Gutenberg license are recorded in the corpus manifest. No derived project,
+answer key, or seeded issue set exists yet.
+
+The authorized hardware inventory found a Dell Inspiron 15 3525 with an AMD
+Ryzen 7 5825U (8 cores / 16 logical processors), 15.4 GB usable RAM, integrated
+AMD Radeon graphics, Windows 11 Home 64-bit, and 119.6 GB free disk space.
+Ollama client `0.13.0` and six model manifests are present. Installed
+`qwen3:4b` Q4_K_M is the provisional one-model pilot candidate; it is selected,
+not product-qualified. A later independent read-only recheck proved Ollama
+healthy on `127.0.0.1:11434`, successful TCP/root and `/api/tags` responses,
+successful `show` for `qwen3:4b` and `qwen3:8b`, and an exact `OK` response from
+`qwen3:4b`, which `ollama ps` showed loaded on CPU. Server evidence showed
+loopback-only binding. The earlier access denial occurred only in the
+restricted `jasongray\codexsandboxoffline` shell; historical GUI logs show a
+listener-readiness race, not a demonstrated Ollama ACL or model-store defect.
+Host feasibility is proved. Quality, latency, memory/resource behavior,
+cancellation, timeout handling, structured harness behavior, protection
+enforcement, and Black Skies integration remain unqualified.
+
+Jason's Program 7 execution preference is Luna-high for bounded implementation
+and computer-operated test packages under stronger coordinator review, with
+serial ownership of shared host files. Agents record exhaustive objective/UI
+prechecks as `Pass`, `Fail`, or `Uncertain`; Jason reviews all failures,
+uncertainties, authority-sensitive and genuinely subjective rows, plus a
+bounded deterministic sample of passes. Agent execution is not human
+acceptance.
+Last Reviewed: 2026-09-09
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -27,7 +98,9 @@ therefore implemented, tested, human-accepted, and closed. Jason's desire for a
 representative roughly 20,000-word project and deeper cross-lens unification
 after local-LLM and later-program work is recorded as non-blocking maturity
 follow-up. No provider/model, package/install, push, creation/revision, or
-Program 7 work is claimed. Program 7 requires its own authorization.
+Program 7 work is claimed by the Program 6 closure. The later 2026-09-08 entry
+above records the separate Program 7 planning state and completion
+authorization without retroactively enlarging Program 6.
 
 ## Program 6 Story Knowledge presentation repair — 2026-09-05
 

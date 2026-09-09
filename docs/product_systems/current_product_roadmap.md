@@ -75,8 +75,29 @@ Current status:
   records the exact status and residual. P6-D chronology/pacing/pressure
   closure passed; P6-E bounded production-surface/local-inference work passed;
   Provider/model, dependency, packaging, installed qualification, and
-  creation/revision work remain deferred. Program 7 is now sequenced next but
-  remains unstarted until separately authorized.
+  creation/revision runtime work remain deferred. Jason authorized the
+  Program 7 charter and Readiness Track on 2026-09-08 in
+  `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`, based on exact Program 6
+  closure commit `b6bc85b2cf08d53b5906732e4de030cdb3a7e1b7`. The accepted planning
+  boundary and executable package map are recorded in the charter and
+  `program_7_creation_revision_and_readiness_implementation_plan.md`; no Program 7 code,
+  model installation, provider execution, test, commit, push, package, or
+  Human Gate 4 claim follows from that authorization. Jason later explicitly
+  authorized completion of Program 7, but the dirty planning tree is not an
+  implementation base until he accepts and manually commits it and a separate
+  implementation worktree and first owned package are recorded.
+  The follow-up readiness inventory selected the unchanged 28,199-word
+  Project Gutenberg `Carmilla` source for the long-form corpus and installed
+  `qwen3:4b` Q4_K_M as the provisional one-model pilot candidate. The source
+  is downloaded but not converted or qualified. A later read-only recheck
+  proved Ollama `0.13.0` healthy on loopback, all six installed models visible,
+  `show` successful for `qwen3:4b` and `qwen3:8b`, and `qwen3:4b` returning
+  exactly `OK` to a bounded prompt while loaded on CPU. The earlier access
+  denial was confined to the restricted `codexsandboxoffline` shell, and old
+  GUI logs show a startup race rather than a demonstrated Ollama ACL or model-
+  store defect. Host feasibility is proved; quality, latency, resources,
+  cancellation, timeout, structured harness behavior, protection enforcement,
+  and Black Skies integration remain unqualified.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

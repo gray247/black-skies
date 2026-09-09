@@ -48,6 +48,34 @@ It does not finalize the entire product vision.
 - `current_open_work_register.md` is the single current index for unfinished
   work; historical trackers and ledgers remain source evidence rather than
   competing current queues.
+- Jason accepted the Program 7 Creation, Revision, and Readiness Charter on
+  2026-09-08. It and the bounded implementation plan are the current Program 7 planning
+  authority for the finding-to-resolution first workflow, Program 6
+  integration, one-model local-AI pilot, long-form evidence corpus, planned
+  surfaces, and text-color non-regression rule. Jason later explicitly
+  authorized completion of Program 7, but the intentionally dirty planning tree
+  must first become his accepted manual planning commit; implementation then
+  begins only in a separately recorded implementation worktree and explicitly
+  owned package. The implementation plan fixes the package sequence, exclusive
+  file ownership, qualification evidence, and stop conditions. The planning
+  authority is anchored to the canonical `4f0b`
+  worktree at Program 6 closure base `b6bc85b2`.
+- Program 7 readiness planning selected the public-domain-in-the-United-States
+  Project Gutenberg `Carmilla` source as the human-authored long-form corpus
+  and installed `qwen3:4b` Q4_K_M as the provisional local-model candidate.
+  The source is immutable and not yet converted into a test project. A later
+  read-only host check proved Ollama `0.13.0` healthy on loopback and
+  `qwen3:4b` runnable on CPU with an exact `OK` response. The earlier access
+  denial was restricted-shell-only, and the historical GUI failure was a
+  startup race; neither demonstrates an Ollama ACL or model-store defect. Host
+  feasibility is proved, while product quality, latency, resource behavior,
+  cancellation, timeout, structured harness behavior, protection enforcement,
+  and Black Skies integration remain unqualified.
+- The Program 7 charter supersedes older suggestions that any Program 7
+  workflow may start first or that recurrence may reopen resolved history. The
+  first workflow begins with a Program 6 finding; Jason alone resolves its
+  durable revision item, AI may say only `appears resolved`, and recurrence
+  creates a linked new issue.
 - The accepted program owns the post-V1 product constitution, nine-program
   workflow sequence, dossier-to-program map, evidence rhythm, and named
   deferral triggers.

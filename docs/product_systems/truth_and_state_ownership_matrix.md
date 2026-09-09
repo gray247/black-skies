@@ -98,6 +98,14 @@ This artifact exists so product systems can observe, display, retain, transfer, 
 | `Narrative Insertion / Narrative Assertion` | `Yes` | foundation truth owner for accepted manuscript text and accepted assertion truth |
 | `Workflow Spine / Author Journey` | `No` | may summarize workflow posture, route the author to the correct owner, and request owner-governed review or update actions, but it does not own or directly mutate accepted truth |
 
+Program 7 planning adds no truth owner. A Program 6 finding may become durable
+revision-note state only after Jason explicitly chooses `Work on this`. AI may
+emit a temporary advisory `appears resolved` assessment, but Jason alone may
+close the Program 7 revision item. A later recurrence creates a linked new
+revision item rather than silently reopening resolved history. Rewrite acceptance
+and revision resolution remain separate actions: accepting selected prose does
+not close the related finding, Note, or Signal.
+
 ## 9. Durable State Category Definitions
 
 - `durable signal state`: signal lifecycle, provenance, mute, suppress, resolve, stale, expiry, and retained signal history
