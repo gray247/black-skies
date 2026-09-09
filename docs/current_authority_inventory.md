@@ -131,11 +131,14 @@ Program 7 authorization does not retroactively enlarge those receipts.
 Program 7 uses Luna-high for bounded implementation and computer-operated test
 packages under stronger coordinator planning, assignment, review, and
 qualification. Central host files remain serially owned. Jason's accepted
-planning baseline is user commit
-`994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before the
-now-complete documentation-only hardening pass. That pass remains uncommitted;
-the next commit and push are user-only. Implementation starts only in a
-separately recorded worktree with explicit package ownership. The complete
+planning baseline remains user commit
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
+accepted, clean, and pushed at
+`d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and
+implementation is authorized in the separately recorded worktree
+`C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+on branch `codex/program7-implementation`; Wave 1 is next. The next commit and
+push are user-only. The complete
 no-AI workflow is mandatory and must
 pass independently. The one-model local-AI pilot is mandatory execution work,
 but admission is conditional on passing its complete evidence matrix; no

@@ -53,12 +53,14 @@ It does not finalize the entire product vision.
   authority for the finding-to-resolution first workflow, Program 6
   integration, one-model local-AI pilot, long-form evidence corpus, planned
   surfaces, annotated visual handoff, and text-color non-regression rule.
-  Jason's accepted planning baseline is user commit
-  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before
-  the now-complete, uncommitted documentation-only hardening pass.
-  Implementation begins only in a separately recorded implementation
-  worktree and explicitly owned package; the next commit and push are
-  user-only. The implementation plan
+  Jason's accepted planning baseline remains user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
+  accepted, clean, and pushed at
+  `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and
+  implementation is authorized in the separately recorded worktree
+  `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+  on `codex/program7-implementation`; Wave 1 is next. The next commit and
+  push are user-only. The implementation plan
   fixes the package sequence, exclusive file ownership, qualification
   evidence, and stop conditions. The planning authority is anchored to the
   canonical `4f0b` worktree at Program 6 closure base `b6bc85b2`.

@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 PLANNING BASELINE ACCEPTED AT 994E558D; DOCUMENTATION-ONLY HARDENING COMPLETE IN THE WORKING TREE AND AWAITING USER COMMIT`
-- Next implementation control point: `RECORD A SEPARATE PROGRAM 7 IMPLEMENTATION WORKTREE AND FIRST OWNED PACKAGE; NEXT COMMIT/PUSH IS USER-ONLY`
+- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 P7-0B COMPLETE; HARDENING COMMIT D3C41281 ACCEPTED, CLEAN, AND PUSHED; IMPLEMENTATION AUTHORIZED IN THE RECORDED WORKTREE`
+- Next implementation control point: `BEGIN WAVE 1 IN C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation ON codex/program7-implementation; NEXT COMMIT/PUSH IS USER-ONLY`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -781,11 +781,13 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. record the accepted planning baseline as user commit
-   `994e558d7ede9d9dde4df1a4e268d91be20ebd43` (clean and synchronized before
-   this documentation-only hardening pass);
-2. record a separate Program 7 implementation worktree based on that accepted
-   planning commit; and
+1. preserve the accepted planning baseline at user commit
+   `994e558d7ede9d9dde4df1a4e268d91be20ebd43` and record the accepted,
+   clean, pushed hardening commit
+   `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`;
+2. use the established Program 7 implementation worktree
+   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+   on branch `codex/program7-implementation`; and
 3. begin the first explicitly owned, non-overlapping Program 7 package under
    the charter's finding-to-author-resolution and Readiness Track boundaries
    and the implementation plan's file-ownership map.

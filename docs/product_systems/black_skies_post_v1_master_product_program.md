@@ -50,11 +50,14 @@ acceptance. Program 7 is the current planning and next implementation program;
 its accepted charter begins with the Program 6 finding-to-author-resolution
 workflow and includes the bounded Readiness Track. Jason accepted and manually
 committed the planning baseline at
-`994e558d7ede9d9dde4df1a4e268d91be20ebd43`; it was clean and synchronized
-before the now-complete, uncommitted documentation-only hardening pass. Runtime implementation
-must begin in a separately recorded Program 7 implementation worktree with
-explicit package ownership. The next commit and push remain user-only. No
-earlier capability claim is expanded by this status reconciliation. The dated
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`; the documentation-only hardening
+was accepted, clean, and pushed at
+`d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and runtime
+implementation is authorized in the separately recorded Program 7 worktree
+`C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+on branch `codex/program7-implementation`, with Wave 1 next. The next commit
+and push remain user-only. No earlier capability claim is expanded by this
+status reconciliation. The dated
 program sections below preserve historical chronology only where their earlier
 sequencing was true.
 
@@ -514,7 +517,7 @@ dashboard tile merely because a dossier exists.
 
 ### Program 7 - Creation, Revision, And Story Development
 
-Status: `AUTHORIZED; IMPLEMENTATION PLANNED; DOCUMENTATION HARDENING COMPLETE IN THE WORKING TREE; AWAITING USER COMMIT AND SEPARATE IMPLEMENTATION WORKTREE`
+Status: `AUTHORIZED; P7-0B COMPLETE; IMPLEMENTATION WORKTREE ESTABLISHED; WAVE 1 NEXT`
 
 Goal: support discovery and deliberate revision without taking authorship.
 
@@ -761,11 +764,13 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. record this completed documentation-only hardening pass in a user-created
-   commit based on accepted, clean, synchronized planning baseline
-   `994e558d7ede9d9dde4df1a4e268d91be20ebd43`;
-2. record a separate Program 7 implementation worktree based on that accepted
-   hardening commit; and
+1. preserve the accepted planning baseline at user commit
+   `994e558d7ede9d9dde4df1a4e268d91be20ebd43` and record its accepted,
+   clean, pushed documentation hardening at
+   `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`;
+2. use the established Program 7 implementation worktree
+   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+   on `codex/program7-implementation`; and
 3. begin the first explicitly owned, non-overlapping Program 7 package with the
    finding-to-author-resolution contract and Readiness Track boundaries intact.
 

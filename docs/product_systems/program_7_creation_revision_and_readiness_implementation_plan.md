@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `planning baseline accepted at 994e558d; documentation-only hardening complete in the working tree and awaiting user commit; implementation not started`
+- Status: `hardening accepted at d3c41281; P7-0B authority reconciliation complete in the implementation worktree; Wave 1 next`
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
@@ -11,9 +11,14 @@
 - Planning branch: `codex/foundation-audit`
 - Accepted planning commit:
   `994e558d7ede9d9dde4df1a4e268d91be20ebd43`
-- Implementation authority: blocked until this documentation-only hardening
-  state is accepted in a user-created commit and a separate Program 7
-  implementation worktree is explicitly established.
+- Accepted hardening commit:
+  `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`
+- Implementation tree:
+  `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+- Implementation branch: `codex/program7-implementation`
+- Implementation authority: Jason explicitly authorized Program 7
+  implementation from `d3c41281` on 2026-09-09. Work remains limited to the
+  explicitly owned package and wave boundaries in this plan.
 - Commit and push authority: user only. Agents must not commit or push.
 - Package execution preference: bounded Luna-high agents coordinated and
   reviewed by a stronger primary coordinator.
@@ -21,8 +26,9 @@
 
 This document converts the accepted Program 7 charter, implementation-boundary
 review, runtime evidence, and qualification direction into executable package
-authority. It does not itself authorize implementation in the dirty planning
-tree.
+authority. Implementation is authorized only in the recorded implementation
+tree through the named package boundaries; the planning tree remains outside
+runtime edit scope.
 
 The detailed, machine-oriented qualification authority is the [Program 7
 Qualification Protocol](program_7_qualification_protocol.md). All package
@@ -39,11 +45,11 @@ dark/light token posture, state/topology fixtures, graph omission, and visual
 human-review evidence. A concept pixel or generated reference never overrides
 the governing visual foundation.
 
-The original planning tree was accepted, committed, and synchronized at
-`994e558d`. This worktree is now intentionally dirty only for the authorized
-documentation-hardening amendment and its annotated reference assets. That
-amendment must be reviewed and accepted in a user-created commit before an
-implementation agent edits application or test code.
+The original planning baseline was accepted, committed, and synchronized at
+`994e558d`; its documentation-hardening amendment was accepted, committed, and
+pushed at `d3c41281`. The separately recorded implementation tree currently
+contains only the uncommitted P7-0B authority reconciliation. After its
+user-created checkpoint commit, Wave 1 packages may edit their exclusive files.
 
 ## 2. Program Outcome
 

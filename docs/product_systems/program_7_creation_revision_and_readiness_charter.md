@@ -3,30 +3,36 @@
 ## 1. Status And Authority
 
 - Status: accepted Program 7 planning authority and implementation plan;
-  planning baseline accepted and clean/synced at user commit
-  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening is
-  complete in the working tree and awaits a user commit; implementation
-  remains gated by a separately recorded implementation worktree and package
-- Author decision: Jason, 2026-09-08
+  planning baseline preserved at user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening
+  was accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`;
+  P7-0B is complete and implementation is authorized in the separately
+  recorded worktree below, with Wave 1 next
+- Author decision: Jason, planning 2026-09-08; implementation 2026-09-09
 - Planning worktree: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
-- Current branch: `codex/foundation-audit`
+- Planning branch: `codex/foundation-audit`
+- Implementation worktree: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+- Implementation branch: `codex/program7-implementation`
 - Program 6 closure base: `b6bc85b2cf08d53b5906732e4de030cdb3a7e1b7`
 - Scope of this authorization: complete Program 7 through bounded planning,
   implementation, testing, qualification, and repair packages after the
   planning-commit and implementation-worktree gates are satisfied
 
 The `4f0b` worktree is the canonical planning continuation because it contains
-the exact accepted Program 6 closure. It is intentionally dirty with the
-Program 7 documentation, concept assets, and `Carmilla` source that must be
-reviewed together. This charter does not authorize an agent to change branches,
-commit, push, package, or make a release claim. The planning-commit gate is
+the exact accepted Program 6 closure. Its Program 7 documentation, concept
+assets, and `Carmilla` source were reviewed, committed, and pushed together at
+`d3c41281`; the planning worktree is clean and synchronized. This charter does
+not authorize an agent to change branches, commit, push, package, or make a
+release claim. The planning-commit gate is
 satisfied by Jason's accepted user commit
 `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; it was clean and synchronized
 with `origin/codex/foundation-audit` before this documentation-only hardening
-pass. A separate Program 7 implementation worktree and first package must
-still be recorded in this charter and the current open-work register. The next
-commit is user-created and user-pushed; agents may prepare documentation but
-may not commit, push, or claim an implementation worktree.
+pass. The hardening commit is accepted, clean, and synchronized with
+`origin/codex/foundation-audit`. P7-0B is complete: the separately recorded
+Program 7 implementation worktree and branch above are established, and
+implementation is authorized there. The next work is the first explicitly
+owned Wave 1 package. The next commit is user-created and user-pushed; agents
+may prepare implementation changes but may not commit or push.
 
 The detached `C:\Users\gray2\.codex\worktrees\ecb4\black-skies` checkout is
 not the Program 7 planning or implementation tree. It is older and contains
@@ -104,10 +110,10 @@ owned; Luna agents may not overlap ownership of shared integration surfaces.
 - inspect the target computer before selecting one local model;
 - define the no-AI baseline, model pilot acceptance rubric, and Human Gate 4
   evidence rows; and
-- record a clean Program 7 implementation worktree and first owned package
-  based on the accepted planning commit
-  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; the worktree and package are not
-  yet recorded, and their creation remains user-authorized control work.
+- record the clean Program 7 implementation worktree and branch based on the
+  accepted hardening commit
+  `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; and
+- begin the first explicitly owned Wave 1 package there.
 
 ### P7-A - Finding To Author Resolution
 
@@ -509,11 +515,13 @@ This charter does not claim that:
   active; or
 - Human Gate 4 has begun or passed.
 
-The accepted planning baseline is user commit
-`994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before this
-documentation-only hardening pass. The next minimum execution action is to
-record a separate implementation worktree and explicitly owned package based
-on that commit; the next commit and push remain user-only. The derived
+The accepted planning baseline remains user commit
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
+accepted in clean, pushed commit
+`d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete, the separate
+implementation worktree and branch are recorded above, and the next minimum
+execution action is the first explicitly owned Wave 1 package. The next commit
+and push remain user-only. The derived
 `Carmilla` project and answer key, pilot evidence, and exact Human Gate 4 rows
 remain package-level work. Program 7 surface names remain provisional until
 Jason freezes them later.

@@ -81,13 +81,15 @@ Current status:
   closure commit `b6bc85b2cf08d53b5906732e4de030cdb3a7e1b7`. The accepted planning
   boundary and executable package map are recorded in the charter and
   `program_7_creation_revision_and_readiness_implementation_plan.md`. Jason's
-  accepted planning baseline is user commit
-  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before
-  the now-complete, uncommitted documentation-only hardening pass. No Program 7 code, model
-  installation, provider execution, test, package, or Human Gate 4 claim
-  follows from that authorization. Runtime implementation remains gated on a
-  separately recorded implementation worktree and first owned package; the
-  next commit and push are user-only.
+  accepted planning baseline remains user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
+  accepted, clean, and pushed at
+  `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and Program 7
+  implementation is authorized in the separately recorded worktree
+  `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
+  on `codex/program7-implementation`; Wave 1 is next. No model installation,
+  provider execution, package, or Human Gate 4 claim follows from this
+  authorization, and the next commit and push are user-only.
   The follow-up readiness inventory selected the unchanged 28,199-word
   Project Gutenberg `Carmilla` source for the long-form corpus and installed
   `qwen3:4b` Q4_K_M as the provisional one-model pilot candidate. The source

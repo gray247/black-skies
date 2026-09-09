@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline accepted at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening is complete in the working tree and awaits a user commit; implementation awaits a separately recorded implementation worktree/package
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; Wave 1 is next
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -28,13 +28,16 @@ the manual path.
 The implementation plan fixes non-overlapping Luna-high package ownership,
 dependencies, serial central-host integration, Carmilla derivation, local-model
 qualification, evidence rows, stop conditions, and Human Gate 4 review. User
-commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43` was clean and synchronized
-before this documentation-only hardening pass. The hardening adds a bounded
+commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43` was the clean planning
+baseline before this documentation-only hardening pass. The hardening was
+accepted, clean, and pushed at
+`d3c412816fae98346ca5d4f40cce7ea38d2fe5cc` and adds a bounded
 dossier authority bridge, an independently mandatory no-AI workflow, a
 mandatory local-AI qualification pilot whose admission requires passing
 evidence, an annotated V1-V8 visual handoff, and an explicit no-silent-fallback
-rule. No implementation agent may use the planning tree as a runtime worktree;
-the next commit and push remain user-only.
+rule. P7-0B is complete. No implementation agent may use the planning tree as a
+runtime worktree; Wave 1 proceeds in the separately recorded implementation
+worktree and branch above. The next commit and push remain user-only.
 
 The accepted visual direction places Revision Desk, Story Foundation, Ideas,
 and History beneath `Create / Develop`; retains a quiet contextual Revision
@@ -45,8 +48,9 @@ font or text color token, and the low-contrast pale/light-gray treatment removed
 during Program 6 is a blocking regression if it returns.
 
 No runtime code, model installation, provider execution, runtime or product
-tests, branch change, commit, push, package, Human Gate 4, Program 8, or full
-Program 9 work is claimed by this documentation pass.
+tests, package, Human Gate 4, Program 8, or full Program 9 work is claimed by
+this documentation pass. The implementation branch/worktree is established,
+but Wave 1 runtime work has not started.
 
 Jason's 2026-09-08 follow-up selected a free, legal, human-authored horror book
 for the long-form corpus; authorized read-only computer and local-AI runtime
