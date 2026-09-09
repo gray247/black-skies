@@ -46,10 +46,12 @@ The inventory includes:
   receipt;
 - the Program 6 Batch P6-G final qualification, author acceptance, and closure
   evidence receipt;
-- the accepted Program 7 Creation, Revision, and Readiness Charter and bounded
-  implementation plan, including their canonical planning worktree, Program 6 integration,
-  one-model local-AI pilot, long-form corpus, surface concepts, and contrast
-  non-regression boundary;
+- the accepted Program 7 Creation, Revision, and Readiness Charter, bounded
+  implementation plan, measurable qualification protocol, and annotated visual
+  handoff, including their canonical planning worktree and Program 6 integration,
+  bounded dossier authority bridge, one-model local-AI pilot, long-form corpus,
+  annotated visual handoff, surface concepts, and contrast non-regression
+  boundary;
 - the selected `Carmilla` Program 7 corpus source manifest, including its
   Project Gutenberg provenance, public-domain posture, immutable source hash,
   word count, and not-yet-qualified boundary;
@@ -128,13 +130,20 @@ Program 7 authorization does not retroactively enlarge those receipts.
 
 Program 7 uses Luna-high for bounded implementation and computer-operated test
 packages under stronger coordinator planning, assignment, review, and
-qualification. Central host files remain serially owned. Agents record
+qualification. Central host files remain serially owned. Jason's accepted
+planning baseline is user commit
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before the
+now-complete documentation-only hardening pass. That pass remains uncommitted;
+the next commit and push are user-only. Implementation starts only in a
+separately recorded worktree with explicit package ownership. The complete
+no-AI workflow is mandatory and must
+pass independently. The one-model local-AI pilot is mandatory execution work,
+but admission is conditional on passing its complete evidence matrix; no
+silent local-to-paid or paid-to-local fallback is allowed. Agents record
 objective and UI prechecks as `Pass`, `Fail`, or `Uncertain`; Jason reviews all
 failures, uncertainties, authority-sensitive and genuinely subjective rows,
 plus a bounded deterministic sample of passes. Agent execution is not human
-acceptance. The intentionally dirty planning tree must first become an accepted
-manual planning commit; implementation then starts only in a separately
-recorded worktree with explicit package ownership.
+acceptance.
 
 The post-V1 execution-control plan governs repository reconciliation,
 professionalization, the nine-program order, six human gates, required

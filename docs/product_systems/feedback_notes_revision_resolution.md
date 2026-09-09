@@ -9,10 +9,17 @@
 - Last reviewed: `2026-06-09`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Signal Architecture`, `Companion`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Narrative Insertion / Narrative Assertion`
-- Runtime authority: `future`
+- Runtime authority: `future`; bounded Program 7 bridge only
 - Authority level: `advisory`
 - User-facing: `yes`
 - Hidden/background: `partial`
+
+Program 7 may use this dossier as the bounded durable owner for a revision item
+created from an explicit `Work on this` action. This does not activate the
+dossier generally, transfer manuscript authority, or allow AI to resolve an
+item. The complete review, editing, recheck, and Jason-resolution path must
+remain usable with no AI; any local-AI route is separately qualified, visibly
+admitted only on passing evidence, and never silently replaced by a paid route.
 
 ## 2. Purpose
 

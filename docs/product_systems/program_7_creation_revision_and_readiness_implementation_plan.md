@@ -2,16 +2,18 @@
 
 ## 1. Status And Authority
 
-- Status: `implementation-planned; implementation not started`
+- Status: `planning baseline accepted at 994e558d; documentation-only hardening complete in the working tree and awaiting user commit; implementation not started`
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
 - Planning tree:
   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
 - Planning branch: `codex/foundation-audit`
-- Implementation authority: blocked until the planning state is accepted in a
-  user-created commit and a separate Program 7 implementation worktree is
-  explicitly established.
+- Accepted planning commit:
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`
+- Implementation authority: blocked until this documentation-only hardening
+  state is accepted in a user-created commit and a separate Program 7
+  implementation worktree is explicitly established.
 - Commit and push authority: user only. Agents must not commit or push.
 - Package execution preference: bounded Luna-high agents coordinated and
   reviewed by a stronger primary coordinator.
@@ -22,10 +24,26 @@ review, runtime evidence, and qualification direction into executable package
 authority. It does not itself authorize implementation in the dirty planning
 tree.
 
-The planning tree is intentionally dirty with uncommitted documentation,
-concept images, corpus material, and related planning assets. Those files must
-be reviewed and accepted as one planning baseline before an implementation
-agent edits application or test code.
+The detailed, machine-oriented qualification authority is the [Program 7
+Qualification Protocol](program_7_qualification_protocol.md). All package
+qualification, local-AI admission, no-AI readiness, persistence recovery,
+anchor coordinates, protected-content scans, topology checks, accessibility,
+visual fixtures, packaged-build gates, evidence sampling, wave-commit reruns,
+and family closure or deferral must follow that protocol. Where this plan uses
+less-specific wording, the protocol's measurable gate and stop condition
+controls.
+
+The [Program 7 Visual Handoff And Qualification Contract](program_7_visual_handoff.md)
+controls concept annotations, binding and nonbinding visual regions, canonical
+dark/light token posture, state/topology fixtures, graph omission, and visual
+human-review evidence. A concept pixel or generated reference never overrides
+the governing visual foundation.
+
+The original planning tree was accepted, committed, and synchronized at
+`994e558d`. This worktree is now intentionally dirty only for the authorized
+documentation-hardening amendment and its annotated reference assets. That
+amendment must be reviewed and accepted in a user-created commit before an
+implementation agent edits application or test code.
 
 ## 2. Program Outcome
 
@@ -825,6 +843,8 @@ Exclusive ownership:
 - new `app/tests/e2e/program7-local-ai.spec.ts`
 - new `app/tests/e2e/program7-long-form.spec.ts`
 - Program 7 visual snapshots and diagnostic artifacts
+- new `scripts/program7-evidence-row.schema.json`
+- new `scripts/validate-program7-evidence.mjs`
 - new `docs/product_systems/program_7_evidence_ledger.md`
 - new `docs/product_systems/program_7_closure_report.md`
 - final Program 7 status changes in current authority documents and
@@ -853,11 +873,19 @@ Required workflow evidence:
   behavior; and
 - Carmilla long-form correctness and performance.
 
+The evidence ledger cannot qualify until the exact-commit JSON Schema and
+fail-closed validator required by the qualification protocol pass the complete
+packet, including cross-row uniqueness, commit consistency, artifact existence,
+artifact hashes, human-review constraints, and protected-content rules.
+
 ### Human Gate 4
 
 Human Gate 4 begins only after the first finding-to-resolution workflow is
-mechanically qualified on Carmilla with the full no-AI path and, if admitted,
-the local-AI path.
+mechanically qualified on Carmilla with the full no-AI path and after the
+mandatory RT-2B pilot has executed with every outcome recorded. If RT-2B
+admits local AI, its path must also be mechanically qualified before the gate;
+an unadmitted result remains visibly unavailable and does not invalidate the
+independent no-AI path.
 
 Agents perform exhaustive objective and UI prechecks. Jason reviews:
 

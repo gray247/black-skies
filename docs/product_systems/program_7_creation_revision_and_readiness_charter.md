@@ -3,8 +3,10 @@
 ## 1. Status And Authority
 
 - Status: accepted Program 7 planning authority and implementation plan;
-  awaiting the accepted manual planning commit; implementation remains gated
-  by a separately recorded implementation worktree and package
+  planning baseline accepted and clean/synced at user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening is
+  complete in the working tree and awaits a user commit; implementation
+  remains gated by a separately recorded implementation worktree and package
 - Author decision: Jason, 2026-09-08
 - Planning worktree: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
 - Current branch: `codex/foundation-audit`
@@ -17,10 +19,14 @@ The `4f0b` worktree is the canonical planning continuation because it contains
 the exact accepted Program 6 closure. It is intentionally dirty with the
 Program 7 documentation, concept assets, and `Carmilla` source that must be
 reviewed together. This charter does not authorize an agent to change branches,
-commit, push, package, or make a release claim. Before code begins, Jason must
-accept and manually commit the planning tree, and a separate Program 7
-implementation worktree and first package must be recorded in this charter and
-the current open-work register.
+commit, push, package, or make a release claim. The planning-commit gate is
+satisfied by Jason's accepted user commit
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`; it was clean and synchronized
+with `origin/codex/foundation-audit` before this documentation-only hardening
+pass. A separate Program 7 implementation worktree and first package must
+still be recorded in this charter and the current open-work register. The next
+commit is user-created and user-pushed; agents may prepare documentation but
+may not commit, push, or claim an implementation worktree.
 
 The detached `C:\Users\gray2\.codex\worktrees\ecb4\black-skies` checkout is
 not the Program 7 planning or implementation tree. It is older and contains
@@ -29,6 +35,11 @@ unrelated work that must remain untouched by Program 7.
 The exact package order, ownership, dependencies, evidence contract, and stop
 conditions are recorded in the
 [`Program 7 implementation plan`](program_7_creation_revision_and_readiness_implementation_plan.md).
+Its measurable gates are recorded in the
+[`Program 7 qualification protocol`](program_7_qualification_protocol.md), and
+its visual binding/nonbinding regions, state matrix, and delivered annotated
+references are recorded in the
+[`Program 7 visual handoff`](program_7_visual_handoff.md).
 
 ## 2. Program Promise
 
@@ -62,8 +73,9 @@ reason, owner, and re-entry trigger.
 | AI resolution language | AI may say `appears resolved`; it may never set the item to resolved. |
 | Recurrence | Create a new related issue rather than silently reopening resolved history. |
 | Resolved history | Keep it available and provenance-bearing, but remove it from the ordinary active-work view. |
-| No-AI operation | Manual review, editing, recheck, and resolution remain complete and useful without AI. |
-| Provider direction | Local AI remains a first-class explicit future route. No local-to-paid or paid-to-local fallback may be silent. |
+| No-AI operation | Manual review, editing, recheck, and resolution are mandatory and must independently pass the complete first workflow before any AI result is admitted. |
+| Local-AI qualification | The one-model local-AI qualification pilot is mandatory execution work, but admission is conditional: `qwen3:4b` may enter the product path only after every required pilot row passes. A Jason-recorded limitation blocks admission and names re-entry; a host smoke test is not qualification. |
+| Provider direction | Local AI remains an explicit route. No local-to-paid or paid-to-local fallback, retry, reroute, or substitution may be silent; unavailable local AI must remain visibly unavailable with a manual path. |
 | Long-form corpus | Use the public-domain human-authored Gothic novella `Carmilla` from Project Gutenberg eBook 10007. Preserve the untouched source and license separately from derived test fixtures. |
 | Initial local-model candidate | Use the already present `qwen3:4b` Q4_K_M model as the single provisional pilot candidate. Host execution is proved; product quality, performance, harness, safety, and integration remain subject to measured qualification. |
 | Surface names | `Revision Desk`, `Story Foundation`, `Ideas`, and `History` remain provisional through later design review. |
@@ -92,9 +104,10 @@ owned; Luna agents may not overlap ownership of shared integration surfaces.
 - inspect the target computer before selecting one local model;
 - define the no-AI baseline, model pilot acceptance rubric, and Human Gate 4
   evidence rows; and
-- create a clean Program 7 implementation worktree only after Jason accepts and
-  manually commits the planning tree and the implementation worktree and first
-  package are explicitly recorded.
+- record a clean Program 7 implementation worktree and first owned package
+  based on the accepted planning commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; the worktree and package are not
+  yet recorded, and their creation remains user-authorized control work.
 
 ### P7-A - Finding To Author Resolution
 
@@ -210,12 +223,47 @@ The first admitted tasks are:
    `still appears present` assessment; and
 3. offer bounded premise alternatives after explicit author request.
 
-The pilot must prove visible model identity, local execution, explicit author
+The pilot is mandatory before Human Gate 4; it is not optional merely because
+the no-AI path is shippable. Admission is conditional on measured evidence,
+not on host feasibility or a single successful prompt. Every mandatory pilot
+row must pass for local AI to be admitted. The pilot must prove
+visible model identity (`qwen3:4b`), loopback-local execution, explicit author
 invocation, source-bounded packaging, protected-content enforcement,
-cancellation, failure recovery, honest unavailable state, and no manuscript or
-resolution mutation. No silent paid fallback is permitted. The full provider
-router, multiple-model management, spending, background queues, replacement,
-and production model lifecycle remain Program 9 work.
+cancellation, timeout and failure recovery, honest unavailable state, bounded
+resource/latency behavior, structured harness repeatability, and no manuscript
+or resolution mutation. The pilot must run against both the baseline and
+revised `Carmilla` snapshots and the same task set must also be executable
+manually without AI. A failed, timed-out, cancelled, unavailable, or
+unadmitted local run must stop at a visible state and preserve the manual path;
+no local-to-paid fallback, paid-to-local fallback, retry, or reroute may be
+silent. The full provider router, multiple-model management, spending,
+background queues, replacement, and production model lifecycle remain Program
+9 work.
+
+#### RT-2 admission and qualification contract
+
+The qualification packet must report the exact candidate commit, model tag and
+digest, Ollama version, hardware, corpus snapshot, prompt/task identifier,
+request/response timestamps, cancellation or timeout reason, token and memory
+observations when available, and artifact paths. The following are mandatory
+pilot rows, with no aggregate score allowed to hide a failure:
+
+| Pilot row | Passing evidence required | Admission consequence |
+| --- | --- | --- |
+| Local identity and route | UI and receipt name `qwen3:4b`; route is loopback Ollama; no outbound provider request is observed | Fail blocks admission |
+| Manual parity | The same rewrite, recheck, and premise tasks can be completed with AI disabled and no capability loss in review, editing, recheck, or Jason resolution | Fail blocks the no-AI gate and Human Gate 4; local AI cannot compensate |
+| Protected content | Protected sentinel is absent from model payload, logs, receipts, DOM, IPC traces, temp files, history, and screenshots | Any leak blocks admission and requires incident review |
+| Bounded output | Rewrite stays within the selected passage and requested purpose; no direct mutation, canonization, or resolution transition occurs | Fail blocks admission |
+| Recheck authority | Model emits only advisory `appears resolved` / `still appears present`; only Jason can resolve | Any authority violation blocks admission |
+| Cancellation and timeout | Cancelled and timed-out runs terminate visibly, leave no partial mutation, and return to manual action | Fail blocks admission |
+| Failure and unavailable | Offline, model-missing, malformed, and provider-error states are honest, recoverable, and never silently rerouted | Fail blocks admission |
+| Repeatability and resources | The fixed task set completes in the documented latency/resource envelope on repeated runs, with no unexplained flake | Unresolved flake blocks admission |
+
+Jason may record a bounded limitation only by naming the exact row, evidence,
+impact, and re-entry trigger; that disposition does not count as a passing row
+and does not admit local AI. Until every mandatory row passes, local AI is
+visibly **unadmitted** and the complete no-AI path remains the only accepted
+product route.
 
 #### 2026-09-08 Hardware And Runtime Inventory
 
@@ -355,6 +403,29 @@ exception. Until Jason separately changes the visual authority, the true-black
 manuscript foundation, one-muted-violet accent rule, existing semantic colors,
 and verified contrast requirements govern implementation.
 
+### Annotated visual handoff
+
+The concepts are screenshot/mockup references, not unannotated implementation
+targets. The following numbered callouts are the minimum handoff for any later
+UI package; each must be represented in the package's dark and light
+screenshots and tied to an evidence row:
+
+| Callout | Concept region | Required meaning and state coverage |
+| --- | --- | --- |
+| V1 | `Create / Develop` navigation | Writer-facing navigation only; active, hover, keyboard-focus, collapsed/narrow, and no-project states remain readable. |
+| V2 | Open revision list | Source-linked items show current, potentially outdated, protected, unavailable, resolved-history, empty, and recurrence states without color-only meaning. |
+| V3 | Source/candidate comparison | Source, candidate, manual alternative, provider identity, provenance, and protection are explicit; accept/reject/edit/park remain distinct and disabled reasons are visible. |
+| V4 | Recheck summary and graph | Graph is supporting context only; its lens owner, snapshot/time axis, and decision purpose are named. Empty, loading, failed, stale, and unavailable states are required. |
+| V5 | Jason-only resolution control | `Appears resolved` is advisory; `Only Jason can resolve this` remains adjacent; AI, accepted prose, and recheck never close the item. |
+| V6 | Writing Studio Revision drawer | Manuscript remains primary; `Review concern -> Revise passage -> Recheck` is visible; manual alternative and local-AI-unavailable paths remain available. |
+| V7 | Local-AI disclosure | Model identity, local route, protection status, cancellation, timeout, failure, and no-silent-fallback state are visible; `Local model ready` alone is insufficient. |
+| V8 | Theme and viewport matrix | Capture true-black dark, qualified light, narrow width, 200% zoom, keyboard focus, reduced-motion, and detached-window variants; the bright page and blue action create no new token. |
+
+No graph, label, status, or action may be implemented solely because it appears
+in a concept image. A package is visually incomplete until its screenshot set
+shows the required state transitions, annotations, contrast results, and the
+manual/no-AI alternative.
+
 ## 8. Text Color And Contrast Non-Regression Rule
 
 Program 7 introduces **no new font or text color token**. It must reuse the
@@ -395,6 +466,10 @@ Program 7 evidence must include:
 - long-form performance and correctness evidence against the accepted corpus;
 - dark and light theme contrast, keyboard, zoom, focus, and detached-window
   review; and
+- annotated visual evidence covering callouts V1-V8, including empty,
+  unavailable, stale, failed, cancelled, protected, and no-AI/manual states;
+- unpacked and installed NSIS qualification for the accepted candidate, with
+  the same no-AI and admitted-local-AI claims bound to the exact artifact; and
 - Jason's concrete evidence notes for the Human Gate 4 rows.
 
 Agents perform exhaustive objective and UI prechecks and record one evidence
@@ -409,11 +484,14 @@ bounded deterministic sample of agent passes. Agent execution and an agent's
 product resolution. Jason alone judges usefulness, voice preservation,
 interruption cost, naming, aesthetics, tolerable wait, and actual resolution.
 
-Human Gate 4 occurs after the first complete Program 6 finding through Program
-7 revision and re-evaluation workflow is mechanically qualified, usable on the
-long-form corpus, and reviewed with both no-AI and admitted local-AI paths.
-Passing that gate validates the foundation; it does not silently close the
-remaining Program 7 workflow families.
+Human Gate 4 occurs only after the complete no-AI workflow is independently
+mechanically qualified and human-reviewed, and after the mandatory local-AI
+pilot has executed with every row's outcome recorded. The local-AI route may
+be admitted only when every mandatory row passes; a Jason-recorded limitation
+keeps it unadmitted and does not block the independently accepted no-AI route.
+Host feasibility alone never admits local AI. Passing the gate validates the
+foundation; it does not silently close the remaining Program 7 workflow
+families.
 
 ## 10. Explicit Nonclaims And Next Decisions
 
@@ -431,10 +509,11 @@ This charter does not claim that:
   active; or
 - Human Gate 4 has begun or passed.
 
-The next minimum planning action is to accept and manually commit the reconciled
-Program 7 planning tree. Implementation begins only from a separately recorded
-implementation worktree and explicitly owned package based on that accepted
-planning commit. The derived `Carmilla` project and answer key, exact local-
-model admission rubric, and exact Human Gate 4 evidence rows remain package-
-level work. Program 7 surface names remain provisional until Jason freezes them
-later.
+The accepted planning baseline is user commit
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before this
+documentation-only hardening pass. The next minimum execution action is to
+record a separate implementation worktree and explicitly owned package based
+on that commit; the next commit and push remain user-only. The derived
+`Carmilla` project and answer key, pilot evidence, and exact Human Gate 4 rows
+remain package-level work. Program 7 surface names remain provisional until
+Jason freezes them later.

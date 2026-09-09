@@ -9,10 +9,16 @@
 - Last reviewed: `2026-06-15`
 - Depends on: `Workflow Spine / Author Journey`, `Writing Surface`, `Command Center Surface`, `Companion`, `protected_content_permission_matrix.md`, `truth_and_state_ownership_matrix.md`
 - Feeds into: `Workflow Spine / Author Journey`, `Ideation / Premise Discovery`, `Critique / Evaluation`, `Theme System`, `Continuity`, `Companion`, `LLM Package Construction Architecture`
-- Runtime authority: `future`
+- Runtime authority: `future`; bounded Program 7 Story Foundation bridge only
 - Authority level: `authored truth`
 - User-facing: `yes`
 - Hidden/background: `partial`
+
+Program 7 may expose this dossier through an optional Story Foundation bridge
+for explicit author-stated intent. It remains optional, never a startup or
+writing gate, and does not authorize AI to invent or accept intent. The
+complete no-AI workflow remains mandatory; any local-AI assistance is advisory,
+separately qualified, and never silently routed to a paid provider.
 
 ## 2. Purpose
 

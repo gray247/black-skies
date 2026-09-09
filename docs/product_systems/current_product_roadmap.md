@@ -80,12 +80,14 @@ Current status:
   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`, based on exact Program 6
   closure commit `b6bc85b2cf08d53b5906732e4de030cdb3a7e1b7`. The accepted planning
   boundary and executable package map are recorded in the charter and
-  `program_7_creation_revision_and_readiness_implementation_plan.md`; no Program 7 code,
-  model installation, provider execution, test, commit, push, package, or
-  Human Gate 4 claim follows from that authorization. Jason later explicitly
-  authorized completion of Program 7, but the dirty planning tree is not an
-  implementation base until he accepts and manually commits it and a separate
-  implementation worktree and first owned package are recorded.
+  `program_7_creation_revision_and_readiness_implementation_plan.md`. Jason's
+  accepted planning baseline is user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before
+  the now-complete, uncommitted documentation-only hardening pass. No Program 7 code, model
+  installation, provider execution, test, package, or Human Gate 4 claim
+  follows from that authorization. Runtime implementation remains gated on a
+  separately recorded implementation worktree and first owned package; the
+  next commit and push are user-only.
   The follow-up readiness inventory selected the unchanged 28,199-word
   Project Gutenberg `Carmilla` source for the long-form corpus and installed
   `qwen3:4b` Q4_K_M as the provisional one-model pilot candidate. The source
@@ -97,7 +99,10 @@ Current status:
   GUI logs show a startup race rather than a demonstrated Ollama ACL or model-
   store defect. Host feasibility is proved; quality, latency, resources,
   cancellation, timeout, structured harness behavior, protection enforcement,
-  and Black Skies integration remain unqualified.
+  and Black Skies integration remain unqualified. The complete no-AI workflow
+  is mandatory and must pass independently; the one-model local-AI pilot is
+  mandatory execution work but admission is conditional on passing its complete
+  evidence matrix. No local-to-paid or paid-to-local fallback may be silent.
 - Repository Control Point 0 is closed on `codex/foundation-audit`; Control
   Point 1 open-work, architecture, and test-strength batches are complete. The
   Visual Design Foundation was approved by Jason as written on 2026-08-10

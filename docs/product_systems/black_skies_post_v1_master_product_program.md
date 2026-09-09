@@ -48,12 +48,15 @@ intentionally protected or quarantined; their retention does not reopen the
 cleanup wave. Program 6 is closed after P6-G exact qualification and Jason's
 acceptance. Program 7 is the current planning and next implementation program;
 its accepted charter begins with the Program 6 finding-to-author-resolution
-workflow and includes the bounded Readiness Track. The planning tree remains
-dirty until Jason accepts and manually commits it. Runtime implementation must
-begin in a separately recorded Program 7 implementation worktree with explicit
-package ownership. No earlier capability claim is expanded by this status
-reconciliation. The dated program sections below preserve historical
-chronology only where their earlier sequencing was true.
+workflow and includes the bounded Readiness Track. Jason accepted and manually
+committed the planning baseline at
+`994e558d7ede9d9dde4df1a4e268d91be20ebd43`; it was clean and synchronized
+before the now-complete, uncommitted documentation-only hardening pass. Runtime implementation
+must begin in a separately recorded Program 7 implementation worktree with
+explicit package ownership. The next commit and push remain user-only. No
+earlier capability claim is expanded by this status reconciliation. The dated
+program sections below preserve historical chronology only where their earlier
+sequencing was true.
 
 ## 2. Executive Decision
 
@@ -511,7 +514,7 @@ dashboard tile merely because a dossier exists.
 
 ### Program 7 - Creation, Revision, And Story Development
 
-Status: `AUTHORIZED; IMPLEMENTATION PLANNED; AWAITING USER-CREATED PLANNING COMMIT AND SEPARATE IMPLEMENTATION WORKTREE`
+Status: `AUTHORIZED; IMPLEMENTATION PLANNED; DOCUMENTATION HARDENING COMPLETE IN THE WORKING TREE; AWAITING USER COMMIT AND SEPARATE IMPLEMENTATION WORKTREE`
 
 Goal: support discovery and deliberate revision without taking authorship.
 
@@ -539,9 +542,13 @@ Accepted Program 7 readiness amendment, 2026-09-08:
 - the readiness work may pull forward only the minimum integration and evidence
   needed to prove Program 7; it does not activate the full Program 8 knowledge
   systems or the full Program 9 provider and operational platform;
-- no-AI review, editing, recheck, and resolution remain first-class;
-- local AI is preserved as an explicit first-class route, with no silent paid
-  fallback and no AI authority to accept prose or resolve revision work; and
+- no-AI review, editing, recheck, and resolution are mandatory and must pass
+  independently before any AI route is admitted;
+- the one-model local-AI qualification pilot is mandatory execution work, but
+  admission is conditional on passing the complete evidence matrix; and
+- local AI is preserved as an explicit route, with no silent local-to-paid or
+  paid-to-local fallback and no AI authority to accept prose or resolve
+  revision work; and
 - Program 7 adds no new font or text color token and may not restore the
   rejected low-contrast light-gray treatment.
 - bounded implementation and computer-operated evidence packages prefer
@@ -552,10 +559,17 @@ Accepted Program 7 readiness amendment, 2026-09-08:
   authority-sensitive decision, plus a bounded sample of passes. Agent
   execution is not human acceptance.
 
-The complete planning boundary, worktree, surface direction, concept images,
-evidence requirements, package ownership, and nonclaims are recorded in the
+The complete planning boundary, worktree, annotated visual handoff, surface
+direction, concept images, evidence requirements, package ownership, and
+nonclaims are recorded in the
 [`Program 7 charter`](program_7_creation_revision_and_readiness_charter.md) and
 [`Program 7 implementation plan`](program_7_creation_revision_and_readiness_implementation_plan.md).
+The [qualification protocol](program_7_qualification_protocol.md) and
+[visual handoff](program_7_visual_handoff.md) control measurable evidence and
+annotated concept interpretation.
+The [qualification protocol](program_7_qualification_protocol.md) and
+[visual handoff](program_7_visual_handoff.md) control measurable evidence and
+annotated concept interpretation.
 
 ### Program 8 - Knowledge, Organization, And Interchange
 
@@ -747,9 +761,11 @@ A workflow program is complete only when:
 
 The current next-action sequence is:
 
-1. review and manually commit the intentionally dirty Program 7 planning tree;
+1. record this completed documentation-only hardening pass in a user-created
+   commit based on accepted, clean, synchronized planning baseline
+   `994e558d7ede9d9dde4df1a4e268d91be20ebd43`;
 2. record a separate Program 7 implementation worktree based on that accepted
-   planning commit; and
+   hardening commit; and
 3. begin the first explicitly owned, non-overlapping Program 7 package with the
    finding-to-author-resolution contract and Readiness Track boundaries intact.
 

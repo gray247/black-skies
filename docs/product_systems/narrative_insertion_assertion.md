@@ -9,9 +9,16 @@
 - Last reviewed: `2026-06-08`
 - Depends on: `Writing Surface`, `Command Center Surface`, `Prose / Scene Projection`
 - Feeds into: `Story Unit`, `Outline`, `Relationship Map`, `Continuity`, `Critique`, `Memory Lab`, `Prose / Scene Projection`
-- Runtime authority: `future`
+- Runtime authority: `future`; bounded Program 7 promotion bridge only
 - User-facing: `partial`
 - Hidden/background: `partial`
+
+Program 7 may route an explicitly accepted candidate through this dossier's
+existing insertion/assertion owner, but this bridge does not create a new truth
+owner or activate the dossier generally. No AI result, recheck, or accepted
+candidate may mutate narrative truth without the author's explicit action.
+The manual/no-AI path remains mandatory; local AI is admitted only after its
+separate qualification evidence passes, with no silent fallback to a paid route.
 
 ## 2. Purpose
 

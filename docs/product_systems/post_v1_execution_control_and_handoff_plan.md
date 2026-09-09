@@ -4,8 +4,8 @@
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 PLANNING TREE DIRTY`
-- Next implementation control point: `ACCEPT AND MANUALLY COMMIT PROGRAM 7 PLANNING; THEN BEGIN AN EXPLICITLY OWNED PACKAGE IN A SEPARATELY RECORDED IMPLEMENTATION WORKTREE`
+- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 PLANNING BASELINE ACCEPTED AT 994E558D; DOCUMENTATION-ONLY HARDENING COMPLETE IN THE WORKING TREE AND AWAITING USER COMMIT`
+- Next implementation control point: `RECORD A SEPARATE PROGRAM 7 IMPLEMENTATION WORKTREE AND FIRST OWNED PACKAGE; NEXT COMMIT/PUSH IS USER-ONLY`
 - Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
 
 This plan translates the product direction in
@@ -582,25 +582,40 @@ The exact package ownership and sequencing are defined in the
 - a versioned 20,000 to 30,000 word human-authored evidence project with known
   concerns, protected material, and expected currentness transitions.
 
+The [Program 7 qualification protocol](program_7_qualification_protocol.md)
+controls measurable no-AI, local-AI, recovery, protection, accessibility,
+performance, evidence, and packaged gates. The
+[Program 7 visual handoff](program_7_visual_handoff.md) controls annotated
+concept interpretation and canonical dark/light token posture.
+
 This pull-forward is an integration dependency, not authority to activate the
-whole of Programs 8 or 9. Program 7 remains fully useful without AI. No AI may
-accept text or close revision work, and no silent provider fallback is allowed.
+whole of Programs 8 or 9. The complete no-AI review, editing, recheck, and
+Jason-resolution path is mandatory and must pass independently. A one-model
+local-AI qualification pilot is also mandatory execution work, but local AI is
+admitted only after every row in its complete evidence matrix passes; a Jason
+recorded bounded limitation blocks admission and names re-entry. Host
+feasibility alone is insufficient. No AI may accept
+text or close revision work, and no local-to-paid or paid-to-local fallback,
+retry, or reroute may be silent. The manual path remains available whenever
+local AI is unavailable, cancelled, failed, timed out, or unadmitted.
 Program 7 UI work adds no new font or text color token; recurrence of the
 rejected low-contrast light-gray treatment is a blocking regression.
-Its concept images are directional composition evidence only. Their bright
-page and blue-action treatments grant no exception to the existing manuscript,
-palette, or contrast authority.
+Its concept images are directional composition evidence only; the charter's
+annotated V1-V8 visual handoff and state matrix govern later screenshots and
+review. Their bright page and blue-action treatments grant no exception to the
+existing manuscript, palette, or contrast authority.
 
 ### Human Gate 4 — Intelligence And Creation
 
 Confirm that the first complete story-intelligence and creation or revision
 workflows are useful, understandable, source-linked, and visibly advisory.
-For the accepted Program 7 entry path, the gate also requires the long-form
-corpus, both no-AI and admitted local-AI evidence, saved-source currentness,
-protected-content behavior, dark/light contrast, and Jason's exclusive
-resolution decision. Passing this first gate validates the Program 7
-foundation; it does not silently close the remaining Program 7 workflow
-families.
+For the accepted Program 7 entry path, the gate requires the long-form corpus,
+an independently qualified complete no-AI workflow, the mandatory local-AI
+pilot with admission only on passing evidence, saved-source currentness,
+protected-content behavior, dark/light contrast, annotated visual states,
+unpacked and installed qualification, and Jason's exclusive resolution
+decision. Passing this first gate validates the Program 7 foundation; it does
+not silently close the remaining Program 7 workflow families.
 
 Agents perform exhaustive objective and UI prechecks and record `Pass`, `Fail`,
 or `Uncertain` evidence bound to the exact candidate. Jason reviews every
@@ -766,7 +781,9 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
 
-1. review and manually commit the intentionally dirty Program 7 planning tree;
+1. record the accepted planning baseline as user commit
+   `994e558d7ede9d9dde4df1a4e268d91be20ebd43` (clean and synchronized before
+   this documentation-only hardening pass);
 2. record a separate Program 7 implementation worktree based on that accepted
    planning commit; and
 3. begin the first explicitly owned, non-overlapping Program 7 package under
@@ -775,8 +792,9 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 
 No broad cleanup, second provider, generic chat, or full Program 8/9 activation
 enters this sequence. The one-model local pilot is limited to the charter's
-explicit Program 7 tasks. A new blocker must be recorded and resolved at its
-owning boundary rather than silently widening the package.
+explicit Program 7 tasks and may not silently substitute a paid route. The
+next commit and push are user-only. A new blocker must be recorded and resolved
+at its owning boundary rather than silently widening the package.
 
 ## 15. Handoff Completion Checklist
 

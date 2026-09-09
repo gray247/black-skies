@@ -163,7 +163,11 @@ tmp/pytest-of-*/
 *.jpeg
 *.gif
 !docs/product_systems/program_7_assets/program_7_revision_desk_concept.png
+!docs/product_systems/program_7_assets/program_7_revision_desk_annotated.png
+!docs/product_systems/program_7_assets/program_7_revision_desk_dark_light_reference.png
 !docs/product_systems/program_7_assets/program_7_writing_studio_revision_concept.png
+!docs/product_systems/program_7_assets/program_7_writing_studio_revision_annotated.png
+!docs/product_systems/program_7_assets/program_7_writing_studio_dark_light_reference.png
 
 # -------------------------
 # KEEP THESE (DO NOT IGNORE)

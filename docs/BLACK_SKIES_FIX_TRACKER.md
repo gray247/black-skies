@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 completion authorized, authority reconciliation and bounded implementation planning complete on an intentionally dirty planning tree; implementation awaits the accepted manual planning commit and separately recorded implementation worktree/package
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline accepted at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening is complete in the working tree and awaits a user commit; implementation awaits a separately recorded implementation worktree/package
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -18,16 +18,23 @@ checkout remains outside Program 7.
 The charter defines the full Program 7 workflow envelope and adds a Readiness
 Track covering bounded Program 6 integration and maturity repair, a one-model
 local-AI pilot, and a versioned 20,000 to 30,000 word human-authored evidence
-corpus. It preserves manual no-AI operation, Jason-only resolution, advisory
+corpus. It preserves mandatory manual no-AI operation, Jason-only resolution, advisory
 `appears resolved` model language, exact-passage plus unit anchoring,
 potentially-outdated source handling, related-new-issue recurrence, and quiet
-resolved history.
+resolved history. No local-to-paid or paid-to-local fallback may be silent; an
+unavailable, failed, cancelled, timed-out, or unadmitted local run must retain
+the manual path.
 
-The implementation plan now fixes non-overlapping Luna-high package ownership,
+The implementation plan fixes non-overlapping Luna-high package ownership,
 dependencies, serial central-host integration, Carmilla derivation, local-model
-qualification, evidence rows, stop conditions, and Human Gate 4 review. The
-planning baseline is ready for Jason's manual commit; no implementation agent
-may use this dirty planning tree as its runtime worktree.
+qualification, evidence rows, stop conditions, and Human Gate 4 review. User
+commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43` was clean and synchronized
+before this documentation-only hardening pass. The hardening adds a bounded
+dossier authority bridge, an independently mandatory no-AI workflow, a
+mandatory local-AI qualification pilot whose admission requires passing
+evidence, an annotated V1-V8 visual handoff, and an explicit no-silent-fallback
+rule. No implementation agent may use the planning tree as a runtime worktree;
+the next commit and push remain user-only.
 
 The accepted visual direction places Revision Desk, Story Foundation, Ideas,
 and History beneath `Create / Develop`; retains a quiet contextual Revision
@@ -64,7 +71,9 @@ successful `show` for `qwen3:4b` and `qwen3:8b`, and an exact `OK` response from
 loopback-only binding. The earlier access denial occurred only in the
 restricted `jasongray\codexsandboxoffline` shell; historical GUI logs show a
 listener-readiness race, not a demonstrated Ollama ACL or model-store defect.
-Host feasibility is proved. Quality, latency, memory/resource behavior,
+Host feasibility is proved. The local-AI pilot is mandatory to execute, but
+admission is conditional on its complete evidence matrix. Quality, latency,
+memory/resource behavior,
 cancellation, timeout handling, structured harness behavior, protection
 enforcement, and Black Skies integration remain unqualified.
 

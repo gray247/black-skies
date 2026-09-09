@@ -9,10 +9,17 @@
 - Last reviewed: `2026-06-23`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Writing Surface`, `Model Routing And Budget Architecture`, `LLM Package Construction Architecture`
 - Feeds into: `Writing Surface`, `Command Center Surface`, `Feedback Notes / Revision Resolution`
-- Runtime authority: `future`
+- Runtime authority: `future`; bounded Program 7 rewrite bridge only
 - Authority level: `advisory`
 - User-facing: `partial`
 - Hidden/background: `partial`
+
+Program 7 may expose a bounded rewrite candidate path for an explicitly
+selected passage, while preserving this dossier's advisory authority. The
+manual/no-AI path must independently complete review, editing, recheck, and
+resolution; local AI is mandatory to qualify as a pilot but is admitted only on
+passing evidence. No generated output may mutate prose or resolve revision
+work, and no local-to-paid fallback may be silent.
 
 ## 2. Purpose
 

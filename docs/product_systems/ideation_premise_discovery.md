@@ -13,10 +13,17 @@
 - Feeds into: `Author Intent / Story Setup`, `Outline`, `Story Unit`,
   `Narrative Insertion / Narrative Assertion`, `Character Cards`,
   `Lore Cards`, `Feedback Notes / Revision Resolution`, `Memory Lab`
-- Runtime authority: `future`
+- Runtime authority: `future`; bounded Program 7 ideation bridge only
 - Authority level: `derived`
 - User-facing: `yes`
 - Hidden/background: `partial`
+
+Program 7 may expose this dossier through an explicit author-invoked Ideas
+bridge for manual capture, comparison, and reviewed promotion. The bridge does
+not activate the broader dossier, promote exploration automatically, or create
+a new truth owner. No-AI operation is mandatory; local-AI alternatives remain
+advisory and are admitted only after a passing pilot, with no silent provider
+fallback.
 
 ## 2. Purpose
 

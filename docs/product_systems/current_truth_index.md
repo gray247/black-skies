@@ -52,14 +52,16 @@ It does not finalize the entire product vision.
   2026-09-08. It and the bounded implementation plan are the current Program 7 planning
   authority for the finding-to-resolution first workflow, Program 6
   integration, one-model local-AI pilot, long-form evidence corpus, planned
-  surfaces, and text-color non-regression rule. Jason later explicitly
-  authorized completion of Program 7, but the intentionally dirty planning tree
-  must first become his accepted manual planning commit; implementation then
-  begins only in a separately recorded implementation worktree and explicitly
-  owned package. The implementation plan fixes the package sequence, exclusive
-  file ownership, qualification evidence, and stop conditions. The planning
-  authority is anchored to the canonical `4f0b`
-  worktree at Program 6 closure base `b6bc85b2`.
+  surfaces, annotated visual handoff, and text-color non-regression rule.
+  Jason's accepted planning baseline is user commit
+  `994e558d7ede9d9dde4df1a4e268d91be20ebd43`, clean and synchronized before
+  the now-complete, uncommitted documentation-only hardening pass.
+  Implementation begins only in a separately recorded implementation
+  worktree and explicitly owned package; the next commit and push are
+  user-only. The implementation plan
+  fixes the package sequence, exclusive file ownership, qualification
+  evidence, and stop conditions. The planning authority is anchored to the
+  canonical `4f0b` worktree at Program 6 closure base `b6bc85b2`.
 - Program 7 readiness planning selected the public-domain-in-the-United-States
   Project Gutenberg `Carmilla` source as the human-authored long-form corpus
   and installed `qwen3:4b` Q4_K_M as the provisional local-model candidate.
@@ -70,7 +72,13 @@ It does not finalize the entire product vision.
   startup race; neither demonstrates an Ollama ACL or model-store defect. Host
   feasibility is proved, while product quality, latency, resource behavior,
   cancellation, timeout, structured harness behavior, protection enforcement,
-  and Black Skies integration remain unqualified.
+  and Black Skies integration remain unqualified. The complete no-AI review,
+  editing, recheck, and Jason-resolution path is mandatory and must pass
+  independently. The one-model local-AI pilot is mandatory execution work,
+  but admission requires every row in its complete evidence matrix to pass; a
+  Jason-recorded bounded limitation blocks admission and names re-entry. Host
+  feasibility is not qualification. No local-to-paid or paid-to-local fallback
+  may be silent, and the manual path must remain available.
 - The Program 7 charter supersedes older suggestions that any Program 7
   workflow may start first or that recurrence may reopen resolved history. The
   first workflow begins with a Program 6 finding; Jason alone resolves its
