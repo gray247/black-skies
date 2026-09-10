@@ -87,12 +87,11 @@ Current status:
   `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and Program 7
   implementation is authorized in the separately recorded worktree
   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
-  on `codex/program7-implementation`; Wave 1 implementation is in progress and
-  its reviewed checkpoint is pending. No model installation,
-  provider execution, package, or Human Gate 4 claim follows from this
-  authorization, and the reviewed checkpoint commit and push may be performed
-  by Jason or an explicitly authorized coordinator within the recorded worktree
-  and branch.
+  on `codex/program7-implementation`; the reviewed Wave 1 implementation
+  checkpoint is clean-qualified and pushed at
+  `034ccf62edc09534f8effd2697dc16f36cdb44b9`. No model installation,
+  provider execution, later-package qualification, or Human Gate 4 claim
+  follows from that checkpoint.
   The follow-up readiness inventory selected the unchanged 28,199-word
   Project Gutenberg `Carmilla` source for the long-form corpus and installed
   `qwen3:4b` Q4_K_M as the provisional one-model pilot candidate. The source

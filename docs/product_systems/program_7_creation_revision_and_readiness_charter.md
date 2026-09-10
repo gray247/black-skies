@@ -6,8 +6,9 @@
   planning baseline preserved at user commit
   `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; documentation-only hardening
   was accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`;
-  P7-0B is complete and implementation is authorized in the separately
-  recorded worktree below, with Wave 1 next
+  P7-0B is complete; implementation is authorized in the separately recorded
+  worktree below; the Wave 1 checkpoint is clean-qualified and pushed at
+  `034ccf62edc09534f8effd2697dc16f36cdb44b9`
 - Author decision: Jason, planning 2026-09-08; implementation 2026-09-09
 - Planning worktree: `C:\Users\gray2\.codex\worktrees\4f0b\black-skies`
 - Planning branch: `codex/foundation-audit`
@@ -22,17 +23,18 @@ The `4f0b` worktree is the canonical planning continuation because it contains
 the exact accepted Program 6 closure. Its Program 7 documentation, concept
 assets, and `Carmilla` source were reviewed, committed, and pushed together at
 `d3c41281`; the planning worktree is clean and synchronized. This charter does
-not authorize an agent to change branches, commit, push, package, or make a
-release claim. The planning-commit gate is
+not authorize package or release claims. Branch, commit, and push actions
+remain governed by the active worktree instructions and explicit author or
+coordinator authority. The planning-commit gate is
 satisfied by Jason's accepted user commit
 `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; it was clean and synchronized
 with `origin/codex/foundation-audit` before this documentation-only hardening
 pass. The hardening commit is accepted, clean, and synchronized with
 `origin/codex/foundation-audit`. P7-0B is complete: the separately recorded
 Program 7 implementation worktree and branch above are established, and
-implementation is authorized there. The next work is the first explicitly
-owned Wave 1 package. The next commit is user-created and user-pushed; agents
-may prepare implementation changes but may not commit or push.
+implementation is authorized there. The reviewed Wave 1 checkpoint is clean-
+qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`;
+later packages retain their explicitly owned boundaries.
 
 The detached `C:\Users\gray2\.codex\worktrees\ecb4\black-skies` checkout is
 not the Program 7 planning or implementation tree. It is older and contains
@@ -519,10 +521,8 @@ The accepted planning baseline remains user commit
 `994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
 accepted in clean, pushed commit
 `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete, the separate
-implementation worktree and branch are recorded above, and Wave 1 execution
-is in progress in the first explicitly owned packages. The reviewed
-checkpoint commit and push may be performed by Jason or an explicitly
-authorized coordinator within that worktree and branch. The derived
+implementation worktree and branch are recorded above, and the reviewed Wave
+1 checkpoint is clean-qualified and pushed at `034ccf62`. The derived
 `Carmilla` project and answer key now have deterministic verification; pilot
 evidence and exact Human Gate 4 rows remain package-level work. Program 7 surface
 names remain provisional until

@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; Wave 1 implementation is in progress and awaiting its reviewed checkpoint commit
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; later Program 7 packages and Human Gate 4 remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -43,9 +43,11 @@ that worktree and branch.
 
 ## Program 7 Wave 1 implementation checkpoint — 2026-09-09
 
-The implementation worktree is dirty on `codex/program7-implementation`; no
-checkpoint commit or push has been created. After the bounded adversarial
-hardening pass, current mechanical evidence is 127/127 focused Wave 1 tests,
+The reviewed Wave 1 implementation checkpoint was committed and pushed on
+`codex/program7-implementation` at
+`034ccf62edc09534f8effd2697dc16f36cdb44b9`; its exact precommit and commit
+tree is `636e633953e684fcc4ac5ef74cdacf177de5182a`. The clean exact-commit rerun
+records 127/127 focused Wave 1 tests,
 24/24 related Program 6 regressions, renderer/shared typecheck, main-process
 typecheck through the production build, app lint, corpus verification, and
 `git diff --check` all passing. Corpus verification records
@@ -55,7 +57,7 @@ baseline/revised tree hashes
 `0e79259d772878d6256124b19fab35f778af22f0d3de87234e076ec6f2b06987` /
 `a61cedd0edcb7ce9195d925b9ec6f85a4320c8c2767cad014aa0a8b31bb9d40c`.
 
-The P7-E1 adversarial blockers are mechanically closed in the dirty tree:
+The P7-E1 adversarial blockers are mechanically closed in the clean checkpoint:
 persisted adaptive questions fail closed while valid historical tests survive
 branch archive/restore; copy/merge lineage and source provenance are preserved;
 duplicate generated IDs fail without overwriting prior bytes; protected seeds
@@ -68,8 +70,8 @@ content at production-projection construction, and P7-C1 now recomputes source
 hashes and rejects mismatched source, usage, or receipt bindings before a
 candidate can be saved as current.
 
-The current-build Program 4 Companion precheck is mechanically green on the
-dirty candidate based at
+The current-build Program 4 Companion precheck is mechanically green on clean
+checkpoint `034ccf62edc09534f8effd2697dc16f36cdb44b9`, descended from
 `5d01ec2db5360e24132d8632f98db54cbab4b393`: the production build passed, the
 Companion renderer/controller slice passed 135/135, and the normal-host
 built-Electron Companion journey passed 1/1. The restricted-shell attempt
@@ -77,18 +79,16 @@ reproduced the historical GPU child `-1073741515` startup failure before any
 window; the unchanged test then passed in the normal host context. This is not
 the human `P7-HG4-REG-P4` row, and no screenshot or human acceptance is claimed.
 
-The remaining Wave 1 checkpoint blocker is procedural and reproducibility-
-critical: review the complete intended diff, create the exact checkpoint
-commit, rerun the recorded gate from a clean exact-commit worktree, and bind the
-receipt to the full commit hash. No Human Gate 4, local-AI admission, package
-qualification, or Program 7 closure is claimed.
+The Wave 1 checkpoint blocker is closed. The full intended 93-file tree was
+reviewed, whitespace-normalized, hash-verified, committed, rerun clean, and
+pushed with no untracked or unstaged residue. No Human Gate 4, local-AI
+admission, later-package qualification, or Program 7 closure is claimed.
 
-To minimize repeated work, the coordinator records one consolidated evidence
-summary for the focused suite, related regression, typechecks, lint, build,
-corpus verifier, and diff check. After Jason or an explicitly authorized
-coordinator creates the checkpoint commit, the same commands are rerun once in
-a clean exact-commit worktree and the full commit hash is added to the receipt.
-The real local-model matrix remains deferred to RT-2B.
+The clean checkpoint evidence includes 127/127 Wave 1 tests, 24/24 related
+Program 6 regressions, 135/135 Companion renderer/controller tests, app
+typecheck and lint, current-authority documentation lint, production build,
+corpus verification, diff hygiene, and the app-local built-Electron Companion
+journey at 1/1. The real local-model matrix remains deferred to RT-2B.
 
 The accepted visual direction places Revision Desk, Story Foundation, Ideas,
 and History beneath `Create / Develop`; retains a quiet contextual Revision

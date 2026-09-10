@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `hardening accepted at d3c41281; P7-0B complete; Wave 1 implementation and adversarial hardening mechanically green in the dirty implementation worktree; reviewed checkpoint and clean exact-commit rerun next`
+- Status: `hardening accepted at d3c41281; P7-0B complete; Wave 1 implementation checkpoint clean-qualified and pushed at 034ccf62; later packages and Human Gate 4 remain open`
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
@@ -50,11 +50,11 @@ the governing visual foundation.
 
 The original planning baseline was accepted, committed, and synchronized at
 `994e558d`; its documentation-hardening amendment was accepted, committed, and
-pushed at `d3c41281`. The separately recorded implementation tree currently
-contains the uncommitted Wave 1 implementation and bounded adversarial repairs.
-Its next control point is reviewed checkpoint creation followed by one clean
-exact-commit qualification rerun; later waves do not inherit authority merely
-because the dirty Wave 1 tests pass.
+pushed at `d3c41281`. The separately recorded implementation tree contains the
+reviewed Wave 1 implementation checkpoint, clean-qualified and pushed at
+`034ccf62edc09534f8effd2697dc16f36cdb44b9`. Later waves do not inherit
+authority merely because the Wave 1 checkpoint passed; each retains its named
+package owner and gate.
 
 ## 2. Program Outcome
 
