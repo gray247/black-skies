@@ -309,4 +309,97 @@ describe('Program 6 Story Knowledge workspace', () => {
       band: 'very-high',
     });
   });
+
+  it('routes only timeline return-to-source and keeps bounded row actions local', async () => {
+    const user = userEvent.setup();
+    const onSourceReturn = vi.fn();
+    const onTimelineAction = vi.fn();
+    const sourceRef = {
+      projectId: project.projectId,
+      sourceKind: 'story-unit' as const,
+      sourceId: 'nl_01',
+      sourceRevision: 1,
+      sourceFingerprint: `${project.projectId}:nl_01:1`,
+      unitId: 'nl_01',
+      orderIndex: 1,
+      orderBasis: 'manuscript' as const,
+    };
+    const timelineDocument: StoryIntelligenceDocumentV1 = {
+      ...documentWithSignal('current'),
+      authorRecords: [
+        {
+          recordId: 'timeline-nl-01',
+          projectId: project.projectId,
+          unitId: 'nl_01',
+          evidenceClass: 'planned',
+          label: 'First event',
+          recordKind: 'timeline-event',
+          timelineWorldOrder: 2,
+          timelineTemporalState: 'certain',
+          currentness: 'current',
+          positionRefs: [sourceRef],
+          provenance: {
+            sourceOwner: 'Program 6 test fixture',
+            origin: 'deterministic',
+            visibility: 'included',
+            citationRequired: true,
+            protectionClass: 'deterministic-only',
+          },
+          createdAt: '2026-09-01T12:00:00.000Z',
+          updatedAt: '2026-09-01T12:00:00.000Z',
+        },
+        {
+          recordId: 'timeline-nl-02',
+          projectId: project.projectId,
+          unitId: 'nl_02',
+          evidenceClass: 'planned',
+          label: 'Second event',
+          recordKind: 'timeline-event',
+          timelineWorldOrder: 1,
+          timelineTemporalState: 'certain',
+          currentness: 'current',
+          positionRefs: [
+            {
+              ...sourceRef,
+              sourceId: 'nl_02',
+              unitId: 'nl_02',
+              sourceFingerprint: `${project.projectId}:nl_02:1`,
+              orderIndex: 2,
+            },
+          ],
+          provenance: {
+            sourceOwner: 'Program 6 test fixture',
+            origin: 'deterministic',
+            visibility: 'included',
+            citationRequired: true,
+            protectionClass: 'deterministic-only',
+          },
+          createdAt: '2026-09-01T12:00:00.000Z',
+          updatedAt: '2026-09-01T12:00:00.000Z',
+        },
+      ],
+    };
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={timelineDocument}
+        onSourceReturn={onSourceReturn}
+        onTimelineAction={onTimelineAction}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
+    await user.click(screen.getByRole('button', { name: 'dismiss' }));
+
+    expect(onSourceReturn).not.toHaveBeenCalled();
+    expect(onTimelineAction).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'chronology-review' }),
+      'dismiss',
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(/No source navigation or manuscript change was made/);
+
+    await user.click(screen.getByRole('button', { name: 'return to source' }));
+    expect(onSourceReturn).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'nl_01' }));
+  });
 });

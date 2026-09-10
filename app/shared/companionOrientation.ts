@@ -104,7 +104,7 @@ export function deriveCompanionOrientationResult(
     route: request.route,
     requestLabel: request.route === 'orientation'
       ? 'Where you are in this project'
-      : 'This request is not routed yet',
+      : 'This request is not supported by this Companion slice yet',
     allowedActions: ORIENTATION_ACTIONS,
   } as const;
   const project = snapshot.project;

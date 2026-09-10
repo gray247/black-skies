@@ -1,11 +1,30 @@
 ﻿import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'node:path';
+
+const workspaceIdentity = encodeURIComponent(
+  path.resolve(import.meta.dirname, '..').replaceAll('\\', '/').toLowerCase(),
+);
 
 // Vite configuration for the renderer process. Electron loads assets from the
 // generated dist folder, so keep relative paths intact.
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: import.meta.dirname,
-  plugins: [react()],
+  plugins: [
+    react(),
+    ...(command === 'serve'
+      ? [{
+          name: 'black-skies-workspace-identity',
+          transformIndexHtml: () => ({
+            tags: [{
+              tag: 'meta',
+              attrs: { name: 'black-skies-workspace', content: workspaceIdentity },
+              injectTo: 'head',
+            }],
+          }),
+        }]
+      : []),
+  ],
   base: './',
   test: {
     environment: 'jsdom',
@@ -56,4 +75,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

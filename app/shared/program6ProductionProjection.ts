@@ -31,6 +31,7 @@ function sourceRef(
   generation: number,
   unitId: string,
   order: number,
+  anchor?: Pick<StoryPositionRefV1, 'selectionFingerprint' | 'selectionStart' | 'selectionEnd'>,
 ): StoryPositionRefV1 {
   const bodySha256 = project.unitMetrics?.[unitId]?.bodySha256;
   return {
@@ -40,6 +41,15 @@ function sourceRef(
     sourceRevision: generation,
     sourceFingerprint: bodySha256 ?? `${project.projectId}:${unitId}:${generation}`,
     ...(bodySha256 ? { bodySha256 } : {}),
+    ...(anchor?.selectionFingerprint !== undefined &&
+    anchor.selectionStart !== undefined &&
+    anchor.selectionEnd !== undefined
+      ? {
+          selectionFingerprint: anchor.selectionFingerprint,
+          selectionStart: anchor.selectionStart,
+          selectionEnd: anchor.selectionEnd,
+        }
+      : {}),
     unitId,
     orderIndex: order,
     orderBasis: 'manuscript',
@@ -200,7 +210,29 @@ export function buildProgram6ProductionProjection(input: {
   readonly document: StoryIntelligenceDocumentV1;
 }): Program6ProductionProjectionV1 {
   const { project, generation, document } = input;
-  const refs = project.units.map((unit) => sourceRef(project, generation, unit.id, unit.order));
+  const storedAnchors = document.durableSignals
+    .flatMap((signal) => signal.positionRefs)
+    .concat(document.authorRecords.flatMap((record) => record.positionRefs))
+    .filter(
+      (reference): reference is StoryPositionRefV1 & {
+        readonly selectionFingerprint: string;
+        readonly selectionStart: number;
+        readonly selectionEnd: number;
+      } =>
+        reference.unitId !== undefined &&
+        reference.selectionFingerprint !== undefined &&
+        reference.selectionStart !== undefined &&
+        reference.selectionEnd !== undefined,
+    );
+  const refs = project.units.map((unit) =>
+    sourceRef(
+      project,
+      generation,
+      unit.id,
+      unit.order,
+      storedAnchors.find((reference) => reference.unitId === unit.id),
+    ),
+  );
   const refByUnit = new Map(project.units.map((unit, index) => [unit.id, refs[index]!]));
   const signals = document.durableSignals
     .filter((signal) => signal.projectId === project.projectId)

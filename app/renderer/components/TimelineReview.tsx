@@ -1,10 +1,14 @@
 import { useId } from 'react';
 
-import type { TimelineFindingV1, TimelineRunResultV1 } from '../../shared/timeline';
+import type {
+  TimelineAllowedActionV1,
+  TimelineFindingV1,
+  TimelineRunResultV1,
+} from '../../shared/timeline';
 
 export interface TimelineReviewProps {
   readonly result: TimelineRunResultV1;
-  readonly onAction?: (finding: TimelineFindingV1, action: string) => void;
+  readonly onAction?: (finding: TimelineFindingV1, action: TimelineAllowedActionV1) => void;
   readonly onSourceReturn?: (source: TimelineRunResultV1['chronology'][number]['positionRefs'][number]) => void;
 }
 

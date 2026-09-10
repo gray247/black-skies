@@ -12,6 +12,10 @@ const repoRoot = path.resolve(__dirname, '..');
 
 export const DEV_SERVER_URL = 'http://127.0.0.1:5173/';
 
+export function rendererWorkspaceIdentity(root = repoRoot) {
+  return encodeURIComponent(path.resolve(root).replaceAll('\\', '/').toLowerCase());
+}
+
 function createChild(command, args, options = {}) {
   const child = spawn(command, args, {
     cwd: repoRoot,
@@ -28,8 +32,10 @@ function createChild(command, args, options = {}) {
   return child;
 }
 
-export function rendererResponseLooksHealthy(body) {
-  return body.includes('<title>Black Skies</title>') && body.includes('id="root"');
+export function rendererResponseLooksHealthy(body, workspaceIdentity = rendererWorkspaceIdentity()) {
+  return body.includes('<title>Black Skies</title>') &&
+    body.includes('id="root"') &&
+    body.includes(`name="black-skies-workspace" content="${workspaceIdentity}"`);
 }
 
 export function probeRenderer(url = DEV_SERVER_URL, timeoutMs = 800) {

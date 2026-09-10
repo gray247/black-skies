@@ -596,6 +596,7 @@ export default function Stage19WritingSpineApp({
   const [companionPrompt, setCompanionPrompt] = useState('');
   const [companionResult, setCompanionResult] = useState<CompanionOrientationResultV1 | null>(null);
   const [companionNotice, setCompanionNotice] = useState<string | null>(null);
+  const companionOperationRef = useRef(0);
   const [livingOutline, setLivingOutline] = useState<LivingOutlineSnapshotV1 | null>(null);
   const [livingOutlineLoading, setLivingOutlineLoading] = useState(false);
   const [livingOutlineNotice, setLivingOutlineNotice] = useState<string | null>(null);
@@ -628,6 +629,7 @@ export default function Stage19WritingSpineApp({
     () => critiqueReviewBridge?.readState() ?? null,
   );
   const [sourceReturnRequest, setSourceReturnRequest] = useState<CritiqueReviewSourceReturnMessageV1 | null>(null);
+  const sourceReturnOwnerRef = useRef<'critique' | 'story' | 'outline'>('critique');
   const [storyIntelligenceDocument, setStoryIntelligenceDocument] = useState<StoryIntelligenceDocumentV1 | null>(null);
   const [storyIntelligenceLoading, setStoryIntelligenceLoading] = useState(false);
   const [storyIntelligenceNotice, setStoryIntelligenceNotice] = useState<string | null>(null);
@@ -674,8 +676,9 @@ export default function Stage19WritingSpineApp({
     buffersRef.current = buffers;
   }, [buffers]);
 
-  const companionProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.generation}`;
+  const companionProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.generation}\n${snapshot.activeUnitId ?? ''}`;
   useEffect(() => {
+    companionOperationRef.current += 1;
     setCompanionPrompt('');
     setCompanionResult(null);
     setCompanionNotice(null);
@@ -774,6 +777,7 @@ export default function Stage19WritingSpineApp({
         current.activeUnitId === message.anchor.unitId,
       );
       setNotice(exact ? message.message : `${message.message} Exact selection restoration was not attempted.`);
+      sourceReturnOwnerRef.current = 'critique';
       setSourceReturnRequest(exact ? message : null);
     });
     void critiqueReviewBridge.requestState().then((state) => {
@@ -1922,6 +1926,7 @@ export default function Stage19WritingSpineApp({
       ).body;
       const resolution = await resolveLivingOutlineAnchor(item.sourceAnchor, currentProse);
       if (resolution.status === 'exact' || resolution.status === 'relocated') {
+        sourceReturnOwnerRef.current = 'outline';
         setSourceReturnRequest({
           schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
           requestId: operationId('story-anchor-return'),
@@ -3039,18 +3044,59 @@ export default function Stage19WritingSpineApp({
   }, [surfaceBridge]);
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
-    if (surfaceBridge) {
-      await activateSurface('writing', 'current-window');
+    sourceReturnOwnerRef.current = 'story';
+    setSourceReturnRequest(null);
+    if (!source.unitId) {
+      setNotice(`The source ${source.sourceKind}/${source.sourceId} has no manuscript unit. Writing remains authoritative.`);
+      return;
     }
-    if (source.unitId) {
-      await handleSelectUnit(source.unitId);
+    if (surfaceBridge && !(await activateSurface('writing', 'current-window'))) {
+      setNotice('Writing Studio could not be opened. The Story Knowledge finding remains available in Command Center.');
+      return;
     }
-    if (windowRole === 'command' || !source.unitId) {
-      setNotice(`Source return requested for ${source.sourceKind}/${source.sourceId}. Writing remains authoritative.`);
+    await handleSelectUnit(source.unitId);
+    const current = snapshotRef.current;
+    const currentDraft = current.project?.drafts?.[source.unitId];
+    const currentProse = buffersRef.current[source.unitId] ?? (currentDraft ? splitDraft(currentDraft).body : undefined);
+    if (
+      currentProse !== undefined &&
+      source.selectionStart !== undefined &&
+      source.selectionEnd !== undefined &&
+      source.selectionFingerprint
+    ) {
+      const start = source.selectionStart;
+      const end = source.selectionEnd;
+      const validRange = Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end >= start && end <= currentProse.length;
+      const fingerprint = validRange ? await fingerprintVisibleText(currentProse.slice(start, end)) : null;
+      if (validRange && fingerprint === source.selectionFingerprint) {
+        setSourceReturnRequest({
+          schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+          requestId: operationId('story-source-return'),
+          projectId: current.project?.projectId ?? source.projectId,
+          generation: current.generation,
+          status: 'exact',
+          message: `Returned to ${source.sourceKind}/${source.sourceId} at the exact saved passage.`,
+          anchor: {
+            schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
+            projectId: current.project?.projectId ?? source.projectId,
+            generation: current.generation,
+            unitId: source.unitId,
+            editorRevision: editRevisionRef.current[source.unitId] ?? 0,
+            selectionStart: start,
+            selectionEnd: end,
+            selectionFingerprint: source.selectionFingerprint,
+          },
+        });
+        return;
+      }
+      setNotice('Returned to Writing Studio, but the saved passage changed and was not selected. Black Skies did not guess.');
+      return;
     }
-  }, [activateSurface, handleSelectUnit, surfaceBridge, windowRole]);
+    setNotice(`Returned to ${source.sourceKind}/${source.sourceId}. The source unit is selected; no exact passage was recorded.`);
+  }, [activateSurface, handleSelectUnit, surfaceBridge]);
 
   const submitCompanionOrientation = useCallback(async () => {
+    const operation = ++companionOperationRef.current;
     const current = snapshotRef.current;
     if (!current.project) {
       setCompanionNotice('Open a project before asking for local orientation. Writing remains available.');
@@ -3070,6 +3116,7 @@ export default function Stage19WritingSpineApp({
     setCompanionResult(result);
     setCompanionPrompt('');
     const opened = await activateSurface('command', 'current-window');
+    if (operation !== companionOperationRef.current) return;
     if (!opened) {
       setCompanionResult(null);
       setCompanionNotice('Companion could not open Command Center. The request was not saved and writing remains unchanged.');
@@ -3077,14 +3124,32 @@ export default function Stage19WritingSpineApp({
   }, [activateSurface, companionPrompt, livingOutline]);
 
   const dismissCompanion = useCallback(() => {
+    companionOperationRef.current += 1;
     setCompanionResult(null);
     setCompanionNotice(null);
+    window.requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLButtonElement>('nav[aria-label="Command Center workspaces"] button[aria-current="page"]')
+        ?.focus();
+    });
   }, []);
 
   const returnToCompanionWriting = useCallback(async () => {
-    dismissCompanion();
-    await activateSurface('writing', 'current-window');
-  }, [activateSurface, dismissCompanion]);
+    const operation = ++companionOperationRef.current;
+    const opened = await activateSurface('writing', 'current-window');
+    if (operation !== companionOperationRef.current) return;
+    if (!opened) {
+      setCompanionNotice('Could not return to Writing Studio. Your local orientation remains available in Command Center.');
+      return;
+    }
+    setCompanionResult(null);
+    setCompanionNotice(null);
+  }, [activateSurface]);
+
+  const selectCommandWorkspace = useCallback((workspace: CommandWorkspaceV1) => {
+    if (companionResult) dismissCompanion();
+    setCommandWorkspace(workspace);
+  }, [companionResult, dismissCompanion]);
 
   const autoOpenedReviewRequestRef = useRef<string | null>(null);
   useEffect(() => {
@@ -3105,13 +3170,14 @@ export default function Stage19WritingSpineApp({
 
   const handleSourceSelectionRestoreResult = useCallback((requestId: string, restored: boolean) => {
     if (sourceReturnRequest?.requestId !== requestId) return;
+    const owner = sourceReturnOwnerRef.current;
     setSourceReturnRequest(null);
     if (restored) {
       setNotice(sourceReturnRequest.message);
       return;
     }
     setNotice('Returned to Writing Studio, but the reviewed passage changed and could not be selected exactly.');
-    const reference = activeReviewReference();
+    const reference = owner === 'critique' ? activeReviewReference() : null;
     if (reference && critiqueReviewBridge) {
       void critiqueReviewBridge.markStale(reference).catch(() => undefined);
     }
@@ -3290,7 +3356,7 @@ export default function Stage19WritingSpineApp({
     approveAiCritique,
     stopWaitingForAi,
     dismissAiCritique,
-    selectCommandWorkspace: setCommandWorkspace,
+    selectCommandWorkspace,
     openReviewWorkspace: async () => {
       setCommandWorkspace('review');
       await activateSurface(

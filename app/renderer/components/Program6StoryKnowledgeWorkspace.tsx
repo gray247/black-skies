@@ -4,6 +4,7 @@ import type {
   StoryIntelligenceDocumentV1,
   StoryPositionRefV1,
 } from '../../shared/ipc/storyIntelligence';
+import type { ContinuityAllowedActionV1, ContinuityFindingV1 } from '../../shared/continuity';
 import {
   buildProgram6ProductionProjection,
   type Program6ProductionProjectionV1,
@@ -16,6 +17,7 @@ import {
   buildProgram7SourceEnvelope,
   type Program7SourceEnvelopeV1,
 } from '../../shared/program7SourceBinding';
+import type { TimelineAllowedActionV1, TimelineFindingV1 } from '../../shared/timeline';
 
 export type Program6StoryKnowledgeLens =
   | 'overview'
@@ -68,6 +70,11 @@ export interface Program6StoryKnowledgeWorkspaceProps {
     lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted',
   ) => void;
   readonly onWorkOnThis?: (envelope: Program7SourceEnvelopeV1) => void;
+  readonly onContinuityAction?: (
+    finding: ContinuityFindingV1,
+    action: ContinuityAllowedActionV1,
+  ) => void;
+  readonly onTimelineAction?: (finding: TimelineFindingV1, action: TimelineAllowedActionV1) => void;
 }
 
 const LENSES: readonly { id: Program6StoryKnowledgeLens; label: string }[] = [
@@ -292,11 +299,13 @@ function TimelineLens({
   projection,
   onSourceReturn,
   onAuthorRecordCreate,
+  onAction,
 }: {
   readonly project: ProjectSpineProjectContext;
   readonly projection: Program6ProductionProjectionV1;
   readonly onSourceReturn?: (source: StoryPositionRefV1) => void;
   readonly onAuthorRecordCreate?: (draft: StoryKnowledgeAuthorRecordDraftV1) => void;
+  readonly onAction?: (finding: TimelineFindingV1, action: TimelineAllowedActionV1) => void;
 }): JSX.Element {
   const [unitId, setUnitId] = useState(project.units[0]?.id ?? '');
   const [label, setLabel] = useState('');
@@ -314,7 +323,7 @@ function TimelineLens({
       <TimelineReview
         result={projection.timeline}
         onSourceReturn={onSourceReturn}
-        onAction={(finding) => finding.positionRefs[0] && onSourceReturn?.(finding.positionRefs[0])}
+        onAction={onAction}
       />
       <form
         className="stage19-program6__emotion-form"
@@ -780,6 +789,8 @@ export default function Program6StoryKnowledgeWorkspace({
   onAuthorRecordCreate,
   onSignalDisposition,
   onWorkOnThis,
+  onContinuityAction,
+  onTimelineAction,
 }: Program6StoryKnowledgeWorkspaceProps): JSX.Element {
   const [lens, setLens] = useState<Program6StoryKnowledgeLens>('overview');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
@@ -796,6 +807,28 @@ export default function Program6StoryKnowledgeWorkspace({
       `Signal ${lifecycle} requested. The owning story-intelligence record remains authoritative.`,
     );
     onSignalDisposition?.(signalId, lifecycle);
+  };
+  const continuityAction = (finding: ContinuityFindingV1, action: ContinuityAllowedActionV1) => {
+    if (action === 'return-to-source') {
+      const source = finding.positionRefs[0];
+      if (source) selectSource(source);
+      return;
+    }
+    setActionNotice(
+      `Continuity action ${action.replace(/-/g, ' ')} requested. No source navigation or manuscript change was made.`,
+    );
+    onContinuityAction?.(finding, action);
+  };
+  const timelineAction = (finding: TimelineFindingV1, action: TimelineAllowedActionV1) => {
+    if (action === 'return-to-source') {
+      const source = finding.positionRefs[0];
+      if (source) selectSource(source);
+      return;
+    }
+    setActionNotice(
+      `Timeline action ${action.replace(/-/g, ' ')} requested. No source navigation or manuscript change was made.`,
+    );
+    onTimelineAction?.(finding, action);
   };
   const saveAuthorRecord = (draft: StoryKnowledgeAuthorRecordDraftV1) => {
     const label =
@@ -863,7 +896,7 @@ export default function Program6StoryKnowledgeWorkspace({
         <ContinuityReview
           findings={projection.continuity.findings}
           sourceDrafts={project.drafts}
-          onAction={(finding) => finding.positionRefs[0] && selectSource(finding.positionRefs[0])}
+          onAction={continuityAction}
           onWorkOnThis={onWorkOnThis}
         />
       ) : null}
@@ -872,6 +905,7 @@ export default function Program6StoryKnowledgeWorkspace({
           project={project}
           projection={projection}
           onSourceReturn={selectSource}
+          onAction={timelineAction}
           onAuthorRecordCreate={saveAuthorRecord}
         />
       ) : null}

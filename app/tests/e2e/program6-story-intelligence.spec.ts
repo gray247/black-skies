@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -89,8 +90,21 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
       const record = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as {
         projectId: string;
         revision: number;
+        durableSignals: Array<{ positionRefs: Array<{ selectionStart?: number; selectionEnd?: number; selectionFingerprint?: string; sourceFingerprint: string }> }>;
       };
       expect(record.projectId).toBe(projectId);
+      const anchoredRef = record.durableSignals[0]?.positionRefs[0];
+      expect(anchoredRef?.selectionStart).toEqual(expect.any(Number));
+      expect(anchoredRef?.selectionEnd).toEqual(expect.any(Number));
+      expect(anchoredRef?.selectionFingerprint).toMatch(/^[a-f0-9]{64}$/);
+      expect(anchoredRef?.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
+      const anchoredDraft = await readFile(path.join(projectPath, 'drafts', `${firstUnitId}.md`), 'utf8');
+      const selectedText = anchoredDraft.slice(anchoredRef!.selectionStart!, anchoredRef!.selectionEnd!);
+      expect(createHash('sha256').update(selectedText, 'utf8').digest('hex')).toBe(anchoredRef!.selectionFingerprint);
+      expect(anchoredRef!.selectionEnd).toBeGreaterThan(anchoredRef!.selectionStart!);
+      const frontMatterEnd = anchoredDraft.indexOf('\n---', 3);
+      const durableBody = (frontMatterEnd >= 0 ? anchoredDraft.slice(frontMatterEnd + 4) : anchoredDraft).replace(/^\r?\n/u, '');
+      expect(createHash('sha256').update(durableBody.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8').digest('hex')).toBe(anchoredRef!.sourceFingerprint);
       if (projectId === 'proj_lantern_house_review') {
         await command.getByRole('button', { name: 'Suppress', exact: true }).click();
         await expect(command.locator('p[role="status"]').filter({ hasText: /signal suppressed requested/i })).toBeVisible();

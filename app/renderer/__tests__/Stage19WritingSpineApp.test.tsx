@@ -1601,6 +1601,84 @@ describe('Stage19WritingSpineApp', () => {
     expect(surfaces.current.secondaryStatus).toBe('closed');
   });
 
+  it('clears the temporary Companion result before opening a selected Command workspace', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+    expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Project intelligence is unavailable' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Story Knowledge' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('keeps the newest Companion result when an older surface request finishes late', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    let resolveFirst!: (result: SplitCommandSurfaceHostResult) => void;
+    const firstActivation = new Promise<SplitCommandSurfaceHostResult>((resolve) => {
+      resolveFirst = resolve;
+    });
+    surfaces.activateSurface.mockImplementationOnce(() => firstActivation);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    const input = await screen.findByRole('textbox', { name: 'Ask Black Skies' });
+    await user.type(input, 'Where am I?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    await user.type(screen.getByRole('textbox', { name: 'Ask Black Skies' }), 'How should I fix this chapter?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(await screen.findByRole('heading', { name: 'This request is not supported yet' })).toBeVisible();
+
+    resolveFirst({
+      ok: false,
+      error: { code: 'STALE_GENERATION', message: 'The older request is stale.' },
+      state: surfaces.current,
+    });
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'This request is not supported yet' })).toBeVisible());
+    expect(screen.queryByText('Companion could not open Command Center. The request was not saved and writing remains unchanged.')).not.toBeInTheDocument();
+  });
+
+  it('keeps the Companion result and offers recovery when Return to Writing fails', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+
+    surfaces.activateSurface.mockImplementation(async () => ({
+      ok: false,
+      error: { code: 'STALE_GENERATION', message: 'Writing is temporarily unavailable.' },
+      state: surfaces.current,
+    }));
+    await user.click(screen.getByRole('button', { name: 'Return to Writing' }));
+    expect(screen.getByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Return to Writing' })).toBeVisible();
+    expect(screen.getAllByText('Writing is temporarily unavailable.').some((element) => !element.closest('[hidden]'))).toBe(true);
+  });
+
+  it('clears a Companion result when the active manuscript unit changes', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+
+    await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'Where am I?');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(await screen.findByRole('region', { name: 'Companion orientation result' })).toBeVisible();
+
+    act(() => writing.emit(snapshot('writing', { activeUnitId: 'unit_b' })));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument());
+  });
+
   it('drops a temporary Companion result when the active project generation changes', async () => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'));
@@ -1630,14 +1708,15 @@ describe('Stage19WritingSpineApp', () => {
     await user.type(await screen.findByRole('textbox', { name: 'Ask Black Skies' }), 'How should I fix this chapter?');
     await user.click(screen.getByRole('button', { name: 'Ask' }));
 
-    expect(await screen.findByRole('heading', { name: 'This request is not routed yet' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'This request is not supported yet' })).toBeVisible();
     expect(screen.getByText('This first Companion slice only answers where you are in the current project. No AI or provider was called.')).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
     expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    await user.click(screen.getByRole('button', { name: 'Stay in Command Center' }));
     expect(screen.queryByRole('region', { name: 'Companion orientation result' })).not.toBeInTheDocument();
     expect(screen.getByText('Review unavailable')).toBeVisible();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Review' })).toHaveFocus());
   });
 
   it('keeps Companion hidden in Focus mode and leaves writing usable if Command cannot open', async () => {

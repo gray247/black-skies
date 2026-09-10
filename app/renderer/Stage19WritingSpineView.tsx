@@ -2211,7 +2211,7 @@ function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProp
   const heading = result.status === 'available'
     ? 'Here is where you are'
     : result.status === 'not-routed'
-      ? 'This request is not routed yet'
+      ? 'This request is not supported yet'
       : 'Local orientation is unavailable';
   return (
     <section className="stage19-command-companion" aria-label="Companion orientation result">
@@ -2236,9 +2236,10 @@ function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProp
         </dl>
       ) : null}
       <p className="stage19-command-companion__limitation">{result.limitationText}</p>
+      {model.companionNotice ? <p className="stage19-command-companion__notice" role="status">{model.companionNotice}</p> : null}
       <div className="stage19-command-companion__actions">
         <button type="button" className="is-primary" onClick={() => void actions.returnToCompanionWriting()}>Return to Writing</button>
-        <button type="button" onClick={actions.dismissCompanion}>Dismiss</button>
+        <button type="button" onClick={actions.dismissCompanion}>Stay in Command Center</button>
       </div>
     </section>
   );

@@ -141,6 +141,51 @@ bounded deterministic sample of passes. Agent execution is not human
 acceptance.
 Last Reviewed: 2026-09-09
 
+## Program 7 P4/P5 discovery and grouped repair pass — 2026-09-10
+
+The current-build P4/P5 sweep found twelve bounded issues before repair: seven
+in Companion local orientation and five in Story Knowledge source-linked review.
+The P4 findings were tab/result state conflict, ambiguous Dismiss behavior,
+lost focus after dismissal, destructive Return-to-Writing failure behavior,
+late-request races, stale active-unit identity, and misleading unsupported
+request wording. The P5 findings were unit-only source return, dropped exact
+selection data during projection, action misrouting (Dismiss/intentional/Park
+behaving like source return), missing exact-anchor fixture evidence, and
+missing reopen/repeat coverage.
+
+The grouped repair is implemented in the Program 7 implementation worktree
+and has been exercised in the rebuilt candidate. P4 now clears the temporary
+Companion canvas when a Command tab is selected, calls the stay action
+`Stay in Command Center`, restores tab focus, preserves the result when
+Writing navigation fails, rejects stale Companion completions, and clears
+results when the active unit changes. P5 now routes only Return to Source as
+navigation, preserves bounded non-navigation actions, carries exact selection
+coordinates through the Program 6 projection, validates the selection
+fingerprint before highlighting, and reports stale passages without guessing.
+The deterministic review fixtures now store body hashes and editor-body
+coordinates. The development runner also refuses to reuse a healthy renderer
+from a different checkout by requiring a workspace identity marker.
+
+Focused renderer coverage passed 154/154; app typecheck passed; production
+build passed; dev-runner coverage passed 6/6; and the rebuilt candidate showed
+P4 staying in Command Center and P5 returning to Lantern House's exact
+highlighted passage. These results are coordinator/agent checks, not Jason's
+Human Gate 4 acceptance. The worktree is intentionally still uncommitted at
+this entry pending final review; the bounded repair is now ready for its
+qualification commit.
+
+Remaining bounded follow-up:
+
+- P5 relocation/ambiguity remains a separate contract item: the current
+  `StoryPositionRefV1` carries exact coordinates and a selection hash, but not
+  enough surrounding context to relocate a changed passage safely. Keep this
+  as a future anchor-schema ticket rather than guessing.
+- The manual test path exposed that an undo can restore visible text while the
+  dirty indicator remains set. This needs a separate editor-history fixture;
+  it was not folded into the P4/P5 repair because it changes save semantics.
+- Human Gate 4 still requires the user-facing P4/P5 checks and screenshot
+  receipts after the final commit. No Program 7 closure is claimed here.
+
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.

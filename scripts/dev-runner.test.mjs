@@ -3,7 +3,13 @@ import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
 import test from 'node:test';
 
-import { portOwner, probeRenderer, rendererResponseLooksHealthy, waitForRenderer } from './dev-runner.mjs';
+import {
+  portOwner,
+  probeRenderer,
+  rendererResponseLooksHealthy,
+  rendererWorkspaceIdentity,
+  waitForRenderer,
+} from './dev-runner.mjs';
 import {
   buildElectronEnvironment,
   buildElectronArgs,
@@ -12,8 +18,17 @@ import {
 } from './electron-dev.mjs';
 
 test('recognizes the Black Skies Vite document as healthy', () => {
-  assert.equal(rendererResponseLooksHealthy('<title>Black Skies</title><div id="root"></div>'), true);
-  assert.equal(rendererResponseLooksHealthy('<title>Another app</title><div id="root"></div>'), false);
+  const identity = rendererWorkspaceIdentity();
+  const marker = `<meta name="black-skies-workspace" content="${identity}">`;
+  assert.equal(rendererResponseLooksHealthy(`<title>Black Skies</title>${marker}<div id="root"></div>`), true);
+  assert.equal(rendererResponseLooksHealthy(`<title>Another app</title>${marker}<div id="root"></div>`), false);
+  assert.equal(rendererResponseLooksHealthy('<title>Black Skies</title><div id="root"></div>'), false);
+  assert.equal(
+    rendererResponseLooksHealthy(
+      '<title>Black Skies</title><meta name="black-skies-workspace" content="another-checkout"><div id="root"></div>',
+    ),
+    false,
+  );
 });
 
 test('classifies an unused renderer port as available', async () => {

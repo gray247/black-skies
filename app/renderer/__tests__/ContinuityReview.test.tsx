@@ -36,6 +36,8 @@ describe('ContinuityReview component', () => {
     expect(screen.getByText('Source available')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'return to source' }));
     expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ category: 'drift' }), 'return-to-source');
+    fireEvent.click(screen.getByRole('button', { name: 'dismiss' }));
+    expect(onAction).toHaveBeenLastCalledWith(expect.objectContaining({ category: 'drift' }), 'dismiss');
   });
 
   it('renders an honest empty state and retains non-color, overflow, and reduced-motion styling', () => {

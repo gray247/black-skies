@@ -169,7 +169,31 @@ He opened the door, then placed the bitten apple in Iris's hands as carefully as
   },
 ];
 
-function ref(projectId, unitId, order, sourceKind = 'story-unit', sourceRevision = 1, sourceFingerprint = `${projectId}:${unitId}:fixture`) {
+function draftFor(project, unitId) {
+  const unit = project.units.find(([id]) => id === unitId);
+  if (!unit) throw new Error(`Unknown fixture unit: ${unitId}`);
+  return `---\nid: ${unitId}\ntitle: ${unit[1]}\norder: ${project.units.indexOf(unit) + 1}\nchapter_id: ch_0001\n---\n\n${project.prose[unitId]}\n`;
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8').digest('hex');
+}
+
+function exactSelection(project, unitId, selectedText) {
+  // Stage 19 restores selections against the editor body, not front matter.
+  // The loader preserves the single separator newline after front matter.
+  const source = `\n${project.prose[unitId]}`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const selectionStart = source.indexOf(selectedText);
+  if (selectionStart < 0) throw new Error(`Fixture anchor text not found in ${project.projectId}/${unitId}.`);
+  return {
+    selectionStart,
+    selectionEnd: selectionStart + selectedText.length,
+    selectionFingerprint: sha256(selectedText),
+    bodySha256: sha256(`${project.prose[unitId]}\n`),
+  };
+}
+
+function ref(projectId, unitId, order, sourceKind = 'story-unit', sourceRevision = 1, sourceFingerprint = `${projectId}:${unitId}:fixture`, anchor) {
   return {
     projectId,
     sourceKind,
@@ -179,6 +203,7 @@ function ref(projectId, unitId, order, sourceKind = 'story-unit', sourceRevision
     unitId,
     orderIndex: order,
     orderBasis: sourceKind === 'manuscript' ? 'manuscript' : 'planning',
+    ...(anchor ?? {}),
   };
 }
 
@@ -193,9 +218,7 @@ function provenance(project, protectionClass = 'included', origin = 'author') {
 }
 
 function documentFor(project, sourceRevision = 1) {
-  const sourceFingerprint = (unitId) => createHash('sha256')
-    .update(`\n${project.prose[unitId]}\n`.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8')
-    .digest('hex');
+  const sourceFingerprint = (unitId) => sha256(`${project.prose[unitId]}\n`);
   const emotionRecords = project.emotion.map(([unitId, label, intensity, lane, sourceKind], index) => ({
     recordId: `emotion_${project.directory}_${index + 1}`,
     projectId: project.projectId,
@@ -258,7 +281,16 @@ function documentFor(project, sourceRevision = 1) {
     updatedAt: NOW,
   }));
   const authorRecords = [...emotionRecords, ...timelineRecords, ...pacingRecords, ...pressureRecords];
-  const signalRef = ref(project.projectId, project.units[0][0], 1, 'story-unit', sourceRevision, sourceFingerprint(project.units[0][0]));
+  const signalUnitId = project.units[0][0];
+  const signalRef = ref(
+    project.projectId,
+    signalUnitId,
+    1,
+    'story-unit',
+    sourceRevision,
+    sourceFingerprint(signalUnitId),
+    exactSelection(project, signalUnitId, project.prose[signalUnitId].split(/\s+/u).slice(0, 3).join(' ')),
+  );
   const signal = {
     schemaVersion: 'BlackSkiesStoryIntelligence v1',
     signalId: project.signal.id,
