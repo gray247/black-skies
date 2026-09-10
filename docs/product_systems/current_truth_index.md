@@ -59,15 +59,18 @@ It does not finalize the entire product vision.
   `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and
   implementation is authorized in the separately recorded worktree
   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
-  on `codex/program7-implementation`; Wave 1 is next. The next commit and
-  push are user-only. The implementation plan
+  on `codex/program7-implementation`; Wave 1 implementation is in progress and
+  its reviewed checkpoint is pending. The reviewed checkpoint commit and push
+  may be performed by Jason or an explicitly authorized
+  coordinator within the recorded worktree and branch. The implementation plan
   fixes the package sequence, exclusive file ownership, qualification
   evidence, and stop conditions. The planning authority is anchored to the
   canonical `4f0b` worktree at Program 6 closure base `b6bc85b2`.
 - Program 7 readiness planning selected the public-domain-in-the-United-States
   Project Gutenberg `Carmilla` source as the human-authored long-form corpus
   and installed `qwen3:4b` Q4_K_M as the provisional local-model candidate.
-  The source is immutable and not yet converted into a test project. A later
+  The source is immutable, and derived baseline/revised fixtures plus a
+  deterministic verifier are now present. A later
   read-only host check proved Ollama `0.13.0` healthy on loopback and
   `qwen3:4b` runnable on CPU with an exact `OK` response. The earlier access
   denial was restricted-shell-only, and the historical GUI failure was a

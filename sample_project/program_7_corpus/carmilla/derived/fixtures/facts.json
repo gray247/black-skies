@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "Program7CarmillaFactsFixtureV1",
+  "fixtureId": "continuity-facts-001",
+  "facts": [
+    { "id": "fact-narrator", "statement": "Laura narrates retrospectively.", "required": true },
+    { "id": "fact-home", "statement": "Laura lives with her father at a Styrian schloss.", "required": true },
+    { "id": "fact-identity", "statement": "Carmilla is also identified as Mircalla, Countess Karnstein.", "required": true },
+    { "id": "fact-general", "statement": "General Spielsdorf participates in the later investigation.", "required": true }
+  ]
+}

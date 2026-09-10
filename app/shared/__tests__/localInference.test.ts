@@ -35,6 +35,15 @@ function enabledPolicy() {
 }
 
 describe('Local inference gateway V1', () => {
+  it('returns invalid request for malformed legacy input instead of throwing', async () => {
+    const result = await runLocalInferenceV1(null as never, {
+      policy: enabledPolicy(),
+      endpoint: { origin: 'http://127.0.0.1:11434', modelId: 'local-test' },
+      transport: { request: vi.fn() },
+    });
+    expect(result).toMatchObject({ ok: false, code: 'INVALID_REQUEST' });
+  });
+
   it('refuses disabled policy and non-loopback endpoints before transport', async () => {
     const transport = { request: vi.fn() };
     const disabled = await runLocalInferenceV1(request(), {
@@ -72,14 +81,17 @@ describe('Local inference gateway V1', () => {
   });
 
   it('blocks protected sources and does not retain transport failures or timeouts', async () => {
-    const protectedResult = await runLocalInferenceV1({
-      ...request(),
-      sources: [{ ref, sourceClass: 'protected' }],
-    }, {
-      policy: enabledPolicy(),
-      endpoint: { origin: 'http://127.0.0.1:11434', modelId: 'local-test' },
-      transport: { request: vi.fn() },
-    });
+    const protectedResult = await runLocalInferenceV1(
+      {
+        ...request(),
+        sources: [{ ref, sourceClass: 'protected' }],
+      },
+      {
+        policy: enabledPolicy(),
+        endpoint: { origin: 'http://127.0.0.1:11434', modelId: 'local-test' },
+        transport: { request: vi.fn() },
+      },
+    );
     const failedResult = await runLocalInferenceV1(request(), {
       policy: enabledPolicy(),
       endpoint: { origin: 'http://127.0.0.1:11434', modelId: 'local-test' },

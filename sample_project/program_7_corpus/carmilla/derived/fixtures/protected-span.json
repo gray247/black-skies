@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "Program7CarmillaProtectedSpanFixtureV1",
+  "fixtureId": "protected-span-001",
+  "unitId": "carmilla-chapter-11",
+  "start": 0,
+  "end": 32,
+  "contentSha256": "d6fc2c24044840754ea18fca9680df384e5f562b2a364874c66de900fe363c27",
+  "sentinel": "CARMILLA_PROTECTED_SENTINEL_001",
+  "expected": {
+    "sourceEnvelope": "metadata-only",
+    "protectedTextTransmitted": false,
+    "revisionAllowed": false
+  }
+}

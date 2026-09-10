@@ -23,8 +23,13 @@ performed in the United States.
 
 ## Download Evidence
 
-- File bytes: `181071`
-- SHA-256: `F751453EF6AD9363A7E31F63B8D4EF830C7EA20A2ABA465A59FB6FBEE6BBDDCA`
+- Downloaded CRLF bytes: `181071`
+- Downloaded-byte SHA-256: `F751453EF6AD9363A7E31F63B8D4EF830C7EA20A2ABA465A59FB6FBEE6BBDDCA`
+- Checked-out LF bytes: `177346`
+- Checked-out LF SHA-256: `557B3B2E62B2D919443F7DF979C5BF01EEFD86DDBBE012F276FA03AB06203E94`
+- The two hashes intentionally differ only because Git checkout normalizes the
+  downloaded CRLF representation to LF. The source file is never rewritten by
+  the derived fixture workflow.
 - Human-authored body word count between the Project Gutenberg start and end
   markers: `28199`
 - Structure: prologue plus sixteen chapters
@@ -41,19 +46,26 @@ continuity dependencies, pacing changes, and pressure escalation. Its length
 fits the accepted 20,000 to 30,000 word target without requiring AI-generated
 prose as subjective-quality evidence.
 
-## Current Boundary
+## Derived Qualification Fixtures
 
-This pass downloads and records the original source only. It does not yet:
+The immutable source is now accompanied by separately tracked derived fixtures
+under [`derived/`](derived/). The baseline and revised snapshots are openable
+Black Skies projects with one prologue and sixteen stable chapter unit IDs.
+`corpus-manifest.json` records the source and snapshot hashes; it does not
+replace the source or its license. `answer-key.json` gives each seeded concern
+an objective baseline/revised state and resolving range, including a concrete
+resolved wording change, an intentionally open interpretive concern, a
+metadata-only protected span, an intentionally unresolved concern, and an
+explicit source-drift case. The recurrence fixture requires a distinct related
+ID rather than reopening the resolved concern.
 
-- convert the book into a Black Skies project;
-- create scene or unit boundaries beyond the original chapter structure;
-- seed artificial errors into the original text;
-- create the baseline/revised pair or answer key;
-- mark any source passage protected;
-- run Program 6 or Program 7 analysis;
-- invoke a local or paid model; or
-- claim the corpus is qualification-ready.
+The verifier and focused test load both snapshots through the production
+ProjectSpine project-loader path, then independently check immutable source
+hashes, overlay determinism, protected-span non-disclosure, source drift, and
+fixture completeness. No model execution or literary-quality claim is implied
+by these deterministic fixtures.
 
-Later corpus preparation must keep the original source immutable. Testing
-overlays, known concerns, protected-span cases, and revised variants belong in
-separate derived fixtures with explicit provenance.
+All future corpus work must keep the original source bytes and embedded
+Project Gutenberg license unchanged. Any new overlays, concerns, protected
+spans, or revised variants belong in separate derived fixtures with explicit
+provenance.

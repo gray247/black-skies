@@ -5,8 +5,8 @@
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
 - Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 P7-0B COMPLETE; HARDENING COMMIT D3C41281 ACCEPTED, CLEAN, AND PUSHED; IMPLEMENTATION AUTHORIZED IN THE RECORDED WORKTREE`
-- Next implementation control point: `BEGIN WAVE 1 IN C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation ON codex/program7-implementation; NEXT COMMIT/PUSH IS USER-ONLY`
-- Git authority: `JASON ALONE STAGES, COMMITS, PUSHES, MERGES, AND APPROVES DESTRUCTIVE DISPOSITION`
+- Next implementation control point: `BEGIN WAVE 1 IN C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation ON codex/program7-implementation; REVIEWED CHECKPOINT COMMIT/PUSH MAY BE PERFORMED BY JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR`
+- Git authority: `JASON APPROVES DESTRUCTIVE DISPOSITION; JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR MAY STAGE, COMMIT, AND PUSH WITHIN THE RECORDED WORKTREE AND BRANCH; MERGES REQUIRE EXPLICIT AUTHORIZATION`
 
 This plan translates the product direction in
 [black_skies_post_v1_master_product_program.md](black_skies_post_v1_master_product_program.md)
@@ -795,7 +795,8 @@ checkpoint. They do not become an unrelated permanent audit campaign.
 No broad cleanup, second provider, generic chat, or full Program 8/9 activation
 enters this sequence. The one-model local pilot is limited to the charter's
 explicit Program 7 tasks and may not silently substitute a paid route. The
-next commit and push are user-only. A new blocker must be recorded and resolved
+next commit and push may be performed by Jason or an explicitly authorized
+coordinator within the recorded worktree and branch. A new blocker must be recorded and resolved
 at its owning boundary rather than silently widening the package.
 
 ## 15. Handoff Completion Checklist

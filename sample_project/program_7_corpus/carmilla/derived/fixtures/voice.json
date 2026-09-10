@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "Program7CarmillaVoiceFixtureV1",
+  "fixtureId": "voice-constraints-001",
+  "constraints": [
+    { "id": "voice-first-person", "rule": "Keep Laura's first-person retrospective voice.", "severity": "must-preserve" },
+    { "id": "voice-gothic-restraint", "rule": "Keep Gothic restraint, uncertainty, and sensory atmosphere.", "severity": "must-preserve" },
+    { "id": "voice-period-dialogue", "rule": "Do not modernize period dialogue without author approval.", "severity": "must-preserve" },
+    { "id": "voice-interpretation", "rule": "Interpretive judgments remain advisory and author-owned.", "severity": "must-preserve" }
+  ]
+}

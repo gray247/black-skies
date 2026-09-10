@@ -7,6 +7,7 @@ import {
   defaultStoryIntelligencePolicy,
   deriveStoryPositionCurrentness,
   isDurableSignalLifecycle,
+  isStoryPositionRefV1,
   trimStoryIntelligenceHistory,
   validateStoryIntelligenceDocument,
 } from '../storyIntelligencePolicy';
@@ -75,20 +76,28 @@ describe('story-intelligence policy contracts', () => {
       updatedAt: now.toISOString(),
     };
 
-    expect(validateStoryIntelligenceDocument({
-      ...document,
-      authorRecords: [authorRecord],
-      durableSignals: [durableSignal],
-    }, 'project-a').durableSignals[0]?.confidenceBand).toBe('unknown');
+    expect(
+      validateStoryIntelligenceDocument(
+        {
+          ...document,
+          authorRecords: [authorRecord],
+          durableSignals: [durableSignal],
+        },
+        'project-a',
+      ).durableSignals[0]?.confidenceBand,
+    ).toBe('unknown');
     expect(authorRecord.evidenceClass).not.toBe('inferred');
     expect(durableSignal.evidenceClass).not.toBe('reader-effect-optional');
   });
 
   it('rejects candidate findings from the durable document', () => {
-    const document = createDefaultStoryIntelligenceDocument('project-a', now) as unknown as Record<string, unknown>;
-    expect(() => validateStoryIntelligenceDocument({ ...document, findings: [] }, 'project-a')).toThrow(
-      'document shape is not supported',
-    );
+    const document = createDefaultStoryIntelligenceDocument('project-a', now) as unknown as Record<
+      string,
+      unknown
+    >;
+    expect(() =>
+      validateStoryIntelligenceDocument({ ...document, findings: [] }, 'project-a'),
+    ).toThrow('document shape is not supported');
     expect(isDurableSignalLifecycle('candidate')).toBe(false);
     expect(isDurableSignalLifecycle('accepted')).toBe(true);
   });
@@ -99,7 +108,13 @@ describe('story-intelligence policy contracts', () => {
     expect(canTransitionSignalLifecycle('reviewed', 'converted')).toBe(true);
     expect(canTransitionSignalLifecycle('accepted', 'superseded')).toBe(true);
     expect(canTransitionSignalLifecycle('suppressed', 'accepted')).toBe(true);
-    for (const terminal of ['dismissed', 'converted', 'resolved', 'expired', 'superseded'] as const) {
+    for (const terminal of [
+      'dismissed',
+      'converted',
+      'resolved',
+      'expired',
+      'superseded',
+    ] as const) {
       expect(canTransitionSignalLifecycle(terminal, 'reviewed')).toBe(false);
       expect(canTransitionSignalLifecycle(terminal, terminal)).toBe(false);
     }
@@ -107,18 +122,88 @@ describe('story-intelligence policy contracts', () => {
 
   it('derives currentness from availability, revision, and fingerprint', () => {
     const reference = { sourceRevision: 4, sourceFingerprint: 'fingerprint-4' };
-    expect(deriveStoryPositionCurrentness(reference, { available: true, ...reference })).toBe('current');
-    expect(deriveStoryPositionCurrentness(reference, { available: true, sourceRevision: 5, sourceFingerprint: 'fingerprint-5' })).toBe('stale');
+    expect(deriveStoryPositionCurrentness(reference, { available: true, ...reference })).toBe(
+      'current',
+    );
+    expect(
+      deriveStoryPositionCurrentness(reference, {
+        available: true,
+        sourceRevision: 5,
+        sourceFingerprint: 'fingerprint-5',
+      }),
+    ).toBe('stale');
     expect(deriveStoryPositionCurrentness(reference, { available: false })).toBe('unavailable');
+  });
+
+  it('prefers an unchanged body hash over a changed session generation', () => {
+    const bodySha256 = 'a'.repeat(64);
+    expect(
+      deriveStoryPositionCurrentness(
+        { sourceRevision: 4, sourceFingerprint: 'old', bodySha256 },
+        { available: true, sourceRevision: 5, sourceFingerprint: 'new', bodySha256 },
+      ),
+    ).toBe('current');
+    expect(
+      deriveStoryPositionCurrentness(
+        { sourceRevision: 4, sourceFingerprint: 'old', bodySha256 },
+        {
+          available: true,
+          sourceRevision: 5,
+          sourceFingerprint: 'new',
+          bodySha256: 'b'.repeat(64),
+        },
+      ),
+    ).toBe('stale');
+  });
+
+  it('keeps prior v1 position references compatible while requiring complete exact ranges', () => {
+    const legacy = {
+      projectId: 'project-a',
+      sourceKind: 'story-unit' as const,
+      sourceId: 'unit-a',
+      sourceRevision: 1,
+      sourceFingerprint: 'legacy-fingerprint',
+      unitId: 'unit-a',
+    };
+    expect(isStoryPositionRefV1(legacy, 'project-a')).toBe(true);
+
+    const hash = 'a'.repeat(64);
+    const exact = {
+      ...legacy,
+      selectionStart: 0,
+      selectionEnd: 4,
+      selectionFingerprint: hash,
+      bodySha256: hash,
+    };
+    expect(isStoryPositionRefV1(exact, 'project-a')).toBe(true);
+    expect(isStoryPositionRefV1({ ...exact, selectionStart: -1 }, 'project-a')).toBe(false);
+    expect(isStoryPositionRefV1({ ...exact, selectionStart: 3, selectionEnd: 2 }, 'project-a')).toBe(false);
+    expect(
+      isStoryPositionRefV1({ ...exact, selectionFingerprint: 'not-a-sha256' }, 'project-a'),
+    ).toBe(false);
+    expect(isStoryPositionRefV1({ ...exact, bodySha256: undefined }, 'project-a')).toBe(false);
+    expect(isStoryPositionRefV1({ ...legacy, selectionStart: 0, selectionEnd: 4 }, 'project-a')).toBe(false);
   });
 
   it('enforces protected, deterministic-only, and optional-inference boundaries', () => {
     const policy = defaultStoryIntelligencePolicy(now);
-    expect(checkStoryIntelligencePermission('hidden', 'display-metadata', policy)).toMatchObject({ allowed: true, metadataOnly: true });
-    expect(checkStoryIntelligencePermission('hidden', 'deterministic-analysis', policy)).toMatchObject({ allowed: false, reason: 'excluded-from-analysis' });
-    expect(checkStoryIntelligencePermission('deterministic-only', 'model-package', policy)).toMatchObject({ allowed: false, reason: 'deterministic-only' });
-    expect(checkStoryIntelligencePermission('included', 'model-package', policy)).toMatchObject({ allowed: false, reason: 'policy-disabled' });
-    expect(checkStoryIntelligencePermission('included', 'deterministic-analysis', policy)).toMatchObject({ allowed: true });
+    expect(checkStoryIntelligencePermission('hidden', 'display-metadata', policy)).toMatchObject({
+      allowed: true,
+      metadataOnly: true,
+    });
+    expect(
+      checkStoryIntelligencePermission('hidden', 'deterministic-analysis', policy),
+    ).toMatchObject({ allowed: false, reason: 'excluded-from-analysis' });
+    expect(
+      checkStoryIntelligencePermission('deterministic-only', 'model-package', policy),
+    ).toMatchObject({ allowed: false, reason: 'deterministic-only' });
+    expect(checkStoryIntelligencePermission('included', 'model-package', policy)).toMatchObject({
+      allowed: false,
+      reason: 'policy-disabled',
+    });
+    expect(
+      checkStoryIntelligencePermission('included', 'deterministic-analysis', policy),
+    ).toMatchObject({ allowed: true });
   });
 
   it('trims history to the metadata-only retention limit', () => {

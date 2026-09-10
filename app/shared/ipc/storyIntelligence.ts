@@ -26,7 +26,12 @@ export type SignalLifecycleV1 =
 export type CurrentnessV1 = 'current' | 'stale' | 'unavailable' | 'trimmed';
 export type IntensityBandV1 = 'very-low' | 'low' | 'medium' | 'high' | 'very-high';
 export type EmotionGraphIntensityV1 = IntensityBandV1 | 'unknown';
-export type StoryTimelineTemporalStateV1 = 'certain' | 'uncertain' | 'disputed' | 'simultaneous' | 'unavailable';
+export type StoryTimelineTemporalStateV1 =
+  | 'certain'
+  | 'uncertain'
+  | 'disputed'
+  | 'simultaneous'
+  | 'unavailable';
 export type StoryPacingTempoV1 = 'very-slow' | 'slow' | 'steady' | 'fast' | 'very-fast';
 export type StoryPressureDimensionV1 = 'urgency' | 'consequence' | 'constraint' | 'conflict';
 export type StoryPressureBandV1 = 'none' | 'low' | 'medium' | 'high' | 'very-high' | 'unknown';
@@ -96,13 +101,25 @@ export interface StoryIntelligenceUnitPolicyV1 {
 
 export interface StoryPositionRefV1 {
   readonly projectId: string;
-  readonly sourceKind: 'manuscript' | 'assertion' | 'outline' | 'story-unit' | 'character' | 'lore' | 'author-intent';
+  readonly sourceKind:
+    | 'manuscript'
+    | 'assertion'
+    | 'outline'
+    | 'story-unit'
+    | 'character'
+    | 'lore'
+    | 'author-intent';
   readonly sourceId: string;
   readonly sourceRevision: number;
   readonly sourceFingerprint: string;
   readonly anchorId?: string;
   readonly unitId?: string;
   readonly selectionFingerprint?: string;
+  /** Optional exact UTF-16 code-unit coordinates over the normalized LF body. */
+  readonly selectionStart?: number;
+  readonly selectionEnd?: number;
+  /** SHA-256 of the normalized LF manuscript unit body when known. */
+  readonly bodySha256?: string;
   readonly orderIndex?: number;
   readonly orderBasis?: 'manuscript' | 'story-world' | 'planning' | 'reveal' | 'projection';
 }
@@ -152,7 +169,13 @@ export interface DurableSignalV1 {
   readonly summary: string;
   readonly evidenceSummary: string;
   readonly provenance: StoryIntelligenceProvenanceV1;
-  readonly disposition?: 'dismissed' | 'suppressed' | 'expired' | 'converted' | 'resolved' | 'superseded';
+  readonly disposition?:
+    | 'dismissed'
+    | 'suppressed'
+    | 'expired'
+    | 'converted'
+    | 'resolved'
+    | 'superseded';
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -164,7 +187,12 @@ export interface StoryIntelligenceAuthorRecordV1 {
   readonly evidenceClass: Exclude<EvidenceClassV1, 'inferred'>;
   readonly label: string;
   readonly intensityBand?: IntensityBandV1;
-  readonly recordKind?: 'general' | 'emotion-graph' | 'timeline-event' | 'pacing-intent' | 'pressure-point';
+  readonly recordKind?:
+    | 'general'
+    | 'emotion-graph'
+    | 'timeline-event'
+    | 'pacing-intent'
+    | 'pressure-point';
   readonly emotionLane?: 'planned' | 'observed' | 'reader-effect-optional';
   readonly emotionIntensity?: EmotionGraphIntensityV1;
   readonly subjectLabel?: string;
@@ -231,7 +259,8 @@ export interface WriteStoryIntelligenceRequestV1 extends StoryIntelligenceProjec
   readonly document: StoryIntelligenceDocumentV1;
 }
 
-export interface CheckStoryIntelligencePermissionRequestV1 extends StoryIntelligenceProjectBindingV1 {
+export interface CheckStoryIntelligencePermissionRequestV1
+  extends StoryIntelligenceProjectBindingV1 {
   readonly sourceClass: StoryIntelligenceSourceClassV1;
   readonly operation: StoryIntelligencePermissionOperationV1;
 }
@@ -261,7 +290,9 @@ export interface StoryIntelligenceFailureV1 {
   readonly error: StoryIntelligenceErrorV1;
 }
 
-export type StoryIntelligenceReadResultV1 = StoryIntelligenceReadSuccessV1 | StoryIntelligenceFailureV1;
+export type StoryIntelligenceReadResultV1 =
+  | StoryIntelligenceReadSuccessV1
+  | StoryIntelligenceFailureV1;
 export type StoryIntelligenceWriteResultV1 = StoryIntelligenceReadResultV1;
 
 export interface StoryIntelligencePermissionResultV1 {

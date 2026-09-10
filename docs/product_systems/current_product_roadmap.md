@@ -87,13 +87,18 @@ Current status:
   `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and Program 7
   implementation is authorized in the separately recorded worktree
   `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
-  on `codex/program7-implementation`; Wave 1 is next. No model installation,
+  on `codex/program7-implementation`; Wave 1 implementation is in progress and
+  its reviewed checkpoint is pending. No model installation,
   provider execution, package, or Human Gate 4 claim follows from this
-  authorization, and the next commit and push are user-only.
+  authorization, and the reviewed checkpoint commit and push may be performed
+  by Jason or an explicitly authorized coordinator within the recorded worktree
+  and branch.
   The follow-up readiness inventory selected the unchanged 28,199-word
   Project Gutenberg `Carmilla` source for the long-form corpus and installed
   `qwen3:4b` Q4_K_M as the provisional one-model pilot candidate. The source
-  is downloaded but not converted or qualified. A later read-only recheck
+  is immutable, and derived baseline/revised fixtures plus a deterministic
+  verifier are now present; the local model remains unqualified. A later
+  read-only recheck
   proved Ollama `0.13.0` healthy on loopback, all six installed models visible,
   `show` successful for `qwen3:4b` and `qwen3:8b`, and `qwen3:4b` returning
   exactly `OK` to a bounded prompt while loaded on CPU. The earlier access

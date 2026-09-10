@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "Program7CarmillaCorpusManifestV1",
+  "corpusId": "carmilla-program7",
+  "title": "Carmilla",
+  "source": {
+    "path": "../source/carmilla_project_gutenberg_10007.txt",
+    "licensePath": "../source/carmilla_project_gutenberg_10007.txt",
+    "encoding": "UTF-8",
+    "downloadedLineEnding": "CRLF",
+    "downloadedByteCount": 181071,
+    "downloadedSha256": "f751453ef6ad9363a7e31f63b8d4ef830c7ea20a2aba465a59fb6fbee6bbddca",
+    "checkedOutLineEnding": "LF",
+    "checkedOutByteCount": 177346,
+    "checkedOutSha256": "557b3b2e62b2d919443f7df979c5bf01eefd86ddbbe012f276fa03ab06203e94"
+  },
+  "structure": {
+    "prologueUnitId": "carmilla-prologue",
+    "chapterCount": 16,
+    "unitCount": 17,
+    "bodyWordCount": 28026,
+    "unitOrder": [
+      "carmilla-prologue",
+      "carmilla-chapter-01",
+      "carmilla-chapter-02",
+      "carmilla-chapter-03",
+      "carmilla-chapter-04",
+      "carmilla-chapter-05",
+      "carmilla-chapter-06",
+      "carmilla-chapter-07",
+      "carmilla-chapter-08",
+      "carmilla-chapter-09",
+      "carmilla-chapter-10",
+      "carmilla-chapter-11",
+      "carmilla-chapter-12",
+      "carmilla-chapter-13",
+      "carmilla-chapter-14",
+      "carmilla-chapter-15",
+      "carmilla-chapter-16"
+    ]
+  },
+  "derivedSnapshots": {
+    "baseline": {
+      "path": "baseline",
+      "treeSha256": "0e79259d772878d6256124b19fab35f778af22f0d3de87234e076ec6f2b06987",
+      "proseSha256": "3bc268f6b124402d362bce74d908dc5cae0eff35d5ea58715aa5a36b695d9260"
+    },
+    "revised": {
+      "path": "revised",
+      "treeSha256": "a61cedd0edcb7ce9195d925b9ec6f85a4320c8c2767cad014aa0a8b31bb9d40c",
+      "proseSha256": "e08cc0689adc088cb46a41a7edac9c29570e16f8d4b6841e372dcd75f565770a"
+    }
+  }
+}

@@ -55,9 +55,11 @@ was accepted, clean, and pushed at
 `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete and runtime
 implementation is authorized in the separately recorded Program 7 worktree
 `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation`
-on branch `codex/program7-implementation`, with Wave 1 next. The next commit
-and push remain user-only. No earlier capability claim is expanded by this
-status reconciliation. The dated
+on branch `codex/program7-implementation`; Wave 1 is mechanically green in the
+dirty tree, and the reviewed checkpoint plus clean exact-commit rerun are next.
+The next commit and push may be performed by Jason or an explicitly authorized
+coordinator within the recorded worktree and branch. No earlier capability
+claim is expanded by this status reconciliation. The dated
 program sections below preserve historical chronology only where their earlier
 sequencing was true.
 
@@ -517,7 +519,7 @@ dashboard tile merely because a dossier exists.
 
 ### Program 7 - Creation, Revision, And Story Development
 
-Status: `AUTHORIZED; P7-0B COMPLETE; IMPLEMENTATION WORKTREE ESTABLISHED; WAVE 1 NEXT`
+Status: `AUTHORIZED; P7-0B COMPLETE; WAVE 1 IMPLEMENTATION MECHANICALLY GREEN IN THE DIRTY IMPLEMENTATION WORKTREE; REVIEWED CHECKPOINT AND CLEAN EXACT-COMMIT RERUN NEXT`
 
 Goal: support discovery and deliberate revision without taking authorship.
 
@@ -681,7 +683,8 @@ requires explicit author authority.
 
 - The agent may prepare and verify one bounded batch.
 - Jason reviews the concise evidence summary.
-- Jason alone stages, commits, and pushes.
+- Jason or an explicitly authorized coordinator stages, commits, and pushes
+  within the reviewed bounded batch.
 - A batch is not mixed with unrelated cleanup.
 - A milestone closure receipt is used only for a real milestone or high-risk
   boundary, not every ordinary UI adjustment.

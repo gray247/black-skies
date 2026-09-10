@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "Program7CarmillaSourceDriftFixtureV1",
+  "fixtureId": "source-drift-001",
+  "unitId": "carmilla-chapter-02",
+  "start": 225,
+  "end": 245,
+  "baselineTextSha256": "e747ac5abf7d869300f307003d6456508ac3ac49630e71970e82e417cfad5fa8",
+  "revisedTextSha256": "bf1eb53a6d44a13effec42f84dc3d476f3f57efd3dc2ff28089e4214cfd08d3e",
+  "expectedStatus": "potentially-outdated",
+  "silentReattach": false
+}

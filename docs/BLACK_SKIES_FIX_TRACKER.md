@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; Wave 1 is next
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; Wave 1 implementation is in progress and awaiting its reviewed checkpoint commit
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -37,7 +37,58 @@ mandatory local-AI qualification pilot whose admission requires passing
 evidence, an annotated V1-V8 visual handoff, and an explicit no-silent-fallback
 rule. P7-0B is complete. No implementation agent may use the planning tree as a
 runtime worktree; Wave 1 proceeds in the separately recorded implementation
-worktree and branch above. The next commit and push remain user-only.
+worktree and branch above. The reviewed implementation checkpoint commit and
+push may be performed by Jason or an explicitly authorized coordinator within
+that worktree and branch.
+
+## Program 7 Wave 1 implementation checkpoint — 2026-09-09
+
+The implementation worktree is dirty on `codex/program7-implementation`; no
+checkpoint commit or push has been created. After the bounded adversarial
+hardening pass, current mechanical evidence is 127/127 focused Wave 1 tests,
+24/24 related Program 6 regressions, renderer/shared typecheck, main-process
+typecheck through the production build, app lint, corpus verification, and
+`git diff --check` all passing. Corpus verification records
+17 units, 28,026 words, LF source hash
+`557b3b2e62b2d919443f7df979c5bf01eefd86ddbbe012f276fa03ab06203e94`, and
+baseline/revised tree hashes
+`0e79259d772878d6256124b19fab35f778af22f0d3de87234e076ec6f2b06987` /
+`a61cedd0edcb7ce9195d925b9ec6f85a4320c8c2767cad014aa0a8b31bb9d40c`.
+
+The P7-E1 adversarial blockers are mechanically closed in the dirty tree:
+persisted adaptive questions fail closed while valid historical tests survive
+branch archive/restore; copy/merge lineage and source provenance are preserved;
+duplicate generated IDs fail without overwriting prior bytes; protected seeds
+cannot enter promotion packages or local inference; bounded history refuses to
+discard pinned or lineage-relevant evidence; promotion packages retain exact
+source contributions and a selected-text hash; and saved local-AI alternatives
+retain and revalidate their exact request/receipt binding. The review also found
+and repaired two cross-package blockers: RT-1A now redacts protected signal
+content at production-projection construction, and P7-C1 now recomputes source
+hashes and rejects mismatched source, usage, or receipt bindings before a
+candidate can be saved as current.
+
+The current-build Program 4 Companion precheck is mechanically green on the
+dirty candidate based at
+`5d01ec2db5360e24132d8632f98db54cbab4b393`: the production build passed, the
+Companion renderer/controller slice passed 135/135, and the normal-host
+built-Electron Companion journey passed 1/1. The restricted-shell attempt
+reproduced the historical GPU child `-1073741515` startup failure before any
+window; the unchanged test then passed in the normal host context. This is not
+the human `P7-HG4-REG-P4` row, and no screenshot or human acceptance is claimed.
+
+The remaining Wave 1 checkpoint blocker is procedural and reproducibility-
+critical: review the complete intended diff, create the exact checkpoint
+commit, rerun the recorded gate from a clean exact-commit worktree, and bind the
+receipt to the full commit hash. No Human Gate 4, local-AI admission, package
+qualification, or Program 7 closure is claimed.
+
+To minimize repeated work, the coordinator records one consolidated evidence
+summary for the focused suite, related regression, typechecks, lint, build,
+corpus verifier, and diff check. After Jason or an explicitly authorized
+coordinator creates the checkpoint commit, the same commands are rerun once in
+a clean exact-commit worktree and the full commit hash is added to the receipt.
+The real local-model matrix remains deferred to RT-2B.
 
 The accepted visual direction places Revision Desk, Story Foundation, Ideas,
 and History beneath `Create / Develop`; retains a quiet contextual Revision
@@ -50,7 +101,7 @@ during Program 6 is a blocking regression if it returns.
 No runtime code, model installation, provider execution, runtime or product
 tests, package, Human Gate 4, Program 8, or full Program 9 work is claimed by
 this documentation pass. The implementation branch/worktree is established,
-but Wave 1 runtime work has not started.
+but Wave 1 runtime work had not started at this dated documentation checkpoint.
 
 Jason's 2026-09-08 follow-up selected a free, legal, human-authored horror book
 for the long-form corpus; authorized read-only computer and local-AI runtime
@@ -60,8 +111,8 @@ unchanged from Project Gutenberg eBook 10007. Its `28199`-word body, `181071`
 source bytes, SHA-256
 `F751453EF6AD9363A7E31F63B8D4EF830C7EA20A2ABA465A59FB6FBEE6BBDDCA`,
 public-domain-in-the-United-States source posture, and embedded Project
-Gutenberg license are recorded in the corpus manifest. No derived project,
-answer key, or seeded issue set exists yet.
+Gutenberg license are recorded in the corpus manifest. At this dated planning
+checkpoint, no derived project, answer key, or seeded issue set existed yet.
 
 The authorized hardware inventory found a Dell Inspiron 15 3525 with an AMD
 Ryzen 7 5825U (8 cores / 16 logical processors), 15.4 GB usable RAM, integrated

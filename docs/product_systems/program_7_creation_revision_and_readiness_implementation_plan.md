@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `hardening accepted at d3c41281; P7-0B authority reconciliation complete in the implementation worktree; Wave 1 next`
+- Status: `hardening accepted at d3c41281; P7-0B complete; Wave 1 implementation and adversarial hardening mechanically green in the dirty implementation worktree; reviewed checkpoint and clean exact-commit rerun next`
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
@@ -19,7 +19,10 @@
 - Implementation authority: Jason explicitly authorized Program 7
   implementation from `d3c41281` on 2026-09-09. Work remains limited to the
   explicitly owned package and wave boundaries in this plan.
-- Commit and push authority: user only. Agents must not commit or push.
+- Commit and push authority: Jason may explicitly authorize the coordinator to
+  stage, commit, and push within the recorded Program 7 implementation
+  worktree and branch. Bounded package agents remain non-committing unless
+  separately authorized.
 - Package execution preference: bounded Luna-high agents coordinated and
   reviewed by a stronger primary coordinator.
 - Central integration rule: one serial owner at a time for shared host files.
@@ -48,8 +51,10 @@ the governing visual foundation.
 The original planning baseline was accepted, committed, and synchronized at
 `994e558d`; its documentation-hardening amendment was accepted, committed, and
 pushed at `d3c41281`. The separately recorded implementation tree currently
-contains only the uncommitted P7-0B authority reconciliation. After its
-user-created checkpoint commit, Wave 1 packages may edit their exclusive files.
+contains the uncommitted Wave 1 implementation and bounded adversarial repairs.
+Its next control point is reviewed checkpoint creation followed by one clean
+exact-commit qualification rerun; later waves do not inherit authority merely
+because the dirty Wave 1 tests pass.
 
 ## 2. Program Outcome
 
@@ -187,7 +192,8 @@ Package agents must:
 6. report exact commands and results;
 7. record `Pass`, `Fail`, or `Uncertain` evidence;
 8. stop on an assigned stop condition rather than widening scope; and
-9. leave commits and pushes to the user.
+9. leave commits and pushes to Jason or the explicitly authorized coordinator;
+   package agents remain non-committing unless separately authorized.
 
 Subagents may not overlap on `app/main/main.ts`, either preload,
 `Stage19WritingSpineApp.tsx`, `Stage19WritingSpineView.tsx`,
@@ -203,7 +209,11 @@ before implementation begins.
 
 Exclusive ownership:
 
+- user-authored Program 7 execution exception in `AGENTS.override.md`; agents
+  may record and commit the authorized change but may not independently rewrite
+  repository instructions
 - `docs/product_systems/program_7_creation_revision_and_readiness_charter.md`
+- `docs/product_systems/program_7_qualification_protocol.md`
 - `docs/product_systems/black_skies_post_v1_master_product_program.md`
 - `docs/product_systems/post_v1_execution_control_and_handoff_plan.md`
 - `docs/product_systems/current_product_roadmap.md`
@@ -226,7 +236,8 @@ Required result:
 - record Luna-high as the preferred bounded execution lane;
 - record the AI-led evidence and Jason-review protocol;
 - preserve the visual foundation over concept imagery; and
-- retain the implementation-worktree and user-owned commit gates.
+- retain the implementation-worktree and reviewed coordinator/Jason commit
+  gates.
 
 Stop conditions:
 
@@ -249,6 +260,7 @@ implementation worktree.
 
 Exclusive ownership:
 
+- `sample_project/program_7_corpus/carmilla/README.md`
 - new `sample_project/program_7_corpus/carmilla/derived/**`
 - new `scripts/verify-program7-corpus.mjs`
 - new `app/shared/__tests__/program7Corpus.test.ts`
@@ -910,6 +922,29 @@ aesthetics, acceptable foreground wait, and actual revision resolution.
 Agent execution, screenshots, model output, or automated checks never count as
 human acceptance.
 
+### Pre-Program-7 regression carry-forward
+
+The next Human Gate 4 session includes one bounded current-build regression
+check for each earlier capability that is most valuable to verify in a human
+session. These checks do not requalify the historical exact candidates and do
+not reopen Programs 4-6. They verify that the current Program 7 build has not
+regressed an accepted earlier workflow. Run them before the ordinary Human
+Gate 4 review and record them as `P7-HG4-REG-P4`, `P7-HG4-REG-P5`, and
+`P7-HG4-REG-P6` evidence rows.
+
+| Evidence ID | Capability and human action | Expected result | If passed | If failed or uncertain |
+| --- | --- | --- | --- | --- |
+| `P7-HG4-REG-P4` | In a real project, use the bottom `Companion` bar (`Ask Black Skies`) with a supported orientation question, inspect the Command task-canvas result, then use `Return to Writing` and `Dismiss`. | The result is labelled `Local facts`, reflects the selected project/current unit, states its no-AI limitation, `Return to Writing` returns to that same writing context, and `Dismiss` clears the temporary result. | Record current-build regression pass; do not reopen Program 4 or require local AI. | Record the exact project, action, wrong destination, fabricated fact, missing limitation, screenshot, and a bounded Program 4 regression ticket. |
+| `P7-HG4-REG-P5` | In a substantial manuscript, open one anchored finding, follow its review/source action, navigate to another unit, repeat once, then reopen the relevant review surface and repeat one source jump. | Each jump lands on the expected manuscript unit/passage and remains usable after navigation and reopen. | Record current-build regression pass; do not rewrite the historical Program 5/HG2/HG3 receipts. | Record the expected and observed anchor, project/unit, screenshot, and a bounded Program 5/Human Gate regression ticket. |
+| `P7-HG4-REG-P6` | In Story Intelligence/Emotion, detach the view if available, select a source-linked point, return to Writing, then return to Emotion and select another source. | Writing opens the correct source location while the detached and primary windows retain the correct project and remain usable. | Record current-build regression pass; keep Program 6 closed. | Record both-window state, source point, project, screenshot, and a bounded Program 6 regression ticket. |
+
+These rows are human-regression evidence only. A `Pass` closes the current
+regression concern without altering immutable historical receipts. A `Fail` or
+`Uncertain` result creates one narrowly scoped ticket with the owning program,
+resolution stage, evidence, and reopening trigger before the Human Gate 4
+session proceeds. Do not test Ollama or local-AI quality in these three rows;
+that remains the separate Program 7 RT-2B pilot.
+
 ## 14. Evidence Schema
 
 Every evidence row must contain:
@@ -1026,7 +1061,8 @@ Program 7 may close only when:
   the remaining Program 7 families;
 - final authority documents describe exact current truth;
 - the working tree contains only intended Program 7 changes; and
-- the user performs any desired commit and push.
+- the user or explicitly authorized coordinator performs the reviewed
+  implementation checkpoint commit and push.
 
 Program 7 closure does not authorize Program 8 implementation, Program 9
 provider routing, packaging, release, or fabricated human acceptance.

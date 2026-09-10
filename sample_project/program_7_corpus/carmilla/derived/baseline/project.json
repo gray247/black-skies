@@ -1,0 +1,7 @@
+{
+  "schema_version": "ProjectMetadataSchema v1",
+  "project_id": "proj_carmilla_baseline",
+  "name": "Carmilla Program 7 Baseline",
+  "bootstrap_state": "scaffold_initialized",
+  "bootstrap_template": "program7-carmilla-v1"
+}

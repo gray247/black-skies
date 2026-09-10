@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "Program7CarmillaRevisionOverlayV1",
+  "baseSnapshot": "baseline",
+  "revisedSnapshot": "revised",
+  "operations": [
+    {
+      "unitId": "carmilla-chapter-02",
+      "type": "replace",
+      "from": "sweet summer evening",
+      "to": "still summer evening",
+      "concernId": "concern-concrete-001",
+      "expected": "one bounded deterministic replacement"
+    }
+  ],
+  "deterministic": true,
+  "protectedContentPolicy": "The overlay contains no protected prose."
+}

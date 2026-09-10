@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "Program7CarmillaAnswerKeyV1",
+  "corpusId": "carmilla-program7",
+  "concerns": [
+    {
+      "id": "concern-concrete-001",
+      "kind": "concrete",
+      "unitId": "carmilla-chapter-02",
+      "anchor": { "start": 225, "end": 245 },
+      "baseline": "present",
+      "revised": "resolved",
+      "objective": "The seeded wording change must be detectable without changing the event, speaker, or chronology.",
+      "owner": "revision-owner"
+    },
+    {
+      "id": "concern-interpretive-001",
+      "kind": "interpretive",
+      "unitId": "carmilla-chapter-04",
+      "anchor": { "start": 0, "end": 42 },
+      "baseline": "open",
+      "revised": "open",
+      "objective": "Atmospheric ambiguity remains author-review material; no automatic resolution is valid.",
+      "owner": "author"
+    },
+    {
+      "id": "concern-protected-001",
+      "kind": "protected",
+      "unitId": "carmilla-chapter-11",
+      "anchor": { "start": 0, "end": 32 },
+      "baseline": "metadata-only",
+      "revised": "metadata-only",
+      "objective": "Protected evidence may expose coordinates and a digest, never prose.",
+      "owner": "author"
+    },
+    {
+      "id": "concern-unresolved-001",
+      "kind": "unresolved",
+      "unitId": "carmilla-chapter-04",
+      "anchor": { "start": 70, "end": 108 },
+      "baseline": "open",
+      "revised": "open",
+      "objective": "One seeded concern intentionally remains after the revised snapshot.",
+      "owner": "revision-owner"
+    },
+    {
+      "id": "concern-drift-001",
+      "kind": "source-drift",
+      "unitId": "carmilla-chapter-02",
+      "anchor": { "start": 225, "end": 245 },
+      "baseline": "current",
+      "revised": "potentially-outdated",
+      "objective": "The exact anchor must not silently reattach after the revised wording changes.",
+      "owner": "source-binding"
+    }
+  ],
+  "recurrence": {
+    "resolvedConcernId": "concern-concrete-001",
+    "relatedRecurrenceId": "recurrence-concrete-001",
+    "revisedState": "new-related-item",
+    "rule": "A later reappearance creates a distinct related ID and never reopens the resolved ID."
+  },
+  "continuityFacts": [
+    "Laura is the first-person narrator.",
+    "Laura lives with her father in a Styrian schloss.",
+    "Carmilla uses the identity Mircalla, Countess Karnstein.",
+    "General Spielsdorf is tied to the later investigation and confrontation.",
+    "The narrative moves from childhood fear through recognition and aftermath."
+  ],
+  "voiceConstraints": [
+    "Preserve Laura's first-person retrospective narration.",
+    "Preserve Gothic restraint, uncertainty, and sensory atmosphere.",
+    "Do not modernize dialogue or flatten period diction without author approval.",
+    "Keep speaker identity, chronology, and named relationships intact.",
+    "Treat interpretation as advisory and author-owned."
+  ]
+}

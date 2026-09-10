@@ -1,0 +1,119 @@
+{
+  "schema_version": "OutlineSchema v1",
+  "outline_id": "outline_proj_carmilla_baseline",
+  "project_id": "proj_carmilla_baseline",
+  "acts": [
+    "Act I"
+  ],
+  "chapters": [
+    {
+      "id": "ch_0001",
+      "order": 1,
+      "title": "Carmilla"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "carmilla-prologue",
+      "order": 1,
+      "title": "Prologue",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-01",
+      "order": 2,
+      "title": "Chapter I — An Early Fright",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-02",
+      "order": 3,
+      "title": "Chapter II — A Guest",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-03",
+      "order": 4,
+      "title": "Chapter III — We Compare Notes",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-04",
+      "order": 5,
+      "title": "Chapter IV — Her Habits—A Saunter",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-05",
+      "order": 6,
+      "title": "Chapter V — A Wonderful Likeness",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-06",
+      "order": 7,
+      "title": "Chapter VI — A Very Strange Agony",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-07",
+      "order": 8,
+      "title": "Chapter VII — Descending",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-08",
+      "order": 9,
+      "title": "Chapter VIII — Search",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-09",
+      "order": 10,
+      "title": "Chapter IX — The Doctor",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-10",
+      "order": 11,
+      "title": "Chapter X — Bereaved",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-11",
+      "order": 12,
+      "title": "Chapter XI — The Story",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-12",
+      "order": 13,
+      "title": "Chapter XII — A Petition",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-13",
+      "order": 14,
+      "title": "Chapter XIII — The Woodman",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-14",
+      "order": 15,
+      "title": "Chapter XIV — The Meeting",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-15",
+      "order": 16,
+      "title": "Chapter XV — Ordeal and Execution",
+      "chapter_id": "ch_0001"
+    },
+    {
+      "id": "carmilla-chapter-16",
+      "order": 17,
+      "title": "Chapter XVI — Conclusion",
+      "chapter_id": "ch_0001"
+    }
+  ]
+}

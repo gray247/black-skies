@@ -57,7 +57,7 @@ function inferenceRequest(projectId: string, sourceId: string): LocalInferenceRe
 }
 
 describe('Program 6 complete qualification boundary', () => {
-  it('marks created source-linked records stale after the saved manuscript body changes', () => {
+  it('redacts protected signal content at the projection boundary while preserving ordinary signals', () => {
     const projectId = 'currentness-after-save';
     const previousFingerprint = 'a'.repeat(64);
     const currentFingerprint = 'b'.repeat(64);
@@ -114,15 +114,43 @@ describe('Program 6 complete qualification boundary', () => {
       confidenceBand: 'medium',
       currentness: 'current',
       lifecycle: 'reviewed',
-      summary: 'Protected summary must remain metadata-only.',
-      evidenceSummary: 'Protected evidence remains excluded.',
+      summary: 'P6_PROTECTED_SUMMARY_SENTINEL_7F3A',
+      evidenceSummary: 'P6_PROTECTED_EVIDENCE_SENTINEL_7F3A',
       provenance: { sourceOwner: 'Author protection', origin: 'author', visibility: 'metadata-only', citationRequired: true, protectionClass: 'protected' },
       createdAt: now,
       updatedAt: now,
     };
-    const result = buildProgram6ProductionProjection({ project, generation: 1, document: { ...document, durableSignals: [protectedSignal] } });
+    const ordinarySignal: DurableSignalV1 = {
+      ...protectedSignal,
+      signalId: `${projectId}:ordinary`,
+      summary: 'P6_ORDINARY_SUMMARY_SENTINEL_7F3A',
+      evidenceSummary: 'P6_ORDINARY_EVIDENCE_SENTINEL_7F3A',
+      provenance: { ...protectedSignal.provenance, protectionClass: 'included' },
+    };
+    const result = buildProgram6ProductionProjection({
+      project,
+      generation: 1,
+      document: { ...document, durableSignals: [protectedSignal, ordinarySignal] },
+    });
     expect(result.emotion.orderedPoints[0]?.point).toMatchObject({ currentness: 'stale', positionRefs: [previousRef] });
-    expect(result.signals[0]).toMatchObject({ currentness: 'stale', positionRefs: [previousRef], provenance: { protectionClass: 'protected' } });
+    expect(result.signals[0]).toMatchObject({
+      currentness: 'stale',
+      positionRefs: [previousRef],
+      provenance: { protectionClass: 'protected' },
+      summary: 'Protected signal metadata',
+      evidenceSummary: 'Protected content is excluded from this production projection.',
+    });
+    expect(result.signals[1]).toMatchObject({
+      signalId: `${projectId}:ordinary`,
+      summary: 'P6_ORDINARY_SUMMARY_SENTINEL_7F3A',
+      evidenceSummary: 'P6_ORDINARY_EVIDENCE_SENTINEL_7F3A',
+      provenance: { protectionClass: 'included' },
+    });
+    const serializedProjection = JSON.stringify(result);
+    expect(serializedProjection).not.toContain('P6_PROTECTED_SUMMARY_SENTINEL_7F3A');
+    expect(serializedProjection).not.toContain('P6_PROTECTED_EVIDENCE_SENTINEL_7F3A');
+    expect(serializedProjection).toContain('P6_ORDINARY_SUMMARY_SENTINEL_7F3A');
+    expect(serializedProjection).toContain('P6_ORDINARY_EVIDENCE_SENTINEL_7F3A');
     expect(result.timeline.chronology).toEqual([]);
     expect(result.timeline.pacing).toEqual([]);
     expect(result.timeline.pressure).toEqual([]);

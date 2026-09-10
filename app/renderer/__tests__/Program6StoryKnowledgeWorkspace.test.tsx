@@ -6,7 +6,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import Program6StoryKnowledgeWorkspace from '../components/Program6StoryKnowledgeWorkspace';
 import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
-import type { DurableSignalV1, StoryIntelligenceDocumentV1 } from '../../shared/ipc/storyIntelligence';
+import type {
+  DurableSignalV1,
+  StoryIntelligenceDocumentV1,
+} from '../../shared/ipc/storyIntelligence';
 import type { ProjectSpineProjectContext } from '../../shared/ipc/projectSpine';
 
 const project: ProjectSpineProjectContext = {
@@ -34,16 +37,18 @@ function signal(currentness: DurableSignalV1['currentness']): DurableSignalV1 {
     schemaVersion: 'BlackSkiesStoryIntelligence v1',
     signalId: `signal-${currentness}`,
     projectId: project.projectId,
-    positionRefs: [{
-      projectId: project.projectId,
-      sourceKind: 'story-unit',
-      sourceId: 'nl_01',
-      sourceRevision: 1,
-      sourceFingerprint: `${project.projectId}:nl_01:1:general:planned`,
-      unitId: 'nl_01',
-      orderIndex: 1,
-      orderBasis: 'manuscript',
-    }],
+    positionRefs: [
+      {
+        projectId: project.projectId,
+        sourceKind: 'story-unit',
+        sourceId: 'nl_01',
+        sourceRevision: 1,
+        sourceFingerprint: `${project.projectId}:nl_01:1:general:planned`,
+        unitId: 'nl_01',
+        orderIndex: 1,
+        orderBasis: 'manuscript',
+      },
+    ],
     sourceOwner: 'Program 6 review fixture',
     evidenceClass: 'planned',
     impact: 'informational',
@@ -64,9 +69,14 @@ function signal(currentness: DurableSignalV1['currentness']): DurableSignalV1 {
   };
 }
 
-function documentWithSignal(currentness: DurableSignalV1['currentness']): StoryIntelligenceDocumentV1 {
+function documentWithSignal(
+  currentness: DurableSignalV1['currentness'],
+): StoryIntelligenceDocumentV1 {
   return {
-    ...createDefaultStoryIntelligenceDocument(project.projectId, new Date('2026-09-01T12:00:00.000Z')),
+    ...createDefaultStoryIntelligenceDocument(
+      project.projectId,
+      new Date('2026-09-01T12:00:00.000Z'),
+    ),
     durableSignals: [signal(currentness)],
   };
 }
@@ -87,7 +97,9 @@ describe('Program 6 Story Knowledge workspace', () => {
   it('uses plain writer-facing overview language and keeps the no-AI boundary clear', () => {
     renderWorkspace(documentWithSignal('stale'));
 
-    expect(screen.getByText('What this project covers and what remains in your hands.')).toBeVisible();
+    expect(
+      screen.getByText('What this project covers and what remains in your hands.'),
+    ).toBeVisible();
     expect(screen.getByText('Story concerns')).toBeVisible();
     expect(screen.getByText('Project mode')).toBeVisible();
     expect(screen.getByText('Source-based review')).toBeVisible();
@@ -126,7 +138,11 @@ describe('Program 6 Story Knowledge workspace', () => {
     renderWorkspace(documentWithSignal('stale'));
     await user.click(screen.getByRole('button', { name: /^Signals$/ }));
 
-    expect(screen.getByText('Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.')).toBeVisible();
+    expect(
+      screen.getByText(
+        'Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.',
+      ),
+    ).toBeVisible();
     expect(screen.getByRole('button', { name: /^Convert$/ })).toBeDisabled();
   });
 
@@ -140,6 +156,73 @@ describe('Program 6 Story Knowledge workspace', () => {
     await user.click(convert);
 
     expect(onSignalDisposition).toHaveBeenCalledWith('signal-current', 'converted');
+  });
+
+  it('emits a source-only Work on this envelope without changing the Program 6 signal', async () => {
+    const user = userEvent.setup();
+    const onWorkOnThis = vi.fn();
+    const onSignalDisposition = vi.fn();
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={documentWithSignal('current')}
+        onWorkOnThis={onWorkOnThis}
+        onSignalDisposition={onSignalDisposition}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /^Signals$/ }));
+    await user.click(screen.getByRole('button', { name: /^Work on this$/ }));
+
+    await vi.waitFor(() => expect(onWorkOnThis).toHaveBeenCalledTimes(1));
+    expect(onWorkOnThis.mock.calls[0]?.[0]).toMatchObject({
+      schemaVersion: 'BlackSkiesProgram7SourceBinding v1',
+      projectId: project.projectId,
+      protection: { metadataOnly: false },
+    });
+    expect(onWorkOnThis.mock.calls[0]?.[0].anchor).toBeUndefined();
+    expect(onSignalDisposition).not.toHaveBeenCalled();
+  });
+
+  it('passes the current draft and exact range into Work on this without mutating the signal', async () => {
+    const user = userEvent.setup();
+    const onWorkOnThis = vi.fn();
+    const onSignalDisposition = vi.fn();
+    const sourceText = 'Before\nSelected 😀\nAfter';
+    const currentProject = { ...project, drafts: { nl_01: sourceText } };
+    const currentDocument = documentWithSignal('current');
+    const currentSignal = currentDocument.durableSignals[0]!;
+    const currentRef = currentSignal.positionRefs[0]!;
+    const rangedDocument = {
+      ...currentDocument,
+      durableSignals: [
+        {
+          ...currentSignal,
+          positionRefs: [{ ...currentRef, selectionStart: 7, selectionEnd: 18 }],
+        },
+      ],
+    };
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={currentProject}
+        generation={1}
+        document={rangedDocument}
+        onWorkOnThis={onWorkOnThis}
+        onSignalDisposition={onSignalDisposition}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /^Signals$/ }));
+    await user.click(screen.getByRole('button', { name: /^Work on this$/ }));
+
+    await vi.waitFor(() => expect(onWorkOnThis).toHaveBeenCalledTimes(1));
+    expect(onWorkOnThis.mock.calls[0]?.[0]).toMatchObject({
+      anchor: { selectionStart: 7, selectionEnd: 18 },
+      selectionStart: 7,
+      selectionEnd: 18,
+      text: sourceText,
+    });
+    expect(onWorkOnThis.mock.calls[0]?.[0].bodySha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(onSignalDisposition).not.toHaveBeenCalled();
   });
 
   it('collects a planned author emotion point without claiming to analyze prose', async () => {
@@ -207,13 +290,23 @@ describe('Program 6 Story Knowledge workspace', () => {
     await user.click(screen.getByRole('button', { name: 'Save pressure point' }));
 
     expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(1, {
-      kind: 'timeline-event', unitId: 'nl_02', label: 'Mara finds the letter', storyWorldOrder: 4, temporalState: 'disputed',
+      kind: 'timeline-event',
+      unitId: 'nl_02',
+      label: 'Mara finds the letter',
+      storyWorldOrder: 4,
+      temporalState: 'disputed',
     });
     expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(2, {
-      kind: 'pacing-intent', unitId: 'nl_03', tempo: 'fast',
+      kind: 'pacing-intent',
+      unitId: 'nl_03',
+      tempo: 'fast',
     });
     expect(onAuthorRecordCreate).toHaveBeenNthCalledWith(3, {
-      kind: 'pressure-point', unitId: 'nl_04', lane: 'observed', dimension: 'constraint', band: 'very-high',
+      kind: 'pressure-point',
+      unitId: 'nl_04',
+      lane: 'observed',
+      dimension: 'constraint',
+      band: 'very-high',
     });
   });
 });

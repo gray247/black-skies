@@ -503,7 +503,7 @@ families.
 
 This charter does not claim that:
 
-- Program 7 implementation has started;
+- Program 7 implementation is complete;
 - the selected `qwen3:4b` candidate is product-qualified merely because host
   execution succeeded;
 - the downloaded `Carmilla` source has been converted into a Black Skies
@@ -519,9 +519,11 @@ The accepted planning baseline remains user commit
 `994e558d7ede9d9dde4df1a4e268d91be20ebd43`. Documentation-only hardening was
 accepted in clean, pushed commit
 `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete, the separate
-implementation worktree and branch are recorded above, and the next minimum
-execution action is the first explicitly owned Wave 1 package. The next commit
-and push remain user-only. The derived
-`Carmilla` project and answer key, pilot evidence, and exact Human Gate 4 rows
-remain package-level work. Program 7 surface names remain provisional until
+implementation worktree and branch are recorded above, and Wave 1 execution
+is in progress in the first explicitly owned packages. The reviewed
+checkpoint commit and push may be performed by Jason or an explicitly
+authorized coordinator within that worktree and branch. The derived
+`Carmilla` project and answer key now have deterministic verification; pilot
+evidence and exact Human Gate 4 rows remain package-level work. Program 7 surface
+names remain provisional until
 Jason freezes them later.

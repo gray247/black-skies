@@ -5,6 +5,74 @@ export const FEEDBACK_NOTE_CHANNELS = {
 
 export const FEEDBACK_NOTE_SCHEMA_VERSION = 'BlackSkiesFeedbackNotes v1' as const;
 export const FEEDBACK_NOTE_MAX_BODY_LENGTH = 4_000;
+export const FEEDBACK_NOTE_HISTORY_LIMIT = 100;
+
+export type FeedbackNoteKind = 'advisory' | 'revision_item';
+export type FeedbackRevisionLifecycle =
+  | 'active'
+  | 'stale'
+  | 'recheck_pending'
+  | 'parked'
+  | 'dismissed'
+  | 'resolved'
+  | 'abandoned';
+export type FeedbackRevisionDisposition = 'parked' | 'dismissed' | 'resolved' | 'abandoned';
+export type FeedbackRecheckStatus =
+  | 'appears_resolved'
+  | 'still_appears_present'
+  | 'unavailable'
+  | 'not_run';
+
+/** The anchor shape deliberately mirrors ManuscriptStructureAnchorV1 without
+ * importing the main-process implementation into the shared contract. */
+export interface FeedbackNoteAnchor {
+  readonly schemaVersion: number;
+  readonly anchorKind: 'position' | 'span';
+  readonly selectionStart: number;
+  readonly selectionEnd: number;
+  readonly selectionSearchFingerprint: string;
+  readonly sourceFingerprint: string;
+  readonly selectionFingerprint: string;
+  readonly prefixLength: number;
+  readonly prefixSearchFingerprint: string;
+  readonly prefixFingerprint: string;
+  readonly suffixLength: number;
+  readonly suffixSearchFingerprint: string;
+  readonly suffixFingerprint: string;
+}
+
+export interface FeedbackNoteProvenance {
+  readonly source: 'program6_finding' | 'critique' | 'manual' | 'recheck' | 'recurrence' | string;
+  readonly findingId?: string;
+  readonly lens?: string;
+  readonly evidence?: string;
+  readonly origin?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface FeedbackNoteProtection {
+  readonly protected: boolean;
+  readonly reason?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface FeedbackNoteRecheck {
+  readonly id: string;
+  readonly status: FeedbackRecheckStatus;
+  readonly evidence?: string;
+  readonly createdAt: string;
+  readonly sourceBodyFingerprint?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface FeedbackNoteDisposition {
+  readonly id: string;
+  readonly disposition: FeedbackRevisionDisposition;
+  readonly createdAt: string;
+  readonly actor: 'author' | 'system' | string;
+  readonly reason?: string;
+  readonly [key: string]: unknown;
+}
 
 export type FeedbackNoteErrorCode =
   | 'NOT_WRITING_STUDIO'
@@ -20,15 +88,89 @@ export interface FeedbackNoteError {
   readonly message: string;
 }
 
-export interface FeedbackNote {
+interface FeedbackNoteBase {
   readonly id: string;
   readonly projectId: string;
   readonly unitId: string;
+  readonly createdAt: string;
+  readonly body: string;
+  /** Optional on legacy advisory records; present on normalized records. */
+  readonly kind?: FeedbackNoteKind;
+  readonly sourceFindingId?: string;
+  readonly lens?: string;
+  readonly evidence?: string;
+  readonly provenance?: FeedbackNoteProvenance;
+  readonly protection?: FeedbackNoteProtection;
+  readonly anchor?: FeedbackNoteAnchor;
+  readonly sourceBodyFingerprint?: string;
+  readonly sessionId?: string;
+  readonly documentRevision?: number;
+  readonly revision?: number;
+  readonly lifecycle?: FeedbackRevisionLifecycle;
+  readonly state?: FeedbackRevisionLifecycle;
+  readonly rechecks?: readonly FeedbackNoteRecheck[];
+  readonly dispositionHistory?: readonly FeedbackNoteDisposition[];
+  readonly relatedRecurrenceId?: string;
+  readonly relatedRevisionItemId?: string;
+  readonly relatedItemId?: string;
+  readonly recurrenceOf?: string;
+  readonly sessionBinding?: string;
+  readonly retained?: boolean;
+  readonly [key: string]: unknown;
+}
+
+export interface AdvisoryFeedbackNote extends FeedbackNoteBase {
   readonly sourceCritiqueRequestId: string;
   readonly selectionFingerprint: string;
-  readonly createdAt: string;
   readonly advisory: true;
+  readonly kind?: 'advisory';
+}
+
+/** Compatibility name for the v1 advisory-note IPC contract. */
+export type FeedbackNote = AdvisoryFeedbackNote;
+
+export interface RevisionItem extends FeedbackNoteBase {
+  readonly advisory: false;
+  readonly kind: 'revision_item';
+  readonly lifecycle: FeedbackRevisionLifecycle;
+}
+
+export type FeedbackNoteRecord = AdvisoryFeedbackNote | RevisionItem;
+
+export type FeedbackNotesDocument = {
+  readonly schemaVersion: typeof FEEDBACK_NOTE_SCHEMA_VERSION;
+  readonly projectId: string;
+  readonly revision: number;
+  readonly notes: readonly FeedbackNoteRecord[];
+  readonly [key: string]: unknown;
+};
+
+export interface CreateRevisionItemInput {
+  readonly projectId: string;
+  readonly unitId: string;
   readonly body: string;
+  readonly sourceCritiqueRequestId?: string;
+  readonly selectionFingerprint?: string;
+  readonly sourceFindingId?: string;
+  readonly lens?: string;
+  readonly evidence?: string;
+  readonly provenance?: FeedbackNoteProvenance;
+  readonly protection?: FeedbackNoteProtection;
+  readonly anchor?: FeedbackNoteAnchor;
+  readonly sourceBodyFingerprint?: string;
+  readonly sessionId?: string;
+  readonly documentRevision?: number;
+  readonly revision?: number;
+  readonly relatedRevisionItemId?: string;
+  readonly relatedItemId?: string;
+  readonly recurrenceOf?: string;
+  readonly sessionBinding?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface FeedbackNoteMutationResult {
+  readonly document: FeedbackNotesDocument;
+  readonly note?: FeedbackNoteRecord;
 }
 
 export interface CreateFeedbackNoteFromCritiqueRequest {
@@ -69,8 +211,6 @@ export interface FeedbackNotesListSuccess {
 export type FeedbackNotesListResult = FeedbackNotesListSuccess | FeedbackNoteFailure;
 
 export interface FeedbackNotesBridge {
-  createFromCritique(
-    request: CreateFeedbackNoteFromCritiqueRequest,
-  ): Promise<FeedbackNoteResult>;
+  createFromCritique(request: CreateFeedbackNoteFromCritiqueRequest): Promise<FeedbackNoteResult>;
   list?(request: ListFeedbackNotesRequest): Promise<FeedbackNotesListResult>;
 }

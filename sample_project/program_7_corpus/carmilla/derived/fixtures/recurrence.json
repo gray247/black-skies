@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "Program7CarmillaRecurrenceFixtureV1",
+  "fixtureId": "recurrence-concrete-001",
+  "resolvedConcernId": "concern-concrete-001",
+  "relatedId": "recurrence-concrete-001",
+  "reopensResolvedId": false,
+  "expectedState": "new-related-item",
+  "lineage": "later-reappearance"
+}

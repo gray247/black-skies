@@ -492,12 +492,13 @@ machine” is not a defer disposition.
 
 ## 15. Wave commits and clean reruns
 
-Agents do not commit or push. At each wave boundary, the user creates the
-requested commit and records its full hash. Before qualification, record the
-precommit tree hash and dirty/clean status. After the user commit, rerun the
-same required checks from a clean exact-commit checkout or worktree. Evidence
-must name both the precommit tree hash and the exact commit hash; a dirty-tree
-pass cannot replace a clean exact-commit rerun.
+Bounded package agents do not commit or push unless separately authorized. At
+each wave boundary, Jason or an explicitly authorized coordinator creates the
+reviewed commit and records its full hash. Before qualification, record the
+precommit tree hash and dirty/clean status. After that commit, rerun the same
+required checks from a clean exact-commit checkout or worktree. Evidence must
+name both the precommit tree hash and the exact commit hash; a dirty-tree pass
+cannot replace a clean exact-commit rerun.
 
 The implementation plan adopts this protocol by reference. Any conflict is
 resolved in favor of this protocol's mandatory no-AI gate, conditional local-AI

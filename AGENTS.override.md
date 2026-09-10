@@ -12,8 +12,6 @@ This file has precedence over `AGENTS.md` for the repository root `C:\Dev\black-
 
 ## Change Control
 
-- Manual commits and pushes are performed by the user only.
-- Do not change branches.
 - Do not stash, reset, clean, rename, delete, or rewrite history.
 - Do not execute salvage actions.
 - Do not widen scope silently.
@@ -49,4 +47,19 @@ For C:\Users\gray2\.codex\worktrees\4f0b\black-skies only, agents are explicitly
 - run BLACKSKIES_DISABLE_GPU=1 only as a clearly labeled host diagnostic, never as qualification or a production default;
 - diagnose, repair, test, and continue through ordinary repository-owned Program 6 failures.
 
-This exception does not authorize git reset --hard, git clean, discarding unrelated work, pushing, provider execution, packaging, installation, Program 7 work, or fabricated human acceptance.
+## Program 7 bounded execution exception
+
+For C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation
+only, the explicit 2026-09-09 authorization permits bounded Program 7
+implementation, documentation, tests, and qualification on branch
+`codex/program7-implementation` within the package ownership and wave
+boundaries in the Program 7 implementation plan. This exception supersedes the
+documentation-only lane and its related implementation prohibition for this
+worktree only. The coordinator may stage,
+commit, and push a reviewed bounded checkpoint in this worktree when Jason has
+authorized it. Bounded package agents remain read-only and non-committing
+unless separately authorized.
+
+This exception does not authorize reset, clean, stash, destructive deletion,
+history rewriting, unrelated cleanup, package or installation work, real model
+execution before RT-2B, fabricated human acceptance, or Program 8/9 work.
