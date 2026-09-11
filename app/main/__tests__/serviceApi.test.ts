@@ -7,6 +7,8 @@ vi.mock('electron', () => ({
   ipcRenderer: {
     invoke: vi.fn(),
     send: vi.fn(),
+    on: vi.fn(),
+    removeListener: vi.fn(),
   },
 }));
 
@@ -27,9 +29,18 @@ const defaultRuntimeConfig = {
     defaultEmotionIntensity: 0.5,
     pace: { slowThreshold: 1.2, fastThreshold: 0.8 },
   },
+  ui: {
+    enableDocking: false,
+    defaultPreset: 'standard',
+    experimentalSplitCommandWorkspace: false,
+    hotkeys: {
+      enablePresetHotkeys: true,
+      focusCycleOrder: [],
+    },
+  },
 } as const;
 
-vi.mock('../shared/config/runtime.js', () => ({
+vi.mock('../../shared/config/runtime.js', () => ({
   DEFAULT_HEALTH_PROBE: defaultRuntimeConfig.service.healthProbe,
   DEFAULT_SERVICE_PORT_RANGE: defaultRuntimeConfig.service.portRange,
   DEFAULT_RUNTIME_CONFIG: defaultRuntimeConfig,

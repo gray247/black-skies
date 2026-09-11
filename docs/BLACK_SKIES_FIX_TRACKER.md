@@ -186,6 +186,38 @@ Remaining bounded follow-up:
 - Human Gate 4 still requires the user-facing P4/P5 checks and screenshot
   receipts after the final commit. No Program 7 closure is claimed here.
 
+## Program 7 test-failure cleanup pass — 2026-09-11
+
+The first full app run after the automatic story-intelligence work reported
+23 failures in two suites. Reproduction separated these into two harness and
+fixture-contract defects rather than 23 product failures. All 22
+`main/__tests__/serviceApi.test.ts` failures were caused by the Electron mock
+omitting the `ipcRenderer.on` and `ipcRenderer.removeListener` methods that the
+preload already uses. The health-endpoint assertion also exposed a stale test
+mock path: the runtime-config mock was pointed at `../shared/...` instead of
+the actual `../../shared/...` module, so the test unexpectedly loaded the
+split-workspace default and never exposed the legacy `services` bridge.
+
+The corpus failure was caused by the operator's saved
+`derived/baseline/story-intelligence.json` being included in the immutable
+fixture tree hash. That file is mutable runtime analysis state and is not
+part of the Carmilla fixture identity. The verifier now excludes only that
+named runtime artifact from the snapshot tree hash; source bytes, project and
+outline metadata, drafts, prose hashes, and all declared fixtures remain
+covered by the existing manifest contract. The saved analysis file was
+preserved and was not staged.
+
+Validation passed after the repairs:
+
+- focused service and corpus suites: 24/24 tests;
+- full app suite: 145 test files, 1,384 passed, 2 skipped;
+- app typecheck;
+- app lint;
+- `git diff --check`.
+
+No commit or push was made. Program 7 remains open for the remaining bounded
+implementation packages, Human Gate 4 receipts, and later visualizer scope.
+
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
 If an issue is not tracked here, it is not part of the active fix scope.

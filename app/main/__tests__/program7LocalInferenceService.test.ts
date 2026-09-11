@@ -268,6 +268,19 @@ describe('Program 7 local inference service', () => {
     expect(resolved.status).toBe('appears_resolved');
   });
 
+  it('allows an emotion analysis to return no findings without fabricating a candidate', async () => {
+    const emotionRequest = {
+      ...request,
+      operation: 'emotion_analysis' as const,
+      limits: { inputChars: 12_000, outputChars: 2_000 },
+    };
+    const transport = {
+      request: vi.fn().mockResolvedValue(validTransportResult({ status: 'no_findings', text: '' }, emotionRequest)),
+    };
+    const result = await new Program7LocalInferenceService({ transport }).run(emotionRequest, { authorInvoked: true });
+    expect(result).toMatchObject({ status: 'no_findings', text: '' });
+  });
+
   it('returns cancelled before invoking an abort-ignoring transport for a pre-aborted signal', async () => {
     const controller = new AbortController();
     controller.abort();

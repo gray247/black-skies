@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import Program6StoryKnowledgeWorkspace from '../components/Program6StoryKnowledgeWorkspace';
 import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
@@ -10,6 +10,7 @@ import type {
   DurableSignalV1,
   StoryIntelligenceDocumentV1,
 } from '../../shared/ipc/storyIntelligence';
+import type { AutomaticStoryIntelligenceRunStateV1 } from '../../shared/ipc/automaticStoryIntelligence';
 import type { ProjectSpineProjectContext } from '../../shared/ipc/projectSpine';
 
 const project: ProjectSpineProjectContext = {
@@ -92,6 +93,10 @@ function renderWorkspace(document: StoryIntelligenceDocumentV1, onSignalDisposit
   );
   return onSignalDisposition;
 }
+
+afterEach(() => {
+  Reflect.deleteProperty(window, 'storyIntelligence');
+});
 
 describe('Program 6 Story Knowledge workspace', () => {
   it('uses plain writer-facing overview language and keeps the no-AI boundary clear', () => {
@@ -253,6 +258,120 @@ describe('Program 6 Story Knowledge workspace', () => {
       intensity: 'high',
       subjectLabel: 'Mara',
     });
+  });
+
+  it('shows deterministic scan findings as source-linked review prompts without adding Emotion Graph points', async () => {
+    const user = userEvent.setup();
+    const onSourceReturn = vi.fn();
+    const source = {
+      projectId: project.projectId,
+      sourceKind: 'story-unit' as const,
+      sourceId: 'nl_02',
+      sourceRevision: 1,
+      sourceFingerprint: 'a'.repeat(64),
+      unitId: 'nl_02',
+      selectionFingerprint: 'b'.repeat(64),
+      selectionStart: 0,
+      selectionEnd: 18,
+      bodySha256: 'c'.repeat(64),
+      orderIndex: 2,
+      orderBasis: 'manuscript' as const,
+    };
+    const state: AutomaticStoryIntelligenceRunStateV1 = {
+      schemaVersion: 'BlackSkiesAutomaticStoryIntelligence v1',
+      projectId: project.projectId,
+      runId: 'automatic-story-scan-test',
+      analysisId: 'analysis-test',
+      origin: 'deterministic',
+      status: 'completed',
+      requestedAt: '2026-09-01T12:00:00.000Z',
+      updatedAt: '2026-09-01T12:00:01.000Z',
+      progress: {
+        runId: 'automatic-story-scan-test',
+        analysisId: 'analysis-test',
+        status: 'completed',
+        processedUnitCount: 4,
+        totalUnitCount: 4,
+        includedUnitCount: 4,
+        excludedUnitCount: 0,
+        findingCount: 1,
+        currentLens: null,
+      },
+      analysis: {
+        schemaVersion: 'BlackSkiesAutomaticStoryIntelligence v1',
+        projectId: project.projectId,
+        generation: 1,
+        runId: 'automatic-story-scan-test',
+        analysisId: 'analysis-test',
+        origin: 'deterministic',
+        lenses: ['emotion', 'continuity', 'timeline', 'pacing', 'pressure', 'signals'],
+        includedUnitCount: 4,
+        excludedUnitCount: 0,
+        findingCount: 1,
+        excludedUnits: [],
+        lensResults: [{
+          lens: 'emotion',
+          findings: [{
+            schemaVersion: 'BlackSkiesAutomaticStoryIntelligence v1',
+            findingId: 'automatic-finding-test',
+            projectId: project.projectId,
+            analysisId: 'analysis-test',
+            lens: 'emotion',
+            summary: 'A deterministic cue needs author review.',
+            evidenceClass: 'inferred',
+            confidenceBand: 'unknown',
+            uncertainty: 'unknown',
+            evidenceSummary: 'Exact saved-prose cue requires review.',
+            positionRefs: [source],
+            provenance: {
+              sourceOwner: 'Automatic manuscript scan',
+              origin: 'deterministic',
+              visibility: 'included',
+              citationRequired: true,
+              protectionClass: 'included',
+            },
+            temporary: true,
+            durableTruthMutation: false,
+          }],
+        }],
+        temporary: true,
+        durableTruthMutation: false,
+        createdAt: '2026-09-01T12:00:01.000Z',
+      },
+      error: null,
+      terminalAt: '2026-09-01T12:00:01.000Z',
+      temporary: true,
+      durableTruthMutation: false,
+    };
+    const automaticScan = vi.fn().mockResolvedValue({ ok: true, data: state });
+    Object.defineProperty(window, 'storyIntelligence', {
+      configurable: true,
+      value: {
+        automaticScan,
+        automaticCancel: vi.fn(),
+      },
+    });
+
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={documentWithSignal('current')}
+        onSourceReturn={onSourceReturn}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Scan manuscript automatically' }));
+    const finding = await screen.findByRole('listitem');
+    expect(finding).toHaveTextContent('A deterministic cue needs author review.');
+    await user.click(screen.getByRole('button', { name: 'Return to source' }));
+    expect(onSourceReturn).toHaveBeenCalledWith(source);
+
+    await user.click(screen.getByRole('button', { name: /^Emotion$/ }));
+    expect(screen.getByTestId('emotion-graph-empty')).toHaveTextContent(
+      'No source-linked emotional points',
+    );
+    expect(screen.queryByTestId('emotion-graph-point')).not.toBeInTheDocument();
   });
 
   it('collects author chronology, pacing intent, and pressure without inventing observations', async () => {

@@ -17,6 +17,7 @@ export const PROGRAM7_LOCAL_INFERENCE_OPERATIONS = [
   'rewrite_candidate',
   'revision_recheck',
   'premise_alternative',
+  'emotion_analysis',
 ] as const;
 export const PROGRAM7_LOCAL_INFERENCE_ENDPOINT = 'http://127.0.0.1:11434' as const;
 export const PROGRAM7_LOCAL_INFERENCE_BASE_URL = PROGRAM7_LOCAL_INFERENCE_ENDPOINT;
@@ -32,6 +33,7 @@ export const PROGRAM7_LOCAL_INFERENCE_BOUNDS = {
   rewrite_candidate: { inputChars: 12_000, outputChars: 6_000 },
   revision_recheck: { inputChars: 8_000, outputChars: 2_000 },
   premise_alternative: { inputChars: 12_000, outputChars: 6_000 },
+  emotion_analysis: { inputChars: 12_000, outputChars: 2_000 },
 } as const;
 export const LOCAL_INFERENCE_DEFAULT_TIMEOUT_MS = 8_000 as const;
 
@@ -92,6 +94,7 @@ export interface Program7LocalInferenceRequestV1 {
 
 export type Program7LocalInferenceStatusV1 =
   | 'candidate'
+  | 'no_findings'
   | 'appears_resolved'
   | 'still_appears_present'
   | 'unavailable'
@@ -116,7 +119,7 @@ export interface Program7LocalInferenceReceiptV1 {
 /** The only shape the model is allowed to return. The service adds all
  * identity, usage, and receipt fields after validating this inner result. */
 export interface Program7LocalInferenceModelOutputV1 {
-  readonly status: 'candidate' | 'appears_resolved' | 'still_appears_present';
+  readonly status: 'candidate' | 'no_findings' | 'appears_resolved' | 'still_appears_present';
   readonly text: string;
   readonly reason: string;
 }

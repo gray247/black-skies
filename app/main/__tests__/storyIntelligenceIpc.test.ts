@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { STORY_INTELLIGENCE_CHANNELS } from '../../shared/ipc/storyIntelligence';
+import { AUTOMATIC_STORY_INTELLIGENCE_LENSES, AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION } from '../../shared/ipc/automaticStoryIntelligence';
 import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
 import type {
   DurableSignalV1,
@@ -66,6 +67,7 @@ function snapshotWithUnit(
   generation = 7,
   bodySha256 = 'a'.repeat(64),
   saveStatus: ProjectSpineSessionSnapshot['saveState']['status'] = 'clean',
+  drafts: Readonly<Record<string, string>> = {},
 ): ProjectSpineSessionSnapshot {
   const base = snapshot(projectPath, generation);
   return {
@@ -77,6 +79,7 @@ function snapshotWithUnit(
       unitMetrics: {
         'unit-a': { wordCount: 3, sentenceCount: 1, paragraphCount: 1, dialogueRatio: 0, bodySha256 },
       },
+      drafts,
     },
   };
 }
@@ -379,5 +382,113 @@ describe('story-intelligence IPC', () => {
       ok: true,
       data: { durableSignals: [{ lifecycle: 'converted', currentness: 'current' }] },
     });
+  });
+
+  it('scans the saved manuscript through project-bound IPC without writing the intelligence document', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new StoryIntelligenceRepository(projectPath);
+    const before = await repository.read('project-a');
+    registerStoryIntelligenceIpc({
+      resolveWindowRole: () => 'command',
+      getWritingSnapshot: () => snapshotWithUnit(
+        projectPath,
+        7,
+        'a'.repeat(64),
+        'clean',
+        { 'unit-a': 'Mara felt fear in the dark. TODO: check this threat.' },
+      ),
+      repositoryFactory: () => repository,
+    });
+    const result = await invoke(STORY_INTELLIGENCE_CHANNELS.automaticScan, 2, {
+      schemaVersion: AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION,
+      operationId: 'automatic-scan-op',
+      projectId: 'project-a',
+      projectPath,
+      generation: 7,
+      runId: 'automatic-run-1',
+      analysisId: 'automatic-analysis-1',
+      requestedAt: '2026-09-10T12:00:00.000Z',
+      origin: 'deterministic',
+      lenses: [...AUTOMATIC_STORY_INTELLIGENCE_LENSES],
+    });
+    expect(result).toMatchObject({ ok: true, data: { status: 'completed', analysis: { projectId: 'project-a' } } });
+    const completed = result as { readonly ok: true; readonly data: { readonly analysis: { readonly findingCount: number; readonly lensResults: readonly { readonly findings: readonly { readonly positionRefs: readonly StoryPositionRefV1[] }[] }[] } } };
+    expect(completed.data.analysis.findingCount).toBeGreaterThan(0);
+    expect(completed.data.analysis.lensResults.flatMap((lens) => lens.findings)[0]?.positionRefs[0]).toMatchObject({
+      unitId: 'unit-a',
+      orderIndex: 1,
+      selectionStart: expect.any(Number),
+      selectionEnd: expect.any(Number),
+      selectionFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    const after = await repository.read('project-a');
+    expect(after.revision).toBe(before.revision);
+    expect(after.authorRecords).toEqual(before.authorRecords);
+    expect(after.durableSignals).toEqual(before.durableSignals);
+  });
+
+  it('runs explicit local emotion analysis through the fixed model seam and keeps the result temporary', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new StoryIntelligenceRepository(projectPath);
+    const initial = await repository.read('project-a');
+    await repository.write('project-a', initial.revision, {
+      ...initial,
+      revision: initial.revision + 1,
+      settings: {
+        ...initial.settings,
+        analysisPolicy: { ...initial.settings.analysisPolicy, optionalInferenceEnabled: true },
+      },
+    });
+    const localInferenceService = {
+      run: vi.fn().mockResolvedValue({
+        status: 'candidate',
+        reason: 'bounded test response',
+        text: JSON.stringify({
+          emotion: 'dread',
+          intensity: 'high',
+          confidence: 'medium',
+          subject: 'Mara',
+          summary: 'The passage conveys growing dread.',
+          evidence: 'Mara felt fear',
+        }),
+      }),
+    };
+    registerStoryIntelligenceIpc({
+      resolveWindowRole: () => 'command',
+      getWritingSnapshot: () => snapshotWithUnit(
+        projectPath,
+        7,
+        'a'.repeat(64),
+        'clean',
+        { 'unit-a': 'Mara felt fear in the dark.' },
+      ),
+      repositoryFactory: () => repository,
+      localInferenceService: localInferenceService as never,
+    });
+    const result = await invoke(STORY_INTELLIGENCE_CHANNELS.automaticScan, 2, {
+      schemaVersion: AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION,
+      operationId: 'local-emotion-op',
+      projectId: 'project-a',
+      projectPath,
+      generation: 7,
+      runId: 'local-emotion-run',
+      analysisId: 'local-emotion-analysis',
+      requestedAt: '2026-09-10T12:00:00.000Z',
+      origin: 'local-inference',
+      lenses: [...AUTOMATIC_STORY_INTELLIGENCE_LENSES],
+    });
+    expect(result).toMatchObject({ ok: true, data: { status: 'completed', origin: 'local-inference' } });
+    const completed = result as { readonly ok: true; readonly data: { readonly analysis: { readonly findingCount: number; readonly lensResults: readonly { readonly lens: string; readonly findings: readonly Record<string, unknown>[] }[] } } };
+    const finding = completed.data.analysis.lensResults.find((lens) => lens.lens === 'emotion')?.findings[0];
+    expect(completed.data.analysis.findingCount).toBe(1);
+    expect(finding).toMatchObject({
+      emotionLabel: 'dread',
+      intensityBand: 'high',
+      confidenceBand: 'medium',
+      provenance: { origin: 'local-inference' },
+      positionRefs: [{ selectionStart: 0, selectionEnd: 14 }],
+    });
+    expect(localInferenceService.run).toHaveBeenCalledTimes(1);
+    expect((await repository.read('project-a')).revision).toBe(1);
   });
 });

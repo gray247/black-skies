@@ -2,6 +2,7 @@ import {
   createEmotionGraphProjection,
   readEmotionGraphPoints,
   resolveEmotionGraphPointCurrentness,
+  type EmotionGraphCandidatePointV1,
   type EmotionGraphProjectionV1,
 } from './emotionGraph.js';
 import { runContinuityV1, type ContinuityRunResultV1 } from './continuity.js';
@@ -208,6 +209,7 @@ export function buildProgram6ProductionProjection(input: {
   readonly project: ProjectSpineProjectContext;
   readonly generation: number;
   readonly document: StoryIntelligenceDocumentV1;
+  readonly automaticEmotionCandidates?: readonly EmotionGraphCandidatePointV1[];
 }): Program6ProductionProjectionV1 {
   const { project, generation, document } = input;
   const storedAnchors = document.durableSignals
@@ -406,8 +408,9 @@ export function buildProgram6ProductionProjection(input: {
         ),
       };
     });
-  const emotion = createEmotionGraphProjection(project.projectId, points, [], {
+  const emotion = createEmotionGraphProjection(project.projectId, points, input.automaticEmotionCandidates ?? [], {
     showReaderEffect: document.settings.analysisPolicy.readerEffectLaneEnabled,
+    showInferredCandidates: (input.automaticEmotionCandidates?.length ?? 0) > 0,
     multipleSubjects: true,
   });
   return {

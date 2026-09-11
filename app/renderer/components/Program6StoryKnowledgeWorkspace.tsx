@@ -4,7 +4,14 @@ import type {
   StoryIntelligenceDocumentV1,
   StoryPositionRefV1,
 } from '../../shared/ipc/storyIntelligence';
+import {
+  AUTOMATIC_STORY_INTELLIGENCE_LENSES,
+  AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION,
+  type AutomaticStoryIntelligenceFindingV1,
+  type AutomaticStoryIntelligenceRunStateV1,
+} from '../../shared/ipc/automaticStoryIntelligence';
 import type { ContinuityAllowedActionV1, ContinuityFindingV1 } from '../../shared/continuity';
+import type { EmotionGraphCandidatePointV1 } from '../../shared/emotionGraph';
 import {
   buildProgram6ProductionProjection,
   type Program6ProductionProjectionV1,
@@ -65,6 +72,7 @@ export interface Program6StoryKnowledgeWorkspaceProps {
   readonly document: StoryIntelligenceDocumentV1;
   readonly onSourceReturn?: (source: StoryPositionRefV1) => void;
   readonly onAuthorRecordCreate?: (draft: StoryKnowledgeAuthorRecordDraftV1) => void;
+  readonly onEnableLocalInference?: () => void;
   readonly onSignalDisposition?: (
     signalId: string,
     lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted',
@@ -162,6 +170,102 @@ function LensSummary({
         This is review support only. It never becomes story canon, edits your prose, judges quality,
         or saves lasting memory.
       </p>
+    </section>
+  );
+}
+
+function scanId(prefix: string): string {
+  const random = Math.random().toString(36).slice(2, 10);
+  return `${prefix}-${Date.now().toString(36)}-${random}`;
+}
+
+function AutomaticScanPanel({
+  state,
+  busy,
+  notice,
+  onScan,
+  onLocalEmotionScan,
+  onCancel,
+  onSourceReturn,
+  localInferenceEnabled,
+  onEnableLocalInference,
+}: {
+  readonly state: AutomaticStoryIntelligenceRunStateV1 | null;
+  readonly busy: boolean;
+  readonly notice: string | null;
+  readonly onScan: () => void;
+  readonly onLocalEmotionScan: () => void;
+  readonly onCancel: () => void;
+  readonly onSourceReturn: (source: StoryPositionRefV1) => void;
+  readonly localInferenceEnabled: boolean;
+  readonly onEnableLocalInference?: () => void;
+}): JSX.Element {
+  const findings = state?.analysis?.lensResults.flatMap((result) => result.findings) ?? [];
+  return (
+    <section className="stage19-program6__automatic-scan" aria-label="Automatic manuscript scan">
+      <header>
+        <h3>Automatic manuscript scan</h3>
+        <p>
+          Read-only review prompts from the saved manuscript. Keyword/rhythm prompts are not AI
+          judgments. Local-AI emotion results are temporary, advisory, and source-linked.
+        </p>
+      </header>
+      <div className="stage19-program6__automatic-scan-actions">
+        <button type="button" onClick={onScan} disabled={busy}>
+          {busy ? 'Scanning manuscript…' : 'Scan manuscript automatically'}
+        </button>
+        <button type="button" onClick={onLocalEmotionScan} disabled={busy || !localInferenceEnabled}>
+          {busy ? 'Analyzing emotion…' : 'Analyze emotion with local AI'}
+        </button>
+        {busy ? (
+          <button type="button" onClick={onCancel}>Cancel scan</button>
+        ) : null}
+      </div>
+      {notice ? <p role="status">{notice}</p> : null}
+      {state ? (
+        <div aria-live="polite">
+          <p>
+            Scan status: <strong>{state.status}</strong>. Checked {state.progress.includedUnitCount}{' '}
+            saved section{state.progress.includedUnitCount === 1 ? '' : 's'} and found{' '}
+            {state.progress.findingCount} review prompt{state.progress.findingCount === 1 ? '' : 's'}.
+          </p>
+          {state.progress.excludedUnitCount > 0 ? (
+            <p>{state.progress.excludedUnitCount} section{state.progress.excludedUnitCount === 1 ? '' : 's'} were excluded by policy or unavailable.</p>
+          ) : null}
+          {state.error ? <p>{state.error.message}</p> : null}
+          {findings.length > 0 ? (
+            <ul className="stage19-program6__automatic-scan-findings">
+              {findings.map((finding: AutomaticStoryIntelligenceFindingV1) => {
+                const source = finding.positionRefs[0];
+                return (
+                  <li key={finding.findingId}>
+                    <strong>{finding.lens}</strong>: {finding.summary}
+                    {source ? (
+                      <button type="button" onClick={() => onSourceReturn(source)}>
+                        Return to source
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : state.status === 'completed' ? (
+            <p>{state.origin === 'local-inference'
+              ? 'The local model returned no emotional observations for this saved snapshot.'
+              : 'No deterministic review prompts were found in this saved snapshot.'}</p>
+          ) : null}
+        </div>
+      ) : null}
+      {state?.origin === 'local-inference' ? <small>Model: qwen3:4b · loopback only · temporary advisory results</small> : null}
+      {!localInferenceEnabled ? (
+        <p>
+          Local AI is disabled by this project policy.{' '}
+          {onEnableLocalInference ? (
+            <button type="button" onClick={onEnableLocalInference}>Enable optional interpretation</button>
+          ) : 'Enable optional interpretation before running it.'}
+        </p>
+      ) : null}
+      <small>Available lenses: {AUTOMATIC_STORY_INTELLIGENCE_LENSES.join(', ')}.</small>
     </section>
   );
 }
@@ -787,6 +891,7 @@ export default function Program6StoryKnowledgeWorkspace({
   document,
   onSourceReturn,
   onAuthorRecordCreate,
+  onEnableLocalInference,
   onSignalDisposition,
   onWorkOnThis,
   onContinuityAction,
@@ -794,7 +899,33 @@ export default function Program6StoryKnowledgeWorkspace({
 }: Program6StoryKnowledgeWorkspaceProps): JSX.Element {
   const [lens, setLens] = useState<Program6StoryKnowledgeLens>('overview');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
-  const projection = buildProgram6ProductionProjection({ project, generation, document });
+  const [automaticScan, setAutomaticScan] = useState<AutomaticStoryIntelligenceRunStateV1 | null>(null);
+  const [automaticRun, setAutomaticRun] = useState<{ readonly runId: string; readonly analysisId: string } | null>(null);
+  const [automaticScanBusy, setAutomaticScanBusy] = useState(false);
+  const [automaticScanNotice, setAutomaticScanNotice] = useState<string | null>(null);
+  const automaticEmotionCandidates: EmotionGraphCandidatePointV1[] = automaticScan?.status === 'completed' && automaticScan.origin === 'local-inference'
+    ? (automaticScan.analysis?.lensResults.find((result) => result.lens === 'emotion')?.findings ?? []).flatMap((finding) => finding.emotionLabel && finding.intensityBand ? [{
+        schemaVersion: 'BlackSkiesEmotionGraph v1',
+        candidateId: finding.findingId,
+        projectId: finding.projectId,
+        lane: 'inferred' as const,
+        emotionLabel: finding.emotionLabel,
+        intensity: finding.intensityBand,
+        ...(finding.subjectLabel ? { subjectLabel: finding.subjectLabel } : {}),
+        positionRefs: finding.positionRefs,
+        sourceOwner: finding.provenance.sourceOwner,
+        provenance: finding.provenance,
+        currentness: 'current' as const,
+        temporary: true as const,
+        createdAt: automaticScan.analysis?.createdAt ?? new Date().toISOString(),
+      }] : [])
+    : [];
+  const projection = buildProgram6ProductionProjection({
+    project,
+    generation,
+    document,
+    automaticEmotionCandidates,
+  });
   const selectSource = (source: StoryPositionRefV1) => {
     setActionNotice(`Source return requested for ${sourceLabel(source)}.`);
     onSourceReturn?.(source);
@@ -842,6 +973,68 @@ export default function Program6StoryKnowledgeWorkspace({
     setActionNotice(`Saving ${label} for ${draft.unitId}. The manuscript will not be changed.`);
     onAuthorRecordCreate?.(draft);
   };
+  const runAutomaticScan = async (origin: 'deterministic' | 'local-inference' = 'deterministic') => {
+    const bridge = window.storyIntelligence;
+    if (!bridge) {
+      setAutomaticScanNotice('Automatic manuscript scanning is unavailable in this window.');
+      return;
+    }
+    const runId = scanId('automatic-story-scan');
+    const analysisId = scanId('analysis');
+    setAutomaticScanBusy(true);
+    setAutomaticRun({ runId, analysisId });
+    setAutomaticScanNotice(null);
+    try {
+      const result = await bridge.automaticScan({
+        schemaVersion: AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION,
+        operationId: scanId('automatic-scan-operation'),
+        projectId: project.projectId,
+        projectPath: project.path,
+        generation,
+        runId,
+        analysisId,
+        requestedAt: new Date().toISOString(),
+        origin,
+        lenses: [...AUTOMATIC_STORY_INTELLIGENCE_LENSES],
+        ...(automaticScan?.status === 'completed'
+          ? { rerunOf: { runId: automaticScan.runId, analysisId: automaticScan.analysisId } }
+          : {}),
+      });
+      if (result.ok) {
+        setAutomaticScan(result.data);
+        setAutomaticScanNotice(result.data.status === 'completed'
+          ? origin === 'local-inference'
+            ? 'Local-AI emotion analysis finished. The inferred layer is temporary and advisory.'
+            : 'Automatic scan finished. Review the source-linked prompts below.'
+          : result.data.error?.message ?? `Automatic scan ${result.data.status}.`);
+      } else {
+        setAutomaticScanNotice(result.error.message);
+      }
+    } catch {
+      setAutomaticScanNotice('The automatic manuscript scan could not be completed.');
+    } finally {
+      setAutomaticScanBusy(false);
+      setAutomaticRun(null);
+    }
+  };
+  const cancelAutomaticScan = () => {
+    const bridge = window.storyIntelligence;
+    const run = automaticRun;
+    if (!bridge || !run) return;
+    void bridge.automaticCancel({
+      schemaVersion: AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION,
+      operationId: scanId('automatic-cancel-operation'),
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation,
+      runId: run.runId,
+      analysisId: run.analysisId,
+      requestedAt: new Date().toISOString(),
+      reason: 'Author cancelled the automatic manuscript scan.',
+    }).then((result) => {
+      if (!result.ok) setAutomaticScanNotice(result.error.message);
+    }).catch(() => setAutomaticScanNotice('The scan could not be cancelled.'));
+  };
   return (
     <section
       className="stage19-program6"
@@ -881,7 +1074,22 @@ export default function Program6StoryKnowledgeWorkspace({
           {actionNotice}
         </p>
       ) : null}
-      {lens === 'overview' ? <LensSummary projection={projection} document={document} /> : null}
+      {lens === 'overview' ? (
+        <>
+          <AutomaticScanPanel
+            state={automaticScan}
+            busy={automaticScanBusy}
+            notice={automaticScanNotice}
+            onScan={() => void runAutomaticScan()}
+            onLocalEmotionScan={() => void runAutomaticScan('local-inference')}
+            onCancel={cancelAutomaticScan}
+            onSourceReturn={selectSource}
+            localInferenceEnabled={document.settings.analysisPolicy.optionalInferenceEnabled}
+            onEnableLocalInference={onEnableLocalInference}
+          />
+          <LensSummary projection={projection} document={document} />
+        </>
+      ) : null}
       {lens === 'emotion' ? (
         <EmotionLens
           project={project}

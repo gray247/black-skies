@@ -3014,6 +3014,53 @@ export default function Stage19WritingSpineApp({
     }
   }, [storyIntelligenceBridge, storyIntelligenceDocument]);
 
+  const enableLocalInference = useCallback(async () => {
+    const document = storyIntelligenceDocument;
+    const current = snapshotRef.current;
+    const binding = bindingFor(current, 'enable-local-emotion-analysis');
+    if (!storyIntelligenceBridge || !document || !binding) return;
+    try {
+      const permission = await storyIntelligenceBridge.checkPermission({
+        ...binding,
+        sourceClass: 'included',
+        operation: 'persist',
+      });
+      if (!permission.ok || !permission.data.allowed) {
+        setStoryIntelligenceNotice(permission.ok
+          ? 'Project permissions do not allow changing the local-AI setting.'
+          : permission.error.message);
+        return;
+      }
+      const now = new Date().toISOString();
+      const next: StoryIntelligenceDocumentV1 = {
+        ...document,
+        revision: document.revision + 1,
+        settings: {
+          ...document.settings,
+          analysisPolicy: {
+            ...document.settings.analysisPolicy,
+            optionalInferenceEnabled: true,
+            updatedAt: now,
+          },
+        },
+        updatedAt: now,
+      };
+      const result = await storyIntelligenceBridge.write({
+        ...binding,
+        expectedRevision: document.revision,
+        document: next,
+      });
+      if (result.ok) {
+        setStoryIntelligenceDocument(result.data);
+        setStoryIntelligenceNotice('Optional local interpretation is enabled for this project.');
+      } else {
+        setStoryIntelligenceNotice(result.error.message);
+      }
+    } catch {
+      setStoryIntelligenceNotice('The local-AI setting could not be saved. No manuscript content was changed.');
+    }
+  }, [storyIntelligenceBridge, storyIntelligenceDocument]);
+
   const activateSurface = useCallback(async (
     targetSurface: SplitCommandLogicalSurface,
     placement: 'current-window' | 'secondary-window',
@@ -3374,6 +3421,7 @@ export default function Stage19WritingSpineApp({
     saveFeedbackNote,
     returnToStorySource,
     createEmotionRecord,
+    enableLocalInference,
     disposeStorySignal,
     openRecent: handleOpenRecent,
     removeRecent: handleRemoveRecent,

@@ -77,7 +77,7 @@ function validHash(value: unknown): value is string {
 
 function validOperation(value: unknown): value is Program7LocalInferenceOperationV1 {
   return (
-    value === 'rewrite_candidate' || value === 'revision_recheck' || value === 'premise_alternative'
+    value === 'rewrite_candidate' || value === 'revision_recheck' || value === 'premise_alternative' || value === 'emotion_analysis'
   );
 }
 
@@ -223,6 +223,8 @@ function validateModelOutput(
   const allowedStatus =
     request.operation === 'revision_recheck'
       ? ['appears_resolved', 'still_appears_present']
+      : request.operation === 'emotion_analysis'
+        ? ['candidate', 'no_findings']
       : ['candidate'];
   if (
     !allowedStatus.includes(String(value.status)) ||
@@ -262,6 +264,7 @@ export function validateProgram7LocalInferenceResponse(
     value.model !== PROGRAM7_LOCAL_INFERENCE_MODEL ||
     ![
       'candidate',
+      'no_findings',
       'appears_resolved',
       'still_appears_present',
       'unavailable',
@@ -287,6 +290,7 @@ export function validateProgram7LocalInferenceResponse(
   if (status !== 'candidate' && value.text.length > request.limits.outputChars) return null;
   if (
     (status === 'candidate' ||
+      status === 'no_findings' ||
       status === 'appears_resolved' ||
       status === 'still_appears_present') &&
     !validSuccessfulReceipt(value.receipt)

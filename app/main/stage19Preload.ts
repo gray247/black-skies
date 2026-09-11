@@ -53,6 +53,8 @@ import type {
   UpdateLivingOutlineItemRequest,
 } from '../shared/ipc/livingOutline';
 import type {
+  AutomaticStoryIntelligenceCancelRequestV1,
+  AutomaticStoryIntelligenceScanRequestV1,
   CheckStoryIntelligencePermissionRequestV1,
   GetStoryIntelligenceRequestV1,
   StoryIntelligenceBridge,
@@ -155,6 +157,8 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     read: 'story-intelligence:read',
     write: 'story-intelligence:write',
     checkPermission: 'story-intelligence:check-permission',
+    automaticScan: 'story-intelligence:automatic-scan',
+    automaticCancel: 'story-intelligence:automatic-cancel',
   }),
   manuscriptStructure: Object.freeze({
     chooseMarkdown: 'manuscript-structure:choose-markdown',
@@ -814,6 +818,10 @@ const storyIntelligence: StoryIntelligenceBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.write, request),
   checkPermission: (request: CheckStoryIntelligencePermissionRequestV1) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.checkPermission, request),
+  automaticScan: (request: AutomaticStoryIntelligenceScanRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.automaticScan, request),
+  automaticCancel: (request: AutomaticStoryIntelligenceCancelRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyIntelligence.automaticCancel, request),
 };
 
 const manuscriptStructure: ManuscriptStructureBridge = {

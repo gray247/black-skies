@@ -316,6 +316,7 @@ export interface Stage19WritingSpineViewActions {
   readonly saveFeedbackNote: () => MaybeAsync;
   readonly returnToStorySource: (source: StoryPositionRefV1) => MaybeAsync;
   readonly createEmotionRecord: (draft: StoryKnowledgeAuthorRecordDraftV1) => MaybeAsync;
+  readonly enableLocalInference: () => MaybeAsync;
   readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
   readonly openRecent: (projectPath: string) => MaybeAsync;
   readonly removeRecent: (projectPath: string) => MaybeAsync;
@@ -642,6 +643,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             document={model.storyIntelligenceDocument}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}
             onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
+            onEnableLocalInference={() => void actions.enableLocalInference()}
             onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
           />
         ) : model.commandWorkspace === 'story-knowledge' ? (

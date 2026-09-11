@@ -77,6 +77,8 @@ import {
 import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
 import { registerLivingOutlineIpc } from './livingOutlineIpc.js';
 import { registerStoryIntelligenceIpc } from './storyIntelligenceIpc.js';
+import { createProgram7LocalInferenceService } from './program7LocalInferenceService.js';
+import { OllamaLocalInferenceTransport } from './ollamaLocalInferenceTransport.js';
 import { registerManuscriptStructureIpc } from './manuscriptStructureIpc.js';
 import {
   getCritiqueReviewSurfaceState,
@@ -169,6 +171,9 @@ const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
+const program7LocalInferenceService = createProgram7LocalInferenceService({
+  transport: new OllamaLocalInferenceTransport(),
+});
 const projectSpineOriginSessionId = randomUUID();
 const dedicatedStage19HostEnabled = shouldEnableDedicatedStage19Host(
   app.isPackaged,
@@ -1761,6 +1766,7 @@ if (!hasSingleInstanceLock) {
       registerStoryIntelligenceIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        localInferenceService: program7LocalInferenceService,
       });
       registerManuscriptStructureIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,

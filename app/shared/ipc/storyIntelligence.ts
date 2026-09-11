@@ -1,7 +1,16 @@
+import type {
+  AutomaticStoryIntelligenceLensV1,
+  AutomaticStoryIntelligenceOriginV1,
+  AutomaticStoryIntelligenceRunStateV1,
+  AutomaticStoryIntelligenceRerunIdentityV1,
+} from './automaticStoryIntelligence.js';
+
 export const STORY_INTELLIGENCE_CHANNELS = {
   read: 'story-intelligence:read',
   write: 'story-intelligence:write',
   checkPermission: 'story-intelligence:check-permission',
+  automaticScan: 'story-intelligence:automatic-scan',
+  automaticCancel: 'story-intelligence:automatic-cancel',
 } as const;
 
 export const STORY_INTELLIGENCE_SCHEMA_VERSION = 'BlackSkiesStoryIntelligence v1' as const;
@@ -265,6 +274,26 @@ export interface CheckStoryIntelligencePermissionRequestV1
   readonly operation: StoryIntelligencePermissionOperationV1;
 }
 
+export interface AutomaticStoryIntelligenceScanRequestV1
+  extends StoryIntelligenceProjectBindingV1 {
+  readonly schemaVersion: 'BlackSkiesAutomaticStoryIntelligence v1';
+  readonly runId: string;
+  readonly analysisId: string;
+  readonly requestedAt: string;
+  readonly origin: AutomaticStoryIntelligenceOriginV1;
+  readonly lenses: readonly AutomaticStoryIntelligenceLensV1[];
+  readonly rerunOf?: AutomaticStoryIntelligenceRerunIdentityV1;
+}
+
+export interface AutomaticStoryIntelligenceCancelRequestV1
+  extends StoryIntelligenceProjectBindingV1 {
+  readonly schemaVersion: 'BlackSkiesAutomaticStoryIntelligence v1';
+  readonly runId: string;
+  readonly analysisId: string;
+  readonly requestedAt: string;
+  readonly reason: string;
+}
+
 export type StoryIntelligenceErrorCodeV1 =
   | 'NOT_WRITING_STUDIO'
   | 'NO_ACTIVE_PROJECT'
@@ -295,6 +324,24 @@ export type StoryIntelligenceReadResultV1 =
   | StoryIntelligenceFailureV1;
 export type StoryIntelligenceWriteResultV1 = StoryIntelligenceReadResultV1;
 
+export interface AutomaticStoryIntelligenceSuccessV1 {
+  readonly ok: true;
+  readonly data: AutomaticStoryIntelligenceRunStateV1;
+}
+
+export type AutomaticStoryIntelligenceResultV1 =
+  | AutomaticStoryIntelligenceSuccessV1
+  | StoryIntelligenceFailureV1;
+
+export interface AutomaticStoryIntelligenceCancelSuccessV1 {
+  readonly ok: true;
+  readonly data: { readonly accepted: boolean; readonly runId: string };
+}
+
+export type AutomaticStoryIntelligenceCancelResultV1 =
+  | AutomaticStoryIntelligenceCancelSuccessV1
+  | StoryIntelligenceFailureV1;
+
 export interface StoryIntelligencePermissionResultV1 {
   readonly allowed: boolean;
   readonly sourceClass: StoryIntelligenceSourceClassV1;
@@ -324,4 +371,10 @@ export interface StoryIntelligenceBridge {
   checkPermission(
     request: CheckStoryIntelligencePermissionRequestV1,
   ): Promise<StoryIntelligencePermissionResultEnvelopeV1>;
+  automaticScan(
+    request: AutomaticStoryIntelligenceScanRequestV1,
+  ): Promise<AutomaticStoryIntelligenceResultV1>;
+  automaticCancel(
+    request: AutomaticStoryIntelligenceCancelRequestV1,
+  ): Promise<AutomaticStoryIntelligenceCancelResultV1>;
 }

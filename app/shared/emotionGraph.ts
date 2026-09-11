@@ -184,7 +184,8 @@ function validatePointShape(value: unknown, projectId: string, candidate: boolea
     !record.positionRefs.every((ref) => isStoryPositionRefV1(ref, projectId)) ||
     !bounded(record.subjectLabel, 160) && record.subjectLabel !== undefined ||
     !isoDate(record.createdAt) || (!candidate && !isoDate(record.updatedAt))) return false;
-  if (candidate) return record.lane === 'inferred' && record.temporary === true && record.provenance.origin === 'deterministic';
+  if (candidate) return record.lane === 'inferred' && record.temporary === true &&
+    (record.provenance.origin === 'deterministic' || record.provenance.origin === 'local-inference');
   if (!isOneOf(record.lane, EMOTION_GRAPH_DURABLE_LANES_V1)) return false;
   const sourceKinds = new Set(record.positionRefs.map((ref) => ref.sourceKind));
   if (record.lane === 'observed') return sourceKinds.has('manuscript') || sourceKinds.has('assertion');
@@ -262,15 +263,20 @@ export function resolveEmotionGraphPointCurrentness(
   return { ...point, currentness };
 }
 
-function orderValue(point: EmotionGraphPointV1 | EmotionGraphCandidatePointV1): [number, string, string] {
+function orderValue(point: EmotionGraphPointV1 | EmotionGraphCandidatePointV1): [number, number, string, string] {
   const first = [...point.positionRefs].sort((a, b) => (a.orderIndex ?? Number.MAX_SAFE_INTEGER) - (b.orderIndex ?? Number.MAX_SAFE_INTEGER))[0];
-  return [first?.orderIndex ?? Number.MAX_SAFE_INTEGER, first?.sourceId ?? '', 'pointId' in point ? point.pointId : point.candidateId];
+  return [
+    first?.orderIndex ?? Number.MAX_SAFE_INTEGER,
+    first?.selectionStart ?? Number.MAX_SAFE_INTEGER,
+    first?.sourceId ?? '',
+    'pointId' in point ? point.pointId : point.candidateId,
+  ];
 }
 
 function ordered<T extends EmotionGraphPointV1 | EmotionGraphCandidatePointV1>(points: readonly T[]): T[] {
   return [...points].sort((a, b) => {
     const left = orderValue(a); const right = orderValue(b);
-    return left[0] - right[0] || left[1].localeCompare(right[1]) || left[2].localeCompare(right[2]);
+    return left[0] - right[0] || left[1] - right[1] || left[2].localeCompare(right[2]) || left[3].localeCompare(right[3]);
   });
 }
 

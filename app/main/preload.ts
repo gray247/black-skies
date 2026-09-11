@@ -39,6 +39,8 @@ import {
 } from '../shared/ipc/livingOutline';
 import {
   STORY_INTELLIGENCE_CHANNELS,
+  type AutomaticStoryIntelligenceCancelRequestV1,
+  type AutomaticStoryIntelligenceScanRequestV1,
   type CheckStoryIntelligencePermissionRequestV1,
   type GetStoryIntelligenceRequestV1,
   type StoryIntelligenceBridge,
@@ -2809,6 +2811,10 @@ const storyIntelligenceBridge: StoryIntelligenceBridge = {
     ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.write, request),
   checkPermission: (request: CheckStoryIntelligencePermissionRequestV1) =>
     ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.checkPermission, request),
+  automaticScan: (request: AutomaticStoryIntelligenceScanRequestV1) =>
+    ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.automaticScan, request),
+  automaticCancel: (request: AutomaticStoryIntelligenceCancelRequestV1) =>
+    ipcRenderer.invoke(STORY_INTELLIGENCE_CHANNELS.automaticCancel, request),
 };
 
 const manuscriptStructureBridge: ManuscriptStructureBridge = {
