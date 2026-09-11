@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type {
+  AcceptRevisionCandidateRequest,
+  AcceptRevisionCandidateResultData,
   CaptureRecoveryCheckpointRequest,
   CreateManuscriptUnitRequest,
   CreateProjectRequest,
@@ -111,6 +113,7 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
     rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
     saveUnit: 'project-spine:save-unit',
+    acceptRevisionCandidate: 'project-spine:accept-revision-candidate',
     createUnit: 'project-spine:create-unit',
     renameUnit: 'project-spine:rename-unit',
     reorderUnits: 'project-spine:reorder-units',
@@ -631,6 +634,11 @@ const writingProjectSpine: ProjectSpineBridge = {
       STAGE19_PRELOAD_CHANNELS.projectSpine.saveUnit,
       request,
     ) as Promise<ProjectSpineResult<SaveManuscriptUnitResultData>>,
+  acceptRevisionCandidate: (request: AcceptRevisionCandidateRequest) =>
+    ipcRenderer.invoke(
+      STAGE19_PRELOAD_CHANNELS.projectSpine.acceptRevisionCandidate,
+      request,
+    ) as Promise<ProjectSpineResult<AcceptRevisionCandidateResultData>>,
   createUnit: (request: CreateManuscriptUnitRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.createUnit, request),
   renameUnit: (request: RenameManuscriptUnitRequest) =>

@@ -1,5 +1,5 @@
 import { app, dialog, ipcMain } from 'electron';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { IpcMainInvokeEvent } from 'electron';
@@ -7,6 +7,8 @@ import type { LoadedProject, OutlineFile, SceneDraftMetadata } from '../shared/i
 import {
   PROJECT_SPINE_CHANNELS,
   type CaptureRecoveryCheckpointRequest,
+  type AcceptRevisionCandidateRequest,
+  type AcceptRevisionCandidateResultData,
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest,
   type DeleteManuscriptUnitRequest,
@@ -18,6 +20,10 @@ import {
   type ProjectSpineCloseConfirmationResponse,
   type ProjectSpineResult,
   type ProjectSpineSessionSnapshot,
+  PROJECT_SPINE_PENDING_ACCEPTANCE_FILENAME,
+  PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION,
+  type ProjectSpinePendingAcceptanceLifecycle,
+  type ProjectSpinePendingAcceptanceV1,
   type ProjectSpineWindowRole,
   type RecentProjectReference,
   type RecoveryCandidateDecisionRequest,
@@ -30,6 +36,12 @@ import {
   type SelectManuscriptUnitRequest,
   type SetManuscriptUnitDirtyRequest,
 } from '../shared/ipc/projectSpine';
+import {
+  calculateNarrativeInsertion,
+  type NarrativeInsertionModeV1,
+  type NarrativeInsertionRiskV1,
+} from '../shared/narrativeInsertion';
+import type { RevisionCandidateV1 } from '../shared/ipc/revisionCandidates';
 import { getHarnessDialogPath } from '../shared/modePolicy';
 import {
   bootstrapFreshProject,
@@ -66,6 +78,10 @@ import {
   ProjectSpineRecoveryCheckpointService,
   type ProjectSpineRecoveryCheckpointContext,
 } from './projectSpineRecoveryCheckpoints';
+import {
+  RevisionCandidateRepository,
+  RevisionCandidateRepositoryError,
+} from './revisionCandidateRepository';
 
 const RECENT_STORE_SCHEMA_VERSION = 1;
 const RECENT_STORE_FILENAME = 'black-skies-recent-projects-v1.json';
@@ -84,6 +100,7 @@ export interface RegisterProjectSpineIpcOptions {
   readonly focusWritingWindow?: () => void;
   readonly recoveryCheckpoints?: ProjectSpineRecoveryCheckpointService;
   readonly writeMarkdownFile?: typeof writeMarkdownAtomic;
+  readonly revisionCandidatesFactory?: (projectPath: string) => RevisionCandidateRepository;
 }
 
 interface ProjectMetadataV1 {
@@ -102,6 +119,18 @@ let recoveryDetectionReady: {
   readonly generation: number;
   readonly promise: Promise<void>;
 } | null = null;
+
+const NARRATIVE_INSERTION_MODES: readonly NarrativeInsertionModeV1[] = [
+  'accept-all',
+  'accept-selected-text',
+  'accept-edited-before-acceptance',
+];
+const NARRATIVE_INSERTION_RISKS: readonly NarrativeInsertionRiskV1[] = [
+  'canon',
+  'continuity',
+  'protected-content',
+  'source-staleness',
+];
 
 function roleForEvent(event: IpcMainInvokeEvent): ProjectSpineWindowRole {
   const resolved = registrationOptions.resolveWindowRole?.(event.sender.id);
@@ -179,6 +208,16 @@ function mapProjectSpineError(error: unknown): ProjectSpineError {
             : error.code === 'SAVE_FAILED'
               ? 'SAVE_FAILED'
               : 'PROJECT_INVALID';
+    return { code, message: error.message };
+  }
+  if (error instanceof RevisionCandidateRepositoryError) {
+    const code = error.code === 'UNAVAILABLE'
+      ? 'REVISION_CANDIDATE_UNAVAILABLE'
+      : error.code === 'UNKNOWN_CANDIDATE'
+        ? 'REVISION_CANDIDATE_NOT_FOUND'
+        : error.code === 'STALE'
+          ? 'REVISION_CANDIDATE_STALE'
+          : 'REVISION_CANDIDATE_UNAVAILABLE';
     return { code, message: error.message };
   }
   const candidate = error as { code?: unknown; message?: unknown };
@@ -355,6 +394,130 @@ function extractDraftBody(markdown: string): string {
     return markdown;
   }
   return lines.slice(closingIndex + 2).join('\n');
+}
+
+function normalizeLineEndings(value: string): string {
+  return value.replace(/\r\n?/gu, '\n');
+}
+
+function digest(value: string): string {
+  return createHash('sha256').update(normalizeLineEndings(value), 'utf8').digest('hex');
+}
+
+function durableBody(markdown: string): string {
+  return extractDraftBody(normalizeLineEndings(markdown));
+}
+
+function replaceDurableBody(markdown: string, body: string): string {
+  const normalized = normalizeLineEndings(markdown);
+  const lines = normalized.split('\n');
+  if (lines[0]?.trim() !== '---') return normalizeLineEndings(body);
+  const closingIndex = lines.slice(1).findIndex((line) => line.trim() === '---');
+  if (closingIndex < 0) return normalizeLineEndings(body);
+  return `${lines.slice(0, closingIndex + 2).join('\n')}\n${normalizeLineEndings(body)}`;
+}
+
+function submittedProseForDurableBody(body: string): string {
+  const normalized = normalizeLineEndings(body);
+  return normalized.endsWith('\n') ? normalized.slice(0, -1) : normalized;
+}
+
+function pendingAcceptancePath(projectPath: string): string {
+  return path.join(path.resolve(projectPath), PROJECT_SPINE_PENDING_ACCEPTANCE_FILENAME);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function exactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return Object.keys(value).length === keys.length &&
+    keys.every((key) => Object.prototype.hasOwnProperty.call(value, key));
+}
+
+function validPendingAcceptance(value: unknown): value is ProjectSpinePendingAcceptanceV1 {
+  if (!isRecord(value) || !exactKeys(value, [
+    'schemaVersion',
+    'operationId',
+    'projectId',
+    'projectPath',
+    'generation',
+    'unitId',
+    'candidateId',
+    'mode',
+    'lifecycle',
+    'candidateDocumentRevision',
+    'expectedMarkdownSha256',
+    'sourceBodySha256',
+    'currentBodySha256',
+    'candidateTextSha256',
+    'savedBodySha256',
+    'createdAt',
+    'updatedAt',
+    'phase',
+  ])) return false;
+  return value.schemaVersion === PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION &&
+    typeof value.operationId === 'string' && value.operationId.trim().length > 0 &&
+    typeof value.projectId === 'string' && value.projectId.trim().length > 0 &&
+    typeof value.projectPath === 'string' && value.projectPath.trim().length > 0 &&
+    Number.isInteger(value.generation) && Number(value.generation) >= 0 &&
+    typeof value.unitId === 'string' && value.unitId.trim().length > 0 &&
+    typeof value.candidateId === 'string' && value.candidateId.trim().length > 0 &&
+    NARRATIVE_INSERTION_MODES.includes(value.mode as NarrativeInsertionModeV1) &&
+    (value.lifecycle === 'accepted' || value.lifecycle === 'partially accepted') &&
+    Number.isInteger(value.candidateDocumentRevision) && Number(value.candidateDocumentRevision) >= 0 &&
+    [
+      value.expectedMarkdownSha256,
+      value.sourceBodySha256,
+      value.currentBodySha256,
+      value.candidateTextSha256,
+      value.savedBodySha256,
+    ].every((item) => typeof item === 'string' && /^[a-f0-9]{64}$/u.test(item)) &&
+    typeof value.createdAt === 'string' && Number.isFinite(Date.parse(value.createdAt)) &&
+    typeof value.updatedAt === 'string' && Number.isFinite(Date.parse(value.updatedAt)) &&
+    (value.phase === 'pending-save' || value.phase === 'saved-awaiting-finalization');
+}
+
+async function readPendingAcceptance(projectPath: string): Promise<ProjectSpinePendingAcceptanceV1 | null> {
+  try {
+    const parsed = JSON.parse(await fs.readFile(pendingAcceptancePath(projectPath), 'utf8')) as unknown;
+    if (!validPendingAcceptance(parsed)) {
+      throw new ProjectSessionError(
+        'REVISION_ACCEPTANCE_PENDING',
+        'A pending revision acceptance record is invalid and must be repaired before continuing.',
+      );
+    }
+    return parsed;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return null;
+    if (error instanceof ProjectSessionError) throw error;
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'A pending revision acceptance record could not be read safely.',
+    );
+  }
+}
+
+async function writePendingAcceptance(record: ProjectSpinePendingAcceptanceV1): Promise<void> {
+  try {
+    await writeJsonAtomic(pendingAcceptancePath(record.projectPath), record);
+  } catch {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'The pending revision acceptance record could not be saved, so no manuscript change was attempted.',
+    );
+  }
+}
+
+async function clearPendingAcceptance(projectPath: string): Promise<void> {
+  try {
+    await fs.rm(pendingAcceptancePath(projectPath), { force: true });
+  } catch {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'The manuscript was handled, but the pending revision acceptance record could not be cleared yet.',
+    );
+  }
 }
 
 async function writeFileExclusiveSynced(targetPath: string, contents: string): Promise<void> {
@@ -657,6 +820,105 @@ function activeBinding(operationId: string): {
   };
 }
 
+function revisionCandidateRepository(projectPath: string): RevisionCandidateRepository {
+  return (registrationOptions.revisionCandidatesFactory ??
+    ((candidateProjectPath: string) => new RevisionCandidateRepository(candidateProjectPath)))(projectPath);
+}
+
+function candidateForInsertion(candidate: RevisionCandidateV1) {
+  return {
+    projectId: candidate.projectId,
+    unitId: candidate.unitId,
+    sourceSnapshot: candidate.sourceSnapshot,
+    sourceAnchor: candidate.sourceAnchor,
+    candidateText: candidate.candidateText,
+    editedCandidateText: candidate.editedCandidateText,
+    protection: candidate.protection,
+  };
+}
+
+function acceptanceLifecycle(mode: NarrativeInsertionModeV1): ProjectSpinePendingAcceptanceLifecycle {
+  return mode === 'accept-selected-text' ? 'partially accepted' : 'accepted';
+}
+
+async function reconcilePendingRevisionAcceptance(): Promise<void> {
+  const active = coordinator.getActiveProject();
+  if (!active?.projectId) return;
+  const pending = await readPendingAcceptance(active.path);
+  if (!pending) return;
+  if (
+    pending.projectId !== active.projectId ||
+    recoveryCanonicalPathKey(pending.projectPath) !== recoveryCanonicalPathKey(active.path)
+  ) return;
+  const currentMarkdown = active.drafts[pending.unitId];
+  if (typeof currentMarkdown !== 'string') {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'A pending revision acceptance refers to a manuscript unit that is no longer available.',
+    );
+  }
+  const currentBodySha256 = digest(durableBody(currentMarkdown));
+  if (pending.phase === 'pending-save' && currentBodySha256 === pending.currentBodySha256) {
+    await clearPendingAcceptance(active.path);
+    return;
+  }
+  if (currentBodySha256 !== pending.savedBodySha256) {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'A pending revision acceptance found a manuscript body that matches neither the original nor the accepted result.',
+    );
+  }
+  const repository = revisionCandidateRepository(active.path);
+  const candidates = await repository.read(active.projectId);
+  if (candidates.availability !== 'ready') {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      candidates.message ?? 'Saved revision candidates are unavailable for reconciliation.',
+    );
+  }
+  const candidate = candidates.document.candidates.find((entry) => entry.id === pending.candidateId);
+  if (!candidate) {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'The pending revision candidate no longer exists and needs review before continuing.',
+    );
+  }
+  if (
+    candidate.projectId !== pending.projectId ||
+    candidate.unitId !== pending.unitId ||
+    candidate.sourceBodySha256 !== pending.sourceBodySha256
+  ) {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'The pending revision candidate no longer matches its saved manuscript operation.',
+    );
+  }
+  if (candidate.lifecycle === pending.lifecycle) {
+    await clearPendingAcceptance(active.path);
+    return;
+  }
+  try {
+    await repository.finalizeAcceptance(active.projectId, {
+      expectedRevision: candidates.document.revision,
+      candidateId: pending.candidateId,
+      lifecycle: pending.lifecycle,
+      receipt: {
+        sourceBodySha256: pending.sourceBodySha256,
+        candidateTextSha256: pending.candidateTextSha256,
+        savedBodySha256: pending.savedBodySha256,
+        savedAt: pending.updatedAt,
+      },
+      note: 'Reconciled after an interrupted ProjectSpine acceptance.',
+    });
+  } catch {
+    throw new ProjectSessionError(
+      'REVISION_ACCEPTANCE_PENDING',
+      'The manuscript is saved, but candidate provenance is still waiting for safe reconciliation.',
+    );
+  }
+  await clearPendingAcceptance(active.path);
+}
+
 async function detectRecoveryAfterActivation(
   activation: ReturnType<ProjectSessionCoordinator['activateProject']>,
   operationId: string,
@@ -793,6 +1055,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         request.discardUnsaved === true,
         operationId,
       );
+      await reconcilePendingRevisionAcceptance();
       await detectRecoveryAfterActivation(activation, operationId);
       if (latestLifecycleOperationId !== operationId) {
         throw new ProjectSessionError('STALE_SESSION', 'A newer project-open request superseded this result.');
@@ -828,6 +1091,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         { ...typedRequest, operationId },
         project,
       );
+      await reconcilePendingRevisionAcceptance();
       publish(event.sender.id);
       return success(role, { activation: activation.activation as 'reloaded' });
     } catch (error) {
@@ -1048,6 +1312,207 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       return failure(role, error);
     }
   });
+
+  ipcMain.handle(
+    PROJECT_SPINE_CHANNELS.acceptRevisionCandidate,
+    async (event, request: AcceptRevisionCandidateRequest) => {
+      const role = requireWritingRole(event);
+      let acceptanceToken: ReturnType<ProjectSessionCoordinator['beginRevisionAcceptance']> | null = null;
+      let saveToken: ReturnType<ProjectSessionCoordinator['beginSave']> | null = null;
+      try {
+        requireOperationId(request?.operationId);
+        if (
+          !request ||
+          typeof request.projectId !== 'string' ||
+          typeof request.projectPath !== 'string' ||
+          typeof request.unitId !== 'string' ||
+          typeof request.expectedMarkdown !== 'string' ||
+          typeof request.candidateId !== 'string' ||
+          !NARRATIVE_INSERTION_MODES.includes(request.mode) ||
+          (request.candidateSelection !== undefined && (
+            !isRecord(request.candidateSelection) ||
+            !Number.isInteger(request.candidateSelection.selectionStart) ||
+            !Number.isInteger(request.candidateSelection.selectionEnd)
+          )) ||
+          (request.triggeredRisks !== undefined && (
+            !Array.isArray(request.triggeredRisks) ||
+            !request.triggeredRisks.every((risk) => NARRATIVE_INSERTION_RISKS.includes(risk))
+          )) ||
+          (request.acknowledgedRisks !== undefined && (
+            !Array.isArray(request.acknowledgedRisks) ||
+            !request.acknowledgedRisks.every((risk) => NARRATIVE_INSERTION_RISKS.includes(risk))
+          ))
+        ) {
+          throw new ProjectSessionError('INVALID_REQUEST', 'The revision candidate acceptance request is invalid.');
+        }
+        await reconcilePendingRevisionAcceptance();
+        coordinator.assertRecoveryMutationAllowed(request);
+        acceptanceToken = coordinator.beginRevisionAcceptance(request, request.unitId);
+        const active = coordinator.getActiveProject();
+        if (!active?.projectId) {
+          throw new ProjectSessionError('STALE_SESSION', 'No active project is available for revision acceptance.');
+        }
+        if (active.drafts[request.unitId] !== request.expectedMarkdown) {
+          throw new ProjectSessionError(
+            'STALE_DRAFT',
+            'The manuscript changed before this revision candidate acceptance began.',
+          );
+        }
+        const repository = revisionCandidateRepository(active.path);
+        const candidates = await repository.read(active.projectId);
+        if (candidates.availability !== 'ready') {
+          throw new RevisionCandidateRepositoryError(
+            'UNAVAILABLE',
+            candidates.message ?? 'Saved revision candidates are unavailable.',
+          );
+        }
+        const candidate = candidates.document.candidates.find((entry) => entry.id === request.candidateId);
+        if (!candidate) {
+          throw new RevisionCandidateRepositoryError(
+            'UNKNOWN_CANDIDATE',
+            'The revision candidate does not exist.',
+          );
+        }
+        if (
+          candidate.projectId !== active.projectId ||
+          candidate.unitId !== request.unitId ||
+          candidate.currentness !== 'current' ||
+          candidate.lifecycle === 'stale' ||
+          candidate.lifecycle === 'accepted' ||
+          candidate.lifecycle === 'partially accepted'
+        ) {
+          throw new RevisionCandidateRepositoryError(
+            'STALE',
+            'The revision candidate is no longer current and cannot be accepted.',
+          );
+        }
+        const currentBody = durableBody(request.expectedMarkdown);
+        const calculation = await calculateNarrativeInsertion({
+          candidate: candidateForInsertion(candidate),
+          currentBody,
+          mode: request.mode,
+          candidateSelection: request.candidateSelection,
+          triggeredRisks: request.triggeredRisks,
+          acknowledgedRisks: request.acknowledgedRisks,
+        });
+        if (calculation.status !== 'ready' || !calculation.replacement || !calculation.acceptedResultSha256) {
+          throw new ProjectSessionError(
+            'INVALID_REQUEST',
+            calculation.message || 'The revision candidate is not safe to accept.',
+          );
+        }
+        const acceptedBody = normalizeLineEndings(
+          `${currentBody.slice(0, calculation.replacement.sourceStart)}${calculation.replacement.text}${currentBody.slice(calculation.replacement.sourceEnd)}`,
+        );
+        if (digest(acceptedBody) !== calculation.acceptedResultSha256) {
+          throw new ProjectSessionError(
+            'SAVE_FAILED',
+            'The calculated revision result changed before it could be saved.',
+          );
+        }
+        const acceptedMarkdown = replaceDurableBody(request.expectedMarkdown, acceptedBody);
+        const lifecycle = acceptanceLifecycle(request.mode);
+        const createdAt = new Date().toISOString();
+        const pending: ProjectSpinePendingAcceptanceV1 = {
+          schemaVersion: PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION,
+          operationId: request.operationId,
+          projectId: active.projectId,
+          projectPath: active.path,
+          generation: coordinator.getGeneration(),
+          unitId: request.unitId,
+          candidateId: request.candidateId,
+          mode: request.mode,
+          lifecycle,
+          candidateDocumentRevision: candidates.document.revision,
+          expectedMarkdownSha256: digest(request.expectedMarkdown),
+          sourceBodySha256: calculation.sourceBodySha256,
+          currentBodySha256: calculation.currentBodySha256,
+          candidateTextSha256: calculation.candidateTextSha256,
+          savedBodySha256: calculation.acceptedResultSha256,
+          createdAt,
+          updatedAt: createdAt,
+          phase: 'pending-save',
+        };
+        await writePendingAcceptance(pending);
+
+        saveToken = coordinator.beginSave(request, request.unitId);
+        publish();
+        const saved = await saveProjectDraft({
+          projectPath: request.projectPath,
+          projectId: request.projectId,
+          sceneId: request.unitId,
+          expectedMarkdown: request.expectedMarkdown,
+          markdown: acceptedMarkdown,
+        });
+        const savedBodySha256 = digest(durableBody(saved.markdown));
+        if (savedBodySha256 !== pending.savedBodySha256) {
+          coordinator.completeSave(saveToken, saved.markdown);
+          saveToken = null;
+          throw new ProjectSessionError(
+            'SAVE_FAILED',
+            'The durable manuscript does not match the accepted revision result.',
+          );
+        }
+        coordinator.completeSave(saveToken, saved.markdown);
+        saveToken = null;
+        publish();
+        await requireRecoveryCheckpoints().reconcileSuccessfulSave(
+          () => recoveryContextFor(request, request.unitId),
+          request.unitId,
+          submittedProseForDurableBody(acceptedBody),
+          (status, recoveryCandidate) => {
+            if (status !== 'degraded') {
+              coordinator.noteRecoverySaveReconciliation(request, request.unitId, status, recoveryCandidate);
+            }
+          },
+        );
+        publish();
+        const savedAt = new Date().toISOString();
+        await writePendingAcceptance({ ...pending, phase: 'saved-awaiting-finalization', updatedAt: savedAt });
+        try {
+          await repository.finalizeAcceptance(active.projectId, {
+            expectedRevision: candidates.document.revision,
+            candidateId: request.candidateId,
+            lifecycle,
+            receipt: {
+              sourceBodySha256: pending.sourceBodySha256,
+              candidateTextSha256: pending.candidateTextSha256,
+              savedBodySha256: pending.savedBodySha256,
+              savedAt,
+            },
+            note: 'Accepted by Writing Studio through ProjectSpine.',
+          });
+        } catch {
+          throw new ProjectSessionError(
+            'REVISION_ACCEPTANCE_PENDING',
+            'The manuscript was saved, but candidate provenance is waiting for safe reconciliation.',
+          );
+        }
+        await clearPendingAcceptance(active.path);
+        coordinator.finishRevisionAcceptance(acceptanceToken);
+        acceptanceToken = null;
+        publish();
+        return success<AcceptRevisionCandidateResultData>(role, {
+          candidateId: request.candidateId,
+          mode: request.mode,
+          lifecycle,
+          sourceBodySha256: pending.sourceBodySha256,
+          candidateTextSha256: pending.candidateTextSha256,
+          savedBodySha256: pending.savedBodySha256,
+          savedAt,
+        });
+      } catch (error) {
+        if (saveToken) {
+          coordinator.failSave(saveToken, mapProjectSpineError(error).message);
+        }
+        if (acceptanceToken) {
+          coordinator.failRevisionAcceptance(acceptanceToken);
+        }
+        publish();
+        return failure<AcceptRevisionCandidateResultData>(role, error);
+      }
+    },
+  );
 
   ipcMain.handle(PROJECT_SPINE_CHANNELS.createUnit, async (event, request: CreateManuscriptUnitRequest) => {
     const role = requireWritingRole(event);

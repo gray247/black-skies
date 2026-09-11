@@ -1,4 +1,5 @@
 import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -48,6 +49,10 @@ import { ProjectSpineRecoveryCheckpointService } from '../projectSpineRecoveryCh
 import { ProjectSpineRecoveryRepository } from '../projectSpineRecoveryRepository';
 import { writeMarkdownAtomic } from '../projectSpineMarkdownExport';
 import {
+  RevisionCandidateRepository,
+  RevisionCandidateRepositoryError,
+} from '../revisionCandidateRepository';
+import {
   consumeCoordinatedCloseAllowance,
   createPendingCloseRequest,
   grantCoordinatedCloseAllowance,
@@ -87,6 +92,10 @@ function syntheticProject(projectId: string, projectPath: string): LoadedProject
     scenes: [],
     drafts: {},
   };
+}
+
+function sha256(value: string): string {
+  return createHash('sha256').update(value.replace(/\r\n?/gu, '\n'), 'utf8').digest('hex');
 }
 
 describe('project-spine IPC', () => {
@@ -1261,6 +1270,183 @@ describe('project-spine IPC', () => {
         recovery: 'none',
         save: 'save-failed',
       },
+    });
+  });
+
+  it('accepts a current revision candidate only through Writing ProjectSpine and finalizes its provenance', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Acceptance Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Acceptance Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-acceptance-project',
+    });
+    const initialMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    const sourceText = 'Before selected passage after.\n';
+    const sourceMarkdown = `${initialMarkdown}${sourceText}`;
+    const populated = await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'save-acceptance-source',
+      unitId: withUnit.unitId,
+      expectedMarkdown: initialMarkdown,
+      markdown: sourceMarkdown,
+      submittedProse: sourceText.slice(0, -1),
+    });
+    expect(populated).toMatchObject({ ok: true });
+    const current = await invoke(PROJECT_SPINE_CHANNELS.getSession, 1);
+    const expectedMarkdown = current.project.drafts[withUnit.unitId];
+    const repository = new RevisionCandidateRepository(created.projectPath);
+    const createdCandidate = await repository.createManual(created.projectId, 0, {
+      sourceSnapshot: {
+        unitId: withUnit.unitId,
+        bodySha256: sha256(sourceText),
+        text: sourceText,
+      },
+      sourceAnchor: {
+        unitId: withUnit.unitId,
+        selectionStart: 7,
+        selectionEnd: 23,
+        selectionFingerprint: sha256('selected passage'),
+      },
+      purpose: 'Clarify the passage.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: 'Replacement.',
+    });
+    const candidateId = createdCandidate.document.candidates[0]!.id;
+
+    await expect(invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, 2, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: current.generation,
+      operationId: 'command-must-not-accept',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      candidateId,
+      mode: 'accept-all',
+    })).rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
+
+    const accepted = await invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: current.generation,
+      operationId: 'accept-revision-candidate',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      candidateId,
+      mode: 'accept-all',
+    });
+    expect(accepted).toMatchObject({
+      ok: true,
+      data: { candidateId, lifecycle: 'accepted', mode: 'accept-all' },
+      snapshot: { saveState: { status: 'saved', unitId: withUnit.unitId } },
+    });
+    expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
+      `${expectedMarkdown.slice(0, expectedMarkdown.indexOf(sourceText))}Before Replacement. after.\n`,
+    );
+    await expect(repository.read(created.projectId)).resolves.toMatchObject({
+      availability: 'ready',
+      document: { candidates: [{ id: candidateId, lifecycle: 'accepted' }] },
+    });
+    await expect(readFile(join(created.projectPath, 'program7-pending-acceptance.json'), 'utf8')).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+  });
+
+  it('reconciles an accepted manuscript when candidate finalization is interrupted', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Reconciliation Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Reconciliation Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-reconciliation-project',
+    });
+    const initialMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    const sourceText = 'Before selected passage after.\n';
+    const sourceMarkdown = `${initialMarkdown}${sourceText}`;
+    await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'save-reconciliation-source',
+      unitId: withUnit.unitId,
+      expectedMarkdown: initialMarkdown,
+      markdown: sourceMarkdown,
+      submittedProse: sourceText.slice(0, -1),
+    });
+    const current = await invoke(PROJECT_SPINE_CHANNELS.getSession, 1);
+    const expectedMarkdown = current.project.drafts[withUnit.unitId];
+    const repository = new RevisionCandidateRepository(created.projectPath);
+    const createdCandidate = await repository.createManual(created.projectId, 0, {
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceAnchor: {
+        unitId: withUnit.unitId,
+        selectionStart: 7,
+        selectionEnd: 23,
+        selectionFingerprint: sha256('selected passage'),
+      },
+      purpose: 'Clarify the passage.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: 'Replacement.',
+    });
+    const candidateId = createdCandidate.document.candidates[0]!.id;
+    const originalFinalize = repository.finalizeAcceptance.bind(repository);
+    const finalizeAcceptance = vi.fn()
+      .mockRejectedValueOnce(new RevisionCandidateRepositoryError('WRITE_FAILED', 'Simulated interruption.'))
+      .mockImplementation((projectId: string, request: any) => originalFinalize(projectId, request));
+    registerProjectSpineIpc({
+      originSessionId: 'test-origin-session',
+      coordinator: testCoordinator,
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+      publishSession: vi.fn(),
+      focusWritingWindow,
+      revisionCandidatesFactory: () => ({
+        read: repository.read.bind(repository),
+        finalizeAcceptance,
+      } as unknown as RevisionCandidateRepository),
+    });
+
+    const interrupted = await invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: current.generation,
+      operationId: 'interrupt-revision-candidate',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      candidateId,
+      mode: 'accept-all',
+    });
+    expect(interrupted).toMatchObject({ ok: false, error: { code: 'REVISION_ACCEPTANCE_PENDING' } });
+    await expect(readFile(join(created.projectPath, 'program7-pending-acceptance.json'), 'utf8')).resolves.toContain(candidateId);
+
+    resetProjectSpineForTests(new ProjectSessionCoordinator());
+    electronMocks.handlers.clear();
+    registerProjectSpineIpc({
+      originSessionId: 'restart-origin-session',
+      coordinator: new ProjectSessionCoordinator(),
+      recentStorePath: testRecentStorePath,
+      resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
+    });
+    const reopened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'reopen-after-interruption',
+    });
+    expect(reopened).toMatchObject({ ok: true, snapshot: { project: { projectId: created.projectId } } });
+    await expect(new RevisionCandidateRepository(created.projectPath).read(created.projectId)).resolves.toMatchObject({
+      document: { candidates: [{ id: candidateId, lifecycle: 'accepted' }] },
+    });
+    await expect(readFile(join(created.projectPath, 'program7-pending-acceptance.json'), 'utf8')).rejects.toMatchObject({
+      code: 'ENOENT',
     });
   });
 });

@@ -707,6 +707,34 @@ Required behavior:
 - finalize candidate provenance only after durable save succeeds; and
 - reconcile interrupted pending acceptance by exact fingerprints at startup.
 
+INT-1 durable pending-acceptance journal:
+
+- ProjectSpine owns one project-root sidecar named
+  `program7-pending-acceptance.json`; it is not part of the manuscript draft,
+  the recovery checkpoint artifact, or the revision-candidate document.
+- The sidecar uses schema `BlackSkiesProgram7PendingAcceptance v1` and stores
+  only the operation binding, project/unit/candidate identity, insertion mode,
+  target candidate lifecycle, candidate-document revision, normalized
+  `expectedMarkdownSha256`, source/current/candidate/saved-result SHA-256
+  fingerprints, timestamps, and one phase: `pending-save` or
+  `saved-awaiting-finalization`. Raw manuscript or candidate text is never
+  copied into this journal.
+- ProjectSpine writes the sidecar atomically before calling `saveProjectDraft`.
+  It changes the phase only after the durable draft hash matches the calculated
+  accepted-result hash, then finalizes candidate provenance through the existing
+  repository hook, and removes the sidecar only after finalization succeeds.
+- On project activation/reload, and before a new acceptance begins, ProjectSpine
+  reconciles the sidecar by exact project/path/unit and body fingerprints:
+  an original-body match proves that no manuscript write occurred and permits
+  journal removal; an accepted-result match permits candidate finalization or
+  clears the journal when the candidate is already finalized; any other body,
+  missing candidate, stale candidate, malformed journal, or failed finalization
+  leaves the journal in place and reports `REVISION_ACCEPTANCE_PENDING`.
+- The Command Center has no acceptance method. Both the manuscript save and
+  the candidate-provenance finalization remain behind the Writing-only
+  ProjectSpine owner, with the existing generation, operation, expected-markdown,
+  recovery, and atomic-save contracts preserved.
+
 Stop conditions:
 
 - Command Center receives direct manuscript mutation authority;

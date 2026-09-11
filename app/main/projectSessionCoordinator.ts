@@ -62,6 +62,8 @@ export interface ProjectSaveToken {
   readonly operationId: string;
 }
 
+export interface ProjectRevisionAcceptanceToken extends ProjectSaveToken {}
+
 export interface ProjectStructureToken {
   readonly generation: number;
   readonly projectId: string;
@@ -200,6 +202,7 @@ export class ProjectSessionCoordinator {
   private readonly projectPathById = new Map<string, string>();
   private readonly projectIdByPath = new Map<string, string>();
   private activeSaveToken: ProjectSaveToken | null = null;
+  private activeRevisionAcceptanceToken: ProjectRevisionAcceptanceToken | null = null;
   private activeStructureToken: ProjectStructureToken | null = null;
   private activeRecoveryDecisionToken: ProjectRecoveryDecisionToken | null = null;
   private recoveryState: ProjectSpineWritingRecoveryState = { status: 'none', candidates: [] };
@@ -297,7 +300,12 @@ export class ProjectSessionCoordinator {
 
   beginRecoveryDecision(binding: ProjectSpineBinding, unitId: string): ProjectRecoveryDecisionToken {
     this.assertBinding(binding);
-    if (this.activeSaveToken || this.activeStructureToken || this.activeRecoveryDecisionToken) {
+    if (
+      this.activeSaveToken ||
+      this.activeRevisionAcceptanceToken ||
+      this.activeStructureToken ||
+      this.activeRecoveryDecisionToken
+    ) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project operation is already in progress.');
     }
     if (this.recoveryState.status !== 'decision-required') {
@@ -477,7 +485,10 @@ export class ProjectSessionCoordinator {
   }
 
   hasOperationInFlight(): boolean {
-    return this.activeSaveToken !== null || this.activeStructureToken !== null || this.activeRecoveryDecisionToken !== null;
+    return this.activeSaveToken !== null ||
+      this.activeRevisionAcceptanceToken !== null ||
+      this.activeStructureToken !== null ||
+      this.activeRecoveryDecisionToken !== null;
   }
 
   activateProject(project: LoadedProject, allowDiscardUnsaved = false): ProjectActivationResult {
@@ -531,6 +542,7 @@ export class ProjectSessionCoordinator {
     this.revision += 1;
     this.dirtyUnitIds.clear();
     this.activeSaveToken = null;
+    this.activeRevisionAcceptanceToken = null;
     this.activeStructureToken = null;
     this.activeRecoveryDecisionToken = null;
     this.recoveryState = { status: 'none', candidates: [] };
@@ -564,6 +576,7 @@ export class ProjectSessionCoordinator {
     this.revision += 1;
     this.dirtyUnitIds.clear();
     this.activeSaveToken = null;
+    this.activeRevisionAcceptanceToken = null;
     this.activeStructureToken = null;
     this.activeRecoveryDecisionToken = null;
     this.recoveryState = { status: 'none', candidates: [] };
@@ -651,7 +664,12 @@ export class ProjectSessionCoordinator {
     if (!this.activeProject?.scenes.some((unit) => unit.id === unitId)) {
       throw new ProjectSessionError('UNIT_NOT_FOUND', 'The manuscript unit no longer exists.');
     }
-    if (this.activeSaveToken || this.activeStructureToken) {
+    if (
+      this.activeSaveToken ||
+      this.activeStructureToken ||
+      (this.activeRevisionAcceptanceToken &&
+        this.activeRevisionAcceptanceToken.operationId !== binding.operationId)
+    ) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project write is already in progress.');
     }
     const token: ProjectSaveToken = {
@@ -666,6 +684,47 @@ export class ProjectSessionCoordinator {
     this.saveState = { status: 'saving', unitId, message: null };
     this.lastError = null;
     return token;
+  }
+
+  beginRevisionAcceptance(
+    binding: ProjectSpineBinding,
+    unitId: string,
+  ): ProjectRevisionAcceptanceToken {
+    this.assertBinding(binding);
+    if (!this.activeProject?.scenes.some((unit) => unit.id === unitId)) {
+      throw new ProjectSessionError('UNIT_NOT_FOUND', 'The manuscript unit no longer exists.');
+    }
+    if (
+      this.activeSaveToken ||
+      this.activeRevisionAcceptanceToken ||
+      this.activeStructureToken ||
+      this.activeRecoveryDecisionToken
+    ) {
+      throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project write is already in progress.');
+    }
+    const token: ProjectRevisionAcceptanceToken = {
+      generation: this.generation,
+      projectId: binding.projectId,
+      projectPath: path.resolve(binding.projectPath),
+      unitId,
+      operationId: binding.operationId,
+    };
+    this.activeRevisionAcceptanceToken = token;
+    this.revision += 1;
+    return token;
+  }
+
+  finishRevisionAcceptance(token: ProjectRevisionAcceptanceToken): void {
+    this.assertRevisionAcceptanceToken(token);
+    this.activeRevisionAcceptanceToken = null;
+    this.revision += 1;
+  }
+
+  failRevisionAcceptance(token: ProjectRevisionAcceptanceToken): void {
+    if (this.matchesRevisionAcceptanceToken(token)) {
+      this.activeRevisionAcceptanceToken = null;
+      this.revision += 1;
+    }
   }
 
   completeSave(token: ProjectSaveToken, markdown: string): void {
@@ -699,7 +758,7 @@ export class ProjectSessionCoordinator {
 
   beginStructureMutation(binding: ProjectSpineBinding): ProjectStructureToken {
     this.assertBinding(binding);
-    if (this.activeSaveToken || this.activeStructureToken) {
+    if (this.activeSaveToken || this.activeRevisionAcceptanceToken || this.activeStructureToken) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project write is already in progress.');
     }
     const token: ProjectStructureToken = {
@@ -869,6 +928,27 @@ export class ProjectSessionCoordinator {
       this.activeProject?.projectId === token.projectId &&
       canonicalPathKey(this.activeProject.path) === canonicalPathKey(token.projectPath),
     );
+  }
+
+  private matchesRevisionAcceptanceToken(token: ProjectRevisionAcceptanceToken): boolean {
+    return Boolean(
+      this.activeRevisionAcceptanceToken &&
+      this.activeRevisionAcceptanceToken.operationId === token.operationId &&
+      this.activeRevisionAcceptanceToken.unitId === token.unitId &&
+      this.activeRevisionAcceptanceToken.generation === token.generation &&
+      this.generation === token.generation &&
+      this.activeProject?.projectId === token.projectId &&
+      canonicalPathKey(this.activeProject.path) === canonicalPathKey(token.projectPath),
+    );
+  }
+
+  private assertRevisionAcceptanceToken(token: ProjectRevisionAcceptanceToken): void {
+    if (!this.matchesRevisionAcceptanceToken(token)) {
+      throw new ProjectSessionError(
+        'STALE_SESSION',
+        'Revision acceptance result belongs to a stale project session.',
+      );
+    }
   }
 
   private assertSaveToken(token: ProjectSaveToken): void {

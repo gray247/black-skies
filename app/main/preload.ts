@@ -740,6 +740,8 @@ import {
 } from '../shared/ipc/projectLoader.js';
 import {
   PROJECT_SPINE_CHANNELS,
+  type AcceptRevisionCandidateRequest,
+  type AcceptRevisionCandidateResultData,
   type CaptureRecoveryCheckpointRequest,
   type CreateManuscriptUnitRequest,
   type CreateProjectRequest as ProjectSpineCreateProjectRequest,
@@ -2464,6 +2466,10 @@ const projectSpineBridge: ProjectSpineBridge | CommandProjectSpineBridge =
         saveUnit: (request: SaveManuscriptUnitRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.saveUnit, request) as Promise<
             ProjectSpineResult<SaveManuscriptUnitResultData>
+          >,
+        acceptRevisionCandidate: (request: AcceptRevisionCandidateRequest) =>
+          ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, request) as Promise<
+            ProjectSpineResult<AcceptRevisionCandidateResultData>
           >,
         createUnit: (request: CreateManuscriptUnitRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.createUnit, request) as Promise<

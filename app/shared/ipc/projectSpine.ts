@@ -1,3 +1,9 @@
+import type {
+  NarrativeInsertionCandidateSelectionV1,
+  NarrativeInsertionModeV1,
+  NarrativeInsertionRiskV1,
+} from '../narrativeInsertion';
+
 export const PROJECT_SPINE_CHANNELS = {
   chooseDirectory: 'project-spine:choose-directory',
   focusWritingWindow: 'project-spine:focus-writing-window',
@@ -12,6 +18,7 @@ export const PROJECT_SPINE_CHANNELS = {
   acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
   rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
   saveUnit: 'project-spine:save-unit',
+  acceptRevisionCandidate: 'project-spine:accept-revision-candidate',
   createUnit: 'project-spine:create-unit',
   renameUnit: 'project-spine:rename-unit',
   reorderUnits: 'project-spine:reorder-units',
@@ -195,6 +202,10 @@ export type ProjectSpineErrorCode =
   | 'RECOVERY_UNAVAILABLE'
   | 'RECOVERY_WRITE_FAILED'
   | 'RECOVERY_CLEANUP_FAILED'
+  | 'REVISION_CANDIDATE_UNAVAILABLE'
+  | 'REVISION_CANDIDATE_NOT_FOUND'
+  | 'REVISION_CANDIDATE_STALE'
+  | 'REVISION_ACCEPTANCE_PENDING'
   | 'SAVE_FAILED'
   | 'STRUCTURE_WRITE_FAILED'
   | 'EXPORT_BLOCKED'
@@ -300,6 +311,55 @@ export interface SaveManuscriptUnitRequest extends ProjectSpineBinding {
   readonly submittedProse: string;
 }
 
+export const PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION =
+  'BlackSkiesProgram7PendingAcceptance v1' as const;
+export const PROJECT_SPINE_PENDING_ACCEPTANCE_FILENAME = 'program7-pending-acceptance.json' as const;
+
+export type ProjectSpinePendingAcceptancePhase = 'pending-save' | 'saved-awaiting-finalization';
+export type ProjectSpinePendingAcceptanceLifecycle = 'accepted' | 'partially accepted';
+
+/** ProjectSpine-owned, hash-only journal for an interrupted revision-candidate acceptance. */
+export interface ProjectSpinePendingAcceptanceV1 {
+  readonly schemaVersion: typeof PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION;
+  readonly operationId: string;
+  readonly projectId: string;
+  readonly projectPath: string;
+  readonly generation: number;
+  readonly unitId: string;
+  readonly candidateId: string;
+  readonly mode: NarrativeInsertionModeV1;
+  readonly lifecycle: ProjectSpinePendingAcceptanceLifecycle;
+  readonly candidateDocumentRevision: number;
+  readonly expectedMarkdownSha256: string;
+  readonly sourceBodySha256: string;
+  readonly currentBodySha256: string;
+  readonly candidateTextSha256: string;
+  readonly savedBodySha256: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly phase: ProjectSpinePendingAcceptancePhase;
+}
+
+export interface AcceptRevisionCandidateRequest extends ProjectSpineBinding {
+  readonly unitId: string;
+  readonly expectedMarkdown: string;
+  readonly candidateId: string;
+  readonly mode: NarrativeInsertionModeV1;
+  readonly candidateSelection?: NarrativeInsertionCandidateSelectionV1;
+  readonly triggeredRisks?: readonly NarrativeInsertionRiskV1[];
+  readonly acknowledgedRisks?: readonly NarrativeInsertionRiskV1[];
+}
+
+export interface AcceptRevisionCandidateResultData {
+  readonly candidateId: string;
+  readonly mode: NarrativeInsertionModeV1;
+  readonly lifecycle: ProjectSpinePendingAcceptanceLifecycle;
+  readonly sourceBodySha256: string;
+  readonly candidateTextSha256: string;
+  readonly savedBodySha256: string;
+  readonly savedAt: string;
+}
+
 export interface CreateManuscriptUnitRequest extends ProjectSpineBinding {
   readonly title: string;
 }
@@ -388,6 +448,10 @@ export interface ProjectSpineBridge {
   saveUnit?(
     request: SaveManuscriptUnitRequest,
   ): Promise<ProjectSpineResult<SaveManuscriptUnitResultData>>;
+  /** Writing Studio only. Omitted from the Command Center bridge. */
+  acceptRevisionCandidate?(
+    request: AcceptRevisionCandidateRequest,
+  ): Promise<ProjectSpineResult<AcceptRevisionCandidateResultData>>;
   /** Writing Studio only. Omitted from the Command Center bridge. */
   createUnit?(request: CreateManuscriptUnitRequest): Promise<ProjectSpineResult<{ unitId: string }>>;
   /** Writing Studio only. Omitted from the Command Center bridge. */

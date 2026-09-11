@@ -698,6 +698,7 @@ describe('splitCommand preload bridge', () => {
     expect(Object.keys(projectSpine!).sort()).toEqual(
       [
         'acceptRecoveryCandidate',
+        'acceptRevisionCandidate',
         'captureRecoveryCheckpoint',
         'chooseDirectory',
         'createProject',
@@ -789,6 +790,7 @@ describe('splitCommand preload bridge', () => {
     expect(ipcRendererInvokeMock).toHaveBeenLastCalledWith(LIVING_OUTLINE_CHANNELS.get, {});
     expect(projectSpine?.captureRecoveryCheckpoint).toEqual(expect.any(Function));
     expect(projectSpine?.acceptRecoveryCandidate).toEqual(expect.any(Function));
+    expect(projectSpine?.acceptRevisionCandidate).toEqual(expect.any(Function));
     expect(projectSpine?.rejectRecoveryCandidate).toEqual(expect.any(Function));
     expect(projectSpine?.createUnit).toEqual(expect.any(Function));
     expect(projectSpine?.renameUnit).toEqual(expect.any(Function));

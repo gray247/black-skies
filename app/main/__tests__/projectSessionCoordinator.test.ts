@@ -193,6 +193,26 @@ describe('ProjectSessionCoordinator', () => {
     expect(coordinator.snapshot('writing')).toMatchObject({ dirtyUnitIds: [], saveState: { status: 'saved' } });
   });
 
+  it('serializes revision acceptance around its ProjectSpine save and rejects competing writes', () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_acceptance', 'C:\\projects\\acceptance');
+    coordinator.activateProject(active);
+    const acceptanceBinding = binding(coordinator, active, 'accept-candidate');
+    const acceptance = coordinator.beginRevisionAcceptance(acceptanceBinding, 'unit_1');
+
+    expect(coordinator.hasOperationInFlight()).toBe(true);
+    expect(() => coordinator.beginStructureMutation(binding(coordinator, active, 'competing-structure')))
+      .toThrowError(expect.objectContaining({ code: 'SAVE_IN_PROGRESS' }));
+    expect(() => coordinator.beginSave(binding(coordinator, active, 'competing-save'), 'unit_1'))
+      .toThrowError(expect.objectContaining({ code: 'SAVE_IN_PROGRESS' }));
+
+    const save = coordinator.beginSave(acceptanceBinding, 'unit_1');
+    coordinator.completeSave(save, active.drafts.unit_1);
+    expect(coordinator.hasOperationInFlight()).toBe(true);
+    coordinator.finishRevisionAcceptance(acceptance);
+    expect(coordinator.hasOperationInFlight()).toBe(false);
+  });
+
   it('provides recovery context only for the exact active project, generation, path, and unit', () => {
     const coordinator = new ProjectSessionCoordinator();
     const active = project('proj_recovery', 'C:\\projects\\recovery');
