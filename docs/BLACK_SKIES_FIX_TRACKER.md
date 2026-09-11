@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is pushed at `cedaa38a`; P7-A3 Revision Desk is qualified and pushed at `3840b1d1`; P7-B2 Story Foundation is qualified and pushed at `282be1be`; P7-C2 comparison and writing drawer components are qualified and pushed at `9c1a4b91`; P7-E2 Ideas is qualified and pushed at `d3c12a6c`; P7-G1 integrated history projection is qualified and pushed at `75a6e248`; P7-UI Create / Develop composer is qualified and pushed at `6b25489c`; later Program 7 integration packages and Human Gate 4 remain open
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is pushed at `cedaa38a`; P7-A3 Revision Desk is qualified and pushed at `3840b1d1`; P7-B2 Story Foundation is qualified and pushed at `282be1be`; P7-C2 comparison and writing drawer components are qualified and pushed at `9c1a4b91`; P7-E2 Ideas is qualified and pushed at `d3c12a6c`; P7-G1 integrated history projection is qualified and pushed at `75a6e248`; P7-UI Create / Develop composer is qualified and pushed at `6b25489c`; P7-INT-1 ProjectSpine acceptance and P7-INT-2 preload integration are verified and pushed at `7396e89c`; P7-INT-3 renderer integration, Human Gate 4, local-AI admission, and Program 7 closure remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -406,6 +406,35 @@ Focused P7-UI coverage passed 3/3; the full app suite passed 156 test files /
 1,436 tests with 2 expected skips; app typecheck, app lint, and production
 build passed. Real owner/preload integration, Human Gate 4, and Program 7
 closure remain open.
+
+## Program 7 INT-1 ProjectSpine acceptance and INT-2 preload integration — 2026-09-11
+
+Writing Studio now owns explicit revision-candidate acceptance through the
+existing ProjectSpine save primitive. The operation validates the exact
+project/session/unit binding, candidate currentness, source and anchor
+fingerprints, risk acknowledgements, accepted replacement span, and the
+optimistic `expectedMarkdown` contract before it writes manuscript truth.
+Command Center has no acceptance method. Candidate provenance is finalized
+only after the durable manuscript hash matches the calculated result.
+
+The operation is protected by the ProjectSpine-owned, hash-only
+`program7-pending-acceptance.json` sidecar. It is written atomically before the
+draft save, advanced only after the saved body hash is verified, and removed
+only after candidate finalization succeeds. Project activation/reload and the
+next acceptance attempt reconcile original-body, accepted-result, malformed,
+stale, missing-candidate, and failed-finalization cases without guessing or
+silently deleting an unresolved record.
+
+Both the dedicated Stage 19 preload and the legacy-compatible development
+preload now expose the Writing-only acceptance bridge while retaining the
+prose-free Command bridge. Focused ProjectSpine/coordinator/preload coverage
+passed 60/60; the full app suite passed 156 test files / 1,439 tests with 2
+expected skips; app typecheck and app lint passed. The verified implementation
+and plan update were committed and pushed at `7396e89c`.
+
+INT-3 still must connect the existing comparison/drawer UI to this bridge and
+prove the complete no-AI renderer workflow. No Human Gate 4 acceptance, local
+model admission, package qualification, or Program 7 closure is claimed.
 
 ## Program 6 final closure — 2026-09-07
 
