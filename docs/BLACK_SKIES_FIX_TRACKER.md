@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is under qualification; later Program 7 packages and Human Gate 4 remain open
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is under qualification; later Program 7 packages and Human Gate 4 remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -272,6 +272,32 @@ non-fatal chunk-size warning. The package remains under full-suite
 qualification. ProjectSpine persistence, Revision Desk UI, promotion
 handoff, local-model admission, Human Gate 4, and Program 7 closure remain
 open.
+
+## Program 7 P7-F1 reviewed promotion handoff — 2026-09-11
+
+The reviewed promotion boundary now has a typed main-process handoff owner. A
+request must be Writing Studio-originated, bound to the active project path and
+generation, contain distinct bounded items, preserve source kind/id/revision,
+source and selected-text fingerprints, provenance, protection, and an explicit
+author destination-acceptance record. It rejects malformed or mismatched
+payloads before any destination callback runs.
+
+Accepted author intent and structural material route only through injected
+Story Foundation and Living Outline destination owners. Prose routes through
+the P7-D1 Narrative Insertion calculation and returns its exact result
+fingerprint; it does not write manuscript text and does not claim ProjectSpine
+acceptance. Character and lore material produces a deferred non-truth package,
+with protected or excluded content reduced to metadata only. Missing owners,
+blocked insertion calculations, and owner failures remain item failures.
+
+The handoff reports `complete`, `partial`, or `failed` from the item outcomes,
+never upgrades a partial result to success, and caches exact operation results
+so retries cannot duplicate destination writes. Reusing an operation ID for
+different work is rejected. Focused D1/F1 coverage passed 18/18; the full app
+suite passed 148 test files / 1,408 tests with 2 expected skips; app
+typecheck, app lint, production build, and diff hygiene passed. ProjectSpine
+narrative acceptance, UI integration, local-model admission, Human Gate 4,
+and Program 7 closure remain open.
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
