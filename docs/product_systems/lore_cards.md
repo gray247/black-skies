@@ -8,7 +8,7 @@
 - Owner / review lane: `Phase 32 product-definition lane`
 - Last reviewed: `2026-06-09`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Continuity`, `Signal Architecture`, `Memory Lab`, `Companion`
-- Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Outline`, `Emotion Graph`
+- Feeds into: `Writing Surface`, `Command Center Surface`, `Continuity`, `Relationship Map`, `Outline`, `Visualizer`
 - Runtime authority: `future`
 - Authority level: `accepted structured lore truth plus advisory support`
 - User-facing: `yes`
@@ -346,7 +346,7 @@ Privacy and safety rules must ensure:
 - unrevealed lore truth may still be accepted structured truth without appearing in manuscript prose yet,
 - masked or excluded material stays protected,
 - advisory systems do not silently retain protected raw material as lore truth,
-- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Visualizer` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 

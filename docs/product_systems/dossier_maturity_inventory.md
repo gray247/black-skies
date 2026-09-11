@@ -217,7 +217,7 @@ systems.
 | 9 | Draft Generation / Rewrite Loop | `draft_generation_rewrite_loop.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final writer-facing terminology and dossier-completion polish | category-4 hardening now settled candidate lifecycle, partial acceptance, warning acknowledgement, stale-source handling, rejected-history posture, and editorial review boundary | A |
 | 11 | Timeline / Pacing / Pressure | `timeline_pacing_pressure.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final chronology vocabulary, pacing metrics, pressure display, and history depth | Truth Cards closure settled the three-module support model, owner routing, chronology distinctions, advisory pacing and pressure, and bounded history posture | A |
 | 12 | Relationship Map | `relationship_map.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final relationship taxonomy, display defaults, and mixed-domain owner-selection detail | Truth Cards closure settled map non-ownership, secondary references, advisory inferences, owner transfer, protection, and stale-state posture | A |
-| 13 | Emotion Graph | `emotion_graph.md` | `1:1` | `current` | 4 | yes | yes | yes | no | final emotion taxonomy, display defaults, and trajectory detail | Truth Cards closure settled accepted-source references, planned development, detected movement, intended reader effect, owner routing, and protection posture | A |
+| 13 | Visualizer | `visualizer_program_delivery_plan.md` (legacy dossier: `emotion_graph.md`) | `1:1` | `current` | 4 | yes | yes | yes | no | final emotion taxonomy, display defaults, trajectory detail, and staged provider delivery | Truth Cards closure settled accepted-source references, planned development, detected movement, intended reader effect, owner routing, and protection posture; the staged Program 7/9 delivery boundary is now explicit | A |
 | 14 | Continuity | `continuity.md` | `1:1` | `current` | 4 | yes | yes | yes | no | evidence grading and retained-history detail | mature enough for dossier completion work | A |
 | 15 | Critique / Evaluation | `critique_evaluation.md` | `1:1` | `current` | 4 | yes | yes | yes | no | finding shape, ranking, and citation density detail | mature enough for dossier completion work | A |
 | 21 | Senses Usage | `senses_usage.md` | `1:1` | `current` | 4 | yes | yes | yes | no | analyzer-specific behavior beyond shared family contract | mature enough for dossier completion work | A |
@@ -321,7 +321,7 @@ These are current-authority dossiers that are already category `4`:
 - `Project Index / Search / Retrieval`
 - `Series Binder / Cross-Story Linking`
 - `Relationship Map`
-- `Emotion Graph`
+- `Visualizer` (legacy: `Emotion Graph`)
 - `Theme System`
 - `Timeline / Pacing / Pressure`
 - `Foreshadow / Payoff`

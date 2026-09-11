@@ -9,7 +9,7 @@
 - Last reviewed: `2026-06-19`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Outline`,
   `Story Unit`, `Character Cards`, `Lore Cards`, `Continuity`,
-  `Emotion Graph`
+  `Visualizer`
 - Feeds into: `Outline`, `Writing Surface`, `Command Center Surface`,
   `Continuity`, `Companion`, `Memory Lab`
 - Runtime authority: `future`
@@ -89,7 +89,7 @@ one authoritative score.
 - rewrite manuscript structure silently,
 - rewrite pacing intent silently,
 - turn analyzer curves or scores into durable state by default,
-- replace `Continuity`, `Emotion Graph`, `Outline`, `Story Unit`,
+- replace `Continuity`, `Visualizer`, `Outline`, `Story Unit`,
   `Character Cards`, or `Lore Cards` as their owner,
 - canonize inferred dates, durations, or pressure claims automatically.
 
@@ -336,7 +336,7 @@ Pressure may represent:
 - trajectory
 - uncertainty
 - stale findings
-- relationship to `Emotion Graph`, `Theme System`, `Outline`, and
+- relationship to `Visualizer`, `Theme System`, `Outline`, and
   `Author Intent / Story Setup`
 
 Pressure remains bounded support analysis. It does not own emotional
@@ -568,11 +568,11 @@ existing card owners.
 Timeline may compare those facts against assertions or projections, but
 it does not own accepted character or lore timing truth.
 
-## 29. Relationship To Emotion Graph
+## 29. Relationship To Visualizer
 
 Pressure and emotion remain distinct.
 
-`Emotion Graph` handles emotional movement and accepted emotional
+`Visualizer` handles emotional movement and accepted emotional
 references through its existing owners.
 Timeline / Pacing / Pressure handles chronology, pacing comparison, and
 bounded urgency/consequence/constraint/conflict pressure.
@@ -800,7 +800,7 @@ Explicit exclusions:
 - no automatic manuscript reorder,
 - no universal quality score,
 - no requirement that every narrative use conventional pacing,
-- no replacement for `Outline`, `Continuity`, `Emotion Graph`, or
+- no replacement for `Outline`, `Continuity`, `Visualizer`, or
   `Narrative Insertion / Narrative Assertion`,
 - mature-ceiling features do not automatically enter first release.
 

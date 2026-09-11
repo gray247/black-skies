@@ -479,6 +479,8 @@ Human Gate 4, product resolution, or local-AI admission.
 | Finding to revision | no-AI Carmilla end-to-end pass | none for Human Gate 4 | P7-G2 objective qualification | anchor or owner regression |
 | Manual revision/recheck | all manual actions and recovery pass | none | P7-G2 | any sovereignty or stale-source failure |
 | Local-AI pilot | 24-row matrix, safety scan, Jason review | unavailable/conditional | RT-2B rerun | approved host/model/transport changes |
+| Visualizer foundation | `P7-VIZ-0` through `P7-VIZ-4`, source-return proof, table parity, empty/stale/unavailable/failure states, protection and accessibility evidence | advanced semantic analysis may be deferred | `P7-VIZ-4` and Program 7 closure | signal contract, source-anchor, provider-boundary, or admitted-view change |
+| Visualizer semantic analysis | no Program 7 admission claim; linked `VIZ-D` record required | deferred to `P9-VIZ-1` through `P9-VIZ-6` | named `P9-VIZ` stage in the Visualizer delivery plan | qualified foundation plus a concrete utility gap or author-requested next analysis family |
 | Story Foundation | blank/unknown/revised/read-only cases | later surface polish | P7-G2 or named later stage | owner or startup-gate regression |
 | Ideation | seed/branch/test/combine/promote cases | bounded feature family | P7-G2 or explicit next program | truth-owner leakage |
 | Promotion | destination-owner handoff receipts | later owner integration | P7-G2 handoff package | destination contract change |

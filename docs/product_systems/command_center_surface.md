@@ -8,7 +8,7 @@
 - Owner / review lane: `Phase 32 product-definition lane`
 - Last reviewed: `2026-06-19`
 - Depends on: `Writing Surface`, `Narrative Insertion / Narrative Assertion`, `Prose / Scene Projection`, `Workflow Spine / Author Journey`
-- Feeds into: `Outline`, `Story Unit`, `Relationship Map`, `Emotion Graph`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Lore Cards`, `Character Cards`, `Companion`, `Memory Lab`
+- Feeds into: `Outline`, `Story Unit`, `Relationship Map`, `Visualizer`, `Continuity`, `Critique`, `Feedback Notes / Revision Resolution`, `Lore Cards`, `Character Cards`, `Companion`, `Memory Lab`
 - Runtime authority: `future`
 - User-facing: `yes`
 - Hidden/background: `partial`
@@ -133,7 +133,7 @@ Summonable systems may eventually include:
 - `Gaps`
 - `Relationships`
 - `Relationship Map`
-- `Emotion Graph`
+- `Visualizer`
 - `Continuity`
 - `Critique`
 - `Feedback Notes / Revision Resolution`
@@ -230,7 +230,7 @@ Likely consumers:
 - `Outline`
 - `Story Unit`
 - `Relationship Map`
-- `Emotion Graph`
+- `Visualizer`
 - `Continuity`
 - `Critique`
 - `Feedback Notes / Revision Resolution`

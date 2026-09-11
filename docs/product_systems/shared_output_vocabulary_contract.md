@@ -4,7 +4,7 @@
 
 Define the canonical vocabulary for outputs produced by intelligence, analysis, advisory, and finding-producing systems.
 
-This artifact exists so `Critique`, `Continuity`, `Theme System`, `Relationship Map`, `Emotion Graph`, `Companion`, `Plugin / Rubric System`, and future analysis systems do not invent incompatible meanings for findings, candidates, acceptance, dismissal, retention, conversion, or expiry.
+This artifact exists so `Critique`, `Continuity`, `Theme System`, `Relationship Map`, `Visualizer` (formerly `Emotion Graph`), `Companion`, `Plugin / Rubric System`, and future analysis systems do not invent incompatible meanings for findings, candidates, acceptance, dismissal, retention, conversion, or expiry.
 
 ## 2. Scope
 
@@ -23,7 +23,7 @@ This contract applies across:
 - `Continuity`
 - `Theme System`
 - `Relationship Map`
-- `Emotion Graph`
+- `Visualizer`
 - `Companion`
 - `Plugin / Rubric System`
 - future analysis systems
@@ -78,7 +78,7 @@ This contract also constrains downstream handoffs into:
 | `critique finding` | an advisory critique-specific evaluation result, issue, or ranked concern | `Critique / Evaluation` | non-truth | temporary or bounded critique history | may become signal candidate, note candidate, rewrite candidate, or advisory memory |
 | `theme finding` | an advisory thematic interpretation, linkage, or thematic concern | `Theme System` | non-truth | temporary by default | may become candidate theme note, advisory memory, or explicit accepted theme intent through owner-governed path |
 | `relationship finding` | an advisory relationship inference, candidate link, or relationship concern | `Relationship Map` | non-truth | temporary or bounded map history | may become note candidate, signal candidate, advisory memory, or accepted relationship truth only through truth owner |
-| `emotion finding` | an advisory emotional interpretation, intensity concern, or emotional-shape inference | `Emotion Graph` | non-truth | temporary or bounded graph history | may become note candidate, signal candidate, advisory memory, or accepted emotional intent only through truth owner |
+| `emotion finding` | an advisory emotional interpretation, intensity concern, or emotional-shape inference | `Visualizer` | non-truth | temporary or bounded Visualizer history | may become note candidate, signal candidate, advisory memory, or accepted emotional intent only through truth owner |
 | `routing recommendation` | a suggestion about local/manual/heavy/paid route suitability | producing system until routing owner review | non-truth | temporary by default | may inform `Model Routing And Budget Architecture`; may not become route decision automatically |
 | `governance recommendation` | a suggestion that approval, masking, protection, or refusal review may be needed | producing system until policy owner review | non-truth | temporary by default | may inform protected-content, routing, or handoff decisions; may not become policy automatically |
 
@@ -257,7 +257,7 @@ May not produce:
 - shadow canon through graph presence
 - durable signal or note state on its own
 
-### 8.5 `Emotion Graph`
+### 8.5 `Visualizer` (formerly `Emotion Graph`)
 
 May produce:
 

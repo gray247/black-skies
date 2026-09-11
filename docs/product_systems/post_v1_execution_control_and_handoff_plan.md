@@ -41,7 +41,7 @@ Jason approved the following decisions on 2026-08-10:
    `salvage/minimal-two-surface-shell` checkout may be retired only after its
    unique work is classified and Jason approves the disposition.
 2. The bounded long-manuscript intake and stable structural-anchor program
-   moves before Emotion Graph.
+   moves before the Visualizer foundation (formerly called Emotion Graph).
 3. The visual direction is a restrained professional literary instrument with
    subtle Black Skies atmosphere, not a strong science-fiction command-console
    aesthetic.
@@ -335,7 +335,7 @@ The result preserves the strong V1 behavioral and exact-candidate evidence,
 records a truthful-denominator repair for the supported-core receipt, assigns
 seven bounded Program 3 changed-boundary evidence requirements, replaces
 source-shaped visual confidence with an approved layered strategy, and keeps
-long-manuscript, Emotion Graph, provider, service, and legacy evidence at their
+long-manuscript, Visualizer, provider, service, and legacy evidence at their
 named later programs. Programs 3 and 4 may proceed through automated batches
 before one complete packaged candidate and Human Gate 2 review.
 
@@ -559,9 +559,12 @@ Create detailed validation instructions only when the candidate is ready.
 
 ### Program 6 — Signals And Story Intelligence
 
-Implement author-controlled signal posture, project maturity, Emotion Graph V1,
-continuity, and later high-value lenses. Emotion Graph begins only after Human
-Gate 3 establishes stable story positions and anchors.
+Program 6 is the historical home of the deterministic signal contracts and
+initial lens work. The current user-facing feature is named `Visualizer`. Its
+bounded source-linked foundation is carried into Program 7 as `P7-VIZ-0`
+through `P7-VIZ-4`; advanced semantic analysis and operations are assigned to
+the exact `P9-VIZ` stages in
+[`visualizer_program_delivery_plan.md`](visualizer_program_delivery_plan.md).
 
 ### Program 7 — Creation, Revision, And Story Development
 

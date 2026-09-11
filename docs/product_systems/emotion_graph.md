@@ -1,8 +1,15 @@
-# Emotion Graph
+# Visualizer
+
+> Naming notice: this file is retained at its legacy path for link and
+> historical compatibility. The user-facing name is now `Visualizer`. The
+> staged implementation and deferral authority is
+> [`visualizer_program_delivery_plan.md`](visualizer_program_delivery_plan.md).
+> Existing references to `Emotion Graph` in older planning and evidence
+> records are aliases for `Visualizer`, not a separate system.
 
 ## 1. Status Header
 
-- Dossier name: `Emotion Graph`
+- Dossier name: `Visualizer` (legacy dossier path: `emotion_graph.md`)
 - Status: `drafted`
 - Class: `Intelligence`
 - Owner / review lane: `Phase 32 product-definition lane`
@@ -16,7 +23,7 @@
 
 ## 2. Purpose
 
-Define Emotion Graph as an optional emotion-support and visualization system that projects manuscript-observed emotional movement, planned emotional targets from existing planning owners, accepted character emotional state references, and advisory emotional analysis without becoming a hidden truth owner or shadow canon.
+Define Visualizer as an optional, read-only emotion-support and visualization system that projects manuscript-observed emotional movement, planned emotional targets from existing planning owners, accepted character emotional state references, and advisory emotional analysis without becoming a hidden truth owner or shadow canon.
 
 This dossier inherits output vocabulary from `shared_output_vocabulary_contract.md`, truth ownership limits from `truth_and_state_ownership_matrix.md`, memory and provenance boundaries from `memory_lab.md` and `provenance_state_model.md`, protection rules from `protected_content_permission_matrix.md`, signal boundaries from `signal_architecture.md`, and AI conversion limits from `ai_lifecycle_and_approval_matrix.md`.
 
@@ -26,7 +33,7 @@ The writer needs a way to inspect emotional trajectory, tension, mood, intensity
 
 ## 4. What The System Does
 
-Emotion Graph may:
+Visualizer may:
 
 - visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape,
 - display manuscript-observed emotional movement as the ordinary default posture,
@@ -41,7 +48,7 @@ Emotion Graph may:
 
 ## 5. What The System Does Not Do
 
-Emotion Graph does not:
+Visualizer does not:
 
 - silently create, alter, delete, or canonize emotional truth,
 - replace accepted assertions or explicit author decisions as emotional authority,
@@ -87,7 +94,7 @@ What appears first should stay minimal:
 
 ## 9. What Is Summonable
 
-Summonable within or around Emotion Graph:
+Summonable within or around Visualizer:
 
 - full emotional detail,
 - evidence links,
@@ -113,7 +120,7 @@ Hidden until needed:
 
 ## 11. Inputs
 
-Emotion Graph inputs may include:
+Visualizer inputs may include:
 
 - accepted narrative assertions,
 - accepted continuity facts,
@@ -131,7 +138,7 @@ Emotion Graph inputs may include:
 
 ## 12. Outputs
 
-Emotion Graph outputs may include:
+Visualizer outputs may include:
 
 - manuscript-observed emotional-movement views,
 - planned emotional-target overlays,
@@ -147,7 +154,7 @@ Emotion Graph outputs may include:
 - cross-links into cards, narrative, continuity, and support surfaces.
 
 These outputs are support projections, not author-owned truth by themselves.
-Emotion Graph findings are advisory unless accepted elsewhere.
+Visualizer findings are advisory unless accepted elsewhere.
 
 ## 13. Which Other Systems Consume Those Outputs
 
@@ -184,7 +191,7 @@ Stored graph material remains support state or candidate material unless accepte
 
 ## 14A. Layer 1 - Accepted Source Truth
 
-Emotion Graph may reference accepted source state owned elsewhere.
+Visualizer may reference accepted source state owned elsewhere.
 
 Those references may include:
 
@@ -249,7 +256,7 @@ Accepted reader-effect intent routes to `Author Intent / Story Setup`.
 
 ## 14E. Identity And Lifecycle
 
-Emotion Graph lifecycle states include:
+Visualizer lifecycle states include:
 
 - create support record
 - link source
@@ -272,7 +279,7 @@ Deleting graph support state must not delete source truth.
 
 ## 14F. Time And History
 
-Emotion Graph may represent:
+Visualizer may represent:
 
 - current emotional state
 - prior emotional state
@@ -329,17 +336,17 @@ The graph may display or derive from that truth, but it does not replace `Narrat
 
 ## 17. Relationship To Story Units
 
-Emotion Graph may reference Story Units for grouped work context and planned emotional purpose, but Story Unit links remain optional and must not make structure the owner of manuscript truth or accepted character truth.
+Visualizer may reference Story Units for grouped work context and planned emotional purpose, but Story Unit links remain optional and must not make structure the owner of manuscript truth or accepted character truth.
 
 ## 18. Relationship To Prose / Scene Projection
 
-Emotion Graph may reference projected prose or scene views as evidence or navigation context.
+Visualizer may reference projected prose or scene views as evidence or navigation context.
 
 Projection remains support or display context rather than the source of emotional truth.
 
 ## 19. Relationship To Writing Surface
 
-Emotion Graph may support the `Writing Surface` through bounded overlays, quiet indicators, links, or summonable support views.
+Visualizer may support the `Writing Surface` through bounded overlays, quiet indicators, links, or summonable support views.
 
 Direct writing must remain available without requiring graph interaction.
 
@@ -396,7 +403,7 @@ Paid-model output remains advisory unless explicitly accepted by the author.
 
 ## 24. Model Routing Notes And Cost / Budget Impact
 
-Any model-assisted Emotion Graph flow must preserve:
+Any model-assisted Visualizer flow must preserve:
 
 - author approval where routing rules require it,
 - no silent paid or outbound work,
@@ -406,7 +413,7 @@ Any model-assisted Emotion Graph flow must preserve:
 
 ## 25. Explicit-Content / Send-Package Handling, If Applicable
 
-If Emotion Graph later participates in model-facing packaging, package handling must preserve:
+If Visualizer later participates in model-facing packaging, package handling must preserve:
 
 - masks and AI exclusion zones,
 - no raw excluded-text leakage,
@@ -419,7 +426,7 @@ Privacy and safety rules must ensure:
 - hidden or deleted emotional evidence does not leak into graph summaries or recall,
 - masked or excluded material stays protected,
 - advisory systems do not silently retain protected raw material as emotional truth,
-- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Emotion Graph` default inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` edges, `Visualizer` default inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 
@@ -431,21 +438,21 @@ Minimum proof set:
 - inferred emotional suggestions do not become accepted truth without author action,
 - deleted, hidden, masked, or excluded material does not leak into graph summaries,
 - Story Unit or Outline links do not become the owner of emotional truth,
-- `Memory Lab` and `Companion` use Emotion Graph without turning recall into canon.
+- `Memory Lab` and `Companion` use Visualizer without turning recall into canon.
 
 ## 28. Governance Rules And Risks
 
 Governance rules:
 
 - planned emotional target, manuscript-observed emotional movement, accepted character emotional state, intended reader effect, and inferred or advisory analysis must stay distinct,
-- Emotion Graph may display or project emotion but does not own truth,
+- Visualizer may display or project emotion but does not own truth,
 - no shadow canon,
 - no silent truth mutation,
 - manuscript-observed movement is the default graph posture, while planned targets remain clearly labeled overlays,
 - differences between planned targets and observed movement are review opportunities rather than automatic errors,
 - inferred emotion is not confirmed author intent,
 - inferred relationship or emotion history remains bounded and temporary unless the author explicitly saves, converts, accepts, dismisses, or marks intentional ambiguity through the relevant owner path,
-- Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export,
+- Visualizer does not own character truth, author intent, Memory Lab, Signals, Notes, or export,
 - emotional findings and graph mismatches begin as temporary advisory findings unless accepted elsewhere.
 
 Key risks:
@@ -572,18 +579,18 @@ Future-only items:
 
 ### Answered / Superseded Questions
 
-- Emotion Graph may visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape.
+- Visualizer may visualize emotional trajectory, tension, mood, intensity, character emotion, scene or chapter emotion, reader-facing emotional movement, or pacing-adjacent emotional shape.
 - It must distinguish planned emotional target, manuscript-observed movement, accepted character emotional state, intended reader effect, and inferred or advisory emotional analysis.
 - It must not silently canonize emotional truth.
-- Emotion Graph default view should emphasize manuscript-observed emotional movement first.
+- Visualizer default view should emphasize manuscript-observed emotional movement first.
 - Planned emotional targets may appear as clearly labeled overlays rather than replacing observed movement.
 - Inferred emotional analysis must be optional, advisory, visibly labeled, and must not silently canonize emotional truth.
-- Each Emotion Graph item may distinguish manuscript-observed movement reference, planned target overlay, accepted character-state reference, intended reader-effect overlay, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
+- Each Visualizer item may distinguish manuscript-observed movement reference, planned target overlay, accepted character-state reference, intended reader-effect overlay, candidate item, advisory inference, signal-linked concern, `Memory Lab` recall or reference, `Companion` suggestion, hidden or suppressed item, deleted or discarded item, and masked or excluded-source item.
 - Every candidate, advisory, or inferred emotional item should preserve a source label such as author note, manuscript evidence, accepted assertion, continuity fact, `Memory Lab` recall, `Companion` suggestion, signal, Outline or Story Unit link, AI inference, or masked summary.
 - Durable emotional planning remains in its existing owner by scope, even when the graph projects or visualizes it.
 - Candidate emotion material does not equal accepted emotional intent.
 - Inferred emotion is not confirmed author intent.
-- Emotion Graph does not own character truth, author intent, Memory Lab, Signals, Notes, or export.
+- Visualizer does not own character truth, author intent, Memory Lab, Signals, Notes, or export.
 
 ### Jason Decision Candidates
 
@@ -592,7 +599,7 @@ Future-only items:
 - Exact planned emotional target, observed movement, accepted character-state reference, intended reader-effect overlay, candidate interpretation, and advisory analysis contract.
 - Exact item-state and source-label contract.
 - Exact create, update, hide, delete, accept, and reject workflow contract.
-- Exact signal, continuity, Memory Lab, and Companion display contract for Emotion Graph.
+- Exact signal, continuity, Memory Lab, and Companion display contract for Visualizer.
 - Exact protection contract for deleted, hidden, masked, and excluded material.
 - Exact default-view, filter, prototype-context, and visual-distinction contract for planned versus observed versus inferred analysis.
 

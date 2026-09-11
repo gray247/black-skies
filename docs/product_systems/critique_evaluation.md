@@ -122,7 +122,7 @@ Critique / Evaluation may read:
 - Author Intent / Story Setup,
 - manuscript text,
 - draft history,
-- Emotion Graph,
+- Visualizer,
 - Timeline / Pacing / Pressure,
 - Relationship Map,
 - Character Cards,

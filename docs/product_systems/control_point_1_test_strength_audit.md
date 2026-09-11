@@ -283,7 +283,8 @@ review, not manual repetition after every small fix.
 | Evidence need | Current disposition | Resolution stage | Reopening trigger |
 | --- | --- | --- | --- |
 | 200-page paste/import, first render, save/reopen, anchor stability, navigation, and memory | Deferred, owned | Program 5 before Human Gate 3 | Long-manuscript intake implementation begins |
-| Emotion Graph accuracy, provenance, contradiction, and visualization | Deferred, owned | Program 6 before Human Gate 4 | Human Gate 3 proves stable structural anchors |
+| Visualizer foundation and source-linked projection | Deferred, owned | Program 7 `P7-VIZ-0` through `P7-VIZ-4` before Human Gate 4 | Human Gate 3 proves stable structural anchors |
+| Visualizer semantic accuracy, expanded signals, background processing, custom axes, and provider comparison | Deferred, owned | Program 9 `P9-VIZ-1` through `P9-VIZ-6` | Program 7 foundation passes and the PC-only benchmark proves a concrete need for richer analysis |
 | Budget-indicator and snapshots-panel legacy UI skips | Deferred, owned | Program 9 or final qualification | The surface is admitted to the current product workflow |
 | Real-service reference lane | Deferred, owned | Program 9 or earlier changed service boundary | A controlled real-service environment is provided |
 | Live-provider qualification | Deferred, owned | Program 9 or a named provider package | Provider qualification is explicitly authorized |
@@ -341,7 +342,7 @@ It establishes that:
 - Program 3 receives seven bounded changed-boundary evidence requirements;
 - one exact packaged qualification and one Human Gate 2 review occur only
   after Programs 3 and 4 form a complete candidate;
-- long-manuscript, Emotion Graph, provider, service, and legacy evidence retain
+- long-manuscript, Visualizer, provider, service, and legacy evidence retain
   their exact later owners;
 - the strict visual skip must be resolved through an approved layered strategy;
   and

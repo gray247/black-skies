@@ -226,7 +226,7 @@ It does not finalize the entire product vision.
   truthful denominator for the supported-core coverage receipt; assigns seven
   bounded Program 3 changed-boundary evidence families; resolves the visual
   skip through an approved layered strategy; and keeps long-manuscript,
-  Emotion Graph, provider, service, and legacy evidence at their named later
+  Visualizer, provider, service, and legacy evidence at their named later
   programs.
 - The approved Control Point 1 Visual Design Foundation is recorded in
   `control_point_1_visual_design_foundation.md`. It defines the true-black
@@ -270,8 +270,11 @@ It does not finalize the entire product vision.
   boundaries, and Git controls remain in force; the then-pending Human Gate 2
   boundary was later satisfied by the exact Program 5 closure evidence above.
 - Program 5 and Human Gate 3 are closed with long-manuscript intake and stable
-  structural anchors proven. Program 6 is also closed; Emotion Graph V1 keeps
-  author-planned, manuscript-observed, and inferred emotion distinct.
+  structural anchors proven. Program 6 is also closed; its deterministic
+  signal/lens work is historical input to the current `Visualizer` foundation.
+  Program 7 owns `P7-VIZ-0` through `P7-VIZ-4`, while advanced semantic and
+  operational work is assigned to the named `P8-VIZ` and `P9-VIZ` stages in
+  `visualizer_program_delivery_plan.md`.
 - Program 6 bounded planning is documented in
   `program_6_signals_story_intelligence_implementation_plan.md`; its P6-A,
   P6-B, and P6-C handoffs were explicitly executed with `GPT-5.6 Luna` at

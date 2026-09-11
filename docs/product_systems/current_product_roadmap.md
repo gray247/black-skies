@@ -119,7 +119,7 @@ Current status:
 - `Living Outline` is the accepted writer-facing name for the existing optional Outline system working bidirectionally with the Writing Surface; it creates no new truth owner
 - the first V3 shell includes a minimal Companion bar whose results open in the Command Center; Companion conversation memory is not durable by default
 - human validation is consolidated into six gates: combined V2 workflows, V3 shell and Companion, long-manuscript intake and anchors, story intelligence and creation or revision, high-risk behavior, and the final installed product; low-risk automated work may continue between those gates. Human Gates 2 and 3 passed on the exact qualified Program 5 line; Human Gate 4 remains later
-- Long-manuscript intake and stable structural anchors are Program 5 and Human Gate 3; Emotion Graph V1 begins in Program 6 only after that gate, uses those Living Outline positions, and keeps planned, observed, and inferred emotion distinct
+- Long-manuscript intake and stable structural anchors are Program 5 and Human Gate 3; the Visualizer foundation is now a bounded Program 7 workstream after that gate, uses those source positions, and keeps measured, author-defined, inferred, and derived output distinct. Advanced semantic analysis, background processing, custom axes, insights, and API qualification are assigned to the exact `P9-VIZ` stages in `visualizer_program_delivery_plan.md`
 - Packages `19.1` through `19.5` are the accepted `Foundation Spine` prerequisite group, limited to the initial bounded local project-open/save/re-entry sequence; `stage19_foundation_spine_acceptance_reconciliation.md` is the current non-retroactive authority and does not close Stage 19 or prove V1.0
 - Package `19.7`, `Salvage Inventory and Executable Baseline`, was completed by commit `41e1827` before the subsequent application-host and Project Spine packages
 - Packages `19.9` through `19.11` are formally closed by commit `d780f52`; this package-horizon closure does not close Stage 19 or complete V1.0
@@ -630,12 +630,12 @@ Current roadmap-sufficient work:
   polish, note taxonomy, `Companion` personality polish, and provider
   tuning.
 - `Character Cards`, `Lore Cards`, `Theme System`, `Relationship Map`,
-  `Emotion Graph`, and `Foreshadow / Payoff`
+  `Visualizer`, and `Foreshadow / Payoff`
   Current treatment: category `4` after Truth Cards and Support Maps
   closure. Keep `Character Cards` and `Lore Cards` as the
   owners of accepted structured truth on a fact-by-fact basis, keep
   accepted truth separate from planned, candidate, or advisory
-  material, keep `Theme System`, `Relationship Map`, `Emotion Graph`,
+  material, keep `Theme System`, `Relationship Map`, `Visualizer`,
   and `Foreshadow / Payoff` derived and support-only, route
   project-level thematic intent to `Author Intent / Story Setup`, route
   emotional and setup/payoff planning to existing owners by scope, and
@@ -975,9 +975,12 @@ Product-version horizons are explicit:
   signals, story intelligence, creation, revision, organization, interchange,
   heavy intelligence, durability, and release hardening according to the
   accepted nine-program sequence.
-- Emotion Graph V1 is the first visual story-intelligence lens after the
-  long-manuscript gate because it requires stable Living Outline story
-  positions and a proven summonable Command Center home.
+- Visualizer foundation is the first bounded visual story-intelligence lens
+  after the long-manuscript gate because it requires stable source positions
+  and a proven summonable Command Center home. The full semantic Visualizer is
+  not a Program 7 promise; its exact `P9-VIZ-1` through `P9-VIZ-6` sequence,
+  owners, evidence, and reopening triggers are recorded in
+  `visualizer_program_delivery_plan.md`.
 - Human validation occurs at the six accepted combined gates rather than
   after every low-risk workflow slice or implementation batch.
 
@@ -1128,6 +1131,6 @@ expansion lane before the roadmap is considered usable.
 Several systems should remain intentionally partial after this cycle,
 including `Critique`, `Continuity`, `Signal Architecture`,
 `Companion`, `Theme System`, `Character Cards`, `Lore Cards`,
-`Relationship Map`, `Emotion Graph`, and the broader AI-governance
+`Relationship Map`, `Visualizer`, and the broader AI-governance
 cluster, so long as their boundaries, purpose, dependencies, and future
 placement are stable enough for roadmap use.

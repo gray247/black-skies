@@ -70,7 +70,7 @@ The full dossier set is grouped into three classes:
 | 9 | [Draft Generation / Rewrite Loop](draft_generation_rewrite_loop.md) | Intelligence | planned |
 | 11 | [Timeline / Pacing / Pressure](timeline_pacing_pressure.md) | Intelligence | planned |
 | 12 | Relationship Map | Intelligence | planned |
-| 13 | Emotion Graph | Intelligence | planned |
+| 13 | [Visualizer](visualizer_program_delivery_plan.md) | Intelligence | planned |
 | 14 | Continuity | Intelligence | planned |
 | 15 | [Critique / Evaluation](critique_evaluation.md) | Intelligence | planned |
 | 21 | [Senses Usage](senses_usage.md) | Intelligence | planned |
@@ -216,13 +216,19 @@ Dependency posture:
 - `Command Center Surface` supports writing and organizes support systems, but it does not gate direct writing.
 - rough bridge dossiers may exist temporarily when they prevent question-bank sprawl, but they should later merge, shrink, split, or disappear once the permanent dossier boundaries are clearer.
 
+Naming note: `Visualizer` is the current name for the former `Emotion Graph`
+concept. The legacy `emotion_graph.md` path remains as a compatibility dossier
+and points to the staged Visualizer delivery plan. New implementation,
+qualification, and deferral records must use `Visualizer` and the `P7-VIZ`,
+`P8-VIZ`, `P9-VIZ`, and `VIZ-D` identifiers defined there.
+
 ## Not Good-Idea-Fairy Clarification
 
 The following are not automatically good-idea-fairy items:
 
 - themes
 - splash pages
-- emotion graph
+- Visualizer
 - relationship maps
 - lore cards
 - character cards

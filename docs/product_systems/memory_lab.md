@@ -11,7 +11,7 @@
   `Narrative Insertion / Assertion`, `Model Routing And Budget
   Architecture`
 - Feeds into: `Companion`, `Continuity`, `Critique`,
-  `Relationship Map`, `Emotion Graph`
+  `Relationship Map`, `Visualizer`
 - Runtime authority: `future`
 - Authority level: `operational`
 - User-facing: `partial`
@@ -193,7 +193,7 @@ Memory remains governed recall rather than truth authority.
 - `Continuity`
 - `Critique`
 - future `Relationship Map`
-- future `Emotion Graph`
+- future `Visualizer`
 
 ## 14. What Gets Stored
 
@@ -1068,7 +1068,7 @@ inspection views.
 - Is Memory Lab simple storage? Answered: no.
 - Is Memory Lab automatic truth owner? Answered: no.
 - May Memory Lab feed `Companion`, `Continuity`, `Critique`,
-  `Relationship Map`, and `Emotion Graph`? Answered: yes, within
+  `Relationship Map`, and `Visualizer`? Answered: yes, within
   evidence and authority limits.
 - May Memory Lab silently change prose, assertions, lore, continuity
   facts, or accepted records? Answered: no.

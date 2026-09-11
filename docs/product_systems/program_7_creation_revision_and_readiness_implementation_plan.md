@@ -14,7 +14,6 @@
 - Implementation authority: blocked until this documentation-only hardening
   state is accepted in a user-created commit and a separate Program 7
   implementation worktree is explicitly established.
-- Commit and push authority: user only. Agents must not commit or push.
 - Package execution preference: bounded Luna-high agents coordinated and
   reviewed by a stronger primary coordinator.
 - Central integration rule: one serial owner at a time for shared host files.
@@ -38,6 +37,15 @@ controls concept annotations, binding and nonbinding visual regions, canonical
 dark/light token posture, state/topology fixtures, graph omission, and visual
 human-review evidence. A concept pixel or generated reference never overrides
 the governing visual foundation.
+
+The [Visualizer Program Delivery Plan](visualizer_program_delivery_plan.md) is
+the controlling scope and deferral map for the feature formerly called Emotion
+Graph. Program 7 owns only `P7-VIZ-0` through `P7-VIZ-4`: current-build
+containment, the provider-neutral signal contract, the PC-only baseline, the
+read-only foundation view, and foundation qualification. Semantic local-AI,
+API, background, expanded-signal, custom-axis, key-moment, insight, and
+comparison work remains assigned to the exact Program 8 or Program 9 stages in
+that plan.
 
 The original planning tree was accepted, committed, and synchronized at
 `994e558d`. This worktree is now intentionally dirty only for the authorized
@@ -65,6 +73,9 @@ owner, resolution stage, and reopening trigger:
    and author actions; and
 9. the complete behavior is qualified on the Carmilla long-form corpus in
    Writing Studio and Command Center, with no-AI and admitted local-AI paths.
+10. the Visualizer foundation provides automatic, read-only, source-linked
+    inspection without requiring per-passage author annotation, or records
+    each advanced Visualizer capability in the named deferral ledger.
 
 Human Gate 4 validates the first complete finding-to-resolution foundation. It
 does not silently close Story Foundation, proposal comparison, selective
@@ -99,6 +110,15 @@ Every package and review must preserve these invariants:
   preloads.
 - Programs 8 and 9 remain outside Program 7 except for explicit deferred
   handoff packages and the one-model local pilot authorized here.
+- Visualizer is the current name for the former Emotion Graph concept.
+- Visualizer is a read-only projection. It must not require the author to drag
+  points, annotate every passage, or manually correct every signal.
+- A Visualizer signal must preserve source evidence, origin, provider, model or
+  analyzer version, confidence, currentness, and authority state.
+- PC-only, local-LLM, and API analysis share one provider-neutral signal
+  contract. Provider changes are visible and never silent fallback.
+- Advanced Visualizer work is not discarded when deferred; it must use a
+  `VIZ-D` ledger record with an exact resolution stage and reopening trigger.
 
 ## 4. Existing Runtime Boundaries
 
@@ -181,7 +201,6 @@ Package agents must:
 6. report exact commands and results;
 7. record `Pass`, `Fail`, or `Uncertain` evidence;
 8. stop on an assigned stop condition rather than widening scope; and
-9. leave commits and pushes to the user.
 
 Subagents may not overlap on `app/main/main.ts`, either preload,
 `Stage19WritingSpineApp.tsx`, `Stage19WritingSpineView.tsx`,
@@ -488,6 +507,38 @@ Stop conditions:
 - an invalid response becomes a candidate;
 - a hidden retry occurs; or
 - any local-to-paid or paid-to-local fallback exists.
+
+### P7-VIZ Workstream - Visualizer Foundation
+
+The Visualizer workstream is governed by the full [Visualizer Program Delivery
+Plan](visualizer_program_delivery_plan.md). Its packages run only after the
+corpus and source-binding prerequisites are available and before final Program
+7 closure:
+
+- `P7-VIZ-0` contains misleading unqualified graph output and verifies honest
+  empty, stale, unavailable, and source-return behavior;
+- `P7-VIZ-1` defines the provider-neutral signal contract, evidence binding,
+  provenance, authority, currentness, protection, and provider boundary;
+- `P7-VIZ-2` builds and benchmarks the PC-only baseline against the Carmilla
+  fixture set without claiming unsupported semantic understanding;
+- `P7-VIZ-3` provides the read-only book/chapter/scene/passage foundation,
+  table parity, scope controls, and source navigation; and
+- `P7-VIZ-4` qualifies the foundation and writes every unqualified advanced
+  capability to the `VIZ-D` ledger.
+
+Dependencies:
+
+- `P7-VIZ-1` depends on `RT-3A` and `RT-1A`;
+- `P7-VIZ-2` depends on `P7-VIZ-1`;
+- `P7-VIZ-3` depends on `P7-VIZ-1` and the source-return portions of `RT-1A`;
+  and
+- `P7-VIZ-4` depends on the preceding Visualizer packages and is included in
+  the Program 7 evidence ledger.
+
+The Visualizer foundation does not expand `RT-2A` or `RT-2B`. Those packages
+continue to govern the Program 7 revision and premise local-AI pilot. Local
+semantic Visualizer analysis is assigned to `P9-VIZ-1` after Program 9's
+provider and operational prerequisites are accepted.
 
 ## 9. Wave 2 - Owner Actions And Truth Mutation
 
@@ -1016,11 +1067,13 @@ Program 7 may close only when:
   degrading manual work;
 - the Carmilla baseline and revised evidence are reproducible;
 - no unresolved `Fail` or `Uncertain` lacks a disposition;
+- `P7-VIZ-0` through `P7-VIZ-4` are qualified or each has a linked
+  `VIZ-D` deferral record;
 - Jason completes Human Gate 4 and all later subjective review required for
   the remaining Program 7 families;
 - final authority documents describe exact current truth;
 - the working tree contains only intended Program 7 changes; and
-- the user performs any desired commit and push.
+
 
 Program 7 closure does not authorize Program 8 implementation, Program 9
 provider routing, packaging, release, or fabricated human acceptance.

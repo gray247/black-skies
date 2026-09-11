@@ -477,14 +477,15 @@ Sequence:
 
 1. implement the shared Off / Ask Only / Quiet / Alert posture,
 2. implement Explore / Develop / Finish project posture,
-3. build Emotion Graph V1 as the first visual story-intelligence lens,
+3. establish the Visualizer foundation as the first visual story-intelligence
+   lens,
 4. prove continuity and one further high-value signal family end to end,
 5. add further analyzers only when the shared interaction works,
 6. keep deep maps and comparisons summonable in the Command Center.
 
 Likely order after the shared signal contract:
 
-- Emotion Graph V1,
+- Visualizer foundation,
 - continuity,
 - timeline and chronology,
 - foreshadow and payoff,
@@ -493,20 +494,24 @@ Likely order after the shared signal contract:
 - theme and relationship views,
 - richer multi-character and intended-versus-observed emotion overlays.
 
-Emotion Graph V1 begins after Human Gate 3 confirms long-manuscript intake and
-stable structural anchors. It depends on those Living Outline story positions
-so graph points can link back to real writing and structure.
+The Visualizer foundation begins after Human Gate 3 confirms long-manuscript
+intake and stable structural anchors. It depends on those Living Outline story
+positions so source-linked signals can return to real writing and structure.
+The full semantic Visualizer is not a Program 6 or early Program 7 promise;
+its staged delivery is controlled by
+[`visualizer_program_delivery_plan.md`](visualizer_program_delivery_plan.md).
 
-Its first bounded slice includes:
+The first bounded foundation slice includes:
 
-- source-linked emotional movement across Living Outline positions,
+- source-linked measured movement across Living Outline positions,
 - visibly distinct author-planned, manuscript-observed, and inferred lanes,
 - optional character lanes using author labels or accepted character
   references where available,
 - click-to-jump between a graph point, related writing, and outline context,
 - summonable Command Center detail with only quiet contextual cues beside the
   Writing Surface,
-- no AI dependency, automatic canonization, mandatory emotion taxonomy,
+- no per-passage manual annotation, no AI dependency for the foundation,
+  automatic canonization, mandatory emotion taxonomy,
   psychiatric diagnosis, or universal emotional-success score.
 
 The order may change from author evidence. No analyzer earns a permanent
@@ -549,6 +554,10 @@ Accepted Program 7 readiness amendment, 2026-09-08:
 - local AI is preserved as an explicit route, with no silent local-to-paid or
   paid-to-local fallback and no AI authority to accept prose or resolve
   revision work; and
+- the Visualizer foundation is added to Program 7 as `P7-VIZ-0` through
+  `P7-VIZ-4`; advanced semantic analysis, background processing, expanded
+  signal families, custom bipolar axes, insights, and API qualification remain
+  assigned to the exact Program 8/9 stages in the Visualizer delivery plan; and
 - Program 7 adds no new font or text color token and may not restore the
   rejected low-contrast light-gray treatment.
 - bounded implementation and computer-operated evidence packages prefer
@@ -596,6 +605,11 @@ capabilities only after the ordinary author workflows justify them.
 
 Candidate work:
 
+- Visualizer semantic analysis and provider qualification in the order
+  `P9-VIZ-1` local analysis, `P9-VIZ-2` resumable/overnight processing,
+  `P9-VIZ-3` expanded signal families, `P9-VIZ-4` custom bipolar axes,
+  `P9-VIZ-5` key moments/insights/comparisons, and `P9-VIZ-6` explicit API
+  qualification;
 - task-specific local and paid route alternatives,
 - provider-neutral task contracts,
 - package construction and protected-content review,
@@ -622,7 +636,7 @@ other programs, but it does not become a separate serial phase.
 | 3. Contextual Product Shell | Command Center Surface; Workflow Spine / Author Journey; Accessibility / Hotkeys / Large-Font Mode; Settings / Preferences / Workspace Layout; Splash / Startup Experience |
 | 4. Companion And Owner Routing | Companion |
 | 5. Long-Manuscript Intake And Structural Anchors | Import / Export / Google Docs for staged manuscript intake and source preservation; broader interchange remains Program 8 |
-| 6. Signals And Story Intelligence | Timeline / Pacing / Pressure; Relationship Map; Emotion Graph; Continuity; Senses Usage; Overused Words; Cliche Detection; Foreshadow / Payoff; Theme System; Plugin / Rubric System |
+| 6. Signals And Story Intelligence | Timeline / Pacing / Pressure; Relationship Map; Visualizer foundation; Continuity; Senses Usage; Overused Words; Cliche Detection; Foreshadow / Payoff; Theme System; Plugin / Rubric System |
 | 7. Creation And Revision | Author Intent / Story Setup; Ideation / Premise Discovery; Draft Generation / Rewrite Loop |
 | 8. Knowledge And Interchange | Binder / Project Library; Lore Cards; Character Cards; Project Index / Search / Retrieval; Series Binder / Cross-Story Linking; Memory Lab; broader Import / Export / Google Docs; File Manager / Asset Pane |
 | 9. Heavy Intelligence, Durability, And Operationalization | Explicit-Content Marker / Send-Package Censor; Local LLM vs Paid API Routing; Model Router / Provider Execution Policy; Budget / Token / Cost Guardrails; Async Job Queue / Task Runner; Snapshots / Backup / Restore / History; Project Persistence / Local Save; Service Health / Offline / Degraded Mode; Diagnostics / Error Visibility / Debug Console; Testing / Harness / Evidence Contract |
@@ -651,7 +665,7 @@ review is consolidated into six gates:
 2. `V3 shell review`: contextual layout, Focus mode, and Companion bar.
 3. `Long-manuscript review`: staged intake, proposed structure, accepted
    anchors, reopen behavior, and manuscript preservation.
-4. `Intelligence and creation review`: signal posture, Emotion Graph V1, the
+4. `Intelligence and creation review`: signal posture, Visualizer foundation, the
    first useful analyzers, and the first bounded creation or revision workflow.
 5. `High-risk review`: paid or outbound AI, durable memory, background jobs,
    restore-over-current, destructive work, or truth-changing actions. Fresh
@@ -717,6 +731,9 @@ Every deferral needs a named trigger. `Later` by itself is invalid.
 | Second provider or automatic routing | Heavy Intelligence program | Task-specific receipts prove an alternate route is useful and Jason approves the routing decision |
 | Background or overnight jobs | Heavy Intelligence program | A proven task is too slow for foreground use and has safe revalidation, cancellation, retention, and budget rules |
 | Paid or outbound expansion | Named task package | A local/manual workflow is proven and the outbound value justifies privacy, cost, and approval work |
+| Visualizer semantic analysis and advanced signal families | `P9-VIZ-1` through `P9-VIZ-5` in the [Visualizer Program Delivery Plan](visualizer_program_delivery_plan.md) | `P7-VIZ-0` through `P7-VIZ-4` pass, and the PC-only benchmark shows a concrete need for richer analysis |
+| Visualizer API analysis | `P9-VIZ-6` in the [Visualizer Program Delivery Plan](visualizer_program_delivery_plan.md) | PC-only and qualified local analysis fail the agreed utility threshold and outbound approval, privacy, and budget evidence is complete |
+| Visualizer custom bipolar axes | `P9-VIZ-4` in the [Visualizer Program Delivery Plan](visualizer_program_delivery_plan.md) | The author defines a real story question that fixed signal families cannot express |
 | Third-party plugins | Post-first-party analyzer review | Repeated demand cannot be met through internal rubrics or first-party analyzers |
 | Connectors | Existing Workflow Proof plus Missing Connector Review gate | A complete author workflow demonstrates that a connector is necessary rather than convenient |
 | Branching / what-if architecture | Later structural review | Prototype arrangements cannot satisfy a real author workflow without durable branches |
@@ -789,7 +806,8 @@ decisions on 2026-08-10:
    dirty item is deliberately classified and any valid unique work is carried
    forward.
 5. Long-manuscript intake and stable structural anchors are proven before
-   Emotion Graph V1.
+   Visualizer foundation. Advanced Visualizer work follows the exact
+   `P9-VIZ-1` through `P9-VIZ-6` stages in the Visualizer delivery plan.
 6. The visual direction is a restrained professional literary instrument with
    subtle Black Skies atmosphere, not a dense science-fiction command console
    and not a generic component-library dashboard.

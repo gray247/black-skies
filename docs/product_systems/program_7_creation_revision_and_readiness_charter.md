@@ -40,6 +40,9 @@ Its measurable gates are recorded in the
 its visual binding/nonbinding regions, state matrix, and delivered annotated
 references are recorded in the
 [`Program 7 visual handoff`](program_7_visual_handoff.md).
+The staged scope, exact later homes, and reopening triggers for the feature
+formerly called Emotion Graph are recorded in the
+[`Visualizer Program Delivery Plan`](visualizer_program_delivery_plan.md).
 
 ## 2. Program Promise
 
@@ -55,7 +58,9 @@ The complete Program 7 envelope includes:
 - proposal-based drafting and rewriting;
 - side-by-side comparison and partial acceptance;
 - revision-note review, re-evaluation, and resolution; and
-- reviewed promotion of accepted candidates through the correct owner.
+- reviewed promotion of accepted candidates through the correct owner; and
+- the bounded Visualizer foundation: automatic, read-only, source-linked
+  inspection with no per-passage manual annotation.
 
 The first complete workflow is not the whole program. Human Gate 4 may evaluate
 the first useful end-to-end workflow, but Program 7 closes only when each
@@ -79,6 +84,7 @@ reason, owner, and re-entry trigger.
 | Long-form corpus | Use the public-domain human-authored Gothic novella `Carmilla` from Project Gutenberg eBook 10007. Preserve the untouched source and license separately from derived test fixtures. |
 | Initial local-model candidate | Use the already present `qwen3:4b` Q4_K_M model as the single provisional pilot candidate. Host execution is proved; product quality, performance, harness, safety, and integration remain subject to measured qualification. |
 | Surface names | `Revision Desk`, `Story Foundation`, `Ideas`, and `History` remain provisional through later design review. |
+| Visualizer name and scope | The former Emotion Graph is now `Visualizer`. Program 7 owns only `P7-VIZ-0` through `P7-VIZ-4`; advanced semantic analysis, background processing, expanded signal families, custom bipolar analysis, insights, comparisons, and API qualification remain assigned to the exact stages in `visualizer_program_delivery_plan.md`. |
 
 A Program 6 finding becomes durable Program 7 work only through an explicit
 author action such as `Work on this`. Program 7 does not automatically turn all
@@ -108,6 +114,28 @@ owned; Luna agents may not overlap ownership of shared integration surfaces.
   based on the accepted planning commit
   `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; the worktree and package are not
   yet recorded, and their creation remains user-authorized control work.
+
+### P7-VIZ - Visualizer Foundation
+
+After `P7-0` and the source/corpus prerequisites, Program 7 executes the
+bounded Visualizer foundation in this order:
+
+1. `P7-VIZ-0` contains misleading unqualified outputs and proves honest empty,
+   stale, unavailable, failed, and source-return behavior.
+2. `P7-VIZ-1` defines the provider-neutral signal, evidence, provenance,
+   currentness, protection, and authority contract.
+3. `P7-VIZ-2` builds and benchmarks the PC-only baseline against the Carmilla
+   test passages.
+4. `P7-VIZ-3` provides the read-only book, chapter, scene, and passage views,
+   table parity, scope controls, and source navigation.
+5. `P7-VIZ-4` qualifies the foundation and records all advanced work in the
+   `VIZ-D` deferred-work ledger.
+
+This workstream does not expand the RT-2 revision/premise local-AI pilot. The
+local semantic Visualizer route begins only at `P9-VIZ-1`, after Program 9
+provider, queue, protection, budget, and operational prerequisites are
+accepted. The complete delivery map is authoritative in
+[`visualizer_program_delivery_plan.md`](visualizer_program_delivery_plan.md).
 
 ### P7-A - Finding To Author Resolution
 

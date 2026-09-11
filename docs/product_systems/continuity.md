@@ -105,7 +105,7 @@ themselves.
 - `Memory Lab`
 - `Companion`
 - `Critique`
-- future `Relationship Map` and `Emotion Graph`
+- future `Relationship Map` and `Visualizer`
 
 ## 14. What Gets Stored
 

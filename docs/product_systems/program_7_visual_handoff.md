@@ -113,7 +113,7 @@ Source: `program_7_writing_studio_revision_concept.png`.
 | `7` | `V-WS-05` explicit local-AI request |
 | `8` | `V-WS-06` mandatory no-AI recheck |
 | `9` | `V-WS-07` candidate preview and comparison |
-| `10` | `V-WS-08` omitted-unless-qualified graph |
+| `10` | `V-WS-08` omitted-unless-qualified Visualizer foundation |
 | `11` | `V-WS-09` no-automatic-change status |
 | `12` | `V-WS-09` local-model status |
 
@@ -126,7 +126,7 @@ Source: `program_7_writing_studio_revision_concept.png`.
 | `V-WS-05` | `Ask local AI for an alternative` action | `B` explicit opt-in local route and manual alternative alongside it; `N` blue fill, sparkle icon, and exact button copy | Local inference service receives bounded explicit request; no-AI route remains complete. | Button states: available, unavailable, loading, cancelled, failed; `WS-AI-01`, `AI-OPTIN-01`, `A11Y-AI-01` |
 | `V-WS-06` | Manual action `I revised this — recheck` | `B` manual-first path and deterministic recheck; `N` exact button styling | Author edits manuscript and requests recheck; no model required. | Keyboard reachable before AI action in no-AI mode, clear consequence, `WS-MANUAL-01`, `AI-OPTIONAL-01` |
 | `V-WS-07` | Alternative-ready card with candidate prose and `Compare before accepting` | `B` candidate remains advisory and separate from manuscript text until explicit acceptance; `N` card border, quote copy, and width | Revision Candidate owner stores candidate; author compares, edits, accepts selected text, rejects, or parks. | Candidate origin, status, and source scope announced; protected sentinel absent; `WS-CANDIDATE-01`, `PROTECT-UI-02` |
-| `V-WS-08` | Scene-feeling line graph | `N` by default. Omit from first slice unless qualified under Section 10. It cannot imply objective truth or automatic quality judgment. | No owner until lens/data/decision contract is accepted. | If later admitted, provide table/text equivalent and graph-specific evidence; `WS-GRAPH-01`, `A11Y-GRAPH-02` |
+| `V-WS-08` | Visualizer read-only foundation view | `B` only for the qualified Program 7 Command Center foundation in `P7-VIZ-3`; `N` in the ordinary Writing Studio canvas and for all unqualified semantic output. It cannot imply objective quality, emotional truth, or automatic resolution. | Visualizer owns projection state only; signal/source owners retain authority. | Provide table/text equivalent, exact source-return behavior, honest empty/unavailable states, and Visualizer evidence; `WS-GRAPH-01`, `A11Y-GRAPH-02` |
 | `V-WS-09` | Bottom context strip: current scene linked, no automatic changes, local model ready | `B` truthful anchoring, no-auto-apply statement, and local route state; `N` icon arrangement and exact copy | Source binding, candidate, and local inference projections. | Text labels persist at 200% zoom and narrow width; `WS-STATUS-01`, `A11Y-STATUS-02` |
 
 ## 6. Required state matrix
@@ -226,11 +226,18 @@ viewport, zoom, operating-system display scale, model availability, and whether
 the capture is dirty or clean. A screenshot without that metadata is evidence
 of appearance only and cannot pass a qualification row.
 
-## 10. Graph disposition and admission contract
+## 10. Visualizer disposition and admission contract
 
-The concept graphs are deliberately not part of the first implementation slice.
-Omit both the Revision Desk `before/now` graph and the Writing Studio
-`scene-feeling` graph unless a later review qualifies all of the following:
+The former Emotion Graph concept is now named `Visualizer`. The complete
+semantic Visualizer is not part of the first implementation slice. Program 7
+may admit only the bounded `P7-VIZ-0` through `P7-VIZ-4` foundation defined in
+the [Visualizer Program Delivery Plan](visualizer_program_delivery_plan.md).
+That foundation is automatic and read-only: it does not require the author to
+annotate each passage or manually place graph points.
+
+The Revision Desk `before/now` graph, Writing Studio `scene-feeling` graph,
+and any other Visualizer view may be admitted only when the relevant package
+qualifies all of the following:
 
 1. a named owner of the underlying lens and calculation;
 2. a versioned data contract and deterministic fixture values;
@@ -241,9 +248,13 @@ Omit both the Revision Desk `before/now` graph and the Writing Studio
 7. evidence that the graph does not imply objective quality, emotional truth, or automatic resolution; and
 8. Jason's annotated human visual approval of the admitted composition.
 
-Until those conditions are met, the graph region is either omitted or replaced
-by a concise text recheck summary. Decorative points, axes, color changes,
-animation, or chart presence are not substitutes for a decision contract.
+Until those conditions are met, the affected Visualizer region is either
+omitted, shows an honest empty/unavailable state, or is replaced by a concise
+text/table summary. Decorative points, axes, color changes, animation, or
+chart presence are not substitutes for a data, evidence, or decision
+contract. Advanced semantic work is not lost: it must be recorded against the
+`VIZ-D` ledger in the Visualizer delivery plan and resolved at its named
+Program 8 or Program 9 stage.
 
 ## 11. Visual review and evidence gates
 
@@ -281,5 +292,6 @@ preservation, or resolution. Ambiguous or incomplete visual evidence is
 - [ ] Empty, active, manual, local, stale, protected, loading, unavailable, cancelled, failure, partial, resolved, and recurrence states are covered.
 - [ ] Wide, laptop, narrow, 200% zoom, attached, detached, and lost-monitor states are covered.
 - [ ] Keyboard, focus, target-size, contrast, and non-color rules are testable.
-- [ ] Graphs are omitted unless their owner/data/decision contract is qualified.
+- [ ] Visualizer views are omitted or honestly unavailable unless their
+  owner/data/evidence contract is qualified.
 - [ ] Surface names remain provisional until Jason's annotated human visual review.

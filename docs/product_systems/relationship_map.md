@@ -8,7 +8,7 @@
 - Owner / review lane: `Phase 32 product-definition lane`
 - Last reviewed: `2026-06-09`
 - Depends on: `Narrative Insertion / Narrative Assertion`, `Character Cards`, `Lore Cards`, `Continuity`, `Signal Architecture`
-- Feeds into: `Writing Surface`, `Command Center Surface`, `Character Cards`, `Lore Cards`, `Emotion Graph`, `Companion`
+- Feeds into: `Writing Surface`, `Command Center Surface`, `Character Cards`, `Lore Cards`, `Visualizer`, `Companion`
 - Runtime authority: `future`
 - Authority level: `derived`
 - User-facing: `yes`
@@ -154,7 +154,7 @@ Likely consumers:
 - `Command Center Surface`
 - `Character Cards`
 - `Lore Cards`
-- `Emotion Graph`
+- `Visualizer`
 - `Continuity`
 - `Companion`
 - `Memory Lab`
@@ -531,7 +531,7 @@ Privacy and safety rules must ensure:
 - hidden or deleted relationship evidence does not leak into map summaries or recall,
 - masked or excluded material stays protected,
 - advisory systems do not silently retain protected raw material as relationship truth,
-- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` default edges, `Emotion Graph` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
+- deleted, hidden, masked, or AI-excluded material does not appear in default views, `Companion` context, `Memory Lab` recall, `Relationship Map` default edges, `Visualizer` inference, prototype inputs, package previews, or outbound payloads unless explicitly permitted by the author and allowed by owning-system rules.
 
 ## 27. Testing Requirements
 

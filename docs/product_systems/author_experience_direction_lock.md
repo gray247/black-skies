@@ -354,7 +354,7 @@ outline items.
 | 9 | Draft Generation / Rewrite Loop |
 | 11 | Timeline / Pacing / Pressure |
 | 12 | Relationship Map |
-| 13 | Emotion Graph |
+| 13 | Visualizer |
 | 14 | Continuity |
 | 15 | Critique / Evaluation |
 | 16 | Feedback Notes / Revision Resolution |
@@ -441,8 +441,9 @@ Current direction includes:
 - the Command Center as the home for deep story intelligence,
 - a maturity-aware and author-controlled signal system,
 - long-manuscript intake and stable anchors before graph-driven intelligence,
-- Emotion Graph as the first visual story-intelligence lens after those
-  positions pass Human Gate 3,
+- Visualizer as the first bounded visual story-intelligence lens after those
+  positions pass Human Gate 3; its semantic, background, custom-axis, and API
+  expansions follow the staged delivery plan,
 - proposal-based creation and revision,
 - richer knowledge, organization, and interchange,
 - replaceable local and paid intelligence engines,
@@ -495,7 +496,7 @@ this direction and explicitly record:
 - what new bounded work is required,
 - what remains deferred,
 - where the six human gates now occur,
-- when Emotion Graph begins,
+- when Visualizer begins,
 - which decisions remain genuinely open.
 
 The accepted reconciliation now lives in

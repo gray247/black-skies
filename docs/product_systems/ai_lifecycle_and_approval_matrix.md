@@ -33,7 +33,7 @@ This contract applies across:
 - `Continuity`
 - `Theme System`
 - `Relationship Map`
-- `Emotion Graph`
+- `Visualizer` (legacy planning name: `Emotion Graph`)
 - `Draft Generation / Rewrite Loop`
 - `Companion`
 - `Import Export Document Interchange`
@@ -229,7 +229,7 @@ It owns the approval contract, approval vocabulary, approval-state definitions, 
 | `revision re-evaluation assessment` | requesting Program 6 lens or `Feedback Notes / Revision Resolution` review path | temporary advisory evidence by default | `T1` to display; Jason's explicit owner action to close the revision item | may say `appears resolved` or `still appears present` and may be cited in the author review | may not close or reopen a revision item, mutate prose, accept a candidate, resolve a Note or Signal, or become truth automatically |
 | `theme finding` | `Theme System` | temporary by default | `T1` to surface, `T2 + T6` to accept theme note or truth elsewhere | may become candidate theme note or author-owned thematic intent through explicit owner path | may not silently canonize theme meaning |
 | `relationship finding` | `Relationship Map` or upstream analysis feeding it | temporary by default | `T1` to surface, `T2 + T6` to accept | may become candidate relationship item or accepted relationship truth via truth owner | may not become accepted relationship fact automatically |
-| `emotional finding` | `Emotion Graph` or upstream analysis feeding it | temporary by default | `T1` to surface, `T2 + T6` to accept | may become candidate emotional interpretation or accepted emotional intent through owner path | may not become accepted emotional truth automatically |
+| `emotional finding` | `Visualizer` or upstream analysis feeding it | temporary by default | `T1` to surface, `T2 + T6` to accept | may become candidate emotional interpretation or accepted emotional intent through owner path | may not become accepted emotional truth automatically |
 | `export artifact` | `Import Export Document Interchange` | transfer history durable, artifact per export policy | `T2 + T6` or `T3 + T6` depending on mode | may leave machine or stay local as approved export | may not become accepted local truth automatically |
 | `package artifact` | `LLM Package Construction Architecture` | temporary by default, bounded summaries only when approved | `T1` local eligible packaging, `T3 + T6` if outbound approval required | may become approved package view or outbound payload | may not become durable memory, truth, or human export automatically |
 
@@ -453,7 +453,7 @@ Each future validation program must stay subordinate to this contract and must n
 
 ## 14. Remaining Critical Questions
 
-- What exact output-shape vocabulary should be shared across `Critique`, `Continuity`, `Theme System`, `Relationship Map`, `Emotion Graph`, and `Companion` so classifications stay interoperable without collapsing different meanings?
+- What exact output-shape vocabulary should be shared across `Critique`, `Continuity`, `Theme System`, `Relationship Map`, `Visualizer`, and `Companion` so classifications stay interoperable without collapsing different meanings?
 - What exact object-level provenance model is required for authored, suggested, generated, accepted, rejected, removed, masked, transformed, exported, and forgotten states?
 - What exact `T4 session-approval-allowed` scope, revocation, and visibility rules are safe across local advisory work?
 - Which continuity, critique, theme, relationship, and emotional artifacts justify durable advisory history versus expiry?
@@ -473,7 +473,7 @@ Each future validation program must stay subordinate to this contract and must n
 - `continuity.md`
 - `theme_system.md`
 - `relationship_map.md`
-- `emotion_graph.md`
+- `visualizer_program_delivery_plan.md` (legacy dossier path: `emotion_graph.md`)
 - `companion.md`
 - `draft_generation_rewrite_loop.md`
 - `import_export_document_interchange.md`

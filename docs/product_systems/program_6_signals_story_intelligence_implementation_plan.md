@@ -1,5 +1,11 @@
 # Program 6 Signals And Story Intelligence Implementation Plan
 
+> Current naming and forward delivery note: the former `Emotion Graph` feature
+> is now named `Visualizer`. Program 6 records the historical deterministic
+> signal/lens work; it does not own the later semantic analyzer. The forward
+> Program 7 foundation and Program 9 expansion are governed by
+> [`visualizer_program_delivery_plan.md`](visualizer_program_delivery_plan.md).
+
 ## 1. Status And Authority
 
 ### Current live-review correction — 2026-09-01
@@ -39,7 +45,7 @@ The plan is constrained by:
 - [Black Skies Post-V1 Master Product Program](black_skies_post_v1_master_product_program.md);
 - [Post-V1 Execution Control And Handoff Plan](post_v1_execution_control_and_handoff_plan.md);
 - [Signal Architecture](signal_architecture.md);
-- [Emotion Graph](emotion_graph.md);
+- [Visualizer](visualizer_program_delivery_plan.md) (legacy dossier: `emotion_graph.md`);
 - [Continuity](continuity.md);
 - [Timeline / Pacing / Pressure](timeline_pacing_pressure.md);
 - [Truth And State Ownership Matrix](truth_and_state_ownership_matrix.md);
@@ -70,7 +76,7 @@ The product goal is:
 > useful source-linked story lenses without an alarm dashboard.
 
 The program covers author-controlled signal posture, project maturity,
-Emotion Graph V1, continuity through the same contract, and Timeline V1's
+the historical deterministic Visualizer/emotion lens, continuity through the same contract, and Timeline V1's
 chronology, pacing, and pressure lenses. The Writing Surface remains a quiet
 place to write. Detail belongs in the existing Story Knowledge Command Center
 workspace, where evidence, source links, currentness, permissions, and safe
@@ -642,7 +648,7 @@ Exit evidence:
 - typed IPC/preload paths expose no generic authority; and
 - focused tests and an evidence/status receipt are green.
 
-### P6-B — Deterministic Emotion Graph V1
+### P6-B — Deterministic Visualizer Emotion Lens (historical name: Emotion Graph V1)
 
 Purpose:
 
@@ -661,7 +667,7 @@ Surface quiet remains in force.
 
 P6-B implementation evidence:
 
-- deterministic Emotion Graph V1 contracts and pure projection/comparison logic
+- deterministic Visualizer emotion-lens contracts and pure projection/comparison logic
   are implemented over stable `StoryPositionRefV1` values;
 - planned, observed, and optional reader-effect records persist through the
   P6-A project-local repository, while inferred candidates remain temporary;
