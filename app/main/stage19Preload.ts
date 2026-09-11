@@ -92,6 +92,46 @@ import type {
   SetManuscriptStructureBoundaryRequest,
   SplitManuscriptStructureGroupRequest,
 } from '../shared/ipc/manuscriptStructure';
+import {
+  IDEATION_CHANNELS,
+  type IdeationBridge,
+  type AddPremiseVersionRequest,
+  type BranchLifecycleRequest,
+  type CaptureIdeaSeedRequest,
+  type CombineSeedsRequest,
+  type CopyBranchRequest,
+  type CreateBranchRequest,
+  type FilterLibraryRequest,
+  type GetIdeationRequest,
+  type MergeBranchesRequest,
+  type PreparePromotionRequest,
+  type RequestAiAlternativesRequest,
+  type SplitBranchRequest,
+  type TestPremiseRequest,
+  type UpdateIdeaSeedRequest,
+} from '../shared/ipc/ideation';
+import {
+  PROGRAM7_PROMOTION_CHANNELS,
+  type Program7PromotionBridge,
+  type Program7PromotionHandoffRequestV1,
+} from '../shared/ipc/program7Promotion';
+import {
+  REVISION_CANDIDATE_CHANNELS,
+  type CreateLocalAiRevisionCandidateRequest,
+  type CreateManualRevisionCandidateRequest,
+  type EditRevisionCandidateRequest,
+  type ListRevisionCandidatesRequest,
+  type RevisionCandidatesBridge,
+  type SetRevisionCandidateLifecycleRequest,
+} from '../shared/ipc/revisionCandidates';
+import {
+  STORY_FOUNDATION_CHANNELS,
+  type ArchiveStoryFoundationAnswerRequest,
+  type GetStoryFoundationRequest,
+  type RestoreStoryFoundationAnswerRequest,
+  type SetStoryFoundationAnswerRequest,
+  type StoryFoundationBridge,
+} from '../shared/ipc/storyFoundation';
 
 /**
  * Electron's sandboxed preload loader cannot require arbitrary local CommonJS
@@ -188,6 +228,10 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     reorderGroups: 'manuscript-structure:reorder-groups',
     apply: 'manuscript-structure:apply',
   }),
+  revisionCandidates: Object.freeze(REVISION_CANDIDATE_CHANNELS),
+  storyFoundation: Object.freeze(STORY_FOUNDATION_CHANNELS),
+  ideation: Object.freeze(IDEATION_CHANNELS),
+  program7Promotion: Object.freeze(PROGRAM7_PROMOTION_CHANNELS),
   diagnostics: 'logging:diagnostics',
 });
 
@@ -827,6 +871,53 @@ const feedbackNotes: FeedbackNotesBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createRecurrence, request),
 };
 
+const revisionCandidates: RevisionCandidatesBridge = {
+  list: (request: ListRevisionCandidatesRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.list, request),
+  createManual: (request: CreateManualRevisionCandidateRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.createManual, request),
+  createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.createLocalAi, request),
+  edit: (request: EditRevisionCandidateRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.edit, request),
+  setLifecycle: (request: SetRevisionCandidateLifecycleRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.setLifecycle, request),
+};
+
+const storyFoundation: StoryFoundationBridge = {
+  get: (request: GetStoryFoundationRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyFoundation.get, request),
+  setAnswer: (request: SetStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyFoundation.setAnswer, request),
+  archiveAnswer: (request: ArchiveStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyFoundation.archiveAnswer, request),
+  restoreAnswer: (request: RestoreStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.storyFoundation.restoreAnswer, request),
+};
+
+const ideation: IdeationBridge = {
+  get: (request: GetIdeationRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.get, request),
+  captureSeed: (request: CaptureIdeaSeedRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.captureSeed, request),
+  updateSeed: (request: UpdateIdeaSeedRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.updateSeed, request),
+  createBranch: (request: CreateBranchRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.createBranch, request),
+  copyBranch: (request: CopyBranchRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.copyBranch, request),
+  mergeBranches: (request: MergeBranchesRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.mergeBranches, request),
+  splitBranch: (request: SplitBranchRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.splitBranch, request),
+  archiveBranch: (request: BranchLifecycleRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.archiveBranch, request),
+  restoreBranch: (request: BranchLifecycleRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.restoreBranch, request),
+  addPremiseVersion: (request: AddPremiseVersionRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.addPremiseVersion, request),
+  testPremise: (request: TestPremiseRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.testPremise, request),
+  combineSeeds: (request: CombineSeedsRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.combineSeeds, request),
+  filterLibrary: (request: FilterLibraryRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.filterLibrary, request),
+  preparePromotion: (request: PreparePromotionRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.preparePromotion, request),
+  requestAiAlternatives: (request: RequestAiAlternativesRequest) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.ideation.requestAiAlternatives, request),
+};
+
+const program7Promotion: Program7PromotionBridge = {
+  handoff: (request: Program7PromotionHandoffRequestV1) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.program7Promotion.handoff, request),
+};
+
 const livingOutline: LivingOutlineBridge = {
   get: (request: GetLivingOutlineRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.get, request),
@@ -925,7 +1016,16 @@ contextBridge.exposeInMainWorld('critiqueReview', critiqueReview);
 if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('aiCritique', aiCritique);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotes);
+  contextBridge.exposeInMainWorld('revisionCandidates', revisionCandidates);
+  contextBridge.exposeInMainWorld('storyFoundation', storyFoundation);
+  contextBridge.exposeInMainWorld('ideation', ideation);
+  contextBridge.exposeInMainWorld('program7Promotion', program7Promotion);
   contextBridge.exposeInMainWorld('livingOutline', livingOutline);
   contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligence);
   contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructure);
+} else {
+  contextBridge.exposeInMainWorld('feedbackNotes', { list: feedbackNotes.list, listRevisionItems: feedbackNotes.listRevisionItems });
+  contextBridge.exposeInMainWorld('revisionCandidates', { list: revisionCandidates.list });
+  contextBridge.exposeInMainWorld('storyFoundation', { get: storyFoundation.get });
+  contextBridge.exposeInMainWorld('ideation', { get: ideation.get, filterLibrary: ideation.filterLibrary });
 }

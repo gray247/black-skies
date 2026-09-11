@@ -19,7 +19,7 @@ import {
   type AiCritiqueRequestReference,
   type AiCritiqueState,
 } from '../shared/ipc/aiCritique';
-import type { FeedbackNote, FeedbackNotesBridge } from '../shared/ipc/feedbackNotes';
+import type { FeedbackNote, FeedbackNotesBridge, FeedbackRevisionLifecycle, RevisionItem } from '../shared/ipc/feedbackNotes';
 import {
   deriveCompanionOrientationResult,
   routeCompanionRequest,
@@ -56,8 +56,39 @@ import type {
   StoryPositionRefV1,
 } from '../shared/ipc/storyIntelligence';
 import { deriveStoryPositionCurrentness, trimStoryIntelligenceHistory } from '../shared/storyIntelligencePolicy';
+import type {
+  IdeationBridge,
+  IdeationExplorationBranchV1,
+  IdeationSourceContributionV1,
+  IdeationPromotionDestination,
+  IdeationSnapshotV1,
+  IdeationUnresolvedAreaV1,
+} from '../shared/ipc/ideation';
+import type {
+  Program7PromotionBridge,
+  Program7PromotionDestinationV1,
+  Program7PromotionHandoffRequestV1,
+  Program7PromotionItemV1,
+  Program7PromotionOutcomeV1,
+} from '../shared/ipc/program7Promotion';
+import type {
+  RevisionCandidateLifecycle,
+  RevisionCandidateV1,
+  RevisionCandidatesBridge,
+  RevisionCandidatesSnapshotV1,
+} from '../shared/ipc/revisionCandidates';
+import type {
+  StoryFoundationBridge,
+  StoryFoundationQuestionId,
+  StoryFoundationSnapshotV1,
+} from '../shared/ipc/storyFoundation';
+import { PROGRAM7_LOCAL_INFERENCE_BOUNDS, PROGRAM7_LOCAL_INFERENCE_MODEL, PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA } from '../shared/localInference';
+import { buildProgram7HistoryProjection } from '../shared/program7History';
+import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import type { StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
+import type { StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
+import type { ManualIdeaSeedDraft } from './components/program7/IdeasWorkspace';
 import Stage19WritingSpineView, {
   getSelectableImportedManuscriptProposalIds,
   deriveManuscriptStructureApplyReadiness,
@@ -549,18 +580,26 @@ export interface Stage19WritingSpineAppProps {
   readonly surfaceBridge?: SplitCommandOwnershipBridge;
   readonly critiqueReviewBridge?: CritiqueReviewBridge;
   readonly storyIntelligenceBridge?: StoryIntelligenceBridge;
+  readonly revisionCandidatesBridge?: RevisionCandidatesBridge;
+  readonly storyFoundationBridge?: StoryFoundationBridge;
+  readonly ideationBridge?: IdeationBridge;
+  readonly program7PromotionBridge?: Program7PromotionBridge;
 }
 
 export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
   aiBridge = window.aiCritique,
-  feedbackNotesBridge = window.feedbackNotes,
+  feedbackNotesBridge = window.feedbackNotes as FeedbackNotesBridge | undefined,
   livingOutlineBridge = window.livingOutline,
   manuscriptStructureBridge = window.manuscriptStructure,
   surfaceBridge = window.splitCommand,
   critiqueReviewBridge = window.critiqueReview,
-  storyIntelligenceBridge = window.storyIntelligence,
+  storyIntelligenceBridge = window.storyIntelligence as StoryIntelligenceBridge | undefined,
+  revisionCandidatesBridge = window.revisionCandidates as RevisionCandidatesBridge | undefined,
+  storyFoundationBridge = window.storyFoundation as StoryFoundationBridge | undefined,
+  ideationBridge = window.ideation as IdeationBridge | undefined,
+  program7PromotionBridge = window.program7Promotion,
 }: Stage19WritingSpineAppProps): JSX.Element {
   const [snapshot, setSnapshot] = useState<ProjectSpineSessionSnapshot>(() => emptySnapshot(windowRole));
   const [loading, setLoading] = useState(true);
@@ -633,6 +672,22 @@ export default function Stage19WritingSpineApp({
   const [storyIntelligenceDocument, setStoryIntelligenceDocument] = useState<StoryIntelligenceDocumentV1 | null>(null);
   const [storyIntelligenceLoading, setStoryIntelligenceLoading] = useState(false);
   const [storyIntelligenceNotice, setStoryIntelligenceNotice] = useState<string | null>(null);
+  const [program7RevisionItems, setProgram7RevisionItems] = useState<{
+    readonly activeItems: readonly RevisionItem[];
+    readonly historyItems: readonly RevisionItem[];
+    readonly revision: number;
+    readonly availability: 'ready' | 'degraded';
+    readonly notice: string | null;
+  }>({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
+  const [program7Candidates, setProgram7Candidates] = useState<RevisionCandidatesSnapshotV1 | null>(null);
+  const [program7Foundation, setProgram7Foundation] = useState<StoryFoundationSnapshotV1 | null>(null);
+  const [program7Ideation, setProgram7Ideation] = useState<IdeationSnapshotV1 | null>(null);
+  const [program7SelectedCandidate, setProgram7SelectedCandidate] = useState<RevisionCandidateV1 | null>(null);
+  const [program7RevisionDrawerOpen, setProgram7RevisionDrawerOpen] = useState(false);
+  const [program7CandidatePurpose, setProgram7CandidatePurpose] = useState('');
+  const [program7CandidateText, setProgram7CandidateText] = useState('');
+  const [program7Notice, setProgram7Notice] = useState<string | null>(null);
+  const [program7PromotionOutcomes, setProgram7PromotionOutcomes] = useState<readonly Program7PromotionOutcomeV1[]>([]);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
@@ -1110,6 +1165,123 @@ export default function Stage19WritingSpineApp({
   // Load only when project identity changes, not after ordinary manuscript revisions.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedbackNotesBridge, livingOutlineProjectIdentity, windowRole]);
+
+  const program7ProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
+  useEffect(() => {
+    if (!snapshot.project) {
+      setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
+      setProgram7Candidates(null);
+      setProgram7Foundation(null);
+      setProgram7Ideation(null);
+      setProgram7SelectedCandidate(null);
+      setProgram7RevisionDrawerOpen(false);
+      setProgram7Notice(null);
+      setProgram7PromotionOutcomes([]);
+      return;
+    }
+    const project = snapshot.project;
+    let cancelled = false;
+    const binding = {
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: snapshot.generation,
+    };
+    const loadRevisionItems = async () => {
+      if (typeof feedbackNotesBridge?.listRevisionItems !== 'function') {
+        if (!cancelled) setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'degraded', notice: 'Revision items are not connected in this window.' });
+        return;
+      }
+      try {
+        const result = await feedbackNotesBridge.listRevisionItems({ ...binding, operationId: operationId('program7-revision-items-load'), scope: 'all' });
+        if (cancelled) return;
+        if (!result.ok) {
+          setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'degraded', notice: result.error.message });
+          return;
+        }
+        const activeLifecycle = new Set(['active', 'review', 'intended', 'underway', 'ready_for_recheck', 'recheck_pending']);
+        setProgram7RevisionItems({
+          activeItems: result.data.filter((item) => activeLifecycle.has(item.lifecycle)),
+          historyItems: result.data.filter((item) => !activeLifecycle.has(item.lifecycle)),
+          revision: result.revision,
+          availability: 'ready',
+          notice: null,
+        });
+      } catch {
+        if (!cancelled) setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'degraded', notice: 'Revision items could not be loaded. Writing remains available.' });
+      }
+    };
+    const loadCandidates = async () => {
+      if (typeof revisionCandidatesBridge?.list !== 'function') {
+        if (!cancelled) setProgram7Candidates(null);
+        return;
+      }
+      try {
+        const result = await revisionCandidatesBridge.list({ ...binding, operationId: operationId('program7-candidates-load') });
+        if (!cancelled) setProgram7Candidates(result.ok ? result.data : null);
+        if (!cancelled && !result.ok) setProgram7Notice(result.error.message);
+      } catch {
+        if (!cancelled) setProgram7Notice('Revision candidates could not be loaded.');
+      }
+    };
+    const loadFoundation = async () => {
+      if (typeof storyFoundationBridge?.get !== 'function') {
+        if (!cancelled) setProgram7Foundation(null);
+        return;
+      }
+      try {
+        const result = await storyFoundationBridge.get({ ...binding, operationId: operationId('program7-foundation-load') });
+        if (!cancelled) setProgram7Foundation(result.ok ? result.data : null);
+        if (!cancelled && !result.ok) setProgram7Notice(result.error.message);
+      } catch {
+        if (!cancelled) setProgram7Notice('Story Foundation could not be loaded.');
+      }
+    };
+    const loadIdeation = async () => {
+      if (typeof ideationBridge?.get !== 'function') {
+        if (!cancelled) setProgram7Ideation(null);
+        return;
+      }
+      try {
+        const result = await ideationBridge.get({ ...binding, operationId: operationId('program7-ideation-load') });
+        if (!cancelled) setProgram7Ideation(result.ok ? result.data : null);
+        if (!cancelled && !result.ok) setProgram7Notice(result.error.message);
+      } catch {
+        if (!cancelled) setProgram7Notice('Ideas could not be loaded.');
+      }
+    };
+    void Promise.all([loadRevisionItems(), loadCandidates(), loadFoundation(), loadIdeation()]);
+    return () => { cancelled = true; };
+  // Load owner documents when the project identity changes. Ordinary manuscript saves do not reload these documents.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackNotesBridge, ideationBridge, program7ProjectIdentity, revisionCandidatesBridge, storyFoundationBridge]);
+
+  const refreshProgram7RevisionItems = useCallback(async (): Promise<void> => {
+    const current = snapshotRef.current;
+    if (!current.project || typeof feedbackNotesBridge?.listRevisionItems !== 'function') return;
+    try {
+      const result = await feedbackNotesBridge.listRevisionItems({
+        operationId: operationId('program7-revision-items-refresh'),
+        projectId: current.project.projectId,
+        projectPath: current.project.path,
+        generation: current.generation,
+        scope: 'all',
+      });
+      if (!result.ok) {
+        setProgram7RevisionItems((previous) => ({ ...previous, availability: 'degraded', notice: result.error.message }));
+        return;
+      }
+      const activeLifecycle = new Set(['active', 'review', 'intended', 'underway', 'ready_for_recheck', 'recheck_pending']);
+      setProgram7RevisionItems({
+        activeItems: result.data.filter((item) => activeLifecycle.has(item.lifecycle)),
+        historyItems: result.data.filter((item) => !activeLifecycle.has(item.lifecycle)),
+        revision: result.revision,
+        availability: 'ready',
+        notice: null,
+      });
+    } catch {
+      setProgram7RevisionItems((previous) => ({ ...previous, availability: 'degraded', notice: 'Revision items could not be refreshed.' }));
+    }
+  }, [feedbackNotesBridge]);
 
   const clearAiSurface = useCallback((invalidateActive: boolean) => {
     const reference = aiReferenceRef.current;
@@ -3098,7 +3270,7 @@ export default function Stage19WritingSpineApp({
       return;
     }
     if (surfaceBridge && !(await activateSurface('writing', 'current-window'))) {
-      setNotice('Writing Studio could not be opened. The Story Knowledge finding remains available in Command Center.');
+      setNotice('Writing Studio could not be opened. The source remains available in Command Center.');
       return;
     }
     await handleSelectUnit(source.unitId);
@@ -3141,6 +3313,562 @@ export default function Stage19WritingSpineApp({
     }
     setNotice(`Returned to ${source.sourceKind}/${source.sourceId}. The source unit is selected; no exact passage was recorded.`);
   }, [activateSurface, handleSelectUnit, surfaceBridge]);
+
+  const currentProgram7UnitSource = useCallback(async (unitId?: string) => {
+    const current = snapshotRef.current;
+    const project = current.project;
+    const resolvedUnitId = unitId ?? current.activeUnitId;
+    if (!project || !resolvedUnitId) return null;
+    const unit = project.units.find((candidate) => candidate.id === resolvedUnitId);
+    const markdown = project.drafts?.[resolvedUnitId];
+    if (!unit || typeof markdown !== 'string') return null;
+    const body = splitDraft(markdown).body;
+    return { current, project, unit, body, bodySha256: await fingerprintVisibleText(body) };
+  }, []);
+
+  const createProgram7ManualCandidate = useCallback(async () => {
+    if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createManual !== 'function') {
+      setProgram7Notice('Manual revision candidates can only be created from Writing Studio.');
+      return;
+    }
+    const source = await currentProgram7UnitSource();
+    const purpose = program7CandidatePurpose.trim();
+    const candidateText = program7CandidateText.trim();
+    if (!source || !purpose || !candidateText) {
+      setProgram7Notice('Save the project and enter both a purpose and candidate text before creating a revision candidate.');
+      return;
+    }
+    if (source.current.dirtyUnitIds.includes(source.unit.id)) {
+      setProgram7Notice('Save the current manuscript section before creating a source-linked candidate.');
+      return;
+    }
+    const selection = aiSelection && aiSelection.sourceFingerprint === source.bodySha256 &&
+      aiSelection.selectionStart >= 0 && aiSelection.selectionEnd > aiSelection.selectionStart &&
+      aiSelection.selectionEnd <= source.body.length
+      ? {
+          unitId: source.unit.id,
+          selectionStart: aiSelection.selectionStart,
+          selectionEnd: aiSelection.selectionEnd,
+          selectionFingerprint: aiSelection.selectionFingerprint,
+        }
+      : null;
+    const binding = bindingFor(source.current, 'program7-manual-candidate');
+    if (!binding) return;
+    try {
+      const result = await revisionCandidatesBridge.createManual({
+        ...binding,
+        unitId: source.unit.id,
+        expectedRevision: program7Candidates?.document.revision ?? 0,
+        sourceSnapshot: { unitId: source.unit.id, bodySha256: source.bodySha256, text: source.body },
+        sourceAnchor: selection,
+        purpose,
+        protection: { excluded: false, class: 'ordinary' },
+        candidateText,
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      setProgram7Candidates(result.data);
+      setProgram7CandidateText('');
+      setProgram7CandidatePurpose('');
+      setProgram7Notice('Manual revision candidate saved. The manuscript was not changed.');
+    } catch {
+      setProgram7Notice('The manual revision candidate could not be saved. The manuscript was not changed.');
+    }
+  }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+
+  const createProgram7LocalAiCandidate = useCallback(async () => {
+    if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createLocalAi !== 'function') {
+      setProgram7Notice('Local-AI revision candidates can only be requested from Writing Studio.');
+      return;
+    }
+    const source = await currentProgram7UnitSource();
+    const purpose = program7CandidatePurpose.trim();
+    if (!source || !purpose) {
+      setProgram7Notice('Save the project and enter a purpose before requesting a local-AI candidate.');
+      return;
+    }
+    if (source.current.dirtyUnitIds.includes(source.unit.id)) {
+      setProgram7Notice('Save the current manuscript section before requesting a source-linked candidate.');
+      return;
+    }
+    const limits = PROGRAM7_LOCAL_INFERENCE_BOUNDS.rewrite_candidate;
+    if (source.body.length > limits.inputChars) {
+      setProgram7Notice(`This manuscript section is too large for the bounded local-AI request (${limits.inputChars.toLocaleString()} characters).`);
+      return;
+    }
+    const selection = aiSelection && aiSelection.sourceFingerprint === source.bodySha256 &&
+      aiSelection.selectionStart >= 0 && aiSelection.selectionEnd > aiSelection.selectionStart &&
+      aiSelection.selectionEnd <= source.body.length
+      ? {
+          unitId: source.unit.id,
+          selectionStart: aiSelection.selectionStart,
+          selectionEnd: aiSelection.selectionEnd,
+          selectionFingerprint: aiSelection.selectionFingerprint,
+        }
+      : null;
+    const binding = bindingFor(source.current, 'program7-local-ai-candidate');
+    if (!binding) return;
+    try {
+      const result = await revisionCandidatesBridge.createLocalAi({
+        ...binding,
+        unitId: source.unit.id,
+        expectedRevision: program7Candidates?.document.revision ?? 0,
+        sourceAnchor: selection,
+        inference: {
+          schema: PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA,
+          operation: 'rewrite_candidate',
+          model: PROGRAM7_LOCAL_INFERENCE_MODEL,
+          requestId: operationId('program7-local-rewrite'),
+          projectId: source.project.projectId,
+          source: { unitId: source.unit.id, bodySha256: source.bodySha256, text: source.body },
+          purpose,
+          limits,
+          protection: { excluded: false, class: 'ordinary' },
+        },
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      setProgram7Candidates(result.data);
+      setProgram7CandidatePurpose('');
+      setProgram7Notice('Local-AI candidate saved for author comparison. The manuscript was not changed.');
+    } catch {
+      setProgram7Notice('The bounded local-AI candidate request failed. The manuscript was not changed.');
+    }
+  }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+
+  const openProgram7Candidate = useCallback(async (candidate: RevisionCandidateV1) => {
+    setProgram7SelectedCandidate(candidate);
+    setProgram7RevisionDrawerOpen(true);
+    setOpenWritingRail('right');
+    if (windowRole === 'writing' && surfaceBridge) await activateSurface('writing', 'current-window');
+  }, [activateSurface, surfaceBridge, windowRole]);
+
+  const closeProgram7Candidate = useCallback(() => {
+    setProgram7RevisionDrawerOpen(false);
+    setProgram7SelectedCandidate(null);
+  }, []);
+
+  const saveProgram7CandidateEdit = useCallback(async (candidate: RevisionCandidateV1, editedCandidateText: string) => {
+    if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.edit !== 'function') {
+      setProgram7Notice('Candidate edits must originate in Writing Studio.');
+      return;
+    }
+    const current = snapshotRef.current;
+    const binding = bindingFor(current, 'program7-edit-candidate');
+    if (!binding) return;
+    try {
+      const result = await revisionCandidatesBridge.edit({
+        ...binding,
+        expectedRevision: program7Candidates?.document.revision ?? 0,
+        candidateId: candidate.id,
+        editedCandidateText,
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      setProgram7Candidates(result.data);
+      setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
+      setProgram7Notice('Candidate edit saved. Compare it again before accepting anything.');
+    } catch {
+      setProgram7Notice('The candidate edit could not be saved. The manuscript was not changed.');
+    }
+  }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+
+  const setProgram7CandidateLifecycle = useCallback(async (
+    candidate: RevisionCandidateV1,
+    lifecycle: Extract<RevisionCandidateLifecycle, 'rejected' | 'parked' | 'abandoned'>,
+  ) => {
+    if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.setLifecycle !== 'function') {
+      setProgram7Notice('Candidate lifecycle changes must originate in Writing Studio.');
+      return;
+    }
+    const binding = bindingFor(snapshotRef.current, 'program7-candidate-lifecycle');
+    if (!binding) return;
+    try {
+      const result = await revisionCandidatesBridge.setLifecycle({
+        ...binding,
+        expectedRevision: program7Candidates?.document.revision ?? 0,
+        candidateId: candidate.id,
+        lifecycle,
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      setProgram7Candidates(result.data);
+      setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
+      setProgram7Notice(`Candidate ${lifecycle}. The manuscript was not changed.`);
+    } catch {
+      setProgram7Notice('The candidate lifecycle change could not be saved.');
+    }
+  }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+
+  const acceptProgram7Candidate = useCallback(async (candidate: RevisionCandidateV1, selectedText?: string) => {
+    if (windowRole !== 'writing' || typeof bridge?.acceptRevisionCandidate !== 'function') {
+      setProgram7Notice('Candidate acceptance must originate in Writing Studio.');
+      return;
+    }
+    const current = snapshotRef.current;
+    const expectedMarkdown = current.project?.drafts?.[candidate.unitId];
+    if (!current.project || typeof expectedMarkdown !== 'string' || candidate.currentness !== 'current') {
+      setProgram7Notice('This candidate is not current against the saved manuscript. Recheck it before accepting.');
+      return;
+    }
+    const visibleText = candidate.editedCandidateText ?? candidate.candidateText;
+    const selectionStart = selectedText === undefined ? undefined : visibleText.indexOf(selectedText);
+    if (selectedText !== undefined && (selectionStart === undefined || selectionStart < 0 || selectedText.length === 0)) {
+      setProgram7Notice('The selected candidate text is not present in the current candidate. No manuscript change was made.');
+      return;
+    }
+    const selectionEnd = selectionStart === undefined ? undefined : selectionStart + selectedText!.length;
+    const mode = candidate.editedCandidateText
+      ? 'accept-edited-before-acceptance' as const
+      : selectedText === undefined ? 'accept-all' as const : 'accept-selected-text' as const;
+    const binding = bindingFor(current, 'program7-accept-candidate');
+    if (!binding) return;
+    try {
+      const result = await bridge.acceptRevisionCandidate({
+        ...binding,
+        unitId: candidate.unitId,
+        expectedMarkdown,
+        candidateId: candidate.id,
+        mode,
+        ...(selectionStart !== undefined && selectionEnd !== undefined
+          ? { candidateSelection: { selectionStart, selectionEnd } }
+          : {}),
+        triggeredRisks: [],
+        acknowledgedRisks: [],
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      applySnapshot(result.snapshot);
+      closeProgram7Candidate();
+      setProgram7Notice('Candidate accepted into the manuscript through the explicit destination-owner action.');
+      const refreshed = await revisionCandidatesBridge?.list?.({
+        operationId: operationId('program7-candidates-after-accept'),
+        projectId: current.project.projectId,
+        projectPath: current.project.path,
+        generation: current.generation,
+      });
+      if (refreshed?.ok) setProgram7Candidates(refreshed.data);
+      await refreshProgram7RevisionItems();
+    } catch {
+      setProgram7Notice('Candidate acceptance failed safely. The manuscript was not changed.');
+    }
+  }, [applySnapshot, bridge, closeProgram7Candidate, refreshProgram7RevisionItems, revisionCandidatesBridge, windowRole]);
+
+  const returnProgram7CandidateToSource = useCallback(async (candidate: RevisionCandidateV1) => {
+    const current = snapshotRef.current;
+    const source: StoryPositionRefV1 = {
+      projectId: candidate.projectId,
+      sourceKind: 'manuscript',
+      sourceId: candidate.unitId,
+      sourceRevision: current.generation,
+      sourceFingerprint: candidate.sourceBodySha256,
+      unitId: candidate.unitId,
+      bodySha256: candidate.sourceSnapshot.bodySha256,
+      ...(candidate.sourceAnchor ? {
+        selectionStart: candidate.sourceAnchor.selectionStart,
+        selectionEnd: candidate.sourceAnchor.selectionEnd,
+        selectionFingerprint: candidate.sourceAnchor.selectionFingerprint,
+      } : {}),
+    };
+    await returnToStorySource(source);
+  }, [returnToStorySource]);
+
+  const returnProgram7RevisionItemToSource = useCallback(async (item: RevisionItem) => {
+    const current = snapshotRef.current;
+    const sourceKind = ['manuscript', 'assertion', 'outline', 'story-unit', 'character', 'lore', 'author-intent'].includes(item.sourceKind ?? '')
+      ? item.sourceKind as StoryPositionRefV1['sourceKind']
+      : 'manuscript';
+    const source: StoryPositionRefV1 = {
+      projectId: item.projectId,
+      sourceKind,
+      sourceId: item.sourceId ?? item.sourceFindingId ?? item.id,
+      sourceRevision: item.sourceRevision ?? current.generation,
+      sourceFingerprint: item.anchor?.sourceFingerprint ?? item.sourceBodyFingerprint ?? `${item.projectId}:${item.unitId}`,
+      unitId: item.unitId,
+      ...(item.sourceBodyFingerprint ? { bodySha256: item.sourceBodyFingerprint } : {}),
+      ...(item.anchor ? {
+        selectionStart: item.anchor.selectionStart,
+        selectionEnd: item.anchor.selectionEnd,
+        selectionFingerprint: item.anchor.selectionFingerprint,
+      } : {}),
+    };
+    await returnToStorySource(source);
+  }, [returnToStorySource]);
+
+  const setProgram7RevisionItemLifecycle = useCallback(async (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => {
+    if (windowRole !== 'writing' || typeof feedbackNotesBridge?.setLifecycle !== 'function') {
+      setProgram7Notice('Revision-item lifecycle changes must originate in Writing Studio.');
+      return;
+    }
+    const binding = bindingFor(snapshotRef.current, 'program7-revision-item-lifecycle');
+    if (!binding) return;
+    try {
+      const result = await feedbackNotesBridge.setLifecycle({ ...binding, expectedRevision: program7RevisionItems.revision, itemId: item.id, lifecycle });
+      if (!result.ok) setProgram7Notice(result.error.message);
+      else {
+        await refreshProgram7RevisionItems();
+        setProgram7Notice(`Revision item ${lifecycle}.`);
+      }
+    } catch {
+      setProgram7Notice('The revision-item lifecycle change could not be saved.');
+    }
+  }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
+
+  const recheckProgram7RevisionItem = useCallback(async (item: RevisionItem, method: 'deterministic' | 'local-ai') => {
+    const api = method === 'deterministic' ? feedbackNotesBridge?.deterministicRecheck : feedbackNotesBridge?.localRecheck;
+    if (windowRole !== 'writing' || typeof api !== 'function') {
+      setProgram7Notice('Revision-item rechecks must originate in Writing Studio.');
+      return;
+    }
+    const binding = bindingFor(snapshotRef.current, `program7-${method}-recheck`);
+    if (!binding) return;
+    try {
+      const result = await api({ ...binding, expectedRevision: program7RevisionItems.revision, itemId: item.id, purpose: item.body });
+      if (!result.ok) setProgram7Notice(result.error.message);
+      else {
+        await refreshProgram7RevisionItems();
+        setProgram7Notice(`${method === 'local-ai' ? 'Local-AI' : 'Deterministic'} recheck recorded.`);
+      }
+    } catch {
+      setProgram7Notice('The revision-item recheck could not be completed.');
+    }
+  }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
+
+  const createRevisionFromProgram6 = useCallback(async (envelope: Program7SourceEnvelopeV1) => {
+    if (windowRole !== 'writing' || typeof feedbackNotesBridge?.createRevisionItem !== 'function') {
+      setProgram7Notice('Program 6 findings can be routed to Revision Desk only from Writing Studio.');
+      return;
+    }
+    const binding = bindingFor(snapshotRef.current, 'program7-create-revision-item');
+    if (!binding) return;
+    const body = envelope.evidenceSummary?.trim() || envelope.lens?.trim() || 'Review this source-linked finding.';
+    try {
+      const result = await feedbackNotesBridge.createRevisionItem({
+        ...binding,
+        expectedRevision: program7RevisionItems.revision,
+        source: envelope,
+        body,
+      });
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      await refreshProgram7RevisionItems();
+      setCommandWorkspace('create-develop');
+      setProgram7Notice('Program 6 finding routed to Revision Desk. No manuscript text changed.');
+      if (surfaceBridge) await activateSurface('command', 'current-window');
+    } catch {
+      setProgram7Notice('The Program 6 finding could not be routed. No manuscript text changed.');
+    }
+  }, [activateSurface, feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, surfaceBridge, windowRole]);
+
+  const saveStoryFoundationAnswer = useCallback(async (draft: StoryFoundationAnswerDraft) => {
+    if (windowRole !== 'writing' || typeof storyFoundationBridge?.setAnswer !== 'function') {
+      setProgram7Notice('Story Foundation answers can only be saved from Writing Studio.');
+      return;
+    }
+    const binding = bindingFor(snapshotRef.current, 'program7-foundation-answer');
+    if (!binding || !program7Foundation) return;
+    try {
+      const result = await storyFoundationBridge.setAnswer({ ...binding, expectedRevision: program7Foundation.document.revision, questionId: draft.questionId, posture: draft.posture, text: draft.text });
+      if (!result.ok) setProgram7Notice(result.error.message);
+      else {
+        setProgram7Foundation(result.data);
+        setProgram7Notice('Story Foundation answer saved as author guidance.');
+      }
+    } catch {
+      setProgram7Notice('The Story Foundation answer could not be saved.');
+    }
+  }, [program7Foundation, storyFoundationBridge, windowRole]);
+
+  const archiveStoryFoundationAnswer = useCallback(async (questionId: string) => {
+    if (windowRole !== 'writing' || typeof storyFoundationBridge?.archiveAnswer !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-foundation-archive');
+    if (!binding || !program7Foundation) return;
+    try {
+      const result = await storyFoundationBridge.archiveAnswer({ ...binding, expectedRevision: program7Foundation.document.revision, questionId: questionId as StoryFoundationQuestionId });
+      if (!result.ok) setProgram7Notice(result.error.message);
+      else setProgram7Foundation(result.data);
+    } catch { setProgram7Notice('The Story Foundation answer could not be archived.'); }
+  }, [program7Foundation, storyFoundationBridge, windowRole]);
+
+  const restoreStoryFoundationAnswer = useCallback(async (questionId: string) => {
+    if (windowRole !== 'writing' || typeof storyFoundationBridge?.restoreAnswer !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-foundation-restore');
+    if (!binding || !program7Foundation) return;
+    try {
+      const result = await storyFoundationBridge.restoreAnswer({ ...binding, expectedRevision: program7Foundation.document.revision, questionId: questionId as StoryFoundationQuestionId });
+      if (!result.ok) setProgram7Notice(result.error.message);
+      else setProgram7Foundation(result.data);
+    } catch { setProgram7Notice('The Story Foundation answer could not be restored.'); }
+  }, [program7Foundation, storyFoundationBridge, windowRole]);
+
+  const updateIdeation = useCallback((result: Awaited<ReturnType<IdeationBridge['get']>>) => {
+    if (!result.ok) {
+      setProgram7Notice(result.error.message);
+      return false;
+    }
+    setProgram7Ideation(result.data);
+    return true;
+  }, []);
+
+  const captureIdeaSeed = useCallback(async (draft: ManualIdeaSeedDraft) => {
+    if (windowRole !== 'writing' || typeof ideationBridge?.captureSeed !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-capture-idea');
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await ideationBridge.captureSeed({ ...binding, expectedRevision: program7Ideation.document.revision, ...draft });
+      if (updateIdeation(result)) setProgram7Notice('Idea seed captured. It is not manuscript truth.');
+    } catch { setProgram7Notice('The idea seed could not be captured.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const createIdeaBranch = useCallback(async (name: string, premise: string, seedIds: readonly string[], unknowns: readonly IdeationUnresolvedAreaV1[]) => {
+    if (windowRole !== 'writing' || typeof ideationBridge?.createBranch !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-create-branch');
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await ideationBridge.createBranch({ ...binding, expectedRevision: program7Ideation.document.revision, name, premise, seedIds, unknowns });
+      if (updateIdeation(result)) setProgram7Notice('Exploration branch created. It is not manuscript truth.');
+    } catch { setProgram7Notice('The exploration branch could not be created.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const testIdeaPremise = useCallback(async (branch: IdeationExplorationBranchV1, answers: Readonly<Record<string, string>>) => {
+    if (windowRole !== 'writing' || typeof ideationBridge?.testPremise !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-test-premise');
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await ideationBridge.testPremise({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id, answers, purpose: branch.unknowns[0]?.statement ?? null });
+      if (updateIdeation(result)) setProgram7Notice('Advisory premise test recorded. Findings remain exploratory.');
+    } catch { setProgram7Notice('The advisory premise test could not be recorded.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const combineIdeaSeeds = useCallback(async (seedIds: readonly string[], name: string, premise: string, contributions: readonly IdeationSourceContributionV1[]) => {
+    if (windowRole !== 'writing' || typeof ideationBridge?.combineSeeds !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-combine-seeds');
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await ideationBridge.combineSeeds({ ...binding, expectedRevision: program7Ideation.document.revision, seedIds, name, premise, contributions });
+      if (updateIdeation(result)) setProgram7Notice('Idea seeds combined with lineage preserved.');
+    } catch { setProgram7Notice('The idea seeds could not be combined.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const setIdeaBranchLifecycle = useCallback(async (branch: IdeationExplorationBranchV1, restore: boolean) => {
+    const api = restore ? ideationBridge?.restoreBranch : ideationBridge?.archiveBranch;
+    if (windowRole !== 'writing' || typeof api !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, `program7-${restore ? 'restore' : 'archive'}-branch`);
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await api({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id });
+      if (updateIdeation(result)) setProgram7Notice(`Branch ${restore ? 'restored' : 'archived'}.`);
+    } catch { setProgram7Notice('The branch lifecycle change could not be saved.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const prepareIdeaPromotion = useCallback(async (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => {
+    if (windowRole !== 'writing' || typeof ideationBridge?.preparePromotion !== 'function') return;
+    const binding = bindingFor(snapshotRef.current, 'program7-prepare-promotion');
+    if (!binding || !program7Ideation) return;
+    try {
+      const result = await ideationBridge.preparePromotion({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id, destination, seedIds, selectedText });
+      if (updateIdeation(result)) setProgram7Notice('Promotion preview prepared. No destination owner was written.');
+    } catch { setProgram7Notice('The promotion preview could not be prepared.'); }
+  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+
+  const routeIdeaPromotion = useCallback(async (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => {
+    if (windowRole !== 'writing' || !program7PromotionBridge?.handoff) {
+      setProgram7Notice('Promotion acceptance can only originate in Writing Studio.');
+      return;
+    }
+    const current = snapshotRef.current;
+    const project = current.project;
+    const ideation = program7Ideation;
+    if (!project || !ideation) return;
+    const supported = destination === 'author-intent' || destination === 'outline' || destination === 'character' || destination === 'lore';
+    if (!supported) {
+      setProgram7Notice('This destination is not owned by Program 7 yet. The preview remains deferred.');
+      return;
+    }
+    const prepared = ideation.document.promotionPackages.find((candidate) =>
+      candidate.branchId === branch.id && candidate.destination === destination && candidate.selectedText === selectedText,
+    );
+    if (!prepared) {
+      setProgram7Notice('Prepare this exact promotion preview before accepting it. No destination write occurred.');
+      return;
+    }
+    if (prepared.seedIds.length !== seedIds.length || prepared.seedIds.some((seedId) => !seedIds.includes(seedId))) {
+      setProgram7Notice('The selected idea lineage changed. Prepare the promotion preview again before accepting it.');
+      return;
+    }
+    const selectedTextSha256 = await fingerprintVisibleText(selectedText);
+    const origin = prepared.provenance.kind === 'author'
+      ? 'author' as const
+      : prepared.provenance.actor === 'local-ai' ? 'local-ai' as const : 'mixed' as const;
+    const source = {
+      kind: 'ideation-branch' as const,
+      sourceId: branch.id,
+      sourceRevision: ideation.document.revision,
+      sourceFingerprint: selectedTextSha256,
+      selectedTextSha256,
+      provenance: {
+        origin,
+        sourceReference: prepared.provenance.sourceReference,
+        authorRequested: prepared.provenance.authorRequested,
+      },
+      protection: { excluded: false, class: 'ordinary' as const },
+    };
+    let payload: Program7PromotionItemV1['payload'];
+    if (destination === 'author-intent') {
+      payload = { destination, questionId: 'aboutness', posture: 'answered', text: selectedText };
+    } else if (destination === 'outline') {
+      payload = { destination, label: branch.name, body: selectedText, kind: 'fragment', state: 'planned', manuscriptUnitId: null, sourceAnchor: null };
+    } else {
+      payload = { destination, label: branch.name, summary: selectedText, selectedText };
+    }
+    const operationIdValue = operationId('program7-route-promotion');
+    const item: Program7PromotionItemV1 = {
+      itemId: prepared.id,
+      destination: destination as Program7PromotionDestinationV1,
+      source,
+      payload,
+      ownerAcceptance: { accepted: true, actor: 'author', acceptanceId: operationIdValue },
+    };
+    const request: Program7PromotionHandoffRequestV1 = {
+      operationId: operationIdValue,
+      projectId: project.projectId,
+      projectPath: project.path,
+      generation: current.generation,
+      items: [item],
+    };
+    try {
+      const result = await program7PromotionBridge.handoff(request);
+      setProgram7PromotionOutcomes((previous) => [...previous, ...result.outcomes]);
+      setProgram7Notice(result.message);
+      if (destination === 'author-intent' && typeof storyFoundationBridge?.get === 'function') {
+        const foundation = await storyFoundationBridge.get({ ...bindingFor(current, 'program7-foundation-after-promotion')! });
+        if (foundation.ok) setProgram7Foundation(foundation.data);
+      }
+      if (destination === 'outline' && livingOutlineBridge) {
+        const outline = await livingOutlineBridge.get({
+          operationId: operationId('program7-outline-after-promotion'),
+          projectId: project.projectId,
+          projectPath: project.path,
+          generation: current.generation,
+        });
+        if (outline.ok) setLivingOutline(outline.data);
+      }
+    } catch {
+      setProgram7Notice('The promotion handoff failed safely. No unacknowledged destination write was performed.');
+    }
+  }, [livingOutlineBridge, program7Ideation, program7PromotionBridge, storyFoundationBridge, windowRole]);
 
   const submitCompanionOrientation = useCallback(async () => {
     const operation = ++companionOperationRef.current;
@@ -3306,6 +4034,22 @@ export default function Stage19WritingSpineApp({
     storyIntelligenceDocument,
     storyIntelligenceLoading,
     storyIntelligenceNotice,
+    program7RevisionItems,
+    program7Candidates,
+    program7Foundation,
+    program7Ideation,
+    program7History: buildProgram7HistoryProjection({
+      feedbackItems: program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems),
+      revisionCandidates: program7Candidates?.document.candidates,
+      ideaSeeds: program7Ideation?.document.seeds,
+      ideaBranches: program7Ideation?.document.branches,
+      promotionOutcomes: program7PromotionOutcomes,
+    }),
+    program7SelectedCandidate,
+    program7RevisionDrawerOpen,
+    program7CandidatePurpose,
+    program7CandidateText,
+    program7Notice,
     feedbackNotesAvailable: Boolean(critiqueReviewBridge),
     feedbackNoteBody,
     feedbackNoteSaving,
@@ -3420,6 +4164,31 @@ export default function Stage19WritingSpineApp({
     setFeedbackNoteBody,
     saveFeedbackNote,
     returnToStorySource,
+    setProgram7CandidatePurpose,
+    setProgram7CandidateText,
+    createProgram7ManualCandidate,
+    createProgram7LocalAiCandidate,
+    openProgram7Candidate,
+    closeProgram7Candidate,
+    saveProgram7CandidateEdit,
+    acceptProgram7Candidate,
+    setProgram7CandidateLifecycle,
+    returnProgram7CandidateToSource,
+    returnProgram7RevisionItemToSource,
+    setProgram7RevisionItemLifecycle,
+    recheckProgram7RevisionItem,
+    createRevisionFromProgram6,
+    saveStoryFoundationAnswer,
+    archiveStoryFoundationAnswer,
+    restoreStoryFoundationAnswer,
+    captureIdeaSeed,
+    createIdeaBranch,
+    testIdeaPremise,
+    combineIdeaSeeds,
+    archiveIdeaBranch: (branch) => setIdeaBranchLifecycle(branch, false),
+    restoreIdeaBranch: (branch) => setIdeaBranchLifecycle(branch, true),
+    prepareIdeaPromotion,
+    routeIdeaPromotion,
     createEmotionRecord,
     enableLocalInference,
     disposeStorySignal,

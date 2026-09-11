@@ -10,6 +10,10 @@ import { FEEDBACK_NOTE_CHANNELS } from '../../shared/ipc/feedbackNotes';
 import { LIVING_OUTLINE_CHANNELS } from '../../shared/ipc/livingOutline';
 import { STORY_INTELLIGENCE_CHANNELS } from '../../shared/ipc/storyIntelligence';
 import { MANUSCRIPT_STRUCTURE_CHANNELS } from '../../shared/ipc/manuscriptStructure';
+import { REVISION_CANDIDATE_CHANNELS } from '../../shared/ipc/revisionCandidates';
+import { STORY_FOUNDATION_CHANNELS } from '../../shared/ipc/storyFoundation';
+import { IDEATION_CHANNELS } from '../../shared/ipc/ideation';
+import { PROGRAM7_PROMOTION_CHANNELS } from '../../shared/ipc/program7Promotion';
 import { LOGGING_CHANNELS } from '../../shared/ipc/logging';
 import {
   COMPLETED_CRITIQUE_REVIEW_ACTIONS,
@@ -77,6 +81,10 @@ describe('dedicated Stage 19 preload', () => {
     expect(STAGE19_PRELOAD_CHANNELS.livingOutline).toEqual(LIVING_OUTLINE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.storyIntelligence).toEqual(STORY_INTELLIGENCE_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.manuscriptStructure).toEqual(MANUSCRIPT_STRUCTURE_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.revisionCandidates).toEqual(REVISION_CANDIDATE_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.storyFoundation).toEqual(STORY_FOUNDATION_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.ideation).toEqual(IDEATION_CHANNELS);
+    expect(STAGE19_PRELOAD_CHANNELS.program7Promotion).toEqual(PROGRAM7_PROMOTION_CHANNELS);
     expect(STAGE19_PRELOAD_CHANNELS.diagnostics).toBe(LOGGING_CHANNELS.diagnostics);
   });
 
@@ -88,10 +96,14 @@ describe('dedicated Stage 19 preload', () => {
       'feedbackNotes',
       'livingOutline',
       'manuscriptStructure',
+      'ideation',
+      'program7Promotion',
       'projectSpine',
+      'revisionCandidates',
       'splitCommand',
+      'storyFoundation',
       'storyIntelligence',
-    ]);
+    ].sort());
     expect(exposed.has('services')).toBe(false);
     expect(exposed.has('projectLoader')).toBe(false);
     expect(exposed.has('__electronApi')).toBe(false);
@@ -148,9 +160,9 @@ describe('dedicated Stage 19 preload', () => {
       '--blackskies-split-command-session-generation=generation-1',
     ];
     await import('../stage19Preload');
-    expect([...exposed.keys()].sort()).toEqual(['critiqueReview', 'projectSpine', 'splitCommand']);
+    expect([...exposed.keys()].sort()).toEqual(['critiqueReview', 'feedbackNotes', 'ideation', 'projectSpine', 'revisionCandidates', 'splitCommand', 'storyFoundation']);
     expect(exposed.has('aiCritique')).toBe(false);
-    expect(exposed.has('feedbackNotes')).toBe(false);
+    expect(exposed.has('feedbackNotes')).toBe(true);
     expect(exposed.has('livingOutline')).toBe(false);
     expect(exposed.has('manuscriptStructure')).toBe(false);
     expect(exposed.has('storyIntelligence')).toBe(false);

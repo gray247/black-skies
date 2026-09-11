@@ -31,6 +31,7 @@ export interface IdeasWorkspaceProps {
   readonly onArchiveBranch?: (branch: IdeationExplorationBranchV1) => void;
   readonly onRestoreBranch?: (branch: IdeationExplorationBranchV1) => void;
   readonly onPreparePromotion?: (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => void;
+  readonly onRoutePromotion?: (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => void;
 }
 
 const seedKinds: readonly IdeationSeedKind[] = [
@@ -69,6 +70,7 @@ export default function IdeasWorkspace({
   onArchiveBranch,
   onRestoreBranch,
   onPreparePromotion,
+  onRoutePromotion,
 }: IdeasWorkspaceProps): JSX.Element {
   const [seedDraft, setSeedDraft] = useState<ManualIdeaSeedDraft>({ title: '', body: '', kind: 'fragment', tags: [], protected: false });
   const [tagText, setTagText] = useState('');
@@ -183,6 +185,12 @@ export default function IdeasWorkspace({
           const answers = testAnswers[branch.id] ?? {};
           const selectedPromotionText = promotionText[branch.id] ?? currentPremise(branch);
           const destination = promotionDestination[branch.id] ?? 'author-intent';
+          const prepared = snapshot.document.promotionPackages.find((candidate) =>
+            candidate.branchId === branch.id &&
+            candidate.destination === destination &&
+            candidate.selectedText === selectedPromotionText,
+          );
+          const destinationCanRoute = destination === 'author-intent' || destination === 'outline' || destination === 'character' || destination === 'lore';
           const archived = branch.posture === 'archived';
           return (
             <article key={branch.id} data-testid={`idea-branch-${branch.id}`}>
@@ -198,7 +206,7 @@ export default function IdeasWorkspace({
               <div aria-label={`Branch actions for ${branch.name}`}>
                 {archived ? <button type="button" disabled={!onRestoreBranch} onClick={() => onRestoreBranch?.(branch)}>Restore branch</button> : <button type="button" disabled={!onArchiveBranch} onClick={() => onArchiveBranch?.(branch)}>Archive branch</button>}
               </div>
-              <section aria-label={`Promotion preview for ${branch.name}`}><h4>Promotion preview</h4><p>This is a preview package only. It is not a destination write.</p><label htmlFor={`idea-promotion-destination-${branch.id}`}>Destination</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{option}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Prepare promotion preview</button></section>
+              <section aria-label={`Promotion preview for ${branch.name}`}><h4>Promotion preview</h4><p>This is a preview package only. It is not a destination write.</p><label htmlFor={`idea-promotion-destination-${branch.id}`}>Destination</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{option}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Prepare promotion preview</button>{prepared ? <><p role="status">Prepared package {prepared.id} is waiting for your explicit destination acceptance.</p>{destinationCanRoute ? <button type="button" disabled={!onRoutePromotion} onClick={() => onRoutePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Accept and route promotion</button> : <p>That destination is not yet owned by Program 7. The prepared package remains deferred.</p>}</> : null}</section>
             </article>
           );
         })}

@@ -77,6 +77,46 @@ import {
   type SaveCritiqueReviewFeedbackNoteActionV1,
 } from '../shared/ipc/contextualProductShell';
 import {
+  IDEATION_CHANNELS,
+  type IdeationBridge,
+  type AddPremiseVersionRequest,
+  type BranchLifecycleRequest,
+  type CaptureIdeaSeedRequest,
+  type CombineSeedsRequest,
+  type CopyBranchRequest,
+  type CreateBranchRequest,
+  type FilterLibraryRequest,
+  type GetIdeationRequest,
+  type MergeBranchesRequest,
+  type PreparePromotionRequest,
+  type RequestAiAlternativesRequest,
+  type SplitBranchRequest,
+  type TestPremiseRequest,
+  type UpdateIdeaSeedRequest,
+} from '../shared/ipc/ideation';
+import {
+  PROGRAM7_PROMOTION_CHANNELS,
+  type Program7PromotionBridge,
+  type Program7PromotionHandoffRequestV1,
+} from '../shared/ipc/program7Promotion';
+import {
+  REVISION_CANDIDATE_CHANNELS,
+  type CreateLocalAiRevisionCandidateRequest,
+  type CreateManualRevisionCandidateRequest,
+  type EditRevisionCandidateRequest,
+  type ListRevisionCandidatesRequest,
+  type RevisionCandidatesBridge,
+  type SetRevisionCandidateLifecycleRequest,
+} from '../shared/ipc/revisionCandidates';
+import {
+  STORY_FOUNDATION_CHANNELS,
+  type ArchiveStoryFoundationAnswerRequest,
+  type GetStoryFoundationRequest,
+  type RestoreStoryFoundationAnswerRequest,
+  type SetStoryFoundationAnswerRequest,
+  type StoryFoundationBridge,
+} from '../shared/ipc/storyFoundation';
+import {
   matchesSplitCommandOwnershipSyncMessagePairIdentity,
   type SplitCommandOwnershipSyncMessage,
   type SplitCommandWindowRole,
@@ -2818,6 +2858,53 @@ const feedbackNotesBridge: FeedbackNotesBridge = {
     ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createRecurrence, request),
 };
 
+const revisionCandidatesBridge: RevisionCandidatesBridge = {
+  list: (request: ListRevisionCandidatesRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.list, request),
+  createManual: (request: CreateManualRevisionCandidateRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createManual, request),
+  createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, request),
+  edit: (request: EditRevisionCandidateRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.edit, request),
+  setLifecycle: (request: SetRevisionCandidateLifecycleRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.setLifecycle, request),
+};
+
+const storyFoundationBridge: StoryFoundationBridge = {
+  get: (request: GetStoryFoundationRequest) =>
+    ipcRenderer.invoke(STORY_FOUNDATION_CHANNELS.get, request),
+  setAnswer: (request: SetStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STORY_FOUNDATION_CHANNELS.setAnswer, request),
+  archiveAnswer: (request: ArchiveStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STORY_FOUNDATION_CHANNELS.archiveAnswer, request),
+  restoreAnswer: (request: RestoreStoryFoundationAnswerRequest) =>
+    ipcRenderer.invoke(STORY_FOUNDATION_CHANNELS.restoreAnswer, request),
+};
+
+const ideationBridge: IdeationBridge = {
+  get: (request: GetIdeationRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.get, request),
+  captureSeed: (request: CaptureIdeaSeedRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.captureSeed, request),
+  updateSeed: (request: UpdateIdeaSeedRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.updateSeed, request),
+  createBranch: (request: CreateBranchRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.createBranch, request),
+  copyBranch: (request: CopyBranchRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.copyBranch, request),
+  mergeBranches: (request: MergeBranchesRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.mergeBranches, request),
+  splitBranch: (request: SplitBranchRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.splitBranch, request),
+  archiveBranch: (request: BranchLifecycleRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.archiveBranch, request),
+  restoreBranch: (request: BranchLifecycleRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.restoreBranch, request),
+  addPremiseVersion: (request: AddPremiseVersionRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.addPremiseVersion, request),
+  testPremise: (request: TestPremiseRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.testPremise, request),
+  combineSeeds: (request: CombineSeedsRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.combineSeeds, request),
+  filterLibrary: (request: FilterLibraryRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.filterLibrary, request),
+  preparePromotion: (request: PreparePromotionRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.preparePromotion, request),
+  requestAiAlternatives: (request: RequestAiAlternativesRequest) => ipcRenderer.invoke(IDEATION_CHANNELS.requestAiAlternatives, request),
+};
+
+const program7PromotionBridge: Program7PromotionBridge = {
+  handoff: (request: Program7PromotionHandoffRequestV1) =>
+    ipcRenderer.invoke(PROGRAM7_PROMOTION_CHANNELS.handoff, request),
+};
+
 const livingOutlineBridge: LivingOutlineBridge = {
   get: (request: GetLivingOutlineRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.get, request),
   createItem: (request: CreateLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.createItem, request),
@@ -2870,9 +2957,18 @@ if (exposesLegacyWritingSurface) {
 if (!isCommandCenterPreload) {
   contextBridge.exposeInMainWorld('aiCritique', aiCritiqueBridge);
   contextBridge.exposeInMainWorld('feedbackNotes', feedbackNotesBridge);
+  contextBridge.exposeInMainWorld('revisionCandidates', revisionCandidatesBridge);
+  contextBridge.exposeInMainWorld('storyFoundation', storyFoundationBridge);
+  contextBridge.exposeInMainWorld('ideation', ideationBridge);
+  contextBridge.exposeInMainWorld('program7Promotion', program7PromotionBridge);
   contextBridge.exposeInMainWorld('livingOutline', livingOutlineBridge);
   contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligenceBridge);
   contextBridge.exposeInMainWorld('manuscriptStructure', manuscriptStructureBridge);
+} else if (splitCommandLaunchContext) {
+  safeExpose('feedbackNotes', { list: feedbackNotesBridge.list, listRevisionItems: feedbackNotesBridge.listRevisionItems });
+  safeExpose('revisionCandidates', { list: revisionCandidatesBridge.list });
+  safeExpose('storyFoundation', { get: storyFoundationBridge.get });
+  safeExpose('ideation', { get: ideationBridge.get, filterLibrary: ideationBridge.filterLibrary });
 }
 if (isCommandCenterPreload && splitCommandLaunchContext) {
   safeExpose('storyIntelligence', storyIntelligenceBridge);

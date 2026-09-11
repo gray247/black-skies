@@ -77,6 +77,17 @@ import {
 import { registerFeedbackNotesIpc } from './feedbackNotesIpc.js';
 import { registerLivingOutlineIpc } from './livingOutlineIpc.js';
 import { registerStoryIntelligenceIpc } from './storyIntelligenceIpc.js';
+import { registerRevisionCandidateIpc } from './revisionCandidateIpc.js';
+import { registerStoryFoundationIpc } from './storyFoundationIpc.js';
+import { registerIdeationIpc } from './ideationIpc.js';
+import { registerProgram7PromotionIpc } from './program7PromotionIpc.js';
+import { StoryFoundationRepository } from './storyFoundationRepository.js';
+import { LivingOutlineRepository } from './livingOutlineRepository.js';
+import type {
+  Program7PromotionDestinationInputV1,
+  Program7PromotionOwnerResultV1,
+} from '../shared/ipc/program7Promotion.js';
+import type { StoryFoundationQuestionId } from '../shared/ipc/storyFoundation.js';
 import { createProgram7LocalInferenceService } from './program7LocalInferenceService.js';
 import { OllamaLocalInferenceTransport } from './ollamaLocalInferenceTransport.js';
 import { registerManuscriptStructureIpc } from './manuscriptStructureIpc.js';
@@ -1073,6 +1084,77 @@ function registerDiagnosticsIpc(): void {
   );
 }
 
+async function acceptProgram7AuthorIntent(
+  input: Program7PromotionDestinationInputV1,
+): Promise<Program7PromotionOwnerResultV1> {
+  const payload = input.item.payload;
+  if (payload.destination !== 'author-intent') {
+    return { ok: false, message: 'The promotion payload does not match the Story Foundation destination.' };
+  }
+  try {
+    const repository = new StoryFoundationRepository(input.request.projectPath);
+    const current = await repository.read(input.request.projectId);
+    if (current.availability !== 'ready') {
+      return { ok: false, message: current.message ?? 'Story Foundation is unavailable.' };
+    }
+    const next = await repository.setAnswer(
+      input.request.projectId,
+      current.document.revision,
+      {
+        questionId: payload.questionId as StoryFoundationQuestionId,
+        posture: payload.posture,
+        text: payload.text,
+      },
+    );
+    return {
+      ok: true,
+      receipt: {
+        artifactId: `story-foundation:${payload.questionId}:${next.document.revision}`,
+        message: 'The accepted idea was written as author-owned Story Foundation guidance.',
+      },
+    };
+  } catch {
+    return { ok: false, message: 'Story Foundation could not accept this promotion. No manuscript text changed.' };
+  }
+}
+
+async function acceptProgram7Outline(
+  input: Program7PromotionDestinationInputV1,
+): Promise<Program7PromotionOwnerResultV1> {
+  const payload = input.item.payload;
+  if (payload.destination !== 'outline') {
+    return { ok: false, message: 'The promotion payload does not match the Living Outline destination.' };
+  }
+  try {
+    const repository = new LivingOutlineRepository(input.request.projectPath);
+    const current = await repository.read(input.request.projectId);
+    if (current.availability !== 'ready') {
+      return { ok: false, message: current.message ?? 'The Living Outline is unavailable.' };
+    }
+    const next = await repository.create(
+      input.request.projectId,
+      current.document.revision,
+      {
+        label: payload.label,
+        body: payload.body,
+        kind: payload.kind,
+        state: payload.state,
+        manuscriptUnitId: payload.manuscriptUnitId,
+        sourceAnchor: payload.sourceAnchor,
+      },
+    );
+    return {
+      ok: true,
+      receipt: {
+        artifactId: `outline:${next.document.items.at(-1)?.id ?? input.item.itemId}`,
+        message: 'The accepted idea was written as an author-owned Living Outline note.',
+      },
+    };
+  } catch {
+    return { ok: false, message: 'The Living Outline could not accept this promotion. No manuscript text changed.' };
+  }
+}
+
 function installNavigationGuard(window: BrowserWindow): void {
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
@@ -1760,9 +1842,28 @@ if (!hasSingleInstanceLock) {
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
         localInferenceService: program7LocalInferenceService,
       });
+      registerRevisionCandidateIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        localInferenceService: program7LocalInferenceService,
+      });
+      registerStoryFoundationIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
+      registerIdeationIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
       registerLivingOutlineIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+      });
+      registerProgram7PromotionIpc({
+        resolveWindowRole: resolveProjectSpineWindowRole,
+        getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        acceptAuthorIntent: acceptProgram7AuthorIntent,
+        acceptOutline: acceptProgram7Outline,
       });
       registerStoryIntelligenceIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,

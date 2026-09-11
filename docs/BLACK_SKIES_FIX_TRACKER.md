@@ -436,6 +436,37 @@ INT-3 still must connect the existing comparison/drawer UI to this bridge and
 prove the complete no-AI renderer workflow. No Human Gate 4 acceptance, local
 model admission, package qualification, or Program 7 closure is claimed.
 
+## Program 7 INT-3 renderer integration checkpoint — 2026-09-11
+
+The live Stage 19 path now activates the existing `create-develop` workspace
+with the four provisional Program 7 sections: Revision Desk, Story Foundation,
+Ideas, and History. Program 6 `Work on this` routes through the feedback-note
+owner. Manual and explicitly requested `qwen3:4b` candidate creation, candidate
+comparison, edited or selected-text acceptance, source return, feedback
+recheck, Story Foundation actions, ideation branching/testing/combination,
+explicit promotion handoff, and integrated History now have renderer wiring
+through their domain owners. The Writing Studio right rail also includes the
+contextual revision drawer while preserving the existing critique path.
+
+The integration review found that the four existing Program 7 owner IPC modules
+were not registered by the live Electron host. `main.ts` now registers the
+revision-candidate, Story Foundation, Ideation, and promotion owners. Writing
+preloads expose their full mutation bridges; detached Command exposes only the
+read-only projections needed for aggregation. No renderer-local truth owner or
+generic AI/filesystem bridge was added, and the complete no-AI path remains
+available.
+
+Mechanical evidence for this checkpoint: focused preload/Ideas coverage passed
+`20/20`; focused renderer coverage passed `150/150`; the full app suite passed
+`156` test files / `1,439` tests with `2` expected skips; app typecheck, app
+lint, production build, docs-authority lint, and `git diff --check` passed.
+
+This is implementation evidence only. Human Gate 4, real-host local-AI
+qualification, package qualification, and Program 7 closure remain open. The
+next human validation must exercise the integrated Writing Studio and detached
+Command Center surfaces on the Carmilla corpus, including no-AI completion and
+the explicit local-AI comparison boundary.
+
 ## Program 6 final closure — 2026-09-07
 
 Jason confirmed the final detached Emotion source return both activates and

@@ -195,9 +195,13 @@ describe('splitCommand preload bridge', () => {
         '__testEnv',
         'aiCritique',
         'feedbackNotes',
+        'ideation',
         'livingOutline',
         'manuscriptStructure',
+        'program7Promotion',
         'storyIntelligence',
+        'revisionCandidates',
+        'storyFoundation',
         'diagnostics',
         'layout',
         'projectLoader',
@@ -318,7 +322,7 @@ describe('splitCommand preload bridge', () => {
 
     await import('../preload');
 
-    expect(getExposedGlobalNames().sort()).toEqual(['critiqueReview', 'projectSpine', 'splitCommand', 'storyIntelligence']);
+    expect(getExposedGlobalNames().sort()).toEqual(['critiqueReview', 'feedbackNotes', 'ideation', 'projectSpine', 'revisionCandidates', 'splitCommand', 'storyFoundation', 'storyIntelligence']);
     const bridge = getSplitCommandBridge();
     expect(bridge).toBeDefined();
     expect(bridge?.windowRole).toBe('secondary');
@@ -358,7 +362,10 @@ describe('splitCommand preload bridge', () => {
     expect(getExposedGlobal('services')).toBeUndefined();
     expect(getExposedGlobal('__electronApi')).toBeUndefined();
     expect(getExposedGlobal('aiCritique')).toBeUndefined();
-    expect(getExposedGlobal('feedbackNotes')).toBeUndefined();
+    expect(getExposedGlobal('feedbackNotes')).toBeDefined();
+    expect(Object.keys(getExposedGlobal('feedbackNotes') as object).sort()).toEqual(
+      ['list', 'listRevisionItems'].sort(),
+    );
     expect(getExposedGlobal('livingOutline')).toBeUndefined();
     expect(getExposedGlobal('__test')).toBeUndefined();
     expect(getExposedGlobal('__dev')).toBeUndefined();
@@ -634,8 +641,12 @@ describe('splitCommand preload bridge', () => {
         'aiCritique',
         'critiqueReview',
         'feedbackNotes',
+        'ideation',
         'livingOutline',
         'manuscriptStructure',
+        'program7Promotion',
+        'revisionCandidates',
+        'storyFoundation',
         'storyIntelligence',
         'projectSpine',
         'splitCommand',
@@ -686,8 +697,12 @@ describe('splitCommand preload bridge', () => {
         'aiCritique',
         'critiqueReview',
         'feedbackNotes',
+        'ideation',
         'livingOutline',
         'manuscriptStructure',
+        'program7Promotion',
+        'revisionCandidates',
+        'storyFoundation',
         'storyIntelligence',
         'projectSpine',
         'splitCommand',

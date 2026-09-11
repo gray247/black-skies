@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `hardening accepted at d3c41281; P7-0B complete; Wave 1 implementation checkpoint clean-qualified and pushed at 034ccf62; later packages and Human Gate 4 remain open`
+- Status: `hardening accepted at d3c41281; P7-0B complete; Wave 1 implementation checkpoint clean-qualified and pushed at 034ccf62; INT-3 renderer integration mechanically complete in the implementation worktree; Human Gate 4 and final Program 7 qualification remain open`
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
@@ -813,6 +813,33 @@ Stop conditions:
 - Command Center becomes a truth owner;
 - AI is required for a complete workflow; or
 - hidden state differs between attached and detached Command Center.
+
+Implementation checkpoint — 2026-09-11:
+
+- The existing `create-develop` workspace now renders the four provisional
+  Program 7 sections: Revision Desk, Story Foundation, Ideas, and History.
+- Program 6 `Work on this` creates a durable revision item through the feedback
+  owner; manual candidates and explicitly requested `qwen3:4b` candidates enter
+  the owner-managed comparison path without becoming manuscript truth.
+- Candidate comparison, selected-text or edited acceptance, source return,
+  feedback recheck, Story Foundation actions, idea branching/testing/
+  combination, explicit promotion handoff, and integrated history are wired
+  through their existing domain owners. No renderer-local truth store was
+  introduced.
+- The live Electron host now registers the previously unregistered Program 7
+  owner IPC modules. Writing receives full mutation bridges; detached Command
+  receives only the read-only projections required for its aggregate view.
+- The Writing Studio right rail now includes the contextual revision drawer
+  without removing the existing critique path. Exact source coordinates and
+  drift notices remain explicit; no-AI revision remains complete.
+- Mechanical evidence: focused preload/Ideas coverage passed `20/20`, focused
+  renderer coverage passed `150/150`, the full app suite passed `156` test
+  files / `1,439` tests with `2` expected skips, app typecheck and lint passed,
+  production build passed, docs-authority lint passed, and `git diff --check`
+  passed.
+- This checkpoint does not claim Human Gate 4 acceptance, real-host local-AI
+  admission, package qualification, or Program 7 closure. Those remain the
+  next controlled gates.
 
 ## 12. Wave 5 - Local Pilot Qualification
 

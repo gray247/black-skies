@@ -10,6 +10,15 @@ import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import type { LivingOutlineBridge } from '../../shared/ipc/livingOutline';
 import type { StoryIntelligenceBridge } from '../../shared/ipc/storyIntelligence';
 import type { CritiqueReviewBridge } from '../../shared/ipc/contextualProductShell';
+import type { IdeationBridge } from '../../shared/ipc/ideation';
+import type { Program7PromotionBridge } from '../../shared/ipc/program7Promotion';
+import type { RevisionCandidatesBridge } from '../../shared/ipc/revisionCandidates';
+import type { StoryFoundationBridge } from '../../shared/ipc/storyFoundation';
+
+type RevisionCandidatesReadBridge = Pick<RevisionCandidatesBridge, 'list'>;
+type StoryFoundationReadBridge = Pick<StoryFoundationBridge, 'get'>;
+type IdeationReadBridge = Pick<IdeationBridge, 'get' | 'filterLibrary'>;
+type FeedbackNotesReadBridge = Pick<FeedbackNotesBridge, 'list' | 'listRevisionItems'>;
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
@@ -71,9 +80,13 @@ declare global {
     splitCommand?: SplitCommandOwnershipBridge;
     critiqueReview?: CritiqueReviewBridge;
     aiCritique?: AiCritiqueBridge;
-    feedbackNotes?: FeedbackNotesBridge;
+    feedbackNotes?: FeedbackNotesBridge | FeedbackNotesReadBridge;
     livingOutline?: LivingOutlineBridge;
     storyIntelligence?: StoryIntelligenceBridge;
+    revisionCandidates?: RevisionCandidatesBridge | RevisionCandidatesReadBridge;
+    storyFoundation?: StoryFoundationBridge | StoryFoundationReadBridge;
+    ideation?: IdeationBridge | IdeationReadBridge;
+    program7Promotion?: Program7PromotionBridge;
     __dev?: DevHarness;
     __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     __serviceHealthRetry?: () => Promise<void>;

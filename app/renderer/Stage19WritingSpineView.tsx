@@ -13,6 +13,7 @@ import type {
   AiCritiqueState,
 } from '../shared/ipc/aiCritique';
 import type { FeedbackNote } from '../shared/ipc/feedbackNotes';
+import type { FeedbackRevisionLifecycle, RevisionItem } from '../shared/ipc/feedbackNotes';
 import type { CompanionOrientationResultV1 } from '../shared/companionOrientation';
 import type {
   LivingOutlineItemKind,
@@ -35,8 +36,20 @@ import type {
   CritiqueReviewSurfaceStateV1,
 } from '../shared/ipc/contextualProductShell';
 import type { StoryIntelligenceDocumentV1, StoryPositionRefV1 } from '../shared/ipc/storyIntelligence';
+import type { StoryFoundationSnapshotV1 } from '../shared/ipc/storyFoundation';
+import type { IdeationExplorationBranchV1, IdeationPromotionDestination, IdeationSnapshotV1 } from '../shared/ipc/ideation';
+import type { RevisionCandidateLifecycle, RevisionCandidateV1, RevisionCandidatesSnapshotV1 } from '../shared/ipc/revisionCandidates';
+import type { Program7HistoryProjectionV1 } from '../shared/program7History';
+import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 import Program6StoryKnowledgeWorkspace, { type StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
+import Program7CreateDevelopWorkspace from './components/program7/Program7CreateDevelopWorkspace';
+import RevisionDesk from './components/program7/RevisionDesk';
+import RevisionComparison from './components/program7/RevisionComparison';
+import StoryFoundation, { type StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
+import IdeasWorkspace, { type ManualIdeaSeedDraft } from './components/program7/IdeasWorkspace';
+import Program7History from './components/program7/Program7History';
+import WritingRevisionDrawer from './components/program7/WritingRevisionDrawer';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
 export interface MarkdownExportNotice {
@@ -128,6 +141,22 @@ export interface Stage19WritingSpineViewModel {
   readonly storyIntelligenceDocument: StoryIntelligenceDocumentV1 | null;
   readonly storyIntelligenceLoading: boolean;
   readonly storyIntelligenceNotice: string | null;
+  readonly program7RevisionItems: {
+    readonly activeItems: readonly RevisionItem[];
+    readonly historyItems: readonly RevisionItem[];
+    readonly revision: number;
+    readonly availability: 'ready' | 'degraded';
+    readonly notice: string | null;
+  };
+  readonly program7Candidates: RevisionCandidatesSnapshotV1 | null;
+  readonly program7Foundation: StoryFoundationSnapshotV1 | null;
+  readonly program7Ideation: IdeationSnapshotV1 | null;
+  readonly program7History: Program7HistoryProjectionV1;
+  readonly program7SelectedCandidate: RevisionCandidateV1 | null;
+  readonly program7RevisionDrawerOpen: boolean;
+  readonly program7CandidatePurpose: string;
+  readonly program7CandidateText: string;
+  readonly program7Notice: string | null;
   readonly feedbackNotesAvailable: boolean;
   readonly feedbackNoteBody: string;
   readonly feedbackNoteSaving: boolean;
@@ -318,6 +347,31 @@ export interface Stage19WritingSpineViewActions {
   readonly createEmotionRecord: (draft: StoryKnowledgeAuthorRecordDraftV1) => MaybeAsync;
   readonly enableLocalInference: () => MaybeAsync;
   readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
+  readonly setProgram7CandidatePurpose: (value: string) => void;
+  readonly setProgram7CandidateText: (value: string) => void;
+  readonly createProgram7ManualCandidate: () => MaybeAsync;
+  readonly createProgram7LocalAiCandidate: () => MaybeAsync;
+  readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
+  readonly closeProgram7Candidate: () => void;
+  readonly saveProgram7CandidateEdit: (candidate: RevisionCandidateV1, editedCandidateText: string) => MaybeAsync;
+  readonly acceptProgram7Candidate: (candidate: RevisionCandidateV1, selectedText?: string) => MaybeAsync;
+  readonly setProgram7CandidateLifecycle: (candidate: RevisionCandidateV1, lifecycle: Extract<RevisionCandidateLifecycle, 'rejected' | 'parked' | 'abandoned'>) => MaybeAsync;
+  readonly returnProgram7CandidateToSource: (candidate: RevisionCandidateV1) => MaybeAsync;
+  readonly returnProgram7RevisionItemToSource: (item: RevisionItem) => MaybeAsync;
+  readonly setProgram7RevisionItemLifecycle: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => MaybeAsync;
+  readonly recheckProgram7RevisionItem: (item: RevisionItem, method: 'deterministic' | 'local-ai') => MaybeAsync;
+  readonly createRevisionFromProgram6: (envelope: Program7SourceEnvelopeV1) => MaybeAsync;
+  readonly saveStoryFoundationAnswer: (draft: StoryFoundationAnswerDraft) => MaybeAsync;
+  readonly archiveStoryFoundationAnswer: (questionId: string) => MaybeAsync;
+  readonly restoreStoryFoundationAnswer: (questionId: string) => MaybeAsync;
+  readonly captureIdeaSeed: (draft: ManualIdeaSeedDraft) => MaybeAsync;
+  readonly createIdeaBranch: (name: string, premise: string, seedIds: readonly string[], unknowns: readonly import('../shared/ipc/ideation').IdeationUnresolvedAreaV1[]) => MaybeAsync;
+  readonly testIdeaPremise: (branch: IdeationExplorationBranchV1, answers: Readonly<Record<string, string>>) => MaybeAsync;
+  readonly combineIdeaSeeds: (seedIds: readonly string[], name: string, premise: string, contributions: readonly { readonly seedId: string; readonly importance: import('../shared/ipc/ideation').IdeationImportance; readonly classification: import('../shared/ipc/ideation').IdeationContributionClass; readonly sourceVersionId: string | null; readonly note: string | null }[]) => MaybeAsync;
+  readonly archiveIdeaBranch: (branch: IdeationExplorationBranchV1) => MaybeAsync;
+  readonly restoreIdeaBranch: (branch: IdeationExplorationBranchV1) => MaybeAsync;
+  readonly prepareIdeaPromotion: (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => MaybeAsync;
+  readonly routeIdeaPromotion: (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => MaybeAsync;
   readonly openRecent: (projectPath: string) => MaybeAsync;
   readonly removeRecent: (projectPath: string) => MaybeAsync;
 }
@@ -582,6 +636,111 @@ function ReviewWorkspaceView({ model, actions }: Stage19WritingSpineViewProps): 
   );
 }
 
+function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
+  const candidates = model.program7Candidates?.document.candidates ?? [];
+  const canWrite = model.windowRole === 'writing';
+  const revisionDesk = (
+    <>
+      <RevisionDesk
+        activeItems={model.program7RevisionItems.activeItems}
+        historyItems={model.program7RevisionItems.historyItems}
+        availability={model.program7RevisionItems.availability}
+        unavailableMessage={model.program7RevisionItems.notice}
+        onReturnToSource={(item) => void actions.returnProgram7RevisionItemToSource(item)}
+        onLifecycle={canWrite ? (item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle) : undefined}
+        onRecheck={canWrite ? (item, method) => void actions.recheckProgram7RevisionItem(item, method) : undefined}
+      />
+      <section className="program7-revision-capture" aria-labelledby="program7-revision-capture-heading">
+        <header>
+          <h2 id="program7-revision-capture-heading">Capture a revision candidate</h2>
+          <p>Write the intended change in your own words. Nothing becomes manuscript text until you explicitly accept it.</p>
+        </header>
+        <label htmlFor="program7-candidate-purpose">Purpose</label>
+        <input
+          id="program7-candidate-purpose"
+          value={model.program7CandidatePurpose}
+          onChange={(event) => actions.setProgram7CandidatePurpose(event.target.value)}
+          placeholder="What should this revision improve?"
+          maxLength={1000}
+          disabled={!canWrite}
+        />
+        <label htmlFor="program7-candidate-text">Candidate text</label>
+        <textarea
+          id="program7-candidate-text"
+          value={model.program7CandidateText}
+          onChange={(event) => actions.setProgram7CandidateText(event.target.value)}
+          placeholder="Enter a proposed revision, not a command to change the manuscript."
+          maxLength={6000}
+          rows={8}
+          disabled={!canWrite}
+        />
+        <div className="program7-revision-capture__actions">
+          <button type="button" onClick={() => void actions.createProgram7ManualCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim() || !model.program7CandidateText.trim()}>Save manual candidate</button>
+          <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim()}>Ask local AI for a candidate</button>
+        </div>
+      </section>
+      {model.program7Notice ? <p className="program7-revision-capture__notice" role="status">{model.program7Notice}</p> : null}
+      {candidates.length > 0 ? (
+        <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
+          <header>
+            <h2 id="program7-revision-candidates-heading">Revision candidates</h2>
+            <p>Candidate document revision {model.program7Candidates?.document.revision ?? 0}. Candidates remain separate from manuscript truth.</p>
+          </header>
+          {candidates.map((candidate) => (
+            <article key={candidate.id} className="program7-revision-candidates__item">
+              <RevisionComparison
+                candidate={candidate}
+                canAccept={canWrite}
+                onAcceptAll={(value) => void actions.acceptProgram7Candidate(value)}
+                onPartialAccept={(value, selectedText) => void actions.acceptProgram7Candidate(value, selectedText)}
+                onLifecycle={canWrite ? (value, lifecycle) => void actions.setProgram7CandidateLifecycle(value, lifecycle) : undefined}
+                onOpenEditor={canWrite ? actions.openProgram7Candidate : undefined}
+              />
+              <button type="button" onClick={() => void actions.returnProgram7CandidateToSource(candidate)}>Return to candidate source</button>
+            </article>
+          ))}
+        </section>
+      ) : null}
+    </>
+  );
+  const foundation = model.program7Foundation ? (
+    <StoryFoundation
+      snapshot={model.program7Foundation}
+      onSaveAnswer={canWrite ? (draft) => void actions.saveStoryFoundationAnswer(draft) : undefined}
+      onArchiveAnswer={canWrite ? (questionId) => void actions.archiveStoryFoundationAnswer(questionId) : undefined}
+      onRestoreAnswer={canWrite ? (questionId) => void actions.restoreStoryFoundationAnswer(questionId) : undefined}
+    />
+  ) : <p role="status">Story Foundation is unavailable in this window.</p>;
+  const ideas = model.program7Ideation ? (
+    <IdeasWorkspace
+      snapshot={model.program7Ideation}
+      onCaptureSeed={canWrite ? (draft) => void actions.captureIdeaSeed(draft) : undefined}
+      onCreateBranch={canWrite ? (name, premise, seedIds, unknowns) => void actions.createIdeaBranch(name, premise, seedIds, unknowns) : undefined}
+      onTestPremise={canWrite ? (branch, answers) => void actions.testIdeaPremise(branch, answers) : undefined}
+      onCombineSeeds={canWrite ? (seedIds, name, premise, contributions) => void actions.combineIdeaSeeds(seedIds, name, premise, contributions) : undefined}
+      onArchiveBranch={canWrite ? (branch) => void actions.archiveIdeaBranch(branch) : undefined}
+      onRestoreBranch={canWrite ? (branch) => void actions.restoreIdeaBranch(branch) : undefined}
+      onPreparePromotion={canWrite ? (branch, destination, selectedText, seedIds) => void actions.prepareIdeaPromotion(branch, destination, selectedText, seedIds) : undefined}
+      onRoutePromotion={canWrite ? (branch, destination, selectedText, seedIds) => void actions.routeIdeaPromotion(branch, destination, selectedText, seedIds) : undefined}
+    />
+  ) : <p role="status">Ideas are unavailable in this window.</p>;
+  const history = (
+    <Program7History
+      projection={model.program7History}
+      onOpenSource={(item) => {
+        if (item.ownerKind === 'feedback-note') {
+          const source = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems).find((candidate) => candidate.id === item.ownerId);
+          if (source) void actions.returnProgram7RevisionItemToSource(source);
+        } else if (item.ownerKind === 'revision-candidate') {
+          const candidate = model.program7Candidates?.document.candidates.find((value) => value.id === item.ownerId);
+          if (candidate) void actions.returnProgram7CandidateToSource(candidate);
+        }
+      }}
+    />
+  );
+  return <Program7CreateDevelopWorkspace revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
+}
+
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const { snapshot, notice } = model;
   const commandStatus = snapshot.commandStatus;
@@ -636,6 +795,8 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           </section>
         ) : model.commandWorkspace === 'review' ? (
           <ReviewWorkspaceView model={model} actions={actions} />
+        ) : model.commandWorkspace === 'create-develop' ? (
+          <Program7CreateDevelopView model={model} actions={actions} />
         ) : model.commandWorkspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
           <Program6StoryKnowledgeWorkspace
             project={snapshot.project}
@@ -645,6 +806,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
             onEnableLocalInference={() => void actions.enableLocalInference()}
             onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
+            onWorkOnThis={(envelope) => void actions.createRevisionFromProgram6(envelope)}
           />
         ) : model.commandWorkspace === 'story-knowledge' ? (
           <section className="stage19-command__empty-state" aria-live="polite">
@@ -2130,6 +2292,12 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
       aria-label="Review"
     >
       <WritingRailHeading rail="right" title="Review" actions={props.actions} />
+      <WritingRevisionDrawer
+        open={props.model.program7RevisionDrawerOpen}
+        candidate={props.model.program7SelectedCandidate}
+        onClose={props.actions.closeProgram7Candidate}
+        onSaveEdit={(candidate, editedCandidateText) => void props.actions.saveProgram7CandidateEdit(candidate, editedCandidateText)}
+      />
       <SelectedProseCritiqueView {...props} />
     </aside>
   );
