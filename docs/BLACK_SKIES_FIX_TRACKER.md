@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is pushed at `cedaa38a`; P7-A3 Revision Desk is qualified and pushed at `3840b1d1`; P7-B2 Story Foundation is qualified and pushed at `282be1be`; later Program 7 packages and Human Gate 4 remain open
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is pushed at `cedaa38a`; P7-A3 Revision Desk is qualified and pushed at `3840b1d1`; P7-B2 Story Foundation is qualified and pushed at `282be1be`; P7-C2 comparison and writing drawer components are under qualification; later Program 7 packages and Human Gate 4 remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -338,6 +338,26 @@ Keyboard-reachable native controls, bounded answer length, honest degraded
 storage messaging, and the permission to skip every question are covered.
 Focused B2 coverage passed 4/4; the full app suite passed 150 test files /
 1,416 tests with 2 expected skips; app typecheck, app lint, and production
+build passed. Component integration, Human Gate 4, and Program 7 closure
+remain open.
+
+## Program 7 P7-C2 comparison and writing drawer components — 2026-09-11
+
+The comparison component now presents the current manuscript snapshot and
+candidate text in separate panes, makes manual or local-AI origin visible,
+surfaces warnings and stale source posture, and redacts protected content.
+Accept-all and selected-text acceptance are separate explicit callbacks.
+Reject, park, abandon, and edit are separate visible actions; none silently
+resolves a revision item.
+
+The writing drawer is an explicit candidate editor. It keeps the source
+read-only, requires a changed candidate before saving an edit, preserves local
+or manual origin and source status, redacts protected content, and states that
+editing is not acceptance or resolution. Both components use parent-owned
+callbacks only and do not read files, invoke IPC, or mutate manuscript truth.
+
+Focused C2 coverage passed 7/7; the full app suite passed 152 test files /
+1,423 tests with 2 expected skips; app typecheck, app lint, and production
 build passed. Component integration, Human Gate 4, and Program 7 closure
 remain open.
 
