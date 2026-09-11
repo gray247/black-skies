@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is under qualification; later Program 7 packages and Human Gate 4 remain open
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are implemented and pushed at `b8d1b899`; P7-D1 narrative insertion calculation is pushed at `1f195b69`; P7-F1 reviewed promotion handoff is pushed at `cedaa38a`; P7-A3 Revision Desk is under qualification; later Program 7 packages and Human Gate 4 remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -297,6 +297,27 @@ different work is rejected. Focused D1/F1 coverage passed 18/18; the full app
 suite passed 148 test files / 1,408 tests with 2 expected skips; app
 typecheck, app lint, production build, and diff hygiene passed. ProjectSpine
 narrative acceptance, UI integration, local-model admission, Human Gate 4,
+and Program 7 closure remain open.
+
+## Program 7 P7-A3 Revision Desk component — 2026-09-11
+
+The Revision Desk renderer component now consumes separate active and history
+projections and exposes only parent-owned callbacks. It keeps active revision
+items distinct from resolved history, preserves source/unit/origin/currentness
+metadata, shows deterministic and local-AI recheck evidence, returns to source,
+opens related recurrence links, and offers explicit park/dismiss/abandon
+actions. The component never reads files, invokes IPC, writes manuscript text,
+or owns lifecycle state.
+
+Protected items display protection metadata and hide the protected body and
+evidence. Jason-only resolution is visible as a separate disabled gesture until
+the parent explicitly enables it; the component does not create another
+resolver. Native buttons and keyboard-focusable cards support keyboard use,
+while empty and degraded storage states remain explicit.
+
+Focused A3 coverage passed 4/4; the full app suite passed 149 test files /
+1,412 tests with 2 expected skips; app typecheck, app lint, and production
+build passed. Revision Desk integration with real owner bridges, Human Gate 4,
 and Program 7 closure remain open.
 
 ## Purpose
