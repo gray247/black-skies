@@ -73,6 +73,10 @@ function isSha256(value: unknown): value is string {
 function isLifecycle(value: unknown): value is FeedbackRevisionLifecycle {
   return (
     value === 'active' ||
+    value === 'review' ||
+    value === 'intended' ||
+    value === 'underway' ||
+    value === 'ready_for_recheck' ||
     value === 'stale' ||
     value === 'recheck_pending' ||
     value === 'parked' ||
@@ -81,6 +85,16 @@ function isLifecycle(value: unknown): value is FeedbackRevisionLifecycle {
     value === 'abandoned'
   );
 }
+
+const ACTIVE_REVISION_LIFECYCLES = new Set<FeedbackRevisionLifecycle>([
+  'active',
+  'review',
+  'intended',
+  'underway',
+  'ready_for_recheck',
+  'stale',
+  'recheck_pending',
+]);
 
 function isDisposition(value: unknown): value is FeedbackRevisionDisposition {
   return (
@@ -184,6 +198,15 @@ function isFeedbackNote(value: unknown, projectId: string): value is FeedbackNot
       (typeof candidate.documentRevision === 'number' &&
         Number.isInteger(candidate.documentRevision) &&
         candidate.documentRevision >= 0)) &&
+    (candidate.sourceGeneration === undefined ||
+      (typeof candidate.sourceGeneration === 'number' &&
+        Number.isInteger(candidate.sourceGeneration) && candidate.sourceGeneration >= 0)) &&
+    (candidate.sourceRevision === undefined ||
+      (typeof candidate.sourceRevision === 'number' &&
+        Number.isInteger(candidate.sourceRevision) && candidate.sourceRevision >= 0)) &&
+    (candidate.sourceKind === undefined || isNonEmptyString(candidate.sourceKind)) &&
+    (candidate.sourceId === undefined || isNonEmptyString(candidate.sourceId)) &&
+    (candidate.sourceClass === undefined || isNonEmptyString(candidate.sourceClass)) &&
     isRechecks(candidate.rechecks) &&
     isDispositionHistory(candidate.dispositionHistory)
   );
@@ -392,9 +415,7 @@ export class FeedbackNotesRepository {
     return (await this.listAll(projectId)).filter(
       (note) =>
         note.advisory === false &&
-        (note.lifecycle === 'active' ||
-          note.lifecycle === 'stale' ||
-          note.lifecycle === 'recheck_pending'),
+        ACTIVE_REVISION_LIFECYCLES.has(note.lifecycle),
     );
   }
 
@@ -406,9 +427,7 @@ export class FeedbackNotesRepository {
     return (await this.listAll(projectId)).filter(
       (note) =>
         note.advisory === false &&
-        note.lifecycle !== 'active' &&
-        note.lifecycle !== 'stale' &&
-        note.lifecycle !== 'recheck_pending',
+        !ACTIVE_REVISION_LIFECYCLES.has(note.lifecycle),
     );
   }
 
@@ -493,12 +512,15 @@ export class FeedbackNotesRepository {
     itemId: string,
     status: FeedbackRecheckStatus,
     evidence?: string,
+    metadata?: Pick<FeedbackNoteRecheck, 'method' | 'sourceStatus'>,
   ): Promise<FeedbackNoteMutationResult> {
     return this.updateRevisionItem(projectId, expectedRevision, itemId, (item, revision) => {
       const recheck: FeedbackNoteRecheck = {
         id: noteId('recheck'),
         status,
         ...(evidence ? { evidence } : {}),
+        ...(metadata?.method ? { method: metadata.method } : {}),
+        ...(metadata?.sourceStatus ? { sourceStatus: metadata.sourceStatus } : {}),
         createdAt: this.now().toISOString(),
         sourceBodyFingerprint: item.sourceBodyFingerprint,
       };
@@ -518,8 +540,9 @@ export class FeedbackNotesRepository {
     itemId: string,
     status: FeedbackRecheckStatus,
     evidence?: string,
+    metadata?: Pick<FeedbackNoteRecheck, 'method' | 'sourceStatus'>,
   ) {
-    return this.recordRecheck(projectId, expectedRevision, itemId, status, evidence);
+    return this.recordRecheck(projectId, expectedRevision, itemId, status, evidence, metadata);
   }
 
   async createRecurrence(

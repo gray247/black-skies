@@ -40,8 +40,13 @@ import type {
 } from '../shared/ipc/aiCritique';
 import type {
   CreateFeedbackNoteFromCritiqueRequest,
+  CreateRevisionItemRequest,
+  CreateRevisionRecurrenceRequest,
   FeedbackNotesBridge,
   ListFeedbackNotesRequest,
+  ListRevisionItemsRequest,
+  RevisionItemRecheckRequest,
+  SetRevisionLifecycleRequest,
 } from '../shared/ipc/feedbackNotes';
 import type {
   CreateLivingOutlineItemRequest,
@@ -144,6 +149,12 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
   feedbackNotes: Object.freeze({
     createFromCritique: 'feedback-notes:create-from-critique',
     list: 'feedback-notes:list',
+    createRevisionItem: 'feedback-notes:create-revision-item',
+    listRevisionItems: 'feedback-notes:list-revision-items',
+    setLifecycle: 'feedback-notes:set-lifecycle',
+    deterministicRecheck: 'feedback-notes:deterministic-recheck',
+    localRecheck: 'feedback-notes:local-recheck',
+    createRecurrence: 'feedback-notes:create-recurrence',
   }),
   livingOutline: Object.freeze({
     get: 'living-outline:get',
@@ -794,6 +805,18 @@ const feedbackNotes: FeedbackNotesBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createFromCritique, request),
   list: (request: ListFeedbackNotesRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.list, request),
+  createRevisionItem: (request: CreateRevisionItemRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createRevisionItem, request),
+  listRevisionItems: (request: ListRevisionItemsRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.listRevisionItems, request),
+  setLifecycle: (request: SetRevisionLifecycleRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.setLifecycle, request),
+  deterministicRecheck: (request: RevisionItemRecheckRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.deterministicRecheck, request),
+  localRecheck: (request: RevisionItemRecheckRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.localRecheck, request),
+  createRecurrence: (request: CreateRevisionRecurrenceRequest) =>
+    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.feedbackNotes.createRecurrence, request),
 };
 
 const livingOutline: LivingOutlineBridge = {

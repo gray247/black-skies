@@ -24,8 +24,13 @@ import {
 import {
   FEEDBACK_NOTE_CHANNELS,
   type CreateFeedbackNoteFromCritiqueRequest,
+  type CreateRevisionItemRequest,
+  type CreateRevisionRecurrenceRequest,
   type FeedbackNotesBridge,
   type ListFeedbackNotesRequest,
+  type ListRevisionItemsRequest,
+  type RevisionItemRecheckRequest,
+  type SetRevisionLifecycleRequest,
 } from '../shared/ipc/feedbackNotes';
 import {
   LIVING_OUTLINE_CHANNELS,
@@ -2793,6 +2798,18 @@ const feedbackNotesBridge: FeedbackNotesBridge = {
   createFromCritique: (request: CreateFeedbackNoteFromCritiqueRequest) =>
     ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createFromCritique, request),
   list: (request: ListFeedbackNotesRequest) => ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.list, request),
+  createRevisionItem: (request: CreateRevisionItemRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createRevisionItem, request),
+  listRevisionItems: (request: ListRevisionItemsRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.listRevisionItems, request),
+  setLifecycle: (request: SetRevisionLifecycleRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.setLifecycle, request),
+  deterministicRecheck: (request: RevisionItemRecheckRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.deterministicRecheck, request),
+  localRecheck: (request: RevisionItemRecheckRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.localRecheck, request),
+  createRecurrence: (request: CreateRevisionRecurrenceRequest) =>
+    ipcRenderer.invoke(FEEDBACK_NOTE_CHANNELS.createRecurrence, request),
 };
 
 const livingOutlineBridge: LivingOutlineBridge = {

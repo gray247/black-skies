@@ -1758,6 +1758,7 @@ if (!hasSingleInstanceLock) {
       registerFeedbackNotesIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
+        localInferenceService: program7LocalInferenceService,
       });
       registerLivingOutlineIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,

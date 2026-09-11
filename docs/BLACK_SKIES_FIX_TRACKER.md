@@ -3,7 +3,7 @@
 
 # BLACK SKIES - FIX TRACKER
 
-Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; later Program 7 packages and Human Gate 4 remain open
+Status: Program 5 closed; Human Gates 2 and 3 passed; Cleanup Wave A closed; Program 6 closed after P6-G exact qualification and Jason acceptance; Program 7 planning baseline preserved at user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; P7-0B documentation hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`; implementation is authorized in `C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation` on `codex/program7-implementation`; the Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; automatic manuscript intelligence and its test-failure cleanup are pushed at `89f1769a`; P7-A2 revision actions are now implemented and under qualification; later Program 7 packages and Human Gate 4 remain open
 
 ## Program 7 charter and Readiness Track — 2026-09-08
 
@@ -215,8 +215,36 @@ Validation passed after the repairs:
 - app lint;
 - `git diff --check`.
 
-No commit or push was made. Program 7 remains open for the remaining bounded
-implementation packages, Human Gate 4 receipts, and later visualizer scope.
+The automatic-intelligence and test-failure cleanup was committed and pushed
+at `89f1769a`. Program 7 remains open for the remaining bounded implementation
+packages, Human Gate 4 receipts, and later visualizer scope.
+
+## Program 7 P7-A2 revision actions and recheck — 2026-09-11
+
+The revision-note owner now exposes bounded author actions for Program 7:
+current source-envelope creation, active/history/all revision projections,
+review/intended/underway/ready-for-recheck/parked workflow posture, explicit
+park/dismiss/resolve/abandon mutation, deterministic source-only recheck, an
+optional injected `qwen3:4b` local recheck, and distinct linked recurrence.
+Every owner action revalidates the Stage 19 role, project ID, canonical path,
+generation, and optimistic feedback-note document revision. Source-bound
+mutations resolve the stored exact anchor or body fingerprint before changing
+the sidecar. Source text from the envelope is never persisted, protected
+metadata remains non-modelable, and local AI can write only an advisory
+`appears_resolved` or `still_appears_present` recheck record; it cannot resolve
+or reopen a revision item.
+
+The shared/preload contract now carries these owner actions while preserving
+the legacy advisory-note bridge. The existing persistence owner was tightened
+to recognize the new workflow postures and retain their active/history
+projection semantics. The real local service is injected at main registration,
+but no model execution or RT-2B admission is claimed.
+
+Focused A2 and preload coverage passed 38/38; production build, app
+typecheck, app lint, and diff hygiene passed. Full-suite qualification is run
+against the resulting commit. Human Gate 4, Revision Desk UI integration,
+Narrative Insertion, promotion handoff, local-model admission, and Program 7
+closure remain open.
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
