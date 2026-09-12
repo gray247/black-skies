@@ -87,6 +87,24 @@ is not a prerequisite for Human Gate 4 or ordinary writing. Execution of the
 mandatory local-AI pilot and recording every outcome are prerequisites for
 Human Gate 4 even when the resulting disposition is `local-ai-unavailable`.
 
+### 3.1 Program 6 handoff-fixture precondition
+
+The `Work on this` row is executable only when the opened project contains at
+least one current, source-linked Program 6 durable signal or continuity finding
+eligible for that action. A clean project with no durable signals and no
+continuity findings is a valid empty state, but it cannot prove the handoff and
+must not be reported as a product failure merely because the button is absent.
+
+The checked-in Carmilla baseline may contain author-entered Story Knowledge
+records while still having an empty `durableSignals` collection. For the
+isolated handoff smoke, use the existing deterministic materializer
+`scripts/program6-human-review.mjs` and its printed temporary project path.
+That fixture proves the Program 6-to-Program 7 routing contract but does not
+replace the Carmilla long-form gate. Before final Human Gate 4, qualification
+must provide a separately materialized Carmilla review copy, or another exact
+fixture step, that seeds the required current source-linked finding without
+mutating the immutable source or silently changing the baseline snapshot.
+
 ## 4. Local-AI pilot: contract, schemas, and bounds
 
 ### 4.1 Fixed pilot identity and route

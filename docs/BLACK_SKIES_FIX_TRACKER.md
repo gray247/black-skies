@@ -467,6 +467,32 @@ next human validation must exercise the integrated Writing Studio and detached
 Command Center surfaces on the Carmilla corpus, including no-AI completion and
 the explicit local-AI comparison boundary.
 
+## Program 7 INT-3 Human Gate 4 handoff-fixture blocker — 2026-09-12
+
+Jason's first INT-3 human run passed the Create / Develop surface check. The
+next step could not be executed on `Carmilla Program 7 Baseline` because no
+Story Knowledge lens displayed `Work on this`. This is a qualification-fixture
+blocker, not evidence that the Program 7 renderer action is missing.
+
+The baseline's current Story Intelligence sidecar has an empty
+`durableSignals` collection. Its continuity projection also has no eligible
+finding. `Work on this` is correctly rendered only for a current source-linked
+durable signal or continuity finding; automatic scan prompts and empty lenses
+offer source review but do not fabricate a durable handoff candidate.
+
+Immediate bounded resolution: run the existing
+`scripts/program6-human-review.mjs`, open its printed temporary `Lantern House`
+project, and use its seeded current signal to validate Program 6 `Work on this`
+through Program 7 Revision Desk. This validates the handoff contract only. It
+does not substitute for the required Carmilla long-form gate.
+
+Open follow-up: before Human Gate 4 closure, add or document an exact
+Carmilla-compatible disposable review fixture that seeds one current
+source-linked finding while preserving the immutable source and baseline
+snapshot. Owner: Program 7 qualification/fixture preparation. Resolution
+stage: Human Gate 4 preparation. Reopen when that fixture can be run and the
+Carmilla finding-to-revision row is re-executed.
+
 ## Program 6 final closure — 2026-09-07
 
 Jason confirmed the final detached Emotion source return both activates and
