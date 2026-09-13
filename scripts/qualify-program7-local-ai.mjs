@@ -123,7 +123,10 @@ async function run() {
   cancelledController.abort();
   const cancelledRequest = requestFor('rewrite_candidate', sourceText, bodySha256, 'program7-qualification-cancelled', 'Cancellation control.');
   const cancelledResponse = await service.run(cancelledRequest, { authorInvoked: true, signal: cancelledController.signal });
-  const timeoutService = new Program7LocalInferenceService({ transport, timeoutMs: 1 });
+  const timeoutService = new Program7LocalInferenceService({
+    transport: { request: async () => new Promise(() => {}) },
+    timeoutMs: 1,
+  });
   const timeoutRequest = requestFor('rewrite_candidate', sourceText, bodySha256, 'program7-qualification-timeout', 'Timeout control.');
   const timeoutResponse = await timeoutService.run(timeoutRequest, { authorInvoked: true });
   const unavailableService = new Program7LocalInferenceService({
@@ -157,7 +160,7 @@ async function run() {
     fixture: { fixtureRoot, projectId, unitId, bodySha256, sourceChars: sourceText.length, sourcePath: 'drafts/carmilla-prologue.md' },
     operations: results,
     controls: {
-      protectedRefusal: { status: protectedResponse.status, reason: protectedResponse.reason, sourceTextPackaged: JSON.stringify(protectedResponse).includes(sourceText) === false },
+      protectedRefusal: { status: protectedResponse.status, reason: protectedResponse.reason, sourceTextPackaged: JSON.stringify(protectedResponse).includes(sourceText) },
       cancellation: { status: cancelledResponse.status, reason: cancelledResponse.reason },
       timeout: { status: timeoutResponse.status, reason: timeoutResponse.reason },
       unavailable: { status: unavailableResponse.status, reason: unavailableResponse.reason },
