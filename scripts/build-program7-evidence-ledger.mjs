@@ -109,6 +109,14 @@ for (const [suffix, expected] of suiteRows) {
   }));
 }
 
+rows.push(row({
+  evidenceId: 'P7-G2-STAGE19', packageId: 'P7-G2', evidenceClass: 'runtime', executionMode: 'real-warm', environment,
+  action: 'Run the complete clean stage19:regression gate on the outer Windows host with normal GPU operation.',
+  expected: '49 critical files pass with 803 tests passed and 2 expected skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
+  observed: 'Clean outer-host run passed 49 critical files, 803 passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
+  result: 'Pass', artifacts: [electronArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
+}));
+
 for (const [id, expected] of [
   ['P7-HG4-REG-P4', 'Jason uses Companion and verifies local-facts labeling, limitation, return-to-writing, and dismiss.'],
   ['P7-HG4-REG-P5', 'Jason verifies anchored source jumps remain usable after navigation and reopen.'],
