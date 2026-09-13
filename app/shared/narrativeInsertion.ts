@@ -87,7 +87,7 @@ async function sha256(value: string): Promise<string> {
 }
 
 function normalized(value: string): string {
-  return value.replace(/\r\n?/gu, '\n');
+  return value.replace(/\r\n?/gu, '\n').replace(/^(?:\n)+/u, '').replace(/\n+$/u, '');
 }
 
 function boundedSelection(
@@ -156,6 +156,7 @@ export async function calculateNarrativeInsertion(
   );
   const sourceBodySha256 = await sha256(sourceText);
   const currentBodySha256 = await sha256(currentBody);
+  const framedSourceBodySha256 = await sha256(`${sourceText}\n`);
   const candidateTextSha256 = await sha256(candidateText);
   const risks = uniqueRisks([
     ...(request.triggeredRisks ?? []),
@@ -173,7 +174,10 @@ export async function calculateNarrativeInsertion(
   if (candidate.sourceSnapshot.unitId !== candidate.unitId || candidate.sourceAnchor?.unitId !== undefined && candidate.sourceAnchor.unitId !== candidate.unitId) {
     return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, [], 'The candidate source binding does not match its unit.');
   }
-  if (sourceBodySha256 !== candidate.sourceSnapshot.bodySha256) {
+  if (
+    candidate.sourceSnapshot.bodySha256 !== sourceBodySha256 &&
+    candidate.sourceSnapshot.bodySha256 !== framedSourceBodySha256
+  ) {
     return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, [], 'The stored source body fingerprint does not match the stored source text.');
   }
   if (!candidateText || candidateText.length > NARRATIVE_INSERTION_MAX_TEXT_LENGTH) {

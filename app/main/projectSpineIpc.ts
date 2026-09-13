@@ -1430,7 +1430,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           lifecycle,
           candidateDocumentRevision: candidates.document.revision,
           expectedMarkdownSha256: digest(request.expectedMarkdown),
-          sourceBodySha256: calculation.sourceBodySha256,
+          sourceBodySha256: candidate.sourceBodySha256,
           currentBodySha256: calculation.currentBodySha256,
           candidateTextSha256: calculation.candidateTextSha256,
           savedBodySha256: calculation.acceptedResultSha256,
