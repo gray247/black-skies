@@ -87,6 +87,15 @@ async function gitCommitExists(commit) {
   }
 }
 
+async function gitTreeForCommit(commit) {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', `${commit}^{tree}`], { cwd: repoRoot });
+    return stdout.trim();
+  } catch {
+    fail(`exactCommit ${commit} has no readable tree`);
+  }
+}
+
 async function validateArtifact(row, artifact, rowIndex) {
   if (!exactKeys(artifact, REQUIRED_NESTED_KEYS.artifact)) fail(`${row.evidenceId} artifact ${rowIndex} has unexpected keys`);
   nonEmpty(artifact.path, `${row.evidenceId} artifact path`);
@@ -130,6 +139,12 @@ async function validateRow(row, rowNumber, packages) {
   if (row.humanReview.required && row.humanReview.status === 'not-required') fail(`${row.evidenceId} cannot mark required review as not-required`);
   if ((row.result === 'Fail' || row.result === 'Uncertain') && row.disposition === 'closure') fail(`${row.evidenceId} unresolved result cannot use closure`);
   await gitCommitExists(row.exactCommit);
+  if (row.precommitTreeHash !== 'not-applicable') {
+    const expectedTree = await gitTreeForCommit(row.exactCommit);
+    if (row.precommitTreeHash !== expectedTree) {
+      fail(`${row.evidenceId} precommitTreeHash does not match exactCommit tree`);
+    }
+  }
 }
 
 async function main() {
