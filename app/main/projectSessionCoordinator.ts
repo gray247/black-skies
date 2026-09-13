@@ -32,7 +32,7 @@ function manuscriptBody(markdown: string): string {
   if (!markdown.startsWith('---')) return markdown;
   const closing = markdown.indexOf('\n---', 3);
   if (closing < 0) return markdown;
-  return markdown.slice(closing + 4).replace(/^\r?\n/, '');
+  return markdown.slice(closing + 4).replace(/^(?:\r?\n)+/u, '');
 }
 
 export function measureProjectSpineUnit(markdown: string): ProjectSpineUnitMetrics {

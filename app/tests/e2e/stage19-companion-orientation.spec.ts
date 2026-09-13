@@ -78,7 +78,7 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
       .fill('How should I rewrite this?');
     await writing.getByRole('button', { name: 'Ask', exact: true }).click();
     await expect(writing.getByRole('region', { name: 'Companion orientation result' }))
-      .toContainText('This request is not routed yet');
+      .toContainText('This request is not supported yet');
     await expect(writing.getByText(/No AI or provider was called/)).toBeVisible();
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),

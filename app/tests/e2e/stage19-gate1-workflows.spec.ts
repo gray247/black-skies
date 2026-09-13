@@ -28,12 +28,21 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
       feedbackNotes: Object.keys(window.feedbackNotes ?? {}).sort(),
     }))).toEqual({
       livingOutline: ['createItem', 'deleteItem', 'get', 'linkItem', 'moveItem', 'updateItem'].sort(),
-      feedbackNotes: ['createFromCritique', 'list'].sort(),
+      feedbackNotes: ['createFromCritique', 'createRecurrence', 'createRevisionItem', 'deterministicRecheck', 'list', 'listRevisionItems', 'localRecheck', 'setLifecycle'].sort(),
     });
     expect(await command.evaluate(() => ({
       livingOutline: typeof window.livingOutline,
       feedbackNotes: typeof window.feedbackNotes,
-    }))).toEqual({ livingOutline: 'undefined', feedbackNotes: 'undefined' });
+      revisionCandidates: typeof window.revisionCandidates,
+      storyFoundation: typeof window.storyFoundation,
+      ideation: typeof window.ideation,
+    }))).toEqual({
+      livingOutline: 'undefined',
+      feedbackNotes: 'object',
+      revisionCandidates: 'object',
+      storyFoundation: 'object',
+      ideation: 'object',
+    });
 
     const created = await writing.evaluate(async (parentPath) => {
       const bridge = window.projectSpine!;

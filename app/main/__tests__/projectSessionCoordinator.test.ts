@@ -4,6 +4,7 @@ import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import {
   ProjectSessionCoordinator,
   ProjectSessionError,
+  measureProjectSpineUnit,
 } from '../projectSessionCoordinator';
 
 function project(
@@ -39,6 +40,17 @@ function binding(coordinator: ProjectSessionCoordinator, active: LoadedProject, 
 }
 
 describe('ProjectSessionCoordinator', () => {
+  it('normalizes blank front-matter separators before measuring the durable body', () => {
+    const metric = measureProjectSpineUnit('---\nid: unit_1\n---\n\nBody\n');
+
+    expect(metric).toMatchObject({
+      wordCount: 1,
+      sentenceCount: 1,
+      paragraphCount: 1,
+      bodySha256: '421dc617d921c24f41441973d8476605718a14a5c2228b8344cc1d6d816e8d39',
+    });
+  });
+
   it('projects a truthful prose-free no-project Command source state', () => {
     const coordinator = new ProjectSessionCoordinator();
 

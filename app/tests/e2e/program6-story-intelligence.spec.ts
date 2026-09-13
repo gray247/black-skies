@@ -99,12 +99,13 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
       expect(anchoredRef?.selectionFingerprint).toMatch(/^[a-f0-9]{64}$/);
       expect(anchoredRef?.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
       const anchoredDraft = await readFile(path.join(projectPath, 'drafts', `${firstUnitId}.md`), 'utf8');
-      const selectedText = anchoredDraft.slice(anchoredRef!.selectionStart!, anchoredRef!.selectionEnd!);
-      expect(createHash('sha256').update(selectedText, 'utf8').digest('hex')).toBe(anchoredRef!.selectionFingerprint);
-      expect(anchoredRef!.selectionEnd).toBeGreaterThan(anchoredRef!.selectionStart!);
       const frontMatterEnd = anchoredDraft.indexOf('\n---', 3);
       const durableBody = (frontMatterEnd >= 0 ? anchoredDraft.slice(frontMatterEnd + 4) : anchoredDraft).replace(/^\r?\n/u, '');
-      expect(createHash('sha256').update(durableBody.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8').digest('hex')).toBe(anchoredRef!.sourceFingerprint);
+      const selectedText = durableBody.slice(anchoredRef!.selectionStart!, anchoredRef!.selectionEnd!);
+      expect(createHash('sha256').update(selectedText, 'utf8').digest('hex')).toBe(anchoredRef!.selectionFingerprint);
+      expect(anchoredRef!.selectionEnd).toBeGreaterThan(anchoredRef!.selectionStart!);
+      const sourceBody = durableBody.replace(/^\r?\n/u, '');
+      expect(createHash('sha256').update(sourceBody.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8').digest('hex')).toBe(anchoredRef!.sourceFingerprint);
       if (projectId === 'proj_lantern_house_review') {
         await command.getByRole('button', { name: 'Suppress', exact: true }).click();
         await expect(command.locator('p[role="status"]').filter({ hasText: /signal suppressed requested/i })).toBeVisible();
