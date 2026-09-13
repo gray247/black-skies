@@ -595,7 +595,7 @@ The real RT-2B runner now records the protocol's exact twelve-scenario,
 cold/warm 24-row matrix, including stale fingerprint rejection, malformed
 provider responses, cancellation, unavailable endpoint controls, timing
 bounds, model receipts, and before/after truth hashes. The exact-commit run
-at `932e8d99f29720919811f9470746ff009caea85e` produced 24/24 mechanical
+at `b297ca6ad8372cdf29a892de1318269128ccddd7` produced 24/24 mechanical
 passes; Jason's subjective scoring and local-AI admission remain pending.
 
 Four dedicated P7-G2 Electron suites passed 4/4 on the outer host with normal

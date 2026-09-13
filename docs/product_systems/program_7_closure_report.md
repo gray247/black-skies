@@ -2,9 +2,9 @@
 
 Status: mechanical qualification packet complete; Human Gate 4 and local-AI admission remain open.
 
-Exact runtime commit: `932e8d99f29720919811f9470746ff009caea85e`
+Exact runtime commit: `b297ca6ad8372cdf29a892de1318269128ccddd7`
 
-Exact runtime tree: `b85de0f6391c21c2db34be0160eac6365d002463`
+Exact runtime tree: `c6f58420ccf96c65463deaa77b323e5f38155170`
 
 ## Evidence completed
 
