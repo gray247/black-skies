@@ -1,7 +1,7 @@
 {
   "schemaVersion": "program7.electron-qualification.v1",
-  "exactCommit": "b297ca6ad8372cdf29a892de1318269128ccddd7",
-  "precommitTreeHash": "c6f58420ccf96c65463deaa77b323e5f38155170",
+  "exactCommit": "31046317c7be3e80fcf70f6b89f0af0902d491ba",
+  "precommitTreeHash": "9e59e5ff2ba1fae3b22073f8e04e3c42dfc35e2f",
   "execution": {
     "host": "outer Windows host",
     "gpu": "normal",
@@ -34,7 +34,7 @@
   "suiteSummary": {
     "passed": 4,
     "failed": 0,
-    "electronDurationSeconds": 12.9
+    "electronDurationSeconds": 11.8
   },
   "focusedVitest": {
     "files": 5,
@@ -56,5 +56,5 @@
     "The pilot output is advisory evidence only; Jason must decide local-model usefulness, voice preservation, and admission.",
     "Human Gate 4 has not been performed."
   ],
-  "capturedAt": "2026-09-13T18:03:03.000Z"
+  "capturedAt": "2026-09-13T22:58:48.422Z"
 }

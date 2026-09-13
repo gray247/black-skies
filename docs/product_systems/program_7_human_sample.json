@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "program7.human-sample.v1",
+  "exactCommit": "31046317c7be3e80fcf70f6b89f0af0902d491ba",
+  "algorithm": "program7-human-sample-v1",
+  "rule": "For each package, hash exactCommit|packageId|program7-human-sample-v1, sort SHA256(seed|evidenceId), and select ceil(10%) with a minimum of three when at least three objective Pass rows exist; select all when fewer than three exist.",
+  "packages": {
+    "RT-2B": {
+      "seed": "f9d9ec37ef31d3ed0924a33a7e37b5010f6daca715d96d2992c070ae9b30be16",
+      "eligiblePassIds": [
+        "RT-2B-Q08-REAL-COLD",
+        "RT-2B-Q08-REAL-WARM",
+        "RT-2B-Q09-REAL-COLD",
+        "RT-2B-Q09-REAL-WARM",
+        "RT-2B-Q10-FAULT-A",
+        "RT-2B-Q10-FAULT-B"
+      ],
+      "selectedIds": [
+        "RT-2B-Q08-REAL-COLD",
+        "RT-2B-Q09-REAL-COLD",
+        "RT-2B-Q08-REAL-WARM"
+      ],
+      "sampleCount": 3
+    },
+    "P7-G2": {
+      "seed": "c23dcb20db6febfaddffe66631a80fa33fe7db731a20e4521e07a30c0302825b",
+      "eligiblePassIds": [
+        "P7-G2-E2E-CREATE-DEVELOP",
+        "P7-G2-E2E-LONG-FORM",
+        "P7-G2-E2E-REVISION"
+      ],
+      "selectedIds": [
+        "P7-G2-E2E-REVISION",
+        "P7-G2-E2E-CREATE-DEVELOP",
+        "P7-G2-E2E-LONG-FORM"
+      ],
+      "sampleCount": 3
+    }
+  },
+  "jasonFields": {
+    "status": "",
+    "notes": "",
+    "scores": {},
+    "decision": ""
+  }
+}
