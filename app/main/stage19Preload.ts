@@ -92,47 +92,76 @@ import type {
   SetManuscriptStructureBoundaryRequest,
   SplitManuscriptStructureGroupRequest,
 } from '../shared/ipc/manuscriptStructure';
-import {
-  IDEATION_CHANNELS,
-  type IdeationBridge,
-  type AddPremiseVersionRequest,
-  type BranchLifecycleRequest,
-  type CaptureIdeaSeedRequest,
-  type CombineSeedsRequest,
-  type CopyBranchRequest,
-  type CreateBranchRequest,
-  type FilterLibraryRequest,
-  type GetIdeationRequest,
-  type MergeBranchesRequest,
-  type PreparePromotionRequest,
-  type RequestAiAlternativesRequest,
-  type SplitBranchRequest,
-  type TestPremiseRequest,
-  type UpdateIdeaSeedRequest,
+import type {
+  IdeationBridge,
+  AddPremiseVersionRequest,
+  BranchLifecycleRequest,
+  CaptureIdeaSeedRequest,
+  CombineSeedsRequest,
+  CopyBranchRequest,
+  CreateBranchRequest,
+  FilterLibraryRequest,
+  GetIdeationRequest,
+  MergeBranchesRequest,
+  PreparePromotionRequest,
+  RequestAiAlternativesRequest,
+  SplitBranchRequest,
+  TestPremiseRequest,
+  UpdateIdeaSeedRequest,
 } from '../shared/ipc/ideation';
-import {
-  PROGRAM7_PROMOTION_CHANNELS,
-  type Program7PromotionBridge,
-  type Program7PromotionHandoffRequestV1,
+import type {
+  Program7PromotionBridge,
+  Program7PromotionHandoffRequestV1,
 } from '../shared/ipc/program7Promotion';
-import {
-  REVISION_CANDIDATE_CHANNELS,
-  type CancelLocalAiRevisionCandidateRequest,
-  type CreateLocalAiRevisionCandidateRequest,
-  type CreateManualRevisionCandidateRequest,
-  type EditRevisionCandidateRequest,
-  type ListRevisionCandidatesRequest,
-  type RevisionCandidatesBridge,
-  type SetRevisionCandidateLifecycleRequest,
+import type {
+  CancelLocalAiRevisionCandidateRequest,
+  CreateLocalAiRevisionCandidateRequest,
+  CreateManualRevisionCandidateRequest,
+  EditRevisionCandidateRequest,
+  ListRevisionCandidatesRequest,
+  RevisionCandidatesBridge,
+  SetRevisionCandidateLifecycleRequest,
 } from '../shared/ipc/revisionCandidates';
-import {
-  STORY_FOUNDATION_CHANNELS,
-  type ArchiveStoryFoundationAnswerRequest,
-  type GetStoryFoundationRequest,
-  type RestoreStoryFoundationAnswerRequest,
-  type SetStoryFoundationAnswerRequest,
-  type StoryFoundationBridge,
+import type {
+  ArchiveStoryFoundationAnswerRequest,
+  GetStoryFoundationRequest,
+  RestoreStoryFoundationAnswerRequest,
+  SetStoryFoundationAnswerRequest,
+  StoryFoundationBridge,
 } from '../shared/ipc/storyFoundation';
+
+const IDEATION_CHANNELS = Object.freeze({
+  get: 'ideation:get',
+  captureSeed: 'ideation:capture-seed',
+  updateSeed: 'ideation:update-seed',
+  createBranch: 'ideation:create-branch',
+  copyBranch: 'ideation:copy-branch',
+  mergeBranches: 'ideation:merge-branches',
+  splitBranch: 'ideation:split-branch',
+  archiveBranch: 'ideation:archive-branch',
+  restoreBranch: 'ideation:restore-branch',
+  addPremiseVersion: 'ideation:add-premise-version',
+  testPremise: 'ideation:test-premise',
+  combineSeeds: 'ideation:combine-seeds',
+  filterLibrary: 'ideation:filter-library',
+  preparePromotion: 'ideation:prepare-promotion',
+  requestAiAlternatives: 'ideation:request-ai-alternatives',
+});
+const PROGRAM7_PROMOTION_CHANNELS = Object.freeze({ handoff: 'program7:promotion-handoff' });
+const REVISION_CANDIDATE_CHANNELS = Object.freeze({
+  list: 'revision-candidates:list',
+  createManual: 'revision-candidates:create-manual',
+  createLocalAi: 'revision-candidates:create-local-ai',
+  cancelLocalAi: 'revision-candidates:cancel-local-ai',
+  edit: 'revision-candidates:edit',
+  setLifecycle: 'revision-candidates:set-lifecycle',
+});
+const STORY_FOUNDATION_CHANNELS = Object.freeze({
+  get: 'story-foundation:get',
+  setAnswer: 'story-foundation:set-answer',
+  archiveAnswer: 'story-foundation:archive-answer',
+  restoreAnswer: 'story-foundation:restore-answer',
+});
 
 /**
  * Electron's sandboxed preload loader cannot require arbitrary local CommonJS

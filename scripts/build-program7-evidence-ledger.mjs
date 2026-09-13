@@ -23,6 +23,12 @@ function artifact(filePath) { return { path: filePath, sha256: sha256Bytes(requi
 function requireBuffer(filePath) { return fileBuffers.get(filePath); }
 const fileBuffers = new Map();
 
+function argValue(name) {
+  const index = process.argv.indexOf(name);
+  const value = index >= 0 ? process.argv[index + 1] : undefined;
+  return value && !value.startsWith('-') ? value : undefined;
+}
+
 async function loadArtifact(filePath) {
   const bytes = await readFile(filePath);
   fileBuffers.set(filePath, bytes);
@@ -55,7 +61,7 @@ function row({ evidenceId, packageId, evidenceClass, executionMode, environment,
   };
 }
 
-const { stdout: exactCommitOut } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot });
+const { stdout: exactCommitOut } = await execFileAsync('git', ['rev-parse', argValue('--exact-commit') ?? 'HEAD'], { cwd: repoRoot });
 const exactCommit = exactCommitOut.trim();
 const { stdout: precommitTreeOut } = await execFileAsync('git', ['rev-parse', `${exactCommit}^{tree}`], { cwd: repoRoot });
 const precommitTreeHash = precommitTreeOut.trim();

@@ -41,7 +41,7 @@ export const installedQualificationProfiles = Object.freeze({
     writingGlobalNames: Object.freeze([
       "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand", "manuscriptStructure", "storyIntelligence"
     ]),
-    commandGlobalNames: Object.freeze(["critiqueReview", "projectSpine", "splitCommand"])
+    commandGlobalNames: Object.freeze(["critiqueReview", "feedbackNotes", "projectSpine", "splitCommand"])
   }),
   "historical-v1-reference": Object.freeze({
     initialVisibleWindowCount: 2,
@@ -214,6 +214,7 @@ function ownedProcessIdsForExecutable(rootPid, executablePath) {
 
 async function identifyWindows(application, { requireCommand = false } = {}) {
   const deadline = Date.now() + 30_000;
+  let lastRoles = [];
   while (Date.now() < deadline) {
     const candidates = application.windows();
     const roles = await Promise.all(
@@ -223,6 +224,14 @@ async function identifyWindows(application, { requireCommand = false } = {}) {
         command: await page.locator('[data-stage19-role="command"]').count()
       }))
     );
+    lastRoles = await Promise.all(roles.map(async (role) => ({
+      url: role.page.url(),
+      title: await role.page.title().catch(() => ''),
+      writing: role.writing,
+      command: role.command,
+      bodyText: await role.page.locator('body').innerText().catch(() => ''),
+      htmlSnippet: await role.page.locator('body').innerHTML().then((html) => html.slice(0, 800)).catch(() => '')
+    })));
     const writing = roles.find((role) => role.writing === 1)?.page;
     const command = roles.find((role) => role.command === 1)?.page;
     if (writing && (!requireCommand || (command && writing !== command))) {
@@ -232,8 +241,8 @@ async function identifyWindows(application, { requireCommand = false } = {}) {
   }
   fail(
     requireCommand
-      ? "The installed application did not expose an optional distinct Command Center."
-      : "The installed application did not expose one Writing Studio."
+      ? `The installed application did not expose an optional distinct Command Center. Observed pages: ${JSON.stringify(lastRoles)}`
+      : `The installed application did not expose one Writing Studio. Observed pages: ${JSON.stringify(lastRoles)}`
   );
 }
 
@@ -293,13 +302,22 @@ async function launchInstalled(executablePath, userDataPath, { openOptionalSecon
     args: ["--disable-gpu", `--user-data-dir=${userDataPath}`],
     env: sanitizedLaunchEnvironment()
   });
-  const initial = await identifyWindows(application);
-  const canonicalReadiness = await canonicalWritingLaunchReadiness(application);
-  const currentWindowTransitionMs = await assertCurrentWindowCommandTransition(initial.writing);
-  const windows = openOptionalSecondary
-    ? await openOptionalCommandWindow(application, initial.writing)
-    : { ...initial, durationMs: null };
-  return { application, canonicalReadiness, currentWindowTransitionMs, ...windows };
+  try {
+    const initial = await identifyWindows(application);
+    const canonicalReadiness = await canonicalWritingLaunchReadiness(application);
+    const currentWindowTransitionMs = await assertCurrentWindowCommandTransition(initial.writing);
+    const windows = openOptionalSecondary
+      ? await openOptionalCommandWindow(application, initial.writing)
+      : { ...initial, durationMs: null };
+    return { application, canonicalReadiness, currentWindowTransitionMs, ...windows };
+  } catch (error) {
+    try {
+      await application.close();
+    } catch {
+      // Preserve the original launch/qualification failure.
+    }
+    throw error;
+  }
 }
 
 async function runtimeTruth(
@@ -358,7 +376,7 @@ async function runtimeTruth(
     feedbackNotes: Object.keys(window.feedbackNotes ?? {}).sort(),
     livingOutline: Object.keys(window.livingOutline ?? {}).sort(),
     manuscriptStructure: Object.keys(window.manuscriptStructure ?? {}).sort(),
-    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure"]
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure", "storyIntelligence"]
       .filter((name) => typeof window[name] !== "undefined").sort(),
     requireType: typeof window.require,
     processType: typeof window.process
@@ -375,6 +393,7 @@ async function runtimeTruth(
   }));
   const writingProjectSpine = [
     "acceptRecoveryCandidate",
+    "acceptRevisionCandidate",
     "captureRecoveryCheckpoint",
     "chooseDirectory",
     "createProject",
@@ -441,7 +460,16 @@ async function runtimeTruth(
     "dismiss", "markStale", "readState", "requestState", "returnToSource",
     "saveFeedbackNote", "subscribeSourceReturn", "subscribeState"
   ].sort();
-  const feedbackNotes = ["createFromCritique", "list"].sort();
+  const feedbackNotes = [
+    "createFromCritique",
+    "createRecurrence",
+    "createRevisionItem",
+    "deterministicRecheck",
+    "list",
+    "listRevisionItems",
+    "localRecheck",
+    "setLifecycle"
+  ].sort();
   const livingOutline = ["createItem", "deleteItem", "get", "linkItem", "moveItem", "updateItem"].sort();
   assert(
     JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(expectedWritingProjectSpine),
@@ -473,7 +501,7 @@ async function runtimeTruth(
   assert(
     JSON.stringify(writingGlobals.feedbackNotes) === JSON.stringify(feedbackNotes) &&
       JSON.stringify(writingGlobals.livingOutline) === JSON.stringify(livingOutline),
-    "Writing-only advisory bridge allowlist differed."
+    `Writing-only advisory bridge allowlist differed: ${JSON.stringify({ feedbackNotes: writingGlobals.feedbackNotes, livingOutline: writingGlobals.livingOutline })}`
   );
   assert(
     JSON.stringify(writingGlobals.names) === JSON.stringify([...currentInstalledProfile.writingGlobalNames].sort()) &&
