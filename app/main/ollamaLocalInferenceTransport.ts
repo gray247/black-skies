@@ -15,6 +15,8 @@ export interface OllamaLocalInferenceTransportOptions {
   readonly fetch?: FetchLike;
   readonly endpoint?: string;
   readonly model?: string;
+  /** Ollama residency control used by the qualification runner's cold/warm variants. */
+  readonly keepAlive?: string | number;
   readonly now?: () => number;
 }
 
@@ -100,12 +102,14 @@ export class OllamaLocalInferenceTransport {
   private readonly fetchImpl: FetchLike;
   private readonly endpoint: string;
   private readonly model: string;
+  private readonly keepAlive: string | number | undefined;
   private readonly now: () => number;
 
   constructor(options: OllamaLocalInferenceTransportOptions = {}) {
     this.fetchImpl = options.fetch ?? fetch;
     this.endpoint = options.endpoint ?? PROGRAM7_LOCAL_INFERENCE_ENDPOINT;
     this.model = options.model ?? PROGRAM7_LOCAL_INFERENCE_MODEL;
+    this.keepAlive = options.keepAlive;
     this.now = options.now ?? Date.now;
   }
 
@@ -205,6 +209,7 @@ export class OllamaLocalInferenceTransport {
           prompt,
           stream: false,
           format: 'json',
+          ...(this.keepAlive === undefined ? {} : { keep_alive: this.keepAlive }),
           // Qwen3 on Ollama 0.13 places structured output in `thinking` unless
           // reasoning is explicitly disabled. The qualification contract only
           // admits the bounded application JSON object, never model reasoning.
