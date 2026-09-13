@@ -119,12 +119,14 @@ async function fileDigest(root, relative) {
 async function loadAppContracts() {
   const serviceUrl = pathToFileURL(path.join(repoRoot, 'app', 'dist-electron', 'main', 'program7LocalInferenceService.js')).href;
   const transportUrl = pathToFileURL(path.join(repoRoot, 'app', 'dist-electron', 'main', 'ollamaLocalInferenceTransport.js')).href;
+  const insertionUrl = pathToFileURL(path.join(repoRoot, 'app', 'dist-electron', 'shared', 'narrativeInsertion.js')).href;
   try {
-    const [{ Program7LocalInferenceService }, { OllamaLocalInferenceTransport }] = await Promise.all([
+    const [{ Program7LocalInferenceService }, { OllamaLocalInferenceTransport }, { calculateNarrativeInsertion }] = await Promise.all([
       import(serviceUrl),
       import(transportUrl),
+      import(insertionUrl),
     ]);
-    return { Program7LocalInferenceService, OllamaLocalInferenceTransport };
+    return { Program7LocalInferenceService, OllamaLocalInferenceTransport, calculateNarrativeInsertion };
   } catch (error) {
     throw new Error(`The built Program 7 local-inference contracts are unavailable. Run pnpm --filter app build:main first. ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -143,7 +145,7 @@ async function run() {
   const durable = durableBody(await readFile(draftPath, 'utf8'));
   const bodySha256 = sha256(durable);
   const sourceText = durable.slice(0, 700);
-  const { Program7LocalInferenceService, OllamaLocalInferenceTransport } = await loadAppContracts();
+  const { Program7LocalInferenceService, OllamaLocalInferenceTransport, calculateNarrativeInsertion } = await loadAppContracts();
   const scenarios = [
     { id: 'Q01', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded descriptive prose passage for author review.', expectedStatus: 'candidate' },
     { id: 'Q02', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded dialogue passage while preserving the speaker relationship for author review.', expectedStatus: 'candidate' },
@@ -210,15 +212,28 @@ async function run() {
   for (const executionMode of ['real-cold', 'real-warm']) {
     const scenario = { id: 'Q09', operation: 'rewrite_candidate', purpose: 'Reject a stale source fingerprint before local model dispatch.', expectedStatus: 'failed' };
     const request = requestForScenario(scenario, sourceText, `${'0'.repeat(64)}`, executionMode);
+    const staleCalculation = await calculateNarrativeInsertion({
+      candidate: {
+        projectId,
+        unitId,
+        sourceSnapshot: { unitId, bodySha256, text: durable },
+        sourceAnchor: null,
+        candidateText: 'A bounded candidate that must not be inserted into stale prose.',
+        editedCandidateText: null,
+        protection: { excluded: false, class: 'ordinary' },
+      },
+      currentBody: `${durable}\nStale mutation introduced by qualification control.`,
+      mode: 'accept-all',
+    });
     staleRows.push({
       scenarioId: 'Q09',
       executionMode,
       operation: scenario.operation,
       requestId: request.requestId,
       expected: 'Stale source fingerprint is rejected before transport invocation.',
-      observed: 'failed: stale body fingerprint; transport not invoked',
+      observed: `${staleCalculation.status}: ${staleCalculation.message}`,
       status: 'failed',
-      reason: 'Stale source fingerprint; transport was not invoked.',
+      reason: staleCalculation.message,
       responseTextLength: 0,
       receipt: null,
       elapsedMs: 0,
@@ -226,7 +241,7 @@ async function run() {
       expectedStatus: 'failed',
       statusMatches: true,
       timingPass: true,
-      mechanicalPass: true,
+      mechanicalPass: staleCalculation.status === 'blocked' && staleCalculation.blockingRisks.includes('source-staleness'),
       request: { schema: request.schema, requestId: request.requestId, projectId: request.projectId, sourceUnitId: request.source.unitId, sourceBodySha256: request.source.bodySha256, sourceChars: request.source.text.length, limits: request.limits, protection: request.protection },
       error: null,
     });
