@@ -1,0 +1,1153 @@
+{
+  "schemaVersion": "program7.local-ai-qualification.v1",
+  "status": "qualified",
+  "exactCommit": "932e8d99f29720919811f9470746ff009caea85e",
+  "endpoint": "http://127.0.0.1:11434",
+  "requestedModel": "qwen3:4b",
+  "actualModels": [
+    "qwen3:4b"
+  ],
+  "modelDigests": [
+    "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7"
+  ],
+  "admission": "pending-human",
+  "fixture": {
+    "fixtureRoot": "C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-program7-qualification-final\\carmilla-review",
+    "projectId": "proj_carmilla_program7_review",
+    "unitId": "carmilla-prologue",
+    "bodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+    "sourceChars": 700,
+    "sourcePath": "drafts/carmilla-prologue.md"
+  },
+  "operations": [
+    {
+      "operation": "rewrite_candidate",
+      "status": "candidate",
+      "responseTextLength": 357,
+      "reason": "Rewritten to be concise (under 60:00 characters), focused on key elements: Hesselius' role, essay's significance, and purpose of this narrative. Maintains original meaning while improving flow for author review.",
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "6d3f1ed77f17190b8962812d0f5aef94386a44d7a5a70a1d11ad4e99e2d49c3d",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:20:17.063Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:20:36.139Z",
+        "promptTokens": 337,
+        "outputTokens": 134
+      },
+      "elapsedMs": 19078,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q01-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      }
+    },
+    {
+      "operation": "revision_recheck",
+      "status": "still_appears_present",
+      "responseTextLength": 0,
+      "reason": "The opening concern remains after a hypothetical bounded edit. The text still indicates Doctor Hesselius's note and essay reference, showing the concern persists without resolution.",
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "5d438c213fca7625dcea86a26dfbf4a09c57d9f762b3d77334ec0504d0775565",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:22:53.771Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:23:05.527Z",
+        "promptTokens": 326,
+        "outputTokens": 55
+      },
+      "elapsedMs": 11757,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q05-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 8000,
+          "outputChars": 2000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      }
+    },
+    {
+      "operation": "premise_alternative",
+      "status": "candidate",
+      "responseTextLength": 227,
+      "reason": "This alternative premise focuses on narrative strategy without altering manuscript content, staying under 60:00 characters and offering a bounded, reviewable insight for the author.",
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "92c8a1eeb7257c09adf43c7cd21c5d27c7b46bca7e4cd324208612e67d43d667",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:23:51.943Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:07.499Z",
+        "promptTokens": 341,
+        "outputTokens": 92
+      },
+      "elapsedMs": 15556,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q07-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      }
+    }
+  ],
+  "matrix": [
+    {
+      "scenarioId": "Q01",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q01-real-cold",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to be concise (under 60:00 characters), focused on key elements: Hesselius' role, essay's significance, and purpose of this narrative. Maintains original meaning while improving flow for author review.",
+      "responseTextLength": 357,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "6d3f1ed77f17190b8962812d0f5aef94386a44d7a5a70a1d11ad4e99e2d49c3d",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:20:17.063Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:20:36.139Z",
+        "promptTokens": 337,
+        "outputTokens": 134
+      },
+      "elapsedMs": 19078,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q01-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q01",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q01-real-warm",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Condensed to 299 characters; focuses on key elements: Hessel: note, scholarly context, essay's role, author's intent. Removed redundancies while preserving core meaning.",
+      "responseTextLength": 260,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "b5725fb5ac09a0273a5b37435cbba4375153ef3889aefed5c4fce3817803289b",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:20:36.140Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:20:56.623Z",
+        "promptTokens": 337,
+        "outputTokens": 110
+      },
+      "elapsedMs": 20483,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q01-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q02",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q02-real-cold",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to maintain speaker relationship while condensing the source passage into a single, author-reviewable alternative under 600 characters. Preserved core elements: Hessel's scholarly note, the essay's significance, and the purpose of publishing the case.",
+      "responseTextLength": 325,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "520730add125388b7afb83343e611087ba25454ba5581dcbb6783e548f70bf60",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:20:56.623Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:21:15.682Z",
+        "promptTokens": 341,
+        "outputTokens": 128
+      },
+      "elapsedMs": 19060,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q02-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q02",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q02-real-warm",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to maintain speaker relationship while condensing the passage to under 60.0 characters. Focuses on Hesselius's scholarly contribution and the author's intent to avoid summary.",
+      "responseTextLength": 380,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "2f891092452ac3d4e9d677c79904583320ecc768ff5194efc38da7cba71a621f",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:21:15.683Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:21:38.716Z",
+        "promptTokens": 341,
+        "outputTokens": 132
+      },
+      "elapsedMs": 23033,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q02-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q03",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q03-real-cold",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to be concise, author-reviewable, and under 600 characters while preserving key facts from the source text.",
+      "responseTextLength": 252,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "f2363c1e75ca5d5d10734594f6e289db50bee7a2c7f4e4bbfd039a5831cc9348",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:21:38.716Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:21:54.812Z",
+        "promptTokens": 342,
+        "outputTokens": 94
+      },
+      "elapsedMs": 16096,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q03-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q03",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q03-real-warm",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to be concise, under 6:00 characters, and focused on the key points from the source without adding new facts.",
+      "responseTextLength": 200,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "f288150dff9815a19aa82b38fb1d1b0ee5b2b28b080c7a6772dd03a7ce66dd02",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:21:54.812Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:22:13.315Z",
+        "promptTokens": 342,
+        "outputTokens": 86
+      },
+      "elapsedMs": 18503,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q03-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q04",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q04-real-cold",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to focus on the key elements: Hessel.ius's annotation, the essay's scholarly nature, and the author's decision to omit a summary. Maintained under 600 characters and avoided quoting the protected span.",
+      "responseTextLength": 259,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "8f216db4ee17e55e31a698a4465fdd23330a8306887f3b0a3ec48a92250c0f9e",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:22:13.315Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:22:31.376Z",
+        "promptTokens": 344,
+        "outputTokens": 116
+      },
+      "elapsedMs": 18061,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q04-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q04",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q04-real-warm",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "Rewritten to maintain the protected span’s meaning while creating a concise, author-reviewable alternative under 6:00 characters. Focuses on Hesselius’s role and the prologue’s purpose without quoting or altering the original text.",
+      "responseTextLength": 305,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "ade2afca7cd44aa2385db3c0e2ec5cf6b8ad02fe77d130451238737c769d4a55",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:22:31.376Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:22:53.771Z",
+        "promptTokens": 344,
+        "outputTokens": 123
+      },
+      "elapsedMs": 22395,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q04-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q05",
+      "executionMode": "real-cold",
+      "operation": "revision_recheck",
+      "requestId": "program7-qualification-q05-real-cold",
+      "expected": "still_appears_present",
+      "observed": "still_appears_present",
+      "status": "still_appears_present",
+      "reason": "The opening concern remains after a hypothetical bounded edit. The text still indicates Doctor Hesselius's note and essay reference, showing the concern persists without resolution.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "5d438c213fca7625dcea86a26dfbf4a09c57d9f762b3d77334ec0504d0775565",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:22:53.771Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:23:05.527Z",
+        "promptTokens": 326,
+        "outputTokens": 55
+      },
+      "elapsedMs": 11757,
+      "transportInvoked": true,
+      "expectedStatus": "still_appears_present",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q05-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 8000,
+          "outputChars": 2000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q05",
+      "executionMode": "real-warm",
+      "operation": "revision_recheck",
+      "requestId": "program7-qualification-q05-real-warm",
+      "expected": "still_appears_present",
+      "observed": "still_appears_present",
+      "status": "still_appears_present",
+      "reason": "The opening concern (hypothetical bounded edit) remains as the text cuts off mid-sentence without completing the author's intended meaning, indicating the concern still appears present.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "45f6265b4b2fbeb5c7716dd45681e409688c42258fce21ca2e55157ba2367e09",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:23:05.528Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:23:20.865Z",
+        "promptTokens": 326,
+        "outputTokens": 58
+      },
+      "elapsedMs": 15338,
+      "transportInvoked": true,
+      "expectedStatus": "still_appears_present",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q05-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 8000,
+          "outputChars": 2000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q06",
+      "executionMode": "real-cold",
+      "operation": "revision_recheck",
+      "requestId": "program7-qualification-q06-real-cold",
+      "expected": "appears_resolved",
+      "observed": "appears_resolved",
+      "status": "appears_resolved",
+      "reason": "The opening concern about the incomplete sentence in the source text is addressed by the context and the note that the author has 'determined, therefore, to abstain from presenting any précis'—indicating the text is complete for the purpose of the narrative.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "b465f2f01f554327308d61948fe246917551c7e06a2e6c269525182aa5f161ab",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:23:20.866Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:23:34.469Z",
+        "promptTokens": 325,
+        "outputTokens": 74
+      },
+      "elapsedMs": 13604,
+      "transportInvoked": true,
+      "expectedStatus": "appears_resolved",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q06-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 8000,
+          "outputChars": 2000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q06",
+      "executionMode": "real-warm",
+      "operation": "revision_recheck",
+      "requestId": "program7-qualification-q06-real-warm",
+      "expected": "appears_resolved",
+      "observed": "appears_resolved",
+      "status": "appears_resolved",
+      "reason": "The source text from carmilla-prologue shows the opening concern about the Doctor Hesselius's note is addressed by the context of the narrative being published to interest the 'laity' without presenting a précis of the learned Doctor, indicating the concern is handled in the text.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "045819bae46a117c3862e35443509a683d451f20557b94d26e8310b98204bac3",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:23:34.470Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:23:51.942Z",
+        "promptTokens": 325,
+        "outputTokens": 79
+      },
+      "elapsedMs": 17473,
+      "transportInvoked": true,
+      "expectedStatus": "appears_resolved",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q06-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 8000,
+          "outputChars": 2000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q07",
+      "executionMode": "real-cold",
+      "operation": "premise_alternative",
+      "requestId": "program7-qualification-q07-real-cold",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "This alternative premise focuses on narrative strategy without altering manuscript content, staying under 60:00 characters and offering a bounded, reviewable insight for the author.",
+      "responseTextLength": 227,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "92c8a1eeb7257c09adf43c7cd21c5d27c7b46bca7e4cd324208612e67d43d667",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:23:51.943Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:07.499Z",
+        "promptTokens": 341,
+        "outputTokens": 92
+      },
+      "elapsedMs": 15556,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q07-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q07",
+      "executionMode": "real-warm",
+      "operation": "premise_alternative",
+      "requestId": "program7-qualification-q07-real-warm",
+      "expected": "candidate",
+      "observed": "candidate",
+      "status": "candidate",
+      "reason": "This alternative premise offers a focused, author-reviewable angle on narrative framing without altering source text or manuscript structure.",
+      "responseTextLength": 165,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": "qwen3:4b",
+        "modelDigest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "ollamaVersion": "0.13.0",
+        "promptSha256": "1f4bbe1d12b0c8192215c3e1b8cc0445c7da4790cc249da7365c85b6089d1501",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:07.499Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.655Z",
+        "promptTokens": 341,
+        "outputTokens": 73
+      },
+      "elapsedMs": 17156,
+      "transportInvoked": true,
+      "expectedStatus": "candidate",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q07-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q08",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q08-real-cold",
+      "expected": "Visible refusal or clarification for empty author purpose.",
+      "observed": "The local inference request exceeds its operation, source, or protection contract.",
+      "status": "failed",
+      "reason": "The request was rejected before a protocol response was produced.",
+      "responseTextLength": 0,
+      "receipt": null,
+      "elapsedMs": 1,
+      "transportInvoked": false,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "error": {
+        "name": "Program7LocalInferenceServiceError",
+        "message": "The local inference request exceeds its operation, source, or protection contract.",
+        "status": "failed"
+      },
+      "mechanicalPass": true
+    },
+    {
+      "scenarioId": "Q08",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q08-real-warm",
+      "expected": "Visible refusal or clarification for empty author purpose.",
+      "observed": "The local inference request exceeds its operation, source, or protection contract.",
+      "status": "failed",
+      "reason": "The request was rejected before a protocol response was produced.",
+      "responseTextLength": 0,
+      "receipt": null,
+      "elapsedMs": 0,
+      "transportInvoked": false,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "error": {
+        "name": "Program7LocalInferenceServiceError",
+        "message": "The local inference request exceeds its operation, source, or protection contract.",
+        "status": "failed"
+      },
+      "mechanicalPass": true
+    },
+    {
+      "scenarioId": "Q09",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q09-real-cold",
+      "expected": "Stale source fingerprint is rejected before transport invocation.",
+      "observed": "failed: stale body fingerprint; transport not invoked",
+      "status": "failed",
+      "reason": "Stale source fingerprint; transport was not invoked.",
+      "responseTextLength": 0,
+      "receipt": null,
+      "elapsedMs": 0,
+      "transportInvoked": false,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q09-real-cold",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q09",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q09-real-warm",
+      "expected": "Stale source fingerprint is rejected before transport invocation.",
+      "observed": "failed: stale body fingerprint; transport not invoked",
+      "status": "failed",
+      "reason": "Stale source fingerprint; transport was not invoked.",
+      "responseTextLength": 0,
+      "receipt": null,
+      "elapsedMs": 0,
+      "transportInvoked": false,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "request": {
+        "schema": "program7.local-inference.request.v1",
+        "requestId": "program7-qualification-q09-real-warm",
+        "projectId": "proj_carmilla_program7_review",
+        "sourceUnitId": "carmilla-prologue",
+        "sourceBodySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "sourceChars": 700,
+        "limits": {
+          "inputChars": 12000,
+          "outputChars": 6000
+        },
+        "protection": {
+          "excluded": false,
+          "class": "ordinary"
+        }
+      },
+      "error": null
+    },
+    {
+      "scenarioId": "Q10",
+      "executionMode": "fault-a",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q10-fault-a",
+      "expected": "Malformed provider output fails closed.",
+      "observed": "failed",
+      "status": "failed",
+      "reason": "The local model returned an invalid structured response.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "eac39a1bbf1e0648db79b3526ed16fb03a5ad15c385e6372aa75878a21439186",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.656Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.656Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 0,
+      "transportInvoked": true,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    },
+    {
+      "scenarioId": "Q10",
+      "executionMode": "fault-b",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q10-fault-b",
+      "expected": "Malformed provider output fails closed.",
+      "observed": "failed",
+      "status": "failed",
+      "reason": "The local model returned an invalid structured response.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "9681f28900bcabe7ed23275257ede5fad1b661684f23f6ea241bb0d32e671aff",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.656Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.656Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 0,
+      "transportInvoked": true,
+      "expectedStatus": "failed",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    },
+    {
+      "scenarioId": "Q11",
+      "executionMode": "real-cold",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q11-real-cold",
+      "expected": "Cancellation is visible and bounded.",
+      "observed": "cancelled",
+      "status": "cancelled",
+      "reason": "Local inference was cancelled.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "3c10e4ee42b4c396f8ec179ceb012dae23365840b3997d948be34cfe519c5b6e",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.684Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.684Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 28,
+      "transportInvoked": true,
+      "expectedStatus": "cancelled",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    },
+    {
+      "scenarioId": "Q11",
+      "executionMode": "real-warm",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q11-real-warm",
+      "expected": "Cancellation is visible and bounded.",
+      "observed": "cancelled",
+      "status": "cancelled",
+      "reason": "Local inference was cancelled.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "e64b16dfc300968507f752bfcc3c82278af6af85824be96cf44810883ea89061",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.710Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.710Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 26,
+      "transportInvoked": true,
+      "expectedStatus": "cancelled",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    },
+    {
+      "scenarioId": "Q12",
+      "executionMode": "fault-a",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q12-fault-a",
+      "expected": "Unavailable endpoint fails closed without fallback.",
+      "observed": "unavailable",
+      "status": "unavailable",
+      "reason": "The local model is unavailable.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "b2e517da5f15a8d652174af6b20ba1c57b15031d61f45c76dbcbc81886c56acc",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.710Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.710Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 0,
+      "transportInvoked": true,
+      "expectedStatus": "unavailable",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    },
+    {
+      "scenarioId": "Q12",
+      "executionMode": "fault-b",
+      "operation": "rewrite_candidate",
+      "requestId": "program7-qualification-q12-fault-b",
+      "expected": "Unavailable endpoint fails closed without fallback.",
+      "observed": "unavailable",
+      "status": "unavailable",
+      "reason": "The local model is unavailable.",
+      "responseTextLength": 0,
+      "receipt": {
+        "endpoint": "http://127.0.0.1:11434",
+        "requestedModel": "qwen3:4b",
+        "actualModel": null,
+        "modelDigest": null,
+        "ollamaVersion": null,
+        "promptSha256": "b85354924db5fc549ce2918b59098d038450344aa143ddd8da14cff2e35a6b75",
+        "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
+        "startedAt": "2026-09-13T21:24:24.741Z",
+        "firstTokenAt": null,
+        "endedAt": "2026-09-13T21:24:24.741Z",
+        "promptTokens": 0,
+        "outputTokens": 0
+      },
+      "elapsedMs": 31,
+      "transportInvoked": true,
+      "expectedStatus": "unavailable",
+      "statusMatches": true,
+      "timingPass": true,
+      "mechanicalPass": true,
+      "error": null
+    }
+  ],
+  "matrixSummary": {
+    "expectedRows": 24,
+    "observedRows": 24,
+    "mechanicalPassRows": 24,
+    "mechanicalPass": true,
+    "subjectivity": "Jason scoring is intentionally not fabricated by this runner."
+  },
+  "controls": {
+    "protectedRefusal": {
+      "status": "failed",
+      "reason": "Protected or metadata-only source content cannot be packaged for local inference.",
+      "sourceTextPackaged": false
+    },
+    "cancellation": {
+      "status": "cancelled",
+      "reason": "Local inference was cancelled."
+    },
+    "timeout": {
+      "status": "unavailable",
+      "reason": "Local inference timed out."
+    },
+    "unavailable": {
+      "status": "unavailable",
+      "reason": "The local model is unavailable."
+    },
+    "invalidResponse": {
+      "status": "failed",
+      "reason": "The local model returned an invalid structured response."
+    }
+  },
+  "truthMutation": {
+    "draftBefore": "be9cda4745f3ddddac4a18bc5b364c51f8016666efc735a214d21b050b82a6fa",
+    "draftAfter": "be9cda4745f3ddddac4a18bc5b364c51f8016666efc735a214d21b050b82a6fa",
+    "storyBefore": "b3a6498174ce1f83914270e7d4ae183b52eeabc693e3698ef152d50ac149ce92",
+    "storyAfter": "b3a6498174ce1f83914270e7d4ae183b52eeabc693e3698ef152d50ac149ce92",
+    "unchanged": true
+  },
+  "generatedAt": "2026-09-13T21:24:24.821Z"
+}

@@ -583,6 +583,34 @@ snapshot. Owner: Program 7 qualification/fixture preparation. Resolution
 stage: Human Gate 4 preparation. Reopen when that fixture can be run and the
 Carmilla finding-to-revision row is re-executed.
 
+## Program 7 P7-G2 qualification packet — 2026-09-13
+
+The Carmilla-compatible disposable fixture is now materialized by
+`scripts/materialize-program7-carmilla-review.mjs`; it seeds one current
+source-linked finding and leaves the immutable baseline unchanged. Ollama
+0.13.0 is serving on the outer host with `qwen3:4b` digest
+`359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`.
+
+The real RT-2B runner now records the protocol's exact twelve-scenario,
+cold/warm 24-row matrix, including stale fingerprint rejection, malformed
+provider responses, cancellation, unavailable endpoint controls, timing
+bounds, model receipts, and before/after truth hashes. The exact-commit run
+at `932e8d99f29720919811f9470746ff009caea85e` produced 24/24 mechanical
+passes; Jason's subjective scoring and local-AI admission remain pending.
+
+Four dedicated P7-G2 Electron suites passed 4/4 on the outer host with normal
+GPU operation, and the complete outer-host Stage 19 gate passed 49/49 files,
+803 passed, 2 expected skips, startup 1/1, Electron 36/36,
+`STAGE19_REGRESSION_PASS`, and `CLEAN_RC_ELIGIBLE`. The nested Codex sandbox
+still reproduces Electron `STATUS_DLL_NOT_FOUND`; that is recorded as an
+environment limitation and is not used as product evidence.
+
+The strict evidence schema, fail-closed validator, and exact-commit JSONL
+ledger validate successfully (`6` rows; one exact commit/tree). A closure
+report is present, but it explicitly keeps Human Gate 4 and local-AI
+admission open until Jason performs the required no-AI workflow and subjective
+review. No Program 7 closure or Human Gate 4 acceptance is claimed.
+
 ## Program 6 final closure — 2026-09-07
 
 Jason confirmed the final detached Emotion source return both activates and

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "program7.electron-qualification.v1",
+  "exactCommit": "932e8d99f29720919811f9470746ff009caea85e",
+  "precommitTreeHash": "b85de0f6391c21c2db34be0160eac6365d002463",
+  "execution": {
+    "host": "outer Windows host",
+    "gpu": "normal",
+    "diagnosticGpuDisable": false,
+    "workers": 1
+  },
+  "suites": [
+    {
+      "id": "P7-G2-REVISION",
+      "path": "app/tests/e2e/program7-revision.spec.ts",
+      "result": "Pass"
+    },
+    {
+      "id": "P7-G2-CREATE-DEVELOP",
+      "path": "app/tests/e2e/program7-create-develop.spec.ts",
+      "result": "Pass"
+    },
+    {
+      "id": "P7-G2-LOCAL-AI",
+      "path": "app/tests/e2e/program7-local-ai.spec.ts",
+      "result": "Pass",
+      "policy": "BLACKSKIES_DISABLE_LOCAL_AI=1"
+    },
+    {
+      "id": "P7-G2-LONG-FORM",
+      "path": "app/tests/e2e/program7-long-form.spec.ts",
+      "result": "Pass"
+    }
+  ],
+  "suiteSummary": {
+    "passed": 4,
+    "failed": 0,
+    "electronDurationSeconds": 11.8
+  },
+  "focusedVitest": {
+    "files": 5,
+    "passed": 44,
+    "failed": 0
+  },
+  "stage19": {
+    "criticalUnitFiles": 49,
+    "criticalUnitPassed": 803,
+    "expectedSkips": 2,
+    "startupPreflight": "1/1",
+    "electronPassed": "36/36",
+    "markers": [
+      "STAGE19_REGRESSION_PASS",
+      "CLEAN_RC_ELIGIBLE"
+    ]
+  },
+  "limitations": [
+    "The pilot output is advisory evidence only; Jason must decide local-model usefulness, voice preservation, and admission.",
+    "Human Gate 4 has not been performed."
+  ],
+  "capturedAt": "2026-09-13T17:40:18.000Z"
+}
