@@ -3,6 +3,29 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 outer-host qualification correction — 2026-09-13
+
+The nested Codex sandbox GPU startup failure is confirmed as an environment-only
+condition; the same built application qualifies on the outer host with normal
+GPU operation. Luna corrected the three stale qualification expectations without
+weakening any acceptance rule: the Program 6 source fingerprint now hashes the
+durable prose contract while keeping body-relative selection offsets, Companion
+expects the current unsupported-request wording, and Gate 1 records the current
+Writing/Command bridge inventory. The outer-host flow also exposed a real
+front-matter separator edge case: repeated separator newlines caused session
+metrics to hash a different body than the durable source contract, suppressing
+valid source-linked pacing and pressure rows. `manuscriptBody` now strips the
+separator run and a regression covers the blank-separator form.
+
+Focused coverage passed 39 targeted Vitest tests and the three corrected Electron
+flows. Clean Stage 19 regression passed at exact commit
+`9924bed49ff18c7919a4da984046ffea924fd430`: repository/policy/lint/typecheck/
+production build, 49 critical files / 803 passed / 2 expected skips, startup
+preflight 1/1, and Electron 36/36. The run used normal GPU operation and did not
+use `BLACKSKIES_DISABLE_GPU=1`; the worktree was clean and RC-eligible at gate
+completion. No Human Gate 4 acceptance, local-AI admission, or Program 7 closure
+is claimed until Jason completes the human review.
+
 ## Program 7 stabilization pass — 2026-09-13
 
 The in-progress INT-3 implementation was reviewed in the named worktree at
