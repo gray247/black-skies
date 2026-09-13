@@ -62,6 +62,15 @@ describe('StoryFoundation component', () => {
     expect(onSaveAnswer).toHaveBeenLastCalledWith({ questionId: 'aboutness', posture: 'answered', text: 'A haunted friendship under pressure.' });
   });
 
+  it('preserves an unsaved answer when another saved answer advances the document revision', () => {
+    const first = snapshot();
+    const { rerender } = render(<StoryFoundation snapshot={first} />);
+    const aboutness = screen.getByTestId('story-foundation-question-aboutness');
+    fireEvent.change(within(aboutness).getByRole('textbox', { name: 'Your note for aboutness' }), { target: { value: 'Unsaved author wording.' } });
+    rerender(<StoryFoundation snapshot={snapshot({ document: { ...first.document, revision: 5 } })} />);
+    expect(within(screen.getByTestId('story-foundation-question-aboutness')).getByRole('textbox', { name: 'Your note for aboutness' })).toHaveValue('Unsaved author wording.');
+  });
+
   it('shows author provenance and revision history, and exposes archive/restore callbacks', () => {
     const onArchiveAnswer = vi.fn();
     const onRestoreAnswer = vi.fn();

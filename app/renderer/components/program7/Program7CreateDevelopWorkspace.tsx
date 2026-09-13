@@ -8,14 +8,15 @@ export interface Program7CreateDevelopWorkspaceProps {
   readonly ideas?: ReactNode;
   readonly history?: ReactNode;
   readonly initialSection?: Program7CreateDevelopSection;
+  readonly activeSection?: Program7CreateDevelopSection;
   readonly onSectionChange?: (section: Program7CreateDevelopSection) => void;
 }
 
-const sections: readonly { readonly id: Program7CreateDevelopSection; readonly label: string; readonly description: string }[] = [
-  { id: 'revision-desk', label: 'Revision Desk', description: 'Review and recheck source-linked revision work.' },
-  { id: 'story-foundation', label: 'Story Foundation', description: 'Record optional author intent and project guidance.' },
-  { id: 'ideas', label: 'Ideas', description: 'Explore seeds, branches, premises, and possibilities.' },
-  { id: 'history', label: 'History', description: 'View a bounded projection of owner records.' },
+const sections: readonly { readonly id: Program7CreateDevelopSection; readonly label: string }[] = [
+  { id: 'revision-desk', label: 'Revision Desk' },
+  { id: 'story-foundation', label: 'Story Foundation' },
+  { id: 'ideas', label: 'Ideas' },
+  { id: 'history', label: 'History' },
 ];
 
 function contentFor(section: Program7CreateDevelopSection, props: Program7CreateDevelopWorkspaceProps): ReactNode {
@@ -26,11 +27,12 @@ function contentFor(section: Program7CreateDevelopSection, props: Program7Create
 }
 
 export default function Program7CreateDevelopWorkspace(props: Program7CreateDevelopWorkspaceProps): JSX.Element {
-  const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>(props.initialSection ?? 'revision-desk');
-  const active = sections.find((section) => section.id === activeSection) ?? sections[0];
+  const [localSection, setLocalSection] = useState<Program7CreateDevelopSection>(props.initialSection ?? 'revision-desk');
+  const currentSection = props.activeSection ?? localSection;
+  const active = sections.find((section) => section.id === currentSection) ?? sections[0];
   const content = contentFor(active.id, props);
   const selectSection = (section: Program7CreateDevelopSection) => {
-    setActiveSection(section);
+    setLocalSection(section);
     props.onSectionChange?.(section);
   };
 
@@ -38,7 +40,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
     <section className="program7-create-develop" aria-labelledby="program7-create-develop-heading" data-testid="program7-create-develop" data-writing-gate="false" data-truth-owner="parent-owned">
       <header>
         <h1 id="program7-create-develop-heading">Create / Develop</h1>
-        <p>Four provisional views over existing owners. This workspace does not become a new truth owner and never blocks Command Center navigation.</p>
+        <p>Develop your story, work through revisions, explore ideas, and revisit earlier decisions.</p>
       </header>
       <nav aria-label="Create and Develop sections" className="program7-create-develop__nav">
         {sections.map((section) => (
@@ -53,11 +55,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
           </button>
         ))}
       </nav>
-      <section aria-labelledby={`program7-create-develop-${active.id}`} data-testid={`program7-create-develop-panel-${active.id}`}>
-        <header>
-          <h2 id={`program7-create-develop-${active.id}`}>{active.label}</h2>
-          <p>{active.description}</p>
-        </header>
+      <section aria-label={active.label} data-testid={`program7-create-develop-panel-${active.id}`}>
         {content ?? <p data-testid="program7-create-develop-empty">This section is not connected yet. No change was made.</p>}
       </section>
     </section>

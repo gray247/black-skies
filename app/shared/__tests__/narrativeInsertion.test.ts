@@ -81,6 +81,22 @@ describe('Narrative Insertion calculation', () => {
     });
   });
 
+  it('accepts only the selected range from the visible edited candidate', async () => {
+    const source = 'Before selected passage after.';
+    const item = candidate(source, 7, 23, 'Generated text.');
+    const result = await calculateNarrativeInsertion({
+      candidate: { ...item, editedCandidateText: 'Keep ONLY these words.' },
+      currentBody: source,
+      mode: 'accept-selected-text',
+      candidateSelection: { selectionStart: 5, selectionEnd: 9 },
+    });
+    expect(result).toMatchObject({
+      status: 'ready',
+      replacement: { text: 'ONLY' },
+      acceptedResultSha256: hash('Before ONLY after.'),
+    });
+  });
+
   it('blocks source drift until explicitly acknowledged and never silently relocates', async () => {
     const source = 'Before selected passage after.';
     const current = 'New prefix. Before selected passage after.';

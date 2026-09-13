@@ -9380,3 +9380,139 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   margin: 0;
   font-size: 0.88rem;
 }
+
+/* Program 7 author workspaces share one calm, readable form rhythm. */
+.program7-create-develop,
+.program7-revision-desk,
+.program7-story-foundation,
+.program7-ideas-workspace,
+.program7-history,
+.program7-revision-capture,
+.program7-revision-candidates {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.program7-create-develop > header h1,
+.program7-create-develop > header p,
+.program7-revision-desk > header h1,
+.program7-revision-desk > header p,
+.program7-story-foundation > header h1,
+.program7-story-foundation > header p,
+.program7-ideas-workspace > header h1,
+.program7-ideas-workspace > header p,
+.program7-history > header h1,
+.program7-history > header p {
+  margin: 0;
+}
+
+.program7-create-develop__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.program7-create-develop__nav button[aria-current='page'] {
+  border-color: var(--stage19-accent, #3757a6);
+  background: color-mix(in srgb, var(--stage19-accent, #3757a6) 18%, transparent);
+}
+
+.program7-revision-capture,
+.program7-story-foundation__question,
+.program7-ideas-workspace__capture,
+.program7-ideas-workspace__library,
+.program7-ideas-workspace__branch-create,
+.program7-ideas-workspace__combine,
+.program7-ideas-workspace__branches,
+.program7-history__section,
+.program7-revision-desk__section {
+  border: 1px solid var(--stage19-border-subtle);
+  border-radius: 10px;
+  background: var(--stage19-surface);
+  padding: 18px;
+}
+
+.program7-revision-capture,
+.program7-story-foundation__fields,
+.program7-ideas-workspace__capture,
+.program7-ideas-workspace__branch-create,
+.program7-ideas-workspace__combine {
+  display: grid;
+  gap: 8px;
+}
+
+.program7-revision-capture input,
+.program7-revision-capture textarea,
+.program7-story-foundation input,
+.program7-story-foundation select,
+.program7-story-foundation textarea,
+.program7-ideas-workspace input:not([type='checkbox']),
+.program7-ideas-workspace select,
+.program7-ideas-workspace textarea,
+.program7-revision-comparison textarea,
+.program7-writing-revision-drawer textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.program7-revision-capture textarea,
+.program7-story-foundation textarea,
+.program7-ideas-workspace textarea,
+.program7-revision-comparison textarea,
+.program7-writing-revision-drawer textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.program7-story-foundation__questions,
+.program7-ideas-workspace__seed-list,
+.program7-history__cards,
+.program7-revision-desk__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  gap: 14px;
+}
+
+.program7-story-foundation__question,
+.program7-history__card,
+.program7-revision-desk__card {
+  align-content: start;
+}
+
+.program7-story-foundation__question h2,
+.program7-ideas-workspace h2,
+.program7-history h2,
+.program7-revision-desk h2 {
+  margin-top: 0;
+}
+
+.program7-story-foundation__metadata,
+.program7-history__metadata,
+.program7-revision-desk__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.program7-story-foundation__metadata div,
+.program7-history__metadata div,
+.program7-revision-desk__metadata div {
+  min-width: 8rem;
+}
+
+.program7-story-foundation__metadata dd,
+.program7-history__metadata dd,
+.program7-revision-desk__metadata dd {
+  margin: 4px 0 0;
+}
+
+.program7-revision-capture__actions,
+.program7-story-foundation__actions,
+.program7-history__actions,
+.program7-revision-desk__actions,
+.program7-revision-comparison__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

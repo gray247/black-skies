@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type {
   ProjectSpineCloseConfirmationDecision,
   ProjectSpineCloseConfirmationRequest,
@@ -195,6 +195,15 @@ function bindingFor(
     generation: snapshot.generation,
     operationId: operationId(prefix),
   };
+}
+
+function bindingMatchesSnapshot(binding: ProjectSpineBinding, snapshot: ProjectSpineSessionSnapshot): boolean {
+  return Boolean(
+    snapshot.project &&
+    snapshot.project.projectId === binding.projectId &&
+    snapshot.project.path.toLocaleLowerCase() === binding.projectPath.toLocaleLowerCase() &&
+    snapshot.generation === binding.generation,
+  );
 }
 
 function saveStatusLabel(snapshot: ProjectSpineSessionSnapshot): string {
@@ -686,6 +695,7 @@ export default function Stage19WritingSpineApp({
   const [program7RevisionDrawerOpen, setProgram7RevisionDrawerOpen] = useState(false);
   const [program7CandidatePurpose, setProgram7CandidatePurpose] = useState('');
   const [program7CandidateText, setProgram7CandidateText] = useState('');
+  const [program7LocalAiRequestId, setProgram7LocalAiRequestId] = useState<string | null>(null);
   const [program7Notice, setProgram7Notice] = useState<string | null>(null);
   const [program7PromotionOutcomes, setProgram7PromotionOutcomes] = useState<readonly Program7PromotionOutcomeV1[]>([]);
   const aiReferenceRef = useRef<AiCritiqueRequestReference | null>(null);
@@ -1167,7 +1177,7 @@ export default function Stage19WritingSpineApp({
   }, [feedbackNotesBridge, livingOutlineProjectIdentity, windowRole]);
 
   const program7ProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!snapshot.project) {
       setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
       setProgram7Candidates(null);
@@ -1175,11 +1185,25 @@ export default function Stage19WritingSpineApp({
       setProgram7Ideation(null);
       setProgram7SelectedCandidate(null);
       setProgram7RevisionDrawerOpen(false);
+      setProgram7CandidatePurpose('');
+      setProgram7CandidateText('');
+      setProgram7LocalAiRequestId(null);
       setProgram7Notice(null);
       setProgram7PromotionOutcomes([]);
       return;
     }
     const project = snapshot.project;
+    setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
+    setProgram7Candidates(null);
+    setProgram7Foundation(null);
+    setProgram7Ideation(null);
+    setProgram7SelectedCandidate(null);
+    setProgram7RevisionDrawerOpen(false);
+    setProgram7CandidatePurpose('');
+    setProgram7CandidateText('');
+    setProgram7LocalAiRequestId(null);
+    setProgram7Notice(null);
+    setProgram7PromotionOutcomes([]);
     let cancelled = false;
     const binding = {
       projectId: project.projectId,
@@ -3365,6 +3389,7 @@ export default function Stage19WritingSpineApp({
         protection: { excluded: false, class: 'ordinary' },
         candidateText,
       });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (!result.ok) {
         setProgram7Notice(result.error.message);
         return;
@@ -3374,6 +3399,7 @@ export default function Stage19WritingSpineApp({
       setProgram7CandidatePurpose('');
       setProgram7Notice('Manual revision candidate saved. The manuscript was not changed.');
     } catch {
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       setProgram7Notice('The manual revision candidate could not be saved. The manuscript was not changed.');
     }
   }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
@@ -3410,6 +3436,9 @@ export default function Stage19WritingSpineApp({
       : null;
     const binding = bindingFor(source.current, 'program7-local-ai-candidate');
     if (!binding) return;
+    const requestId = operationId('program7-local-rewrite');
+    setProgram7LocalAiRequestId(requestId);
+    setProgram7Notice('Local AI is preparing an alternative. You can stop this request.');
     try {
       const result = await revisionCandidatesBridge.createLocalAi({
         ...binding,
@@ -3420,7 +3449,7 @@ export default function Stage19WritingSpineApp({
           schema: PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA,
           operation: 'rewrite_candidate',
           model: PROGRAM7_LOCAL_INFERENCE_MODEL,
-          requestId: operationId('program7-local-rewrite'),
+          requestId,
           projectId: source.project.projectId,
           source: { unitId: source.unit.id, bodySha256: source.bodySha256, text: source.body },
           purpose,
@@ -3428,6 +3457,7 @@ export default function Stage19WritingSpineApp({
           protection: { excluded: false, class: 'ordinary' },
         },
       });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (!result.ok) {
         setProgram7Notice(result.error.message);
         return;
@@ -3436,9 +3466,20 @@ export default function Stage19WritingSpineApp({
       setProgram7CandidatePurpose('');
       setProgram7Notice('Local-AI candidate saved for author comparison. The manuscript was not changed.');
     } catch {
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       setProgram7Notice('The bounded local-AI candidate request failed. The manuscript was not changed.');
+    } finally {
+      setProgram7LocalAiRequestId((current) => current === requestId ? null : current);
     }
   }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+
+  const cancelProgram7LocalAiCandidate = useCallback(async () => {
+    const requestId = program7LocalAiRequestId;
+    const binding = bindingFor(snapshotRef.current, 'program7-cancel-local-ai');
+    if (!requestId || !binding || typeof revisionCandidatesBridge?.cancelLocalAi !== 'function') return;
+    const result = await revisionCandidatesBridge.cancelLocalAi({ ...binding, requestId });
+    setProgram7Notice(result.ok ? 'Stopping the local-AI request…' : result.error.message);
+  }, [program7LocalAiRequestId, revisionCandidatesBridge]);
 
   const openProgram7Candidate = useCallback(async (candidate: RevisionCandidateV1) => {
     setProgram7SelectedCandidate(candidate);
@@ -3526,9 +3567,11 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const selectionEnd = selectionStart === undefined ? undefined : selectionStart + selectedText!.length;
-    const mode = candidate.editedCandidateText
-      ? 'accept-edited-before-acceptance' as const
-      : selectedText === undefined ? 'accept-all' as const : 'accept-selected-text' as const;
+    const mode = selectedText !== undefined
+      ? 'accept-selected-text' as const
+      : candidate.editedCandidateText
+        ? 'accept-edited-before-acceptance' as const
+        : 'accept-all' as const;
     const binding = bindingFor(current, 'program7-accept-candidate');
     if (!binding) return;
     try {
@@ -4049,6 +4092,7 @@ export default function Stage19WritingSpineApp({
     program7RevisionDrawerOpen,
     program7CandidatePurpose,
     program7CandidateText,
+    program7LocalAiRequestId,
     program7Notice,
     feedbackNotesAvailable: Boolean(critiqueReviewBridge),
     feedbackNoteBody,
@@ -4168,6 +4212,7 @@ export default function Stage19WritingSpineApp({
     setProgram7CandidateText,
     createProgram7ManualCandidate,
     createProgram7LocalAiCandidate,
+    cancelProgram7LocalAiCandidate,
     openProgram7Candidate,
     closeProgram7Candidate,
     saveProgram7CandidateEdit,

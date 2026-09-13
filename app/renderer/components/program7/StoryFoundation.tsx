@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   STORY_FOUNDATION_MAX_ANSWER_LENGTH,
@@ -107,7 +107,7 @@ function QuestionCard({
         <span>{statusLabel(entry, version)}</span>
       </header>
       <div className="program7-story-foundation__fields">
-        <label htmlFor={`${questionId}-posture`}>Answer posture</label>
+        <label htmlFor={`${questionId}-posture`}>Answer state</label>
         <select
           id={`${questionId}-posture`}
           aria-label={`Answer posture for ${question.id}`}
@@ -128,11 +128,13 @@ function QuestionCard({
           onChange={(event) => onDraftChange(question.id, { ...draft, text: event.target.value })}
         />
       </div>
-      <dl className="program7-story-foundation__metadata">
-        <div><dt>Provenance</dt><dd>{provenanceLabel(version)}</dd></div>
-        <div><dt>Saved versions</dt><dd>{entry?.versions.length ?? 0}</dd></div>
-        <div><dt>History events</dt><dd>{entry?.history.length ?? 0}</dd></div>
-      </dl>
+      {entry ? (
+        <dl className="program7-story-foundation__metadata">
+          <div><dt>Written by</dt><dd>{provenanceLabel(version)}</dd></div>
+          <div><dt>Saved versions</dt><dd>{entry.versions.length}</dd></div>
+          <div><dt>Changes</dt><dd>{entry.history.length}</dd></div>
+        </dl>
+      ) : null}
       <div className="program7-story-foundation__actions" aria-label={`Actions for ${question.id}`}>
         {archived ? (
           <button
@@ -175,9 +177,24 @@ export default function StoryFoundation({
   onRestoreAnswer,
 }: StoryFoundationProps): JSX.Element {
   const [drafts, setDrafts] = useState<Record<string, DraftValue>>(() => draftSeed(snapshot));
+  const priorSnapshotRef = useRef(snapshot);
 
   useEffect(() => {
-    setDrafts(draftSeed(snapshot));
+    const priorSnapshot = priorSnapshotRef.current;
+    const nextSavedDrafts = draftSeed(snapshot);
+    if (priorSnapshot.document.projectId !== snapshot.document.projectId) {
+      setDrafts(nextSavedDrafts);
+    } else {
+      const priorSavedDrafts = draftSeed(priorSnapshot);
+      setDrafts((currentDrafts) => Object.fromEntries(snapshot.questions.map((question) => {
+        const current = currentDrafts[question.id] ?? priorSavedDrafts[question.id];
+        const priorSaved = priorSavedDrafts[question.id];
+        const isDirty = Boolean(current && priorSaved) &&
+          (current.posture !== priorSaved.posture || current.text !== priorSaved.text);
+        return [question.id, isDirty ? current : nextSavedDrafts[question.id]];
+      })));
+    }
+    priorSnapshotRef.current = snapshot;
   }, [snapshot.document.projectId, snapshot.document.revision]);
 
   return (
@@ -191,7 +208,7 @@ export default function StoryFoundation({
         <h1 id="program7-story-foundation-heading">Story Foundation</h1>
         <p>Optional project intent and creative guidance. It never becomes manuscript truth.</p>
         <p data-testid="story-foundation-optional">You may skip every question and keep writing. Nothing here blocks Writing Studio.</p>
-        <p>Project revision {snapshot.document.revision} · {snapshot.document.entries.length} saved answer{snapshot.document.entries.length === 1 ? '' : 's'}</p>
+        <p>{snapshot.document.entries.length} saved answer{snapshot.document.entries.length === 1 ? '' : 's'}</p>
       </header>
       {snapshot.availability === 'degraded' ? (
         <p role="alert" data-testid="story-foundation-degraded">

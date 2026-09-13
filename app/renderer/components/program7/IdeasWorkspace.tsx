@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   IDEATION_FIXED_CORE_QUESTIONS,
@@ -54,11 +54,24 @@ function currentPremise(branch: IdeationExplorationBranchV1): string {
 function provenanceLabel(seed: IdeationIdeaSeedV1): string {
   const version = currentSeedVersion(seed);
   if (!version) return 'No saved version';
-  return version.provenance.kind === 'ai-advisory' ? 'Local-AI advisory' : version.provenance.kind === 'mixed' ? 'Mixed provenance' : 'Manual author entry';
+  return version.provenance.kind === 'ai-advisory' ? 'Local AI' : version.provenance.kind === 'mixed' ? 'You and local AI' : 'You';
 }
 
 function postureLabel(posture: IdeationBranchPosture): string {
   return posture.replace(/-/gu, ' ');
+}
+
+function destinationLabel(destination: IdeationPromotionDestination): string {
+  const labels: Record<IdeationPromotionDestination, string> = {
+    'author-intent': 'Story Foundation',
+    outline: 'Outline',
+    'story-unit': 'Writing section',
+    'narrative-insertion': 'Manuscript insertion',
+    character: 'Character notes',
+    lore: 'World notes',
+    memory: 'Project memory',
+  };
+  return labels[destination];
 }
 
 export default function IdeasWorkspace({
@@ -83,6 +96,20 @@ export default function IdeasWorkspace({
   const [testAnswers, setTestAnswers] = useState<Record<string, Record<string, string>>>({});
   const [promotionText, setPromotionText] = useState<Record<string, string>>({});
   const [promotionDestination, setPromotionDestination] = useState<Record<string, IdeationPromotionDestination>>({});
+
+  useEffect(() => {
+    setSeedDraft({ title: '', body: '', kind: 'fragment', tags: [], protected: false });
+    setTagText('');
+    setSelectedSeedIds(new Set());
+    setCombineName('');
+    setCombinePremise('');
+    setBranchName('');
+    setBranchPremise('');
+    setBranchUnknowns('');
+    setTestAnswers({});
+    setPromotionText({});
+    setPromotionDestination({});
+  }, [snapshot.document.projectId]);
 
   const seedsById = new Map(snapshot.document.seeds.map((seed) => [seed.id, seed]));
   const toggleSeed = (seedId: string) => setSelectedSeedIds((previous) => {
@@ -112,33 +139,33 @@ export default function IdeasWorkspace({
     <section className="program7-ideas-workspace" aria-labelledby="program7-ideas-heading" data-testid="ideas-workspace" data-writing-gate="false">
       <header>
         <h1 id="program7-ideas-heading">Ideas</h1>
-        <p>Manual-first exploration for fragments, branches, premises, and possibilities. Ideas are not manuscript truth.</p>
-        <p data-testid="ideas-optional">You can skip this workspace and continue writing. Nothing here is a writing gate.</p>
-        <p>Project revision {snapshot.document.revision} · {snapshot.document.seeds.length} seed{snapshot.document.seeds.length === 1 ? '' : 's'} · {snapshot.document.branches.length} branch{snapshot.document.branches.length === 1 ? '' : 'es'}</p>
+        <p>Capture possibilities, explore different directions, and decide later what belongs in the story.</p>
+        <p data-testid="ideas-optional">You can skip this workspace and continue writing at any time.</p>
+        <p>{snapshot.document.seeds.length} idea{snapshot.document.seeds.length === 1 ? '' : 's'} · {snapshot.document.branches.length} direction{snapshot.document.branches.length === 1 ? '' : 's'}</p>
       </header>
       {snapshot.availability === 'degraded' ? <p role="alert" data-testid="ideas-degraded">{snapshot.message ?? 'Ideas are temporarily unavailable. No change was made.'}</p> : null}
       {snapshot.message && snapshot.availability === 'ready' ? <p data-testid="ideas-message">{snapshot.message}</p> : null}
 
       <section aria-labelledby="ideas-capture-heading" className="program7-ideas-workspace__capture">
-        <h2 id="ideas-capture-heading">Capture an idea seed</h2>
-        <p>Start with your own words. AI alternatives, when separately requested and admitted, remain advisory.</p>
+        <h2 id="ideas-capture-heading">Capture an idea</h2>
+        <p>Start with your own words. Anything suggested by AI stays separate until you choose it.</p>
         <label htmlFor="ideas-seed-title">Title</label>
         <input id="ideas-seed-title" value={seedDraft.title} onChange={(event) => setSeedDraft({ ...seedDraft, title: event.target.value })} />
-        <label htmlFor="ideas-seed-kind">Kind</label>
+        <label htmlFor="ideas-seed-kind">Form</label>
         <select id="ideas-seed-kind" value={seedDraft.kind} onChange={(event) => setSeedDraft({ ...seedDraft, kind: event.target.value as IdeationSeedKind })}>
-          {seedKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
+          {seedKinds.map((kind) => <option key={kind} value={kind}>{kind.replace(/-/gu, ' ')}</option>)}
         </select>
         <label htmlFor="ideas-seed-body">Your idea</label>
         <textarea id="ideas-seed-body" maxLength={IDEATION_MAX_TEXT_LENGTH} value={seedDraft.body} onChange={(event) => setSeedDraft({ ...seedDraft, body: event.target.value })} />
         <label htmlFor="ideas-seed-tags">Tags, separated by commas</label>
         <input id="ideas-seed-tags" value={tagText} onChange={(event) => setTagText(event.target.value)} />
-        <label><input type="checkbox" checked={seedDraft.protected} onChange={(event) => setSeedDraft({ ...seedDraft, protected: event.target.checked })} /> Keep this seed protected</label>
-        <button type="button" disabled={!onCaptureSeed} onClick={capture}>Capture idea seed</button>
+        <label><input type="checkbox" checked={seedDraft.protected} onChange={(event) => setSeedDraft({ ...seedDraft, protected: event.target.checked })} /> Keep this idea’s text private from project tools</label>
+        <button type="button" disabled={!onCaptureSeed} onClick={capture}>Save idea</button>
       </section>
 
       <section aria-labelledby="ideas-library-heading" className="program7-ideas-workspace__library">
-        <header><h2 id="ideas-library-heading">Idea Library</h2><p>Select ordinary seeds to use in a branch or combination. Protected seeds remain metadata-only.</p></header>
-        {snapshot.document.seeds.length === 0 ? <p data-testid="ideas-library-empty">No idea seeds have been captured.</p> : (
+        <header><h2 id="ideas-library-heading">Saved ideas</h2><p>Select ideas you want to explore together. Private ideas keep their text hidden from project tools.</p></header>
+        {snapshot.document.seeds.length === 0 ? <p data-testid="ideas-library-empty">No ideas saved yet.</p> : (
           <div className="program7-ideas-workspace__seed-list">
             {snapshot.document.seeds.map((seed) => {
               const version = currentSeedVersion(seed);
@@ -147,9 +174,9 @@ export default function IdeasWorkspace({
                 <article key={seed.id} data-testid={`idea-seed-${seed.id}`}>
                   <h3>{protectedSeed ? 'Protected idea seed' : version?.title ?? 'Untitled idea seed'}</h3>
                   <p>{protectedSeed ? 'Content hidden by protection policy.' : version?.body ?? 'No current seed version.'}</p>
-                  <dl><div><dt>Kind</dt><dd>{version?.kind ?? 'unknown'}</dd></div><div><dt>Provenance</dt><dd>{provenanceLabel(seed)}</dd></div><div><dt>Lifecycle</dt><dd>{seed.lifecycle}</dd></div><div><dt>Lineage references</dt><dd>{seed.branchIds.length}</dd></div></dl>
+                  <dl><div><dt>Type</dt><dd>{version?.kind?.replace(/-/gu, ' ') ?? 'unknown'}</dd></div><div><dt>Created by</dt><dd>{provenanceLabel(seed)}</dd></div><div><dt>Status</dt><dd>{seed.lifecycle}</dd></div><div><dt>Used in directions</dt><dd>{seed.branchIds.length}</dd></div></dl>
                   <p>{seed.tags.length > 0 ? `Tags: ${seed.tags.join(', ')}` : 'No tags'}</p>
-                  <label><input type="checkbox" checked={selectedSeedIds.has(seed.id)} disabled={protectedSeed} onChange={() => toggleSeed(seed.id)} /> Select for branch or combination</label>
+                  <label><input type="checkbox" checked={selectedSeedIds.has(seed.id)} disabled={protectedSeed} onChange={() => toggleSeed(seed.id)} /> Select for a new direction</label>
                 </article>
               );
             })}
@@ -158,30 +185,30 @@ export default function IdeasWorkspace({
       </section>
 
       <section aria-labelledby="ideas-branch-create-heading" className="program7-ideas-workspace__branch-create">
-        <h2 id="ideas-branch-create-heading">Create exploration branch</h2>
-        <p>A branch is an exploration path with visible seed lineage. It does not promote anything automatically.</p>
-        <label htmlFor="ideas-branch-name">Branch name</label>
+        <h2 id="ideas-branch-create-heading">Explore a direction</h2>
+        <p>Develop one possible path without changing the manuscript.</p>
+        <label htmlFor="ideas-branch-name">Direction name</label>
         <input id="ideas-branch-name" value={branchName} onChange={(event) => setBranchName(event.target.value)} />
         <label htmlFor="ideas-branch-premise">Premise</label>
         <textarea id="ideas-branch-premise" value={branchPremise} onChange={(event) => setBranchPremise(event.target.value)} />
         <label htmlFor="ideas-branch-unknowns">Intentional unknowns, one per line</label>
         <textarea id="ideas-branch-unknowns" value={branchUnknowns} onChange={(event) => setBranchUnknowns(event.target.value)} />
-        <button type="button" disabled={!onCreateBranch} onClick={createBranch}>Create exploration branch</button>
+        <button type="button" disabled={!onCreateBranch} onClick={createBranch}>Create direction</button>
       </section>
 
       <section aria-labelledby="ideas-combine-heading" className="program7-ideas-workspace__combine">
-        <h2 id="ideas-combine-heading">Combine selected seeds</h2>
-        <p>{selectedSeedIds.size} ordinary seed{selectedSeedIds.size === 1 ? '' : 's'} selected. Source contributions remain visible.</p>
+        <h2 id="ideas-combine-heading">Combine selected ideas</h2>
+        <p>{selectedSeedIds.size} idea{selectedSeedIds.size === 1 ? '' : 's'} selected. You will still be able to see which ideas shaped the result.</p>
         <label htmlFor="ideas-combine-name">Combination name</label>
         <input id="ideas-combine-name" value={combineName} onChange={(event) => setCombineName(event.target.value)} />
         <label htmlFor="ideas-combine-premise">Combination premise</label>
         <textarea id="ideas-combine-premise" value={combinePremise} onChange={(event) => setCombinePremise(event.target.value)} />
-        <button type="button" disabled={!onCombineSeeds || selectedSeedIds.size < 2} onClick={combine}>Combine selected seeds</button>
+        <button type="button" disabled={!onCombineSeeds || selectedSeedIds.size < 2} onClick={combine}>Combine selected ideas</button>
       </section>
 
       <section aria-labelledby="ideas-branches-heading" className="program7-ideas-workspace__branches">
-        <h2 id="ideas-branches-heading">Exploration branches</h2>
-        {snapshot.document.branches.length === 0 ? <p data-testid="ideas-branches-empty">No exploration branches have been created.</p> : snapshot.document.branches.map((branch) => {
+        <h2 id="ideas-branches-heading">Directions</h2>
+        {snapshot.document.branches.length === 0 ? <p data-testid="ideas-branches-empty">No directions created yet.</p> : snapshot.document.branches.map((branch) => {
           const answers = testAnswers[branch.id] ?? {};
           const selectedPromotionText = promotionText[branch.id] ?? currentPremise(branch);
           const destination = promotionDestination[branch.id] ?? 'author-intent';
@@ -193,7 +220,7 @@ export default function IdeasWorkspace({
           const destinationCanRoute = destination === 'author-intent' || destination === 'outline' || destination === 'character' || destination === 'lore';
           const archived = branch.posture === 'archived';
           return (
-            <article key={branch.id} data-testid={`idea-branch-${branch.id}`}>
+            <article key={branch.id} id={`idea-branch-${branch.id}`} tabIndex={-1} data-testid={`idea-branch-${branch.id}`}>
               <header><div><h3>{branch.name}</h3><p>{postureLabel(branch.posture)}</p></div><span>{archived ? 'Archived branch' : 'Active branch'}</span></header>
               <dl>
                 <div><dt>Parent branch</dt><dd>{branch.parentBranchId ?? 'None; original exploration'}</dd></div>
@@ -206,7 +233,7 @@ export default function IdeasWorkspace({
               <div aria-label={`Branch actions for ${branch.name}`}>
                 {archived ? <button type="button" disabled={!onRestoreBranch} onClick={() => onRestoreBranch?.(branch)}>Restore branch</button> : <button type="button" disabled={!onArchiveBranch} onClick={() => onArchiveBranch?.(branch)}>Archive branch</button>}
               </div>
-              <section aria-label={`Promotion preview for ${branch.name}`}><h4>Promotion preview</h4><p>This is a preview package only. It is not a destination write.</p><label htmlFor={`idea-promotion-destination-${branch.id}`}>Destination</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{option}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Prepare promotion preview</button>{prepared ? <><p role="status">Prepared package {prepared.id} is waiting for your explicit destination acceptance.</p>{destinationCanRoute ? <button type="button" disabled={!onRoutePromotion} onClick={() => onRoutePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Accept and route promotion</button> : <p>That destination is not yet owned by Program 7. The prepared package remains deferred.</p>}</> : null}</section>
+              <section aria-label={`Send ${branch.name} to another part of the project`}><h4>Use this direction elsewhere</h4><p>Preview the text and destination before anything is copied.</p><label htmlFor={`idea-promotion-destination-${branch.id}`}>Send to</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{destinationLabel(option)}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Preview destination</button>{prepared ? <><p role="status">This text is ready to send to {destinationLabel(destination)}.</p>{destinationCanRoute ? <button type="button" disabled={!onRoutePromotion} onClick={() => onRoutePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Send to {destinationLabel(destination)}</button> : <p>This destination is planned but not available yet. Your preview remains saved here.</p>}</> : null}</section>
             </article>
           );
         })}

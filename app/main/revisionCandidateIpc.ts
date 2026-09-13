@@ -7,6 +7,8 @@ import {
   REVISION_CANDIDATE_MAX_PURPOSE_LENGTH,
   REVISION_CANDIDATE_MAX_TEXT_LENGTH,
   REVISION_CANDIDATE_MAX_SOURCE_LENGTH,
+  type CancelLocalAiRevisionCandidateRequest,
+  type CancelLocalAiRevisionCandidateResult,
   type CreateLocalAiRevisionCandidateRequest,
   type CreateManualRevisionCandidateRequest,
   type EditRevisionCandidateRequest,
@@ -33,11 +35,30 @@ import {
   RevisionCandidateRepositoryError,
 } from './revisionCandidateRepository.js';
 
+type RevisionCandidateFailure = Extract<RevisionCandidateResult, { readonly ok: false }>;
+
 export interface RevisionCandidateLocalInferenceService {
   run(
     request: CreateLocalAiRevisionCandidateRequest['inference'],
     options: { readonly authorInvoked: true },
   ): Promise<Program7LocalInferenceResponseV1>;
+  cancel(requestId: string): void;
+}
+
+function cancelLocalAi(
+  event: IpcMainInvokeEvent,
+  request: CancelLocalAiRevisionCandidateRequest,
+): CancelLocalAiRevisionCandidateResult {
+  if (!exactKeys(request, ['operationId', 'projectId', 'projectPath', 'generation', 'requestId'], ['unitId'])) {
+    return fail('INVALID_REQUEST', 'The local-AI cancellation request is invalid.');
+  }
+  const active = activeProject(event, request, true);
+  if (failure(active)) return active;
+  if (!options?.localInferenceService || !validText(request.requestId, 160)) {
+    return fail('LOCAL_AI_UNAVAILABLE', 'There is no active local-AI request to stop.');
+  }
+  options.localInferenceService.cancel(request.requestId);
+  return { ok: true, data: { requestId: request.requestId, cancellationRequested: true } };
 }
 
 export interface RegisterRevisionCandidateIpcOptions {
@@ -49,7 +70,7 @@ export interface RegisterRevisionCandidateIpcOptions {
 
 let options: RegisterRevisionCandidateIpcOptions | null = null;
 
-function fail(code: RevisionCandidateError['code'], message: string): RevisionCandidateResult {
+function fail(code: RevisionCandidateError['code'], message: string): RevisionCandidateFailure {
   return { ok: false, error: { code, message } };
 }
 
@@ -100,7 +121,7 @@ function activeProject(
   mutation: boolean,
 ):
   | { snapshot: ProjectSpineSessionSnapshot; repository: RevisionCandidateRepository }
-  | RevisionCandidateResult {
+  | RevisionCandidateFailure {
   if (!options) return fail('NOT_AUTHORIZED', 'Revision candidates are not registered.');
   const role = options.resolveWindowRole(event.sender.id);
   if (role !== 'writing' && role !== 'command')
@@ -135,7 +156,7 @@ function activeProject(
   };
 }
 
-function failure(value: ReturnType<typeof activeProject>): value is RevisionCandidateResult {
+function failure(value: ReturnType<typeof activeProject>): value is RevisionCandidateFailure {
   return 'ok' in value;
 }
 function validRevision(value: unknown): value is number {
@@ -552,6 +573,9 @@ export function registerRevisionCandidateIpc(
   );
   ipcMain.handle(REVISION_CANDIDATE_CHANNELS.createLocalAi, (event, request: unknown) =>
     createLocalAi(event, request as CreateLocalAiRevisionCandidateRequest),
+  );
+  ipcMain.handle(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, (event, request: unknown) =>
+    cancelLocalAi(event, request as CancelLocalAiRevisionCandidateRequest),
   );
   ipcMain.handle(REVISION_CANDIDATE_CHANNELS.edit, (event, request: unknown) =>
     edit(event, request as EditRevisionCandidateRequest),

@@ -149,7 +149,8 @@ export async function calculateNarrativeInsertion(
   const sourceText = normalized(candidate.sourceSnapshot.text);
   const currentBody = normalized(request.currentBody);
   const candidateText = normalized(
-    request.mode === 'accept-edited-before-acceptance'
+    request.mode === 'accept-edited-before-acceptance' ||
+      (request.mode === 'accept-selected-text' && candidate.editedCandidateText !== null)
       ? candidate.editedCandidateText ?? ''
       : candidate.candidateText,
   );

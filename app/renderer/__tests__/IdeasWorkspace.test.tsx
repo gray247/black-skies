@@ -64,12 +64,22 @@ describe('IdeasWorkspace component', () => {
     expect(screen.getByRole('heading', { name: 'Ideas' })).toBeInTheDocument();
     expect(screen.getByTestId('ideas-optional')).toHaveTextContent('continue writing');
     expect(screen.getByTestId('ideas-workspace')).toHaveAttribute('data-writing-gate', 'false');
-    expect(screen.getByRole('heading', { name: 'Idea Library' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Saved ideas' })).toBeInTheDocument();
     expect(screen.getByTestId('idea-seed-seed-protected')).toHaveTextContent('Content hidden by protection policy.');
     fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'A first thought' } });
     fireEvent.change(screen.getByRole('textbox', { name: 'Your idea' }), { target: { value: 'A door that remembers.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Capture idea seed' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save idea' }));
     expect(onCaptureSeed).toHaveBeenCalledWith({ title: 'A first thought', body: 'A door that remembers.', kind: 'fragment', tags: [], protected: false });
+  });
+
+  it('clears unsaved idea fields and selections when the project changes', () => {
+    const first = snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a')] } });
+    const { rerender } = render(<IdeasWorkspace snapshot={first} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'Project A idea' } });
+    fireEvent.click(within(screen.getByTestId('idea-seed-seed-a')).getByRole('checkbox'));
+    rerender(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, projectId: 'project-b', seeds: [] } })} />);
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('');
+    expect(screen.getByText(/0 ideas selected/)).toBeInTheDocument();
   });
 
   it('shows branch and premise lineage, intentional ambiguity, and explicit archive/restore', () => {
@@ -100,7 +110,7 @@ describe('IdeasWorkspace component', () => {
     fireEvent.click(within(seedB).getByRole('checkbox'));
     fireEvent.change(screen.getByRole('textbox', { name: 'Combination name' }), { target: { value: 'Combined thread' } });
     fireEvent.change(screen.getByRole('textbox', { name: 'Combination premise' }), { target: { value: 'Two images become one premise.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Combine selected seeds' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Combine selected ideas' }));
     const branchCard = screen.getByTestId('idea-branch-branch-a');
     fireEvent.change(within(branchCard).getByRole('textbox', { name: IDEATION_FIXED_CORE_QUESTIONS[0].prompt }), { target: { value: 'A witness.' } });
     fireEvent.click(within(branchCard).getByRole('button', { name: 'Run advisory premise test' }));
@@ -115,9 +125,9 @@ describe('IdeasWorkspace component', () => {
     render(<IdeasWorkspace snapshot={snapshot({ availability: 'degraded', message: 'Ideation storage cannot be read.', document: { ...snapshot().document, branches: [branchData] } })} onPreparePromotion={onPreparePromotion} />);
     const branchCard = screen.getByTestId('idea-branch-branch-a');
     expect(screen.getByRole('alert')).toHaveTextContent('Ideation storage cannot be read.');
-    fireEvent.change(within(branchCard).getByRole('combobox', { name: 'Destination' }), { target: { value: 'outline' } });
-    fireEvent.click(within(branchCard).getByRole('button', { name: 'Prepare promotion preview' }));
+    fireEvent.change(within(branchCard).getByRole('combobox', { name: 'Send to' }), { target: { value: 'outline' } });
+    fireEvent.click(within(branchCard).getByRole('button', { name: 'Preview destination' }));
     expect(onPreparePromotion).toHaveBeenCalledWith(branchData, 'outline', 'A friendship becomes a haunting.', ['seed-a', 'seed-b']);
-    expect(within(branchCard).getByText(/not a destination write/)).toBeInTheDocument();
+    expect(within(branchCard).getByText(/before anything is copied/)).toBeInTheDocument();
   });
 });

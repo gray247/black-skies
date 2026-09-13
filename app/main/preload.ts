@@ -101,6 +101,7 @@ import {
 } from '../shared/ipc/program7Promotion';
 import {
   REVISION_CANDIDATE_CHANNELS,
+  type CancelLocalAiRevisionCandidateRequest,
   type CreateLocalAiRevisionCandidateRequest,
   type CreateManualRevisionCandidateRequest,
   type EditRevisionCandidateRequest,
@@ -2865,6 +2866,8 @@ const revisionCandidatesBridge: RevisionCandidatesBridge = {
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createManual, request),
   createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, request),
+  cancelLocalAi: (request: CancelLocalAiRevisionCandidateRequest) =>
+    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, request),
   edit: (request: EditRevisionCandidateRequest) =>
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.edit, request),
   setLifecycle: (request: SetRevisionCandidateLifecycleRequest) =>

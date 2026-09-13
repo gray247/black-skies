@@ -139,12 +139,13 @@ describe('revision candidate IPC authority', () => {
     edit: vi.fn(),
     setLifecycle: vi.fn(),
   };
-  const localInferenceService = { run: vi.fn() };
+  const localInferenceService = { run: vi.fn(), cancel: vi.fn() };
   beforeEach(() => {
     resetRevisionCandidateIpcForTests();
     electronMocks.handlers.clear();
     Object.values(repository).forEach((mock) => mock.mockReset().mockResolvedValue(ready));
     localInferenceService.run.mockReset().mockResolvedValue(aiResponse);
+    localInferenceService.cancel.mockReset();
     registerRevisionCandidateIpc({
       resolveWindowRole: (id) => (id === 1 ? 'writing' : id === 2 ? 'command' : null),
       getWritingSnapshot: () => snapshot,
@@ -203,6 +204,7 @@ describe('revision candidate IPC authority', () => {
         REVISION_CANDIDATE_CHANNELS.createLocalAi,
         { ...binding, expectedRevision: 0, inference, extra: true },
       ],
+      [REVISION_CANDIDATE_CHANNELS.cancelLocalAi, { ...binding, requestId: 'inference-1', extra: true }],
       [
         REVISION_CANDIDATE_CHANNELS.edit,
         {
@@ -328,6 +330,15 @@ describe('revision candidate IPC authority', () => {
         }),
       ),
     ).not.toContain('PROTECTED_RAW_SENTINEL');
+  });
+
+  it('allows only Writing to cancel the exact active local-AI request', async () => {
+    const request = { ...binding, requestId: 'inference-1' };
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, 2, request))
+      .resolves.toMatchObject({ ok: false, error: { code: 'NOT_AUTHORIZED' } });
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, 1, request))
+      .resolves.toEqual({ ok: true, data: { requestId: 'inference-1', cancellationRequested: true } });
+    expect(localInferenceService.cancel).toHaveBeenCalledWith('inference-1');
   });
 
   it('maps stale and unavailable repository failures visibly', async () => {

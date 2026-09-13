@@ -10,6 +10,20 @@ function titleCase(value: string): string {
   return value.replace(/[-_]/gu, ' ').replace(/\b\w/gu, (letter) => letter.toUpperCase());
 }
 
+function recordLabel(kind: Program7HistoryItemV1['ownerKind']): string {
+  if (kind === 'feedback-note') return 'Revision task';
+  if (kind === 'revision-candidate') return 'Revision alternative';
+  if (kind === 'idea-seed') return 'Idea';
+  if (kind === 'idea-branch') return 'Idea direction';
+  return 'Project update';
+}
+
+function originLabel(origin: string): string {
+  if (origin === 'local-ai') return 'Local AI';
+  if (origin === 'author' || origin === 'manual') return 'You';
+  return titleCase(origin);
+}
+
 function sourceLabel(status: Program7HistoryItemV1['sourceStatus']): string {
   return status === 'current' ? 'Source current' : status === 'stale' ? 'Source stale' : 'Source unavailable';
 }
@@ -23,15 +37,15 @@ function HistoryCard({ item, onOpenSource, onOpenRecurrence }: { readonly item: 
   return (
     <article className="program7-history__card" tabIndex={0} data-testid={`program7-history-item-${item.reference}`} aria-label={`History item ${item.reference}`}>
       <header>
-        <div><h3>{item.title}</h3><p>{titleCase(item.ownerKind)} · {item.ownerId}</p></div>
+        <div><h3>{item.title}</h3><p>{recordLabel(item.ownerKind)}</p></div>
         <span>{titleCase(item.lifecycle)}</span>
       </header>
       <p className="program7-history__summary">{protectedItem ? 'Content hidden by protection policy.' : item.summary}</p>
       <dl className="program7-history__metadata">
-        <div><dt>Source</dt><dd>{sourceLabel(item.sourceStatus)}{item.sourceReference ? ` · ${item.sourceReference}` : ''}</dd></div>
-        <div><dt>Provenance</dt><dd>{titleCase(item.provenance.origin)}{item.provenance.sourceReference ? ` · ${item.provenance.sourceReference}` : ''}</dd></div>
-        <div><dt>Acceptance</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
-        <div><dt>Protection</dt><dd>{protectedItem ? `Metadata only · ${item.protection.class}` : 'Ordinary'}</dd></div>
+        <div><dt>Source</dt><dd>{sourceLabel(item.sourceStatus)}</dd></div>
+        <div><dt>Created by</dt><dd>{originLabel(item.provenance.origin)}</dd></div>
+        <div><dt>Outcome</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
+        <div><dt>Content</dt><dd>{protectedItem ? 'Hidden because this material is protected' : 'Visible'}</dd></div>
       </dl>
       <div className="program7-history__actions" aria-label={`Actions for ${item.reference}`}>
         {onOpenSource ? <button type="button" onClick={() => onOpenSource(item)}>Open source</button> : null}
@@ -56,8 +70,8 @@ export default function Program7History({ projection, onOpenSource, onOpenRecurr
     <section className="program7-history" aria-labelledby="program7-history-heading" data-testid="program7-history" data-history-store="projection-only">
       <header>
         <h1 id="program7-history-heading">History</h1>
-        <p>One bounded view of records owned by Feedback Notes, Revision Candidates, Ideas, and Promotion. This is a projection, not a new history store.</p>
-        <p>{projection.items.length} shown · {projection.totalSourceItems} source records · limit {projection.limit}</p>
+        <p>Revisit revision work, ideas, and choices from this project.</p>
+        <p>{projection.items.length} recent item{projection.items.length === 1 ? '' : 's'} shown.</p>
       </header>
       {projection.trimmedCount > 0 ? <p role="status" data-testid="program7-history-trimmed">Showing the newest {projection.items.length} records. {projection.trimmedCount} older record{projection.trimmedCount === 1 ? '' : 's'} trimmed by the history bound.</p> : null}
       <HistorySection title="Active records" items={projection.activeItems} onOpenSource={onOpenSource} onOpenRecurrence={onOpenRecurrence} />

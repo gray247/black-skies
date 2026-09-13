@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "BlackSkiesStoryIntelligence v1",
+  "projectId": "proj_carmilla_baseline",
+  "revision": 2,
+  "settings": {
+    "signalPosture": "ask-only",
+    "projectPosture": "develop",
+    "analysisPolicy": {
+      "schemaVersion": 1,
+      "signalPosture": "ask-only",
+      "projectPosture": "develop",
+      "deterministicEnabled": true,
+      "optionalInferenceEnabled": false,
+      "readerEffectLaneEnabled": false,
+      "allowedSourceClasses": [
+        "included",
+        "deterministic-only",
+        "local-only"
+      ],
+      "excludedSourceClasses": [
+        "hidden",
+        "masked",
+        "deleted",
+        "forgotten",
+        "discarded",
+        "protected",
+        "ai-excluded"
+      ],
+      "selectedScopePolicy": "author-selected",
+      "retentionPolicy": "metadata-only-bounded",
+      "updatedAt": "2026-09-10T21:46:46.652Z"
+    }
+  },
+  "unitPolicies": [],
+  "authorRecords": [
+    {
+      "recordId": "story-knowledge-record:ba8a43d9-0325-443e-9a3a-4a91c4780993",
+      "projectId": "proj_carmilla_baseline",
+      "unitId": "carmilla-prologue",
+      "evidenceClass": "observed",
+      "label": "happy",
+      "recordKind": "emotion-graph",
+      "intensityBand": "medium",
+      "emotionLane": "observed",
+      "emotionIntensity": "medium",
+      "currentness": "current",
+      "positionRefs": [
+        {
+          "projectId": "proj_carmilla_baseline",
+          "sourceKind": "manuscript",
+          "sourceId": "carmilla-prologue",
+          "sourceRevision": 1,
+          "sourceFingerprint": "f552a060c068f799c577db601fa283ba0310b23ff00e34b6faa0a72ef8bbaa9e",
+          "unitId": "carmilla-prologue",
+          "orderIndex": 1,
+          "orderBasis": "manuscript"
+        }
+      ],
+      "provenance": {
+        "sourceOwner": "Author-entered Emotion Graph point",
+        "origin": "author",
+        "visibility": "included",
+        "citationRequired": true,
+        "protectionClass": "included"
+      },
+      "createdAt": "2026-09-10T22:00:40.781Z",
+      "updatedAt": "2026-09-10T22:00:40.781Z"
+    },
+    {
+      "recordId": "story-knowledge-record:ca02b716-25a8-4ff8-b29d-e675fb7c8794",
+      "projectId": "proj_carmilla_baseline",
+      "unitId": "carmilla-chapter-10",
+      "evidenceClass": "observed",
+      "label": "sad",
+      "recordKind": "emotion-graph",
+      "intensityBand": "very-high",
+      "emotionLane": "observed",
+      "emotionIntensity": "very-high",
+      "currentness": "current",
+      "positionRefs": [
+        {
+          "projectId": "proj_carmilla_baseline",
+          "sourceKind": "manuscript",
+          "sourceId": "carmilla-chapter-10",
+          "sourceRevision": 1,
+          "sourceFingerprint": "ffd7f7e4e1865e086e02da5a7b4c073387a0fbb3186fa9ef0227e607e563af65",
+          "unitId": "carmilla-chapter-10",
+          "orderIndex": 11,
+          "orderBasis": "manuscript"
+        }
+      ],
+      "provenance": {
+        "sourceOwner": "Author-entered Emotion Graph point",
+        "origin": "author",
+        "visibility": "included",
+        "citationRequired": true,
+        "protectionClass": "included"
+      },
+      "createdAt": "2026-09-10T22:02:52.200Z",
+      "updatedAt": "2026-09-10T22:02:52.200Z"
+    }
+  ],
+  "durableSignals": [],
+  "dispositions": [],
+  "history": [
+    {
+      "eventId": "story-knowledge-record-history:326bb391-f170-4ef9-9c65-ae4e1835e6c7",
+      "projectId": "proj_carmilla_baseline",
+      "eventType": "author-record-created",
+      "subjectId": "story-knowledge-record:ba8a43d9-0325-443e-9a3a-4a91c4780993",
+      "sourceRevision": 1,
+      "currentness": "current",
+      "evidenceClass": "observed",
+      "actor": "author",
+      "provenanceRef": "Author-entered Emotion Graph point",
+      "createdAt": "2026-09-10T22:00:40.781Z"
+    },
+    {
+      "eventId": "story-knowledge-record-history:5bd6a8d5-42d7-4a29-8ae7-25e0c1d55374",
+      "projectId": "proj_carmilla_baseline",
+      "eventType": "author-record-created",
+      "subjectId": "story-knowledge-record:ca02b716-25a8-4ff8-b29d-e675fb7c8794",
+      "sourceRevision": 1,
+      "currentness": "current",
+      "evidenceClass": "observed",
+      "actor": "author",
+      "provenanceRef": "Author-entered Emotion Graph point",
+      "createdAt": "2026-09-10T22:02:52.200Z"
+    }
+  ],
+  "updatedAt": "2026-09-10T22:02:52.210Z"
+}

@@ -43,7 +43,7 @@ import type { Program7HistoryProjectionV1 } from '../shared/program7History';
 import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 import Program6StoryKnowledgeWorkspace, { type StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
-import Program7CreateDevelopWorkspace from './components/program7/Program7CreateDevelopWorkspace';
+import Program7CreateDevelopWorkspace, { type Program7CreateDevelopSection } from './components/program7/Program7CreateDevelopWorkspace';
 import RevisionDesk from './components/program7/RevisionDesk';
 import RevisionComparison from './components/program7/RevisionComparison';
 import StoryFoundation, { type StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
@@ -156,6 +156,7 @@ export interface Stage19WritingSpineViewModel {
   readonly program7RevisionDrawerOpen: boolean;
   readonly program7CandidatePurpose: string;
   readonly program7CandidateText: string;
+  readonly program7LocalAiRequestId: string | null;
   readonly program7Notice: string | null;
   readonly feedbackNotesAvailable: boolean;
   readonly feedbackNoteBody: string;
@@ -351,6 +352,7 @@ export interface Stage19WritingSpineViewActions {
   readonly setProgram7CandidateText: (value: string) => void;
   readonly createProgram7ManualCandidate: () => MaybeAsync;
   readonly createProgram7LocalAiCandidate: () => MaybeAsync;
+  readonly cancelProgram7LocalAiCandidate: () => MaybeAsync;
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
   readonly closeProgram7Candidate: () => void;
   readonly saveProgram7CandidateEdit: (candidate: RevisionCandidateV1, editedCandidateText: string) => MaybeAsync;
@@ -639,6 +641,7 @@ function ReviewWorkspaceView({ model, actions }: Stage19WritingSpineViewProps): 
 function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const candidates = model.program7Candidates?.document.candidates ?? [];
   const canWrite = model.windowRole === 'writing';
+  const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>('revision-desk');
   const revisionDesk = (
     <>
       <RevisionDesk
@@ -646,14 +649,20 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         historyItems={model.program7RevisionItems.historyItems}
         availability={model.program7RevisionItems.availability}
         unavailableMessage={model.program7RevisionItems.notice}
+        canResolve={canWrite}
         onReturnToSource={(item) => void actions.returnProgram7RevisionItemToSource(item)}
         onLifecycle={canWrite ? (item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle) : undefined}
         onRecheck={canWrite ? (item, method) => void actions.recheckProgram7RevisionItem(item, method) : undefined}
+        onOpenRecurrence={(_item, recurrenceId) => {
+          const recurrence = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems)
+            .find((candidate) => candidate.id === recurrenceId);
+          if (recurrence) void actions.returnProgram7RevisionItemToSource(recurrence);
+        }}
       />
       <section className="program7-revision-capture" aria-labelledby="program7-revision-capture-heading">
         <header>
-          <h2 id="program7-revision-capture-heading">Capture a revision candidate</h2>
-          <p>Write the intended change in your own words. Nothing becomes manuscript text until you explicitly accept it.</p>
+          <h2 id="program7-revision-capture-heading">Draft a revision alternative</h2>
+          <p>Try the change in your own words. Your manuscript stays untouched until you explicitly accept text.</p>
         </header>
         <label htmlFor="program7-candidate-purpose">Purpose</label>
         <input
@@ -664,27 +673,31 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           maxLength={1000}
           disabled={!canWrite}
         />
-        <label htmlFor="program7-candidate-text">Candidate text</label>
+        <label htmlFor="program7-candidate-text">Proposed text</label>
         <textarea
           id="program7-candidate-text"
           value={model.program7CandidateText}
           onChange={(event) => actions.setProgram7CandidateText(event.target.value)}
-          placeholder="Enter a proposed revision, not a command to change the manuscript."
+          placeholder="Write the version you want to compare with the manuscript."
           maxLength={6000}
           rows={8}
           disabled={!canWrite}
         />
         <div className="program7-revision-capture__actions">
-          <button type="button" onClick={() => void actions.createProgram7ManualCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim() || !model.program7CandidateText.trim()}>Save manual candidate</button>
-          <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim()}>Ask local AI for a candidate</button>
+          <button type="button" onClick={() => void actions.createProgram7ManualCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim() || !model.program7CandidateText.trim()}>Save alternative</button>
+          {model.program7LocalAiRequestId ? (
+            <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
+          ) : (
+            <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim()}>Ask local AI for an alternative</button>
+          )}
         </div>
       </section>
       {model.program7Notice ? <p className="program7-revision-capture__notice" role="status">{model.program7Notice}</p> : null}
       {candidates.length > 0 ? (
         <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
           <header>
-            <h2 id="program7-revision-candidates-heading">Revision candidates</h2>
-            <p>Candidate document revision {model.program7Candidates?.document.revision ?? 0}. Candidates remain separate from manuscript truth.</p>
+            <h2 id="program7-revision-candidates-heading">Revision alternatives</h2>
+            <p>These alternatives stay separate from your manuscript until you accept one.</p>
           </header>
           {candidates.map((candidate) => (
             <article key={candidate.id} className="program7-revision-candidates__item">
@@ -736,9 +749,23 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           if (candidate) void actions.returnProgram7CandidateToSource(candidate);
         }
       }}
+      onOpenRecurrence={(_item, recurrenceReference) => {
+        if (recurrenceReference.startsWith('idea-branch:')) {
+          const branchId = recurrenceReference.slice('idea-branch:'.length);
+          setActiveSection('ideas');
+          requestAnimationFrame(() => document.getElementById(`idea-branch-${branchId}`)?.focus());
+          return;
+        }
+        const revisionId = recurrenceReference.startsWith('feedback-note:')
+          ? recurrenceReference.slice('feedback-note:'.length)
+          : recurrenceReference;
+        const recurrence = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems)
+          .find((candidate) => candidate.id === revisionId);
+        if (recurrence) void actions.returnProgram7RevisionItemToSource(recurrence);
+      }}
     />
   );
-  return <Program7CreateDevelopWorkspace revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
+  return <Program7CreateDevelopWorkspace activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
 }
 
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {

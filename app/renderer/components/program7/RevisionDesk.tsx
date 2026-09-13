@@ -31,8 +31,18 @@ function sourceStatus(item: RevisionItem): string {
 
 function sourceDescription(item: RevisionItem): string {
   const kind = item.sourceKind ?? 'unknown source';
-  const id = item.sourceId ?? item.sourceFindingId ?? 'unidentified';
-  return `${kind}/${id}`;
+  if (kind === 'manuscript' || kind === 'story-unit') return 'Linked manuscript passage';
+  if (kind === 'outline') return 'Linked outline point';
+  if (kind === 'author-intent') return 'Linked Story Foundation answer';
+  return 'Linked project source';
+}
+
+function originDescription(item: RevisionItem): string {
+  return item.provenance?.origin === 'local-ai' ? 'Local AI' : 'Author or review finding';
+}
+
+function dispositionLabel(lifecycle: FeedbackRevisionDisposition): string {
+  return lifecycle === 'parked' ? 'Park' : lifecycle === 'dismissed' ? 'Dismiss' : 'Abandon';
 }
 
 function safeBody(item: RevisionItem): JSX.Element {
@@ -90,16 +100,16 @@ function RevisionCard({
     >
       <header className="program7-revision-desk__card-header">
         <div>
-          <h3>{item.id}</h3>
-          <p>{item.lens ?? 'Revision item'}</p>
+          <h3>{item.lens ?? 'Revision item'}</h3>
+          <p>{sourceDescription(item)}</p>
         </div>
         <span>{history ? item.lifecycle : sourceStatus(item)}</span>
       </header>
       <dl className="program7-revision-desk__metadata">
         <div><dt>Source</dt><dd>{sourceDescription(item)}</dd></div>
-        <div><dt>Unit</dt><dd>{item.unitId}</dd></div>
-        <div><dt>Origin</dt><dd>{item.provenance?.origin ?? 'author'}</dd></div>
-        <div><dt>Protection</dt><dd>{item.protection?.protected ? 'Protected · metadata only' : 'Ordinary'}</dd></div>
+        <div><dt>Location</dt><dd>Writing section</dd></div>
+        <div><dt>Created by</dt><dd>{originDescription(item)}</dd></div>
+        <div><dt>Content access</dt><dd>{item.protection?.protected ? 'Protected · details hidden' : 'Standard'}</dd></div>
       </dl>
       <p className="program7-revision-desk__body">{safeBody(item)}</p>
       {item.evidence ? (
@@ -108,7 +118,7 @@ function RevisionCard({
         </p>
       ) : null}
       <RecheckList rechecks={item.rechecks} />
-      {recurrenceId ? (
+      {recurrenceId && onOpenRecurrence ? (
         <p>
           <button type="button" onClick={() => onOpenRecurrence?.(item, recurrenceId)}>
             Open related recurrence
@@ -127,7 +137,7 @@ function RevisionCard({
         ) : null}
         {!history && onLifecycle ? dispositionActions.map((lifecycle) => (
           <button key={lifecycle} type="button" onClick={() => onLifecycle(item, lifecycle)}>
-            {lifecycle.replace(/_/gu, ' ')}
+            {dispositionLabel(lifecycle)}
           </button>
         )) : null}
         {!history ? (
@@ -140,9 +150,9 @@ function RevisionCard({
                 if (canResolve) onLifecycle?.(item, 'resolved');
               }}
             >
-              Resolve (Jason only)
+              Mark resolved
             </button>
-            <small id={`${item.id}-resolution-note`}>Only Jason can resolve this revision item.</small>
+            <small id={`${item.id}-resolution-note`}>Only you can decide whether this revision is resolved.</small>
           </>
         ) : null}
       </div>
@@ -169,7 +179,7 @@ function ItemSection({
       <h2 id={`${title.toLowerCase().replace(/\s+/gu, '-')}-heading`}>{title}</h2>
       {items.length === 0 ? (
         <p data-testid={`revision-desk-empty-${cardProps.history ? 'history' : 'active'}`}>
-          {cardProps.history ? 'No resolved revision history.' : 'No active revision items.'}
+          {cardProps.history ? 'No completed revision tasks yet.' : 'No active revision tasks.'}
         </p>
       ) : (
         <div className="program7-revision-desk__cards">
@@ -195,7 +205,7 @@ export default function RevisionDesk({
     <section className="program7-revision-desk" aria-labelledby="program7-revision-desk-heading">
       <header>
         <h1 id="program7-revision-desk-heading">Revision Desk</h1>
-        <p>Review source-linked revision items. Nothing here changes manuscript text automatically.</p>
+        <p>Review source-linked revision tasks. Nothing here changes your manuscript automatically.</p>
       </header>
       {availability === 'degraded' ? (
         <p role="alert" data-testid="revision-desk-degraded">
@@ -203,7 +213,7 @@ export default function RevisionDesk({
         </p>
       ) : null}
       <ItemSection
-        title="Active revision items"
+        title="Active revision tasks"
         items={activeItems}
         history={false}
         canResolve={canResolve}
@@ -213,7 +223,7 @@ export default function RevisionDesk({
         onOpenRecurrence={onOpenRecurrence}
       />
       <ItemSection
-        title="Resolved history"
+        title="Completed revision tasks"
         items={historyItems}
         history
         canResolve={canResolve}

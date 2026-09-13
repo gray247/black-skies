@@ -7,6 +7,7 @@ export const REVISION_CANDIDATE_CHANNELS = {
   list: 'revision-candidates:list',
   createManual: 'revision-candidates:create-manual',
   createLocalAi: 'revision-candidates:create-local-ai',
+  cancelLocalAi: 'revision-candidates:cancel-local-ai',
   edit: 'revision-candidates:edit',
   setLifecycle: 'revision-candidates:set-lifecycle',
 } as const;
@@ -124,6 +125,14 @@ export interface CreateLocalAiRevisionCandidateRequest extends RevisionCandidate
   readonly sourceAnchor?: RevisionCandidateSourceAnchorV1 | null;
 }
 
+export interface CancelLocalAiRevisionCandidateRequest extends RevisionCandidateProjectBinding {
+  readonly requestId: string;
+}
+
+export type CancelLocalAiRevisionCandidateResult =
+  | { readonly ok: true; readonly data: { readonly requestId: string; readonly cancellationRequested: true } }
+  | { readonly ok: false; readonly error: RevisionCandidateError };
+
 export interface EditRevisionCandidateRequest extends RevisionCandidateProjectBinding {
   readonly expectedRevision: number;
   readonly candidateId: string;
@@ -179,6 +188,7 @@ export interface RevisionCandidatesBridge {
   list(request: ListRevisionCandidatesRequest): Promise<RevisionCandidateResult>;
   createManual(request: CreateManualRevisionCandidateRequest): Promise<RevisionCandidateResult>;
   createLocalAi(request: CreateLocalAiRevisionCandidateRequest): Promise<RevisionCandidateResult>;
+  cancelLocalAi(request: CancelLocalAiRevisionCandidateRequest): Promise<CancelLocalAiRevisionCandidateResult>;
   edit(request: EditRevisionCandidateRequest): Promise<RevisionCandidateResult>;
   setLifecycle(request: SetRevisionCandidateLifecycleRequest): Promise<RevisionCandidateResult>;
 }
