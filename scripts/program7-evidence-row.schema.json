@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://black-skies.local/schemas/program7-evidence-row.v1.json",
+  "title": "Black Skies Program 7 evidence row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evidenceId", "exactCommit", "package", "evidenceClass", "executionMode", "precommitTreeHash", "environment", "corpus", "preconditions", "action", "expected", "observed", "artifacts", "result", "reviewer", "authoritySensitive", "genuinelySubjective", "limitations", "freshness", "humanReview", "disposition"],
+  "properties": {
+    "evidenceId": { "type": "string", "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$" },
+    "exactCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "package": { "type": "string", "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$" },
+    "evidenceClass": { "type": "string", "enum": ["contract", "fixture", "component", "runtime", "live-local", "manual"] },
+    "executionMode": { "type": "string", "enum": ["real-cold", "real-warm", "fault-a", "fault-b", "not-applicable"] },
+    "precommitTreeHash": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|not-applicable)$" },
+    "environment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["os", "appMode", "window", "theme", "zoom", "runtime"],
+      "properties": {
+        "os": { "type": "string", "minLength": 1 },
+        "appMode": { "type": "string", "minLength": 1 },
+        "window": { "type": "string", "minLength": 1 },
+        "theme": { "type": "string", "enum": ["dark", "light"] },
+        "zoom": { "type": "integer", "minimum": 1 },
+        "runtime": { "type": "string", "minLength": 1 }
+      }
+    },
+    "corpus": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "sha256"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^(?:[0-9a-f]{64}|not-applicable)$" }
+      }
+    },
+    "preconditions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "action": { "type": "string", "minLength": 1 },
+    "expected": { "type": "string", "minLength": 1 },
+    "observed": { "type": "string", "minLength": 1 },
+    "artifacts": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "sha256", "containsProtectedContent"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "containsProtectedContent": { "const": false }
+        }
+      }
+    },
+    "result": { "type": "string", "enum": ["Pass", "Fail", "Uncertain"] },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "authoritySensitive": { "type": "boolean" },
+    "genuinelySubjective": { "type": "boolean" },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "freshness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["capturedAt", "invalidatedBy"],
+      "properties": {
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "invalidatedBy": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "humanReview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "basis", "status", "note"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "basis": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "enum": ["pending", "pass", "fail", "not-required"] },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "disposition": { "type": "string", "enum": ["repair", "exception", "defer", "closure", "pending"] }
+  }
+}

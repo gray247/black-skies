@@ -89,7 +89,10 @@ import type {
 } from '../shared/ipc/program7Promotion.js';
 import type { StoryFoundationQuestionId } from '../shared/ipc/storyFoundation.js';
 import { createProgram7LocalInferenceService } from './program7LocalInferenceService.js';
-import { OllamaLocalInferenceTransport } from './ollamaLocalInferenceTransport.js';
+import {
+  OllamaLocalInferenceTransport,
+  OllamaLocalInferenceTransportError,
+} from './ollamaLocalInferenceTransport.js';
 import { registerManuscriptStructureIpc } from './manuscriptStructureIpc.js';
 import {
   getCritiqueReviewSurfaceState,
@@ -182,8 +185,18 @@ const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );
+const program7LocalInferenceTransport = process.env.BLACKSKIES_DISABLE_LOCAL_AI === '1'
+  ? {
+      request: async () => {
+        throw new OllamaLocalInferenceTransportError(
+          'UNAVAILABLE',
+          'Local AI is disabled by the qualification policy.',
+        );
+      },
+    }
+  : new OllamaLocalInferenceTransport();
 const program7LocalInferenceService = createProgram7LocalInferenceService({
-  transport: new OllamaLocalInferenceTransport(),
+  transport: program7LocalInferenceTransport,
 });
 const projectSpineOriginSessionId = randomUUID();
 const dedicatedStage19HostEnabled = shouldEnableDedicatedStage19Host(

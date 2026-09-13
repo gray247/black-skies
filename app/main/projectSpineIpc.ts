@@ -393,7 +393,11 @@ function extractDraftBody(markdown: string): string {
   if (closingIndex < 0) {
     return markdown;
   }
-  return lines.slice(closingIndex + 2).join('\n');
+  return lines
+    .slice(closingIndex + 2)
+    .join('\n')
+    .replace(/^(?:\n)+/u, '')
+    .replace(/\n+$/u, '');
 }
 
 function normalizeLineEndings(value: string): string {
@@ -414,7 +418,8 @@ function replaceDurableBody(markdown: string, body: string): string {
   if (lines[0]?.trim() !== '---') return normalizeLineEndings(body);
   const closingIndex = lines.slice(1).findIndex((line) => line.trim() === '---');
   if (closingIndex < 0) return normalizeLineEndings(body);
-  return `${lines.slice(0, closingIndex + 2).join('\n')}\n${normalizeLineEndings(body)}`;
+  const normalizedBody = normalizeLineEndings(body).replace(/^(?:\n)+/u, '').replace(/\n+$/u, '');
+  return `${lines.slice(0, closingIndex + 2).join('\n')}\n${normalizedBody}\n`;
 }
 
 function submittedProseForDurableBody(body: string): string {

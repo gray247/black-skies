@@ -11,6 +11,7 @@ import { killElectronProcessTree, waitForProcessIdsToExit } from './stage19-elec
 
 type Fixtures = {
   splitCommandRuntimeConfig: boolean;
+  disableLocalAi: boolean;
   skipPageCloseTeardown: boolean;
   skipFailureScreenshotAfterVerifiedExit: boolean;
   electronApp: ElectronApplication;
@@ -37,6 +38,7 @@ type ElectronLaunchContext = {
     BLACKSKIES_ENABLE_HARNESS_HOOKS?: string;
     BLACKSKIES_VISUAL_STABLE?: string;
     BLACKSKIES_CONFIG_PATH?: string;
+    BLACKSKIES_DISABLE_LOCAL_AI?: string;
   };
   getProcessState: () => {
     pid: number | null;
@@ -393,10 +395,11 @@ async function closeElectronApplicationSafely(
 
 export const test = base.extend<Fixtures>({
   splitCommandRuntimeConfig: [false, { option: true }],
+  disableLocalAi: [false, { option: true }],
   skipPageCloseTeardown: [false, { option: true }],
   skipFailureScreenshotAfterVerifiedExit: [false, { option: true }],
 
-  electronApp: async ({ splitCommandRuntimeConfig }, use, testInfo) => {
+  electronApp: async ({ splitCommandRuntimeConfig, disableLocalAi }, use, testInfo) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const repoRoot = path.resolve(appDir, '..');
@@ -449,6 +452,7 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_E2E_PORT: String(servicePort),
       BLACKSKIES_E2E_MODE: '1',
       BLACKSKIES_CONFIG_PATH: runtimeConfigPath,
+      ...(disableLocalAi ? { BLACKSKIES_DISABLE_LOCAL_AI: '1' } : {}),
       ...(path.basename(testInfo.file) === 'stage19-program3-performance.spec.ts'
         ? { STAGE19_INTERNAL_STARTUP_PROBE: '1' }
         : {}),
@@ -526,6 +530,7 @@ export const test = base.extend<Fixtures>({
         BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
         BLACKSKIES_VISUAL_STABLE: launchEnv.BLACKSKIES_VISUAL_STABLE,
         BLACKSKIES_CONFIG_PATH: launchEnv.BLACKSKIES_CONFIG_PATH,
+        BLACKSKIES_DISABLE_LOCAL_AI: launchEnv.BLACKSKIES_DISABLE_LOCAL_AI,
       },
       getProcessState: () => ({
         pid: appProcess?.pid ?? null,

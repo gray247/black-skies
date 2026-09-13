@@ -826,7 +826,18 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           <Program7CreateDevelopView model={model} actions={actions} />
         ) : model.commandWorkspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
           <Program6StoryKnowledgeWorkspace
-            project={snapshot.project}
+            // The command projection intentionally omits prose. When Story
+            // Knowledge is rendered inside the Writing Studio window, use the
+            // authoritative editor buffers for the exact source-bound handoff.
+            // Unit metrics and Story Intelligence use the durable LF body,
+            // which includes its terminal newline; preserve that boundary here.
+            project={{
+              ...snapshot.project,
+              drafts: Object.fromEntries(Object.entries(model.buffers).map(([unitId, body]) => [
+                unitId,
+                `${body.replace(/^(?:\n)+/u, '').replace(/\n+$/u, '')}\n`,
+              ])),
+            }}
             generation={snapshot.generation}
             document={model.storyIntelligenceDocument}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}

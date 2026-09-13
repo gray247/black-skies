@@ -222,7 +222,7 @@ function durableBody(markdown: string): string {
   if (!markdown.startsWith('---')) return markdown;
   const closing = markdown.indexOf('\n---', 3);
   if (closing < 0) return markdown;
-  return markdown.slice(closing + 4).replace(/^\r?\n/u, '');
+  return markdown.slice(closing + 4).replace(/^(?:\r?\n)+/u, '').replace(/\n+$/u, '');
 }
 
 function bodyHash(value: string): string {
@@ -238,7 +238,8 @@ function activeUnitBody(
   const body = normalizeManuscriptSource(durableBody(draft));
   const hash = bodyHash(body);
   const metric = snapshot.project?.unitMetrics?.[unitId]?.bodySha256;
-  if (metric !== undefined && metric !== hash) return null;
+  const framedHash = bodyHash(`${body}\n`);
+  if (metric !== undefined && metric !== hash && metric !== framedHash) return null;
   return { body, hash };
 }
 

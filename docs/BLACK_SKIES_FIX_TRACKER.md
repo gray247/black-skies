@@ -26,6 +26,32 @@ use `BLACKSKIES_DISABLE_GPU=1`; the worktree was clean and RC-eligible at gate
 completion. No Human Gate 4 acceptance, local-AI admission, or Program 7 closure
 is claimed until Jason completes the human review.
 
+## Program 7 qualification implementation pass — 2026-09-13
+
+The previously blocked host boundary was repaired without changing the
+qualification contract. Ollama 0.13.0 is serving on loopback, `qwen3:4b` is
+available with digest
+`359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`, and the
+bounded RT-2B runner records rewrite, recheck, and premise operations plus
+protected, cancellation, timeout, unavailable, invalid-response, and truth-
+mutation controls. The first real run exposed Qwen3 reasoning output being
+returned in Ollama's `thinking` field; the transport now explicitly disables
+reasoning for the closed JSON contract and the focused transport/service tests
+pass.
+
+A disposable Carmilla review copy now seeds one current source-linked finding
+without mutating the baseline. Four P7-G2 Electron suites exist and pass on
+the outer host with normal GPU operation: Create / Develop, no-AI revision and
+acceptance, local-AI-disabled fail-closed behavior, and 17-unit long-form
+surface coverage. Source-bound candidate hashing now uses one canonical body
+boundary across renderer, IPC, and narrative acceptance; ordinary acceptance
+persists the durable draft and preserves candidate provenance.
+
+The evidence schema and validator are present, but no exact-commit evidence
+ledger, closure report, or exhaustive independent precheck has been completed
+yet. Human Gate 4 remains blocked; no local-AI admission or Program 7 closure
+is claimed.
+
 ## Program 7 Human Gate 4 precheck — blocked on required human/runtime inputs — 2026-09-13
 
 The automated gate is complete, but Human Gate 4 cannot be claimed. The

@@ -170,7 +170,7 @@ function splitDraft(markdown: string): DraftEnvelope {
     return { header: '', body: normalized };
   }
   const closingIndex = closingOffset + 1;
-  const framedBody = lines.slice(closingIndex + 1).join('\n');
+  const framedBody = lines.slice(closingIndex + 1).join('\n').replace(/^(?:\n)+/u, '');
   return {
     header: `${lines.slice(0, closingIndex + 1).join('\n')}\n`,
     body: framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody,

@@ -66,6 +66,10 @@ describe('Ollama local inference transport', () => {
       signal: controller.signal,
       body: expect.stringContaining('qwen3:4b'),
     });
+    expect(JSON.parse(String(fetchMock.mock.calls[2]![1]?.body))).toMatchObject({
+      format: 'json',
+      think: false,
+    });
     expect(fetchMock.mock.calls[2]![1]?.body).toEqual(expect.stringContaining('request-1'));
     expect(result.payload).toEqual({
       status: 'candidate',
