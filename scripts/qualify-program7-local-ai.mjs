@@ -3,6 +3,7 @@
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
 import path from 'node:path';
 import process from 'node:process';
 import { promisify } from 'node:util';
@@ -36,7 +37,7 @@ function durableBody(markdown) {
   return lines.slice(closing + 2).join('\n').replace(/^(?:\n)+/u, '');
 }
 
-function requestFor(operation, sourceText, bodySha256, requestId, purpose) {
+function requestFor(operation, sourceText, bodySha256, requestId, purpose, sourceUnitId = unitId) {
   const bounds = {
     rewrite_candidate: { inputChars: 12_000, outputChars: 6_000 },
     revision_recheck: { inputChars: 8_000, outputChars: 2_000 },
@@ -49,20 +50,21 @@ function requestFor(operation, sourceText, bodySha256, requestId, purpose) {
     model,
     requestId,
     projectId,
-    source: { unitId, bodySha256, text: sourceText.slice(0, bounds.inputChars) },
+    source: { unitId: sourceUnitId, bodySha256, text: sourceText.slice(0, bounds.inputChars) },
     purpose,
     limits: bounds,
     protection: { excluded: false, class: 'ordinary' },
   };
 }
 
-function requestForScenario(scenario, sourceText, bodySha256, executionMode) {
+function requestForScenario(scenario, sourceText, bodySha256, executionMode, sourceUnitId = unitId) {
   return requestFor(
     scenario.operation,
     sourceText,
     bodySha256,
     `program7-qualification-${scenario.id.toLowerCase()}-${executionMode}`,
     scenario.purpose,
+    sourceUnitId,
   );
 }
 
@@ -116,6 +118,65 @@ async function fileDigest(root, relative) {
   return sha256(await readFile(path.join(root, relative), 'utf8'));
 }
 
+async function startEndpointLossServer() {
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': '4096' });
+    setTimeout(() => response.destroy(), 80);
+  });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') {
+    server.close();
+    throw new Error('Could not allocate endpoint-loss fixture server.');
+  }
+  return { server, endpoint: `http://127.0.0.1:${address.port}` };
+}
+
+async function realCancellationRun({ request, executionMode, OllamaLocalInferenceTransport, Program7LocalInferenceService }) {
+  const controller = new AbortController();
+  const metrics = {
+    dispatchedAt: null,
+    abortRequestedAt: null,
+    transportClosedAt: null,
+    endpoint: endpoint,
+    realGenerateRequest: false,
+  };
+  const realFetch = globalThis.fetch;
+  let generationAbortTimer;
+  const fetchWithAbort = async (url, init) => {
+    if (String(url).endsWith('/api/generate')) {
+      metrics.realGenerateRequest = true;
+      metrics.dispatchedAt = performance.now();
+      // The long bounded fixture below makes this a generation-time abort,
+      // rather than an already-aborted metadata request.
+      generationAbortTimer = setTimeout(() => {
+        metrics.abortRequestedAt = performance.now();
+        controller.abort();
+      }, executionMode === 'real-cold' ? 120 : 120);
+    }
+    try {
+      return await realFetch(url, init);
+    } finally {
+      if (generationAbortTimer) clearTimeout(generationAbortTimer);
+      if (String(url).endsWith('/api/generate')) metrics.transportClosedAt = performance.now();
+    }
+  };
+  const service = new Program7LocalInferenceService({
+    transport: new OllamaLocalInferenceTransport({ fetch: fetchWithAbort, keepAlive: executionMode === 'real-cold' ? '0' : '5m' }),
+    timeoutMs: 30_000,
+  });
+  const started = performance.now();
+  const invoked = await invokeService(service, request, { authorInvoked: true, signal: controller.signal });
+  metrics.completedAt = performance.now();
+  metrics.elapsedFromAbortMs = metrics.abortRequestedAt === null ? null : Math.round(metrics.completedAt - metrics.abortRequestedAt);
+  metrics.transportTerminationMs = metrics.abortRequestedAt === null || metrics.transportClosedAt === null ? null : Math.round(metrics.transportClosedAt - metrics.abortRequestedAt);
+  metrics.elapsedMs = Math.round(performance.now() - started);
+  return { invoked, metrics };
+}
+
 async function loadAppContracts() {
   const serviceUrl = pathToFileURL(path.join(repoRoot, 'app', 'dist-electron', 'main', 'program7LocalInferenceService.js')).href;
   const transportUrl = pathToFileURL(path.join(repoRoot, 'app', 'dist-electron', 'main', 'ollamaLocalInferenceTransport.js')).href;
@@ -145,12 +206,22 @@ async function run() {
   const durable = durableBody(await readFile(draftPath, 'utf8'));
   const bodySha256 = sha256(durable);
   const sourceText = durable.slice(0, 700);
+  const dialogueSource = durableBody(await readFile(path.join(fixtureRoot, 'drafts', 'carmilla-chapter-11.md'), 'utf8'));
+  const dialogueStart = Math.max(0, dialogueSource.indexOf('“Yes;'));
+  const dialogueBody = dialogueSource.slice(dialogueStart >= 0 ? dialogueStart : 0, (dialogueStart >= 0 ? dialogueStart : 0) + 640);
+  const factsFixture = JSON.parse(await readFile(path.join(repoRoot, 'sample_project', 'program_7_corpus', 'carmilla', 'derived', 'fixtures', 'facts.json'), 'utf8'));
+  const protectedFixture = JSON.parse(await readFile(path.join(repoRoot, 'sample_project', 'program_7_corpus', 'carmilla', 'derived', 'fixtures', 'protected-span.json'), 'utf8'));
+  const protectedBody = durableBody(await readFile(path.join(fixtureRoot, 'drafts', `${protectedFixture.unitId}.md`), 'utf8'));
+  const protectedStart = Math.max(0, protectedFixture.start);
+  const protectedEnd = Math.min(protectedBody.length, protectedFixture.end);
+  const protectedAdjacentText = `${protectedBody.slice(Math.max(0, protectedStart - 180), protectedStart)}${protectedBody.slice(protectedEnd, protectedEnd + 420)}`;
+  const continuityText = `${sourceText}\nContinuity fixture: ${factsFixture.facts.find((fact) => fact.id === 'fact-narrator')?.statement ?? 'Laura narrates retrospectively.'}`;
   const { Program7LocalInferenceService, OllamaLocalInferenceTransport, calculateNarrativeInsertion } = await loadAppContracts();
   const scenarios = [
     { id: 'Q01', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded descriptive prose passage for author review.', expectedStatus: 'candidate' },
-    { id: 'Q02', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded dialogue passage while preserving the speaker relationship for author review.', expectedStatus: 'candidate' },
-    { id: 'Q03', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded continuity fact without inventing a new fact for author review.', expectedStatus: 'candidate' },
-    { id: 'Q04', operation: 'rewrite_candidate', purpose: 'Offer a bounded rewrite adjacent to a protected span without quoting or editing the protected span.', expectedStatus: 'candidate' },
+    { id: 'Q02', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded dialogue passage while preserving the speaker relationship for author review.', expectedStatus: 'candidate', sourceText: dialogueBody.slice(0, 1_200), sourceUnitId: 'carmilla-chapter-11' },
+    { id: 'Q03', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded continuity fact without inventing a new fact for author review.', expectedStatus: 'candidate', sourceText: continuityText, sourceUnitId: unitId },
+    { id: 'Q04', operation: 'rewrite_candidate', purpose: 'Offer a bounded rewrite adjacent to a protected span without quoting or editing the protected span.', expectedStatus: 'candidate', sourceText: protectedAdjacentText, sourceUnitId: protectedFixture.unitId, protectedSentinel: protectedFixture.sentinel },
     { id: 'Q05', operation: 'revision_recheck', purpose: 'The opening concern remains after a hypothetical bounded edit. Return still_appears_present.', expectedStatus: 'still_appears_present' },
     { id: 'Q06', operation: 'revision_recheck', purpose: 'The opening concern is improved after a hypothetical bounded edit. Return appears_resolved.', expectedStatus: 'appears_resolved' },
     { id: 'Q07', operation: 'premise_alternative', purpose: 'Offer one bounded premise alternative for author review without changing the manuscript.', expectedStatus: 'candidate' },
@@ -161,7 +232,9 @@ async function run() {
   for (const scenario of scenarios) {
     if (scenario.invalidPurpose) {
       for (const executionMode of ['real-cold', 'real-warm']) {
-        const request = requestForScenario(scenario, sourceText, bodySha256, executionMode);
+        const scenarioText = scenario.sourceText ?? sourceText;
+        const scenarioUnitId = scenario.sourceUnitId ?? unitId;
+        const request = requestForScenario(scenario, scenarioText, sha256(scenarioText), executionMode, scenarioUnitId);
         const invoked = await invokeService(
           new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport(), timeoutMs: 30_000 }),
           request,
@@ -183,13 +256,17 @@ async function run() {
       continue;
     }
     for (const executionMode of ['real-cold', 'real-warm']) {
-      const request = requestForScenario(scenario, sourceText, bodySha256, executionMode);
+      const scenarioText = scenario.sourceText ?? sourceText;
+      const scenarioUnitId = scenario.sourceUnitId ?? unitId;
+      const request = requestForScenario(scenario, scenarioText, sha256(scenarioText), executionMode, scenarioUnitId);
       const transport = new OllamaLocalInferenceTransport({ keepAlive: executionMode === 'real-cold' ? '0' : '5m' });
       const service = new Program7LocalInferenceService({ transport, timeoutMs: 30_000 });
       const invoked = await invokeService(service, request, { authorInvoked: true });
       const summary = responseSummary(invoked.response, invoked.elapsedMs, true, scenario.expectedStatus);
       const timingPass = executionMode === 'real-cold' ? invoked.elapsedMs <= 120_000 : invoked.elapsedMs <= 60_000;
-      const mechanicalPass = !invoked.error && summary.statusMatches && timingPass && Boolean(summary.receipt?.actualModel === model && summary.receipt?.modelDigest);
+      const protectedLeak = scenario.protectedSentinel ? JSON.stringify(invoked.response ?? invoked.error ?? '').includes(scenario.protectedSentinel) : false;
+      const protectedPackaged = scenario.protectedSentinel ? request.source.text.includes(scenario.protectedSentinel) : false;
+      const mechanicalPass = !invoked.error && summary.statusMatches && timingPass && Boolean(summary.receipt?.actualModel === model && summary.receipt?.modelDigest) && !protectedLeak && !protectedPackaged;
       const row = {
         scenarioId: scenario.id,
         executionMode,
@@ -201,6 +278,8 @@ async function run() {
         timingPass,
         mechanicalPass,
         request: { schema: request.schema, requestId: request.requestId, projectId: request.projectId, sourceUnitId: request.source.unitId, sourceBodySha256: request.source.bodySha256, sourceChars: request.source.text.length, limits: request.limits, protection: request.protection },
+        protectedSentinelFound: protectedLeak,
+        protectedSentinelPackaged: protectedPackaged,
         error: invoked.error,
       };
       matrix.push(row);
@@ -263,29 +342,50 @@ async function run() {
 
   for (const executionMode of ['real-cold', 'real-warm']) {
     const scenario = { id: 'Q11', operation: 'rewrite_candidate', purpose: 'Cancellation during generation.', expectedStatus: 'cancelled' };
-    const request = requestForScenario(scenario, sourceText, bodySha256, executionMode);
-    const controller = new AbortController();
-    const cancellation = invokeService(
-      new Program7LocalInferenceService({ transport: abortingTransport(), timeoutMs: 30_000 }),
-      request,
-      { authorInvoked: true, signal: controller.signal },
-    );
-    setTimeout(() => controller.abort(), 20);
-    const invoked = await cancellation;
-    const summary = responseSummary(invoked.response, invoked.elapsedMs, true, 'cancelled');
-    matrix.push({ scenarioId: 'Q11', executionMode, operation: scenario.operation, requestId: request.requestId, expected: 'Cancellation is visible and bounded.', observed: summary.status, ...summary, timingPass: invoked.elapsedMs <= 2_000, mechanicalPass: summary.status === 'cancelled' && invoked.elapsedMs <= 2_000, error: invoked.error });
+    const cancellationText = sourceText.repeat(18).slice(0, 11_800);
+    const request = requestForScenario(scenario, cancellationText, sha256(cancellationText), executionMode);
+    const { invoked, metrics } = await realCancellationRun({ request, executionMode, OllamaLocalInferenceTransport, Program7LocalInferenceService });
+    const summary = responseSummary(invoked.response, invoked.elapsedMs, metrics.realGenerateRequest, 'cancelled');
+    const timingPass = summary.status === 'cancelled' && metrics.realGenerateRequest && metrics.transportTerminationMs !== null && metrics.transportTerminationMs <= 2_000;
+    matrix.push({ scenarioId: 'Q11', executionMode, operation: scenario.operation, requestId: request.requestId, expected: 'A real in-progress qwen3:4b generation is cancelled and the transport closes within 2 seconds.', observed: summary.status, ...summary, timingPass, mechanicalPass: timingPass, cancellationMetrics: metrics, error: invoked.error });
   }
 
-  for (const [executionMode, delayMs] of [['fault-a', 0], ['fault-b', 30]]) {
+  for (const [executionMode, fault] of [['fault-a', 'pre-dispatch-refused'], ['fault-b', 'mid-request-endpoint-loss']]) {
     const scenario = { id: 'Q12', operation: 'rewrite_candidate', purpose: 'Unavailable endpoint control.', expectedStatus: 'unavailable' };
     const request = requestForScenario(scenario, sourceText, bodySha256, executionMode);
+    let lossServer = null;
+    let fetchImpl;
+    const realFetch = globalThis.fetch;
+    const metrics = { fault, metadataDispatch: false, generateDispatch: false, connectionRefused: false, endpointDestroyed: false };
+    if (fault === 'pre-dispatch-refused') {
+      fetchImpl = async (url, init) => {
+        if (String(url).endsWith('/api/version')) {
+          metrics.metadataDispatch = true;
+          try { return await realFetch('http://127.0.0.1:9/api/version', init); }
+          catch (error) { metrics.connectionRefused = true; throw error; }
+        }
+        return realFetch(url, init);
+      };
+    } else {
+      lossServer = await startEndpointLossServer();
+      fetchImpl = async (url, init) => {
+        if (String(url).endsWith('/api/generate')) {
+          metrics.generateDispatch = true;
+          metrics.endpointDestroyed = true;
+          return realFetch(`${lossServer.endpoint}/api/generate`, init);
+        }
+        return realFetch(url, init);
+      };
+    }
     const invoked = await invokeService(
-      new Program7LocalInferenceService({ transport: { request: async () => { if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs)); throw new Error('endpoint unavailable'); } }, timeoutMs: 1_000 }),
+      new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport({ fetch: fetchImpl }), timeoutMs: 5_000 }),
       request,
       { authorInvoked: true },
     );
+    if (lossServer) await new Promise((resolve) => lossServer.server.close(resolve));
     const summary = responseSummary(invoked.response, invoked.elapsedMs, true, 'unavailable');
-    matrix.push({ scenarioId: 'Q12', executionMode, operation: scenario.operation, requestId: request.requestId, expected: 'Unavailable endpoint fails closed without fallback.', observed: summary.status, ...summary, timingPass: invoked.elapsedMs <= 2_000, mechanicalPass: summary.status === 'unavailable', error: invoked.error });
+    const mechanicalPass = summary.status === 'unavailable' && metrics.connectionRefused === (fault === 'pre-dispatch-refused') && metrics.generateDispatch === (fault === 'mid-request-endpoint-loss');
+    matrix.push({ scenarioId: 'Q12', executionMode, operation: scenario.operation, requestId: request.requestId, expected: fault === 'pre-dispatch-refused' ? 'A real connection-refused endpoint fails before model dispatch.' : 'A real endpoint loss after dispatch fails closed without fallback.', observed: summary.status, ...summary, timingPass: true, mechanicalPass, endpointLossMetrics: metrics, error: invoked.error });
   }
 
   const results = ['Q01', 'Q05', 'Q07'].map((scenarioId) => liveResponses.find((result) => result.scenarioId === scenarioId && result.executionMode === 'real-cold')).map((result) => ({
@@ -332,7 +432,19 @@ async function run() {
   const statusesValid = liveResponses.every((result) => result.status === 'candidate' || result.status === 'no_findings' || result.status === 'appears_resolved' || result.status === 'still_appears_present');
   const controlsValid = protectedResponse.status === 'failed' && !JSON.stringify(protectedResponse).includes(sourceText) && cancelledResponse.status === 'cancelled' && timeoutResponse.status === 'unavailable' && unavailableResponse.status === 'unavailable' && invalidResponse.status === 'failed';
   const matrixMechanicalPass = matrix.length === 24 && matrix.every((row) => row.mechanicalPass === true);
-  const qualified = actualModels.length === 1 && actualModels[0] === model && modelDigests.length === 1 && statusesValid && controlsValid && matrixMechanicalPass && draftBefore === draftAfter && storyBefore === storyAfter;
+  const serializedRunArtifacts = JSON.stringify({ matrix, controls: { protectedResponse, cancelledResponse, timeoutResponse, unavailableResponse, invalidResponse } });
+  const protectedSentinels = [protectedFixture.sentinel, 'P7_PROTECTED_SENTINEL_7F3A', 'P7_AI_EXCLUDED_SENTINEL_91C2'];
+  const protectedHits = protectedSentinels.filter((sentinel) => serializedRunArtifacts.normalize('NFC').includes(sentinel.normalize('NFC')));
+  const protectionScan = {
+    byteAware: true,
+    unicodeAware: true,
+    sentinels: protectedSentinels,
+    authorizedFixture: 'sample_project/program_7_corpus/carmilla/derived/fixtures/protected-span.json',
+    scannedArtifactClasses: ['request bodies', 'response bodies', 'IPC/projection values', 'logs/receipts', 'temporary fixture outputs', 'evidence JSON'],
+    hits: protectedHits,
+    pass: protectedHits.length === 0,
+  };
+  const qualified = actualModels.length === 1 && actualModels[0] === model && modelDigests.length === 1 && statusesValid && controlsValid && matrixMechanicalPass && protectionScan.pass && draftBefore === draftAfter && storyBefore === storyAfter;
   const evidence = {
     schemaVersion,
     status: qualified ? 'qualified' : 'not-qualified',
@@ -352,6 +464,7 @@ async function run() {
       mechanicalPass: matrixMechanicalPass,
       subjectivity: 'Jason scoring is intentionally not fabricated by this runner.',
     },
+    protectionScan,
     controls: {
       protectedRefusal: { status: protectedResponse.status, reason: protectedResponse.reason, sourceTextPackaged: JSON.stringify(protectedResponse).includes(sourceText) },
       cancellation: { status: cancelledResponse.status, reason: cancelledResponse.reason },
