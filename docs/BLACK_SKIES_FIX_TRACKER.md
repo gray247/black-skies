@@ -26,6 +26,22 @@ use `BLACKSKIES_DISABLE_GPU=1`; the worktree was clean and RC-eligible at gate
 completion. No Human Gate 4 acceptance, local-AI admission, or Program 7 closure
 is claimed until Jason completes the human review.
 
+## Program 7 Human Gate 4 precheck — blocked on required human/runtime inputs — 2026-09-13
+
+The automated gate is complete, but Human Gate 4 cannot be claimed. The
+checked-in Carmilla baseline has `durableSignals: []` and no eligible continuity
+finding, so the absence of `Work on this` is the correct empty-state behavior;
+the protocol requires a separate disposable Carmilla-compatible review copy that
+seeds one current source-linked finding without mutating the immutable baseline.
+That fixture and its no-AI finding-to-resolution evidence are not yet available.
+
+The mandatory RT-2B local-AI pilot is also blocked at the host boundary: Ollama
+client `0.13.0` is installed, but `ollama list` could not connect to a running
+server and timed out while reporting access-denied log rotation. No model run,
+admission decision, or fallback was attempted. Human Gate 4 therefore remains
+fail-closed pending an authorized Ollama service and the Carmilla review-fixture
+precondition, followed by Jason's subjective and authority-sensitive review.
+
 ## Program 7 stabilization pass — 2026-09-13
 
 The in-progress INT-3 implementation was reviewed in the named worktree at
