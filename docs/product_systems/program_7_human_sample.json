@@ -1,11 +1,11 @@
 {
   "schemaVersion": "program7.human-sample.v1",
-  "exactCommit": "fef743f56bb258c3b7659108c227c7cd0514d98e",
+  "exactCommit": "5cd85c5bf6949e57ea8d53370978849297ab2a3a",
   "algorithm": "program7-human-sample-v1",
   "rule": "For each package, hash exactCommit|packageId|program7-human-sample-v1, sort SHA256(seed|evidenceId), and select ceil(10%) with a minimum of three when at least three objective Pass rows exist; select all when fewer than three exist.",
   "packages": {
     "RT-2B": {
-      "seed": "928a6966dfce952f5e21148759f3a3258c10dc16a32f73a85262063ab8bb4277",
+      "seed": "84184b3ad841228b359cbfd583739abea79eebc4f7b5389105501e39d71e1e96",
       "eligiblePassIds": [
         "RT-2B-Q08-REAL-COLD",
         "RT-2B-Q08-REAL-WARM",
@@ -15,14 +15,14 @@
         "RT-2B-Q10-FAULT-B"
       ],
       "selectedIds": [
-        "RT-2B-Q08-REAL-COLD",
+        "RT-2B-Q08-REAL-WARM",
         "RT-2B-Q09-REAL-WARM",
-        "RT-2B-Q08-REAL-WARM"
+        "RT-2B-Q08-REAL-COLD"
       ],
       "sampleCount": 3
     },
     "P7-G2": {
-      "seed": "bd973350590bc8316ad014780ae749d1b4a404f40da1be8b6d2177522892dbac",
+      "seed": "c18d4c97c9c53bc0654fbfadd7231a3bc8765b6b4cfb8d0c15ad8a4bfedb07fa",
       "eligiblePassIds": [
         "P7-G2-E2E-CREATE-DEVELOP",
         "P7-G2-E2E-LONG-FORM",
@@ -31,8 +31,8 @@
       ],
       "selectedIds": [
         "P7-G2-STAGE19",
-        "P7-G2-E2E-REVISION",
-        "P7-G2-E2E-CREATE-DEVELOP"
+        "P7-G2-E2E-LONG-FORM",
+        "P7-G2-E2E-REVISION"
       ],
       "sampleCount": 3
     }

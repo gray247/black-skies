@@ -1,7 +1,7 @@
 {
   "schemaVersion": "program7.electron-qualification.v1",
-  "exactCommit": "31046317c7be3e80fcf70f6b89f0af0902d491ba",
-  "precommitTreeHash": "9e59e5ff2ba1fae3b22073f8e04e3c42dfc35e2f",
+  "exactCommit": "5cd85c5bf6949e57ea8d53370978849297ab2a3a",
+  "precommitTreeHash": "6fe48bcf85b630dd086b96bedcc370b9cfd75ef3",
   "execution": {
     "host": "outer Windows host",
     "gpu": "normal",
@@ -54,7 +54,14 @@
   },
   "limitations": [
     "The pilot output is advisory evidence only; Jason must decide local-model usefulness, voice preservation, and admission.",
-    "Human Gate 4 has not been performed."
+    "Human Gate 4 has not been performed.",
+    "Installed application-only lifecycle passed, but the exact outbound-firewall-isolated lifecycle requires an elevated PowerShell and remains unexecuted."
   ],
-  "capturedAt": "2026-09-13T22:58:48.422Z"
+  "installedLifecycle": {
+    "receiptPath": "app/release/stage19-package-receipt.json",
+    "lifecycleEvidencePath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-program7-installed-final\\stage19-22-lifecycle-evidence.json",
+    "applicationOnlyStatus": "passed",
+    "offlineFirewallIsolatedStatus": "blocked-by-elevation"
+  },
+  "capturedAt": "2026-09-14T00:07:38.076Z"
 }

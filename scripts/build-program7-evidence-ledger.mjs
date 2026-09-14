@@ -15,6 +15,8 @@ const pilotPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_loca
 const electronPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_electron_qualification.json');
 const protocolPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_qualification_protocol.md');
 const samplePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
+const packageReceiptPath = path.join(repoRoot, 'app', 'release', 'stage19-package-receipt.json');
+const lifecycleEvidencePath = 'C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-program7-installed-final\\stage19-22-lifecycle-evidence.json';
 const corpusHash = '557b3b2e62b2d919443f7df979c5bf01eefd86ddbbe012f276fa03ab06203e94';
 
 function sha256Bytes(value) { return createHash('sha256').update(value).digest('hex'); }
@@ -72,6 +74,10 @@ const electronArtifact = await loadArtifact(electronPath);
 const protocolArtifact = await loadArtifact(protocolPath);
 let sampleArtifact = null;
 try { sampleArtifact = await loadArtifact(samplePath); } catch { sampleArtifact = null; }
+let packageReceiptArtifact = null;
+try { packageReceiptArtifact = await loadArtifact(packageReceiptPath); } catch { packageReceiptArtifact = null; }
+let lifecycleEvidenceArtifact = null;
+try { lifecycleEvidenceArtifact = await loadArtifact(lifecycleEvidencePath); } catch { lifecycleEvidenceArtifact = null; }
 const environment = { os: 'Windows outer host', appMode: 'Node/Electron qualification', window: 'attached and detached surfaces where applicable', theme: 'dark', zoom: 100, runtime: 'Node 20+ / Electron 39.8.10 / normal GPU' };
 const rows = [];
 
@@ -148,8 +154,13 @@ if (sampleArtifact) {
 }
 
 for (const [id, expected] of [
-  ['P7-G2-PROTOCOL-MATRIX', 'Migration, corruption, concurrency, crash/restart, Unicode/Markdown, accessibility, visual, scale, and packaged gates are executed with row-level evidence.'],
-  ['P7-G2-PACKAGED', 'Unpacked and installed NSIS qualification use the same exact candidate and complete no-AI workflow.'],
+  ['P7-G2-PROTOCOL-MIGRATION', 'Legacy reads, first-mutation migration, unknown-field preservation, and repeated migration are idempotent.'],
+  ['P7-G2-PROTOCOL-CORRUPTION', 'Malformed, truncated, wrong-type, and checksum-invalid artifacts fail closed without repair authority.'],
+  ['P7-G2-PROTOCOL-CONCURRENCY', 'Concurrent writers and stale expected revisions fail closed while preserving durable truth.'],
+  ['P7-G2-PROTOCOL-RECOVERY', 'Crash points, write denial, restart, discarded temp files, and prior-file restoration preserve recovery invariants.'],
+  ['P7-G2-PROTOCOL-UNICODE-MARKDOWN', 'ASCII, accented, combining, emoji, CJK, RTL, Markdown, newline, UTF-16, and round-trip anchor fixtures are covered.'],
+  ['P7-G2-PROTOCOL-ACCESSIBILITY-VISUAL', 'Required surfaces and states pass axe, contrast, keyboard, theme, zoom, narrow-layout, focus, and reduced-motion checks.'],
+  ['P7-G2-PROTOCOL-SCALE', 'Carmilla and 1x/2x/4x/8x synthetic scale fixtures meet performance and bounded-resource limits.'],
 ]) {
   rows.push(row({
     evidenceId: id, packageId: 'P7-G2', evidenceClass: 'contract', executionMode: 'not-applicable', environment,
@@ -159,6 +170,19 @@ for (const [id, expected] of [
     humanBasis: 'Jason must review the unresolved prerequisite and its evidence before the gate.', limitations: ['Mechanical qualification remains blocked until the named matrix is run.'], disposition: 'defer', artifacts: [protocolArtifact],
   }));
 }
+
+rows.push(row({
+  evidenceId: 'P7-G2-PACKAGED', packageId: 'P7-G2', evidenceClass: 'contract', executionMode: 'not-applicable', environment,
+  action: 'Run unpacked and installed NSIS qualification with the exact candidate and complete no-AI workflow.',
+  expected: 'Unpacked and installed NSIS qualification use the same exact candidate and complete the offline firewall-isolated lifecycle.',
+  observed: packageReceiptArtifact && lifecycleEvidenceArtifact
+    ? 'Application-only installed lifecycle passed on the exact package: packaged/sandboxed windows, representative workload, exact Markdown export, uninstall, external-data preservation, and reinstall all passed. The required outbound-firewall-isolated run was not executed because the current shell is not Administrator.'
+    : 'Required by protocol; package or lifecycle artifact was unavailable, so this remains an explicit unresolved prerequisite.',
+  result: 'Uncertain', authoritySensitive: true, genuinelySubjective: false, humanRequired: true, humanStatus: 'pending',
+  humanBasis: 'Jason must review the unresolved offline-isolation prerequisite and its evidence before the gate.',
+  limitations: ['Application-only evidence cannot qualify the exact offline firewall-isolated lifecycle; an elevated PowerShell is required.'], disposition: 'defer',
+  artifacts: [protocolArtifact, ...(packageReceiptArtifact ? [packageReceiptArtifact] : []), ...(lifecycleEvidenceArtifact ? [lifecycleEvidenceArtifact] : [])],
+}));
 
 await writeFile(ledgerPath, `${rows.map((value) => JSON.stringify(value)).join('\n')}\n`, 'utf8');
 process.stdout.write(`${JSON.stringify({ rows: rows.length, exactCommit, precommitTreeHash }, null, 2)}\n`);

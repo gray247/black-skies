@@ -3,6 +3,31 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 mechanical packet refresh — 2026-09-14
+
+The packaged preload was repaired for Electron's sandboxed loader by removing
+runtime imports of local IPC modules and keeping the canonical channel values in
+the emitted preload. Installed-smoke cleanup and bridge inventories were aligned
+with the exposed runtime contract; the resulting candidate is
+`5cd85c5bf6949e57ea8d53370978849297ab2a3a` with tree
+`6fe48bcf85b630dd086b96bedcc370b9cfd75ef3`.
+
+The clean outer-host normal-GPU Stage 19 gate passed against that candidate:
+49/49 critical files, 803 passed, 2 expected skips, startup 1/1, Electron
+36/36, `STAGE19_REGRESSION_PASS`, and `CLEAN_RC_ELIGIBLE`. The rebuilt NSIS
+package passed the application-only installed lifecycle, including packaged and
+sandboxed windows, exact Markdown export, representative 100-unit workload,
+uninstall, external-data preservation, and reinstall. The exact offline
+firewall-isolated lifecycle is blocked because the current PowerShell is not
+Administrator; application-only evidence is explicitly not treated as that
+gate.
+
+The evidence ledger now has 41 granular rows with one exact commit/tree, a
+validator-enforced deterministic sample binding, package receipt/lifecycle
+hashes, and explicit `Uncertain` rows for the remaining protocol matrices.
+Human Gate 4, Jason scoring, and local-AI admission remain pending; no Program 7
+closure is claimed.
+
 ## Program 7 outer-host qualification correction — 2026-09-13
 
 The nested Codex sandbox GPU startup failure is confirmed as an environment-only

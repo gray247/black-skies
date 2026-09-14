@@ -147,6 +147,44 @@ async function validateRow(row, rowNumber, packages) {
   }
 }
 
+async function validateHumanSample(rows, exactCommit) {
+  let sample;
+  try {
+    sample = JSON.parse(await readFile(path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json'), 'utf8'));
+  } catch {
+    fail('deterministic human sample artifact could not be read');
+  }
+  if (sample.schemaVersion !== 'program7.human-sample.v1' || sample.algorithm !== 'program7-human-sample-v1') {
+    fail('deterministic human sample schema or algorithm is invalid');
+  }
+  if (sample.exactCommit !== exactCommit) fail('human sample exactCommit does not match the evidence packet');
+  if (!sample.jasonFields || sample.jasonFields.status !== '' || sample.jasonFields.decision !== '') {
+    fail('human sample contains a Jason decision');
+  }
+  const expectedPackages = new Map();
+  for (const row of rows) {
+    if (row.result !== 'Pass' || row.authoritySensitive || row.genuinelySubjective) continue;
+    const eligible = expectedPackages.get(row.package) ?? [];
+    eligible.push(row.evidenceId);
+    expectedPackages.set(row.package, eligible);
+  }
+  const packageEntries = sample.packages && typeof sample.packages === 'object' ? sample.packages : {};
+  for (const [packageId, eligibleIds] of expectedPackages) {
+    const entry = packageEntries[packageId];
+    if (!entry) fail(`human sample is missing package ${packageId}`);
+    const actualEligible = [...new Set(entry.eligiblePassIds ?? [])].sort();
+    if (JSON.stringify(actualEligible) !== JSON.stringify([...eligibleIds].sort())) fail(`human sample eligible IDs differ for ${packageId}`);
+    const expectedCount = eligibleIds.length < 3 ? eligibleIds.length : Math.max(3, Math.ceil(eligibleIds.length * 0.1));
+    if (entry.sampleCount !== expectedCount || !Array.isArray(entry.selectedIds) || entry.selectedIds.length !== expectedCount) {
+      fail(`human sample count is invalid for ${packageId}`);
+    }
+    if (new Set(entry.selectedIds).size !== entry.selectedIds.length || entry.selectedIds.some((id) => !eligibleIds.includes(id))) {
+      fail(`human sample selected IDs are invalid for ${packageId}`);
+    }
+  }
+  if (Object.keys(packageEntries).some((packageId) => !expectedPackages.has(packageId))) fail('human sample contains an unknown package');
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   const ledgerIndex = argv.indexOf('--ledger');
@@ -186,6 +224,7 @@ async function main() {
     const { stdout } = await execFileAsync('git', ['status', '--porcelain'], { cwd: repoRoot });
     if (stdout.trim() !== '') fail('not-applicable precommitTreeHash requires a clean worktree');
   }
+  await validateHumanSample(rows, [...commits][0]);
   process.stdout.write(`${JSON.stringify({ ok: true, rows: rows.length, exactCommit: [...commits][0], precommitTreeHash: [...trees][0], evidenceIds: [...ids] }, null, 2)}\n`);
 }
 
