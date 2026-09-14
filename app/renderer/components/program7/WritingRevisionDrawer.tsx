@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RevisionCandidateV1 } from '../../../shared/ipc/revisionCandidates';
 
@@ -24,10 +24,32 @@ export default function WritingRevisionDrawer({
   onSaveEdit,
 }: WritingRevisionDrawerProps): JSX.Element | null {
   const [editedText, setEditedText] = useState('');
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
     setEditedText(candidate ? candidateText(candidate) : '');
   }, [candidate?.id, candidate?.updatedAt]);
+
+  useEffect(() => {
+    if (!open || !candidate) {
+      if (wasOpenRef.current && returnFocusRef.current?.isConnected) {
+        returnFocusRef.current.focus();
+      }
+      wasOpenRef.current = false;
+      return;
+    }
+
+    if (!wasOpenRef.current) {
+      returnFocusRef.current = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+      wasOpenRef.current = true;
+    }
+    const focusHandle = window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+    return () => window.clearTimeout(focusHandle);
+  }, [candidate?.id, open]);
 
   if (!open || !candidate) return null;
 
@@ -47,7 +69,7 @@ export default function WritingRevisionDrawer({
           <h1>Write revision candidate</h1>
           <p>Editing creates a candidate version only. It does not change the manuscript.</p>
         </div>
-        {onClose ? <button type="button" onClick={onClose}>Close drawer</button> : null}
+        {onClose ? <button ref={closeButtonRef} type="button" onClick={onClose}>Close drawer</button> : null}
       </header>
       <dl>
         <div><dt>Source unit</dt><dd>{candidate.unitId}</dd></div>

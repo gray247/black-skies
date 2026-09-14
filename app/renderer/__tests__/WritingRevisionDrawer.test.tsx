@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { useState } from 'react';
 
 import type { RevisionCandidateV1 } from '../../shared/ipc/revisionCandidates';
 import WritingRevisionDrawer from '../components/program7/WritingRevisionDrawer';
@@ -29,6 +30,35 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 }
 
 describe('WritingRevisionDrawer component', () => {
+  it('moves focus into the drawer and returns it to the invoking control on close', async () => {
+    function Harness(): JSX.Element {
+      const [open, setOpen] = useState(false);
+      const [candidateId, setCandidateId] = useState('candidate-a');
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>Edit invoking candidate</button>
+          <button type="button" onClick={() => setCandidateId('candidate-b')}>Swap candidate</button>
+          <WritingRevisionDrawer
+            open={open}
+            candidate={open ? candidate({ id: candidateId }) : null}
+            onClose={() => setOpen(false)}
+          />
+        </>
+      );
+    }
+
+    render(<Harness />);
+    const opener = screen.getByRole('button', { name: 'Edit invoking candidate' });
+    opener.focus();
+    fireEvent.click(opener);
+    await screen.findByRole('button', { name: 'Close drawer' });
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Close drawer' })).toHaveFocus());
+    fireEvent.click(screen.getByRole('button', { name: 'Swap candidate' }));
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Close drawer' })).toHaveFocus());
+    fireEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    await vi.waitFor(() => expect(opener).toHaveFocus());
+  });
+
   it('opens as an explicit candidate editor and saves edits without accepting them', () => {
     const onClose = vi.fn();
     const onSaveEdit = vi.fn();

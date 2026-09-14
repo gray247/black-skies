@@ -27,7 +27,8 @@
         "stage19:lint": "node ./scripts/run-stage19-eslint.mjs",
         "stage19:regression": "node ./scripts/stage19-regression.mjs",
         "program6:human-review": "node ./scripts/program6-human-review.mjs",
-        "program7:scale": "node ./scripts/qualify-program7-scale.mjs"
+        "program7:scale": "node ./scripts/qualify-program7-scale.mjs",
+        "program7:accessibility": "node ./scripts/program7-accessibility-matrix.mjs"
     },
     "devDependencies": {
         "markdownlint-cli": "^0.48.0"

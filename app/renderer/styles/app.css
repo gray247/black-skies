@@ -9516,3 +9516,69 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Program 7 actions and fields remain reachable at narrow widths and large
+   text.  The Command Center baseline uses compact 34px controls; author
+   workflows require the 44px target minimum from the qualification protocol. */
+.stage19-spine--command .program7-create-develop button,
+.stage19-spine--command .program7-revision-desk button,
+.stage19-spine--command .program7-revision-capture button,
+.stage19-spine--command .program7-revision-comparison button,
+.stage19-spine--command .program7-story-foundation button,
+.stage19-spine--command .program7-ideas-workspace button,
+.stage19-spine--command .program7-history button,
+.stage19-spine--writing .program7-writing-revision-drawer button {
+  min-height: 44px;
+}
+
+.stage19-spine--command .program7-revision-capture input,
+.stage19-spine--command .program7-revision-capture textarea,
+.stage19-spine--command .program7-story-foundation input,
+.stage19-spine--command .program7-story-foundation select,
+.stage19-spine--command .program7-story-foundation textarea,
+.stage19-spine--command .program7-ideas-workspace input:not([type='checkbox']),
+.stage19-spine--command .program7-ideas-workspace select,
+.stage19-spine--command .program7-ideas-workspace textarea,
+.stage19-spine--command .program7-revision-comparison textarea,
+.stage19-spine--writing .program7-writing-revision-drawer textarea {
+  min-height: 44px;
+}
+
+.program7-revision-comparison,
+.program7-writing-revision-drawer,
+.program7-revision-comparison pre,
+.program7-writing-revision-drawer pre {
+  min-width: 0;
+}
+
+.program7-revision-comparison pre,
+.program7-writing-revision-drawer pre {
+  max-width: 100%;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 720px) {
+  .program7-create-develop,
+  .program7-revision-desk,
+  .program7-story-foundation,
+  .program7-ideas-workspace,
+  .program7-history,
+  .program7-revision-capture,
+  .program7-revision-candidates,
+  .program7-revision-comparison,
+  .program7-writing-revision-drawer {
+    min-width: 0;
+  }
+
+  .program7-create-develop__nav button {
+    flex: 1 1 10rem;
+  }
+
+  .program7-story-foundation__metadata div,
+  .program7-history__metadata div,
+  .program7-revision-desk__metadata div {
+    min-width: min(8rem, 100%);
+  }
+}
