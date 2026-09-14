@@ -13,10 +13,10 @@ import { removeTemporaryDirectory, openWritingStudioRail } from './stage19-elect
 test.use({ splitCommandRuntimeConfig: true });
 
 const SCALES = [
-  { scale: '1x', count: 17, kind: 'carmilla-baseline' as const },
-  { scale: '2x', count: 34, kind: 'synthetic-non-evidence' as const },
-  { scale: '4x', count: 68, kind: 'synthetic-non-evidence' as const },
-  { scale: '8x', count: 136, kind: 'synthetic-non-evidence' as const },
+  { scale: '1x', count: 17, kind: 'carmilla-baseline' as const, finalTitle: 'Chapter XVI — Conclusion' },
+  { scale: '2x', count: 34, kind: 'synthetic-non-evidence' as const, finalTitle: 'Synthetic 2x Unit 034' },
+  { scale: '4x', count: 68, kind: 'synthetic-non-evidence' as const, finalTitle: 'Synthetic 4x Unit 068' },
+  { scale: '8x', count: 136, kind: 'synthetic-non-evidence' as const, finalTitle: 'Synthetic 8x Unit 136' },
 ];
 
 test('Program 7 scale journey opens, renders, and selects every bounded fixture', async ({ page, electronApp }) => {
@@ -86,7 +86,7 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
       const lastUnit = unitRail.last();
       const selectStartedAt = performance.now();
       await lastUnit.getByRole('button').first().click();
-      await expect(writing.getByRole('textbox', { name: new RegExp(`(?:${fixture.kind === 'carmilla-baseline' ? 'Chapter|Prologue' : 'Synthetic'}).*${fixture.count === 17 ? '16|Prologue' : String(fixture.count).padStart(3, '0')}`, 'u') })).toBeVisible();
+      await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${fixture.finalTitle}` })).toBeVisible();
       const selectDurationMs = performance.now() - selectStartedAt;
       const frameGapMs = await writing.evaluate(() => {
         const target = window as unknown as {
