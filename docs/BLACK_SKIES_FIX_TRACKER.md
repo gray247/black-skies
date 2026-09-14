@@ -3,6 +3,29 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 evidence-ledger binding hardening — 2026-09-14
+
+The evidence-ledger builder now fails closed when promoting the Unicode,
+accessibility, scale, local-model, or Electron qualification packets: each
+must report its required complete result and bind to the exact candidate
+commit/tree where that packet format provides a tree. Unqualified or stale
+JSON is no longer attached to an `Uncertain` row, preventing the validator
+from treating an older packet as current evidence. The builder accepts
+explicit `--unicode`, `--accessibility`, `--scale`, `--lifecycle-evidence`, and
+`--ledger` paths for reproducible packet assembly. Packaged evidence requires
+the exact candidate commit, a matching package receipt, and the
+`offline-firewall-isolated` lifecycle with all required workload, cleanup,
+preservation, and reinstall checks; the existing v1 receipt/lifecycle pair
+does not duplicate a tree field, so the exact commit remains the tree
+authority for that pair. Jason’s fields and local-AI admission remain
+untouched.
+
+Focused builder coverage proves a clean exact-bound Unicode packet can be
+promoted while a stale packet remains `Uncertain`; app lint, typecheck, and
+`git diff --check` pass. Current canonical packets are from earlier
+candidates or are not yet present in this integration worktree, so this pass
+does not claim refreshed qualification or Human Gate 4 acceptance.
+
 ## Program 7 loading-state evidence binding — 2026-09-14
 
 The prior loading-state gap is closed narrowly by binding the matrix to the

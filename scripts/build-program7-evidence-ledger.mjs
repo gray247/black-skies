@@ -10,14 +10,17 @@ import { fileURLToPath } from 'node:url';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ledgerPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_evidence_ledger.jsonl');
+const defaultLedgerPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_evidence_ledger.jsonl');
 const pilotPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_local_ai_qualification.json');
 const electronPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_electron_qualification.json');
 const persistencePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_persistence_qualification.json');
+const unicodePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_unicode_qualification.json');
+const accessibilityPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_accessibility_qualification.json');
+const scalePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_scale_qualification.json');
 const protocolPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_qualification_protocol.md');
 const samplePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
 const packageReceiptPath = path.join(repoRoot, 'app', 'release', 'stage19-package-receipt.json');
-const lifecycleEvidencePath = 'C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-program7-installed-final\\stage19-22-lifecycle-evidence.json';
+const defaultLifecycleEvidencePath = 'C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-program7-installed-final\\stage19-22-lifecycle-evidence.json';
 const corpusHash = '557b3b2e62b2d919443f7df979c5bf01eefd86ddbbe012f276fa03ab06203e94';
 
 function sha256Bytes(value) { return createHash('sha256').update(value).digest('hex'); }
@@ -32,10 +35,145 @@ function argValue(name) {
   return value && !value.startsWith('-') ? value : undefined;
 }
 
+function inputPath(name, fallback) {
+  const supplied = argValue(name);
+  return supplied ? path.resolve(supplied) : fallback;
+}
+
+const ledgerPath = inputPath('--ledger', defaultLedgerPath);
+
 async function loadArtifact(filePath) {
   const bytes = await readFile(filePath);
   fileBuffers.set(filePath, bytes);
   return artifact(filePath);
+}
+
+async function loadQualification(filePath) {
+  try {
+    const bytes = await readFile(filePath);
+    fileBuffers.set(filePath, bytes);
+    return { document: JSON.parse(bytes.toString('utf8')), artifact: artifact(filePath) };
+  } catch {
+    return null;
+  }
+}
+
+function exactBinding(document, exactCommit, exactTree) {
+  return document?.exactCommit === exactCommit
+    && (document.exactTree ?? document.precommitTreeHash) === exactTree;
+}
+
+function packetSafety(document) {
+  return document?.protectedEvidenceUsed === false && document?.humanAcceptanceClaimed === false;
+}
+
+function allPass(values) {
+  return Array.isArray(values) && values.length > 0 && values.every((value) => value === 'Pass' || value?.status === 'passed' || value?.result === 'Pass' || value?.passed === true);
+}
+
+function qualifiesUnicode(document, exactCommit, exactTree) {
+  return document?.schema === 'program7.unicode-qualification.v2'
+    && document.pass === true
+    && exactBinding(document, exactCommit, exactTree)
+    && document.workingTreeClean === true
+    && document.observed?.tests === 18
+    && document.observed?.passedTests === 18
+    && document.observed?.failedTests === 0
+    && document.assertions?.length === 18
+    && allPass(document.assertions)
+    && packetSafety(document);
+}
+
+function qualifiesAccessibility(document, exactCommit, exactTree) {
+  return document?.schema === 'program7.accessibility-qualification.v1'
+    && document.status === 'qualified'
+    && exactBinding(document, exactCommit, exactTree)
+    && document.cleanExactCommitBinding === true
+    && allPass(document.rows)
+    && Array.isArray(document.absentRows) && document.absentRows.length === 0
+    && Array.isArray(document.failedRows) && document.failedRows.length === 0
+    && Array.isArray(document.uncertainRows) && document.uncertainRows.length === 0
+    && Array.isArray(document.unresolvedRequiredStates) && document.unresolvedRequiredStates.length === 0
+    && Array.isArray(document.requiredStates) && document.requiredStates.length > 0
+    && document.requiredStates.every((state) => document.stateBindings?.[state]?.result === 'Pass')
+    && packetSafety(document);
+}
+
+function qualifiesScale(document, exactCommit, exactTree) {
+  return document?.schema === 'black-skies.program7.scale-qualification.v1'
+    && document.status === 'qualified'
+    && exactBinding(document, exactCommit, exactTree)
+    && document.matrixCompleteness?.assertionsComplete === true
+    && document.matrixCompleteness?.observationsComplete === true
+    && document.matrixCompleteness?.expectedScales?.length === 4
+    && document.assertions?.length === 4
+    && document.observations?.length === 4
+    && document.electron?.requested === true
+    && document.electron?.status === 'passed'
+    && allPass(document.assertions)
+    && packetSafety(document);
+}
+
+function qualifiesLifecycle(document, receipt, exactCommit, exactTree) {
+  const lifecycleTree = document?.exactTree ?? document?.precommitTreeHash ?? document?.treeHash;
+  const receiptTree = receipt?.exactTree ?? receipt?.precommitTreeHash ?? receipt?.treeHash;
+  return document?.schema === 'black-skies.stage19-22.lifecycle-evidence.v1'
+    && document.qualifiedCommit === exactCommit
+    && (lifecycleTree === undefined || lifecycleTree === exactTree)
+    && receipt?.schema === 'black-skies.stage19.package-receipt.v1'
+    && receipt.qualifiedCommit === exactCommit
+    && (receiptTree === undefined || receiptTree === exactTree)
+    && document.installedOffline === true
+    && document.qualificationMode === 'offline-firewall-isolated'
+    && document.representativeWorkloadPassed === true
+    && document.forbiddenRuntimeProcessCount === 0
+    && document.uninstallRemovedApplication === true
+    && document.externalDataPreserved === true
+    && document.sameInstallerReinstallPassed === true
+    && receipt.protectedEvidenceUsed === false;
+}
+
+function qualifiesPilot(document, exactCommit, exactTree) {
+  const tree = document?.exactTree ?? document?.precommitTreeHash;
+  return document?.schemaVersion === 'program7.local-ai-qualification.v1'
+    && document.status === 'qualified'
+    && document.exactCommit === exactCommit
+    && (tree === undefined || tree === exactTree)
+    && document.matrixSummary?.expectedRows === 24
+    && document.matrixSummary?.observedRows === 24
+    && document.matrixSummary?.mechanicalPassRows === 24
+    && document.matrixSummary?.mechanicalPass === true
+    && Array.isArray(document.matrix)
+    && document.matrix.length === 24
+    && document.matrix.every((row) => row?.mechanicalPass === true)
+    && document.protectionScan?.pass === true
+    && document.protectionScan?.hits?.length === 0
+    && document.truthMutation?.unchanged === true
+    && document.controls?.protectedRefusal?.sourceTextPackaged === false
+    && document.controls?.cancellation?.status === 'cancelled'
+    && document.controls?.timeout?.status === 'unavailable'
+    && document.controls?.unavailable?.status === 'unavailable'
+    && document.controls?.invalidResponse?.status === 'failed'
+    && document.admission === 'pending-human';
+}
+
+function qualifiesElectron(document, exactCommit, exactTree) {
+  return document?.schemaVersion === 'program7.electron-qualification.v1'
+    && exactBinding(document, exactCommit, exactTree)
+    && document.execution?.gpu === 'normal'
+    && document.execution?.diagnosticGpuDisable === false
+    && Array.isArray(document.suites)
+    && document.suites.length === 4
+    && document.suites.every((suite) => suite.result === 'Pass')
+    && document.suiteSummary?.passed === 4
+    && document.suiteSummary?.failed === 0
+    && document.stage19?.criticalUnitFiles === 49
+    && document.stage19?.criticalUnitPassed === 803
+    && document.stage19?.expectedSkips === 2
+    && document.stage19?.startupPreflight === '1/1'
+    && document.stage19?.electronPassed === '36/36'
+    && document.stage19?.markers?.includes('STAGE19_REGRESSION_PASS')
+    && document.stage19?.markers?.includes('CLEAN_RC_ELIGIBLE');
 }
 
 function row({ evidenceId, packageId, evidenceClass, executionMode, environment, action, expected, observed, result, reviewer = 'agent-program7', authoritySensitive = false, genuinelySubjective = false, humanRequired = false, humanStatus = 'not-required', humanBasis = 'Mechanical precheck only.', limitations = [], disposition = 'closure', artifacts }) {
@@ -74,14 +212,29 @@ const persistence = JSON.parse(await readFile(persistencePath, 'utf8'));
 const pilotArtifact = await loadArtifact(pilotPath);
 const electronArtifact = await loadArtifact(electronPath);
 const persistenceArtifact = await loadArtifact(persistencePath);
+const unicodeQualification = await loadQualification(inputPath('--unicode', unicodePath));
+const accessibilityQualification = await loadQualification(inputPath('--accessibility', accessibilityPath));
+const scaleQualification = await loadQualification(inputPath('--scale', scalePath));
 const protocolArtifact = await loadArtifact(protocolPath);
-let sampleArtifact = null;
-try { sampleArtifact = await loadArtifact(samplePath); } catch { sampleArtifact = null; }
+const sampleQualification = await loadQualification(samplePath);
+const sampleArtifact = sampleQualification?.document?.exactCommit === exactCommit ? sampleQualification.artifact : null;
 let packageReceiptArtifact = null;
 try { packageReceiptArtifact = await loadArtifact(packageReceiptPath); } catch { packageReceiptArtifact = null; }
-let lifecycleEvidenceArtifact = null;
-try { lifecycleEvidenceArtifact = await loadArtifact(lifecycleEvidencePath); } catch { lifecycleEvidenceArtifact = null; }
+const lifecycleEvidencePath = inputPath('--lifecycle-evidence', defaultLifecycleEvidencePath);
+let lifecycleEvidence = null;
+try {
+  const bytes = await readFile(lifecycleEvidencePath);
+  fileBuffers.set(lifecycleEvidencePath, bytes);
+  lifecycleEvidence = JSON.parse(bytes.toString('utf8'));
+} catch { lifecycleEvidence = null; }
+const lifecycleEvidenceArtifact = lifecycleEvidence ? artifact(lifecycleEvidencePath) : null;
+let packageReceipt = null;
+try { packageReceipt = JSON.parse(await readFile(packageReceiptPath, 'utf8')); } catch { packageReceipt = null; }
 const environment = { os: 'Windows outer host', appMode: 'Node/Electron qualification', window: 'attached and detached surfaces where applicable', theme: 'dark', zoom: 100, runtime: 'Node 20+ / Electron 39.8.10 / normal GPU' };
+const pilotQualified = qualifiesPilot(pilot, exactCommit, precommitTreeHash);
+const electronQualified = qualifiesElectron(electron, exactCommit, precommitTreeHash);
+const pilotEvidenceArtifact = pilotQualified ? pilotArtifact : protocolArtifact;
+const electronEvidenceArtifact = electronQualified ? electronArtifact : protocolArtifact;
 const rows = [];
 const persistenceFamilies = new Map((persistence.matrix ?? []).map((entry) => [entry.family, entry]));
 const persistenceQualified = persistence.schema === 'black-skies.program7.persistence-qualification.v1'
@@ -103,16 +256,16 @@ for (const matrixRow of pilot.matrix) {
     environment: { ...environment, appMode: 'Node real-host pilot', window: 'not-applicable', runtime: 'Ollama 0.13.0 / qwen3:4b / CPU' },
     action: `Execute ${matrixRow.scenarioId} ${matrixRow.executionMode} through the production local-inference service.`,
     expected: matrixRow.expected,
-    observed: `${matrixRow.observed}; mechanicalPass=${String(matrixRow.mechanicalPass)}`,
-    result: matrixRow.mechanicalPass ? 'Pass' : 'Fail',
+    observed: `${matrixRow.observed}; mechanicalPass=${String(matrixRow.mechanicalPass)}; packetBound=${String(pilotQualified)}`,
+    result: !pilotQualified ? 'Uncertain' : matrixRow.mechanicalPass ? 'Pass' : 'Fail',
     authoritySensitive: subjective || ['Q11', 'Q12'].includes(matrixRow.scenarioId),
     genuinelySubjective: subjective,
     humanRequired: true,
     humanStatus: 'pending',
     humanBasis: subjective ? 'Jason scores usefulness, fidelity, fact preservation, voice, actionability, and uncertainty restraint.' : 'Safety and sovereignty behavior is authority-sensitive even when mechanically bounded.',
     limitations: ['Mechanical pilot evidence only; local-AI admission is not inferred.'],
-    disposition: matrixRow.mechanicalPass ? 'defer' : 'repair',
-    artifacts: [pilotArtifact],
+    disposition: pilotQualified && matrixRow.mechanicalPass ? 'defer' : pilotQualified ? 'repair' : 'defer',
+    artifacts: [pilotEvidenceArtifact],
   }));
 }
 
@@ -128,17 +281,20 @@ for (const [suffix, expected] of suiteRows) {
     evidenceId: `P7-G2-E2E-${suffix.toUpperCase()}`,
     packageId: 'P7-G2', evidenceClass: 'component', executionMode: 'real-warm', environment,
     action: `Run Program 7 Electron suite ${suffix}.`, expected,
-    observed: 'Suite passed in the exact outer-host normal-GPU run; no subjective acceptance inferred.',
-    result: 'Pass', authoritySensitive: suiteNeedsReview, genuinelySubjective: false, humanRequired: suiteNeedsReview, humanStatus: suiteNeedsReview ? 'pending' : 'not-required', humanBasis: suiteNeedsReview ? 'Jason must review the no-AI/local-AI boundary before admission.' : 'Mechanical suite result only.', artifacts: [electronArtifact], limitations: ['Suite is mechanical and does not decide usefulness, aesthetics, or admission.'],
+    observed: `Suite packet exact binding and required summary checks: ${electronQualified ? 'passed' : 'not qualified'}; no subjective acceptance inferred.`,
+    result: electronQualified ? 'Pass' : 'Uncertain', authoritySensitive: suiteNeedsReview, genuinelySubjective: false, humanRequired: suiteNeedsReview, humanStatus: suiteNeedsReview ? 'pending' : 'not-required', humanBasis: suiteNeedsReview ? 'Jason must review the no-AI/local-AI boundary before admission.' : 'Mechanical suite result only.', artifacts: [electronEvidenceArtifact], limitations: ['Suite is mechanical and does not decide usefulness, aesthetics, or admission.'],
   }));
 }
 
+const packagedQualified = qualifiesLifecycle(lifecycleEvidence, packageReceipt, exactCommit, precommitTreeHash);
 rows.push(row({
   evidenceId: 'P7-G2-STAGE19', packageId: 'P7-G2', evidenceClass: 'runtime', executionMode: 'real-warm', environment,
   action: 'Run the complete clean stage19:regression gate on the outer Windows host with normal GPU operation.',
   expected: '49 critical files pass with 803 tests passed and 2 expected skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
-  observed: 'Clean outer-host run passed 49 critical files, 803 passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
-  result: 'Pass', artifacts: [electronArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
+  observed: electronQualified
+    ? 'Clean outer-host packet passed 49 critical files, 803 passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.'
+    : 'Electron qualification packet is unavailable or not bound to this exact candidate; no Stage 19 pass is inferred.',
+  result: electronQualified ? 'Pass' : 'Uncertain', artifacts: [electronEvidenceArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
 }));
 
 for (const [id, expected] of [
@@ -191,12 +347,27 @@ for (const [id, expected] of [
   ['P7-G2-PROTOCOL-ACCESSIBILITY-VISUAL', 'Required surfaces and states pass axe, contrast, keyboard, theme, zoom, narrow-layout, focus, and reduced-motion checks.'],
   ['P7-G2-PROTOCOL-SCALE', 'Carmilla and 1x/2x/4x/8x synthetic scale fixtures meet performance and bounded-resource limits.'],
 ]) {
+  const qualification = id === 'P7-G2-PROTOCOL-UNICODE-MARKDOWN'
+    ? unicodeQualification
+    : id === 'P7-G2-PROTOCOL-ACCESSIBILITY-VISUAL'
+      ? accessibilityQualification
+      : scaleQualification;
+  const qualifies = id === 'P7-G2-PROTOCOL-UNICODE-MARKDOWN'
+    ? qualifiesUnicode(qualification?.document, exactCommit, precommitTreeHash)
+    : id === 'P7-G2-PROTOCOL-ACCESSIBILITY-VISUAL'
+      ? qualifiesAccessibility(qualification?.document, exactCommit, precommitTreeHash)
+      : qualifiesScale(qualification?.document, exactCommit, precommitTreeHash);
+  const artifactForQualification = qualifies ? qualification.artifact : protocolArtifact;
   rows.push(row({
     evidenceId: id, packageId: 'P7-G2', evidenceClass: 'contract', executionMode: 'not-applicable', environment,
-    action: 'Inventory the remaining protocol prerequisite before Human Gate 4.', expected,
-    observed: 'Required by protocol but not executed in this packet; this is an explicit unresolved prerequisite, not a pass.',
-    result: 'Uncertain', authoritySensitive: true, genuinelySubjective: false, humanRequired: true, humanStatus: 'pending',
-    humanBasis: 'Jason must review the unresolved prerequisite and its evidence before the gate.', limitations: ['Mechanical qualification remains blocked until the named matrix is run.'], disposition: 'defer', artifacts: [protocolArtifact],
+    action: 'Bind the named qualification packet to the exact candidate before Human Gate 4.', expected,
+    observed: qualifies
+      ? 'The qualification packet is clean, exact-commit/tree bound, complete, and contains no protected-evidence or human-acceptance claim.'
+      : qualification
+        ? 'The qualification packet is present but is not a clean, complete, exact-commit/tree-bound qualification; no pass is inferred.'
+        : 'Required qualification packet was unavailable; this remains an explicit unresolved prerequisite, not a pass.',
+    result: qualifies ? 'Pass' : 'Uncertain', authoritySensitive: true, genuinelySubjective: false, humanRequired: true, humanStatus: 'pending',
+    humanBasis: 'Jason must review the matrix evidence and any limitations before the gate.', limitations: qualifies ? ['Mechanical matrix proof only; it does not decide usefulness or human acceptance.'] : ['Mechanical qualification remains blocked until the named matrix is run and bound to this exact candidate.'], disposition: 'defer', artifacts: [artifactForQualification],
   }));
 }
 
@@ -204,13 +375,21 @@ rows.push(row({
   evidenceId: 'P7-G2-PACKAGED', packageId: 'P7-G2', evidenceClass: 'contract', executionMode: 'not-applicable', environment,
   action: 'Run unpacked and installed NSIS qualification with the exact candidate and complete no-AI workflow.',
   expected: 'Unpacked and installed NSIS qualification use the same exact candidate and complete the offline firewall-isolated lifecycle.',
-  observed: packageReceiptArtifact && lifecycleEvidenceArtifact
-    ? 'Application-only installed lifecycle passed on the exact package: packaged/sandboxed windows, representative workload, exact Markdown export, uninstall, external-data preservation, and reinstall all passed. The required outbound-firewall-isolated run was not executed because the current shell is not Administrator.'
-    : 'Required by protocol; package or lifecycle artifact was unavailable, so this remains an explicit unresolved prerequisite.',
-  result: 'Uncertain', authoritySensitive: true, genuinelySubjective: false, humanRequired: true, humanStatus: 'pending',
-  humanBasis: 'Jason must review the unresolved offline-isolation prerequisite and its evidence before the gate.',
-  limitations: ['Application-only evidence cannot qualify the exact offline firewall-isolated lifecycle; an elevated PowerShell is required.'], disposition: 'defer',
-  artifacts: [protocolArtifact, ...(packageReceiptArtifact ? [packageReceiptArtifact] : []), ...(lifecycleEvidenceArtifact ? [lifecycleEvidenceArtifact] : [])],
+  observed: packagedQualified
+    ? 'The exact package receipt and lifecycle packet match this candidate commit/tree and prove the offline firewall-isolated installed workflow, workload, cleanup, preservation, and reinstall.'
+    : packageReceiptArtifact && lifecycleEvidenceArtifact
+      ? 'Package and lifecycle artifacts exist, but exact commit/tree binding or the offline firewall-isolated success contract is incomplete; no packaged pass is inferred.'
+      : 'Required package or lifecycle artifact was unavailable, so this remains an explicit unresolved prerequisite.',
+  result: packagedQualified ? 'Pass' : 'Uncertain', authoritySensitive: true, genuinelySubjective: false, humanRequired: true, humanStatus: 'pending',
+  humanBasis: packagedQualified
+    ? 'Jason must review the exact packaged evidence and complete the authority-sensitive Human Gate 4 decision.'
+    : 'Jason must review the unresolved offline-isolation prerequisite and its evidence before the gate.',
+  limitations: packagedQualified
+    ? ['Mechanical package proof does not decide Human Gate 4 acceptance.']
+    : ['Application-only evidence cannot qualify the exact offline firewall-isolated lifecycle; an elevated PowerShell is required.'], disposition: 'defer',
+  artifacts: packagedQualified
+    ? [protocolArtifact, ...(packageReceiptArtifact ? [packageReceiptArtifact] : []), ...(lifecycleEvidenceArtifact ? [lifecycleEvidenceArtifact] : [])]
+    : [protocolArtifact],
 }));
 
 await writeFile(ledgerPath, `${rows.map((value) => JSON.stringify(value)).join('\n')}\n`, 'utf8');
