@@ -132,6 +132,7 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     expect(p7).toContain('white-space: pre-wrap;');
     expect(p7).toMatch(/@media\s*\(max-width:\s*720px\)/);
     expect(p7).toMatch(/\.stage19-spine--writing \.stage19-writing-shell__status,[\s\S]*?flex-wrap:\s*wrap;/);
+    expect(p7).toMatch(/\.stage19-spine--writing \.stage19-writing-shell__topbar\s*\{[\s\S]*?z-index:\s*30;/);
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.stage19-spine--command \*/);
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.stage19-writing-shell__edge/);
   });

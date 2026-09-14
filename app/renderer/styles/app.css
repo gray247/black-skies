@@ -9561,6 +9561,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 @media (max-width: 720px) {
   .stage19-spine--writing .stage19-writing-shell__topbar {
+    z-index: 30;
     align-items: stretch;
     height: auto;
     min-height: 96px;
