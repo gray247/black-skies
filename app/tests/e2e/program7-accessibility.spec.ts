@@ -6,6 +6,7 @@ import {
   getProgram7Windows,
   materializeProgram7Carmilla,
   openProgram7Project,
+  showCommandInWriting,
 } from './program7-e2e-support';
 
 test.use({ splitCommandRuntimeConfig: true });
@@ -103,7 +104,11 @@ async function exerciseCommandRoutes(
   await surface.emulateMedia({ reducedMotion: profile.reducedMotion ? 'reduce' : 'no-preference' });
   await surface.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, profile.zoom);
   await setTheme(surface, theme);
-  await surface.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  const createDevelop = surface.getByRole('button', { name: 'Create / Develop', exact: true });
+  if (await createDevelop.count() === 0) {
+    throw new Error(`Create / Develop missing after ${topology}-${theme}-${profile.id}: ${(await surface.locator('body').innerText()).slice(0, 2_000)}`);
+  }
+  await createDevelop.click();
   await expect(surface.getByTestId('program7-create-develop')).toBeVisible();
   for (const section of PROGRAM7_SECTIONS) {
     await surface.getByRole('button', { name: section, exact: true }).click();
@@ -171,9 +176,20 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
     for (const profile of MATRIX_PROFILES) {
       for (const theme of ['dark', 'light'] as const) {
         await exerciseCommandRoutes(writing, 'attached', profile, theme);
+      }
+    }
+    const attachedParity = await readProjectionParity(writing);
+    expect(attachedParity).toEqual(detachedParity);
 
-        // Manual alternatives are owned by Writing Studio. Verify both the
-        // compare-before-accept surface and its non-modal editing drawer.
+    // Editing an alternative deliberately returns to Writing Studio. Test the
+    // drawer separately and re-open Command Center before each candidate.
+    for (const profile of MATRIX_PROFILES) {
+      for (const theme of ['dark', 'light'] as const) {
+        await writing.setViewportSize({ width: profile.width, height: profile.height });
+        await writing.emulateMedia({ reducedMotion: profile.reducedMotion ? 'reduce' : 'no-preference' });
+        await writing.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, profile.zoom);
+        await setTheme(writing, theme);
+        await showCommandInWriting(writing);
         await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
         await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
         await writing.locator('#program7-candidate-purpose').fill('Clarify the opening transition.');
@@ -194,9 +210,6 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
         await writing.getByRole('button', { name: 'Close drawer', exact: true }).click();
       }
     }
-
-    const attachedParity = await readProjectionParity(writing);
-    expect(attachedParity).toEqual(detachedParity);
   } finally {
     if (MATRIX_REPORT_PATH) {
       await writeFile(MATRIX_REPORT_PATH, `${JSON.stringify({ rows: [...observedRows.values()] }, null, 2)}\n`, 'utf8');
