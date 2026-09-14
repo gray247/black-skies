@@ -6,7 +6,6 @@ import {
   getProgram7Windows,
   materializeProgram7Carmilla,
   openProgram7Project,
-  showCommandInWriting,
 } from './program7-e2e-support';
 
 test.use({ splitCommandRuntimeConfig: true });
@@ -139,6 +138,18 @@ async function readProjectionParity(surface: import('@playwright/test').Page) {
   }));
 }
 
+async function closeDetachedCommand(electronApp: import('@playwright/test').ElectronApplication): Promise<void> {
+  await electronApp.evaluate(async ({ BrowserWindow }) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      if (window.isDestroyed()) continue;
+      const role = await window.webContents.executeJavaScript(
+        "document.querySelector('[data-stage19-role=\"command\"]') ? 'command' : 'other'",
+      );
+      if (role === 'command') window.close();
+    }
+  });
+}
+
 test('Program 7 reaches objective accessibility matrix gates on attached and detached surfaces', async ({ page, electronApp }) => {
   const { reviewRoot, projectPath } = await materializeProgram7Carmilla();
   try {
@@ -155,7 +166,8 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
     }
     const detachedParity = await readProjectionParity(command);
 
-    await showCommandInWriting(writing);
+    await closeDetachedCommand(electronApp);
+    await expect(writing.getByRole('region', { name: 'Command Center' })).toBeVisible();
     for (const profile of MATRIX_PROFILES) {
       for (const theme of ['dark', 'light'] as const) {
         await exerciseCommandRoutes(writing, 'attached', profile, theme);
