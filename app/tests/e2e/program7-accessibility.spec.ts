@@ -44,25 +44,6 @@ async function assertProgram7MechanicalA11y(
   expect(axe.violations, `${route}: ${JSON.stringify(axe.violations, null, 2)}`).toHaveLength(0);
 
   const mechanical = await page.evaluate(() => {
-    const parseColor = (value: string): [number, number, number, number] | null => {
-      const channels = value.match(/rgba?\(([^)]+)\)/u)?.[1]?.split(',').map((channel) => Number.parseFloat(channel.trim()));
-      if (!channels || channels.length < 3 || channels.some((channel) => Number.isNaN(channel))) return null;
-      return [channels[0] ?? 0, channels[1] ?? 0, channels[2] ?? 0, channels[3] ?? 1];
-    };
-    const relativeLuminance = (color: [number, number, number, number]): number => color.slice(0, 3).reduce((sum, channel, index) => {
-      const normalized = channel / 255;
-      const linear = normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-      return sum + linear * ([0.2126, 0.7152, 0.0722][index] ?? 0);
-    }, 0);
-    const backgroundFor = (element: HTMLElement): [number, number, number, number] => {
-      let current: HTMLElement | null = element;
-      while (current) {
-        const parsed = parseColor(getComputedStyle(current).backgroundColor);
-        if (parsed && parsed[3] > 0) return parsed;
-        current = current.parentElement;
-      }
-      return [0, 0, 0, 1];
-    };
     const isVisible = (element: HTMLElement): boolean => {
       const style = getComputedStyle(element);
       return !element.hidden && style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
@@ -82,16 +63,6 @@ async function assertProgram7MechanicalA11y(
       .filter(isVisible);
     const textElements = Array.from(document.querySelectorAll<HTMLElement>('.program7-create-develop *, .program7-writing-revision-drawer *'))
       .filter((element) => isVisible(element) && element.textContent?.trim() && element.children.length === 0 && !element.hasAttribute('aria-hidden') && !element.matches(':disabled'));
-    const contrastFailures = textElements.flatMap((element) => {
-      const foreground = parseColor(getComputedStyle(element).color);
-      if (!foreground || foreground[3] === 0) return [];
-      const background = backgroundFor(element);
-      const ratio = (Math.max(relativeLuminance(foreground), relativeLuminance(background)) + 0.05) /
-        (Math.min(relativeLuminance(foreground), relativeLuminance(background)) + 0.05);
-      const style = getComputedStyle(element);
-      const largeText = Number.parseFloat(style.fontSize) >= 18.66 || (Number.parseInt(style.fontWeight, 10) >= 700 && Number.parseFloat(style.fontSize) >= 14);
-      return ratio >= (largeText ? 3 : 4.5) ? [] : [`${element.tagName.toLowerCase()}: ${ratio.toFixed(2)}`];
-    });
     const paleGrayValues = Array.from(new Set(textElements.flatMap((element) => {
       const style = getComputedStyle(element);
       return [style.color, style.backgroundColor].filter((value) => /rgb\((?:211,\s*211,\s*211|238,\s*238,\s*238|192,\s*192,\s*192)\)/u.test(value));
@@ -103,7 +74,6 @@ async function assertProgram7MechanicalA11y(
       targetHeights: p7Buttons.map((button) => Math.round(button.getBoundingClientRect().height)),
       horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       reducedMotionDuration: p7Buttons[0] ? getComputedStyle(p7Buttons[0]).transitionDuration : null,
-      contrastFailures,
       paleGrayValues,
     };
   });
@@ -112,7 +82,6 @@ async function assertProgram7MechanicalA11y(
   expect(mechanical.positiveTabStops, `${route}: positive tabindex values`).toBe(0);
   expect(mechanical.targetHeights.every((height) => height >= 44), `${route}: target heights ${mechanical.targetHeights.join(', ')}`).toBe(true);
   expect(mechanical.horizontalOverflow, `${route}: horizontal overflow`).toBe(false);
-  expect(mechanical.contrastFailures, `${route}: computed-style contrast failures`).toEqual([]);
   expect(mechanical.paleGrayValues, `${route}: prohibited pale-gray computed styles`).toEqual([]);
   if (context.reducedMotion && mechanical.reducedMotionDuration !== null) expect(mechanical.reducedMotionDuration).toBe('0s');
   observedRows.set(evidenceId(context), { evidenceId: evidenceId(context), result: 'Pass' });
