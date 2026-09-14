@@ -48,8 +48,8 @@ describe('Stage 19 dedicated renderer entry and layout contract', () => {
   it('keeps the Structure rail compact and gives its selected panel the only structural controls', () => {
     const css = readFileSync(resolve(import.meta.dirname, '..', 'styles', 'app.css'), 'utf8');
     const view = readFileSync(resolve(import.meta.dirname, '..', 'Stage19WritingSpineView.tsx'), 'utf8');
-    const workspace = css.slice(css.indexOf('.stage19-manuscript-structure__workspace'));
-    const proposals = css.slice(css.indexOf('.stage19-manuscript-structure__proposals'));
+    const workspace = css.match(/\.stage19-manuscript-structure__workspace\s*\{[^}]*\}/)?.[0] ?? '';
+    const proposals = css.match(/\.stage19-manuscript-structure__proposals\s*\{[^}]*\}/)?.[0] ?? '';
 
     expect(workspace).toMatch(/max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
     expect(proposals).toMatch(/overflow:\s*visible;/);
