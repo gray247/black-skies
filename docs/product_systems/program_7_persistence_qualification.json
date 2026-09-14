@@ -1,0 +1,211 @@
+{
+  "schema": "black-skies.program7.persistence-qualification.v1",
+  "status": "qualified",
+  "exactCommit": "46db3bfb58ba0dcf070046603cb6721fce6fcd29",
+  "exactTree": "997398d8bab5cad08bfe507247f378b278973e18",
+  "environment": {
+    "platform": "win32",
+    "node": "v22.19.0"
+  },
+  "command": "node scripts/run-vitest-offline.mjs --run main/__tests__/feedbackNotesRepository.test.ts main/__tests__/ideationRepository.test.ts main/__tests__/revisionCandidateRepository.test.ts main/__tests__/storyFoundationRepository.test.ts main/__tests__/projectSpineIpc.test.ts main/__tests__/projectSessionCoordinator.test.ts main/__tests__/projectSpineRecoveryCheckpoints.test.ts main/__tests__/projectSpineRecoveryRepository.test.ts --reporter=json",
+  "testSummary": {
+    "files": 8,
+    "total": 136,
+    "passed": 136,
+    "failed": 0,
+    "skipped": 0
+  },
+  "matrix": [
+    {
+      "family": "migration",
+      "result": "Pass",
+      "checks": [
+        {
+          "requirement": "reads legacy v1 losslessly and migrates it only on the first revision mutation",
+          "matchedAssertion": "Feedback Notes sidecar reads legacy v1 losslessly and migrates it only on the first revision mutation",
+          "status": "passed"
+        },
+        {
+          "requirement": "revision candidate repository fails closed for unsupported persisted schema and duplicate IDs",
+          "matchedAssertion": "revision candidate repository fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes",
+          "status": "passed"
+        },
+        {
+          "requirement": "Ideation owner fails closed for unsupported persisted schema and duplicate IDs",
+          "matchedAssertion": "Ideation owner fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes",
+          "status": "passed"
+        },
+        {
+          "requirement": "Story Foundation project-local authored truth owner fails closed for wrong versions and duplicate identities",
+          "matchedAssertion": "Story Foundation project-local authored truth owner fails closed for wrong versions and duplicate identities while ignoring abandoned temp files",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "family": "corruption",
+      "result": "Pass",
+      "checks": [
+        {
+          "requirement": "Feedback Notes sidecar fails closed for corruption variants and ignores an abandoned temporary file",
+          "matchedAssertion": "Feedback Notes sidecar fails closed for corruption variants and ignores an abandoned temporary file",
+          "status": "passed"
+        },
+        {
+          "requirement": "Ideation owner fails closed for unsupported persisted schema and duplicate IDs",
+          "matchedAssertion": "Ideation owner fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes",
+          "status": "passed"
+        },
+        {
+          "requirement": "revision candidate repository fails closed for unsupported persisted schema and duplicate IDs",
+          "matchedAssertion": "revision candidate repository fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes",
+          "status": "passed"
+        },
+        {
+          "requirement": "Story Foundation project-local authored truth owner fails closed for wrong versions and duplicate identities",
+          "matchedAssertion": "Story Foundation project-local authored truth owner fails closed for wrong versions and duplicate identities while ignoring abandoned temp files",
+          "status": "passed"
+        },
+        {
+          "requirement": "project-spine IPC fails closed without rewriting corrupt pending-acceptance evidence",
+          "matchedAssertion": "project-spine IPC fails closed without rewriting corrupt pending-acceptance evidence",
+          "status": "passed"
+        },
+        {
+          "requirement": "classifies corrupt JSON and incomplete envelopes without rewriting them",
+          "matchedAssertion": "ProjectSpineRecoveryRepository classifies corrupt JSON and incomplete envelopes without rewriting them",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "family": "concurrency",
+      "result": "Pass",
+      "checks": [
+        {
+          "requirement": "Feedback Notes sidecar serializes concurrent revision mutations and preserves both items",
+          "matchedAssertion": "Feedback Notes sidecar serializes concurrent revision mutations and preserves both items",
+          "status": "passed"
+        },
+        {
+          "requirement": "Ideation owner serializes concurrent same-revision writers to one winner and one STALE result",
+          "matchedAssertion": "Ideation owner serializes concurrent same-revision writers to one winner and one STALE result",
+          "status": "passed"
+        },
+        {
+          "requirement": "revision candidate repository serializes concurrent expected revisions and preserves corrupt bytes",
+          "matchedAssertion": "revision candidate repository serializes concurrent expected revisions and preserves corrupt bytes",
+          "status": "passed"
+        },
+        {
+          "requirement": "Story Foundation project-local authored truth owner rejects stale and concurrent mutations without losing either durable winner",
+          "matchedAssertion": "Story Foundation project-local authored truth owner rejects stale and concurrent mutations without losing either durable winner",
+          "status": "passed"
+        },
+        {
+          "requirement": "serializes revision acceptance around its ProjectSpine save and rejects competing writes",
+          "matchedAssertion": "ProjectSessionCoordinator serializes revision acceptance around its ProjectSpine save and rejects competing writes",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "family": "recovery",
+      "result": "Pass",
+      "checks": [
+        {
+          "requirement": "Feedback Notes sidecar leaves an existing document intact when a revision write fails",
+          "matchedAssertion": "Feedback Notes sidecar leaves an existing document intact when a revision write fails",
+          "status": "passed"
+        },
+        {
+          "requirement": "Ideation owner leaves the prior document intact and cleans the temporary file when atomic replacement fails",
+          "matchedAssertion": "Ideation owner leaves the prior document intact and cleans the temporary file when atomic replacement fails",
+          "status": "passed"
+        },
+        {
+          "requirement": "revision candidate repository leaves the prior document intact and cleans the temporary file when atomic replacement fails",
+          "matchedAssertion": "revision candidate repository leaves the prior document intact and cleans the temporary file when atomic replacement fails",
+          "status": "passed"
+        },
+        {
+          "requirement": "Story Foundation project-local authored truth owner leaves the prior document intact when atomic replacement fails",
+          "matchedAssertion": "Story Foundation project-local authored truth owner leaves the prior document intact when atomic replacement fails",
+          "status": "passed"
+        },
+        {
+          "requirement": "project-spine IPC reconciles an accepted manuscript when candidate finalization is interrupted",
+          "matchedAssertion": "project-spine IPC reconciles an accepted manuscript when candidate finalization is interrupted",
+          "status": "passed"
+        },
+        {
+          "requirement": "keeps the prior-session envelope intact when atomic accepted-set rebinding fails",
+          "matchedAssertion": "ProjectSpineRecoveryCheckpointService keeps the prior-session envelope intact when atomic accepted-set rebinding fails",
+          "status": "passed"
+        },
+        {
+          "requirement": "preserves the prior envelope and cleans its temporary file when replacement fails",
+          "matchedAssertion": "ProjectSpineRecoveryRepository preserves the prior envelope and cleans its temporary file when replacement fails",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "sourceArtifacts": [
+    {
+      "path": "app/main/__tests__/feedbackNotesRepository.test.ts",
+      "sha256": "2077b965f8a1055206c5dd6112998f0396cefd87bb1ea0feba5555cf709b3e13"
+    },
+    {
+      "path": "app/main/__tests__/ideationRepository.test.ts",
+      "sha256": "d2282652293a4674e5e899b39353a990e3147ed8461df1baffdd27491214cb1d"
+    },
+    {
+      "path": "app/main/__tests__/revisionCandidateRepository.test.ts",
+      "sha256": "f56f0853a0f1b8efab443e92c6f3993b757cd54e54b4dd04418250868e5a0d94"
+    },
+    {
+      "path": "app/main/__tests__/storyFoundationRepository.test.ts",
+      "sha256": "f86d3bb2bf5e479f573421b41f082a15cb7f46057a4cb0e00d5c43330889f176"
+    },
+    {
+      "path": "app/main/__tests__/projectSpineIpc.test.ts",
+      "sha256": "72155ec0f332e2d6f2c9680303ae00f4a9b90f3ac3242c008b490e9d9a6a42c2"
+    },
+    {
+      "path": "app/main/__tests__/projectSessionCoordinator.test.ts",
+      "sha256": "1a835f05d98c929ceb87c44b2ca1b3351e4df51ab6c0a36811f5ff3efd107efe"
+    },
+    {
+      "path": "app/main/__tests__/projectSpineRecoveryCheckpoints.test.ts",
+      "sha256": "6f75196371f0201d4520adf23c7342b1d82b7ec72c4f8d1c61ebe38f06e3b531"
+    },
+    {
+      "path": "app/main/__tests__/projectSpineRecoveryRepository.test.ts",
+      "sha256": "10af7f7c67bed819265d8fbaef1bfd174b8bb4155acf72e34ceae730c934f5bd"
+    },
+    {
+      "path": "app/main/feedbackNotesRepository.ts",
+      "sha256": "3f03b894e86a846d8b5dd3d2e7901f542c2e9f313c1f65809b5df08eef3a8c55"
+    },
+    {
+      "path": "app/main/ideationRepository.ts",
+      "sha256": "04e282f0ef0bf4c8fd6783e1f7225b5bacbd603de5427cbeec1de20b0081c360"
+    },
+    {
+      "path": "app/main/revisionCandidateRepository.ts",
+      "sha256": "7d6bd26654ca5cc7596c30c8088536344f9e1d3da9eef9f244e79969c4c4de7f"
+    },
+    {
+      "path": "app/main/storyFoundationRepository.ts",
+      "sha256": "6614bd7a267d6d99b16045cf7608c2be316cc9f403a5c77261a1d661e22ce03b"
+    },
+    {
+      "path": "app/main/projectSpineIpc.ts",
+      "sha256": "7b0f970db14009dc0bbf6968ea16edfc168e43321fb58688248dbf8c12b0289a"
+    }
+  ],
+  "protectedEvidenceUsed": false,
+  "humanAcceptanceClaimed": false,
+  "capturedAt": "2026-09-14T03:05:18.367Z"
+}

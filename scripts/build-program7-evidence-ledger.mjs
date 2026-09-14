@@ -13,6 +13,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const ledgerPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_evidence_ledger.jsonl');
 const pilotPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_local_ai_qualification.json');
 const electronPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_electron_qualification.json');
+const persistencePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_persistence_qualification.json');
 const protocolPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_qualification_protocol.md');
 const samplePath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
 const packageReceiptPath = path.join(repoRoot, 'app', 'release', 'stage19-package-receipt.json');
@@ -69,8 +70,10 @@ const { stdout: precommitTreeOut } = await execFileAsync('git', ['rev-parse', `$
 const precommitTreeHash = precommitTreeOut.trim();
 const pilot = JSON.parse(await readFile(pilotPath, 'utf8'));
 const electron = JSON.parse(await readFile(electronPath, 'utf8'));
+const persistence = JSON.parse(await readFile(persistencePath, 'utf8'));
 const pilotArtifact = await loadArtifact(pilotPath);
 const electronArtifact = await loadArtifact(electronPath);
+const persistenceArtifact = await loadArtifact(persistencePath);
 const protocolArtifact = await loadArtifact(protocolPath);
 let sampleArtifact = null;
 try { sampleArtifact = await loadArtifact(samplePath); } catch { sampleArtifact = null; }
@@ -80,6 +83,15 @@ let lifecycleEvidenceArtifact = null;
 try { lifecycleEvidenceArtifact = await loadArtifact(lifecycleEvidencePath); } catch { lifecycleEvidenceArtifact = null; }
 const environment = { os: 'Windows outer host', appMode: 'Node/Electron qualification', window: 'attached and detached surfaces where applicable', theme: 'dark', zoom: 100, runtime: 'Node 20+ / Electron 39.8.10 / normal GPU' };
 const rows = [];
+const persistenceFamilies = new Map((persistence.matrix ?? []).map((entry) => [entry.family, entry]));
+const persistenceQualified = persistence.schema === 'black-skies.program7.persistence-qualification.v1'
+  && persistence.status === 'qualified'
+  && persistence.exactCommit === exactCommit
+  && persistence.exactTree === precommitTreeHash
+  && persistence.protectedEvidenceUsed === false
+  && persistence.humanAcceptanceClaimed === false
+  && persistence.testSummary?.failed === 0
+  && ['migration', 'corruption', 'concurrency', 'recovery'].every((family) => persistenceFamilies.get(family)?.result === 'Pass');
 
 for (const matrixRow of pilot.matrix) {
   const subjective = ['Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07'].includes(matrixRow.scenarioId);
@@ -153,11 +165,28 @@ if (sampleArtifact) {
   }));
 }
 
+for (const [id, family, expected] of [
+  ['P7-G2-PROTOCOL-MIGRATION', 'migration', 'Legacy reads, first supported write, extension-field preservation, and repeated migration are idempotent.'],
+  ['P7-G2-PROTOCOL-CORRUPTION', 'corruption', 'Malformed, truncated, wrong-type, and checksum-invalid artifacts fail closed without repair authority.'],
+  ['P7-G2-PROTOCOL-CONCURRENCY', 'concurrency', 'Concurrent writers and stale expected revisions fail closed while preserving durable truth.'],
+  ['P7-G2-PROTOCOL-RECOVERY', 'recovery', 'Crash points, write denial, restart, discarded temp files, and prior-file restoration preserve recovery invariants.'],
+]) {
+  const familyResult = persistenceFamilies.get(family);
+  rows.push(row({
+    evidenceId: id, packageId: 'P7-G2', evidenceClass: 'component', executionMode: 'fault-a', environment,
+    action: `Run the exact Program 7 ${family} persistence qualification against the named sidecar and ProjectSpine owners.`, expected,
+    observed: persistenceQualified
+      ? `${persistence.testSummary.files} suites / ${persistence.testSummary.passed} tests passed; ${family} matrix Pass with ${familyResult.checks.length} mapped assertions; exact commit/tree bound.`
+      : 'A matching exact-commit persistence artifact is unavailable; this remains an explicit unresolved prerequisite.',
+    result: persistenceQualified ? 'Pass' : 'Uncertain', authoritySensitive: false, genuinelySubjective: false,
+    humanRequired: false, humanStatus: 'not-required', humanBasis: 'This row records deterministic persistence behavior only.',
+    limitations: ['Mechanical persistence proof only; it does not decide writer usefulness or Human Gate 4 acceptance.'],
+    disposition: persistenceQualified ? 'closure' : 'defer',
+    artifacts: persistenceQualified ? [persistenceArtifact, protocolArtifact] : [protocolArtifact],
+  }));
+}
+
 for (const [id, expected] of [
-  ['P7-G2-PROTOCOL-MIGRATION', 'Legacy reads, first-mutation migration, unknown-field preservation, and repeated migration are idempotent.'],
-  ['P7-G2-PROTOCOL-CORRUPTION', 'Malformed, truncated, wrong-type, and checksum-invalid artifacts fail closed without repair authority.'],
-  ['P7-G2-PROTOCOL-CONCURRENCY', 'Concurrent writers and stale expected revisions fail closed while preserving durable truth.'],
-  ['P7-G2-PROTOCOL-RECOVERY', 'Crash points, write denial, restart, discarded temp files, and prior-file restoration preserve recovery invariants.'],
   ['P7-G2-PROTOCOL-UNICODE-MARKDOWN', 'ASCII, accented, combining, emoji, CJK, RTL, Markdown, newline, UTF-16, and round-trip anchor fixtures are covered.'],
   ['P7-G2-PROTOCOL-ACCESSIBILITY-VISUAL', 'Required surfaces and states pass axe, contrast, keyboard, theme, zoom, narrow-layout, focus, and reduced-motion checks.'],
   ['P7-G2-PROTOCOL-SCALE', 'Carmilla and 1x/2x/4x/8x synthetic scale fixtures meet performance and bounded-resource limits.'],

@@ -1,40 +1,49 @@
 # Program 7 Qualification Closure Report
 
-Status: mechanical qualification packet complete; Human Gate 4 and local-AI admission remain open.
+Status: persistence qualification complete for the current implementation checkpoint; complete candidate requalification, Human Gate 4, and local-AI admission remain open.
 
-Exact runtime implementation commit: `5cd85c5bf6949e57ea8d53370978849297ab2a3a`
+Exact current runtime implementation commit: `46db3bfb58ba0dcf070046603cb6721fce6fcd29`
 
-Exact runtime implementation tree: `6fe48bcf85b630dd086b96bedcc370b9cfd75ef3`
+Exact current runtime implementation tree: `997398d8bab5cad08bfe507247f378b278973e18`
 
-The evidence packet is documentation-bound after this implementation commit; its
-ledger rows all bind to the exact implementation commit/tree above.
+The current persistence artifact binds to this exact implementation commit and
+tree. The prior complete ledger and runtime artifacts bind to the earlier
+`5cd85c5bf6949e57ea8d53370978849297ab2a3a` candidate and are historical input
+only after the tracked persistence and evidence-runner changes.
 
 ## Evidence completed
 
-- Disposable Carmilla review fixture: one current source-linked finding, immutable baseline preserved.
-- Four P7-G2 Electron suites: 4/4 passed on the outer Windows host with normal GPU operation; the no-AI suite explicitly disabled local AI and verified no manuscript mutation.
-- Real RT-2B pilot: 24/24 separately receipted matrix rows passed mechanically against Ollama 0.13.0 and `qwen3:4b` digest `359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`; Q11 records real `/api/generate` cancellation and Q12 records real connection refusal and endpoint-loss fixtures.
-- Complete Stage 19 outer-host gate: 49/49 critical files, 803 passed, 2 expected skips, startup 1/1, Electron 36/36, `STAGE19_REGRESSION_PASS`, and `CLEAN_RC_ELIGIBLE`.
-- Rebuilt NSIS package receipt binds to the exact implementation commit. The installed application-only lifecycle passed packaged/sandboxed window checks, exact Markdown export, representative 100-unit workload, uninstall, external-data preservation, and reinstall. The exact outbound-firewall-isolated lifecycle remains unrun because the current shell is not Administrator.
-- Evidence schema and fail-closed validator: validator passes 41 granular JSONL rows bound to one exact implementation commit/tree and verifies referenced artifact bytes and hashes, including the package receipt and lifecycle evidence. The deterministic sample is recorded in `program_7_human_sample.json` with blank Jason fields.
+- Exact persistence qualification: 8 suites / 136 tests passed with zero skips or failures. Migration, corruption, concurrency, and recovery each map to named assertions and report `Pass`.
+- Feedback Notes proves lossless legacy-v1 reading, extension-field preservation, first-write migration, and repeat idempotence. Current strict-schema owners reject unsupported versions rather than inventing migrations.
+- Feedback Notes, Ideas, Revision Candidates, and Story Foundation now synchronize temporary files before atomic replacement, clean failed temporary files, and preserve the prior durable document when replacement fails.
+- Corrupt JSON, invalid UTF-8, wrong versions, duplicate identities, abandoned temporary files, stale writers, same-revision races, interrupted candidate acceptance, and recovery-envelope failures are covered without silent repair or byte rewriting.
+- The complete app suite passed 156 files / 1,452 tests with 2 expected skips after the main-process artifacts were rebuilt. Typecheck, lint, documentation authority checks, and diff hygiene also passed.
+- The RT-2B runner now retains complete response text, honest non-streaming timing labels, provider timing values, host-boundary resource snapshots, and full captured request/response/control scanning. A fresh real-model run is still required before those stronger fields become current qualification evidence.
 
 ## Explicitly not closed
 
-The pilot records mechanical evidence only. Jason must still score usefulness, source fidelity, facts, voice/style, actionability, and uncertainty for the protocol's subjective rows, then decide whether local AI is admitted. Human Gate 4 must review the no-AI Carmilla workflow and the integrated surfaces. This report does not authorize, imply, or fabricate either decision.
+The prior pilot remains mechanical evidence only and is no longer the current
+candidate's qualification receipt. A fresh RT-2B real-model run must precede
+Jason's scores for usefulness, source fidelity, facts, voice/style,
+actionability, and uncertainty restraint. Jason alone decides whether local AI
+is admitted. Human Gate 4 must review the no-AI Carmilla workflow and the
+integrated surfaces. This report does not authorize, imply, or fabricate either
+decision.
 
 The nested Codex sandbox reproduces Electron `STATUS_DLL_NOT_FOUND` before first window creation. The required outer-host run passes; no GPU-disable diagnostic mode was used and no runtime or ACL repair was made.
 
-The remaining mechanical packet rows are explicit `Uncertain` carry-forwards for
-the protocol migration, corruption, concurrency, recovery, Unicode/Markdown,
-accessibility/visual, scale, and exact offline-firewall package matrices. The
-P4/P5/P6 regression rows remain reserved for Jason. These are not closure or
-admission claims.
+The remaining mechanical work is the Unicode/Markdown, accessibility/visual,
+scale, refreshed RT-2B, refreshed Electron/Stage 19, rebuilt exact package, and
+exact offline-firewall package matrices. The latter still requires an
+Administrator PowerShell session. The P4/P5/P6 regression rows remain reserved
+for Jason. These are not closure or admission claims.
 
 ## Canonical artifacts
 
 - `docs/product_systems/program_7_evidence_ledger.jsonl`
 - `docs/product_systems/program_7_local_ai_qualification.json`
 - `docs/product_systems/program_7_electron_qualification.json`
+- `docs/product_systems/program_7_persistence_qualification.json`
 - `scripts/program7-evidence-row.schema.json`
 - `scripts/validate-program7-evidence.mjs`
 - `scripts/build-program7-evidence-ledger.mjs`

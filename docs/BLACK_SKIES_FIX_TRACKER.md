@@ -636,6 +636,62 @@ report is present, but it explicitly keeps Human Gate 4 and local-AI
 admission open until Jason performs the required no-AI workflow and subjective
 review. No Program 7 closure or Human Gate 4 acceptance is claimed.
 
+## Program 7 persistence and local-evidence hardening — 2026-09-14
+
+The exact current implementation checkpoint is
+`46db3bfb58ba0dcf070046603cb6721fce6fcd29` (tree
+`997398d8bab5cad08bfe507247f378b278973e18`). The Program 7 persistence
+qualification passed 8 named suites / 136 tests with zero failures or skips.
+Its exact-commit artifact records `Pass` for migration, corruption,
+concurrency, and recovery and maps every family to the assertions that produced
+the result. No protected evidence was used and no human acceptance was claimed.
+
+The bounded persistence scope is the four Program 7 sidecars—Feedback Notes,
+Ideas, Revision Candidates, and Story Foundation—plus ProjectSpine only where
+candidate acceptance crosses its existing authority boundary. Feedback Notes
+now proves lossless legacy-v1 reading, extension-field preservation, first-write
+migration, and repeat idempotence. The other current strict-schema owners fail
+closed on unsupported versions instead of inventing migrations. Tests also
+cover malformed JSON, invalid UTF-8, wrong versions, duplicate identities,
+abandoned temporary files, stale or concurrent writers, interrupted candidate
+acceptance, and recovery-envelope failures without silent repair or byte
+rewriting.
+
+Root durability cause: the four sidecar repositories used temporary-file rename
+but did not synchronize the temporary file before replacement. They now create
+the temporary file exclusively, write through its handle, call file sync, close
+before atomic rename, and close/remove the temporary file on failure. Injected
+sync and rename failures prove the prior durable file remains intact. This is a
+localized durability repair; schemas, public IPC, manuscript authority, and
+author mutation behavior are unchanged.
+
+The RT-2B local-AI runner now retains complete provider output, labels its
+current path honestly as non-streaming, records first structured response and
+first visible result separately, captures provider timing values and
+host-boundary resource snapshots, and scans the complete captured
+request/response/control artifact set using byte-aware and NFC-aware protected
+sentinels. The scanner regression passes. These stronger fields still require
+a fresh real `qwen3:4b` run; the prior pilot receipt is historical input after
+the runner changed.
+
+Qualification evidence at this checkpoint: the complete app suite passed 156
+files / 1,452 tests with 2 expected skips after rebuilding the main-process
+artifacts; focused persistence coverage passed 136/136; typecheck, app lint,
+documentation authority checks, the local-evidence unit test, and
+`git diff --check` passed. One full-suite failure was a stale test expectation:
+accepted manuscript text is durably normalized without a final newline, while
+the assertion hashed a newline-terminated string. The assertion was corrected
+and its focused suite passed; production behavior did not change for that fix.
+
+Current open work before Human Gate 4: Unicode/Markdown, accessibility/visual,
+and scale matrices; a refreshed real-model RT-2B run; refreshed exact-candidate
+Electron and Stage 19 qualification; a rebuilt exact package and the
+Administrator-only outbound-firewall lifecycle; then Jason's P4/P5/P6
+carry-forward observations, subjective scoring, local-AI admission decision,
+and Human Gate 4 decision. The existing evidence ledger remains bound to the
+prior candidate until those whole-packet reruns are complete; no mixed-commit
+ledger or premature Program 7 closure is claimed.
+
 ## Program 6 final closure — 2026-09-07
 
 Jason confirmed the final detached Emotion source return both activates and
