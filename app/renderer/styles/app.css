@@ -5334,7 +5334,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --bs-line-strong: #a99d8b;
   --bs-text-primary: #24211d;
   --bs-text-secondary: #575149;
-  --bs-text-muted: #777067;
+  --bs-text-muted: var(--bs-text-secondary);
   --bs-accent-primary: #74551f;
   --bs-state-info: #655f56;
   --bs-state-success: #166534;

@@ -121,9 +121,10 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     const p7 = css.slice(css.indexOf('/* Program 7 author workspaces'));
     const pairs = [
       ['#f0ece3', '#000000'], ['#b9b2a6', '#000000'], ['#857f75', '#000000'], ['#a7f3d0', '#000000'],
-      ['#24211d', '#fbf8f1'], ['#575149', '#fbf8f1'], ['#777067', '#fbf8f1'], ['#166534', '#dcfce7'],
+      ['#24211d', '#fbf8f1'], ['#575149', '#fbf8f1'], ['#575149', '#f6f1e7'], ['#166534', '#dcfce7'],
     ] as const;
     for (const [foreground, background] of pairs) expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
+    expect(css).toContain('--bs-text-muted: var(--bs-text-secondary);');
     expect(p7).not.toMatch(/(?:color|background(?:-color)?)\s*:\s*#(?:fff|ffffff|eee|eeeeee|d3d3d3|c0c0c0)\b/i);
     expect(p7).toContain('min-height: 44px;');
     expect(p7).toContain('white-space: pre-wrap;');
