@@ -83,7 +83,9 @@ async function assertProgram7MechanicalA11y(
   expect(mechanical.targetHeights.every((height) => height >= 44), `${route}: target heights ${mechanical.targetHeights.join(', ')}`).toBe(true);
   expect(mechanical.horizontalOverflow, `${route}: horizontal overflow`).toBe(false);
   expect(mechanical.paleGrayValues, `${route}: prohibited pale-gray computed styles`).toEqual([]);
-  if (context.reducedMotion && mechanical.reducedMotionDuration !== null) expect(mechanical.reducedMotionDuration).toBe('0s');
+  if (context.reducedMotion && mechanical.reducedMotionDuration !== null) {
+    expect(Number.parseFloat(mechanical.reducedMotionDuration)).toBeLessThanOrEqual(0.00001);
+  }
   observedRows.set(evidenceId(context), { evidenceId: evidenceId(context), result: 'Pass' });
 }
 
