@@ -195,8 +195,8 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
         await writing.locator('#program7-candidate-purpose').fill('Clarify the opening transition.');
         await writing.locator('#program7-candidate-text').fill(`Author-written alternative at ${profile.id}.`);
         await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
-        await expect(writing.getByTestId('revision-comparison')).toBeVisible();
         const latestComparison = writing.getByTestId('revision-comparison').last();
+        await expect(latestComparison).toBeVisible();
         await latestComparison.getByRole('button', { name: 'Edit candidate', exact: true }).click();
         await expect(writing.getByTestId('writing-revision-drawer')).toBeVisible();
         await assertProgram7MechanicalA11y(writing, `attached-${theme}-${profile.id}-manual-alternative`, {
