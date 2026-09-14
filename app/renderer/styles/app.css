@@ -9560,6 +9560,24 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 @media (max-width: 720px) {
+  .stage19-spine--writing .stage19-writing-shell__topbar {
+    align-items: stretch;
+    height: auto;
+    min-height: 96px;
+    padding-right: 16px;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__status,
+  .stage19-spine--writing .stage19-spine__surface-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .stage19-spine--writing .stage19-spine__surface-host {
+    width: 100%;
+    min-width: 0;
+  }
+
   .program7-create-develop,
   .program7-revision-desk,
   .program7-story-foundation,
