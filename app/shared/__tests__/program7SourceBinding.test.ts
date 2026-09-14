@@ -2,8 +2,51 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildProgram7SourceEnvelope,
+  type Program7SourceEnvelopeV1,
   resolveProgram7SourceBinding,
 } from '../program7SourceBinding';
+import { normalizeManuscriptSource } from '../manuscriptStructure';
+
+function selectedRange(source: string, selected: string): { start: number; end: number } {
+  const start = source.indexOf(selected);
+  if (start < 0) throw new Error(`Fixture selection is missing: ${selected}`);
+  return { start, end: start + selected.length };
+}
+
+const UNICODE_MARKDOWN_FIXTURES = [
+  { name: 'ASCII', source: 'The author returned to the house.', selected: 'returned' },
+  { name: 'accented Latin', source: 'Café déjà vu — naïve façade.', selected: 'déjà vu' },
+  { name: 'combining mark', source: 'Cafe\u0301 and e\u0301lan.', selected: 'Cafe\u0301' },
+  { name: 'emoji surrogate pair', source: 'The signal was 😀, then 👩‍💻 replied.', selected: '😀' },
+  { name: 'CJK', source: '夜の庭で猫が眠る。', selected: '猫が眠る' },
+  { name: 'right-to-left', source: 'שלום עולם — مرحبا بالعالم', selected: 'مرحبا بالعالم' },
+  {
+    name: 'Markdown source constructs',
+    source: '# Heading\n- **bold** [link](https://example.test)\n```md\ncode *literal*\n```',
+    selected: '**bold** [link](https://example.test)',
+  },
+] as const;
+
+type NewlineVariant = { name: string; apply: (value: string) => string };
+
+const NEWLINE_VARIANTS: readonly NewlineVariant[] = [
+  { name: 'LF', apply: (value) => value },
+  { name: 'CRLF', apply: (value) => value.replace(/\n/g, '\r\n') },
+  { name: 'mixed', apply: (value) => value.replace('\n', '\r\n').replace('\n', '\n') },
+];
+
+function envelopeFor(source: string, selected: string): Promise<Program7SourceEnvelopeV1> {
+  const normalized = normalizeManuscriptSource(source);
+  const range = selectedRange(normalized, selected);
+  return buildProgram7SourceEnvelope({
+    projectId: 'project-unicode',
+    generation: 7,
+    unitId: 'unit-unicode',
+    sourceText: source,
+    selectionStart: range.start,
+    selectionEnd: range.end,
+  });
+}
 
 describe('Program 7 source binding', () => {
   it('normalizes CRLF and stores exact UTF-16 coordinates and body hash', async () => {
@@ -154,5 +197,104 @@ describe('Program 7 source binding', () => {
         selectionFingerprint: 'a'.repeat(64),
       }),
     ).rejects.toThrow('selectionFingerprint');
+  });
+
+  it.each(UNICODE_MARKDOWN_FIXTURES)(
+    'round-trips $name using UTF-16 source coordinates',
+    async ({ name, source, selected }) => {
+      const normalized = normalizeManuscriptSource(source);
+      const range = selectedRange(normalized, selected);
+      const envelope = await envelopeFor(source, selected);
+
+      expect(envelope.text).toBe(normalized);
+      expect(envelope.anchor).toMatchObject({
+        selectionStart: range.start,
+        selectionEnd: range.end,
+        sourceFingerprint: envelope.bodySha256,
+      });
+      expect(envelope.anchor!.selectionEnd - envelope.anchor!.selectionStart).toBe(selected.length);
+      expect(normalized.slice(range.start, range.end)).toBe(selected);
+      if (name === 'emoji surrogate pair') {
+        expect(selected.length).toBe(2);
+        expect([...selected]).toHaveLength(1);
+        expect(range.start).toBe('The signal was '.length);
+        expect(normalized.indexOf('then')).toBe(range.end + 2);
+      }
+      await expect(resolveProgram7SourceBinding(envelope, normalized)).resolves.toMatchObject({
+        status: 'exact',
+        selectionStart: range.start,
+        selectionEnd: range.end,
+      });
+    },
+  );
+
+  it.each(NEWLINE_VARIANTS)(
+    'treats $name and normalized LF as the same current source',
+    async ({ apply }) => {
+      const source = apply('First line\n\n**Café 😀**\n- آخر سطر');
+      const normalized = normalizeManuscriptSource(source);
+      const selected = '**Café 😀**';
+      const range = selectedRange(normalized, selected);
+      const envelope = await buildProgram7SourceEnvelope({
+        projectId: 'project-newlines',
+        generation: 2,
+        unitId: 'unit-newlines',
+        sourceText: source,
+        selectionStart: range.start,
+        selectionEnd: range.end,
+      });
+
+      expect(envelope.text).toBe(normalized);
+      await expect(resolveProgram7SourceBinding(envelope, normalized)).resolves.toMatchObject({
+        status: 'exact',
+        selectionStart: range.start,
+        selectionEnd: range.end,
+      });
+      await expect(resolveProgram7SourceBinding(envelope, source)).resolves.toMatchObject({
+        status: 'exact',
+        selectionStart: range.start,
+        selectionEnd: range.end,
+      });
+    },
+  );
+
+  it('keeps final-newline and no-final-newline currentness distinct while preserving anchor relocation', async () => {
+    const source = '# End\nA final line';
+    const selected = 'A final line';
+    const envelope = await envelopeFor(source, selected);
+    const range = selectedRange(source, selected);
+
+    await expect(resolveProgram7SourceBinding(envelope, `${source}\n`)).resolves.toMatchObject({
+      status: 'relocated',
+      selectionStart: range.start,
+      selectionEnd: range.end,
+    });
+
+    const bodyOnly = await buildProgram7SourceEnvelope({
+      projectId: 'project-newline',
+      generation: 1,
+      unitId: 'unit-newline',
+      sourceText: source,
+    });
+    await expect(resolveProgram7SourceBinding(bodyOnly, `${source}\n`)).resolves.toMatchObject({
+      status: 'potentially-outdated',
+    });
+  });
+
+  it('refuses a changed source without silently reattaching a UTF-16 anchor', async () => {
+    const source = 'prefix 😀 selected suffix';
+    const selected = 'selected';
+    const envelope = await envelopeFor(source, selected);
+
+    await expect(
+      resolveProgram7SourceBinding(envelope, 'prefix 😀 changed suffix'),
+    ).resolves.toMatchObject({
+      status: 'stale',
+    });
+    await expect(
+      resolveProgram7SourceBinding(envelope, 'selected selected'),
+    ).resolves.toMatchObject({
+      status: 'ambiguous',
+    });
   });
 });
