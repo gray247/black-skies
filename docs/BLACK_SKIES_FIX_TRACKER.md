@@ -3,6 +3,16 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 Stage 19 count binding correction — 2026-09-14
+
+The exact-candidate Stage 19 rerun passed 49/49 critical files with 805
+tests passed and 2 expected skips. The evidence builder no longer treats the
+earlier 803-test baseline as an immutable exact count: it requires at least
+that qualified baseline and records the packet's actual passing count. This
+prevents added regression assertions from invalidating otherwise stronger
+evidence while still failing closed if coverage drops below the baseline.
+Human Gate 4 and local-AI admission remain pending.
+
 ## Program 7 evidence-ledger binding hardening — 2026-09-14
 
 The evidence-ledger builder now fails closed when promoting the Unicode,

@@ -168,7 +168,7 @@ function qualifiesElectron(document, exactCommit, exactTree) {
     && document.suiteSummary?.passed === 4
     && document.suiteSummary?.failed === 0
     && document.stage19?.criticalUnitFiles === 49
-    && document.stage19?.criticalUnitPassed === 803
+    && document.stage19?.criticalUnitPassed >= 803
     && document.stage19?.expectedSkips === 2
     && document.stage19?.startupPreflight === '1/1'
     && document.stage19?.electronPassed === '36/36'
@@ -290,9 +290,9 @@ const packagedQualified = qualifiesLifecycle(lifecycleEvidence, packageReceipt, 
 rows.push(row({
   evidenceId: 'P7-G2-STAGE19', packageId: 'P7-G2', evidenceClass: 'runtime', executionMode: 'real-warm', environment,
   action: 'Run the complete clean stage19:regression gate on the outer Windows host with normal GPU operation.',
-  expected: '49 critical files pass with 803 tests passed and 2 expected skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
+  expected: '49 critical files pass with at least the 803-test qualified baseline and 2 expected skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.',
   observed: electronQualified
-    ? 'Clean outer-host packet passed 49 critical files, 803 passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.'
+    ? `Clean outer-host packet passed 49 critical files, ${electron.stage19.criticalUnitPassed} passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.`
     : 'Electron qualification packet is unavailable or not bound to this exact candidate; no Stage 19 pass is inferred.',
   result: electronQualified ? 'Pass' : 'Uncertain', artifacts: [electronEvidenceArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
 }));
