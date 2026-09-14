@@ -52,10 +52,8 @@ export async function run() {
     const electronRequested = process.argv.includes('--electron');
     let electronStatus = 'not-requested';
     if (electronRequested) {
-      const playwrightCli = process.platform === 'win32'
-        ? path.join(appRoot, 'node_modules', '.bin', 'playwright.cmd')
-        : path.join(appRoot, 'node_modules', '.bin', 'playwright');
-      const electronResult = spawnSync(playwrightCli, ['test', 'tests/e2e/program7-scale-performance.spec.ts', '--project', 'electron', '--workers=1', '--reporter=line'], {
+      const playwrightCli = path.join(appRoot, 'node_modules', 'playwright', 'cli.js');
+      const electronResult = spawnSync(process.execPath, [playwrightCli, 'test', 'tests/e2e/program7-scale-performance.spec.ts', '--project', 'electron', '--workers=1', '--reporter=line'], {
         cwd: appRoot,
         encoding: 'utf8',
         env: process.env,
