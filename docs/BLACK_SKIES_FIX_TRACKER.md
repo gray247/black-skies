@@ -3,6 +3,19 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 accessibility state-evidence binding — 2026-09-14
+
+The accessibility matrix runner now binds normative state coverage to exact
+existing focused Vitest test titles and invokes those assertions at packet
+build time. Empty, active/populated, manual, local-AI, stale, protected,
+unavailable, cancelled, failure, partial, resolved (including explicit
+acceptance and rejection), and recurrence are mechanically bound. Route rows
+alone cannot qualify the packet. The loading posture has no existing focused
+Program 7 assertion and remains explicitly `Uncertain`; the packet therefore
+remains partial. Focused binding coverage passed 29 assertions; the narrowed
+Program 7 suite passed 43 tests, with app typecheck, lint, and `git diff --check`
+also green. No protected evidence or human acceptance claim is made.
+
 ## Program 7 mechanical packet refresh — 2026-09-14
 
 The packaged preload was repaired for Electron's sandboxed loader by removing

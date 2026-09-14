@@ -52,10 +52,12 @@ describe('RevisionComparison component', () => {
     fireEvent.click(within(comparison).getByRole('button', { name: 'Accept selected text only' }));
     fireEvent.click(within(comparison).getByRole('button', { name: 'Edit candidate' }));
     fireEvent.click(within(comparison).getByRole('button', { name: 'Park candidate' }));
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Reject candidate' }));
     expect(onAcceptAll).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }));
     expect(onPartialAccept).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'Candidate manuscript');
     expect(onOpenEditor).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }));
     expect(onLifecycle).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'parked');
+    expect(onLifecycle).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'rejected');
     expect(within(comparison).getByText(/silently resolves the revision item/)).toBeInTheDocument();
   });
 
