@@ -104,8 +104,22 @@ async function validateArtifact(row, artifact, rowIndex) {
   if (artifact.containsProtectedContent !== false) fail(`${row.evidenceId} contains protected content`);
   try {
     await access(artifact.path);
-    const digest = sha256Bytes(await readFile(artifact.path));
+    const bytes = await readFile(artifact.path);
+    const digest = sha256Bytes(bytes);
     if (digest !== artifact.sha256) fail(`${row.evidenceId} artifact hash does not match`);
+    if (/\.json$/iu.test(artifact.path)) {
+      try {
+        const document = JSON.parse(bytes.toString('utf8'));
+        const embeddedCommit = document?.exactCommit ?? document?.qualifiedCommit;
+        if (typeof embeddedCommit === 'string' && embeddedCommit !== row.exactCommit) {
+          fail(`${row.evidenceId} artifact embeds a different exact commit`);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message.startsWith(`${row.evidenceId} `)) throw error;
+        // Non-JSON evidence is already protected by its byte hash; only JSON
+        // artifacts participate in embedded exact-commit binding.
+      }
+    }
   } catch (error) {
     if (error instanceof Error && error.message.startsWith(`${row.evidenceId} `)) throw error;
     fail(`${row.evidenceId} artifact does not exist or cannot be read`);

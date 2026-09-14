@@ -1,7 +1,7 @@
 {
   "schemaVersion": "program7.local-ai-qualification.v1",
   "status": "qualified",
-  "exactCommit": "31046317c7be3e80fcf70f6b89f0af0902d491ba",
+  "exactCommit": "5cd85c5bf6949e57ea8d53370978849297ab2a3a",
   "endpoint": "http://127.0.0.1:11434",
   "requestedModel": "qwen3:4b",
   "actualModels": [
