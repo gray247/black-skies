@@ -3,6 +3,16 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 accessibility evidence-output repair — 2026-09-14
+
+The fresh normal-GPU accessibility matrix completed its attached/detached UI
+exercise but failed in `finally` while writing the observed evidence packet
+when the caller supplied a path whose parent directory did not yet exist. The
+qualification harness now creates that parent directory immediately before the
+write. The same normal-GPU Electron test then passed 1/1 and produced the
+observed packet. This repair changes only evidence-output handling; it does not
+waive an accessibility row or infer human visual acceptance.
+
 ## Program 7 package-cache recovery — 2026-09-14
 
 The Windows package network failure was traced to electron-builder requesting

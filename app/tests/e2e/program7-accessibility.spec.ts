@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
 import { expect, test } from './_electron.fixture';
 import {
@@ -214,6 +215,7 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
     }
   } finally {
     if (MATRIX_REPORT_PATH) {
+      await mkdir(path.dirname(MATRIX_REPORT_PATH), { recursive: true });
       await writeFile(MATRIX_REPORT_PATH, `${JSON.stringify({ rows: [...observedRows.values()] }, null, 2)}\n`, 'utf8');
     }
     await rm(reviewRoot, { recursive: true, force: true });
