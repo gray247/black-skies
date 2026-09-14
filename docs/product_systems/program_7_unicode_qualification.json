@@ -1,0 +1,368 @@
+{
+  "schema": "program7.unicode-qualification.v2",
+  "exactCommit": "cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a",
+  "exactTree": "7099f103054bc80847db435889932db71417ef6a",
+  "testFile": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\__tests__\\program7SourceBinding.test.ts",
+  "implementationFiles": [
+    "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\program7SourceBinding.ts",
+    "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\manuscriptStructure.ts"
+  ],
+  "textClasses": [
+    "ASCII",
+    "accented Latin",
+    "combining mark",
+    "emoji surrogate pair",
+    "CJK",
+    "right-to-left",
+    "Markdown source constructs"
+  ],
+  "newlineVariants": [
+    "LF",
+    "CRLF",
+    "mixed"
+  ],
+  "currentnessStates": [
+    "exact",
+    "relocated",
+    "ambiguous",
+    "stale",
+    "potentially-outdated"
+  ],
+  "expectedTests": 18,
+  "expectedAssertions": [
+    {
+      "id": "P7-G2-ASCII-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'ASCII' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-ACCENTED-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'accented Latin' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-COMBINING-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'combining mark' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-EMOJI-SURROGATE",
+      "category": "unicode",
+      "title": "round-trips 'emoji surrogate pair' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-CJK-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'CJK' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-RTL-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'right-to-left' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-MARKDOWN-SOURCE",
+      "category": "markdown",
+      "title": "round-trips 'Markdown source constructs' using UTF-16 source coordinates"
+    },
+    {
+      "id": "P7-G2-LF-CURRENT",
+      "category": "newline",
+      "title": "treats 'LF' and normalized LF as the same current source"
+    },
+    {
+      "id": "P7-G2-CRLF-CURRENT",
+      "category": "newline",
+      "title": "treats 'CRLF' and normalized LF as the same current source"
+    },
+    {
+      "id": "P7-G2-MIXED-CURRENT",
+      "category": "newline",
+      "title": "treats 'mixed' and normalized LF as the same current source"
+    },
+    {
+      "id": "P7-G2-FINAL-NEWLINE",
+      "category": "currentness",
+      "title": "keeps final-newline and no-final-newline currentness distinct while preserving anchor relocation"
+    },
+    {
+      "id": "P7-G2-STALE-AMBIGUOUS",
+      "category": "currentness",
+      "title": "refuses a changed source without silently reattaching a UTF-16 anchor"
+    },
+    {
+      "id": "P7-G2-CRLF-ANCHOR",
+      "category": "contract",
+      "title": "normalizes CRLF and stores exact UTF-16 coordinates and body hash"
+    },
+    {
+      "id": "P7-G2-RESOLUTION-STATES",
+      "category": "currentness",
+      "title": "returns exact, uniquely relocated, ambiguous, and stale states without silent reattachment"
+    },
+    {
+      "id": "P7-G2-PROTECTED",
+      "category": "protection",
+      "title": "returns unavailable and protected metadata-only envelopes without source text"
+    },
+    {
+      "id": "P7-G2-BODY-HASH",
+      "category": "contract",
+      "title": "derives and verifies the body hash when source text is supplied"
+    },
+    {
+      "id": "P7-G2-RANGE-VALIDATION",
+      "category": "contract",
+      "title": "rejects incomplete, negative, and out-of-bounds exact coordinates"
+    },
+    {
+      "id": "P7-G2-SELECTION-HASH",
+      "category": "contract",
+      "title": "rejects a mismatched stored selection fingerprint for an exact range"
+    }
+  ],
+  "workingTreeClean": true,
+  "allowDirty": false,
+  "protectedEvidenceUsed": false,
+  "humanAcceptanceClaimed": false,
+  "sourceArtifacts": [
+    {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\__tests__\\program7SourceBinding.test.ts",
+      "sha256": "bfb3a15dc8c1a16198036ecbc2b125e8f95394486788089e1935619b112691e4"
+    },
+    {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\program7SourceBinding.ts",
+      "sha256": "fe29d247739b857f0121b41d71af08160490865b4f632eb24a0cfa1f457aed52"
+    },
+    {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\manuscriptStructure.ts",
+      "sha256": "4bc8caf8cf5883ad9acc42c32fa7f0d70a1d5b667bc8fae3e430c7a7c9a55fc3"
+    }
+  ],
+  "observed": {
+    "testFiles": 1,
+    "tests": 18,
+    "passedTests": 18,
+    "failedTests": 0
+  },
+  "assertions": [
+    {
+      "id": "P7-G2-ASCII-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'ASCII' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'ASCII' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'ASCII' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-ACCENTED-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'accented Latin' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'accented Latin' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'accented Latin' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-COMBINING-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'combining mark' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'combining mark' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'combining mark' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-EMOJI-SURROGATE",
+      "category": "unicode",
+      "title": "round-trips 'emoji surrogate pair' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'emoji surrogate pair' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'emoji surrogate pair' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-CJK-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'CJK' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'CJK' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'CJK' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-RTL-UTF16",
+      "category": "unicode",
+      "title": "round-trips 'right-to-left' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'right-to-left' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'right-to-left' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-MARKDOWN-SOURCE",
+      "category": "markdown",
+      "title": "round-trips 'Markdown source constructs' using UTF-16 source coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "round-trips 'Markdown source constructs' using UTF-16 source coordinates",
+        "fullName": "Program 7 source binding round-trips 'Markdown source constructs' using UTF-16 source coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-LF-CURRENT",
+      "category": "newline",
+      "title": "treats 'LF' and normalized LF as the same current source",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "treats 'LF' and normalized LF as the same current source",
+        "fullName": "Program 7 source binding treats 'LF' and normalized LF as the same current source",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-CRLF-CURRENT",
+      "category": "newline",
+      "title": "treats 'CRLF' and normalized LF as the same current source",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "treats 'CRLF' and normalized LF as the same current source",
+        "fullName": "Program 7 source binding treats 'CRLF' and normalized LF as the same current source",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-MIXED-CURRENT",
+      "category": "newline",
+      "title": "treats 'mixed' and normalized LF as the same current source",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "treats 'mixed' and normalized LF as the same current source",
+        "fullName": "Program 7 source binding treats 'mixed' and normalized LF as the same current source",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-FINAL-NEWLINE",
+      "category": "currentness",
+      "title": "keeps final-newline and no-final-newline currentness distinct while preserving anchor relocation",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "keeps final-newline and no-final-newline currentness distinct while preserving anchor relocation",
+        "fullName": "Program 7 source binding keeps final-newline and no-final-newline currentness distinct while preserving anchor relocation",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-STALE-AMBIGUOUS",
+      "category": "currentness",
+      "title": "refuses a changed source without silently reattaching a UTF-16 anchor",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "refuses a changed source without silently reattaching a UTF-16 anchor",
+        "fullName": "Program 7 source binding refuses a changed source without silently reattaching a UTF-16 anchor",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-CRLF-ANCHOR",
+      "category": "contract",
+      "title": "normalizes CRLF and stores exact UTF-16 coordinates and body hash",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "normalizes CRLF and stores exact UTF-16 coordinates and body hash",
+        "fullName": "Program 7 source binding normalizes CRLF and stores exact UTF-16 coordinates and body hash",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-RESOLUTION-STATES",
+      "category": "currentness",
+      "title": "returns exact, uniquely relocated, ambiguous, and stale states without silent reattachment",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "returns exact, uniquely relocated, ambiguous, and stale states without silent reattachment",
+        "fullName": "Program 7 source binding returns exact, uniquely relocated, ambiguous, and stale states without silent reattachment",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-PROTECTED",
+      "category": "protection",
+      "title": "returns unavailable and protected metadata-only envelopes without source text",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "returns unavailable and protected metadata-only envelopes without source text",
+        "fullName": "Program 7 source binding returns unavailable and protected metadata-only envelopes without source text",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-BODY-HASH",
+      "category": "contract",
+      "title": "derives and verifies the body hash when source text is supplied",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "derives and verifies the body hash when source text is supplied",
+        "fullName": "Program 7 source binding derives and verifies the body hash when source text is supplied",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-RANGE-VALIDATION",
+      "category": "contract",
+      "title": "rejects incomplete, negative, and out-of-bounds exact coordinates",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "rejects incomplete, negative, and out-of-bounds exact coordinates",
+        "fullName": "Program 7 source binding rejects incomplete, negative, and out-of-bounds exact coordinates",
+        "status": "passed"
+      }
+    },
+    {
+      "id": "P7-G2-SELECTION-HASH",
+      "category": "contract",
+      "title": "rejects a mismatched stored selection fingerprint for an exact range",
+      "found": true,
+      "passed": true,
+      "observed": {
+        "title": "rejects a mismatched stored selection fingerprint for an exact range",
+        "fullName": "Program 7 source binding rejects a mismatched stored selection fingerprint for an exact range",
+        "status": "passed"
+      }
+    }
+  ],
+  "pass": true,
+  "exitCode": 0
+}

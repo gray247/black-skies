@@ -1,15 +1,16 @@
 # Program 7 Qualification Closure Report
 
-Status: persistence qualification complete for the current implementation checkpoint; complete candidate requalification, Human Gate 4, and local-AI admission remain open.
+Status: partial exact-candidate refresh complete; normal-GPU Electron requalification,
+package qualification, Human Gate 4, and local-AI admission remain open.
 
-Exact current runtime implementation commit: `46db3bfb58ba0dcf070046603cb6721fce6fcd29`
+Exact current runtime implementation commit: `cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a`
 
-Exact current runtime implementation tree: `997398d8bab5cad08bfe507247f378b278973e18`
+Exact current runtime implementation tree: `7099f103054bc80847db435889932db71417ef6a`
 
-The current persistence artifact binds to this exact implementation commit and
-tree. The prior complete ledger and runtime artifacts bind to the earlier
-`5cd85c5bf6949e57ea8d53370978849297ab2a3a` candidate and are historical input
-only after the tracked persistence and evidence-runner changes.
+The current local-AI, persistence, and Unicode artifacts bind to this exact
+implementation commit. Accessibility, scale, Electron/Stage 19, and packaged
+artifacts remain explicitly unresolved because their fresh normal-GPU/package
+runs could not be completed on this host.
 
 ## Evidence completed
 
@@ -17,8 +18,8 @@ only after the tracked persistence and evidence-runner changes.
 - Feedback Notes proves lossless legacy-v1 reading, extension-field preservation, first-write migration, and repeat idempotence. Current strict-schema owners reject unsupported versions rather than inventing migrations.
 - Feedback Notes, Ideas, Revision Candidates, and Story Foundation now synchronize temporary files before atomic replacement, clean failed temporary files, and preserve the prior durable document when replacement fails.
 - Corrupt JSON, invalid UTF-8, wrong versions, duplicate identities, abandoned temporary files, stale writers, same-revision races, interrupted candidate acceptance, and recovery-envelope failures are covered without silent repair or byte rewriting.
-- The complete app suite passed 156 files / 1,452 tests with 2 expected skips after the main-process artifacts were rebuilt. Typecheck, lint, documentation authority checks, and diff hygiene also passed.
-- The RT-2B runner now retains complete response text, honest non-streaming timing labels, provider timing values, host-boundary resource snapshots, and full captured request/response/control scanning. A fresh real-model run is still required before those stronger fields become current qualification evidence.
+- The exact-candidate RT-2B runner passed 24/24 mechanical rows with real `qwen3:4b`; protected refusal, cancellation, timeout, malformed response, endpoint loss, and unchanged manuscript/story hashes remain mechanically verified. Jason’s usefulness and admission decision are not inferred.
+- The exact-candidate persistence runner passed 8 suites / 136 tests, and the Unicode/Markdown runner passed all 18 required assertions.
 
 ## Explicitly not closed
 
@@ -32,11 +33,11 @@ decision.
 
 The nested Codex sandbox reproduces Electron `STATUS_DLL_NOT_FOUND` before first window creation. The required outer-host run passes; no GPU-disable diagnostic mode was used and no runtime or ACL repair was made.
 
-The remaining mechanical work is the Unicode/Markdown, accessibility/visual,
-scale, refreshed RT-2B, refreshed Electron/Stage 19, rebuilt exact package, and
-exact offline-firewall package matrices. The latter still requires an
-Administrator PowerShell session. The P4/P5/P6 regression rows remain reserved
-for Jason. These are not closure or admission claims.
+The remaining mechanical work is fresh normal-GPU accessibility/visual and
+scale receipts, a fresh Stage 19/Electron receipt, a successful exact Windows
+package build, and the exact offline-firewall package matrix. The latter still
+requires an Administrator PowerShell session. The P4/P5/P6 regression rows
+remain reserved for Jason. These are not closure or admission claims.
 
 ## Canonical artifacts
 

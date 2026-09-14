@@ -3,6 +3,22 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 exact-candidate refresh — 2026-09-14
+
+The current runtime implementation candidate is `cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a`
+with tree `7099f103054bc80847db435889932db71417ef6a`. Fresh receipts for the
+real `qwen3:4b` RT-2B pilot (24/24 mechanical rows), persistence (136/136
+tests), and Unicode/Markdown (18/18 assertions) are captured and bound to that
+candidate. The evidence ledger and deterministic human sample validate at 41
+rows against the same exact commit/tree.
+
+Normal-GPU Electron requalification for accessibility, scale, and Stage 19 is
+deferred because the host approval service reached its usage limit. The Windows
+package build also stopped when electron-builder received network `EACCES` while
+fetching a packaging dependency. No Electron, package, or offline-firewall
+pass is claimed from the prior candidate. Human Gate 4, Jason’s scores, and
+local-AI admission remain pending.
+
 ## Program 7 Stage 19 count binding correction — 2026-09-14
 
 The exact-candidate Stage 19 rerun passed 49/49 critical files with 805
