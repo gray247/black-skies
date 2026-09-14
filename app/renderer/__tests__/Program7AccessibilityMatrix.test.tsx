@@ -14,6 +14,7 @@ import RevisionComparison from '../components/program7/RevisionComparison';
 import RevisionDesk from '../components/program7/RevisionDesk';
 import StoryFoundation from '../components/program7/StoryFoundation';
 import WritingRevisionDrawer from '../components/program7/WritingRevisionDrawer';
+import Stage19WritingSpineView, { type Stage19WritingSpineViewActions, type Stage19WritingSpineViewModel } from '../Stage19WritingSpineView';
 
 const timestamp = '2026-09-11T00:00:00.000Z';
 
@@ -135,5 +136,17 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     expect(p7).toMatch(/\.stage19-spine--writing \.stage19-writing-shell__topbar\s*\{[\s\S]*?z-index:\s*30;/);
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.stage19-spine--command \*/);
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.stage19-writing-shell__edge/);
+  });
+
+  it('renders the existing loading posture as a named main landmark', () => {
+    render(
+      <Stage19WritingSpineView
+        model={{ phase: 'loading', theme: 'dark' } as Stage19WritingSpineViewModel}
+        actions={{} as Stage19WritingSpineViewActions}
+      />,
+    );
+    const loading = screen.getByRole('main');
+    expect(loading).toHaveClass('stage19-spine--loading');
+    expect(loading).toHaveTextContent('Loading local writing session…');
   });
 });

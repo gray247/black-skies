@@ -74,9 +74,9 @@ const stateAssertions = {
     { file: 'renderer/__tests__/RevisionComparison.test.tsx', test: 'does not offer acceptance through a stale candidate or expose protected source text' },
     { file: 'renderer/__tests__/WritingRevisionDrawer.test.tsx', test: 'redacts protected content and prevents editing' },
   ],
-  // No existing Program 7 assertion renders a loading posture. This remains
-  // an explicit gap until a controlled loading fixture is added.
-  loading: [],
+  loading: [
+    { file: 'renderer/__tests__/Program7AccessibilityMatrix.test.tsx', test: 'renders the existing loading posture as a named main landmark' },
+  ],
   unavailable: [
     { file: 'renderer/__tests__/RevisionDesk.test.tsx', test: 'shows honest empty and degraded states' },
     { file: 'renderer/__tests__/StoryFoundation.test.tsx', test: 'keeps answer controls keyboard reachable and reports degraded storage honestly' },
@@ -254,8 +254,8 @@ export function buildQualificationPacket({ observedFile = null } = {}) {
     }];
   }));
   // Semantic fixture outcomes are not inferred from a rendered route. A state
-  // without a bound assertion (currently loading) remains unresolved and
-  // keeps the packet partial even if every route row is observed as Pass.
+  // without a bound assertion remains unresolved and keeps the packet partial
+  // even if every route row is observed as Pass.
   const unresolvedRequiredStates = requiredStates.filter((state) => stateBindings[state].result !== 'Pass');
   const sourceHashes = Object.fromEntries(sourceFiles.map((relativePath) => {
     const absolutePath = path.join(repositoryRoot, relativePath);
@@ -289,7 +289,7 @@ export function buildQualificationPacket({ observedFile = null } = {}) {
     humanAcceptanceClaimed: false,
     limitations: [
       'This runner records objective matrix bindings only; it does not infer aesthetics, usefulness, visual acceptance, or human resolution.',
-      'The loading state has no existing focused Program 7 Vitest assertion and remains Uncertain until a controlled loading fixture is supplied.',
+      'Loading coverage is bound only to the existing renderer loading posture; this does not imply that every route has a loading fixture.',
     ],
   };
 }
