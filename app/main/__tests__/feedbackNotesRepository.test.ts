@@ -1,4 +1,4 @@
-import fs, { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -193,6 +193,70 @@ describe('Feedback Notes sidecar', () => {
       advisory: false,
       lifecycle: 'active',
     });
+
+    const migratedBytes = await readFile(filePath, 'utf8');
+    await expect(repository.listAll('project-a')).resolves.toHaveLength(2);
+    expect(await readFile(filePath, 'utf8')).toBe(migratedBytes);
+    const repeated = await repository.createRevisionItem(
+      { projectId: 'project-a', unitId: 'unit-a', body: 'A second revision item.' },
+      migrated.document.revision,
+    );
+    expect(repeated.document.revision).toBe(2);
+    const repeatedSaved = JSON.parse(await readFile(filePath, 'utf8'));
+    expect(repeatedSaved.futureEnvelopeField).toEqual({ preserved: true });
+    expect(repeatedSaved.notes[0].futureNoteField).toBe('keep me');
+  });
+
+  it('fails closed for corruption variants and ignores an abandoned temporary file', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new FeedbackNotesRepository(projectPath);
+    const created = await repository.createRevisionItem({
+      projectId: 'project-a', unitId: 'unit-a', body: 'Durable prior item.',
+    });
+    const filePath = join(projectPath, FEEDBACK_NOTES_FILENAME);
+    const validBytes = await readFile(filePath, 'utf8');
+    const valid = JSON.parse(validBytes);
+    const corruptions: unknown[] = [
+      { ...valid, schemaVersion: FEEDBACK_NOTE_SCHEMA_VERSION + 1 },
+      { ...valid, notes: [...valid.notes, { ...valid.notes[0] }] },
+      {
+        ...valid,
+        notes: valid.notes.map((note: Record<string, unknown>) => ({
+          ...note,
+          anchor: {
+            schemaVersion: 1,
+            anchorKind: 'span',
+            selectionStart: 0,
+            selectionEnd: 1,
+            selectionSearchFingerprint: 'a'.repeat(8),
+            sourceFingerprint: 'not-a-sha256',
+            selectionFingerprint: 'b'.repeat(64),
+            prefixLength: 0,
+            prefixSearchFingerprint: 'c'.repeat(8),
+            prefixFingerprint: 'd'.repeat(64),
+            suffixLength: 0,
+            suffixSearchFingerprint: 'e'.repeat(8),
+            suffixFingerprint: 'f'.repeat(64),
+          },
+        })),
+      },
+    ];
+    for (const corruption of corruptions) {
+      const bytes = `${JSON.stringify(corruption)}\n`;
+      await writeFile(filePath, bytes, 'utf8');
+      await expect(repository.listRevisionItems('project-a')).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+      await expect(readFile(filePath, 'utf8')).resolves.toBe(bytes);
+    }
+
+    const invalidUtf8 = Buffer.from([0xff, 0xfe, 0xfd]);
+    await writeFile(filePath, invalidUtf8);
+    await expect(repository.listRevisionItems('project-a')).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+    await expect(readFile(filePath)).resolves.toEqual(invalidUtf8);
+
+    await writeFile(filePath, validBytes, 'utf8');
+    await writeFile(join(projectPath, `.${FEEDBACK_NOTES_FILENAME}.abandoned.tmp`), '{partial', 'utf8');
+    await expect(repository.listAll('project-a')).resolves.toHaveLength(created.document.notes.length);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(validBytes);
   });
 
   it('refuses a stale optimistic revision without changing the document', async () => {
@@ -363,6 +427,22 @@ describe('Feedback Notes sidecar', () => {
       body: 'Prior item.',
     });
     const before = await readFile(join(projectPath, FEEDBACK_NOTES_FILENAME), 'utf8');
+    const realOpen = fs.open.bind(fs);
+    vi.spyOn(fs, 'open').mockImplementationOnce(async (...args: any[]) => {
+      const handle = await (realOpen as any)(...args);
+      vi.spyOn(handle, 'sync').mockRejectedValueOnce(new Error('synthetic sync failure'));
+      return handle;
+    });
+
+    await expect(
+      repository.resolve('project-a', created.document.revision, created.note!.id),
+    ).rejects.toMatchObject({ code: 'WRITE_FAILED' });
+    await expect(readFile(join(projectPath, FEEDBACK_NOTES_FILENAME), 'utf8')).resolves.toBe(
+      before,
+    );
+    expect((await readdir(projectPath)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+
+    vi.restoreAllMocks();
     vi.spyOn(fs, 'rename').mockRejectedValueOnce(new Error('synthetic rename failure'));
 
     await expect(
@@ -371,5 +451,6 @@ describe('Feedback Notes sidecar', () => {
     await expect(readFile(join(projectPath, FEEDBACK_NOTES_FILENAME), 'utf8')).resolves.toBe(
       before,
     );
+    expect((await readdir(projectPath)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 });

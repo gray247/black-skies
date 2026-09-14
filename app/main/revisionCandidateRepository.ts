@@ -794,11 +794,17 @@ export class RevisionCandidateRepository {
       directory,
       `.${REVISION_CANDIDATES_FILENAME}.${this.createId()}.tmp`,
     );
+    let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
     try {
       await fs.mkdir(directory, { recursive: true });
-      await fs.writeFile(tempPath, `${JSON.stringify(document, null, 2)}\n`, 'utf8');
+      handle = await fs.open(tempPath, 'wx');
+      await handle.writeFile(`${JSON.stringify(document, null, 2)}\n`, 'utf8');
+      await handle.sync();
+      await handle.close();
+      handle = null;
       await fs.rename(tempPath, this.filePath);
     } catch {
+      await handle?.close().catch(() => undefined);
       await fs.rm(tempPath, { force: true }).catch(() => undefined);
       throw new RevisionCandidateRepositoryError(
         'WRITE_FAILED',

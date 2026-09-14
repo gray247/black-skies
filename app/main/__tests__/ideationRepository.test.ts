@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -48,7 +48,7 @@ async function seedPair(repository: IdeationRepository) {
 }
 
 describe('Ideation owner', () => {
-  afterEach(async () => { await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))); });
+  afterEach(async () => { vi.restoreAllMocks(); await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))); });
 
   it('reads an absent sidecar and captures author-owned seed/version provenance', async () => {
     const root = await project(); const repository = store(root);
@@ -181,6 +181,71 @@ describe('Ideation owner', () => {
     await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'degraded', document: { revision: 0, seeds: [] } });
     await expect(repository.captureSeed('project-a', 0, { title: 'No overwrite', body: 'x', kind: 'line', tags: [], protected: false })).rejects.toMatchObject({ code: 'UNAVAILABLE' } satisfies Partial<IdeationRepositoryError>);
     await expect(readFile(filePath, 'utf8')).resolves.toBe('{not valid JSON');
+  });
+
+  it('fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes', async () => {
+    const root = await project(); const repository = store(root);
+    await repository.captureSeed('project-a', 0, { title: 'First', body: 'First.', kind: 'fragment', tags: [], protected: false });
+    const filePath = join(root, IDEATION_FILENAME); const original = await readFile(filePath, 'utf8');
+
+    for (const mutate of [
+      (document: any) => { document.schemaVersion = 'BlackSkiesIdeation v99'; },
+      (document: any) => { document.seeds.push({ ...document.seeds[0] }); },
+    ]) {
+      const document = JSON.parse(original) as any;
+      mutate(document);
+      const tampered = `${JSON.stringify(document)}\n`;
+      await writeFile(filePath, tampered, 'utf8');
+      await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+      await expect(readFile(filePath, 'utf8')).resolves.toBe(tampered);
+    }
+
+    const invalidUtf8 = Buffer.from([0xff, 0xfe, 0xfd]);
+    await writeFile(filePath, invalidUtf8);
+    await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+    await expect(readFile(filePath)).resolves.toEqual(invalidUtf8);
+
+    await writeFile(filePath, original, 'utf8');
+    await writeFile(join(root, `.${IDEATION_FILENAME}.abandoned.tmp`), '{partial', 'utf8');
+    await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'ready', document: { revision: 1 } });
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(original);
+  });
+
+  it('serializes concurrent same-revision writers to one winner and one STALE result', async () => {
+    const root = await project(); const first = store(root); const second = store(root);
+    const attempts = await Promise.allSettled([
+      first.captureSeed('project-a', 0, { title: 'First', body: 'First.', kind: 'fragment', tags: [], protected: false }),
+      second.captureSeed('project-a', 0, { title: 'Second', body: 'Second.', kind: 'fragment', tags: [], protected: false }),
+    ]);
+    expect(attempts.filter((value) => value.status === 'fulfilled')).toHaveLength(1);
+    const rejected = attempts.find((value) => value.status === 'rejected');
+    expect(rejected).toMatchObject({ reason: { code: 'STALE' } });
+    await expect(first.read('project-a')).resolves.toMatchObject({ availability: 'ready', document: { revision: 1, seeds: [{ id: expect.any(String) }] } });
+  });
+
+  it('leaves the prior document intact and cleans the temporary file when atomic replacement fails', async () => {
+    const root = await project(); const sequence = { value: 0 };
+    // Use a deterministic repository ID source so the temporary path is observable.
+    const deterministic = new IdeationRepository(root, () => new Date('2026-09-09T12:00:00.000Z'), () => 'id-' + (++sequence.value));
+    await deterministic.captureSeed('project-a', 0, { title: 'First', body: 'First.', kind: 'fragment', tags: [], protected: false });
+    const filePath = join(root, IDEATION_FILENAME); const before = await readFile(filePath, 'utf8');
+    const realOpen = fs.open.bind(fs);
+    vi.spyOn(fs, 'open').mockImplementationOnce(async (...args: any[]) => {
+      const handle = await (realOpen as any)(...args);
+      vi.spyOn(handle, 'sync').mockRejectedValueOnce(new Error('synthetic sync failure'));
+      return handle;
+    });
+
+    await expect(deterministic.captureSeed('project-a', 1, { title: 'Second', body: 'Second.', kind: 'fragment', tags: [], protected: false })).rejects.toMatchObject({ code: 'WRITE_FAILED' } satisfies Partial<IdeationRepositoryError>);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(root)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+
+    vi.restoreAllMocks();
+    vi.spyOn(fs, 'rename').mockRejectedValueOnce(new Error('synthetic rename failure'));
+
+    await expect(deterministic.captureSeed('project-a', 1, { title: 'Second', body: 'Second.', kind: 'fragment', tags: [], protected: false })).rejects.toMatchObject({ code: 'WRITE_FAILED' } satisfies Partial<IdeationRepositoryError>);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(root)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 
   it('only persists provider alternatives after an explicit author request and never accepts them', async () => {

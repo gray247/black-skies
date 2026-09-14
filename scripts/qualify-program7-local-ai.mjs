@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { freemem, totalmem } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { promisify } from 'node:util';
@@ -68,14 +69,18 @@ function requestForScenario(scenario, sourceText, bodySha256, executionMode, sou
   );
 }
 
-function responseSummary(response, elapsedMs, transportInvoked, expectedStatus = null) {
+export function responseSummary(response, elapsedMs, transportInvoked, expectedStatus = null) {
   const observedStatus = response?.status ?? 'failed';
   const statusMatches = expectedStatus === null || observedStatus === expectedStatus;
   return {
     status: observedStatus,
     reason: response?.reason ?? 'The request was rejected before a protocol response was produced.',
+    responseText: response?.text ?? '',
     responseTextLength: response?.text?.length ?? 0,
     receipt: response?.receipt ?? null,
+    responseMode: 'non-streaming',
+    firstStructuredResponseAt: response?.receipt?.endedAt ?? null,
+    firstVisibleResultMs: elapsedMs,
     elapsedMs,
     transportInvoked,
     expectedStatus,
@@ -84,17 +89,65 @@ function responseSummary(response, elapsedMs, transportInvoked, expectedStatus =
 }
 
 async function invokeService(service, request, options = {}) {
-  const started = Date.now();
+  const started = performance.now();
   try {
     const response = await service.run(request, options);
-    return { response, error: null, elapsedMs: Date.now() - started };
+    return { response, error: null, elapsedMs: Math.round(performance.now() - started) };
   } catch (error) {
     return {
       response: null,
       error: error instanceof Error ? { name: error.name, message: error.message, status: error.status ?? null } : { name: 'UnknownError', message: String(error), status: null },
-      elapsedMs: Date.now() - started,
+      elapsedMs: Math.round(performance.now() - started),
     };
   }
+}
+
+function hostResourceSnapshot() {
+  return {
+    capturedAt: new Date().toISOString(),
+    totalPhysicalMemoryBytes: totalmem(),
+    availablePhysicalMemoryBytes: freemem(),
+    harnessWorkingSetBytes: process.memoryUsage().rss,
+  };
+}
+
+function providerTimingFromBody(body) {
+  if (!body || typeof body !== 'object') return null;
+  const integerOrNull = (value) => Number.isInteger(value) && value >= 0 ? value : null;
+  return {
+    totalDurationNanoseconds: integerOrNull(body.total_duration),
+    loadDurationNanoseconds: integerOrNull(body.load_duration),
+    promptEvaluationDurationNanoseconds: integerOrNull(body.prompt_eval_duration),
+    evaluationDurationNanoseconds: integerOrNull(body.eval_duration),
+    promptTokens: integerOrNull(body.prompt_eval_count),
+    outputTokens: integerOrNull(body.eval_count),
+  };
+}
+
+function instrumentedFetch(providerObservation) {
+  return async (url, init) => {
+    const response = await globalThis.fetch(url, init);
+    if (String(url).endsWith('/api/generate')) {
+      providerObservation.generateResponseAt = new Date().toISOString();
+      try {
+        providerObservation.timing = providerTimingFromBody(await response.clone().json());
+      } catch {
+        providerObservation.timing = null;
+      }
+    }
+    return response;
+  };
+}
+
+export function scanProtectedSentinels(value, sentinels) {
+  const serialized = JSON.stringify(value);
+  const normalized = serialized.normalize('NFC');
+  const bytes = Buffer.from(serialized, 'utf8');
+  const hits = sentinels.filter((sentinel) => {
+    const normalizedSentinel = sentinel.normalize('NFC');
+    return normalized.includes(normalizedSentinel) || bytes.includes(Buffer.from(sentinel, 'utf8'));
+  });
+  return { serialized, hits };
 }
 
 function abortingTransport() {
@@ -259,9 +312,12 @@ async function run() {
       const scenarioText = scenario.sourceText ?? sourceText;
       const scenarioUnitId = scenario.sourceUnitId ?? unitId;
       const request = requestForScenario(scenario, scenarioText, sha256(scenarioText), executionMode, scenarioUnitId);
-      const transport = new OllamaLocalInferenceTransport({ keepAlive: executionMode === 'real-cold' ? '0' : '5m' });
+      const providerObservation = { generateResponseAt: null, timing: null };
+      const resourcesBefore = hostResourceSnapshot();
+      const transport = new OllamaLocalInferenceTransport({ fetch: instrumentedFetch(providerObservation), keepAlive: executionMode === 'real-cold' ? '0' : '5m' });
       const service = new Program7LocalInferenceService({ transport, timeoutMs: 30_000 });
       const invoked = await invokeService(service, request, { authorInvoked: true });
+      const resourcesAfter = hostResourceSnapshot();
       const summary = responseSummary(invoked.response, invoked.elapsedMs, true, scenario.expectedStatus);
       const timingPass = executionMode === 'real-cold' ? invoked.elapsedMs <= 120_000 : invoked.elapsedMs <= 60_000;
       const protectedLeak = scenario.protectedSentinel ? JSON.stringify(invoked.response ?? invoked.error ?? '').includes(scenario.protectedSentinel) : false;
@@ -277,7 +333,14 @@ async function run() {
         ...summary,
         timingPass,
         mechanicalPass,
-        request: { schema: request.schema, requestId: request.requestId, projectId: request.projectId, sourceUnitId: request.source.unitId, sourceBodySha256: request.source.bodySha256, sourceChars: request.source.text.length, limits: request.limits, protection: request.protection },
+        request,
+        response: invoked.response,
+        providerObservation,
+        resources: {
+          observationMode: 'request-boundary snapshots; not a peak-process sampler',
+          before: resourcesBefore,
+          after: resourcesAfter,
+        },
         protectedSentinelFound: protectedLeak,
         protectedSentinelPackaged: protectedPackaged,
         error: invoked.error,
@@ -392,6 +455,7 @@ async function run() {
     operation: result.operation,
     status: result.status,
     responseTextLength: result.responseTextLength,
+    responseText: result.responseText,
     reason: result.reason,
     receipt: result.receipt,
     elapsedMs: result.elapsedMs,
@@ -432,15 +496,16 @@ async function run() {
   const statusesValid = liveResponses.every((result) => result.status === 'candidate' || result.status === 'no_findings' || result.status === 'appears_resolved' || result.status === 'still_appears_present');
   const controlsValid = protectedResponse.status === 'failed' && !JSON.stringify(protectedResponse).includes(sourceText) && cancelledResponse.status === 'cancelled' && timeoutResponse.status === 'unavailable' && unavailableResponse.status === 'unavailable' && invalidResponse.status === 'failed';
   const matrixMechanicalPass = matrix.length === 24 && matrix.every((row) => row.mechanicalPass === true);
-  const serializedRunArtifacts = JSON.stringify({ matrix, controls: { protectedResponse, cancelledResponse, timeoutResponse, unavailableResponse, invalidResponse } });
+  const completeCapturedArtifacts = { matrix, controls: { protectedResponse, cancelledResponse, timeoutResponse, unavailableResponse, invalidResponse } };
   const protectedSentinels = [protectedFixture.sentinel, 'P7_PROTECTED_SENTINEL_7F3A', 'P7_AI_EXCLUDED_SENTINEL_91C2'];
-  const protectedHits = protectedSentinels.filter((sentinel) => serializedRunArtifacts.normalize('NFC').includes(sentinel.normalize('NFC')));
+  const { hits: protectedHits } = scanProtectedSentinels(completeCapturedArtifacts, protectedSentinels);
   const protectionScan = {
     byteAware: true,
     unicodeAware: true,
     sentinels: protectedSentinels,
     authorizedFixture: 'sample_project/program_7_corpus/carmilla/derived/fixtures/protected-span.json',
-    scannedArtifactClasses: ['request bodies', 'response bodies', 'IPC/projection values', 'logs/receipts', 'temporary fixture outputs', 'evidence JSON'],
+    scannedArtifactClasses: ['complete captured qualification request envelopes', 'complete captured service response envelopes', 'provider fault payloads', 'receipts and control responses', 'generated evidence JSON'],
+    limitation: 'DOM, accessibility snapshots, screenshots, browser history, crash dumps, and process-wide temporary files require the separate Electron/artifact qualification lane.',
     hits: protectedHits,
     pass: protectedHits.length === 0,
   };
@@ -481,7 +546,12 @@ async function run() {
   if (!qualified) process.exitCode = 2;
 }
 
-run().catch((error) => {
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-  process.exitCode = 1;
-});
+const executedModule = process.argv[1]
+  ? pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url
+  : false;
+if (executedModule) {
+  run().catch((error) => {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
+}

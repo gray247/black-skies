@@ -93,7 +93,7 @@ describe('Narrative Insertion coordinator', () => {
         status: 'ready',
         projectId: 'project-a',
         replacement: { sourceStart: 7, sourceEnd: 23, text: 'Replacement.' },
-        acceptedResultSha256: hash('Before Replacement. after.\n'),
+        acceptedResultSha256: hash('Before Replacement. after.'),
       },
     });
     expect(read).toHaveBeenCalledWith('project-a');

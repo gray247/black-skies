@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -98,6 +98,7 @@ function response(): Program7LocalInferenceResponseV1 {
 
 describe('revision candidate repository', () => {
   afterEach(async () => {
+    vi.restoreAllMocks();
     await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
   });
 
@@ -205,7 +206,12 @@ describe('revision candidate repository', () => {
       second.createManual('project-a', 0, { ...manualInput(), candidateText: 'Other candidate.' }),
     ]);
     expect(attempts.filter((value) => value.status === 'fulfilled')).toHaveLength(1);
-    expect(attempts.filter((value) => value.status === 'rejected')).toHaveLength(1);
+    const rejected = attempts.find((value) => value.status === 'rejected');
+    expect(rejected).toMatchObject({ reason: { code: 'STALE' } });
+    await expect(first.read('project-a')).resolves.toMatchObject({
+      availability: 'ready',
+      document: { revision: 1, candidates: [{ candidateText: expect.any(String) }] },
+    });
     const filePath = join(root, REVISION_CANDIDATES_FILENAME);
     const bytes = '{broken';
     await writeFile(filePath, bytes);
@@ -214,6 +220,66 @@ describe('revision candidate repository', () => {
       code: 'UNAVAILABLE',
     } satisfies Partial<RevisionCandidateRepositoryError>);
     await expect(readFile(filePath, 'utf8')).resolves.toBe(bytes);
+  });
+
+  it('fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes', async () => {
+    const root = await project();
+    const repository = store(root);
+    await repository.createManual('project-a', 0, manualInput());
+    const filePath = join(root, REVISION_CANDIDATES_FILENAME);
+    const original = await readFile(filePath, 'utf8');
+
+    for (const mutate of [
+      (document: any) => { document.schemaVersion = 'BlackSkiesRevisionCandidates v99'; },
+      (document: any) => { document.candidates.push({ ...document.candidates[0] }); },
+    ]) {
+      const document = JSON.parse(original) as any;
+      mutate(document);
+      const tampered = `${JSON.stringify(document)}\n`;
+      await writeFile(filePath, tampered, 'utf8');
+      await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+      await expect(readFile(filePath, 'utf8')).resolves.toBe(tampered);
+    }
+
+    const invalidUtf8 = Buffer.from([0xff, 0xfe, 0xfd]);
+    await writeFile(filePath, invalidUtf8);
+    await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+    await expect(readFile(filePath)).resolves.toEqual(invalidUtf8);
+
+    await writeFile(filePath, original, 'utf8');
+    await writeFile(join(root, `.${REVISION_CANDIDATES_FILENAME}.abandoned.tmp`), '{partial', 'utf8');
+    await expect(repository.read('project-a')).resolves.toMatchObject({ availability: 'ready', document: { revision: 1 } });
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(original);
+  });
+
+  it('leaves the prior document intact and cleans the temporary file when atomic replacement fails', async () => {
+    const root = await project();
+    const sequence = { value: 0 };
+    const repository = store(root, sequence);
+    await repository.createManual('project-a', 0, manualInput());
+    const filePath = join(root, REVISION_CANDIDATES_FILENAME);
+    const before = await readFile(filePath, 'utf8');
+    const realOpen = fs.open.bind(fs);
+    vi.spyOn(fs, 'open').mockImplementationOnce(async (...args: any[]) => {
+      const handle = await (realOpen as any)(...args);
+      vi.spyOn(handle, 'sync').mockRejectedValueOnce(new Error('synthetic sync failure'));
+      return handle;
+    });
+
+    await expect(repository.createManual('project-a', 1, manualInput())).rejects.toMatchObject({
+      code: 'WRITE_FAILED',
+    } satisfies Partial<RevisionCandidateRepositoryError>);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(root)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+
+    vi.restoreAllMocks();
+    vi.spyOn(fs, 'rename').mockRejectedValueOnce(new Error('synthetic rename failure'));
+
+    await expect(repository.createManual('project-a', 1, manualInput())).rejects.toMatchObject({
+      code: 'WRITE_FAILED',
+    } satisfies Partial<RevisionCandidateRepositoryError>);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(root)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 
   it('degrades safely for unknown persisted keys and cross-field mismatches', async () => {

@@ -1,4 +1,4 @@
-import fs, { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -174,6 +174,38 @@ describe('Story Foundation project-local authored truth owner', () => {
     await expect(readFile(filePath, 'utf8')).resolves.toBe(wrongProject);
   });
 
+  it('fails closed for wrong versions and duplicate identities while ignoring abandoned temp files', async () => {
+    const projectPath = await temporaryProject();
+    const store = repository(projectPath);
+    const created = await store.setAnswer('project-a', 0, {
+      questionId: 'tone', posture: 'answered', text: 'Quiet dread.',
+    });
+    const filePath = join(projectPath, STORY_FOUNDATION_FILENAME);
+    const validBytes = await readFile(filePath, 'utf8');
+    const valid = JSON.parse(validBytes);
+    const corruptions = [
+      { ...valid, schemaVersion: STORY_FOUNDATION_SCHEMA_VERSION + 1 },
+      { ...valid, questionSetVersion: 999 },
+      { ...valid, entries: [...valid.entries, { ...valid.entries[0] }] },
+    ];
+    for (const corruption of corruptions) {
+      const bytes = `${JSON.stringify(corruption)}\n`;
+      await writeFile(filePath, bytes, 'utf8');
+      await expect(store.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+      await expect(readFile(filePath, 'utf8')).resolves.toBe(bytes);
+    }
+
+    const invalidUtf8 = Buffer.from([0xff, 0xfe, 0xfd]);
+    await writeFile(filePath, invalidUtf8);
+    await expect(store.read('project-a')).resolves.toMatchObject({ availability: 'degraded' });
+    await expect(readFile(filePath)).resolves.toEqual(invalidUtf8);
+
+    await writeFile(filePath, validBytes, 'utf8');
+    await writeFile(join(projectPath, `.${STORY_FOUNDATION_FILENAME}.abandoned.tmp`), '{partial', 'utf8');
+    await expect(store.read('project-a')).resolves.toEqual(created);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(validBytes);
+  });
+
   it('leaves the prior document intact when atomic replacement fails', async () => {
     const projectPath = await temporaryProject();
     const store = repository(projectPath);
@@ -182,12 +214,27 @@ describe('Story Foundation project-local authored truth owner', () => {
     });
     const filePath = join(projectPath, STORY_FOUNDATION_FILENAME);
     const before = await readFile(filePath, 'utf8');
+    const realOpen = fs.open.bind(fs);
+    vi.spyOn(fs, 'open').mockImplementationOnce(async (...args: any[]) => {
+      const handle = await (realOpen as any)(...args);
+      vi.spyOn(handle, 'sync').mockRejectedValueOnce(new Error('synthetic sync failure'));
+      return handle;
+    });
+
+    await expect(store.setAnswer('project-a', 1, {
+      questionId: 'tone', posture: 'answered', text: 'This must fail before replacement.',
+    })).rejects.toMatchObject({ code: 'WRITE_FAILED' } satisfies Partial<StoryFoundationRepositoryError>);
+    await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(projectPath)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+
+    vi.restoreAllMocks();
     vi.spyOn(fs, 'rename').mockRejectedValueOnce(new Error('synthetic rename failure'));
 
     await expect(store.setAnswer('project-a', 1, {
       questionId: 'tone', posture: 'answered', text: 'This must not replace the prior answer.',
     })).rejects.toMatchObject({ code: 'WRITE_FAILED' } satisfies Partial<StoryFoundationRepositoryError>);
     await expect(readFile(filePath, 'utf8')).resolves.toBe(before);
+    expect((await readdir(projectPath)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 
   it('rejects invalid repository inputs before writing durable state', async () => {

@@ -636,11 +636,17 @@ export class FeedbackNotesRepository {
   ): Promise<void> {
     const directory = path.dirname(this.filePath);
     const tempPath = path.join(directory, `.${FEEDBACK_NOTES_FILENAME}.${randomUUID()}.tmp`);
+    let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
     try {
       await fs.mkdir(directory, { recursive: true });
-      await fs.writeFile(tempPath, `${JSON.stringify(envelope, null, 2)}\n`, 'utf8');
+      handle = await fs.open(tempPath, 'wx');
+      await handle.writeFile(`${JSON.stringify(envelope, null, 2)}\n`, 'utf8');
+      await handle.sync();
+      await handle.close();
+      handle = null;
       await fs.rename(tempPath, this.filePath);
     } catch {
+      await handle?.close().catch(() => undefined);
       await fs.rm(tempPath, { force: true }).catch(() => undefined);
       throw new FeedbackNotesRepositoryError(
         'WRITE_FAILED',

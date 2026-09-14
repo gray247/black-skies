@@ -386,5 +386,22 @@ export class IdeationRepository {
   private async mutate(projectId: string, expectedRevision: number, change: (document: IdeationDocumentV1, now: string) => IdeationDocumentV1): Promise<IdeationSnapshotV1> {
     const key = serializationKey(this.filePath); const previous = writeQueues.get(key) ?? Promise.resolve(); const result = previous.catch(() => undefined).then(async () => { const current = await this.read(projectId); if (current.availability === 'degraded') throw new IdeationRepositoryError('UNAVAILABLE', current.message ?? 'Ideation is unavailable.'); if (!Number.isInteger(expectedRevision) || expectedRevision < 0 || current.document.revision !== expectedRevision) throw new IdeationRepositoryError('STALE', 'Ideation changed. Reload before trying again.'); const changed = change(current.document, this.now().toISOString()); const next = { ...changed, revision: current.document.revision + 1 }; if (!validDocument(next, projectId)) throw new IdeationRepositoryError('INVALID', 'The Ideation change failed document validation.'); await this.write(next); return snapshot(next); }); const tail = result.then(() => undefined, () => undefined); writeQueues.set(key, tail); try { return await result; } finally { if (writeQueues.get(key) === tail) writeQueues.delete(key); }
   }
-  private async write(document: IdeationDocumentV1): Promise<void> { const tempPath = path.join(path.dirname(this.filePath), '.' + IDEATION_FILENAME + '.' + this.createId() + '.tmp'); try { await fs.mkdir(path.dirname(this.filePath), { recursive: true }); await fs.writeFile(tempPath, JSON.stringify(document, null, 2) + '\n', 'utf8'); await fs.rename(tempPath, this.filePath); } catch { await fs.rm(tempPath, { force: true }).catch(() => undefined); throw new IdeationRepositoryError('WRITE_FAILED', 'The Ideation change could not be saved.'); } }
+  private async write(document: IdeationDocumentV1): Promise<void> {
+    const directory = path.dirname(this.filePath);
+    const tempPath = path.join(directory, '.' + IDEATION_FILENAME + '.' + this.createId() + '.tmp');
+    let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
+    try {
+      await fs.mkdir(directory, { recursive: true });
+      handle = await fs.open(tempPath, 'wx');
+      await handle.writeFile(JSON.stringify(document, null, 2) + '\n', 'utf8');
+      await handle.sync();
+      await handle.close();
+      handle = null;
+      await fs.rename(tempPath, this.filePath);
+    } catch {
+      await handle?.close().catch(() => undefined);
+      await fs.rm(tempPath, { force: true }).catch(() => undefined);
+      throw new IdeationRepositoryError('WRITE_FAILED', 'The Ideation change could not be saved.');
+    }
+  }
 }

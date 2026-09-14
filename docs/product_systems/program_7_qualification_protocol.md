@@ -258,6 +258,22 @@ manual workflows remain enabled.
 Every owner repository is tested against the following matrix, with the exact
 fixture and expected invariant recorded:
 
+For Program 7, `owner repository` means the four Program 7 sidecar owners
+(`FeedbackNotesRepository`, `RevisionCandidateRepository`,
+`StoryFoundationRepository`, and `IdeationRepository`) plus the existing
+ProjectSpine manuscript/recovery owner only where Program 7 candidate
+acceptance crosses it. This section does not silently expand Program 7 into a
+retrofit of unrelated legacy repositories.
+
+Migration cases are applicability-aware. Feedback Notes has an actual legacy
+document without an optimistic `revision`, so it must prove lossless read,
+first-mutation migration, extension-field preservation, and repeated
+idempotence. The other three Program 7 sidecars began at their current strict
+schema. They must reject an unsupported version or unknown field without
+rewriting the bytes; qualification must not invent a permissive legacy format
+for them. Unknown-field preservation applies only where the accepted legacy
+format already permits extension fields.
+
 | Class | Cases |
 | --- | --- |
 | Migration | v1 read, normalize, first-mutation atomic migration, unknown field preservation, repeated migration idempotence |

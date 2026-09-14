@@ -1449,4 +1449,31 @@ describe('project-spine IPC', () => {
       code: 'ENOENT',
     });
   });
+
+  it('fails closed without rewriting corrupt pending-acceptance evidence', async () => {
+    const parent = await temporaryRoot();
+    const malformed = await bootstrapFreshProject({ parentPath: parent, title: 'Malformed Pending Acceptance' });
+    const wrongSchema = await bootstrapFreshProject({ parentPath: parent, title: 'Wrong Schema Pending Acceptance' });
+    const variants = [
+      { projectPath: malformed.projectPath, bytes: '{broken pending acceptance' },
+      {
+        projectPath: wrongSchema.projectPath,
+        bytes: `${JSON.stringify({ schemaVersion: 'BlackSkiesProgram7PendingAcceptance v99' })}\n`,
+      },
+    ];
+
+    for (const [index, variant] of variants.entries()) {
+      const evidencePath = join(variant.projectPath, 'program7-pending-acceptance.json');
+      await writeFile(evidencePath, variant.bytes, 'utf8');
+      const result = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+        path: variant.projectPath,
+        operationId: `open-corrupt-pending-acceptance-${index}`,
+      });
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code: 'REVISION_ACCEPTANCE_PENDING' },
+      });
+      await expect(readFile(evidencePath, 'utf8')).resolves.toBe(variant.bytes);
+    }
+  });
 });
