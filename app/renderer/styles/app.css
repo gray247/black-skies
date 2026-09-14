@@ -4718,7 +4718,7 @@ body[data-stage19-spine] {
   display: grid;
   gap: 0.35rem;
   min-width: min(20rem, 100%);
-  color: #cbd5e1;
+  color: var(--bs-text-secondary);
   font-size: 0.82rem;
 }
 

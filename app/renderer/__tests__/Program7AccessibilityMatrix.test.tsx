@@ -125,6 +125,7 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     ] as const;
     for (const [foreground, background] of pairs) expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
     expect(css).toContain('--bs-text-muted: var(--bs-text-secondary);');
+    expect(css).toMatch(/\.stage19-spine label\s*\{[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
     expect(p7).not.toMatch(/(?:color|background(?:-color)?)\s*:\s*#(?:fff|ffffff|eee|eeeeee|d3d3d3|c0c0c0)\b/i);
     expect(p7).toContain('min-height: 44px;');
     expect(p7).toContain('white-space: pre-wrap;');
