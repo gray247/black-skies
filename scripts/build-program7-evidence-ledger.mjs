@@ -282,7 +282,7 @@ for (const [suffix, expected] of suiteRows) {
     packageId: 'P7-G2', evidenceClass: 'component', executionMode: 'real-warm', environment,
     action: `Run Program 7 Electron suite ${suffix}.`, expected,
     observed: `Suite packet exact binding and required summary checks: ${electronQualified ? 'passed' : 'not qualified'}; no subjective acceptance inferred.`,
-    result: electronQualified ? 'Pass' : 'Uncertain', authoritySensitive: suiteNeedsReview, genuinelySubjective: false, humanRequired: suiteNeedsReview, humanStatus: suiteNeedsReview ? 'pending' : 'not-required', humanBasis: suiteNeedsReview ? 'Jason must review the no-AI/local-AI boundary before admission.' : 'Mechanical suite result only.', artifacts: [electronEvidenceArtifact], limitations: ['Suite is mechanical and does not decide usefulness, aesthetics, or admission.'],
+    result: electronQualified ? 'Pass' : 'Uncertain', authoritySensitive: suiteNeedsReview, genuinelySubjective: false, humanRequired: suiteNeedsReview, humanStatus: suiteNeedsReview ? 'pending' : 'not-required', humanBasis: suiteNeedsReview ? 'Jason must review the no-AI/local-AI boundary before admission.' : 'Mechanical suite result only.', limitations: ['Suite is mechanical and does not decide usefulness, aesthetics, or admission.'], disposition: electronQualified ? 'closure' : 'defer', artifacts: [electronEvidenceArtifact],
   }));
 }
 
@@ -294,7 +294,7 @@ rows.push(row({
   observed: electronQualified
     ? `Clean outer-host packet passed 49 critical files, ${electron.stage19.criticalUnitPassed} passed, 2 skips, startup 1/1, Electron 36/36, STAGE19_REGRESSION_PASS, and CLEAN_RC_ELIGIBLE.`
     : 'Electron qualification packet is unavailable or not bound to this exact candidate; no Stage 19 pass is inferred.',
-  result: electronQualified ? 'Pass' : 'Uncertain', artifacts: [electronEvidenceArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
+  result: electronQualified ? 'Pass' : 'Uncertain', disposition: electronQualified ? 'closure' : 'defer', artifacts: [electronEvidenceArtifact], limitations: ['The nested Codex sandbox reproduces STATUS_DLL_NOT_FOUND; the required outer-host normal-GPU run is the authoritative result.'],
 }));
 
 for (const [id, expected] of [

@@ -13,6 +13,12 @@ prevents added regression assertions from invalidating otherwise stronger
 evidence while still failing closed if coverage drops below the baseline.
 Human Gate 4 and local-AI admission remain pending.
 
+The first partial ledger rebuild also exposed and corrected a bookkeeping
+guard: an unavailable Electron packet now produces `Uncertain` rows with a
+`defer` disposition rather than an invalid `closure` disposition. The evidence
+validator then fails closed on any unresolved row that is accidentally marked
+for closure.
+
 ## Program 7 evidence-ledger binding hardening — 2026-09-14
 
 The evidence-ledger builder now fails closed when promoting the Unicode,
