@@ -3,6 +3,26 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 package-cache recovery — 2026-09-14
+
+The Windows package network failure was traced to electron-builder requesting
+remote Electron checksum/download metadata even though the complete Electron
+`39.8.10` Windows x64 archive was already present in the local `@electron/get`
+hash cache. Pointing `electronDist` directly at that existing archive avoided
+the network dependency without changing the archive, the application, or the
+qualification policy. NSIS construction and the repository package verifier
+then passed at documentation HEAD `7e5d7ecf3593bcef084227c231073c8d75ea1f4c`.
+The verified unsigned internal-RC installer is `86,966,243` bytes with SHA-256
+`a20f9158c2f55eae16cabfc2764533ba63ab65abd9275e344498ae15a11eaa05`;
+the unpacked application contains zero forbidden paths.
+
+This is a package-construction receipt, not yet the packaged closure row. The
+receipt is bound to the documentation HEAD while the current Program 7 ledger
+is bound to runtime implementation candidate `cb2d5c94`; the exact elevated
+offline-firewall install/workload/uninstall/preservation/reinstall lifecycle
+has not run. `P7-G2-PACKAGED` therefore remains `Uncertain` until one exact
+candidate identity is used by the package, lifecycle witness, and ledger.
+
 ## Program 7 exact-candidate refresh — 2026-09-14
 
 The current runtime implementation candidate is `cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a`
@@ -13,11 +33,12 @@ candidate. The evidence ledger and deterministic human sample validate at 41
 rows against the same exact commit/tree.
 
 Normal-GPU Electron requalification for accessibility, scale, and Stage 19 is
-deferred because the host approval service reached its usage limit. The Windows
-package build also stopped when electron-builder received network `EACCES` while
-fetching a packaging dependency. No Electron, package, or offline-firewall
-pass is claimed from the prior candidate. Human Gate 4, Jason’s scores, and
-local-AI admission remain pending.
+deferred because the host approval service reached its usage limit. The earlier
+Windows package attempt stopped on network `EACCES`; the package-cache recovery
+above now proves construction and repository verification at the documentation
+HEAD, but not an exact ledger-bound offline lifecycle. No Electron or
+offline-firewall pass is claimed from the prior candidate. Human Gate 4,
+Jason’s scores, and local-AI admission remain pending.
 
 ## Program 7 Stage 19 count binding correction — 2026-09-14
 
