@@ -125,44 +125,71 @@ async function setTheme(page: import('@playwright/test').Page, theme: 'dark' | '
   await expect(switchControl).toHaveAttribute('aria-checked', expected);
 }
 
+async function exerciseCommandRoutes(
+  surface: import('@playwright/test').Page,
+  topology: 'attached' | 'detached',
+  profile: (typeof MATRIX_PROFILES)[number],
+  theme: 'dark' | 'light',
+): Promise<void> {
+  await surface.setViewportSize({ width: profile.width, height: profile.height });
+  await surface.emulateMedia({ reducedMotion: profile.reducedMotion ? 'reduce' : 'no-preference' });
+  await surface.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, profile.zoom);
+  await setTheme(surface, theme);
+  await surface.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await expect(surface.getByTestId('program7-create-develop')).toBeVisible();
+  for (const section of PROGRAM7_SECTIONS) {
+    await surface.getByRole('button', { name: section, exact: true }).click();
+    await expect(surface.getByTestId(`program7-create-develop-panel-${routeId(section)}`)).toBeVisible();
+    await assertProgram7MechanicalA11y(surface, `${topology}-${theme}-${profile.id}-${section}`, {
+      topology,
+      route: routeId(section),
+      theme,
+      zoom: profile.zoom,
+      viewport: profile.viewport,
+      reducedMotion: profile.reducedMotion,
+    });
+  }
+  await surface.getByRole('button', { name: 'Operations / Approvals', exact: true }).click();
+  await assertProgram7MechanicalA11y(surface, `${topology}-${theme}-${profile.id}-operations-approvals`, {
+    topology,
+    route: 'operations-approvals',
+    theme,
+    zoom: profile.zoom,
+    viewport: profile.viewport,
+    reducedMotion: profile.reducedMotion,
+  });
+}
+
+async function readProjectionParity(surface: import('@playwright/test').Page) {
+  await surface.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await surface.getByRole('button', { name: 'History', exact: true }).click();
+  return surface.evaluate(() => ({
+    project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
+    route: document.querySelector('[data-testid="program7-create-develop"] h1')?.textContent?.trim() ?? null,
+    sections: Array.from(document.querySelectorAll('[data-testid^="program7-create-develop-panel-"] h1, [data-testid^="program7-create-develop-panel-"] h2')).map((element) => element.textContent?.trim()),
+  }));
+}
+
 test('Program 7 reaches objective accessibility matrix gates on attached and detached surfaces', async ({ page, electronApp }) => {
   const { reviewRoot, projectPath } = await materializeProgram7Carmilla();
   try {
     const { writing, command } = await getProgram7Windows(electronApp, page);
     await openProgram7Project(writing, projectPath);
+
+    // A Command Center can be detached or hosted inside Writing Studio, but
+    // it cannot occupy both topologies at once. Exercise the detached window
+    // first, then return it to Writing Studio before using that page handle.
+    for (const profile of MATRIX_PROFILES) {
+      for (const theme of ['dark', 'light'] as const) {
+        await exerciseCommandRoutes(command, 'detached', profile, theme);
+      }
+    }
+    const detachedParity = await readProjectionParity(command);
+
     await showCommandInWriting(writing);
     for (const profile of MATRIX_PROFILES) {
       for (const theme of ['dark', 'light'] as const) {
-        for (const surface of [writing, command]) {
-          const topology = surface === writing ? 'attached' : 'detached';
-          await surface.setViewportSize({ width: profile.width, height: profile.height });
-          await surface.emulateMedia({ reducedMotion: profile.reducedMotion ? 'reduce' : 'no-preference' });
-          await surface.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, profile.zoom);
-          await setTheme(surface, theme);
-          await surface.getByRole('button', { name: 'Create / Develop', exact: true }).click();
-          await expect(surface.getByTestId('program7-create-develop')).toBeVisible();
-          for (const section of PROGRAM7_SECTIONS) {
-            await surface.getByRole('button', { name: section, exact: true }).click();
-            await expect(surface.getByTestId(`program7-create-develop-panel-${routeId(section)}`)).toBeVisible();
-            await assertProgram7MechanicalA11y(surface, `${topology}-${theme}-${profile.id}-${section}`, {
-              topology,
-              route: routeId(section),
-              theme,
-              zoom: profile.zoom,
-              viewport: profile.viewport,
-              reducedMotion: profile.reducedMotion,
-            });
-          }
-          await surface.getByRole('button', { name: 'Operations / Approvals', exact: true }).click();
-          await assertProgram7MechanicalA11y(surface, `${topology}-${theme}-${profile.id}-operations-approvals`, {
-            topology,
-            route: 'operations-approvals',
-            theme,
-            zoom: profile.zoom,
-            viewport: profile.viewport,
-            reducedMotion: profile.reducedMotion,
-          });
-        }
+        await exerciseCommandRoutes(writing, 'attached', profile, theme);
 
         // Manual alternatives are owned by Writing Studio. Verify both the
         // compare-before-accept surface and its non-modal editing drawer.
@@ -187,12 +214,8 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
       }
     }
 
-    const parity = await Promise.all([writing, command].map((surface) => surface.evaluate(() => ({
-      project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
-      route: document.querySelector('[data-testid="program7-create-develop"] h1')?.textContent?.trim() ?? null,
-      sections: Array.from(document.querySelectorAll('[data-testid^="program7-create-develop-panel-"] h1, [data-testid^="program7-create-develop-panel-"] h2')).map((element) => element.textContent?.trim()),
-    }))));
-    expect(parity[0]).toEqual(parity[1]);
+    const attachedParity = await readProjectionParity(writing);
+    expect(attachedParity).toEqual(detachedParity);
   } finally {
     if (MATRIX_REPORT_PATH) {
       await writeFile(MATRIX_REPORT_PATH, `${JSON.stringify({ rows: [...observedRows.values()] }, null, 2)}\n`, 'utf8');
