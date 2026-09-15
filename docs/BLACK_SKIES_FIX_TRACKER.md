@@ -3,6 +3,34 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 installed-package runtime dependency repair — 2026-09-14
+
+The first elevated offline lifecycle reached the newly installed application
+and failed closed before qualification when Electron reported `Cannot find
+module 'yaml'` from the packaged main process. The production dependency was
+declared in both manifests, but pnpm exposed it through a junction outside the
+application workspace and the restricted electron-builder file allowlist
+produced an ASAR with no runtime dependency files. The build now stages the
+declared YAML runtime package in the explicit `dist-electron/vendor` package
+surface and rewrites only the compiled runtime-config import to that packaged
+path; source and development resolution remain unchanged. The package verifier
+requires both its manifest and executable entry point plus the exact `2.8.3`
+version. The installed-lifecycle script also resolves relative arguments
+against the caller's PowerShell location instead of the process directory.
+
+Bounded repair qualification passed on 2026-09-14: the focused package-verifier
+suite passed `4/4`; app typecheck, lint, production build, and `git diff
+--check` passed; a fresh unpacked package passed the strengthened ASAR verifier
+with the exact `yaml` `2.8.3` payload; and one normal-GPU packaged smoke proved
+`appIsPackaged`, the governed one-window Writing start, the optional two-window
+Command transition, exact Markdown export, zero forbidden runtime processes,
+and zero surviving processes. The prior native `0x80000003` dialog did not
+reproduce against this fresh package. This closes the bounded missing-runtime-
+dependency repair but does not qualify the earlier failed installer. A fresh
+installer, clean exact-commit Stage 19 regression, elevated offline lifecycle,
+and exact witness evidence remain required. Human Gate 4 and local-AI admission
+remain pending.
+
 ## Program 7 accessibility evidence-output repair — 2026-09-14
 
 The fresh normal-GPU accessibility matrix completed its attached/detached UI

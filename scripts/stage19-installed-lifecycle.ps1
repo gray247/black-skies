@@ -11,9 +11,22 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$installer = [System.IO.Path]::GetFullPath($InstallerPath)
-$receipt = [System.IO.Path]::GetFullPath($ReceiptPath)
-$working = [System.IO.Path]::GetFullPath($WorkingRoot)
+$invocationDirectory = (Get-Location).ProviderPath
+$installer = if ([System.IO.Path]::IsPathRooted($InstallerPath)) {
+  [System.IO.Path]::GetFullPath($InstallerPath)
+} else {
+  [System.IO.Path]::GetFullPath((Join-Path $invocationDirectory $InstallerPath))
+}
+$receipt = if ([System.IO.Path]::IsPathRooted($ReceiptPath)) {
+  [System.IO.Path]::GetFullPath($ReceiptPath)
+} else {
+  [System.IO.Path]::GetFullPath((Join-Path $invocationDirectory $ReceiptPath))
+}
+$working = if ([System.IO.Path]::IsPathRooted($WorkingRoot)) {
+  [System.IO.Path]::GetFullPath($WorkingRoot)
+} else {
+  [System.IO.Path]::GetFullPath((Join-Path $invocationDirectory $WorkingRoot))
+}
 $installDirectory = Join-Path $working "installed"
 $smokeDirectory = Join-Path $working "external-data"
 $smokeResultPath = Join-Path $working "installed-smoke.json"

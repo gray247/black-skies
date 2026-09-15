@@ -16,6 +16,8 @@ export const EXPECTED_ASAR_PATHS = [
   "/dist/index.html",
   "/dist-electron/main/main.js",
   "/dist-electron/main/stage19Preload.js",
+  "/dist-electron/vendor/yaml/package-metadata.json",
+  "/dist-electron/vendor/yaml/dist/index.js",
   "/package.json"
 ];
 
@@ -264,6 +266,16 @@ export function verifyUnpacked(unpackedPath) {
   invariant(
     packagedManifest.main === "dist-electron/main/main.js",
     "Packaged manifest main entry is unexpected."
+  );
+  const packagedYamlManifest = JSON.parse(
+    extractFile(
+      asarPath,
+      path.join("dist-electron", "vendor", "yaml", "package-metadata.json")
+    ).toString("utf8")
+  );
+  invariant(
+    packagedYamlManifest.name === "yaml" && packagedYamlManifest.version === "2.8.3",
+    "Packaged yaml runtime dependency is missing or unexpected."
   );
 
   const integrityRecords = collectIntegrityRecords(getRawHeader(asarPath).header);

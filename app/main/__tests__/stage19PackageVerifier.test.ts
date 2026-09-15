@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 // The verifier is deliberately executable as plain Node.js in clean packaging jobs.
 // @ts-expect-error JavaScript verification module has no separate declaration file.
 import {
+  EXPECTED_ASAR_PATHS,
   findForbiddenPackagePaths,
   readIcoSizes
 } from "../../scripts/stage19-package-verify.mjs";
@@ -22,6 +23,15 @@ function icoDirectory(sizes: number[]): Buffer {
 }
 
 describe("Stage 19 package artifact verifier", () => {
+  it("requires the runtime YAML parser in the packaged ASAR", () => {
+    expect(EXPECTED_ASAR_PATHS).toEqual(
+      expect.arrayContaining([
+        "/dist-electron/vendor/yaml/package-metadata.json",
+        "/dist-electron/vendor/yaml/dist/index.js"
+      ])
+    );
+  });
+
   it("rejects protected evidence, Python, source maps, credentials, and portable output", () => {
     expect(
       findForbiddenPackagePaths([
