@@ -271,17 +271,18 @@ function revisionInput(
   provenanceSource: 'program6_finding' | 'recurrence',
 ): CreateRevisionItemInput {
   const source = request.source;
+  const sourceFindingId = source.findingId ?? source.signalId;
   const sourceBodyFingerprint = source.bodySha256 ?? source.anchor?.sourceFingerprint ?? source.sourceRef.bodySha256;
   return {
     projectId: source.projectId,
     unitId: source.unitId,
     body: request.body.trim(),
-    ...(source.findingId ? { sourceFindingId: source.findingId } : {}),
+    ...(sourceFindingId ? { sourceFindingId } : {}),
     ...(source.lens ? { lens: source.lens } : {}),
     ...(source.evidenceSummary ? { evidence: source.evidenceSummary } : {}),
     provenance: {
       source: provenanceSource,
-      ...(source.findingId ? { findingId: source.findingId } : {}),
+      ...(sourceFindingId ? { findingId: sourceFindingId } : {}),
       ...(source.lens ? { lens: source.lens } : {}),
       ...(source.evidenceSummary ? { evidence: source.evidenceSummary } : {}),
       origin: source.protection.sourceClass === 'local-only' ? 'local-inference' : 'program6',

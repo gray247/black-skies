@@ -212,6 +212,38 @@ describe('Feedback Notes IPC authority', () => {
     expect(revisionMocks.createRevisionItem.mock.calls[0][0]).not.toHaveProperty('text');
   });
 
+  it('uses a durable signal id as the revision finding identity', async () => {
+    const source = await buildProgram7SourceEnvelope({
+      projectId: 'project-a',
+      generation: 1,
+      unitId: 'unit-a',
+      sourceText: 'Protected manuscript text.',
+      selectionStart: 0,
+      selectionEnd: 'Protected manuscript text.'.length,
+      signalId: 'signal-a',
+      lens: 'signals',
+      evidenceSummary: 'Review this signal once.',
+    });
+    const item = {
+      id: 'revision-a', projectId: 'project-a', unitId: 'unit-a',
+      body: 'Review this signal once.', advisory: false, kind: 'revision_item', lifecycle: 'active',
+    };
+    revisionMocks.createRevisionItem.mockResolvedValue({ document: { revision: 1 }, note: item });
+
+    await invokeRevision(FEEDBACK_NOTE_CHANNELS.createRevisionItem, 2, {
+      operationId: 'work-on-signal', projectId: 'project-a', projectPath,
+      generation: 1, expectedRevision: 0, source, body: 'Review this signal once.',
+    });
+
+    expect(revisionMocks.createRevisionItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sourceFindingId: 'signal-a',
+        provenance: expect.objectContaining({ findingId: 'signal-a' }),
+      }),
+      0,
+    );
+  });
+
   it('lists active and history revision projections through the owner', async () => {
     const notes = [
       { id: 'active', projectId: 'project-a', unitId: 'unit-a', body: 'Open', advisory: false, kind: 'revision_item', lifecycle: 'underway' },

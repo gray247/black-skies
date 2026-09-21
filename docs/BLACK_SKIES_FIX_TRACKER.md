@@ -3,6 +3,31 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 repeated revision-card repair — 2026-09-21
+
+Jason's 3a retest produced five growing `Signals concern` cards for one durable
+signal. The sidecar confirmed that these were separate persisted records, not a
+renderer repetition. Root cause: the Program 6 Signals handoff supplied
+`signalId`, while the Program 7 IPC owner persisted only `findingId` as the
+stable revision identity. The repository guard therefore received no identity
+and created another active task on every `Work on this` action.
+
+The IPC owner now treats a durable signal ID as the finding identity. The
+repository also recognizes older Program 6 records by their exact project,
+unit, lens, source, concern text, and passage/body fingerprint. A repeated
+handoff reuses the original task; when it encounters earlier duplicates, it
+removes only later pristine active copies with no rechecks, dispositions,
+retention, or recurrence links, and backfills the stable signal identity.
+Interacted-with or historically meaningful records are never collapsed.
+
+Focused repository and IPC coverage passes 27/27, including missing-ID reuse,
+signal-ID routing, and pristine duplicate repair. The integrated Writing
+Studio/Command Center renderer suite passes 133/133. Main-process compilation,
+typecheck, application lint, documentation lint, and `git diff --check` pass.
+Jason's Companion request `Where am I in this project?` returned `Not Routed`;
+that is recorded as a separate current-build Program 4 regression failure and
+is not hidden by this bounded 3a repair. Human Gate 4 remains pending.
+
 ## Program 6 Story Knowledge theme-color repair — 2026-09-21
 
 The Program 6 Story Knowledge workspace still inherited an older cyan eyebrow

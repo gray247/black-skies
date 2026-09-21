@@ -298,6 +298,56 @@ describe('Feedback Notes sidecar', () => {
     await expect(repository.listRevisionItems('project-a')).resolves.toHaveLength(1);
   });
 
+  it('reuses the same Program 6 passage when an older handoff omitted its finding id', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new FeedbackNotesRepository(projectPath);
+    const input = {
+      projectId: 'project-a', unitId: 'unit-a', body: 'Review this signal once.',
+      lens: 'signals', sourceKind: 'story-unit', sourceId: 'unit-a',
+      sourceBodyFingerprint: 'a'.repeat(64),
+      provenance: { source: 'program6_finding', origin: 'program6' },
+    };
+    const first = await repository.createRevisionItem(input);
+    const repeated = await repository.createRevisionItem(input, first.document.revision);
+
+    expect(repeated.note?.id).toBe(first.note?.id);
+    expect(repeated.document.revision).toBe(first.document.revision);
+    await expect(repository.listRevisionItems('project-a')).resolves.toHaveLength(1);
+  });
+
+  it('removes only pristine repeated Program 6 cards and backfills their signal identity', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new FeedbackNotesRepository(projectPath);
+    const input = {
+      projectId: 'project-a', unitId: 'unit-a', body: 'Review this signal once.',
+      lens: 'signals', sourceKind: 'story-unit', sourceId: 'unit-a',
+      sourceBodyFingerprint: 'b'.repeat(64),
+      provenance: { source: 'program6_finding', origin: 'program6' },
+    };
+    const first = await repository.createRevisionItem(input);
+    const filePath = join(projectPath, FEEDBACK_NOTES_FILENAME);
+    const document = JSON.parse(await readFile(filePath, 'utf8'));
+    document.revision = 2;
+    document.notes.push({
+      ...first.note,
+      id: 'revision-duplicate',
+      createdAt: '2026-09-21T20:55:26.881Z',
+      documentRevision: 2,
+    });
+    await writeFile(filePath, `${JSON.stringify(document, null, 2)}\n`, 'utf8');
+
+    const repaired = await repository.createRevisionItem(
+      { ...input, sourceFindingId: 'signal-a' },
+      2,
+    );
+
+    expect(repaired.document.revision).toBe(3);
+    expect(repaired.note).toMatchObject({ id: first.note?.id, sourceFindingId: 'signal-a' });
+    expect(repaired.document.notes).toHaveLength(1);
+    expect(repaired.document.notes[0]?.provenance).toMatchObject({ findingId: 'signal-a' });
+    await expect(repository.listRevisionItems('project-a')).resolves.toHaveLength(1);
+  });
+
   it('serializes concurrent revision mutations and preserves both items', async () => {
     const projectPath = await temporaryProject();
     const repository = new FeedbackNotesRepository(projectPath);

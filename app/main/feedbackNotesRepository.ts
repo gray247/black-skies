@@ -96,6 +96,48 @@ const ACTIVE_REVISION_LIFECYCLES = new Set<FeedbackRevisionLifecycle>([
   'recheck_pending',
 ]);
 
+function isProgram6Revision(value: Pick<CreateRevisionItemInput, 'provenance'>): boolean {
+  return value.provenance?.source === 'program6_finding';
+}
+
+function hasSameProgram6Source(item: RevisionItem, input: CreateRevisionItemInput): boolean {
+  if (
+    input.sourceFindingId &&
+    (item.sourceFindingId === input.sourceFindingId ||
+      item.provenance?.findingId === input.sourceFindingId)
+  ) return true;
+  if (!isProgram6Revision(item) || !isProgram6Revision(input)) return false;
+  const samePassage = item.anchor?.selectionFingerprint && input.anchor?.selectionFingerprint
+    ? item.anchor.selectionFingerprint === input.anchor.selectionFingerprint
+    : Boolean(
+        item.sourceBodyFingerprint &&
+        input.sourceBodyFingerprint &&
+        item.sourceBodyFingerprint === input.sourceBodyFingerprint,
+      );
+  return Boolean(
+    samePassage &&
+    item.projectId === input.projectId &&
+    item.unitId === input.unitId &&
+    item.lens === input.lens &&
+    item.sourceKind === input.sourceKind &&
+    item.sourceId === input.sourceId &&
+    item.body.trim() === input.body.trim(),
+  );
+}
+
+function isPristineProgram6Duplicate(item: RevisionItem): boolean {
+  return (
+    item.lifecycle === 'active' &&
+    (item.rechecks?.length ?? 0) === 0 &&
+    (item.dispositionHistory?.length ?? 0) === 0 &&
+    !item.retained &&
+    !item.relatedRecurrenceId &&
+    !item.relatedRevisionItemId &&
+    !item.relatedItemId &&
+    !item.recurrenceOf
+  );
+}
+
 function isDisposition(value: unknown): value is FeedbackRevisionDisposition {
   return (
     value === 'parked' || value === 'dismissed' || value === 'resolved' || value === 'abandoned'
@@ -345,15 +387,52 @@ export class FeedbackNotesRepository {
   ): Promise<FeedbackNoteMutationResult> {
     return serializeProjectWrite(this.filePath, async () => {
       const loaded = await this.readEnvelope(input.projectId);
-      const existing = input.sourceFindingId
-        ? loaded.document.notes.find(
-            (note): note is RevisionItem =>
-              note.advisory === false &&
-              ACTIVE_REVISION_LIFECYCLES.has(note.lifecycle) &&
-              note.sourceFindingId === input.sourceFindingId,
-          )
-        : undefined;
-      if (existing) return { document: loaded.document, note: existing };
+      const matches = loaded.document.notes.filter(
+        (note): note is RevisionItem =>
+          note.advisory === false &&
+          ACTIVE_REVISION_LIFECYCLES.has(note.lifecycle) &&
+          hasSameProgram6Source(note, input),
+      );
+      const existing = matches[0];
+      if (existing) {
+        const removableDuplicateIds = new Set(
+          matches.slice(1).filter(isPristineProgram6Duplicate).map((note) => note.id),
+        );
+        const needsIdentityBackfill = Boolean(
+          input.sourceFindingId && existing.sourceFindingId !== input.sourceFindingId,
+        );
+        if (
+          loaded.document.revision === expectedRevision &&
+          (needsIdentityBackfill || removableDuplicateIds.size > 0)
+        ) {
+          const revision = loaded.document.revision + 1;
+          const repaired: RevisionItem = {
+            ...existing,
+            ...(input.sourceFindingId
+              ? {
+                  sourceFindingId: input.sourceFindingId,
+                  provenance: {
+                    source:
+                      existing.provenance?.source ??
+                      input.provenance?.source ??
+                      'program6_finding',
+                    ...existing.provenance,
+                    findingId: input.sourceFindingId,
+                  },
+                }
+              : {}),
+            documentRevision: revision,
+          };
+          const notes = loaded.document.notes
+            .filter((note) => !removableDuplicateIds.has(note.id))
+            .map((note) => note.id === existing.id ? repaired : note);
+          const next = this.nextDocument(loaded.document, notes);
+          validateDocument(next, input.projectId);
+          await this.writeEnvelope(next);
+          return { document: next, note: repaired };
+        }
+        return { document: loaded.document, note: existing };
+      }
       if (loaded.document.revision !== expectedRevision)
         throw new FeedbackNotesRepositoryError(
           'STALE',
