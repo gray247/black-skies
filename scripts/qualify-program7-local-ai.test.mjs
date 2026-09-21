@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 
 import {
+  buildProgram7QualificationScenarios,
   responseSummary,
   scanProtectedSentinels,
   timingPassFor,
@@ -36,5 +37,32 @@ assert.deepEqual(
 const decomposed = 'P7_AI_EXCLUDED_SENTINEL_E\u0301';
 const composed = 'P7_AI_EXCLUDED_SENTINEL_É';
 assert.deepEqual(scanProtectedSentinels({ response: composed }, [decomposed]).hits, [decomposed]);
+
+const fixtureScenarios = buildProgram7QualificationScenarios({
+  durable: [
+    'PROLOGUE',
+    '',
+    'Upon a paper attached to the Narrative, Doctor Hesselius has written a note.',
+    '',
+    'As I publish the case, I shall abstain from presenting any précis of the learned Doctor’s reasoning.',
+  ].join('\n'),
+  dialogueSource: '“Yes; and very splendid, I believe, they were,” said my father.\n\n“Princely! The grounds were illuminated. I felt myself carried back into the romance and poetry of my early youth.\n\n“When the fireworks were ended, the ball began.',
+  factsFixture: { facts: [{ id: 'fact-narrator', statement: 'Laura narrates retrospectively.' }] },
+  protectedFixture: { unitId: 'protected-unit', start: 6, end: 12, sentinel: 'PROTECTED' },
+  protectedBody: 'Before PROTECTED after.',
+});
+const q02 = fixtureScenarios.find((scenario) => scenario.id === 'Q02');
+const q03 = fixtureScenarios.find((scenario) => scenario.id === 'Q03');
+const q05 = fixtureScenarios.find((scenario) => scenario.id === 'Q05');
+const q06 = fixtureScenarios.find((scenario) => scenario.id === 'Q06');
+const q07 = fixtureScenarios.find((scenario) => scenario.id === 'Q07');
+assert.ok(q02?.sourceText?.endsWith('early youth.'));
+assert.ok(!q02?.sourceText?.includes('When the fireworks'));
+assert.equal(q03?.sourceText, 'Immutable continuity fact: Laura narrates retrospectively.');
+assert.equal(q05?.purpose, q06?.purpose);
+assert.notEqual(q05?.sourceText, q06?.sourceText);
+assert.ok(!q05?.sourceText?.includes('précis'));
+assert.ok(q06?.sourceText?.includes('précis'));
+assert.ok(q07?.purpose?.includes('hypothetical premise-level'));
 
 process.stdout.write('Program 7 local-AI qualification evidence tests passed.\n');

@@ -177,6 +177,26 @@ output characters for rewrite/premise operations; 8,000 input characters and
 2,000 output characters for recheck. A request exceeding a bound is rejected
 before transport. Structured invalid output is `failed`, never a candidate.
 
+### 4.2.1 Local prompt contract
+
+The versioned Black Skies prompt assembled for the fixed local route must keep
+the closed response schema above and apply operation-specific instructions:
+
+- a rewrite preserves speakers and their relationships, point of view, tense,
+  named facts, sequence, period, and source voice; it does not add missing
+  story facts or complete truncated source;
+- a revision recheck evaluates the stated concern against the supplied passage
+  and cites concrete passage evidence rather than obeying a requested verdict;
+- a premise alternative is explicitly hypothetical and premise-level, not a
+  sentence rewrite or a new canonical fact; and
+- every operation remains concise, advisory, source-bounded, and silent about
+  internal token or character limits.
+
+The application sends this contract with each bounded request and records its
+prompt hash. A repository Markdown file, Ollama chat history, or global Ollama
+setting is not implicit model context and must not be treated as evidence that
+these instructions were supplied.
+
 ### 4.3 Twelve-scenario, two-variant pilot matrix
 
 The pilot produces exactly 24 separately receipted rows from twelve fixed

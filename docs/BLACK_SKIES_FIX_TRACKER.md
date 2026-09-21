@@ -22,20 +22,37 @@ claim Program 7 closure. Canonical evidence remains under
 `docs/product_systems/`, with lifecycle evidence retained in the explicit
 Administrator temp root recorded by the closure report.
 
-## Program 7 local-AI timing cleanup — 2026-09-20
+## Program 7 local-AI prompt/fixture repair — 2026-09-20
 
-The prior RT-2B packet's `24/24` local-AI row claim was produced by an
-elapsed-only timing check. The qualifier now fails closed on both dimensions
-required by the protocol: non-streaming first-visible result at or below 60s
-(cold) / 20s (warm), and total request time at or below 120s (cold) / 60s
-(warm). Boundary regression tests pass for all four limits.
+The qualifier now fails closed on both dimensions required by the protocol:
+non-streaming first-visible result at or below 60s (cold) / 20s (warm), and
+total request time at or below 120s (cold) / 60s (warm). Boundary regression
+tests pass for all four limits. The existing transport prompt contract was
+split by operation, and the Q02/Q03/Q05/Q06/Q07 fixtures were bounded without
+changing the JSON schema or protection/authority rules.
 
-The one post-repair real `qwen3:4b` run recorded 24 observed rows but only
-19 mechanical passes. Five warm rows exceeded the 20s first-visible limit,
-and Q02 warm also returned an invalid structured response. The run preserved
-the exact model digest and truth/protection invariants but is not-qualified;
-local-AI admission remains pending and is not inferred. Evidence is retained
-under `C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-cleanup-20260920-220636`.
+The single post-repair real `qwen3:4b` run observed 24 rows and passed 20
+mechanical rows. All cold timing rows passed; warm Q01/Q02/Q04 exceeded the
+20s first-visible limit at 26,631ms, 28,576ms, and 21,674ms respectively.
+Q06 cold returned `still_appears_present` where the fixture expected
+`appears_resolved`; its warm row passed. No retry was run. The run preserved
+truth (`unchanged=true`) and protection scanning (0 hits), used qwen3:4b
+digest `359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`,
+and remains `not-qualified`.
+
+This exploratory run was executed from a worktree based on commit
+`db482ce9b5f5bc3973df57ad1bebb3dbd0058619` / tree
+`79a26a31c1a59ba6455b2ec7bc38b8f2d93e85ac` while the prompt and fixture
+repair remained uncommitted. The runner's `exactCommit` field therefore names
+the base HEAD, not an exact clean prompt-repair commit; row-level prompt hashes
+bind the instructions that actually ran. This result does not replace the
+frozen `c57be0ff` candidate packet or canonical evidence. Evidence is retained under
+`C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-prompt-repair-run-20260920-224212`.
+
+Remaining model-output concerns include a warm Q01 reason that mentions a
+character limit, Q02 voice/speaker fidelity, Q04 added-content risk, and
+Q06 cold semantic instability. Local-AI admission remains pending and is not
+inferred.
 
 The opt-in outer-host Electron production-bridge journey passed once after a
 bounded assertion-timeout correction: it created an advisory candidate,
@@ -106,10 +123,13 @@ candidate identity is used by the package, lifecycle witness, and ledger.
 
 The current runtime implementation candidate is `cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a`
 with tree `7099f103054bc80847db435889932db71417ef6a`. Fresh receipts for the
-real `qwen3:4b` RT-2B pilot (24/24 mechanical rows), persistence (136/136
-tests), and Unicode/Markdown (18/18 assertions) are captured and bound to that
-candidate. The evidence ledger and deterministic human sample validate at 41
-rows against the same exact commit/tree.
+real `qwen3:4b` RT-2B pilot (24 rows recorded by the then-current elapsed-only
+verifier), persistence (136/136 tests), and Unicode/Markdown (18/18
+assertions) are captured and bound to that candidate. The pilot's historical
+24/24 result is not a current mechanical qualification because the corrected
+protocol separately enforces cold/warm first-visible limits. The evidence
+ledger and deterministic human sample validate at 41 rows against the same
+exact commit/tree.
 
 Normal-GPU Electron requalification for accessibility, scale, and Stage 19 is
 deferred because the host approval service reached its usage limit. The earlier
@@ -799,8 +819,11 @@ The real RT-2B runner now records the protocol's exact twelve-scenario,
 cold/warm 24-row matrix, including stale fingerprint rejection, malformed
 provider responses, cancellation, unavailable endpoint controls, timing
 bounds, model receipts, and before/after truth hashes. The exact-commit run
-at `b297ca6ad8372cdf29a892de1318269128ccddd7` produced 24/24 mechanical
-passes; Jason's subjective scoring and local-AI admission remain pending.
+at `b297ca6ad8372cdf29a892de1318269128ccddd7` produced 24 recorded rows
+under the then-current elapsed-only verifier; that historical 24/24 result is
+superseded for mechanical qualification by the corrected cold/warm
+first-visible limits. Jason's subjective scoring and local-AI admission remain
+pending.
 
 Four dedicated P7-G2 Electron suites passed 4/4 on the outer host with normal
 GPU operation, and the complete outer-host Stage 19 gate passed 49/49 files,

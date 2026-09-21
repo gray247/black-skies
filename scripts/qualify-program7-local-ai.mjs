@@ -98,6 +98,47 @@ export function timingPassFor(executionMode, firstVisibleResultMs, elapsedMs) {
   return firstVisibleResultMs <= limits.firstVisible && elapsedMs <= limits.total;
 }
 
+function paragraphContaining(text, marker) {
+  return text
+    .split(/\n\s*\n/u)
+    .map((paragraph) => paragraph.trim())
+    .find((paragraph) => paragraph.includes(marker)) ?? '';
+}
+
+export function buildProgram7QualificationScenarios({ durable, dialogueSource, factsFixture, protectedFixture, protectedBody }) {
+  const sourceText = durable.slice(0, 700);
+  const dialogueStart = dialogueSource.indexOf('“Yes;');
+  const dialogueEnd = dialogueSource.indexOf('“When the fireworks', dialogueStart);
+  if (dialogueStart < 0 || dialogueEnd <= dialogueStart) {
+    throw new Error('The Q02 dialogue fixture could not be bounded at a complete sentence boundary.');
+  }
+  const dialogueBody = dialogueSource.slice(dialogueStart, dialogueEnd).trim();
+  const continuityFact = factsFixture.facts.find((fact) => fact.id === 'fact-narrator')?.statement ?? 'Laura narrates retrospectively.';
+  const continuityText = `Immutable continuity fact: ${continuityFact}`;
+  const openingConcern = 'Does this passage clearly explain how Doctor Hesselius’s reasoning will be handled?';
+  const baselineRecheckText = paragraphContaining(durable, 'Upon a paper attached to the Narrative');
+  const revisedRecheckText = [
+    paragraphContaining(durable, 'Upon a paper attached to the Narrative'),
+    paragraphContaining(durable, 'As I publish the case'),
+  ].filter(Boolean).join('\n\n');
+  if (!baselineRecheckText || !revisedRecheckText) {
+    throw new Error('The Q05/Q06 recheck fixtures could not be bounded at complete paragraph boundaries.');
+  }
+  const protectedStart = Math.max(0, protectedFixture.start);
+  const protectedEnd = Math.min(protectedBody.length, protectedFixture.end);
+  const protectedAdjacentText = `${protectedBody.slice(Math.max(0, protectedStart - 180), protectedStart)}${protectedBody.slice(protectedEnd, protectedEnd + 420)}`;
+  return [
+    { id: 'Q01', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded descriptive prose passage for author review.', expectedStatus: 'candidate' },
+    { id: 'Q02', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded dialogue passage while preserving the speaker relationship for author review.', expectedStatus: 'candidate', sourceText: dialogueBody, sourceUnitId: 'carmilla-chapter-11' },
+    { id: 'Q03', operation: 'rewrite_candidate', purpose: 'Rewrite only the supplied immutable continuity fact for author review. Do not add framing, context, or new facts.', expectedStatus: 'candidate', sourceText: continuityText, sourceUnitId: unitId },
+    { id: 'Q04', operation: 'rewrite_candidate', purpose: 'Offer a bounded rewrite adjacent to a protected span without quoting or editing the protected span.', expectedStatus: 'candidate', sourceText: protectedAdjacentText, sourceUnitId: protectedFixture.unitId, protectedSentinel: protectedFixture.sentinel },
+    { id: 'Q05', operation: 'revision_recheck', purpose: openingConcern, expectedStatus: 'still_appears_present', sourceText: baselineRecheckText },
+    { id: 'Q06', operation: 'revision_recheck', purpose: openingConcern, expectedStatus: 'appears_resolved', sourceText: revisedRecheckText },
+    { id: 'Q07', operation: 'premise_alternative', purpose: 'Offer one hypothetical premise-level alternative for author review. Keep it a possibility, not a sentence rewrite or manuscript canon.', expectedStatus: 'candidate' },
+    { id: 'Q08', operation: 'rewrite_candidate', purpose: '', expectedStatus: 'failed', invalidPurpose: true },
+  ];
+}
+
 async function invokeService(service, request, options = {}) {
   const started = performance.now();
   try {
@@ -268,28 +309,13 @@ async function run() {
   const storyBefore = await fileDigest(fixtureRoot, 'story-intelligence.json');
   const durable = durableBody(await readFile(draftPath, 'utf8'));
   const bodySha256 = sha256(durable);
-  const sourceText = durable.slice(0, 700);
   const dialogueSource = durableBody(await readFile(path.join(fixtureRoot, 'drafts', 'carmilla-chapter-11.md'), 'utf8'));
-  const dialogueStart = Math.max(0, dialogueSource.indexOf('“Yes;'));
-  const dialogueBody = dialogueSource.slice(dialogueStart >= 0 ? dialogueStart : 0, (dialogueStart >= 0 ? dialogueStart : 0) + 640);
   const factsFixture = JSON.parse(await readFile(path.join(repoRoot, 'sample_project', 'program_7_corpus', 'carmilla', 'derived', 'fixtures', 'facts.json'), 'utf8'));
   const protectedFixture = JSON.parse(await readFile(path.join(repoRoot, 'sample_project', 'program_7_corpus', 'carmilla', 'derived', 'fixtures', 'protected-span.json'), 'utf8'));
   const protectedBody = durableBody(await readFile(path.join(fixtureRoot, 'drafts', `${protectedFixture.unitId}.md`), 'utf8'));
-  const protectedStart = Math.max(0, protectedFixture.start);
-  const protectedEnd = Math.min(protectedBody.length, protectedFixture.end);
-  const protectedAdjacentText = `${protectedBody.slice(Math.max(0, protectedStart - 180), protectedStart)}${protectedBody.slice(protectedEnd, protectedEnd + 420)}`;
-  const continuityText = `${sourceText}\nContinuity fixture: ${factsFixture.facts.find((fact) => fact.id === 'fact-narrator')?.statement ?? 'Laura narrates retrospectively.'}`;
   const { Program7LocalInferenceService, OllamaLocalInferenceTransport, calculateNarrativeInsertion } = await loadAppContracts();
-  const scenarios = [
-    { id: 'Q01', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded descriptive prose passage for author review.', expectedStatus: 'candidate' },
-    { id: 'Q02', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded dialogue passage while preserving the speaker relationship for author review.', expectedStatus: 'candidate', sourceText: dialogueBody.slice(0, 1_200), sourceUnitId: 'carmilla-chapter-11' },
-    { id: 'Q03', operation: 'rewrite_candidate', purpose: 'Rewrite one bounded continuity fact without inventing a new fact for author review.', expectedStatus: 'candidate', sourceText: continuityText, sourceUnitId: unitId },
-    { id: 'Q04', operation: 'rewrite_candidate', purpose: 'Offer a bounded rewrite adjacent to a protected span without quoting or editing the protected span.', expectedStatus: 'candidate', sourceText: protectedAdjacentText, sourceUnitId: protectedFixture.unitId, protectedSentinel: protectedFixture.sentinel },
-    { id: 'Q05', operation: 'revision_recheck', purpose: 'The opening concern remains after a hypothetical bounded edit. Return still_appears_present.', expectedStatus: 'still_appears_present' },
-    { id: 'Q06', operation: 'revision_recheck', purpose: 'The opening concern is improved after a hypothetical bounded edit. Return appears_resolved.', expectedStatus: 'appears_resolved' },
-    { id: 'Q07', operation: 'premise_alternative', purpose: 'Offer one bounded premise alternative for author review without changing the manuscript.', expectedStatus: 'candidate' },
-    { id: 'Q08', operation: 'rewrite_candidate', purpose: '', expectedStatus: 'failed', invalidPurpose: true },
-  ];
+  const scenarios = buildProgram7QualificationScenarios({ durable, dialogueSource, factsFixture, protectedFixture, protectedBody });
+  const sourceText = durable.slice(0, 700);
   const matrix = [];
   const liveResponses = [];
   for (const scenario of scenarios) {

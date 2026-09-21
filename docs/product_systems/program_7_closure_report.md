@@ -15,12 +15,20 @@ diagnostic GPU override.
 
 ## Mechanical evidence
 
-- Historical local-AI RT-2B packet: 24/24 rows were recorded before the
-  protocol's separate first-visible timing limit was enforced. The corrected
-  real `qwen3:4b` cleanup run observed 24 rows but passed 19; five warm rows
-  exceeded the 20s first-visible limit and Q02 warm also returned an invalid
-  structured response. Local-AI is therefore not mechanically eligible;
-  admission remains `pending-human`.
+- The single exploratory prompt/fixture-repair `qwen3:4b` run observed 24 rows
+  and passed 20 mechanical rows. It ran from a worktree based on commit
+  `db482ce9b5f5bc3973df57ad1bebb3dbd0058619` / tree
+  `79a26a31c1a59ba6455b2ec7bc38b8f2d93e85ac` while the repair remained
+  uncommitted. Its `exactCommit` field therefore identifies the base HEAD,
+  while row prompt hashes identify the instructions actually exercised. It is
+  not a replacement for this frozen exact-candidate packet. All cold timing
+  rows passed; warm Q01/Q02/Q04
+  exceeded the 20s first-visible limit at 26,631ms, 28,576ms, and 21,674ms.
+  Q06 cold observed `still_appears_present` instead of expected
+  `appears_resolved`; its warm row passed. The model digest was
+  `359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`.
+  Truth remained unchanged and protection scanning found zero hits. Local-AI
+  is therefore not mechanically eligible; admission remains `pending-human`.
 - Persistence: 8 suites / 136 tests passed with zero failures or skips.
 - Unicode/Markdown: all 18 required assertions passed.
 - Accessibility: qualified packet with 66/66 observed rows passed and all
@@ -40,17 +48,19 @@ diagnostic GPU override.
 
 ## Local-AI cleanup disposition
 
-The timing-only qualifier repair is intentionally limited to fail-closed
-measurement and boundary tests in `scripts/qualify-program7-local-ai.mjs` and
-its focused test. The real cleanup packet is retained at:
+The bounded prompt/fixture repair is limited to the existing operation-specific
+transport contract, qualification fixtures, and deterministic tests. The real
+cleanup packet is retained at:
 
-`C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-cleanup-20260920-220636\post-edit-real-qualifier.json`
+`C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-prompt-repair-run-20260920-224212\real-qualifier.json`
 
 The opt-in outer-host Electron bridge journey passed after its assertion
 timeout was corrected; it proved that a real candidate remains advisory until
-an explicit acceptance action and does not mutate the manuscript. The
-remaining Q02/Q03/Q05/Q06/Q07 output-shape and grounding observations are
-known model-quality issues, not a basis for prompt overfitting in this pass.
+an explicit acceptance action and does not mutate the manuscript. The single
+post-repair run still shows a warm Q01 character-limit comment, Q02 voice and
+speaker-fidelity risk, Q04 added-content risk, and Q06 cold semantic
+instability. These remain known model-quality/qualification issues; no local-AI
+admission is inferred.
 
 ## Human-only items
 
