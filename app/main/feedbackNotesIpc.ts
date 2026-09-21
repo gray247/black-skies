@@ -220,7 +220,9 @@ function sourceReadyForRevision(
   resolution: Program7SourceBindingResolutionV1,
 ): boolean {
   return resolution.status === 'current' || resolution.status === 'exact' ||
-    resolution.status === 'relocated' || resolution.status === 'protected';
+    resolution.status === 'relocated' || resolution.status === 'protected' ||
+    (resolution.status === 'potentially-outdated' &&
+      resolution.selectionStart !== undefined && resolution.selectionEnd !== undefined);
 }
 
 function sourceFailure(
@@ -514,8 +516,12 @@ async function recordDeterministicRecheck(
     const resolution = await resolveCurrentSource(active.snapshot, source);
     const status = sourceReadyForRevision(resolution) ? 'not_run' : 'unavailable';
     const evidence = sourceReadyForRevision(resolution)
-      ? `Deterministic source check: ${resolution.message} No semantic resolution judgment was made.`
-      : `Deterministic source check unavailable: ${resolution.message}`;
+      ? resolution.status === 'potentially-outdated'
+        ? 'The edited passage is still linked to this concern. Black Skies did not decide whether the concern is resolved.'
+        : 'The linked passage is available. Black Skies did not decide whether the concern is resolved.'
+      : resolution.status === 'ambiguous'
+        ? 'More than one passage may match this concern, so Black Skies did not choose one.'
+        : 'The original passage could not be identified safely after the edit.';
     const result = await active.repository.recordRecheck(
       active.snapshot.project!.projectId,
       request.expectedRevision,

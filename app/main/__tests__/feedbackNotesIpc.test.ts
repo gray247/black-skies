@@ -316,7 +316,7 @@ describe('Feedback Notes IPC authority', () => {
     ));
     expect(result).toMatchObject({ ok: true, revision: 3 });
     expect(revisionMocks.recordRecheck).toHaveBeenCalledWith(
-      'project-a', 2, 'revision-a', 'not_run', expect.stringContaining('No semantic resolution judgment'),
+      'project-a', 2, 'revision-a', 'not_run', expect.stringContaining('did not decide whether the concern is resolved'),
       { method: 'deterministic', sourceStatus: 'exact' },
     );
     expect(revisionMocks.localRun).not.toHaveBeenCalled();

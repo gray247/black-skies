@@ -28,6 +28,21 @@ Jason's Companion request `Where am I in this project?` returned `Not Routed`;
 that is recorded as a separate current-build Program 4 regression failure and
 is not hidden by this bounded 3a repair. Human Gate 4 remains pending.
 
+### 3b edited-passage recheck repair — 2026-09-21
+
+The first 3b retest exposed a stale-source message after Jason edited and saved
+the focused manuscript passage. The old resolver looked only for the original
+selected text, so an intentional revision was reported as unavailable. The
+source binding now uses the unchanged context immediately before and after the
+selection to identify an edited-in-place passage uniquely. It marks that result
+as potentially outdated, preserves the author decision, and never claims that
+the concern is resolved. Ambiguous contexts and whole-source replacements still
+remain blocked for review. Revision Desk now presents these outcomes as
+writer-facing language instead of raw resolver terminology.
+
+Focused source-binding, IPC, and Revision Desk coverage passes 40/40; main
+compilation and application lint pass. Jason's 3b human retest remains pending.
+
 ## Program 6 Story Knowledge theme-color repair — 2026-09-21
 
 The Program 6 Story Knowledge workspace still inherited an older cyan eyebrow

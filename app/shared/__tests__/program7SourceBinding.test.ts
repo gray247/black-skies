@@ -281,20 +281,28 @@ describe('Program 7 source binding', () => {
     });
   });
 
-  it('refuses a changed source without silently reattaching a UTF-16 anchor', async () => {
+  it('marks an edited passage potentially outdated when its context remains unique', async () => {
     const source = 'prefix 😀 selected suffix';
     const selected = 'selected';
     const envelope = await envelopeFor(source, selected);
 
-    await expect(
-      resolveProgram7SourceBinding(envelope, 'prefix 😀 changed suffix'),
-    ).resolves.toMatchObject({
-      status: 'stale',
+    await expect(resolveProgram7SourceBinding(envelope, 'prefix 😀 changed suffix')).resolves.toMatchObject({
+      status: 'potentially-outdated',
+      selectionStart: 10,
+      selectionEnd: 17,
     });
     await expect(
       resolveProgram7SourceBinding(envelope, 'selected selected'),
     ).resolves.toMatchObject({
       status: 'ambiguous',
+    });
+
+    const wholeSource = await buildProgram7SourceEnvelope({
+      projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: 'Selected passage',
+      selectionStart: 0, selectionEnd: 'Selected passage'.length,
+    });
+    await expect(resolveProgram7SourceBinding(wholeSource, 'Other text')).resolves.toMatchObject({
+      status: 'stale',
     });
   });
 });

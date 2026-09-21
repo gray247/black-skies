@@ -23,6 +23,10 @@ export type ManuscriptStructureAnchorResolution =
   | { readonly status: 'exact' | 'relocated'; readonly selectionStart: number; readonly selectionEnd: number }
   | { readonly status: 'ambiguous' | 'unresolved' | 'stale' };
 
+export type ManuscriptStructureEditedAnchorResolution =
+  | { readonly status: 'edited'; readonly selectionStart: number; readonly selectionEnd: number }
+  | { readonly status: 'ambiguous' | 'unresolved' };
+
 export interface ManuscriptStructureDiscoveryOptions {
   readonly now?: () => Date;
   readonly prior?: ManuscriptStructureDocumentV1;
@@ -128,6 +132,61 @@ export async function resolveManuscriptStructureAnchor(
   if (candidates.length === 1) {
     return { status: 'relocated', selectionStart: candidates[0]!, selectionEnd: candidates[0]! + length };
   }
+  return { status: candidates.length > 1 ? 'ambiguous' : 'unresolved' };
+}
+
+async function matchingContextStarts(
+  source: string,
+  length: number,
+  searchFingerprintValue: string,
+  fingerprint: string,
+): Promise<number[]> {
+  if (length <= 0) return [];
+  const matches: number[] = [];
+  const rolling = rollingSearchFingerprints(source, length);
+  const target = Number.parseInt(searchFingerprintValue, 16) >>> 0;
+  for (let index = 0; index < rolling.length; index += 1) {
+    if (rolling[index] !== target) continue;
+    const candidate = source.slice(index, index + length);
+    if (await fingerprintText(candidate) === fingerprint) matches.push(index);
+  }
+  return matches;
+}
+
+/**
+ * Locates the boundaries of a deliberately edited span from its unchanged
+ * immediate context. This never treats the old selected text as current and
+ * refuses to choose when more than one context pair is possible.
+ */
+export async function resolveEditedManuscriptStructureAnchor(
+  anchor: ManuscriptStructureAnchorV1,
+  source: string,
+): Promise<ManuscriptStructureEditedAnchorResolution> {
+  const prefixBoundaries = anchor.prefixLength === 0
+    ? (anchor.selectionStart === 0 ? [0] : [])
+    : (await matchingContextStarts(
+        source,
+        anchor.prefixLength,
+        anchor.prefixSearchFingerprint,
+        anchor.prefixFingerprint,
+      )).map((start) => start + anchor.prefixLength);
+  const suffixBoundaries = anchor.suffixLength === 0
+    ? [source.length]
+    : await matchingContextStarts(
+        source,
+        anchor.suffixLength,
+        anchor.suffixSearchFingerprint,
+        anchor.suffixFingerprint,
+      );
+  if (anchor.prefixLength === 0 && anchor.suffixLength === 0) {
+    return { status: 'unresolved' };
+  }
+  const candidates = prefixBoundaries.flatMap((selectionStart) =>
+    suffixBoundaries
+      .filter((selectionEnd) => selectionEnd >= selectionStart)
+      .map((selectionEnd) => ({ selectionStart, selectionEnd })),
+  );
+  if (candidates.length === 1) return { status: 'edited', ...candidates[0]! };
   return { status: candidates.length > 1 ? 'ambiguous' : 'unresolved' };
 }
 

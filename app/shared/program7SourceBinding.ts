@@ -3,6 +3,7 @@ import type { StoryIntelligenceSourceClassV1, StoryPositionRefV1 } from './ipc/s
 import {
   buildManuscriptStructureAnchor,
   normalizeManuscriptSource,
+  resolveEditedManuscriptStructureAnchor,
   resolveManuscriptStructureAnchor,
 } from './manuscriptStructure';
 
@@ -241,6 +242,24 @@ export async function resolveProgram7SourceBinding(
         status: 'ambiguous',
         envelope,
         message: 'The source passage has multiple possible matches.',
+      };
+    const editedResolution = await resolveEditedManuscriptStructureAnchor(
+      envelope.anchor,
+      normalized,
+    );
+    if (editedResolution.status === 'edited')
+      return {
+        status: 'potentially-outdated',
+        envelope,
+        selectionStart: editedResolution.selectionStart,
+        selectionEnd: editedResolution.selectionEnd,
+        message: 'The linked passage was edited in place and is still identifiable.',
+      };
+    if (editedResolution.status === 'ambiguous')
+      return {
+        status: 'ambiguous',
+        envelope,
+        message: 'The edited passage has multiple possible matches.',
       };
     return {
       status: 'stale',

@@ -52,14 +52,38 @@ function safeBody(item: RevisionItem): JSX.Element {
   return <span>{item.body}</span>;
 }
 
+function sourceStatusLabel(status: FeedbackNoteRecheck['sourceStatus']): string | null {
+  if (status === 'potentially-outdated') return 'edited passage found';
+  if (status === 'relocated') return 'passage found in its new position';
+  if (status === 'exact' || status === 'current') return 'linked passage found';
+  if (status === 'ambiguous') return 'more than one possible passage';
+  if (status === 'stale') return 'original passage no longer identifiable';
+  if (status === 'unavailable') return 'source unavailable';
+  if (status === 'protected') return 'protected source';
+  return null;
+}
+
+function evidenceLabel(recheck: FeedbackNoteRecheck): string | undefined {
+  if (!recheck.evidence?.startsWith('Deterministic source check')) return recheck.evidence;
+  if (recheck.sourceStatus === 'ambiguous') {
+    return 'More than one passage may match this concern, so Black Skies did not choose one.';
+  }
+  if (recheck.sourceStatus === 'stale' || recheck.sourceStatus === 'unavailable') {
+    return 'The original passage could not be identified safely after the edit.';
+  }
+  return 'The linked passage is available. Black Skies did not decide whether the concern is resolved.';
+}
+
 function RecheckList({ rechecks }: { readonly rechecks: readonly FeedbackNoteRecheck[] | undefined }): JSX.Element | null {
   if (!rechecks || rechecks.length === 0) return null;
   return (
     <div className="program7-revision-desk__rechecks" aria-label="Check history">
       <strong>Check history</strong>
       <ul>
-        {rechecks.map((recheck) => (
-          <li key={recheck.id}>
+        {rechecks.map((recheck) => {
+          const sourceStatus = sourceStatusLabel(recheck.sourceStatus);
+          const evidence = evidenceLabel(recheck);
+          return <li key={recheck.id}>
             <span>{recheck.method === 'local-ai' ? 'Local AI' : 'Passage check'}:</span>{' '}
             <span>{recheck.status === 'appears_resolved'
               ? 'may be resolved'
@@ -68,10 +92,10 @@ function RecheckList({ rechecks }: { readonly rechecks: readonly FeedbackNoteRec
                 : recheck.status === 'unavailable'
                   ? 'could not check'
                   : 'the passage was found; no writing judgment was made'}</span>
-            {recheck.sourceStatus ? <span> · {recheck.sourceStatus}</span> : null}
-            {recheck.evidence ? <span> · {recheck.evidence}</span> : null}
+            {sourceStatus ? <span> · {sourceStatus}</span> : null}
+            {evidence ? <span> · {evidence}</span> : null}
           </li>
-        ))}
+        })}
       </ul>
     </div>
   );
