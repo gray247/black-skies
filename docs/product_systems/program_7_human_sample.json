@@ -1,11 +1,11 @@
 {
   "schemaVersion": "program7.human-sample.v1",
-  "exactCommit": "cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a",
+  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
   "algorithm": "program7-human-sample-v1",
   "rule": "For each package, hash exactCommit|packageId|program7-human-sample-v1, sort SHA256(seed|evidenceId), and select ceil(10%) with a minimum of three when at least three objective Pass rows exist; select all when fewer than three exist.",
   "packages": {
     "RT-2B": {
-      "seed": "810e2c0a010052361c7fd03cf57b073f1808322b7f915c1790a9a09608359cef",
+      "seed": "eaa101e344d12dd7d0959ce787186c9fea5b967ed5f753eb5efebee5e00ff9d7",
       "eligiblePassIds": [
         "RT-2B-Q08-REAL-COLD",
         "RT-2B-Q08-REAL-WARM",
@@ -16,23 +16,27 @@
       ],
       "selectedIds": [
         "RT-2B-Q09-REAL-WARM",
-        "RT-2B-Q10-FAULT-B",
+        "RT-2B-Q09-REAL-COLD",
         "RT-2B-Q08-REAL-COLD"
       ],
       "sampleCount": 3
     },
     "P7-G2": {
-      "seed": "472baec338062495f7a65f66abf852ebbb8f47769b183f5d51fd2d2ab3ce8c93",
+      "seed": "a58b7b242698606bcc59f4764106a1aec34417e7756b2d65d1a5b3033c65158a",
       "eligiblePassIds": [
+        "P7-G2-E2E-CREATE-DEVELOP",
+        "P7-G2-E2E-LONG-FORM",
+        "P7-G2-E2E-REVISION",
         "P7-G2-PROTOCOL-CONCURRENCY",
         "P7-G2-PROTOCOL-CORRUPTION",
         "P7-G2-PROTOCOL-MIGRATION",
-        "P7-G2-PROTOCOL-RECOVERY"
+        "P7-G2-PROTOCOL-RECOVERY",
+        "P7-G2-STAGE19"
       ],
       "selectedIds": [
-        "P7-G2-PROTOCOL-RECOVERY",
         "P7-G2-PROTOCOL-CORRUPTION",
-        "P7-G2-PROTOCOL-MIGRATION"
+        "P7-G2-PROTOCOL-CONCURRENCY",
+        "P7-G2-PROTOCOL-RECOVERY"
       ],
       "sampleCount": 3
     }

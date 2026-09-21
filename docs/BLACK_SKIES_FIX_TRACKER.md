@@ -3,6 +3,25 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 exact-candidate mechanical qualification assembly — 2026-09-21
+
+The exact candidate `c57be0ffe41b5383f50fbc29546c121603094e40` (tree
+`a75c40f14e078ddda49b9fcfa33a5fe383390bc5`) now has a synchronized mechanical
+packet. The corrected outer-host normal-GPU Electron run qualified the 1x/2x/
+4x/8x scale matrix, all four dedicated Program 7 workflows, and the complete
+clean Stage 19 gate (49 critical files, 806 passed, 2 skipped, startup 1/1,
+Electron 36/36). The fresh NSIS receipt is bound to this candidate, contains
+yaml `2.8.3`, and records forbidden-path count `0`; the Administrator
+offline-firewall installed lifecycle also passed.
+
+The evidence ledger was rebuilt with the explicit lifecycle evidence path and
+validated fail-closed at 41 rows. The deterministic Jason sample was rebuilt
+from the exact ledger seed algorithm. Jason’s score fields, Human Gate 4
+verdict, and local-AI admission remain blank/pending; this packet does not
+claim Program 7 closure. Canonical evidence remains under
+`docs/product_systems/`, with lifecycle evidence retained in the explicit
+Administrator temp root recorded by the closure report.
+
 ## Program 7 installed-package runtime dependency repair — 2026-09-14
 
 The first elevated offline lifecycle reached the newly installed application

@@ -1,0 +1,1650 @@
+{
+  "schema": "program7.accessibility-qualification.v1",
+  "status": "qualified",
+  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
+  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "cleanExactCommitBinding": true,
+  "dirtyPaths": [],
+  "sourceHashes": {
+    "app/renderer/components/program7/Program7CreateDevelopWorkspace.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\Program7CreateDevelopWorkspace.tsx",
+      "sha256": "24b4acdf9b44f59366ecb7df58b3e4f0a1907b805049fbe0e3d6bfceec566c19"
+    },
+    "app/renderer/components/program7/RevisionDesk.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\RevisionDesk.tsx",
+      "sha256": "7559bfe551b57aef1705f4a4ef9f98c5eca0ce842dc41ef5491220979d4cf780"
+    },
+    "app/renderer/components/program7/RevisionComparison.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\RevisionComparison.tsx",
+      "sha256": "acd2939cd4dac34ea7309cf8032afd17992d84af0bd54fb8cebd29b4bc49407e"
+    },
+    "app/renderer/components/program7/StoryFoundation.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\StoryFoundation.tsx",
+      "sha256": "5b4b3fc1e3ad0e16775cd6197ec2a27860868dfc807495259eb42cb99e641db3"
+    },
+    "app/renderer/components/program7/IdeasWorkspace.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\IdeasWorkspace.tsx",
+      "sha256": "3c4a5500b7b558d2c6c282ff8d70dc4a16bca154078159a710f8c6c4da0a0387"
+    },
+    "app/renderer/components/program7/Program7History.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\Program7History.tsx",
+      "sha256": "4fdf88378963e6502714782687bb8661a12fddc69d1b712e3b15e288a97152fc"
+    },
+    "app/renderer/components/program7/WritingRevisionDrawer.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\WritingRevisionDrawer.tsx",
+      "sha256": "06ec321209d8be343dec7ae4f7befdf04f02547a0df1315fe17089488e75b4b6"
+    },
+    "app/renderer/Stage19WritingSpineView.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\Stage19WritingSpineView.tsx",
+      "sha256": "590fedf75c85b97d3c57e9f15cccbbcd00850ff83effac15940dcffd50ea2856"
+    },
+    "app/renderer/styles/app.css": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\styles\\app.css",
+      "sha256": "4a49fdcaf5ccf6ea615d3364dac2128682f675e8d88db66cd7e5c3f2a8650f33"
+    },
+    "app/tests/e2e/program7-accessibility.spec.ts": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\tests\\e2e\\program7-accessibility.spec.ts",
+      "sha256": "4913948841befbe138ec511ae2145661ddf1798587ca0c0b6e3df6a51545ea0b"
+    },
+    "app/renderer/__tests__/Program7AccessibilityMatrix.test.tsx": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\__tests__\\Program7AccessibilityMatrix.test.tsx",
+      "sha256": "b20c2a044e1eaef6d70685146d1232b1c328719feeb22854e910c5df01310fad"
+    },
+    "scripts/program7-accessibility-matrix.mjs": {
+      "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\scripts\\program7-accessibility-matrix.mjs",
+      "sha256": "274a8363d2dc850b85d6102031ca9f0a2e1991a08191b3713cd53556d074366e"
+    }
+  },
+  "requiredRoutes": [
+    {
+      "id": "revision-desk",
+      "state": "active and history",
+      "topologies": [
+        "attached",
+        "detached"
+      ]
+    },
+    {
+      "id": "story-foundation",
+      "state": "blank, unknown, revised, read-only",
+      "topologies": [
+        "attached",
+        "detached"
+      ]
+    },
+    {
+      "id": "ideas",
+      "state": "empty, seed, branch, advisory, promotion preview",
+      "topologies": [
+        "attached",
+        "detached"
+      ]
+    },
+    {
+      "id": "history",
+      "state": "empty, provenance, stale, recurrence",
+      "topologies": [
+        "attached",
+        "detached"
+      ]
+    },
+    {
+      "id": "operations-approvals",
+      "state": "empty and explicit owner handoff",
+      "topologies": [
+        "attached",
+        "detached"
+      ]
+    },
+    {
+      "id": "manual-alternative",
+      "state": "manual candidate, drawer, and compare-before-accept",
+      "topologies": [
+        "attached"
+      ]
+    }
+  ],
+  "requiredTopologies": [
+    "attached",
+    "detached"
+  ],
+  "requiredThemes": [
+    "dark",
+    "light"
+  ],
+  "requiredProfiles": [
+    {
+      "id": "100-wide-normal",
+      "zoom": 100,
+      "viewport": "wide",
+      "reducedMotion": false
+    },
+    {
+      "id": "200-narrow-normal",
+      "zoom": 200,
+      "viewport": "narrow",
+      "reducedMotion": false
+    },
+    {
+      "id": "100-wide-reduced",
+      "zoom": 100,
+      "viewport": "wide",
+      "reducedMotion": true
+    }
+  ],
+  "requiredViewports": [
+    {
+      "id": "wide",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "narrow",
+      "width": 640,
+      "height": 900
+    }
+  ],
+  "requiredStates": [
+    "empty",
+    "active",
+    "manual",
+    "local",
+    "stale",
+    "protected",
+    "loading",
+    "unavailable",
+    "cancelled",
+    "failure",
+    "partial",
+    "resolved",
+    "recurrence"
+  ],
+  "rows": [
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-REVISION-DESK-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-DARK-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-DARK-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-DARK-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-REVISION-DESK-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "revision-desk",
+      "expectedStateCoverage": "active and history",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-STORY-FOUNDATION-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-DARK-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-DARK-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-DARK-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-STORY-FOUNDATION-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "story-foundation",
+      "expectedStateCoverage": "blank, unknown, revised, read-only",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-IDEAS-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-DARK-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-DARK-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-DARK-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-IDEAS-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "ideas",
+      "expectedStateCoverage": "empty, seed, branch, advisory, promotion preview",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-HISTORY-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-DARK-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-DARK-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-DARK-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-HISTORY-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "history",
+      "expectedStateCoverage": "empty, provenance, stale, recurrence",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-OPERATIONS-APPROVALS-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-DARK-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-DARK-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-DARK-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-DETACHED-OPERATIONS-APPROVALS-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "detached",
+      "route": "operations-approvals",
+      "expectedStateCoverage": "empty and explicit owner handoff",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-DARK-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-DARK-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "dark",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-DARK-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "dark",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-LIGHT-100PCT-WIDE-NORMAL",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "100-wide-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-LIGHT-200PCT-NARROW-NORMAL",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "light",
+      "zoom": 200,
+      "viewport": {
+        "id": "narrow",
+        "width": 640,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "profile": "200-narrow-normal",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    },
+    {
+      "evidenceId": "P7-A11Y-ATTACHED-MANUAL-ALTERNATIVE-LIGHT-100PCT-WIDE-REDUCED",
+      "topology": "attached",
+      "route": "manual-alternative",
+      "expectedStateCoverage": "manual candidate, drawer, and compare-before-accept",
+      "theme": "light",
+      "zoom": 100,
+      "viewport": {
+        "id": "wide",
+        "width": 1280,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "profile": "100-wide-reduced",
+      "expected": "axe has zero WCAG A/AA violations; all visible controls are named and keyboard reachable; IDs are unique; focus is visible; contrast is readable; no horizontal overflow; attached and detached projection match where both surfaces are supported.",
+      "result": "Pass"
+    }
+  ],
+  "absentRows": [],
+  "failedRows": [],
+  "uncertainRows": [],
+  "unresolvedRequiredStates": [],
+  "stateAssertions": {
+    "empty": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "shows honest empty and degraded states"
+      },
+      {
+        "file": "renderer/__tests__/Program7History.test.tsx",
+        "test": "shows honest empty states for both buckets"
+      }
+    ],
+    "active": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "separates active items from history and hides protected content while preserving metadata"
+      },
+      {
+        "file": "renderer/__tests__/Program7History.test.tsx",
+        "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+      }
+    ],
+    "manual": [
+      {
+        "file": "renderer/__tests__/WritingRevisionDrawer.test.tsx",
+        "test": "opens as an explicit candidate editor and saves edits without accepting them"
+      },
+      {
+        "file": "renderer/__tests__/IdeasWorkspace.test.tsx",
+        "test": "is manual-first, optional, and exposes an Idea Library with protected redaction"
+      }
+    ],
+    "local": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+      },
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "keeps current and candidate text visibly separate and exposes origin, warning, and stale state"
+      },
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "validates the closed response and returns a visible receipt"
+      }
+    ],
+    "stale": [
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "keeps current and candidate text visibly separate and exposes origin, warning, and stale state"
+      },
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "does not offer acceptance through a stale candidate or expose protected source text"
+      }
+    ],
+    "protected": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "separates active items from history and hides protected content while preserving metadata"
+      },
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "does not offer acceptance through a stale candidate or expose protected source text"
+      },
+      {
+        "file": "renderer/__tests__/WritingRevisionDrawer.test.tsx",
+        "test": "redacts protected content and prevents editing"
+      }
+    ],
+    "loading": [
+      {
+        "file": "renderer/__tests__/Program7AccessibilityMatrix.test.tsx",
+        "test": "renders the existing loading posture as a named main landmark"
+      }
+    ],
+    "unavailable": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "shows honest empty and degraded states"
+      },
+      {
+        "file": "renderer/__tests__/StoryFoundation.test.tsx",
+        "test": "keeps answer controls keyboard reachable and reports degraded storage honestly"
+      },
+      {
+        "file": "renderer/__tests__/IdeasWorkspace.test.tsx",
+        "test": "exposes a promotion preview without performing a destination write and reports degraded storage"
+      },
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "preserves the first abort cause when timeout and author cancellation race"
+      }
+    ],
+    "cancelled": [
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "returns cancelled before invoking an abort-ignoring transport for a pre-aborted signal"
+      },
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "aborts the underlying request on cancellation"
+      }
+    ],
+    "failure": [
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "fails closed on unknown response keys and never retries"
+      },
+      {
+        "file": "main/__tests__/program7LocalInferenceService.test.ts",
+        "test": "rejects a fabricated final response envelope from the model"
+      }
+    ],
+    "partial": [
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "requires explicit all or selected acceptance and keeps disposition actions separate"
+      },
+      {
+        "file": "renderer/__tests__/Program7History.test.tsx",
+        "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+      }
+    ],
+    "resolved": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+      },
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "allows the Writing surface to enable the author resolution gesture"
+      },
+      {
+        "file": "renderer/__tests__/RevisionComparison.test.tsx",
+        "test": "requires explicit all or selected acceptance and keeps disposition actions separate"
+      }
+    ],
+    "recurrence": [
+      {
+        "file": "renderer/__tests__/RevisionDesk.test.tsx",
+        "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+      },
+      {
+        "file": "renderer/__tests__/Program7History.test.tsx",
+        "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+      }
+    ]
+  },
+  "stateAssertionRun": {
+    "status": "Pass",
+    "command": "vitest run renderer/__tests__/RevisionDesk.test.tsx renderer/__tests__/Program7History.test.tsx renderer/__tests__/WritingRevisionDrawer.test.tsx renderer/__tests__/IdeasWorkspace.test.tsx renderer/__tests__/RevisionComparison.test.tsx main/__tests__/program7LocalInferenceService.test.ts renderer/__tests__/Program7AccessibilityMatrix.test.tsx renderer/__tests__/StoryFoundation.test.tsx -t <exact-bound-test-titles>",
+    "assertionCount": 30,
+    "reason": null
+  },
+  "stateBindings": {
+    "empty": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "shows honest empty and degraded states"
+        },
+        {
+          "file": "renderer/__tests__/Program7History.test.tsx",
+          "test": "shows honest empty states for both buckets"
+        }
+      ],
+      "missing": null
+    },
+    "active": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "separates active items from history and hides protected content while preserving metadata"
+        },
+        {
+          "file": "renderer/__tests__/Program7History.test.tsx",
+          "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+        }
+      ],
+      "missing": null
+    },
+    "manual": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/WritingRevisionDrawer.test.tsx",
+          "test": "opens as an explicit candidate editor and saves edits without accepting them"
+        },
+        {
+          "file": "renderer/__tests__/IdeasWorkspace.test.tsx",
+          "test": "is manual-first, optional, and exposes an Idea Library with protected redaction"
+        }
+      ],
+      "missing": null
+    },
+    "local": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+        },
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "keeps current and candidate text visibly separate and exposes origin, warning, and stale state"
+        },
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "validates the closed response and returns a visible receipt"
+        }
+      ],
+      "missing": null
+    },
+    "stale": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "keeps current and candidate text visibly separate and exposes origin, warning, and stale state"
+        },
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "does not offer acceptance through a stale candidate or expose protected source text"
+        }
+      ],
+      "missing": null
+    },
+    "protected": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "separates active items from history and hides protected content while preserving metadata"
+        },
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "does not offer acceptance through a stale candidate or expose protected source text"
+        },
+        {
+          "file": "renderer/__tests__/WritingRevisionDrawer.test.tsx",
+          "test": "redacts protected content and prevents editing"
+        }
+      ],
+      "missing": null
+    },
+    "loading": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/Program7AccessibilityMatrix.test.tsx",
+          "test": "renders the existing loading posture as a named main landmark"
+        }
+      ],
+      "missing": null
+    },
+    "unavailable": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "shows honest empty and degraded states"
+        },
+        {
+          "file": "renderer/__tests__/StoryFoundation.test.tsx",
+          "test": "keeps answer controls keyboard reachable and reports degraded storage honestly"
+        },
+        {
+          "file": "renderer/__tests__/IdeasWorkspace.test.tsx",
+          "test": "exposes a promotion preview without performing a destination write and reports degraded storage"
+        },
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "preserves the first abort cause when timeout and author cancellation race"
+        }
+      ],
+      "missing": null
+    },
+    "cancelled": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "returns cancelled before invoking an abort-ignoring transport for a pre-aborted signal"
+        },
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "aborts the underlying request on cancellation"
+        }
+      ],
+      "missing": null
+    },
+    "failure": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "fails closed on unknown response keys and never retries"
+        },
+        {
+          "file": "main/__tests__/program7LocalInferenceService.test.ts",
+          "test": "rejects a fabricated final response envelope from the model"
+        }
+      ],
+      "missing": null
+    },
+    "partial": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "requires explicit all or selected acceptance and keeps disposition actions separate"
+        },
+        {
+          "file": "renderer/__tests__/Program7History.test.tsx",
+          "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+        }
+      ],
+      "missing": null
+    },
+    "resolved": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+        },
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "allows the Writing surface to enable the author resolution gesture"
+        },
+        {
+          "file": "renderer/__tests__/RevisionComparison.test.tsx",
+          "test": "requires explicit all or selected acceptance and keeps disposition actions separate"
+        }
+      ],
+      "missing": null
+    },
+    "recurrence": {
+      "result": "Pass",
+      "assertions": [
+        {
+          "file": "renderer/__tests__/RevisionDesk.test.tsx",
+          "test": "exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions"
+        },
+        {
+          "file": "renderer/__tests__/Program7History.test.tsx",
+          "test": "keeps active records separate from resolved history and shows provenance, staleness, recurrence, and partial acceptance"
+        }
+      ],
+      "missing": null
+    }
+  },
+  "protectedEvidenceUsed": false,
+  "humanAcceptanceClaimed": false,
+  "limitations": [
+    "This runner records objective matrix bindings only; it does not infer aesthetics, usefulness, visual acceptance, or human resolution.",
+    "Loading coverage is bound only to the existing renderer loading posture; this does not imply that every route has a loading fixture."
+  ]
+}

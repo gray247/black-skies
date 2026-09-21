@@ -1,0 +1,52 @@
+{
+  "candidateCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
+  "candidateTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "worktree": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today",
+  "electronRuntime": "app/.tmp/electron-c57-aap/electron.exe",
+  "electronSha256": "9ba4530b08adeae75c13324a95b0fc8e87c5aa2889cfdc894474f8684b9f6c59",
+  "step07": {
+    "packet": "step07-scale-electron-outer.json",
+    "status": "PASS",
+    "electron": "1 passed",
+    "scales": "1x,2x,4x,8x"
+  },
+  "step08": {
+    "createDevelop": "PASS 1/1",
+    "carmillaLongForm": "PASS 1/1",
+    "localAiDisabled": "PASS 1/1",
+    "revision": "PASS 1/1"
+  },
+  "step10": {
+    "retries": 0,
+    "electronMatrix": "36 passed",
+    "status": "PASS",
+    "preflight": "1 passed",
+    "unit": "49 files, 806 passed, 2 skipped"
+  },
+  "step11": {
+    "installer": "app/release/BlackSkies-Setup-1.0.0-rc1.exe",
+    "status": "PASS",
+    "installerSha256": "aaf833e0870ac11dc46135e62840ba71f38e788ddbe8762366e3928a8798d9a8"
+  },
+  "step12": {
+    "forbiddenPathCount": 0,
+    "yamlVersion": "2.8.3",
+    "qualifiedCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
+    "status": "PASS",
+    "asarSha256": "9a92db5a8b2dc76079fe1071bfc6dc7a998de20ae761472a53c92fb25973e400",
+    "receipt": "app/release/stage19-package-receipt.json"
+  },
+  "logSha256": {
+    "step07-scale-electron-outer.log": "6d530100f7bd0f7f06350b9a2be691393577aa58986b58a35212b6a6b7d5d0c5",
+    "step07-scale-electron-outer.json": "42820ef505e668181a8244cca225f491d2cef1d8f0fe06f1d8e76b4d4956407a",
+    "step08-revision-outer.log": "4b0abd28500c7b86fd63bb87724590bf487a45ec351dbb4b6d26dfcf698218ff",
+    "step08-create-develop-outer.log": "8d82b9759fd61dfed8e72c21be35879e1697b669acff6745d9ba40328ee77914",
+    "step08-local-ai-outer.log": "ad2f8bd3d5fa5b86cad66cfd53f87364170d01f8dc07d03e0fa8b5aefe3183ed",
+    "step08-long-form-outer.log": "235079f6d1380febbad4208873a5799b9aa3908819331d59ee37651d7c1ffb65",
+    "step10-stage19-regression-outer.log": "213187e8508e792449d7cdd4769bc868db35bee24a0d327f32e6fe88c88badaa",
+    "step11-package-win-outer.log": "7cd8774cd2529491d9ce8fb4a3a2ba1e74f51ff19024113bca6715dba14d25fe",
+    "step12-package-verify-outer.log": "675037e8426c259e54ffda8bd80e13246f54d0a98616472d552993858471cd04",
+    "step12-package-binding-outer.log": "04c043871697610a00d993bdf8c9ab5b8f272236db1aee526266ca997e4e6e66"
+  },
+  "createdUtc": "2026-09-21T00:20:38.6626299Z"
+}

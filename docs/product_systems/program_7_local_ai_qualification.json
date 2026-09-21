@@ -1,7 +1,7 @@
 {
   "schemaVersion": "program7.local-ai-qualification.v1",
   "status": "qualified",
-  "exactCommit": "cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a",
+  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
   "endpoint": "http://127.0.0.1:11434",
   "requestedModel": "qwen3:4b",
   "actualModels": [
@@ -12,7 +12,7 @@
   ],
   "admission": "pending-human",
   "fixture": {
-    "fixtureRoot": "C:\\Users\\gray2\\AppData\\Local\\Temp\\BlackSkies-P7-cb2d5c94\\carmilla-review",
+    "fixtureRoot": "C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-p7-c57be0ff-evidence\\carmilla-review",
     "projectId": "proj_carmilla_program7_review",
     "unitId": "carmilla-prologue",
     "bodySha256": "0ce54ae5bc38d874d06fc43f4b7fbb7027856bd68d2b52f0104fe8dee066faaf",
@@ -23,9 +23,9 @@
     {
       "operation": "rewrite_candidate",
       "status": "candidate",
-      "responseTextLength": 271,
-      "responseText": "Prologue: Doctor Hesselius’ note precedes this narrative, referencing his essay on the subject. His analysis, noted for precision and conciseness, will appear in his collected works. This case is presented to engage general readers without summarizing the expert account.",
-      "reason": "Condensed to 198 characters; retains core context, removes redundancy, and aligns with author review needs for brevity.",
+      "responseTextLength": 231,
+      "responseText": "This prologue notes Doctor Hesselius’s detailed essay on the case, published in his collected works. The author aims to present the narrative to the public without summarizing the scholarly analysis, focusing on the mystery itself.",
+      "reason": "Concise rewrite under 6:000 characters; preserves key elements: Hesselius’s essay, the narrative’s purpose, and the author’s decision to avoid summarization.",
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -34,13 +34,13 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "6d3f1ed77f17190b8962812d0f5aef94386a44d7a5a70a1d11ad4e99e2d49c3d",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:32:03.698Z",
+        "startedAt": "2026-09-15T03:11:54.060Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:32:27.896Z",
+        "endedAt": "2026-09-15T03:12:16.199Z",
         "promptTokens": 337,
         "outputTokens": 102
       },
-      "elapsedMs": 24200,
+      "elapsedMs": 22142,
       "request": {
         "schema": "program7.local-inference.request.v1",
         "operation": "rewrite_candidate",
@@ -68,7 +68,7 @@
       "status": "still_appears_present",
       "responseTextLength": 0,
       "responseText": "",
-      "reason": "The opening concern remains as the text cuts off mid-sentence without resolving the reference to Doctor Hesselius' Essay, leaving the mysterious subject undefined in the context.",
+      "reason": "The opening concern remains as the source text cuts off mid-sentence with 'Doct' without completing the name, indicating an incomplete reference that persists after the hypothetical edit.",
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -77,13 +77,13 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "5d438c213fca7625dcea86a26dfbf4a09c57d9f762b3d77334ec0504d0775565",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:34:36.616Z",
+        "startedAt": "2026-09-15T03:14:30.111Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:34:48.434Z",
+        "endedAt": "2026-09-15T03:14:42.000Z",
         "promptTokens": 326,
-        "outputTokens": 57
+        "outputTokens": 58
       },
-      "elapsedMs": 11818,
+      "elapsedMs": 11890,
       "request": {
         "schema": "program7.local-inference.request.v1",
         "operation": "revision_recheck",
@@ -109,9 +109,9 @@
     {
       "operation": "premise_alternative",
       "status": "candidate",
-      "responseTextLength": 254,
-      "responseText": "Consider the manuscript's prologue as a deliberate framing device that introduces the narrative through a scholarly lens, emphasizing the academic context of the story while maintaining a subtle critique of the 'laity'’s engagement with complex subjects.",
-      "reason": "Bounded premise alternative: The prologue uses Hesselius's scholarly framing to position the narrative as an academic case study, avoiding direct narrative involvement while critiquing lay understanding of the subject matter. This alternative is concise, review-friendly, and stays within 60.9 characters.",
+      "responseTextLength": 211,
+      "responseText": "Consider the alternative phrasing: 'This enigmatic subject is addressed in his Essay with characteristic expertise and conciseness, constituting one volume within the collected works of this remarkable scholar.'",
+      "reason": "Bounded alternative phrasing for author review under 6:000 characters; maintains original meaning without altering manuscript content.",
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -120,13 +120,13 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "92c8a1eeb7257c09adf43c7cd21c5d27c7b46bca7e4cd324208612e67d43d667",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:35:31.439Z",
+        "startedAt": "2026-09-15T03:15:31.736Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:35:49.857Z",
+        "endedAt": "2026-09-15T03:15:46.584Z",
         "promptTokens": 341,
-        "outputTokens": 123
+        "outputTokens": 83
       },
-      "elapsedMs": 18418,
+      "elapsedMs": 14849,
       "request": {
         "schema": "program7.local-inference.request.v1",
         "operation": "premise_alternative",
@@ -159,9 +159,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Condensed to 198 characters; retains core context, removes redundancy, and aligns with author review needs for brevity.",
-      "responseText": "Prologue: Doctor Hesselius’ note precedes this narrative, referencing his essay on the subject. His analysis, noted for precision and conciseness, will appear in his collected works. This case is presented to engage general readers without summarizing the expert account.",
-      "responseTextLength": 271,
+      "reason": "Concise rewrite under 6:000 characters; preserves key elements: Hesselius’s essay, the narrative’s purpose, and the author’s decision to avoid summarization.",
+      "responseText": "This prologue notes Doctor Hesselius’s detailed essay on the case, published in his collected works. The author aims to present the narrative to the public without summarizing the scholarly analysis, focusing on the mystery itself.",
+      "responseTextLength": 231,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -170,16 +170,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "6d3f1ed77f17190b8962812d0f5aef94386a44d7a5a70a1d11ad4e99e2d49c3d",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:32:03.698Z",
+        "startedAt": "2026-09-15T03:11:54.060Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:32:27.896Z",
+        "endedAt": "2026-09-15T03:12:16.199Z",
         "promptTokens": 337,
         "outputTokens": 102
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:32:27.896Z",
-      "firstVisibleResultMs": 24200,
-      "elapsedMs": 24200,
+      "firstStructuredResponseAt": "2026-09-15T03:12:16.199Z",
+      "firstVisibleResultMs": 22142,
+      "elapsedMs": 22142,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -211,11 +211,11 @@
         "requestId": "program7-qualification-q01-real-cold",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "Prologue: Doctor Hesselius’ note precedes this narrative, referencing his essay on the subject. His analysis, noted for precision and conciseness, will appear in his collected works. This case is presented to engage general readers without summarizing the expert account.",
-        "reason": "Condensed to 198 characters; retains core context, removes redundancy, and aligns with author review needs for brevity.",
+        "text": "This prologue notes Doctor Hesselius’s detailed essay on the case, published in his collected works. The author aims to present the narrative to the public without summarizing the scholarly analysis, focusing on the mystery itself.",
+        "reason": "Concise rewrite under 6:000 characters; preserves key elements: Hesselius’s essay, the narrative’s purpose, and the author’s decision to avoid summarization.",
         "usage": {
           "inputChars": 700,
-          "outputChars": 271
+          "outputChars": 231
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -225,20 +225,20 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "6d3f1ed77f17190b8962812d0f5aef94386a44d7a5a70a1d11ad4e99e2d49c3d",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:32:03.698Z",
+          "startedAt": "2026-09-15T03:11:54.060Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:32:27.896Z",
+          "endedAt": "2026-09-15T03:12:16.199Z",
           "promptTokens": 337,
           "outputTokens": 102
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:32:27.895Z",
+        "generateResponseAt": "2026-09-15T03:12:16.192Z",
         "timing": {
-          "totalDurationNanoseconds": 24070933300,
-          "loadDurationNanoseconds": 3562961600,
-          "promptEvaluationDurationNanoseconds": 10671015800,
-          "evaluationDurationNanoseconds": 9543312100,
+          "totalDurationNanoseconds": 22012045100,
+          "loadDurationNanoseconds": 4543663600,
+          "promptEvaluationDurationNanoseconds": 7565266500,
+          "evaluationDurationNanoseconds": 9628959100,
           "promptTokens": 337,
           "outputTokens": 102
         }
@@ -246,16 +246,16 @@
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:32:03.695Z",
+          "capturedAt": "2026-09-15T03:11:54.058Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 6436790272,
-          "harnessWorkingSetBytes": 47984640
+          "availablePhysicalMemoryBytes": 5791969280,
+          "harnessWorkingSetBytes": 50032640
         },
         "after": {
-          "capturedAt": "2026-09-14T13:32:27.897Z",
+          "capturedAt": "2026-09-15T03:12:16.201Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3197210624,
-          "harnessWorkingSetBytes": 47239168
+          "availablePhysicalMemoryBytes": 2525753344,
+          "harnessWorkingSetBytes": 47509504
         }
       },
       "protectedSentinelFound": false,
@@ -270,9 +270,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Concise rewrite under 6:000 characters, preserving key details about Hesselius's essay and the author's decision to skip a summary for lay audiences.",
-      "responseText": "This prologue notes Dr. Hesselius's detailed essay on the manuscript's subject, presented as a standalone volume in his collected works. The author avoids summarizing the case for lay readers, focusing instead on its scholarly context.",
-      "responseTextLength": 235,
+      "reason": "Rewritten to be concise, under 6:00 characters, and focused on the key elements of the source passage while maintaining the author’s intent to interest the general audience without overstepping scholarly detail.",
+      "responseText": "Doctor Hesselius's note on this narrative case, referenced in his Essay, offers a concise analysis of the mysterious subject. His work, part of an extraordinary man’s collected papers, provides a detailed yet streamlined perspective. I present this case to engage the ‘laity’ without summarizing his scholarly insights.",
+      "responseTextLength": 319,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -281,16 +281,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "b5725fb5ac09a0273a5b37435cbba4375153ef3889aefed5c4fce3817803289b",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:32:27.897Z",
+        "startedAt": "2026-09-15T03:12:16.202Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:32:49.272Z",
+        "endedAt": "2026-09-15T03:12:37.738Z",
         "promptTokens": 337,
-        "outputTokens": 101
+        "outputTokens": 124
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:32:49.272Z",
-      "firstVisibleResultMs": 21375,
-      "elapsedMs": 21375,
+      "firstStructuredResponseAt": "2026-09-15T03:12:37.738Z",
+      "firstVisibleResultMs": 21537,
+      "elapsedMs": 21537,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -322,11 +322,11 @@
         "requestId": "program7-qualification-q01-real-warm",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "This prologue notes Dr. Hesselius's detailed essay on the manuscript's subject, presented as a standalone volume in his collected works. The author avoids summarizing the case for lay readers, focusing instead on its scholarly context.",
-        "reason": "Concise rewrite under 6:000 characters, preserving key details about Hesselius's essay and the author's decision to skip a summary for lay audiences.",
+        "text": "Doctor Hesselius's note on this narrative case, referenced in his Essay, offers a concise analysis of the mysterious subject. His work, part of an extraordinary man’s collected papers, provides a detailed yet streamlined perspective. I present this case to engage the ‘laity’ without summarizing his scholarly insights.",
+        "reason": "Rewritten to be concise, under 6:00 characters, and focused on the key elements of the source passage while maintaining the author’s intent to interest the general audience without overstepping scholarly detail.",
         "usage": {
           "inputChars": 700,
-          "outputChars": 235
+          "outputChars": 319
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -336,37 +336,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "b5725fb5ac09a0273a5b37435cbba4375153ef3889aefed5c4fce3817803289b",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:32:27.897Z",
+          "startedAt": "2026-09-15T03:12:16.202Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:32:49.272Z",
+          "endedAt": "2026-09-15T03:12:37.738Z",
           "promptTokens": 337,
-          "outputTokens": 101
+          "outputTokens": 124
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:32:49.271Z",
+        "generateResponseAt": "2026-09-15T03:12:37.738Z",
         "timing": {
-          "totalDurationNanoseconds": 21279472200,
-          "loadDurationNanoseconds": 1883126900,
-          "promptEvaluationDurationNanoseconds": 9526730600,
-          "evaluationDurationNanoseconds": 9588106100,
+          "totalDurationNanoseconds": 21442058700,
+          "loadDurationNanoseconds": 1631541900,
+          "promptEvaluationDurationNanoseconds": 7829160500,
+          "evaluationDurationNanoseconds": 11706212000,
           "promptTokens": 337,
-          "outputTokens": 101
+          "outputTokens": 124
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:32:27.897Z",
+          "capturedAt": "2026-09-15T03:12:16.202Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3201007616,
-          "harnessWorkingSetBytes": 47239168
+          "availablePhysicalMemoryBytes": 2527129600,
+          "harnessWorkingSetBytes": 47509504
         },
         "after": {
-          "capturedAt": "2026-09-14T13:32:49.272Z",
+          "capturedAt": "2026-09-15T03:12:37.739Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3147821056,
-          "harnessWorkingSetBytes": 48017408
+          "availablePhysicalMemoryBytes": 2616578048,
+          "harnessWorkingSetBytes": 48119808
         }
       },
       "protectedSentinelFound": false,
@@ -381,9 +381,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Rewritten to maintain speaker relationship, trim redundancy, and focus on key sensory details while staying under 600 characters.",
-      "responseText": "My father nodded. 'Yes, and remarkably splendid—they were.' The masquerade that sparked my sorrow featured Aladdin’s lamp, dazzling fireworks rivaling Paris, and a symphony of unparalleled beauty. The grounds glowed with lanterns, the music was exquisite, and the night felt regal.",
-      "responseTextLength": 281,
+      "reason": "Condensed the original passage into a single, cohesive sentence while preserving speaker relationships and key details (masquerade, Aladdin’s lamp, fireworks, music, European performers) under 60:300 characters. Maintained the emotional tone and historical context without adding new elements.",
+      "responseText": "My father nodded, 'Yes, and remarkably splendid, I believe.' The masquerade that sparked my sorrow featured regal hospitalities—Aladdin’s lamp glowed among the colored lamps, fireworks lit the sky beyond Paris’s reach, and music so exquisite it felt like a revelation. The grounds, illuminated by trees and moonlight, echoed with the finest band and singers from across Europe.",
+      "responseTextLength": 377,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -392,16 +392,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "46b25a35877634fe11bf1be08f9c12ee306f5a317c1e19a864dbc34278d73151",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:32:49.272Z",
+        "startedAt": "2026-09-15T03:12:37.739Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:33:06.256Z",
+        "endedAt": "2026-09-15T03:12:59.427Z",
         "promptTokens": 340,
-        "outputTokens": 106
+        "outputTokens": 157
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:33:06.256Z",
-      "firstVisibleResultMs": 16985,
-      "elapsedMs": 16985,
+      "firstStructuredResponseAt": "2026-09-15T03:12:59.427Z",
+      "firstVisibleResultMs": 21677,
+      "elapsedMs": 21677,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -433,11 +433,11 @@
         "requestId": "program7-qualification-q02-real-cold",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "My father nodded. 'Yes, and remarkably splendid—they were.' The masquerade that sparked my sorrow featured Aladdin’s lamp, dazzling fireworks rivaling Paris, and a symphony of unparalleled beauty. The grounds glowed with lanterns, the music was exquisite, and the night felt regal.",
-        "reason": "Rewritten to maintain speaker relationship, trim redundancy, and focus on key sensory details while staying under 600 characters.",
+        "text": "My father nodded, 'Yes, and remarkably splendid, I believe.' The masquerade that sparked my sorrow featured regal hospitalities—Aladdin’s lamp glowed among the colored lamps, fireworks lit the sky beyond Paris’s reach, and music so exquisite it felt like a revelation. The grounds, illuminated by trees and moonlight, echoed with the finest band and singers from across Europe.",
+        "reason": "Condensed the original passage into a single, cohesive sentence while preserving speaker relationships and key details (masquerade, Aladdin’s lamp, fireworks, music, European performers) under 60:300 characters. Maintained the emotional tone and historical context without adding new elements.",
         "usage": {
           "inputChars": 640,
-          "outputChars": 281
+          "outputChars": 377
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -447,37 +447,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "46b25a35877634fe11bf1be08f9c12ee306f5a317c1e19a864dbc34278d73151",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:32:49.272Z",
+          "startedAt": "2026-09-15T03:12:37.739Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:33:06.256Z",
+          "endedAt": "2026-09-15T03:12:59.427Z",
           "promptTokens": 340,
-          "outputTokens": 106
+          "outputTokens": 157
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:33:06.256Z",
+        "generateResponseAt": "2026-09-15T03:12:59.426Z",
         "timing": {
-          "totalDurationNanoseconds": 16970766200,
-          "loadDurationNanoseconds": 93982700,
-          "promptEvaluationDurationNanoseconds": 6467293200,
-          "evaluationDurationNanoseconds": 10172737300,
+          "totalDurationNanoseconds": 21653525200,
+          "loadDurationNanoseconds": 94293100,
+          "promptEvaluationDurationNanoseconds": 6379625400,
+          "evaluationDurationNanoseconds": 14922110800,
           "promptTokens": 340,
-          "outputTokens": 106
+          "outputTokens": 157
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:32:49.272Z",
+          "capturedAt": "2026-09-15T03:12:37.739Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3147821056,
-          "harnessWorkingSetBytes": 48017408
+          "availablePhysicalMemoryBytes": 2616578048,
+          "harnessWorkingSetBytes": 48119808
         },
         "after": {
-          "capturedAt": "2026-09-14T13:33:06.257Z",
+          "capturedAt": "2026-09-15T03:12:59.427Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3032616960,
-          "harnessWorkingSetBytes": 48869376
+          "availablePhysicalMemoryBytes": 2631262208,
+          "harnessWorkingSetBytes": 48967680
         }
       },
       "protectedSentinelFound": false,
@@ -492,9 +492,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Condensed to 499 characters, preserves speaker relationship, focuses on key sensory details without copying source text.",
-      "responseText": "My father nodded, 'Yes—splendid, indeed. Your memory of the masquerade is vivid. The grounds glowed with lanterns, fireworks lit the night sky, and music filled the air. Such grandeur—Aladdin’s lamp, royal hospitality, and a symphony that echoed through the gardens.'",
-      "responseTextLength": 267,
+      "reason": "Rewritten to maintain speaker relationship while condensing the passage into a single, author-reviewable sentence under 6.000 characters.",
+      "responseText": "My father nodded, 'Splendid indeed—those masquerade nights were regal. His grounds glowed with lanterns, fireworks lit the sky like Paris had never seen, and music filled the air. The band and singers were unparalleled, a true spectacle.'",
+      "responseTextLength": 238,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -503,16 +503,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "0a27afa3816c0c89379ce764a9527d72431145a3800cb7994708ffaf8d16e489",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:33:06.257Z",
+        "startedAt": "2026-09-15T03:12:59.428Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:33:27.181Z",
+        "endedAt": "2026-09-15T03:13:19.413Z",
         "promptTokens": 340,
-        "outputTokens": 108
+        "outputTokens": 102
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:33:27.181Z",
-      "firstVisibleResultMs": 20925,
-      "elapsedMs": 20925,
+      "firstStructuredResponseAt": "2026-09-15T03:13:19.413Z",
+      "firstVisibleResultMs": 19986,
+      "elapsedMs": 19986,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -544,11 +544,11 @@
         "requestId": "program7-qualification-q02-real-warm",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "My father nodded, 'Yes—splendid, indeed. Your memory of the masquerade is vivid. The grounds glowed with lanterns, fireworks lit the night sky, and music filled the air. Such grandeur—Aladdin’s lamp, royal hospitality, and a symphony that echoed through the gardens.'",
-        "reason": "Condensed to 499 characters, preserves speaker relationship, focuses on key sensory details without copying source text.",
+        "text": "My father nodded, 'Splendid indeed—those masquerade nights were regal. His grounds glowed with lanterns, fireworks lit the sky like Paris had never seen, and music filled the air. The band and singers were unparalleled, a true spectacle.'",
+        "reason": "Rewritten to maintain speaker relationship while condensing the passage into a single, author-reviewable sentence under 6.000 characters.",
         "usage": {
           "inputChars": 640,
-          "outputChars": 267
+          "outputChars": 238
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -558,37 +558,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "0a27afa3816c0c89379ce764a9527d72431145a3800cb7994708ffaf8d16e489",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:33:06.257Z",
+          "startedAt": "2026-09-15T03:12:59.428Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:33:27.181Z",
+          "endedAt": "2026-09-15T03:13:19.413Z",
           "promptTokens": 340,
-          "outputTokens": 108
+          "outputTokens": 102
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:33:27.181Z",
+        "generateResponseAt": "2026-09-15T03:13:19.412Z",
         "timing": {
-          "totalDurationNanoseconds": 20826738500,
-          "loadDurationNanoseconds": 1295301200,
-          "promptEvaluationDurationNanoseconds": 9043373400,
-          "evaluationDurationNanoseconds": 10215653100,
+          "totalDurationNanoseconds": 19893619300,
+          "loadDurationNanoseconds": 1607029300,
+          "promptEvaluationDurationNanoseconds": 8391785400,
+          "evaluationDurationNanoseconds": 9634817600,
           "promptTokens": 340,
-          "outputTokens": 108
+          "outputTokens": 102
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:33:06.257Z",
+          "capturedAt": "2026-09-15T03:12:59.427Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3033624576,
-          "harnessWorkingSetBytes": 48869376
+          "availablePhysicalMemoryBytes": 2632740864,
+          "harnessWorkingSetBytes": 48967680
         },
         "after": {
-          "capturedAt": "2026-09-14T13:33:27.181Z",
+          "capturedAt": "2026-09-15T03:13:19.413Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3067404288,
-          "harnessWorkingSetBytes": 49643520
+          "availablePhysicalMemoryBytes": 2659368960,
+          "harnessWorkingSetBytes": 49725440
         }
       },
       "protectedSentinelFound": false,
@@ -603,9 +603,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Rewritten to focus on the note's role and purpose, maintaining the original's bounded continuity without adding new facts.",
-      "responseText": "Doctor Hesselius's note on the narrative's subject appears in his Essay, a condensed analysis that will be part of his collected works. The author publishes this case to engage the 'laity' without summarizing the scholarly treatment.",
-      "responseTextLength": 233,
+      "reason": "Rewritten to focus on the essay's role in contextualizing the narrative without inventing new facts, staying under 600 characters.",
+      "responseText": "Doctor Hesselius' essay details the case's origins, offering concise analysis that precedes this narrative's publication for lay engagement.",
+      "responseTextLength": 140,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -614,16 +614,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "d49076ef865723b6eee646607ba7bbff064e5849e333d203ced0146be323be1d",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:33:27.182Z",
+        "startedAt": "2026-09-15T03:13:19.413Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:33:42.802Z",
+        "endedAt": "2026-09-15T03:13:33.573Z",
         "promptTokens": 353,
-        "outputTokens": 90
+        "outputTokens": 74
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:33:42.802Z",
-      "firstVisibleResultMs": 15621,
-      "elapsedMs": 15621,
+      "firstStructuredResponseAt": "2026-09-15T03:13:33.573Z",
+      "firstVisibleResultMs": 14160,
+      "elapsedMs": 14160,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -655,11 +655,11 @@
         "requestId": "program7-qualification-q03-real-cold",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "Doctor Hesselius's note on the narrative's subject appears in his Essay, a condensed analysis that will be part of his collected works. The author publishes this case to engage the 'laity' without summarizing the scholarly treatment.",
-        "reason": "Rewritten to focus on the note's role and purpose, maintaining the original's bounded continuity without adding new facts.",
+        "text": "Doctor Hesselius' essay details the case's origins, offering concise analysis that precedes this narrative's publication for lay engagement.",
+        "reason": "Rewritten to focus on the essay's role in contextualizing the narrative without inventing new facts, staying under 600 characters.",
         "usage": {
           "inputChars": 752,
-          "outputChars": 233
+          "outputChars": 140
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -669,37 +669,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "d49076ef865723b6eee646607ba7bbff064e5849e333d203ced0146be323be1d",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:33:27.182Z",
+          "startedAt": "2026-09-15T03:13:19.413Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:33:42.802Z",
+          "endedAt": "2026-09-15T03:13:33.573Z",
           "promptTokens": 353,
-          "outputTokens": 90
+          "outputTokens": 74
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:33:42.802Z",
+        "generateResponseAt": "2026-09-15T03:13:33.572Z",
         "timing": {
-          "totalDurationNanoseconds": 15610308600,
-          "loadDurationNanoseconds": 92158000,
-          "promptEvaluationDurationNanoseconds": 6695339000,
-          "evaluationDurationNanoseconds": 8591662900,
+          "totalDurationNanoseconds": 14147690000,
+          "loadDurationNanoseconds": 91537300,
+          "promptEvaluationDurationNanoseconds": 6847382000,
+          "evaluationDurationNanoseconds": 6995657700,
           "promptTokens": 353,
-          "outputTokens": 90
+          "outputTokens": 74
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:33:27.182Z",
+          "capturedAt": "2026-09-15T03:13:19.413Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3067404288,
-          "harnessWorkingSetBytes": 49647616
+          "availablePhysicalMemoryBytes": 2659368960,
+          "harnessWorkingSetBytes": 49725440
         },
         "after": {
-          "capturedAt": "2026-09-14T13:33:42.803Z",
+          "capturedAt": "2026-09-15T03:13:33.573Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3133181952,
-          "harnessWorkingSetBytes": 50081792
+          "availablePhysicalMemoryBytes": 2555101184,
+          "harnessWorkingSetBytes": 50098176
         }
       },
       "protectedSentinelFound": false,
@@ -714,9 +714,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Rewritten to focus on the prologue’s role in presenting Hessel.ius’s essay as a concise retrospective for the general audience without adding new facts.",
-      "responseText": "The prologue notes Doctor Hesselius’s detailed essay on the case, which he describes as a concise yet insightful exploration of the subject matter, forming part of his collected works. This narrative serves as a retrospective account for the lay audience.",
-      "responseTextLength": 255,
+      "reason": "Rewritten to maintain bounded continuity (Laura narrates retrospectively) while condensing source text under 600 characters without inventing new facts. Kept to author-reviewable length.",
+      "responseText": "The prologue notes Doctor Hesselius’s detailed note on the narrative’s subject, referencing his essay on the topic, which he treats with 'learning and acumen.' This case, presented to interest the 'laity,' avoids summarizing the essay to focus on Laura’s retrospective account.",
+      "responseTextLength": 277,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -725,16 +725,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "3d12d0f3c398c78db642588eb63c1ad6d6f5efd830cf96528e57fd0c9f3ad3d0",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:33:42.803Z",
+        "startedAt": "2026-09-15T03:13:33.573Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:34:03.126Z",
+        "endedAt": "2026-09-15T03:13:54.691Z",
         "promptTokens": 353,
-        "outputTokens": 99
+        "outputTokens": 116
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:34:03.126Z",
-      "firstVisibleResultMs": 20323,
-      "elapsedMs": 20323,
+      "firstStructuredResponseAt": "2026-09-15T03:13:54.691Z",
+      "firstVisibleResultMs": 21118,
+      "elapsedMs": 21118,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -766,11 +766,11 @@
         "requestId": "program7-qualification-q03-real-warm",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "The prologue notes Doctor Hesselius’s detailed essay on the case, which he describes as a concise yet insightful exploration of the subject matter, forming part of his collected works. This narrative serves as a retrospective account for the lay audience.",
-        "reason": "Rewritten to focus on the prologue’s role in presenting Hessel.ius’s essay as a concise retrospective for the general audience without adding new facts.",
+        "text": "The prologue notes Doctor Hesselius’s detailed note on the narrative’s subject, referencing his essay on the topic, which he treats with 'learning and acumen.' This case, presented to interest the 'laity,' avoids summarizing the essay to focus on Laura’s retrospective account.",
+        "reason": "Rewritten to maintain bounded continuity (Laura narrates retrospectively) while condensing source text under 600 characters without inventing new facts. Kept to author-reviewable length.",
         "usage": {
           "inputChars": 752,
-          "outputChars": 255
+          "outputChars": 277
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -780,37 +780,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "3d12d0f3c398c78db642588eb63c1ad6d6f5efd830cf96528e57fd0c9f3ad3d0",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:33:42.803Z",
+          "startedAt": "2026-09-15T03:13:33.573Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:34:03.126Z",
+          "endedAt": "2026-09-15T03:13:54.691Z",
           "promptTokens": 353,
-          "outputTokens": 99
+          "outputTokens": 116
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:34:03.125Z",
+        "generateResponseAt": "2026-09-15T03:13:54.691Z",
         "timing": {
-          "totalDurationNanoseconds": 20230459000,
-          "loadDurationNanoseconds": 1298139900,
-          "promptEvaluationDurationNanoseconds": 9226517000,
-          "evaluationDurationNanoseconds": 9436856400,
+          "totalDurationNanoseconds": 21026072900,
+          "loadDurationNanoseconds": 1598445800,
+          "promptEvaluationDurationNanoseconds": 8198024900,
+          "evaluationDurationNanoseconds": 10967457600,
           "promptTokens": 353,
-          "outputTokens": 99
+          "outputTokens": 116
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:33:42.803Z",
+          "capturedAt": "2026-09-15T03:13:33.573Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3133173760,
-          "harnessWorkingSetBytes": 50081792
+          "availablePhysicalMemoryBytes": 2555092992,
+          "harnessWorkingSetBytes": 50098176
         },
         "after": {
-          "capturedAt": "2026-09-14T13:34:03.126Z",
+          "capturedAt": "2026-09-15T03:13:54.692Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3155550208,
-          "harnessWorkingSetBytes": 50163712
+          "availablePhysicalMemoryBytes": 2558509056,
+          "harnessWorkingSetBytes": 50425856
         }
       },
       "protectedSentinelFound": false,
@@ -825,9 +825,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Rewritten to maintain the General's strained tone and narrative strangeness while avoiding direct quotes. Kept under 600 characters and focused on adjacent context without altering protected span.",
-      "responseText": "The General paused, his voice strained, before sharing a tale that felt both peculiar and profound.",
-      "responseTextLength": 99,
+      "reason": "Rewritten to maintain original meaning while creating a concise, author-reviewable alternative under 600 characters. Protected span 'My dear child was looking forward...' preserved without direct quotation or editing.",
+      "responseText": "The General paused, his voice strained, before sharing what I’d never heard: 'My dear child eagerly anticipated your planned visit to her charming daughter.' He offered a gallant yet sorrowful bow. 'Meanwhile, we received an invitation from my long-lost friend, Count Carlsfeld,'",
+      "responseTextLength": 279,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -836,16 +836,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "cf09a6e25013866ec6e82f12258308cb673e50454697c7a217415bbbd08738fb",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:34:03.126Z",
+        "startedAt": "2026-09-15T03:13:54.692Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:34:17.050Z",
+        "endedAt": "2026-09-15T03:14:11.422Z",
         "promptTokens": 291,
-        "outputTokens": 75
+        "outputTokens": 119
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:34:17.050Z",
-      "firstVisibleResultMs": 13924,
-      "elapsedMs": 13924,
+      "firstStructuredResponseAt": "2026-09-15T03:14:11.422Z",
+      "firstVisibleResultMs": 16731,
+      "elapsedMs": 16731,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -877,11 +877,11 @@
         "requestId": "program7-qualification-q04-real-cold",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "The General paused, his voice strained, before sharing a tale that felt both peculiar and profound.",
-        "reason": "Rewritten to maintain the General's strained tone and narrative strangeness while avoiding direct quotes. Kept under 600 characters and focused on adjacent context without altering protected span.",
+        "text": "The General paused, his voice strained, before sharing what I’d never heard: 'My dear child eagerly anticipated your planned visit to her charming daughter.' He offered a gallant yet sorrowful bow. 'Meanwhile, we received an invitation from my long-lost friend, Count Carlsfeld,'",
+        "reason": "Rewritten to maintain original meaning while creating a concise, author-reviewable alternative under 600 characters. Protected span 'My dear child was looking forward...' preserved without direct quotation or editing.",
         "usage": {
           "inputChars": 420,
-          "outputChars": 99
+          "outputChars": 279
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -891,37 +891,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "cf09a6e25013866ec6e82f12258308cb673e50454697c7a217415bbbd08738fb",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:34:03.126Z",
+          "startedAt": "2026-09-15T03:13:54.692Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:34:17.050Z",
+          "endedAt": "2026-09-15T03:14:11.422Z",
           "promptTokens": 291,
-          "outputTokens": 75
+          "outputTokens": 119
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:34:17.050Z",
+        "generateResponseAt": "2026-09-15T03:14:11.422Z",
         "timing": {
-          "totalDurationNanoseconds": 13912890200,
-          "loadDurationNanoseconds": 95919300,
-          "promptEvaluationDurationNanoseconds": 5435718300,
-          "evaluationDurationNanoseconds": 8139555900,
+          "totalDurationNanoseconds": 16719567300,
+          "loadDurationNanoseconds": 98179400,
+          "promptEvaluationDurationNanoseconds": 5195619200,
+          "evaluationDurationNanoseconds": 11189305800,
           "promptTokens": 291,
-          "outputTokens": 75
+          "outputTokens": 119
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:34:03.126Z",
+          "capturedAt": "2026-09-15T03:13:54.692Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3155484672,
-          "harnessWorkingSetBytes": 50163712
+          "availablePhysicalMemoryBytes": 2558509056,
+          "harnessWorkingSetBytes": 50425856
         },
         "after": {
-          "capturedAt": "2026-09-14T13:34:17.050Z",
+          "capturedAt": "2026-09-15T03:14:11.422Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3122839552,
-          "harnessWorkingSetBytes": 50343936
+          "availablePhysicalMemoryBytes": 2604589056,
+          "harnessWorkingSetBytes": 50454528
         }
       },
       "protectedSentinelFound": false,
@@ -936,9 +936,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Rewritten to maintain the protected span's meaning while creating a concise, author-reviewable alternative under 6:00 characters. Removed redundant phrases and adjusted phrasing for flow without altering the core narrative.",
-      "responseText": "The General spoke with effort, pausing briefly to organize his thoughts before sharing what I’ve never heard before: 'My dear child anticipated your visit to her charming daughter with great pleasure.' He offered a gallant yet sorrowful bow.",
-      "responseTextLength": 241,
+      "reason": "Rewritten to be more concise while preserving the original meaning and protected span. Removed redundant phrases and adjusted punctuation for clarity without altering the quoted text.",
+      "responseText": "The General paused, then began, 'My dear child was looking forward with great pleasure to the visit you had been so good as to arrange for her to your charming daughter.' He gave a gallant but melancholy bow.",
+      "responseTextLength": 208,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -947,16 +947,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "27b1fe9786df586f68a0b8b46f2837351c3255d260415915b7c9f25422deaa29",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:34:17.051Z",
+        "startedAt": "2026-09-15T03:14:11.430Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:34:36.615Z",
+        "endedAt": "2026-09-15T03:14:30.111Z",
         "promptTokens": 291,
-        "outputTokens": 108
+        "outputTokens": 94
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:34:36.615Z",
-      "firstVisibleResultMs": 19565,
-      "elapsedMs": 19565,
+      "firstStructuredResponseAt": "2026-09-15T03:14:30.111Z",
+      "firstVisibleResultMs": 18682,
+      "elapsedMs": 18682,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -988,11 +988,11 @@
         "requestId": "program7-qualification-q04-real-warm",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "The General spoke with effort, pausing briefly to organize his thoughts before sharing what I’ve never heard before: 'My dear child anticipated your visit to her charming daughter with great pleasure.' He offered a gallant yet sorrowful bow.",
-        "reason": "Rewritten to maintain the protected span's meaning while creating a concise, author-reviewable alternative under 6:00 characters. Removed redundant phrases and adjusted phrasing for flow without altering the core narrative.",
+        "text": "The General paused, then began, 'My dear child was looking forward with great pleasure to the visit you had been so good as to arrange for her to your charming daughter.' He gave a gallant but melancholy bow.",
+        "reason": "Rewritten to be more concise while preserving the original meaning and protected span. Removed redundant phrases and adjusted punctuation for clarity without altering the quoted text.",
         "usage": {
           "inputChars": 420,
-          "outputChars": 241
+          "outputChars": 208
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -1002,37 +1002,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "27b1fe9786df586f68a0b8b46f2837351c3255d260415915b7c9f25422deaa29",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:34:17.051Z",
+          "startedAt": "2026-09-15T03:14:11.430Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:34:36.615Z",
+          "endedAt": "2026-09-15T03:14:30.111Z",
           "promptTokens": 291,
-          "outputTokens": 108
+          "outputTokens": 94
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:34:36.615Z",
+        "generateResponseAt": "2026-09-15T03:14:30.110Z",
         "timing": {
-          "totalDurationNanoseconds": 19474412700,
-          "loadDurationNanoseconds": 1288990500,
-          "promptEvaluationDurationNanoseconds": 7649891900,
-          "evaluationDurationNanoseconds": 10253178400,
+          "totalDurationNanoseconds": 18582064900,
+          "loadDurationNanoseconds": 1592426400,
+          "promptEvaluationDurationNanoseconds": 7814308500,
+          "evaluationDurationNanoseconds": 8916291200,
           "promptTokens": 291,
-          "outputTokens": 108
+          "outputTokens": 94
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:34:17.051Z",
+          "capturedAt": "2026-09-15T03:14:11.429Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3122839552,
-          "harnessWorkingSetBytes": 50348032
+          "availablePhysicalMemoryBytes": 2699485184,
+          "harnessWorkingSetBytes": 50458624
         },
         "after": {
-          "capturedAt": "2026-09-14T13:34:36.616Z",
+          "capturedAt": "2026-09-15T03:14:30.111Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3049496576,
-          "harnessWorkingSetBytes": 50528256
+          "availablePhysicalMemoryBytes": 2598703104,
+          "harnessWorkingSetBytes": 50839552
         }
       },
       "protectedSentinelFound": false,
@@ -1047,7 +1047,7 @@
       "expected": "still_appears_present",
       "observed": "still_appears_present",
       "status": "still_appears_present",
-      "reason": "The opening concern remains as the text cuts off mid-sentence without resolving the reference to Doctor Hesselius' Essay, leaving the mysterious subject undefined in the context.",
+      "reason": "The opening concern remains as the source text cuts off mid-sentence with 'Doct' without completing the name, indicating an incomplete reference that persists after the hypothetical edit.",
       "responseText": "",
       "responseTextLength": 0,
       "receipt": {
@@ -1058,16 +1058,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "5d438c213fca7625dcea86a26dfbf4a09c57d9f762b3d77334ec0504d0775565",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:34:36.616Z",
+        "startedAt": "2026-09-15T03:14:30.111Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:34:48.434Z",
+        "endedAt": "2026-09-15T03:14:42.000Z",
         "promptTokens": 326,
-        "outputTokens": 57
+        "outputTokens": 58
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:34:48.434Z",
-      "firstVisibleResultMs": 11818,
-      "elapsedMs": 11818,
+      "firstStructuredResponseAt": "2026-09-15T03:14:42.000Z",
+      "firstVisibleResultMs": 11890,
+      "elapsedMs": 11890,
       "transportInvoked": true,
       "expectedStatus": "still_appears_present",
       "statusMatches": true,
@@ -1100,7 +1100,7 @@
         "model": "qwen3:4b",
         "status": "still_appears_present",
         "text": "",
-        "reason": "The opening concern remains as the text cuts off mid-sentence without resolving the reference to Doctor Hesselius' Essay, leaving the mysterious subject undefined in the context.",
+        "reason": "The opening concern remains as the source text cuts off mid-sentence with 'Doct' without completing the name, indicating an incomplete reference that persists after the hypothetical edit.",
         "usage": {
           "inputChars": 700,
           "outputChars": 0
@@ -1113,37 +1113,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "5d438c213fca7625dcea86a26dfbf4a09c57d9f762b3d77334ec0504d0775565",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:34:36.616Z",
+          "startedAt": "2026-09-15T03:14:30.111Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:34:48.434Z",
+          "endedAt": "2026-09-15T03:14:42.000Z",
           "promptTokens": 326,
-          "outputTokens": 57
+          "outputTokens": 58
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:34:48.433Z",
+        "generateResponseAt": "2026-09-15T03:14:42.000Z",
         "timing": {
-          "totalDurationNanoseconds": 11805791000,
-          "loadDurationNanoseconds": 84999000,
-          "promptEvaluationDurationNanoseconds": 6140998400,
-          "evaluationDurationNanoseconds": 5357411900,
+          "totalDurationNanoseconds": 11878253600,
+          "loadDurationNanoseconds": 90473300,
+          "promptEvaluationDurationNanoseconds": 6141575400,
+          "evaluationDurationNanoseconds": 5404865100,
           "promptTokens": 326,
-          "outputTokens": 57
+          "outputTokens": 58
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:34:36.616Z",
+          "capturedAt": "2026-09-15T03:14:30.111Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3049496576,
-          "harnessWorkingSetBytes": 50532352
+          "availablePhysicalMemoryBytes": 2598703104,
+          "harnessWorkingSetBytes": 50843648
         },
         "after": {
-          "capturedAt": "2026-09-14T13:34:48.434Z",
+          "capturedAt": "2026-09-15T03:14:42.001Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3063218176,
-          "harnessWorkingSetBytes": 50802688
+          "availablePhysicalMemoryBytes": 2598387712,
+          "harnessWorkingSetBytes": 50982912
         }
       },
       "protectedSentinelFound": false,
@@ -1158,7 +1158,7 @@
       "expected": "still_appears_present",
       "observed": "still_appears_present",
       "status": "still_appears_present",
-      "reason": "The opening concern (hypothetical bounded edit) remains as the text cuts off mid-sentence with 'Doct' indicating an incomplete phrase that needs resolution without altering the source text's integrity.",
+      "reason": "The opening concern remains after a hypothetical bounded edit. The text indicates Doctor Hesselius has written a note and reference to his Essay, but the sentence structure and phrasing do not resolve the initial concern about the mysterious subject or the author's intent to abstain from presenting a précis. The concern is still present in the quoted manuscript data.",
       "responseText": "",
       "responseTextLength": 0,
       "receipt": {
@@ -1169,16 +1169,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "45f6265b4b2fbeb5c7716dd45681e409688c42258fce21ca2e55157ba2367e09",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:34:48.435Z",
+        "startedAt": "2026-09-15T03:14:42.001Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:35:04.501Z",
+        "endedAt": "2026-09-15T03:15:01.276Z",
         "promptTokens": 326,
-        "outputTokens": 63
+        "outputTokens": 92
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:35:04.501Z",
-      "firstVisibleResultMs": 16066,
-      "elapsedMs": 16066,
+      "firstStructuredResponseAt": "2026-09-15T03:15:01.276Z",
+      "firstVisibleResultMs": 19275,
+      "elapsedMs": 19275,
       "transportInvoked": true,
       "expectedStatus": "still_appears_present",
       "statusMatches": true,
@@ -1211,7 +1211,7 @@
         "model": "qwen3:4b",
         "status": "still_appears_present",
         "text": "",
-        "reason": "The opening concern (hypothetical bounded edit) remains as the text cuts off mid-sentence with 'Doct' indicating an incomplete phrase that needs resolution without altering the source text's integrity.",
+        "reason": "The opening concern remains after a hypothetical bounded edit. The text indicates Doctor Hesselius has written a note and reference to his Essay, but the sentence structure and phrasing do not resolve the initial concern about the mysterious subject or the author's intent to abstain from presenting a précis. The concern is still present in the quoted manuscript data.",
         "usage": {
           "inputChars": 700,
           "outputChars": 0
@@ -1224,37 +1224,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "45f6265b4b2fbeb5c7716dd45681e409688c42258fce21ca2e55157ba2367e09",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:34:48.435Z",
+          "startedAt": "2026-09-15T03:14:42.001Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:35:04.501Z",
+          "endedAt": "2026-09-15T03:15:01.276Z",
           "promptTokens": 326,
-          "outputTokens": 63
+          "outputTokens": 92
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:35:04.500Z",
+        "generateResponseAt": "2026-09-15T03:15:01.275Z",
         "timing": {
-          "totalDurationNanoseconds": 15974896800,
-          "loadDurationNanoseconds": 1292422200,
-          "promptEvaluationDurationNanoseconds": 8490094600,
-          "evaluationDurationNanoseconds": 5937757200,
+          "totalDurationNanoseconds": 19180838200,
+          "loadDurationNanoseconds": 1334479200,
+          "promptEvaluationDurationNanoseconds": 8901679000,
+          "evaluationDurationNanoseconds": 8669076700,
           "promptTokens": 326,
-          "outputTokens": 63
+          "outputTokens": 92
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:34:48.435Z",
+          "capturedAt": "2026-09-15T03:14:42.001Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3063373824,
-          "harnessWorkingSetBytes": 50802688
+          "availablePhysicalMemoryBytes": 2598400000,
+          "harnessWorkingSetBytes": 50982912
         },
         "after": {
-          "capturedAt": "2026-09-14T13:35:04.501Z",
+          "capturedAt": "2026-09-15T03:15:01.276Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3068780544,
-          "harnessWorkingSetBytes": 50806784
+          "availablePhysicalMemoryBytes": 2496106496,
+          "harnessWorkingSetBytes": 51048448
         }
       },
       "protectedSentinelFound": false,
@@ -1269,7 +1269,7 @@
       "expected": "appears_resolved",
       "observed": "appears_resolved",
       "status": "appears_resolved",
-      "reason": "The opening concern (hypothetical bounded edit) has been addressed by the source text's clear indication that the prologue sets up Doctor Hesselius's essay as a reference, resolving the initial ambiguity.",
+      "reason": "The source text shows the narrative is being presented as a prologue with Doctor Hesselius' note and essay reference, and the author explicitly states they will not present a précis of the learned Doctor's work, indicating the concern about the opening is addressed by the context and structure.",
       "responseText": "",
       "responseTextLength": 0,
       "receipt": {
@@ -1280,16 +1280,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "b465f2f01f554327308d61948fe246917551c7e06a2e6c269525182aa5f161ab",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:35:04.501Z",
+        "startedAt": "2026-09-15T03:15:01.276Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:35:17.021Z",
+        "endedAt": "2026-09-15T03:15:14.963Z",
         "promptTokens": 325,
-        "outputTokens": 64
+        "outputTokens": 79
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:35:17.021Z",
-      "firstVisibleResultMs": 12520,
-      "elapsedMs": 12520,
+      "firstStructuredResponseAt": "2026-09-15T03:15:14.963Z",
+      "firstVisibleResultMs": 13687,
+      "elapsedMs": 13687,
       "transportInvoked": true,
       "expectedStatus": "appears_resolved",
       "statusMatches": true,
@@ -1322,7 +1322,7 @@
         "model": "qwen3:4b",
         "status": "appears_resolved",
         "text": "",
-        "reason": "The opening concern (hypothetical bounded edit) has been addressed by the source text's clear indication that the prologue sets up Doctor Hesselius's essay as a reference, resolving the initial ambiguity.",
+        "reason": "The source text shows the narrative is being presented as a prologue with Doctor Hesselius' note and essay reference, and the author explicitly states they will not present a précis of the learned Doctor's work, indicating the concern about the opening is addressed by the context and structure.",
         "usage": {
           "inputChars": 700,
           "outputChars": 0
@@ -1335,37 +1335,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "b465f2f01f554327308d61948fe246917551c7e06a2e6c269525182aa5f161ab",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:35:04.501Z",
+          "startedAt": "2026-09-15T03:15:01.276Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:35:17.021Z",
+          "endedAt": "2026-09-15T03:15:14.963Z",
           "promptTokens": 325,
-          "outputTokens": 64
+          "outputTokens": 79
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:35:17.021Z",
+        "generateResponseAt": "2026-09-15T03:15:14.962Z",
         "timing": {
-          "totalDurationNanoseconds": 12508039200,
-          "loadDurationNanoseconds": 88889600,
-          "promptEvaluationDurationNanoseconds": 6162842600,
-          "evaluationDurationNanoseconds": 6040569100,
+          "totalDurationNanoseconds": 13683121900,
+          "loadDurationNanoseconds": 100423700,
+          "promptEvaluationDurationNanoseconds": 5982039400,
+          "evaluationDurationNanoseconds": 7353543900,
           "promptTokens": 325,
-          "outputTokens": 64
+          "outputTokens": 79
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:35:04.501Z",
+          "capturedAt": "2026-09-15T03:15:01.276Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3068780544,
-          "harnessWorkingSetBytes": 50806784
+          "availablePhysicalMemoryBytes": 2496106496,
+          "harnessWorkingSetBytes": 51048448
         },
         "after": {
-          "capturedAt": "2026-09-14T13:35:17.021Z",
+          "capturedAt": "2026-09-15T03:15:14.963Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3122524160,
-          "harnessWorkingSetBytes": 50946048
+          "availablePhysicalMemoryBytes": 2519830528,
+          "harnessWorkingSetBytes": 51052544
         }
       },
       "protectedSentinelFound": false,
@@ -1380,7 +1380,7 @@
       "expected": "appears_resolved",
       "observed": "appears_resolved",
       "status": "appears_resolved",
-      "reason": "Source text ends mid-sentence with 'Doct' indicating incomplete phrase; no further context provided to confirm resolution.",
+      "reason": "The source text is truncated but the context indicates the author is intentionally omitting a summary (précis) of the essay, which aligns with the opening concern about the 'mysterious subject' being handled in the essay itself.",
       "responseText": "",
       "responseTextLength": 0,
       "receipt": {
@@ -1391,16 +1391,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "045819bae46a117c3862e35443509a683d451f20557b94d26e8310b98204bac3",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:35:17.021Z",
+        "startedAt": "2026-09-15T03:15:14.963Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:35:31.438Z",
+        "endedAt": "2026-09-15T03:15:31.736Z",
         "promptTokens": 325,
-        "outputTokens": 46
+        "outputTokens": 70
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:35:31.438Z",
-      "firstVisibleResultMs": 14417,
-      "elapsedMs": 14417,
+      "firstStructuredResponseAt": "2026-09-15T03:15:31.736Z",
+      "firstVisibleResultMs": 16773,
+      "elapsedMs": 16773,
       "transportInvoked": true,
       "expectedStatus": "appears_resolved",
       "statusMatches": true,
@@ -1433,7 +1433,7 @@
         "model": "qwen3:4b",
         "status": "appears_resolved",
         "text": "",
-        "reason": "Source text ends mid-sentence with 'Doct' indicating incomplete phrase; no further context provided to confirm resolution.",
+        "reason": "The source text is truncated but the context indicates the author is intentionally omitting a summary (précis) of the essay, which aligns with the opening concern about the 'mysterious subject' being handled in the essay itself.",
         "usage": {
           "inputChars": 700,
           "outputChars": 0
@@ -1446,37 +1446,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "045819bae46a117c3862e35443509a683d451f20557b94d26e8310b98204bac3",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:35:17.021Z",
+          "startedAt": "2026-09-15T03:15:14.963Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:35:31.438Z",
+          "endedAt": "2026-09-15T03:15:31.736Z",
           "promptTokens": 325,
-          "outputTokens": 46
+          "outputTokens": 70
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:35:31.438Z",
+        "generateResponseAt": "2026-09-15T03:15:31.735Z",
         "timing": {
-          "totalDurationNanoseconds": 14327013800,
-          "loadDurationNanoseconds": 1293415100,
-          "promptEvaluationDurationNanoseconds": 8503643900,
-          "evaluationDurationNanoseconds": 4272166900,
+          "totalDurationNanoseconds": 16672129200,
+          "loadDurationNanoseconds": 1587575800,
+          "promptEvaluationDurationNanoseconds": 8298905700,
+          "evaluationDurationNanoseconds": 6529120300,
           "promptTokens": 325,
-          "outputTokens": 46
+          "outputTokens": 70
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:35:17.021Z",
+          "capturedAt": "2026-09-15T03:15:14.963Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3122524160,
-          "harnessWorkingSetBytes": 50946048
+          "availablePhysicalMemoryBytes": 2519863296,
+          "harnessWorkingSetBytes": 51052544
         },
         "after": {
-          "capturedAt": "2026-09-14T13:35:31.439Z",
+          "capturedAt": "2026-09-15T03:15:31.736Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3168526336,
-          "harnessWorkingSetBytes": 50954240
+          "availablePhysicalMemoryBytes": 2587582464,
+          "harnessWorkingSetBytes": 51183616
         }
       },
       "protectedSentinelFound": false,
@@ -1491,9 +1491,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "Bounded premise alternative: The prologue uses Hesselius's scholarly framing to position the narrative as an academic case study, avoiding direct narrative involvement while critiquing lay understanding of the subject matter. This alternative is concise, review-friendly, and stays within 60.9 characters.",
-      "responseText": "Consider the manuscript's prologue as a deliberate framing device that introduces the narrative through a scholarly lens, emphasizing the academic context of the story while maintaining a subtle critique of the 'laity'’s engagement with complex subjects.",
-      "responseTextLength": 254,
+      "reason": "Bounded alternative phrasing for author review under 6:000 characters; maintains original meaning without altering manuscript content.",
+      "responseText": "Consider the alternative phrasing: 'This enigmatic subject is addressed in his Essay with characteristic expertise and conciseness, constituting one volume within the collected works of this remarkable scholar.'",
+      "responseTextLength": 211,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -1502,16 +1502,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "92c8a1eeb7257c09adf43c7cd21c5d27c7b46bca7e4cd324208612e67d43d667",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:35:31.439Z",
+        "startedAt": "2026-09-15T03:15:31.736Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:35:49.857Z",
+        "endedAt": "2026-09-15T03:15:46.584Z",
         "promptTokens": 341,
-        "outputTokens": 123
+        "outputTokens": 83
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:35:49.857Z",
-      "firstVisibleResultMs": 18418,
-      "elapsedMs": 18418,
+      "firstStructuredResponseAt": "2026-09-15T03:15:46.584Z",
+      "firstVisibleResultMs": 14849,
+      "elapsedMs": 14849,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -1543,11 +1543,11 @@
         "requestId": "program7-qualification-q07-real-cold",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "Consider the manuscript's prologue as a deliberate framing device that introduces the narrative through a scholarly lens, emphasizing the academic context of the story while maintaining a subtle critique of the 'laity'’s engagement with complex subjects.",
-        "reason": "Bounded premise alternative: The prologue uses Hesselius's scholarly framing to position the narrative as an academic case study, avoiding direct narrative involvement while critiquing lay understanding of the subject matter. This alternative is concise, review-friendly, and stays within 60.9 characters.",
+        "text": "Consider the alternative phrasing: 'This enigmatic subject is addressed in his Essay with characteristic expertise and conciseness, constituting one volume within the collected works of this remarkable scholar.'",
+        "reason": "Bounded alternative phrasing for author review under 6:000 characters; maintains original meaning without altering manuscript content.",
         "usage": {
           "inputChars": 700,
-          "outputChars": 254
+          "outputChars": 211
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -1557,37 +1557,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "92c8a1eeb7257c09adf43c7cd21c5d27c7b46bca7e4cd324208612e67d43d667",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:35:31.439Z",
+          "startedAt": "2026-09-15T03:15:31.736Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:35:49.857Z",
+          "endedAt": "2026-09-15T03:15:46.584Z",
           "promptTokens": 341,
-          "outputTokens": 123
+          "outputTokens": 83
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:35:49.856Z",
+        "generateResponseAt": "2026-09-15T03:15:46.584Z",
         "timing": {
-          "totalDurationNanoseconds": 18406266100,
-          "loadDurationNanoseconds": 91263500,
-          "promptEvaluationDurationNanoseconds": 6435490200,
-          "evaluationDurationNanoseconds": 11637184700,
+          "totalDurationNanoseconds": 14836946800,
+          "loadDurationNanoseconds": 94474000,
+          "promptEvaluationDurationNanoseconds": 6694474400,
+          "evaluationDurationNanoseconds": 7797190200,
           "promptTokens": 341,
-          "outputTokens": 123
+          "outputTokens": 83
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:35:31.439Z",
+          "capturedAt": "2026-09-15T03:15:31.736Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3168526336,
-          "harnessWorkingSetBytes": 50954240
+          "availablePhysicalMemoryBytes": 2587602944,
+          "harnessWorkingSetBytes": 51183616
         },
         "after": {
-          "capturedAt": "2026-09-14T13:35:49.857Z",
+          "capturedAt": "2026-09-15T03:15:46.584Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3163582464,
-          "harnessWorkingSetBytes": 51232768
+          "availablePhysicalMemoryBytes": 2598735872,
+          "harnessWorkingSetBytes": 51195904
         }
       },
       "protectedSentinelFound": false,
@@ -1602,9 +1602,9 @@
       "expected": "candidate",
       "observed": "candidate",
       "status": "candidate",
-      "reason": "This alternative premise offers a bounded, reviewable angle without altering the source text, focusing on the implied intent behind Hessel.ius’ note while staying under 600 characters.",
-      "responseText": "Consider the possibility that Hesselius’ note was written to preemptively address potential misinterpretations of the manuscript’s narrative by the public, rather than merely as an academic reference.",
-      "responseTextLength": 200,
+      "reason": "This alternative premise focuses on the nature of the mysterious subject without altering the manuscript, providing a bounded, reviewable option for the author to consider within the existing narrative context.",
+      "responseText": "Consider the possibility that the 'mysterious subject' referenced in the note is a specific, unexplained phenomenon rather than a general topic, potentially requiring contextual clarification for the reader.",
+      "responseTextLength": 207,
       "receipt": {
         "endpoint": "http://127.0.0.1:11434",
         "requestedModel": "qwen3:4b",
@@ -1613,16 +1613,16 @@
         "ollamaVersion": "0.13.0",
         "promptSha256": "1f4bbe1d12b0c8192215c3e1b8cc0445c7da4790cc249da7365c85b6089d1501",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:35:49.857Z",
+        "startedAt": "2026-09-15T03:15:46.585Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.169Z",
+        "endedAt": "2026-09-15T03:16:06.096Z",
         "promptTokens": 341,
-        "outputTokens": 93
+        "outputTokens": 89
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.169Z",
-      "firstVisibleResultMs": 19312,
-      "elapsedMs": 19312,
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.096Z",
+      "firstVisibleResultMs": 19511,
+      "elapsedMs": 19511,
       "transportInvoked": true,
       "expectedStatus": "candidate",
       "statusMatches": true,
@@ -1654,11 +1654,11 @@
         "requestId": "program7-qualification-q07-real-warm",
         "model": "qwen3:4b",
         "status": "candidate",
-        "text": "Consider the possibility that Hesselius’ note was written to preemptively address potential misinterpretations of the manuscript’s narrative by the public, rather than merely as an academic reference.",
-        "reason": "This alternative premise offers a bounded, reviewable angle without altering the source text, focusing on the implied intent behind Hessel.ius’ note while staying under 600 characters.",
+        "text": "Consider the possibility that the 'mysterious subject' referenced in the note is a specific, unexplained phenomenon rather than a general topic, potentially requiring contextual clarification for the reader.",
+        "reason": "This alternative premise focuses on the nature of the mysterious subject without altering the manuscript, providing a bounded, reviewable option for the author to consider within the existing narrative context.",
         "usage": {
           "inputChars": 700,
-          "outputChars": 200
+          "outputChars": 207
         },
         "receipt": {
           "endpoint": "http://127.0.0.1:11434",
@@ -1668,37 +1668,37 @@
           "ollamaVersion": "0.13.0",
           "promptSha256": "1f4bbe1d12b0c8192215c3e1b8cc0445c7da4790cc249da7365c85b6089d1501",
           "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-          "startedAt": "2026-09-14T13:35:49.857Z",
+          "startedAt": "2026-09-15T03:15:46.585Z",
           "firstTokenAt": null,
-          "endedAt": "2026-09-14T13:36:09.169Z",
+          "endedAt": "2026-09-15T03:16:06.096Z",
           "promptTokens": 341,
-          "outputTokens": 93
+          "outputTokens": 89
         }
       },
       "providerObservation": {
-        "generateResponseAt": "2026-09-14T13:36:09.168Z",
+        "generateResponseAt": "2026-09-15T03:16:06.095Z",
         "timing": {
-          "totalDurationNanoseconds": 19218291600,
-          "loadDurationNanoseconds": 1273145800,
-          "promptEvaluationDurationNanoseconds": 8819267300,
-          "evaluationDurationNanoseconds": 8854109400,
+          "totalDurationNanoseconds": 19421107800,
+          "loadDurationNanoseconds": 1585333400,
+          "promptEvaluationDurationNanoseconds": 9246889300,
+          "evaluationDurationNanoseconds": 8313861000,
           "promptTokens": 341,
-          "outputTokens": 93
+          "outputTokens": 89
         }
       },
       "resources": {
         "observationMode": "request-boundary snapshots; not a peak-process sampler",
         "before": {
-          "capturedAt": "2026-09-14T13:35:49.857Z",
+          "capturedAt": "2026-09-15T03:15:46.584Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3163578368,
-          "harnessWorkingSetBytes": 51232768
+          "availablePhysicalMemoryBytes": 2598735872,
+          "harnessWorkingSetBytes": 51195904
         },
         "after": {
-          "capturedAt": "2026-09-14T13:36:09.169Z",
+          "capturedAt": "2026-09-15T03:16:06.096Z",
           "totalPhysicalMemoryBytes": 16483872768,
-          "availablePhysicalMemoryBytes": 3117662208,
-          "harnessWorkingSetBytes": 51232768
+          "availablePhysicalMemoryBytes": 2647388160,
+          "harnessWorkingSetBytes": 51335168
         }
       },
       "protectedSentinelFound": false,
@@ -1719,8 +1719,8 @@
       "receipt": null,
       "responseMode": "non-streaming",
       "firstStructuredResponseAt": null,
-      "firstVisibleResultMs": 0,
-      "elapsedMs": 0,
+      "firstVisibleResultMs": 8,
+      "elapsedMs": 8,
       "transportInvoked": false,
       "expectedStatus": "failed",
       "statusMatches": true,
@@ -1846,14 +1846,14 @@
         "ollamaVersion": null,
         "promptSha256": "eac39a1bbf1e0648db79b3526ed16fb03a5ad15c385e6372aa75878a21439186",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.173Z",
+        "startedAt": "2026-09-15T03:16:06.108Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.173Z",
+        "endedAt": "2026-09-15T03:16:06.108Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.173Z",
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.108Z",
       "firstVisibleResultMs": 0,
       "elapsedMs": 0,
       "transportInvoked": true,
@@ -1882,14 +1882,14 @@
         "ollamaVersion": null,
         "promptSha256": "9681f28900bcabe7ed23275257ede5fad1b661684f23f6ea241bb0d32e671aff",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.173Z",
+        "startedAt": "2026-09-15T03:16:06.108Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.173Z",
+        "endedAt": "2026-09-15T03:16:06.108Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.173Z",
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.108Z",
       "firstVisibleResultMs": 0,
       "elapsedMs": 0,
       "transportInvoked": true,
@@ -1918,31 +1918,31 @@
         "ollamaVersion": null,
         "promptSha256": "29fff6b99d0a708cbe122fd43c939a6a29d48909a29a8d32ceccfeffc34ce808",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.315Z",
+        "startedAt": "2026-09-15T03:16:06.253Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.315Z",
+        "endedAt": "2026-09-15T03:16:06.253Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.315Z",
-      "firstVisibleResultMs": 142,
-      "elapsedMs": 142,
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.253Z",
+      "firstVisibleResultMs": 145,
+      "elapsedMs": 145,
       "transportInvoked": true,
       "expectedStatus": "cancelled",
       "statusMatches": true,
       "timingPass": true,
       "mechanicalPass": true,
       "cancellationMetrics": {
-        "dispatchedAt": 245573.4558,
-        "abortRequestedAt": 245698.8106,
-        "transportClosedAt": 245709.6041,
+        "dispatchedAt": 252123.0423,
+        "abortRequestedAt": 252257.4702,
+        "transportClosedAt": 252261.3824,
         "endpoint": "http://127.0.0.1:11434",
         "realGenerateRequest": true,
-        "completedAt": 245709.6315,
-        "elapsedFromAbortMs": 11,
-        "transportTerminationMs": 11,
-        "elapsedMs": 142
+        "completedAt": 252261.4091,
+        "elapsedFromAbortMs": 4,
+        "transportTerminationMs": 4,
+        "elapsedMs": 145
       },
       "error": null
     },
@@ -1965,31 +1965,31 @@
         "ollamaVersion": null,
         "promptSha256": "6112b084b75a781ef1f1e9fc6e2bf7543d559a6fc2d1cceb9fb046610607da8c",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.451Z",
+        "startedAt": "2026-09-15T03:16:06.392Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.451Z",
+        "endedAt": "2026-09-15T03:16:06.392Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.451Z",
-      "firstVisibleResultMs": 136,
-      "elapsedMs": 136,
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.392Z",
+      "firstVisibleResultMs": 139,
+      "elapsedMs": 139,
       "transportInvoked": true,
       "expectedStatus": "cancelled",
       "statusMatches": true,
       "timingPass": true,
       "mechanicalPass": true,
       "cancellationMetrics": {
-        "dispatchedAt": 245717.946,
-        "abortRequestedAt": 245844.5479,
-        "transportClosedAt": 245845.6722,
+        "dispatchedAt": 252269.1513,
+        "abortRequestedAt": 252399.1817,
+        "transportClosedAt": 252400.3298,
         "endpoint": "http://127.0.0.1:11434",
         "realGenerateRequest": true,
-        "completedAt": 245845.6882,
+        "completedAt": 252400.3445,
         "elapsedFromAbortMs": 1,
         "transportTerminationMs": 1,
-        "elapsedMs": 136
+        "elapsedMs": 139
       },
       "error": null
     },
@@ -2012,14 +2012,14 @@
         "ollamaVersion": null,
         "promptSha256": "b2e517da5f15a8d652174af6b20ba1c57b15031d61f45c76dbcbc81886c56acc",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.452Z",
+        "startedAt": "2026-09-15T03:16:06.392Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.452Z",
+        "endedAt": "2026-09-15T03:16:06.392Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.452Z",
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.392Z",
       "firstVisibleResultMs": 1,
       "elapsedMs": 1,
       "transportInvoked": true,
@@ -2055,16 +2055,16 @@
         "ollamaVersion": null,
         "promptSha256": "b85354924db5fc549ce2918b59098d038450344aa143ddd8da14cff2e35a6b75",
         "schemaSha256": "94be61bd473cc6949992d208faa2c1cfcd8bf565a735fcc1f50e129bfbeff12e",
-        "startedAt": "2026-09-14T13:36:09.579Z",
+        "startedAt": "2026-09-15T03:16:06.525Z",
         "firstTokenAt": null,
-        "endedAt": "2026-09-14T13:36:09.579Z",
+        "endedAt": "2026-09-15T03:16:06.525Z",
         "promptTokens": 0,
         "outputTokens": 0
       },
       "responseMode": "non-streaming",
-      "firstStructuredResponseAt": "2026-09-14T13:36:09.579Z",
-      "firstVisibleResultMs": 107,
-      "elapsedMs": 107,
+      "firstStructuredResponseAt": "2026-09-15T03:16:06.525Z",
+      "firstVisibleResultMs": 111,
+      "elapsedMs": 111,
       "transportInvoked": true,
       "expectedStatus": "unavailable",
       "statusMatches": true,
@@ -2137,5 +2137,5 @@
     "storyAfter": "b3a6498174ce1f83914270e7d4ae183b52eeabc693e3698ef152d50ac149ce92",
     "unchanged": true
   },
-  "generatedAt": "2026-09-14T13:36:09.670Z"
+  "generatedAt": "2026-09-15T03:16:06.610Z"
 }

@@ -1,7 +1,7 @@
 {
   "schema": "program7.unicode-qualification.v2",
-  "exactCommit": "cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a",
-  "exactTree": "7099f103054bc80847db435889932db71417ef6a",
+  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
+  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
   "testFile": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\__tests__\\program7SourceBinding.test.ts",
   "implementationFiles": [
     "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\program7SourceBinding.ts",

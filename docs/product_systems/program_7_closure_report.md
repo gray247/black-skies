@@ -1,54 +1,63 @@
 # Program 7 Qualification Closure Report
 
-Status: partial exact-candidate refresh and Windows package construction
-complete; normal-GPU Electron requalification, exact packaged lifecycle,
-Human Gate 4, and local-AI admission remain open.
+Status: mechanical exact-candidate qualification complete; Human Gate 4 and
+local-AI admission remain pending. Program 7 is not closed by this report.
 
-Exact current runtime implementation commit: `cb2d5c943aa80a1f5a8248c9e46cb0ca2d1e683a`
+Exact candidate commit: `c57be0ffe41b5383f50fbc29546c121603094e40`
 
-Exact current runtime implementation tree: `7099f103054bc80847db435889932db71417ef6a`
+Exact candidate tree: `a75c40f14e078ddda49b9fcfa33a5fe383390bc5`
 
-The current local-AI, persistence, and Unicode artifacts bind to this exact
-implementation commit. Accessibility, scale, Electron/Stage 19, and the exact
-packaged lifecycle remain explicitly unresolved because their fresh
-normal-GPU/elevated runs could not be completed on this host.
+The corrected evidence packet is bound to the exact candidate above. The
+normal-GPU Electron gates were executed on the outer Windows host with
+Electron 39.8.10, normal GPU, Chromium sandbox enabled, and no dirty or
+diagnostic GPU override.
 
-## Evidence completed
+## Mechanical evidence
 
-- Exact persistence qualification: 8 suites / 136 tests passed with zero skips or failures. Migration, corruption, concurrency, and recovery each map to named assertions and report `Pass`.
-- Feedback Notes proves lossless legacy-v1 reading, extension-field preservation, first-write migration, and repeat idempotence. Current strict-schema owners reject unsupported versions rather than inventing migrations.
-- Feedback Notes, Ideas, Revision Candidates, and Story Foundation now synchronize temporary files before atomic replacement, clean failed temporary files, and preserve the prior durable document when replacement fails.
-- Corrupt JSON, invalid UTF-8, wrong versions, duplicate identities, abandoned temporary files, stale writers, same-revision races, interrupted candidate acceptance, and recovery-envelope failures are covered without silent repair or byte rewriting.
-- The exact-candidate RT-2B runner passed 24/24 mechanical rows with real `qwen3:4b`; protected refusal, cancellation, timeout, malformed response, endpoint loss, and unchanged manuscript/story hashes remain mechanically verified. Jason’s usefulness and admission decision are not inferred.
-- The exact-candidate persistence runner passed 8 suites / 136 tests, and the Unicode/Markdown runner passed all 18 required assertions.
-- Windows NSIS construction and repository package verification passed at documentation HEAD `7e5d7ecf3593bcef084227c231073c8d75ea1f4c` by using the already-cached Electron `39.8.10` archive directly. The verified installer is `86,966,243` bytes, SHA-256 `a20f9158c2f55eae16cabfc2764533ba63ab65abd9275e344498ae15a11eaa05`, unsigned under the internal-RC policy, with zero forbidden unpacked paths. This is not promoted to the ledger's packaged Pass because its receipt identity and the ledger's runtime candidate identity differ and the elevated lifecycle is incomplete.
+- Local-AI RT-2B packet: 24/24 mechanical rows passed with real `qwen3:4b`;
+  admission remains `pending-human`.
+- Persistence: 8 suites / 136 tests passed with zero failures or skips.
+- Unicode/Markdown: all 18 required assertions passed.
+- Accessibility: qualified packet with 66/66 observed rows passed and all
+  required state bindings resolved.
+- Scale: qualified 1x/2x/4x/8x packet with complete observations.
+- Dedicated Program 7 Electron workflows: revision, Create/Develop,
+  local-AI-disabled, and Carmilla long-form each passed 1/1.
+- Clean Stage 19: 49 critical files, 806 passed, 2 skipped; Electron startup
+  preflight 1/1; Electron matrix 36/36; `STAGE19_REGRESSION_PASS` and
+  `CLEAN_RC_ELIGIBLE` recorded.
+- Fresh Windows NSIS package: receipt is bound to the exact candidate, ASAR
+  SHA-256 `9a92db5a8b2dc76079fe1071bfc6dc7a998de20ae761472a53c92fb25973e400`,
+  yaml `2.8.3`, and forbidden-path count `0`.
+- Administrator offline-firewall installed lifecycle: passed, including
+  representative workload, cleanup, external-data preservation, uninstall,
+  and same-installer reinstall.
 
-## Explicitly not closed
+## Human-only items
 
-The RT-2B pilot is current mechanical evidence for the runtime implementation
-candidate, but it is not a human admission decision. Jason's scores for
-usefulness, source fidelity, facts, voice/style, actionability, and uncertainty
-restraint remain required. Jason alone decides whether local AI is admitted.
-Human Gate 4 must review the no-AI Carmilla workflow and the integrated
-surfaces. This report does not authorize, imply, or fabricate either decision.
+Jason’s usefulness, fidelity, facts, voice/style, actionability, and
+uncertainty-restraint scores remain blank. Human Gate 4 has not been claimed.
+Local-AI admission remains blank and `pending-human`; no human score or
+admission decision is inferred from the mechanical RT-2B packet.
 
-The nested Codex sandbox reproduces Electron `STATUS_DLL_NOT_FOUND` before first window creation. The required outer-host run passes; no GPU-disable diagnostic mode was used and no runtime or ACL repair was made.
-
-The remaining mechanical work is fresh normal-GPU accessibility/visual and
-scale receipts, a fresh Stage 19/Electron receipt, aligning the verified
-Windows package receipt with the ledger's exact candidate identity, and the
-exact offline-firewall package matrix. The latter still requires an
-Administrator PowerShell session. The P4/P5/P6 regression rows remain reserved
-for Jason. These are not closure or admission claims.
+The P4/P5/P6 current-build regression rows remain reserved for Jason’s
+Human Gate 4 session. This report does not claim subjective acceptance,
+Human Gate 4 completion, or Program 7 closure.
 
 ## Canonical artifacts
 
 - `docs/product_systems/program_7_evidence_ledger.jsonl`
 - `docs/product_systems/program_7_local_ai_qualification.json`
-- `docs/product_systems/program_7_electron_qualification.json`
 - `docs/product_systems/program_7_persistence_qualification.json`
-- `scripts/program7-evidence-row.schema.json`
+- `docs/product_systems/program_7_unicode_qualification.json`
+- `docs/product_systems/program_7_accessibility_qualification.json`
+- `docs/product_systems/program_7_scale_qualification.json`
+- `docs/product_systems/program_7_electron_qualification.json`
+- `docs/product_systems/program_7_human_sample.json`
 - `scripts/validate-program7-evidence.mjs`
 - `scripts/build-program7-evidence-ledger.mjs`
 - `scripts/program7-human-sampling.mjs`
-- `docs/product_systems/program_7_human_sample.json`
+
+Lifecycle evidence is retained at:
+
+`C:\Users\gray2\AppData\Local\Temp\blackskies-p7-c57be0ff-admin-lifecycle-20260921-0020\stage19-22-lifecycle-evidence.json`
