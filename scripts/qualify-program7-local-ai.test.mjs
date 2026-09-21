@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   responseSummary,
   scanProtectedSentinels,
+  timingPassFor,
 } from './qualify-program7-local-ai.mjs';
 
 const response = {
@@ -17,6 +18,13 @@ assert.equal(summary.responseTextLength, response.text.length);
 assert.equal(summary.responseMode, 'non-streaming');
 assert.equal(summary.firstStructuredResponseAt, response.receipt.endedAt);
 assert.equal(summary.firstVisibleResultMs, 321);
+assert.equal(timingPassFor('real-cold', 60_000, 120_000), true);
+assert.equal(timingPassFor('real-cold', 60_001, 120_000), false);
+assert.equal(timingPassFor('real-cold', 60_000, 120_001), false);
+assert.equal(timingPassFor('real-warm', 20_000, 60_000), true);
+assert.equal(timingPassFor('real-warm', 20_001, 60_000), false);
+assert.equal(timingPassFor('real-warm', 20_000, 60_001), false);
+assert.equal(timingPassFor('unknown', 0, 0), false);
 
 const sentinel = 'P7_PROTECTED_SENTINEL_7F3A';
 assert.deepEqual(scanProtectedSentinels({ response: { text: 'ordinary' } }, [sentinel]).hits, []);

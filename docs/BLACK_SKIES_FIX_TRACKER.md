@@ -22,6 +22,28 @@ claim Program 7 closure. Canonical evidence remains under
 `docs/product_systems/`, with lifecycle evidence retained in the explicit
 Administrator temp root recorded by the closure report.
 
+## Program 7 local-AI timing cleanup — 2026-09-20
+
+The prior RT-2B packet's `24/24` local-AI row claim was produced by an
+elapsed-only timing check. The qualifier now fails closed on both dimensions
+required by the protocol: non-streaming first-visible result at or below 60s
+(cold) / 20s (warm), and total request time at or below 120s (cold) / 60s
+(warm). Boundary regression tests pass for all four limits.
+
+The one post-repair real `qwen3:4b` run recorded 24 observed rows but only
+19 mechanical passes. Five warm rows exceeded the 20s first-visible limit,
+and Q02 warm also returned an invalid structured response. The run preserved
+the exact model digest and truth/protection invariants but is not-qualified;
+local-AI admission remains pending and is not inferred. Evidence is retained
+under `C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-cleanup-20260920-220636`.
+
+The opt-in outer-host Electron production-bridge journey passed once after a
+bounded assertion-timeout correction: it created an advisory candidate,
+exposed explicit acceptance, and left the manuscript unchanged. The observed
+Q02 speaker/relationship and voice flattening, Q03 continuity/framing,
+Q05/Q06 re-evaluation grounding, Q07 premise-alternative shape, and malformed
+reason text remain model-output issues; no overfit prompt repair was made.
+
 ## Program 7 installed-package runtime dependency repair — 2026-09-14
 
 The first elevated offline lifecycle reached the newly installed application

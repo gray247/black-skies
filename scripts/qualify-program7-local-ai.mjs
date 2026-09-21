@@ -17,6 +17,10 @@ const model = 'qwen3:4b';
 const projectId = 'proj_carmilla_program7_review';
 const unitId = 'carmilla-prologue';
 const schemaVersion = 'program7.local-ai-qualification.v1';
+const TIMING_LIMITS_MS = {
+  'real-cold': { firstVisible: 60_000, total: 120_000 },
+  'real-warm': { firstVisible: 20_000, total: 60_000 },
+};
 
 function argValue(argv, name, fallback) {
   const index = argv.indexOf(name);
@@ -86,6 +90,12 @@ export function responseSummary(response, elapsedMs, transportInvoked, expectedS
     expectedStatus,
     statusMatches,
   };
+}
+
+export function timingPassFor(executionMode, firstVisibleResultMs, elapsedMs) {
+  const limits = TIMING_LIMITS_MS[executionMode];
+  if (!limits) return false;
+  return firstVisibleResultMs <= limits.firstVisible && elapsedMs <= limits.total;
 }
 
 async function invokeService(service, request, options = {}) {
@@ -319,7 +329,7 @@ async function run() {
       const invoked = await invokeService(service, request, { authorInvoked: true });
       const resourcesAfter = hostResourceSnapshot();
       const summary = responseSummary(invoked.response, invoked.elapsedMs, true, scenario.expectedStatus);
-      const timingPass = executionMode === 'real-cold' ? invoked.elapsedMs <= 120_000 : invoked.elapsedMs <= 60_000;
+      const timingPass = timingPassFor(executionMode, summary.firstVisibleResultMs, invoked.elapsedMs);
       const protectedLeak = scenario.protectedSentinel ? JSON.stringify(invoked.response ?? invoked.error ?? '').includes(scenario.protectedSentinel) : false;
       const protectedPackaged = scenario.protectedSentinel ? request.source.text.includes(scenario.protectedSentinel) : false;
       const mechanicalPass = !invoked.error && summary.statusMatches && timingPass && Boolean(summary.receipt?.actualModel === model && summary.receipt?.modelDigest) && !protectedLeak && !protectedPackaged;

@@ -1,7 +1,8 @@
 # Program 7 Qualification Closure Report
 
-Status: mechanical exact-candidate qualification complete; Human Gate 4 and
-local-AI admission remain pending. Program 7 is not closed by this report.
+Status: core mechanical exact-candidate qualification packet complete; the
+local-AI timing cleanup is not-qualified. Human Gate 4 and local-AI admission
+remain pending. Program 7 is not closed by this report.
 
 Exact candidate commit: `c57be0ffe41b5383f50fbc29546c121603094e40`
 
@@ -14,7 +15,11 @@ diagnostic GPU override.
 
 ## Mechanical evidence
 
-- Local-AI RT-2B packet: 24/24 mechanical rows passed with real `qwen3:4b`;
+- Historical local-AI RT-2B packet: 24/24 rows were recorded before the
+  protocol's separate first-visible timing limit was enforced. The corrected
+  real `qwen3:4b` cleanup run observed 24 rows but passed 19; five warm rows
+  exceeded the 20s first-visible limit and Q02 warm also returned an invalid
+  structured response. Local-AI is therefore not mechanically eligible;
   admission remains `pending-human`.
 - Persistence: 8 suites / 136 tests passed with zero failures or skips.
 - Unicode/Markdown: all 18 required assertions passed.
@@ -32,6 +37,20 @@ diagnostic GPU override.
 - Administrator offline-firewall installed lifecycle: passed, including
   representative workload, cleanup, external-data preservation, uninstall,
   and same-installer reinstall.
+
+## Local-AI cleanup disposition
+
+The timing-only qualifier repair is intentionally limited to fail-closed
+measurement and boundary tests in `scripts/qualify-program7-local-ai.mjs` and
+its focused test. The real cleanup packet is retained at:
+
+`C:\Users\gray2\AppData\Local\Temp\blackskies-p7-local-ai-cleanup-20260920-220636\post-edit-real-qualifier.json`
+
+The opt-in outer-host Electron bridge journey passed after its assertion
+timeout was corrected; it proved that a real candidate remains advisory until
+an explicit acceptance action and does not mutate the manuscript. The
+remaining Q02/Q03/Q05/Q06/Q07 output-shape and grounding observations are
+known model-quality issues, not a basis for prompt overfitting in this pass.
 
 ## Human-only items
 
