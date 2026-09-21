@@ -9152,11 +9152,17 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   --stage19-border-subtle: var(--bs-line-strong);
   --stage19-text-primary: var(--bs-text-primary);
   --stage19-text-secondary: var(--bs-text-secondary);
+  --stage19-accent: var(--bs-accent-primary);
+  --stage19-accent-soft: color-mix(in srgb, var(--bs-accent-primary) 16%, var(--bs-surface-base));
   display: grid;
   gap: 16px;
   max-width: 1180px;
   margin: 0 auto;
   padding: 22px 24px 32px;
+}
+
+.stage19-program6 .stage19-spine__eyebrow {
+  color: var(--bs-text-muted);
 }
 
 .stage19-program6__header,

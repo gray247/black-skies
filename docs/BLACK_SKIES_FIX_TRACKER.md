@@ -3,6 +3,15 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 6 Story Knowledge theme-color repair — 2026-09-21
+
+The Program 6 Story Knowledge workspace still inherited an older cyan eyebrow
+and blue fallback accent instead of the current Command Center theme. The
+workspace now uses the existing Command Center accent token for selected tabs,
+controls, and rule marks, while its eyebrow uses the existing muted text token.
+This introduces no new font color and keeps both light and dark modes aligned
+with their established palettes. Human Gate 4 remains pending.
+
 ## Program 7 human-review workflow repair — 2026-09-21
 
 Jason's pre-gate review exposed four related usability defects in the
