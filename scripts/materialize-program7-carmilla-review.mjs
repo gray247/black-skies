@@ -16,9 +16,10 @@ const baselineRoot = path.join(
   'baseline',
 );
 const projectId = 'proj_carmilla_program7_review';
-const unitId = 'carmilla-prologue';
+const unitId = 'carmilla-chapter-01';
 const signalId = 'program7-carmilla-review-signal';
 const createdAt = '2026-09-13T00:00:00.000Z';
+const passageOpening = 'The first occurrence in my existence, which produced a terrible';
 
 function sha256(value) {
   return createHash('sha256').update(value.replace(/\r\n?/gu, '\n'), 'utf8').digest('hex');
@@ -58,11 +59,11 @@ async function main() {
   const draft = await readFile(draftPath, 'utf8');
   const durable = durableBody(editorBody(draft));
   const body = durable;
-  const selectionStart = body.search(/\S/u);
-  const selectionEnd = selectionStart + Math.min(120, body.length - selectionStart);
+  const selectionStart = body.indexOf(passageOpening);
+  const selectionEnd = selectionStart + Math.min(220, body.length - selectionStart);
   const selectedText = body.slice(selectionStart, selectionEnd);
   if (selectionStart < 0 || !selectedText.trim()) {
-    throw new Error('The seeded Carmilla source passage could not be located.');
+    throw new Error('The seeded Carmilla childhood-fright passage could not be located.');
   }
   const sourceFingerprint = sha256(durable);
   const selectionFingerprint = sha256(selectedText);
@@ -115,8 +116,8 @@ async function main() {
     confidenceBand: 'medium',
     currentness: 'current',
     lifecycle: 'accepted',
-    summary: 'The opening passage establishes a source-linked review concern.',
-    evidenceSummary: 'Review the opening passage before creating a bounded revision item.',
+    summary: 'The childhood fright begins after a long account of the castle and household.',
+    evidenceSummary: 'Consider whether the turn into the childhood encounter needs a clearer transition.',
     provenance: {
       sourceOwner: 'Program 7 disposable Carmilla review fixture',
       origin: 'author',

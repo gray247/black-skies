@@ -281,6 +281,23 @@ describe('Feedback Notes sidecar', () => {
     expect(first.document.revision).toBe(1);
   });
 
+  it('reopens an active task for the same finding instead of creating a duplicate', async () => {
+    const projectPath = await temporaryProject();
+    const repository = new FeedbackNotesRepository(projectPath);
+    const input = {
+      projectId: 'project-a',
+      unitId: 'unit-a',
+      body: 'Review this passage.',
+      sourceFindingId: 'finding-a',
+    };
+    const first = await repository.createRevisionItem(input);
+    const second = await repository.createRevisionItem(input, first.document.revision);
+
+    expect(second.note?.id).toBe(first.note?.id);
+    expect(second.document.revision).toBe(first.document.revision);
+    await expect(repository.listRevisionItems('project-a')).resolves.toHaveLength(1);
+  });
+
   it('serializes concurrent revision mutations and preserves both items', async () => {
     const projectPath = await temporaryProject();
     const repository = new FeedbackNotesRepository(projectPath);

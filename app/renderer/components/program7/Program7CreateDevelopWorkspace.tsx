@@ -39,8 +39,8 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
   return (
     <section className="program7-create-develop" aria-labelledby="program7-create-develop-heading" data-testid="program7-create-develop" data-writing-gate="false" data-truth-owner="parent-owned">
       <header>
-        <h1 id="program7-create-develop-heading">Create / Develop</h1>
-        <p>Develop your story, work through revisions, explore ideas, and revisit earlier decisions.</p>
+        <h1 id="program7-create-develop-heading">Develop your story</h1>
+        <p>The concern you chose opens directly in Revision Desk. The other sections hold your story foundation, ideas, and earlier decisions.</p>
       </header>
       <nav aria-label="Create and Develop sections" className="program7-create-develop__nav">
         {sections.map((section) => (

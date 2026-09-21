@@ -110,7 +110,7 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
       assertNamedAndReachableControls(fixture.container);
     }
     expect(screen.getAllByRole('alert')).toHaveLength(4);
-    expect(screen.getByRole('heading', { name: 'Create / Develop' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Develop your story' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Compare revision candidate' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
     expect(screen.getByText('Content hidden by protection policy.')).toBeInTheDocument();

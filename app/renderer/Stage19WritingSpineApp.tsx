@@ -677,7 +677,9 @@ export default function Stage19WritingSpineApp({
     () => critiqueReviewBridge?.readState() ?? null,
   );
   const [sourceReturnRequest, setSourceReturnRequest] = useState<CritiqueReviewSourceReturnMessageV1 | null>(null);
+  const [sourceReturnConfirmation, setSourceReturnConfirmation] = useState<string | null>(null);
   const sourceReturnOwnerRef = useRef<'critique' | 'story' | 'outline'>('critique');
+  const program7SourceReturnUnitRef = useRef<string | null>(null);
   const [storyIntelligenceDocument, setStoryIntelligenceDocument] = useState<StoryIntelligenceDocumentV1 | null>(null);
   const [storyIntelligenceLoading, setStoryIntelligenceLoading] = useState(false);
   const [storyIntelligenceNotice, setStoryIntelligenceNotice] = useState<string | null>(null);
@@ -1457,7 +1459,8 @@ export default function Stage19WritingSpineApp({
     if (
       previous === undefined ||
       previous === snapshot.activeUnitId ||
-      !snapshot.activeUnitId
+      !snapshot.activeUnitId ||
+      program7SourceReturnUnitRef.current === snapshot.activeUnitId
     ) {
       return;
     }
@@ -3288,7 +3291,9 @@ export default function Stage19WritingSpineApp({
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
     sourceReturnOwnerRef.current = 'story';
+    program7SourceReturnUnitRef.current = null;
     setSourceReturnRequest(null);
+    setSourceReturnConfirmation(null);
     if (!source.unitId) {
       setNotice(`The source ${source.sourceKind}/${source.sourceId} has no manuscript unit. Writing remains authoritative.`);
       return;
@@ -3297,7 +3302,6 @@ export default function Stage19WritingSpineApp({
       setNotice('Writing Studio could not be opened. The source remains available in Command Center.');
       return;
     }
-    await handleSelectUnit(source.unitId);
     const current = snapshotRef.current;
     const currentDraft = current.project?.drafts?.[source.unitId];
     const currentProse = buffersRef.current[source.unitId] ?? (currentDraft ? splitDraft(currentDraft).body : undefined);
@@ -3312,13 +3316,15 @@ export default function Stage19WritingSpineApp({
       const validRange = Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end >= start && end <= currentProse.length;
       const fingerprint = validRange ? await fingerprintVisibleText(currentProse.slice(start, end)) : null;
       if (validRange && fingerprint === source.selectionFingerprint) {
+        const unitTitle = current.project?.units.find((unit) => unit.id === source.unitId)?.displayTitle ?? 'the manuscript section';
+        program7SourceReturnUnitRef.current = source.unitId;
         setSourceReturnRequest({
           schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
           requestId: operationId('story-source-return'),
           projectId: current.project?.projectId ?? source.projectId,
           generation: current.generation,
           status: 'exact',
-          message: `Returned to ${source.sourceKind}/${source.sourceId} at the exact saved passage.`,
+          message: `Opened ${unitTitle} and selected the passage connected to this concern.`,
           anchor: {
             schemaVersion: CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
             projectId: current.project?.projectId ?? source.projectId,
@@ -3330,12 +3336,15 @@ export default function Stage19WritingSpineApp({
             selectionFingerprint: source.selectionFingerprint,
           },
         });
+        await handleSelectUnit(source.unitId);
         return;
       }
+      await handleSelectUnit(source.unitId);
       setNotice('Returned to Writing Studio, but the saved passage changed and was not selected. Black Skies did not guess.');
       return;
     }
-    setNotice(`Returned to ${source.sourceKind}/${source.sourceId}. The source unit is selected; no exact passage was recorded.`);
+    await handleSelectUnit(source.unitId);
+    setNotice('Opened the manuscript section, but this concern did not record an exact passage.');
   }, [activateSurface, handleSelectUnit, surfaceBridge]);
 
   const currentProgram7UnitSource = useCallback(async (unitId?: string) => {
@@ -3670,7 +3679,7 @@ export default function Stage19WritingSpineApp({
   const recheckProgram7RevisionItem = useCallback(async (item: RevisionItem, method: 'deterministic' | 'local-ai') => {
     const api = method === 'deterministic' ? feedbackNotesBridge?.deterministicRecheck : feedbackNotesBridge?.localRecheck;
     if (windowRole !== 'writing' || typeof api !== 'function') {
-      setProgram7Notice('Revision-item rechecks must originate in Writing Studio.');
+      setProgram7Notice('Open Writing Studio before checking this concern again.');
       return;
     }
     const binding = bindingFor(snapshotRef.current, `program7-${method}-recheck`);
@@ -3680,16 +3689,18 @@ export default function Stage19WritingSpineApp({
       if (!result.ok) setProgram7Notice(result.error.message);
       else {
         await refreshProgram7RevisionItems();
-        setProgram7Notice(`${method === 'local-ai' ? 'Local-AI' : 'Deterministic'} recheck recorded.`);
+        setProgram7Notice(method === 'local-ai'
+          ? 'Local AI added an advisory check. You still decide whether the concern is resolved.'
+          : 'The saved passage is still available. Black Skies did not judge whether the writing concern is resolved.');
       }
     } catch {
-      setProgram7Notice('The revision-item recheck could not be completed.');
+      setProgram7Notice('This concern could not be checked again. Nothing was changed.');
     }
   }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
 
   const createRevisionFromProgram6 = useCallback(async (envelope: Program7SourceEnvelopeV1) => {
     if (windowRole !== 'writing' || typeof feedbackNotesBridge?.createRevisionItem !== 'function') {
-      setProgram7Notice('Program 6 findings can be routed to Revision Desk only from Writing Studio.');
+      setProgram7Notice('Open Writing Studio before adding this concern to Revision Desk.');
       return;
     }
     const binding = bindingFor(snapshotRef.current, 'program7-create-revision-item');
@@ -3706,14 +3717,17 @@ export default function Stage19WritingSpineApp({
         setProgram7Notice(result.error.message);
         return;
       }
+      const alreadyOpen = program7RevisionItems.activeItems.some((item) => item.id === result.data.id);
       await refreshProgram7RevisionItems();
       setCommandWorkspace('create-develop');
-      setProgram7Notice('Program 6 finding routed to Revision Desk. No manuscript text changed.');
+      setProgram7Notice(alreadyOpen
+        ? 'This concern is already in Revision Desk. The existing task was opened; no duplicate was created.'
+        : 'This concern is now saved in Revision Desk so you can return to it while revising. Your manuscript has not changed.');
       if (surfaceBridge) await activateSurface('command', 'current-window');
     } catch {
       setProgram7Notice('The Program 6 finding could not be routed. No manuscript text changed.');
     }
-  }, [activateSurface, feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, surfaceBridge, windowRole]);
+  }, [activateSurface, feedbackNotesBridge, program7RevisionItems.activeItems, program7RevisionItems.revision, refreshProgram7RevisionItems, surfaceBridge, windowRole]);
 
   const saveStoryFoundationAnswer = useCallback(async (draft: StoryFoundationAnswerDraft) => {
     if (windowRole !== 'writing' || typeof storyFoundationBridge?.setAnswer !== 'function') {
@@ -3989,11 +4003,14 @@ export default function Stage19WritingSpineApp({
   const handleSourceSelectionRestoreResult = useCallback((requestId: string, restored: boolean) => {
     if (sourceReturnRequest?.requestId !== requestId) return;
     const owner = sourceReturnOwnerRef.current;
+    if (owner === 'story') program7SourceReturnUnitRef.current = null;
     setSourceReturnRequest(null);
     if (restored) {
-      setNotice(sourceReturnRequest.message);
+      setNotice(null);
+      setSourceReturnConfirmation(sourceReturnRequest.message);
       return;
     }
+    setSourceReturnConfirmation(null);
     setNotice('Returned to Writing Studio, but the reviewed passage changed and could not be selected exactly.');
     const reference = owner === 'critique' ? activeReviewReference() : null;
     if (reference && critiqueReviewBridge) {
@@ -4013,6 +4030,7 @@ export default function Stage19WritingSpineApp({
     surfaceHostError,
     snapshot,
     notice,
+    sourceReturnConfirmation,
     activeUnit,
     writingSaveSummary,
     projectBridgeAvailable: Boolean(bridge),

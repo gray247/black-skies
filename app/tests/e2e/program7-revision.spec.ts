@@ -23,15 +23,30 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
     await signal.getByRole('button', { name: 'Work on this', exact: true }).click();
     await expect(writing.getByTestId('program7-create-develop')).toBeVisible();
     await expect(writing.getByRole('heading', { name: 'Revision Desk', exact: true })).toBeVisible();
-    const activeCard = writing.getByRole('article', { name: /^Revision item / }).first();
+    let activeCard = writing.getByRole('article', { name: /^Revision item / }).first();
     await expect(activeCard).toBeVisible();
-    await activeCard.getByRole('button', { name: 'Run deterministic recheck', exact: true }).click();
-    await expect(activeCard.getByText(/Deterministic:/)).toBeVisible();
-    await activeCard.getByRole('button', { name: 'Mark resolved', exact: true }).click();
-    await expect(writing.getByRole('heading', { name: 'Completed revision tasks', exact: true })).toBeVisible();
-    await expect(writing.getByText('Program 6 finding routed to Revision Desk. No manuscript text changed.', { exact: true })).toHaveCount(0);
 
-    const draftPath = path.join(projectPath, 'drafts', 'carmilla-prologue.md');
+    await writing.getByRole('button', { name: 'Story Knowledge', exact: true }).click();
+    await writing.getByRole('button', { name: 'Signals', exact: true }).click();
+    await writing.locator('[data-signal-id="program7-carmilla-review-signal"]')
+      .getByRole('button', { name: 'Work on this', exact: true }).click();
+    await expect(writing.getByRole('article', { name: /^Revision item / })).toHaveCount(1);
+    await expect(writing.getByText(/already in Revision Desk.*no duplicate was created/i)).toBeVisible();
+
+    activeCard = writing.getByRole('article', { name: /^Revision item / }).first();
+    await activeCard.getByRole('button', { name: 'Open passage', exact: true }).click();
+    await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Chapter I — An Early Fright' })).toBeFocused();
+    await expect(writing.getByText('Opened Chapter I — An Early Fright and selected the passage connected to this concern.', { exact: true })).toBeVisible();
+
+    await showCommandInWriting(writing);
+    activeCard = writing.getByRole('article', { name: /^Revision item / }).first();
+    await activeCard.getByRole('button', { name: 'Check after revising', exact: true }).click();
+    await expect(activeCard.getByText(/Passage check:/)).toBeVisible();
+    await activeCard.getByRole('button', { name: 'I’m satisfied — mark resolved', exact: true }).click();
+    await expect(writing.getByRole('heading', { name: 'Completed revision tasks', exact: true })).toBeVisible();
+    await expect(writing.getByText(/This concern is now saved in Revision Desk/)).toHaveCount(0);
+
+    const draftPath = path.join(projectPath, 'drafts', 'carmilla-chapter-01.md');
     const beforeCandidate = await readFile(draftPath, 'utf8');
     await writing.locator('#program7-candidate-purpose').fill('Tighten the opening source-linked passage.');
     await writing.locator('#program7-candidate-text').fill('A concise author-proposed opening alternative for review.');

@@ -343,8 +343,23 @@ export class FeedbackNotesRepository {
     input: CreateRevisionItemInput,
     expectedRevision = 0,
   ): Promise<FeedbackNoteMutationResult> {
-    return this.mutate(input.projectId, expectedRevision, (document) => {
-      const revision = document.revision + 1;
+    return serializeProjectWrite(this.filePath, async () => {
+      const loaded = await this.readEnvelope(input.projectId);
+      const existing = input.sourceFindingId
+        ? loaded.document.notes.find(
+            (note): note is RevisionItem =>
+              note.advisory === false &&
+              ACTIVE_REVISION_LIFECYCLES.has(note.lifecycle) &&
+              note.sourceFindingId === input.sourceFindingId,
+          )
+        : undefined;
+      if (existing) return { document: loaded.document, note: existing };
+      if (loaded.document.revision !== expectedRevision)
+        throw new FeedbackNotesRepositoryError(
+          'STALE',
+          'Feedback notes changed. Reload before saving again.',
+        );
+      const revision = loaded.document.revision + 1;
       const created: RevisionItem = {
         ...input,
         id: noteId('revision'),
@@ -356,7 +371,10 @@ export class FeedbackNotesRepository {
         rechecks: [],
         dispositionHistory: [],
       };
-      return { notes: [...document.notes, created], note: created };
+      const next = this.nextDocument(loaded.document, [...loaded.document.notes, created]);
+      validateDocument(next, input.projectId);
+      await this.writeEnvelope(next);
+      return { document: next, note: created };
     });
   }
 

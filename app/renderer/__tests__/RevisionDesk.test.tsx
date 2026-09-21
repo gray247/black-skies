@@ -35,7 +35,7 @@ describe('RevisionDesk component', () => {
     expect(screen.getByRole('heading', { name: 'Revision Desk' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Active revision tasks' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Completed revision tasks' })).toBeInTheDocument();
-    expect(screen.getByText('Source stale')).toBeInTheDocument();
+    expect(screen.getByText(/Passage changed since this task was created/)).toBeInTheDocument();
     expect(screen.getByText('Protected · details hidden')).toBeInTheDocument();
     expect(screen.getByText('Content hidden by protection policy.')).toBeInTheDocument();
     expect(screen.queryByText('PROTECTED_RAW_SENTINEL')).not.toBeInTheDocument();
@@ -54,10 +54,10 @@ describe('RevisionDesk component', () => {
     });
     render(<RevisionDesk activeItems={[active]} historyItems={[]} canResolve onReturnToSource={onReturnToSource} onLifecycle={onLifecycle} onRecheck={onRecheck} onOpenRecurrence={onOpenRecurrence} />);
     const card = screen.getByRole('article', { name: 'Revision item revision-a' });
-    fireEvent.click(within(card).getByRole('button', { name: 'Return to source' }));
-    fireEvent.click(within(card).getByRole('button', { name: 'Run deterministic recheck' }));
-    fireEvent.click(within(card).getByRole('button', { name: 'Run local-AI recheck' }));
-    fireEvent.click(within(card).getByRole('button', { name: 'Park' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Open passage' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Check after revising' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Ask local AI to check again' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Set aside' }));
     fireEvent.click(within(card).getByRole('button', { name: 'Open related recurrence' }));
     fireEvent.keyDown(card, { key: 'Enter' });
     expect(onReturnToSource).toHaveBeenCalledTimes(2);
@@ -65,17 +65,17 @@ describe('RevisionDesk component', () => {
     expect(onRecheck).toHaveBeenNthCalledWith(2, active, 'local-ai');
     expect(onLifecycle).toHaveBeenCalledWith(active, 'parked');
     expect(onOpenRecurrence).toHaveBeenCalledWith(active, 'revision-recurrence');
-    fireEvent.click(within(card).getByRole('button', { name: 'Mark resolved' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'I’m satisfied — mark resolved' }));
     expect(onLifecycle).toHaveBeenCalledWith(active, 'resolved');
-    expect(within(card).getByText('Only you can decide whether this revision is resolved.')).toBeInTheDocument();
-    expect(within(card).getByText('still appears present')).toBeInTheDocument();
+    expect(within(card).getByText('Only you can mark this concern finished.')).toBeInTheDocument();
+    expect(within(card).getByText('the concern may still be present')).toBeInTheDocument();
     expect(within(card).getByText(/The source remains current/)).toBeInTheDocument();
   });
 
   it('allows the Writing surface to enable the author resolution gesture', () => {
     const onLifecycle = vi.fn();
     render(<RevisionDesk activeItems={[item()]} historyItems={[]} canResolve onLifecycle={onLifecycle} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark resolved' }));
+    fireEvent.click(screen.getByRole('button', { name: 'I’m satisfied — mark resolved' }));
     expect(onLifecycle).toHaveBeenCalledWith(expect.objectContaining({ id: 'revision-a' }), 'resolved');
   });
 
@@ -85,5 +85,13 @@ describe('RevisionDesk component', () => {
     expect(screen.getByTestId('revision-desk-empty-history')).toHaveTextContent('No completed revision tasks yet.');
     rerender(<RevisionDesk activeItems={[]} historyItems={[]} availability="degraded" unavailableMessage="Saved revision items cannot be read." />);
     expect(screen.getByRole('alert')).toHaveTextContent('Saved revision items cannot be read.');
+  });
+
+  it('explains the writer workflow and does not repeat identical concern evidence', () => {
+    render(<RevisionDesk activeItems={[item({ body: 'One concern.', evidence: 'One concern.' })]} historyItems={[]} />);
+    expect(screen.getByText(/Open the passage, revise and save it in Writing Studio/)).toBeVisible();
+    expect(screen.getByRole('list', { name: 'How to use Revision Desk' })).toBeVisible();
+    expect(screen.getAllByText('One concern.')).toHaveLength(1);
+    expect(screen.queryByText(/deterministic/i)).not.toBeInTheDocument();
   });
 });

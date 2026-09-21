@@ -74,6 +74,7 @@ export interface Stage19WritingSpineViewModel {
   readonly surfaceHostError: string | null;
   readonly snapshot: ProjectSpineSessionSnapshot;
   readonly notice: string | null;
+  readonly sourceReturnConfirmation?: string | null;
   readonly activeUnit: ProjectSpineUnitSummary | null;
   readonly writingSaveSummary: string;
   readonly projectBridgeAvailable: boolean;
@@ -536,7 +537,7 @@ const COMMAND_WORKSPACES: readonly {
   { id: 'review', label: 'Review', purpose: 'Advisory critique and author decisions' },
   { id: 'structure', label: 'Structure', purpose: 'Story planning and structural work' },
   { id: 'story-knowledge', label: 'Story Knowledge', purpose: 'Characters, world, and continuity' },
-  { id: 'create-develop', label: 'Create / Develop', purpose: 'Bounded development tools' },
+  { id: 'create-develop', label: 'Create / Develop', purpose: 'Revisions, story foundation, ideas, and history' },
   { id: 'project-interchange', label: 'Project Interchange', purpose: 'Import, export, and handoff' },
   { id: 'operations-approvals', label: 'Operations / Approvals', purpose: 'Explicit project operations' },
 ] as const;
@@ -2524,6 +2525,11 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           </button>
         </div>
       </header>
+      {model.sourceReturnConfirmation ? (
+        <p className="stage19-spine__source-return-confirmation" role="status">
+          {model.sourceReturnConfirmation}
+        </p>
+      ) : null}
       {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
       <WritingEdgeControlsView {...props} />
       {!model.focusMode && model.openWritingRail === 'top' ? <WritingTopRailView {...props} /> : null}

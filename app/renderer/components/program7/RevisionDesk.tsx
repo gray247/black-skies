@@ -24,25 +24,25 @@ const dispositionActions: readonly FeedbackRevisionDisposition[] = [
 ];
 
 function sourceStatus(item: RevisionItem): string {
-  if (item.lifecycle === 'stale') return 'Source stale';
-  if (item.sourceBodyFingerprint || item.anchor || item.sourceId) return 'Source linked';
-  return 'Source status unavailable';
+  if (item.lifecycle === 'stale') return 'Passage changed since this task was created';
+  if (item.sourceBodyFingerprint || item.anchor || item.sourceId) return 'Ready to open';
+  return 'Original location unavailable';
 }
 
 function sourceDescription(item: RevisionItem): string {
   const kind = item.sourceKind ?? 'unknown source';
-  if (kind === 'manuscript' || kind === 'story-unit') return 'Linked manuscript passage';
-  if (kind === 'outline') return 'Linked outline point';
-  if (kind === 'author-intent') return 'Linked Story Foundation answer';
-  return 'Linked project source';
+  if (kind === 'manuscript' || kind === 'story-unit') return 'Manuscript passage';
+  if (kind === 'outline') return 'Outline point';
+  if (kind === 'author-intent') return 'Story Foundation answer';
+  return 'Project note';
 }
 
 function originDescription(item: RevisionItem): string {
-  return item.provenance?.origin === 'local-ai' ? 'Local AI' : 'Author or review finding';
+  return item.provenance?.origin === 'local-ai' ? 'Local AI suggestion' : 'Story Knowledge';
 }
 
 function dispositionLabel(lifecycle: FeedbackRevisionDisposition): string {
-  return lifecycle === 'parked' ? 'Park' : lifecycle === 'dismissed' ? 'Dismiss' : 'Abandon';
+  return lifecycle === 'parked' ? 'Set aside' : lifecycle === 'dismissed' ? 'Dismiss' : 'Stop working on this';
 }
 
 function safeBody(item: RevisionItem): JSX.Element {
@@ -55,13 +55,19 @@ function safeBody(item: RevisionItem): JSX.Element {
 function RecheckList({ rechecks }: { readonly rechecks: readonly FeedbackNoteRecheck[] | undefined }): JSX.Element | null {
   if (!rechecks || rechecks.length === 0) return null;
   return (
-    <div className="program7-revision-desk__rechecks" aria-label="Recheck evidence">
-      <strong>Rechecks</strong>
+    <div className="program7-revision-desk__rechecks" aria-label="Check history">
+      <strong>Check history</strong>
       <ul>
         {rechecks.map((recheck) => (
           <li key={recheck.id}>
-            <span>{recheck.method === 'local-ai' ? 'Local-AI' : 'Deterministic'}:</span>{' '}
-            <span>{recheck.status.replace(/_/gu, ' ')}</span>
+            <span>{recheck.method === 'local-ai' ? 'Local AI' : 'Passage check'}:</span>{' '}
+            <span>{recheck.status === 'appears_resolved'
+              ? 'may be resolved'
+              : recheck.status === 'still_appears_present'
+                ? 'the concern may still be present'
+                : recheck.status === 'unavailable'
+                  ? 'could not check'
+                  : 'the passage was found; no writing judgment was made'}</span>
             {recheck.sourceStatus ? <span> · {recheck.sourceStatus}</span> : null}
             {recheck.evidence ? <span> · {recheck.evidence}</span> : null}
           </li>
@@ -100,20 +106,19 @@ function RevisionCard({
     >
       <header className="program7-revision-desk__card-header">
         <div>
-          <h3>{item.lens ?? 'Revision item'}</h3>
-          <p>{sourceDescription(item)}</p>
+          <h3>{item.lens ? `${item.lens[0]?.toUpperCase()}${item.lens.slice(1)} concern` : 'Revision to consider'}</h3>
+          <p>{sourceDescription(item)} · {sourceStatus(item)}</p>
         </div>
-        <span>{history ? item.lifecycle : sourceStatus(item)}</span>
+        {history ? <span>{item.lifecycle}</span> : null}
       </header>
       <dl className="program7-revision-desk__metadata">
-        <div><dt>Source</dt><dd>{sourceDescription(item)}</dd></div>
-        <div><dt>Location</dt><dd>Writing section</dd></div>
-        <div><dt>Created by</dt><dd>{originDescription(item)}</dd></div>
-        <div><dt>Content access</dt><dd>{item.protection?.protected ? 'Protected · details hidden' : 'Standard'}</dd></div>
+        <div><dt>Added from</dt><dd>{originDescription(item)}</dd></div>
+        {item.protection?.protected ? <div><dt>Privacy</dt><dd>Protected · details hidden</dd></div> : null}
       </dl>
-      <p className="program7-revision-desk__body">{safeBody(item)}</p>
-      {item.evidence ? (
+      <p className="program7-revision-desk__body"><strong>What to consider:</strong> {safeBody(item)}</p>
+      {item.evidence && item.evidence.trim() !== item.body.trim() ? (
         <p className="program7-revision-desk__evidence">
+          <strong>Why it was noted:</strong>{' '}
           {item.protection?.protected ? 'Evidence hidden by protection policy.' : item.evidence}
         </p>
       ) : null}
@@ -127,12 +132,12 @@ function RevisionCard({
       ) : null}
       <div className="program7-revision-desk__actions" aria-label={`Actions for ${item.id}`}>
         {onReturnToSource ? (
-          <button type="button" onClick={() => onReturnToSource(item)}>Return to source</button>
+          <button type="button" onClick={() => onReturnToSource(item)}>Open passage</button>
         ) : null}
         {!history && onRecheck ? (
           <>
-            <button type="button" onClick={() => onRecheck(item, 'deterministic')}>Run deterministic recheck</button>
-            <button type="button" onClick={() => onRecheck(item, 'local-ai')}>Run local-AI recheck</button>
+            <button type="button" onClick={() => onRecheck(item, 'deterministic')}>Check after revising</button>
+            <button type="button" onClick={() => onRecheck(item, 'local-ai')}>Ask local AI to check again</button>
           </>
         ) : null}
         {!history && onLifecycle ? dispositionActions.map((lifecycle) => (
@@ -150,9 +155,9 @@ function RevisionCard({
                 if (canResolve) onLifecycle?.(item, 'resolved');
               }}
             >
-              Mark resolved
+              I’m satisfied — mark resolved
             </button>
-            <small id={`${item.id}-resolution-note`}>Only you can decide whether this revision is resolved.</small>
+            <small id={`${item.id}-resolution-note`}>Only you can mark this concern finished.</small>
           </>
         ) : null}
       </div>
@@ -205,8 +210,13 @@ export default function RevisionDesk({
     <section className="program7-revision-desk" aria-labelledby="program7-revision-desk-heading">
       <header>
         <h1 id="program7-revision-desk-heading">Revision Desk</h1>
-        <p>Review source-linked revision tasks. Nothing here changes your manuscript automatically.</p>
+        <p>Concerns you choose to work on are saved here. Open the passage, revise and save it in Writing Studio, then come back to check whether the concern still applies. Nothing here changes your manuscript automatically.</p>
       </header>
+      <ol className="program7-revision-desk__steps" aria-label="How to use Revision Desk">
+        <li>Open the passage.</li>
+        <li>Revise and save in Writing Studio.</li>
+        <li>Return here to check it again or mark it finished.</li>
+      </ol>
       {availability === 'degraded' ? (
         <p role="alert" data-testid="revision-desk-degraded">
           {unavailableMessage ?? 'Revision items are unavailable. No change was made.'}

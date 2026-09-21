@@ -3,6 +3,36 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 human-review workflow repair — 2026-09-21
+
+Jason's pre-gate review exposed four related usability defects in the
+disposable Carmilla workflow: Revision Desk described the work in engineering
+language, repeated source and evidence labels, allowed the same durable finding
+to create duplicate active tasks, and returned the fixture to an arbitrary
+opening excerpt with a double-scroll jitter. The source-return confirmation
+also occupied the center of the Writing Studio, underneath the fixed Project
+Tools control.
+
+The pending repair replaces the internal language with a three-step writer
+workflow, suppresses repeated evidence, reuses an existing active task for the
+same durable finding, seeds a distinctive mid-chapter Carmilla passage, and
+sets the exact passage anchor before selecting its unit so only one scroll is
+requested. The confirmation is now a left-aligned status beneath the project
+title, uses existing color tokens, and reserves the center control area; no new
+font color was introduced. The older fixture remains historical test data and
+must not be reused for the next review—a fresh fixture is required.
+
+Focused component/repository tests pass 19/19, the full Writing Studio renderer
+file passes 133/133, the accessibility assertions pass 3/3, and typecheck,
+lint, and production build passed. One normal-GPU Electron attempt stopped
+before opening a window when Chromium's GPU process exited with
+`-1073741515`; no workflow assertion ran and no Electron pass is claimed. The
+test-owned Electron process was removed. The repair was developed from HEAD
+`ab82c286c4b4f8bf7fcbcb200780a3ba7d52d717` / tree
+`f81906f7613603a41110f39fa5ff1e947e44b570`; its final focused checks are
+complete. Human Gate 4, local-AI admission, and Program 7 closure remain
+pending.
+
 ## Program 7 exact-candidate mechanical qualification assembly — 2026-09-21
 
 The exact candidate `c57be0ffe41b5383f50fbc29546c121603094e40` (tree
