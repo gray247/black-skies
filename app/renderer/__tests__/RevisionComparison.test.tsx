@@ -31,7 +31,7 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 describe('RevisionComparison component', () => {
   it('keeps current and candidate text visibly separate and exposes origin, warning, and stale state', () => {
     render(<RevisionComparison candidate={candidate({ origin: 'local-ai', provenance: { origin: 'local-ai', source: 'program7-local-ai', model: 'qwen3:4b', receipt: null }, currentness: 'stale', warnings: ['Source changed since candidate creation.'] })} />);
-    expect(screen.getByRole('heading', { name: 'Your current manuscript' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Revision alternative' })).toBeInTheDocument();
     expect(screen.getByTestId('revision-current-text')).toHaveTextContent('Current manuscript passage.');
     expect(screen.getByTestId('revision-candidate-text')).toHaveTextContent('Candidate manuscript passage.');
@@ -76,5 +76,21 @@ describe('RevisionComparison component', () => {
     expect(screen.queryByText('PROTECTED_CANDIDATE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.getAllByText('Content hidden by protection policy.')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Apply all of this alternative' })).toBeDisabled();
+    expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
+    expect(screen.getByText('This is the saved passage used to create this alternative.')).toBeInTheDocument();
+    expect(screen.queryByText('This saved passage remains unchanged while you review the alternative.')).not.toBeInTheDocument();
+  });
+
+  it('does not enable partial application without an exact saved source passage', () => {
+    render(<RevisionComparison candidate={candidate({ sourceAnchor: null })} canAccept onPartialAccept={vi.fn()} />);
+    expect(screen.getByRole('textbox', { name: 'Part of this alternative to apply' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('Select a passage in your manuscript before creating a fresh alternative');
+  });
+
+  it('labels a partly applied alternative source as historical', () => {
+    render(<RevisionComparison candidate={candidate({ lifecycle: 'partially accepted' })} />);
+    expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Your current manuscript' })).not.toBeInTheDocument();
   });
 });

@@ -152,6 +152,7 @@ function getExposedGlobalNames(): string[] {
 
 const originalPlaywright = process.env.PLAYWRIGHT;
 const originalHarnessHooks = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
+const originalDisableLocalAi = process.env.BLACKSKIES_DISABLE_LOCAL_AI;
 
 function setSplitCommandRuntimeEnabled(enabled: boolean): void {
   runtimeConfigState.experimentalSplitCommandWorkspace = enabled;
@@ -175,6 +176,7 @@ describe('splitCommand preload bridge', () => {
     setArgv([]);
     delete process.env.PLAYWRIGHT;
     delete process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS;
+    delete process.env.BLACKSKIES_DISABLE_LOCAL_AI;
     setSplitCommandRuntimeEnabled(false);
   });
 
@@ -183,6 +185,7 @@ describe('splitCommand preload bridge', () => {
     setArgv([]);
     restoreEnvironmentVariable('PLAYWRIGHT', originalPlaywright);
     restoreEnvironmentVariable('BLACKSKIES_ENABLE_HARNESS_HOOKS', originalHarnessHooks);
+    restoreEnvironmentVariable('BLACKSKIES_DISABLE_LOCAL_AI', originalDisableLocalAi);
   });
 
   it('preserves the stable Writing Studio preload globals without split command exposure', async () => {
@@ -225,6 +228,15 @@ describe('splitCommand preload bridge', () => {
     );
     expect(getExposedGlobal('services')).toBeDefined();
     expect(getExposedGlobal('__electronApi')).toBeDefined();
+  });
+
+  it('removes legacy preload local-AI actions when the runtime no-AI policy is active', async () => {
+    process.env.BLACKSKIES_DISABLE_LOCAL_AI = '1';
+    await import('../preload');
+    const bridge = getExposedGlobal('revisionCandidates') as Record<string, unknown>;
+    expect(bridge.localAiAvailable).toBe(false);
+    expect(bridge.createLocalAi).toBeUndefined();
+    expect(bridge.cancelLocalAi).toBeUndefined();
   });
 
   it('exposes split command ownership sync only for experimental launch args', async () => {

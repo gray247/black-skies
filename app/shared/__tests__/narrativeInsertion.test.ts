@@ -66,6 +66,31 @@ describe('Narrative Insertion calculation', () => {
     });
   });
 
+  it('refuses selected-text application when the saved source target is missing or empty', async () => {
+    const source = 'Before selected passage after.';
+    const anchored = candidate(source, 7, 23, 'Keep NEW words.');
+    const missingTarget = await calculateNarrativeInsertion({
+      candidate: { ...anchored, sourceAnchor: null },
+      currentBody: source,
+      mode: 'accept-selected-text',
+      candidateSelection: { selectionStart: 5, selectionEnd: 8 },
+    });
+    const emptyTarget = await calculateNarrativeInsertion({
+      candidate: {
+        ...anchored,
+        sourceAnchor: { ...anchored.sourceAnchor!, selectionEnd: 7, selectionFingerprint: hash('') },
+      },
+      currentBody: source,
+      mode: 'accept-selected-text',
+      candidateSelection: { selectionStart: 5, selectionEnd: 8 },
+    });
+
+    expect(missingTarget).toMatchObject({ status: 'blocked', replacement: null });
+    expect(missingTarget.message).toMatch(/exact saved source passage/);
+    expect(emptyTarget).toMatchObject({ status: 'blocked', replacement: null });
+    expect(emptyTarget.message).toMatch(/exact saved source passage/);
+  });
+
   it('uses the edited candidate only for the explicit edited-before-acceptance mode', async () => {
     const source = 'Before selected passage after.';
     const item = candidate(source, 7, 23, 'Generated text.');

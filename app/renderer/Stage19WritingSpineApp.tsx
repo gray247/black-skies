@@ -143,6 +143,10 @@ function operationId(prefix: string): string {
   return `${prefix}:${suffix}`;
 }
 
+export function program7LocalAiIsAvailable(bridge?: RevisionCandidatesBridge): boolean {
+  return bridge?.localAiAvailable === true && typeof bridge.createLocalAi === 'function';
+}
+
 async function fingerprintVisibleText(value: string): Promise<string> {
   const digest = await globalThis.crypto.subtle.digest(
     'SHA-256',
@@ -1246,7 +1250,7 @@ export default function Stage19WritingSpineApp({
         if (!cancelled) setProgram7Candidates(result.ok ? result.data : null);
         if (!cancelled && !result.ok) setProgram7Notice(result.error.message);
       } catch {
-        if (!cancelled) setProgram7Notice('Revision candidates could not be loaded.');
+        if (!cancelled) setProgram7Notice('Revision alternatives could not be loaded.');
       }
     };
     const loadFoundation = async () => {
@@ -3361,18 +3365,18 @@ export default function Stage19WritingSpineApp({
 
   const createProgram7ManualCandidate = useCallback(async () => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createManual !== 'function') {
-      setProgram7Notice('Manual revision candidates can only be created from Writing Studio.');
+      setProgram7Notice('Manual revision alternatives can only be created from Writing Studio.');
       return;
     }
     const source = await currentProgram7UnitSource();
     const purpose = program7CandidatePurpose.trim();
     const candidateText = program7CandidateText.trim();
     if (!source || !purpose || !candidateText) {
-      setProgram7Notice('Save the project and enter both a purpose and candidate text before creating a revision candidate.');
+      setProgram7Notice('Save the project and enter both a purpose and alternative text before creating a revision alternative.');
       return;
     }
     if (source.current.dirtyUnitIds.includes(source.unit.id)) {
-      setProgram7Notice('Save the current manuscript section before creating a source-linked candidate.');
+      setProgram7Notice('Save the current manuscript section before creating a source-linked revision alternative.');
       return;
     }
     const selection = aiSelection && aiSelection.sourceFingerprint === source.bodySha256 &&
@@ -3406,26 +3410,27 @@ export default function Stage19WritingSpineApp({
       setProgram7Candidates(result.data);
       setProgram7CandidateText('');
       setProgram7CandidatePurpose('');
-      setProgram7Notice('Manual revision candidate saved. The manuscript was not changed.');
+      setProgram7Notice('Manual revision alternative saved. Your manuscript has not changed.');
     } catch {
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
-      setProgram7Notice('The manual revision candidate could not be saved. The manuscript was not changed.');
+      setProgram7Notice('The manual revision alternative could not be saved. Your manuscript has not changed.');
     }
   }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
   const createProgram7LocalAiCandidate = useCallback(async () => {
-    if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createLocalAi !== 'function') {
-      setProgram7Notice('Local-AI revision candidates can only be requested from Writing Studio.');
+    const createLocalAi = revisionCandidatesBridge?.createLocalAi;
+    if (windowRole !== 'writing' || !program7LocalAiIsAvailable(revisionCandidatesBridge) || typeof createLocalAi !== 'function') {
+      setProgram7Notice('Local AI is unavailable. You can still create a revision alternative yourself.');
       return;
     }
     const source = await currentProgram7UnitSource();
     const purpose = program7CandidatePurpose.trim();
     if (!source || !purpose) {
-      setProgram7Notice('Save the project and enter a purpose before requesting a local-AI candidate.');
+      setProgram7Notice('Save the project and enter a purpose before requesting a local AI revision alternative.');
       return;
     }
     if (source.current.dirtyUnitIds.includes(source.unit.id)) {
-      setProgram7Notice('Save the current manuscript section before requesting a source-linked candidate.');
+      setProgram7Notice('Save the current manuscript section before requesting a source-linked revision alternative.');
       return;
     }
     const limits = PROGRAM7_LOCAL_INFERENCE_BOUNDS.rewrite_candidate;
@@ -3449,7 +3454,7 @@ export default function Stage19WritingSpineApp({
     setProgram7LocalAiRequestId(requestId);
     setProgram7Notice('Local AI is preparing an alternative. You can stop this request.');
     try {
-      const result = await revisionCandidatesBridge.createLocalAi({
+      const result = await createLocalAi({
         ...binding,
         unitId: source.unit.id,
         expectedRevision: program7Candidates?.document.revision ?? 0,
@@ -3473,10 +3478,10 @@ export default function Stage19WritingSpineApp({
       }
       setProgram7Candidates(result.data);
       setProgram7CandidatePurpose('');
-      setProgram7Notice('Local-AI candidate saved for author comparison. The manuscript was not changed.');
+      setProgram7Notice('Local AI revision alternative saved for your review. Your manuscript has not changed.');
     } catch {
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
-      setProgram7Notice('The bounded local-AI candidate request failed. The manuscript was not changed.');
+      setProgram7Notice('The local AI revision alternative request failed. Your manuscript has not changed.');
     } finally {
       setProgram7LocalAiRequestId((current) => current === requestId ? null : current);
     }
@@ -3504,7 +3509,7 @@ export default function Stage19WritingSpineApp({
 
   const saveProgram7CandidateEdit = useCallback(async (candidate: RevisionCandidateV1, editedCandidateText: string) => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.edit !== 'function') {
-      setProgram7Notice('Candidate edits must originate in Writing Studio.');
+      setProgram7Notice('Revision alternative edits must originate in Writing Studio.');
       return;
     }
     const current = snapshotRef.current;
@@ -3523,9 +3528,9 @@ export default function Stage19WritingSpineApp({
       }
       setProgram7Candidates(result.data);
       setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
-      setProgram7Notice('Candidate edit saved. Compare it again before accepting anything.');
+      setProgram7Notice('Revision alternative saved. Review it again before applying any part of it.');
     } catch {
-      setProgram7Notice('The candidate edit could not be saved. The manuscript was not changed.');
+      setProgram7Notice('The revision alternative could not be saved. Your manuscript has not changed.');
     }
   }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
@@ -3534,7 +3539,7 @@ export default function Stage19WritingSpineApp({
     lifecycle: Extract<RevisionCandidateLifecycle, 'rejected' | 'parked' | 'abandoned'>,
   ) => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.setLifecycle !== 'function') {
-      setProgram7Notice('Candidate lifecycle changes must originate in Writing Studio.');
+      setProgram7Notice('Revision alternative changes must originate in Writing Studio.');
       return;
     }
     const binding = bindingFor(snapshotRef.current, 'program7-candidate-lifecycle');
@@ -3552,9 +3557,9 @@ export default function Stage19WritingSpineApp({
       }
       setProgram7Candidates(result.data);
       setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
-      setProgram7Notice(`Candidate ${lifecycle}. The manuscript was not changed.`);
+      setProgram7Notice(`Revision alternative ${lifecycle}. Your manuscript has not changed.`);
     } catch {
-      setProgram7Notice('The candidate lifecycle change could not be saved.');
+      setProgram7Notice('The revision alternative change could not be saved.');
     }
   }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
@@ -3563,13 +3568,13 @@ export default function Stage19WritingSpineApp({
     selection?: { readonly text: string; readonly start: number; readonly end: number },
   ) => {
     if (windowRole !== 'writing' || typeof bridge?.acceptRevisionCandidate !== 'function') {
-      setProgram7Notice('Candidate acceptance must originate in Writing Studio.');
+      setProgram7Notice('Revision alternative acceptance must originate in Writing Studio.');
       return;
     }
     const current = snapshotRef.current;
     const expectedMarkdown = current.project?.drafts?.[candidate.unitId];
     if (!current.project || typeof expectedMarkdown !== 'string' || candidate.currentness !== 'current') {
-      setProgram7Notice('This candidate is not current against the saved manuscript. Recheck it before accepting.');
+      setProgram7Notice('This revision alternative is not current against the saved manuscript. Recheck it before applying it.');
       return;
     }
     const visibleText = candidate.editedCandidateText ?? candidate.candidateText;
@@ -3612,7 +3617,7 @@ export default function Stage19WritingSpineApp({
       }
       applySnapshot(result.snapshot);
       closeProgram7Candidate();
-      setProgram7Notice('Candidate accepted into the manuscript through the explicit destination-owner action.');
+      setProgram7Notice('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.');
       const refreshed = await revisionCandidatesBridge?.list?.({
         operationId: operationId('program7-candidates-after-accept'),
         projectId: current.project.projectId,
@@ -3622,7 +3627,7 @@ export default function Stage19WritingSpineApp({
       if (refreshed?.ok) setProgram7Candidates(refreshed.data);
       await refreshProgram7RevisionItems();
     } catch {
-      setProgram7Notice('Candidate acceptance failed safely. The manuscript was not changed.');
+      setProgram7Notice('Revision alternative application failed safely. Your manuscript has not changed.');
     }
   }, [applySnapshot, bridge, closeProgram7Candidate, refreshProgram7RevisionItems, revisionCandidatesBridge, windowRole]);
 
@@ -4111,7 +4116,7 @@ export default function Stage19WritingSpineApp({
     storyIntelligenceNotice,
     program7RevisionItems,
     program7Candidates,
-    program7LocalAiAvailable: typeof revisionCandidatesBridge?.createLocalAi === 'function',
+    program7LocalAiAvailable: program7LocalAiIsAvailable(revisionCandidatesBridge),
     program7Foundation,
     program7Ideation,
     program7History: buildProgram7HistoryProjection({

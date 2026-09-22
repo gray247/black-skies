@@ -199,6 +199,23 @@ export async function calculateNarrativeInsertion(
     sourceEnd = anchor.selectionEnd;
   }
 
+  // A selection from the alternative identifies what to insert, not where in
+  // the manuscript it belongs. Without an independently fingerprinted source
+  // range, applying only part of an alternative would silently target the
+  // whole saved body.
+  if (request.mode === 'accept-selected-text' && (!anchor || sourceEnd <= sourceStart)) {
+    return blocked(
+      request,
+      sourceBodySha256,
+      currentBodySha256,
+      candidateTextSha256,
+      risks,
+      acknowledgedRisks,
+      [],
+      'Applying selected alternative text requires one exact saved source passage. Return to the manuscript, select that passage, and create a fresh alternative.',
+    );
+  }
+
   if (currentBodySha256 !== sourceBodySha256) {
     return blocked(
       request,

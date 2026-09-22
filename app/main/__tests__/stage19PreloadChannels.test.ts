@@ -142,6 +142,7 @@ describe('dedicated Stage 19 preload', () => {
     process.env.BLACKSKIES_DISABLE_LOCAL_AI = '1';
     await import('../stage19Preload');
     const bridge = exposed.get('revisionCandidates') as Record<string, unknown>;
+    expect(bridge.localAiAvailable).toBe(false);
     expect(bridge.createManual).toBeTypeOf('function');
     expect(bridge.edit).toBeTypeOf('function');
     expect(bridge.createLocalAi).toBeUndefined();

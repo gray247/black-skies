@@ -902,6 +902,7 @@ const feedbackNotes: FeedbackNotesBridge = {
 };
 
 const revisionCandidates: RevisionCandidatesBridge = {
+  localAiAvailable: process.env.BLACKSKIES_DISABLE_LOCAL_AI !== '1',
   list: (request: ListRevisionCandidatesRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.list, request),
   createManual: (request: CreateManualRevisionCandidateRequest) =>

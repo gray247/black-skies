@@ -849,6 +849,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             }}
             generation={snapshot.generation}
             document={model.storyIntelligenceDocument}
+            localInferenceAvailable={model.program7LocalAiAvailable !== false}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}
             onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
             onEnableLocalInference={() => void actions.enableLocalInference()}

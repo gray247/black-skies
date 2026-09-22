@@ -70,6 +70,8 @@ export interface Program6StoryKnowledgeWorkspaceProps {
   readonly project: ProjectSpineProjectContext;
   readonly generation: number;
   readonly document: StoryIntelligenceDocumentV1;
+  /** False when the application has no usable local-AI capability in this session. */
+  readonly localInferenceAvailable?: boolean;
   readonly onSourceReturn?: (source: StoryPositionRefV1) => void;
   readonly onAuthorRecordCreate?: (draft: StoryKnowledgeAuthorRecordDraftV1) => void;
   readonly onEnableLocalInference?: () => void;
@@ -125,9 +127,11 @@ function projectStageLabel(
 function LensSummary({
   projection,
   document,
+  localInferenceAvailable,
 }: {
   readonly projection: Program6ProductionProjectionV1;
   readonly document: StoryIntelligenceDocumentV1;
+  readonly localInferenceAvailable: boolean;
   readonly sourceDrafts?: Readonly<Record<string, string>>;
 }): JSX.Element {
   return (
@@ -160,7 +164,7 @@ function LensSummary({
         <div>
           <dt>Optional interpretation</dt>
           <dd>
-            {document.settings.analysisPolicy.optionalInferenceEnabled
+            {localInferenceAvailable && document.settings.analysisPolicy.optionalInferenceEnabled
               ? 'Available when you choose'
               : 'Off — no AI is used'}
           </dd>
@@ -187,6 +191,7 @@ function AutomaticScanPanel({
   onLocalEmotionScan,
   onCancel,
   onSourceReturn,
+  localInferenceAvailable,
   localInferenceEnabled,
   onEnableLocalInference,
 }: {
@@ -197,6 +202,7 @@ function AutomaticScanPanel({
   readonly onLocalEmotionScan: () => void;
   readonly onCancel: () => void;
   readonly onSourceReturn: (source: StoryPositionRefV1) => void;
+  readonly localInferenceAvailable: boolean;
   readonly localInferenceEnabled: boolean;
   readonly onEnableLocalInference?: () => void;
 }): JSX.Element {
@@ -214,9 +220,11 @@ function AutomaticScanPanel({
         <button type="button" onClick={onScan} disabled={busy}>
           {busy ? 'Scanning manuscript…' : 'Scan manuscript automatically'}
         </button>
-        <button type="button" onClick={onLocalEmotionScan} disabled={busy || !localInferenceEnabled}>
-          {busy ? 'Analyzing emotion…' : 'Analyze emotion with local AI'}
-        </button>
+        {localInferenceAvailable ? (
+          <button type="button" onClick={onLocalEmotionScan} disabled={busy || !localInferenceEnabled}>
+            Analyze emotion with local AI
+          </button>
+        ) : null}
         {busy ? (
           <button type="button" onClick={onCancel}>Cancel scan</button>
         ) : null}
@@ -257,7 +265,11 @@ function AutomaticScanPanel({
         </div>
       ) : null}
       {state?.origin === 'local-inference' ? <small>Model: qwen3:4b · loopback only · temporary advisory results</small> : null}
-      {!localInferenceEnabled ? (
+      {!localInferenceAvailable ? (
+        <p className="stage19-program6__manual-path" role="status">
+          Local AI is unavailable. Automatic manuscript scan and manual Story Knowledge tools remain available.
+        </p>
+      ) : !localInferenceEnabled ? (
         <p>
           Local AI is disabled by this project policy.{' '}
           {onEnableLocalInference ? (
@@ -889,6 +901,7 @@ export default function Program6StoryKnowledgeWorkspace({
   project,
   generation,
   document,
+  localInferenceAvailable = true,
   onSourceReturn,
   onAuthorRecordCreate,
   onEnableLocalInference,
@@ -1050,7 +1063,7 @@ export default function Program6StoryKnowledgeWorkspace({
         <div className="stage19-program6__status">
           <span>This project</span>
           <span>
-            {document.settings.analysisPolicy.optionalInferenceEnabled
+            {localInferenceAvailable && document.settings.analysisPolicy.optionalInferenceEnabled
               ? 'Optional interpretation on'
               : 'No AI is used'}
           </span>
@@ -1084,10 +1097,15 @@ export default function Program6StoryKnowledgeWorkspace({
             onLocalEmotionScan={() => void runAutomaticScan('local-inference')}
             onCancel={cancelAutomaticScan}
             onSourceReturn={selectSource}
+            localInferenceAvailable={localInferenceAvailable}
             localInferenceEnabled={document.settings.analysisPolicy.optionalInferenceEnabled}
             onEnableLocalInference={onEnableLocalInference}
           />
-          <LensSummary projection={projection} document={document} />
+          <LensSummary
+            projection={projection}
+            document={document}
+            localInferenceAvailable={localInferenceAvailable}
+          />
         </>
       ) : null}
       {lens === 'emotion' ? (

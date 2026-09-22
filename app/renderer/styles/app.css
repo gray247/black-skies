@@ -6742,11 +6742,19 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   height: 34px;
 }
 
-.stage19-spine--command button,
-.stage19-spine--command textarea {
+.stage19-spine--command button {
   border: 1px solid var(--bs-line-strong);
   border-radius: 4px;
   background: transparent;
+  color: var(--bs-text-primary);
+}
+
+.stage19-spine--command input,
+.stage19-spine--command select,
+.stage19-spine--command textarea {
+  border: 1px solid var(--bs-line-strong);
+  border-radius: 4px;
+  background: var(--bs-surface-base);
   color: var(--bs-text-primary);
 }
 
@@ -9431,6 +9439,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   border-left: 3px solid var(--stage19-accent);
   padding: 8px 10px;
   background: var(--stage19-surface-muted);
+}
+
+.stage19-program6__manual-path {
+  margin: 0;
+  color: var(--stage19-text-secondary);
+  line-height: 1.45;
 }
 
 .stage19-program6__boundary {

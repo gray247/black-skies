@@ -214,10 +214,11 @@ export type RevisionCandidateResult =
     };
 
 export interface RevisionCandidatesBridge {
+  readonly localAiAvailable?: boolean;
   list(request: ListRevisionCandidatesRequest): Promise<RevisionCandidateResult>;
   createManual(request: CreateManualRevisionCandidateRequest): Promise<RevisionCandidateResult>;
-  createLocalAi(request: CreateLocalAiRevisionCandidateRequest): Promise<RevisionCandidateResult>;
-  cancelLocalAi(request: CancelLocalAiRevisionCandidateRequest): Promise<CancelLocalAiRevisionCandidateResult>;
+  createLocalAi?(request: CreateLocalAiRevisionCandidateRequest): Promise<RevisionCandidateResult>;
+  cancelLocalAi?(request: CancelLocalAiRevisionCandidateRequest): Promise<CancelLocalAiRevisionCandidateResult>;
   edit(request: EditRevisionCandidateRequest): Promise<RevisionCandidateResult>;
   setLifecycle(request: SetRevisionCandidateLifecycleRequest): Promise<RevisionCandidateResult>;
 }

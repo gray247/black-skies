@@ -44,6 +44,7 @@ import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntell
 import Stage19WritingSpineApp, {
   deriveDirtyUnitIds,
   parseStage19Theme,
+  program7LocalAiIsAvailable,
   STAGE19_THEME_STORAGE_KEY,
   useCloseConfirmationRequest,
 } from '../Stage19WritingSpineApp';
@@ -894,6 +895,16 @@ async function findExportButton(): Promise<HTMLElement> {
 }
 
 describe('Stage19WritingSpineApp', () => {
+  it('honors the preload no-AI capability even when a stale bridge exposes a local-AI method', () => {
+    expect(program7LocalAiIsAvailable({
+      localAiAvailable: false,
+      createLocalAi: vi.fn(),
+    } as any)).toBe(false);
+    expect(program7LocalAiIsAvailable({
+      localAiAvailable: true,
+      createLocalAi: vi.fn(),
+    } as any)).toBe(true);
+  });
   it('defaults malformed or missing local appearance preferences to dark', () => {
     expect(parseStage19Theme(null)).toBe('dark');
     expect(parseStage19Theme('blue')).toBe('dark');

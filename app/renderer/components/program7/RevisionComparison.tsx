@@ -64,6 +64,14 @@ export default function RevisionComparison({
   const stale = candidate.currentness !== 'current' || candidate.lifecycle === 'stale';
   const editable = candidate.lifecycle === 'generated' || candidate.lifecycle === 'reviewing';
   const acceptEnabled = canAccept && editable && !stale;
+  const hasExactSourceAnchor = Boolean(
+    candidate.sourceAnchor &&
+    Number.isInteger(candidate.sourceAnchor.selectionStart) &&
+    Number.isInteger(candidate.sourceAnchor.selectionEnd) &&
+    candidate.sourceAnchor.selectionEnd > candidate.sourceAnchor.selectionStart &&
+    candidate.sourceAnchor.selectionFingerprint.trim(),
+  );
+  const sourceIsHistorical = stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
 
   return (
     <section className="program7-revision-comparison" aria-labelledby={`revision-comparison-${candidate.id}`} data-testid="revision-comparison">
@@ -90,8 +98,8 @@ export default function RevisionComparison({
       ) : null}
       <div className="program7-revision-comparison__panes">
         <article aria-labelledby={`revision-current-${candidate.id}`}>
-          <h2 id={`revision-current-${candidate.id}`}>Your current manuscript</h2>
-          <p>This saved passage remains unchanged while you review the alternative.</p>
+          <h2 id={`revision-current-${candidate.id}`}>{sourceIsHistorical ? 'Saved source passage' : 'Your current manuscript'}</h2>
+          <p>{sourceIsHistorical ? 'This is the saved passage used to create this alternative.' : 'This saved passage remains unchanged while you review the alternative.'}</p>
           <pre data-testid="revision-current-text">{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
         </article>
         <article aria-labelledby={`revision-candidate-${candidate.id}`}>
@@ -106,7 +114,7 @@ export default function RevisionComparison({
           id={`revision-partial-${candidate.id}`}
           aria-label="Part of this alternative to apply"
           value={redacted ? '' : visibleCandidateText(candidate)}
-          disabled={redacted}
+          disabled={redacted || !hasExactSourceAnchor}
           readOnly
           onSelect={(event) => setSelection({
             start: event.currentTarget.selectionStart,
@@ -114,6 +122,7 @@ export default function RevisionComparison({
           })}
           placeholder={redacted ? 'Hidden by protection policy.' : 'Select the exact text from this alternative that you want to apply.'}
         />
+        {!hasExactSourceAnchor ? <p role="status">Select a passage in your manuscript before creating a fresh alternative to apply only part of it.</p> : null}
       </div>
       <div className="program7-revision-comparison__actions" aria-label="Revision alternative actions">
         {onOpenEditor && editable ? <button type="button" onClick={() => onOpenEditor(candidate)}>Edit alternative</button> : null}
@@ -122,7 +131,7 @@ export default function RevisionComparison({
         </button>
         <button
           type="button"
-          disabled={!acceptEnabled || !onPartialAccept || selection.end <= selection.start}
+          disabled={!acceptEnabled || !hasExactSourceAnchor || !onPartialAccept || selection.end <= selection.start}
           onClick={() => onPartialAccept?.(candidate, {
             text: visibleCandidateText(candidate).slice(selection.start, selection.end),
             start: selection.start,

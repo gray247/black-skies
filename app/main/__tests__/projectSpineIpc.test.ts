@@ -1358,6 +1358,183 @@ describe('project-spine IPC', () => {
     });
   });
 
+  it('partially applies only an exact anchored alternative span and persists its surrounding manuscript', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Partial Acceptance Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Partial Acceptance Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-partial-acceptance-project',
+    });
+    const initialMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    const sourceText = 'Before the watchman waited. At midnight, the lantern guttered. After, the road was still.\n';
+    const populated = await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'save-partial-acceptance-source',
+      unitId: withUnit.unitId,
+      expectedMarkdown: initialMarkdown,
+      markdown: `${initialMarkdown}${sourceText}`,
+      submittedProse: sourceText.slice(0, -1),
+    });
+    expect(populated).toMatchObject({ ok: true });
+    const current = await invoke(PROJECT_SPINE_CHANNELS.getSession, 1);
+    const expectedMarkdown = current.project.drafts[withUnit.unitId];
+    const sourceTarget = 'At midnight, the lantern guttered.';
+    const replacement = 'At midnight, the lantern dimmed.';
+    const sourceStart = sourceText.indexOf(sourceTarget);
+    const repository = new RevisionCandidateRepository(created.projectPath);
+    const createdCandidate = await repository.createManual(created.projectId, 0, {
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceAnchor: {
+        unitId: withUnit.unitId,
+        selectionStart: sourceStart,
+        selectionEnd: sourceStart + sourceTarget.length,
+        selectionFingerprint: sha256(sourceTarget),
+      },
+      purpose: 'Tighten the lantern image.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: `${replacement} A bell rang beyond the gate.`,
+    });
+    const candidateId = createdCandidate.document.candidates[0]!.id;
+
+    const accepted = await invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: current.generation,
+      operationId: 'partially-accept-exact-span',
+      unitId: withUnit.unitId,
+      expectedMarkdown,
+      candidateId,
+      mode: 'accept-selected-text',
+      candidateSelection: { selectionStart: 0, selectionEnd: replacement.length },
+    });
+    const expectedBody = sourceText.replace(sourceTarget, replacement);
+    expect(accepted).toMatchObject({
+      ok: true,
+      data: { candidateId, lifecycle: 'partially accepted', mode: 'accept-selected-text' },
+      snapshot: { saveState: { status: 'saved', unitId: withUnit.unitId } },
+    });
+    expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(
+      `${expectedMarkdown.slice(0, expectedMarkdown.indexOf(sourceText))}${expectedBody}`,
+    );
+    await expect(repository.read(created.projectId)).resolves.toMatchObject({
+      document: {
+        candidates: [{
+          id: candidateId,
+          lifecycle: 'partially accepted',
+          acceptanceReservation: null,
+        }],
+      },
+    });
+  });
+
+  it('fails closed for ambiguous, missing, and stale partial selections without changing manuscript truth', async () => {
+    const parent = await temporaryRoot();
+    const created = await bootstrapFreshProject({ parentPath: parent, title: 'Partial Acceptance Safety Project' });
+    const withUnit = await createManuscriptUnit(
+      await loadProjectForSpine(created.projectPath),
+      'Partial Acceptance Safety Unit',
+    );
+    const opened = await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, {
+      path: created.projectPath,
+      operationId: 'open-partial-acceptance-safety-project',
+    });
+    const initialMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
+    const sourceText = 'Before the watchman waited. At midnight, the lantern guttered. After, the road was still.\n';
+    await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
+      projectId: created.projectId,
+      projectPath: created.projectPath,
+      generation: opened.snapshot.generation,
+      operationId: 'save-partial-acceptance-safety-source',
+      unitId: withUnit.unitId,
+      expectedMarkdown: initialMarkdown,
+      markdown: `${initialMarkdown}${sourceText}`,
+      submittedProse: sourceText.slice(0, -1),
+    });
+    const current = await invoke(PROJECT_SPINE_CHANNELS.getSession, 1);
+    const expectedMarkdown = current.project.drafts[withUnit.unitId];
+    const sourceTarget = 'At midnight, the lantern guttered.';
+    const sourceStart = sourceText.indexOf(sourceTarget);
+    const repository = new RevisionCandidateRepository(created.projectPath);
+    const ambiguous = await repository.createManual(created.projectId, 0, {
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceAnchor: null,
+      purpose: 'No exact target.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: 'At midnight, the lantern dimmed.',
+    });
+    const missing = await repository.createManual(created.projectId, 1, {
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceAnchor: {
+        unitId: withUnit.unitId,
+        selectionStart: sourceStart,
+        selectionEnd: sourceStart + sourceTarget.length,
+        selectionFingerprint: sha256(sourceTarget),
+      },
+      purpose: 'Selection required.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: 'At midnight, the lantern dimmed.',
+    });
+    const staleSource = 'Before the watchman waited. At midnight, the lantern guttered long ago. After, the road was still.\n';
+    const staleTarget = 'At midnight, the lantern guttered long ago.';
+    const stale = await repository.createManual(created.projectId, 2, {
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(staleSource), text: staleSource },
+      sourceAnchor: {
+        unitId: withUnit.unitId,
+        selectionStart: staleSource.indexOf(staleTarget),
+        selectionEnd: staleSource.indexOf(staleTarget) + staleTarget.length,
+        selectionFingerprint: sha256(staleTarget),
+      },
+      purpose: 'Stale source.',
+      protection: { excluded: false, class: 'ordinary' },
+      warnings: [],
+      candidateText: 'At midnight, the lantern dimmed.',
+    });
+
+    const request = (candidateId: string, operationId: string, candidateSelection?: { selectionStart: number; selectionEnd: number }) =>
+      invoke(PROJECT_SPINE_CHANNELS.acceptRevisionCandidate, 1, {
+        projectId: created.projectId,
+        projectPath: created.projectPath,
+        generation: current.generation,
+        operationId,
+        unitId: withUnit.unitId,
+        expectedMarkdown,
+        candidateId,
+        mode: 'accept-selected-text',
+        ...(candidateSelection ? { candidateSelection } : {}),
+      });
+
+    for (const result of [
+      await request(ambiguous.document.candidates[0]!.id, 'reject-ambiguous-partial', { selectionStart: 0, selectionEnd: 12 }),
+      await request(missing.document.candidates[1]!.id, 'reject-missing-partial'),
+      await request(stale.document.candidates[2]!.id, 'reject-stale-partial', { selectionStart: 0, selectionEnd: 12 }),
+    ]) {
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code: 'INVALID_REQUEST' },
+        snapshot: { project: { projectId: created.projectId, drafts: { [withUnit.unitId]: expectedMarkdown } } },
+      });
+    }
+    expect((await loadProjectForSpine(created.projectPath)).drafts[withUnit.unitId]).toBe(expectedMarkdown);
+    await expect(repository.read(created.projectId)).resolves.toMatchObject({
+      document: {
+        candidates: [
+          { lifecycle: 'generated', acceptanceReservation: null },
+          { lifecycle: 'generated', acceptanceReservation: null },
+          { lifecycle: 'generated', acceptanceReservation: null },
+        ],
+      },
+    });
+  });
+
   it('reconciles an accepted manuscript when candidate finalization is interrupted', async () => {
     const parent = await temporaryRoot();
     const created = await bootstrapFreshProject({ parentPath: parent, title: 'Reconciliation Project' });

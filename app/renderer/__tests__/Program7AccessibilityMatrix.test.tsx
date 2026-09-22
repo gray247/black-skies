@@ -128,6 +128,7 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     expect(css).toContain('--bs-text-muted: var(--bs-text-secondary);');
     expect(css).toMatch(/\.stage19-spine label\s*\{[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
     expect(css).toMatch(/\.stage19-spine__surface-notice\s*\{[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
+    expect(css).toMatch(/\.stage19-spine--command input,[\s\S]*?background:\s*var\(--bs-surface-base\);/);
     expect(p7).not.toMatch(/(?:color|background(?:-color)?)\s*:\s*#(?:fff|ffffff|eee|eeeeee|d3d3d3|c0c0c0)\b/i);
     expect(p7).not.toContain('#3757a6');
     expect(p7).not.toContain('#edf1ff');

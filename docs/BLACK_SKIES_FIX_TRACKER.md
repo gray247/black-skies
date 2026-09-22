@@ -3,6 +3,72 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 no-AI repair — Desktop Pass 1 mandatory stop — 2026-09-22
+
+Desktop Pass 1 opened only the uniquely named disposable project
+`Carmilla Desktop Pass 1 2026-09-22 1159`, rooted at
+`C:\Users\gray2\AppData\Local\Temp\black-skies-pass1-20260922-1159-parent\proj_carmilla-desktop-pass-1-2026-09-22-1159_fe29f8be8a`.
+The historical altered Carmilla project was not opened or used. The pass
+exercised project creation and reopen, project identity, durable manuscript
+save, Story/Note editing, Writing Session, Companion orientation routing,
+Review, Structure, all six deterministic Story Knowledge lenses, manual
+revision-alternative creation, comparison, editing, and exact selected-text
+application. No local-AI control was invoked and no network request was
+authorized.
+
+The pass stopped at the required manuscript-authority/data-loss condition.
+After selecting exactly `At midnight, the lantern guttered` in the partial
+application field and invoking **Apply only the selected part**, the saved
+manuscript became only that selected fragment; all surrounding manuscript text
+was removed. The UI recorded the alternative as `Partly applied`, marked it
+stale, and reported a durable save. The disposable project is preserved in
+that failed state as reproducible evidence. Desktop Pass 1 is therefore not
+complete, Desktop Pass 2 has not started, and no Human Gate 4 claim is valid.
+
+Other reproducible Pass 1 findings collected before the mandatory stop are:
+
+- `BLACKSKIES_DISABLE_LOCAL_AI=1` still exposes **Ask local AI for an
+  alternative** in Create / Develop and enables it after a purpose is entered.
+- Story Knowledge still exposes **Analyze emotion with local AI** and
+  **Enable optional interpretation**; the deterministic scan also temporarily
+  says `Analyzing emotion…`.
+- Writer-facing result text leaks `Candidate`, including `Candidate edit
+  saved` and `Candidate accepted`.
+- The manual-alternative Purpose control uses a navy/blue fill in the light
+  theme instead of the current warm product tokens.
+- Immediately after partial application, the comparison card labels its
+  persisted source snapshot as **Your current manuscript**, even though the
+  manuscript has changed and the same card declares itself stale.
+
+The batch repair is complete and automatically verified. Root cause was a
+missing authority precondition: selected text identified what to insert, but a
+manual alternative with `sourceAnchor: null` was still allowed to use the
+whole durable manuscript as its implicit replacement target. Selected-part
+application now requires a non-empty, fingerprinted saved source passage and
+fails closed before reservation or save when the target is absent, empty,
+stale, or the candidate selection is missing. The renderer disables that path
+when an alternative has no exact source passage and explains how to create a
+fresh anchored alternative. Stale and terminal cards now label the stored text
+as the saved source passage rather than the current manuscript.
+
+The no-AI capability is now explicit in both packaged and development
+preloads. With `BLACKSKIES_DISABLE_LOCAL_AI=1`, both omit local-AI create and
+cancel methods and report the capability unavailable; Create / Develop and
+Story Knowledge therefore hide their local-AI and enablement controls. The
+deterministic scan keeps deterministic wording, current writer-facing notices
+say `revision alternative`, and Command Center inputs use the existing warm
+surface tokens in light mode.
+
+Focused authority, persistence, IPC, preload, renderer, and accessibility
+checks passed, including 65/65 Terra authority tests, 37/37 Luna renderer
+tests, and the final 8/8 capability/comparison checks. The single integrated
+automated gate passed: the full app suite is 159 files with 1,493 tests passed
+and 2 expected skips; app lint, renderer/main production build, full
+typecheck, documentation lint, repository hygiene, and `git diff --check`
+pass. Desktop Pass 1 remains stopped rather than resumed against the damaged
+fixture. A new disposable project is required for the next desktop attempt;
+Desktop Pass 2 remains pending.
+
 ## Program 7 no-AI repair — automated pre-desktop checkpoint — 2026-09-22
 
 The repair campaign is complete through the requested stopping point before

@@ -114,6 +114,45 @@ describe('Program 6 Story Knowledge workspace', () => {
     expect(screen.queryByText('Deterministic lane')).not.toBeInTheDocument();
   });
 
+  it('keeps the manual Story Knowledge path visible without exposing local-AI controls', () => {
+    const onEnableLocalInference = vi.fn();
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={project}
+        generation={1}
+        document={documentWithSignal('current')}
+        localInferenceAvailable={false}
+        onEnableLocalInference={onEnableLocalInference}
+      />,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Analyze emotion with local AI' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Enable optional interpretation' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Local AI is unavailable. Automatic manuscript scan and manual Story Knowledge tools remain available.',
+    );
+    expect(screen.getByText('Off — no AI is used')).toBeVisible();
+    expect(onEnableLocalInference).not.toHaveBeenCalled();
+  });
+
+  it('does not relabel a deterministic scan as local emotion analysis while it is running', async () => {
+    const user = userEvent.setup();
+    Object.defineProperty(window, 'storyIntelligence', {
+      configurable: true,
+      value: {
+        automaticScan: vi.fn(() => new Promise(() => undefined)),
+        automaticCancel: vi.fn(),
+      },
+    });
+    renderWorkspace(documentWithSignal('current'));
+
+    await user.click(screen.getByRole('button', { name: 'Scan manuscript automatically' }));
+
+    expect(screen.getByRole('button', { name: 'Scanning manuscript…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Analyze emotion with local AI' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Analyzing emotion…' })).not.toBeInTheDocument();
+  });
+
   it('keeps Timeline in the shared lens card/form language and uses theme tokens', async () => {
     const user = userEvent.setup();
     renderWorkspace(documentWithSignal('current'));

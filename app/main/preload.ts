@@ -2860,14 +2860,17 @@ const feedbackNotesBridge: FeedbackNotesBridge = {
 };
 
 const revisionCandidatesBridge: RevisionCandidatesBridge = {
+  localAiAvailable: process.env.BLACKSKIES_DISABLE_LOCAL_AI !== '1',
   list: (request: ListRevisionCandidatesRequest) =>
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.list, request),
   createManual: (request: CreateManualRevisionCandidateRequest) =>
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createManual, request),
-  createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
-    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, request),
-  cancelLocalAi: (request: CancelLocalAiRevisionCandidateRequest) =>
-    ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, request),
+  ...(process.env.BLACKSKIES_DISABLE_LOCAL_AI === '1' ? {} : {
+    createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
+      ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, request),
+    cancelLocalAi: (request: CancelLocalAiRevisionCandidateRequest) =>
+      ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.cancelLocalAi, request),
+  }),
   edit: (request: EditRevisionCandidateRequest) =>
     ipcRenderer.invoke(REVISION_CANDIDATE_CHANNELS.edit, request),
   setLifecycle: (request: SetRevisionCandidateLifecycleRequest) =>
