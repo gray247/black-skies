@@ -368,13 +368,16 @@ export function buildProgram6ProductionProjection(input: {
       positionRefs: [refs[index]!],
     })),
     facts: [],
-    events: project.units.map((unit, index) => ({
-      eventId: `event:${unit.id}`,
-      unitId: unit.id,
-      stableEventIdentity: unit.title.trim().toLocaleLowerCase('en-US'),
-      interpretationState: 'ordinary' as const,
-      positionRefs: [refs[index]!],
-    })),
+    events: project.units.map((unit, index) => {
+      const stableEventIdentity = unit.title.trim().toLocaleLowerCase('en-US');
+      return {
+        eventId: `event:${unit.id}`,
+        unitId: unit.id,
+        ...(stableEventIdentity.length > 0 && stableEventIdentity.length <= 200 ? { stableEventIdentity } : {}),
+        interpretationState: 'ordinary' as const,
+        positionRefs: [refs[index]!],
+      };
+    }),
     carryoverRequirements: [],
     causalDependencies: [],
     sourceRecords,

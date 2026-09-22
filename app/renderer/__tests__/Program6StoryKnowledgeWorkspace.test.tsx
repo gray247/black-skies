@@ -99,6 +99,26 @@ afterEach(() => {
 });
 
 describe('Program 6 Story Knowledge workspace', () => {
+  it('keeps the lens controls usable with untitled story units', async () => {
+    const user = userEvent.setup();
+    render(
+      <Program6StoryKnowledgeWorkspace
+        project={{
+          ...project,
+          units: project.units.map((unit, index) =>
+            index === 0 ? { ...unit, title: '' } : index === 1 ? { ...unit, title: '   ' } : unit,
+          ),
+        }}
+        generation={1}
+        document={createDefaultStoryIntelligenceDocument(project.projectId, new Date('2026-09-22T12:00:00.000Z'))}
+      />,
+    );
+
+    expect(screen.getByRole('navigation', { name: 'Story Knowledge lenses' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Continuity' }));
+    expect(screen.getByRole('button', { name: 'Continuity' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('uses plain writer-facing overview language and keeps the no-AI boundary clear', () => {
     renderWorkspace(documentWithSignal('stale'));
 

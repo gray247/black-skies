@@ -3,6 +3,26 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Story Knowledge blank-screen crash — 2026-09-22
+
+Status: fixed in code and automatically verified; user desktop confirmation pending.
+The user's screenshots show Story Knowledge becoming a solid blue window and
+DevTools reporting `ContinuityValidationError: Continuity data is invalid:
+events are invalid` from `buildProgram6ProductionProjection` during render.
+The project workflow legitimately creates Story units with an empty title,
+but the projection supplied that title as `stableEventIdentity`. Continuity
+accepts an omitted identity, not an empty or over-200-character one; its
+validation exception unmounted the renderer. The projection now omits invalid
+optional identities instead of manufacturing a replacement. A focused
+regression covers blank, whitespace-only, and overlong titles and confirms
+the projection succeeds without a false duplicate-event finding. A renderer
+regression confirms the lens controls remain usable with untitled units.
+Focused qualification (7/7) and Story Knowledge renderer (14/14) tests,
+app typecheck, app lint, and `git diff --check` passed. No user project or
+manuscript was opened or changed in this repair. The user still needs to
+reload the running app and confirm Story Knowledge opens in their project.
+This is not a Desktop Pass 2 or Human Gate 4 verification.
+
 ## Program 7 no-AI repair — Desktop Pass 1 mandatory stop — 2026-09-22
 
 Desktop Pass 1 opened only the uniquely named disposable project

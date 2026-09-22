@@ -186,6 +186,28 @@ describe('Program 6 complete qualification boundary', () => {
     ]);
   });
 
+  it('keeps Story Knowledge available when story units have blank or overlong titles', () => {
+    const projectId = 'untitled-story-units';
+    const result = buildProgram6ProductionProjection({
+      generation: 1,
+      document: createDefaultStoryIntelligenceDocument(projectId, new Date('2026-09-22T12:00:00.000Z')),
+      project: {
+        projectId,
+        path: 'C:\\projects\\untitled',
+        title: 'Untitled story units',
+        schemaVersion: 'ProjectMetadataSchema v1',
+        units: [
+          { id: 'unit-1', title: '', displayTitle: 'Untitled scene', order: 1 },
+          { id: 'unit-2', title: '   ', displayTitle: 'Untitled scene 2', order: 2 },
+          { id: 'unit-3', title: 'A'.repeat(201), displayTitle: 'Long title', order: 3 },
+        ],
+      },
+    });
+
+    expect(result.sourceUnitCount).toBe(3);
+    expect(result.continuity.findings).toEqual([]);
+  });
+
   it('runs the deterministic lane independently for all three synthetic review projects', () => {
     for (const project of CORPUS) {
       const result = runTimelineV1(timeline(project));
