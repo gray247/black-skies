@@ -200,9 +200,16 @@ export async function calculateNarrativeInsertion(
   }
 
   if (currentBodySha256 !== sourceBodySha256) {
-    if (!anchor || currentBody.slice(sourceStart, sourceEnd) !== sourceText.slice(sourceStart, sourceEnd)) {
-      return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, ['source-staleness'], 'The current manuscript no longer contains the safely anchored source passage.');
-    }
+    return blocked(
+      request,
+      sourceBodySha256,
+      currentBodySha256,
+      candidateTextSha256,
+      risks,
+      acknowledgedRisks,
+      ['source-staleness'],
+      'The manuscript changed after this alternative was created. Create a fresh alternative before accepting text.',
+    );
   }
 
   if (blockingRisks.length > 0) {

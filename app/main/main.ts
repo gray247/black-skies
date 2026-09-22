@@ -1859,6 +1859,7 @@ if (!hasSingleInstanceLock) {
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
         localInferenceService: program7LocalInferenceService,
+        localAiAvailable: process.env.BLACKSKIES_DISABLE_LOCAL_AI !== '1',
       });
       registerStoryFoundationIpc({
         resolveWindowRole: resolveProjectSpineWindowRole,

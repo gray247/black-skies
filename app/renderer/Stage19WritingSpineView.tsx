@@ -158,7 +158,10 @@ export interface Stage19WritingSpineViewModel {
   readonly program7CandidatePurpose: string;
   readonly program7CandidateText: string;
   readonly program7LocalAiRequestId: string | null;
+  /** Supplied by the main-owned capability bridge; false removes all local-AI actions. */
+  readonly program7LocalAiAvailable?: boolean;
   readonly program7Notice: string | null;
+  readonly program7NoticeTone?: 'status' | 'alert';
   readonly feedbackNotesAvailable: boolean;
   readonly feedbackNoteBody: string;
   readonly feedbackNoteSaving: boolean;
@@ -357,7 +360,10 @@ export interface Stage19WritingSpineViewActions {
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
   readonly closeProgram7Candidate: () => void;
   readonly saveProgram7CandidateEdit: (candidate: RevisionCandidateV1, editedCandidateText: string) => MaybeAsync;
-  readonly acceptProgram7Candidate: (candidate: RevisionCandidateV1, selectedText?: string) => MaybeAsync;
+  readonly acceptProgram7Candidate: (
+    candidate: RevisionCandidateV1,
+    selection?: { readonly text: string; readonly start: number; readonly end: number },
+  ) => MaybeAsync;
   readonly setProgram7CandidateLifecycle: (candidate: RevisionCandidateV1, lifecycle: Extract<RevisionCandidateLifecycle, 'rejected' | 'parked' | 'abandoned'>) => MaybeAsync;
   readonly returnProgram7CandidateToSource: (candidate: RevisionCandidateV1) => MaybeAsync;
   readonly returnProgram7RevisionItemToSource: (item: RevisionItem) => MaybeAsync;
@@ -651,6 +657,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         availability={model.program7RevisionItems.availability}
         unavailableMessage={model.program7RevisionItems.notice}
         canResolve={canWrite}
+        localAiAvailable={model.program7LocalAiAvailable !== false}
         onReturnToSource={(item) => void actions.returnProgram7RevisionItemToSource(item)}
         onLifecycle={canWrite ? (item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle) : undefined}
         onRecheck={canWrite ? (item, method) => void actions.recheckProgram7RevisionItem(item, method) : undefined}
@@ -686,14 +693,15 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         />
         <div className="program7-revision-capture__actions">
           <button type="button" onClick={() => void actions.createProgram7ManualCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim() || !model.program7CandidateText.trim()}>Save alternative</button>
-          {model.program7LocalAiRequestId ? (
+          {model.program7LocalAiAvailable !== false && model.program7LocalAiRequestId ? (
             <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
-          ) : (
+          ) : model.program7LocalAiAvailable !== false ? (
             <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim()}>Ask local AI for an alternative</button>
-          )}
+          ) : null}
         </div>
+        {model.program7LocalAiAvailable === false ? <p className="program7-revision-capture__manual-path" role="status">Local AI is unavailable. You can still create and review revision alternatives yourself.</p> : null}
       </section>
-      {model.program7Notice ? <p className="program7-revision-capture__notice" role="status">{model.program7Notice}</p> : null}
+      {model.program7Notice ? <p className="program7-revision-capture__notice" role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p> : null}
       {candidates.length > 0 ? (
         <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
           <header>
@@ -706,11 +714,11 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
                 candidate={candidate}
                 canAccept={canWrite}
                 onAcceptAll={(value) => void actions.acceptProgram7Candidate(value)}
-                onPartialAccept={(value, selectedText) => void actions.acceptProgram7Candidate(value, selectedText)}
+                onPartialAccept={(value, selection) => void actions.acceptProgram7Candidate(value, selection)}
                 onLifecycle={canWrite ? (value, lifecycle) => void actions.setProgram7CandidateLifecycle(value, lifecycle) : undefined}
                 onOpenEditor={canWrite ? actions.openProgram7Candidate : undefined}
               />
-              <button type="button" onClick={() => void actions.returnProgram7CandidateToSource(candidate)}>Return to candidate source</button>
+              <button type="button" onClick={() => void actions.returnProgram7CandidateToSource(candidate)}>Return to passage in Writing Studio</button>
             </article>
           ))}
         </section>
@@ -2409,6 +2417,11 @@ function CompanionBarView({ model, actions }: Stage19WritingSpineViewProps): JSX
           ? `Local project and current writing only${activeUnit ? `: ${activeUnit.displayTitle}` : ''}. No AI.`
           : 'Open a project to ask. No AI.'}
       </span>
+      <span className="stage19-companion-bar__examples" aria-label="Companion examples">
+        Try:
+        <button type="button" onClick={() => actions.setCompanionPrompt('Where am I in this project?')}>Where am I in this project?</button>
+        <button type="button" onClick={() => actions.setCompanionPrompt('Where was I?')}>Where was I?</button>
+      </span>
       {model.companionNotice ? <span className="stage19-companion-bar__notice" role="status">{model.companionNotice}</span> : null}
     </form>
   );
@@ -2426,19 +2439,19 @@ function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProp
     <section className="stage19-command-companion" aria-label="Companion orientation result">
       <header className="stage19-command-companion__header">
         <div>
-          <span className="stage19-spine__eyebrow">Companion · local orientation</span>
+          <span className="stage19-spine__eyebrow">Companion</span>
           <h2>{heading}</h2>
-          <p>{result.requestLabel}. This is advisory context, not story truth or a recommendation.</p>
+          <p>{result.requestLabel}. This is a temporary summary and does not change your story.</p>
         </div>
         <span className={`stage19-command-companion__state stage19-command-companion__state--${result.status}`}>
-          {result.status === 'available' ? 'Local facts' : result.status.replace('-', ' ')}
+          {result.status === 'available' ? 'Available now' : result.status === 'not-routed' ? 'Not supported yet' : 'Unavailable'}
         </span>
       </header>
       {result.sourceFacts.length > 0 ? (
         <dl className="stage19-command-companion__facts">
           {result.sourceFacts.map((fact) => (
             <div key={`${fact.owner}-${fact.label}`}>
-              <dt><strong>{fact.owner}</strong><span>{fact.label} · {fact.currentness}</span></dt>
+              <dt><strong>{fact.owner}</strong><span>{fact.label} · {fact.currentness === 'current' ? 'available now' : 'not available'}</span></dt>
               <dd>{fact.value}</dd>
             </div>
           ))}
@@ -2525,12 +2538,14 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           </button>
         </div>
       </header>
-      {model.sourceReturnConfirmation ? (
-        <p className="stage19-spine__source-return-confirmation" role="status">
-          {model.sourceReturnConfirmation}
-        </p>
-      ) : null}
-      {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
+      <div className="stage19-writing-shell__notice-row" aria-label="Project notices">
+        {model.sourceReturnConfirmation ? (
+          <p className="stage19-spine__source-return-confirmation" role="status">
+            {model.sourceReturnConfirmation}
+          </p>
+        ) : null}
+        {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
+      </div>
       <WritingEdgeControlsView {...props} />
       {!model.focusMode && model.openWritingRail === 'top' ? <WritingTopRailView {...props} /> : null}
       <div className={`stage19-writing-shell__workspace ${supportOpen ? 'has-support' : ''}`}>

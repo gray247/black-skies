@@ -59,28 +59,28 @@ describe('WritingRevisionDrawer component', () => {
     await vi.waitFor(() => expect(opener).toHaveFocus());
   });
 
-  it('opens as an explicit candidate editor and saves edits without accepting them', () => {
+  it('opens as a revision alternative editor and saves edits without applying them', () => {
     const onClose = vi.fn();
     const onSaveEdit = vi.fn();
     render(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} onSaveEdit={onSaveEdit} />);
     const drawer = screen.getByTestId('writing-revision-drawer');
-    expect(within(drawer).getByRole('heading', { name: 'Write revision candidate' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('heading', { name: 'Edit revision alternative' })).toBeInTheDocument();
     expect(within(drawer).getByText('Current manuscript passage.')).toBeInTheDocument();
-    const editor = within(drawer).getByRole('textbox', { name: 'Candidate text to edit' });
+    const editor = within(drawer).getByRole('textbox', { name: 'Revision alternative text' });
     fireEvent.change(editor, { target: { value: 'Edited candidate passage.' } });
-    fireEvent.click(within(drawer).getByRole('button', { name: 'Save candidate edit' }));
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Save revision alternative' }));
     fireEvent.click(within(drawer).getByRole('button', { name: 'Close drawer' }));
     expect(onSaveEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'Edited candidate passage.');
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(within(drawer).getByText(/does not accept, reject, park, abandon, or resolve/)).toBeInTheDocument();
+    expect(within(drawer).getByText(/does not apply it or mark the related concern finished/)).toBeInTheDocument();
   });
 
   it('starts with saved edited candidate text and keeps the save gesture explicit', () => {
     const onSaveEdit = vi.fn();
     render(<WritingRevisionDrawer open candidate={candidate({ editedCandidateText: 'Previously edited candidate.' })} onSaveEdit={onSaveEdit} />);
-    const editor = screen.getByRole('textbox', { name: 'Candidate text to edit' });
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
     expect(editor).toHaveValue('Previously edited candidate.');
-    expect(screen.getByRole('button', { name: 'Save candidate edit' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
   });
 
   it('redacts protected content and prevents editing', () => {
@@ -88,8 +88,8 @@ describe('WritingRevisionDrawer component', () => {
     expect(screen.queryByText('PROTECTED_SOURCE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.queryByText('PROTECTED_CANDIDATE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('hidden by protection policy');
-    expect(screen.getByRole('textbox', { name: 'Candidate text to edit' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Save candidate edit' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Revision alternative text' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
   });
 
   it('does not render when closed or when there is no selected candidate', () => {

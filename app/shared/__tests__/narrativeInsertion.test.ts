@@ -115,7 +115,7 @@ describe('Narrative Insertion calculation', () => {
       acknowledgedRisks: ['source-staleness'],
     });
     expect(acknowledged.status).toBe('blocked');
-    expect(acknowledged.message).toMatch(/outside the current manuscript|safely anchored/);
+    expect(acknowledged.message).toMatch(/fresh alternative/);
   });
 
   it('blocks invalid source anchors and candidate selections', async () => {

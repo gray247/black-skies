@@ -342,6 +342,17 @@ describe('revision candidate IPC authority', () => {
   });
 
   it('maps stale and unavailable repository failures visibly', async () => {
+    repository.read.mockResolvedValueOnce({
+      ...ready,
+      document: {
+        ...ready.document,
+        candidates: [{
+          id: 'candidate-1',
+          unitId: 'unit-a',
+          sourceBodySha256: manual.sourceSnapshot.bodySha256,
+        }],
+      },
+    });
     repository.edit.mockRejectedValueOnce(new Error('disk'));
     repository.setLifecycle.mockRejectedValueOnce(
       new RevisionCandidateRepositoryError('STALE', 'Reload.'),
@@ -353,7 +364,11 @@ describe('revision candidate IPC authority', () => {
         candidateId: 'candidate-1',
         editedCandidateText: 'Edited.',
       }),
-    ).resolves.toMatchObject({ ok: false, error: { code: 'CANDIDATE_WRITE_FAILED' } });
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: 'CANDIDATE_WRITE_FAILED' },
+      snapshot: { generation: snapshot.generation, project: { projectId: snapshot.project.projectId } },
+    });
     await expect(
       invoke(REVISION_CANDIDATE_CHANNELS.setLifecycle, 1, {
         ...binding,
@@ -362,5 +377,45 @@ describe('revision candidate IPC authority', () => {
         lifecycle: 'accepted',
       }),
     ).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
+  });
+
+  it('refuses to edit or reclassify a candidate after its source changes, while allowing it to be marked stale', async () => {
+    const staleCandidate = {
+      ...ready,
+      document: {
+        ...ready.document,
+        candidates: [{
+          id: 'candidate-1',
+          unitId: 'unit-a',
+          sourceBodySha256: 'f'.repeat(64),
+        }],
+      },
+    };
+    repository.read.mockResolvedValue(staleCandidate);
+
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.edit, 1, {
+      ...binding,
+      expectedRevision: 0,
+      candidateId: 'candidate-1',
+      editedCandidateText: 'Edited.',
+    })).resolves.toMatchObject({ ok: false, error: { code: 'STALE_CANDIDATES' } });
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.setLifecycle, 1, {
+      ...binding,
+      expectedRevision: 0,
+      candidateId: 'candidate-1',
+      lifecycle: 'reviewing',
+    })).resolves.toMatchObject({ ok: false, error: { code: 'STALE_CANDIDATES' } });
+    expect(repository.edit).not.toHaveBeenCalled();
+    expect(repository.setLifecycle).not.toHaveBeenCalled();
+
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.setLifecycle, 1, {
+      ...binding,
+      expectedRevision: 0,
+      candidateId: 'candidate-1',
+      lifecycle: 'stale',
+    })).resolves.toEqual({ ok: true, data: ready });
+    expect(repository.setLifecycle).toHaveBeenCalledWith(
+      'project-a', 0, 'candidate-1', 'stale', undefined,
+    );
   });
 });

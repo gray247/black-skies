@@ -3,6 +3,63 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Program 7 no-AI repair — automated pre-desktop checkpoint — 2026-09-22
+
+The repair campaign is complete through the requested stopping point before
+the first desktop walkthrough. Black Skies has remained closed. No project was
+opened or mutated, the altered Carmilla project remains untouched as failure
+evidence, and no local-AI, remote-critique, network, release, push, merge, or
+Human Gate 4 action was performed. Desktop Passes 1 and 2 remain pending.
+
+The manuscript-authority repair now derives alternative currentness from the
+saved manuscript instead of trusting the persisted label, makes any source
+hash drift stale, and prevents an acknowledgement from bypassing that guard.
+Acceptance reserves the exact operation, candidate revision, source hash,
+source and candidate ranges, and accepted-text hash before manuscript change;
+edits, lifecycle changes, and competing acceptance are blocked while reserved.
+Recovery and finalization preserve a truthful durable outcome. Partial
+acceptance uses the browser's exact selected offsets, so repeated text cannot
+silently target its first occurrence. Lifecycle transitions are restricted to
+editable Draft/Reviewing work, Resume-only Parked work, and terminal accepted,
+partially accepted, rejected, abandoned, or stale work. Failed IPC results
+retain their structured code and current project snapshot. Durable
+signal-to-revision conversion is no longer reported as failed merely because a
+later screen refresh or navigation attempt fails.
+
+The no-AI renderer now uses “revision alternative” and writer-facing action
+language, keeps implementation metadata under optional Technical details,
+explains stale and unavailable work without reactivating it, and distinguishes
+manual save, alternative save, full apply, and selected-range apply actions.
+When `BLACKSKIES_DISABLE_LOCAL_AI=1`, the preload omits local-AI creation and
+cancellation methods; the renderer therefore removes those controls and keeps
+the manual workflow visible. Companion recognizes normal orientation variants,
+including “Where am I in this project?”, exposes example prompts, and explains
+unsupported requests without provider or routing terminology. Current Writing
+Studio and Command Center surfaces use the existing warm/semantic tokens and
+UI typography contract; the reachable blue/cyan fallbacks were removed.
+Project notices now occupy a reserved in-flow row, while action results stay
+with their initiating panel and use semantic status roles.
+
+Focused persistence, IPC, lifecycle, reservation, recovery, source-binding,
+duplicate-conversion, and manuscript-insertion coverage passes 62/62. Focused
+revision renderer, accessibility, and Companion coverage passes 24/24; the
+preload/no-AI, split-surface, and exact-selection regression group passes
+20/20; the integrated Writing Studio renderer file passes 133/133. The full
+app suite passes 159 files with 1,484 tests passed and 2 expected skips. App
+lint, renderer typecheck, production renderer/main build, documentation lint,
+repository hygiene, and `git diff --check` pass. The integrated gate also
+found and repaired two stale Companion copy assertions, one stale
+Create/Develop heading assertion, and a missing main-process type import.
+
+The requested Luna High executor was unavailable in this session; that was
+reported, and the bounded renderer workload was completed by the persistent
+Terra High renderer executor under the same exclusive ownership constraints.
+Sol reviewed the combined diff and added the exact-range integration and
+no-AI preload regression. The remaining blocker is intentionally procedural:
+usage must be reviewed before Desktop Pass 1. Normal-GPU Electron,
+computer-use validation, disposable-project creation, and all human visual
+claims are therefore not yet run or verified.
+
 ## Program 7 repeated revision-card repair — 2026-09-21
 
 Jason's 3a retest produced five growing `Signals concern` cards for one durable

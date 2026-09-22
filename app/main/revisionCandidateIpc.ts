@@ -17,6 +17,7 @@ import {
   type RevisionCandidateProjectBinding,
   type RevisionCandidateResult,
   type RevisionCandidateLifecycle,
+  type RevisionCandidatesSnapshotV1,
   type RevisionCandidateSourceAnchorV1,
   type SetRevisionCandidateLifecycleRequest,
 } from '../shared/ipc/revisionCandidates.js';
@@ -54,7 +55,7 @@ function cancelLocalAi(
   }
   const active = activeProject(event, request, true);
   if (failure(active)) return active;
-  if (!options?.localInferenceService || !validText(request.requestId, 160)) {
+  if (!options?.localInferenceService || options.localAiAvailable === false || !validText(request.requestId, 160)) {
     return fail('LOCAL_AI_UNAVAILABLE', 'There is no active local-AI request to stop.');
   }
   options.localInferenceService.cancel(request.requestId);
@@ -66,12 +67,14 @@ export interface RegisterRevisionCandidateIpcOptions {
   readonly getWritingSnapshot: () => ProjectSpineSessionSnapshot;
   readonly repositoryFactory?: (projectPath: string) => RevisionCandidateRepository;
   readonly localInferenceService?: RevisionCandidateLocalInferenceService;
+  readonly localAiAvailable?: boolean;
 }
 
 let options: RegisterRevisionCandidateIpcOptions | null = null;
 
 function fail(code: RevisionCandidateError['code'], message: string): RevisionCandidateFailure {
-  return { ok: false, error: { code, message } };
+  const snapshot = options?.getWritingSnapshot();
+  return { ok: false, error: { code, message }, ...(snapshot ? { snapshot } : {}) };
 }
 
 function samePath(left: string, right: string): boolean {
@@ -270,6 +273,32 @@ function sourceCurrent(
   const current = activeUnitBody(snapshot, unitId);
   return current !== null && current.hash === sourceBodySha256;
 }
+
+function derivedCurrentness(
+  snapshot: ProjectSpineSessionSnapshot,
+  candidate: { readonly unitId: string; readonly sourceBodySha256: string },
+): 'current' | 'stale' | 'unavailable' {
+  const current = activeUnitBody(snapshot, candidate.unitId);
+  if (!current) return 'unavailable';
+  return current.hash === candidate.sourceBodySha256 ? 'current' : 'stale';
+}
+
+function deriveSnapshotCurrentness(
+  snapshot: ProjectSpineSessionSnapshot,
+  data: RevisionCandidatesSnapshotV1,
+): RevisionCandidatesSnapshotV1 {
+  if (data.availability !== 'ready') return data;
+  return {
+    ...data,
+    document: {
+      ...data.document,
+      candidates: data.document.candidates.map((candidate) => ({
+        ...candidate,
+        currentness: derivedCurrentness(snapshot, candidate),
+      })),
+    },
+  };
+}
 function validLifecycle(value: unknown): value is RevisionCandidateLifecycle {
   return [
     'generated',
@@ -289,6 +318,7 @@ function repoFailure(error: unknown): RevisionCandidateResult {
     if (error.code === 'UNKNOWN_CANDIDATE') return fail('UNKNOWN_CANDIDATE', error.message);
     if (error.code === 'PROTECTED_SOURCE') return fail('PROTECTED_SOURCE', error.message);
     if (error.code === 'LOCAL_AI_UNAVAILABLE') return fail('LOCAL_AI_UNAVAILABLE', error.message);
+    if (error.code === 'RESERVED') return fail('STALE_CANDIDATES', error.message);
     if (error.code === 'UNAVAILABLE') return fail('CANDIDATES_UNAVAILABLE', error.message);
     return fail('CANDIDATE_WRITE_FAILED', error.message);
   }
@@ -304,7 +334,13 @@ async function list(
   const active = activeProject(event, request, false);
   if (failure(active)) return active;
   try {
-    return { ok: true, data: await active.repository.read(active.snapshot.project!.projectId) };
+    return {
+      ok: true,
+      data: deriveSnapshotCurrentness(
+        active.snapshot,
+        await active.repository.read(active.snapshot.project!.projectId),
+      ),
+    };
   } catch (error) {
     return repoFailure(error);
   }
@@ -399,7 +435,7 @@ async function createLocalAi(
     return fail('INVALID_REQUEST', 'The local-AI revision candidate request is invalid.');
   const active = activeProject(event, request, true);
   if (failure(active)) return active;
-  if (!options?.localInferenceService)
+  if (!options?.localInferenceService || options.localAiAvailable === false)
     return fail(
       'LOCAL_AI_UNAVAILABLE',
       'Local AI is unavailable; create a manual candidate instead.',
@@ -500,6 +536,15 @@ async function edit(
   )
     return fail('INVALID_REQUEST', 'The edited revision candidate is invalid.');
   try {
+    const stored = await active.repository.read(active.snapshot.project!.projectId);
+    if (stored.availability !== 'ready') {
+      return fail('CANDIDATES_UNAVAILABLE', stored.message ?? 'Saved revision candidates are unavailable.');
+    }
+    const candidate = stored.document.candidates.find((item) => item.id === request.candidateId);
+    if (!candidate) return fail('UNKNOWN_CANDIDATE', 'The revision candidate does not exist.');
+    if (derivedCurrentness(active.snapshot, candidate) !== 'current') {
+      return fail('STALE_CANDIDATES', 'The manuscript changed after this alternative was created. Create a fresh alternative before changing it.');
+    }
     return {
       ok: true,
       data: await active.repository.edit(
@@ -546,6 +591,17 @@ async function setLifecycle(
   )
     return fail('INVALID_REQUEST', 'The revision candidate lifecycle request is invalid.');
   try {
+    if (request.lifecycle !== 'stale') {
+      const stored = await active.repository.read(active.snapshot.project!.projectId);
+      if (stored.availability !== 'ready') {
+        return fail('CANDIDATES_UNAVAILABLE', stored.message ?? 'Saved revision candidates are unavailable.');
+      }
+      const candidate = stored.document.candidates.find((item) => item.id === request.candidateId);
+      if (!candidate) return fail('UNKNOWN_CANDIDATE', 'The revision candidate does not exist.');
+      if (derivedCurrentness(active.snapshot, candidate) !== 'current') {
+        return fail('STALE_CANDIDATES', 'The manuscript changed after this alternative was created. Create a fresh alternative before changing its review state.');
+      }
+    }
     return {
       ok: true,
       data: await active.repository.setLifecycle(

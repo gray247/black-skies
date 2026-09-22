@@ -57,7 +57,7 @@ function outline(): LivingOutlineSnapshotV1 {
 }
 
 describe('minimal Companion orientation route', () => {
-  it.each(['Where am I?', 'where was I.', '  WHAT am I working on  '])(
+  it.each(['Where am I?', 'Where am I in this project?', 'where was I in this project.', '  WHAT am I working on in this project  '])(
     'routes the supported local orientation phrase %s',
     (text) => {
       expect(routeCompanionRequest(text, {
@@ -79,7 +79,7 @@ describe('minimal Companion orientation route', () => {
     expect(deriveCompanionOrientationResult(request, snapshot(), outline())).toEqual(expect.objectContaining({
       status: 'not-routed',
       sourceFacts: [],
-      limitationText: expect.stringContaining('No AI or provider was called.'),
+      limitationText: expect.stringContaining('currently helps you find your place'),
       allowedActions: ['return-to-writing', 'dismiss'],
     }));
   });

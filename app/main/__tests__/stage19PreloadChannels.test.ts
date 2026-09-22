@@ -39,6 +39,7 @@ vi.mock('electron', () => ({
 }));
 
 const originalArgv = [...process.argv];
+const originalDisableLocalAi = process.env.BLACKSKIES_DISABLE_LOCAL_AI;
 const originalConsole = {
   log: console.log,
   info: console.info,
@@ -49,6 +50,8 @@ const originalConsole = {
 
 function restoreGlobals(): void {
   process.argv = [...originalArgv];
+  if (originalDisableLocalAi === undefined) delete process.env.BLACKSKIES_DISABLE_LOCAL_AI;
+  else process.env.BLACKSKIES_DISABLE_LOCAL_AI = originalDisableLocalAi;
   Object.assign(console, originalConsole);
 }
 
@@ -133,6 +136,16 @@ describe('dedicated Stage 19 preload', () => {
       'setBoundary',
       'splitGroup',
     ].sort());
+  });
+
+  it('removes local-AI revision actions when the no-AI policy is active', async () => {
+    process.env.BLACKSKIES_DISABLE_LOCAL_AI = '1';
+    await import('../stage19Preload');
+    const bridge = exposed.get('revisionCandidates') as Record<string, unknown>;
+    expect(bridge.createManual).toBeTypeOf('function');
+    expect(bridge.edit).toBeTypeOf('function');
+    expect(bridge.createLocalAi).toBeUndefined();
+    expect(bridge.cancelLocalAi).toBeUndefined();
   });
 
   it('accepts repeated identical split-window launch arguments', async () => {

@@ -3558,7 +3558,10 @@ export default function Stage19WritingSpineApp({
     }
   }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
-  const acceptProgram7Candidate = useCallback(async (candidate: RevisionCandidateV1, selectedText?: string) => {
+  const acceptProgram7Candidate = useCallback(async (
+    candidate: RevisionCandidateV1,
+    selection?: { readonly text: string; readonly start: number; readonly end: number },
+  ) => {
     if (windowRole !== 'writing' || typeof bridge?.acceptRevisionCandidate !== 'function') {
       setProgram7Notice('Candidate acceptance must originate in Writing Studio.');
       return;
@@ -3570,13 +3573,20 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const visibleText = candidate.editedCandidateText ?? candidate.candidateText;
-    const selectionStart = selectedText === undefined ? undefined : visibleText.indexOf(selectedText);
-    if (selectedText !== undefined && (selectionStart === undefined || selectionStart < 0 || selectedText.length === 0)) {
-      setProgram7Notice('The selected candidate text is not present in the current candidate. No manuscript change was made.');
+    const selectionStart = selection?.start;
+    const selectionEnd = selection?.end;
+    if (selection && (
+      selectionStart === undefined ||
+      selectionEnd === undefined ||
+      selectionStart < 0 ||
+      selectionEnd <= selectionStart ||
+      selectionEnd > visibleText.length ||
+      visibleText.slice(selectionStart, selectionEnd) !== selection.text
+    )) {
+      setProgram7Notice('The selected range is no longer valid for this alternative. Select it again before applying. No manuscript change was made.');
       return;
     }
-    const selectionEnd = selectionStart === undefined ? undefined : selectionStart + selectedText!.length;
-    const mode = selectedText !== undefined
+    const mode = selection !== undefined
       ? 'accept-selected-text' as const
       : candidate.editedCandidateText
         ? 'accept-edited-before-acceptance' as const
@@ -3718,12 +3728,16 @@ export default function Stage19WritingSpineApp({
         return;
       }
       const alreadyOpen = program7RevisionItems.activeItems.some((item) => item.id === result.data.id);
-      await refreshProgram7RevisionItems();
       setCommandWorkspace('create-develop');
       setProgram7Notice(alreadyOpen
         ? 'This concern is already in Revision Desk. The existing task was opened; no duplicate was created.'
         : 'This concern is now saved in Revision Desk so you can return to it while revising. Your manuscript has not changed.');
-      if (surfaceBridge) await activateSurface('command', 'current-window');
+      try {
+        await refreshProgram7RevisionItems();
+        if (surfaceBridge) await activateSurface('command', 'current-window');
+      } catch {
+        setProgram7Notice('This concern was saved in Revision Desk, but the screen could not refresh. Reopen Revision Desk to continue.');
+      }
     } catch {
       setProgram7Notice('The Program 6 finding could not be routed. No manuscript text changed.');
     }
@@ -4097,6 +4111,7 @@ export default function Stage19WritingSpineApp({
     storyIntelligenceNotice,
     program7RevisionItems,
     program7Candidates,
+    program7LocalAiAvailable: typeof revisionCandidatesBridge?.createLocalAi === 'function',
     program7Foundation,
     program7Ideation,
     program7History: buildProgram7HistoryProjection({

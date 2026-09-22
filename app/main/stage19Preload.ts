@@ -906,15 +906,17 @@ const revisionCandidates: RevisionCandidatesBridge = {
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.list, request),
   createManual: (request: CreateManualRevisionCandidateRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.createManual, request),
-  createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
-    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.createLocalAi, request),
-  cancelLocalAi: (request: CancelLocalAiRevisionCandidateRequest) =>
-    ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.cancelLocalAi, request),
+  ...(process.env.BLACKSKIES_DISABLE_LOCAL_AI === '1' ? {} : {
+    createLocalAi: (request: CreateLocalAiRevisionCandidateRequest) =>
+      ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.createLocalAi, request),
+    cancelLocalAi: (request: CancelLocalAiRevisionCandidateRequest) =>
+      ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.cancelLocalAi, request),
+  }),
   edit: (request: EditRevisionCandidateRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.edit, request),
   setLifecycle: (request: SetRevisionCandidateLifecycleRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.revisionCandidates.setLifecycle, request),
-};
+} as RevisionCandidatesBridge;
 
 const storyFoundation: StoryFoundationBridge = {
   get: (request: GetStoryFoundationRequest) =>

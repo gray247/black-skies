@@ -11,6 +11,7 @@ export interface RevisionDeskProps {
   readonly availability?: 'ready' | 'degraded';
   readonly unavailableMessage?: string | null;
   readonly canResolve?: boolean;
+  readonly localAiAvailable?: boolean;
   readonly onReturnToSource?: (item: RevisionItem) => void;
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
@@ -24,7 +25,7 @@ const dispositionActions: readonly FeedbackRevisionDisposition[] = [
 ];
 
 function sourceStatus(item: RevisionItem): string {
-  if (item.lifecycle === 'stale') return 'Passage changed since this task was created';
+  if (item.lifecycle === 'stale') return 'The passage changed after this task was created';
   if (item.sourceBodyFingerprint || item.anchor || item.sourceId) return 'Ready to open';
   return 'Original location unavailable';
 }
@@ -38,7 +39,24 @@ function sourceDescription(item: RevisionItem): string {
 }
 
 function originDescription(item: RevisionItem): string {
-  return item.provenance?.origin === 'local-ai' ? 'Local AI suggestion' : 'Story Knowledge';
+  return item.provenance?.origin === 'local-ai' ? 'Local advisory suggestion' : 'Story Knowledge';
+}
+
+function lifecycleLabel(lifecycle: FeedbackRevisionLifecycle): string {
+  switch (lifecycle) {
+    case 'active':
+    case 'review': return 'Open';
+    case 'intended': return 'Planned';
+    case 'underway': return 'In progress';
+    case 'ready_for_recheck': return 'Ready to check';
+    case 'recheck_pending': return 'Checking';
+    case 'resolved': return 'Finished';
+    case 'parked': return 'Set aside';
+    case 'dismissed': return 'Dismissed';
+    case 'abandoned': return 'Stopped';
+    case 'stale': return 'Needs review';
+    default: return 'Unavailable';
+  }
 }
 
 function dispositionLabel(lifecycle: FeedbackRevisionDisposition): string {
@@ -84,7 +102,7 @@ function RecheckList({ rechecks }: { readonly rechecks: readonly FeedbackNoteRec
           const sourceStatus = sourceStatusLabel(recheck.sourceStatus);
           const evidence = evidenceLabel(recheck);
           return <li key={recheck.id}>
-            <span>{recheck.method === 'local-ai' ? 'Local AI' : 'Passage check'}:</span>{' '}
+            <span>{recheck.method === 'local-ai' ? 'Earlier advisory check' : 'Passage check'}:</span>{' '}
             <span>{recheck.status === 'appears_resolved'
               ? 'may be resolved'
               : recheck.status === 'still_appears_present'
@@ -109,6 +127,7 @@ function RevisionCard({
   onLifecycle,
   onRecheck,
   onOpenRecurrence,
+  localAiAvailable,
 }: {
   readonly item: RevisionItem;
   readonly history: boolean;
@@ -117,13 +136,14 @@ function RevisionCard({
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
   readonly onOpenRecurrence?: (item: RevisionItem, recurrenceId: string) => void;
+  readonly localAiAvailable: boolean;
 }): JSX.Element {
   const recurrenceId = item.relatedRecurrenceId ?? item.relatedItemId ?? item.relatedRevisionItemId;
   return (
     <article
       className="program7-revision-desk__card"
       tabIndex={0}
-      aria-label={`Revision item ${item.id}`}
+      aria-label="Revision task"
       onKeyDown={(event) => {
         if (event.key === 'Enter' && onReturnToSource) onReturnToSource(item);
       }}
@@ -133,12 +153,9 @@ function RevisionCard({
           <h3>{item.lens ? `${item.lens[0]?.toUpperCase()}${item.lens.slice(1)} concern` : 'Revision to consider'}</h3>
           <p>{sourceDescription(item)} · {sourceStatus(item)}</p>
         </div>
-        {history ? <span>{item.lifecycle}</span> : null}
+        {history ? <span>{lifecycleLabel(item.lifecycle)}</span> : null}
       </header>
-      <dl className="program7-revision-desk__metadata">
-        <div><dt>Added from</dt><dd>{originDescription(item)}</dd></div>
-        {item.protection?.protected ? <div><dt>Privacy</dt><dd>Protected · details hidden</dd></div> : null}
-      </dl>
+      {item.protection?.protected ? <p>Some protected details are hidden.</p> : null}
       <p className="program7-revision-desk__body"><strong>What to consider:</strong> {safeBody(item)}</p>
       {item.evidence && item.evidence.trim() !== item.body.trim() ? (
         <p className="program7-revision-desk__evidence">
@@ -150,18 +167,18 @@ function RevisionCard({
       {recurrenceId && onOpenRecurrence ? (
         <p>
           <button type="button" onClick={() => onOpenRecurrence?.(item, recurrenceId)}>
-            Open related recurrence
+            Open related concern
           </button>
         </p>
       ) : null}
       <div className="program7-revision-desk__actions" aria-label={`Actions for ${item.id}`}>
         {onReturnToSource ? (
-          <button type="button" onClick={() => onReturnToSource(item)}>Open passage</button>
+          <button type="button" onClick={() => onReturnToSource(item)}>Open passage in Writing Studio</button>
         ) : null}
         {!history && onRecheck ? (
           <>
             <button type="button" onClick={() => onRecheck(item, 'deterministic')}>Check after revising</button>
-            <button type="button" onClick={() => onRecheck(item, 'local-ai')}>Ask local AI to check again</button>
+            {localAiAvailable ? <button type="button" onClick={() => onRecheck(item, 'local-ai')}>Ask for another advisory check</button> : null}
           </>
         ) : null}
         {!history && onLifecycle ? dispositionActions.map((lifecycle) => (
@@ -185,6 +202,16 @@ function RevisionCard({
           </>
         ) : null}
       </div>
+      <details className="program7-revision-desk__technical-details">
+        <summary>Technical details</summary>
+        <dl className="program7-revision-desk__metadata">
+          <div><dt>Revision task ID</dt><dd>{item.id}</dd></div>
+          <div><dt>Unit ID</dt><dd>{item.unitId}</dd></div>
+          <div><dt>Status</dt><dd>{item.lifecycle}</dd></div>
+          <div><dt>Added from</dt><dd>{originDescription(item)}</dd></div>
+          {item.protection?.protected ? <div><dt>Privacy</dt><dd>Protected · details hidden</dd></div> : null}
+        </dl>
+      </details>
     </article>
   );
 }
@@ -202,6 +229,7 @@ function ItemSection({
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
   readonly onOpenRecurrence?: (item: RevisionItem, recurrenceId: string) => void;
+  readonly localAiAvailable: boolean;
 }): JSX.Element {
   return (
     <section className="program7-revision-desk__section" aria-labelledby={`${title.toLowerCase().replace(/\s+/gu, '-')}-heading`}>
@@ -225,6 +253,7 @@ export default function RevisionDesk({
   availability = 'ready',
   unavailableMessage,
   canResolve = false,
+  localAiAvailable = true,
   onReturnToSource,
   onLifecycle,
   onRecheck,
@@ -255,6 +284,7 @@ export default function RevisionDesk({
         onLifecycle={onLifecycle}
         onRecheck={onRecheck}
         onOpenRecurrence={onOpenRecurrence}
+        localAiAvailable={localAiAvailable}
       />
       <ItemSection
         title="Completed revision tasks"
@@ -265,6 +295,7 @@ export default function RevisionDesk({
         onLifecycle={onLifecycle}
         onRecheck={onRecheck}
         onOpenRecurrence={onOpenRecurrence}
+        localAiAvailable={localAiAvailable}
       />
     </section>
   );

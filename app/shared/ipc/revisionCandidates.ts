@@ -2,6 +2,7 @@ import type {
   Program7LocalInferenceRequestV1,
   Program7LocalInferenceResponseV1,
 } from '../localInference.js';
+import type { ProjectSpineSessionSnapshot } from './projectSpine.js';
 
 export const REVISION_CANDIDATE_CHANNELS = {
   list: 'revision-candidates:list',
@@ -65,6 +66,20 @@ export interface RevisionCandidateHistoryEventV1 {
   readonly note: string | null;
 }
 
+/** Main-owned lock written before an acceptance may change durable manuscript text. */
+export interface RevisionCandidateAcceptanceReservationV1 {
+  readonly operationId: string;
+  readonly documentRevision: number;
+  readonly sourceBodySha256: string;
+  readonly sourceStart: number;
+  readonly sourceEnd: number;
+  readonly candidateStart: number;
+  readonly candidateEnd: number;
+  readonly candidateTextSha256: string;
+  readonly acceptedResultSha256: string;
+  readonly reservedAt: string;
+}
+
 export interface RevisionCandidateV1 {
   readonly id: string;
   readonly projectId: string;
@@ -81,6 +96,8 @@ export interface RevisionCandidateV1 {
   readonly candidateText: string;
   readonly editedCandidateText: string | null;
   readonly lifecycle: RevisionCandidateLifecycle;
+  /** Null for ordinary alternatives; only the main-owned acceptance path may set a reservation. */
+  readonly acceptanceReservation?: RevisionCandidateAcceptanceReservationV1 | null;
   readonly history: readonly RevisionCandidateHistoryEventV1[];
   readonly createdAt: string;
   readonly updatedAt: string;
@@ -158,9 +175,16 @@ export interface RevisionCandidateAcceptanceReceiptV1 {
 export interface RevisionCandidateAcceptanceFinalizationRequestV1 {
   readonly expectedRevision: number;
   readonly candidateId: string;
+  readonly operationId: string;
   readonly lifecycle: 'accepted' | 'partially accepted';
   readonly receipt: RevisionCandidateAcceptanceReceiptV1;
   readonly note?: string;
+}
+
+export interface RevisionCandidateAcceptanceReservationRequestV1 {
+  readonly expectedRevision: number;
+  readonly candidateId: string;
+  readonly reservation: RevisionCandidateAcceptanceReservationV1;
 }
 
 export type RevisionCandidateErrorCode =
@@ -182,7 +206,12 @@ export interface RevisionCandidateError {
 
 export type RevisionCandidateResult =
   | { readonly ok: true; readonly data: RevisionCandidatesSnapshotV1 }
-  | { readonly ok: false; readonly error: RevisionCandidateError };
+  | {
+      readonly ok: false;
+      readonly error: RevisionCandidateError;
+      /** A failure is always paired with the latest main-owned Writing snapshot when available. */
+      readonly snapshot?: ProjectSpineSessionSnapshot;
+    };
 
 export interface RevisionCandidatesBridge {
   list(request: ListRevisionCandidatesRequest): Promise<RevisionCandidateResult>;

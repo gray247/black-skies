@@ -31,13 +31,16 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 describe('RevisionComparison component', () => {
   it('keeps current and candidate text visibly separate and exposes origin, warning, and stale state', () => {
     render(<RevisionComparison candidate={candidate({ origin: 'local-ai', provenance: { origin: 'local-ai', source: 'program7-local-ai', model: 'qwen3:4b', receipt: null }, currentness: 'stale', warnings: ['Source changed since candidate creation.'] })} />);
-    expect(screen.getByRole('heading', { name: 'Current manuscript text' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Candidate text' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your current manuscript' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Revision alternative' })).toBeInTheDocument();
     expect(screen.getByTestId('revision-current-text')).toHaveTextContent('Current manuscript passage.');
     expect(screen.getByTestId('revision-candidate-text')).toHaveTextContent('Candidate manuscript passage.');
-    expect(screen.getByTestId('revision-comparison-origin')).toHaveTextContent('Local-AI · qwen3:4b');
-    expect(screen.getByRole('alert')).toHaveTextContent('stale');
+    expect(screen.getByTestId('revision-comparison-origin')).toHaveTextContent('Ready to review');
+    expect(screen.getByRole('alert')).toHaveTextContent('cannot be applied because the passage changed');
     expect(screen.getByRole('list')).toHaveTextContent('Source changed since candidate creation.');
+    expect(screen.queryByText('qwen3:4b')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Technical details'));
+    expect(screen.getByText(/Local AI.*qwen3:4b/)).toBeInTheDocument();
   });
 
   it('requires explicit all or selected acceptance and keeps disposition actions separate', () => {
@@ -47,18 +50,23 @@ describe('RevisionComparison component', () => {
     const onOpenEditor = vi.fn();
     render(<RevisionComparison candidate={candidate()} canAccept onAcceptAll={onAcceptAll} onPartialAccept={onPartialAccept} onLifecycle={onLifecycle} onOpenEditor={onOpenEditor} />);
     const comparison = screen.getByTestId('revision-comparison');
-    fireEvent.click(within(comparison).getByRole('button', { name: 'Accept all candidate text' }));
-    fireEvent.change(within(comparison).getByRole('textbox', { name: 'Text to accept for partial acceptance' }), { target: { value: 'Candidate manuscript' } });
-    fireEvent.click(within(comparison).getByRole('button', { name: 'Accept selected text only' }));
-    fireEvent.click(within(comparison).getByRole('button', { name: 'Edit candidate' }));
-    fireEvent.click(within(comparison).getByRole('button', { name: 'Park candidate' }));
-    fireEvent.click(within(comparison).getByRole('button', { name: 'Reject candidate' }));
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Apply all of this alternative' }));
+    const partialSelection = within(comparison).getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
+    partialSelection.setSelectionRange(10, 20);
+    fireEvent.select(partialSelection);
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Apply only the selected part' }));
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Edit alternative' }));
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Set this alternative aside' }));
+    fireEvent.click(within(comparison).getByRole('button', { name: 'Do not use this alternative' }));
     expect(onAcceptAll).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }));
-    expect(onPartialAccept).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'Candidate manuscript');
+    expect(onPartialAccept).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'candidate-a' }),
+      { text: 'manuscript', start: 10, end: 20 },
+    );
     expect(onOpenEditor).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }));
     expect(onLifecycle).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'parked');
     expect(onLifecycle).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'rejected');
-    expect(within(comparison).getByText(/silently resolves the revision item/)).toBeInTheDocument();
+    expect(within(comparison).getByText(/Only you can apply an alternative/)).toBeInTheDocument();
   });
 
   it('does not offer acceptance through a stale candidate or expose protected source text', () => {
@@ -67,6 +75,6 @@ describe('RevisionComparison component', () => {
     expect(screen.queryByText('PROTECTED_SOURCE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.queryByText('PROTECTED_CANDIDATE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.getAllByText('Content hidden by protection policy.')).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'Accept all candidate text' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply all of this alternative' })).toBeDisabled();
   });
 });

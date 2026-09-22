@@ -45,8 +45,12 @@ export interface CompanionOrientationResultV1 {
 
 const ORIENTATION_REQUESTS = new Set([
   'where am i',
+  'where am i in this project',
+  'where am i in the project',
   'where was i',
+  'where was i in this project',
   'what am i working on',
+  'what am i working on in this project',
 ]);
 
 const ORIENTATION_ACTIONS = ['return-to-writing', 'dismiss'] as const;
@@ -117,7 +121,7 @@ export function deriveCompanionOrientationResult(
       ...base,
       status: 'not-routed',
       sourceFacts: [],
-      limitationText: 'This first Companion slice only answers where you are in the current project. No AI or provider was called.',
+      limitationText: 'Companion currently helps you find your place in this project. It did not change your manuscript or save anything.',
     };
   }
 
@@ -172,6 +176,6 @@ export function deriveCompanionOrientationResult(
     ...base,
     status: 'available',
     sourceFacts,
-    limitationText: 'This is a temporary local orientation summary. It did not read manuscript prose, call AI, create memory, or decide what you should do next.',
+    limitationText: 'This is a temporary orientation summary. It did not change your manuscript, create a saved record, or decide what you should do next.',
   };
 }

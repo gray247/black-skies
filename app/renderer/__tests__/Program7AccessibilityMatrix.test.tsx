@@ -111,7 +111,7 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     }
     expect(screen.getAllByRole('alert')).toHaveLength(4);
     expect(screen.getByRole('heading', { name: 'Develop your story' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Compare revision candidate' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Compare revision alternative' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
     expect(screen.getByText('Content hidden by protection policy.')).toBeInTheDocument();
     expect(IDEATION_FIXED_CORE_QUESTIONS.length).toBeGreaterThan(0);
@@ -127,8 +127,12 @@ describe('Program 7 accessibility and visual mechanical matrix', () => {
     for (const [foreground, background] of pairs) expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
     expect(css).toContain('--bs-text-muted: var(--bs-text-secondary);');
     expect(css).toMatch(/\.stage19-spine label\s*\{[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
-    expect(css).toMatch(/\.stage19-spine__surface-notice\s*\{[\s\S]*?color:\s*var\(--bs-state-info\);/);
+    expect(css).toMatch(/\.stage19-spine__surface-notice\s*\{[\s\S]*?color:\s*var\(--bs-text-secondary\);/);
     expect(p7).not.toMatch(/(?:color|background(?:-color)?)\s*:\s*#(?:fff|ffffff|eee|eeeeee|d3d3d3|c0c0c0)\b/i);
+    expect(p7).not.toContain('#3757a6');
+    expect(p7).not.toContain('#edf1ff');
+    expect(css).toMatch(/\.stage19-spine--writing \.stage19-spine__surface-notice\s*\{\s*padding:\s*0;\s*border:\s*0;\s*background:\s*transparent;/);
+    expect(css).toMatch(/\.stage19-writing-shell__notice-row\s*\{[\s\S]*?min-height:\s*56px;/);
     expect(p7).toContain('min-height: 44px;');
     expect(p7).toContain('white-space: pre-wrap;');
     expect(p7).toMatch(/@media\s*\(max-width:\s*720px\)/);

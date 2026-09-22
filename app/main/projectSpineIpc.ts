@@ -864,6 +864,12 @@ async function reconcilePendingRevisionAcceptance(): Promise<void> {
   }
   const currentBodySha256 = digest(durableBody(currentMarkdown));
   if (pending.phase === 'pending-save' && currentBodySha256 === pending.currentBodySha256) {
+    const repository = revisionCandidateRepository(active.path);
+    const candidates = await repository.read(active.projectId);
+    if (candidates.availability !== 'ready') {
+      throw new ProjectSessionError('REVISION_ACCEPTANCE_PENDING', candidates.message ?? 'Saved revision candidates are unavailable for reconciliation.');
+    }
+    await repository.releaseAcceptance(active.projectId, candidates.document.revision, pending.candidateId, pending.operationId);
     await clearPendingAcceptance(active.path);
     return;
   }
@@ -906,6 +912,7 @@ async function reconcilePendingRevisionAcceptance(): Promise<void> {
     await repository.finalizeAcceptance(active.projectId, {
       expectedRevision: candidates.document.revision,
       candidateId: pending.candidateId,
+      operationId: pending.operationId,
       lifecycle: pending.lifecycle,
       receipt: {
         sourceBodySha256: pending.sourceBodySha256,
@@ -1324,6 +1331,10 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       const role = requireWritingRole(event);
       let acceptanceToken: ReturnType<ProjectSessionCoordinator['beginRevisionAcceptance']> | null = null;
       let saveToken: ReturnType<ProjectSessionCoordinator['beginSave']> | null = null;
+      let reservedRevision: number | null = null;
+      let reservedCandidateId: string | null = null;
+      let reservationOperationId: string | null = null;
+      let saveAttempted = false;
       try {
         requireOperationId(request?.operationId);
         if (
@@ -1381,10 +1392,8 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         if (
           candidate.projectId !== active.projectId ||
           candidate.unitId !== request.unitId ||
-          candidate.currentness !== 'current' ||
-          candidate.lifecycle === 'stale' ||
-          candidate.lifecycle === 'accepted' ||
-          candidate.lifecycle === 'partially accepted'
+          (candidate.lifecycle !== 'generated' && candidate.lifecycle !== 'reviewing') ||
+          candidate.acceptanceReservation
         ) {
           throw new RevisionCandidateRepositoryError(
             'STALE',
@@ -1418,6 +1427,26 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         const acceptedMarkdown = replaceDurableBody(request.expectedMarkdown, acceptedBody);
         const lifecycle = acceptanceLifecycle(request.mode);
         const createdAt = new Date().toISOString();
+        const reservation = {
+          operationId: request.operationId,
+          documentRevision: candidates.document.revision,
+          sourceBodySha256: candidate.sourceBodySha256,
+          sourceStart: calculation.replacement.sourceStart,
+          sourceEnd: calculation.replacement.sourceEnd,
+          candidateStart: calculation.replacement.candidateStart,
+          candidateEnd: calculation.replacement.candidateEnd,
+          candidateTextSha256: calculation.candidateTextSha256,
+          acceptedResultSha256: calculation.acceptedResultSha256,
+          reservedAt: createdAt,
+        } as const;
+        const reserved = await repository.reserveAcceptance(active.projectId, {
+          expectedRevision: candidates.document.revision,
+          candidateId: request.candidateId,
+          reservation,
+        });
+        reservedRevision = reserved.document.revision;
+        reservedCandidateId = request.candidateId;
+        reservationOperationId = request.operationId;
         const pending: ProjectSpinePendingAcceptanceV1 = {
           schemaVersion: PROJECT_SPINE_PENDING_ACCEPTANCE_SCHEMA_VERSION,
           operationId: request.operationId,
@@ -1428,7 +1457,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           candidateId: request.candidateId,
           mode: request.mode,
           lifecycle,
-          candidateDocumentRevision: candidates.document.revision,
+          candidateDocumentRevision: reserved.document.revision,
           expectedMarkdownSha256: digest(request.expectedMarkdown),
           sourceBodySha256: candidate.sourceBodySha256,
           currentBodySha256: calculation.currentBodySha256,
@@ -1442,6 +1471,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
 
         saveToken = coordinator.beginSave(request, request.unitId);
         publish();
+        saveAttempted = true;
         const saved = await saveProjectDraft({
           projectPath: request.projectPath,
           projectId: request.projectId,
@@ -1476,8 +1506,9 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         await writePendingAcceptance({ ...pending, phase: 'saved-awaiting-finalization', updatedAt: savedAt });
         try {
           await repository.finalizeAcceptance(active.projectId, {
-            expectedRevision: candidates.document.revision,
+            expectedRevision: reserved.document.revision,
             candidateId: request.candidateId,
+            operationId: request.operationId,
             lifecycle,
             receipt: {
               sourceBodySha256: pending.sourceBodySha256,
@@ -1512,6 +1543,19 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         }
         if (acceptanceToken) {
           coordinator.failRevisionAcceptance(acceptanceToken);
+        }
+        if (!saveAttempted && reservedRevision !== null && reservedCandidateId && reservationOperationId) {
+          try {
+            await revisionCandidateRepository(request.projectPath).releaseAcceptance(
+              request.projectId,
+              reservedRevision,
+              reservedCandidateId,
+              reservationOperationId,
+            );
+            await clearPendingAcceptance(request.projectPath);
+          } catch {
+            // Keep the reservation fail-closed if its exact release cannot be durably proven.
+          }
         }
         publish();
         return failure<AcceptRevisionCandidateResultData>(role, error);

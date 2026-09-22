@@ -1564,7 +1564,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('Project A · 2 manuscript units');
     expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('First Unit · unit 1 of 2');
     expect(screen.getByRole('region', { name: 'Companion orientation result' })).toHaveTextContent('No Note is placed with the current writing');
-    expect(screen.getByText(/It did not read manuscript prose, call AI, create memory/)).toBeVisible();
+    expect(screen.getByText(/It did not change your manuscript, create a saved record/)).toBeVisible();
     expect(surfaces.activateSurface).toHaveBeenLastCalledWith(expect.objectContaining({
       targetSurface: 'command', placement: 'current-window', projectId: 'proj_a', generation: 1,
     }));
@@ -1709,7 +1709,7 @@ describe('Stage19WritingSpineApp', () => {
     await user.click(screen.getByRole('button', { name: 'Ask' }));
 
     expect(await screen.findByRole('heading', { name: 'This request is not supported yet' })).toBeVisible();
-    expect(screen.getByText('This first Companion slice only answers where you are in the current project. No AI or provider was called.')).toBeVisible();
+    expect(screen.getByText('Companion currently helps you find your place in this project. It did not change your manuscript or save anything.')).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
     expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
 

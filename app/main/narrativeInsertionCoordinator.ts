@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import type { ProjectSpineSessionSnapshot, ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import {
   calculateNarrativeInsertion,
@@ -163,7 +164,13 @@ export class NarrativeInsertionCoordinator {
     if (saved.availability !== 'ready') return fail('CANDIDATES_UNAVAILABLE', saved.message ?? 'Saved revision candidates are unavailable.');
     const candidate = saved.document.candidates.find((item) => item.id === request.candidateId);
     if (!candidate) return fail('UNKNOWN_CANDIDATE', 'The revision candidate does not exist.');
-    if (candidate.currentness !== 'current' || candidate.lifecycle === 'stale') {
+    const currentBody = durableBody(active.snapshot.project?.drafts?.[candidate.unitId] ?? '');
+    const currentHash = createHash('sha256').update(currentBody, 'utf8').digest('hex');
+    if (
+      currentHash !== candidate.sourceBodySha256 ||
+      (candidate.lifecycle !== 'generated' && candidate.lifecycle !== 'reviewing') ||
+      candidate.acceptanceReservation
+    ) {
       return fail('STALE_CANDIDATE', 'The revision candidate is stale and cannot be inserted.');
     }
     const currentDraft = active.snapshot.project?.drafts?.[candidate.unitId];

@@ -35,12 +35,11 @@ describe('RevisionDesk component', () => {
     expect(screen.getByRole('heading', { name: 'Revision Desk' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Active revision tasks' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Completed revision tasks' })).toBeInTheDocument();
-    expect(screen.getByText(/Passage changed since this task was created/)).toBeInTheDocument();
-    expect(screen.getByText('Protected · details hidden')).toBeInTheDocument();
+    expect(screen.getByText(/The passage changed after this task was created/)).toBeInTheDocument();
+    expect(screen.getByText('Some protected details are hidden.')).toBeInTheDocument();
     expect(screen.getByText('Content hidden by protection policy.')).toBeInTheDocument();
     expect(screen.queryByText('PROTECTED_RAW_SENTINEL')).not.toBeInTheDocument();
-    expect(screen.getByRole('article', { name: 'Revision item protected-a' })).toBeInTheDocument();
-    expect(screen.getByRole('article', { name: 'Revision item resolved-a' })).toBeInTheDocument();
+    expect(screen.getAllByRole('article', { name: 'Revision task' })).toHaveLength(2);
   });
 
   it('exposes return, recheck, disposition, author resolution, recurrence, and keyboard actions', () => {
@@ -53,12 +52,12 @@ describe('RevisionDesk component', () => {
       rechecks: [{ id: 'recheck-a', status: 'still_appears_present', method: 'deterministic', evidence: 'The source remains current.', createdAt: '2026-09-11T00:00:00.000Z' }],
     });
     render(<RevisionDesk activeItems={[active]} historyItems={[]} canResolve onReturnToSource={onReturnToSource} onLifecycle={onLifecycle} onRecheck={onRecheck} onOpenRecurrence={onOpenRecurrence} />);
-    const card = screen.getByRole('article', { name: 'Revision item revision-a' });
-    fireEvent.click(within(card).getByRole('button', { name: 'Open passage' }));
+    const card = screen.getByRole('article', { name: 'Revision task' });
+    fireEvent.click(within(card).getByRole('button', { name: 'Open passage in Writing Studio' }));
     fireEvent.click(within(card).getByRole('button', { name: 'Check after revising' }));
-    fireEvent.click(within(card).getByRole('button', { name: 'Ask local AI to check again' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Ask for another advisory check' }));
     fireEvent.click(within(card).getByRole('button', { name: 'Set aside' }));
-    fireEvent.click(within(card).getByRole('button', { name: 'Open related recurrence' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Open related concern' }));
     fireEvent.keyDown(card, { key: 'Enter' });
     expect(onReturnToSource).toHaveBeenCalledTimes(2);
     expect(onRecheck).toHaveBeenNthCalledWith(1, active, 'deterministic');
@@ -93,5 +92,11 @@ describe('RevisionDesk component', () => {
     expect(screen.getByRole('list', { name: 'How to use Revision Desk' })).toBeVisible();
     expect(screen.getAllByText('One concern.')).toHaveLength(1);
     expect(screen.queryByText(/deterministic/i)).not.toBeInTheDocument();
+  });
+
+  it('removes local-AI controls while keeping the manual check available', () => {
+    render(<RevisionDesk activeItems={[item()]} historyItems={[]} localAiAvailable={false} onRecheck={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Check after revising' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /advisory check/i })).not.toBeInTheDocument();
   });
 });

@@ -10,7 +10,7 @@ function marker(label: string): JSX.Element {
 describe('Program7CreateDevelopWorkspace component', () => {
   it('composes the four provisional sections behind explicit navigation', () => {
     render(<Program7CreateDevelopWorkspace revisionDesk={marker('revision')} storyFoundation={marker('foundation')} ideas={marker('ideas')} history={marker('history')} />);
-    expect(screen.getByRole('heading', { name: 'Create / Develop' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Develop your story' })).toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(4);
     expect(screen.getByTestId('marker-revision')).toBeInTheDocument();
     expect(screen.queryByTestId('marker-foundation')).not.toBeInTheDocument();

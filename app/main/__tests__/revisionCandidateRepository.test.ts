@@ -174,11 +174,35 @@ describe('revision candidate repository', () => {
       'reviewing',
       'stale',
     ]);
+    await expect(repository.setLifecycle('project-a', 3, id, 'reviewing')).rejects.toMatchObject({
+      code: 'STALE',
+    } satisfies Partial<RevisionCandidateRepositoryError>);
     const second = await repository.createManual('project-a', 3, manualInput());
     const secondId = second.document.candidates[1]!.id;
-    const finalized = await repository.finalizeAcceptance('project-a', {
+    const reservation = {
+      operationId: 'acceptance-1',
+      documentRevision: 4,
+      sourceBodySha256: source.bodySha256,
+      sourceStart: 0,
+      sourceEnd: sourceText.length,
+      candidateStart: 0,
+      candidateEnd: 'The revised transition.'.length,
+      candidateTextSha256: createHash('sha256').update('The revised transition.').digest('hex'),
+      acceptedResultSha256: 'f'.repeat(64),
+      reservedAt: '2026-09-09T12:00:00.000Z',
+    };
+    const reserved = await repository.reserveAcceptance('project-a', {
       expectedRevision: 4,
       candidateId: secondId,
+      reservation,
+    });
+    await expect(repository.edit('project-a', 5, secondId, 'Not while accepting.')).rejects.toMatchObject({
+      code: 'RESERVED',
+    } satisfies Partial<RevisionCandidateRepositoryError>);
+    const finalized = await repository.finalizeAcceptance('project-a', {
+      expectedRevision: reserved.document.revision,
+      candidateId: secondId,
+      operationId: reservation.operationId,
       lifecycle: 'accepted',
       receipt: {
         sourceBodySha256: source.bodySha256,
@@ -189,6 +213,7 @@ describe('revision candidate repository', () => {
     });
     expect(finalized.document.candidates[1]).toMatchObject({
       lifecycle: 'accepted',
+      acceptanceReservation: null,
     });
     expect(
       finalized.document.candidates[1]!.history.some(

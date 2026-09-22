@@ -11,6 +11,8 @@ import {
   REVISION_CANDIDATE_SCHEMA_VERSION,
   type CreateManualRevisionCandidateRequest,
   type RevisionCandidateCurrentness,
+  type RevisionCandidateAcceptanceReservationRequestV1,
+  type RevisionCandidateAcceptanceReservationV1,
   type RevisionCandidateAcceptanceFinalizationRequestV1,
   type RevisionCandidateHistoryEventV1,
   type RevisionCandidateLifecycle,
@@ -55,7 +57,8 @@ export class RevisionCandidateRepositoryError extends Error {
       | 'UNKNOWN_CANDIDATE'
       | 'INVALID'
       | 'PROTECTED_SOURCE'
-      | 'LOCAL_AI_UNAVAILABLE',
+      | 'LOCAL_AI_UNAVAILABLE'
+      | 'RESERVED',
     message: string,
   ) {
     super(message);
@@ -230,6 +233,39 @@ function validHistory(value: unknown): value is readonly RevisionCandidateHistor
   );
 }
 
+function validReservation(value: unknown): value is RevisionCandidateAcceptanceReservationV1 | null | undefined {
+  if (value === null || value === undefined) return true;
+  if (!exactKeys(value, [
+    'operationId', 'documentRevision', 'sourceBodySha256', 'sourceStart', 'sourceEnd',
+    'candidateStart', 'candidateEnd', 'candidateTextSha256', 'acceptedResultSha256', 'reservedAt',
+  ])) return false;
+  const reservation = value as Partial<RevisionCandidateAcceptanceReservationV1>;
+  return nonEmpty(reservation.operationId, 240) &&
+    Number.isInteger(reservation.documentRevision) && Number(reservation.documentRevision) >= 0 &&
+    [reservation.sourceBodySha256, reservation.candidateTextSha256, reservation.acceptedResultSha256]
+      .every((value) => hash(value ?? '')) &&
+    [reservation.sourceStart, reservation.sourceEnd, reservation.candidateStart, reservation.candidateEnd]
+      .every((value) => Number.isInteger(value) && Number(value) >= 0) &&
+    Number(reservation.sourceEnd) >= Number(reservation.sourceStart) &&
+    Number(reservation.candidateEnd) >= Number(reservation.candidateStart) &&
+    timestamp(reservation.reservedAt);
+}
+
+function editable(candidate: RevisionCandidateV1): boolean {
+  return (candidate.lifecycle === 'generated' || candidate.lifecycle === 'reviewing') &&
+    candidate.currentness === 'current' && !candidate.acceptanceReservation;
+}
+
+function lifecycleTransitionAllowed(
+  candidate: RevisionCandidateV1,
+  next: RevisionCandidateLifecycle,
+): boolean {
+  if (candidate.acceptanceReservation) return false;
+  if (candidate.lifecycle === 'parked') return next === 'reviewing' || next === 'stale';
+  if (candidate.lifecycle !== 'generated' && candidate.lifecycle !== 'reviewing') return false;
+  return next === 'reviewing' || next === 'parked' || next === 'rejected' || next === 'abandoned' || next === 'stale';
+}
+
 function validCandidate(value: unknown, projectId: string): value is RevisionCandidateV1 {
   if (
     !exactKeys(value, [
@@ -251,7 +287,7 @@ function validCandidate(value: unknown, projectId: string): value is RevisionCan
       'history',
       'createdAt',
       'updatedAt',
-    ])
+    ], ['acceptanceReservation'])
   )
     return false;
   const candidate = value as Partial<RevisionCandidateV1>;
@@ -293,7 +329,8 @@ function validCandidate(value: unknown, projectId: string): value is RevisionCan
     candidate.history[candidate.history.length - 1]!.lifecycle === candidate.lifecycle &&
     timestamp(candidate.createdAt) &&
     timestamp(candidate.updatedAt) &&
-    Date.parse(candidate.updatedAt) >= Date.parse(candidate.createdAt)
+    Date.parse(candidate.updatedAt) >= Date.parse(candidate.createdAt) &&
+    validReservation(candidate.acceptanceReservation)
   );
 }
 
@@ -508,6 +545,7 @@ export class RevisionCandidateRepository {
         candidateText: input.candidateText,
         editedCandidateText: null,
         lifecycle: 'generated',
+        acceptanceReservation: null,
         history: [event(`candidate_event_${this.createId()}`, 'generated', 'author', occurredAt)],
         createdAt: occurredAt,
         updatedAt: occurredAt,
@@ -566,6 +604,7 @@ export class RevisionCandidateRepository {
         candidateText: response.text,
         editedCandidateText: null,
         lifecycle: 'generated',
+        acceptanceReservation: null,
         history: [
           event(
             `candidate_event_${this.createId()}`,
@@ -596,6 +635,13 @@ export class RevisionCandidateRepository {
         throw new RevisionCandidateRepositoryError(
           'UNKNOWN_CANDIDATE',
           'The revision candidate does not exist.',
+        );
+      if (!editable(found))
+        throw new RevisionCandidateRepositoryError(
+          found.acceptanceReservation ? 'RESERVED' : 'STALE',
+          found.acceptanceReservation
+            ? 'This revision alternative is being accepted and cannot be edited.'
+            : 'Only current draft or reviewing alternatives can be edited.',
         );
       const occurredAt = this.now().toISOString();
       const updated = {
@@ -644,6 +690,13 @@ export class RevisionCandidateRepository {
           'UNKNOWN_CANDIDATE',
           'The revision candidate does not exist.',
         );
+      if (!lifecycleTransitionAllowed(found, nextLifecycle))
+        throw new RevisionCandidateRepositoryError(
+          found.acceptanceReservation ? 'RESERVED' : 'STALE',
+          found.lifecycle === 'parked'
+            ? 'A parked revision alternative can only be resumed.'
+            : 'This revision alternative is terminal or no longer eligible for lifecycle changes.',
+        );
       const occurredAt = this.now().toISOString();
       const actor =
         nextLifecycle === 'generated'
@@ -673,6 +726,53 @@ export class RevisionCandidateRepository {
     });
   }
 
+  /** Reserve an eligible alternative before any durable manuscript mutation. */
+  async reserveAcceptance(
+    projectId: string,
+    request: RevisionCandidateAcceptanceReservationRequestV1,
+  ): Promise<RevisionCandidatesSnapshotV1> {
+    if (!Number.isInteger(request.expectedRevision) || !nonEmpty(request.candidateId) || !validReservation(request.reservation) || !request.reservation) {
+      throw new RevisionCandidateRepositoryError('INVALID', 'The acceptance reservation is invalid.');
+    }
+    return this.mutate(projectId, request.expectedRevision, (document) => {
+      const found = document.candidates.find((candidate) => candidate.id === request.candidateId);
+      if (!found) throw new RevisionCandidateRepositoryError('UNKNOWN_CANDIDATE', 'The revision candidate does not exist.');
+      if (!editable(found)) {
+        throw new RevisionCandidateRepositoryError(
+          found.acceptanceReservation ? 'RESERVED' : 'STALE',
+          'The revision candidate is not eligible for acceptance.',
+        );
+      }
+      const acceptedText = found.editedCandidateText ?? found.candidateText;
+      if (found.sourceBodySha256 !== request.reservation.sourceBodySha256 ||
+        digest(acceptedText) !== request.reservation.candidateTextSha256) {
+        throw new RevisionCandidateRepositoryError('STALE', 'The revision alternative changed before it could be reserved.');
+      }
+      return document.candidates.map((candidate) => candidate.id === found.id
+        ? { ...candidate, acceptanceReservation: request.reservation, updatedAt: request.reservation.reservedAt }
+        : candidate);
+    });
+  }
+
+  /** Release only the exact reservation when no manuscript save occurred. */
+  async releaseAcceptance(
+    projectId: string,
+    expectedRevision: number,
+    candidateId: string,
+    operationId: string,
+  ): Promise<RevisionCandidatesSnapshotV1> {
+    return this.mutate(projectId, expectedRevision, (document) => {
+      const found = document.candidates.find((candidate) => candidate.id === candidateId);
+      if (!found) throw new RevisionCandidateRepositoryError('UNKNOWN_CANDIDATE', 'The revision candidate does not exist.');
+      if (!found.acceptanceReservation || found.acceptanceReservation.operationId !== operationId) {
+        throw new RevisionCandidateRepositoryError('STALE', 'The acceptance reservation no longer matches this operation.');
+      }
+      return document.candidates.map((candidate) => candidate.id === candidateId
+        ? { ...candidate, acceptanceReservation: null, updatedAt: new Date().toISOString() }
+        : candidate);
+    });
+  }
+
   /** Main-process-only completion hook for Narrative Insertion after durable save. */
   async finalizeAcceptance(
     projectId: string,
@@ -682,6 +782,7 @@ export class RevisionCandidateRepository {
     if (
       !Number.isInteger(request.expectedRevision) ||
       !nonEmpty(request.candidateId, 240) ||
+      !nonEmpty(request.operationId, 240) ||
       (request.lifecycle !== 'accepted' && request.lifecycle !== 'partially accepted') ||
       !record(receipt) ||
       !exactKeys(receipt, [
@@ -709,6 +810,8 @@ export class RevisionCandidateRepository {
         );
       const acceptedText = found.editedCandidateText ?? found.candidateText;
       if (
+        !found.acceptanceReservation ||
+        found.acceptanceReservation.operationId !== request.operationId ||
         found.currentness !== 'current' ||
         found.sourceBodySha256 !== receipt.sourceBodySha256 ||
         digest(acceptedText) !== receipt.candidateTextSha256
@@ -721,6 +824,7 @@ export class RevisionCandidateRepository {
       const updated = {
         ...found,
         lifecycle: request.lifecycle,
+        acceptanceReservation: null,
         updatedAt: occurredAt,
         history: trimHistory([
           ...found.history,

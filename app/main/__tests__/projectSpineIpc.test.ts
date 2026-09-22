@@ -1412,6 +1412,8 @@ describe('project-spine IPC', () => {
       focusWritingWindow,
       revisionCandidatesFactory: () => ({
         read: repository.read.bind(repository),
+        reserveAcceptance: repository.reserveAcceptance.bind(repository),
+        releaseAcceptance: repository.releaseAcceptance.bind(repository),
         finalizeAcceptance,
       } as unknown as RevisionCandidateRepository),
     });
