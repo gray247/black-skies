@@ -376,7 +376,7 @@ function accessibleSummary(points: readonly EmotionGraphProjectionPointV1[], can
   }));
   return {
     name: 'Emotion Graph accessible summary',
-    description: 'An ordered, source-linked summary of visible emotional points. Labels, intensity, lane, and source status are shown as text.',
+    description: 'Feelings recorded for the story, shown in story order. Each point shows its strength, whether it was planned or observed, and the related passage.',
     rows,
   };
 }

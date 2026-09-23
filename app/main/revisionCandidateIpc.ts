@@ -255,14 +255,11 @@ function sourceAnchorCurrent(
 ): boolean {
   const current = activeUnitBody(snapshot, unitId);
   if (!current || current.hash !== sourceBodySha256) return false;
-  if (anchor === null || anchor === undefined)
-    return normalizeManuscriptSource(sourceText) === current.body;
+  if (normalizeManuscriptSource(sourceText) !== current.body) return false;
+  if (anchor === null || anchor === undefined) return true;
   if (anchor.unitId !== unitId || anchor.selectionEnd > current.body.length) return false;
   const selected = current.body.slice(anchor.selectionStart, anchor.selectionEnd);
-  return (
-    normalizeManuscriptSource(sourceText) === selected &&
-    bodyHash(selected) === anchor.selectionFingerprint
-  );
+  return bodyHash(selected) === anchor.selectionFingerprint;
 }
 
 function sourceCurrent(
@@ -406,7 +403,7 @@ async function createManual(
       request.sourceAnchor,
     )
   )
-    return fail('INVALID_REQUEST', 'The manual source anchor is invalid or stale.');
+    return fail('INVALID_REQUEST', 'The selected passage no longer matches the saved manuscript. Select it again in Writing Studio, then save a new alternative. Your manuscript has not changed.');
   try {
     return {
       ok: true,

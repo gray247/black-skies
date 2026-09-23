@@ -148,7 +148,7 @@ export default function IdeasWorkspace({
 
       <section aria-labelledby="ideas-capture-heading" className="program7-ideas-workspace__capture">
         <h2 id="ideas-capture-heading">Capture an idea</h2>
-        <p>Start with your own words. Anything suggested by AI stays separate until you choose it.</p>
+        <p>Save ideas in your own words. They stay separate from the manuscript unless you choose to use them.</p>
         <label htmlFor="ideas-seed-title">Title</label>
         <input id="ideas-seed-title" value={seedDraft.title} onChange={(event) => setSeedDraft({ ...seedDraft, title: event.target.value })} />
         <label htmlFor="ideas-seed-kind">Form</label>
@@ -189,9 +189,9 @@ export default function IdeasWorkspace({
         <p>Develop one possible path without changing the manuscript.</p>
         <label htmlFor="ideas-branch-name">Direction name</label>
         <input id="ideas-branch-name" value={branchName} onChange={(event) => setBranchName(event.target.value)} />
-        <label htmlFor="ideas-branch-premise">Premise</label>
+        <label htmlFor="ideas-branch-premise">Core idea for this direction</label>
         <textarea id="ideas-branch-premise" value={branchPremise} onChange={(event) => setBranchPremise(event.target.value)} />
-        <label htmlFor="ideas-branch-unknowns">Intentional unknowns, one per line</label>
+        <label htmlFor="ideas-branch-unknowns">Questions you want to leave open, one per line</label>
         <textarea id="ideas-branch-unknowns" value={branchUnknowns} onChange={(event) => setBranchUnknowns(event.target.value)} />
         <button type="button" disabled={!onCreateBranch} onClick={createBranch}>Create direction</button>
       </section>

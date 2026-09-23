@@ -265,11 +265,29 @@ describe('revision candidate IPC authority', () => {
     expect(localInferenceService.run).not.toHaveBeenCalled();
   });
 
-  it('binds full-body and ranged source text to the active normalized draft', async () => {
-    const ranged = {
-      ...inference,
-      source: { ...inference.source, text: 'Source' },
+  it('saves a manual alternative linked to a selected passage in the full saved body', async () => {
+    const anchor = {
+      unitId: 'unit-a',
+      selectionStart: 0,
+      selectionEnd: 6,
+      selectionFingerprint: createHash('sha256').update('Source').digest('hex'),
     };
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, {
+      ...manual,
+      sourceAnchor: anchor,
+    })).resolves.toMatchObject({ ok: true });
+    expect(repository.createManual).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({
+      sourceSnapshot: manual.sourceSnapshot,
+      sourceAnchor: anchor,
+    }));
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, {
+      ...manual,
+      sourceAnchor: { ...anchor, selectionFingerprint: 'f'.repeat(64) },
+    })).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
+    expect(repository.createManual).toHaveBeenCalledTimes(1);
+  });
+
+  it('binds the full saved body and selected range before optional model work', async () => {
     const anchor = {
       unitId: 'unit-a',
       selectionStart: 0,
@@ -280,7 +298,7 @@ describe('revision candidate IPC authority', () => {
       invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, 1, {
         ...binding,
         expectedRevision: 0,
-        inference: ranged,
+        inference,
         sourceAnchor: anchor,
       }),
     ).resolves.toMatchObject({ ok: true });
@@ -289,7 +307,7 @@ describe('revision candidate IPC authority', () => {
       invoke(REVISION_CANDIDATE_CHANNELS.createLocalAi, 1, {
         ...binding,
         expectedRevision: 0,
-        inference: { ...ranged, source: { ...ranged.source, text: 'SUBSTITUTED' } },
+        inference: { ...inference, source: { ...inference.source, text: 'Source' } },
         sourceAnchor: anchor,
       }),
     ).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });

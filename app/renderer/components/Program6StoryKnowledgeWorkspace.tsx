@@ -158,11 +158,11 @@ function LensSummary({
           <dd>{projectStageLabel(document.settings.projectPosture)}</dd>
         </div>
         <div>
-          <dt>Source-based review</dt>
+          <dt>Review saved writing</dt>
           <dd>{document.settings.analysisPolicy.deterministicEnabled ? 'Available' : 'Off'}</dd>
         </div>
         <div>
-          <dt>Optional interpretation</dt>
+          <dt>Local AI</dt>
           <dd>
             {localInferenceAvailable && document.settings.analysisPolicy.optionalInferenceEnabled
               ? 'Available when you choose'
@@ -171,8 +171,8 @@ function LensSummary({
         </div>
       </dl>
       <p className="stage19-program6__boundary">
-        This is review support only. It never becomes story canon, edits your prose, judges quality,
-        or saves lasting memory.
+        These notes are for your review. Black Skies does not change your writing or decide what
+        belongs in your story.
       </p>
     </section>
   );
@@ -212,8 +212,8 @@ function AutomaticScanPanel({
       <header>
         <h3>Automatic manuscript scan</h3>
         <p>
-          Read-only review prompts from the saved manuscript. Keyword/rhythm prompts are not AI
-          judgments. Local-AI emotion results are temporary, advisory, and source-linked.
+          This read-only scan looks for patterns in your saved writing. It may suggest passages to
+          review, but it does not judge your writing or change it.
         </p>
       </header>
       <div className="stage19-program6__automatic-scan-actions">
@@ -260,7 +260,7 @@ function AutomaticScanPanel({
           ) : state.status === 'completed' ? (
             <p>{state.origin === 'local-inference'
               ? 'The local model returned no emotional observations for this saved snapshot.'
-              : 'No deterministic review prompts were found in this saved snapshot.'}</p>
+              : 'This scan found no review prompts in the saved manuscript.'}</p>
           ) : null}
         </div>
       ) : null}
@@ -438,6 +438,7 @@ function TimelineLens({
     <section className="stage19-program6__lens" aria-label="Timeline detail">
       <TimelineReview
         result={projection.timeline}
+        unitTitles={Object.fromEntries(project.units.map((unit) => [unit.id, unit.displayTitle]))}
         onSourceReturn={onSourceReturn}
         onAction={onAction}
       />
@@ -541,8 +542,8 @@ function PacingLens({
       <header>
         <h2>Pacing</h2>
         <p>
-          Measured structure and author pacing intent stay separate. Length is evidence, not a
-          pace-quality score.
+          See each section’s length and structure alongside the pace you want. These counts do not
+          tell you whether the pace is good or bad.
         </p>
       </header>
       {projection.timeline.pacing.length === 0 ? (
@@ -553,8 +554,8 @@ function PacingLens({
             <li key={item.unitId}>
               <strong>{titleByUnit.get(item.unitId) ?? item.unitId}</strong>
               <span>
-                {item.observedWordCount ?? 0} words · {item.observedSentenceCount ?? 0} sentences ·{' '}
-                {item.observedParagraphCount ?? 0} paragraphs ·{' '}
+                {item.observedWordCount ?? 0} words · {item.observedSentenceCount ?? 0} sentence{item.observedSentenceCount === 1 ? '' : 's'} ·{' '}
+                {item.observedParagraphCount ?? 0} paragraph{item.observedParagraphCount === 1 ? '' : 's'} ·{' '}
                 {Math.round((item.observedDialogueRatio ?? 0) * 100)}% dialogue ·{' '}
                 {item.relativeLength ?? 'unclassified'} relative length
                 {item.plannedTempo
@@ -646,12 +647,12 @@ function PressureLens({
       <header>
         <h2>Pressure</h2>
         <p>
-          Urgency, consequence, constraint, and conflict remain independent. No universal pressure
-          score is produced.
+          Record each source of tension separately. Black Skies does not grade the story’s overall
+          tension.
         </p>
       </header>
       {projection.timeline.pressure.length === 0 ? (
-        <p>No source-linked pressure observations are available.</p>
+        <p>No pressure notes are available.</p>
       ) : (
         <ul>
           {projection.timeline.pressure.map((item) => (
@@ -775,8 +776,8 @@ function SignalsLens({
       <header>
         <h2>Signals</h2>
         <p>
-          Signals are saved story concerns or observations the author chooses to keep track of. They
-          remain advisory and never change prose or canon.
+          These are story concerns or observations you chose to save. They do not change your
+          writing or decide what is true in your story.
         </p>
       </header>
       <div className="stage19-program6__signal-posture">
@@ -788,7 +789,7 @@ function SignalsLens({
         </span>
       </div>
       {projection.signals.length === 0 ? (
-        <p>No durable signals are waiting for review.</p>
+        <p>No saved concerns are waiting for review.</p>
       ) : (
         <ul className="stage19-program6__signals">
           {projection.signals.map((signal) => {
@@ -1056,9 +1057,9 @@ export default function Program6StoryKnowledgeWorkspace({
     >
       <header className="stage19-program6__header">
         <div>
-          <span className="stage19-spine__eyebrow">Program 6 · {project.title}</span>
+          <span className="stage19-spine__eyebrow">{project.title}</span>
           <h2>Story Knowledge</h2>
-          <p>Source-linked story lenses for the current project. Advisory only.</p>
+          <p>Review notes connected to your saved writing. You decide whether to act on them.</p>
         </div>
         <div className="stage19-program6__status">
           <span>This project</span>

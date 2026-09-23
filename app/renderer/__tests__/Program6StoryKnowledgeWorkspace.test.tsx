@@ -127,8 +127,8 @@ describe('Program 6 Story Knowledge workspace', () => {
     ).toBeVisible();
     expect(screen.getByText('Story concerns')).toBeVisible();
     expect(screen.getByText('Project mode')).toBeVisible();
-    expect(screen.getByText('Source-based review')).toBeVisible();
-    expect(screen.getByText('Optional interpretation')).toBeVisible();
+    expect(screen.getByText('Review saved writing')).toBeVisible();
+    expect(screen.getByText('Local AI')).toBeVisible();
     expect(screen.getByText('Off — no AI is used')).toBeVisible();
     expect(screen.queryByText('Signal posture')).not.toBeInTheDocument();
     expect(screen.queryByText('Deterministic lane')).not.toBeInTheDocument();
@@ -204,7 +204,7 @@ describe('Program 6 Story Knowledge workspace', () => {
 
     expect(
       screen.getByText(
-        'Signals are saved story concerns or observations the author chooses to keep track of. They remain advisory and never change prose or canon.',
+        'These are story concerns or observations you chose to save. They do not change your writing or decide what is true in your story.',
       ),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: /^Convert$/ })).toBeDisabled();
@@ -428,7 +428,7 @@ describe('Program 6 Story Knowledge workspace', () => {
 
     await user.click(screen.getByRole('button', { name: /^Emotion$/ }));
     expect(screen.getByTestId('emotion-graph-empty')).toHaveTextContent(
-      'No source-linked emotional points',
+      'No feeling notes are available',
     );
     expect(screen.queryByTestId('emotion-graph-point')).not.toBeInTheDocument();
   });
@@ -446,7 +446,7 @@ describe('Program 6 Story Knowledge workspace', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
-    expect(screen.getByText('No author-entered story events are available.')).toBeVisible();
+    expect(screen.getByText('No story events have been recorded yet.')).toBeVisible();
     await user.selectOptions(screen.getByLabelText('Timeline event story section'), 'nl_02');
     await user.type(screen.getByLabelText('Timeline event label'), 'Mara finds the letter');
     await user.clear(screen.getByLabelText('Timeline story-world order'));
@@ -460,7 +460,7 @@ describe('Program 6 Story Knowledge workspace', () => {
     await user.click(screen.getByRole('button', { name: 'Save pacing intent' }));
 
     await user.click(screen.getByRole('button', { name: /^Pressure$/ }));
-    expect(screen.getByText('No source-linked pressure observations are available.')).toBeVisible();
+    expect(screen.getByText('No pressure notes are available.')).toBeVisible();
     await user.selectOptions(screen.getByLabelText('Pressure point story section'), 'nl_04');
     await user.selectOptions(screen.getByLabelText('Pressure point lane'), 'observed');
     await user.selectOptions(screen.getByLabelText('Pressure point dimension'), 'constraint');

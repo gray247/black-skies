@@ -65,6 +65,9 @@ describe('IdeasWorkspace component', () => {
     expect(screen.getByTestId('ideas-optional')).toHaveTextContent('continue writing');
     expect(screen.getByTestId('ideas-workspace')).toHaveAttribute('data-writing-gate', 'false');
     expect(screen.getByRole('heading', { name: 'Saved ideas' })).toBeInTheDocument();
+    expect(screen.getByText('Save ideas in your own words. They stay separate from the manuscript unless you choose to use them.')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Core idea for this direction' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Questions you want to leave open, one per line' })).toBeInTheDocument();
     expect(screen.getByTestId('idea-seed-seed-protected')).toHaveTextContent('Content hidden by protection policy.');
     fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'A first thought' } });
     fireEvent.change(screen.getByRole('textbox', { name: 'Your idea' }), { target: { value: 'A door that remembers.' } });

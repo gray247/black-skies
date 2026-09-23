@@ -32,7 +32,7 @@ const postureOptions: readonly { readonly value: StoryFoundationPosture; readonl
   { value: 'blank', label: 'Leave blank' },
   { value: 'unknown', label: 'Deliberately unknown' },
   { value: 'undecided', label: 'Not decided yet' },
-  { value: 'answered', label: 'Author answer' },
+  { value: 'answered', label: 'My answer' },
 ];
 
 function currentVersion(entry: StoryFoundationEntryV1 | undefined): StoryFoundationAnswerVersionV1 | null {
@@ -58,9 +58,9 @@ function statusLabel(entry: StoryFoundationEntryV1 | undefined, version: StoryFo
 
 function postureHelp(posture: StoryFoundationPosture): string {
   if (posture === 'blank') return 'Skipping this question is allowed.';
-  if (posture === 'unknown') return 'This is an intentional unknown, not a missing answer.';
+  if (posture === 'unknown') return 'You are choosing to leave this question open.';
   if (posture === 'undecided') return 'This can remain open while you write.';
-  return 'Only your saved words become project guidance.';
+  return 'Only what you save here is kept as guidance for this project.';
 }
 
 function provenanceLabel(version: StoryFoundationAnswerVersionV1 | null): string {
@@ -110,7 +110,7 @@ function QuestionCard({
         <label htmlFor={`${questionId}-posture`}>Answer state</label>
         <select
           id={`${questionId}-posture`}
-          aria-label={`Answer posture for ${question.id}`}
+          aria-label={`Answer state for ${question.prompt}`}
           value={draft.posture}
           disabled={archived}
           onChange={(event) => onDraftChange(question.id, { ...draft, posture: event.target.value as StoryFoundationPosture })}
@@ -165,7 +165,7 @@ function QuestionCard({
           </>
         )}
       </div>
-      {!changed && version ? <p className="program7-story-foundation__saved-note">Saved as author project guidance.</p> : null}
+      {!changed && version ? <p className="program7-story-foundation__saved-note">Saved as your project note.</p> : null}
     </article>
   );
 }
@@ -206,7 +206,7 @@ export default function StoryFoundation({
     >
       <header>
         <h1 id="program7-story-foundation-heading">Story Foundation</h1>
-        <p>Optional project intent and creative guidance. It never becomes manuscript truth.</p>
+        <p>Use these optional questions to note what you want for the story. Your answers do not change the manuscript.</p>
         <p data-testid="story-foundation-optional">You may skip every question and keep writing. Nothing here blocks Writing Studio.</p>
         <p>{snapshot.document.entries.length} saved answer{snapshot.document.entries.length === 1 ? '' : 's'}</p>
       </header>

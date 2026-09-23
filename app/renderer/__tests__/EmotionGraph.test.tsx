@@ -83,7 +83,7 @@ describe('EmotionGraph component', () => {
 
     const empty = createEmotionGraphProjection('project-a', []);
     render(<EmotionGraph projection={empty} />);
-    expect(screen.getByTestId('emotion-graph-empty')).toHaveTextContent('No source-linked emotional points');
+    expect(screen.getByTestId('emotion-graph-empty')).toHaveTextContent('No feeling notes are available');
   });
 
   it('shows one subject as context without rendering a misleading selector', () => {

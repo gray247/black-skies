@@ -1811,7 +1811,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('heading', { name: 'Writing remains available' })).toBeVisible();
     fireEvent.click(within(workspaces).getByRole('button', { name: 'Structure' }));
     expect(screen.getByRole('heading', { name: 'Structure' })).toBeVisible();
-    expect(screen.getByText(/will be introduced only by its authorized product program/i)).toBeVisible();
+    expect(screen.getByText(/is not available yet. You can keep writing or use the available tabs./i)).toBeVisible();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Export Markdown/i })).not.toBeInTheDocument();

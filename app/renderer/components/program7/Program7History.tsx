@@ -25,11 +25,17 @@ function originLabel(origin: string): string {
 }
 
 function sourceLabel(status: Program7HistoryItemV1['sourceStatus']): string {
-  return status === 'current' ? 'Source current' : status === 'stale' ? 'Source stale' : 'Source unavailable';
+  return status === 'current' ? 'Original available' : status === 'stale' ? 'Original has changed' : 'Original unavailable';
 }
 
 function acceptanceLabel(status: Program7HistoryItemV1['acceptance']): string {
-  return status === 'none' ? 'No promotion acceptance' : status === 'partial' ? 'Partial acceptance' : status === 'complete' ? 'Promotion complete' : status === 'deferred' ? 'Promotion deferred' : 'Promotion failed';
+  if (status === 'none') return 'Not applied';
+  return status === 'partial' ? 'Partly applied' : status === 'complete' ? 'Completed' : status === 'deferred' ? 'Waiting for a later tool' : 'Could not complete';
+}
+
+function lifecycleLabel(item: Program7HistoryItemV1): string {
+  if (item.ownerKind === 'revision-candidate' && item.lifecycle === 'generated') return 'Draft';
+  return titleCase(item.lifecycle);
 }
 
 function HistoryCard({ item, onOpenSource, onOpenRecurrence }: { readonly item: Program7HistoryItemV1; readonly onOpenSource?: (item: Program7HistoryItemV1) => void; readonly onOpenRecurrence?: (item: Program7HistoryItemV1, recurrenceReference: string) => void }): JSX.Element {
@@ -38,13 +44,15 @@ function HistoryCard({ item, onOpenSource, onOpenRecurrence }: { readonly item: 
     <article className="program7-history__card" tabIndex={0} data-testid={`program7-history-item-${item.reference}`} aria-label={`History item ${item.reference}`}>
       <header>
         <div><h3>{item.title}</h3><p>{recordLabel(item.ownerKind)}</p></div>
-        <span>{titleCase(item.lifecycle)}</span>
+        <span>{lifecycleLabel(item)}</span>
       </header>
       <p className="program7-history__summary">{protectedItem ? 'Content hidden by protection policy.' : item.summary}</p>
       <dl className="program7-history__metadata">
         <div><dt>Source</dt><dd>{sourceLabel(item.sourceStatus)}</dd></div>
         <div><dt>Created by</dt><dd>{originLabel(item.provenance.origin)}</dd></div>
-        <div><dt>Outcome</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
+        {item.acceptance !== 'none' || item.ownerKind === 'revision-candidate'
+          ? <div><dt>Outcome</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
+          : null}
         <div><dt>Content</dt><dd>{protectedItem ? 'Hidden because this material is protected' : 'Visible'}</dd></div>
       </dl>
       <div className="program7-history__actions" aria-label={`Actions for ${item.reference}`}>
@@ -73,7 +81,7 @@ export default function Program7History({ projection, onOpenSource, onOpenRecurr
         <p>Revisit revision work, ideas, and choices from this project.</p>
         <p>{projection.items.length} recent item{projection.items.length === 1 ? '' : 's'} shown.</p>
       </header>
-      {projection.trimmedCount > 0 ? <p role="status" data-testid="program7-history-trimmed">Showing the newest {projection.items.length} records. {projection.trimmedCount} older record{projection.trimmedCount === 1 ? '' : 's'} trimmed by the history bound.</p> : null}
+      {projection.trimmedCount > 0 ? <p role="status" data-testid="program7-history-trimmed">Showing the newest {projection.items.length} items. {projection.trimmedCount} older item{projection.trimmedCount === 1 ? ' is' : 's are'} not shown.</p> : null}
       <HistorySection title="Active records" items={projection.activeItems} onOpenSource={onOpenSource} onOpenRecurrence={onOpenRecurrence} />
       <HistorySection title="Resolved and archived history" items={projection.historyItems} onOpenSource={onOpenSource} onOpenRecurrence={onOpenRecurrence} />
     </section>

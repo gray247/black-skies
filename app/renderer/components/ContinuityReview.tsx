@@ -36,20 +36,20 @@ export default function ContinuityReview({
         <div>
           <h2 id={titleId}>Continuity review</h2>
           <p id={descriptionId}>
-            Advisory structured findings. Review the cited source before taking any owner-governed
-            action.
+            These are possible continuity concerns, not changes to your story. Open the related
+            passage before deciding what to do.
           </p>
         </div>
-        <span className="continuity-review__posture">Candidate only</span>
+        <span className="continuity-review__posture">For your review</span>
       </header>
       {findings.length === 0 ? (
         <p className="continuity-review__empty" data-testid="continuity-review-empty">
-          No current structured continuity findings are available.
+          No continuity concerns are available from the information recorded here.
         </p>
       ) : (
         <div className="continuity-review__table-wrap">
           <table className="continuity-review__table">
-            <caption>Source-linked continuity findings</caption>
+            <caption>Continuity concerns and their sources</caption>
             <thead>
               <tr>
                 <th scope="col">Category</th>
@@ -67,12 +67,11 @@ export default function ContinuityReview({
                   <td>
                     <strong>{finding.summary}</strong>
                     <span className="continuity-review__evidence">{finding.evidenceSummary}</span>
-                    <span className="continuity-review__refs">
-                      Refs:{' '}
-                      {finding.evidenceRefs
-                        .map((item) => `${item.recordType}/${item.recordId}`)
-                        .join(', ')}
-                    </span>
+                    <details className="continuity-review__refs">
+                      <summary>Technical details</summary>
+                      Record IDs:{' '}
+                      {finding.evidenceRefs.map((item) => `${item.recordType}/${item.recordId}`).join(', ')}
+                    </details>
                   </td>
                   <td>{finding.confidenceBand}</td>
                   <td>{finding.impact}</td>

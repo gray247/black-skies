@@ -31,11 +31,11 @@ describe('StoryFoundation component', () => {
     expect(screen.getByTestId('story-foundation')).toHaveAttribute('data-writing-gate', 'false');
     expect(screen.getAllByRole('article')).toHaveLength(13);
     expect(screen.getByTestId('story-foundation-question-project-kind')).toHaveTextContent('Not answered');
-    expect(screen.getByRole('combobox', { name: 'Answer posture for project-kind' })).toHaveValue('blank');
-    expect(screen.getByRole('combobox', { name: 'Answer posture for aboutness' })).toHaveValue('blank');
-    fireEvent.change(screen.getByRole('combobox', { name: 'Answer posture for aboutness' }), { target: { value: 'unknown' } });
-    expect(screen.getByTestId('story-foundation-question-aboutness')).toHaveTextContent('intentional unknown');
-    fireEvent.change(screen.getByRole('combobox', { name: 'Answer posture for tone' }), { target: { value: 'undecided' } });
+    expect(screen.getByRole('combobox', { name: 'Answer state for What kind of project or story is this right now?' })).toHaveValue('blank');
+    expect(screen.getByRole('combobox', { name: 'Answer state for If you can say it simply, what is it about?' })).toHaveValue('blank');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Answer state for If you can say it simply, what is it about?' }), { target: { value: 'unknown' } });
+    expect(screen.getByTestId('story-foundation-question-aboutness')).toHaveTextContent('You are choosing to leave this question open.');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Answer state for What tone or tonal range feels right?' }), { target: { value: 'undecided' } });
     expect(screen.getByTestId('story-foundation-question-tone')).toHaveTextContent('remain open');
   });
 
@@ -43,7 +43,7 @@ describe('StoryFoundation component', () => {
     const onSaveAnswer = vi.fn();
     const { rerender } = render(<StoryFoundation snapshot={snapshot()} onSaveAnswer={onSaveAnswer} />);
     const card = screen.getByTestId('story-foundation-question-aboutness');
-    fireEvent.change(within(card).getByRole('combobox', { name: 'Answer posture for aboutness' }), { target: { value: 'answered' } });
+    fireEvent.change(within(card).getByRole('combobox', { name: 'Answer state for If you can say it simply, what is it about?' }), { target: { value: 'answered' } });
     fireEvent.change(within(card).getByRole('textbox', { name: 'Your note for aboutness' }), { target: { value: 'A haunted friendship.' } });
     fireEvent.click(within(card).getByRole('button', { name: 'Save answer' }));
     expect(onSaveAnswer).toHaveBeenCalledWith({ questionId: 'aboutness', posture: 'answered', text: 'A haunted friendship.' });
@@ -90,7 +90,7 @@ describe('StoryFoundation component', () => {
     const { rerender } = render(<StoryFoundation snapshot={snapshot({ document: { ...snapshot().document, entries: [entry] } })} onArchiveAnswer={onArchiveAnswer} onRestoreAnswer={onRestoreAnswer} />);
     const activeCard = screen.getByTestId('story-foundation-question-tone');
     expect(within(activeCard).getByText('Author entered')).toBeInTheDocument();
-    expect(within(activeCard).getByText('Saved as author project guidance.')).toBeInTheDocument();
+    expect(within(activeCard).getByText('Saved as your project note.')).toBeInTheDocument();
     expect(within(activeCard).getByText('Saved versions').parentElement).toHaveTextContent('2');
     fireEvent.click(within(activeCard).getByRole('button', { name: 'Archive answer' }));
     expect(onArchiveAnswer).toHaveBeenCalledWith('tone');
@@ -106,6 +106,6 @@ describe('StoryFoundation component', () => {
     render(<StoryFoundation snapshot={snapshot({ availability: 'degraded', message: 'Saved answers cannot be read.' })} />);
     expect(screen.getByRole('alert')).toHaveTextContent('Saved answers cannot be read.');
     expect(screen.getByTestId('story-foundation-question-project-kind')).toHaveAttribute('tabindex', '0');
-    expect(screen.getByRole('combobox', { name: 'Answer posture for project-kind' })).toBeEnabled();
+    expect(screen.getByRole('combobox', { name: 'Answer state for What kind of project or story is this right now?' })).toBeEnabled();
   });
 });

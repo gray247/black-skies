@@ -32,8 +32,12 @@ function protectedContent(candidate: RevisionCandidateV1): boolean {
 }
 
 function sourceStatus(candidate: RevisionCandidateV1): string {
+  if (candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted') {
+    return 'This alternative was applied. The saved source passage below shows the earlier wording.';
+  }
   if (candidate.currentness === 'stale') return 'This alternative was created from an older version of the passage.';
   if (candidate.currentness === 'unavailable') return 'The original passage is no longer available.';
+  if (!candidate.sourceAnchor) return 'This alternative uses the current saved section, but was not linked to selected words.';
   return 'This alternative is linked to the current saved passage.';
 }
 
@@ -72,6 +76,7 @@ export default function RevisionComparison({
     candidate.sourceAnchor.selectionFingerprint.trim(),
   );
   const sourceIsHistorical = stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
+  const partialHelpId = `revision-partial-help-${candidate.id}`;
 
   return (
     <section className="program7-revision-comparison" aria-labelledby={`revision-comparison-${candidate.id}`} data-testid="revision-comparison">
@@ -83,7 +88,7 @@ export default function RevisionComparison({
         <span data-testid="revision-comparison-origin">{lifecycleLabel(candidate)}</span>
       </header>
       <p className="program7-revision-comparison__source-status">{sourceStatus(candidate)}</p>
-      {stale ? (
+      {editable && stale ? (
         <p role="alert" data-testid="revision-comparison-stale">
           {candidate.currentness === 'stale'
             ? 'This alternative cannot be applied because the passage changed. Return to the passage and create a fresh alternative after reviewing it.'
@@ -104,7 +109,9 @@ export default function RevisionComparison({
         </article>
         <article aria-labelledby={`revision-candidate-${candidate.id}`}>
           <h2 id={`revision-candidate-${candidate.id}`}>Revision alternative</h2>
-          <p>{candidate.editedCandidateText ? 'Your edited alternative is ready to review.' : 'This alternative is ready to review.'}</p>
+          <p>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted'
+            ? 'This is the alternative you applied.'
+            : candidate.editedCandidateText ? 'Your edited alternative is ready to review.' : 'This alternative is ready to review.'}</p>
           <pre data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : visibleCandidateText(candidate)}</pre>
         </article>
       </div>
@@ -122,7 +129,6 @@ export default function RevisionComparison({
           })}
           placeholder={redacted ? 'Hidden by protection policy.' : 'Select the exact text from this alternative that you want to apply.'}
         />
-        {!hasExactSourceAnchor ? <p role="status">Select a passage in your manuscript before creating a fresh alternative to apply only part of it.</p> : null}
       </div>
       <div className="program7-revision-comparison__actions" aria-label="Revision alternative actions">
         {onOpenEditor && editable ? <button type="button" onClick={() => onOpenEditor(candidate)}>Edit alternative</button> : null}
@@ -132,6 +138,7 @@ export default function RevisionComparison({
         <button
           type="button"
           disabled={!acceptEnabled || !hasExactSourceAnchor || !onPartialAccept || selection.end <= selection.start}
+          aria-describedby={partialHelpId}
           onClick={() => onPartialAccept?.(candidate, {
             text: visibleCandidateText(candidate).slice(selection.start, selection.end),
             start: selection.start,
@@ -146,8 +153,16 @@ export default function RevisionComparison({
           </button>
         )) : null}
       </div>
-      {!editable ? <p className="program7-revision-comparison__note">This alternative is no longer editable. Create a new alternative if you want to continue revising this passage.</p> : null}
-      <p className="program7-revision-comparison__note">Only you can apply an alternative to your manuscript. Applying it does not finish the related concern.</p>
+      <p id={partialHelpId} role="status" className="program7-revision-comparison__note">
+        {!editable
+          ? 'This alternative is closed. To make another change, select words in Writing Studio and save a new alternative.'
+          : !hasExactSourceAnchor
+          ? 'To apply only part, return to Writing Studio, select the exact manuscript words to replace, and save a new alternative. Selecting text on this comparison cannot link the existing alternative.'
+          : 'To apply only part, select the words to insert in the box labeled “Part of this alternative to apply” above.'}
+      </p>
+      <p className="program7-revision-comparison__note">{editable
+        ? 'Only you can apply an alternative to your manuscript. Applying it does not finish the related concern.'
+        : 'Applying or closing an alternative does not finish the related concern.'}</p>
       <details className="program7-revision-comparison__technical-details">
         <summary>Technical details</summary>
         <dl className="program7-revision-comparison__metadata">

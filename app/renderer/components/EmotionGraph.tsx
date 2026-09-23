@@ -76,7 +76,7 @@ export default function EmotionGraph({ projection, onSelectPoint }: EmotionGraph
         ) : null}
       </header>
       {visible.length === 0 ? (
-        <p className="emotion-graph__empty" data-testid="emotion-graph-empty">No source-linked emotional points are available for this view.</p>
+        <p className="emotion-graph__empty" data-testid="emotion-graph-empty">No feeling notes are available for this view.</p>
       ) : (
         <>
           <div className="emotion-graph__visual-wrap">

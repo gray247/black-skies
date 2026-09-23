@@ -20,6 +20,7 @@ function candidateText(candidate: RevisionCandidateV1): string {
 function sourceStatus(candidate: RevisionCandidateV1): string {
   if (candidate.currentness === 'stale') return 'This alternative was created from an older version of the passage.';
   if (candidate.currentness === 'unavailable') return 'The original passage is no longer available.';
+  if (!candidate.sourceAnchor) return 'This alternative uses the current saved section, but was not linked to selected words.';
   return 'This alternative is linked to the current saved passage.';
 }
 

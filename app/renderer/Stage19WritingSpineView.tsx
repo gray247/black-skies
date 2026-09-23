@@ -670,7 +670,8 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
       <section className="program7-revision-capture" aria-labelledby="program7-revision-capture-heading">
         <header>
           <h2 id="program7-revision-capture-heading">Draft a revision alternative</h2>
-          <p>Try the change in your own words. Your manuscript stays untouched until you explicitly accept text.</p>
+          <p>Try the change in your own words. Your manuscript stays untouched until you apply an alternative.</p>
+          <p>To apply only part later, first save your manuscript and select the exact words to replace in Writing Studio. Then return here and save a new alternative. An older alternative cannot be linked afterward.</p>
         </header>
         <label htmlFor="program7-candidate-purpose">Purpose</label>
         <input
@@ -706,7 +707,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
           <header>
             <h2 id="program7-revision-candidates-heading">Revision alternatives</h2>
-            <p>These alternatives stay separate from your manuscript until you accept one.</p>
+            <p>These alternatives stay separate from your manuscript until you choose to apply one.</p>
           </header>
           {candidates.map((candidate) => (
             <article key={candidate.id} className="program7-revision-candidates__item">
@@ -718,7 +719,11 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
                 onLifecycle={canWrite ? (value, lifecycle) => void actions.setProgram7CandidateLifecycle(value, lifecycle) : undefined}
                 onOpenEditor={canWrite ? actions.openProgram7Candidate : undefined}
               />
-              <button type="button" onClick={() => void actions.returnProgram7CandidateToSource(candidate)}>Return to passage in Writing Studio</button>
+              <button type="button" onClick={() => void actions.returnProgram7CandidateToSource(candidate)}>
+                {candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted'
+                  ? 'Open updated manuscript section'
+                  : 'Return to passage in Writing Studio'}
+              </button>
             </article>
           ))}
         </section>
@@ -864,9 +869,9 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           </section>
         ) : (
           <section className="stage19-command__empty-state">
-            <span className="stage19-spine__eyebrow">Stable workspace location</span>
+            <span className="stage19-spine__eyebrow">Coming later</span>
             <h2>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.label}</h2>
-            <p>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.purpose} will be introduced only by its authorized product program. This shell does not pretend the tool exists today.</p>
+            <p>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.purpose} is not available yet. You can keep writing or use the available tabs.</p>
             <button type="button" onClick={() => actions.selectCommandWorkspace('review')}>Open Review</button>
           </section>
         )}
@@ -874,7 +879,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
       <footer className="stage19-command__footer">
         <span>{commandLifecycleLabel(commandStatus)}</span>
         <span>{commandRecoveryLabel(commandStatus)}</span>
-        <span>Command is optional and non-gating</span>
+        <span>You can keep writing without using Command Center</span>
       </footer>
     </main>
   );

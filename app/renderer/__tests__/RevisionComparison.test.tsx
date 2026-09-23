@@ -52,6 +52,7 @@ describe('RevisionComparison component', () => {
     const comparison = screen.getByTestId('revision-comparison');
     fireEvent.click(within(comparison).getByRole('button', { name: 'Apply all of this alternative' }));
     const partialSelection = within(comparison).getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
+    expect(within(comparison).getByRole('button', { name: 'Apply only the selected part' })).toHaveAccessibleDescription('To apply only part, select the words to insert in the box labeled “Part of this alternative to apply” above.');
     partialSelection.setSelectionRange(10, 20);
     fireEvent.select(partialSelection);
     fireEvent.click(within(comparison).getByRole('button', { name: 'Apply only the selected part' }));
@@ -85,12 +86,19 @@ describe('RevisionComparison component', () => {
     render(<RevisionComparison candidate={candidate({ sourceAnchor: null })} canAccept onPartialAccept={vi.fn()} />);
     expect(screen.getByRole('textbox', { name: 'Part of this alternative to apply' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
-    expect(screen.getByRole('status')).toHaveTextContent('Select a passage in your manuscript before creating a fresh alternative');
+    expect(screen.getByRole('status')).toHaveTextContent('return to Writing Studio, select the exact manuscript words to replace, and save a new alternative');
+    expect(screen.getByRole('status')).toHaveTextContent('Selecting text on this comparison cannot link the existing alternative');
+    expect(screen.getByText('This alternative uses the current saved section, but was not linked to selected words.')).toBeVisible();
   });
 
   it('labels a partly applied alternative source as historical', () => {
-    render(<RevisionComparison candidate={candidate({ lifecycle: 'partially accepted' })} />);
+    render(<RevisionComparison candidate={candidate({ lifecycle: 'partially accepted', currentness: 'stale' })} />);
     expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Your current manuscript' })).not.toBeInTheDocument();
+    expect(screen.getByText('This alternative was applied. The saved source passage below shows the earlier wording.')).toBeInTheDocument();
+    expect(screen.getByText('This is the alternative you applied.')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toHaveAccessibleDescription('This alternative is closed. To make another change, select words in Writing Studio and save a new alternative.');
   });
 });

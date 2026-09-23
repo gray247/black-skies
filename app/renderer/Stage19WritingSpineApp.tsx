@@ -3632,6 +3632,20 @@ export default function Stage19WritingSpineApp({
   }, [applySnapshot, bridge, closeProgram7Candidate, refreshProgram7RevisionItems, revisionCandidatesBridge, windowRole]);
 
   const returnProgram7CandidateToSource = useCallback(async (candidate: RevisionCandidateV1) => {
+    if (candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted') {
+      sourceReturnOwnerRef.current = 'story';
+      program7SourceReturnUnitRef.current = null;
+      setSourceReturnRequest(null);
+      setSourceReturnConfirmation(null);
+      setNotice(null);
+      if (surfaceBridge && !(await activateSurface('writing', 'current-window'))) {
+        setNotice('Writing Studio could not be opened. The updated manuscript remains saved.');
+        return;
+      }
+      await handleSelectUnit(candidate.unitId);
+      setSourceReturnConfirmation('Opened the updated manuscript section. The original selected words were replaced when you applied this alternative.');
+      return;
+    }
     const current = snapshotRef.current;
     const source: StoryPositionRefV1 = {
       projectId: candidate.projectId,
@@ -3648,7 +3662,7 @@ export default function Stage19WritingSpineApp({
       } : {}),
     };
     await returnToStorySource(source);
-  }, [returnToStorySource]);
+  }, [activateSurface, handleSelectUnit, returnToStorySource, surfaceBridge]);
 
   const returnProgram7RevisionItemToSource = useCallback(async (item: RevisionItem) => {
     const current = snapshotRef.current;

@@ -3,9 +3,86 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Disposable-project hands-on review — anchored alternative and wording — 2026-09-22
+
+Status: anchored save and selected-passage application repaired and exercised
+in the desktop app with local AI disabled. The repaired Electron main process
+opened the uniquely named disposable project; no other project was mutated.
+The user confirmed Steps 1 and 2 passed. In the disposable project `Human Gate
+Disposable 2026-09-22`, the primary Writing Studio showed the saved passage
+`Mara pressed her palm against the cold glass and listened.` selected. The
+primary Command Center retained the user's attempted Purpose and Proposed
+text but reported `The manual source anchor is invalid or stale.` No new
+alternative or manuscript mutation was observed from that attempt. The
+previously saved alternative remained unanchored and partial application
+remained disabled. The secondary Command Center was read-only.
+
+Root cause: candidate creation sent the full saved section plus the exact
+selected range, but the IPC check incorrectly required source text to equal
+only the selected range when an anchor existed. That contradicted the
+full-body source snapshot required by Narrative Insertion. IPC now verifies
+the complete saved body and separately checks the selected range's hash.
+Focused IPC coverage proves a selected manual alternative can be saved and
+rejects a false range fingerprint. No local-AI action was invoked in this
+desktop review; network activity was not separately audited.
+
+After restarting Electron with the repaired main code, the operator selected
+exactly `Mara pressed her palm against the cold glass and listened.` in the
+saved manuscript, saved a new manual alternative, selected its proposed text,
+and invoked **Apply only the selected part**. The new alternative was linked
+to the current saved passage and then marked `Partly applied`. The manuscript
+was saved durably as `The observatory's brass door had not opened in forty
+years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased
+the road home. She knew the message inside was meant for her.` The unaffected
+prefix and suffix survived. The earlier unanchored alternative remained
+disabled for partial application. This is a bounded disposable-project check,
+not a complete Desktop Pass 2 or Human Gate 4 certification.
+
+The desktop check found a follow-up presentation defect: immediately after a
+successful partial application, the completed alternative was described as
+stale and the Return to passage action showed a red warning because it tried
+to reselect the original, now-replaced words. Completed alternatives now show
+the earlier source as history, explain that the alternative was applied, and
+do not show the stale-application warning. Return now opens the updated
+section with a neutral confirmation; this was rechecked in the running UI.
+
+The user correctly flagged the disabled partial-application explanation as
+unclear. Comparison now states that an older alternative cannot be linked by
+selecting text on the comparison, puts the explanation immediately after the
+actions, and associates it with the disabled button for accessibility. The
+manual form explains the two-step source-selection sequence. The misleading
+"linked" status for unanchored alternatives and the technical IPC error have
+plain-language replacements.
+
+Read-only wording review covered Review, Structure, all Story Knowledge lenses,
+Create / Develop's Revision Desk, Story Foundation, Ideas, and History, plus
+Project Interchange and Operations / Approvals. This bounded copy pass also
+removes internal program/placeholder language, `owner-governed` continuity
+wording, a raw unit ID in Timeline, pluralization errors in Pacing, and
+`No promotion acceptance` in History. Story Foundation's `Answer posture`
+control labels and the entry guidance in Ideas were also changed to plain
+language. Remaining wording candidates for a separate pass include Ideas'
+saved-direction lineage and advisory-test terms, some Timeline review action
+names, and the Project Tools tab overlapping a long Writing Studio status
+message. Structure, Project Interchange, and Operations / Approvals remain
+intentional future placeholders; only their explanatory text changed.
+
+Verification: focused IPC and renderer suites for candidate save/comparison,
+Story Knowledge, Story Foundation, Ideas, History, Continuity, Emotion, and
+Timeline passed after updating copy assertions. The full
+`Stage19WritingSpineApp.test.tsx` suite passed 134/134 after the placeholder
+copy assertion was updated. App typecheck, app lint, documentation lint,
+`build:main`, and `git diff --check` passed. The whole repository suite was
+not rerun. Desktop checks confirmed Story Knowledge still opens with its
+Overview and lens controls, and the revised Story Foundation and Ideas copy
+appears in the running app. No local-AI qualification was performed.
+
 ## Story Knowledge blank-screen crash — 2026-09-22
 
-Status: fixed in code and automatically verified; user desktop confirmation pending.
+Status: fixed in code and automatically verified; the user reported the first
+two desktop checks passed, and the operator reopened Story Knowledge in the
+disposable project and saw Overview plus all six lens controls without a
+blank screen. This is not Human Gate 4 certification.
 The user's screenshots show Story Knowledge becoming a solid blue window and
 DevTools reporting `ContinuityValidationError: Continuity data is invalid:
 events are invalid` from `buildProgram6ProductionProjection` during render.
@@ -19,9 +96,9 @@ the projection succeeds without a false duplicate-event finding. A renderer
 regression confirms the lens controls remain usable with untitled units.
 Focused qualification (7/7) and Story Knowledge renderer (14/14) tests,
 app typecheck, app lint, and `git diff --check` passed. No user project or
-manuscript was opened or changed in this repair. The user still needs to
-reload the running app and confirm Story Knowledge opens in their project.
-This is not a Desktop Pass 2 or Human Gate 4 verification.
+manuscript was opened or changed in that repair. The later disposable-project
+review supplied the desktop confirmation noted above. This is not a Desktop
+Pass 2 or Human Gate 4 verification.
 
 ## Program 7 no-AI repair — Desktop Pass 1 mandatory stop — 2026-09-22
 

@@ -31,8 +31,9 @@ describe('ContinuityReview component', () => {
     const onAction = vi.fn();
     render(<ContinuityReview findings={[finding()]} onAction={onAction} />);
     expect(screen.getByRole('heading', { name: 'Continuity review' })).toBeInTheDocument();
-    expect(screen.getByText('Candidate only')).toBeInTheDocument();
-    expect(screen.getByText('Refs: unit/unit-a')).toBeInTheDocument();
+    expect(screen.getByText('For your review')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Technical details'));
+    expect(screen.getByText('Record IDs: unit/unit-a')).toBeInTheDocument();
     expect(screen.getByText('Source available')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'return to source' }));
     expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ category: 'drift' }), 'return-to-source');
@@ -42,7 +43,7 @@ describe('ContinuityReview component', () => {
 
   it('renders an honest empty state and retains non-color, overflow, and reduced-motion styling', () => {
     render(<ContinuityReview findings={[]} />);
-    expect(screen.getByTestId('continuity-review-empty')).toHaveTextContent('No current structured continuity findings');
+    expect(screen.getByTestId('continuity-review-empty')).toHaveTextContent('No continuity concerns are available');
     const css = readFileSync(resolve(import.meta.dirname, '../styles/app.css'), 'utf8');
     expect(css).toContain('.continuity-review__actions button:focus-visible');
     expect(css).toContain('overflow-wrap: anywhere');
