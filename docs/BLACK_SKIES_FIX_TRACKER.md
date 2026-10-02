@@ -173,6 +173,18 @@ Logs: `%TEMP%/black-skies-p7-desktop-fix-build-20261002.log`,
 These are affected checks after the presentation-only change, not a second full
 Stage 19 qualification or native review. Final commit identity is recorded below.
 
+Reviewed implementation candidate:
+`fdd65571f3cde870dc3b5084a6eff3bd22047203`, tree
+`0ce3dba8b17e1c9a842c9e0ab6e0b26bd21d4a7e`; clean after local commit.
+Relative to clean-qualified `84aa790a`, only the three-line CSS repair, extended
+existing geometry assertion and campaign records changed. Full-suite/Stage 19
+evidence remains attributed to `84aa790a`; affected checks above apply to this
+final implementation. App lint, docs lint (72 files) and diff hygiene also pass.
+Later receipt-only commits do not change executable code. No push/merge/release.
+Final batch account observation: **72/11/0**, compared with **66/10/0** at native
+stop. Whole campaign observed **15% → 72% five-hour**, **2% → 11% weekly**,
+reserve **0% → 0%**; attribution remains account-wide and rounded.
+
 ### Jason's no-AI confirmation packet
 
 Launch the continuing repository's final candidate in a fresh normal-GPU process,
