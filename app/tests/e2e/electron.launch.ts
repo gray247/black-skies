@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function resetPersistedHarnessState(repoRoot: string): void {
+  if (process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1') return;
   const candidateLayoutDirs = [
     path.join(repoRoot, 'sample_project', 'proj_esther_estate', '.blackskies'),
     path.join(repoRoot, 'sample_project', 'Esther_Estate', '.blackskies'),
@@ -194,7 +195,8 @@ export const test = base.extend<AppFixtures>({
     try {
       await use(dir);
     } finally {
-      fs.rmSync(dir, { recursive: true, force: true });
+      if (process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS !== '1') fs.rmSync(dir, { recursive: true, force: true });
+      else console.info(`Retained Electron project: ${dir}`);
     }
   },
 
@@ -252,7 +254,8 @@ export const test = base.extend<AppFixtures>({
       await use(application);
     } finally {
       await closeElectronApplicationSafely(application);
-      fs.rmSync(userDataDir, { recursive: true, force: true });
+      if (process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS !== '1') fs.rmSync(userDataDir, { recursive: true, force: true });
+      else console.info(`Retained Electron profile: ${userDataDir}`);
     }
   },
 

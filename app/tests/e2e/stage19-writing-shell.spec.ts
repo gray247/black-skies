@@ -734,7 +734,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     await expect(writing.getByRole('textbox', { name: `Title for ${longTitle}` })).not.toBeFocused();
     expect(await writing.locator('[data-manuscript-scroll-owner="true"]').evaluate((element) => element.scrollTop)).toBe(canvasScrollBeforeOpen);
     await writing.getByRole('button', { name: 'Locate in manuscript' }).click();
-    await expect(writing.getByRole('alert').filter({ hasText: `Returned to ${longTitle}.` })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: `Returned to ${longTitle}.` })).toBeVisible();
     expect(await activeCrossingEditor.evaluate(() => window.getSelection()?.toString())).toBe(crossingProse);
   } finally {
     await removeTemporaryDirectory(parent);

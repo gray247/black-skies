@@ -1,4 +1,4 @@
-import { readFile, rm } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test } from './_electron.fixture';
 import {
@@ -7,7 +7,7 @@ import {
   openProgram7Project,
 } from './program7-e2e-support';
 
-test.use({ splitCommandRuntimeConfig: true });
+test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
 test('Program 7 Carmilla long-form review exposes all 17 units across current and detached surfaces', async ({ page, electronApp }) => {
   const { reviewRoot, projectPath, projectId } = await materializeProgram7Carmilla();
@@ -36,11 +36,11 @@ test('Program 7 Carmilla long-form review exposes all 17 units across current an
 
     await command.getByRole('button', { name: 'Create / Develop', exact: true }).click();
     await expect(command.getByTestId('program7-create-develop')).toBeVisible();
-    await expect(command.getByRole('heading', { name: 'Create / Develop', exact: true })).toBeVisible();
+    await expect(command.getByRole('heading', { name: 'Develop your story', exact: true })).toBeVisible();
     await command.getByRole('button', { name: 'History', exact: true }).click();
     await expect(command.getByTestId('program7-history')).toBeVisible();
     await expect(command.getByRole('heading', { name: 'History', exact: true })).toBeVisible();
   } finally {
-    await rm(reviewRoot, { recursive: true, force: true });
+    console.info(`Program 7 campaign artifact retained at ${reviewRoot}; project ${projectPath}`);
   }
 });

@@ -62,7 +62,7 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await expect(result).toBeVisible();
     await expect(result).toContainText('Companion Boundary Project');
     await expect(result).toContainText('Orientation Passage · unit 1 of 1');
-    await expect(result).toContainText('It did not read manuscript prose, call AI, create memory');
+    await expect(result).toContainText('It did not change your manuscript, create a saved record, or decide what you should do next.');
     await expect.poll(() => electronApp.windows().length).toBe(1);
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),
@@ -79,7 +79,7 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await writing.getByRole('button', { name: 'Ask', exact: true }).click();
     await expect(writing.getByRole('region', { name: 'Companion orientation result' }))
       .toContainText('This request is not supported yet');
-    await expect(writing.getByText(/No AI or provider was called/)).toBeVisible();
+    await expect(writing.getByText('Companion currently helps you find your place in this project. It did not change your manuscript or save anything.')).toBeVisible();
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),

@@ -2544,7 +2544,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           </button>
         </div>
       </header>
-      <div className="stage19-writing-shell__notice-row" aria-label="Project notices">
+      <div className="stage19-writing-shell__notice-row" role="group" aria-label="Project notices">
         {model.sourceReturnConfirmation ? (
           <p className="stage19-spine__source-return-confirmation" role="status">
             {model.sourceReturnConfirmation}

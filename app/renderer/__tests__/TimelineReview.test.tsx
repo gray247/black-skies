@@ -26,7 +26,7 @@ describe('TimelineReview component', () => {
     const onAction = vi.fn();
     render(<TimelineReview result={result()} onAction={onAction} />);
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'dismiss' })[0]!);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Dismiss' })[0]!);
 
     expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ category: 'chronology-review' }), 'dismiss');
   });

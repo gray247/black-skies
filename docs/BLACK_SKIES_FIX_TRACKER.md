@@ -3,6 +3,95 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Automation-led no-AI readiness campaign — 2026-10-02
+
+Status: implementation authorized by Jason; Batch 1 safety/coverage and Batch 2
+writer-facing repair work active. No desktop review or human acceptance claimed.
+Continuing repository: `program7-today`, branch `codex/program7-implementation`,
+starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
+`bd0f95996e13db7cf15e11b6961c5db31a4edbe8`; initial working tree was clean.
+Its origin is the older local implementation repository, not GitHub directly.
+
+The existing anchored-application, no-AI visibility, and Story Knowledge repairs
+are retained and are being verified rather than rewritten. Known residual
+issues are Ideas/Timeline terminology and Project Tools overlap with a long
+Writing Studio notice. Inspected Program 7 Electron specs still use old candidate
+labels and an incorrect disabled-AI button expectation; coverage is being aligned
+with current behavior and strengthened for exact replacement and fresh-process
+reopen. Prior partial-application data-loss fixtures remain protected evidence.
+
+Execution uses two exclusively assigned Luna workers plus one coordinator.
+Baseline account counters: 5-hour allowance 15% used, weekly 2% used, Luna reserve
+0% used. Counters are account-wide and do not establish exact session tokens.
+Native review follows the automated gate, once only, stopping at 15 minutes,
+an observed +10 percentage points in the 5-hour allowance, or a safety stop.
+Local AI, cloud, package/install, cleanup, push, merge, release, and Program 7
+closure are outside this campaign. Structure, Project Interchange, and
+Operations / Approvals remain Command Center placeholders; built Writing Studio
+Markdown/Structure behavior remains in regression scope.
+
+
+### Repair evidence before final qualification
+
+Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,
+structured IPC, no-AI preload, insertion and recovery coverage was retained.
+Added repeated-occurrence offsets, competing acceptance reservations, and durable
+reservation reopening to the existing suites. Focused repository run: 11/11;
+initial focused four-file run: 27/27; source/IPC/preload follow-up: 42 passed with
+one Ideas fixture failure, subsequently repaired and verified (8/8 Ideas/Timeline).
+Story Knowledge untitled/overlong title and Timeline actions: 14/14.
+
+The full app run executed all 159 files: 1,497 passed, two failed, two skipped.
+The two failures were a missing seed lookup and obsolete Timeline labels; their
+existing suites pass after correction. This original failed run is not called a
+full-suite pass. Log: `%TEMP%/black-skies-p7-full-tests-20261002.log`.
+
+Initial Stage 19 dirty run passed hygiene, lint, typecheck, build, 49 critical
+files (816 passed, two skipped), and startup. Its Electron matrix had 31 passes
+and five failures. Root causes and dispositions:
+
+- Notice row lacked a role for its accessible name: added `role=group`; axe passes.
+- Writing save badge was 12px versus Command Center 14px: aligned at 14px;
+  existing chrome parity check passes.
+- Empty Command Center notice slot consumed 56px: empty slot now collapses;
+  original visual references pass without baseline or tolerance changes.
+- Companion boundary copy and source-return alert selector were obsolete:
+  current exact copy and successful `status` role asserted; immutable files,
+  exact selected source and fresh-process reopen assertions retained and pass.
+- Project Tools collided with long project notices: reserved its own 44px row;
+  wide/compact geometry, focus, both themes and final action checks pass.
+
+Dedicated Program 7 failures also exposed obsolete accessible task/action names,
+Foundation answer labels and saved-note wording, host return navigation and origin
+badge expectations. Corrected existing journeys to current approved text while
+preserving outcome assertions. CodeMirror virtualizes long prose: durable source
+snapshot, exact anchor offsets and manual provenance are asserted directly instead
+of relying on a DOM selection string that can omit unmounted lines. Partial text
+selection uses a real keyboard event so React observes it.
+
+New product defect: alternatives retained an old current status after a durable
+manuscript Save because owner documents loaded only on project identity changes.
+The host now refreshes alternative currentness after Save, guards newer document
+revisions and synchronizes the open drawer from the chosen current document.
+The existing revision Electron file proves changed-source refusal without another
+write; exact selected replacement and fresh-process bytes/status also pass (2/2).
+Affected integrated host suite passes 134/134. No public API/storage schema changed.
+
+Review materializer now gives each pristine project a distinct ID/name and refuses
+an existing destination. Independent check passed creation, rejected the second
+invocation, and retained identical draft hash
+`61ebdf6f094744d7e09fbddfe7bdc5e5272cbe5f912c9f31a566553cfe363ed2`.
+Campaign fixture retention uses existing helpers; no test framework or ledger added.
+
+Final qualification is pending. Native review has not started. No human gate,
+local-AI admission, package qualification or Program 7 closure is claimed.
+Account observations: start 15/2/0; package review 22/3/0; integration 29/4/0;
+latest pre-final observation 41/6/0 (5-hour/weekly/Luna reserve percentages used).
+Luna reserve readings remained rounded zero; actual separate consumption cannot
+be established from these counters.
+
+
+
 ## Disposable-project hands-on review — anchored alternative and wording — 2026-09-22
 
 Status: anchored save and selected-passage application repaired and exercised

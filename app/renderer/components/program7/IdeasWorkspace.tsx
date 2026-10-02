@@ -42,8 +42,8 @@ const destinations: readonly IdeationPromotionDestination[] = [
   'author-intent', 'outline', 'story-unit', 'narrative-insertion', 'character', 'lore', 'memory',
 ];
 
-function currentSeedVersion(seed: IdeationIdeaSeedV1) {
-  return seed.versions.find((version) => version.id === seed.currentVersionId) ?? null;
+function currentSeedVersion(seed: IdeationIdeaSeedV1 | undefined) {
+  return seed?.versions.find((version) => version.id === seed.currentVersionId) ?? null;
 }
 
 function currentPremise(branch: IdeationExplorationBranchV1): string {
@@ -112,6 +112,7 @@ export default function IdeasWorkspace({
   }, [snapshot.document.projectId]);
 
   const seedsById = new Map(snapshot.document.seeds.map((seed) => [seed.id, seed]));
+  const branchesById = new Map(snapshot.document.branches.map((branch) => [branch.id, branch]));
   const toggleSeed = (seedId: string) => setSelectedSeedIds((previous) => {
     const next = new Set(previous);
     if (next.has(seedId)) next.delete(seedId); else next.add(seedId);
@@ -223,13 +224,13 @@ export default function IdeasWorkspace({
             <article key={branch.id} id={`idea-branch-${branch.id}`} tabIndex={-1} data-testid={`idea-branch-${branch.id}`}>
               <header><div><h3>{branch.name}</h3><p>{postureLabel(branch.posture)}</p></div><span>{archived ? 'Archived branch' : 'Active branch'}</span></header>
               <dl>
-                <div><dt>Parent branch</dt><dd>{branch.parentBranchId ?? 'None; original exploration'}</dd></div>
-                <div><dt>Lineage branches</dt><dd>{branch.lineageBranchIds.length > 0 ? branch.lineageBranchIds.join(', ') : 'No descendants recorded'}</dd></div>
-                <div><dt>Seed lineage</dt><dd>{branch.seedIds.length > 0 ? branch.seedIds.join(', ') : 'No seed attached'}</dd></div>
+                <div><dt>Started from</dt><dd>{branch.parentBranchId ? branchesById.get(branch.parentBranchId)?.name ?? 'Another saved direction' : 'Original exploration'}</dd></div>
+                <div><dt>Related directions</dt><dd>{branch.lineageBranchIds.length > 0 ? branch.lineageBranchIds.map((branchId) => branchesById.get(branchId)?.name ?? 'Saved direction').join(', ') : 'None recorded'}</dd></div>
+                <div><dt>Ideas used</dt><dd>{branch.seedIds.length > 0 ? branch.seedIds.map((seedId) => { const seed = seedsById.get(seedId); return seed?.protected ? 'Protected idea' : currentSeedVersion(seed)?.title ?? 'Saved idea'; }).join(', ') : 'No saved ideas'}</dd></div>
               </dl>
               <section aria-labelledby={`idea-branch-premise-${branch.id}`}><h4 id={`idea-branch-premise-${branch.id}`}>Current premise</h4><p>{currentPremise(branch)}</p></section>
               <section aria-label={`Intentional unknowns for ${branch.name}`}><h4>Unknowns and ambiguity</h4>{branch.unknowns.length === 0 ? <p>No unresolved areas recorded.</p> : <ul>{branch.unknowns.map((unknown) => <li key={unknown.id}><strong>{unknown.posture.replace('-', ' ')}</strong>: {unknown.statement}{unknown.revisitCondition ? ` · Revisit when: ${unknown.revisitCondition}` : ''}</li>)}</ul>}</section>
-              <section aria-label={`Advisory premise test for ${branch.name}`}><h4>Premise test · advisory only</h4><p>Test findings are exploratory guidance, not canon, manuscript truth, or a branch decision.</p>{IDEATION_FIXED_CORE_QUESTIONS.map((question) => <label key={question.id} htmlFor={`idea-test-${branch.id}-${question.id}`}>{question.prompt}<input id={`idea-test-${branch.id}-${question.id}`} value={answers[question.id] ?? ''} onChange={(event) => setTestAnswers((previous) => ({ ...previous, [branch.id]: { ...answers, [question.id]: event.target.value } }))} /></label>)}<button type="button" disabled={!onTestPremise} onClick={() => onTestPremise?.(branch, answers)}>Run advisory premise test</button>{snapshot.document.premiseTests.filter((test) => test.branchId === branch.id).map((test) => <p key={test.id} data-testid={`idea-test-result-${test.id}`}>Advisory result: {test.findings.length} finding{test.findings.length === 1 ? '' : 's'} · uncertainty remains visible.</p>)}</section>
+              <section aria-label={`Explore the premise for ${branch.name}`}><h4>Explore this premise</h4><p>These answers help you think through the direction. They do not change the manuscript or decide what belongs in the story.</p>{IDEATION_FIXED_CORE_QUESTIONS.map((question) => <label key={question.id} htmlFor={`idea-test-${branch.id}-${question.id}`}>{question.prompt}<input id={`idea-test-${branch.id}-${question.id}`} value={answers[question.id] ?? ''} onChange={(event) => setTestAnswers((previous) => ({ ...previous, [branch.id]: { ...answers, [question.id]: event.target.value } }))} /></label>)}<button type="button" disabled={!onTestPremise} onClick={() => onTestPremise?.(branch, answers)}>Explore this premise</button>{snapshot.document.premiseTests.filter((test) => test.branchId === branch.id).map((test) => <p key={test.id} data-testid={`idea-test-result-${test.id}`}>Exploration notes: {test.findings.length} finding{test.findings.length === 1 ? '' : 's'} · uncertainty remains visible.</p>)}</section>
               <div aria-label={`Branch actions for ${branch.name}`}>
                 {archived ? <button type="button" disabled={!onRestoreBranch} onClick={() => onRestoreBranch?.(branch)}>Restore branch</button> : <button type="button" disabled={!onArchiveBranch} onClick={() => onArchiveBranch?.(branch)}>Archive branch</button>}
               </div>

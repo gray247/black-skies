@@ -12,6 +12,7 @@ import { killElectronProcessTree, waitForProcessIdsToExit } from './stage19-elec
 type Fixtures = {
   splitCommandRuntimeConfig: boolean;
   disableLocalAi: boolean;
+  preserveTestArtifacts: boolean;
   skipPageCloseTeardown: boolean;
   skipFailureScreenshotAfterVerifiedExit: boolean;
   electronApp: ElectronApplication;
@@ -51,6 +52,27 @@ type ElectronLaunchContext = {
 
 const launchContextByApp = new WeakMap<ElectronApplication, ElectronLaunchContext>();
 const cleanlyExitedApplications = new WeakSet<ElectronApplication>();
+
+const launchOptionsByApp = new WeakMap<ElectronApplication, NonNullable<Parameters<typeof electron.launch>[0]>>();
+const restartedAppsByRoot = new WeakMap<ElectronApplication, ElectronApplication[]>();
+const rootAppByRestart = new WeakMap<ElectronApplication, ElectronApplication>();
+
+export async function restartElectronApp(application: ElectronApplication): Promise<ElectronApplication> {
+  const launchOptions = launchOptionsByApp.get(application);
+  if (!launchOptions) throw new Error('Restart requires an application launched by this fixture.');
+  const result = await closeElectronApplicationSafely(application);
+  if (result.forcedKill) throw new Error('Electron did not exit normally; restart qualification is blocked.');
+  markElectronApplicationExitedCleanly(application);
+  const restarted = await electron.launch(launchOptions);
+  const root = rootAppByRestart.get(application) ?? application;
+  const applications = restartedAppsByRoot.get(root) ?? [];
+  applications.push(restarted);
+  restartedAppsByRoot.set(root, applications);
+  rootAppByRestart.set(restarted, root);
+  launchOptionsByApp.set(restarted, launchOptions);
+  return restarted;
+}
+
 
 export function markElectronApplicationExitedCleanly(application: ElectronApplication): void {
   cleanlyExitedApplications.add(application);
@@ -396,10 +418,11 @@ async function closeElectronApplicationSafely(
 export const test = base.extend<Fixtures>({
   splitCommandRuntimeConfig: [false, { option: true }],
   disableLocalAi: [false, { option: true }],
+  preserveTestArtifacts: [false, { option: true }],
   skipPageCloseTeardown: [false, { option: true }],
   skipFailureScreenshotAfterVerifiedExit: [false, { option: true }],
 
-  electronApp: async ({ splitCommandRuntimeConfig, disableLocalAi }, use, testInfo) => {
+  electronApp: async ({ splitCommandRuntimeConfig, disableLocalAi, preserveTestArtifacts }, use, testInfo) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const repoRoot = path.resolve(appDir, '..');
@@ -469,15 +492,18 @@ export const test = base.extend<Fixtures>({
     process.env.BLACKSKIES_SERVICES_PORT = launchEnv.BLACKSKIES_SERVICES_PORT;
     process.env.BLACKSKIES_E2E_PORT = launchEnv[ 'BLACKSKIES_E2E_PORT' ] ?? launchEnv.BLACKSKIES_SERVICES_PORT;
 
-    resetPersistedHarnessState(repoRoot);
-    const application = await electron.launch({
+    const retainArtifacts = preserveTestArtifacts || process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1';
+    if (!retainArtifacts) resetPersistedHarnessState(repoRoot);
+    const launchOptions = {
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
         `--user-data-dir=${userDataDir}`,
         entryPoint,
       ],
       env: launchEnv,
-    });
+    };
+    const application = await electron.launch(launchOptions);
+    launchOptionsByApp.set(application, launchOptions);
     const appProcess = application.process();
     const stdoutChunks: string[] = [];
     const stderrChunks: string[] = [];
@@ -572,15 +598,29 @@ export const test = base.extend<Fixtures>({
           });
         }
       }
+      let restartTeardownFailed = false;
+      for (const restarted of [...(restartedAppsByRoot.get(application) ?? [])].reverse()) {
+        if (!hasElectronApplicationExitedCleanly(restarted)) {
+          const result = await closeElectronApplicationSafely(restarted);
+          restartTeardownFailed ||= result.forcedKill;
+          markElectronApplicationExitedCleanly(restarted);
+        }
+      }
       if (!useExternalService) {
         await stopServiceStubs();
       }
       process.env.BLACKSKIES_SERVICES_PORT = prevServicePort;
       process.env.BLACKSKIES_E2E_PORT = prevE2ePort;
-      fs.rmSync(userDataDir, { recursive: true, force: true });
-      if (runtimeConfigDir) {
-        fs.rmSync(runtimeConfigDir, { recursive: true, force: true });
+      if (retainArtifacts || testInfo.status !== testInfo.expectedStatus) {
+        await testInfo.attach('retained-electron-fixture.json', {
+          body: Buffer.from(JSON.stringify({ userDataDir, runtimeConfigDir }, null, 2)),
+          contentType: 'application/json',
+        });
+      } else {
+        fs.rmSync(userDataDir, { recursive: true, force: true });
+        if (runtimeConfigDir) fs.rmSync(runtimeConfigDir, { recursive: true, force: true });
       }
+      if (restartTeardownFailed) throw new Error('Restarted Electron required forced teardown.');
     }
   },
 

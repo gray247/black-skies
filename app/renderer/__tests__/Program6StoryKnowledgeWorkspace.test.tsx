@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -101,12 +101,13 @@ afterEach(() => {
 describe('Program 6 Story Knowledge workspace', () => {
   it('keeps the lens controls usable with untitled story units', async () => {
     const user = userEvent.setup();
+    const overlongTitle = 'A'.repeat(201);
     render(
       <Program6StoryKnowledgeWorkspace
         project={{
           ...project,
           units: project.units.map((unit, index) =>
-            index === 0 ? { ...unit, title: '' } : index === 1 ? { ...unit, title: '   ' } : unit,
+            index === 0 ? { ...unit, title: '' } : index === 1 ? { ...unit, title: '   ' } : index === 2 ? { ...unit, title: overlongTitle } : unit,
           ),
         }}
         generation={1}
@@ -568,7 +569,7 @@ describe('Program 6 Story Knowledge workspace', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /^Timeline$/ }));
-    await user.click(screen.getByRole('button', { name: 'dismiss' }));
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
 
     expect(onSourceReturn).not.toHaveBeenCalled();
     expect(onTimelineAction).toHaveBeenCalledWith(
@@ -577,7 +578,7 @@ describe('Program 6 Story Knowledge workspace', () => {
     );
     expect(screen.getByRole('status')).toHaveTextContent(/No source navigation or manuscript change was made/);
 
-    await user.click(screen.getByRole('button', { name: 'return to source' }));
+    await user.click(within(screen.getByRole('region', { name: 'Timeline detail' })).getAllByRole('button', { name: 'Review source' })[0]!);
     expect(onSourceReturn).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'nl_01' }));
   });
 });

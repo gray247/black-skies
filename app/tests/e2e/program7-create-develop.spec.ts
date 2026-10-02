@@ -1,4 +1,3 @@
-import { rm } from 'node:fs/promises';
 import { expect, test } from './_electron.fixture';
 import {
   getProgram7Windows,
@@ -7,7 +6,7 @@ import {
   showCommandInWriting,
 } from './program7-e2e-support';
 
-test.use({ splitCommandRuntimeConfig: true });
+test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
 test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, and auditable', async ({ page, electronApp }) => {
   const { reviewRoot, projectPath } = await materializeProgram7Carmilla();
@@ -22,10 +21,10 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
     await expect(writing.getByTestId('story-foundation')).toBeVisible();
     await expect(writing.getByTestId('story-foundation-optional')).toContainText('may skip');
     const foundationQuestion = writing.locator('[data-testid^="story-foundation-question-"]').first();
-    await foundationQuestion.getByLabel('Answer posture').selectOption('answered');
+    await foundationQuestion.getByLabel(/Answer state for/).selectOption('answered');
     await foundationQuestion.getByLabel('Your note').fill('The author controls the final premise and voice.');
     await foundationQuestion.getByRole('button', { name: 'Save answer', exact: true }).click();
-    await expect(writing.getByText('Saved as author project guidance.', { exact: true })).toBeVisible();
+    await expect(writing.getByText('Saved as your project note.', { exact: true })).toBeVisible();
 
     await writing.getByRole('button', { name: 'Ideas', exact: true }).click();
     await expect(writing.getByTestId('ideas-workspace')).toBeVisible();
@@ -41,10 +40,10 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
     await writing.getByRole('button', { name: 'Create direction', exact: true }).click();
     const branch = writing.getByTestId(/^idea-branch-/).last();
     await expect(branch).toContainText('The letter path');
-    await expect(branch.getByText('Premise test · advisory only', { exact: true })).toBeVisible();
+    await expect(branch.getByRole('heading', { name: 'Explore this premise', exact: true })).toBeVisible();
     await branch.getByRole('button', { name: 'Preview destination', exact: true }).click();
     await expect(branch.getByRole('status')).toContainText('ready to send');
   } finally {
-    await rm(reviewRoot, { recursive: true, force: true });
+    console.info(`Program 7 campaign artifact retained at ${reviewRoot}; project ${projectPath}`);
   }
 });

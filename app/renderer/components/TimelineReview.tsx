@@ -18,6 +18,7 @@ export default function TimelineReview({ result, unitTitles, onAction, onSourceR
   const descriptionId = useId();
   const titleForUnit = (unitId: string): string => unitTitles?.[unitId] ?? unitId;
   const titleForEvent = (eventId: string): string => titleForUnit(result.chronology.find((event) => event.eventId === eventId)?.unitId ?? eventId);
+  const actionLabel = (action: TimelineAllowedActionV1): string => ({ 'return-to-source': 'Review source', dismiss: 'Dismiss', 'mark-intentional': 'Mark as intentional', park: 'Set aside for later' })[action];
   return (
     <section className="timeline-review" aria-labelledby={titleId} aria-describedby={descriptionId} data-testid="timeline-review">
       <header className="timeline-review__header">
@@ -29,7 +30,7 @@ export default function TimelineReview({ result, unitTitles, onAction, onSourceR
         <section aria-labelledby={`${titleId}-pacing`}><h3 id={`${titleId}-pacing`}>Pacing</h3><p>Differences are places you may want to review, not automatic problems.</p><ul>{result.pacing.map((item) => <li key={item.unitId}><strong>{titleForUnit(item.unitId)}</strong><span>{item.direction === 'unknown' ? 'Not enough information to compare length' : item.direction.replace(/-/g, ' ')}{item.isReviewOpportunity ? ' · review opportunity' : ''}</span></li>)}</ul></section>
         <section aria-labelledby={`${titleId}-pressure`}><h3 id={`${titleId}-pressure`}>Story pressure</h3><p>Urgency, consequence, constraint, and conflict stay separate. This does not grade the story’s overall tension.</p><ul>{result.pressure.map((item) => <li key={item.eventId}><strong>{titleForEvent(item.eventId)}</strong><span>{Object.entries(item.dimensions).map(([dimension, band]) => `${dimension}: ${band}`).join(' · ') || 'No sources of tension recorded'}</span></li>)}</ul></section>
       </div>
-      <section className="timeline-review__findings" aria-labelledby={`${titleId}-findings`}><h3 id={`${titleId}-findings`}>Review opportunities</h3>{result.findings.length === 0 ? <p data-testid="timeline-review-empty">No current timeline review opportunities are available.</p> : <ul>{result.findings.map((finding) => <li key={finding.findingId}><strong>{finding.summary}</strong><span>{finding.evidenceSummary}</span><div className="timeline-review__actions" aria-label={`Actions for ${finding.summary}`}>{finding.allowedActions.map((action) => <button key={action} type="button" onClick={() => onAction?.(finding, action)}>{action.replace(/-/g, ' ')}</button>)}</div></li>)}</ul>}</section>
+      <section className="timeline-review__findings" aria-labelledby={`${titleId}-findings`}><h3 id={`${titleId}-findings`}>Review opportunities</h3>{result.findings.length === 0 ? <p data-testid="timeline-review-empty">No current timeline review opportunities are available.</p> : <ul>{result.findings.map((finding) => <li key={finding.findingId}><strong>{finding.summary}</strong><span>{finding.evidenceSummary}</span><div className="timeline-review__actions" aria-label={`Actions for ${finding.summary}`}>{finding.allowedActions.map((action) => <button key={action} type="button" onClick={() => onAction?.(finding, action)}>{actionLabel(action)}</button>)}</div></li>)}</ul>}</section>
     </section>
   );
 }

@@ -247,6 +247,70 @@ describe('revision candidate repository', () => {
     await expect(readFile(filePath, 'utf8')).resolves.toBe(bytes);
   });
 
+  it('recovers a persisted reservation after reopen and releases only its exact operation', async () => {
+    const root = await project();
+    const repository = store(root);
+    const created = await repository.createManual('project-a', 0, manualInput());
+    const candidateId = created.document.candidates[0]!.id;
+    const reservation = {
+      operationId: 'recovery-operation',
+      documentRevision: 1,
+      sourceBodySha256: source.bodySha256,
+      sourceStart: 0,
+      sourceEnd: sourceText.length,
+      candidateStart: 0,
+      candidateEnd: 'The revised transition.'.length,
+      candidateTextSha256: createHash('sha256').update('The revised transition.').digest('hex'),
+      acceptedResultSha256: 'f'.repeat(64),
+      reservedAt: '2026-09-09T12:00:00.000Z',
+    };
+    await repository.reserveAcceptance('project-a', {
+      expectedRevision: 1,
+      candidateId,
+      reservation,
+    });
+
+    const reopened = store(root);
+    await expect(reopened.read('project-a')).resolves.toMatchObject({
+      availability: 'ready',
+      document: { revision: 2, candidates: [{ acceptanceReservation: { operationId: 'recovery-operation' } }] },
+    });
+    await expect(reopened.releaseAcceptance('project-a', 2, candidateId, 'wrong-operation')).rejects.toMatchObject({ code: 'STALE' });
+    const released = await reopened.releaseAcceptance('project-a', 2, candidateId, 'recovery-operation');
+    expect(released.document.candidates[0]).toMatchObject({ acceptanceReservation: null });
+    await expect(reopened.setLifecycle('project-a', 3, candidateId, 'accepted')).rejects.toMatchObject({ code: 'INVALID' });
+  });
+
+  it('allows only one competing acceptance reservation and preserves the winner', async () => {
+    const root = await project();
+    const first = store(root);
+    const second = store(root);
+    const created = await first.createManual('project-a', 0, manualInput());
+    const candidateId = created.document.candidates[0]!.id;
+    const reservation = (operationId: string) => ({
+      operationId,
+      documentRevision: 1,
+      sourceBodySha256: source.bodySha256,
+      sourceStart: 0,
+      sourceEnd: sourceText.length,
+      candidateStart: 0,
+      candidateEnd: 'The revised transition.'.length,
+      candidateTextSha256: createHash('sha256').update('The revised transition.').digest('hex'),
+      acceptedResultSha256: 'f'.repeat(64),
+      reservedAt: '2026-09-09T12:00:00.000Z',
+    });
+    const attempts = await Promise.allSettled([
+      first.reserveAcceptance('project-a', { expectedRevision: 1, candidateId, reservation: reservation('accept-a') }),
+      second.reserveAcceptance('project-a', { expectedRevision: 1, candidateId, reservation: reservation('accept-b') }),
+    ]);
+    expect(attempts.filter((attempt) => attempt.status === 'fulfilled')).toHaveLength(1);
+    const loser = attempts.find((attempt) => attempt.status === 'rejected');
+    expect(loser).toMatchObject({ reason: { code: 'STALE' } });
+    await expect(first.read('project-a')).resolves.toMatchObject({
+      document: { revision: 2, candidates: [{ acceptanceReservation: { operationId: expect.stringMatching(/^accept-[ab]$/) } }] },
+    });
+  });
+
   it('fails closed for unsupported persisted schema and duplicate IDs without rewriting bytes', async () => {
     const root = await project();
     const repository = store(root);

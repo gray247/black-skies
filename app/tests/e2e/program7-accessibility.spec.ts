@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { expect, test } from './_electron.fixture';
@@ -10,7 +10,7 @@ import {
   showCommandInWriting,
 } from './program7-e2e-support';
 
-test.use({ splitCommandRuntimeConfig: true });
+test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
 const PROGRAM7_SECTIONS = ['Revision Desk', 'Story Foundation', 'Ideas', 'History'] as const;
 const MATRIX_REPORT_PATH = process.env.PROGRAM7_A11Y_MATRIX_OUTPUT;
@@ -200,7 +200,7 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
         await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
         const latestComparison = writing.getByTestId('revision-comparison').last();
         await expect(latestComparison).toBeVisible();
-        await latestComparison.getByRole('button', { name: 'Edit candidate', exact: true }).click();
+        await latestComparison.getByRole('button', { name: 'Edit alternative', exact: true }).click();
         await expect(writing.getByTestId('writing-revision-drawer')).toBeVisible();
         await assertProgram7MechanicalA11y(writing, `attached-${theme}-${profile.id}-manual-alternative`, {
           topology: 'attached',
@@ -218,7 +218,7 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
       await mkdir(path.dirname(MATRIX_REPORT_PATH), { recursive: true });
       await writeFile(MATRIX_REPORT_PATH, `${JSON.stringify({ rows: [...observedRows.values()] }, null, 2)}\n`, 'utf8');
     }
-    await rm(reviewRoot, { recursive: true, force: true });
+    console.info(`Program 7 campaign artifact retained at ${reviewRoot}; project ${projectPath}`);
   }
 });
 
@@ -226,3 +226,39 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
 // and provider-failure fixtures that require controlled transport/state seams;
 // renderer tests cover their redaction/degraded postures without inventing
 // runtime evidence or human visual acceptance.
+
+
+test('Project Tools remains reachable below a long source-return notice in both themes', async ({ page, electronApp }) => {
+  const { projectPath } = await materializeProgram7Carmilla();
+  const { writing } = await getProgram7Windows(electronApp, page);
+  await openProgram7Project(writing, projectPath);
+  await showCommandInWriting(writing);
+  await writing.getByRole('button', { name: 'Story Knowledge', exact: true }).click();
+  await writing.getByRole('button', { name: 'Signals', exact: true }).click();
+  await writing.locator('[data-signal-id="program7-carmilla-review-signal"]')
+    .getByRole('button', { name: 'Work on this', exact: true }).click();
+  await writing.getByRole('article', { name: 'Revision task', exact: true }).first()
+    .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
+  const notice = writing.locator('.stage19-spine__source-return-confirmation');
+  const tools = writing.getByRole('button', { name: 'Open Project Tools', exact: true });
+  for (const width of [1280, 640]) {
+    await writing.setViewportSize({ width, height: 900 });
+    for (const theme of ['dark', 'light'] as const) {
+      // The compact Writing Studio intentionally hides the theme switch.
+      await writing.setViewportSize({ width: 1280, height: 900 });
+      await setTheme(writing, theme);
+      await writing.setViewportSize({ width, height: 900 });
+      await expect(notice).toBeVisible();
+      await expect(tools).toBeVisible();
+      const noticeBox = await notice.boundingBox();
+      const toolsBox = await tools.boundingBox();
+      expect(noticeBox).not.toBeNull();
+      expect(toolsBox).not.toBeNull();
+      expect(toolsBox!.y).toBeGreaterThanOrEqual(noticeBox!.y + noticeBox!.height);
+      await tools.focus();
+      await expect(tools).toBeFocused();
+    }
+  }
+  await tools.click();
+  await expect(writing.getByRole('region', { name: 'Project Tools', exact: true })).toBeVisible();
+});

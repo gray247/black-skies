@@ -85,7 +85,7 @@ describe('IdeasWorkspace component', () => {
     expect(screen.getByText(/0 ideas selected/)).toBeInTheDocument();
   });
 
-  it('shows branch and premise lineage, intentional ambiguity, and explicit archive/restore', () => {
+  it('shows related directions, intentional ambiguity, and explicit archive/restore', () => {
     const onArchiveBranch = vi.fn();
     const onRestoreBranch = vi.fn();
     const branchData = branch();
@@ -94,7 +94,9 @@ describe('IdeasWorkspace component', () => {
     const branchCard = screen.getByTestId('idea-branch-branch-a');
     expect(within(branchCard).getByRole('heading', { name: 'Current premise' }).parentElement).toHaveTextContent('A friendship becomes a haunting.');
     expect(within(branchCard).getByText(/intentional ambiguity/)).toBeInTheDocument();
-    expect(within(branchCard).getByText('branch-root')).toBeInTheDocument();
+    expect(within(branchCard).getByText('The haunted branch')).toBeInTheDocument();
+    expect(within(branchCard).getByText('Saved direction')).toBeInTheDocument();
+    expect(within(branchCard).getByText('Seed seed-a, Seed seed-b')).toBeInTheDocument();
     fireEvent.click(within(branchCard).getByRole('button', { name: 'Archive branch' }));
     expect(onArchiveBranch).toHaveBeenCalledWith(branchData);
     rerender(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a'), seed('seed-b')], branches: [{ ...branchData, posture: 'archived' }] } })} onArchiveBranch={onArchiveBranch} onRestoreBranch={onRestoreBranch} />);
@@ -102,7 +104,7 @@ describe('IdeasWorkspace component', () => {
     expect(onRestoreBranch).toHaveBeenCalledWith(expect.objectContaining({ id: 'branch-a', posture: 'archived' }));
   });
 
-  it('labels premise tests advisory and preserves source contributions for combinations', () => {
+  it('labels premise exploration clearly and preserves source contributions for combinations', () => {
     const onTestPremise = vi.fn();
     const onCombineSeeds = vi.fn();
     const branchData = branch();
@@ -116,10 +118,10 @@ describe('IdeasWorkspace component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Combine selected ideas' }));
     const branchCard = screen.getByTestId('idea-branch-branch-a');
     fireEvent.change(within(branchCard).getByRole('textbox', { name: IDEATION_FIXED_CORE_QUESTIONS[0].prompt }), { target: { value: 'A witness.' } });
-    fireEvent.click(within(branchCard).getByRole('button', { name: 'Run advisory premise test' }));
+    fireEvent.click(within(branchCard).getByRole('button', { name: 'Explore this premise' }));
     expect(onCombineSeeds).toHaveBeenCalledWith(['seed-a', 'seed-b'], 'Combined thread', 'Two images become one premise.', expect.arrayContaining([expect.objectContaining({ seedId: 'seed-a', sourceVersionId: 'seed-a-v1' })]));
     expect(onTestPremise).toHaveBeenCalledWith(branchData, expect.objectContaining({ 'focal-force': 'A witness.' }));
-    expect(within(branchCard).getByText(/not canon/)).toBeInTheDocument();
+    expect(within(branchCard).getByText(/do not change the manuscript/)).toBeInTheDocument();
   });
 
   it('exposes a promotion preview without performing a destination write and reports degraded storage', () => {

@@ -608,6 +608,10 @@ export async function launchStage19BuiltApplication(
 }
 
 export async function removeTemporaryDirectory(directory: string): Promise<void> {
+  if (process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1') {
+    console.info(`[stage19.artifact] retained ${directory}`);
+    return;
+  }
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {

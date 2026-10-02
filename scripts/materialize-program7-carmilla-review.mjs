@@ -15,7 +15,6 @@ const baselineRoot = path.join(
   'derived',
   'baseline',
 );
-const projectId = 'proj_carmilla_program7_review';
 const unitId = 'carmilla-chapter-01';
 const signalId = 'program7-carmilla-review-signal';
 const createdAt = '2026-09-13T00:00:00.000Z';
@@ -53,7 +52,9 @@ async function main() {
   const root = readRootArgument(process.argv.slice(2));
   await mkdir(root, { recursive: true });
   const projectRoot = path.join(root, 'carmilla-review');
-  await cp(baselineRoot, projectRoot, { recursive: true, force: true });
+  await mkdir(projectRoot); // Refuse to overwrite any existing review or failure fixture.
+  const projectId = `proj_carmilla_review_${sha256(projectRoot).slice(0, 16)}`;
+  await cp(baselineRoot, projectRoot, { recursive: true, force: false, errorOnExist: true });
 
   const draftPath = path.join(projectRoot, 'drafts', `${unitId}.md`);
   const draft = await readFile(draftPath, 'utf8');
@@ -70,7 +71,7 @@ async function main() {
   const projectMetadataPath = path.join(projectRoot, 'project.json');
   const projectMetadata = JSON.parse(await readFile(projectMetadataPath, 'utf8'));
   projectMetadata.project_id = projectId;
-  projectMetadata.name = 'Carmilla Program 7 Review Fixture';
+  projectMetadata.name = `Carmilla Review ${path.basename(root)}`;
   await writeFile(projectMetadataPath, `${JSON.stringify(projectMetadata, null, 2)}\n`, 'utf8');
   const outlinePath = path.join(projectRoot, 'outline.json');
   const outline = JSON.parse(await readFile(outlinePath, 'utf8'));

@@ -66,6 +66,26 @@ describe('Narrative Insertion calculation', () => {
     });
   });
 
+  it('uses the saved exact offsets when the selected passage occurs more than once', async () => {
+    const source = 'Before repeated passage after.\nBefore repeated passage after.';
+    const start = source.indexOf('repeated passage', source.indexOf('\n') + 1);
+    const end = start + 'repeated passage'.length;
+    const result = await calculateNarrativeInsertion({
+      candidate: candidate(source, start, end, 'Keep NEW words.'),
+      currentBody: source,
+      mode: 'accept-selected-text',
+      candidateSelection: { selectionStart: 5, selectionEnd: 8 },
+    });
+
+    expect(result).toMatchObject({
+      status: 'ready',
+      replacement: { sourceStart: start, sourceEnd: end, text: 'NEW' },
+    });
+    expect(result.status === 'ready' && result.replacement
+      ? `${source.slice(0, result.replacement.sourceStart)}${result.replacement.text}${source.slice(result.replacement.sourceEnd)}`
+      : '').toBe('Before repeated passage after.\nBefore NEW after.');
+  });
+
   it('refuses selected-text application when the saved source target is missing or empty', async () => {
     const source = 'Before selected passage after.';
     const anchored = candidate(source, 7, 23, 'Keep NEW words.');

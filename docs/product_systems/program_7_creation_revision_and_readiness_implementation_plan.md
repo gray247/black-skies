@@ -56,6 +56,49 @@ reviewed Wave 1 implementation checkpoint, clean-qualified and pushed at
 authority merely because the Wave 1 checkpoint passed; each retains its named
 package owner and gate.
 
+## Active no-AI readiness campaign — 2026-10-02
+
+Jason explicitly authorized the automation-led repair plan on 2026-10-02.
+For this campaign the continuing repository is
+`C:\Users\gray2\.codex\visualizations\2026\09\04\01a06e84-5626-7241-bbe0-639af79386bf\program7-today`,
+on `codex/program7-implementation`, starting clean at `f098f948` / tree
+`bd0f95996e13db7cf15e11b6961c5db31a4edbe8`. The implementation-tree and
+Luna-high statements above describe the earlier package authorization; this
+later explicit campaign uses the continuing copy and two exclusive Luna workers
+(medium safety/test, low UI), reviewed by one coordinator. Workers may edit only
+their assigned files and do not commit. Coordinator local commits follow passing
+affected checks; no push, merge, release, instruction-file change, or cleanup.
+
+Four batches govern this campaign:
+
+1. Verify existing manuscript-authority repairs and extend exact-selection,
+   stale rejection, disabled-AI, duplicate-conversion, and fresh-process reopen
+   coverage; correct outdated Electron expectations without weakening safety.
+2. Repair Ideas/Timeline wording, long-notice/Project Tools overlap, and touched
+   presentation states using existing components, tokens, and suites.
+3. Integrate once: full app suite, existing Stage 19 gate, dedicated Program 7
+   Electron/accessibility journeys, docs lint, and diff hygiene. Freeze the exact
+   reviewed candidate and prepare a pristine unique Carmilla fixture plus a
+   Selection check section through supported project operations.
+4. Repair and document findings from one bounded native desktop review, then
+   provide Jason with a plain-language human-testing packet. No automatic second
+   native review and no Human Gate 4 or Program 7 closure claim.
+
+The desktop review is workflow-first, at most 15 minutes or an observed +10
+percentage points of the five-hour allowance, whichever occurs first, with
+checks at roughly five and ten minutes. Counter reset/unavailability and
+manuscript-loss, identity-loss, unexpected AI/network, or blocking UI failures
+stop review. Workers are idle during native review. Account counters are shared;
+no exact session-token attribution is inferred. Access preparation has a
+five-minute limit and bounded launch/helper recovery.
+
+Local AI and cloud execution, connectors, dependencies, packaging/install,
+cleanup, and Programs 8/9 remain excluded. Historical failures and evidence stay
+intact. Maintain the existing Fix Tracker; no duplicate planning/issue ledger.
+Command Center placeholders remain placeholders, while built Writing Studio
+Markdown/Structure behavior stays in regression scope. Every deferral names an
+owner, exact resolution stage, evidence, and observable reopening trigger.
+
 ## 2. Program Outcome
 
 Program 7 is complete only when the product supports and qualifies all of the

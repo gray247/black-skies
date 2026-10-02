@@ -5554,7 +5554,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__status .stage19-spine__save-state {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   white-space: nowrap;
 }
 
@@ -5605,9 +5605,10 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__edge-controls {
-  position: absolute;
+  position: relative;
   z-index: 25;
-  inset: 64px 0 0;
+  flex: 0 0 44px;
+  min-height: 44px;
   pointer-events: none;
 }
 
@@ -5629,7 +5630,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__edge--top {
-  top: 66px;
+  position: absolute;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column;
@@ -6526,14 +6528,6 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
     top: 104px;
   }
 
-  .stage19-writing-shell__edge-controls {
-    inset: 96px 0 0;
-  }
-
-  .stage19-writing-shell__edge--top {
-    top: 98px;
-  }
-
   .stage19-spine--writing .stage19-spine__editor-card {
     padding: 32px 22px 56px;
   }
@@ -6656,6 +6650,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   padding: 8px clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--bs-line-quiet);
   background: var(--bs-surface-base);
+}
+
+.stage19-command__notice-slot:empty {
+  min-height: 0;
+  padding: 0;
+  border: 0;
 }
 
 .stage19-command__notice-slot .stage19-spine__notice {

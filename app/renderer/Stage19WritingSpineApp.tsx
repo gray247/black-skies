@@ -1285,6 +1285,30 @@ export default function Stage19WritingSpineApp({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedbackNotesBridge, ideationBridge, program7ProjectIdentity, revisionCandidatesBridge, storyFoundationBridge]);
 
+  // Candidate currentness is derived from durable prose, even when its owner document is unchanged.
+  useEffect(() => {
+    if (snapshot.saveState.status !== 'saved' || typeof revisionCandidatesBridge?.list !== 'function') return;
+    const binding = bindingFor(snapshot, 'program7-candidates-after-save');
+    if (!binding) return;
+    let cancelled = false;
+    void revisionCandidatesBridge.list(binding).then((result) => {
+      if (cancelled || !result.ok) return;
+      setProgram7Candidates((previous) => previous && previous.document.revision > result.data.document.revision
+        ? previous : result.data);
+    }).catch(() => {
+      if (!cancelled) setProgram7Notice('Revision alternatives could not be rechecked after saving. Return to the passage before applying an alternative.');
+    });
+    return () => { cancelled = true; };
+  // Refresh after a durable save, not every buffer or projection update.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [program7ProjectIdentity, revisionCandidatesBridge, snapshot.saveState.status, snapshot.saveState.unitId]);
+
+  useEffect(() => {
+    setProgram7SelectedCandidate((previous) => previous
+      ? program7Candidates?.document.candidates.find((candidate) => candidate.id === previous.id) ?? null
+      : null);
+  }, [program7Candidates]);
+
   const refreshProgram7RevisionItems = useCallback(async (): Promise<void> => {
     const current = snapshotRef.current;
     if (!current.project || typeof feedbackNotesBridge?.listRevisionItems !== 'function') return;
