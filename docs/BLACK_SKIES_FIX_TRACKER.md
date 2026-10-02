@@ -5,14 +5,14 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: all four repair batches completed; native review stopped at its allowance cap.
+Status: four repair batches and the focused readonly-selection repair completed; native review evidence and limits remain separately recorded.
 The no-AI candidate is ready for Jason confirmation; Human Gate 4 remains open.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
 `bd0f95996e13db7cf15e11b6961c5db31a4edbe8`; initial working tree was clean.
 Its origin is the older local implementation repository, not GitHub directly.
 
-The existing anchored-application, no-AI visibility, and Story Knowledge repairs
+Historical campaign intake: the existing anchored-application, no-AI visibility, and Story Knowledge repairs
 are retained and are being verified rather than rewritten. Known residual
 issues are Ideas/Timeline terminology and Project Tools overlap with a long
 Writing Studio notice. Inspected Program 7 Electron specs still use old candidate
@@ -202,10 +202,100 @@ after preparation **4/1/0** (five-hour/weekly/Luna reserve). These are separate,
 rounded account-wide observations and cannot be added to the prior-window totals
 as exact session tokens. Workers remained idle; full suites were not repeated.
 
+### Explicit continuation — focused native follow-up and input seam
+
+Jason explicitly requested autonomous continuation after the human-session
+setup, without step-by-step permission checks. This later direction authorized
+focused remaining workflow work; the original one-pass limit and results above
+remain historical, not silently relabeled. Follow-up used the unchanged running
+`b19b77c7` executable (HEAD `83b116e1` differs only by receipt documentation),
+normal GPU and local AI disabled; workers remained idle during native actions.
+
+Segment duration **5:34**, five-hour **4% → 10%**, weekly **1% → 2%**, reserve
+**0% → 0%**. Stopped after useful independent checks and one unsuccessful focus
+follow-up, before its 15-minute/+10-point bounds. No draft application/mutation.
+Project Tools stayed above prose in light/dark themes; Focus mode hid edge
+controls and returned normally. A saved, correctly linked manual draft appeared
+in a fresh process, with History showing **Not applied**, **Original available**,
+and author provenance. Ideas' empty-state/capture guidance was readable. Timeline
+is under **Story Knowledge → Timeline**, not History; this fixture had no review
+opportunities, so its action labels were not present for native judgment.
+
+Observed native input seam: clicking the alternative partial textarea gave its
+visible focus outline, but Ctrl+Home/Shift selection left partial Apply disabled.
+No Apply retry or manuscript write occurred. The focused automated investigation
+below established the cause and repaired it; the earlier observation is retained.
+
+### Readonly partial-selection repair — automated follow-up
+
+Reviewed executable checkpoint: `d1c55b309035e6997068b3e52f1d308218ea3bf3`,
+tree `4cee09b15ee2bfb16f1ce3a6b09e6afa655f366d`, branch
+`codex/program7-implementation`. Only the existing comparison component and its
+unit/Electron tests changed. Documentation-only commits after this checkpoint
+change no executable code. No push, schema, API, dependency, framework or new file.
+
+**Root cause / coverage seam:** trusted Electron keyboard input reached the
+focused readonly textarea with default behavior unprevented, yet its selection
+stayed collapsed. A plain readonly control reproduced it; the same control made
+editable navigated normally. Native window focus was confirmed, so a host focus
+or React remount repair was unsupported. This agrees with the upstream
+[Chromium readonly-navigation issue](https://issues.chromium.org/issues/40903304).
+Earlier Electron coverage injected `setSelectionRange`, masking keyboard failure.
+Preserved failed probes: `%TEMP%/black-skies-p7-revision-keyboard-20261002-r3`,
+`black-skies-p7-revision-keyboard-probe-20261002`, and
+`black-skies-p7-revision-keyboard-compare-20261002`. An initial sandbox EPERM
+fixture-write failure was a harness/access failure, not product evidence.
+
+**Repair:** keep proposed text readonly, add local Home/End, document Home/End,
+select-all and Shift+Left/Right selection with built-in grapheme boundaries.
+Standard collapse/backward selection preserves UTF-16 offsets, including joined
+emoji and combining marks. Unsupported modified arrows are not intercepted.
+Selection resets when the alternative text, identity, protection or source binding
+changes. Review also found that a current protected alternative could expose Apply
+all because its UI gate lacked the protection condition; both Apply actions now
+remain disabled with a nearby protection explanation. Backend authority and exact
+text/range validation remain unchanged.
+
+**Evidence:** all checks ran against the reviewed source changes before commit,
+with a dirty documentation record; these are focused mechanical results, not a
+new clean Stage 19 or human acceptance claim. Commands and logs:
+
+- `node scripts/run-vitest-offline.mjs` with existing RevisionComparison,
+  RevisionDesk, WritingRevisionDrawer, Program7CreateDevelopWorkspace,
+  Program7AccessibilityMatrix and narrativeInsertion suites: **6 files / 35 tests
+  passed**, exit 0. Includes exact grapheme callback ranges, selection clearing
+  after edit/protection, current protected Apply refusal and leading-newline Home.
+  Log: `%TEMP%/black-skies-p7-keyboard-focused-20261002.log`.
+- `pnpm --dir app run build:production`, `lint`, `typecheck:all`: exit 0.
+  Logs: `%TEMP%/black-skies-p7-keyboard-{build,lint,typecheck}-20261002.log`.
+  Build retained its existing chunk-size advisory; no dependency/build-policy change.
+- From `app`, `node node_modules/playwright/cli.js test
+  tests/e2e/program7-revision.spec.ts --project=electron --workers=1 --retries=0
+  --reporter=list`: **2 passed**, exit 0, 18.0 s. Genuine keyboard input, immutable
+  readonly text, actual selected substring, exact manuscript bytes after partial
+  Apply, fresh-process reopen and stale refusal without further write.
+  Log/output: `%TEMP%/black-skies-p7-revision-batch-20261002[.log]`.
+- Same Playwright command with `program7-accessibility.spec.ts` and
+  `--grep 'objective accessibility matrix'`: **1 passed**, exit 0, 39.6 s.
+  Attached/detached, themes, scale, focus and axe checks retained. Log/output:
+  `%TEMP%/black-skies-p7-keyboard-a11y-20261002[.log]`; matrix JSON:
+  `%TEMP%/black-skies-p7-keyboard-a11y-matrix-20261002.json`.
+
+One worker and zero retries; real AI remained disabled. Successful campaign
+fixtures and all earlier failures remain retained. The saved human fixture's draft
+SHA-256 is still `64a957d4392472f2f70ba2c46aef02289a6070834c1b89b00dadcfdf0aed2ab7`.
+No further native review was initiated for this repair. Jason still confirms the
+selection/application experience, source visibility, stale/reopen guidance and
+remaining subjective wording/appearance. Full-suite/Stage 19 evidence stays with
+`84aa790a`; this renderer-only patch received the affected checks above.
+
+This integration segment's account observations: **25/4/0 → 32/5/0**
+(five-hour/weekly/Luna reserve), at final documentation review. Documentation lint passed for 72 files; diff hygiene passed. Account-wide
+rounding and concurrent chats limit attribution; no daily/token total is inferred.
 ### Jason's no-AI confirmation packet
 
-Launch the continuing repository's final candidate in a fresh normal-GPU process,
-local AI disabled. Use **Project Tools → Open project** and the exact preserved
+Launch executable checkpoint d1c55b30 from the continuing repository in a fresh normal-GPU process,
+local AI disabled. The last normal launch receipt identifies 19b77c7; any window from that old launch has not loaded this keyboard repair. Close it normally after confirming **Saved durably**, then relaunch; do not count its old renderer as current-candidate evidence. Use **Project Tools → Open project** and the exact preserved
 path above. Confirm project name and **Saved durably** before working. Keep this
 disposable state if a check fails; record screen, last action, expected outcome
 and observed failure. Stop for manuscript loss/unintended replacement, wrong
@@ -219,7 +309,7 @@ project, unexpected AI/network, blocking crash or trapped focus/modal.
 | Save, close project, reopen same path in a fresh process | Exact manuscript persists; applied draft shown as historical | Text loss, wrong project or misleading stale warning |
 | Create another alternative from a fresh saved selection; change/save source; return | Old alternative refuses Apply without manuscript mutation; fresh-work guidance | Stale Apply enabled or silent mutation |
 | Story Knowledge → Signals → repeat **Work on this**, then source return | One task, clear duplicate feedback and visible intended passage | Duplicate, wrong/unclear source location |
-| Ideas / History direction relationships, advisory test and Timeline actions | Plain names, clear author control, no manuscript change claimed | Misleading, inaccessible or unexplained action |
+| Create / Develop → Ideas/History; Story Knowledge → Timeline actions | Plain names, clear author control, no manuscript change claimed | Misleading, inaccessible or unexplained action |
 
 Expected after selected-part application:
 

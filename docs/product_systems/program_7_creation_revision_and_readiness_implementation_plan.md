@@ -108,10 +108,30 @@ review stopped at 10:25 when five-hour usage increased 56% to 66%; weekly 9% to
 alternative saving, no-AI guidance and Command Center themes were inspected.
 Batch 4 repaired Project Tools covering prose with a reproducing geometry test;
 affected production build, layout, accessibility and unchanged visual checks pass.
-Final implementation candidate is `fdd65571f3cde870dc3b5084a6eff3bd22047203` /
+The post-review layout checkpoint was `fdd65571f3cde870dc3b5084a6eff3bd22047203` /
 tree `0ce3dba8b17e1c9a842c9e0ab6e0b26bd21d4a7e`; clean after local commit.
 Native partial application, stale/restart usability and remaining visual judgments
-await Jason; no second native pass or formal gate acceptance is inferred.
+awaited Jason at that checkpoint; no formal gate acceptance was inferred. Later continuation is recorded below.
+
+Later explicit continuation preserved the original review limits/results and
+permitted a focused remaining-work segment: 5:34, five-hour 4% to 10%, weekly
+1% to 2%, reserve rounded zero. It confirmed the repaired tools layout/themes and
+persisted manual draft, but exposed a readonly keyboard-selection seam. Genuine
+Playwright input and a plain-control comparison isolated Chromium readonly
+navigation behavior; synthetic selection in earlier coverage had masked it.
+
+The bounded local comparison repair is now committed at
+`d1c55b309035e6997068b3e52f1d308218ea3bf3`, tree
+`4cee09b15ee2bfb16f1ce3a6b09e6afa655f366d`. It preserves readonly text, exact
+source/alternative offsets and backend authority, clears selections after edits
+or binding/protection changes, and disables both Apply actions for protected
+content. Focused six-suite/35-test proof, real-input revision/restart/stale journeys
+(two passes), objective accessibility matrix, build, lint and typecheck pass.
+Details and preserved probes are in the existing tracker; full qualification stays
+attributed to its original candidate. No further native review followed this fix.
+The old normal window must be closed after Saved durably and the new executable
+launched before Jason's confirmations. Human Gate 4 and formal package/local-AI
+disposition remain separate; no closure or unlimited desktop campaign is inferred.
 
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage
