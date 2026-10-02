@@ -68,16 +68,24 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
     await expect(writing.getByTestId('revision-comparison-origin')).toHaveText('Draft');
     await expect(writing.getByText('Manual revision alternative saved. Your manuscript has not changed.', { exact: true })).toBeVisible();
     const partial = writing.getByLabel('Part of this alternative to apply');
-    await partial.evaluate((element) => {
+    const selectedCandidateText = proposedText.slice(0, proposedText.indexOf('.') + 1);
+    const partialBeforeTyping = await partial.inputValue();
+    await partial.click();
+    await expect(partial).toBeFocused();
+    await writing.keyboard.type('x');
+    expect(await partial.inputValue()).toBe(partialBeforeTyping);
+    await writing.keyboard.press('Control+Home');
+    await expect(partial).toBeFocused();
+    for (let index = 0; index < selectedCandidateText.length; index += 1) {
+      await writing.keyboard.press('Shift+ArrowRight');
+    }
+    await expect.poll(async () => partial.evaluate((element) => document.activeElement === element)).toBe(true);
+    await expect.poll(async () => partial.evaluate((element) => {
       const textarea = element as HTMLTextAreaElement;
-      textarea.focus();
-      const end = textarea.value.indexOf('.') + 1;
-      textarea.setSelectionRange(0, end + 1);
-    });
-    await partial.press('Shift+ArrowLeft');
+      return textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+    })).toBe(selectedCandidateText);
     await expect(writing.getByRole('button', { name: 'Apply only the selected part', exact: true })).toBeEnabled();
     await writing.getByRole('button', { name: 'Apply only the selected part', exact: true }).click();
-    const selectedCandidateText = proposedText.slice(0, proposedText.indexOf('.') + 1);
     const expectedBody = `${savedBody.slice(0, selectionStart)}${selectedCandidateText}${savedBody.slice(selectionEnd)}`;
     const expectedDraft = `${header}\n${expectedBody}`;
     await expect.poll(async () => await readFile(draftPath, 'utf8')).toBe(expectedDraft);

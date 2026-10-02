@@ -77,6 +77,7 @@ describe('RevisionComparison component', () => {
     expect(screen.queryByText('PROTECTED_CANDIDATE_SENTINEL')).not.toBeInTheDocument();
     expect(screen.getAllByText('Content hidden by protection policy.')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Apply all of this alternative' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('hidden by protection policy');
     expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
     expect(screen.getByText('This is the saved passage used to create this alternative.')).toBeInTheDocument();
     expect(screen.queryByText('This saved passage remains unchanged while you review the alternative.')).not.toBeInTheDocument();
@@ -91,6 +92,85 @@ describe('RevisionComparison component', () => {
     expect(screen.getByText('This alternative uses the current saved section, but was not linked to selected words.')).toBeVisible();
   });
 
+  it('supports readonly keyboard selection without allowing edits', () => {
+    const onPartialAccept = vi.fn();
+    render(<RevisionComparison candidate={candidate({ candidateText: 'A👩‍🚀éB', sourceAnchor: { unitId: 'story-unit/carmilla-chapter-01', selectionStart: 0, selectionEnd: 9, selectionFingerprint: 'selection' } })} canAccept onPartialAccept={onPartialAccept} />);
+    const textarea = screen.getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
+    const partial = screen.getByRole('button', { name: 'Apply only the selected part' });
+    textarea.focus();
+    fireEvent.keyDown(textarea, { key: 'Home' });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    expect(textarea.value).toBe('A👩‍🚀éB');
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe('A👩‍🚀é'.length);
+    expect(partial).toBeEnabled();
+    fireEvent.click(partial);
+    expect(onPartialAccept).toHaveBeenLastCalledWith(expect.objectContaining({ id: 'candidate-a' }), { text: 'A👩‍🚀é', start: 0, end: 8 });
+    fireEvent.keyDown(textarea, { key: 'End', ctrlKey: true });
+    fireEvent.keyDown(textarea, { key: 'ArrowLeft', shiftKey: true });
+    fireEvent.keyDown(textarea, { key: 'ArrowLeft', shiftKey: true });
+    expect(textarea.selectionStart).toBe(6);
+    expect(textarea.selectionEnd).toBe(9);
+    fireEvent.click(partial);
+    expect(onPartialAccept).toHaveBeenLastCalledWith(expect.objectContaining({ id: 'candidate-a' }), { text: 'éB', start: 6, end: 9 });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight' });
+    expect(textarea.selectionStart).toBe(9);
+    expect(textarea.selectionEnd).toBe(9);
+    fireEvent.keyDown(textarea, { key: 'Home' });
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(0);
+    fireEvent.keyDown(textarea, { key: 'ArrowLeft' });
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(0);
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    fireEvent.keyDown(textarea, { key: 'ArrowLeft', shiftKey: true });
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(0);
+    fireEvent.keyDown(textarea, { key: 'x' });
+    expect(textarea.value).toBe('A👩‍🚀éB');
+  });
+
+  it('clears selection when candidate text or protection changes', () => {
+    const onPartialAccept = vi.fn();
+    const onAcceptAll = vi.fn();
+    const { rerender } = render(<RevisionComparison candidate={candidate({ candidateText: 'First candidate' })} canAccept onAcceptAll={onAcceptAll} onPartialAccept={onPartialAccept} />);
+    const textarea = screen.getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
+    fireEvent.keyDown(textarea, { key: 'Home' });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    rerender(<RevisionComparison candidate={candidate({ candidateText: 'Changed candidate' })} canAccept onPartialAccept={onPartialAccept} />);
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    fireEvent.keyDown(textarea, { key: 'Home' });
+    fireEvent.keyDown(textarea, { key: 'ArrowRight', shiftKey: true });
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeEnabled();
+    rerender(<RevisionComparison candidate={candidate({ candidateText: 'Changed candidate', protection: { excluded: true, class: 'ai-excluded' } })} canAccept onAcceptAll={onAcceptAll} onPartialAccept={onPartialAccept} />);
+    expect(screen.getByRole('textbox', { name: 'Part of this alternative to apply' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply all of this alternative' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    rerender(<RevisionComparison candidate={candidate({ candidateText: 'Changed candidate' })} canAccept onAcceptAll={onAcceptAll} onPartialAccept={onPartialAccept} />);
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+  });
+
+  it('keeps protected and unanchored alternatives unable to select or apply', () => {
+    const protectedView = render(<RevisionComparison candidate={candidate({ protection: { excluded: true, class: 'ai-excluded' } })} canAccept onAcceptAll={vi.fn()} onPartialAccept={vi.fn()} />);
+    expect(protectedView.getByRole('textbox', { name: 'Part of this alternative to apply' })).toBeDisabled();
+    expect(protectedView.getByRole('button', { name: 'Apply all of this alternative' })).toBeDisabled();
+    expect(protectedView.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    protectedView.unmount();
+    render(<RevisionComparison candidate={candidate({ sourceAnchor: null })} canAccept onPartialAccept={vi.fn()} />);
+    expect(screen.getByRole('textbox', { name: 'Part of this alternative to apply' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+  });
+
+  it('keeps Home at the start when an alternative begins with a newline', () => {
+    render(<RevisionComparison candidate={candidate({ candidateText: '\nSecond line' })} canAccept onPartialAccept={vi.fn()} />);
+    const textarea = screen.getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
+    fireEvent.keyDown(textarea, { key: 'Home', ctrlKey: true });
+    fireEvent.keyDown(textarea, { key: 'Home' });
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(0);
+  });
   it('labels a partly applied alternative source as historical', () => {
     render(<RevisionComparison candidate={candidate({ lifecycle: 'partially accepted', currentness: 'stale' })} />);
     expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();

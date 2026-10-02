@@ -1,4 +1,6 @@
-import { useState } from 'react';
+/// <reference lib="es2022.intl" />
+
+import { useEffect, useState } from 'react';
 
 import type {
   RevisionCandidateLifecycle,
@@ -55,6 +57,23 @@ function lifecycleLabel(candidate: RevisionCandidateV1): string {
   }
 }
 
+function graphemeBoundaries(text: string): number[] {
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  return [0, ...Array.from(segmenter.segment(text), (part) => part.index), text.length].filter((value, index, values) => index === 0 || value !== values[index - 1]);
+}
+
+function moveCaret(text: string, position: number, direction: -1 | 1, byLine: boolean): number {
+  if (!byLine) {
+    const boundaries = graphemeBoundaries(text);
+    if (direction < 0) return [...boundaries].reverse().find((boundary) => boundary < position) ?? 0;
+    return boundaries.find((boundary) => boundary > position) ?? text.length;
+  }
+  const lineStart = position === 0 ? 0 : text.lastIndexOf('\n', position - 1) + 1;
+  const lineEndIndex = text.indexOf('\n', position);
+  const lineEnd = lineEndIndex === -1 ? text.length : lineEndIndex;
+  return direction < 0 ? lineStart : lineEnd;
+}
+
 export default function RevisionComparison({
   candidate,
   canAccept = false,
@@ -65,9 +84,10 @@ export default function RevisionComparison({
 }: RevisionComparisonProps): JSX.Element {
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const redacted = protectedContent(candidate);
+  const candidateText = visibleCandidateText(candidate);
   const stale = candidate.currentness !== 'current' || candidate.lifecycle === 'stale';
   const editable = candidate.lifecycle === 'generated' || candidate.lifecycle === 'reviewing';
-  const acceptEnabled = canAccept && editable && !stale;
+  const acceptEnabled = canAccept && editable && !stale && !redacted;
   const hasExactSourceAnchor = Boolean(
     candidate.sourceAnchor &&
     Number.isInteger(candidate.sourceAnchor.selectionStart) &&
@@ -77,6 +97,10 @@ export default function RevisionComparison({
   );
   const sourceIsHistorical = stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
   const partialHelpId = `revision-partial-help-${candidate.id}`;
+
+  useEffect(() => {
+    setSelection({ start: 0, end: 0 });
+  }, [candidate.id, candidateText, redacted, candidate.sourceBodySha256, candidate.sourceAnchor?.unitId, candidate.sourceAnchor?.selectionStart, candidate.sourceAnchor?.selectionEnd, candidate.sourceAnchor?.selectionFingerprint]);
 
   return (
     <section className="program7-revision-comparison" aria-labelledby={`revision-comparison-${candidate.id}`} data-testid="revision-comparison">
@@ -123,6 +147,53 @@ export default function RevisionComparison({
           value={redacted ? '' : visibleCandidateText(candidate)}
           disabled={redacted || !hasExactSourceAnchor}
           readOnly
+          onKeyDown={(event) => {
+            if (redacted || !hasExactSourceAnchor) return;
+            if (event.altKey || ((event.ctrlKey || event.metaKey) && (event.key === 'ArrowLeft' || event.key === 'ArrowRight'))) return;
+            const text = visibleCandidateText(candidate);
+            const target = event.currentTarget;
+            const start = target.selectionStart;
+            const end = target.selectionEnd;
+            const backward = target.selectionDirection === 'backward';
+            const active = backward ? start : end;
+            const anchor = backward ? end : start;
+            let nextStart = start;
+            let nextEnd = end;
+            let direction: 'forward' | 'backward' = target.selectionDirection === 'backward' ? 'backward' : 'forward';
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+              nextStart = 0;
+              nextEnd = text.length;
+              direction = 'forward';
+            } else if (event.key === 'Home' || event.key === 'End') {
+              const destination = event.ctrlKey || event.metaKey
+                ? event.key === 'Home' ? 0 : text.length
+                : moveCaret(text, active, event.key === 'Home' ? -1 : 1, true);
+              if (event.shiftKey) {
+                nextStart = Math.min(anchor, destination);
+                nextEnd = Math.max(anchor, destination);
+                direction = destination < anchor ? 'backward' : 'forward';
+              } else {
+                nextStart = destination;
+                nextEnd = destination;
+              }
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+              const directionStep = event.key === 'ArrowLeft' ? -1 : 1;
+              const destination = !event.shiftKey && start !== end
+                ? (directionStep < 0 ? start : end)
+                : moveCaret(text, active, directionStep, false);
+              if (event.shiftKey) {
+                nextStart = Math.min(anchor, destination);
+                nextEnd = Math.max(anchor, destination);
+                direction = destination < anchor ? 'backward' : 'forward';
+              } else {
+                nextStart = destination;
+                nextEnd = destination;
+              }
+            } else return;
+            event.preventDefault();
+            target.setSelectionRange(nextStart, nextEnd, direction);
+            setSelection({ start: nextStart, end: nextEnd });
+          }}
           onSelect={(event) => setSelection({
             start: event.currentTarget.selectionStart,
             end: event.currentTarget.selectionEnd,
@@ -156,6 +227,8 @@ export default function RevisionComparison({
       <p id={partialHelpId} role="status" className="program7-revision-comparison__note">
         {!editable
           ? 'This alternative is closed. To make another change, select words in Writing Studio and save a new alternative.'
+          : redacted
+          ? 'This alternative is hidden by protection policy. Return to the passage and review its protection before creating a new alternative.'
           : !hasExactSourceAnchor
           ? 'To apply only part, return to Writing Studio, select the exact manuscript words to replace, and save a new alternative. Selecting text on this comparison cannot link the existing alternative.'
           : 'To apply only part, select the words to insert in the box labeled “Part of this alternative to apply” above.'}
