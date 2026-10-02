@@ -5607,7 +5607,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-writing-shell__edge-controls {
   position: relative;
   z-index: 25;
-  flex: 0 0 44px;
+  flex: 0 0 auto;
   min-height: 44px;
   pointer-events: none;
 }
@@ -7695,7 +7695,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-spine--writing .stage19-writing-shell__edge--top {
-  top: 62px;
+  position: relative;
+  top: 0;
 }
 
 .stage19-spine--writing .stage19-writing-shell__edge--bottom {

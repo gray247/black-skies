@@ -241,7 +241,7 @@ test('Project Tools remains reachable below a long source-return notice in both 
     .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
   const notice = writing.locator('.stage19-spine__source-return-confirmation');
   const tools = writing.getByRole('button', { name: 'Open Project Tools', exact: true });
-  for (const width of [1280, 640]) {
+  for (const width of [1907, 1280, 640]) {
     await writing.setViewportSize({ width, height: 900 });
     for (const theme of ['dark', 'light'] as const) {
       // The compact Writing Studio intentionally hides the theme switch.
@@ -255,8 +255,16 @@ test('Project Tools remains reachable below a long source-return notice in both 
       expect(noticeBox).not.toBeNull();
       expect(toolsBox).not.toBeNull();
       expect(toolsBox!.y).toBeGreaterThanOrEqual(noticeBox!.y + noticeBox!.height);
+      const canvasBox = await writing.locator('[data-manuscript-scroll-owner]').boundingBox();
+      expect(canvasBox).not.toBeNull();
+      expect(canvasBox!.y, 'Project Tools must stay above manuscript prose').toBeGreaterThanOrEqual(toolsBox!.y + toolsBox!.height);
       await tools.focus();
       await expect(tools).toBeFocused();
+      await writing.getByRole('button', { name: 'Enter Focus mode', exact: true }).click();
+      await expect(tools).toHaveCount(0);
+      await expect(notice).toBeVisible();
+      await expect(writing.locator('[data-manuscript-scroll-owner]')).toBeVisible();
+      await writing.getByRole('button', { name: 'Exit Focus mode', exact: true }).click();
     }
   }
   await tools.click();

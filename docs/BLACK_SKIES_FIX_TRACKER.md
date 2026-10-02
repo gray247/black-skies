@@ -5,8 +5,8 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: implementation authorized by Jason; Batch 1 safety/coverage and Batch 2
-writer-facing repair work active. No desktop review or human acceptance claimed.
+Status: all four repair batches completed; native review stopped at its allowance cap.
+The no-AI candidate is ready for Jason confirmation; Human Gate 4 remains open.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
 `bd0f95996e13db7cf15e11b6961c5db31a4edbe8`; initial working tree was clean.
@@ -83,13 +83,140 @@ invocation, and retained identical draft hash
 `61ebdf6f094744d7e09fbddfe7bdc5e5272cbe5f912c9f31a566553cfe363ed2`.
 Campaign fixture retention uses existing helpers; no test framework or ledger added.
 
-Final qualification is pending. Native review has not started. No human gate,
-local-AI admission, package qualification or Program 7 closure is claimed.
-Account observations: start 15/2/0; package review 22/3/0; integration 29/4/0;
-latest pre-final observation 41/6/0 (5-hour/weekly/Luna reserve percentages used).
-Luna reserve readings remained rounded zero; actual separate consumption cannot
-be established from these counters.
+### Mechanical qualification
 
+Clean candidate `84aa790aed9bd694a7143e354305cda2d9338f64`, tree
+`18459d9088ac70e72523c770741c21e0ce5edb60`, passed:
+
+- `pnpm --dir app test`: 159 files, 1,500 passed, two existing skips.
+  Log: `%TEMP%/black-skies-p7-full-final-20261002.log`.
+- `pnpm stage19:regression`: clean `STAGE19_REGRESSION_PASS`,
+  `CLEAN_RC_ELIGIBLE`; hygiene/policy, lint, typecheck, production build,
+  49 critical files (816 passed, two existing skips), startup (one),
+  Electron matrix (36 passed).
+  Log: `%TEMP%/black-skies-p7-stage19-final-20261002.log`.
+- Dedicated existing Program 7 revision, local-AI-disabled, Create / Develop,
+  long-form and accessibility Electron specs: seven passed, one existing
+  real-model opt-in skip; one worker, zero retries, failure-retained traces.
+  Log: `%TEMP%/black-skies-p7-dedicated-final-20261002.log`.
+- Current-authority docs lint: 72 files; diff hygiene passed.
+
+These results retain that exact candidate identity. Later presentation repairs
+receive their own affected-check evidence below. No real model was contacted.
+
+### Single bounded native review
+
+Normal-GPU access succeeded within one minute. Candidate identity and pristine
+`Carmilla Review black-skies-jason-review-W2nUKR` were confirmed. Workers were
+idle. Review stopped at **10 minutes 25 seconds**, on the observed allowance cap:
+five-hour **56% → 66%**, weekly **9% → 10%**, Luna reserve **0% → 0%**.
+Intermediate five-hour observations: 62%, 63%, 64%, 65%. The window did not reset;
+one-second endpoint timestamp jitter occurred without a counter reset. Counters
+are account-wide and rounded; concurrent activity prevents exact attribution
+or token totals. This does not establish 30-minute affordability or daily usage.
+
+Inspected: Story Knowledge/Signals; repeated **Work on this** created one task
+with truthful feedback; return to the named source section; new manual
+alternative saved without manuscript change; no-AI guidance; Command Center
+Revision Desk readability in dark/light themes. Exact Carmilla passage viewport
+alignment remains a human judgment item.
+
+Native partial application was **inconclusive**: textarea focus was not
+established, keyboard Home returned to page top, and partial Apply stayed
+disabled. Offscreen accessibility targets also reported stale bounds after
+scrolling; observed coordinates allowed navigation. These are automation/access
+limitations, not demonstrated product defects. No failed Apply was repeated;
+no manuscript application occurred. Native stale refusal, save/close/reopen,
+Ideas/Timeline inspection and final Writing Studio visual confirmation remain
+unfinished. Existing automated exact-replacement, stale-refusal and fresh-process
+restart tests pass. No second native review was run.
+
+Read-only post-review disk audit verified:
+
+- Original four-sentence `drafts/unit_321e0ed2c4ff4d34.md` unchanged, 278 bytes;
+  SHA-256 `64a957d4392472f2f70ba2c46aef02289a6070834c1b89b00dadcfdf0aed2ab7`.
+- `feedback-notes.json`: exactly one active task, revision one.
+- `revision-candidates.json`: one manual author alternative, revision one,
+  purpose **Make the sentence more tense**, proposed text
+  `Mara heard a faint rhythm beyond the glass. She held her breath.`
+  Anchor `60..118` resolves exactly to the original Mara sentence; anchor
+  fingerprint/full saved-body hash verify. No native apply/restart pass inferred.
+
+Preserved project:
+`C:\Users\gray2\AppData\Local\Temp\black-skies-jason-review-W2nUKR\carmilla-review`.
+Preparation receipt: `%TEMP%/black-skies-jason-review-20261002.json`.
+The still-open process is the reviewed build; Jason must launch a fresh process
+from the final candidate before judging the later visual repair.
+
+### Batch 4 — Project Tools manuscript obstruction
+
+The earlier notice-only assertion missed prose obstruction. Native Project Tools
+covered chapter text. Root cause: higher-specificity CSS still imposed `top: 62px`
+and its row reserved only 44px despite a taller control. Repair: relative top
+control at zero offset, automatic row flex basis with a 44px minimum. No owner,
+public interface, storage format or dependency changed.
+
+The existing accessibility spec now checks notice/control/manuscript separation
+at 1907, 1280 and 640 pixels in both themes; focus/reachability/opening remain
+asserted. Focus mode intentionally hides edge controls and retains notice/canvas.
+The new assertion failed before repair (canvas 181.540; control bottom 258.974).
+Preserved failure/trace: `%TEMP%/black-skies-p7-desktop-overlap-before-20261002`.
+
+After repair: production build; renderer layout 13/13; full Program 7 objective
+accessibility matrix and unchanged Program 3 visual references passed. The first
+extended geometry run incorrectly expected edge controls in Focus mode; corrected
+to the existing intentional hidden behavior, then final geometry passed 1/1.
+Logs: `%TEMP%/black-skies-p7-desktop-fix-build-20261002.log`,
+`black-skies-p7-desktop-layout-20261002.log`,
+`black-skies-p7-desktop-fix-20261002.log` (two passes/one test-expectation failure),
+`black-skies-p7-desktop-geometry-final-20261002.log` (pass).
+These are affected checks after the presentation-only change, not a second full
+Stage 19 qualification or native review. Final commit identity is recorded below.
+
+### Jason's no-AI confirmation packet
+
+Launch the continuing repository's final candidate in a fresh normal-GPU process,
+local AI disabled. Use **Project Tools → Open project** and the exact preserved
+path above. Confirm project name and **Saved durably** before working. Keep this
+disposable state if a check fails; record screen, last action, expected outcome
+and observed failure. Stop for manuscript loss/unintended replacement, wrong
+project, unexpected AI/network, blocking crash or trapped focus/modal.
+
+| Screen/action | Expected outcome | Failure condition |
+| --- | --- | --- |
+| Writing Studio → Story → 18 **Selection check** | Original four sentences; Project Tools above prose/below notices in normal mode, hidden in Focus; both themes readable | Covered words/notice, unreachable control or wrong source |
+| Create / Develop → Revision Desk → **Make the sentence more tense** | Manual draft linked to current saved passage; clear no-AI instructions | Missing draft, misleading status or enabled local AI |
+| Select only `Mara heard a faint rhythm beyond the glass.` in **Part of this alternative to apply**; **Apply only the selected part** | Exact manuscript below, original prefix/suffix intact | Deliberate selection cannot enable action, wrong occurrence or extra replacement |
+| Save, close project, reopen same path in a fresh process | Exact manuscript persists; applied draft shown as historical | Text loss, wrong project or misleading stale warning |
+| Create another alternative from a fresh saved selection; change/save source; return | Old alternative refuses Apply without manuscript mutation; fresh-work guidance | Stale Apply enabled or silent mutation |
+| Story Knowledge → Signals → repeat **Work on this**, then source return | One task, clear duplicate feedback and visible intended passage | Duplicate, wrong/unclear source location |
+| Ideas / History direction relationships, advisory test and Timeline actions | Plain names, clear author control, no manuscript change claimed | Misleading, inaccessible or unexplained action |
+
+Expected after selected-part application:
+
+> The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+
+The preserved alternative has the correct anchor; do not Apply all. To create
+another instead, first select the original Mara sentence in the saved manuscript,
+then use Purpose **Make the sentence more tense** and the same two-sentence
+Proposed text recorded above. Source return should visibly show its exact passage.
+
+Native partial selection, source visibility, stale/reopen usability, Ideas/Timeline
+wording and repaired Writing Studio appearance are **awaiting Jason**, owned by
+Jason with coordinator support at the next no-AI human-testing session, before
+Human Gate 4 adjudication. Required evidence: named screen/action/outcome; any
+failure reopens the relevant tracker entry immediately. These are not waived or
+minor-polish deferrals. No new campaign feature deferral was introduced.
+
+Formal Human Gate 4 remains separate: authority-sensitive, failed/uncertain and
+subjective human rows plus sampled objective passes; P7-HG4-REG-P4/P5/P6 human
+regressions; recorded RT-2B local-AI pilot disposition; and any required current-
+candidate package qualification. AI admission needs separate qualification;
+packaging remains outside this campaign. No Human Gate 4/Program 7 closure claim.
+
+Account counters (five-hour/weekly/reserve): start 15/2/0; package review 22/3/0;
+integration 29/4/0; pre-final 41/6/0; pre-native 56/9/0; native stop 66/10/0.
+Reserve stayed rounded zero; separate consumption cannot be established.
 
 
 ## Disposable-project hands-on review — anchored alternative and wording — 2026-09-22
