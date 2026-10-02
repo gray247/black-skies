@@ -185,6 +185,23 @@ Final batch account observation: **72/11/0**, compared with **66/10/0** at nativ
 stop. Whole campaign observed **15% → 72% five-hour**, **2% → 11% weekly**,
 reserve **0% → 0%**; attribution remains account-wide and rounded.
 
+### Human-session preparation after Jason requested continuation
+
+The old review window showed **Saved durably** and closed normally; no force
+termination or discard occurred. Clean `b19b77c7` launched in a fresh process,
+normal GPU/local AI disabled, using the same preserved project/profile. Supported
+Open/select operations left section 18 **Selection check** visible. Exact draft
+bytes and SHA-256 above stayed unchanged. This was setup only, not a second
+native review or human acceptance; all pending Jason confirmations remain open.
+Preparation completed in 2:58, below the five-minute access limit. Launch receipt:
+`%TEMP%/black-skies-jason-current-20261002.json`, native window `7144652`.
+The visible app uses `b19b77c7`; subsequent receipt-only commits change no code.
+
+The account counters had reset before this continuation: baseline **0/0/0**;
+after preparation **4/1/0** (five-hour/weekly/Luna reserve). These are separate,
+rounded account-wide observations and cannot be added to the prior-window totals
+as exact session tokens. Workers remained idle; full suites were not repeated.
+
 ### Jason's no-AI confirmation packet
 
 Launch the continuing repository's final candidate in a fresh normal-GPU process,
