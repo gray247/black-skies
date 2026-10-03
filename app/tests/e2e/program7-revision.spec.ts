@@ -185,5 +185,15 @@ test('A changed saved passage blocks the earlier alternative without another man
   await expect(writing.getByTestId('revision-comparison-stale')).toContainText('passage changed');
   await expect(writing.getByRole('button', { name: 'Apply all of this alternative', exact: true })).toBeDisabled();
   await expect(writing.getByRole('button', { name: 'Apply only the selected part', exact: true })).toBeDisabled();
+  const savedAlternatives = JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8'));
+  const earlierSource = savedAlternatives.candidates[0].sourceSnapshot.text;
+  expect(before).toContain(earlierSource);
+  await writing.getByTestId('revision-comparison').getByRole('button', { name: 'Edit alternative', exact: true }).click();
+  const staleDrawer = writing.getByTestId('writing-revision-drawer');
+  await expect(staleDrawer.getByRole('heading', { name: 'Saved source passage', exact: true })).toBeVisible();
+  await expect(staleDrawer.getByRole('heading', { name: 'Your current manuscript', exact: true })).toHaveCount(0);
+  await expect(staleDrawer.locator('pre')).toHaveText(earlierSource);
+  await expect(staleDrawer.getByRole('alert')).toContainText('passage changed');
+  await staleDrawer.getByRole('button', { name: 'Close drawer', exact: true }).click();
   expect(await readFile(draftPath, 'utf8')).toBe(changed);
 });

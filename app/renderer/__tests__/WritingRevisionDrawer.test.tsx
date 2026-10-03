@@ -66,6 +66,7 @@ describe('WritingRevisionDrawer component', () => {
     render(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} onSaveEdit={onSaveEdit} />);
     const drawer = screen.getByTestId('writing-revision-drawer');
     expect(within(drawer).getByRole('heading', { name: 'Edit revision alternative' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('heading', { name: 'Your current manuscript' })).toBeInTheDocument();
     expect(within(drawer).getByText('Current manuscript passage.')).toBeInTheDocument();
     const editor = within(drawer).getByRole('textbox', { name: 'Revision alternative text' });
     fireEvent.change(editor, { target: { value: 'Edited candidate passage.' } });
@@ -76,6 +77,26 @@ describe('WritingRevisionDrawer component', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(within(drawer).getByText(/does not apply it or mark the related concern finished/)).toBeInTheDocument();
     vi.restoreAllMocks();
+  });
+
+  it.each([
+    ['stale', 'This alternative cannot be applied because the passage changed.'],
+    ['unavailable', 'This alternative cannot be applied because its original passage is unavailable.'],
+  ] as const)('labels %s source as saved and preserves the snapshot', (currentness, refusal) => {
+    render(<WritingRevisionDrawer open candidate={candidate({ currentness })} />);
+    expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Your current manuscript' })).not.toBeInTheDocument();
+    expect(screen.getByText('Current manuscript passage.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(refusal);
+  });
+
+  it.each(['accepted', 'partially accepted'] as const)('labels %s candidates as applied historical sources', (lifecycle) => {
+    render(<WritingRevisionDrawer open candidate={candidate({ lifecycle, currentness: 'stale' })} onSaveEdit={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
+    expect(screen.getByText('This alternative was applied. The saved source passage below shows the earlier wording.')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Revision alternative text' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
   });
 
   it('confirms before discarding dirty edits and preserves them when canceled', () => {

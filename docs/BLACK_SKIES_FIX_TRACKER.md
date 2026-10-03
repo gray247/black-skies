@@ -534,6 +534,60 @@ automation/prior native proof retains its labels. The handoff is ready for that
 session with the diagnostic visible. Human Gate 4, AI admission, package
 qualification and Program 7 closure remain separate decisions.
 
+### Historical source labeling follow-up — October 2, 2026 local
+
+Jason requested continued repair up to human verification. Intake was clean
+`8f88cfebd64af5c8e89f60e4ff68cdcbb330eb7e`. Responsiveness warning
+P7-NATIVE-RESP-01 still lacks event correlation; no speculative source repair
+was inferred from it.
+
+Confirmed seam in the existing historical-source wording issue: the comparison
+correctly labeled earlier source, but WritingRevisionDrawer always titled its
+stored sourceSnapshot.text **Your current manuscript**, including stale or
+unavailable source. A completed candidate received while the drawer is open
+could also be falsely described as current or stale rather than applied history.
+
+The bounded repair aligns the drawer with comparison wording: current source
+keeps its current heading; stale/unavailable/applied source says **Saved source
+passage**; applied history explains earlier wording and suppresses false
+changed/unavailable alerts. Editable stale/unavailable refusal remains. Terminal
+editing/Save remain disabled; no source, IPC, lifecycle or persistence change.
+
+Pre-repair regression proof: stale/unavailable cases failed 2 of 11; applied
+history cases failed 2 of 13. Worker post-repair drawer suite passed 13/13.
+Coordinator strengthened completed-state proof with stale currentness, reviewed
+the diff and ran the affected integration set: three files / **157 passes**
+in 36.34 seconds, including drawer, comparison and Stage19WritingSpineApp.
+Existing revision Electron file passed **2/2**, 12.5 seconds, one worker,
+zero retries, disabled local AI. Its stale journey now opens the actual drawer,
+proves the exact saved earlier source, truthful heading/refusal and unchanged
+saved manuscript after close. Its other journey retains exact partial
+application, Unicode edits, dirty Cancel, durable reopen and historical state.
+
+Commands:
+`node scripts/run-vitest-offline.mjs renderer/__tests__/WritingRevisionDrawer.test.tsx renderer/__tests__/RevisionComparison.test.tsx renderer/__tests__/Stage19WritingSpineApp.test.tsx`;
+`pnpm --dir app exec playwright test tests/e2e/program7-revision.spec.ts --project=electron --workers=1`;
+`pnpm --filter @blackskies/app typecheck:all`, `lint` and `build:production`.
+All exited 0. Logs: `%TEMP%/black-skies-p7-source-label-{components,electron,types,lint,build}-20261002.log`;
+failure-retained Electron artifacts:
+`%TEMP%/black-skies-p7-source-label-electron-20261002`.
+The initial attempted repository-local pnpm CLI path did not exist; the installed
+pnpm command ran the checks successfully. No dependency/setup change occurred.
+Production build retained its existing chunk-size advisory.
+
+Only the drawer, its existing suite and existing revision Electron spec changed
+in executable/test scope. No new files/framework/ledger or broader repair.
+Full app/Stage 19 historical evidence is not reattributed to this new candidate;
+this localized presentation repair uses affected verification rather than
+duplicating the unchanged safety matrix. Native recheck is limited to this
+drawer and preserved project, after a fresh current-renderer launch.
+Coordinator owns that Batch 4 check before Jason's next session; missing or
+misleading historical heading reopens the issue. Formal Human Gate 4 remains open.
+
+Allowance intake **21/16/0**, affected verification **24/17/0**
+(five-hour/weekly/reserve), account-wide rounded counters.
+Native work is recorded separately below when completed.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository

@@ -22,6 +22,9 @@ function candidateText(candidate: RevisionCandidateV1): string {
 }
 
 function sourceStatus(candidate: RevisionCandidateV1): string {
+  if (candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted') {
+    return 'This alternative was applied. The saved source passage below shows the earlier wording.';
+  }
   if (candidate.currentness === 'stale') return 'This alternative was created from an older version of the passage.';
   if (candidate.currentness === 'unavailable') return 'The original passage is no longer available.';
   if (!candidate.sourceAnchor) return 'This alternative uses the current saved section, but was not linked to selected words.';
@@ -77,6 +80,7 @@ export default function WritingRevisionDrawer({
   const originalText = candidate ? candidateText(candidate) : '';
   const changed = !redacted && editedText !== originalText;
   const editable = candidate?.lifecycle === 'generated' || candidate?.lifecycle === 'reviewing';
+  const sourceIsHistorical = candidate?.currentness !== 'current' || candidate?.lifecycle === 'accepted' || candidate?.lifecycle === 'partially accepted';
 
   useEffect(() => {
     onDirtyChange?.(Boolean(open && candidate && changed));
@@ -134,7 +138,7 @@ export default function WritingRevisionDrawer({
         {onClose ? <button ref={closeButtonRef} type="button" onClick={close} disabled={saving}>Close drawer</button> : null}
       </header>
       <p className="program7-writing-revision-drawer__source-status">{sourceStatus(candidate)}</p>
-      {candidate.currentness !== 'current' ? (
+      {candidate.currentness !== 'current' && candidate.lifecycle !== 'accepted' && candidate.lifecycle !== 'partially accepted' ? (
         <p role="alert">
           {candidate.currentness === 'stale'
             ? 'This alternative cannot be applied because the passage changed. Return to the passage and create a fresh alternative after reviewing it.'
@@ -143,7 +147,9 @@ export default function WritingRevisionDrawer({
       ) : null}
       {redacted ? <p role="alert">Alternative text is hidden by protection policy.</p> : null}
       <section aria-labelledby={`drawer-source-${candidate.id}`}>
-        <h2 id={`drawer-source-${candidate.id}`}>Your current manuscript</h2>
+        <h2 id={`drawer-source-${candidate.id}`}>
+          {sourceIsHistorical ? 'Saved source passage' : 'Your current manuscript'}
+        </h2>
         <pre>{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
       </section>
       <section aria-labelledby={`drawer-candidate-${candidate.id}`}>

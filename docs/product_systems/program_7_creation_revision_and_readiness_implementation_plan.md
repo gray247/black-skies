@@ -152,6 +152,15 @@ records exact candidates, preserved state, limits and human confirmation rows.
 Subjective acceptance, AI disposition and package qualification remain separate.
 No closure or AI admission follows.
 
+A further October 2 bounded repair aligned the revision drawer's historical
+source labeling with comparison: stale/unavailable/applied snapshots are saved
+source, current source retains its current heading, and completed alternatives
+avoid false stale alerts. Reproduced regression cases and the affected 157-test
+component/integration set plus two revision Electron journeys pass. Native
+recheck is scoped to the preserved project's drawer after a fresh launch; the
+tracker owns its exact candidate/result. P7-NATIVE-RESP-01 remains separately
+Uncertain and formal human acceptance remains required.
+
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage
 limits and Jason's screen/action/expected-result/failure checklist. It is the
