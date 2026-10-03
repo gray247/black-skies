@@ -361,6 +361,80 @@ remain automated evidence. Full app: 159 files, 1,508 passed, two existing skips
 `%TEMP%/black-skies-p7-loop-full-20261002.log`. Clean Stage 19 follows.
 Lint/type/build logs use `black-skies-p7-loop-{lint,types-final,build}-20261002.log`.
 
+### Repeat loop 2 and unload follow-up — 2026-10-02
+
+Clean checkpoint `ea5c5604c1c79db4057885ad7325321139526a0c`, tree
+`19e8664ae3652bb1e95ac7dc3a06a2cb044700a4`, passed full app 159 files /
+1,508 tests (two existing skips) and clean Stage 19: 49 critical files / 817
+passes / two existing skips, startup 1/1, Electron 36/36,
+`STAGE19_REGRESSION_PASS`, `CLEAN_RC_ELIGIBLE`. Log:
+`%TEMP%/black-skies-p7-loop-stage19-clean-20261002.log`.
+Dedicated revision 2/2, accessibility 2/2 (38.7 s), and disabled-AI,
+Create / Develop, long-form 3/3 (12.5 s) passed; one existing real-model opt-in
+remained skipped. Matrix retained at `%TEMP%/black-skies-p7-a11y-20261002-r3/matrix.json`.
+No real model/contact or new dependency/framework/ledger was admitted.
+
+Preparation reopened the retained post-Apply project in 1:14, normal GPU/no
+local AI, receipt `black-skies-jason-review-W2nUKR/launch-loop2-20261002.json`.
+Preparation allowance 70→71 five-hour, weekly 11 unchanged, reserve 0 unchanged.
+The bounded native segment ran 3:08; allowance 71→74, weekly 11→12, reserve 0.
+It ended before minute five, so no minute-five/ten observation was applicable.
+Account-wide rounded counters cannot establish exact tokens or reserve cost.
+Workers were idle throughout native review.
+
+Native passes: exact saved post-Apply manuscript reopened; old alternative
+**Partly applied**, historical source and disabled Apply; fresh manual Save
+left manuscript untouched; manual drawer excluded remote critique controls;
+dirty Close showed discard confirmation; Escape canceled it and preserved the
+multiline Unicode edit. Indexed Cancel targeting failed; fresh observation plus
+Escape succeeded. An offscreen Edit action required ordinary scrolling.
+These access incidents are retained, not mislabeled product defects.
+
+Stop: Alt+F4 with unsaved alternative caused the Playwright-connected launch
+wrapper to exit 1 with `Page.handleJavaScriptDialog: No dialog is showing`;
+window disappeared. Do not claim a successful dirty-window close/recovery.
+A focused existing-spec probe reproduced Electron's explicit diagnostic:
+`Blocked confirm(...) during beforeunload`. Failure artifacts:
+`%TEMP%/black-skies-p7-window-close-20261002-r2`.
+The temporary diagnostic probe was removed; no safety assertion was weakened.
+The unsupported unload prompt is a confirmed product guidance defect, while
+actual standalone close protection remains unverified.
+
+Repair: dirty unload now prevents departure directly and announces that the
+window stayed open, why, manuscript unchanged, and Save alternative or Close
+drawer to decide discard before retrying. Existing drawer discard confirmation
+and pending-save protection remain. No main/preload/IPC/schema change.
+Post-change affected proof: drawer 9/9; existing host and main-close suites
+168/168; revision Electron 2/2 (14.6 s), exact bytes/restart/stale refusal;
+production build. Logs: `black-skies-p7-unload-{build,host-main,final}-20261002.log`.
+This narrow follow-up has affected mechanical evidence; the full clean gate
+above remains attributed to ea5c5604, not silently transferred to a later tree.
+
+Standalone access blocker: normal Electron launch without Playwright attachment
+responded (PID 6328), but recent-project click and identity/activation recovery
+repeatedly failed with `foreground window did not report a process id`.
+Stopped after the focused recovery, 51 seconds of UI access work; no further
+native segment was admitted. Standard logs:
+`%TEMP%/black-skies-p7-native-standard-20261002.{out,err}.log`.
+Preserve that process/state; it runs the earlier ea5c5604 renderer, not the
+subsequent unload repair. Do not force terminate or count it as final-candidate
+visual evidence.
+
+Retained manuscript hash remains
+`4ccb4c2bc7c3328cc96d7e7290822f2b84d72c1eabd7ae7d436bec83ca8d1d33`.
+Fresh candidate `candidate_de022fc4-ac9c-4934-97c6-e9a391c3a84d`, purpose
+**Native stale and edit check — October 2**, is generated, with the original
+saved proposed sentence; the Unicode edit was never saved. Preserve both it and
+the historical partly applied candidate. No reset or manuscript loss was found.
+
+Pending owner/stage/trigger: coordinator and Jason; **Batch 4 desktop admission
+before Human Gate 4**; reopen when native foreground access works. Required proof:
+dirty window close retains exact edits with visible guidance, save result visible
+in the actual drawer, stale-source refusal without further mutation, then fresh
+normal process reopen. Behavioral proofs already pass automatically; native
+unfinished rows remain unfinished. Final no-AI visual handoff remains pending
+this access blocker and Jason's separate subjective judgments.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository

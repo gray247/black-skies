@@ -113,6 +113,20 @@ describe('WritingRevisionDrawer component', () => {
     expect(save).toBeEnabled();
   });
 
+  it('blocks dirty unload without confirmation and announces how to decide', async () => {
+    const confirm = vi.spyOn(window, 'confirm');
+    render(<WritingRevisionDrawer open candidate={candidate()} />);
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
+    fireEvent.change(editor, { target: { value: 'Keep this edit.' } });
+    const beforeUnload = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(beforeUnload);
+    expect(beforeUnload.defaultPrevented).toBe(true);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(editor).toHaveValue('Keep this edit.');
+    await vi.waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/window stayed open because this revision alternative has unsaved changes/i));
+    confirm.mockRestore();
+  });
+
   it('keeps saved edited text and success status until the candidate acknowledgment arrives', async () => {
     const { rerender } = render(<WritingRevisionDrawer open candidate={candidate()} onSaveEdit={() => ({ ok: true, message: 'Saved revision alternative.' })} />);
     const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });

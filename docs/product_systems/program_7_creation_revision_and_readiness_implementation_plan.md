@@ -135,6 +135,15 @@ disposition remain separate; no closure or unlimited desktop campaign is inferre
 
 Jason subsequently explicitly authorized repeat native review/repair loops. Each segment retains the 15-minute/observed +10-point cap and safety stops; workers remain idle during native operation. The first renewed segment verified edited/multiline exact partial application and historical state, and stopped for focused pointer, drawer and notice investigation. This is additional testing readiness work; original evidence retains its candidate and limits, and formal gate closure remains separate.
 
+Repeat-loop checkpoint ea5c5604 passed clean Stage 19, the full app suite and
+dedicated no-AI/family/accessibility journeys. Loop 2 verified reopened partial
+application and dirty drawer Cancel; its window-close probe exposed blocked
+confirm during beforeunload. The narrow unload-guidance repair has focused
+mechanical proof. Native re-verification is blocked by foreground-window access;
+Batch 4 remains open, owned by coordinator/Jason, reopening when native access
+works, before Human Gate 4. Candidate-specific evidence and exact pending checks
+are maintained in the existing fix tracker. No closure or AI admission follows.
+
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage
 limits and Jason's screen/action/expected-result/failure checklist. It is the

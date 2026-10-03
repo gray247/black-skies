@@ -90,9 +90,12 @@ export default function WritingRevisionDrawer({
         event.returnValue = '';
         return;
       }
-      if (window.confirm('You have unsaved revision alternative changes. Leave without saving?')) return;
       event.preventDefault();
       event.returnValue = '';
+      setSaveResult({
+        ok: false,
+        message: 'Your window stayed open because this revision alternative has unsaved changes. Save the alternative or close the drawer to decide whether to discard it. Your manuscript has not changed.',
+      });
     };
     window.addEventListener('beforeunload', beforeUnload);
     return () => window.removeEventListener('beforeunload', beforeUnload);
