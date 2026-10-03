@@ -435,6 +435,18 @@ normal process reopen. Behavioral proofs already pass automatically; native
 unfinished rows remain unfinished. Final no-AI visual handoff remains pending
 this access blocker and Jason's separate subjective judgments.
 
+Final executable checkpoint: `a093326660ac885bc98d764812097fc9d9580b58`,
+tree `d8bc68188793126486047f8f880079bdc8ffe24d`; locally committed clean.
+Only unload guidance, its existing component regression and campaign records
+changed after clean-qualified ea5c5604. Affected proofs above plus final app lint,
+TypeScript, docs lint (72 files) and diff hygiene pass. Receipt-only commits
+change no executable behavior. No push, merge, release or program closure.
+Final observed account counters: five-hour **82**, weekly **13**, reserve **0**.
+Repeat-campaign intake **33/5/0** to **82/13/0** includes automation, coordinator,
+preparation and native work, with account-wide/rounded attribution limits.
+Native-only observations remain **36→45** and **71→74**. Daily token totals are
+not exposed by these counters; reserve zero does not establish free worker use.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository
