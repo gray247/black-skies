@@ -292,40 +292,104 @@ remaining subjective wording/appearance. Full-suite/Stage 19 evidence stays with
 This integration segment's account observations: **25/4/0 → 32/5/0**
 (five-hour/weekly/Luna reserve), at final documentation review. Documentation lint passed for 72 files; diff hygiene passed. Account-wide
 rounding and concurrent chats limit attribution; no daily/token total is inferred.
+### Jason-authorized repeat review/repair loop — 2026-10-02
+
+Jason explicitly requested further computer takeovers, edge-case investigation,
+repairs/regression tests and repeat verification until the identified issues are
+resolved. This supersedes the campaign's original automatic one-review limit for
+this bounded continuing work. Each native segment retains the 15-minute/observed
++10-point five-hour cap, safety stops and idle workers. It does not authorize AI,
+cloud execution, packaging, cleanup, instruction edits or formal gate closure.
+
+Loop 1 intake: clean `06c463f2` (executable `d1c55b30`). The saved old window closed
+normally. One setup-script retry corrected the coordinator's mistaken `project.id`
+field to documented `project.projectId`; the stale-session guard refused the
+bad binding. This was setup error, not a product defect. Preparation took **3:24**,
+within five minutes; normal GPU/local AI disabled, no harness/test flags. Receipt:
+`%TEMP%/black-skies-jason-review-W2nUKR/launch-loop-20261002.json`.
+
+Native segment **8:45**, five-hour **36% → 45%**, weekly **6% → 7%**, reserve
+**0% → 0%**; stopped to investigate interaction/presentation findings before the
+cap. Preparation was separately **33/5/0 → 36/6/0**. Rounded account-wide counters
+limit attribution; no exact tokens/daily figure is inferred. Workers stayed idle.
+
+Verified natively: keyboard select-all enables partial Apply; Ctrl+Home clears it;
+Shift+Right selects exactly `M`. Editing the saved alternative to two newline-
+separated sentences and saving changed only the alternative: manuscript SHA-256
+remained `64a957d4...`. On return to comparison, the edited label was truthful and
+prior selection cleared. Ctrl+Home then Shift+End selected exactly
+`Mara heard a faint rhythm beyond the glass.`. Apply only the selected part saved
+the exact expected complete Markdown file, including unchanged front matter and
+terminal LF. Status became **Partly applied**, both Apply actions disabled,
+historical source/closed guidance truthful; source return opened Selection check.
+A premature first file observation preceded completion and also omitted the
+writer's terminal LF in its expectation; settled exact-byte comparison passed.
+No Apply retry, wrong replacement, manuscript loss or network/AI request occurred.
+
+The retained project is now intentionally **post-application**, not pristine:
+current draft hash `4ccb4c2bc7c3328cc96d7e7290822f2b84d72c1eabd7ae7d436bec83ca8d1d33`.
+Candidate `candidate_376d456e-3a3c-4744-918e-800467779164` is partly accepted;
+its edited proposed text contains a newline before `She held her breath.`.
+Do not repeat Apply on this historical alternative or describe its old draft as
+current. Preserve this state for reopen inspection; create a fresh alternative
+through supported operations for further application tests.
+
+Focused repair package; final native recheck pending:
+
+- Genuine Playwright pointer input selected the exact first proposed sentence.
+  Sky drag uncertainty remains recorded; no pointer product defect was proved.
+- Confirmed silent loss of local alternative edits on Close/navigation. Dirty
+  Close, rail, Focus, surface/candidate and project transitions now confirm
+  discard; Cancel retains edits. Pending saves block departure and duplicates.
+- Save feedback now appears beside the manual editor: pending, retryable failure
+  and durable success. Acknowledgments retain edited prose. The host rejects
+  installation of late results into a different project/generation.
+- While the manual drawer is open, the adjacent remote-critique surface is
+  excluded. Ordinary Review retains its existing explicit outbound gates.
+  This fixes contextual presentation, not global remote-provider policy.
+- Existing drawer 8/8 and host regression pass; production build, app lint and
+  types pass. Host proof covers canceled navigation, pending/duplicates,
+  failed-save retry, acknowledgment, unchanged manuscript and no remote call.
+- Updated existing revision Electron journeys: 2/2, 14.0 seconds, real pointer
+  and keyboard selection, dirty-close Cancel, nearby save success, exact saved
+  bytes, fresh-process reopen and stale refusal. Log:
+  `%TEMP%/black-skies-p7-revision-drawer-20261002-r1.log`.
+
+Native stale refusal, post-Apply reopen and supported-family judgment remain in
+queue. Existing Unicode/repeated-text/protection/recovery/concurrency proofs
+remain automated evidence. Full app: 159 files, 1,508 passed, two existing skips (142.19 seconds); log
+`%TEMP%/black-skies-p7-loop-full-20261002.log`. Clean Stage 19 follows.
+Lint/type/build logs use `black-skies-p7-loop-{lint,types-final,build}-20261002.log`.
+
 ### Jason's no-AI confirmation packet
 
-Launch executable checkpoint d1c55b30 from the continuing repository in a fresh normal-GPU process,
-local AI disabled. The last normal launch receipt identifies 19b77c7; any window from that old launch has not loaded this keyboard repair. Close it normally after confirming **Saved durably**, then relaunch; do not count its old renderer as current-candidate evidence. Use **Project Tools → Open project** and the exact preserved
-path above. Confirm project name and **Saved durably** before working. Keep this
-disposable state if a check fails; record screen, last action, expected outcome
-and observed failure. Stop for manuscript loss/unintended replacement, wrong
-project, unexpected AI/network, blocking crash or trapped focus/modal.
+Launch the latest recorded executable checkpoint from the continuing repository
+in a fresh normal-GPU process with local AI disabled. Old launch receipts are
+historical. Open the preserved project path above; confirm **Selection check**
+and **Saved durably**. Preserve failed state. Stop for unintended replacement,
+wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
 
 | Screen/action | Expected outcome | Failure condition |
 | --- | --- | --- |
-| Writing Studio → Story → 18 **Selection check** | Original four sentences; Project Tools above prose/below notices in normal mode, hidden in Focus; both themes readable | Covered words/notice, unreachable control or wrong source |
-| Create / Develop → Revision Desk → **Make the sentence more tense** | Manual draft linked to current saved passage; clear no-AI instructions | Missing draft, misleading status or enabled local AI |
-| Select only `Mara heard a faint rhythm beyond the glass.` in **Part of this alternative to apply**; **Apply only the selected part** | Exact manuscript below, original prefix/suffix intact | Deliberate selection cannot enable action, wrong occurrence or extra replacement |
-| Save, close project, reopen same path in a fresh process | Exact manuscript persists; applied draft shown as historical | Text loss, wrong project or misleading stale warning |
-| Create another alternative from a fresh saved selection; change/save source; return | Old alternative refuses Apply without manuscript mutation; fresh-work guidance | Stale Apply enabled or silent mutation |
-| Story Knowledge → Signals → repeat **Work on this**, then source return | One task, clear duplicate feedback and visible intended passage | Duplicate, wrong/unclear source location |
-| Create / Develop → Ideas/History; Story Knowledge → Timeline actions | Plain names, clear author control, no manuscript change claimed | Misleading, inaccessible or unexplained action |
+| Writing Studio → Story → 18 **Selection check** | Exact post-application manuscript below; tools/notices clear in both themes and Focus | Covered prose, unreachable control or wrong source |
+| Create / Develop → History → **Make the sentence more tense** | Historical **Partly applied** alternative; Apply disabled, author provenance | Reactivated action or misleading status |
+| Fresh saved selection → new manual alternative → Save alternative | Only alternative changes, nearby result explains next action | Manuscript changes merely from Save |
+| Edit; Cancel Close, rail, surface or Focus confirmation | Unsaved text remains; pending Save blocks departure | Silent loss, hidden result or duplicate Save |
+| Close normally/reopen same path in a fresh process | Exact manuscript and partly applied status persist | Lost text, wrong project or misleading state |
+| Fresh alternative; change/save source; return | Apply refused without further mutation; fresh-work guidance | Stale Apply enabled or silent write |
+| Story Knowledge → Signals → repeat **Work on this**, then source return | One task, duplicate feedback and intended source | Duplicate task or wrong source |
+| Ideas/History; Story Knowledge → Timeline | Plain wording, author control, truthful empty states | Misleading or unexplained action |
 
-Expected after selected-part application:
+Current saved manuscript; do not reapply its historical alternative:
 
 > The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
 
-The preserved alternative has the correct anchor; do not Apply all. To create
-another instead, first select the original Mara sentence in the saved manuscript,
-then use Purpose **Make the sentence more tense** and the same two-sentence
-Proposed text recorded above. Source return should visibly show its exact passage.
-
-Native partial selection, source visibility, stale/reopen usability, Ideas/Timeline
-wording and repaired Writing Studio appearance are **awaiting Jason**, owned by
-Jason with coordinator support at the next no-AI human-testing session, before
-Human Gate 4 adjudication. Required evidence: named screen/action/outcome; any
-failure reopens the relevant tracker entry immediately. These are not waived or
-minor-polish deferrals. No new campaign feature deferral was introduced.
+For further partial application, select a fresh saved sentence and create a new
+alternative through supported controls. Record exact expected prefix/suffix
+before applying; preserve this fixture rather than resetting it to obtain a pass.
+Jason owns subjective/authority-sensitive confirmation at the next human session,
+before Human Gate 4. Any failed screen/action/outcome reopens its tracker issue.
+No new feature deferral or waived human row was introduced.
 
 Formal Human Gate 4 remains separate: authority-sensitive, failed/uncertain and
 subjective human rows plus sampled objective passes; P7-HG4-REG-P4/P5/P6 human

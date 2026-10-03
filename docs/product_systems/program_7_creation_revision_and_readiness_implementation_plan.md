@@ -133,6 +133,8 @@ The old normal window must be closed after Saved durably and the new executable
 launched before Jason's confirmations. Human Gate 4 and formal package/local-AI
 disposition remain separate; no closure or unlimited desktop campaign is inferred.
 
+Jason subsequently explicitly authorized repeat native review/repair loops. Each segment retains the 15-minute/observed +10-point cap and safety stops; workers remain idle during native operation. The first renewed segment verified edited/multiline exact partial application and historical state, and stopped for focused pointer, drawer and notice investigation. This is additional testing readiness work; original evidence retains its candidate and limits, and formal gate closure remains separate.
+
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage
 limits and Jason's screen/action/expected-result/failure checklist. It is the

@@ -699,6 +699,19 @@ export default function Stage19WritingSpineApp({
   const [program7Ideation, setProgram7Ideation] = useState<IdeationSnapshotV1 | null>(null);
   const [program7SelectedCandidate, setProgram7SelectedCandidate] = useState<RevisionCandidateV1 | null>(null);
   const [program7RevisionDrawerOpen, setProgram7RevisionDrawerOpen] = useState(false);
+  const program7CandidateEditDirtyRef = useRef(false);
+  const program7CandidateEditSavingRef = useRef(false);
+  const reportProgram7CandidateDirty = useCallback((dirty: boolean) => { program7CandidateEditDirtyRef.current = dirty; }, []);
+  const reportProgram7CandidateSaving = useCallback((saving: boolean) => { program7CandidateEditSavingRef.current = saving; }, []);
+  const confirmProgram7CandidateLeave = useCallback((): boolean => {
+    if (program7CandidateEditSavingRef.current) return false;
+    if (!program7CandidateEditDirtyRef.current) return true;
+    if (!window.confirm('Discard unsaved revision alternative changes? Cancel to keep editing or save the alternative first.')) return false;
+    program7CandidateEditDirtyRef.current = false;
+    setProgram7RevisionDrawerOpen(false);
+    setProgram7SelectedCandidate(null);
+    return true;
+  }, []);
   const [program7CandidatePurpose, setProgram7CandidatePurpose] = useState('');
   const [program7CandidateText, setProgram7CandidateText] = useState('');
   const [program7LocalAiRequestId, setProgram7LocalAiRequestId] = useState<string | null>(null);
@@ -1650,6 +1663,7 @@ export default function Stage19WritingSpineApp({
     async (
       request: (discardUnsaved: boolean) => Promise<ProjectSpineResult<unknown>>,
     ): Promise<void> => {
+      if (!confirmProgram7CandidateLeave()) return;
       await flushAllRecoveryCheckpoints();
       let discardUnsaved = false;
       if (hasLocalUnsaved || snapshotRef.current.saveState.status === 'save-failed') {
@@ -1676,7 +1690,7 @@ export default function Stage19WritingSpineApp({
         setNotice('The project operation could not reach the application service. Your current work was preserved; try again.');
       }
     },
-    [applySnapshot, flushAllRecoveryCheckpoints, hasLocalUnsaved, requestProjectSwitchDecision],
+    [applySnapshot, confirmProgram7CandidateLeave, flushAllRecoveryCheckpoints, hasLocalUnsaved, requestProjectSwitchDecision],
   );
 
   const handleOpenProject = useCallback(async () => {
@@ -3292,6 +3306,7 @@ export default function Stage19WritingSpineApp({
     targetSurface: SplitCommandLogicalSurface,
     placement: 'current-window' | 'secondary-window',
   ): Promise<boolean> => {
+    if ((targetSurface !== 'writing' || placement !== 'current-window') && !confirmProgram7CandidateLeave()) return false;
     if (!surfaceBridge) {
       setSurfaceHostError('Surface switching is unavailable in this window.');
       return false;
@@ -3315,7 +3330,7 @@ export default function Stage19WritingSpineApp({
       );
       return false;
     }
-  }, [surfaceBridge]);
+  }, [confirmProgram7CandidateLeave, surfaceBridge]);
 
   const returnToStorySource = useCallback(async (source: StoryPositionRefV1) => {
     sourceReturnOwnerRef.current = 'story';
@@ -3520,25 +3535,27 @@ export default function Stage19WritingSpineApp({
   }, [program7LocalAiRequestId, revisionCandidatesBridge]);
 
   const openProgram7Candidate = useCallback(async (candidate: RevisionCandidateV1) => {
+    if (!confirmProgram7CandidateLeave()) return;
     setProgram7SelectedCandidate(candidate);
     setProgram7RevisionDrawerOpen(true);
     setOpenWritingRail('right');
     if (windowRole === 'writing' && surfaceBridge) await activateSurface('writing', 'current-window');
-  }, [activateSurface, surfaceBridge, windowRole]);
+  }, [activateSurface, confirmProgram7CandidateLeave, surfaceBridge, windowRole]);
 
   const closeProgram7Candidate = useCallback(() => {
+    program7CandidateEditDirtyRef.current = false;
     setProgram7RevisionDrawerOpen(false);
     setProgram7SelectedCandidate(null);
   }, []);
 
   const saveProgram7CandidateEdit = useCallback(async (candidate: RevisionCandidateV1, editedCandidateText: string) => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.edit !== 'function') {
-      setProgram7Notice('Revision alternative edits must originate in Writing Studio.');
-      return;
+      const message = 'Revision alternative edits must originate in Writing Studio. Your manuscript has not changed.';
+      setProgram7Notice(message);
+      return { ok: false, message };
     }
-    const current = snapshotRef.current;
-    const binding = bindingFor(current, 'program7-edit-candidate');
-    if (!binding) return;
+    const binding = bindingFor(snapshotRef.current, 'program7-edit-candidate');
+    if (!binding) return { ok: false, message: 'Open the original project before saving this alternative. Your manuscript has not changed.' };
     try {
       const result = await revisionCandidatesBridge.edit({
         ...binding,
@@ -3546,15 +3563,26 @@ export default function Stage19WritingSpineApp({
         candidateId: candidate.id,
         editedCandidateText,
       });
+      const current = snapshotRef.current;
+      if (current.generation !== binding.generation || current.project?.projectId !== binding.projectId || current.project.path !== binding.projectPath) {
+        return { ok: result.ok, message: result.ok
+          ? 'This alternative was saved in its original project. Return to that project to review it. Your manuscript has not changed.'
+          : 'The original project changed before this alternative could be saved. Return to it and retry. Your manuscript has not changed.' };
+      }
       if (!result.ok) {
-        setProgram7Notice(result.error.message);
-        return;
+        const message = 'This alternative could not be saved. ' + result.error.message + ' Your manuscript has not changed. Keep editing or retry Save.';
+        setProgram7Notice(message);
+        return { ok: false, message };
       }
       setProgram7Candidates(result.data);
       setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
-      setProgram7Notice('Revision alternative saved. Review it again before applying any part of it.');
+      const message = 'Revision alternative saved. Your manuscript has not changed. Review it again before applying any part of it.';
+      setProgram7Notice(message);
+      return { ok: true, message };
     } catch {
-      setProgram7Notice('The revision alternative could not be saved. Your manuscript has not changed.');
+      const message = 'The revision alternative could not be saved. Your manuscript has not changed. Keep editing or retry Save.';
+      setProgram7Notice(message);
+      return { ok: false, message };
     }
   }, [program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
@@ -4192,9 +4220,16 @@ export default function Stage19WritingSpineApp({
     openCommandInSecondaryWindow: async () => { await activateSurface('command', 'secondary-window'); },
     exportMarkdown: handleExportMarkdown,
     toggleTheme: () => setTheme((current) => current === 'dark' ? 'light' : 'dark'),
-    toggleFocusMode: () => setFocusMode((current) => !current),
-    toggleWritingRail: (rail) => setOpenWritingRail((current) => current === rail ? null : rail),
+    toggleFocusMode: () => {
+      if (!focusMode && !confirmProgram7CandidateLeave()) return;
+      setFocusMode((current) => !current);
+    },
+    toggleWritingRail: (rail) => {
+      if (openWritingRail === 'right' && !confirmProgram7CandidateLeave()) return;
+      setOpenWritingRail((current) => current === rail ? null : rail);
+    },
     closeWritingRail: (rail) => {
+      if (rail === 'right' && !confirmProgram7CandidateLeave()) return;
       setOpenWritingRail(null);
       window.requestAnimationFrame(() => {
         document.getElementById(`stage19-writing-edge-${rail}`)?.focus();
@@ -4291,6 +4326,8 @@ export default function Stage19WritingSpineApp({
     cancelProgram7LocalAiCandidate,
     openProgram7Candidate,
     closeProgram7Candidate,
+    reportProgram7CandidateDirty,
+    reportProgram7CandidateSaving,
     saveProgram7CandidateEdit,
     acceptProgram7Candidate,
     setProgram7CandidateLifecycle,

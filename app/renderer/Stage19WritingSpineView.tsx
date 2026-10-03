@@ -49,7 +49,7 @@ import RevisionComparison from './components/program7/RevisionComparison';
 import StoryFoundation, { type StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
 import IdeasWorkspace, { type ManualIdeaSeedDraft } from './components/program7/IdeasWorkspace';
 import Program7History from './components/program7/Program7History';
-import WritingRevisionDrawer from './components/program7/WritingRevisionDrawer';
+import WritingRevisionDrawer, { type WritingRevisionSaveResult } from './components/program7/WritingRevisionDrawer';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
 
 export interface MarkdownExportNotice {
@@ -359,7 +359,9 @@ export interface Stage19WritingSpineViewActions {
   readonly cancelProgram7LocalAiCandidate: () => MaybeAsync;
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
   readonly closeProgram7Candidate: () => void;
-  readonly saveProgram7CandidateEdit: (candidate: RevisionCandidateV1, editedCandidateText: string) => MaybeAsync;
+  readonly reportProgram7CandidateDirty?: (dirty: boolean) => void;
+  readonly reportProgram7CandidateSaving?: (saving: boolean) => void;
+  readonly saveProgram7CandidateEdit: (candidate: RevisionCandidateV1, editedCandidateText: string) => void | WritingRevisionSaveResult | Promise<WritingRevisionSaveResult>;
   readonly acceptProgram7Candidate: (
     candidate: RevisionCandidateV1,
     selection?: { readonly text: string; readonly start: number; readonly end: number },
@@ -2349,9 +2351,11 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
         open={props.model.program7RevisionDrawerOpen}
         candidate={props.model.program7SelectedCandidate}
         onClose={props.actions.closeProgram7Candidate}
-        onSaveEdit={(candidate, editedCandidateText) => void props.actions.saveProgram7CandidateEdit(candidate, editedCandidateText)}
+        onDirtyChange={props.actions.reportProgram7CandidateDirty}
+        onSavingChange={props.actions.reportProgram7CandidateSaving}
+        onSaveEdit={props.actions.saveProgram7CandidateEdit}
       />
-      <SelectedProseCritiqueView {...props} />
+      {!props.model.program7RevisionDrawerOpen ? <SelectedProseCritiqueView {...props} /> : null}
     </aside>
   );
 }

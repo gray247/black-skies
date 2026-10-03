@@ -67,8 +67,61 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
     });
     await expect(writing.getByTestId('revision-comparison-origin')).toHaveText('Draft');
     await expect(writing.getByText('Manual revision alternative saved. Your manuscript has not changed.', { exact: true })).toBeVisible();
-    const partial = writing.getByLabel('Part of this alternative to apply');
     const selectedCandidateText = proposedText.slice(0, proposedText.indexOf('.') + 1);
+    const draftBeforeAlternativeEdit = await readFile(draftPath, 'utf8');
+    const comparison = writing.getByTestId('revision-comparison');
+    await comparison.getByRole('button', { name: 'Edit alternative', exact: true }).click();
+    const drawer = writing.getByTestId('writing-revision-drawer');
+    const editedAlternative = `${selectedCandidateText}\nShe held her breath.`;
+    await drawer.getByLabel('Revision alternative text').fill(editedAlternative);
+    await expect(writing.getByRole('region', { name: 'Selected prose AI critique', exact: true })).toHaveCount(0);
+    await drawer.getByRole('button', { name: 'Save revision alternative', exact: true }).click();
+    await expect(drawer.getByText('Revision alternative saved. Your manuscript has not changed. Review it again before applying any part of it.', { exact: true })).toBeVisible();
+    await expect(drawer.getByLabel('Revision alternative text')).toHaveValue(editedAlternative);
+    const unsavedAlternative = `${editedAlternative}\nA final line.`;
+    await drawer.getByLabel('Revision alternative text').fill(unsavedAlternative);
+    page.once('dialog', async (dialog) => { await dialog.dismiss(); });
+    await drawer.getByRole('button', { name: 'Close drawer', exact: true }).click();
+    await expect(drawer).toBeVisible();
+    await expect(drawer.getByLabel('Revision alternative text')).toHaveValue(unsavedAlternative);
+    await drawer.getByLabel('Revision alternative text').fill(editedAlternative);
+    await drawer.getByRole('button', { name: 'Close drawer', exact: true }).click();
+    expect(await readFile(draftPath, 'utf8')).toBe(draftBeforeAlternativeEdit);
+    await showCommandInWriting(writing);
+    await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+    await expect(writing.getByTestId('revision-comparison')).toBeVisible();
+    const partial = writing.getByLabel('Part of this alternative to apply');
+    await expect.poll(async () => partial.evaluate((element) => {
+      const textarea = element as HTMLTextAreaElement;
+      return textarea.selectionStart === textarea.selectionEnd;
+    })).toBe(true);
+    const partialBox = await partial.boundingBox();
+    const pointerMetrics = await partial.evaluate((element, text) => {
+      const style = getComputedStyle(element);
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Canvas text measurement is unavailable.');
+      context.font = style.font;
+      const fontSize = Number.parseFloat(style.fontSize);
+      const parsedLineHeight = Number.parseFloat(style.lineHeight);
+      return {
+        paddingLeft: Number.parseFloat(style.paddingLeft),
+        paddingTop: Number.parseFloat(style.paddingTop),
+        lineHeight: Number.isFinite(parsedLineHeight) ? parsedLineHeight : fontSize * 1.2,
+        textWidth: context.measureText(text).width,
+      };
+    }, selectedCandidateText);
+    if (!partialBox) throw new Error('The partial alternative field has no visible bounds.');
+    const pointerY = partialBox.y + pointerMetrics.paddingTop + pointerMetrics.lineHeight / 2;
+    const pointerStartX = partialBox.x + pointerMetrics.paddingLeft + 2;
+    await writing.mouse.move(pointerStartX, pointerY);
+    await writing.mouse.down();
+    await writing.mouse.move(pointerStartX + pointerMetrics.textWidth + 2, pointerY);
+    await writing.mouse.up();
+    await expect.poll(async () => partial.evaluate((element) => {
+      const textarea = element as HTMLTextAreaElement;
+      return textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+    })).toBe(selectedCandidateText);
     const partialBeforeTyping = await partial.inputValue();
     await partial.click();
     await expect(partial).toBeFocused();

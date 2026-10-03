@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 
 import type { RevisionCandidateV1 } from '../../shared/ipc/revisionCandidates';
-import WritingRevisionDrawer from '../components/program7/WritingRevisionDrawer';
+import WritingRevisionDrawer, { type WritingRevisionSaveResult } from '../components/program7/WritingRevisionDrawer';
 
 function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandidateV1 {
   return {
@@ -59,9 +59,10 @@ describe('WritingRevisionDrawer component', () => {
     await vi.waitFor(() => expect(opener).toHaveFocus());
   });
 
-  it('opens as a revision alternative editor and saves edits without applying them', () => {
+  it('opens as a revision alternative editor and saves edits without applying them', async () => {
     const onClose = vi.fn();
-    const onSaveEdit = vi.fn();
+    const onSaveEdit = vi.fn(() => ({ ok: true, message: 'Revision alternative saved.' }));
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
     render(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} onSaveEdit={onSaveEdit} />);
     const drawer = screen.getByTestId('writing-revision-drawer');
     expect(within(drawer).getByRole('heading', { name: 'Edit revision alternative' })).toBeInTheDocument();
@@ -69,10 +70,58 @@ describe('WritingRevisionDrawer component', () => {
     const editor = within(drawer).getByRole('textbox', { name: 'Revision alternative text' });
     fireEvent.change(editor, { target: { value: 'Edited candidate passage.' } });
     fireEvent.click(within(drawer).getByRole('button', { name: 'Save revision alternative' }));
+    await vi.waitFor(() => expect(within(drawer).getByRole('button', { name: 'Close drawer' })).toBeEnabled());
     fireEvent.click(within(drawer).getByRole('button', { name: 'Close drawer' }));
     expect(onSaveEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 'candidate-a' }), 'Edited candidate passage.');
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(within(drawer).getByText(/does not apply it or mark the related concern finished/)).toBeInTheDocument();
+    vi.restoreAllMocks();
+  });
+
+  it('confirms before discarding dirty edits and preserves them when canceled', () => {
+    const onClose = vi.fn();
+    vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true);
+    render(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} />);
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
+    fireEvent.change(editor, { target: { value: 'Unsaved edit.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    expect(onClose).not.toHaveBeenCalled();
+    expect(editor).toHaveValue('Unsaved edit.');
+    fireEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    vi.restoreAllMocks();
+  });
+
+  it('prevents duplicate saves, reports failures, and permits retry', async () => {
+    let resolveSave!: (result: WritingRevisionSaveResult) => void;
+    const onSaveEdit = vi.fn(() => new Promise<WritingRevisionSaveResult>((resolve) => { resolveSave = resolve; }));
+    render(<WritingRevisionDrawer open candidate={candidate()} onSaveEdit={onSaveEdit} />);
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
+    fireEvent.change(editor, { target: { value: 'Retry me.' } });
+    const save = screen.getByRole('button', { name: 'Save revision alternative' });
+    fireEvent.click(save);
+    fireEvent.click(save);
+    expect(onSaveEdit).toHaveBeenCalledTimes(1);
+    expect(save).toBeDisabled();
+    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving this alternative'));
+    const beforeUnload = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(beforeUnload);
+    expect(beforeUnload.defaultPrevented).toBe(true);
+    resolveSave({ ok: false, message: 'Save failed.' });
+    await vi.waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Save failed.'));
+    expect(editor).toHaveValue('Retry me.');
+    expect(save).toBeEnabled();
+  });
+
+  it('keeps saved edited text and success status until the candidate acknowledgment arrives', async () => {
+    const { rerender } = render(<WritingRevisionDrawer open candidate={candidate()} onSaveEdit={() => ({ ok: true, message: 'Saved revision alternative.' })} />);
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
+    fireEvent.change(editor, { target: { value: 'Saved edit.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save revision alternative' }));
+    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saved revision alternative.'));
+    expect(editor).toHaveValue('Saved edit.');
+    rerender(<WritingRevisionDrawer open candidate={candidate({ editedCandidateText: 'Saved edit.', updatedAt: '2026-09-12T00:00:00.000Z' })} onSaveEdit={() => ({ ok: true, message: 'Saved revision alternative.' })} />);
+    expect(editor).toHaveValue('Saved edit.');
   });
 
   it('starts with saved edited candidate text and keeps the save gesture explicit', () => {

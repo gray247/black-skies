@@ -13,6 +13,7 @@ import type {
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
 import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
+import type { RevisionCandidateV1, RevisionCandidateResult, RevisionCandidatesBridge } from '../../shared/ipc/revisionCandidates';
 import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import {
   CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
@@ -895,6 +896,80 @@ async function findExportButton(): Promise<HTMLElement> {
 }
 
 describe('Stage19WritingSpineApp', () => {
+
+  it('preserves unsaved alternative edits across canceled navigation and reports durable saves beside the editor', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const ai = createAiBridge('Alpha body');
+    const candidate: RevisionCandidateV1 = {
+      id: 'candidate_a', projectId: 'proj_a', unitId: 'unit_a',
+      sourceSnapshot: { unitId: 'unit_a', bodySha256: 'a'.repeat(64), text: 'Alpha body' },
+      sourceAnchor: null, sourceBodySha256: 'a'.repeat(64), purpose: 'Clarify the passage',
+      origin: 'manual', provenance: { origin: 'manual', source: 'author', model: null, receipt: null },
+      protection: { excluded: false, class: 'ordinary' }, warnings: [], currentness: 'current',
+      candidateText: 'Alternative body', editedCandidateText: null, lifecycle: 'reviewing', history: [],
+      createdAt: '2026-10-02T00:00:00.000Z', updatedAt: '2026-10-02T00:00:00.000Z',
+    };
+    const data = { availability: 'ready' as const, message: null, document: {
+      schemaVersion: 'BlackSkiesRevisionCandidates v1' as const, projectId: 'proj_a', revision: 1, candidates: [candidate],
+    } };
+    let resolveSave!: (result: RevisionCandidateResult) => void;
+    const revisions: RevisionCandidatesBridge = {
+      localAiAvailable: false,
+      list: vi.fn(async () => ({ ok: true as const, data })),
+      createManual: vi.fn(), setLifecycle: vi.fn(),
+      edit: vi.fn(() => new Promise<RevisionCandidateResult>((resolve) => { resolveSave = resolve; })),
+    };
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge}
+      surfaceBridge={surfaces.bridge} revisionCandidatesBridge={revisions} aiBridge={ai.bridge} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit alternative' }));
+    const editor = await screen.findByRole('textbox', { name: 'Revision alternative text' });
+    expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
+    fireEvent.change(editor, { target: { value: 'Saved new alternative' } });
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const activations = surfaces.activateSurface.mock.calls.length;
+    for (const button of [
+      screen.getByRole('button', { name: 'Open Command Center here' }),
+      screen.getByRole('button', { name: 'Enter Focus mode' }),
+      within(screen.getByRole('complementary', { name: 'Review' })).getByRole('button', { name: 'Close' }),
+    ]) {
+      fireEvent.click(button);
+      expect(editor).toBeVisible();
+      expect(editor).toHaveValue('Saved new alternative');
+    }
+    expect(confirm).toHaveBeenCalledTimes(3);
+    expect(surfaces.activateSurface).toHaveBeenCalledTimes(activations);
+    const save = screen.getByRole('button', { name: 'Save revision alternative' });
+    fireEvent.click(save);
+    fireEvent.click(save);
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    expect(revisions.edit).toHaveBeenCalledTimes(1);
+    expect(surfaces.activateSurface).toHaveBeenCalledTimes(activations);
+    expect(save).toBeDisabled();
+    await act(async () => resolveSave({ ok: false, error: { code: 'CANDIDATE_WRITE_FAILED', message: 'Disk unavailable.' } }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Disk unavailable.');
+    expect(editor).toHaveValue('Saved new alternative');
+    expect(save).toBeEnabled();
+    fireEvent.click(save);
+    await act(async () => resolveSave({ ok: true, data: { ...data, document: { ...data.document, revision: 2,
+      candidates: [{ ...candidate, editedCandidateText: 'Saved new alternative', updatedAt: '2026-10-02T00:01:00.000Z' }],
+    } } }));
+    expect(await within(screen.getByTestId('writing-revision-drawer')).findByText('Revision alternative saved. Your manuscript has not changed. Review it again before applying any part of it.')).toBeVisible();
+    expect(editor).toHaveValue('Saved new alternative');
+    fireEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    expect(screen.queryByRole('textbox', { name: 'Revision alternative text' })).not.toBeInTheDocument();
+    expect(confirm).toHaveBeenCalledTimes(3);
+    expect(screen.getByRole('region', { name: 'Selected prose AI critique' })).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
+    expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(ai.bridge.prepare).not.toHaveBeenCalled();
+    expect(ai.bridge.approveAndExecute).not.toHaveBeenCalled();
+    confirm.mockRestore();
+  });
+
   it('honors the preload no-AI capability even when a stale bridge exposes a local-AI method', () => {
     expect(program7LocalAiIsAvailable({
       localAiAvailable: false,
