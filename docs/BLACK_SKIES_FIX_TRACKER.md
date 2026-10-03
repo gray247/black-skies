@@ -764,13 +764,83 @@ Allowance for this recovery package: **63/23/0 → 66/23/0**, account-wide round
 five-hour/weekly/reserve counters. Final clean Stage 19 and targeted native
 confirmation are pending; neither diagnostic uncertainty is erased.
 
+### Final qualification and native handoff — October 3, 2026
+
+Executable **3e046265ecf71ae4d21b65b2af54b8e2e2531f98**, tree
+**28b18a6bbc1e0359d03bf1091c53fe7a190d5a78**, continuing repository,
+codex/program7-implementation. Clean Stage 19 passed **49 files / 825 tests /
+two existing skips**, startup **1/1**, Electron **36/36**; critical matrix
+153.93 seconds, Electron 187.6 seconds. Both lint gates, types, production build,
+policy and hygiene passed. Tree stayed clean throughout.
+Log: %TEMP%/black-skies-p7-apply-refresh-stage19-20261003.log.
+Documentation-only receipt commits preserve this executable identity.
+
+Native preparation **1:57**, counters **72/24/0 → 74/25/0**.
+Prior saved process closed normally; fresh PID **20484** launched the continuing
+absolute main/renderer paths with normal GPU and local AI disabled, using the
+same preserved profile/runtime/project. Renderer index SHA-256:
+B13B73AFF654FA6F54E0A763E021656B36882D27579479A051DCAE474476C8F2.
+No forced termination, discard or configuration change.
+
+Native review **7:31**, counters **74/25/0 → 81/26/0**:
+**+7 five-hour points**, +1 weekly; reserve displayed rounded zero.
+At **5:06**, counters were **79/25/0**. No minute-ten observation was due.
+Stopped on scoped completion before either limit. Workers stayed idle.
+Account concurrency/rounding prevent exact token or daily attribution.
+
+Verified actual UI: correct Carmilla identity and Saved durably; partly applied
+history with Apply disabled; stale comparison View alternative with both Apply
+and three review decisions disabled and adjacent fresh-work guidance; view-only
+drawer with historical source, saved Unicode text, disabled editor/Save and
+reachable Close in both themes. Detached Command Center preserved identity;
+keyboard activation opened Develop, and normal secondary close restored attached
+Develop with a truthful return notice.
+
+Computer-use limitations: indexed recent/secondary geometry was unavailable;
+a scrolled button index was outside window bounds. Fresh screenshot coordinates
+opened the project/drawer. A secondary coordinate activated neighboring Project
+Interchange, whose intentional placeholder changed no manuscript; visible
+keyboard focus and Enter opened the intended Develop route. Do not infer a
+product navigation failure from this targeting mismatch. An immediate scroll
+capture was blank; fresh observation after 600 ms showed the full comparison.
+
+No manuscript/alternative edit, Save or Apply occurred during native review.
+Selection check hash stayed exactly
+86dbee414fb1bc0c2147c10a539a438cf8dab7cc209c7746ad58c193121a15f6.
+No unresponsive warning or visible stall occurred. Development-tools Autofill
+protocol-method warnings in stderr do not establish an app/manuscript failure.
+Logs: %TEMP%/black-skies-p7-decision-final-native-20261003.{out,err}.log.
+Current app: attached Command Center → Create / Develop, dark, Saved durably,
+same disposable review project.
+
+Ready for Jason's guided no-AI verification. Human acceptance remains pending.
+P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 remain Uncertain under their recorded
+coordinator-owned Batch 4 stages before Human Gate 4 and reopening triggers;
+native success does not establish the earlier failure's cause. Neither counts
+as a pass. Delayed/failed IPC variants were automated, not simulated natively.
+This was a targeted recheck, not a complete feature tour or scale matrix.
+Local-AI disposition, current-candidate package qualification, formal Human
+Gate 4 and Program 7 closure remain separate requirements.
+
+Continuation counters **51/21/0 → 81/26/0** through native stop include repair
+reasoning, worker review, qualification, preparation and desktop observations.
+They are account-wide, not a desktop-only or daily token total. Final recording
+follows that observation. Current candidate/screen state supersede older launch
+instructions.
+
 ### Jason's no-AI confirmation packet
 
-Launch the latest recorded executable checkpoint from the continuing repository
-in a fresh normal-GPU process with local AI disabled. Old launch receipts are
-historical. Open the preserved project path above; confirm **Selection check**
-and **Saved durably**. The current process has the repaired stale drawer open beside Prologue; close the clean drawer and use its alternative source-return action to reach Selection check. Use the same path on later reopen. Preserve failed state. Stop for unintended replacement,
-wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
+The qualified executable **3e046265** is open with normal GPU and local AI
+disabled at **Command Center → Create / Develop**, dark, **Saved durably**.
+Project: %TEMP%/black-skies-jason-review-W2nUKR/carmilla-review.
+For another session, launch this candidate from the continuing repository and
+open that exact project. Old launch receipts remain historical.
+
+Start with **Return to Writing Studio**, then **Story → 18 Selection check**.
+Use a fresh saved selection and new manual alternative for new Apply testing;
+do not reapply the historical partly applied alternative. Preserve failed state.
+Stop for unintended replacement, wrong project, unexpected AI/network,
+blocking crash or trapped focus/modal.
 
 | Screen/action | Expected outcome | Failure condition |
 | --- | --- | --- |
@@ -781,6 +851,8 @@ wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
 | Close normally/reopen same path in a fresh process | Exact manuscript and partly applied status persist | Lost text, wrong project or misleading state |
 | Fresh alternative; change/save source; return | Apply refused without further mutation; fresh-work guidance | Stale Apply enabled or silent write |
 | Story Knowledge → Signals → repeat **Work on this**, then source return | One task, duplicate feedback and intended source | Duplicate task or wrong source |
+| Stale alternative → View alternative | Saved source, read-only editor/Save, fresh-work guidance | Editable old alternative or misleading source heading |
+| Command Center → second window → Develop → normal close | Same project and Develop return to Writing Studio | Missing route, changed project or stall |
 | Any visible stall or OS Not Responding | Record action/time; stop if blocking; reopen P7-NATIVE-RESP-01 | Repeated warning or impaired input/close |
 | Ideas/History; Story Knowledge → Timeline | Plain wording, author control, truthful empty states | Misleading or unexplained action |
 
