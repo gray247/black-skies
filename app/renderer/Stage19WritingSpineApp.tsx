@@ -3706,6 +3706,7 @@ export default function Stage19WritingSpineApp({
         return;
       }
       applied = true;
+      setProgram7Candidates(null);
       applySnapshot(result.snapshot);
       closeProgram7Candidate();
       setProgram7Notice('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.');
@@ -3716,12 +3717,15 @@ export default function Stage19WritingSpineApp({
         generation: current.generation,
       });
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
-      if (refreshed?.ok) setProgram7Candidates(refreshed.data);
+      if (!refreshed?.ok || refreshed.data.availability !== 'ready') {
+        throw new Error('Revision alternative status refresh is unavailable.');
+      }
+      setProgram7Candidates(refreshed.data);
       await refreshProgram7RevisionItems();
     } catch {
       if (bindingMatchesSnapshot(binding, snapshotRef.current)) {
         setProgram7Notice(applied
-          ? 'The alternative was applied, but its review status could not be refreshed. Your manuscript remains saved. Reopen Create / Develop before making another change.'
+          ? 'The alternative was applied, but its review status could not be refreshed. Your manuscript remains saved. Reopen this project before making another change.'
           : 'Revision alternative application failed safely. Your manuscript has not changed.');
       }
     } finally {

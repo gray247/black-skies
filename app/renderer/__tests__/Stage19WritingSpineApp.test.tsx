@@ -970,7 +970,7 @@ describe('Stage19WritingSpineApp', () => {
     confirm.mockRestore();
   });
 
-  it.each(['saved', 'failed', 'project changed', 'drawer open', 'applying', 'apply project changed', 'refresh failed'] as const)('guards a pending alternative decision when %s', async (outcome) => {
+  it.each(['saved', 'failed', 'project changed', 'drawer open', 'applying', 'apply project changed', 'refresh failed', 'refresh refused'] as const)('guards a pending alternative decision when %s', async (outcome) => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'));
     const candidate: RevisionCandidateV1 = {
@@ -985,7 +985,7 @@ describe('Stage19WritingSpineApp', () => {
     const data = { availability: 'ready' as const, message: null, document: {
       schemaVersion: 'BlackSkiesRevisionCandidates v1' as const, projectId: 'proj_a', revision: 1, candidates: [candidate],
     } };
-    const applying = outcome === 'applying' || outcome === 'apply project changed' || outcome === 'refresh failed';
+    const applying = outcome === 'applying' || outcome === 'apply project changed' || outcome === 'refresh failed' || outcome === 'refresh refused';
     let resolveDecision!: (result: RevisionCandidateResult) => void;
     let resolveApplication!: (result: Awaited<ReturnType<NonNullable<ProjectSpineBridge['acceptRevisionCandidate']>>>) => void;
     let refreshShouldFail = false;
@@ -994,6 +994,7 @@ describe('Stage19WritingSpineApp', () => {
     const revisions: RevisionCandidatesBridge = {
       localAiAvailable: false,
       list: vi.fn(async (request) => {
+        if (refreshShouldFail && outcome === 'refresh refused') return { ok: false as const, error: { code: 'CANDIDATES_UNAVAILABLE' as const, message: 'Refresh unavailable.' } };
         if (refreshShouldFail) throw new Error('Refresh unavailable.');
         return { ok: true as const, data: request.projectId === 'proj_a'
           ? candidateSnapshot : { ...data, document: { ...data.document, projectId: request.projectId, candidates: [] } } };
@@ -1052,7 +1053,7 @@ describe('Stage19WritingSpineApp', () => {
       candidateSnapshot = { ...data, document: { ...data.document, revision: 2,
         candidates: [{ ...candidate, lifecycle: 'accepted' }],
       } };
-      refreshShouldFail = outcome === 'refresh failed';
+      refreshShouldFail = outcome === 'refresh failed' || outcome === 'refresh refused';
       if (outcome !== 'apply project changed') act(() => writing.emit(acceptedSnapshot));
       await act(async () => resolveApplication({ ok: true, snapshot: acceptedSnapshot, data: {
         candidateId: candidate.id, mode: 'accept-all', lifecycle: 'accepted',
@@ -1065,10 +1066,11 @@ describe('Stage19WritingSpineApp', () => {
       } else {
         fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
         expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alternative body');
-        if (outcome === 'refresh failed') {
+        if (outcome === 'refresh failed' || outcome === 'refresh refused') {
           fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
           fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
           expect(await screen.findByText(/was applied.*could not be refreshed/)).toBeVisible();
+          expect(screen.queryByTestId('revision-comparison')).not.toBeInTheDocument();
           expect(screen.queryByText(/application failed safely.*has not changed/)).not.toBeInTheDocument();
         }
       }

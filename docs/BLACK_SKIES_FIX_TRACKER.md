@@ -722,6 +722,48 @@ changes. Allowance intake **51/21/0**, repair verification **58/22/0**
 has occurred in this continuation yet; zero reserve display is not proof of
 zero worker consumption.
 
+### Post-Apply status recovery — October 3 continuation
+
+Clean qualification of the first repair checkpoint completed at
+7e0b0c630a5e201f07a59cc2bc56d4d055ca8f07, tree
+8551ef351353a5b9db2de78cada1c9ac162270d2:
+Stage 19 passed 49 files / 824 tests / two existing skips, startup 1/1,
+Electron 36/36. The working tree stayed clean throughout that run.
+Log: %TEMP%/black-skies-p7-decision-stale-stage19-20261003.log.
+This result remains bound to that candidate.
+
+Final review reproduced another part of P7-RPR-DECISION-01: after durable Apply,
+failed list refresh retained the old actionable comparison. A structured IPC
+refusal also bypassed the exception notice. Two regressions failed before repair.
+The bounded repair clears the cached comparison after authoritative Apply
+success, requires a ready refresh result, and routes thrown/structured failures
+to truthful saved-manuscript feedback. Guidance now says **Reopen this project**,
+which reloads owner state; merely reopening a workspace tab does not do that.
+No durable candidate document, manuscript bytes or persistence boundary changed.
+
+Final development proof: full app 159 files / **1,525 passed / two existing
+skips**, 133.30 seconds; eight focused delayed-decision cases passed; typecheck,
+lint and production build passed. The initial new mock widened its error-code
+literal and failed typecheck; adding as const repaired the fixture without a
+runtime change. Exact revision/restart/stale and disabled-AI Electron journeys
+passed **3/3**, 19.9 seconds. The other family/long-form/accessibility evidence
+above remains attributed to its recorded candidate; this host Apply-refresh
+change does not affect their non-Apply paths. No extra screenshot/scale baseline
+or new test file was added.
+
+Logs: %TEMP%/black-skies-p7-apply-refresh-{before,focused,full,static,static-final,build,electron}-20261003.log.
+Before/focused runs intentionally filtered the existing host file; their
+135 filtered cases are not new skip authorizations. The full suite retained
+only its two existing skips. Failure artifacts for P7-A11Y-ROUTE-01 remain;
+its exact failed project is %TEMP%/black-skies-program7-e2e-Phldyl/carmilla-review,
+separate from the passing follow-up fixture. Later viewport-stabilization
+warnings occurred in other passing journeys, not the failed matrix; no causal
+connection is asserted.
+
+Allowance for this recovery package: **63/23/0 → 66/23/0**, account-wide rounded
+five-hour/weekly/reserve counters. Final clean Stage 19 and targeted native
+confirmation are pending; neither diagnostic uncertainty is erased.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository

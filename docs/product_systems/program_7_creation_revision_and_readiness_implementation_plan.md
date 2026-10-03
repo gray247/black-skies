@@ -186,6 +186,17 @@ Clean Stage 19 and targeted current-build native confirmation remain pending.
 Historical qualification/native receipts retain their original candidates.
 No formal human acceptance or Program 7 closure is implied.
 
+Final October 3 review found and repaired an additional post-Apply recovery
+seam: old actionable comparisons survived failed owner refresh, and structured
+IPC refusal lacked truthful feedback. The cache now clears after durable Apply;
+only a ready authoritative refresh restores it. Failure guidance requires
+reopening the project. The final development full suite passed 1,525 tests
+(two existing skips), static/build checks and three exact revision/no-AI
+Electron journeys passed. The first repair candidate 7e0b0c63 separately passed
+clean Stage 19 (824 tests, startup 1/1, Electron 36/36); final clean qualification
+and native confirmation remain pending. The two diagnostic uncertainties keep
+their existing owners, stages and reopening triggers in the tracker.
+
 ## 2. Program Outcome
 
 Program 7 is complete only when the product supports and qualifies all of the
