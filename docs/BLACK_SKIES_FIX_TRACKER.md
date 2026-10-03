@@ -5,7 +5,7 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: four repair batches and the focused readonly-selection repair completed; native review evidence and limits remain separately recorded.
+Status: repairs and the formerly blocked core native rechecks passed; one uncorrelated responsiveness diagnostic remains open. Candidate-specific evidence and limits remain separately recorded.
 The no-AI candidate is ready for Jason confirmation; Human Gate 4 remains open.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
@@ -361,7 +361,7 @@ remain automated evidence. Full app: 159 files, 1,508 passed, two existing skips
 `%TEMP%/black-skies-p7-loop-full-20261002.log`. Clean Stage 19 follows.
 Lint/type/build logs use `black-skies-p7-loop-{lint,types-final,build}-20261002.log`.
 
-### Repeat loop 2 and unload follow-up — 2026-10-02
+### Historical repeat loop 2 and unload follow-up — 2026-10-02
 
 Clean checkpoint `ea5c5604c1c79db4057885ad7325321139526a0c`, tree
 `19e8664ae3652bb1e95ac7dc3a06a2cb044700a4`, passed full app 159 files /
@@ -447,12 +447,99 @@ preparation and native work, with account-wide/rounded attribution limits.
 Native-only observations remain **36→45** and **71→74**. Daily token totals are
 not exposed by these counters; reserve zero does not establish free worker use.
 
+### Standalone native completion — 2026-10-03 UTC / October 2 local
+
+Clean intake HEAD `c4b30571744f42d5617ac882baedde0b852d1c2a`, tree
+`07a31ad80a7fc20f4e51ef22068952caa3ea1c3e`; executable source remains
+`a093326660ac885bc98d764812097fc9d9580b58`, tree
+`d8bc68188793126486047f8f880079bdc8ffe24d`. No source/test changes were needed.
+Full-suite/clean Stage 19 evidence belongs to ea5c5604; a093 has the affected
+unload checks above. Documentation receipts do not transfer qualification.
+
+Foreground access worked after a fresh window selection/activation; no
+configuration/tool repair or established root cause is claimed. Saved earlier
+PID 6328 closed normally, without termination/discard. Preparation took about
+four minutes, within the five-minute limit. Normal-GPU direct Electron PID
+15648 launched the continuing built main/renderer with local AI disabled, the
+retained profile/config and no Playwright attachment. Its clean close exited 0;
+fresh normal PID 20868 reopened the same project. Existing config retains
+experimental split Command and disabled docking. Workers stayed idle.
+
+| Native action | Observed proof |
+| --- | --- |
+| Edit multiline Unicode; Alt+F4 while dirty | Window stayed open, exact edit retained, nearby alert explained Save or Close drawer remedy and unchanged manuscript |
+| Save revision alternative | Visible success and disabled clean Save; Unicode stored; manuscript hash unchanged |
+| Close clean drawer; append controlled line to Selection check; Ctrl+S | Exact expected Markdown saved; original post-Apply body/frontmatter preserved; only intended line appended |
+| Return to Create / Develop | Fresh alternative stale, refusal/fresh-work guidance and both Apply actions disabled; no further mutation |
+| Saved durably; Alt+F4; fresh process reopen | Exit 0; correct project, Unicode alternative, stale refusal and historical Partly applied state persisted |
+| Return to passage in Writing Studio | Correct Selection check, exact saved editor text and Saved durably in fresh process |
+
+Saved alternative `candidate_de022fc4-ac9c-4934-97c6-e9a391c3a84d` retains
+durable lifecycle `reviewing`; stale is its source-currentness projection. Text:
+
+```text
+The observatory door shuddered beneath the storm.
+Mara held her breath — 👩‍🚀.
+```
+
+The source append was an explicit supported edit, not stale application.
+Disabled Apply controls were observed rather than clicked; backend bypass
+rejection remains automated proof. Historical alternative
+`candidate_376d456e-3a3c-4744-918e-800467779164` remains partially accepted.
+Preserved project:
+`C:\Users\gray2\AppData\Local\Temp\black-skies-jason-review-W2nUKR\carmilla-review`.
+Current `drafts/unit_321e0ed2c4ff4d34.md` is LF Markdown with terminal LF,
+290 characters, SHA-256
+`86dbee414fb1bc0c2147c10a539a438cf8dab7cc209c7746ad58c193121a15f6`.
+Previous post-Apply hash is historical; do not reset this fixture.
+PID 20868 remains open/responding at Selection check for Jason.
+
+Logs: `%TEMP%/black-skies-p7-native-continue-20261003.{out,err}.log` and
+`%TEMP%/black-skies-p7-native-reopen-20261003.{out,err}.log`.
+Screenshots/observations were inspected in the computer-use session; no separate
+screenshot artifact is claimed. Stale accessibility geometry after scroll needed
+fresh screenshot coordinates. Coarse RootWebArea focus was checked against the
+visible caret and exact resulting source bytes; neither establishes a defect.
+
+**Open diagnostic P7-NATIVE-RESP-01:** first process stderr contains one
+`[main] BrowserWindow became unresponsive.` without timestamp/duration.
+No blocking freeze was observed; later actions succeeded and exit was 0.
+Fresh process remained responsive without a repeat warning. Read-only worker
+audit of main event/close handlers and existing close coverage found insufficient
+correlation to establish a cause or justify speculative repair. Result:
+`Uncertain`, diagnostic only. Owner: coordinator. Exact resolution stage:
+**Batch 4 responsiveness triage before formal Human Gate 4 disposition**.
+Reopening trigger: another warning or visible stall/OS Not Responding during
+Jason's review. Required evidence: action time and timestamped
+unresponsive/responsive/close/closed correlation before focused repair/testing.
+No native segment was opened solely for this log. DevTools Autofill protocol
+diagnostics are retained separately.
+
+Native elapsed **9:47**, including stop bookkeeping; last input **8:57**.
+Stop reason: observed five-hour allowance **5% to 15%**, the +10-point cap.
+Around minute 4:47: **11/15/0** five-hour/weekly/reserve; extra observation
+around minutes 6–7: **13/15/0**; stop **15/15/0**. No native input followed,
+and no minute-ten check was due. This allowance period had reset: intake
+**0/13/0**, preparation/admission **5/14/0**. Do not combine the earlier 82%
+observation with this reset window. Post-native documentation/audit observation
+**19/16/0** is separate from native cost. Rounded/account-wide counters cannot
+establish exact tokens, daily usage or worker reserve cost.
+
+Formerly unfinished core native rows now pass. Jason still owns subjective
+readability, wording and author-control acceptance plus formal human regressions.
+This segment did not redo both themes, Focus, Timeline/Ideas or all family
+actions. Their human confirmation stage is the next no-AI session before Human
+Gate 4; reopen the relevant issue on its packet failure condition. Existing
+automation/prior native proof retains its labels. The handoff is ready for that
+session with the diagnostic visible. Human Gate 4, AI admission, package
+qualification and Program 7 closure remain separate decisions.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository
 in a fresh normal-GPU process with local AI disabled. Old launch receipts are
 historical. Open the preserved project path above; confirm **Selection check**
-and **Saved durably**. Preserve failed state. Stop for unintended replacement,
+and **Saved durably**. The fresh current process is already open there; use the same path on later reopen. Preserve failed state. Stop for unintended replacement,
 wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
 
 | Screen/action | Expected outcome | Failure condition |
@@ -464,11 +551,14 @@ wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
 | Close normally/reopen same path in a fresh process | Exact manuscript and partly applied status persist | Lost text, wrong project or misleading state |
 | Fresh alternative; change/save source; return | Apply refused without further mutation; fresh-work guidance | Stale Apply enabled or silent write |
 | Story Knowledge → Signals → repeat **Work on this**, then source return | One task, duplicate feedback and intended source | Duplicate task or wrong source |
+| Any visible stall or OS Not Responding | Record action/time; stop if blocking; reopen P7-NATIVE-RESP-01 | Repeated warning or impaired input/close |
 | Ideas/History; Story Knowledge → Timeline | Plain wording, author control, truthful empty states | Misleading or unexplained action |
 
-Current saved manuscript; do not reapply its historical alternative:
+Current saved manuscript after the controlled stale-source check; do not reapply its historical alternative:
 
 > The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+>
+> Native stale-source check.
 
 For further partial application, select a fresh saved sentence and create a new
 alternative through supported controls. Record exact expected prefix/suffix

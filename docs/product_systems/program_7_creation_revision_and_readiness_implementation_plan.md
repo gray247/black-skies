@@ -139,10 +139,18 @@ Repeat-loop checkpoint ea5c5604 passed clean Stage 19, the full app suite and
 dedicated no-AI/family/accessibility journeys. Loop 2 verified reopened partial
 application and dirty drawer Cancel; its window-close probe exposed blocked
 confirm during beforeunload. The narrow unload-guidance repair has focused
-mechanical proof. Native re-verification is blocked by foreground-window access;
-Batch 4 remains open, owned by coordinator/Jason, reopening when native access
-works, before Human Gate 4. Candidate-specific evidence and exact pending checks
-are maintained in the existing fix tracker. No closure or AI admission follows.
+mechanical proof. The next standalone segment restored access without a
+configuration change and passed dirty Alt+F4 protection, visible alternative
+save feedback, controlled stale-source refusal, normal close/fresh-process reopen
+and correct source return. It stopped at the observed +10-point allowance cap
+after 9:47 including bookkeeping. No source/test repair was needed.
+The no-AI packet is ready for Jason's next session. One uncorrelated unresponsive
+warning remains Uncertain under P7-NATIVE-RESP-01, coordinator-owned Batch 4
+responsiveness triage before formal Human Gate 4 disposition; another warning or
+visible stall reopens it for timestamped correlation. The existing fix tracker
+records exact candidates, preserved state, limits and human confirmation rows.
+Subjective acceptance, AI disposition and package qualification remain separate.
+No closure or AI admission follows.
 
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage
