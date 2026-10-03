@@ -156,10 +156,12 @@ A further October 2 bounded repair aligned the revision drawer's historical
 source labeling with comparison: stale/unavailable/applied snapshots are saved
 source, current source retains its current heading, and completed alternatives
 avoid false stale alerts. Reproduced regression cases and the affected 157-test
-component/integration set plus two revision Electron journeys pass. Native
-recheck is scoped to the preserved project's drawer after a fresh launch; the
-tracker owns its exact candidate/result. P7-NATIVE-RESP-01 remains separately
-Uncertain and formal human acceptance remains required.
+component/integration set plus two revision Electron journeys pass. Clean
+executable e1e8b3c3 passed a 2:19 standalone normal-GPU native recheck in both
+themes, with unchanged manuscript bytes and +3 observed five-hour points.
+The repaired drawer remains open for Jason's wording/authority confirmation.
+The tracker owns its exact candidate/result. P7-NATIVE-RESP-01 remains
+separately Uncertain; no recurrence occurred. Formal human acceptance is required.
 
 The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact command
 results/candidate attribution, preserved fixture/log paths, root causes, usage

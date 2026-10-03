@@ -586,14 +586,63 @@ misleading historical heading reopens the issue. Formal Human Gate 4 remains ope
 
 Allowance intake **21/16/0**, affected verification **24/17/0**
 (five-hour/weekly/reserve), account-wide rounded counters.
-Native work is recorded separately below when completed.
+Native completion: clean executable checkpoint
+`e1e8b3c3d59387feccba4e1bb27998a16e945342`, tree
+`ed5efdf68c2d682bda803446de0f7ecb92f34062`, fresh standalone PID 17088,
+normal GPU, no Playwright attachment, local AI disabled, same review profile
+and runtime config. Build/renderer identity is the continuing repository;
+the Electron binary resolves through the existing shared dependency symlink,
+which is not an alternate application checkout.
+
+Preparation took **2:08**, allowance **25/17/0 → 27/17/0**.
+Earlier PID 20868 was no longer running when this continuation began; no
+termination or discard action was taken. One indexed recent-project click
+reported unavailable coordinate geometry; a fresh screenshot-coordinate action
+opened the intended project. Immediate snapshots during asynchronous navigation
+still showed the prior screen; fresh observation established completion without
+repeated clicks. No product navigation defect was inferred from those incidents.
+
+The native segment took **2:19**, allowance **27/17/0 → 30/18/0**:
+**+3 five-hour points**, +1 weekly, reserve rounded zero. Workers stayed idle.
+Stop reason: targeted acceptance checks completed, before either limit.
+No minute-five/ten observations were due. Rounded account counters do not
+establish exact tokens, daily usage or reserve consumption.
+
+Verified in the actual stale drawer in dark and light themes:
+**Saved source passage**, earlier source snapshot, source-changed refusal,
+persisted multiline Unicode alternative, disabled clean Save, no current-
+manuscript heading over the historical source. Existing partly applied comparison
+remained closed/history with disabled Apply. Native input performed navigation
+and a theme switch only: no alternative edit, Apply, manuscript edit or reset.
+Final Selection check Markdown hash remained
+`86dbee414fb1bc0c2147c10a539a438cf8dab7cc209c7746ad58c193121a15f6`.
+Unavailable/terminal drawer variants were component-tested, not falsely claimed
+as separate native scenarios.
+
+Logs: `%TEMP%/black-skies-p7-source-label-native-20261002.{out,err}.log`.
+No repeated unresponsive warning or visible stall occurred in this segment;
+P7-NATIVE-RESP-01 remains Uncertain because the earlier cause is still unknown.
+The app remains responsive, Saved durably, light theme, with the repaired stale
+drawer open beside the manuscript at Prologue. Drawer source belongs to
+Selection check; opening the alternative did not relocate the current manuscript
+selection. The source is honestly labeled a stored passage rather than current
+prose. Jason can inspect this distinction directly, close the clean drawer, and
+use the alternative's **Return to passage in Writing Studio** for Selection check.
+
+Human confirmation item, owner Jason, stage **next no-AI session before Human
+Gate 4**: in the open drawer, confirm that **Saved source passage** and the
+changed-passage explanation make the old/current distinction understandable.
+A current-source label on old text, absent refusal, hidden content or confusing
+authority reopens the historical-source wording issue. No human acceptance is
+inferred from agent review. Documentation lint (72 files) and diff hygiene pass;
+documentation-only follow-up receipts preserve executable checkpoint e1e8b3c3.
 
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository
 in a fresh normal-GPU process with local AI disabled. Old launch receipts are
 historical. Open the preserved project path above; confirm **Selection check**
-and **Saved durably**. The fresh current process is already open there; use the same path on later reopen. Preserve failed state. Stop for unintended replacement,
+and **Saved durably**. The current process has the repaired stale drawer open beside Prologue; close the clean drawer and use its alternative source-return action to reach Selection check. Use the same path on later reopen. Preserve failed state. Stop for unintended replacement,
 wrong project, unexpected network/AI, blocking crash or trapped focus/modal.
 
 | Screen/action | Expected outcome | Failure condition |
