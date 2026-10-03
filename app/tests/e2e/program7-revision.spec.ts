@@ -188,12 +188,26 @@ test('A changed saved passage blocks the earlier alternative without another man
   const savedAlternatives = JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8'));
   const earlierSource = savedAlternatives.candidates[0].sourceSnapshot.text;
   expect(before).toContain(earlierSource);
-  await writing.getByTestId('revision-comparison').getByRole('button', { name: 'Edit alternative', exact: true }).click();
+  await writing.getByTestId('revision-comparison').getByRole('button', { name: 'View alternative', exact: true }).click();
   const staleDrawer = writing.getByTestId('writing-revision-drawer');
   await expect(staleDrawer.getByRole('heading', { name: 'Saved source passage', exact: true })).toBeVisible();
   await expect(staleDrawer.getByRole('heading', { name: 'Your current manuscript', exact: true })).toHaveCount(0);
   await expect(staleDrawer.locator('pre')).toHaveText(earlierSource);
   await expect(staleDrawer.getByRole('alert')).toContainText('passage changed');
+  await expect(staleDrawer.getByRole('heading', { name: 'View revision alternative', exact: true })).toBeVisible();
+  await expect(staleDrawer.getByRole('textbox', { name: 'Revision alternative text' })).toBeDisabled();
+  await expect(staleDrawer.getByRole('button', { name: 'Save revision alternative', exact: true })).toBeDisabled();
   await staleDrawer.getByRole('button', { name: 'Close drawer', exact: true }).click();
+  await showCommandInWriting(writing);
+  await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  const staleComparison = writing.getByTestId('revision-comparison');
+  for (const name of ['Set this alternative aside', 'Do not use this alternative', 'Stop working on this alternative']) {
+    await expect(staleComparison.getByRole('button', { name, exact: true })).toBeDisabled();
+  }
+  await expect(staleComparison.getByRole('button', { name: 'View alternative', exact: true })).toBeEnabled();
+  await expect(staleComparison.getByRole('button', { name: 'Apply all of this alternative', exact: true })).toBeDisabled();
+  const afterDecision = JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8'));
+  expect(afterDecision.candidates).toHaveLength(1);
+  expect(afterDecision).toEqual(savedAlternatives);
   expect(await readFile(draftPath, 'utf8')).toBe(changed);
 });

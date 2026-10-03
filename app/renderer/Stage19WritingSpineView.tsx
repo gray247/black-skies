@@ -150,6 +150,7 @@ export interface Stage19WritingSpineViewModel {
     readonly notice: string | null;
   };
   readonly program7Candidates: RevisionCandidatesSnapshotV1 | null;
+  readonly program7CandidateDecisionPending?: boolean;
   readonly program7Foundation: StoryFoundationSnapshotV1 | null;
   readonly program7Ideation: IdeationSnapshotV1 | null;
   readonly program7History: Program7HistoryProjectionV1;
@@ -715,6 +716,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
             <article key={candidate.id} className="program7-revision-candidates__item">
               <RevisionComparison
                 candidate={candidate}
+                decisionPending={model.program7CandidateDecisionPending}
                 canAccept={canWrite}
                 onAcceptAll={(value) => void actions.acceptProgram7Candidate(value)}
                 onPartialAccept={(value, selection) => void actions.acceptProgram7Candidate(value, selection)}
@@ -2349,6 +2351,7 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
       <WritingRailHeading rail="right" title="Review" actions={props.actions} />
       <WritingRevisionDrawer
         open={props.model.program7RevisionDrawerOpen}
+        decisionPending={props.model.program7CandidateDecisionPending}
         candidate={props.model.program7SelectedCandidate}
         onClose={props.actions.closeProgram7Candidate}
         onDirtyChange={props.actions.reportProgram7CandidateDirty}

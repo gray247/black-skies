@@ -10,6 +10,7 @@ import type {
 export interface RevisionComparisonProps {
   readonly candidate: RevisionCandidateV1;
   readonly canAccept?: boolean;
+  readonly decisionPending?: boolean;
   readonly onAcceptAll?: (candidate: RevisionCandidateV1) => void;
   readonly onPartialAccept?: (
     candidate: RevisionCandidateV1,
@@ -77,6 +78,7 @@ function moveCaret(text: string, position: number, direction: -1 | 1, byLine: bo
 export default function RevisionComparison({
   candidate,
   canAccept = false,
+  decisionPending = false,
   onAcceptAll,
   onPartialAccept,
   onLifecycle,
@@ -87,7 +89,7 @@ export default function RevisionComparison({
   const candidateText = visibleCandidateText(candidate);
   const stale = candidate.currentness !== 'current' || candidate.lifecycle === 'stale';
   const editable = candidate.lifecycle === 'generated' || candidate.lifecycle === 'reviewing';
-  const acceptEnabled = canAccept && editable && !stale && !redacted;
+  const acceptEnabled = canAccept && editable && !stale && !redacted && !decisionPending;
   const hasExactSourceAnchor = Boolean(
     candidate.sourceAnchor &&
     Number.isInteger(candidate.sourceAnchor.selectionStart) &&
@@ -95,7 +97,8 @@ export default function RevisionComparison({
     candidate.sourceAnchor.selectionEnd > candidate.sourceAnchor.selectionStart &&
     candidate.sourceAnchor.selectionFingerprint.trim(),
   );
-  const sourceIsHistorical = stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
+  const sourceIsHistorical = decisionPending || stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
+  const sourceHelpId = `revision-source-help-${candidate.id}`;
   const partialHelpId = `revision-partial-help-${candidate.id}`;
 
   useEffect(() => {
@@ -111,12 +114,12 @@ export default function RevisionComparison({
         </div>
         <span data-testid="revision-comparison-origin">{lifecycleLabel(candidate)}</span>
       </header>
-      <p className="program7-revision-comparison__source-status">{sourceStatus(candidate)}</p>
+      <p className="program7-revision-comparison__source-status">{decisionPending ? 'A change to this alternative is still in progress.' : sourceStatus(candidate)}</p>
       {editable && stale ? (
-        <p role="alert" data-testid="revision-comparison-stale">
+        <p id={sourceHelpId} role="alert" data-testid="revision-comparison-stale">
           {candidate.currentness === 'stale'
-            ? 'This alternative cannot be applied because the passage changed. Return to the passage and create a fresh alternative after reviewing it.'
-            : 'This alternative cannot be applied because its original passage is unavailable.'}
+            ? 'This alternative cannot be applied because the passage changed. Editing and review decisions are also unavailable. Return to the passage and create a fresh alternative after reviewing it.'
+            : 'This alternative cannot be applied because its original passage is unavailable. Editing and review decisions are also unavailable. Return to Writing Studio and select a saved passage to create a fresh alternative.'}
         </p>
       ) : null}
       {candidate.warnings.length > 0 ? (
@@ -202,7 +205,7 @@ export default function RevisionComparison({
         />
       </div>
       <div className="program7-revision-comparison__actions" aria-label="Revision alternative actions">
-        {onOpenEditor && editable ? <button type="button" onClick={() => onOpenEditor(candidate)}>Edit alternative</button> : null}
+        {onOpenEditor && editable ? <button type="button" disabled={decisionPending} onClick={() => onOpenEditor(candidate)}>{stale ? 'View alternative' : 'Edit alternative'}</button> : null}
         <button type="button" disabled={!acceptEnabled || !onAcceptAll} onClick={() => onAcceptAll?.(candidate)}>
           Apply all of this alternative
         </button>
@@ -219,11 +222,14 @@ export default function RevisionComparison({
           Apply only the selected part
         </button>
         {onLifecycle && editable ? dispositionActions.map((lifecycle) => (
-          <button key={lifecycle} type="button" onClick={() => onLifecycle(candidate, lifecycle)}>
+          <button key={lifecycle} type="button" disabled={decisionPending || stale} aria-describedby={stale ? sourceHelpId : undefined} onClick={() => onLifecycle(candidate, lifecycle)}>
             {lifecycle === 'rejected' ? 'Do not use this alternative' : lifecycle === 'parked' ? 'Set this alternative aside' : 'Stop working on this alternative'}
           </button>
         )) : null}
       </div>
+      {decisionPending ? (
+        <p role="status">Wait for this alternative’s change to finish before editing or making another decision.</p>
+      ) : null}
       <p id={partialHelpId} role="status" className="program7-revision-comparison__note">
         {!editable
           ? 'This alternative is closed. To make another change, select words in Writing Studio and save a new alternative.'

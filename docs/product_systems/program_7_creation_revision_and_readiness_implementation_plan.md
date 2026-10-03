@@ -171,6 +171,21 @@ Historical qualifications retain their original identities. RT-2B, human
 sampling/regression and required current package qualification remain separate
 formal Human Gate 4 requirements.
 
+October 3 continuation repairs the pending decision/Apply race and aligns
+stale alternative controls with existing backend restrictions. Stale work is
+view-only; competing decisions and editing wait for the pending operation.
+Late former-project replies are ignored, and post-Apply refresh failure no
+longer falsely says the manuscript was unchanged. The final dirty full app
+suite passed 159 files / 1,524 tests with two existing skips; static/build
+checks passed. Six dedicated no-AI Electron journeys passed; one accessibility
+route mismatch is preserved as P7-A11Y-ROUTE-01 Uncertain. Its single focused
+follow-up passed with a stronger selected-route assertion and diagnostics,
+without an inferred runtime fix. The tracker owns its coordinator/Batch 4
+before Human Gate 4 resolution stage, evidence and reopening trigger.
+Clean Stage 19 and targeted current-build native confirmation remain pending.
+Historical qualification/native receipts retain their original candidates.
+No formal human acceptance or Program 7 closure is implied.
+
 ## 2. Program Outcome
 
 Program 7 is complete only when the product supports and qualifies all of the

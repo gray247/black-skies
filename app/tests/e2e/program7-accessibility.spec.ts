@@ -112,6 +112,7 @@ async function exerciseCommandRoutes(
     throw new Error(`Create / Develop missing after ${topology}-${theme}-${profile.id}: ${(await surface.locator('body').innerText()).slice(0, 2_000)}`);
   }
   await createDevelop.click();
+  await expect(createDevelop, `${topology}-${theme}-${profile.id}: ${await surface.locator('body').innerText()}`).toHaveAttribute('aria-current', 'page');
   await expect(surface.getByTestId('program7-create-develop')).toBeVisible();
   for (const section of PROGRAM7_SECTIONS) {
     await surface.getByRole('button', { name: section, exact: true }).click();

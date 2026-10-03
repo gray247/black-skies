@@ -29,6 +29,26 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 }
 
 describe('RevisionComparison component', () => {
+  it('explains a pending decision beside disabled editing, application and decision controls', () => {
+    const onOpenEditor = vi.fn();
+    const onAcceptAll = vi.fn();
+    const onLifecycle = vi.fn();
+    const { rerender } = render(<RevisionComparison candidate={candidate()} decisionPending canAccept
+      onOpenEditor={onOpenEditor} onAcceptAll={onAcceptAll} onLifecycle={onLifecycle} />);
+    const actions = screen.getByLabelText('Revision alternative actions');
+    for (const button of within(actions).getAllByRole('button')) {
+      expect(button).toBeDisabled();
+      fireEvent.click(button);
+    }
+    expect(screen.getByText(/Wait for this alternative.*finish/)).toBeVisible();
+    expect(onOpenEditor).not.toHaveBeenCalled();
+    expect(onAcceptAll).not.toHaveBeenCalled();
+    expect(onLifecycle).not.toHaveBeenCalled();
+    rerender(<RevisionComparison candidate={candidate()} canAccept onOpenEditor={onOpenEditor} onAcceptAll={onAcceptAll} />);
+    expect(screen.getByRole('button', { name: 'Edit alternative' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Apply all of this alternative' })).toBeEnabled();
+  });
+
   it('keeps current and candidate text visibly separate and exposes origin, warning, and stale state', () => {
     render(<RevisionComparison candidate={candidate({ origin: 'local-ai', provenance: { origin: 'local-ai', source: 'program7-local-ai', model: 'qwen3:4b', receipt: null }, currentness: 'stale', warnings: ['Source changed since candidate creation.'] })} />);
     expect(screen.getByRole('heading', { name: 'Saved source passage' })).toBeInTheDocument();
@@ -43,6 +63,20 @@ describe('RevisionComparison component', () => {
     expect(screen.getByText(/Local AI.*qwen3:4b/)).toBeInTheDocument();
   });
 
+  it.each(['stale', 'unavailable'] as const)('keeps %s alternatives viewable without offering unsupported review decisions', (currentness) => {
+    const onLifecycle = vi.fn();
+    const onOpenEditor = vi.fn();
+    render(<RevisionComparison candidate={candidate({ currentness })} onLifecycle={onLifecycle} onOpenEditor={onOpenEditor} />);
+    for (const name of ['Set this alternative aside', 'Do not use this alternative', 'Stop working on this alternative']) {
+      const action = screen.getByRole('button', { name });
+      expect(action).toBeDisabled();
+      expect(action).toHaveAccessibleDescription(/review decisions are also unavailable/);
+      fireEvent.click(action);
+    }
+    expect(onLifecycle).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'View alternative' }));
+    expect(onOpenEditor).toHaveBeenCalledTimes(1);
+  });
   it('requires explicit all or selected acceptance and keeps disposition actions separate', () => {
     const onAcceptAll = vi.fn();
     const onPartialAccept = vi.fn();

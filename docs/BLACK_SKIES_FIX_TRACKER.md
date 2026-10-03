@@ -637,6 +637,91 @@ authority reopens the historical-source wording issue. No human acceptance is
 inferred from agent review. Documentation lint (72 files) and diff hygiene pass;
 documentation-only follow-up receipts preserve executable checkpoint e1e8b3c3.
 
+### Decision race and stale controls — October 3, 2026 continuation
+
+Jason's continuation after the governance clarification resumes bounded
+Program 7 repair in the continuing copy only. The planning checkout and
+instruction files remain untouched. Intake was HEAD f026f27a31278bb82cc7ab8d523fb2c1311e9318
+with the eight intended pending repair files; this checkpoint adds one assertion
+to the existing accessibility journey. No new file, dependency, schema, IPC
+authority or manuscript store is introduced.
+
+**P7-RPR-DECISION-01 — repaired, mechanical evidence:** delayed Set aside or
+Apply acknowledgments previously allowed competing decisions and editing.
+An acknowledgment could replace unsaved alternative text; a late reply could
+install the former project's state. The host now reserves one synchronous
+decision token, guards dirty/saving edits, disables competing actions and
+drawer editing/Save/Close, checks project/generation before installing replies,
+and releases only the matching token. After successful Apply, a review-refresh
+exception truthfully reports that the manuscript remains saved.
+
+Seven delayed-response host cases cover success, refusal, an already-open
+clean drawer, Apply, late lifecycle/Apply replies after a project change, and
+post-Apply refresh failure. Component tests prove disabled input/callbacks and
+restored controls. Earlier reproductions failed before the guards. The final
+Luna safety worker read-only review accepted the bounded path without a
+remaining concrete defect. No native latency simulation is claimed.
+
+**P7-RPR-STALE-CONTROLS-01 — repaired, mechanical evidence:** comparison offered
+review-state changes and editable stale text that the existing IPC intentionally
+rejects after source changes. The new Electron expectation incorrectly expected
+a stale alternative to become parked. Source binding is preserved: stale and
+unavailable alternatives now offer **View alternative**, disable editing,
+Save and review decisions, and explain how to create fresh work. The corrected
+Electron journey verifies those controls and exact unchanged candidate document
+and manuscript. Existing backend refusal tests remain authoritative.
+New component assertions reproduced four failures / 22 passes before repair.
+
+Final dirty-candidate evidence:
+- Full app: 159 files, **1,524 passed / two existing skips**, 116.03 seconds.
+- Typecheck, app lint, production build and diff hygiene passed. Existing
+  production chunk-size advisory remains; no dependency/performance change.
+- Dedicated disabled-AI, revision, Create / Develop, long-form and accessibility
+  command: **six passed / one failed**, 52.1 seconds. Revision journeys passed,
+  including exact partial Apply, fresh-process reopen and stale non-mutation.
+- One focused accessibility follow-up: **one passed**, 27.4 seconds, with the
+  additional route-selection assertion described below. Other six passed
+  journeys were not repeated. Real-model opt-in journey was explicitly excluded
+  by --grep-invert 'author-requested local-AI'; it is not claimed passed.
+
+Commands: node scripts/run-vitest-offline.mjs;
+pnpm --filter @blackskies/app typecheck:all, lint, build:production;
+pnpm --dir app exec playwright test the five existing Program 7 files
+--project=electron --workers=1, zero retries, retained failure traces.
+Logs: %TEMP%/black-skies-p7-decision-stale-{full,static,build,electron}-20261003.log;
+%TEMP%/black-skies-p7-decision-stale-a11y-followup-20261003.log.
+Earlier pending-decision evidence remains at
+%TEMP%/black-skies-p7-decision-race-*-20261003.log; it is not relabeled as the
+final candidate.
+
+**P7-A11Y-ROUTE-01 — Uncertain:** one attached accessibility-matrix Create /
+Develop click completed but its panel did not appear within five seconds.
+Retained trace proves the completed click and failed panel assertion, but
+contains no browser DOM capture establishing the cause. Do not infer a product
+repair from the passing rerun. The existing journey now additionally asserts
+aria-current=page and includes topology/theme/profile/body diagnostics.
+Coordinator owns resolution at **Batch 4 route triage before Human Gate 4
+disposition**. Reopen on another click/panel mismatch, a route changing back, or
+an observed navigation stall. Required evidence is correlated route state,
+topology, profile, project identity and action/event timing. Jason's next
+no-AI session must confirm normal Create / Develop navigation after returning
+Command Center to Writing Studio. This uncertainty does not count as a pass.
+Failure artifacts remain at
+%TEMP%/black-skies-p7-decision-stale-electron-20261003/test-results/program7-accessibility-Pro-f122e-ached-and-detached-surfaces-electron;
+the focused fixture is retained at
+%TEMP%/black-skies-program7-e2e-JThUb2/carmilla-review.
+The earlier stale-decision test failure is also preserved under
+%TEMP%/black-skies-p7-decision-race-electron-20261003.
+
+P7-NATIVE-RESP-01 remains separately Uncertain with its existing owner,
+resolution stage and reopening trigger. Clean Stage 19 qualification and the
+current-build targeted native check are pending at this development checkpoint.
+The packet below remains the human checklist, not acceptance of these new
+changes. Allowance intake **51/21/0**, repair verification **58/22/0**
+(five-hour/weekly/Luna reserve), account-wide rounded counters. No native work
+has occurred in this continuation yet; zero reserve display is not proof of
+zero worker consumption.
+
 ### Jason's no-AI confirmation packet
 
 Launch the latest recorded executable checkpoint from the continuing repository

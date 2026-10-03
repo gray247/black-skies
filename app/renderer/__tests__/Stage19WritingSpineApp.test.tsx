@@ -970,6 +970,132 @@ describe('Stage19WritingSpineApp', () => {
     confirm.mockRestore();
   });
 
+  it.each(['saved', 'failed', 'project changed', 'drawer open', 'applying', 'apply project changed', 'refresh failed'] as const)('guards a pending alternative decision when %s', async (outcome) => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const candidate: RevisionCandidateV1 = {
+      id: 'candidate_a', projectId: 'proj_a', unitId: 'unit_a',
+      sourceSnapshot: { unitId: 'unit_a', bodySha256: 'a'.repeat(64), text: 'Alpha body' },
+      sourceAnchor: null, sourceBodySha256: 'a'.repeat(64), purpose: 'Clarify the passage',
+      origin: 'manual', provenance: { origin: 'manual', source: 'author', model: null, receipt: null },
+      protection: { excluded: false, class: 'ordinary' }, warnings: [], currentness: 'current',
+      candidateText: 'Alternative body', editedCandidateText: null, lifecycle: 'reviewing', history: [],
+      createdAt: '2026-10-02T00:00:00.000Z', updatedAt: '2026-10-02T00:00:00.000Z',
+    };
+    const data = { availability: 'ready' as const, message: null, document: {
+      schemaVersion: 'BlackSkiesRevisionCandidates v1' as const, projectId: 'proj_a', revision: 1, candidates: [candidate],
+    } };
+    const applying = outcome === 'applying' || outcome === 'apply project changed' || outcome === 'refresh failed';
+    let resolveDecision!: (result: RevisionCandidateResult) => void;
+    let resolveApplication!: (result: Awaited<ReturnType<NonNullable<ProjectSpineBridge['acceptRevisionCandidate']>>>) => void;
+    let refreshShouldFail = false;
+    let candidateSnapshot = data;
+    writing.bridge.acceptRevisionCandidate = vi.fn(() => new Promise<Awaited<ReturnType<NonNullable<ProjectSpineBridge['acceptRevisionCandidate']>>>>((resolve) => { resolveApplication = resolve; }));
+    const revisions: RevisionCandidatesBridge = {
+      localAiAvailable: false,
+      list: vi.fn(async (request) => {
+        if (refreshShouldFail) throw new Error('Refresh unavailable.');
+        return { ok: true as const, data: request.projectId === 'proj_a'
+          ? candidateSnapshot : { ...data, document: { ...data.document, projectId: request.projectId, candidates: [] } } };
+      }),
+      createManual: vi.fn(), edit: vi.fn(),
+      setLifecycle: vi.fn(() => new Promise<RevisionCandidateResult>((resolve) => { resolveDecision = resolve; })),
+    };
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge}
+      surfaceBridge={surfaces.bridge} revisionCandidatesBridge={revisions} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
+    if (outcome === 'drawer open') {
+      fireEvent.click(await screen.findByRole('button', { name: 'Edit alternative' }));
+      await screen.findByRole('textbox', { name: 'Revision alternative text' });
+      fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    }
+    fireEvent.click(await screen.findByRole('button', { name: applying ? 'Apply all of this alternative' : 'Set this alternative aside' }));
+    if (outcome === 'drawer open') {
+      fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
+      const editor = await screen.findByRole('textbox', { name: 'Revision alternative text' });
+      expect(editor).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Close drawer' })).toBeDisabled();
+      expect(screen.getByText(/Wait for this alternative.*before editing or closing/)).toBeVisible();
+      await userEvent.setup().type(editor, 'Do not overwrite this edit.');
+      expect(editor).toHaveValue('Alternative body');
+      await act(async () => resolveDecision({ ok: false, error: { code: 'CANDIDATE_WRITE_FAILED', message: 'Disk unavailable.' } }));
+      expect(editor).toBeEnabled();
+      await userEvent.setup().type(editor, ' My next edit.');
+      expect(editor).toHaveValue('Alternative body My next edit.');
+      expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+      expect(revisions.edit).not.toHaveBeenCalled();
+      expect(revisions.setLifecycle).toHaveBeenCalledTimes(applying ? 0 : 1);
+      return;
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Edit alternative' }));
+    expect(screen.queryByRole('textbox', { name: 'Revision alternative text' })).not.toBeInTheDocument();
+    expect(screen.getByText(/wait for this alternative.*finish/i)).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Do not use this alternative' }));
+    expect(revisions.setLifecycle).toHaveBeenCalledTimes(applying ? 0 : 1);
+    if (outcome === 'project changed' || outcome === 'apply project changed') {
+      act(() => writing.emit(snapshot('writing', {
+        projectId: 'proj_b', path: 'C:\\projects\\b', title: 'Project B', generation: 2,
+      })));
+      await vi.waitFor(() => expect(screen.queryByTestId('revision-comparison')).not.toBeInTheDocument());
+    }
+    if (applying) {
+      const originalProject = snapshot('writing').project!;
+      const acceptedSnapshot: ProjectSpineSessionSnapshot = {
+        ...snapshot('writing'), revision: 2,
+        project: { ...originalProject, drafts: { ...originalProject.drafts,
+          unit_a: markdown('unit_a', 'First Unit', 1, 'Alternative body'),
+        } },
+        saveState: { status: 'saved', unitId: 'unit_a', message: null },
+      };
+      candidateSnapshot = { ...data, document: { ...data.document, revision: 2,
+        candidates: [{ ...candidate, lifecycle: 'accepted' }],
+      } };
+      refreshShouldFail = outcome === 'refresh failed';
+      if (outcome !== 'apply project changed') act(() => writing.emit(acceptedSnapshot));
+      await act(async () => resolveApplication({ ok: true, snapshot: acceptedSnapshot, data: {
+        candidateId: candidate.id, mode: 'accept-all', lifecycle: 'accepted',
+        sourceBodySha256: 'a'.repeat(64), candidateTextSha256: 'b'.repeat(64), savedBodySha256: 'c'.repeat(64),
+        savedAt: '2026-10-03T00:00:00.000Z',
+      } }));
+      if (outcome === 'apply project changed') {
+        expect(writing.current.project?.projectId).toBe('proj_b');
+        expect(screen.queryByTestId('revision-comparison')).not.toBeInTheDocument();
+      } else {
+        fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
+        expect(await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alternative body');
+        if (outcome === 'refresh failed') {
+          fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+          fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
+          expect(await screen.findByText(/was applied.*could not be refreshed/)).toBeVisible();
+          expect(screen.queryByText(/application failed safely.*has not changed/)).not.toBeInTheDocument();
+        }
+      }
+      expect(writing.bridge.acceptRevisionCandidate).toHaveBeenCalledTimes(1);
+      expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+      expect(revisions.edit).not.toHaveBeenCalled();
+      return;
+    }
+    await act(async () => resolveDecision(outcome === 'failed'
+      ? { ok: false, error: { code: 'CANDIDATE_WRITE_FAILED', message: 'Disk unavailable.' } }
+      : { ok: true, data: { ...data, document: { ...data.document, revision: 2,
+        candidates: [{ ...candidate, lifecycle: 'parked', updatedAt: '2026-10-02T00:01:00.000Z' }],
+      } } }));
+    if (outcome === 'failed') {
+      expect(screen.getByText('Disk unavailable.')).toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: 'Edit alternative' }));
+      expect(await screen.findByRole('textbox', { name: 'Revision alternative text' })).toHaveValue('Alternative body');
+    } else if (outcome === 'project changed') {
+      expect(screen.queryByTestId('revision-comparison')).not.toBeInTheDocument();
+      expect(writing.current.project?.projectId).toBe('proj_b');
+    } else {
+      expect(screen.getByTestId('revision-comparison-origin')).toHaveTextContent('Set aside');
+      expect(screen.queryByRole('button', { name: 'Edit alternative' })).not.toBeInTheDocument();
+    }
+    expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(revisions.edit).not.toHaveBeenCalled();
+  });
   it('honors the preload no-AI capability even when a stale bridge exposes a local-AI method', () => {
     expect(program7LocalAiIsAvailable({
       localAiAvailable: false,

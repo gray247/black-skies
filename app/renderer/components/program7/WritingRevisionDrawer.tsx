@@ -11,6 +11,7 @@ export interface WritingRevisionDrawerProps {
   readonly onSaveEdit?: (candidate: RevisionCandidateV1, editedCandidateText: string) => void | WritingRevisionSaveResult | Promise<WritingRevisionSaveResult>;
   readonly onDirtyChange?: (dirty: boolean) => void;
   readonly onSavingChange?: (saving: boolean) => void;
+  readonly decisionPending?: boolean;
 }
 
 function protectedContent(candidate: RevisionCandidateV1): boolean {
@@ -38,6 +39,7 @@ export default function WritingRevisionDrawer({
   onSaveEdit,
   onDirtyChange,
   onSavingChange,
+  decisionPending = false,
 }: WritingRevisionDrawerProps): JSX.Element | null {
   const [editedText, setEditedText] = useState('');
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -79,8 +81,8 @@ export default function WritingRevisionDrawer({
   const redacted = candidate ? protectedContent(candidate) : false;
   const originalText = candidate ? candidateText(candidate) : '';
   const changed = !redacted && editedText !== originalText;
-  const editable = candidate?.lifecycle === 'generated' || candidate?.lifecycle === 'reviewing';
-  const sourceIsHistorical = candidate?.currentness !== 'current' || candidate?.lifecycle === 'accepted' || candidate?.lifecycle === 'partially accepted';
+  const editable = candidate?.currentness === 'current' && (candidate?.lifecycle === 'generated' || candidate?.lifecycle === 'reviewing');
+  const sourceIsHistorical = decisionPending || candidate?.currentness !== 'current' || candidate?.lifecycle === 'accepted' || candidate?.lifecycle === 'partially accepted';
 
   useEffect(() => {
     onDirtyChange?.(Boolean(open && candidate && changed));
@@ -106,13 +108,13 @@ export default function WritingRevisionDrawer({
   }, [changed, open, saving]);
   if (!open || !candidate) return null;
   const close = () => {
-    if (saving) return;
+    if (saving || decisionPending) return;
     if (changed && !window.confirm('Discard unsaved revision alternative changes?')) return;
     if (changed) onDirtyChange?.(false);
     onClose?.();
   };
   const save = async () => {
-    if (!onSaveEdit || saving || !changed) return;
+    if (!onSaveEdit || !editable || redacted || saving || decisionPending || !changed) return;
     setSaving(true);
     setSaveResult(null);
     try {
@@ -132,17 +134,17 @@ export default function WritingRevisionDrawer({
     >
       <header>
         <div>
-          <h1>Edit revision alternative</h1>
-          <p>Saving changes this alternative only. Your manuscript has not changed.</p>
+          <h1>{editable ? 'Edit revision alternative' : 'View revision alternative'}</h1>
+          <p>{decisionPending ? 'Wait for this alternative’s change to finish before continuing.' : editable ? 'Saving changes this alternative only. Your manuscript has not changed.' : 'This saved alternative is available for review. Return to the passage and create a fresh alternative to make changes.'}</p>
         </div>
-        {onClose ? <button ref={closeButtonRef} type="button" onClick={close} disabled={saving}>Close drawer</button> : null}
+        {onClose ? <button ref={closeButtonRef} type="button" onClick={close} disabled={saving || decisionPending}>Close drawer</button> : null}
       </header>
-      <p className="program7-writing-revision-drawer__source-status">{sourceStatus(candidate)}</p>
+      <p className="program7-writing-revision-drawer__source-status">{decisionPending ? 'A change to this alternative is still in progress.' : sourceStatus(candidate)}</p>
       {candidate.currentness !== 'current' && candidate.lifecycle !== 'accepted' && candidate.lifecycle !== 'partially accepted' ? (
         <p role="alert">
           {candidate.currentness === 'stale'
-            ? 'This alternative cannot be applied because the passage changed. Return to the passage and create a fresh alternative after reviewing it.'
-            : 'This alternative cannot be applied because its original passage is unavailable.'}
+            ? 'This alternative cannot be applied because the passage changed. Editing this saved alternative is also unavailable. Return to the passage and create a fresh alternative after reviewing it.'
+            : 'This alternative cannot be applied because its original passage is unavailable. Editing this saved alternative is also unavailable. Return to Writing Studio and select a saved passage to create a fresh alternative.'}
         </p>
       ) : null}
       {redacted ? <p role="alert">Alternative text is hidden by protection policy.</p> : null}
@@ -157,18 +159,19 @@ export default function WritingRevisionDrawer({
         <textarea
           aria-label="Revision alternative text"
           value={redacted ? '' : editedText}
-          disabled={redacted || !editable || saving}
+          disabled={redacted || !editable || saving || decisionPending}
           onChange={(event) => { setSaveResult(null); setEditedText(event.target.value); }}
         />
       </section>
       <div aria-label="Writing revision drawer actions">
-        <button type="button" disabled={redacted || !editable || !changed || !onSaveEdit || saving} onClick={() => void save()}>
+        <button type="button" disabled={redacted || !editable || !changed || !onSaveEdit || saving || decisionPending} onClick={() => void save()}>
           Save revision alternative
         </button>
       </div>
       {saving ? <p role="status">Saving this alternative… Your manuscript has not changed.</p> : null}
+      {decisionPending ? <p role="status">Wait for this alternative’s change to finish before editing or closing it.</p> : null}
       {saveResult ? <p role={saveResult.ok ? 'status' : 'alert'}>{saveResult.message}</p> : null}
-      <p>After saving, compare this alternative again. Saving does not apply it or mark the related concern finished.</p>
+      <p>{editable ? 'After saving, compare this alternative again. Saving does not apply it or mark the related concern finished.' : 'Viewing this alternative does not change your manuscript or finish the related concern.'}</p>
       <details className="program7-writing-revision-drawer__technical-details">
         <summary>Technical details</summary>
         <dl>

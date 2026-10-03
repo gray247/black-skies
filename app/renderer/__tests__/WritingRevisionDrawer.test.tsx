@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 
@@ -88,6 +89,9 @@ describe('WritingRevisionDrawer component', () => {
     expect(screen.queryByRole('heading', { name: 'Your current manuscript' })).not.toBeInTheDocument();
     expect(screen.getByText('Current manuscript passage.')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent(refusal);
+    expect(screen.getByRole('heading', { name: 'View revision alternative' })).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Revision alternative text' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
   });
 
   it.each(['accepted', 'partially accepted'] as const)('labels %s candidates as applied historical sources', (lifecycle) => {
@@ -165,6 +169,25 @@ describe('WritingRevisionDrawer component', () => {
     const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
     expect(editor).toHaveValue('Previously edited candidate.');
     expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
+  });
+
+  it('blocks editing and close while a lifecycle decision is pending, then restores controls', async () => {
+    const onClose = vi.fn();
+    const onSaveEdit = vi.fn();
+    const { rerender } = render(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} onSaveEdit={onSaveEdit} decisionPending />);
+    const editor = screen.getByRole('textbox', { name: 'Revision alternative text' });
+    expect(editor).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Close drawer' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save revision alternative' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('Wait for this alternative’s change to finish before editing or closing it.');
+    await userEvent.setup().type(editor, 'Blocked edit.');
+    fireEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save revision alternative' }));
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onSaveEdit).not.toHaveBeenCalled();
+    rerender(<WritingRevisionDrawer open candidate={candidate()} onClose={onClose} onSaveEdit={onSaveEdit} />);
+    expect(editor).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Close drawer' })).toBeEnabled();
   });
 
   it('redacts protected content and prevents editing', () => {
