@@ -121,7 +121,19 @@ export default function IdeasWorkspace({
   const capture = () => {
     onCaptureSeed?.({ ...seedDraft, tags: tagText.split(',').map((tag) => tag.trim()).filter(Boolean) });
   };
+  const branchRequirement = selectedSeedIds.size === 0
+    ? snapshot.document.seeds.length === 0
+      ? 'Save an idea, then select it under Saved ideas before creating a direction.'
+      : !snapshot.document.seeds.some((seed) => !seed.protected)
+        ? 'Save a new idea without marking its text private, then select it under Saved ideas to create a direction.'
+        : 'Select at least one saved idea under Saved ideas to create a direction.'
+    : !branchName.trim()
+      ? 'Add a direction name before creating it.'
+      : !branchPremise.trim()
+        ? 'Add the core idea for this direction before creating it.'
+        : null;
   const createBranch = () => {
+    if (branchRequirement) return;
     const unknowns = branchUnknowns.split('\n').map((statement, index) => statement.trim()).filter(Boolean).map((statement, index): IdeationUnresolvedAreaV1 => ({
       id: `draft-unknown-${index + 1}`,
       statement,
@@ -194,7 +206,8 @@ export default function IdeasWorkspace({
         <textarea id="ideas-branch-premise" value={branchPremise} onChange={(event) => setBranchPremise(event.target.value)} />
         <label htmlFor="ideas-branch-unknowns">Questions you want to leave open, one per line</label>
         <textarea id="ideas-branch-unknowns" value={branchUnknowns} onChange={(event) => setBranchUnknowns(event.target.value)} />
-        <button type="button" disabled={!onCreateBranch} onClick={createBranch}>Create direction</button>
+        <p id="ideas-branch-requirement">{branchRequirement ?? 'The selected ideas will stay linked to this direction. The manuscript will not change.'}</p>
+        <button type="button" aria-describedby="ideas-branch-requirement" disabled={!onCreateBranch || branchRequirement !== null} onClick={createBranch}>Create direction</button>
       </section>
 
       <section aria-labelledby="ideas-combine-heading" className="program7-ideas-workspace__combine">

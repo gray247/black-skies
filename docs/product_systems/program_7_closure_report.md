@@ -1,25 +1,261 @@
 # Program 7 Qualification Closure Report
 
-## Current closure preparation — October 5, 2026
+## Current repair checkpoint — October 5, 2026
 
-Jason accepted the guided no-AI session at executable 3e046265 and now approved
-closure preparation with local AI unavailable. Formal Human Gate 4 and later
-family judgments remain pending. The continuing program7-today repository has
-reviewed pending runtime, test and qualification repairs; one exact candidate
-will be frozen and qualified before the final human packet is issued.
+**Status: 5a30 installed proof passed; a native Ideas guidance defect has been
+repaired. Successor clean qualification and package preparation are in progress.
+Formal Human Gate 4 and Program 7 closure remain pending.**
 
-The current tracker is docs/BLACK_SKIES_FIX_TRACKER.md, section "Program 7
-closure preparation authorized". Final artifacts will be at:
-C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005.
-No c57 or 500 evidence is relabeled as a pass for a new candidate. New candidate
-identity, outcomes, family mapping and remaining author actions are filled
-from actual retained results after qualification, not predicted here.
+The Administrator offline lifecycle for **5a30bb10/tree8bab** passed. The
+coordinator independently verified installer, installed executable/ASAR and
+196 preserved external files with stage19-22-qualification-witness.mjs (exit 0).
+Artifacts remain in candidate-5a30bb10/installed-lifecycle and
+installed-witness.json; this proof retains its candidate identity.
 
-Local AI is unavailable by the product's existing main/preload gate, including
-ordinary launches. This is the accepted disposition; Q06 advisory status
-remains unresolved. Manual writing/revision and author resolution remain
-eligible for the separate no-AI gate. Historical Human Gate and model
-quality fields remain intact.
+**P7-IDEAS-BRANCH-GUIDANCE-01 — repaired, successor qualification pending.**
+A visible normal-GPU launch of that exact installed package opened the prepared
+Carmilla project. Ideas allowed Create direction without any saved/selected
+idea; the backend safely rejected empty seedIds with a technical error and no
+remedy. Source/provenance requirements remain unchanged. The existing renderer
+now disables Create until an idea, name and core idea are supplied and explains
+the next action nearby through an accessible description. All-private libraries
+explain how to save a new non-private idea rather than request an impossible
+selection. No API, storage schema, dependency or owner changed.
+
+Existing component regressions reproduced two failures before repair. Affected
+component/accessibility/repository tests passed **4 files / 38 tests**; app lint
+and TypeScript passed. The existing Create / Develop Electron journey now checks
+the blocked form before saving/selecting an idea and continuing real owner
+handoffs. Its current-candidate run remains pending at this checkpoint.
+
+Native review took **7 minutes 1.286 seconds**, preparation **2 minutes 2.485
+seconds**, with eight logged actions; it stopped for the recoverable guidance
+defect. All **17 manuscript hashes remained identical**. Evidence:
+candidate-5a30bb10/native-installed-check.json and native-draft-before/after.json.
+The failed Carmilla fixture is preserved, not reset or reused for qualification.
+Access was recovered; the earlier helper/visibility failure's cause remains
+unknown. No human judgment is inferred.
+
+Owner: coordinator. Exact stage: **Batch 4 Ideas guidance repair and
+current-candidate qualification before HG4**. Required evidence: blocked-form
+and successful selected-idea assertions, clean regression/package proof and
+targeted native guidance review. Reopen for enabled creation with missing
+sources/text, impossible advice, wrong source linkage or manuscript mutation.
+The changed renderer requires a successor candidate and package. The 5a30
+installed success must not be relabeled. No further AI pilot, token benchmark,
+instruction/automation edit, release, push or Program 8/9 work is authorized
+by this repair. Formal author decisions remain pending.
+
+
+## 5a30 qualification checkpoint before Ideas follow-up — October 5, 2026
+
+**Status: current no-AI mechanical qualification passed; Administrator installed
+qualification, visible-package confirmation and formal human judgments remain
+pending. Program 7 is not closed.**
+
+Jason's accepted guided no-AI session remains bound to executable 3e046265.
+Jason approved proceeding with local AI unavailable. Those decisions are
+preserved; they do not fill missing current-candidate human rows.
+
+Continuing repository:
+C:/Users/gray2/.codex/visualizations/2026/09/04/01a06e84-5626-7241-bbe0-639af79386bf/program7-today.
+Branch: codex/program7-implementation.
+Frozen candidate: **5a30bb106b5f26629bad6488d9cb603f28e22b3e**.
+Tree: **8babfdfc1749e69612adc1592bbaa33dd01e461b**.
+Reviewed local checkpoints: d424a714, 1b67a7c8, 5a30bb10. No push or release ran.
+
+Current evidence directory, called proofRoot below:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-5a30bb10.
+
+All current qualification, package and diagnostic runs completed with the
+candidate clean. This final recording changes only the existing tracker,
+implementation plan and closure report. Keep HEAD at 5a30bb10 until the
+Administrator lifecycle and independent witness finish. Documentation edits
+do not relabel historical c57, 500, d424 or 1b67 artifacts.
+
+### Repairs and required mechanical evidence
+
+| Repair | Root cause and resulting behavior | Evidence |
+| --- | --- | --- |
+| Local AI on ordinary launch | Main now enforces the approved unavailable policy before windows/services; both preloads withhold AI capabilities and manual alternatives still save | Clean ordinary-launch disabled-AI journey |
+| Promotion IPC | Shared/renderer contract expected raw outcomes instead of the main IPC envelope; success, rejection and unavailable reply now remain truthful | Clean Create / Develop journey with real Foundation and Outline owner writes |
+| Promotion notice | Results were mounted only inside Revision Desk and hidden from Ideas; the active workspace now displays one nearby result | Existing component assertion and clean Electron success/rejection/throw checks |
+| Installed qualification GPU flag | Installed runner always disabled GPU; it now uses normal GPU and the existing guard inspects that runner and both quote styles | Guard 2/2; current unpacked normal-GPU proof; installed proof still pending |
+| Enlarged window controls | Fixed-height detached controls clipped labels at 200% narrow layout; narrow controls wrap/grow and the existing matrix checks label bounds in both axes | Before failure retained; clean accessibility matrix 66/66 |
+| Evidence integrity | Missing-tree binding and non-deterministic sample/hash diagnostics were permissive or misleading | Existing fail-closed regressions and current external ledger validator |
+
+| Check executed | Actual outcome | Artifact under proofRoot unless noted |
+| --- | --- | --- |
+| Existing full app Vitest runner after runtime/promotion repairs, before d424 freeze | 159 files; 1,534 passed; two existing skips; 119.10 seconds. This was dirty precommit evidence, not a clean 5a30 full-suite rerun | Parent closure-final-20261005/full-app-tests-final.log |
+| Clean fixed Stage 19 regression, normal GPU | 49 critical files; 825 passed; two existing skips; startup 1/1; Electron 36/36; STAGE19_REGRESSION_PASS and CLEAN_RC_ELIGIBLE | stage19-clean.log |
+| Dedicated revision, Create / Develop, disabled-AI, long-form and accessibility Electron specs | Seven passed, one existing real-AI opt-in skip; zero unexpected/flaky results; one worker, zero retries | dedicated-clean.log; dedicated-report.json; electron.json |
+| Existing accessibility collector | Qualified 66/66 rows, 13 required state bindings; axe, contrast, focus, reduced motion, both themes, enlarged/narrow layout and real input | accessibility.json; accessibility-observed.json |
+| Existing persistence qualifier | Eight files; 143/143 tests; migration, corruption, concurrency and recovery qualified | persistence.json; persistence.log; rawEvidenceDirectory in packet |
+| Existing Unicode qualifier | 18/18 assertions, exact commit/tree and clean binding | unicode.json; unicode.log |
+| Existing scale qualifier with Electron | Qualified 1x/2x/4x/8x: 17/34/68/136 units | scale.json; scale.log; rawEvidenceDirectory in packet |
+| Package preflight, NSIS build and verify | Exact 5a30 receipt; x64 internal unsigned RC; zero forbidden packaged paths | package-preflight.log; package-build.log; package-verify.log; package/package-receipt.json |
+| Existing unpacked smoke with --representative | Normal GPU; sandboxed canonical/optional windows; exact Markdown, save/reopen, 100-unit workload; zero forbidden runtime descendants and zero surviving owned processes | unpacked-smoke.json; unpacked-smoke.log |
+| One controlled 24-row local-model diagnostic | 22/24 mechanical rows; two Q06 status failures; all accepted timing limits met; unavailable AI disposition retained | local-ai-final.json; local-ai-final.log; pilot-resources-final.json |
+| Existing builder, deterministic sampler and fail-closed validator | 44 rows: 13 Pass, two Fail, 29 Uncertain; validator exit 0. Integrity success is not HG4 acceptance | evidence-ledger.jsonl; human-sample.json; evidence-validation.log |
+| Final record hygiene | Documentation lint and git diff checks recorded after these updates | final-docs.log; final-diff-check.log |
+
+The full suite was not repeated after the qualifier-only GPU guard and narrow
+CSS changes. Affected guard/component checks and the required clean Stage 19,
+dedicated accessibility and packet matrices covered those later changes.
+No test assertion was weakened; existing opt-in skips remain explicitly named.
+
+Package ASAR SHA-256:
+70ec9c684f3cfe8d81a2280795925d3aae311491d8fba3afbac0ee4efaa23779.
+Installer SHA-256:
+8aac01e8867d230b60ccbad24e6dfe8ed149efd548646fc38ccc0370c0e4e102.
+
+### Local-AI disposition and resource observations
+
+The approved Ollama 0.13.0 / qwen3:4b CPU pilot used digest
+359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7.
+All 24 outcomes were recorded against clean 5a30/tree8bab; provider cold/warm
+preconditions were verified. The qualifier exited 2, not-qualified.
+
+Q06 returned still_appears_present instead of appears_resolved in cold and warm
+runs, taking 20.985 and 18.968 seconds. This is a known model advisory-status
+limitation. This run had no timing failure and does not prove correct
+subjective usefulness, facts, voice or judgment. No further prompt loop ran.
+
+Cancellation, timeout, unavailable-server and invalid-response controls behaved
+as expected. Protected source was refused without packaging source text; the
+bounded protection scan found zero hits. Manuscript and Story Knowledge hashes
+were unchanged. The scan's artifact-class limits remain in the packet.
+
+The measured diagnostic lasted 312.908 seconds. At 250 ms sampling, minimum
+available physical memory was 2,714,198,016 bytes (about 2.53 GiB), maximum host
+utilization 83.53%, and the largest observed/lifetime-high-water provider
+working set about 3.38 GiB. Required bounds held; 1,202 process and 1,261 host
+samples were retained. After unload, the ten-second bounded observation found
+no resident model. Only the provider process started for this diagnostic was
+stopped. Sampling can miss between-sample peaks; this is not an unlimited
+stability study or an account/token measurement.
+
+Local AI remains unavailable in the product. The ledger deliberately retains
+the two Q06 Fail rows and marks the other 22 diagnostic rows Uncertain because
+the whole AI packet is not qualified. It does not turn individual successful
+diagnostics into admission. Owner: coordinator. Exact resolution stage:
+**RT-2B rerun before any future AI admission**. Required evidence: complete
+exact-candidate 24-row qualification, protection/truth proof and Jason quality
+review. Reopening trigger: approved host/model/transport or admission-policy
+change. Jason's unavailable-family approval is recorded; formal per-outcome
+review and model-quality fields remain pending.
+
+### Findings still awaiting disposition
+
+| Finding | Current truth | Owner and exact resolution stage | Reopening trigger |
+| --- | --- | --- | --- |
+| P7-A11Y-ROUTE-01 | Current clean 66-row matrix passes. Historical trusted input hit the wrong window control; cause remains unknown. The separate clipped-label repair does not establish that cause | Coordinator; Batch 4 route triage before formal HG4 disposition | Repeated click/panel mismatch, route flip or stall |
+| P7-NATIVE-RESP-01 | Earlier OS unresponsive warning lacks action/time/duration correlation. Later success does not explain it | Coordinator; Batch 4 responsiveness triage before formal HG4 disposition | Another warning, visible stall or impaired input/close; record action, time, project, window and duration |
+| P7-PACKAGED-NATIVE-ACCESS-01 | Computer Use exposed no targetable window after one launch and one isolated hidden recovery. Exact process started, no logged bootstrap error, no review project opened, zero interactive actions. Native inspection remains unfinished | Coordinator with Jason for visible launch; P7-G2 current package native access confirmation before HG4 | Visible ordinary launch cannot expose first window, crashes or stays untargetable after fresh observation |
+| P7-G2-PACKAGED | Current receipt and normal-GPU unpacked representative proof pass; current Administrator offline lifecycle and independent witness are absent | Coordinator with Jason for elevation; P7-G2 packaging gate | Build/installer/preload/candidate change, normal-GPU failure or missing receipt/witness |
+
+Native access evidence is native-access.json, native-launch.log and
+native-launch-error.log. The hidden recovery launch and helper mapping leave
+access/visibility cause unresolved; a product crash is not established.
+No native visual/interactive pass is claimed. Interactive review elapsed was
+zero; the preparation start timestamp was not recorded, so precise total
+preparation elapsed is unavailable. Preparation ended after the single bounded
+recovery. No account allowance or token benchmark ran.
+
+Current automated A/AA requirements pass. Unknown historical causes are
+pending human disposition; this does not waive a current failed accessibility
+requirement. No second speculative desktop loop or unrelated repair ran.
+
+### Family evidence and remaining author decisions
+
+| Family | Qualified mechanical coverage | Remaining review or boundary |
+| --- | --- | --- |
+| Finding to manual revision and selected application | Feedback/revision repositories; exact-range, repeated-text, stale-source, reservation/recovery assertions; clean revision journey with exact manuscript and fresh process reopen | Preserve Jason's accepted guided review; formal HG4 author-resolution/usefulness judgment remains |
+| Story Foundation | Existing StoryFoundation component, repository/IPC and Create / Develop suites cover blank/unknown/undecided/revised/read-only, provenance, archive/restore and real accepted owner handoff | P7-G2 remaining-family subjective review before final Program 7 checkpoint |
+| Ideas and library | Existing Ideation repository/IPC and workspace suites cover seed/branch/premise exploration/combine/library/archive/restore/protection and promotion preview | Same remaining-family review; author decides usefulness and wording |
+| Promotion | Existing Program7PromotionIpc tests cover owner receipts, idempotency, partial failure, protection and character/lore metadata packages; current Electron journey proves real Foundation/Outline writes and failure notices | P7-G2 handoff package review before final checkpoint; character/lore truth-owner integration remains the intentional Program 8 boundary |
+| History | Existing feedback repository, shared history and Program7History component proofs cover durable resolved history, active-view exclusion, distinct recurrence, provenance and bounded lineage | P7-G2 remaining-family subjective review |
+| Built Markdown/Structure intake | Existing Stage 19 source preservation and explicit Apply workflow | Covered mechanically; Command Center Structure/Interchange/Operations remain intentional placeholders |
+
+Existing Ideas Writing section, manuscript-insertion and Project Memory
+destinations show saved previews and honest planned/unavailable guidance.
+Revision alternative acceptance uses the built manuscript insertion owner.
+These are not claims that every Ideas destination is implemented.
+Destination additions remain pending the **P7-G2 handoff package review before
+the final Program 7 checkpoint**, owned by the coordinator with Jason.
+Required evidence: an authorized destination owner, explicit acceptance,
+durable receipts, idempotency/protection tests and human review. Reopening
+trigger: author-authorized destination integration or changed owner contract.
+No Program 8/9 implementation is authorized here, and no future resolution
+stage is invented on their behalf.
+
+### Step 1: current installed proof — Jason's Administrator action
+
+The current Codex process is not Windows Administrator. The existing
+stage19-installed-lifecycle.ps1 requires elevation to create its temporary
+outbound firewall rule, exercise install/uninstall/reinstall and preserve
+external project data. Sandbox execution approval cannot provide this Windows
+privilege. Use an Administrator PowerShell window and run the prepared command:
+
+```powershell
+$reviewRepo = 'C:\Users\gray2\.codex\visualizations\2026\09\04\01a06e84-5626-7241-bbe0-639af79386bf\program7-today'
+$proofRoot = 'C:\Users\gray2\AppData\Local\Temp\black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570\closure-final-20261005\candidate-5a30bb10'
+Set-Location -LiteralPath $reviewRepo
+if ((git rev-parse HEAD).Trim() -ne '5a30bb106b5f26629bad6488d9cb603f28e22b3e') { throw 'Candidate changed; stop and reconcile.' }
+& "$reviewRepo\scripts\stage19-installed-lifecycle.ps1" -InstallerPath "$proofRoot\package\BlackSkies-Setup-1.0.0-rc1.exe" -ReceiptPath "$proofRoot\package\package-receipt.json" -WorkingRoot "$proofRoot\installed-lifecycle"
+```
+
+Do not skip firewall isolation. If the command fails, preserve its working
+directory and report the displayed failure. No reset or fixture reuse to
+manufacture success. On completion the coordinator reads
+installed-lifecycle/stage19-22-lifecycle-evidence.json and executes the existing
+independent stage19-22-qualification-witness.mjs against the exact installer,
+installed executable/ASAR and stage19-22-external-manifest.json. The coordinator
+then updates the existing current ledger/sample/validation and records results.
+Jason does not need to assemble those receipts or rerun automated suites.
+
+### Step 2: remaining current-candidate human confirmation
+
+After installed evidence is verified, use the current package, ordinary visible
+launch and the disposable projects below. Native access confirmation is first;
+if no usable window appears, preserve state and report the action/time.
+Use normal GPU; local AI remains unavailable.
+
+Carmilla project:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-5a30bb10/jason-review/carmilla-review.
+
+Current retained Glass Orchard:
+C:/Users/gray2/AppData/Local/Temp/black-skies-program6-e2e-CZ0XxW/glass-orchard.
+
+The earlier accepted project remains preserved at
+%TEMP%/black-skies-jason-review-W2nUKR/carmilla-review. Its historical partly
+applied alternative is not fresh application work. New Apply tests use a fresh
+saved source selection and a new alternative.
+
+| Human row/screen | Action and expected outcome | Failure condition |
+| --- | --- | --- |
+| Visible package/new repairs | Open Carmilla. Inspect Command Center surface controls in both themes at enlarged/narrow layout. In Ideas, preview and send a fresh direction to Story Foundation or Outline. The active panel shows a truthful nearby result; destination contains the intended text; manuscript stays unchanged | No visible window, clipped/unreachable control, hidden/false notice, wrong destination or unintended manuscript write |
+| P7-HG4-REG-P4 | In Writing Studio Companion/Ask Black Skies, ask Where am I? In Command Center confirm Available now, correct project/unit facts and the temporary/no-change limitation. Return to Writing restores that context and clears the summary. Ask again; Stay in Command Center clears the summary while keeping Command Center open | Wrong/fabricated context, missing limitation, incorrect return or persistent temporary result |
+| P7-HG4-REG-P5 | Carmilla: Story Knowledge -> Signals -> Review source. Verify the indicated Chapter I passage; navigate away, return and repeat the source jump; close/reopen the same project and repeat once | Wrong unit/passage, lost anchor or unusable navigation after reopen |
+| P7-HG4-REG-P6 | Glass Orchard: Story Knowledge -> Emotion; move Command Center to a second window. Activate measured unease then guarded hope. Writing should return to The Empty Conservatory then A Red Apple with the same project in both windows | Wrong source/project, lost window route or unusable return |
+| Deterministic objective sample | Review P7-G2-PROTOCOL-MIGRATION and P7-G2-PROTOCOL-CORRUPTION in persistence.json with their matched assertions/raw reports; review P7-G2-E2E-LONG-FORM by navigating the 17-unit Carmilla across current/detached surfaces | Evidence contradicts preserved bytes/owner behavior, absent unit or changed project |
+| Formal subjective/uncertainty disposition | Review every Fail/Uncertain/authority-sensitive row, unavailable-AI outcomes, protection/authority limits, and the three named diagnostic uncertainties. Judge resolution, usefulness, wording, interruption and remaining family behavior | An unreviewed failure/uncertainty, misleading author control or behavior Jason cannot accept |
+
+The objective sample is SHA-ranked from exact 5a30/package P7-G2, not chosen by
+the coordinator. There are no eligible RT-2B Pass rows while AI is unqualified.
+The 24 AI rows require outcome/disposition review rather than invoking hidden
+AI controls. No Jason score, formal HG4 decision or exception has been filled.
+
+A human failure reopens its existing tracker issue. Stop for unintended
+replacement, wrong project, unexpected AI/network activity, blocking crash or
+trapped focus/modal; preserve the project and last action. The coordinator
+handles repair and affected automation when an actual defect is identified.
+
+After required author decisions, resolve or explicitly disposition every
+remaining issue/family, finalize current authority records and prepare the
+reviewed checkpoint. A final push requires its separate authorization.
+Packaging evidence is for an internal qualification candidate, not release.
+Program 7 closure and Programs 8/9 remain separate decisions.
 
 ## Historical c57be0ff qualification receipt
 

@@ -2,7 +2,7 @@
 
 ## 1. Status And Authority
 
-- Status: `guided no-AI packet accepted by Jason on 2026-10-05 at executable 3e046265; current-candidate evidence reconciliation, diagnostic and local-AI dispositions, Human Gate 4 and Program 7 closure remain open`
+- Status: guided no-AI packet accepted at 3e046265; 5a30 installed proof passed; Ideas guidance repaired, successor qualification pending; local AI unavailable as approved; formal HG4/family judgments pending; Program 7 open
 - Program: `Program 7 - Creation, Revision, And Readiness`
 - Governing charter:
   [`program_7_creation_revision_and_readiness_charter.md`](program_7_creation_revision_and_readiness_charter.md)
@@ -336,6 +336,101 @@ development candidate. No package, provider, model, driver or GPU change was
 made. Formal no-AI review may use the accepted package with an explicit
 unavailable/conditional author disposition; any AI admission still requires
 the coordinator-owned **RT-2B rerun** and named human quality review.
+
+#### Ideas native follow-up and completed installed proof — October 5, 2026
+
+The Administrator offline lifecycle for **5a30bb10/tree8bab** passed. The
+coordinator independently verified installer, installed executable/ASAR and
+196 preserved external files with stage19-22-qualification-witness.mjs (exit 0).
+Artifacts remain in candidate-5a30bb10/installed-lifecycle and
+installed-witness.json; this proof retains its candidate identity.
+
+**P7-IDEAS-BRANCH-GUIDANCE-01 — repaired, successor qualification pending.**
+A visible normal-GPU launch of that exact installed package opened the prepared
+Carmilla project. Ideas allowed Create direction without any saved/selected
+idea; the backend safely rejected empty seedIds with a technical error and no
+remedy. Source/provenance requirements remain unchanged. The existing renderer
+now disables Create until an idea, name and core idea are supplied and explains
+the next action nearby through an accessible description. All-private libraries
+explain how to save a new non-private idea rather than request an impossible
+selection. No API, storage schema, dependency or owner changed.
+
+Existing component regressions reproduced two failures before repair. Affected
+component/accessibility/repository tests passed **4 files / 38 tests**; app lint
+and TypeScript passed. The existing Create / Develop Electron journey now checks
+the blocked form before saving/selecting an idea and continuing real owner
+handoffs. Its current-candidate run remains pending at this checkpoint.
+
+Native review took **7 minutes 1.286 seconds**, preparation **2 minutes 2.485
+seconds**, with eight logged actions; it stopped for the recoverable guidance
+defect. All **17 manuscript hashes remained identical**. Evidence:
+candidate-5a30bb10/native-installed-check.json and native-draft-before/after.json.
+The failed Carmilla fixture is preserved, not reset or reused for qualification.
+Access was recovered; the earlier helper/visibility failure's cause remains
+unknown. No human judgment is inferred.
+
+Owner: coordinator. Exact stage: **Batch 4 Ideas guidance repair and
+current-candidate qualification before HG4**. Required evidence: blocked-form
+and successful selected-idea assertions, clean regression/package proof and
+targeted native guidance review. Reopen for enabled creation with missing
+sources/text, impossible advice, wrong source linkage or manuscript mutation.
+The changed renderer requires a successor candidate and package. The 5a30
+installed success must not be relabeled. No further AI pilot, token benchmark,
+instruction/automation edit, release, push or Program 8/9 work is authorized
+by this repair. Formal author decisions remain pending.
+
+#### 5a30 qualification checkpoint before Ideas follow-up — October 5, 2026
+
+Jason approved closure preparation with **local AI unavailable**.
+Continuing implementation remains exclusively in program7-today; the governance
+planning checkout and instruction files remain unchanged. Reviewed local
+checkpoints are d424a714, 1b67a7c8 and frozen
+**5a30bb106b5f26629bad6488d9cb603f28e22b3e**, tree
+**8babfdfc1749e69612adc1592bbaa33dd01e461b**.
+
+Clean current mechanical evidence: Stage 19 49 files / 825 passed / two
+existing skips, startup 1/1 and Electron 36/36; dedicated Program 7 seven
+passes / one existing real-AI opt-in skip; accessibility 66/66; persistence
+143/143; Unicode 18/18; four-scale matrix plus Electron; verified current
+NSIS receipt and normal-GPU unpacked representative 100-unit proof.
+The full app 159-file / 1,534-test precommit result retains its actual earlier
+dirty identity; later affected checks and clean required gates cover GPU-runner
+and narrow CSS repairs. Current runtime differs from the accepted 3e guided
+session in approved AI policy/wait instructions and demonstrated promotion/
+notice/layout repairs, so that acceptance is not relabeled as current HG4.
+
+The mandatory clean current 24-row pilot completed: 22 mechanical successes,
+two Q06 wrong-advisory-status failures, no accepted timing failure, preserved
+manuscript/Story Knowledge and zero protection hits. Product AI remains
+unavailable. Owner: coordinator. Exact resolution stage: **RT-2B rerun before
+future AI admission**; reopen on approved host/model/transport or admission
+policy change. Required evidence remains complete qualification plus Jason
+quality review, not another speculative prompt loop.
+
+Existing ledger/sample/validator passes integrity with 44 rows: 13 Pass,
+two Fail, 29 Uncertain. AI successes are Uncertain for whole-packet eligibility;
+the two Q06 Fail rows retain their outcomes and unavailable disposition.
+Deterministic sample: migration, corruption, long-form. Human fields stay blank.
+
+P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 retain their exact coordinator-owned
+Batch 4 route/responsiveness stages before formal HG4 disposition and recorded
+reopening triggers. New P7-PACKAGED-NATIVE-ACCESS-01 is Uncertain: one launch
+and one hidden recovery produced no targetable native window, zero interactive
+actions and no project opened. It does not establish a product crash.
+Owner: coordinator with Jason; exact stage **P7-G2 current package native
+access confirmation before HG4**; reopen on missing first window, crash or
+untargetable visible ordinary launch. Current automated accessibility passes
+do not supply native/human judgment or explain old failure causes.
+
+The next actual author boundary is the current Administrator offline installed
+lifecycle and coordinator witness, then visible-package/new-repair confirmation,
+formal HG4 required rows/sample and remaining-family subjective dispositions.
+The [current closure report](program_7_closure_report.md) contains the prepared
+Administrator command, exact projects, outcomes, family map and evidence paths.
+Keep HEAD at 5a30 until lifecycle/witness finish; final recording is three
+existing documentation files, intentionally uncommitted. No push, release,
+token benchmark, instruction edit or Programs 8/9 work ran. No human decision
+or Program 7 closure is inferred.
 
 ## 2. Program Outcome
 
@@ -1270,7 +1365,7 @@ Gate 4 review and record them as `P7-HG4-REG-P4`, `P7-HG4-REG-P5`, and
 
 | Evidence ID | Capability and human action | Expected result | If passed | If failed or uncertain |
 | --- | --- | --- | --- | --- |
-| `P7-HG4-REG-P4` | In a real project, use the bottom `Companion` bar (`Ask Black Skies`) with a supported orientation question, inspect the Command task-canvas result, then use `Return to Writing` and `Dismiss`. | The result is labelled `Local facts`, reflects the selected project/current unit, states its no-AI limitation, `Return to Writing` returns to that same writing context, and `Dismiss` clears the temporary result. | Record current-build regression pass; do not reopen Program 4 or require local AI. | Record the exact project, action, wrong destination, fabricated fact, missing limitation, screenshot, and a bounded Program 4 regression ticket. |
+| `P7-HG4-REG-P4` | In a real project, use the bottom `Companion` bar (`Ask Black Skies`) with a supported orientation question. Inspect the Command Center result, use `Return to Writing`, ask again, then use `Stay in Command Center`. | The current result shows `Available now`, correct local project/unit facts and the temporary/no-change limitation. `Return to Writing` restores the same writing context and clears the summary; `Stay in Command Center` clears it while keeping Command Center open. | Record current-build regression pass; do not reopen Program 4 or require local AI. | Record the exact project, action, wrong destination, fabricated fact, missing limitation, screenshot, and a bounded Program 4 regression ticket. |
 | `P7-HG4-REG-P5` | In a substantial manuscript, open one anchored finding, follow its review/source action, navigate to another unit, repeat once, then reopen the relevant review surface and repeat one source jump. | Each jump lands on the expected manuscript unit/passage and remains usable after navigation and reopen. | Record current-build regression pass; do not rewrite the historical Program 5/HG2/HG3 receipts. | Record the expected and observed anchor, project/unit, screenshot, and a bounded Program 5/Human Gate regression ticket. |
 | `P7-HG4-REG-P6` | In Story Intelligence/Emotion, detach the view if available, select a source-linked point, return to Writing, then return to Emotion and select another source. | Writing opens the correct source location while the detached and primary windows retain the correct project and remain usable. | Record current-build regression pass; keep Program 6 closed. | Record both-window state, source point, project, screenshot, and a bounded Program 6 regression ticket. |
 

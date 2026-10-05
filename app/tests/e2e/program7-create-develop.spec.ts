@@ -34,14 +34,20 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
 
     await writing.getByRole('button', { name: 'Ideas', exact: true }).click();
     await expect(writing.getByTestId('ideas-workspace')).toBeVisible();
+    await writing.locator('#ideas-branch-name').fill('The letter path');
+    await writing.locator('#ideas-branch-premise').fill('A letter creates a bounded alternate direction for author exploration.');
+    await expect(writing.getByRole('button', { name: 'Create direction', exact: true })).toBeDisabled();
+    await expect(writing.locator('#ideas-branch-requirement')).toHaveText('Save an idea, then select it under Saved ideas before creating a direction.');
+    expect(await readFile(draftPath, 'utf8')).toBe(draftBefore);
     await writing.locator('#ideas-seed-title').fill('A hidden correspondence');
     await writing.locator('#ideas-seed-body').fill('A private possibility for the author to revisit later.');
     await writing.locator('#ideas-seed-tags').fill('mystery, correspondence');
     await writing.getByRole('button', { name: 'Save idea', exact: true }).click();
     await expect(writing.getByRole('heading', { name: 'A hidden correspondence', exact: true })).toBeVisible();
+    await expect(writing.getByRole('button', { name: 'Create direction', exact: true })).toBeDisabled();
+    await expect(writing.locator('#ideas-branch-requirement')).toHaveText('Select at least one saved idea under Saved ideas to create a direction.');
     await writing.getByLabel('Select for a new direction').check();
-    await writing.locator('#ideas-branch-name').fill('The letter path');
-    await writing.locator('#ideas-branch-premise').fill('A letter creates a bounded alternate direction for author exploration.');
+    await expect(writing.getByRole('button', { name: 'Create direction', exact: true })).toBeEnabled();
     await writing.locator('#ideas-branch-unknowns').fill('Who sent the letter?\nWhat remains intentionally unknown?');
     await writing.getByRole('button', { name: 'Create direction', exact: true }).click();
     const branch = writing.getByTestId(/^idea-branch-/).last();

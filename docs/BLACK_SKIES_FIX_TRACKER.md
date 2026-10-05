@@ -5,7 +5,7 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: Jason accepted the guided no-AI repair/testing packet on October 5, 2026. Two diagnostic uncertainties and current-candidate formal evidence reconciliation remain open.
+Status: Jason's guided no-AI packet remains accepted. 5a30 installed lifecycle and independent witness pass; native Ideas guidance repaired with affected tests; successor clean qualification and formal human judgments remain pending.
 Formal Human Gate 4 and Program 7 closure remain separate.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
@@ -711,6 +711,144 @@ its missing pre-click rectangles. Keep the recorded coordinator-owned Batch 4
 route triage stage before formal Human Gate 4 disposition and existing
 click/panel mismatch, route flip or stall reopening trigger. No forced click,
 removed assertion, retry, synthetic native failure or acceptance was added.
+
+### Ideas native follow-up and completed installed proof — October 5, 2026
+
+The Administrator offline lifecycle for **5a30bb10/tree8bab** passed. The
+coordinator independently verified installer, installed executable/ASAR and
+196 preserved external files with stage19-22-qualification-witness.mjs (exit 0).
+Artifacts remain in candidate-5a30bb10/installed-lifecycle and
+installed-witness.json; this proof retains its candidate identity.
+
+**P7-IDEAS-BRANCH-GUIDANCE-01 — repaired, successor qualification pending.**
+A visible normal-GPU launch of that exact installed package opened the prepared
+Carmilla project. Ideas allowed Create direction without any saved/selected
+idea; the backend safely rejected empty seedIds with a technical error and no
+remedy. Source/provenance requirements remain unchanged. The existing renderer
+now disables Create until an idea, name and core idea are supplied and explains
+the next action nearby through an accessible description. All-private libraries
+explain how to save a new non-private idea rather than request an impossible
+selection. No API, storage schema, dependency or owner changed.
+
+Existing component regressions reproduced two failures before repair. Affected
+component/accessibility/repository tests passed **4 files / 38 tests**; app lint
+and TypeScript passed. The existing Create / Develop Electron journey now checks
+the blocked form before saving/selecting an idea and continuing real owner
+handoffs. Its current-candidate run remains pending at this checkpoint.
+
+Native review took **7 minutes 1.286 seconds**, preparation **2 minutes 2.485
+seconds**, with eight logged actions; it stopped for the recoverable guidance
+defect. All **17 manuscript hashes remained identical**. Evidence:
+candidate-5a30bb10/native-installed-check.json and native-draft-before/after.json.
+The failed Carmilla fixture is preserved, not reset or reused for qualification.
+Access was recovered; the earlier helper/visibility failure's cause remains
+unknown. No human judgment is inferred.
+
+Owner: coordinator. Exact stage: **Batch 4 Ideas guidance repair and
+current-candidate qualification before HG4**. Required evidence: blocked-form
+and successful selected-idea assertions, clean regression/package proof and
+targeted native guidance review. Reopen for enabled creation with missing
+sources/text, impossible advice, wrong source linkage or manuscript mutation.
+The changed renderer requires a successor candidate and package. The 5a30
+installed success must not be relabeled. No further AI pilot, token benchmark,
+instruction/automation edit, release, push or Program 8/9 work is authorized
+by this repair. Formal author decisions remain pending.
+
+### 5a30 qualification checkpoint before Ideas follow-up — October 5, 2026
+
+Candidate **5a30bb106b5f26629bad6488d9cb603f28e22b3e**, tree
+**8babfdfc1749e69612adc1592bbaa33dd01e461b**, branch
+codex/program7-implementation. This supersedes pending qualification wording
+above for this candidate only. Exact prior receipts and Jason's accepted
+3e046265 guided no-AI session remain historical evidence.
+
+All machine runs completed clean before this documentation-only update.
+Keep HEAD at 5a30bb10 until the current installed lifecycle/witness finish.
+The final records are intentionally uncommitted; no push/release or governance
+checkout modification occurred.
+
+Evidence root:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-5a30bb10.
+
+**Repairs now qualified mechanically:** ordinary-launch unavailable-AI gate;
+P7-PROMOTION-IPC-01 envelope handling; P7-PROMOTION-NOTICE-01 active-panel
+feedback; P7-WINDOW-CONTROL-ZOOM-01 enlarged label containment; missing-tree
+ledger binding and deterministic sample integrity. P7-PACKAGE-GPU-01 guard
+passes 2/2 and current unpacked normal-GPU proof passes; current installed
+Administrator proof remains pending, so its packaging exit is not closed.
+
+| Current result | Retained proof |
+| --- | --- |
+| Clean Stage 19: 49 files / 825 passed / two existing skips; startup 1/1; Electron 36/36; CLEAN_RC_ELIGIBLE | stage19-clean.log |
+| Dedicated Program 7: seven passes / one existing real-AI opt-in skip / zero failures or flaky results | dedicated-clean.log; dedicated-report.json; electron.json |
+| Accessibility qualified: 66/66 observed rows and all 13 required states | accessibility.json; accessibility-observed.json |
+| Persistence 8 files / 143 passed; Unicode 18/18; scale 1x/2x/4x/8x plus Electron | persistence.json; unicode.json; scale.json and raw retained directories |
+| Exact NSIS package receipt and normal-GPU unpacked representative 100-unit workload passed | package/package-receipt.json; unpacked-smoke.json |
+| Current local diagnostic: 24 observed, 22 mechanical successes, two Q06 status failures; clean exact binding; no timing failures | local-ai-final.json; pilot-resources-final.json |
+| Existing-schema ledger/sample/validator: exit 0; 44 rows, 13 Pass / two Fail / 29 Uncertain | evidence-ledger.jsonl; human-sample.json; evidence-validation.log |
+
+Full app precommit runtime/promotion verification passed 159 files / 1,534
+tests, two existing skips, before d424 freeze. Its parent full-app-tests-final.log
+remains dirty precommit evidence. Later qualifier-only GPU and narrow CSS
+changes used affected guard/component checks plus clean required gates;
+that full-suite result is not relabeled as a clean 5a30 run.
+
+**Q06 model limitation / unavailable-AI disposition:** both cold and warm return
+still_appears_present instead of appears_resolved (20.985/18.968 seconds).
+The 312.908-second diagnostic had no timing failure, no manuscript or Story
+Knowledge mutation and zero protection-scan hits; fault/cancellation controls
+passed. At 250 ms observation, minimum free memory was about 2.53 GiB, maximum
+host utilization 83.53%, largest provider working-set high-water about 3.38 GiB.
+Bounds held, unload returned an empty model list, and only the owned idle
+provider was stopped. This is not token/account usage or unlimited stability
+evidence. Jason already approved local AI unavailable; no product admission or
+subjective score follows. Owner: coordinator. Exact stage: **RT-2B rerun before
+future AI admission**. Evidence required: complete qualified 24-row packet,
+protection/truth proof and Jason quality review. Reopen on an approved
+host/model/transport or admission-policy change. Both failures retain Fail;
+22 diagnostic successes remain ledger Uncertain because AI packet eligibility
+is incomplete. No further prompt/model repair loop ran.
+
+**P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 remain Uncertain.** Current success does
+not establish old causes. Owner: coordinator. Keep the exact **Batch 4 route
+triage before formal HG4 disposition** and **Batch 4 responsiveness triage
+before formal HG4 disposition** stages respectively. Reopen for repeated
+click/panel mismatch/route flip/stall, or another OS warning/impaired input
+with action/time/project/window/duration. Current automated A/AA rows pass;
+no current failed A/AA requirement is waived.
+
+**P7-PACKAGED-NATIVE-ACCESS-01 — new Uncertain access finding.** One Computer Use
+launch failed to expose a targetable window; one isolated hidden recovery
+started the exact package without a logged bootstrap failure, but no targetable
+Black Skies window appeared. Zero interactive actions; no project opened;
+native review elapsed zero. Precise total preparation elapsed is unavailable
+because its initial timestamp was not recorded. Helper mapping/hidden recovery
+leave the cause unresolved; no product crash or native pass is inferred.
+Only owned exact-path recovery processes were stopped; profiles/logs remain.
+Evidence: native-access.json, native-launch.log, native-launch-error.log.
+Owner: coordinator with Jason for visible launch. Exact stage:
+**P7-G2 current package native access confirmation before HG4**. Required
+evidence: a visible ordinary exact-package window and affected-screen review.
+Reopening trigger: missing first window, crash or untargetable visible launch.
+
+**Next human boundary:** current Administrator installed/offline firewall
+lifecycle, followed by coordinator witness and evidence update; visible package
+confirmation/new-repair judgment; formal HG4 P4/P5/P6, required Fail/Uncertain/
+authority-sensitive/protection rows and deterministic sample; remaining-family
+subjective dispositions before the Program 7 final checkpoint. The prepared
+Administrator command, exact projects and screen/action/outcome packet are in
+[the current closure report](product_systems/program_7_closure_report.md).
+The sample selects migration, corruption and Carmilla long-form. Jason fields
+remain blank. Any actual failure reopens its tracker issue; preserve failed
+state. No extra token benchmark, feature tour, release, automatic second native
+loop, instruction/automation edit or Program 8/9 implementation is included.
+Final push remains a separate reviewed-checkpoint authorization.
+
+The final human-packet review also found obsolete P4 button/label instructions.
+Current Companion uses Available now and Stay in Command Center; Return to
+Writing already clears the temporary summary. Corrected the existing plan,
+closure packet and pending P4 ledger expectation to actual controls and
+behavior. No product repair or human pass is inferred.
 
 ### Repair evidence before final qualification
 

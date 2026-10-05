@@ -58,6 +58,58 @@ function branch(id = 'branch-a', posture: IdeationBranchPosture = 'active') {
 }
 
 describe('IdeasWorkspace component', () => {
+
+  it('explains the saved idea requirement instead of sending an empty-source direction', () => {
+    const onCreateBranch = vi.fn();
+    const { rerender } = render(<IdeasWorkspace snapshot={snapshot()} onCreateBranch={onCreateBranch} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Direction name' }), { target: { value: 'Native handoff check' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Core idea for this direction' }), { target: { value: 'An invitation draws a wary visitor back to an old house.' } });
+    const create = screen.getByRole('button', { name: 'Create direction' });
+    expect(create).toBeDisabled();
+    expect(create).toHaveAccessibleDescription('Save an idea, then select it under Saved ideas before creating a direction.');
+    fireEvent.click(create);
+    expect(onCreateBranch).not.toHaveBeenCalled();
+
+    rerender(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a'), seed('seed-private', { protected: true })] } })} onCreateBranch={onCreateBranch} />);
+    expect(create).toBeDisabled();
+    expect(create).toHaveAccessibleDescription('Select at least one saved idea under Saved ideas to create a direction.');
+    expect(within(screen.getByTestId('idea-seed-seed-private')).getByRole('checkbox')).toBeDisabled();
+    fireEvent.click(within(screen.getByTestId('idea-seed-seed-a')).getByRole('checkbox'));
+    expect(create).toBeEnabled();
+    fireEvent.click(create);
+    expect(onCreateBranch).toHaveBeenCalledOnce();
+    expect(onCreateBranch).toHaveBeenCalledWith('Native handoff check', 'An invitation draws a wary visitor back to an old house.', ['seed-a'], []);
+  });
+
+  it('offers a possible next step when every saved idea is private', () => {
+    render(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-private', { protected: true })] } })} onCreateBranch={vi.fn()} />);
+    expect(within(screen.getByTestId('idea-seed-seed-private')).getByRole('checkbox')).toBeDisabled();
+    const create = screen.getByRole('button', { name: 'Create direction' });
+    expect(create).toBeDisabled();
+    expect(create).toHaveAccessibleDescription('Save a new idea without marking its text private, then select it under Saved ideas to create a direction.');
+  });
+
+  it('explains missing direction fields and does not create until both are supplied', () => {
+    const onCreateBranch = vi.fn();
+    render(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a')] } })} onCreateBranch={onCreateBranch} />);
+    fireEvent.click(within(screen.getByTestId('idea-seed-seed-a')).getByRole('checkbox'));
+    const create = screen.getByRole('button', { name: 'Create direction' });
+    expect(create).toBeDisabled();
+    expect(create).toHaveAccessibleDescription('Add a direction name before creating it.');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Direction name' }), { target: { value: '  ' } });
+    expect(create).toBeDisabled();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Direction name' }), { target: { value: 'The invitation' } });
+    expect(create).toBeDisabled();
+    expect(create).toHaveAccessibleDescription('Add the core idea for this direction before creating it.');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Core idea for this direction' }), { target: { value: '  ' } });
+    expect(create).toBeDisabled();
+    fireEvent.click(create);
+    expect(onCreateBranch).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Core idea for this direction' }), { target: { value: 'A visitor returns.' } });
+    expect(create).toBeEnabled();
+    fireEvent.click(create);
+    expect(onCreateBranch).toHaveBeenCalledWith('The invitation', 'A visitor returns.', ['seed-a'], []);
+  });
   it('is manual-first, optional, and exposes an Idea Library with protected redaction', () => {
     const onCaptureSeed = vi.fn();
     render(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a'), seed('seed-protected', { protected: true })] } })} onCaptureSeed={onCaptureSeed} />);
