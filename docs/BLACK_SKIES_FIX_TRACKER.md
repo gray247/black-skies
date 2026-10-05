@@ -5,8 +5,8 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: repairs and the formerly blocked core native rechecks passed; one uncorrelated responsiveness diagnostic remains open. Candidate-specific evidence and limits remain separately recorded.
-The no-AI candidate is ready for Jason confirmation; Human Gate 4 remains open.
+Status: Jason accepted the guided no-AI repair/testing packet on October 5, 2026. Two diagnostic uncertainties and current-candidate formal evidence reconciliation remain open.
+Formal Human Gate 4 and Program 7 closure remain separate.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
 `bd0f95996e13db7cf15e11b6961c5db31a4edbe8`; initial working tree was clean.
@@ -30,6 +30,68 @@ closure are outside this campaign. Structure, Project Interchange, and
 Operations / Approvals remain Command Center placeholders; built Writing Studio
 Markdown/Structure behavior remains in regression scope.
 
+
+### Jason acceptance and formal-gate evidence audit — October 5, 2026
+
+Jason reported "i did the human tests and it looks good", then "i accept".
+This is author acceptance of the guided no-AI repair/testing packet for
+executable **3e046265ecf71ae4d21b65b2af54b8e2e2531f98**, tree
+**28b18a6bbc1e0359d03bf1091c53fe7a190d5a78**. The continuing repository
+was clean at documentation receipt **f75adf111abd43799c36534b95bf87073234b939**.
+Earlier pending-human wording is superseded for this packet only. No formal
+sample, individual P4/P5/P6 regression, local-AI score or package approval
+is inferred from overall acceptance.
+
+Jason approved the remaining plan and PC use when needed. Continue bounded
+Program 7 evidence work in program7-today and existing records; leave the
+governance planning checkout unchanged. Stop token/allowance benchmarking.
+Required checks and native work need a concrete evidence or behavior purpose.
+
+**P7-G2 evidence reconciliation / P7-G2-PACKAGED remains open.**
+The six qualification JSON documents, 41-row ledger (38 Pass, three Uncertain),
+human sample and package receipt bind to historical **c57be0ff**, not 3e046265.
+Preserve their identity. Changed boundaries since then include revision,
+preload, persistence, renderer, Electron, local transport and pilot qualifier;
+globally relabeling those reports would be invalid.
+
+Of ten distinct ledger artifacts, eight exist with matching SHA-256.
+The current qualification protocol exists but differs from its recorded hash.
+The installed-lifecycle JSON is absent at its recorded path:
+%TEMP%/blackskies-p7-c57be0ff-admin-lifecycle-20260921-0020/stage19-22-lifecycle-evidence.json.
+That directory still contains installed executables; they do not replace the
+receipt. The package receipt still identifies c57be0ff.
+
+Read-only `node scripts/validate-program7-evidence.mjs` exits **1** at
+P7-HG4-REG-P4: "artifact does not exist or cannot be read".
+Direct inspection proves that row's protocol artifact exists with a different
+hash. The validator catch masks its internally thrown hash-mismatch error
+under that generic diagnostic. Do not report the protocol itself missing or
+update recorded hashes to manufacture a pass.
+
+Historical canonical RT-2B JSON records 24/24 mechanical rows and pending human
+admission. The later cleanup report separately records timing/fidelity failures
+and dirty exploratory evidence. Neither establishes current-build AI admission.
+Keep local AI unadmitted pending an exact outcome/evidence disposition.
+
+P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 remain **Uncertain**, coordinator-owned
+at their existing Batch 4 stages before formal Human Gate 4 disposition.
+Jason's successful review adds positive evidence without establishing their
+earlier cause. Existing reopening triggers remain in force.
+
+Next: reconcile retained current mechanical evidence and invalidate only
+affected older rows; finish the two diagnostic dispositions; prepare separate
+RT-2B disposition and required current package qualification; then provide only
+remaining formal human rows and deterministic sampling. Reuse Jason's accepted
+observations where applicable. Existing P4/P5/P6 formal rows remain pending
+unless separately evidenced.
+
+Owner: coordinator. Exact resolution stage: **P7-G2 current-candidate evidence
+reconciliation before Human Gate 4 admission**. Exit evidence: readable,
+hash-matching artifacts, exact candidate/fixture bindings, validator success,
+and explicit human/disposition records. Reopening trigger: missing or mismatched
+artifacts, candidate drift, or unsupported acceptance.
+No runtime tests, native segment, model invocation or packaging ran in this
+audit. Formal Human Gate 4 and Program 7 closure remain open.
 
 ### Repair evidence before final qualification
 
