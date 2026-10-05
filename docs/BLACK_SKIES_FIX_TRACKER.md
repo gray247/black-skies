@@ -649,6 +649,34 @@ qualification before formal Human Gate 4**. Reopening triggers: renderer error
 on Send, missing/false result, destination mismatch, or unintended manuscript
 mutation. These two root causes are accounted for separately.
 
+### Installed qualification GPU contract — October 5, 2026
+
+**P7-PACKAGE-GPU-01 — repaired; current package proof pending.**
+The installed smoke helper always supplied --disable-gpu. This conflicts
+with BS-19.22-P1-02's qualification rule prohibiting test-only GPU flags.
+The existing launch-policy test covered main and development helpers but
+missed the installed runner and recognized only single-quoted flags.
+
+The existing test now includes the installed runner and both quote styles.
+closure-final-20261005/package-gpu-before.log proves 1 failed / 1 passed
+before repair. The runner now retains only its isolated user-data argument;
+production startup, dependencies and storage are unchanged. Its post-repair
+guard and new normal-GPU unpacked/installed proof will be recorded here.
+Earlier GPU-disabled installed results remain historical diagnostics and
+cannot supply the missing normal-GPU qualification.
+
+The preceding frozen d424a714 clean Stage 19 passed 49 files / 825 tests
+(two existing skips), startup 1/1 and Electron 36/36. It remains valid for its
+recorded candidate. The new helper/guard repair requires a new qualification
+checkpoint; runtime sources are identical, so affected guard verification
+and required clean Stage 19 replace an unnecessary second full app run.
+
+Owner: coordinator. Resolution stage: **Stage 19 Package 19.22 normal-GPU
+unpacked/installed proof before Program 7 Human Gate 4**. Reopening trigger:
+GPU-disabling qualification arguments, host GPU child failure on normal
+launch, absent first window or an invalid package/installed receipt.
+Historical human acceptance and failed fixtures remain preserved.
+
 ### Repair evidence before final qualification
 
 Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,

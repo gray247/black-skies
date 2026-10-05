@@ -299,7 +299,7 @@ async function openOptionalCommandWindow(application, writing) {
 async function launchInstalled(executablePath, userDataPath, { openOptionalSecondary = true } = {}) {
   const application = await electron.launch({
     executablePath,
-    args: ["--disable-gpu", `--user-data-dir=${userDataPath}`],
+    args: [`--user-data-dir=${userDataPath}`],
     env: sanitizedLaunchEnvironment()
   });
   try {

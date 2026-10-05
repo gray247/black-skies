@@ -10,15 +10,16 @@ function source(relativePath: string): string {
 }
 
 describe('Stage 19 Electron launch policy', () => {
-  it('uses the production GPU and sandbox contract in Playwright', () => {
+  it('uses the production GPU and sandbox contract in Playwright and installed proof', () => {
     const launchSources = [
       source('main/main.ts'),
       source('tests/e2e/_electron.fixture.ts'),
       source('tests/e2e/stage19-electron-support.ts'),
+      source('scripts/stage19-installed-smoke.mjs'),
     ];
 
     for (const launchSource of launchSources) {
-      expect(launchSource).not.toContain("'--disable-gpu'");
+      expect(launchSource).not.toMatch(/['"]--disable-gpu['"]/u);
       expect(launchSource).not.toContain('PLAYWRIGHT === \'1\') {\n  app.disableHardwareAcceleration()');
     }
   });
