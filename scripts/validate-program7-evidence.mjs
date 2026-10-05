@@ -115,13 +115,13 @@ async function validateArtifact(row, artifact, rowIndex) {
           fail(`${row.evidenceId} artifact embeds a different exact commit`);
         }
       } catch (error) {
-        if (error instanceof Error && error.message.startsWith(`${row.evidenceId} `)) throw error;
+        if (error instanceof Error && error.message.startsWith(`[program7-evidence] ${row.evidenceId} `)) throw error;
         // Non-JSON evidence is already protected by its byte hash; only JSON
         // artifacts participate in embedded exact-commit binding.
       }
     }
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith(`${row.evidenceId} `)) throw error;
+    if (error instanceof Error && error.message.startsWith(`[program7-evidence] ${row.evidenceId} `)) throw error;
     fail(`${row.evidenceId} artifact does not exist or cannot be read`);
   }
 }
@@ -164,7 +164,9 @@ async function validateRow(row, rowNumber, packages) {
 async function validateHumanSample(rows, exactCommit) {
   let sample;
   try {
-    sample = JSON.parse(await readFile(path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json'), 'utf8'));
+    const sampleIndex = process.argv.indexOf('--sample');
+    const samplePath = sampleIndex >= 0 ? path.resolve(process.argv[sampleIndex + 1]) : path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
+    sample = JSON.parse(await readFile(samplePath, 'utf8'));
   } catch {
     fail('deterministic human sample artifact could not be read');
   }

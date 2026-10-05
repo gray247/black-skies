@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -43,5 +45,43 @@ describe('Program 7 evidence ledger builder', () => {
     } finally {
       await rm(root, { recursive: true, force: true });
     }
+  });
+});
+
+describe('Program 7 evidence artifact validation', () => {
+  it.each(['hash', 'embedded commit'] as const)('reports an artifact %s failure without swallowing it', async (kind) => {
+    const root = await mkdtemp(path.join(tmpdir(), 'black-skies-p7-validator-'));
+    const validator = path.join(repoRoot, 'scripts', 'validate-program7-evidence.mjs');
+    const lines = (await readFile(path.join(repoRoot, 'docs/product_systems/program_7_evidence_ledger.jsonl'), 'utf8')).trim().split(/\r?\n/u);
+    const row = JSON.parse(lines[0]);
+    const artifactPath = path.join(root, 'artifact.json');
+    const contents = JSON.stringify({ exactCommit: '0'.repeat(40) });
+    await writeFile(artifactPath, contents, 'utf8');
+    row.artifacts = [{ path: artifactPath, sha256: kind === 'hash' ? '0'.repeat(64) : createHash('sha256').update(contents).digest('hex'), containsProtectedContent: false }];
+    const ledger = path.join(root, 'ledger.jsonl');
+    await writeFile(ledger, JSON.stringify(row) + '\n', 'utf8');
+    const message = kind === 'hash' ? 'artifact hash does not match' : 'artifact embeds a different exact commit';
+    await expect(execFileAsync(process.execPath, [validator, '--ledger', ledger], { cwd: repoRoot }))
+      .rejects.toMatchObject({ stderr: expect.stringContaining(message) });
+  });
+});
+
+describe('Program 7 external qualification packet', () => {
+  it('samples and validates an external ledger without overwriting the historical sample', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'black-skies-p7-external-packet-'));
+    const historicalSample = path.join(repoRoot, 'docs/product_systems/program_7_human_sample.json');
+    const before = await readFile(historicalSample);
+    const row = JSON.parse((await readFile(path.join(repoRoot, 'docs/product_systems/program_7_evidence_ledger.jsonl'), 'utf8')).trim().split(/\r?\n/u)[0]);
+    const artifact = path.join(root, 'artifact.json');
+    const contents = JSON.stringify({ exactCommit: row.exactCommit });
+    await writeFile(artifact, contents, 'utf8');
+    row.artifacts = [{ path: artifact, sha256: createHash('sha256').update(contents).digest('hex'), containsProtectedContent: false }];
+    const ledger = path.join(root, 'ledger.jsonl');
+    const sample = path.join(root, 'sample.json');
+    await writeFile(ledger, JSON.stringify(row) + '\n', 'utf8');
+    await execFileAsync(process.execPath, [path.join(repoRoot, 'scripts/program7-human-sampling.mjs'), '--ledger', ledger, '--output', sample], { cwd: repoRoot });
+    const result = await execFileAsync(process.execPath, [path.join(repoRoot, 'scripts/validate-program7-evidence.mjs'), '--ledger', ledger, '--sample', sample], { cwd: repoRoot });
+    expect(JSON.parse(result.stdout)).toMatchObject({ ok: true, rows: 1, exactCommit: row.exactCommit });
+    expect(await readFile(historicalSample)).toEqual(before);
   });
 });

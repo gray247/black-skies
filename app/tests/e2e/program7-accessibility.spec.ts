@@ -111,7 +111,21 @@ async function exerciseCommandRoutes(
   if (await createDevelop.count() === 0) {
     throw new Error(`Create / Develop missing after ${topology}-${theme}-${profile.id}: ${(await surface.locator('body').innerText()).slice(0, 2_000)}`);
   }
+  const routeProbeStartedAt = new Date().toISOString();
+  const beforeRoute = await surface.evaluate(() => ({
+    project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
+    selectedRoute: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
+  }));
   await createDevelop.click();
+  const afterRoute = await surface.evaluate(() => ({
+    project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
+    selectedRoute: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
+    panelCount: document.querySelectorAll('[data-testid="program7-create-develop"]').length,
+  }));
+  await test.info().attach('create-develop-route-' + topology + '-' + theme + '-' + profile.id, {
+    body: JSON.stringify({ topology, theme, profile, startedAt: routeProbeStartedAt, observedAt: new Date().toISOString(), before: beforeRoute, after: afterRoute }),
+    contentType: 'application/json',
+  });
   await expect(createDevelop, `${topology}-${theme}-${profile.id}: ${await surface.locator('body').innerText()}`).toHaveAttribute('aria-current', 'page');
   await expect(surface.getByTestId('program7-create-develop')).toBeVisible();
   for (const section of PROGRAM7_SECTIONS) {

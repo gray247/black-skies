@@ -2,7 +2,7 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -133,6 +133,7 @@ async function run() {
     );
     const evidence = {
       schema: 'black-skies.program7.persistence-qualification.v1',
+      rawEvidenceDirectory: temporaryRoot,
       status: qualified ? 'qualified' : 'not-qualified',
       exactCommit,
       exactTree,
@@ -157,7 +158,7 @@ async function run() {
     process.stdout.write(`P7_PERSISTENCE_QUALIFICATION_${qualified ? 'PASS' : 'FAIL'}\n`);
     if (!qualified) process.exitCode = 2;
   } finally {
-    await rm(temporaryRoot, { recursive: true, force: true });
+    process.stderr.write('Program 7 raw qualification evidence retained at ' + temporaryRoot + '\n');
   }
 }
 

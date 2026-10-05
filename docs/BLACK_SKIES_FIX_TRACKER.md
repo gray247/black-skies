@@ -93,6 +93,41 @@ artifacts, candidate drift, or unsupported acceptance.
 No runtime tests, native segment, model invocation or packaging ran in this
 audit. Formal Human Gate 4 and Program 7 closure remain open.
 
+### Qualification harness repair checkpoint — October 5, 2026
+
+P7-G2 evidence reconciliation found a demonstrated validator integrity defect:
+its two artifact catches did not recognize the global error prefix. Hash
+mismatches became unreadable-file messages, and a JSON artifact's different
+embedded commit was swallowed. Two pre-repair regressions failed for those
+specific reasons; both pass after correcting the prefix checks.
+
+Existing-file coverage now has four passing tests, including a complete
+external ledger/sample/validator round trip that preserves the historical
+human sample. Builder inputs, sampling output and validator sample path now
+accept explicit external paths. Persistence and scale runners retain raw
+reports instead of deleting them on failure. The existing accessibility
+journey attaches route/project/timestamp correlation for attached/detached,
+theme and profile contexts. No application runtime or schema changed.
+
+Affected typecheck, repository/app lint and diff hygiene passed. Reproduction
+artifacts remain intact at:
+%TEMP%/black-skies-p7-harness-reproductions-650ad2f500ab420d8d40cf5b96962a0c.
+Future new validator test fixtures use TEMP, rather than dirtying the checkout.
+The historical c57 qualification documents and ledger remain unchanged.
+
+Fresh current-candidate artifacts will be kept at:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570.
+This is qualification output, not another documentation tracker. Bind every
+new result to its actual frozen checkpoint; do not borrow old packet passes.
+
+The current host is not elevated. The existing installed offline lifecycle
+requires an Administrator-owned temporary firewall rule; application-only
+smoke does not substitute. Finish independent proofs before requesting that
+host step. The local Ollama endpoint currently refuses connections; the fixed
+installed qwen3 pilot route must be restored or recorded unavailable before
+any model outcome can be claimed. No model admission or package pass follows
+from this checkpoint.
+
 ### Repair evidence before final qualification
 
 Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,

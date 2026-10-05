@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -73,6 +73,7 @@ export async function run() {
     }));
     const summary = {
       schema: 'black-skies.program7.scale-qualification.v1',
+      rawEvidenceDirectory: temporaryRoot,
       status,
       exactCommit,
       exactTree,
@@ -104,7 +105,7 @@ export async function run() {
     process.stdout.write(`P7_SCALE_QUALIFICATION_${complete ? 'PASS' : status.toUpperCase()}\n`);
     return complete ? 0 : 2;
   } finally {
-    await rm(temporaryRoot, { recursive: true, force: true });
+    process.stderr.write('Program 7 raw qualification evidence retained at ' + temporaryRoot + '\n');
   }
 }
 

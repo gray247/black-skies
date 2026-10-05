@@ -7,8 +7,10 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ledgerPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_evidence_ledger.jsonl');
-const outputPath = path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
+const ledgerPathIndex = process.argv.indexOf('--ledger');
+const ledgerPath = ledgerPathIndex >= 0 ? path.resolve(process.argv[ledgerPathIndex + 1]) : path.join(repoRoot, 'docs', 'product_systems', 'program_7_evidence_ledger.jsonl');
+const outputPathIndex = process.argv.indexOf('--output');
+const outputPath = outputPathIndex >= 0 ? path.resolve(process.argv[outputPathIndex + 1]) : path.join(repoRoot, 'docs', 'product_systems', 'program_7_human_sample.json');
 const algorithm = 'program7-human-sample-v1';
 
 function hash(value) { return createHash('sha256').update(value, 'utf8').digest('hex'); }
