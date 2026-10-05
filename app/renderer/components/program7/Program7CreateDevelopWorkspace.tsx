@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 export type Program7CreateDevelopSection = 'revision-desk' | 'story-foundation' | 'ideas' | 'history';
 
 export interface Program7CreateDevelopWorkspaceProps {
+  readonly notice?: ReactNode;
   readonly revisionDesk?: ReactNode;
   readonly storyFoundation?: ReactNode;
   readonly ideas?: ReactNode;
@@ -56,6 +57,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
         ))}
       </nav>
       <section aria-label={active.label} data-testid={`program7-create-develop-panel-${active.id}`}>
+        {props.notice}
         {content ?? <p data-testid="program7-create-develop-empty">This section is not connected yet. No change was made.</p>}
       </section>
     </section>

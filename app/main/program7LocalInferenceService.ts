@@ -19,7 +19,7 @@ import {
   type OllamaLocalInferenceTransportResultV1,
 } from './ollamaLocalInferenceTransport.js';
 
-export const PROGRAM7_LOCAL_INFERENCE_DEFAULT_TIMEOUT_MS = 30_000 as const;
+export const PROGRAM7_LOCAL_INFERENCE_DEFAULT_TIMEOUT_MS = 60_000 as const;
 
 export interface Program7LocalInferenceTransportV1 {
   request(

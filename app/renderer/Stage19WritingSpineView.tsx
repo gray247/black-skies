@@ -705,7 +705,6 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         </div>
         {model.program7LocalAiAvailable === false ? <p className="program7-revision-capture__manual-path" role="status">Local AI is unavailable. You can still create and review revision alternatives yourself.</p> : null}
       </section>
-      {model.program7Notice ? <p className="program7-revision-capture__notice" role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p> : null}
       {candidates.length > 0 ? (
         <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
           <header>
@@ -783,7 +782,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
       }}
     />
   );
-  return <Program7CreateDevelopWorkspace activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
+  return <Program7CreateDevelopWorkspace notice={model.program7Notice ? <p className="program7-revision-capture__notice" role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p> : null} activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
 }
 
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {

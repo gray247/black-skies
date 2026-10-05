@@ -8,11 +8,19 @@ import {
   showCommandInWriting,
 } from './program7-e2e-support';
 
-test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
+test.use({ splitCommandRuntimeConfig: true, disableLocalAi: false, preserveTestArtifacts: true });
 
 test('Program 7 hides unavailable local-AI controls while preserving manual revision alternatives', async ({ page, electronApp }) => {
   const { projectPath } = await materializeProgram7Carmilla();
-  const { writing } = await getProgram7Windows(electronApp, page);
+  const { writing, command } = await getProgram7Windows(electronApp, page);
+  expect(await electronApp.evaluate(() => process.env.BLACKSKIES_DISABLE_LOCAL_AI)).toBe('1');
+  for (const surface of [writing, command]) {
+    expect(await surface.evaluate(() => ({
+      available: window.revisionCandidates?.localAiAvailable === true,
+      create: typeof window.revisionCandidates?.createLocalAi,
+      cancel: typeof window.revisionCandidates?.cancelLocalAi,
+    }))).toEqual({ available: false, create: 'undefined', cancel: 'undefined' });
+  }
   await openProgram7Project(writing, projectPath);
   const draftPath = path.join(projectPath, 'drafts', 'carmilla-prologue.md');
   const before = await readFile(draftPath, 'utf8');

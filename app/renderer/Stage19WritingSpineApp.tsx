@@ -4045,8 +4045,12 @@ export default function Stage19WritingSpineApp({
     };
     try {
       const result = await program7PromotionBridge.handoff(request);
-      setProgram7PromotionOutcomes((previous) => [...previous, ...result.outcomes]);
-      setProgram7Notice(result.message);
+      if (!result.ok) {
+        setProgram7Notice(result.error.message);
+        return;
+      }
+      setProgram7PromotionOutcomes((previous) => [...previous, ...result.data.outcomes]);
+      setProgram7Notice(result.data.message);
       if (destination === 'author-intent' && typeof storyFoundationBridge?.get === 'function') {
         const foundation = await storyFoundationBridge.get({ ...bindingFor(current, 'program7-foundation-after-promotion')! });
         if (foundation.ok) setProgram7Foundation(foundation.data);
@@ -4061,7 +4065,7 @@ export default function Stage19WritingSpineApp({
         if (outline.ok) setLivingOutline(outline.data);
       }
     } catch {
-      setProgram7Notice('The promotion handoff failed safely. No unacknowledged destination write was performed.');
+      setProgram7Notice('The handoff result could not be confirmed. Check the destination before sending again.');
     }
   }, [livingOutlineBridge, program7Ideation, program7PromotionBridge, storyFoundationBridge, windowRole]);
 

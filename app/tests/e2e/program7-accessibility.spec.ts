@@ -90,6 +90,29 @@ async function assertProgram7MechanicalA11y(
   observedRows.set(evidenceId(context), { evidenceId: evidenceId(context), result: 'Pass' });
 }
 
+async function observeRouteInputs(page: import('@playwright/test').Page): Promise<void> {
+  await page.evaluate(() => {
+    const state = window as typeof window & { __p7RouteInputs?: unknown[] };
+    if (state.__p7RouteInputs) return;
+    state.__p7RouteInputs = [];
+    for (const type of ['pointerdown', 'pointerup', 'click']) {
+      window.addEventListener(type, (event) => {
+        const mouse = event as MouseEvent;
+        const button = (event.target as Element | null)?.closest('button');
+        state.__p7RouteInputs!.push({
+          type, at: new Date().toISOString(), trusted: event.isTrusted,
+          x: mouse.clientX, y: mouse.clientY,
+          button: button?.textContent?.trim() ?? null,
+          target: (event.target as Element | null)?.tagName ?? null,
+          route: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
+          viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
+        });
+        if (state.__p7RouteInputs!.length > 64) state.__p7RouteInputs!.shift();
+      }, true);
+    }
+  });
+}
+
 async function setTheme(page: import('@playwright/test').Page, theme: 'dark' | 'light'): Promise<void> {
   const switchControl = page.getByRole('switch', { name: 'Light theme' });
   const expected = theme === 'light' ? 'true' : 'false';
@@ -103,6 +126,7 @@ async function exerciseCommandRoutes(
   profile: (typeof MATRIX_PROFILES)[number],
   theme: 'dark' | 'light',
 ): Promise<void> {
+  await observeRouteInputs(surface);
   await surface.setViewportSize({ width: profile.width, height: profile.height });
   await surface.emulateMedia({ reducedMotion: profile.reducedMotion ? 'reduce' : 'no-preference' });
   await surface.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, profile.zoom);
@@ -121,6 +145,7 @@ async function exerciseCommandRoutes(
     project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
     selectedRoute: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
     panelCount: document.querySelectorAll('[data-testid="program7-create-develop"]').length,
+    inputs: (window as typeof window & { __p7RouteInputs?: unknown[] }).__p7RouteInputs?.slice(-8),
   }));
   await test.info().attach('create-develop-route-' + topology + '-' + theme + '-' + profile.id, {
     body: JSON.stringify({ topology, theme, profile, startedAt: routeProbeStartedAt, observedAt: new Date().toISOString(), before: beforeRoute, after: afterRoute }),
@@ -175,6 +200,21 @@ async function closeDetachedCommand(electronApp: import('@playwright/test').Elec
 
 test('Program 7 reaches objective accessibility matrix gates on attached and detached surfaces', async ({ page, electronApp }) => {
   const { reviewRoot, projectPath } = await materializeProgram7Carmilla();
+  await electronApp.evaluate(({ app, BrowserWindow }) => {
+    const state = globalThis as typeof globalThis & { __p7WindowEvents?: unknown[] };
+    state.__p7WindowEvents = [];
+    const observe = (window: InstanceType<typeof BrowserWindow>) => {
+      for (const name of ['unresponsive', 'responsive'] as const) {
+        window.on(name, () => {
+          state.__p7WindowEvents!.push({ event: name, at: new Date().toISOString(), id: window.id, title: window.isDestroyed() ? null : window.getTitle() });
+          if (state.__p7WindowEvents!.length > 64) state.__p7WindowEvents!.shift();
+        });
+      }
+    };
+    BrowserWindow.getAllWindows().forEach(observe);
+    app.on('browser-window-created', (_event, window) => observe(window));
+  });
+
   try {
     const { writing, command } = await getProgram7Windows(electronApp, page);
     await openProgram7Project(writing, projectPath);
@@ -229,6 +269,10 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
       }
     }
   } finally {
+    await test.info().attach('program7-window-responsiveness', {
+      body: JSON.stringify(await electronApp.evaluate(() => (globalThis as typeof globalThis & { __p7WindowEvents?: unknown[] }).__p7WindowEvents).catch((error) => ({ observationUnavailable: String(error) }))),
+      contentType: 'application/json',
+    });
     if (MATRIX_REPORT_PATH) {
       await mkdir(path.dirname(MATRIX_REPORT_PATH), { recursive: true });
       await writeFile(MATRIX_REPORT_PATH, `${JSON.stringify({ rows: [...observedRows.values()] }, null, 2)}\n`, 'utf8');

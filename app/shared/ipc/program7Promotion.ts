@@ -162,6 +162,23 @@ export type Program7PromotionOwnerResultV1 =
   | { readonly ok: true; readonly receipt: Program7PromotionOwnerReceiptV1 }
   | { readonly ok: false; readonly message: string };
 
+export type Program7PromotionErrorCode =
+  | 'NOT_WRITING_STUDIO'
+  | 'NO_ACTIVE_PROJECT'
+  | 'STALE_SESSION'
+  | 'INVALID_REQUEST'
+  | 'PROTECTED_SOURCE'
+  | 'IDEMPOTENCY_CONFLICT';
+
+export interface Program7PromotionError {
+  readonly code: Program7PromotionErrorCode;
+  readonly message: string;
+}
+
+export type Program7PromotionIpcResult =
+  | { readonly ok: true; readonly data: Program7PromotionHandoffResultV1 }
+  | { readonly ok: false; readonly error: Program7PromotionError };
+
 export interface Program7PromotionBridge {
-  handoff(request: Program7PromotionHandoffRequestV1): Promise<Program7PromotionHandoffResultV1>;
+  handoff(request: Program7PromotionHandoffRequestV1): Promise<Program7PromotionIpcResult>;
 }

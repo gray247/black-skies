@@ -16,6 +16,8 @@ import {
   type Program7DeferredPromotionPayloadV1,
   type Program7NarrativeInsertionPromotionPayloadV1,
   type Program7OutlinePromotionPayloadV1,
+  type Program7PromotionErrorCode,
+  type Program7PromotionIpcResult,
   type Program7PromotionDestinationInputV1,
   type Program7PromotionDestinationV1,
   type Program7PromotionHandoffRequestV1,
@@ -35,22 +37,7 @@ export interface RegisterProgram7PromotionIpcOptions {
   readonly acceptOutline?: (input: Program7PromotionDestinationInputV1) => Promise<Program7PromotionOwnerResultV1>;
 }
 
-export type Program7PromotionErrorCode =
-  | 'NOT_WRITING_STUDIO'
-  | 'NO_ACTIVE_PROJECT'
-  | 'STALE_SESSION'
-  | 'INVALID_REQUEST'
-  | 'PROTECTED_SOURCE'
-  | 'IDEMPOTENCY_CONFLICT';
-
-export interface Program7PromotionError {
-  readonly code: Program7PromotionErrorCode;
-  readonly message: string;
-}
-
-export type Program7PromotionIpcResult =
-  | { readonly ok: true; readonly data: Program7PromotionHandoffResultV1 }
-  | { readonly ok: false; readonly error: Program7PromotionError };
+export type { Program7PromotionErrorCode, Program7PromotionError, Program7PromotionIpcResult } from '../shared/ipc/program7Promotion.js';
 
 const destinations: readonly Program7PromotionDestinationV1[] = [
   'author-intent',

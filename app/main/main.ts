@@ -182,6 +182,11 @@ if (process.env.PLAYWRIGHT !== '1') {
   });
 }
 const repoRoot = resolve(projectRoot, '..');
+// Approved Program 7 disposition: local AI is unavailable in this candidate.
+// Set the existing gate before creating windows so both preload paths and the
+// main inference transport agree, including ordinary installed launches.
+process.env.BLACKSKIES_DISABLE_LOCAL_AI = '1';
+
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
 );

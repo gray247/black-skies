@@ -248,6 +248,95 @@ lifecycle. Prepare independent evidence and exact artifacts before that human
 host step. No model invocation, resource peak proof, AI admission or installed
 package pass is inferred from host inventory or successful no-AI testing.
 
+### Frozen qualification and next host checkpoint — October 5, 2026
+
+Candidate **500aadad97187f3ea2151a3f51e888ccba414dd7**, tree
+**6f216b1be3d1b09e266eab536d9d998cd35ffa17** passed clean Stage 19
+(825 critical tests/two existing skips, startup 1/1, Electron 36/36), persistence
+143/143, Unicode 18/18, four scale levels plus Electron, required no-AI revision/
+Create / Develop/disabled-AI/long-form journeys, isolated package verification
+and unpacked three-unit exact-Markdown smoke. Final dedicated set had six passes
+and one accessibility failure; it is not a complete pass.
+
+P7-A11Y-ROUTE-01 recurred in attached/light/200%-narrow-normal. A single dirty
+instrumented probe passed without identifying its cause; the partial clean
+accessibility packet remains authoritative (45/66 rows observed, 21 absent).
+Both diagnostic issues retain their existing coordinator-owned Batch 4
+resolution stages and reopening triggers before formal Human Gate 4 disposition.
+
+Current external evidence-ledger/sample validation passes integrity checks:
+41 rows, 12 Pass / 29 Uncertain. Historical AI evidence remains unbound to this
+candidate. Package receipt identifies 500aadad; installed offline representative
+proof requires Administrator PowerShell. RT-2B additionally needs controlled
+headroom and real peak/host sampling before its current pilot. These are host
+prerequisites, not a request to repeat the accepted guided no-AI session.
+
+The [existing Fix Tracker](../BLACK_SKIES_FIX_TRACKER.md) contains exact artifact
+paths, retained failure state, the prepared Administrator command, expected
+completion and continuation order. Final record edits remain documentation-only
+dirty while HEAD stays frozen for the package/witness. No formal acceptance,
+AI admission or Program 7 closure is inferred; no token-usage experiment ran.
+
+#### Installed proof and corrected pilot continuation — October 5, 2026
+
+Jason's Administrator run and the independent installed witness now pass for
+frozen **500aadad**, including 100-unit exact-Markdown workload, isolated
+offline lifecycle, installed file identities and 196 preserved external files.
+The privilege blocker is resolved for that package.
+
+The fixed qwen3:4b pilot initially completed 18/24. It exposed two qualification
+seams: cold/warm residency was not established, and the ledger masked known
+current failures as Uncertain. Existing utilities/tests now verify readiness
+(including bounded asynchronous-unload wait), keep exact-bound Fail rows, reject
+stale failures and withhold clean qualification for dirty/unprepared packets.
+The corrected dirty follow-up completes **19/24**, with five timing/advisory
+failures, passing protection/no-mutation controls and bounded observed memory.
+Local AI remains unadmitted; propose unavailable/conditional at **RT-2B rerun**
+pending Jason's decision. Do not tune thresholds or infer voice/usefulness.
+
+The existing Program 6 journey additionally proves two detached Emotion source
+returns through real pointer/keyboard input, exact sources, preserved bytes and
+both-window project identity. Failed/passing corpus fixtures are retained.
+No application runtime changed. Current external packet validates integrity:
+13 Pass / five Fail / 23 Uncertain, with pending human fields. Utility/test/
+record edits remain dirty over the frozen executable; earlier clean reports
+retain their identity. Applicable focused tests/lint/typecheck pass.
+
+The existing Fix Tracker records every actual run, failure, repair, retained
+path and owner/stage/reopening trigger, plus the remaining formal P4/P5/P6,
+diagnostic and objective-sample review draft. Jason's accepted no-AI session is
+retained. Author disposition and formal Human Gate 4 remain pending; no Program
+7 closure, model admission or new clean qualification is claimed.
+
+#### Bounded AI waiting/advice follow-up — October 5, 2026
+
+Jason accepted slower completed responses and approved a focused follow-up.
+The coordinator chose a 60-second cancellable service wait and aligned the
+prospective non-streaming warm-visible target to the existing warm-total
+budget. This supersedes the earlier instruction not to tune waiting
+thresholds for future runs only; historical pilot failures retain their
+original gates. Two new service regressions demonstrate the former cutoff
+and verify completion at 35 seconds, bounded timeout and late cancellation.
+Six affected suites pass 60/60; existing qualifier tests preserve expected
+advisory answers and verify the new waiting boundary.
+
+The dialogue rerun completed in 29.338 seconds. Clarifying the Q05/Q06 purpose
+and then the prompt's status meanings improved the baseline explanation, but
+Q06 still gives correct withholding evidence with the wrong advisory status
+in both cold and warm runs. The single follow-up ended without further prompt
+loops. This remains an explicit model limitation, not repaired judgment.
+Local AI is unadmitted; no manuscript mutation or author acceptance is inferred.
+
+The existing Fix Tracker records the two retained focused runs, precise
+outputs, dirty candidate source hashes/patches, byte-preservation checks and
+host-observation limits. Application runtime now differs from frozen 500aadad
+only in the inference wait and recheck instructions. The earlier installed
+proof remains valid for its original package; it cannot qualify this dirty
+development candidate. No package, provider, model, driver or GPU change was
+made. Formal no-AI review may use the accepted package with an explicit
+unavailable/conditional author disposition; any AI admission still requires
+the coordinator-owned **RT-2B rerun** and named human quality review.
+
 ## 2. Program Outcome
 
 Program 7 is complete only when the product supports and qualifies all of the

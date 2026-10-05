@@ -1,13 +1,13 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import { readFile, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from './_electron.fixture';
 import { getStage19Windows } from './stage19-electron-support';
 
-test.use({ splitCommandRuntimeConfig: true });
+test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const materializer = path.join(repoRoot, 'scripts', 'program6-human-review.mjs');
@@ -135,10 +135,23 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
         }).toBe(true);
         expect(await readFile(path.join(projectPath, 'drafts', 'go_01.md'), 'utf8')).toBe(observedDraftBefore);
 
+        const secondDraftBefore = await readFile(path.join(projectPath, 'drafts', 'go_02.md'), 'utf8');
+        await command.getByLabel('Emotion point story section').selectOption('go_02');
+        await command.getByLabel('Emotion point lane').selectOption('observed');
+        await command.getByLabel('Emotion point label').fill('guarded hope');
+        await command.getByLabel('Emotion point intensity').selectOption('medium');
+        await command.getByLabel('Emotion point subject').fill('Iris Bell');
+        await command.getByRole('button', { name: 'Save feeling note', exact: true }).click();
+        await expect(command.getByRole('cell', { name: 'guarded hope', exact: true })).toBeVisible();
+        expect(await readFile(path.join(projectPath, 'drafts', 'go_02.md'), 'utf8')).toBe(secondDraftBefore);
+
+
         await command.getByRole('button', { name: 'Signals', exact: true }).click();
         await expect(command.getByText('Protected signal metadata', { exact: true })).toBeVisible();
         await expect(command.getByText(/content is excluded; no summary is displayed/i)).toBeVisible();
         const detachedSourceReturns = [
+          { lens: 'Emotion', unitId: 'go_01', title: 'The Empty Conservatory', pointLabel: 'measured unease' },
+          { lens: 'Emotion', unitId: 'go_02', title: 'A Red Apple', pointLabel: 'guarded hope' },
           { lens: 'Pacing', unitId: 'go_02', title: 'A Red Apple' },
           { lens: 'Pressure', unitId: 'go_02', title: 'A Red Apple' },
           { lens: 'Signals', unitId: 'go_01', title: 'The Empty Conservatory' },
@@ -147,7 +160,21 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
           const manuscriptBefore = await readFile(path.join(projectPath, 'drafts', `${sourceReturn.unitId}.md`), 'utf8');
           await command.bringToFront();
           await command.getByRole('button', { name: sourceReturn.lens, exact: true }).click();
-          await command.getByRole('button', { name: 'Review source', exact: true }).first().click();
+          if ('pointLabel' in sourceReturn) {
+            const point = command.getByRole('button', { name: new RegExp('^observed: ' + sourceReturn.pointLabel + ';') });
+            if (sourceReturn.unitId === 'go_01') {
+              // The SVG group's bounding box also spans its label and empty plot.
+              // Exercise the painted point with real pointer input.
+              await point.locator('circle').click();
+            } else {
+              await point.focus();
+              await point.press('Enter');
+            }
+          } else {
+            await command.getByRole('button', { name: 'Review source', exact: true }).first().click();
+          }
+          await expect(command.getByRole('heading', { level: 1 })).toHaveText('Glass Orchard');
+          await expect(writing.getByRole('heading', { name: 'Glass Orchard', exact: true })).toBeVisible();
           await expect(command.getByRole('region', { name: 'Command Center' })).toBeVisible();
           expect(command.isClosed()).toBe(false);
           await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${sourceReturn.title}` })).toBeVisible();
@@ -185,6 +212,6 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
       }
     }
   } finally {
-    await rm(reviewRoot, { recursive: true, force: true });
+    console.info('Program 6 campaign artifact retained at ' + reviewRoot);
   }
 });

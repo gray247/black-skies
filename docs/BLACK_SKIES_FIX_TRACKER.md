@@ -171,6 +171,484 @@ are complete. Jason must perform the host privilege step; agents cannot
 approve Windows elevation for him. Formal gate admission remains blocked by
 these outstanding proofs, separate from his accepted no-AI workflow.
 
+
+### Current qualification and host checkpoint — October 5, 2026
+
+Frozen qualification candidate: **500aadad97187f3ea2151a3f51e888ccba414dd7**, tree
+**6f216b1be3d1b09e266eab536d9d998cd35ffa17**, branch codex/program7-implementation.
+All final mechanical runs below began from the clean candidate. Application
+runtime source is identical to Jason's accepted 3e046265 executable; changes
+since acceptance are qualification utilities, tests and records. This final
+record update is documentation-only dirty evidence, deliberately left uncommitted
+while the prepared package/witness remains bound to HEAD 500aadad. Do not relabel
+receipts or silently commit a different candidate before the installed witness.
+
+Packet root:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570.
+Historical canonical c57 reports, ledger, sample and package remain unchanged.
+
+| Current-candidate check | Actual outcome | Retained artifact |
+| --- | --- | --- |
+| Clean Stage 19, normal GPU, AI disabled | PASS / CLEAN_RC_ELIGIBLE: 49 critical files, 825 passed, two existing skips; startup 1/1; Electron 36/36 | stage19-final.log |
+| Persistence | 8 files, 143 passed, no failures/skips | persistence-final.json and persistence-final.log |
+| Unicode/source coordinates | 18/18, clean exact binding | unicode-final.json and unicode-final.log |
+| Dedicated no-AI journeys | Six passes, one failed accessibility matrix; no skips/retries/real-model execution | dedicated-final.log and dedicated-final/ |
+| Required Electron suite packet | Revision (two journeys), Create / Develop, disabled-AI and long-form passed | electron-final.json |
+| Accessibility | Partial: 45 observed rows of 66; 21 absent/Uncertain. All 13 required state bindings pass. Not a full matrix pass | accessibility-final.json and accessibility-final.log (exit 2) |
+| Scale | Four 1x/2x/4x/8x tests and Electron passed; 17/34/68/136 units | scale-final.json and scale-final.log |
+| Isolated new package | Preflight/build/verify pass, exact candidate 500aadad, zero forbidden paths | package-receipt.json and package-*.log |
+| Unpacked smoke | Normal GPU/no-AI, exact Markdown, three units, zero forbidden runtime processes | unpacked-smoke.json and unpacked-smoke.log |
+| External ledger/sample integrity | Validator exit 0: 41 rows, 12 Pass / 29 Uncertain; 33 required human rows pending | evidence-ledger.jsonl and human-sample.json |
+
+The unpacked smoke is not the installed/offline/representative-100-unit proof:
+its representative field is null. Peak host memory/event-loop freeze are not
+inferred from repository scale timing or Node RSS observations.
+The validator success proves artifact identity and sampling integrity, not gate
+completion. RT-2B's 24 rows remain Uncertain because the historical pilot does
+not bind to 500aadad; no current model request was dispatched. The deterministic
+objective sample selects P7-G2-E2E-LONG-FORM, P7-G2-STAGE19 and
+P7-G2-PROTOCOL-RECOVERY. Jason fields remain blank.
+
+**P7-A11Y-ROUTE-01 recurrence:** the clean dedicated run failed on attached,
+light, 200%-narrow-normal. After the Create / Develop click, Operations /
+Approvals remained selected with “Opening second window…” and the expected
+panel did not appear. Project identity remained correct. Preserve the failed
+fixture at %TEMP%/black-skies-program7-e2e-y1tIry/carmilla-review and trace/context
+under dedicated-final/test-results/program7-accessibility-Pro-f122e-ached-and-detached-surfaces-electron.
+
+One focused follow-up with temporary click-target/geometry instrumentation
+passed all matrix contexts (one test, 27.678 seconds). At the previously failing
+context it captured Create / Develop as the actual click target, 641x900 viewport
+and a present panel. This was a dirty diagnostic run, not qualification or a
+product repair. Artifacts: route-probe.log, route-probe-observed.json,
+route-probe/, route-probe-instrumentation.patch; fixture
+%TEMP%/black-skies-program7-e2e-QRkFKU/carmilla-review. Temporary instrumentation
+was removed by inverse edits; the spec again matches frozen HEAD. No cause was
+established. Stop repeat investigation without a new actionable observation.
+Owner/stage: coordinator, **Batch 4 route triage before formal Human Gate 4
+disposition**. Required evidence: actual failed click target, route/project and
+window geometry/event-time correlation, then a reproducing regression if a
+product cause is established. Reopening trigger: another click/panel mismatch,
+route reversal or stall. This issue remains Uncertain and cannot count as a pass.
+
+**P7-NATIVE-RESP-01** remains Uncertain at its existing coordinator-owned
+**Batch 4 responsiveness triage before formal Human Gate 4 disposition**.
+Current final Stage 19 has no observed recurrence; absence does not establish
+the earlier cause. Required evidence/reopening trigger: a warning or impaired
+input/close with action, time, duration, project and window correlation.
+No additional native review or speculative source repair was performed.
+
+**Next human-required host step — installed offline qualification.**
+The exact installer is package/BlackSkies-Setup-1.0.0-rc1.exe; SHA-256
+fbf65dd7c5d801512c7c8e9fc0688e60cbf98c60003d896aa6ac5b9db44d1b2c.
+The existing stage19-installed-lifecycle.ps1 explicitly requires elevated
+PowerShell for its temporary outbound firewall rule (line 163).
+Sandbox execution approval does not supply Windows Administrator privileges.
+Jason: open PowerShell using **Run as administrator**, then run:
+
+```powershell
+$reviewRepo = 'C:\Users\gray2\.codex\visualizations\2026\09\04\01a06e84-5626-7241-bbe0-639af79386bf\program7-today'
+$reviewPacket = 'C:\Users\gray2\AppData\Local\Temp\black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570'
+$env:BLACKSKIES_DISABLE_LOCAL_AI = '1'
+& "$reviewRepo\scripts\stage19-installed-lifecycle.ps1" -InstallerPath "$reviewPacket\package\BlackSkies-Setup-1.0.0-rc1.exe" -ReceiptPath "$reviewPacket\package-receipt.json" -WorkingRoot "$reviewPacket\installed-lifecycle"
+```
+
+Expected completion: STAGE19_INSTALLED_LIFECYCLE_PASS. Preserve any failed
+output/state and report it; do not rerun into the same root or substitute
+SkipFirewallIsolation. The script installs in the named disposable root,
+temporarily blocks that executable's outbound network, tests a representative
+workload, checks uninstall/external-data preservation and reinstalls the same
+candidate. It checks ordinary Black Skies shortcuts/registration and leaves the
+qualified reinstall in that root. It does not qualify by testing the old package.
+Coordinator then checks the installed witness, actual receipt/lifecycle hashes
+and representative workload, and refreshes only affected current ledger rows.
+
+Independent **RT-2B controlled-host preflight before current-candidate pilot
+execution** still needs headroom and real peak/host sampling. Jason should save
+work and close unused memory-heavy applications he chooses; agents must not
+close unrelated/unsaved applications. Coordinator remeasures and establishes
+bounded monitoring before invoking the fixed qwen3:4b pilot. Idle loopback Ollama
+0.13.0 was started hidden; no model was requested/downloaded/admitted.
+The approved model digest remains
+359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7.
+A current pilot failure is recorded and repaired or dispositioned; historical
+24/24 or model disk size cannot substitute for current outcomes/resources.
+
+After host proofs: reconcile exact packet and diagnostic dispositions, then
+prepare formal Jason rows (P4 local facts/return/dismiss, P5 anchored source
+navigation/reopen, P6 detached Emotion/two source returns/project identity),
+deterministic sample, and local-model voice/usefulness/wait/admission judgment.
+Reuse accepted no-AI observations where applicable, without inventing formal
+row acceptance. Human Gate 4, AI admission and Program 7 closure remain open.
+
+
+### Installed proof and local-model findings — October 5, 2026
+
+Jason ran the prepared Administrator command and supplied the transcript at
+C:/Users/gray2/.codex/attachments/1b623552-7da7-4c60-8fe5-16ac362a4273/Pasted text.txt.
+It completed STAGE19_INSTALLED_LIFECYCLE_PASS. Coordinator independently verified
+the retained lifecycle/receipt and installed witness: exact 500aadad executable,
+ASAR and installer identity, offline isolation, 100-unit representative workload,
+exact Markdown, zero forbidden/survivor runtime processes, uninstall, reinstall
+and 196 preserved external files. installed-witness.log contains
+STAGE19_22_QUALIFICATION_WITNESS_PASS. This supersedes the Administrator blocker
+for this frozen package; the earlier unpacked three-unit receipt retains its
+original scope. No rerun or application-only substitute was used.
+
+The controlled fixed-model first pilot completed 24 rows in 260.426 seconds:
+18 mechanical passes / six failures, status not-qualified. Artifacts at the
+existing packet root: local-ai-run-1.json, local-ai-run-1.log, pilot-resources.json,
+pilot-resource-samples.jsonl, controlled-pilot.log and pilot-run-1/carmilla-review.
+Protection scan/control checks passed; manuscript/story truth was unchanged;
+qwen3:4b identity matched the approved digest. Observed available physical
+memory stayed >=2,534,588,416 bytes and utilization <=84.624%; peak measured
+Ollama runner working set was 3,626,737,664 bytes. The wrapper samples at 250 ms,
+so intervals/in-flight operations limit attribution; Windows peak values are
+process-lifetime high-water readings. The model was unloaded afterward and
+/api/ps reported no loaded models. This is actual resource evidence, not disk
+size or a token-usage experiment.
+
+**RT-2B timing/status findings:** initial warm Q01 25.358 seconds, Q02 timeout
+30.025 seconds, Q04 20.740 seconds and Q07 20.081 seconds exceeded the existing
+20-second warm visible-result bound. Q06 cold/warm returned still_appears_present
+instead of expected appears_resolved. Do not change the expected result or
+timing threshold to make the run pass. Those advisory judgments/timing outcomes
+require RT-2B repair or an explicit local-ai-unavailable/conditional disposition;
+they do not reactivate revision items or apply manuscript text.
+
+Two additional qualification seams were found and repaired in existing files:
+
+- **RT-2B-COLD-WARM-PRECONDITION:** keep_alive:0 unloaded after a cold request,
+  leaving the next supposed warm request cold; the next supposed cold request
+  could start resident. Added explicit empty-prompt unload/preload preparation
+  and /api/ps residency verification before measured requests, including
+  cancellation rows. Preparation does not generate an author alternative.
+  The first corrected attempt aborted after 50.374 seconds because Ollama
+  acknowledged unload while briefly still listed resident. Added bounded
+  ten-second residency polling; generation/load is not retried. Existing
+  qualifier tests prove unloaded/resident preconditions, delayed unload,
+  missing/wrong model rejection, bounds and no retries. The aborted fixture,
+  log and resource samples remain under pilot-run-2 and run-2 artifacts;
+  it has no complete qualification JSON and cannot count as a 24-row pass.
+- **P7-G2-PILOT-FAILURE-REPORTING:** aggregate not-qualified had converted even
+  known current failed rows to Uncertain and replaced their artifact with the
+  protocol. A new assertion in the existing ledger suite demonstrated that
+  exact failure (six old tests passed, new test failed). Builder now preserves
+  exact-bound observed Fail/repair rows and the actual pilot artifact; stale
+  failures remain Uncertain. Passing rows remain Uncertain until the complete
+  clean pilot qualifies. The affected ledger suite passes seven tests.
+
+Both are coordinator-owned at **RT-2B corrected-precondition pilot and evidence
+reconciliation before Human Gate 4 disposition**. Reopening triggers: resident
+model at cold dispatch, absent/wrong model at warm dispatch, precondition timeout,
+generation retry, or a known current failed row becoming Uncertain/Pass.
+A successful synthetic/unit assertion is not real-provider qualification.
+
+Application runtime is unchanged from frozen 500aadad / accepted 3e046265.
+Qualification utilities/tests plus records are now dirty after 500aadad.
+No prior clean run is relabeled. The corrected real-provider follow-up is
+explicitly dirty mechanical evidence. Formal promotion additionally requires
+verified preconditions, a clean exact candidate and all mandatory rows passing.
+Repository lint, app typecheck and diff hygiene passed after the first narrow
+repair; delayed-unload follow-up tests pass. Do not infer local-AI admission,
+full accessibility completion, Human Gate 4 or Program 7 closure.
+
+P4/P5/P6 formal rows remain Jason-owned. Existing clean Stage 19 already runs
+the P4 Companion temporary-orientation/reopen test and Program 6 complete
+source-linked workflow; Program 7 revision journeys exercise anchored source
+return/reopen. This mechanical overlap is not Jason's formal carry-forward
+acceptance. Keep the accepted guided no-AI session recorded, and request only
+the remaining named formal judgments/diagnostic dispositions.
+
+
+#### Corrected follow-up and next author boundary
+
+The bounded residency-poll repair completed a real follow-up in **289.050
+seconds**, with **24 observed rows / 19 mechanical passes / five failures**.
+providerPreconditionsVerified is true; workingTreeClean is false. It is dirty
+mechanical evidence, not clean qualification. Files at the packet root:
+local-ai-run-3.json, local-ai-run-3.log, pilot-resources-run-3.json,
+pilot-resource-samples-run-3.jsonl, controlled-pilot-run-3.log and
+pilot-run-3/carmilla-review. All earlier runs/fixtures remain intact.
+
+Corrected failures: Q01 warm 21.774 seconds, Q02 warm unavailable/timeout
+30.012 seconds, Q07 warm 21.408 seconds; Q06 cold/warm still_appears_present
+rather than expected appears_resolved (18.171 / 15.663 seconds).
+Q04 now meets its mechanical gate. No threshold, expected status, model or
+source fixture was relaxed. Protection scan and mutation controls pass.
+Observed minimum available memory is **3,177,656,320 bytes**, maximum physical
+utilization **80.723%**, peak Ollama working set **3,625,754,624 bytes**.
+The model was unloaded and post-run /api/ps was empty. No further model
+performance-tuning loop or admission followed.
+
+The rebuilt external packet validates integrity (validation-final.log):
+**41 rows / 13 Pass / five Fail / 23 Uncertain**. The five current known
+failures remain Fail/repair; incomplete or dirty pilot success rows remain
+Uncertain. Installed packaged evidence is now Pass mechanically with Jason's
+authority review pending. Before-host-and-pilot copies preserve the preceding
+external ledger/sample. The deterministic objective sample remains long-form,
+Stage 19 and recovery; no author scores/decisions were filled.
+
+**P7-HG4-REG-P6 mechanical coverage gap closed:** the existing Program 6
+journey now creates two author-controlled Emotion notes in Glass Orchard and
+verifies detached returns to two distinct sources: measured unease ->
+go_01/The Empty Conservatory (real painted-circle click), guarded hope ->
+go_02/A Red Apple (focus/Enter). Both windows retain Glass Orchard and each
+draft remains byte-identical. One test passes (4.0 seconds; runner total
+5.4 seconds), still dirty test evidence over unchanged application runtime.
+Passing fixture:
+C:/Users/gray2/AppData/Local/Temp/black-skies-program6-e2e-4IDukx/glass-orchard.
+Artifacts: emotion-source-followup-painted-point.log and its retained output.
+
+The first direct attempt clicked the SVG group's bounding-box center, which
+lies in empty plot space between the circle and its label; parent SVG
+intercepted pointer input. Corrected the input target to the painted circle,
+then verified keyboard input independently. No force click or synthetic DOM
+event was used; no product repair is inferred from this test-selector repair.
+Failed corpus remains at %TEMP%/black-skies-program6-e2e-OpBOHZ with
+emotion-source-followup-direct/ trace/context. Campaign corpus teardown now
+retains failed and passing fixtures instead of removing them unconditionally.
+
+A wrong initial invocation used e2e-with-backend.mjs. Its isolated legacy
+backend returned analytics summary/scenes 404 and stopped before Electron.
+Log: emotion-source-followup.log. Git status shows no tracked sample-project,
+backend or runtime changes from that invocation. The focused check uses the
+established direct Electron entrypoint; no legacy backend repair was attempted.
+If that launcher is needed later, owner coordinator, exact resolution stage
+**Stage 19 legacy-backend workflow proof before reuse of e2e-with-backend.mjs**;
+evidence is a supported endpoint/fixture contract; reopening trigger is reuse
+of that launcher or admission of its analytics path. This is an invocation
+seam, not a failing Program 7 Electron result.
+
+All application runtime source still matches frozen 500aadad and Jason's
+accepted 3e046265. New edits are existing tests, qualification utilities and
+the two established records. The working tree remains explicitly dirty;
+there was no new qualification commit, push, release, cleanup or native
+takeover. No repeat full suite/Stage 19 was run for these test-only/utility
+changes; the affected tests, lint and typecheck are the applicable checks.
+Do not present the dirty checkout as CLEAN_RC_ELIGIBLE.
+
+**Pending author decision:** recommend keeping local AI unavailable for this
+candidate and continuing toward formal no-AI review. The approved protocol
+permits unavailable/conditional disposition at **RT-2B rerun**; owner
+coordinator; required reopening evidence is a clean prepared 24-row pilot,
+resource/safety proof and Jason quality acceptance. Reopening trigger:
+approved host/model/transport/prompt change, failed protection/mutation bound,
+or renewed AI-admission work. Jason must accept that disposition or request
+a separately scoped AI repair campaign. No admission can follow five Fail
+rows or a dirty success packet.
+
+P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 still require their recorded author
+review and coordinator dispositions before formal Human Gate 4. No cause
+has been established; neither is a pass. The route failure's retained trace
+contains test.trace/resources but no independent browser input-event ledger.
+That alone does not prove a fixture or product defect. The previous passing
+probe remains positive dirty diagnostic evidence, with its limits unchanged.
+
+The remaining formal review draft reuses the existing fixtures:
+
+| Row | Screen/action | Expected result and failure condition |
+| --- | --- | --- |
+| P4 | Glass Orchard, select a story section; Ask Black Skies: Where am I? Inspect Local facts/limitation, Return to Writing, then Dismiss | Correct project/section, explicit local/no-AI limitation, same writing context and temporary result cleared. Wrong identity, fabricated fact, missing limitation or blocked return fails |
+| P5 | Existing Carmilla review at %TEMP%/black-skies-jason-review-W2nUKR/carmilla-review; follow an anchored finding, navigate to another section, repeat; close/reopen its review surface and repeat | Record intended source before each jump; exact section/passage survives navigation/reopen. Wrong or lost source fails; preserve the fixture |
+| P6 | Retained Glass Orchard above; Story Knowledge -> Emotion in the second window; measured unease then guarded hope | The Empty Conservatory then A Red Apple in Writing; Glass Orchard remains in both windows. Wrong project/source, mutation or lost detached window fails |
+| Diagnostic route | Command Center attached, narrow/light/200% view; select Create / Develop after theme change | Expected panel opens and controls stay reachable. Wrong panel, unexpected second window, covered control or stall reopens P7-A11Y-ROUTE-01 |
+| Responsiveness | Observe supported navigation and normal close | Warning/stall gets action/time/duration/project/window evidence; preserve state and reopen P7-NATIVE-RESP-01 |
+| Objective sample | Review current long-form, Stage 19 and recovery evidence/associated outcomes | Jason records his decision; agents do not invent fields or choose substitute rows |
+
+This draft is not formal gate admission or a request to redo all accepted
+no-AI testing. Final gate prerequisites include explicit failed/uncertain
+dispositions and Jason's named subjective/authority decisions.
+
+### Bounded AI waiting/advice follow-up — October 5, 2026
+
+Jason clarified that slower responses are acceptable and approved this focused
+follow-up. The five earlier failed rows do not establish five product defects:
+Q01/Q07 completed just beyond a provisional 20-second target; Q02 was cut off
+without a result at 30 seconds; Q06 is one advisory scenario exercised twice.
+Historical records and the frozen 500aadad package/ledger remain unchanged.
+
+**Waiting policy implemented:** application default timeout is now 60 seconds,
+with the prospective non-streaming warm-visible target aligned to the existing
+60-second warm-total budget. This coordinator-selected bound implements Jason's
+accepted longer-wait direction; Jason did not specify an exact number.
+Cancellation, protection, input/output bounds, resource limits and author
+control remain intact. Direct revision/Ideas IPC does not use the generic
+45-second HTTP bridge timer. This is not a speed improvement.
+
+The existing service suite demonstrates the former cutoff before repair:
+16 passed / two failed (ai-wait-before-fix.log). New cases prove a valid answer
+at 35 seconds, a hard stop at 60 seconds and cancellation at 35 seconds.
+After repair, six service/transport/revision-IPC/Ideas-IPC/preload suites pass:
+**60/60** (ai-wait-final-focused-tests.log). Existing qualifier tests also
+cover the prospective timing boundary and unchanged Q05/Q06 expected statuses.
+
+**Advisory clarification and remaining limitation:** Q05/Q06 now explicitly ask
+whether the passage says the reasoning will be presented or withheld, rather
+than whether it supplies the reasoning itself. Source paragraphs and expected
+answers were preserved. The first focused run completed Q02 warm with candidate
+in **29.338 seconds**; this is a completed rerun, not proof of improved speed or
+a universal under-30-second response. Q05 returned its expected status but a
+questionable explanation. Q06 cold/warm still returned still_appears_present
+despite correctly explaining that the reasoning is withheld (18.065 / 16.568
+seconds). Neither Q06 row passed its expected judgment.
+
+A single further prompt clarification defines both status meanings and
+distinguishes handling information from supplying it. The three-request recheck
+returns Q05 still_appears_present with a relevant explanation in **15.797
+seconds**. Q06 cold/warm correctly quote withholding but still return the wrong
+status in **18.927 / 17.699 seconds**. The prompt ambiguity was a demonstrated
+seam; clarification did not establish it as the complete cause or repair the
+model's status judgment. All three meet the prospective waiting budget;
+only one matches the expected status. No expected answer was changed, no
+verdict was supplied to the model and no failed result was called a pass.
+The loop stopped here. Do not parse the prose to override the model's status
+or automatically resolve author work.
+
+Evidence is at the existing external packet root:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570.
+ai-wait-focused-followup.json/.log/.mjs and ai-wait-followup.patch retain the
+first four-request run. ai-wait-focused-followup-v2.json/.log/.mjs and
+ai-wait-followup-v2.patch retain the final three-request run. Their exact HEAD,
+tree, dirty patch and runtime/qualifier source hashes are recorded. Both exits
+are 2 for the known advisory mismatch, not a crash. Both runs preserve exact
+draft bytes and end with no resident model. ai-wait-story-preservation.json
+independently confirms story-intelligence bytes match the preserved run-3
+baseline. Sampled minimum free memory is 3,478,151,168 / 3,529,039,872 bytes;
+maximum host utilization 78.900 / 78.591 percent. These host samples are not
+process peak qualification. No full matrix, protection/fault matrix, subjective
+score, package qualification or AI admission is inferred from these diagnostics.
+
+Read-only hardware inspection found Ryzen 7 5825U and integrated Radeon
+graphics. Existing provider logs establish CPU inference; model thinking was
+already disabled. Warm loading saved about one second in the earlier pilot,
+while prompt processing and generation dominated. No driver, model, provider,
+GPU, dependency or streaming change was made. No speedup is claimed.
+
+**Current boundary:** local AI remains unadmitted, with Q06 status mismatch
+explicitly unresolved. Coordinator owns **RT-2B rerun** before any admission;
+required evidence is the clean prepared full matrix plus safety/resource
+evidence and Jason's quality/usefulness review. Reopening trigger is an
+approved prompt/model/transport/host change or renewed AI-admission work.
+An unavailable/conditional author disposition can support the separate no-AI
+gate; it is not fabricated here. No new feature deferral was introduced.
+
+Final affected checks pass: ai-wait-final-focused-tests.log (60/60),
+ai-wait-qualifier-tests.log, ai-wait-final-build-main.log,
+ai-wait-final-typecheck.log, ai-wait-final-lint.log, ai-wait-final-docs.log
+(72 authority files/links), and git diff --check. No broad qualification
+was rerun or claimed for this dirty follow-up.
+
+Runtime edits are now limited to the inference timeout and advisory prompt,
+so earlier statements that runtime is unchanged describe their historical
+checkpoint only. HEAD remains 500aadad; this development checkout is dirty
+and uncommitted. The accepted installer is untouched and still identifies its
+original qualified executable. New runtime changes require their own candidate
+qualification before distribution; existing clean/package evidence cannot
+transfer to them. P7-A11Y-ROUTE-01 and P7-NATIVE-RESP-01 retain their recorded
+Uncertain status, owner/stage and reopening triggers. Formal Human Gate 4,
+Jason's remaining named reviews and Program 7 closure remain pending.
+
+### Program 7 closure preparation authorized — October 5, 2026
+
+Jason accepted proceeding toward closure with **local AI unavailable**. This
+records the author disposition, not AI admission, model-quality scores or
+formal Human Gate 4 acceptance. The coordinator will freeze one reviewed
+candidate, qualify it and reconcile the current closure packet using existing
+records. The earlier guided no-AI human acceptance remains preserved.
+
+Read-only GPT-6 Luna audits found a missing-tree evidence binding defect in
+the pilot ledger consumer. Exact commit alone no longer permits a missing
+exactTree/precommitTreeHash. Existing regression: six passed / one failed
+before repair (closure-ledger-before-fix.log), **7/7** after strict binding
+(closure-ledger-after-fix.log), including omitted-tree success and failure
+cases. This extends the existing RT-2B evidence-binding finding; no new ledger
+or framework was introduced.
+
+**Local-AI-unavailable ordinary-launch gap repaired:** the previous host
+depended on a launcher environment flag, so a normal launch could expose
+capabilities despite the intended unavailable disposition. Main now sets the
+existing disable gate before creating windows/services. Both preload paths,
+main transport and mutation IPC use that gate. The existing Electron journey
+runs with disableLocalAi:false, verifies unavailable capabilities in Writing
+and the read-only Command window, and saves a manual alternative without
+changing manuscript bytes. No model request is made. Pre-repair failure:
+closure-default-ai-before.log; passing focused result:
+closure-default-ai-after-corrected.log (**1/1**, 3.6 seconds runner).
+The intermediate post-repair check wrongly expected a capability field on the
+read-only Command bridge, which intentionally exposes only list. A subsequent
+edit used the wrong working directory and left that assertion unchanged; its
+repeat failure is retained. Final assertion checks unavailable capability
+rather than requiring a nonexistent field. Both failed artifacts/fixtures
+remain under closure-default-ai-after and closure-default-ai-after-boolean.
+No additional product defect was inferred from those assertion/invocation
+errors. Product AI admission now requires a future reviewed policy change,
+not setting the old environment flag to zero.
+
+Existing accessibility journey now records bounded trusted pointer/click
+targets with route/project-time context and window unresponsive/responsive
+events during the required final run. Observation failure is reported as
+unavailable rather than silently passing. No UI assertion was removed,
+forced click introduced or failed fixture reset. P7-A11Y-ROUTE-01 and
+P7-NATIVE-RESP-01 remain Uncertain at their recorded coordinator-owned
+Batch 4 stages before Human Gate 4 disposition; a passing current matrix does
+not establish the cause of historical failure. No exploratory repeat loop
+is authorized merely to turn an intermittent result green.
+
+Family audit found existing Foundation/Ideas component and repository proof,
+including blank/unknown/revised/read-only, contributions/versions, library,
+archive/restore and history. FeedbackNotesRepository proves durable resolved
+history stays out of active projection and recurrence is a distinct task.
+Program7PromotionIpc proves destination-owner receipts, idempotency, partial
+failure and metadata-only character/lore handoffs. The existing revision
+journey additionally exercises author resolution/history. These are mapped
+to final full-suite and Electron artifacts in the existing closure report;
+no missing granular ledger row is treated as a missing behavior by itself.
+
+Final clean qualification artifacts will be preserved at:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005.
+No reset/clean/stash, instruction/automation edits, model/provider/driver
+change, release or push is included. New package/installed evidence is bound
+to the new frozen candidate; older c57/500 receipts remain historical.
+The next required author boundary consists of the exact-candidate installed
+Administrator proof if still required, formal pending human judgments and
+the concrete reviewed checkpoint push authorization. All preparation and
+mechanical work will finish before that boundary.
+
+### Promotion integration defects found during closure preparation — October 5, 2026
+
+**P7-PROMOTION-IPC-01 — repaired; current clean qualification pending.**
+The existing Create / Develop journey was extended to prove real destination
+owner writes. Send to Story Foundation exposed a renderer exception:
+`TypeError: e.outcomes is not iterable`. The main bridge returned an IPC
+success/failure envelope while the shared bridge declared raw handoff data.
+The renderer now checks that envelope before consuming outcomes. Shared types
+match the existing wire contract; destination owners and formats are unchanged.
+An unavailable reply reports that the result could not be confirmed and asks
+the writer to check the destination before retrying, without claiming no write.
+
+**P7-PROMOTION-NOTICE-01 — repaired; current clean qualification pending.**
+The next controlled-rejection check exposed a separate presentation seam:
+Create / Develop results were mounted only inside Revision Desk, so Ideas
+writers could not see rejection feedback. The existing workspace now renders
+one result in its active panel. An existing component test proves visible
+Ideas/Foundation feedback; no new test file or public interface was created.
+
+Evidence root: the `closure-final-20261005` directory recorded above.
+`promotion-proof.log` preserves the pre-repair exception; `promotion-final.log`
+and project `%TEMP%/black-skies-program7-e2e-dVuWG0/carmilla-review` preserve the
+hidden-result failure. `promotion-visible-results.log` passes 1/1 with real
+Foundation and Outline owner writes, preview-only preservation, rejection and
+thrown-reply notices, and exact unchanged manuscript/destination bytes for
+both controlled failures. These are automated dirty-candidate observations,
+not native failure simulations or human acceptance. Full-suite and clean
+candidate evidence will follow; historical fixtures remain intact.
+
+Owner: coordinator. Resolution stage: **Program 7 current-candidate integration
+qualification before formal Human Gate 4**. Reopening triggers: renderer error
+on Send, missing/false result, destination mismatch, or unintended manuscript
+mutation. These two root causes are accounted for separately.
+
 ### Repair evidence before final qualification
 
 Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,

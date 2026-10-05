@@ -281,6 +281,56 @@ describe('Program 7 local inference service', () => {
     expect(result).toMatchObject({ status: 'no_findings', text: '' });
   });
 
+  it('allows a completed answer after the former 30-second cutoff', async () => {
+    vi.useFakeTimers();
+    try {
+      const transport = {
+        request: vi.fn(() => new Promise((resolve) =>
+          setTimeout(() => resolve(validTransportResult()), 35_000))),
+      };
+      const pending = new Program7LocalInferenceService({ transport }).run(request, { authorInvoked: true });
+      await vi.advanceTimersByTimeAsync(35_000);
+      await expect(pending).resolves.toMatchObject({ status: 'candidate', text: 'An alternative.' });
+      expect(transport.request).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps the longer default wait bounded and cancellable after 30 seconds', async () => {
+    vi.useFakeTimers();
+    try {
+      const signals: AbortSignal[] = [];
+      const transport = {
+        request: vi.fn((_request: Program7LocalInferenceRequestV1, signal?: AbortSignal) => {
+          signals.push(signal!);
+          return new Promise(() => undefined);
+        }),
+      };
+      const service = new Program7LocalInferenceService({ transport });
+      let completed = false;
+      const pending = service.run(request, { authorInvoked: true }).then((result) => {
+        completed = true;
+        return result;
+      });
+      await vi.advanceTimersByTimeAsync(59_999);
+      expect(completed).toBe(false);
+      expect(signals[0]?.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      await expect(pending).resolves.toMatchObject({ status: 'unavailable', reason: 'Local inference timed out.' });
+      expect(signals[0]?.aborted).toBe(true);
+
+      const cancelled = service.run({ ...request, requestId: 'cancel-during-long-wait' }, { authorInvoked: true });
+      await vi.advanceTimersByTimeAsync(35_000);
+      service.cancel('cancel-during-long-wait');
+      await expect(cancelled).resolves.toMatchObject({ status: 'cancelled' });
+      expect(signals[1]?.aborted).toBe(true);
+      expect(transport.request).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('returns cancelled before invoking an abort-ignoring transport for a pre-aborted signal', async () => {
     const controller = new AbortController();
     controller.abort();

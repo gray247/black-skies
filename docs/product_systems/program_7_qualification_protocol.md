@@ -248,8 +248,19 @@ score is not averaged away by a faster or structurally valid run.
 These are conservative provisional gates for the approved 16 GB CPU host, not
 Jason's subjective usefulness or tolerable-wait decision:
 
+October 5, 2026 bounded follow-up: Jason accepts slower completed responses.
+The coordinator aligns the non-streaming warm-visible target with the existing
+60-second warm-total budget and sets the application service timeout to 60
+seconds (formerly 30). Cancellation remains available; all safety, protection,
+resource and author-review gates remain intact. This is a prospective waiting
+policy change, not a speed improvement or retrospective qualification of
+earlier runs. Preserve their original 20-second target and 30-second cutoff.
+The Q05/Q06 concern is clarified to distinguish whether reasoning will be
+presented or withheld from whether the reasoning itself is supplied; source
+paragraphs and expected judgments remain unchanged.
+
 - cold first visible result: ≤ 60 seconds;
-- warm first visible result: ≤ 20 seconds;
+- warm first visible result: ≤ 60 seconds;
 - cold total bounded operation: ≤ 120 seconds;
 - warm total bounded operation: ≤ 60 seconds;
 - cancellation acknowledgement and transport termination: ≤ 2 seconds from

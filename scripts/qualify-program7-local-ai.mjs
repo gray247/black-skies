@@ -19,7 +19,7 @@ const unitId = 'carmilla-prologue';
 const schemaVersion = 'program7.local-ai-qualification.v1';
 const TIMING_LIMITS_MS = {
   'real-cold': { firstVisible: 60_000, total: 120_000 },
-  'real-warm': { firstVisible: 20_000, total: 60_000 },
+  'real-warm': { firstVisible: 60_000, total: 60_000 },
 };
 
 function argValue(argv, name, fallback) {
@@ -115,7 +115,7 @@ export function buildProgram7QualificationScenarios({ durable, dialogueSource, f
   const dialogueBody = dialogueSource.slice(dialogueStart, dialogueEnd).trim();
   const continuityFact = factsFixture.facts.find((fact) => fact.id === 'fact-narrator')?.statement ?? 'Laura narrates retrospectively.';
   const continuityText = `Immutable continuity fact: ${continuityFact}`;
-  const openingConcern = 'Does this passage clearly explain how Doctor Hesselius’s reasoning will be handled?';
+  const openingConcern = 'Concern: the passage leaves unclear whether Doctor Hesselius’s reasoning will be presented or withheld. Assess whether the passage states what will be done with that reasoning; do not assess whether the reasoning itself is supplied.';
   const baselineRecheckText = paragraphContaining(durable, 'Upon a paper attached to the Narrative');
   const revisedRecheckText = [
     paragraphContaining(durable, 'Upon a paper attached to the Narrative'),
@@ -151,6 +151,42 @@ async function invokeService(service, request, options = {}) {
       elapsedMs: Math.round(performance.now() - started),
     };
   }
+}
+
+
+export async function prepareProviderForMode(executionMode, fetchImpl = globalThis.fetch, residencyTimeoutMs = 10_000) {
+  if (executionMode !== 'real-cold' && executionMode !== 'real-warm') {
+    throw new Error('Unknown real-provider execution mode.');
+  }
+  const startedAt = new Date().toISOString();
+  const started = performance.now();
+  const keepAlive = executionMode === 'real-cold' ? 0 : '5m';
+  // Empty-prompt load/unload is setup only. It does not generate a manuscript
+  // alternative and is outside the measured author operation.
+  const response = await fetchImpl(endpoint + '/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, keep_alive: keepAlive }),
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!response.ok || (await response.json()).done !== true) {
+    throw new Error('Provider load/unload preparation did not complete.');
+  }
+  const residencyDeadline = performance.now() + residencyTimeoutMs;
+  let resident;
+  let residencyChecks = 0;
+  while (true) {
+    const residencyResponse = await fetchImpl(endpoint + '/api/ps', { signal: AbortSignal.timeout(10_000) });
+    if (!residencyResponse.ok) throw new Error('Provider residency inspection failed.');
+    const residency = await residencyResponse.json();
+    if (!Array.isArray(residency.models)) throw new Error('Provider residency response is invalid.');
+    resident = residency.models.find((entry) => (entry.name ?? entry.model) === model);
+    residencyChecks += 1;
+    if (executionMode === 'real-cold' ? !resident : resident && resident.size > 0) break;
+    if (performance.now() >= residencyDeadline) throw new Error('Provider did not establish the requested ' + executionMode + ' precondition.');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return { executionMode, startedAt, preparationDurationMs: Math.round(performance.now() - started), targetResident: Boolean(resident), keepAlive, residencyChecks, residentDigest: resident?.digest ?? null };
 }
 
 function hostResourceSnapshot() {
@@ -270,7 +306,7 @@ async function realCancellationRun({ request, executionMode, OllamaLocalInferenc
   };
   const service = new Program7LocalInferenceService({
     transport: new OllamaLocalInferenceTransport({ fetch: fetchWithAbort, keepAlive: executionMode === 'real-cold' ? '0' : '5m' }),
-    timeoutMs: 30_000,
+    timeoutMs: 60_000,
   });
   const started = performance.now();
   const invoked = await invokeService(service, request, { authorInvoked: true, signal: controller.signal });
@@ -325,7 +361,7 @@ async function run() {
         const scenarioUnitId = scenario.sourceUnitId ?? unitId;
         const request = requestForScenario(scenario, scenarioText, sha256(scenarioText), executionMode, scenarioUnitId);
         const invoked = await invokeService(
-          new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport(), timeoutMs: 30_000 }),
+          new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport(), timeoutMs: 60_000 }),
           request,
           { authorInvoked: true },
         );
@@ -348,10 +384,11 @@ async function run() {
       const scenarioText = scenario.sourceText ?? sourceText;
       const scenarioUnitId = scenario.sourceUnitId ?? unitId;
       const request = requestForScenario(scenario, scenarioText, sha256(scenarioText), executionMode, scenarioUnitId);
+      const providerPreparation = await prepareProviderForMode(executionMode);
       const providerObservation = { generateResponseAt: null, timing: null };
       const resourcesBefore = hostResourceSnapshot();
       const transport = new OllamaLocalInferenceTransport({ fetch: instrumentedFetch(providerObservation), keepAlive: executionMode === 'real-cold' ? '0' : '5m' });
-      const service = new Program7LocalInferenceService({ transport, timeoutMs: 30_000 });
+      const service = new Program7LocalInferenceService({ transport, timeoutMs: 60_000 });
       const invoked = await invokeService(service, request, { authorInvoked: true });
       const resourcesAfter = hostResourceSnapshot();
       const summary = responseSummary(invoked.response, invoked.elapsedMs, true, scenario.expectedStatus);
@@ -372,6 +409,7 @@ async function run() {
         request,
         response: invoked.response,
         providerObservation,
+        providerPreparation,
         resources: {
           observationMode: 'request-boundary snapshots; not a peak-process sampler',
           before: resourcesBefore,
@@ -443,10 +481,11 @@ async function run() {
     const scenario = { id: 'Q11', operation: 'rewrite_candidate', purpose: 'Cancellation during generation.', expectedStatus: 'cancelled' };
     const cancellationText = sourceText.repeat(18).slice(0, 11_800);
     const request = requestForScenario(scenario, cancellationText, sha256(cancellationText), executionMode);
+    const providerPreparation = await prepareProviderForMode(executionMode);
     const { invoked, metrics } = await realCancellationRun({ request, executionMode, OllamaLocalInferenceTransport, Program7LocalInferenceService });
     const summary = responseSummary(invoked.response, invoked.elapsedMs, metrics.realGenerateRequest, 'cancelled');
     const timingPass = summary.status === 'cancelled' && metrics.realGenerateRequest && metrics.transportTerminationMs !== null && metrics.transportTerminationMs <= 2_000;
-    matrix.push({ scenarioId: 'Q11', executionMode, operation: scenario.operation, requestId: request.requestId, expected: 'A real in-progress qwen3:4b generation is cancelled and the transport closes within 2 seconds.', observed: summary.status, ...summary, timingPass, mechanicalPass: timingPass, cancellationMetrics: metrics, error: invoked.error });
+    matrix.push({ scenarioId: 'Q11', executionMode, operation: scenario.operation, requestId: request.requestId, expected: 'A real in-progress qwen3:4b generation is cancelled and the transport closes within 2 seconds.', observed: summary.status, ...summary, timingPass, mechanicalPass: timingPass, providerPreparation, cancellationMetrics: metrics, error: invoked.error });
   }
 
   for (const [executionMode, fault] of [['fault-a', 'pre-dispatch-refused'], ['fault-b', 'mid-request-endpoint-loss']]) {
@@ -498,7 +537,7 @@ async function run() {
     request: result.request,
   }));
 
-  const controlService = new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport(), timeoutMs: 30_000 });
+  const controlService = new Program7LocalInferenceService({ transport: new OllamaLocalInferenceTransport(), timeoutMs: 60_000 });
   const protectedRequest = requestFor('rewrite_candidate', sourceText, bodySha256, 'program7-qualification-protected', 'Protected refusal control.');
   protectedRequest.protection = { excluded: false, class: 'metadata-only' };
   const protectedResponse = await controlService.run(protectedRequest, { authorInvoked: true });
@@ -546,10 +585,18 @@ async function run() {
     pass: protectedHits.length === 0,
   };
   const qualified = actualModels.length === 1 && actualModels[0] === model && modelDigests.length === 1 && statusesValid && controlsValid && matrixMechanicalPass && protectionScan.pass && draftBefore === draftAfter && storyBefore === storyAfter;
+  const { stdout: treeOutput } = await execFileAsync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repoRoot });
+  const { stdout: statusOutput } = await execFileAsync('git', ['status', '--porcelain'], { cwd: repoRoot });
+  const providerPreconditionsVerified = matrix.filter((row) => row.transportInvoked && ['real-cold', 'real-warm'].includes(row.executionMode)).every((row) => row.providerPreparation?.executionMode === row.executionMode && row.providerPreparation.targetResident === (row.executionMode === 'real-warm'));
   const evidence = {
     schemaVersion,
     status: qualified ? 'qualified' : 'not-qualified',
     exactCommit: await gitCommit(),
+    exactTree: treeOutput.trim(),
+    workingTreeClean: statusOutput.trim() === '',
+    providerPreconditionsVerified,
+    timingLimitsMs: TIMING_LIMITS_MS,
+    serviceTimeoutMs: 60_000,
     endpoint,
     requestedModel: model,
     actualModels,

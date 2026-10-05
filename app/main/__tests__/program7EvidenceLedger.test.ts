@@ -111,3 +111,58 @@ describe('Program 7 deterministic human sample validation', () => {
       .rejects.toMatchObject({ stderr: expect.stringContaining(message) });
   });
 });
+
+describe('Program 7 pilot failure reporting', () => {
+  it('retains current observed failures without borrowing stale failures', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'black-skies-p7-pilot-ledger-'));
+    const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot });
+    const exactCommit = stdout.trim();
+    const { stdout: treeOut } = await execFileAsync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repoRoot });
+    const pilot = JSON.parse(await readFile(path.join(repoRoot, 'docs/product_systems/program_7_local_ai_qualification.json'), 'utf8'));
+    pilot.exactCommit = exactCommit;
+    pilot.exactTree = treeOut.trim();
+    pilot.precommitTreeHash = treeOut.trim();
+    pilot.status = 'not-qualified';
+    pilot.matrix[0].mechanicalPass = false;
+    pilot.matrixSummary.mechanicalPassRows = 23;
+    pilot.matrixSummary.mechanicalPass = false;
+    const pilotPath = path.join(root, 'pilot.json');
+    const ledger = path.join(root, 'ledger.jsonl');
+    async function build() {
+      await writeFile(pilotPath, JSON.stringify(pilot), 'utf8');
+      await execFileAsync(process.execPath, [builder, '--ledger', ledger, '--pilot', pilotPath], { cwd: repoRoot });
+      return (await readFile(ledger, 'utf8')).trim().split(/\r?\n/u).map((line) => JSON.parse(line));
+    }
+    const rows = await build();
+    const failedId = 'RT-2B-' + pilot.matrix[0].scenarioId + '-' + pilot.matrix[0].executionMode.toUpperCase();
+    expect(rows.find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Fail', disposition: 'repair', artifacts: [expect.objectContaining({ path: pilotPath })] });
+    expect(rows.find((row) => row.evidenceId.startsWith('RT-2B-') && row.evidenceId !== failedId)).toMatchObject({ result: 'Uncertain' });
+    const savedTree = pilot.exactTree;
+    delete pilot.exactTree;
+    delete pilot.precommitTreeHash;
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Uncertain' });
+    pilot.exactTree = savedTree;
+    pilot.precommitTreeHash = savedTree;
+
+    pilot.exactCommit = '0'.repeat(40);
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Uncertain' });
+    pilot.exactCommit = exactCommit;
+    pilot.status = 'qualified';
+    pilot.matrix[0].mechanicalPass = true;
+    pilot.matrixSummary.mechanicalPassRows = 24;
+    pilot.matrixSummary.mechanicalPass = true;
+    pilot.providerPreconditionsVerified = true;
+    pilot.workingTreeClean = true;
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Pass' });
+    delete pilot.exactTree;
+    delete pilot.precommitTreeHash;
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Uncertain' });
+    pilot.exactTree = savedTree;
+    pilot.precommitTreeHash = savedTree;
+    pilot.providerPreconditionsVerified = false;
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Uncertain' });
+    pilot.providerPreconditionsVerified = true;
+    pilot.workingTreeClean = false;
+    expect((await build()).find((row) => row.evidenceId === failedId)).toMatchObject({ result: 'Uncertain' });
+  });
+});

@@ -21,6 +21,15 @@ describe('Program7CreateDevelopWorkspace component', () => {
     expect(screen.getByTestId('marker-history')).toBeInTheDocument();
   });
 
+  it('shows the action result in the active Ideas or Foundation panel', () => {
+    render(<Program7CreateDevelopWorkspace initialSection="ideas" notice={<p role="status">Project changed. Open the project again before sending.</p>} ideas={marker('ideas')} storyFoundation={marker('foundation')} />);
+    expect(screen.getByRole('status')).toBeVisible();
+    expect(screen.getByTestId('program7-create-develop-panel-ideas')).toContainElement(screen.getByRole('status'));
+    fireEvent.click(screen.getByRole('button', { name: 'Story Foundation' }));
+    expect(screen.getByTestId('program7-create-develop-panel-story-foundation')).toContainElement(screen.getByRole('status'));
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+  });
+
   it('keeps section ownership and writing-gate boundaries explicit while reporting navigation', () => {
     const onSectionChange = vi.fn();
     render(<Program7CreateDevelopWorkspace initialSection="story-foundation" storyFoundation={marker('foundation')} onSectionChange={onSectionChange} />);

@@ -137,8 +137,10 @@ function qualifiesPilot(document, exactCommit, exactTree) {
   const tree = document?.exactTree ?? document?.precommitTreeHash;
   return document?.schemaVersion === 'program7.local-ai-qualification.v1'
     && document.status === 'qualified'
+    && document.providerPreconditionsVerified === true
+    && document.workingTreeClean === true
     && document.exactCommit === exactCommit
-    && (tree === undefined || tree === exactTree)
+    && tree === exactTree
     && document.matrixSummary?.expectedRows === 24
     && document.matrixSummary?.observedRows === 24
     && document.matrixSummary?.mechanicalPassRows === 24
@@ -231,9 +233,12 @@ const lifecycleEvidenceArtifact = lifecycleEvidence ? artifact(lifecycleEvidence
 let packageReceipt = null;
 try { packageReceipt = JSON.parse(await readFile(packageReceiptPath, 'utf8')); } catch { packageReceipt = null; }
 const environment = { os: 'Windows outer host', appMode: 'Node/Electron qualification', window: 'attached and detached surfaces where applicable', theme: 'dark', zoom: 100, runtime: 'Node 20+ / Electron 39.8.10 / normal GPU' };
+const pilotBound = pilot.schemaVersion === 'program7.local-ai-qualification.v1'
+  && pilot.exactCommit === exactCommit
+  && (pilot.exactTree ?? pilot.precommitTreeHash) === precommitTreeHash;
 const pilotQualified = qualifiesPilot(pilot, exactCommit, precommitTreeHash);
 const electronQualified = qualifiesElectron(electron, exactCommit, precommitTreeHash);
-const pilotEvidenceArtifact = pilotQualified ? pilotArtifact : protocolArtifact;
+const pilotEvidenceArtifact = pilotBound ? pilotArtifact : protocolArtifact;
 const electronEvidenceArtifact = electronQualified ? electronArtifact : protocolArtifact;
 const rows = [];
 const persistenceFamilies = new Map((persistence.matrix ?? []).map((entry) => [entry.family, entry]));
@@ -256,15 +261,15 @@ for (const matrixRow of pilot.matrix) {
     environment: { ...environment, appMode: 'Node real-host pilot', window: 'not-applicable', runtime: 'Ollama 0.13.0 / qwen3:4b / CPU' },
     action: `Execute ${matrixRow.scenarioId} ${matrixRow.executionMode} through the production local-inference service.`,
     expected: matrixRow.expected,
-    observed: `${matrixRow.observed}; mechanicalPass=${String(matrixRow.mechanicalPass)}; packetBound=${String(pilotQualified)}`,
-    result: !pilotQualified ? 'Uncertain' : matrixRow.mechanicalPass ? 'Pass' : 'Fail',
+    observed: `${matrixRow.observed}; mechanicalPass=${String(matrixRow.mechanicalPass)}; packetBound=${String(pilotBound)}; packetQualified=${String(pilotQualified)}`,
+    result: pilotBound && matrixRow.mechanicalPass === false ? 'Fail' : pilotQualified && matrixRow.mechanicalPass === true ? 'Pass' : 'Uncertain',
     authoritySensitive: subjective || ['Q11', 'Q12'].includes(matrixRow.scenarioId),
     genuinelySubjective: subjective,
     humanRequired: true,
     humanStatus: 'pending',
     humanBasis: subjective ? 'Jason scores usefulness, fidelity, fact preservation, voice, actionability, and uncertainty restraint.' : 'Safety and sovereignty behavior is authority-sensitive even when mechanically bounded.',
     limitations: ['Mechanical pilot evidence only; local-AI admission is not inferred.'],
-    disposition: pilotQualified && matrixRow.mechanicalPass ? 'defer' : pilotQualified ? 'repair' : 'defer',
+    disposition: pilotBound && matrixRow.mechanicalPass === false ? 'repair' : 'defer',
     artifacts: [pilotEvidenceArtifact],
   }));
 }
