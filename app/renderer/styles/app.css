@@ -9492,6 +9492,19 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   margin: 0;
 }
 
+.program7-create-develop__notice {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 12px 16px;
+  border-left: 3px solid var(--stage19-accent);
+  background: var(--bs-surface-raised);
+}
+
+.program7-create-develop__notice > p {
+  margin: 0;
+}
+
 .program7-create-develop__nav {
   display: flex;
   flex-wrap: wrap;

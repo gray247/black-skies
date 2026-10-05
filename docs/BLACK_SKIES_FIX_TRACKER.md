@@ -5,7 +5,7 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: Jason's guided no-AI packet remains accepted. 5a30 installed lifecycle and independent witness pass; native Ideas guidance repaired with affected tests; successor clean qualification and formal human judgments remain pending.
+Status: Guided no-AI acceptance preserved; 5a30 installed lifecycle/witness and 5858 automated/package checks pass. Ideas guidance verified natively; offscreen action notice repaired and successor qualification pending. Formal HG4/Program 7 remain open.
 Formal Human Gate 4 and Program 7 closure remain separate.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
@@ -711,6 +711,45 @@ its missing pre-click rectangles. Keep the recorded coordinator-owned Batch 4
 route triage stage before formal Human Gate 4 disposition and existing
 click/panel mismatch, route flip or stall reopening trigger. No forced click,
 removed assertion, retry, synthetic native failure or acceptance was added.
+
+### Notice viewport continuation — October 5, 2026
+
+Candidate **5858a280358c5839b9d0d136c4c4b1023ad3fe20**, tree
+**76ab9fe356cfc18c0639d2d05ba40dea1e712183**, passed clean Stage 19
+(825 critical assertions, startup 1/1, Electron 36/36), dedicated 7 / 1 existing
+real-AI skip, accessibility 66/66, persistence 143/143, Unicode 18/18,
+four-scale plus Electron, package verify and normal-GPU unpacked 100-unit proof.
+These receipts remain in candidate-5858a280, not relabeled as its successor.
+
+The targeted native recheck confirmed P7-IDEAS-BRANCH-GUIDANCE-01: filled
+direction text remains blocked without a saved/selected idea; source save and
+selection retain the fields; explicit Create saves one linked direction.
+All 17 manuscript hashes remained unchanged. The review stopped after **6 minutes
+11.330 seconds**, 15 logged actions, for a recoverable notice defect.
+native-ideas-check.json retains the state/actions; the failed fixture is preserved.
+
+**P7-PROMOTION-NOTICE-01 reopened and repaired; successor qualification pending.**
+Mounting results in the active panel was necessary but insufficient: after
+scrolling, creation confirmation was above the viewport. The existing Electron
+journey reproduced viewport ratio 0 before repair. A single opaque sticky notice
+now stays visible within the scrolling active workspace. The touched save,
+direction and preview messages explain the outcome, unchanged manuscript and
+next action. The existing journey passes 1/1 with visible creation/preview
+feedback in both themes and visible rejected/unavailable handoff replies.
+Actual Foundation/Outline owner writes and preserved manuscript remain asserted.
+No public interface, storage rule, dependency or duplicate status was introduced.
+
+One accessibility-index click was rejected before input with an off-window
+point after scrolling. Refreshed screenshot geometry succeeded. This is recorded
+as helper evidence and does not establish the historical route failure's cause.
+No product crash, unintended write, AI/network action or human acceptance occurred.
+
+Owner: coordinator. Exact stage: **Batch 4 notice viewport qualification before
+HG4**. Required evidence: clean gate, visible success/error assertions, both-theme
+accessibility and targeted native review of the successor. Reopen for an offscreen
+result, obscured/reachable control failure, duplicate status, false outcome or
+unintended write. The next installed lifecycle must bind to the successor binary;
+5a30 Administrator success remains valid only for 5a30.
 
 ### Ideas native follow-up and completed installed proof — October 5, 2026
 

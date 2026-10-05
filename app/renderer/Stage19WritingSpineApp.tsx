@@ -3923,7 +3923,7 @@ export default function Stage19WritingSpineApp({
     if (!binding || !program7Ideation) return;
     try {
       const result = await ideationBridge.captureSeed({ ...binding, expectedRevision: program7Ideation.document.revision, ...draft });
-      if (updateIdeation(result)) setProgram7Notice('Idea seed captured. It is not manuscript truth.');
+      if (updateIdeation(result)) setProgram7Notice('Idea saved. Your manuscript has not changed. Select it under Saved ideas to explore a direction.');
     } catch { setProgram7Notice('The idea seed could not be captured.'); }
   }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
 
@@ -3933,7 +3933,7 @@ export default function Stage19WritingSpineApp({
     if (!binding || !program7Ideation) return;
     try {
       const result = await ideationBridge.createBranch({ ...binding, expectedRevision: program7Ideation.document.revision, name, premise, seedIds, unknowns });
-      if (updateIdeation(result)) setProgram7Notice('Exploration branch created. It is not manuscript truth.');
+      if (updateIdeation(result)) setProgram7Notice('Direction saved. Your manuscript has not changed. Review it under Directions, or preview a destination to use it elsewhere.');
     } catch { setProgram7Notice('The exploration branch could not be created.'); }
   }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
 
@@ -3974,7 +3974,7 @@ export default function Stage19WritingSpineApp({
     if (!binding || !program7Ideation) return;
     try {
       const result = await ideationBridge.preparePromotion({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id, destination, seedIds, selectedText });
-      if (updateIdeation(result)) setProgram7Notice('Promotion preview prepared. No destination owner was written.');
+      if (updateIdeation(result)) setProgram7Notice('Preview saved. Your manuscript and destination have not changed. Review the text and destination before sending.');
     } catch { setProgram7Notice('The promotion preview could not be prepared.'); }
   }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
 

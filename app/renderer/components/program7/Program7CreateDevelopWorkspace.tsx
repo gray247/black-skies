@@ -57,7 +57,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
         ))}
       </nav>
       <section aria-label={active.label} data-testid={`program7-create-develop-panel-${active.id}`}>
-        {props.notice}
+        {props.notice ? <div className="program7-create-develop__notice">{props.notice}</div> : null}
         {content ?? <p data-testid="program7-create-develop-empty">This section is not connected yet. No change was made.</p>}
       </section>
     </section>
