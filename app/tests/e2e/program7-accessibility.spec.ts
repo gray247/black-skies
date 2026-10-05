@@ -104,6 +104,10 @@ async function observeRouteInputs(page: import('@playwright/test').Page): Promis
           x: mouse.clientX, y: mouse.clientY,
           button: button?.textContent?.trim() ?? null,
           target: (event.target as Element | null)?.tagName ?? null,
+          bodyTheme: document.body.dataset.stage19Theme ?? null,
+          bodyRole: document.body.dataset.stage19Spine ?? null,
+          rootTheme: document.documentElement.dataset.stage19Theme ?? null,
+          routeRects: Array.from(document.querySelectorAll('button')).filter((value) => ['Create / Develop', 'Move Command Center to second window'].includes(value.textContent?.trim() ?? '')).map((value) => ({ label: value.textContent?.trim(), rect: value.getBoundingClientRect().toJSON() })),
           route: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
           viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
         });
@@ -135,15 +139,32 @@ async function exerciseCommandRoutes(
   if (await createDevelop.count() === 0) {
     throw new Error(`Create / Develop missing after ${topology}-${theme}-${profile.id}: ${(await surface.locator('body').innerText()).slice(0, 2_000)}`);
   }
+  const surfaceLabels = await surface.evaluate(() => Array.from(document.querySelectorAll<HTMLButtonElement>('.stage19-spine--command .stage19-spine__surface-actions button'))
+    .filter((button) => button.getBoundingClientRect().height > 0)
+    .map((button) => {
+      const range = document.createRange();
+      range.selectNodeContents(button);
+      return { label: button.textContent?.trim(), rect: button.getBoundingClientRect().toJSON(), textRect: range.getBoundingClientRect().toJSON() };
+    }));
+  await test.info().attach('surface-control-labels-' + topology + '-' + theme + '-' + profile.id, { body: JSON.stringify(surfaceLabels), contentType: 'application/json' });
+  for (const label of surfaceLabels) {
+    expect(label.textRect.top >= label.rect.top - 1 && label.textRect.bottom <= label.rect.bottom + 1 && label.textRect.left >= label.rect.left - 1 && label.textRect.right <= label.rect.right + 1, topology + '-' + theme + '-' + profile.id + ': window control label overflows its button: ' + JSON.stringify(label)).toBe(true);
+  }
   const routeProbeStartedAt = new Date().toISOString();
   const beforeRoute = await surface.evaluate(() => ({
     project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
     selectedRoute: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
+    bodyTheme: document.body.dataset.stage19Theme ?? null,
+    bodyRole: document.body.dataset.stage19Spine ?? null,
+    routeRects: Array.from(document.querySelectorAll('button')).filter((value) => ['Create / Develop', 'Move Command Center to second window'].includes(value.textContent?.trim() ?? '')).map((value) => ({ label: value.textContent?.trim(), rect: value.getBoundingClientRect().toJSON() })),
   }));
   await createDevelop.click();
   const afterRoute = await surface.evaluate(() => ({
     project: document.querySelector('.stage19-spine__project, .stage19-command__identity h1')?.textContent?.trim() ?? null,
     selectedRoute: document.querySelector('button[aria-current="page"]')?.textContent?.trim() ?? null,
+    bodyTheme: document.body.dataset.stage19Theme ?? null,
+    bodyRole: document.body.dataset.stage19Spine ?? null,
+    routeRects: Array.from(document.querySelectorAll('button')).filter((value) => ['Create / Develop', 'Move Command Center to second window'].includes(value.textContent?.trim() ?? '')).map((value) => ({ label: value.textContent?.trim(), rect: value.getBoundingClientRect().toJSON() })),
     panelCount: document.querySelectorAll('[data-testid="program7-create-develop"]').length,
     inputs: (window as typeof window & { __p7RouteInputs?: unknown[] }).__p7RouteInputs?.slice(-8),
   }));

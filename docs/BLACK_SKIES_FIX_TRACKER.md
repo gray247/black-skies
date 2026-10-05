@@ -677,6 +677,41 @@ GPU-disabling qualification arguments, host GPU child failure on normal
 launch, absent first window or an invalid package/installed receipt.
 Historical human acceptance and failed fixtures remain preserved.
 
+### Enlarged window controls and route follow-up — October 5, 2026
+
+**P7-WINDOW-CONTROL-ZOOM-01 — repaired; clean qualification pending.**
+A real geometry assertion demonstrates that at detached/dark/200%-narrow
+the Focus Writing Studio label extends to y=176.36 while its fixed-height
+button ends at y=161.17. The earlier accessibility matrix checked Program 7
+content controls but missed these window controls. The existing responsive
+Command Center CSS now allows the control row to wrap and its buttons to grow
+with their labels. Wide layout and manuscript owners are unchanged.
+The existing matrix additionally checks real label bounds before route input.
+
+Evidence: candidate-1b67a7c8/surface-label-before.log and its retained
+project %TEMP%/black-skies-program7-e2e-CzsR1y/carmilla-review. surface-label-after.log passes 1/1 with all 66 observed rows after repair.
+The label guard now checks both axes; its clean rerun is still required.
+Owner: coordinator. Resolution stage: **P7-G2 accessibility qualification
+before Human Gate 4**. Reopening trigger: surface-control label overflow,
+unreachable window controls or covered navigation at enlarged/narrow layout.
+
+**P7-A11Y-ROUTE-01 remains Uncertain.**
+The 1b67 clean dedicated run reproduced attached/light/200%-narrow failure.
+Its trusted input hit Move Command Center to second window, not Create /
+Develop. The wrong control opened a second window, and no intended panel
+appeared. The failed fixture is %TEMP%/black-skies-program7-e2e-9kIiFf/
+carmilla-review; dedicated-report.json retains input, project and timing.
+No BrowserWindow unresponsive/responsive event was observed in that run.
+
+One focused geometry follow-up passed all 66 observed routes with added target
+bounds and applied-theme diagnostics. It is dirty positive evidence, not a
+repair or explanation of the prior failure. The proven label-overflow defect
+is repaired separately; the earlier misclick cause is not established from
+its missing pre-click rectangles. Keep the recorded coordinator-owned Batch 4
+route triage stage before formal Human Gate 4 disposition and existing
+click/panel mismatch, route flip or stall reopening trigger. No forced click,
+removed assertion, retry, synthetic native failure or acceptance was added.
+
 ### Repair evidence before final qualification
 
 Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,

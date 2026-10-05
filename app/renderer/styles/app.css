@@ -7141,6 +7141,19 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
     flex-wrap: wrap;
   }
 
+  .stage19-spine--command .stage19-spine__surface-host,
+  .stage19-spine--command .stage19-spine__surface-actions {
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .stage19-spine--command .stage19-spine__surface-actions button {
+    height: auto;
+    min-height: 44px;
+    max-width: 100%;
+  }
+
   .stage19-command-review {
     grid-template-columns: minmax(0, 1fr);
   }
