@@ -194,6 +194,10 @@ async function validateHumanSample(rows, exactCommit) {
     if (entry.sampleCount !== expectedCount || !Array.isArray(entry.selectedIds) || entry.selectedIds.length !== expectedCount) {
       fail(`human sample count is invalid for ${packageId}`);
     }
+    const expectedSeed = sha256Text(exactCommit + '|' + packageId + '|program7-human-sample-v1');
+    if (entry.seed !== expectedSeed) fail('human sample seed differs for ' + packageId);
+    const expectedSelected = [...eligibleIds].sort((left, right) => sha256Text(expectedSeed + '|' + left).localeCompare(sha256Text(expectedSeed + '|' + right))).slice(0, expectedCount);
+    if (JSON.stringify(entry.selectedIds) !== JSON.stringify(expectedSelected)) fail('human sample deterministic selection differs for ' + packageId);
     if (new Set(entry.selectedIds).size !== entry.selectedIds.length || entry.selectedIds.some((id) => !eligibleIds.includes(id))) {
       fail(`human sample selected IDs are invalid for ${packageId}`);
     }

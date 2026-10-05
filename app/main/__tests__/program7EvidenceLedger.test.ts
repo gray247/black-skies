@@ -85,3 +85,29 @@ describe('Program 7 external qualification packet', () => {
     expect(await readFile(historicalSample)).toEqual(before);
   });
 });
+
+describe('Program 7 deterministic human sample validation', () => {
+  it.each(['seed', 'selection'] as const)('rejects a substituted sample %s', async (kind) => {
+    const root = await mkdtemp(path.join(tmpdir(), 'black-skies-p7-sample-integrity-'));
+    const row = JSON.parse((await readFile(path.join(repoRoot, 'docs/product_systems/program_7_evidence_ledger.jsonl'), 'utf8')).trim().split(/\r?\n/u)[0]);
+    const artifact = path.join(root, 'artifact.json');
+    const contents = JSON.stringify({ exactCommit: row.exactCommit });
+    await writeFile(artifact, contents, 'utf8');
+    row.artifacts = [{ path: artifact, sha256: createHash('sha256').update(contents).digest('hex'), containsProtectedContent: false }];
+    row.authoritySensitive = false;
+    row.genuinelySubjective = false;
+    const rows = Array.from({ length: 4 }, (_, index) => ({ ...row, evidenceId: 'RT-2B-OBJECTIVE-' + (index + 1) }));
+    const ledger = path.join(root, 'ledger.jsonl');
+    const samplePath = path.join(root, 'sample.json');
+    await writeFile(ledger, rows.map((entry) => JSON.stringify(entry)).join('\n') + '\n', 'utf8');
+    await execFileAsync(process.execPath, [path.join(repoRoot, 'scripts/program7-human-sampling.mjs'), '--ledger', ledger, '--output', samplePath], { cwd: repoRoot });
+    const sample = JSON.parse(await readFile(samplePath, 'utf8'));
+    const entry = sample.packages[row.package];
+    if (kind === 'seed') entry.seed = '0'.repeat(64);
+    else entry.selectedIds[0] = entry.eligiblePassIds.find((id: string) => !entry.selectedIds.includes(id));
+    await writeFile(samplePath, JSON.stringify(sample), 'utf8');
+    const message = kind === 'seed' ? 'human sample seed differs' : 'human sample deterministic selection differs';
+    await expect(execFileAsync(process.execPath, [path.join(repoRoot, 'scripts/validate-program7-evidence.mjs'), '--ledger', ledger, '--sample', samplePath], { cwd: repoRoot }))
+      .rejects.toMatchObject({ stderr: expect.stringContaining(message) });
+  });
+});

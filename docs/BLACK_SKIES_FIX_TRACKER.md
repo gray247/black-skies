@@ -128,6 +128,49 @@ installed qwen3 pilot route must be restored or recorded unavailable before
 any model outcome can be claimed. No model admission or package pass follows
 from this checkpoint.
 
+### Final harness corrections before current qualification — October 5, 2026
+
+The clean first checkpoint **3eb93716** passed Stage 19 (49 critical files /
+825 tests / two existing skips, startup 1/1, Electron 36/36), with normal GPU
+and disabled AI. Its log remains at the fresh packet root's stage19.log;
+do not attribute it to a later checkpoint.
+
+The Unicode runner executed 18/18 passing tests but its packet failed because
+one expected assertion title still named the pre-repair test. The current
+test explicitly proves potentially-outdated, ambiguous and stale outcomes.
+Corrected only the mapping to that existing title; no assertion was weakened.
+
+A second integrity defect allowed a correctly sized but hand-picked human
+sample: seed and hash-ranked selection were not checked. Two regressions
+demonstrated validator success for substituted values. Both now fail closed
+with precise diagnostics; the affected set passes **24/24** (six ledger tests
+and 18 unchanged source-binding tests). Typecheck/lint/diff hygiene passed.
+Scale qualification also now explicitly retains its disposable unit fixtures,
+in addition to raw reports, through the existing retention environment flag.
+
+Runtime application source remains unchanged from Jason's accepted executable.
+These are test/qualification repairs. A new frozen checkpoint and its own
+qualification receipts are required; keep prior observations candidate-bound.
+
+RT-2B host preparation is blocked pending adequate memory headroom. The installed
+loopback-only Ollama service is available, version 0.13.0; qwen3:4b digest matches
+the approved pilot. Read-only preflight observed about 3.09 GB available of
+16.48 GB total after initial qualification. The 2.50 GB model disk size is not
+a measured peak working set. No model request was dispatched; do not infer
+safe peak usage or 24-row completion. Preserve the protocol's <=90% utilization,
+>=1.5 GiB free and peak-process bounds. Exact owner/stage: coordinator,
+**RT-2B controlled-host preflight before current-candidate pilot execution**.
+Exit evidence: controlled host headroom plus real peak/host sampling around the
+bounded pilot. Reopening trigger: failed headroom, resource bound or host drift.
+The current host-preflight.json records the measurement and limits.
+
+Installed offline qualification independently needs Administrator access.
+Prepare the exact new installer and isolated command first; do not substitute
+application-only smoke or request elevation until remaining independent proofs
+are complete. Jason must perform the host privilege step; agents cannot
+approve Windows elevation for him. Formal gate admission remains blocked by
+these outstanding proofs, separate from his accepted no-AI workflow.
+
 ### Repair evidence before final qualification
 
 Batches 1/2 repair packages reviewed by the coordinator. Existing source/selection,

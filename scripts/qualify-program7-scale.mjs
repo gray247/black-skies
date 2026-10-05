@@ -38,7 +38,7 @@ export async function run() {
     const result = spawnSync(
       process.execPath,
       [path.join(repoRoot, 'scripts', 'run-vitest-offline.mjs'), '--run', testFile, '--reporter=json', `--outputFile=${reportPath}`],
-      { cwd: appRoot, encoding: 'utf8', env: { ...process.env, P7_SCALE_REPORT_PATH: metricsPath }, stdio: 'inherit' },
+      { cwd: appRoot, encoding: 'utf8', env: { ...process.env, BLACKSKIES_RETAIN_TEST_ARTIFACTS: '1', P7_SCALE_REPORT_PATH: metricsPath }, stdio: 'inherit' },
     );
     if (result.error) throw result.error;
     const report = await readFile(reportPath, 'utf8').then((contents) => JSON.parse(contents)).catch(() => null);

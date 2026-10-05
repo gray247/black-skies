@@ -235,6 +235,19 @@ required current-package evidence; then prepare remaining formal human rows
 and deterministic sampling. Reuse accepted observations where applicable.
 Human Gate 4 and Program 7 closure remain open.
 
+Current continuation: qualification harness fixes now enforce embedded commit
+and deterministic-sample integrity, preserve failures, and permit external
+packet paths. The initial clean harness checkpoint 3eb93716 passed Stage 19;
+its Unicode packet exposed one stale assertion-title mapping, now corrected.
+Runtime source remains identical to the accepted no-AI executable. Final
+qualification will identify its own frozen checkpoint in the Fix Tracker.
+
+Remaining host prerequisites are RT-2B controlled-memory preflight before
+current pilot execution, and Administrator access for the offline installed
+lifecycle. Prepare independent evidence and exact artifacts before that human
+host step. No model invocation, resource peak proof, AI admission or installed
+package pass is inferred from host inventory or successful no-AI testing.
+
 ## 2. Program Outcome
 
 Program 7 is complete only when the product supports and qualifies all of the

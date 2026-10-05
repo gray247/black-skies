@@ -94,7 +94,7 @@ const EXPECTED_ASSERTIONS = Object.freeze([
   {
     id: 'P7-G2-STALE-AMBIGUOUS',
     category: 'currentness',
-    title: 'refuses a changed source without silently reattaching a UTF-16 anchor',
+    title: 'marks an edited passage potentially outdated when its context remains unique',
   },
   {
     id: 'P7-G2-CRLF-ANCHOR',

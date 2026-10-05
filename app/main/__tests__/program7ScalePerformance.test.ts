@@ -309,7 +309,12 @@ async function runScale(scale: Scale, baseline: readonly Unit[]) {
 
 describe('Program 7 G2 scale and performance mechanical matrix', () => {
   afterEach(async () => {
-    await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+    const completedRoots = roots.splice(0);
+    if (process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1') {
+      console.info('[P7 scale] retained fixture roots: ' + JSON.stringify(completedRoots));
+      return;
+    }
+    await Promise.all(completedRoots.map((root) => rm(root, { recursive: true, force: true })));
   });
 
   afterAll(async () => {
