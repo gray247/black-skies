@@ -130,7 +130,7 @@ function processCreationTime(identity) {
   return createdAt;
 }
 
-export function selectProcessDescendants(processes, rootPid, executablePath) {
+export function selectInstalledProcessTree(processes, rootPid, executablePath) {
   const roots = processes.filter((entry) => entry.pid === rootPid);
   assert(roots.length === 1, `Installed root PID ${rootPid} is missing or ambiguous; ancestry is unconfirmed.`);
   const root = roots[0];
@@ -157,7 +157,7 @@ export function selectProcessDescendants(processes, rootPid, executablePath) {
       }
     }
   }
-  return descendants;
+  return [root, ...descendants];
 }
 
 function processTree(rootPid, executablePath) {
@@ -179,7 +179,7 @@ function processTree(rootPid, executablePath) {
     creationDate: entry.CreationDate ? String(entry.CreationDate) : null,
     workingSetBytes: Number(entry.WorkingSetSize ?? 0)
   }));
-  return selectProcessDescendants(processes, rootPid, executablePath);
+  return selectInstalledProcessTree(processes, rootPid, executablePath);
 }
 
 function queryProcessIdentities(processIds) {
@@ -234,7 +234,7 @@ function ownedProcessIdsForExecutable(rootPid, executablePath) {
     const childPath = entry.executablePath?.toLowerCase();
     return childPath && (childPath === executablePath.toLowerCase() || childPath.startsWith(`${packageDirectory}\\`));
   });
-  return [rootPid, ...descendants.map((entry) => entry.pid)];
+  return [...new Set([rootPid, ...descendants.map((entry) => entry.pid)])];
 }
 
 async function identifyWindows(application, { requireCommand = false } = {}) {
@@ -609,7 +609,7 @@ async function saveProse(writing, unitId, prose, prefix) {
 }
 
 async function closeClean(application, ownedProcessIds) {
-  const ownedProcesses = queryProcessIdentities(ownedProcessIds);
+  const ownedProcesses = queryProcessIdentities([...new Set(ownedProcessIds)]);
   const processHandle = application.process();
   const exitPromise = processHandle
     ? new Promise((resolve, reject) => {

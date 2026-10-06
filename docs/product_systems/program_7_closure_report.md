@@ -1,5 +1,28 @@
 # Program 7 Qualification Closure Report
 
+## Installed inventory resource-total correction — October 6, 2026
+
+The abcdf100 checkpoint completed clean Stage 19 (49 files / 839 passed /
+two existing skips, startup 1/1, Electron 36/36), dedicated seven passed /
+one existing real-AI opt-in skip, required matrices, NSIS verification and
+normal-GPU exact create/save/reopen/export/100-unit smoke. Its evidence remains
+bound to abcdf100; it is not the final handoff.
+
+Final helper review caught an omitted main-process working set after changing
+the ancestry root from the Windows launcher to Electron main. One existing
+witness regression failed before repair. The guarded process inventory now
+includes the main process plus valid descendants, so resource totals cover
+the whole application; teardown PID lists are deduplicated. The three affected
+suites pass 33 tests. Root identity, creation-time guards and genuine forbidden-
+runtime assertions remain strict. This is part of P7-INSTALLED-PROCESS-IDENTITY-01,
+not a new product feature or a weakened performance threshold.
+
+The original failed Administrator states and all precommit/tooling diagnostics
+remain preserved. The final scoped successor needs clean qualification before
+the prepared short-root Administrator retry. No installed lifecycle pass,
+resource qualification from omitted-main totals, author acceptance or Program
+closure is inferred.
+
 ## Installed process-identity repair — October 6, 2026
 
 **P7-INSTALLED-PROCESS-IDENTITY-01 repaired; successor qualification and

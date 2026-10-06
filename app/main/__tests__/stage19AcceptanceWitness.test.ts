@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   expectedRepresentativeMarkdown,
   isOwnedProcessSurvivor,
-  selectProcessDescendants,
+  selectInstalledProcessTree,
   installedMainProcessId
 } from "../../scripts/stage19-installed-smoke.mjs";
 
@@ -188,35 +188,43 @@ describe("Installed process ancestry identity", () => {
     executablePath, creationDate: "/Date(2000)/" };
   const currentChild = { ...root, pid: 901, parentPid: 900, creationDate: "/Date(2001)/" };
 
+  it("counts the main process and current child in the application resource total", () => {
+    const main = { ...root, workingSetBytes: 4096 };
+    const child = { ...currentChild, workingSetBytes: 1024 };
+    const inventory = selectInstalledProcessTree([main, child], 900, executablePath);
+    expect(inventory.map((entry: { pid: number }) => entry.pid)).toEqual([900, 901]);
+    expect(inventory.reduce((sum: number, entry: { workingSetBytes: number }) => sum + entry.workingSetBytes, 0)).toBe(5120);
+  });
+
   it("excludes older orphan ancestry when a parent PID was reused", () => {
     const oldHelper = { pid: 10200, parentPid: 900, name: "node.exe",
       executablePath: "C:/Codex/node.exe", creationDate: "/Date(1000)/" };
     const codexChild = { ...oldHelper, pid: 19172, parentPid: 10200, creationDate: "/Date(1500)/" };
-    expect(selectProcessDescendants([root, oldHelper, codexChild, currentChild], 900, executablePath))
-      .toEqual([currentChild]);
+    expect(selectInstalledProcessTree([root, oldHelper, codexChild, currentChild], 900, executablePath))
+      .toEqual([root, currentChild]);
   });
 
   it.each(["node.exe", "python.exe", "python3.exe"])("retains a genuine external %s descendant for the forbidden-runtime gate", (name) => {
     const forbidden = { pid: 902, parentPid: 901, name,
       executablePath: "C:/External/" + name, creationDate: "1970-01-01T00:00:02.002Z" };
-    expect(selectProcessDescendants([forbidden, currentChild, root], 900, executablePath))
-      .toEqual([currentChild, forbidden]);
+    expect(selectInstalledProcessTree([forbidden, currentChild, root], 900, executablePath))
+      .toEqual([root, currentChild, forbidden]);
   });
 
   it("fails closed when the root is missing or has a different executable identity", () => {
-    expect(() => selectProcessDescendants([currentChild], 900, executablePath)).toThrow();
-    expect(() => selectProcessDescendants([{ ...root, executablePath: "C:/Codex/node.exe" }], 900, executablePath)).toThrow();
+    expect(() => selectInstalledProcessTree([currentChild], 900, executablePath)).toThrow();
+    expect(() => selectInstalledProcessTree([{ ...root, executablePath: "C:/Codex/node.exe" }], 900, executablePath)).toThrow();
   });
 
   it("fails closed for missing creation-time evidence on the root or a reachable child", () => {
-    expect(() => selectProcessDescendants([{ ...root, creationDate: null }], 900, executablePath)).toThrow();
-    expect(() => selectProcessDescendants([root, { ...currentChild, creationDate: null }], 900, executablePath)).toThrow();
+    expect(() => selectInstalledProcessTree([{ ...root, creationDate: null }], 900, executablePath)).toThrow();
+    expect(() => selectInstalledProcessTree([root, { ...currentChild, creationDate: null }], 900, executablePath)).toThrow();
   });
 
   it("accepts Windows casing and same-millisecond child creation without traversing a cycle twice", () => {
     const child = { ...currentChild, creationDate: root.creationDate };
     const cyclicRoot = { ...root, parentPid: 901 };
-    expect(selectProcessDescendants([cyclicRoot, child], 900, "c:/install/BLACK SKIES.exe"))
-      .toEqual([child]);
+    expect(selectInstalledProcessTree([cyclicRoot, child], 900, "c:/install/BLACK SKIES.exe"))
+      .toEqual([cyclicRoot, child]);
   });
 });
