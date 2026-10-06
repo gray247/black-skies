@@ -1,5 +1,39 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## Qualification fixture correction — October 6, 2026
+
+The combined runtime candidate 6a90262b passed clean Stage 19 (841 tests plus two
+existing skips, startup 1/1, Electron 36/36), seven dedicated no-AI journeys
+(one existing opt-in AI skip), six retained-project packaged assertions and a
+targeted native guarded-hope return to A Red Apple with Saved durably. All copied
+manuscript hashes remained unchanged. This is packaged-unpacked evidence;
+installed lifecycle and Human Gate 4 are not inferred.
+
+The strengthened installed smoke then exposed a qualification-fixture error:
+a missing Story Knowledge file returns an ephemeral empty default with a new
+timestamp. The test had compared that unsaved default across processes. The
+existing helper now explicitly persists the record before exact reopen
+comparison. No product repository change, timestamp exclusion, weakened
+assertion or fixture reset is used. The first failed root
+%TEMP%/bs-p7-6a90262b-smoke is preserved. Its next durable-fixture run and final
+clean helper binding are recorded separately. The helper is outside the ASAR;
+runtime byte identity will be verified rather than rebuilding an unchanged app.
+
+P7-SOURCE-RETURN-POLISH-01: the native lower request notice still names internal
+source kind/unit/revision. The upper outcome and destination section remain
+understandable and usable. Minor polish may be deferred. Owner: coordinator.
+Exact resolution stage: P7-G2 Batch 4 final issue disposition before Program 7
+closure. Required evidence: writer wording and focused message assertion.
+Reopen as a pre-HG4 defect if Jason cannot identify the destination, the notice
+claims a failed request succeeded or impairs navigation.
+
+Native capture initially showed an occluding older window until the exact
+returned target was activated. Fitting the preview window made controls
+reachable. These host observations are not causal proof for the historical
+P7-A11Y-ROUTE-01/P7-NATIVE-RESP-01 uncertainties; their existing resolution stages
+and reopening triggers remain unchanged. The disposable review closed normally;
+the original installed app/project was preserved. No usage benchmark was run.
+
 ## Follow-up: exact source guidance — October 6, 2026
 
 P7-STORY-DETACHED-GUIDANCE-01: the retained-project packaged recheck established

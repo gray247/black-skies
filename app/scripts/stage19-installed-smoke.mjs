@@ -938,6 +938,16 @@ async function main() {
       binding(snapshot, "installed-command-story-read")
     );
     assert(storyRead.data.projectId === snapshot.project.projectId, "Command Story Knowledge returned a different project.");
+    // A missing record is an ephemeral empty default. Persist it explicitly
+    // before comparing exact durable bytes across a fresh process.
+    const storySaved = await invokeOk(
+      first.command,
+      async ({ request, document }) => window.storyIntelligence.write({
+        ...request, expectedRevision: document.revision,
+        document: { ...document, revision: document.revision + 1 }
+      }),
+      { request: binding(snapshot, "installed-command-story-save"), document: storyRead.data }
+    );
     await first.command.getByRole("button", { name: "Story Knowledge", exact: true }).click();
     await first.command.getByTestId("stage19-program6-story-knowledge").waitFor({ state: "visible" });
     await closeClean(first.application, firstOwnedProcessIds);
@@ -962,7 +972,7 @@ async function main() {
       async (request) => window.storyIntelligence.read(request),
       binding(reopened.snapshot, "installed-reopened-command-story-read")
     );
-    assert(JSON.stringify(reopenedStory.data) === JSON.stringify(storyRead.data), "Command Story Knowledge changed across fresh-process reopen.");
+    assert(JSON.stringify(reopenedStory.data) === JSON.stringify(storySaved.data), "Command Story Knowledge changed across fresh-process reopen.");
     assert(reopened.snapshot.dirtyUnitIds.length === 0, "Reopened project was not clean.");
     assert(
       JSON.stringify(reopened.snapshot.project.units.map((unit) => unit.id)) ===
