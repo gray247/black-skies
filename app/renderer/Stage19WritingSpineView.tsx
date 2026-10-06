@@ -843,6 +843,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
           <Program7CreateDevelopView model={model} actions={actions} />
         ) : model.commandWorkspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
           <Program6StoryKnowledgeWorkspace
+            key={`${snapshot.project.projectId}\n${snapshot.project.path}\n${snapshot.generation}`}
             // The command projection intentionally omits prose. When Story
             // Knowledge is rendered inside the Writing Studio window, use the
             // authoritative editor buffers for the exact source-bound handoff.
@@ -857,6 +858,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             }}
             generation={snapshot.generation}
             document={model.storyIntelligenceDocument}
+            notice={model.storyIntelligenceNotice}
             localInferenceAvailable={model.program7LocalAiAvailable !== false}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}
             onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}

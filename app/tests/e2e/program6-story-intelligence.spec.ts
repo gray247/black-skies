@@ -108,11 +108,30 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
       expect(createHash('sha256').update(sourceBody.replace(/\r\n/g, '\n').replace(/\r/g, '\n'), 'utf8').digest('hex')).toBe(anchoredRef!.sourceFingerprint);
       if (projectId === 'proj_lantern_house_review') {
         await command.getByRole('button', { name: 'Suppress', exact: true }).click();
-        await expect(command.locator('p[role="status"]').filter({ hasText: /signal suppressed requested/i })).toBeVisible();
-        await expect.poll(async () => {
-          const next = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as { revision: number };
-          return next.revision;
-        }).toBe(1);
+        try {
+          await expect(command.locator('p[role="status"]').filter({ hasText: /signal suppressed requested/i })).toBeVisible();
+          await expect.poll(async () => {
+            const next = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as { revision: number };
+            return next.revision;
+          }).toBe(1);
+        } catch (error) {
+          const durable = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as {
+            revision: number;
+            durableSignals: Array<{ signalId: string; lifecycle: string }>;
+          };
+          await test.info().attach('suppression-outcome', {
+            body: JSON.stringify({
+              projectId,
+              projectPath,
+              durableRevision: durable.revision,
+              signals: durable.durableSignals.map(({ signalId, lifecycle }) => ({ signalId, lifecycle })),
+              statuses: await command.getByRole('status').allTextContents(),
+              alerts: await command.getByRole('alert').allTextContents(),
+            }, null, 2),
+            contentType: 'application/json',
+          });
+          throw error;
+        }
       }
       if (projectId === 'proj_northline_letters_review') {
         await expect(command.getByText(/stale/i).first()).toBeVisible();

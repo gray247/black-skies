@@ -1,5 +1,58 @@
 # Program 7 Qualification Closure Report
 
+## Current Story Knowledge repair checkpoint — October 5, 2026
+
+The prior 3aea8375 / ce3171319d79a04b169261927e9ad1a261a4a170
+candidate completed clean confirmation Stage 19 (49 files / 825 passed / two
+existing skips, startup 1/1, Electron 36/36), dedicated 7 passed / one existing
+AI opt-in skip, accessibility, persistence, Unicode, scale, package and
+normal-GPU 100-unit exact save/reopen. Its initial Stage 19 failure is retained:
+Lantern House Suppress rendered a requested notice but durable revision stayed
+0 during the unchanged five-second assertion. A focused fresh-project journey
+and the later complete gate passed. Those successes do not establish a cause.
+
+**P7-STORY-SUPPRESS-01 remains Uncertain.** Owner: coordinator. Exact resolution
+stage: Batch 4 Story Knowledge suppression triage before formal Human Gate 4
+disposition. Reopen for a request without durable suppression, rejected write,
+or misleading result; preserve project/action/time, owner outcome and durable
+revision. Failed project: %TEMP%/black-skies-program6-e2e-6qhVZ3/lantern-house.
+The existing Electron assertion now attaches durable revision/lifecycles and
+visible notices on failure; no timeout, assertion or skip was weakened.
+
+**P7-STORY-ACTION-NOTICE-01 repaired, successor qualification pending.**
+Two focused host regressions reproduced hidden rejected/thrown write results
+while Story Knowledge remained loaded. The owner notice now replaces optimistic
+requested text in one status region and remains visible while scrolling.
+Thrown replies are described as unconfirmed because a durable sidecar write
+may have completed before its reply failed; the writer is directed to reopen
+the project and check saved status before retrying. Missing context receives
+explicit no-start guidance. No manuscript write, owner or schema change.
+
+**P7-STORY-PROJECT-REPLY-01 repaired, successor qualification pending.**
+Three focused outcomes (saved, rejected, unavailable) reproduced loss of the new
+project's visible concern or an old-project result after switching projects.
+The existing binding helper now guards reply publication; the document must
+match the request project before submission. The workspace is keyed by project,
+path and generation so temporary request state does not carry across projects.
+All five focused regressions pass after repair; affected four suites / 182
+tests, app lint and TypeScript pass. Read-only safety review found no concrete
+defect in the changed paths. No successful reply is recast as author acceptance.
+
+Repair evidence: %TEMP%/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/story-action-repair.
+The first pnpm invocation did not start tests; two setup-only pending test
+attempts and type-check diagnostics remain retained. Reproduction claims use
+before-regressions.log and pending-before-observable.log; final proof uses
+combined-after.log, affected-final.log, lint-final.log and typecheck-qualified.log.
+
+Owner: coordinator. Exact resolution stages: Batch 4 Story Knowledge action
+feedback qualification before HG4, and Batch 4 Story Knowledge project-reply
+qualification before HG4. Reopen for hidden/untruthful owner feedback, a crossed
+project document/notice, lost new-project concern or incorrect source identity.
+Next: freeze the reviewed successor, run its clean qualification/package gate
+and targeted native checks, then prepare its exact Administrator lifecycle
+command and remaining formal author decisions. Local AI stays unavailable as
+approved; no new pilot/token benchmark or final human acceptance is inferred.
+
 ## Current notice repair checkpoint — October 5, 2026
 
 Candidate **5858a280358c5839b9d0d136c4c4b1023ad3fe20**, tree

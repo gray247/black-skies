@@ -9449,10 +9449,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-program6__notice {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   margin: 0;
   border-left: 3px solid var(--stage19-accent);
   padding: 8px 10px;
-  background: var(--stage19-surface-muted);
+  background: var(--bs-surface-raised);
 }
 
 .stage19-program6__manual-path {

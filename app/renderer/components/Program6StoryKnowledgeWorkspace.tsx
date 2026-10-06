@@ -72,6 +72,7 @@ export interface Program6StoryKnowledgeWorkspaceProps {
   readonly document: StoryIntelligenceDocumentV1;
   /** False when the application has no usable local-AI capability in this session. */
   readonly localInferenceAvailable?: boolean;
+  readonly notice?: string | null;
   readonly onSourceReturn?: (source: StoryPositionRefV1) => void;
   readonly onAuthorRecordCreate?: (draft: StoryKnowledgeAuthorRecordDraftV1) => void;
   readonly onEnableLocalInference?: () => void;
@@ -903,6 +904,7 @@ export default function Program6StoryKnowledgeWorkspace({
   generation,
   document,
   localInferenceAvailable = true,
+  notice,
   onSourceReturn,
   onAuthorRecordCreate,
   onEnableLocalInference,
@@ -1083,9 +1085,9 @@ export default function Program6StoryKnowledgeWorkspace({
           </button>
         ))}
       </nav>
-      {actionNotice ? (
+      {notice || actionNotice ? (
         <p className="stage19-program6__notice" role="status">
-          {actionNotice}
+          {notice ?? actionNotice}
         </p>
       ) : null}
       {lens === 'overview' ? (

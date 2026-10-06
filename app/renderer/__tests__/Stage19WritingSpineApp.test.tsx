@@ -1517,6 +1517,124 @@ describe('Stage19WritingSpineApp', () => {
     },
   );
 
+  it.each(['rejected', 'unavailable'] as const)(
+    'shows a %s signal write result while keeping Story Knowledge open',
+    async (outcome) => {
+      const units = [{ id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' }];
+      const writing = createBridge(snapshot('writing', { activeUnitId: 'unit_a', units }));
+      const surfaces = createSurfaceBridge(snapshot('command', { units }));
+      const storyIntelligence = createStoryIntelligenceBridge();
+      const expectedNotice = outcome === 'rejected'
+        ? 'The saved signals changed. Reopen this project before trying again.'
+        : 'The signal change could not be confirmed. Your manuscript has not changed. Reopen this project to check its saved status before trying again.';
+      if (outcome === 'rejected') {
+        vi.mocked(storyIntelligence.write).mockResolvedValue({
+          ok: false,
+          error: { code: 'STORY_INTELLIGENCE_STALE', message: expectedNotice },
+        });
+      } else {
+        vi.mocked(storyIntelligence.write).mockRejectedValue(new Error('IPC reply unavailable'));
+      }
+      const user = userEvent.setup();
+      render(
+        <Stage19WritingSpineApp
+          windowRole="writing"
+          bridge={writing.bridge}
+          surfaceBridge={surfaces.bridge}
+          storyIntelligenceBridge={storyIntelligence}
+        />,
+      );
+
+      await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+      await user.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+      await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+      await user.click(screen.getByRole('button', { name: 'Signals' }));
+      await user.click(screen.getByRole('button', { name: 'Resolve' }));
+
+      expect(await screen.findByText(expectedNotice)).toHaveAttribute('role', 'status');
+      expect(screen.queryByText(/Signal resolved requested/)).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Signals' })).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Resolve' })).toBeEnabled();
+      expect(storyIntelligence.write).toHaveBeenCalledTimes(1);
+      expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['saved', 'rejected', 'unavailable'] as const)(
+    'does not publish a %s signal reply after switching projects',
+    async (outcome) => {
+      const units = [{ id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' }];
+      const writing = createBridge(snapshot('writing', { activeUnitId: 'unit_a', units }));
+      const surfaces = createSurfaceBridge(snapshot('command', { units }));
+      const storyIntelligence = createStoryIntelligenceBridge();
+      const initial = await storyIntelligence.read({
+        projectId: 'proj_a', projectPath: 'C:\\projects\\a', generation: 1, operationId: 'read-before-switch',
+      });
+      if (!initial.ok) throw new Error(initial.error.message);
+      const documentB: StoryIntelligenceDocumentV1 = {
+        ...createDefaultStoryIntelligenceDocument('proj_b', new Date()),
+        durableSignals: initial.data.durableSignals.map((signal) => ({
+          ...signal, projectId: 'proj_b', signalId: 'signal-b', summary: 'Project B saved concern.',
+          positionRefs: signal.positionRefs.map((reference) => ({
+            ...reference, projectId: 'proj_b', sourceId: 'unit_b', unitId: 'unit_b', sourceRevision: 2,
+          })),
+        })),
+      };
+      vi.mocked(storyIntelligence.read).mockImplementation(async (request) => ({
+        ok: true, data: request.projectId === 'proj_b' ? documentB : initial.data,
+      }));
+      let settlePending: () => void = () => { throw new Error('The signal write has not started.'); };
+      vi.mocked(storyIntelligence.write).mockImplementation((request) => new Promise((resolve, reject) => {
+        settlePending = () => {
+          if (outcome === 'saved') resolve({ ok: true, data: request.document });
+          else if (outcome === 'rejected') resolve({
+            ok: false, error: { code: 'STORY_INTELLIGENCE_STALE', message: 'Old project write rejected.' },
+          });
+          else reject(new Error('Old project reply unavailable'));
+        };
+      }));
+      const user = userEvent.setup();
+      render(
+        <Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge}
+          surfaceBridge={surfaces.bridge} storyIntelligenceBridge={storyIntelligence} />,
+      );
+      await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+      await user.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+      await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+      await user.click(screen.getByRole('button', { name: 'Signals' }));
+      await user.click(screen.getByRole('button', { name: 'Resolve' }));
+      expect(storyIntelligence.write).toHaveBeenCalledTimes(1);
+
+      const projectB = snapshot('writing', {
+        projectId: 'proj_b', path: 'C:\\projects\\b', title: 'Project B', generation: 2, revision: 3,
+        activeUnitId: 'unit_b', units: [{ id: 'unit_b', title: 'Second Unit', order: 1, body: 'Beta body' }],
+      });
+      await act(async () => {
+        writing.emit(projectB);
+        surfaces.publish({
+          ...surfaces.current,
+          projectId: 'proj_b', generation: 2, revision: 3,
+          commandSnapshot: snapshot('command', {
+            projectId: 'proj_b', path: 'C:\\projects\\b', title: 'Project B', generation: 2, revision: 3,
+            activeUnitId: 'unit_b', units: [{ id: 'unit_b', title: 'Second Unit', order: 1, body: 'Beta body' }],
+          }),
+        });
+      });
+      expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Signals' }));
+      expect(await screen.findByText('Project B saved concern.')).toBeVisible();
+      await act(async () => { settlePending(); });
+
+      expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
+      expect(screen.getByText('Project B saved concern.')).toBeVisible();
+      expect(screen.queryByText(/Signal resolved requested/)).not.toBeInTheDocument();
+      expect(screen.queryByText('A source-linked reviewed signal.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Old project write rejected.')).not.toBeInTheDocument();
+      expect(screen.queryByText(/The signal change could not be confirmed/)).not.toBeInTheDocument();
+      expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    },
+  );
+
   it('persists an author-entered observed emotion point without changing manuscript prose', async () => {
     const units = [
       { id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' },

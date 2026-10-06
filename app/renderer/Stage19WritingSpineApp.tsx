@@ -3069,7 +3069,11 @@ export default function Stage19WritingSpineApp({
     const current = snapshotRef.current;
     const signal = document?.durableSignals.find((candidate) => candidate.signalId === signalId);
     const binding = bindingFor(current, `story-signal-${lifecycle}`);
-    if (!storyIntelligenceBridge || !document || !signal || !binding) return;
+    setStoryIntelligenceNotice(null);
+    if (!storyIntelligenceBridge || !document || !signal || !binding || document.projectId !== binding.projectId) {
+      setStoryIntelligenceNotice('This signal change was not started because its project context is unavailable. Reopen this project and review Signals before trying again. Your manuscript has not changed.');
+      return;
+    }
     if (lifecycle === 'converted') {
       const latest = snapshotRef.current;
       const latestProject = latest.project;
@@ -3129,6 +3133,7 @@ export default function Stage19WritingSpineApp({
     };
     try {
       const result = await storyIntelligenceBridge.write({ ...binding, expectedRevision: document.revision, document: next });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (result.ok) {
         setStoryIntelligenceDocument(result.data);
         setStoryIntelligenceNotice(null);
@@ -3136,7 +3141,8 @@ export default function Stage19WritingSpineApp({
         setStoryIntelligenceNotice(result.error.message);
       }
     } catch {
-      setStoryIntelligenceNotice('The signal disposition could not be saved. No manuscript content was changed.');
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
+      setStoryIntelligenceNotice('The signal change could not be confirmed. Your manuscript has not changed. Reopen this project to check its saved status before trying again.');
     }
   }, [storyIntelligenceBridge, storyIntelligenceDocument]);
 
