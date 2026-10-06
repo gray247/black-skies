@@ -3,6 +3,44 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Human Gate 4 repair: installed Story Knowledge — October 6, 2026
+
+**Jason's Glass Orchard failure supersedes the readiness claim below.
+Human Gate 4 and Program 7 closure remain blocked until the repaired package is
+qualified and the affected human row is confirmed. Historical commands and
+receipts retain their original candidate identity.**
+
+Jason reports tests 1 and 2 passed. P5 back-and-forth navigation passed, but the
+specific Carmilla passage was not found; its exact anchor/reopen confirmation
+remains pending. The passage begins in prepared Carmilla Chapter I,
+drafts/carmilla-chapter-01.md line 92, not Glass Orchard. Test 4 could not continue
+because Glass Orchard's detached Command Center showed Story Knowledge unavailable.
+
+P7-INSTALLED-STORY-BRIDGE-01: reproduced in exact installed da273821. Both retained
+project documents validate and Writing Studio reads Glass Orchard successfully.
+Production stage19Preload omitted window.storyIntelligence from the secondary
+window while the legacy development preload exposed it. The installed helper
+also omitted this bridge from its command-window inventory.
+
+The bounded repair restores the existing project-bound bridge in production,
+matching the established development path. Backend project/generation/protection
+and manuscript authority remain enforced; no schema, dependency or model changes.
+The existing preload regression failed before repair (1 failed/7 passed); after
+repair five affected suites passed 44/44, typecheck and lint passed. Existing
+installed smoke now checks both bridge allowlists, visible Story Knowledge,
+correct project and identical record after a fresh-process reopen. Full clean
+qualification and rebuilt package are next; repaired installed success is pending.
+
+Owner: coordinator. Exact resolution stage: P7-G2 production-window repair,
+clean current-candidate gate and package/lifecycle witness, then Jason P6
+confirmation before Human Gate 4. Reopen on unavailable/undefined Story Knowledge,
+wrong project/source, changed manuscript or failed fresh-process read.
+Preserved diagnostic copies: %TEMP%/bs-p7-p6-read-86YX8J and
+%TEMP%/bs-p7-p6-read-PEZcN2. Original user projects and failed native state remain
+untouched. Evidence: closure-final-20261005/story-bridge-repair/before-repair.json.
+Existing da ledger records P6 Fail and P5 partial/pending. Tests 1/2 successes
+are preserved without inferring unreported steps or automatic human acceptance.
+
 ## Current installed qualification complete — October 6, 2026
 
 **No-AI mechanical and exact installed qualification passed for da273821.
