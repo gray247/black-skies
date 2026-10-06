@@ -46,7 +46,7 @@ describe('Program 3/4 installed qualification', () => {
       initialVisibleWindowCount: 1,
       postOptionalSecondaryVisibleWindowCount: 2,
       writingGlobalNames: ['aiCritique', 'critiqueReview', 'feedbackNotes', 'livingOutline', 'projectSpine', 'splitCommand', 'manuscriptStructure', 'storyIntelligence'],
-      commandGlobalNames: ['critiqueReview', 'feedbackNotes', 'projectSpine', 'splitCommand'],
+      commandGlobalNames: ['critiqueReview', 'feedbackNotes', 'projectSpine', 'splitCommand', 'storyIntelligence'],
     });
     expect(installedQualificationProfiles['historical-v1-reference']).toMatchObject({
       initialVisibleWindowCount: 2,

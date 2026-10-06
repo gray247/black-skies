@@ -1063,4 +1063,5 @@ if (projectRole === 'writing') {
   contextBridge.exposeInMainWorld('revisionCandidates', { list: revisionCandidates.list });
   contextBridge.exposeInMainWorld('storyFoundation', { get: storyFoundation.get });
   contextBridge.exposeInMainWorld('ideation', { get: ideation.get, filterLibrary: ideation.filterLibrary });
+  contextBridge.exposeInMainWorld('storyIntelligence', storyIntelligence);
 }

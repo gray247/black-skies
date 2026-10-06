@@ -41,7 +41,7 @@ export const installedQualificationProfiles = Object.freeze({
     writingGlobalNames: Object.freeze([
       "aiCritique", "critiqueReview", "feedbackNotes", "livingOutline", "projectSpine", "splitCommand", "manuscriptStructure", "storyIntelligence"
     ]),
-    commandGlobalNames: Object.freeze(["critiqueReview", "feedbackNotes", "projectSpine", "splitCommand"])
+    commandGlobalNames: Object.freeze(["critiqueReview", "feedbackNotes", "projectSpine", "splitCommand", "storyIntelligence"])
   }),
   "historical-v1-reference": Object.freeze({
     initialVisibleWindowCount: 2,
@@ -404,6 +404,7 @@ async function runtimeTruth(
     projectSpine: Object.keys(window.projectSpine ?? {}).sort(),
     splitCommand: Object.keys(window.splitCommand ?? {}).sort(),
     critiqueReview: Object.keys(window.critiqueReview ?? {}).sort(),
+    storyIntelligence: Object.keys(window.storyIntelligence ?? {}).sort(),
     aiCritique: Object.keys(window.aiCritique ?? {}).sort(),
     feedbackNotes: Object.keys(window.feedbackNotes ?? {}).sort(),
     livingOutline: Object.keys(window.livingOutline ?? {}).sort(),
@@ -417,7 +418,8 @@ async function runtimeTruth(
     projectSpine: Object.keys(window.projectSpine ?? {}).sort(),
     splitCommand: Object.keys(window.splitCommand ?? {}).sort(),
     critiqueReview: Object.keys(window.critiqueReview ?? {}).sort(),
-    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure"]
+    storyIntelligence: Object.keys(window.storyIntelligence ?? {}).sort(),
+    names: ["projectSpine", "splitCommand", "critiqueReview", "aiCritique", "feedbackNotes", "livingOutline", "manuscriptStructure", "storyIntelligence"]
       .filter((name) => typeof window[name] !== "undefined").sort(),
     aiCritiqueType: typeof window.aiCritique,
     requireType: typeof window.require,
@@ -461,6 +463,12 @@ async function runtimeTruth(
     "setBoundary",
     "splitGroup"
   ].sort();
+  const storyIntelligence = ["read", "write", "checkPermission", "automaticScan", "automaticCancel"].sort();
+  assert(
+    JSON.stringify(writingGlobals.storyIntelligence) === JSON.stringify(storyIntelligence) &&
+      JSON.stringify(commandGlobals.storyIntelligence) === JSON.stringify(storyIntelligence),
+    "Project-bound Story Knowledge bridge differs between installed windows."
+  );
   const expectedWritingProjectSpine = [...writingProjectSpine, "focusWritingWindow"].sort();
   const commandProjectSpine = [
     "getSession",
@@ -924,6 +932,14 @@ async function main() {
     );
     snapshot = await first.writing.evaluate(() => window.projectSpine.getSession());
     assert(snapshot.dirtyUnitIds.length === 0, "The generated project was not durably clean.");
+    const storyRead = await invokeOk(
+      first.command,
+      async (request) => window.storyIntelligence.read(request),
+      binding(snapshot, "installed-command-story-read")
+    );
+    assert(storyRead.data.projectId === snapshot.project.projectId, "Command Story Knowledge returned a different project.");
+    await first.command.getByRole("button", { name: "Story Knowledge", exact: true }).click();
+    await first.command.getByTestId("stage19-program6-story-knowledge").waitFor({ state: "visible" });
     await closeClean(first.application, firstOwnedProcessIds);
     first = null;
 
@@ -941,6 +957,12 @@ async function main() {
       projectPath
     );
     assert(reopened.snapshot.project.units.length === 3, "Reopened project unit count differed.");
+    const reopenedStory = await invokeOk(
+      second.command,
+      async (request) => window.storyIntelligence.read(request),
+      binding(reopened.snapshot, "installed-reopened-command-story-read")
+    );
+    assert(JSON.stringify(reopenedStory.data) === JSON.stringify(storyRead.data), "Command Story Knowledge changed across fresh-process reopen.");
     assert(reopened.snapshot.dirtyUnitIds.length === 0, "Reopened project was not clean.");
     assert(
       JSON.stringify(reopened.snapshot.project.units.map((unit) => unit.id)) ===
@@ -1133,6 +1155,7 @@ async function main() {
       exportSha256: hashFile(exportPath),
       exportedUnitCount: exported.data.unitCount,
       exactMarkdownMatched: true,
+      commandStoryKnowledgeReadAndReopenMatched: true,
       representative,
       coreNetworkCredentialsPresent: false,
       developmentFlagsPresent: false,

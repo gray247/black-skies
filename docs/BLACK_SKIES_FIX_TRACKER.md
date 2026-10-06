@@ -3,6 +3,211 @@
 
 # BLACK SKIES - FIX TRACKER
 
+## Current installed qualification complete — October 6, 2026
+
+**No-AI mechanical and exact installed qualification passed for da273821.
+No more Administrator retry is requested. Formal Human Gate 4 remains pending;
+Program 7 is open. All retry commands below are historical and must not be rerun.**
+Candidate: da273821ab57c5257d2781312fb99aa4c7b37459; tree: e3387c8a86edf8c9a4ac5c23b15f995b89f4c0ed.
+Continuing repository: C:/Users/gray2/.codex/visualizations/2026/09/04/01a06e84-5626-7241-bbe0-639af79386bf/program7-today.
+ProofRoot: C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-da273821.
+Installed executable: C:/Users/gray2/AppData/Local/Temp/bs-p7-da-retry-988c47f7/installed/Black Skies.exe.
+
+Jason's fresh Administrator attempt completed the exact offline firewall-isolated
+installed lifecycle. The standard independent 19.22 witness then passed against
+current HEAD, installer identity, installed executable/ASAR, NotSigned truth,
+lifecycle evidence and all 196 external files. Create/save/reopen/export and the
+100-unit workload match exact manuscript bytes; forbidden runtimes and owned
+survivors are both zero. Canonical/optional windows are sandboxed, uninstall
+removed the application, external data survived, and same-installer reinstall
+passed. The recorded whole-app inventory includes five processes and 518356992
+working-set bytes; the existing five-sample internal startup median is 278.0642ms.
+These are lifecycle resource measurements, not account/token benchmarking.
+
+The helper identity/resource repairs and short-path preparation are mechanically
+verified. Original wrong ancestry links and the interrupted install stage remain
+unknown where not captured; later success is not causal proof. Both preserved
+installation snapshots stay at %TEMP%/bs-p7-da-preserve-988c47f7, with verified
+manifests. Earlier failed attempts and older-package receipts remain historical.
+Receipt metadata changed when lifecycle results were appended; current artifact
+hashes were reconciled. Executable/ASAR/installer identities remain verified.
+No source, dependency, schema, manuscript-authority rule or test changed this turn.
+
+| Current evidence | Actual result | Artifact under proofRoot |
+| --- | --- | --- |
+| Clean Stage 19 / dedicated journeys | 49 files, 840 passed, two existing skips; startup 1/1, Electron 36/36; dedicated seven passed, one existing opt-in AI skip | stage19-clean.log; dedicated-report.json; electron.json |
+| Accessibility / persistence / Unicode / scale | 66/66 and 13 bindings; 143/143; 18/18; 17/34/68/136 plus Electron | accessibility.json; persistence.json; unicode.json; scale.json |
+| Exact installed lifecycle | Passed, offline firewall-isolated, normal GPU, exact manuscript/export and 100 units | installed-admin-retry-988c47f7.log; package/package-receipt.json; lifecycle at the installed working root |
+| Standard independent witness | Passed; all 196 external files unchanged; exact current candidate/installer/executable/ASAR identities | installed-witness.json; installed-witness.log |
+| Existing ledger / sample / validator | 51 rows: 20 Pass, zero current Fail, 31 Uncertain; integrity validator exit 0; Jason fields blank | evidence-ledger.jsonl; human-sample.json; evidence-validation.log |
+| Prior native evidence | 4cbc direct native remains historical; current executable/ASAR byte-equivalence verified; no current direct native tour claimed | runtime-equivalence.json |
+| Final records | Three authorized documentation files intentionally dirty after clean qualification; HEAD unchanged; docs lint/diff checks pass | final-docs.log; final-diff-check.log |
+
+The 31 Uncertain rows comprise 24 unavailable-AI scenarios (deferred), three
+P4/P5/P6 formal human confirmations, and four historical causes. They are not
+31 established current defects. Unavailable AI is already accepted; no new model
+execution, quality score or admission decision is requested.
+
+P7-INSTALLED-PATH-01 and P7-INSTALLED-PROCESS-IDENTITY-01 have current bounded
+mechanical proof. Owner: coordinator. Resolution stage: P7-G2 current installed
+lifecycle plus independent witness, now completed. Reopen for ENAMETOOLONG,
+shell-root/stale ancestry, excluded genuine runtime, missing identity accepted,
+omitted main-process resource totals, false current receipt or failed installed
+close. General long/deep writer-path support is not claimed; such a failure
+requires explicit path-support triage before HG4 disposition.
+
+P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01 and
+P7-PACKAGED-NATIVE-ACCESS-01 remain Uncertain under their recorded coordinator
+ownership, exact before-HG4 resolution stages and observable reopening triggers.
+No human or Program closure decision is inferred from the installed pass.
+
+## Preserved interrupted attempt and fresh retry — October 6, 2026
+
+**Current da273821 installed lifecycle/witness remains pending. The fresh
+Administrator retry below supersedes the earlier hold and all old retry roots.**
+Jason clarified that he closed the prior PowerShell and opened a new Administrator
+window for the guarded attempt; the new window remains open. This is consistent
+with interruption, but does not establish the exact earlier failure stage or a
+new application defect. No source change or repeated automated-suite run is needed.
+
+No matching application/installer process was observed. Before another installer
+can replace registered application files, the coordinator preserved byte-verified
+copies of the interrupted current installed directory (75 files / 357604490 bytes)
+and previously registered installed directory (3 files / 211210981 bytes) at
+%TEMP%/bs-p7-da-preserve-988c47f7. Their file manifests are recorded in preservation.json,
+whose path/hash is bound from current installed-process-finding.json.
+Originals and project data were not modified.
+
+Prepared new short working root: %TEMP%/bs-p7-da-retry-988c47f7 (unused at preparation).
+Transcript: current proofRoot/installed-admin-retry-988c47f7.log.
+Run the entire current block once in the open Administrator PowerShell; leave it
+open until STAGE19_INSTALLED_LIFECYCLE_PASS and the prompt return. On failure,
+preserve state and report the final error. The transcript retains full output.
+No firewall isolation bypass, process termination, fixture reset or history rewrite.
+
+Owner: coordinator; Jason supplies OS Administrator execution. Exact resolution
+stage: P7-G2 preserved interrupted-attempt recovery, current installed lifecycle
+and standard independent witness before formal HG4. Reopen for another interruption,
+missing result, candidate/path/registration mismatch, preservation/hash failure,
+forbidden runtime or failed close. The earlier 4cbc installed result stays
+historical; current installed, standard witness, human acceptance and closure
+are not inferred. The original interrupted stage/cause remains unknown.
+
+## Incomplete current installed attempt — October 6, 2026
+
+**Current da273821 installed qualification remains pending. Hold the command
+examples below until the original attempt's error/interruption is reconciled.**
+The latest pasted script stopped at its existing-folder guard, before installer
+invocation. It is a preservation guard, not evidence of a runtime defect.
+
+Direct inspection at 16:13 UTC finds %TEMP%/bs-p7-da273821-life-20261006/installed
+with executable/ASAR bytes matching the current receipt. There is no installed
+smoke, lifecycle evidence, external-data folder or receipt installedLifecycle.
+No matching installer process was observed. Apps & Features registration points
+to %TEMP%/blackskies-program7-installed-final/installed, a different folder;
+its cause is unknown. Payload bytes alone do not establish a successful install.
+Preserve both locations; do not delete, uninstall, reset or rerun into the partial
+folder. A fresh path alone cannot explain or repair the missing original outcome.
+
+The coordinator requested the earlier error, or whether the attempt was interrupted.
+Recorded in current installed-process-finding.json/incompleteCurrentAttempt.
+Owner: coordinator; Jason supplies the missing original-attempt output.
+Exact resolution stage: P7-G2 original-attempt reconciliation, exact installed
+lifecycle and independent witness before formal HG4. Reopen for partial install,
+missing result, foreign registration, candidate change or premature close.
+The older 4cbc historical lifecycle/audit remains passed; current installed proof,
+standard independent witness, formal Human Gate 4 and Program 7 closure are not
+inferred. No new product defect or safety exemption is declared.
+
+## Administrator output reconciliation — October 6, 2026
+
+**The completed offline installed lifecycle belongs to the older 4cbc0a5e
+package. Current da273821 installed lifecycle and standard independent witness
+remain pending; formal Human Gate 4 and Program 7 closure remain pending.**
+The current qualified source and clean test results are unchanged.
+
+The pasted output reports STAGE19_INSTALLED_LIFECYCLE_PASS. The actual lifecycle
+evidence/receipt bind it to 4cbc0a5e and %TEMP%/bs-p7-4cbc-life-20261006.
+Using existing witness validators with the explicit historical commit, the
+coordinator verifies installer identity, installed executable/ASAR identity,
+NotSigned status, completed offline/uninstall/reinstall evidence, and all 196
+preserved external files. This is a historical-only audit, not a current-candidate
+standard witness pass. The older package used the current repaired qualification
+helper. The first signature read failed to load Windows PowerShell's security
+module; the existing witness's PowerShell 7 fallback succeeded. This is tooling
+diagnostic evidence, not a new Black Skies defect.
+
+The pasted folder refusal names no path. Direct inspection confirms the current
+%TEMP%/bs-p7-da273821-life-20261006 root does not exist and the current receipt has
+no installedLifecycle. Do not reuse or delete the older completed fixture. The
+current installer hash differs from 4cbc even though executable/ASAR bytes match;
+exact installer qualification cannot be inferred from payload equivalence.
+Owner: coordinator; Jason supplies OS Administrator execution. Exact resolution
+stage: P7-G2 current installed lifecycle and standard independent witness before
+formal HG4. Reopen for missing/current-candidate mismatch, preservation/hash
+failure, forbidden runtime, unsafe resource inventory or installed close failure.
+Recorded in current installed-process-finding.json / historical-installed-audit.log;
+receipt metadata changes and earlier failures remain historical evidence.
+
+> Current controlling checkpoint: da273821, October 6, 2026. Earlier candidate sections and commands below are historical. Use only the current command in the closure report.
+
+## Current clean qualification and Administrator boundary — October 6, 2026
+
+**Current no-AI mechanical qualification passes. Administrator installed lifecycle,
+independent witness and formal Human Gate 4 remain pending. Program 7 is open.**
+Candidate: da273821ab57c5257d2781312fb99aa4c7b37459; tree: e3387c8a86edf8c9a4ac5c23b15f995b89f4c0ed.
+Continuing repository: C:/Users/gray2/.codex/visualizations/2026/09/04/01a06e84-5626-7241-bbe0-639af79386bf/program7-today.
+ProofRoot: C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-da273821.
+
+P7-INSTALLED-PROCESS-IDENTITY-01 is repaired in the existing qualification helper
+and witness suite. Playwright exposed a Windows cmd.exe launcher PID; bare numeric
+ancestry could attach old orphan processes after PID reuse. The helper now inspects
+Electron's main PID, verifies executable and creation identities, rejects older
+parent links and fails closed on missing identity. Main plus valid descendants
+are counted for resource totals. Genuine Node/Python descendants are still rejected.
+No runtime exemption, assertion weakening, threshold change or retry was added.
+Nine added witness cases pass; affected precommit suites passed 33 tests.
+The user's original full ancestry chain was not captured, so it is not reconstructed
+as proven causal evidence. Failed Administrator state and all diagnostics remain.
+
+P7-INSTALLED-PATH-01 uses a short disposable lifecycle root:
+%TEMP%/bs-p7-da273821-life-20261006. The original deep-root ENAMETOOLONG state
+and subsequent 4cbc process-census failure remain preserved. The normal-GPU short
+root automated smoke passes exact save/reopen/export and 100 units. General
+long-path support and Administrator/firewall isolation are not established.
+Owner: coordinator; Jason supplies Windows Administrator execution. Exact
+resolution stage: P7-G2 current installed lifecycle plus independent witness
+before formal HG4. Reopen for ENAMETOOLONG, incorrect ancestry/resource totals,
+excluded genuine runtimes, missing identity accepted or failed installed close.
+A long/deep writer-path failure requires explicit path-support triage before HG4.
+
+| Current check | Result | Artifact under proofRoot |
+| --- | --- | --- |
+| Clean Stage 19 | 49 files / 840 passed / two existing skips; startup 1/1; Electron 36/36; CLEAN_RC_ELIGIBLE | stage19-clean.log |
+| Dedicated no-AI journeys | Seven passed / one existing real-AI opt-in skip; zero unexpected/flaky, one worker, zero retries | dedicated-report.json; electron.json |
+| Accessibility | 66/66 and 13 required bindings | accessibility.json |
+| Persistence / Unicode / scale | 143/143; 18/18; 17/34/68/136 plus Electron | persistence.json; unicode.json; scale.json |
+| Package and normal-GPU smoke | Exact unsigned internal RC; exact create/save/reopen/export, 100 units; zero forbidden runtimes and owned survivors | package/package-receipt.json; unpacked-smoke.json |
+| Existing evidence tools | 51 rows / 19 Pass / 0 Fail / 32 Uncertain; validator exit 0; human fields pending | evidence-ledger.jsonl; human-sample.json; evidence-validation.log |
+| Payload identity | Current executable and ASAR byte-identical to 4cbc; prior native evidence remains bound to 4cbc, no current direct native run | runtime-equivalence.json |
+| Final documentation | Only tracker, implementation plan and closure report intentionally dirty after clean qualification; lint and diff checks pass | final-docs.log; final-diff-check.log |
+
+Only helper, witness tests and the three existing records changed. Packaged product
+source, storage and manuscript authority did not change. 4cbc's direct native review
+remains 558 seconds, 26 actions/31 observations, all 17 manuscripts unchanged;
+it is reused only via verified payload identity, not relabeled. abcdf100 is an
+intermediate checkpoint; its omitted-main resource totals are not final evidence.
+
+Unknown causes P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01 and
+P7-PACKAGED-NATIVE-ACCESS-01 remain Uncertain under their already recorded owners,
+exact stages and reopening triggers. Current success does not establish a cause.
+Local AI remains unavailable as Jason accepted. RT-2B stays deferred to the
+current-candidate rerun before future AI admission; reopen for approved
+host/model/transport or admission-policy change, requiring truth/protection and
+Jason quality proof. Historical Q06 wrong-status failures stay historical.
+No token benchmark, AI admission, human acceptance, push or release is inferred.
+
+
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
 Status: Guided acceptance preserved; installed helper process-identity defect repaired after Administrator failure; successor qualification and current installed proof/formal HG4 pending; Program 7 open.

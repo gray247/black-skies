@@ -166,7 +166,7 @@ describe('dedicated Stage 19 preload', () => {
     expect((exposed.get('projectSpine') as { windowRole?: string }).windowRole).toBe('writing');
   });
 
-  it('exposes only prose-free contracts to the command window', async () => {
+  it('exposes project-bound Story Knowledge alongside the restricted command contracts', async () => {
     process.argv = [
       'electron',
       '--blackskies-split-command-role=secondary',
@@ -174,12 +174,19 @@ describe('dedicated Stage 19 preload', () => {
       '--blackskies-split-command-session-generation=generation-1',
     ];
     await import('../stage19Preload');
-    expect([...exposed.keys()].sort()).toEqual(['critiqueReview', 'feedbackNotes', 'ideation', 'projectSpine', 'revisionCandidates', 'splitCommand', 'storyFoundation']);
+    expect([...exposed.keys()].sort()).toEqual(['critiqueReview', 'feedbackNotes', 'ideation', 'projectSpine', 'revisionCandidates', 'splitCommand', 'storyFoundation', 'storyIntelligence']);
     expect(exposed.has('aiCritique')).toBe(false);
     expect(exposed.has('feedbackNotes')).toBe(true);
     expect(exposed.has('livingOutline')).toBe(false);
     expect(exposed.has('manuscriptStructure')).toBe(false);
-    expect(exposed.has('storyIntelligence')).toBe(false);
+    expect(exposed.has('storyIntelligence')).toBe(true);
+    const storyBridge = exposed.get('storyIntelligence') as import('../../shared/ipc/storyIntelligence').StoryIntelligenceBridge;
+    expect(Object.keys(storyBridge).sort()).toEqual(['automaticCancel', 'automaticScan', 'checkPermission', 'read', 'write']);
+    const request = { projectId: 'proj_a', projectPath: 'C:/review/a', generation: 3, operationId: 'command-story-read' };
+    const response = { ok: false, error: { code: 'STALE', message: 'Project changed.' } };
+    ipcRendererMock.invoke.mockResolvedValueOnce(response);
+    await expect(storyBridge.read(request)).resolves.toEqual(response);
+    expect(ipcRendererMock.invoke).toHaveBeenLastCalledWith(STORY_INTELLIGENCE_CHANNELS.read, request);
     expect(Object.keys(exposed.get('critiqueReview') as CritiqueReviewBridge).sort()).toEqual([
       'dismiss',
       'markStale',
