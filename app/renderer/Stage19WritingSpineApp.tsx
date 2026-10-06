@@ -3136,7 +3136,8 @@ export default function Stage19WritingSpineApp({
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (result.ok) {
         setStoryIntelligenceDocument(result.data);
-        setStoryIntelligenceNotice(null);
+        const resultLabel = { dismissed: 'Concern dismissed', suppressed: 'Concern suppressed', resolved: 'Concern marked resolved', converted: 'Concern marked as converted' }[lifecycle];
+        setStoryIntelligenceNotice(`${resultLabel}. Your manuscript has not changed. Use Review source to revisit its passage.`);
       } else {
         setStoryIntelligenceNotice(result.error.message);
       }
@@ -4056,7 +4057,11 @@ export default function Stage19WritingSpineApp({
         return;
       }
       setProgram7PromotionOutcomes((previous) => [...previous, ...result.data.outcomes]);
-      setProgram7Notice(result.data.message);
+      const outcome = result.data.outcomes.find((entry) => entry.itemId === item.itemId && entry.destination === destination);
+      const destinationLabel = { 'author-intent': 'Story Foundation', outline: 'Outline', character: 'Characters', lore: 'World notes' }[destination as 'author-intent' | 'outline' | 'character' | 'lore'];
+      setProgram7Notice(outcome?.status === 'routed'
+        ? `Text sent to ${destinationLabel}. Your manuscript has not changed. Open ${destinationLabel} to review it.`
+        : outcome?.message ?? result.data.message);
       if (destination === 'author-intent' && typeof storyFoundationBridge?.get === 'function') {
         const foundation = await storyFoundationBridge.get({ ...bindingFor(current, 'program7-foundation-after-promotion')! });
         if (foundation.ok) setProgram7Foundation(foundation.data);

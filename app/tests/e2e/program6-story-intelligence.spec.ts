@@ -109,7 +109,7 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
       if (projectId === 'proj_lantern_house_review') {
         await command.getByRole('button', { name: 'Suppress', exact: true }).click();
         try {
-          await expect(command.locator('p[role="status"]').filter({ hasText: /signal suppressed requested/i })).toBeVisible();
+          await expect(command.locator('p[role="status"]').filter({ hasText: 'Concern suppressed. Your manuscript has not changed. Use Review source to revisit its passage.' })).toBeVisible();
           await expect.poll(async () => {
             const next = JSON.parse(await readFile(path.join(projectPath, 'story-intelligence.json'), 'utf8')) as { revision: number };
             return next.revision;

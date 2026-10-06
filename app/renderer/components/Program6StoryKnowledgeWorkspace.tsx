@@ -950,9 +950,7 @@ export default function Program6StoryKnowledgeWorkspace({
     signalId: string,
     lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted',
   ) => {
-    setActionNotice(
-      `Signal ${lifecycle} requested. The owning story-intelligence record remains authoritative.`,
-    );
+    setActionNotice('Saving this concern’s status. Your manuscript has not changed.');
     onSignalDisposition?.(signalId, lifecycle);
   };
   const continuityAction = (finding: ContinuityFindingV1, action: ContinuityAllowedActionV1) => {

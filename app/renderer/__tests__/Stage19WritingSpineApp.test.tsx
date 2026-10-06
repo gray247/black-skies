@@ -1517,22 +1517,24 @@ describe('Stage19WritingSpineApp', () => {
     },
   );
 
-  it.each(['rejected', 'unavailable'] as const)(
+  it.each(['saved', 'rejected', 'unavailable'] as const)(
     'shows a %s signal write result while keeping Story Knowledge open',
     async (outcome) => {
       const units = [{ id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' }];
       const writing = createBridge(snapshot('writing', { activeUnitId: 'unit_a', units }));
       const surfaces = createSurfaceBridge(snapshot('command', { units }));
       const storyIntelligence = createStoryIntelligenceBridge();
-      const expectedNotice = outcome === 'rejected'
-        ? 'The saved signals changed. Reopen this project before trying again.'
-        : 'The signal change could not be confirmed. Your manuscript has not changed. Reopen this project to check its saved status before trying again.';
+      const expectedNotice = outcome === 'saved'
+        ? 'Concern marked resolved. Your manuscript has not changed. Use Review source to revisit its passage.'
+        : outcome === 'rejected'
+          ? 'The saved signals changed. Reopen this project before trying again.'
+          : 'The signal change could not be confirmed. Your manuscript has not changed. Reopen this project to check its saved status before trying again.';
       if (outcome === 'rejected') {
         vi.mocked(storyIntelligence.write).mockResolvedValue({
           ok: false,
           error: { code: 'STORY_INTELLIGENCE_STALE', message: expectedNotice },
         });
-      } else {
+      } else if (outcome === 'unavailable') {
         vi.mocked(storyIntelligence.write).mockRejectedValue(new Error('IPC reply unavailable'));
       }
       const user = userEvent.setup();
@@ -1552,9 +1554,10 @@ describe('Stage19WritingSpineApp', () => {
       await user.click(screen.getByRole('button', { name: 'Resolve' }));
 
       expect(await screen.findByText(expectedNotice)).toHaveAttribute('role', 'status');
-      expect(screen.queryByText(/Signal resolved requested/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Saving this concern’s status. Your manuscript has not changed.')).not.toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Signals' })).toBeVisible();
-      expect(screen.getByRole('button', { name: 'Resolve' })).toBeEnabled();
+      if (outcome === 'saved') expect(screen.queryByRole('button', { name: 'Resolve' })).not.toBeInTheDocument();
+      else expect(screen.getByRole('button', { name: 'Resolve' })).toBeEnabled();
       expect(storyIntelligence.write).toHaveBeenCalledTimes(1);
       expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
     },
@@ -1627,7 +1630,8 @@ describe('Stage19WritingSpineApp', () => {
 
       expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
       expect(screen.getByText('Project B saved concern.')).toBeVisible();
-      expect(screen.queryByText(/Signal resolved requested/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Saving this concern’s status. Your manuscript has not changed.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Concern marked resolved. Your manuscript has not changed. Use Review source to revisit its passage.')).not.toBeInTheDocument();
       expect(screen.queryByText('A source-linked reviewed signal.')).not.toBeInTheDocument();
       expect(screen.queryByText('Old project write rejected.')).not.toBeInTheDocument();
       expect(screen.queryByText(/The signal change could not be confirmed/)).not.toBeInTheDocument();

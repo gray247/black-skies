@@ -5,7 +5,7 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: Guided no-AI acceptance preserved; 5a30 installed proof and 3aea clean confirmation/package pass. Story Knowledge feedback/project-reply repairs pass affected checks; successor qualification pending. Intermittent Suppress cause remains uncertain. Formal HG4/Program 7 open.
+Status: Guided no-AI acceptance preserved; edce7b46 clean qualification/package and targeted native checks recorded. Owner-result wording repaired; successor qualification pending. Intermittent causes remain uncertain; current installed proof/formal HG4/Program 7 open.
 Formal Human Gate 4 and Program 7 closure remain separate.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
@@ -30,6 +30,47 @@ closure are outside this campaign. Structure, Project Interchange, and
 Operations / Approvals remain Command Center placeholders; built Writing Studio
 Markdown/Structure behavior remains in regression scope.
 
+
+## Current owner-result wording checkpoint — October 5, 2026
+
+The edce7b46 / c02fdfae656a1880fadc28eca161113057b53f69 candidate
+passed clean Stage 19 (49 critical files / 830 passed / two existing skips,
+startup 1/1, Electron 36/36), dedicated 7 passed / one existing opt-in AI skip,
+accessibility 66/66, persistence 143/143, Unicode 18/18, scale, package verification
+and normal-GPU 100-unit exact save/reopen. Its native review took 568 seconds
+after 118 seconds of preparation, with 28 actions, no helper failure or safety
+stop, both themes inspected and normal close. One idea, one source-linked
+direction, exact Foundation text and durable suppression were verified on disk.
+All 17 manuscript files stayed byte-identical. This is targeted coordinator
+evidence, not Jason acceptance or a full feature tour.
+
+**P7-OWNER-RESULT-WORDING-01 repaired; successor qualification pending.**
+Native success still displayed technical promotion wording and a requested
+signal message after its durable outcome. A focused saved-result host regression
+failed before repair. The renderer now reports the named destination only for
+the matching routed item, preserving failed/deferred outcome messages; concern
+feedback distinguishes pending save from confirmed status and explains manuscript
+preservation and the source-return action. Existing Electron journeys now assert
+exact success feedback in the viewport alongside durable destination/suppression
+checks. No owner, schema, storage or manuscript-safety rule changed.
+
+Affected host/component checks: 163 passed, app lint and TypeScript passed.
+Final focused host checks: four passed; both affected Electron journeys passed
+with exact result wording and durable outcomes, one worker and zero retries.
+Read-only safety review found no concrete issue. Owner: coordinator.
+Exact resolution stage: Batch 4 owner-result wording qualification before HG4.
+Reopen for unconfirmed work described as saved, a failed/deferred destination
+described as sent, technical or hidden result guidance, or any manuscript mutation.
+Existing repair logs: %TEMP%/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/owner-result-wording-repair.
+The initial edit-script assertion was a tooling failure, not a product test.
+Native evidence and preserved project remain under candidate-edce7b46.
+
+P7-STORY-SUPPRESS-01, P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01 and the earlier
+packaged-access observation retain their recorded uncertainty and reopening
+triggers. Current success does not establish their historical causes.
+Local AI remains unavailable as approved; no new pilot or token benchmark ran.
+Next: qualify the reviewed wording successor, make one short native result
+confirmation, and prepare its exact Administrator lifecycle and formal gate packet.
 
 ## Current Story Knowledge repair checkpoint — October 5, 2026
 
