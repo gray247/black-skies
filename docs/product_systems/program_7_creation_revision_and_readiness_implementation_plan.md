@@ -1,5 +1,38 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## Follow-up: exact source guidance — October 6, 2026
+
+P7-STORY-DETACHED-GUIDANCE-01: the retained-project packaged recheck established
+that detached source jumps support section navigation. Exact passage selection
+is supported through Writing Studio's Open Command Center here. The detached
+fallback incorrectly claimed no exact passage was recorded even when a valid
+saved anchor existed. A minimal wording repair now explains the supported route
+without adding manuscript access to Command Center. The focused existing host
+regression checks truthful guidance, section navigation, absent Save authority
+and no Story Knowledge write. No public API or schema change is required.
+
+Intermediate e87b3869 passed clean Stage 19 (840 plus two existing skips,
+startup 1/1, Electron 36/36) and the dedicated journeys (seven passed, one existing
+real-AI opt-in skip). Its packaged retained-copy diagnostic passed both Glass
+Orchard Emotion source routes, Carmilla's exact selected Chapter I passage in
+the same window, fresh-process Story Knowledge identity and unchanged hashes for
+all manuscript files. This intermediate evidence remains bound to e87b3869;
+the wording repair requires its own final candidate/package binding.
+
+Earlier ad-hoc diagnostics selected a transient DOM role instead of the distinct
+secondary window, then attempted exact Carmilla selection through the detached
+route. Those diagnostic failures are preserved and corrected explicitly; they
+are not product failures or waived assertions. The final recheck uses the
+authoritative preload role and the correct same-window Carmilla route.
+
+Owner: coordinator. Exact resolution stage: current P7-G2 wording repair and
+final package recheck before Jason P5/P6 and Human Gate 4. Reopen if a recorded
+anchor is denied, the stated route cannot select it, the wrong section/project
+opens or any manuscript changes. Direct detached exact-passage selection is not
+newly implemented or claimed. The human packet now explicitly requires Carmilla
+Writing Studio -> Open Command Center here -> Story Knowledge -> Signals ->
+Review source for the childhood-fright passage.
+
 ## Human Gate 4 repair: installed Story Knowledge — October 6, 2026
 
 **Jason's Glass Orchard failure supersedes the readiness claim below.

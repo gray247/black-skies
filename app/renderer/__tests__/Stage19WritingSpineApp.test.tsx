@@ -1762,6 +1762,36 @@ describe('Stage19WritingSpineApp', () => {
     },
   );
 
+  it('explains how to locate a recorded exact passage from a prose-free detached window', async () => {
+    const current = snapshot('command');
+    const qualified = { ...current, project: { ...current.project!, unitMetrics: {
+      ...current.project!.unitMetrics,
+      unit_a: { ...current.project!.unitMetrics!.unit_a!, bodySha256: 'a'.repeat(64) },
+    } } };
+    const command = createBridge(qualified);
+    const surfaces = createSurfaceBridge(qualified, { initialPlacement: 'secondary-window', windowRole: 'secondary' });
+    const storyIntelligence = createStoryIntelligenceBridge();
+    const read = await storyIntelligence.read({ projectId: 'proj_a', projectPath: 'C:/review/a', generation: 1, operationId: 'fixture-read' });
+    if (!read.ok) throw new Error('Fixture read failed');
+    const source = read.data.durableSignals[0]!.positionRefs[0]!;
+    vi.mocked(storyIntelligence.read).mockResolvedValue({ ok: true, data: {
+      ...read.data, durableSignals: [{ ...read.data.durableSignals[0]!, positionRefs: [{
+        ...source, sourceFingerprint: 'a'.repeat(64), bodySha256: 'a'.repeat(64), selectionStart: 0, selectionEnd: 5, selectionFingerprint: 'a'.repeat(64),
+      }] }],
+    } });
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="command" bridge={command.bridge} surfaceBridge={surfaces.bridge} storyIntelligenceBridge={storyIntelligence} />);
+    await screen.findByRole('region', { name: 'Command Center' });
+    await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+    await user.click(screen.getByRole('button', { name: 'Signals' }));
+    await user.click(screen.getAllByRole('button', { name: 'Review source' })[0]!);
+    expect(await screen.findByText('Opened the manuscript section. To select the recorded passage, use Open Command Center here in Writing Studio, then Story Knowledge and Review source.')).toBeVisible();
+    expect(screen.queryByText('Opened the manuscript section, but this concern did not record an exact passage.')).not.toBeInTheDocument();
+    expect(command.bridge.selectUnit).toHaveBeenCalledWith(expect.objectContaining({ unitId: 'unit_a' }));
+    expect(command.bridge.saveUnit).toBeUndefined();
+    expect(storyIntelligence.write).not.toHaveBeenCalled();
+  });
+
   it('returns a detached Emotion Graph point to Writing Studio before selecting its linked unit', async () => {
     const units = [
       { id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' },

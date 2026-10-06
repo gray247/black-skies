@@ -3396,7 +3396,11 @@ export default function Stage19WritingSpineApp({
       return;
     }
     await handleSelectUnit(source.unitId);
-    setNotice('Opened the manuscript section, but this concern did not record an exact passage.');
+    setNotice(
+      source.selectionStart !== undefined && source.selectionEnd !== undefined && source.selectionFingerprint
+        ? 'Opened the manuscript section. To select the recorded passage, use Open Command Center here in Writing Studio, then Story Knowledge and Review source.'
+        : 'Opened the manuscript section, but this concern did not record an exact passage.',
+    );
   }, [activateSurface, handleSelectUnit, surfaceBridge]);
 
   const currentProgram7UnitSource = useCallback(async (unitId?: string) => {
