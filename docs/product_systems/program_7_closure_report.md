@@ -1,5 +1,248 @@
 # Program 7 Qualification Closure Report
 
+## Installed process-identity repair — October 6, 2026
+
+**P7-INSTALLED-PROCESS-IDENTITY-01 repaired; successor qualification and
+Administrator installed proof pending.** The short-root Administrator attempt
+classified 14 older Codex cua_node node.exe helpers as forbidden installed
+descendants. Its external state remains at
+%TEMP%/bs-p7-4cbc-life-20261006/external-data; no completed lifecycle receipt exists.
+The original full ancestry chain was not captured.
+
+The qualification helper used Playwright's launcher PID and bare numeric
+ParentProcessId traversal. A focused real-package follow-up confirmed the
+launcher was cmd.exe, rather than Black Skies. Three regressions reproduced
+older orphan attachment or acceptance of missing identity evidence. The helper
+now obtains the Electron main PID through its inspection connection, binds
+that root to the exact executable and creation time, and rejects older-than-
+parent links. Missing identity fails closed. Genuine external Node/Python
+descendants remain subject to the unchanged forbidden-runtime assertion;
+no name/path exemption, shortened assertion, skip or retry was added.
+
+The existing three witness/qualification suites pass 32 tests. The full existing
+packaged-runtime smoke passes exact create/save/reopen/export and 100-unit
+workload, normal GPU, zero forbidden runtime and zero owned survivors. This
+precommit run uses the unchanged 4cbc package with dirty qualification tooling;
+it does not qualify an Administrator installed lifecycle or a successor package.
+Evidence: current 4cbc installed-process-finding.json and the existing external
+process-tree-repair logs, including before.log, followup.log, affected-final.log,
+smoke-final.json/log. The mistyped typecheck invocation is retained as a tooling
+failure; corrected typecheck:all supplies the actual type check.
+
+Only the existing qualification helper/test and three authorized documentation
+records changed. The helper/test are excluded from the packaged application.
+Owner: coordinator; Jason supplies Windows Administrator execution. Exact
+resolution stage: P7-G2 process-identity repair and exact-candidate installed
+lifecycle/witness before formal HG4. Reopen for shell-root inventory, stale
+ancestry, a genuine forbidden descendant excluded, absent identity accepted,
+or failed identity/close under Administrator.
+
+Next: freeze and clean-qualify this scoped repair, then present one exact short-
+root Administrator command. The previous commands/candidates remain historical.
+Program 7 remains open. No current installed pass or author acceptance is inferred.
+
+## Installed path correction — October 6, 2026
+
+**P7-INSTALLED-PATH-01: installed run failed; shorter-path correction verified
+automatically; Administrator lifecycle retry pending.** The coordinator's
+deep working root produced a 251-character temporary project path and
+mkdtemp returned ENAMETOOLONG during project creation. This is an observed
+createProject failure, not a timing/advisory judgment. The installed script
+removed its application in failure teardown; the failed external state remains
+at candidate-4cbc0a5e/installed-lifecycle-retry-20261006/external-data.
+No smoke or completed lifecycle receipt was produced.
+
+The same 4cbc0a5e executable/ASAR hashes match the existing package receipt.
+Using a short disposable root, the existing automated packaged-runtime smoke
+passes exact project creation/save/reopen/export, the 100-unit workload,
+normal GPU, no forbidden runtime and zero owned survivors. It does not prove
+firewall isolation or installed lifecycle. Logs/artifacts remain under the
+current candidate as short-path-smoke.log/json and installed-path-finding.json.
+The existing packaged ledger row now records Fail, with preserved failure and
+correction proof: 50 rows / 18 Pass / one current Fail / 31 Uncertain. Formal
+human fields remain pending; the deterministic sample is unchanged.
+
+Next lifecycle working root:
+C:/Users/gray2/AppData/Local/Temp/bs-p7-4cbc-life-20261006.
+Package/receipt remain in the original candidate-4cbc0a5e proofRoot; only the
+disposable working path changes. No source, test or package bytes changed.
+Owner: coordinator; Jason supplies Administrator execution. Exact resolution
+stage: P7-G2 current installed lifecycle and independent witness before formal
+HG4. Reopen for ENAMETOOLONG or failed creation/save/reopen under the shorter
+root; a long/deep writer-path failure requires explicit path-support triage
+before HG4 disposition. General long-path support is not established.
+
+The current closure-report command uses this short root, checks the exact HEAD
+and refuses to reuse an existing retry folder. Preserve both earlier attempts.
+Program 7 remains open; no installed pass, human acceptance or closure is inferred.
+
+## Current qualified candidate and next human boundary — October 5, 2026
+
+**Status: current no-AI mechanical checks and targeted native repair checks
+passed. The Administrator installed attempt failed on the deep test path; a verified
+short-path retry and formal Human Gate 4 decisions remain pending. Program 7 remains open.**
+
+Continuing repository:
+C:/Users/gray2/.codex/visualizations/2026/09/04/01a06e84-5626-7241-bbe0-639af79386bf/program7-today.
+Branch: codex/program7-implementation.
+Candidate: **4cbc0a5ed594ce61157214f59a93846638b2b7e8**.
+Tree: **7f41efaf4b8445e58d3e02813964c99e9debcd81**.
+All qualification/package runs were clean before this final update to the
+existing tracker, plan and closure report. HEAD remains the qualified candidate;
+the three final documentation records are intentionally dirty. No push/release ran.
+
+Current proofRoot:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-4cbc0a5e.
+
+### What changed and how it was proved
+
+| Finding | Repair and evidence |
+| --- | --- |
+| P7-IDEAS-BRANCH-GUIDANCE-01 | Create direction is unavailable until a saved idea is selected and name/core idea are supplied. Nearby guidance covers empty and all-private libraries. Two component failures reproduced before repair; source save/selection retain draft fields; the existing Electron journey proves the successful path. |
+| P7-STORY-PROJECT-REPLY-01 | Three delayed success/rejection/unavailable regressions reproduced an old-project result or missing new-project concern; five combined regressions pass after using the existing binding helper and keying temporary workspace state by project/path/generation. |
+| P7-STORY-ACTION-NOTICE-01 | Rejected or unavailable Story Knowledge writes were hidden behind optimistic requested feedback. Existing component tests reproduce the hidden result. The active workspace now displays the owner result with priority; missing signal context receives explicit guidance. Original suppression timing/cause remains unknown. |
+| P7-PROMOTION-NOTICE-01 | The active-panel repair still allowed results above the scrolled viewport. Native observation and an existing Electron assertion reproduced viewport ratio 0. One opaque sticky result stays visible while scrolling, with writer-facing save/direction/preview wording. Creation, preview, rejected and unavailable replies pass viewport assertions in both themes. |
+| P7-OWNER-RESULT-WORDING-01 | Native success still used technical destination/owner wording. A saved-result host test failed before repair. Confirmed concerns now state their saved status; pending writes remain pending. Matching routed items name the destination and next review step; failed/deferred messages remain distinct. Affected 163 host/component tests and two Electron journeys passed; current clean gate proves the result. |
+| Earlier promotion/AI/layout repairs | IPC envelopes and nearby feedback remain truthful, unavailable AI is enforced on ordinary launch, normal-GPU qualification is preserved, and enlarged window-control labels remain contained. Current required regression gates pass. |
+
+No source/provenance rule, destination owner, public API, storage format,
+dependency or framework changed. Failed projects and their evidence remain at
+candidate-5a30bb10/jason-review/carmilla-review and
+candidate-5858a280/native-ideas-review/carmilla-review. They are not qualification
+fixtures. The failed Lantern House at %TEMP%/black-skies-program6-e2e-6qhVZ3/lantern-house is also preserved. The prior 5a30 installed proof passed with an independent witness and
+196 preserved external files. Its ledger validates at 14 Pass / two Fail /
+28 Uncertain; receipt recording changed metadata bytes, while executable/ASAR
+hashes remain verified unchanged. No earlier packet is relabeled as 4cbc.
+
+| Current check | Actual outcome | Artifact under proofRoot |
+| --- | --- | --- |
+| Clean Stage 19 | 49 critical files / 831 passed / two existing skips; startup 1/1; Electron 36/36; CLEAN_RC_ELIGIBLE | stage19-clean.log |
+| Dedicated Program 7 | Seven passed / one existing real-AI opt-in skip; zero failure/flaky; one worker, zero retries | dedicated-clean.log; dedicated-report.json; electron.json |
+| Accessibility | Qualified 66/66, 13 required bindings; themes, 200%, narrow, reduced motion, focus/contrast and real pointer routing | accessibility.json; accessibility-observed.json |
+| Persistence / Unicode / scale | 143/143; 18/18; 17/34/68/136-unit matrix plus Electron | persistence.json; unicode.json; scale.json; retained raw paths |
+| NSIS package / unpacked runtime | Current exact unsigned internal RC; normal GPU; sandboxed windows; exact save/reopen and 100-unit workload; no forbidden runtime or owned survivors | package/package-receipt.json; unpacked-smoke.json |
+| Existing evidence tools | 50 rows / 18 Pass / one current Fail / 31 Uncertain; integrity validator exit 0; Jason fields blank | evidence-ledger.jsonl; human-sample.json; evidence-validation.log |
+| Targeted native recheck | 558 seconds (9m18) after 63 seconds of preparation; 26 actions / 31 observations; confirmed suppression and Foundation results visible, both themes, same-project return and normal close; all 17 manuscript sections byte-identical | native-notice-check.json; native-draft-before/after.json |
+| Final record hygiene | Documentation lint and diff checks pass | final-docs.log; final-diff-check.log |
+
+Precommit Story Knowledge verification passed 4 files / 182 tests plus app lint and
+TypeScript. The later owner-result wording repair passed 163 host/component tests,
+four final focused cases, two affected Electron journeys, lint and TypeScript. The earlier full app result, 159 files / 1,534 tests / two skips,
+retains its dirty pre-d424 identity. It was not repeated merely to duplicate
+evidence; the changed renderer and feedback paths have affected and required
+clean qualification. No assertion was weakened or unexplained skip added.
+
+Package ASAR SHA-256: ab52299c74350c7bf36cf3776b25681e5b2bb333a274c008639aac6eeffecdea.
+Installer SHA-256: ff180dd76f800a456042ddeb99ea34ddce3cc9b63a54690aa3554ce039a3e101.
+
+### AI and unresolved observations
+
+Local AI remains unavailable under Jason's accepted disposition. The current
+ordinary-launch suite proves both preload paths withhold capabilities and the
+manual route works. No new model/prompt/resource/token loop ran for these UI
+repairs. The 24-row diagnostic remains bound to 5a30: 22 mechanical successes,
+two Q06 wrong-status Fail outcomes, no accepted timing failure, unchanged truth
+and zero protection hits. Current RT-2B rows remain Uncertain/deferred because
+no current-candidate live pilot ran; historical Q06 failures are preserved.
+They do not imply AI admission or Jason quality scores.
+
+Owner: coordinator. Exact resolution stage: **RT-2B rerun before future AI
+admission**. Required evidence: complete exact-candidate qualification,
+protection/truth proof and Jason quality review. Reopen for approved host/model/
+transport or admission-policy change.
+
+| Uncertainty | Owner and exact resolution stage | Reopening trigger |
+| --- | --- | --- |
+| P7-A11Y-ROUTE-01: current checks pass; earlier wrong-target cause remains unknown. Later helper off-window rejection occurred before input and does not establish that earlier cause | Coordinator; Batch 4 route triage before formal HG4 disposition | Repeated click/panel mismatch, route flip, bounds/input mismatch or stall |
+| P7-STORY-SUPPRESS-01: initial clean run left revision 0 after Suppress; focused rerun and later gate success do not establish the cause | Coordinator; Batch 4 Story Knowledge suppression triage before formal HG4 disposition | Suppress without durable outcome, rejected write or misleading state; preserve action/time/project, current notice and durable revision |
+| P7-NATIVE-RESP-01: earlier OS warning lacks action/time/duration correlation; current success does not explain it | Coordinator; Batch 4 responsiveness triage before formal HG4 disposition | Warning, visible stall, impaired input/close; retain action/time/project/window/duration |
+| P7-PACKAGED-NATIVE-ACCESS-01: visible access recovered for 5a30 and successors; historical helper/visibility cause remains unknown | Coordinator; P7-G2 current package native access confirmation before HG4 | Missing first window, crash or untargetable visible ordinary launch |
+
+The current native review found no additional defect. The previous edce review
+found the owner-result wording defect and remains historical. Delayed/rejected
+reply failures were automated, not simulated in the native review.
+
+Current automated accessibility passes do not waive any failed A/AA requirement.
+The repaired issues have current evidence; subjective usability remains
+Jason's decision. Reopen branch guidance for missing-source creation, impossible
+remedy or wrong linkage; reopen notices for offscreen/false/duplicate feedback or
+an obscured control. Resolution stages remain Batch 4 Ideas guidance repair and
+current-candidate qualification before HG4, and Batch 4 notice viewport
+qualification before HG4, respectively.
+
+### Next action: current installed proof
+
+The previous Administrator command correctly qualified 5a30. These repairs
+changed the package, so 4cbc needs its own lifecycle proof. The installed script
+requires Windows Administrator for temporary outbound firewall isolation.
+Codex sandbox approval cannot supply that Windows privilege.
+
+Copy only the PowerShell commands inside the code box, excluding Markdown
+fence lines and PS/continuation prompts. The October 6 pasted attempt reported
+a Markdown-fence command error. The original installed-lifecycle directory
+contains installed files but no smoke or completion receipt; those files are
+preserved without a product-failure claim. The deep-directory retry subsequently failed with ENAMETOOLONG. Its external
+state is preserved, and the next retry uses the short root verified below.
+No current lifecycle success is inferred.
+
+Run in Administrator PowerShell:
+
+```powershell
+$reviewRepo = 'C:\Users\gray2\.codex\visualizations\2026\09\04\01a06e84-5626-7241-bbe0-639af79386bf\program7-today'
+$proofRoot = 'C:\Users\gray2\AppData\Local\Temp\black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570\closure-final-20261005\candidate-4cbc0a5e'
+$lifecycleRoot = Join-Path $env:TEMP 'bs-p7-4cbc-life-20261006'
+Set-Location -LiteralPath $reviewRepo
+if ((git rev-parse HEAD).Trim() -ne '4cbc0a5ed594ce61157214f59a93846638b2b7e8') { throw 'Candidate changed; stop and reconcile.' }
+if (Test-Path -LiteralPath $lifecycleRoot) { throw 'Retry folder already exists; preserve it and report the output.' }
+& "$reviewRepo\scripts\stage19-installed-lifecycle.ps1" -InstallerPath "$proofRoot\package\BlackSkies-Setup-1.0.0-rc1.exe" -ReceiptPath "$proofRoot\package\package-receipt.json" -WorkingRoot $lifecycleRoot
+```
+
+Preserve the directory if this fails; report the displayed failure. No fixture
+reset or isolation bypass. After completion the coordinator runs the independent
+witness against the exact installer, installed executable/ASAR and external
+manifest, reconciles receipt metadata hashes, and updates the existing packet.
+Jason does not need to rerun the app's automated suites or assemble evidence.
+
+### Then: bounded formal author decisions
+
+Jason's accepted guided no-AI session remains bound to 3e046265 and its preserved
+project at %TEMP%/black-skies-jason-review-W2nUKR/carmilla-review.
+This packet requests the remaining current-candidate confirmations, without
+reactivating or reapplying historical alternatives.
+
+Pristine current human project:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-4cbc0a5e/jason-review/carmilla-review.
+Retained Glass Orchard:
+C:/Users/gray2/AppData/Local/Temp/black-skies-program6-e2e-CZ0XxW/glass-orchard.
+
+| Screen / action | Expected result and failure condition |
+| --- | --- |
+| Command Center -> Create / Develop -> Ideas | Save/select a fresh idea, create a direction, preview/send to Foundation or Outline. Confirm understandable guidance and visible results in both themes and enlarged/narrow layout. Fail for hidden/false feedback, blocked control, wrong destination or manuscript write. |
+| P7-HG4-REG-P4: Companion -> Where am I? | Available now, correct project/unit, temporary/no-change limitation. Return to Writing restores context and clears summary; ask again, Stay in Command Center clears summary while retaining Command Center. Fail for fabricated context, absent limitation or incorrect return/clear. |
+| P7-HG4-REG-P5: Carmilla Story Knowledge -> Signals -> Review source | Correct Chapter I passage after navigating away/return and after fresh-process reopen. Fail for wrong source, lost anchor or unusable route. |
+| P7-HG4-REG-P6: Glass Orchard Story Knowledge -> Emotion, detached | Measured unease returns to The Empty Conservatory; guarded hope returns to A Red Apple; both windows retain the same project. Fail for wrong source/project or lost return. |
+| Deterministic objective sample | P7-G2-STAGE19, P7-G2-PROTOCOL-RECOVERY, P7-G2-PROTOCOL-CORRUPTION. Review matched current artifacts/outcomes; no coordinator-chosen replacement sample. Fail for contradictory bytes/owner evidence or missing project/unit. |
+| Remaining family and uncertainty decisions | Review Foundation, Ideas, History and promotion usefulness/wording/author control, every Fail/Uncertain/authority/protection row and unavailable-AI disposition. Old causes may remain unknown; success is not cause proof. Record explicit human decisions instead of assuming acceptance. |
+
+Native work in this campaign was targeted; native Outline sending, rejected/delayed IPC injection, a full feature tour and native scale matrix were not covered by the latest review; applicable mechanics have automated evidence.
+No formal P4/P5/P6, sample, model score, HG4 acceptance or closure is inferred.
+
+Stop for unintended replacement, wrong project, unexpected AI/network, blocking
+crash or trapped focus/modal. Preserve the project and last action; any failed
+outcome reopens its tracker issue. No token allowance benchmark ran.
+
+After required decisions, disposition remaining issues/families, finalize
+authority records and prepare the final reviewed checkpoint. Local-AI admission,
+Character/Lore truth-owner integration and Programs 8/9 remain separate
+boundaries. Writing-section, manuscript-insertion and Project Memory Ideas
+destinations retain honest saved-preview/unavailable behavior; resolving new
+destinations remains the coordinator/Jason **P7-G2 handoff package review before
+the final Program 7 checkpoint**, triggered by authorized integration/owner
+change, requiring owner receipts, idempotency/protection and human proof.
+Built Writing Studio Markdown/Structure remains covered; Command Center
+Structure/Interchange/Operations remain intentional placeholders.
+No push, merge or release is included.
+
 ## Current owner-result wording checkpoint — October 5, 2026
 
 The edce7b46 / c02fdfae656a1880fadc28eca161113057b53f69 candidate

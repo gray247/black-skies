@@ -122,32 +122,56 @@ function sanitizedLaunchEnvironment() {
   return environment;
 }
 
-function processTree(rootPid) {
+function processCreationTime(identity) {
+  const encoded = identity.creationDate;
+  const windows = typeof encoded === "string" && /^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/u.exec(encoded);
+  const createdAt = windows ? Number(windows[1]) : typeof encoded === "string" ? Date.parse(encoded) : NaN;
+  assert(Number.isFinite(createdAt), `Process creation time unavailable for PID ${identity.pid}; ancestry is unconfirmed.`);
+  return createdAt;
+}
+
+export function selectProcessDescendants(processes, rootPid, executablePath) {
+  const roots = processes.filter((entry) => entry.pid === rootPid);
+  assert(roots.length === 1, `Installed root PID ${rootPid} is missing or ambiguous; ancestry is unconfirmed.`);
+  const root = roots[0];
+  assert(
+    root.executablePath && path.win32.normalize(root.executablePath).toLowerCase() === path.win32.normalize(executablePath).toLowerCase(),
+    `Installed root PID ${rootPid} does not match the launched executable; ancestry is unconfirmed: ${JSON.stringify({ expectedExecutable: executablePath, observedRoot: root })}.`
+  );
+  const births = new Map([[rootPid, processCreationTime(root)]]);
+  const descendants = [];
+  const queue = [rootPid];
+  const visited = new Set(queue);
+  while (queue.length) {
+    const parentPid = queue.shift();
+    for (const entry of processes) {
+      if (entry.parentPid === parentPid && !visited.has(entry.pid)) {
+        const createdAt = processCreationTime(entry);
+        // Windows retains an orphan's numeric parent PID after that parent exits.
+        // A later process reusing that PID cannot be the older orphan's parent.
+        if (createdAt < births.get(parentPid)) continue;
+        visited.add(entry.pid);
+        births.set(entry.pid, createdAt);
+        descendants.push(entry);
+        queue.push(entry.pid);
+      }
+    }
+  }
+  return descendants;
+}
+
+function processTree(rootPid, executablePath) {
   const command = [
-    "$root = [int]$env:BLACK_SKIES_ROOT_PID;",
     "$rows = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,CreationDate,WorkingSetSize);",
-    "$selected = New-Object System.Collections.Generic.List[object];",
-    "$queue = New-Object System.Collections.Generic.Queue[int];",
-    "$queue.Enqueue($root);",
-    "while ($queue.Count -gt 0) {",
-    "  $parent = $queue.Dequeue();",
-    "  foreach ($row in $rows) {",
-    "    if ([int]$row.ParentProcessId -eq $parent) { $selected.Add($row); $queue.Enqueue([int]$row.ProcessId) }",
-    "  }",
-    "}",
-    "$selected | ConvertTo-Json -Compress"
+    "$rows | ConvertTo-Json -Compress"
   ].join(" ");
   const output = execFileSync(
     "powershell.exe",
     ["-NoProfile", "-NonInteractive", "-Command", command],
-    {
-      encoding: "utf8",
-      env: { ...process.env, BLACK_SKIES_ROOT_PID: String(rootPid) }
-    }
+    { encoding: "utf8" }
   ).trim();
-  if (!output) return [];
-  const parsed = JSON.parse(output);
-  return (Array.isArray(parsed) ? parsed : [parsed]).map((entry) => ({
+  const parsed = output ? JSON.parse(output) : [];
+  const processes = (Array.isArray(parsed) ? parsed : [parsed]).map((entry) => ({
     pid: Number(entry.ProcessId),
     parentPid: Number(entry.ParentProcessId),
     name: String(entry.Name ?? ""),
@@ -155,6 +179,7 @@ function processTree(rootPid) {
     creationDate: entry.CreationDate ? String(entry.CreationDate) : null,
     workingSetBytes: Number(entry.WorkingSetSize ?? 0)
   }));
+  return selectProcessDescendants(processes, rootPid, executablePath);
 }
 
 function queryProcessIdentities(processIds) {
@@ -205,7 +230,7 @@ function survivingOwnedProcesses(ownedProcesses) {
 
 function ownedProcessIdsForExecutable(rootPid, executablePath) {
   const packageDirectory = path.dirname(executablePath).toLowerCase();
-  const descendants = processTree(rootPid).filter((entry) => {
+  const descendants = processTree(rootPid, executablePath).filter((entry) => {
     const childPath = entry.executablePath?.toLowerCase();
     return childPath && (childPath === executablePath.toLowerCase() || childPath.startsWith(`${packageDirectory}\\`));
   });
@@ -296,6 +321,12 @@ async function openOptionalCommandWindow(application, writing) {
   return { ...windows, durationMs: performance.now() - startedAt };
 }
 
+export async function installedMainProcessId(application) {
+  const pid = await application.evaluate(() => process.pid);
+  assert(Number.isInteger(pid) && pid > 0, "Installed Electron main PID was unavailable.");
+  return pid;
+}
+
 async function launchInstalled(executablePath, userDataPath, { openOptionalSecondary = true } = {}) {
   const application = await electron.launch({
     executablePath,
@@ -303,13 +334,14 @@ async function launchInstalled(executablePath, userDataPath, { openOptionalSecon
     env: sanitizedLaunchEnvironment()
   });
   try {
+    const mainPid = await installedMainProcessId(application);
     const initial = await identifyWindows(application);
     const canonicalReadiness = await canonicalWritingLaunchReadiness(application);
     const currentWindowTransitionMs = await assertCurrentWindowCommandTransition(initial.writing);
     const windows = openOptionalSecondary
       ? await openOptionalCommandWindow(application, initial.writing)
       : { ...initial, durationMs: null };
-    return { application, canonicalReadiness, currentWindowTransitionMs, ...windows };
+    return { application, mainPid, canonicalReadiness, currentWindowTransitionMs, ...windows };
   } catch (error) {
     try {
       await application.close();
@@ -694,9 +726,9 @@ async function measureColdLaunch(
       launched.command,
       executablePath
     );
-    const rootPid = launched.application.process()?.pid;
+    const rootPid = launched.mainPid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
-    const processEntries = processTree(rootPid);
+    const processEntries = processTree(rootPid, executablePath);
     const ownedProcessIds = ownedProcessIdsForExecutable(rootPid, executablePath);
     const forbiddenProcesses = processEntries.filter((entry) =>
       /^(?:python(?:3)?|node)(?:\.exe)?$/iu.test(entry.name)
@@ -721,7 +753,7 @@ async function measureColdLaunch(
   } finally {
     if (launched) {
       try {
-        const rootPid = launched.application.process()?.pid;
+        const rootPid = launched.mainPid;
         const ownedProcessIds = Number.isInteger(rootPid)
           ? ownedProcessIdsForExecutable(rootPid, executablePath)
           : [];
@@ -830,9 +862,9 @@ async function main() {
       executablePath
     );
     firstCanonicalReadiness = first.canonicalReadiness;
-    const rootPid = first.application.process()?.pid;
+    const rootPid = first.mainPid;
     assert(Number.isInteger(rootPid), "Installed root process PID was unavailable.");
-    const firstTree = processTree(rootPid);
+    const firstTree = processTree(rootPid, executablePath);
     const firstOwnedProcessIds = [rootPid, ...firstTree.map((entry) => entry.pid)];
     const steadyStateWorkingSetBytes = firstTree.reduce(
       (total, entry) => total + entry.workingSetBytes,
@@ -1003,9 +1035,9 @@ async function main() {
         selectionDurationMs < 3_000,
         `Installed unit-100 selection exceeded 3 seconds: ${selectionDurationMs}ms.`
       );
-      const secondRootPid = second.application.process()?.pid;
+      const secondRootPid = second.mainPid;
       assert(Number.isInteger(secondRootPid), "Installed root process PID was unavailable.");
-      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid).map((entry) => entry.pid)]);
+      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid, executablePath).map((entry) => entry.pid)]);
       second = null;
 
       third = await launchInstalled(executablePath, userDataPath);
@@ -1057,9 +1089,9 @@ async function main() {
         representativeExport.data.unitCount === representativeUnitCount,
         "Installed representative export unit count differed."
       );
-      const thirdRootPid = third.application.process()?.pid;
+      const thirdRootPid = third.mainPid;
       assert(Number.isInteger(thirdRootPid), "Installed root process PID was unavailable.");
-      await closeClean(third.application, [thirdRootPid, ...processTree(thirdRootPid).map((entry) => entry.pid)]);
+      await closeClean(third.application, [thirdRootPid, ...processTree(thirdRootPid, executablePath).map((entry) => entry.pid)]);
       third = null;
       representative = {
         projectPath: representativeProjectPath,
@@ -1073,9 +1105,9 @@ async function main() {
         exactMarkdownMatched: true
       };
     } else {
-      const secondRootPid = second.application.process()?.pid;
+      const secondRootPid = second.mainPid;
       assert(Number.isInteger(secondRootPid), "Installed root process PID was unavailable.");
-      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid).map((entry) => entry.pid)]);
+      await closeClean(second.application, [secondRootPid, ...processTree(secondRootPid, executablePath).map((entry) => entry.pid)]);
       second = null;
     }
 

@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error Installed smoke is plain JavaScript test tooling.
 import {
   expectedRepresentativeMarkdown,
-  isOwnedProcessSurvivor
+  isOwnedProcessSurvivor,
+  selectProcessDescendants,
+  installedMainProcessId
 } from "../../scripts/stage19-installed-smoke.mjs";
 
 // The witness is plain Node.js so Codex can run it without application code.
@@ -169,5 +171,52 @@ describe("Package 19.20 acceptance witness", () => {
     expect(
       isOwnedProcessSurvivor(expected, { ...expected })
     ).toBe(true);
+  });
+});
+
+
+describe("Installed process ancestry identity", () => {
+  it("uses the observed Electron main PID instead of a Windows shell launcher PID", async () => {
+    const application = { evaluate: async () => 900, process: () => ({ pid: 50 }) };
+    expect(await installedMainProcessId(application)).toBe(900);
+    await expect(installedMainProcessId({ evaluate: async () => null })).rejects.toThrow("main PID");
+  });
+
+
+  const executablePath = "C:/Install/Black Skies.exe";
+  const root = { pid: 900, parentPid: 50, name: "Black Skies.exe",
+    executablePath, creationDate: "/Date(2000)/" };
+  const currentChild = { ...root, pid: 901, parentPid: 900, creationDate: "/Date(2001)/" };
+
+  it("excludes older orphan ancestry when a parent PID was reused", () => {
+    const oldHelper = { pid: 10200, parentPid: 900, name: "node.exe",
+      executablePath: "C:/Codex/node.exe", creationDate: "/Date(1000)/" };
+    const codexChild = { ...oldHelper, pid: 19172, parentPid: 10200, creationDate: "/Date(1500)/" };
+    expect(selectProcessDescendants([root, oldHelper, codexChild, currentChild], 900, executablePath))
+      .toEqual([currentChild]);
+  });
+
+  it.each(["node.exe", "python.exe", "python3.exe"])("retains a genuine external %s descendant for the forbidden-runtime gate", (name) => {
+    const forbidden = { pid: 902, parentPid: 901, name,
+      executablePath: "C:/External/" + name, creationDate: "1970-01-01T00:00:02.002Z" };
+    expect(selectProcessDescendants([forbidden, currentChild, root], 900, executablePath))
+      .toEqual([currentChild, forbidden]);
+  });
+
+  it("fails closed when the root is missing or has a different executable identity", () => {
+    expect(() => selectProcessDescendants([currentChild], 900, executablePath)).toThrow();
+    expect(() => selectProcessDescendants([{ ...root, executablePath: "C:/Codex/node.exe" }], 900, executablePath)).toThrow();
+  });
+
+  it("fails closed for missing creation-time evidence on the root or a reachable child", () => {
+    expect(() => selectProcessDescendants([{ ...root, creationDate: null }], 900, executablePath)).toThrow();
+    expect(() => selectProcessDescendants([root, { ...currentChild, creationDate: null }], 900, executablePath)).toThrow();
+  });
+
+  it("accepts Windows casing and same-millisecond child creation without traversing a cycle twice", () => {
+    const child = { ...currentChild, creationDate: root.creationDate };
+    const cyclicRoot = { ...root, parentPid: 901 };
+    expect(selectProcessDescendants([cyclicRoot, child], 900, "c:/install/BLACK SKIES.exe"))
+      .toEqual([child]);
   });
 });

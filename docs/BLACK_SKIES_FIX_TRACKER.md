@@ -5,7 +5,7 @@
 
 ## Automation-led no-AI readiness campaign — 2026-10-02
 
-Status: Guided no-AI acceptance preserved; edce7b46 clean qualification/package and targeted native checks recorded. Owner-result wording repaired; successor qualification pending. Intermittent causes remain uncertain; current installed proof/formal HG4/Program 7 open.
+Status: Guided acceptance preserved; installed helper process-identity defect repaired after Administrator failure; successor qualification and current installed proof/formal HG4 pending; Program 7 open.
 Formal Human Gate 4 and Program 7 closure remain separate.
 Continuing repository: `program7-today`, branch `codex/program7-implementation`,
 starting commit `f098f948b03759a5b55304660f2745ff66342dca`, tree
@@ -30,6 +30,137 @@ closure are outside this campaign. Structure, Project Interchange, and
 Operations / Approvals remain Command Center placeholders; built Writing Studio
 Markdown/Structure behavior remains in regression scope.
 
+
+## Installed process-identity repair — October 6, 2026
+
+**P7-INSTALLED-PROCESS-IDENTITY-01 repaired; successor qualification and
+Administrator installed proof pending.** The short-root Administrator attempt
+classified 14 older Codex cua_node node.exe helpers as forbidden installed
+descendants. Its external state remains at
+%TEMP%/bs-p7-4cbc-life-20261006/external-data; no completed lifecycle receipt exists.
+The original full ancestry chain was not captured.
+
+The qualification helper used Playwright's launcher PID and bare numeric
+ParentProcessId traversal. A focused real-package follow-up confirmed the
+launcher was cmd.exe, rather than Black Skies. Three regressions reproduced
+older orphan attachment or acceptance of missing identity evidence. The helper
+now obtains the Electron main PID through its inspection connection, binds
+that root to the exact executable and creation time, and rejects older-than-
+parent links. Missing identity fails closed. Genuine external Node/Python
+descendants remain subject to the unchanged forbidden-runtime assertion;
+no name/path exemption, shortened assertion, skip or retry was added.
+
+The existing three witness/qualification suites pass 32 tests. The full existing
+packaged-runtime smoke passes exact create/save/reopen/export and 100-unit
+workload, normal GPU, zero forbidden runtime and zero owned survivors. This
+precommit run uses the unchanged 4cbc package with dirty qualification tooling;
+it does not qualify an Administrator installed lifecycle or a successor package.
+Evidence: current 4cbc installed-process-finding.json and the existing external
+process-tree-repair logs, including before.log, followup.log, affected-final.log,
+smoke-final.json/log. The mistyped typecheck invocation is retained as a tooling
+failure; corrected typecheck:all supplies the actual type check.
+
+Only the existing qualification helper/test and three authorized documentation
+records changed. The helper/test are excluded from the packaged application.
+Owner: coordinator; Jason supplies Windows Administrator execution. Exact
+resolution stage: P7-G2 process-identity repair and exact-candidate installed
+lifecycle/witness before formal HG4. Reopen for shell-root inventory, stale
+ancestry, a genuine forbidden descendant excluded, absent identity accepted,
+or failed identity/close under Administrator.
+
+Next: freeze and clean-qualify this scoped repair, then present one exact short-
+root Administrator command. The previous commands/candidates remain historical.
+Program 7 remains open. No current installed pass or author acceptance is inferred.
+
+## Installed path correction — October 6, 2026
+
+**P7-INSTALLED-PATH-01: installed run failed; shorter-path correction verified
+automatically; Administrator lifecycle retry pending.** The coordinator's
+deep working root produced a 251-character temporary project path and
+mkdtemp returned ENAMETOOLONG during project creation. This is an observed
+createProject failure, not a timing/advisory judgment. The installed script
+removed its application in failure teardown; the failed external state remains
+at candidate-4cbc0a5e/installed-lifecycle-retry-20261006/external-data.
+No smoke or completed lifecycle receipt was produced.
+
+The same 4cbc0a5e executable/ASAR hashes match the existing package receipt.
+Using a short disposable root, the existing automated packaged-runtime smoke
+passes exact project creation/save/reopen/export, the 100-unit workload,
+normal GPU, no forbidden runtime and zero owned survivors. It does not prove
+firewall isolation or installed lifecycle. Logs/artifacts remain under the
+current candidate as short-path-smoke.log/json and installed-path-finding.json.
+The existing packaged ledger row now records Fail, with preserved failure and
+correction proof: 50 rows / 18 Pass / one current Fail / 31 Uncertain. Formal
+human fields remain pending; the deterministic sample is unchanged.
+
+Next lifecycle working root:
+C:/Users/gray2/AppData/Local/Temp/bs-p7-4cbc-life-20261006.
+Package/receipt remain in the original candidate-4cbc0a5e proofRoot; only the
+disposable working path changes. No source, test or package bytes changed.
+Owner: coordinator; Jason supplies Administrator execution. Exact resolution
+stage: P7-G2 current installed lifecycle and independent witness before formal
+HG4. Reopen for ENAMETOOLONG or failed creation/save/reopen under the shorter
+root; a long/deep writer-path failure requires explicit path-support triage
+before HG4 disposition. General long-path support is not established.
+
+The current closure-report command uses this short root, checks the exact HEAD
+and refuses to reuse an existing retry folder. Preserve both earlier attempts.
+Program 7 remains open; no installed pass, human acceptance or closure is inferred.
+
+## Current qualified candidate and next human boundary — October 5, 2026
+
+Candidate **4cbc0a5ed594ce61157214f59a93846638b2b7e8**,
+tree **7f41efaf4b8445e58d3e02813964c99e9debcd81**.
+Clean Stage 19: 49 critical files / 831 passed / two existing skips; startup
+1/1; Electron 36/36. Dedicated Program 7: seven passed / one existing real-AI
+opt-in skip, no failure/flaky, one worker and zero retries. Accessibility 66/66,
+persistence 143/143, Unicode 18/18, scale, current NSIS verification and
+normal-GPU unpacked 100-unit exact save/reopen all pass.
+
+P7-IDEAS-BRANCH-GUIDANCE-01, P7-PROMOTION-NOTICE-01,
+P7-STORY-ACTION-NOTICE-01, P7-STORY-PROJECT-REPLY-01 and
+P7-OWNER-RESULT-WORDING-01 have current mechanical qualification.
+The bounded native check took **558 seconds (9m18)** after 63 seconds preparation:
+26 actions / 31 observations, ordinary durable suppression, idea save/selection,
+one linked direction, preview, named Foundation send, both themes, same-project
+Writing Studio return and normal close. All 17 manuscript sections remain
+byte-identical. It found no additional defect. This is coordinator evidence;
+formal Jason acceptance remains pending. Failed/delayed IPC and Outline variants
+were automated, not injected in this native check.
+
+Existing external packet:
+%TEMP%/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-4cbc0a5e.
+The existing builder, sampler and validator produced 50 rows / 18 Pass /
+zero current Fail / 32 Uncertain, integrity exit 0, all Jason acceptance fields
+pending. Deterministic sample: P7-G2-STAGE19, P7-G2-PROTOCOL-RECOVERY,
+P7-G2-PROTOCOL-CORRUPTION. Historical AI Q06 Fail rows remain bound to 5a30;
+current local AI stays unavailable as accepted. No model pilot or allowance
+benchmark ran.
+
+P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01 and historical
+P7-PACKAGED-NATIVE-ACCESS-01 retain unknown causes, exact recorded stages and
+reopening triggers. Current success does not count as cause proof. Their
+coordinator stages are respectively Batch 4 route triage, Batch 4 responsiveness
+triage, Batch 4 Story Knowledge suppression triage before formal HG4 disposition,
+and P7-G2 current package native access confirmation before HG4. Reopen for
+wrong-target/bounds/input behavior; OS warning/stall/impaired close; Suppress
+without durable outcome/rejected or misleading feedback; or missing/crashed/
+untargetable first window. Preserve project, last action/time and owner evidence.
+
+**Next required human action:** run the exact Administrator lifecycle command
+in the current [closure report](product_systems/program_7_closure_report.md). Windows Administrator
+is needed for temporary outbound firewall isolation; Codex sandbox approval
+does not supply that OS privilege. Current package installed lifecycle and
+independent witness remain pending; the earlier 5a30 proof does not qualify
+changed package bytes. After that, the coordinator updates this packet and
+presents the current formal P4/P5/P6, deterministic sample and family/uncertainty
+decisions. Program 7 remains open. The closure report contains the exact
+screens, expected outcomes and failure conditions.
+
+HEAD remains 4cbc0a5e. Qualification/package runs were clean; only these three
+final documentation records are intentionally dirty. No commit, push or release
+followed the qualified candidate. Earlier checkpoint sections below remain
+historical and are superseded by this status.
 
 ## Current owner-result wording checkpoint — October 5, 2026
 
