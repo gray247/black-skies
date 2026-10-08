@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 export type Program7CreateDevelopSection = 'revision-desk' | 'story-foundation' | 'ideas' | 'history';
 
@@ -29,6 +29,17 @@ function contentFor(section: Program7CreateDevelopSection, props: Program7Create
 
 export default function Program7CreateDevelopWorkspace(props: Program7CreateDevelopWorkspaceProps): JSX.Element {
   const [localSection, setLocalSection] = useState<Program7CreateDevelopSection>(props.initialSection ?? 'revision-desk');
+  const noticeRef = useRef<HTMLDivElement>(null);
+  const previousNoticeText = useRef('');
+  useEffect(() => {
+    const text = noticeRef.current?.textContent ?? '';
+    // Notice nodes are recreated by the host. Only a changed message should
+    // move the viewport; typing, theme changes and unrelated renders must not.
+    if (text && text !== previousNoticeText.current) {
+      noticeRef.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+    previousNoticeText.current = text;
+  });
   const currentSection = props.activeSection ?? localSection;
   const active = sections.find((section) => section.id === currentSection) ?? sections[0];
   const content = contentFor(active.id, props);
@@ -57,7 +68,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
         ))}
       </nav>
       <section aria-label={active.label} data-testid={`program7-create-develop-panel-${active.id}`}>
-        {props.notice ? <div className="program7-create-develop__notice">{props.notice}</div> : null}
+        {props.notice ? <div ref={noticeRef} className="program7-create-develop__notice">{props.notice}</div> : null}
         {content ?? <p data-testid="program7-create-develop-empty">This section is not connected yet. No change was made.</p>}
       </section>
     </section>

@@ -1,5 +1,30 @@
 # Program 7 Qualification Closure Report
 
+## October 8 notice-visibility follow-up — final candidate pending
+
+Clean candidate 6d5a60adca1d59aef8ad79057f79afd6fdba8dfb (tree
+8aad5f68b2f3be0132cf0997e31d066a0b6df72c) passed Stage 19 with 36 Electron
+checks at %TEMP%/bs-p7-oct8-clean-868922de. Its NSIS package passed verification
+at %TEMP%/bs-p7-6d5a60ad-pkg-3f7595ac. Those immutable proofs remain historical:
+the final dedicated journeys found an off-screen Ideas result caused by the
+new non-sticky notice. Result: eight passed, one failed, one existing real-AI
+opt-in skipped, at %TEMP%/bs-p7-6d5a60ad-journeys-fa59f581. Source selection,
+staleness, restart, disabled AI, accessibility, long form and 17/34/68/136-unit
+scale checks passed. The failing Ideas viewport assertion was retained.
+
+P7-NOTICE-SEVERITY-DISMISS-01 now includes this reproduced visibility regression.
+The notice stays in document flow and a changed message is brought into view;
+unrelated renders and typing do not move the viewport. Focused component and
+accessibility tests passed 7/7, lint/typecheck and production build passed.
+Affected Electron recheck passed 4/4 at %TEMP%/bs-p7-notice-recheck-f936c6ad.
+Clean final qualification and replacement package follow. Owner: coordinator. Resolution stage: P7-G2 Batch 4 affected repair and
+qualification before H6/Human Gate 4. Reopen for hidden results, covered prose,
+unexpected viewport movement or a dismissed message bypassing a safety guard.
+
+No candidate is admitted for Jason's H6 retry yet. The damaged human fixture
+and failed trace remain preserved; the precise original 0..208 capture remains
+unexplained. No repeat of passed human rows or real-AI test is requested.
+
 ## October 8 bounded repairs — clean candidate and package preparation pending
 
 Jason renewed the bounded Program 7 execution authorization. The following
