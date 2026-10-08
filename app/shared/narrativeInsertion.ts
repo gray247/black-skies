@@ -146,8 +146,8 @@ export async function calculateNarrativeInsertion(
   request: NarrativeInsertionCalculationRequestV1,
 ): Promise<NarrativeInsertionCalculationV1> {
   const candidate = request.candidate;
-  const sourceText = normalized(candidate.sourceSnapshot.text);
-  const currentBody = normalized(request.currentBody);
+  const sourceText = candidate.sourceSnapshot.text.replace(/\r\n?/gu, '\n');
+  const currentBody = request.currentBody.replace(/\r\n?/gu, '\n');
   const candidateText = normalized(
     request.mode === 'accept-edited-before-acceptance' ||
       (request.mode === 'accept-selected-text' && candidate.editedCandidateText !== null)

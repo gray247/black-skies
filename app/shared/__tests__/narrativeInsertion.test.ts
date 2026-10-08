@@ -32,6 +32,16 @@ function candidate(
 }
 
 describe('Narrative Insertion calculation', () => {
+  it('preserves blank lines outside the exact replacement range and rejects a whitespace-only source change', async () => {
+    const source = 'Before selected passage after.\n\n';
+    const linked = candidate(source, 7, 23, 'Keep NEW words.');
+    const result = await calculateNarrativeInsertion({ candidate: linked, currentBody: source, mode: 'accept-selected-text', candidateSelection: { selectionStart: 5, selectionEnd: 8 } });
+    expect(result).toMatchObject({ status: 'ready', acceptedResultSha256: hash('Before NEW after.\n\n') });
+    const changed = await calculateNarrativeInsertion({ candidate: linked, currentBody: source.slice(0, -1), mode: 'accept-all' });
+    expect(changed.status).toBe('blocked');
+    expect(changed.sourceCurrent).toBe(false);
+  });
+
   it('calculates accept-all replacement and an exact accepted-result fingerprint', async () => {
     const source = 'Before selected passage after.';
     const result = await calculateNarrativeInsertion({

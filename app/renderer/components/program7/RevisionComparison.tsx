@@ -85,24 +85,33 @@ export default function RevisionComparison({
   onOpenEditor,
 }: RevisionComparisonProps): JSX.Element {
   const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const [wholeSectionConfirmed, setWholeSectionConfirmed] = useState(false);
   const redacted = protectedContent(candidate);
   const candidateText = visibleCandidateText(candidate);
   const stale = candidate.currentness !== 'current' || candidate.lifecycle === 'stale';
   const editable = candidate.lifecycle === 'generated' || candidate.lifecycle === 'reviewing';
-  const acceptEnabled = canAccept && editable && !stale && !redacted && !decisionPending;
   const hasExactSourceAnchor = Boolean(
     candidate.sourceAnchor &&
     Number.isInteger(candidate.sourceAnchor.selectionStart) &&
     Number.isInteger(candidate.sourceAnchor.selectionEnd) &&
+    candidate.sourceAnchor.unitId === candidate.sourceSnapshot.unitId &&
+    candidate.sourceAnchor.selectionStart >= 0 &&
+    candidate.sourceAnchor.selectionEnd <= candidate.sourceSnapshot.text.length &&
     candidate.sourceAnchor.selectionEnd > candidate.sourceAnchor.selectionStart &&
     candidate.sourceAnchor.selectionFingerprint.trim(),
   );
+  const replacementText = hasExactSourceAnchor
+    ? candidate.sourceSnapshot.text.slice(candidate.sourceAnchor!.selectionStart, candidate.sourceAnchor!.selectionEnd)
+    : candidate.sourceSnapshot.text;
+  const replacesWholeSection = !candidate.sourceAnchor || (hasExactSourceAnchor && candidate.sourceAnchor!.selectionStart === 0 && candidate.sourceAnchor!.selectionEnd === candidate.sourceSnapshot.text.length);
+  const acceptEnabled = canAccept && editable && !stale && !redacted && !decisionPending && (!replacesWholeSection || wholeSectionConfirmed);
   const sourceIsHistorical = decisionPending || stale || candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted';
   const sourceHelpId = `revision-source-help-${candidate.id}`;
   const partialHelpId = `revision-partial-help-${candidate.id}`;
 
   useEffect(() => {
     setSelection({ start: 0, end: 0 });
+    setWholeSectionConfirmed(false);
   }, [candidate.id, candidateText, redacted, candidate.sourceBodySha256, candidate.sourceAnchor?.unitId, candidate.sourceAnchor?.selectionStart, candidate.sourceAnchor?.selectionEnd, candidate.sourceAnchor?.selectionFingerprint]);
 
   return (
@@ -142,6 +151,19 @@ export default function RevisionComparison({
           <pre data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : visibleCandidateText(candidate)}</pre>
         </article>
       </div>
+      {!redacted ? (
+        <section className="program7-revision-comparison__replacement" aria-labelledby={`revision-replacement-${candidate.id}`}>
+          <h2 id={`revision-replacement-${candidate.id}`}>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted' ? 'Text that was replaced' : sourceIsHistorical ? 'Text linked for replacement' : 'Text that will be replaced'}</h2>
+          <pre data-testid="revision-replacement-text">{replacementText}</pre>
+          {editable && !stale ? <p>The manuscript text shown here is the replacement target. Selecting part of the alternative below changes what you insert, not which manuscript words are replaced.</p> : null}
+          {editable && !stale && replacesWholeSection ? (
+            <label>
+              <input type="checkbox" checked={wholeSectionConfirmed} disabled={decisionPending} onChange={(event) => setWholeSectionConfirmed(event.currentTarget.checked)} />
+              This replaces the entire saved section. I intend to replace this entire section.
+            </label>
+          ) : null}
+        </section>
+      ) : null}
       <div className="program7-revision-comparison__partial">
         <label htmlFor={`revision-partial-${candidate.id}`}>Part of this alternative to apply</label>
         <textarea
@@ -237,7 +259,7 @@ export default function RevisionComparison({
           ? 'This alternative is hidden by protection policy. Return to the passage and review its protection before creating a new alternative.'
           : !hasExactSourceAnchor
           ? 'To apply only part, return to Writing Studio, select the exact manuscript words to replace, and save a new alternative. Selecting text on this comparison cannot link the existing alternative.'
-          : 'To apply only part, select the words to insert in the box labeled “Part of this alternative to apply” above.'}
+          : 'Check “Text that will be replaced” above. Then select the words to insert in “Part of this alternative to apply”. The selected alternative text replaces that entire manuscript target.'}
       </p>
       <p className="program7-revision-comparison__note">{editable
         ? 'Only you can apply an alternative to your manuscript. Applying it does not finish the related concern.'

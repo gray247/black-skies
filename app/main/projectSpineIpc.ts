@@ -409,7 +409,13 @@ function digest(value: string): string {
 }
 
 function durableBody(markdown: string): string {
-  return extractDraftBody(normalizeLineEndings(markdown));
+  const normalized = normalizeLineEndings(markdown);
+  const lines = normalized.split('\n');
+  if (lines[0]?.trim() !== '---') return normalized;
+  const closing = lines.slice(1).findIndex((line) => line.trim() === '---');
+  if (closing < 0) return normalized;
+  const framedBody = lines.slice(closing + 2).join('\n').replace(/^(?:\n)+/u, '');
+  return framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody;
 }
 
 function replaceDurableBody(markdown: string, body: string): string {
@@ -418,13 +424,8 @@ function replaceDurableBody(markdown: string, body: string): string {
   if (lines[0]?.trim() !== '---') return normalizeLineEndings(body);
   const closingIndex = lines.slice(1).findIndex((line) => line.trim() === '---');
   if (closingIndex < 0) return normalizeLineEndings(body);
-  const normalizedBody = normalizeLineEndings(body).replace(/^(?:\n)+/u, '').replace(/\n+$/u, '');
+  const normalizedBody = normalizeLineEndings(body);
   return `${lines.slice(0, closingIndex + 2).join('\n')}\n${normalizedBody}\n`;
-}
-
-function submittedProseForDurableBody(body: string): string {
-  const normalized = normalizeLineEndings(body);
-  return normalized.endsWith('\n') ? normalized.slice(0, -1) : normalized;
 }
 
 function pendingAcceptancePath(projectPath: string): string {
@@ -1494,7 +1495,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
         await requireRecoveryCheckpoints().reconcileSuccessfulSave(
           () => recoveryContextFor(request, request.unitId),
           request.unitId,
-          submittedProseForDurableBody(acceptedBody),
+          acceptedBody,
           (status, recoveryCandidate) => {
             if (status !== 'degraded') {
               coordinator.noteRecoverySaveReconciliation(request, request.unitId, status, recoveryCandidate);

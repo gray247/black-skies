@@ -332,6 +332,8 @@ export interface Stage19WritingSpineViewActions {
   readonly deleteOutlineItem: (itemId: string) => MaybeAsync;
   readonly saveUnit: (unitId: string, body?: string) => MaybeAsync;
   readonly changeBuffer: (unitId: string, body: string) => void;
+  readonly dismissWritingNotice?: () => void;
+  readonly dismissProgram7Notice?: () => void;
   readonly changeAiSelection: (selection: DraftEditorSelectionEvidence) => void;
   readonly setAiCredential: (value: string) => void;
   readonly configureAiCredential: () => MaybeAsync;
@@ -782,7 +784,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
       }}
     />
   );
-  return <Program7CreateDevelopWorkspace notice={model.program7Notice ? <p className="program7-revision-capture__notice" role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p> : null} activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
+  return <Program7CreateDevelopWorkspace notice={model.program7Notice ? <div className="program7-revision-capture__notice stage19-dismissible-notice"><p role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p>{actions.dismissProgram7Notice ? <button type="button" onClick={actions.dismissProgram7Notice}>Dismiss message</button> : null}</div> : null} activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
 }
 
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
@@ -811,6 +813,8 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         </div>
       </header>
       <div className="stage19-command__notice-slot">
+        {model.sourceReturnConfirmation && model.logicalSurface === 'command' ? <p className="stage19-spine__source-return-confirmation" role="status">{model.sourceReturnConfirmation}</p> : null}
+        {model.sourceReturnConfirmation && model.logicalSurface === 'command' && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
         {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
       </div>
       <nav className="stage19-command__workspace-switcher" aria-label="Command Center workspaces">
@@ -2559,6 +2563,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           </p>
         ) : null}
         {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
+        {(model.notice || model.sourceReturnConfirmation) && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
       </div>
       <WritingEdgeControlsView {...props} />
       {!model.focusMode && model.openWritingRail === 'top' ? <WritingTopRailView {...props} /> : null}

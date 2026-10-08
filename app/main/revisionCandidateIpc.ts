@@ -222,10 +222,12 @@ function validInference(value: unknown): value is Program7LocalInferenceRequestV
 }
 
 function durableBody(markdown: string): string {
-  if (!markdown.startsWith('---')) return markdown;
-  const closing = markdown.indexOf('\n---', 3);
-  if (closing < 0) return markdown;
-  return markdown.slice(closing + 4).replace(/^(?:\r?\n)+/u, '').replace(/\n+$/u, '');
+  const normalized = markdown.replace(/\r\n?/gu, '\n');
+  if (!normalized.startsWith('---')) return normalized;
+  const closing = normalized.indexOf('\n---', 3);
+  if (closing < 0) return normalized;
+  const framedBody = normalized.slice(closing + 4).replace(/^(?:\n)+/u, '');
+  return framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody;
 }
 
 function bodyHash(value: string): string {
@@ -393,7 +395,7 @@ async function createManual(
       request.sourceSnapshot.bodySha256,
     )
   )
-    return fail('STALE_CANDIDATES', 'The source unit changed; reload before creating a candidate.');
+    return fail('STALE_CANDIDATES', 'The saved manuscript no longer matches this alternative’s source. Return to Writing Studio, save and select the intended passage again, then create a new alternative. Your proposed text has been kept.');
   if (
     !sourceAnchorCurrent(
       active.snapshot,

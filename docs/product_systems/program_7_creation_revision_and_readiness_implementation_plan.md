@@ -1,5 +1,259 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## October 8 bounded repairs — clean candidate and package preparation pending
+
+Jason renewed the bounded Program 7 execution authorization. The following
+repairs are implemented in the continuing program7-today copy; the old
+installed 7e3c1d4c application is historical and must not be used for the retry.
+
+- P7-PARTIAL-SOURCE-SCOPE-01: exact replacement-target preview and explicit
+  whole-section confirmation. A cursor after Select All creates no source
+  anchor; a fresh Mara sentence selection records 60..118. Exact surrounding
+  prose and author blank lines survive application and a fresh restart.
+  Original 0..208 capture remains unexplained; no user-error finding is made.
+  Status: mechanically repaired safeguards; Jason's H6 retry pending.
+- P7-CANDIDATE-SOURCE-RECOVERY-01: reproduced inconsistent newline framing,
+  repaired creation/calculation/application and recovery reconciliation to
+  preserve author blank lines, with whitespace-only staleness rejection.
+  Unsupported Reload wording now gives save/reselection/fresh-alternative
+  guidance. Repository test fixtures now supply editor body rather than the
+  extra Markdown framing LF; exact expected durable bytes remain asserted.
+  This does not establish the precise cause of the original H5 attempt.
+- P7-NOTICE-SEVERITY-DISMISS-01: neutral section-only source return, dismissible
+  source/alternative messages, retained source/save guards. The sticky
+  workspace notice also obscured comparison text during screenshot review;
+  it now occupies normal document flow. Whole-section checkbox alignment and
+  replacement-preview typography were checked in both themes.
+- P7-STORY-SOURCE-VIEWPORT-01: reproduced by an actual viewport assertion.
+  The fixed 20rem editor parent and percentage-height children let long prose
+  overflow the active chapter's layout. Continuous-manuscript editor height
+  now follows content. Source navigation captures scroll ownership before
+  awaited IPC so the ordinary chapter-start scroll does not override it.
+  The exact source first line is visibly within the manuscript canvas. The
+  existing journey checks additional originating chapters and exact durable
+  replacement/restart bytes. Earlier unsuccessful experiments remain history.
+
+Full app suite: 159 files, 1557 passed, two existing skips; log
+%TEMP%/bs-p7-oct8-final-tests-98507dcc.log. Later layout/scroll edits require the
+final Stage 19 matrix before this candidate is admitted. The initial dirty
+Stage 19 development run passed at bs-p7-oct8-gate-75120494, but repairs evolved
+while it ran: it is development feedback, not immutable-candidate proof.
+Revision journeys passed 3/3 at bs-p7-layout-final-0f7b85c5. Failed viewport
+traces are retained at bs-p7-oct8-journeys-d805f29b and
+bs-p7-source-layout-41105fcb. Other dedicated no-AI journeys passed in the first
+root, with one existing real-AI opt-in skip; final integration follows.
+
+No installer/lifecycle pass, H6 human acceptance, formal Human Gate 4 or Program
+7 closure is claimed for these repairs yet. Preserve the original H6 project
+and its evidence copy. Passed human rows are not reopened merely to repeat
+mechanical tests. P7-HUMAN-PACKET-CLARITY-01 remains assigned to the coordinator
+for one self-contained, current-candidate retry card.
+
+## October 8 human results and safety stop
+
+Jason reports H1, H2 and H3 passed; H4 steps 1–6 passed. H4 step 7 referred to
+the prior exact-passage visibility retry and is removed from the current human
+request. H1's human report is retained separately from the earlier 900-pixel
+viewport failure; it does not establish the older failure's cause or repair.
+H5 is reported passed, with the source-reload notice below. **H6 failed:
+surrounding manuscript sentences were removed. H7 onward is paused by Jason.**
+No repeat of passed checks is requested. Formal Human Gate 4 remains blocked.
+
+**P7-PARTIAL-SOURCE-SCOPE-01 — Fail.** The failed project is
+%TEMP%/bs-p7-human-inspection-3d800ca9/carmilla-review.
+Candidate candidate_410c3c05-b322-4a00-a9dc-130a93c81de0 stores the full 208-character
+paragraph as its sourceSnapshot and sourceAnchor 0..208. The intended Mara
+sentence occupies 60..118. The durable result is only
+"Mara heard a faint rhythm beyond the glass." The whole recorded range explains
+why the surrounding sentences disappeared. How the unintended range was
+captured remains unresolved; neither user error nor insertion corruption is
+assumed. The comparison currently displays the full source snapshot and does not
+clearly distinguish the exact replacement range from the alternative text range.
+The original paragraph remains in the saved snapshot. A hash-checked evidence
+copy was preserved at %TEMP%/bs-p7-h6-evidence-20261008-4971508b/failed-project.
+The live failed project has not been restored, reset or overwritten.
+
+Owner: coordinator. Exact stage: P7-G2 Batch 4 source-scope repair and affected
+qualification before H6 human retry and Human Gate 4. Required evidence:
+reproduce source selection through visible controls on a copy, inspect the
+persisted sourceAnchor, visibly preview the exact text to replace, and prove
+exact prefix/suffix survival in the existing Electron journey. Exercise both
+a sentence selection and an intentional whole-section selection. Source-range
+capture and selected alternative text are distinct author decisions; whole
+selection must be unmistakable before application. Reopen for unintended scope,
+missing/misleading replacement preview or any unintended text deletion.
+
+**P7-CANDIDATE-SOURCE-RECOVERY-01 — Uncertain cause, confirmed usability issue.**
+H5 displayed "The source unit changed; reload before creating a candidate."
+The guard refused creation; a later candidate exists. Recovery steps between
+the rejection and successful creation are not yet established. The screen
+provides no clear Reload control or self-contained recovery instruction.
+Do not assume closing/reopening fixes the underlying cause, or silently retry
+creation. Owner: coordinator. Exact stage: P7-G2 Batch 4 candidate source-state
+triage and writer recovery before affected H5/H6 retry and Human Gate 4.
+Evidence: explain the mismatch from actual saved/current source state, prove a
+safe supported recovery with proposed text preserved, and regression-test it.
+Reopen if a current saved source is refused, recovery loses draft alternative
+text, or the message requests an unavailable action.
+
+**P7-NOTICE-SEVERITY-DISMISS-01 — confirmed presentation finding.** Chapter X's
+section-only Emotion return succeeded but appeared as a red concern warning;
+a section reference without an exact passage is normal for that record. The
+writing notice and candidate notice have no visible dismissal control.
+Dismissal must clear the message only, retaining any actual save/source guard.
+Owner: coordinator. Exact stage: P7-G2 Batch 4 notice semantics and dismissal
+before human gate disposition. Evidence: section-only return as neutral status,
+actionable failure messages, dismissal/focus in both themes, and unchanged
+guarded actions. Reopen for a normal return presented as failure, unreadable or
+persistent acknowledged notices, or a dismissal that bypasses a real blocker.
+
+**P7-HUMAN-PACKET-CLARITY-01 — coordinator correction.** The previous packet
+combined repeated mechanical scenarios, subjective inspection, blocked cases
+and cross-referenced copy/paste. It placed unnecessary work on Jason.
+Future retry cards must be self-contained: purpose, fresh disposable unit,
+complete source/proposed text, source-range checkpoint, one operation, exact
+expected result and stopping condition. Match each request to a demonstrated
+gap or changed workflow; do not rerun already accepted rows simply to duplicate
+automated evidence. Existing accepted local-AI unavailability is unchanged.
+
+No runtime/source/test edit, new qualification pass, human gate acceptance or
+program closure is claimed from this October 8 investigation. The current
+installed candidate remains 7e3c1d4c. Agent repair work can proceed on copies;
+Jason's H7+ testing remains paused.
+
+## Current repaired candidate — October 6, 2026
+
+Current executable candidate: **7e3c1d4c373aeb86ceae62ef5f5b6913b2266b11**.
+Tree: **f6734fcd02b7253795c0296d48c56acac61ff752**.
+Branch: codex/program7-implementation in the continuing program7-today copy.
+Qualification ran with a clean tree; this final record update is documentation
+only and is explicitly later than that clean evidence.
+
+P7-INSTALLED-STORY-BRIDGE-01 is repaired: the packaged secondary Command Center
+now exposes the existing project-bound Story Knowledge bridge. The regression
+checks its exact allowlist and real read invocation. P7-STORY-DETACHED-GUIDANCE-01
+is repaired: saved passage anchors now receive truthful guidance for Writing
+Studio -> Open Command Center here -> Story Knowledge -> Review source.
+Detached section navigation remains supported; exact passage selection uses the
+same-window route. Original Glass Orchard and Carmilla data were preserved.
+
+Exact-current mechanical evidence passed: clean Stage 19, 841 tests and two
+existing skips, startup 1/1, Electron 36/36; dedicated Program 7 seven passed
+and one existing real-AI opt-in skip; installer/package verification; six
+packaged retained-project source/guidance assertions; representative packaged
+smoke with durable Story Knowledge across a fresh process, exact export,
+100 units and zero forbidden runtime processes. No real AI execution was used.
+
+The durable-fixture correction passed first on the corrected 6a90262b helper,
+then on this clean final helper binding. Failed fixtures and logs remain.
+The initial ASAR comparison falsely inferred an absent renderer asset because
+the diagnostic used forward-slash paths on Windows. Correct native-path
+extraction and executable-runtime scope matched all 254 SHA256 comparisons.
+Declarations, documentation and source maps are outside executable-runtime
+scope. The original finding and failed probe logs are retained with a correction.
+No asset defect is inferred. The fresh final package was also built and verified.
+
+Direct native observation remains bound to 6a90262b and its guarded-hope route
+to A Red Apple; current runtime equivalence and automated evidence do not claim
+a new complete native tour. Original failed installed da273821 remains preserved.
+On October 6 the user-opened app was confirmed at bs-p7-da-retry-988c47f7/installed,
+so its screen is not current-candidate verification.
+
+Current evidence folder: C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-7e3c1d4c.
+Package: %TEMP%/bs-p7-7e3c1d4c-package.
+The reviewed run-installed-recheck.ps1 in that evidence folder supersedes
+earlier commands. It checks commit, receipt, installer SHA256, Administrator
+rights and that Black Skies is closed. It runs the existing installed lifecycle
+with its temporary firewall isolation and the independent qualification witness.
+Its PowerShell syntax passed; the Administrator lifecycle now passed below.
+It uses a fresh short %TEMP%/bs-p7-7e3c1d4c-life-20261006 root and preserves failure.
+
+The Administrator offline lifecycle and independent qualification witness
+passed on October 6, 2026 at 18:56 UTC. Receipt and lifecycle evidence both bind
+7e3c1d4c. Uninstall removed the application while preserving external data;
+the same installer reinstalled successfully. The 100-unit representative
+workload, exact export and durable detached Story Knowledge reopen passed, with
+zero forbidden runtimes and zero surviving owned processes. The independent
+witness covered 197 external files. Reinstalled executable and ASAR SHA256 were
+checked against the witnessed values. installed-verification.json in the evidence
+folder records the transcript and Jason's pasted output. No human acceptance
+is inferred. Do not rerun the completed Administrator script.
+
+Next boundary: affected human source/navigation confirmation on the repaired
+installed executable:
+C:/Users/gray2/AppData/Local/Temp/bs-p7-7e3c1d4c-life-20261006/installed/Black Skies.exe.
+Administrator PowerShell may now be closed. Use supported Open project actions;
+do not edit files directly or reapply historical alternatives.
+
+| Human confirmation | Screen and action | Expected result / failure |
+| --- | --- | --- |
+| P6 repair confirmation — Jason Pass, October 6 | Open C:/Users/gray2/AppData/Local/Temp/black-skies-program6-e2e-CZ0XxW/glass-orchard. Open the detached Command Center -> Story Knowledge -> Emotion. Review measured unease and guarded hope, returning to Writing Studio after each. | Story Knowledge loads. Routes return to The Empty Conservatory and A Red Apple respectively, with the Glass Orchard identity intact. Failure: unavailable intelligence, wrong source/project, broken return or blocking stall. |
+| P5 exact passage | Open C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-da273821/jason-review/carmilla-review. Select Chapter I in Writing Studio, then Open Command Center here -> Story Knowledge -> Signals -> Review source. Navigate away/back and close/reopen this same project in a fresh process. | Selected childhood-fright passage begins "The first occurrence in my existence..."; anchor and route remain usable after reopen. Failure: wrong/unselected passage, lost anchor or wrong project. |
+
+Carmilla phrase is at drafts/carmilla-chapter-01.md line 92; it does not belong
+to Glass Orchard. P5's exact-passage check uses the same-window route.
+The earlier successful tests 1/2 and P5 back-and-forth navigation are preserved;
+do not require their repetition merely to duplicate evidence. Their unconfirmed
+formal row mapping is not invented. Jason reports "passed" in direct response to
+the current installed Glass Orchard checklist on October 6, 2026: Story Knowledge
+loaded, measured unease returned to The Empty Conservatory, guarded hope returned
+to A Red Apple, and the project identity/return remained correct. P7-HG4-REG-P6
+is human-confirmed on 7e3c1d4c; P7-INSTALLED-STORY-BRIDGE-01 has automated, installed
+and affected human confirmation. Historical da273821 failure remains preserved.
+Exact P5 visible passage return failed as recorded below; its repaired-candidate human retry is pending. This targeted acceptance does not
+approve the whole Human Gate 4, resolve historical unknown causes or close Program 7.
+Preserve any later failure and reopen the corresponding issue.
+Historical deterministic sample and qualification artifacts retain da273821
+identity. Formal current-package proof reconciliation, unknown-cause disposition
+and Jason's Human Gate 4 decision remain separate from these targeted confirmations.
+
+P7-SOURCE-RETURN-POLISH-01 retains coordinator ownership and exact resolution
+stage P7-G2 Batch 4 final issue disposition before Program 7 closure; required
+evidence is writer wording and a focused message assertion. Reopen before HG4
+if destination is unclear, a failed request is claimed successful or navigation
+is impaired. Historical uncertain issues keep their recorded stages/triggers.
+Human Gate 4, final issue disposition and Program 7 closure remain pending.
+Local-AI future admission remains separate under its accepted disposition.
+
+### P7-STORY-SOURCE-VIEWPORT-01 — human finding, October 6, 2026
+
+Jason's screenshot and description confirm the same-window source return opens
+Chapter I but do not confirm a visible exact passage. The saved concern is
+anchored to Chapter I; selecting Chapters II/III does not retarget that concern.
+Returning to Chapter I from those chapters is expected navigation behavior.
+
+The quoted text was verified at line 92 of the retained Carmilla draft. A
+disposable-copy check on installed 7e3c1d4c found its first line mounted at
+top 2969.65 / bottom 3001.00 in a 900-pixel viewport. The notice claimed selection;
+the DOM selection began with the quoted words, but virtualization prevents using
+that DOM string as proof of the entire 220-character saved range.
+This is **Fail for visible source return**, not a misquotation or human P5 pass.
+
+Bounded scroll-coordination attempts did not establish a complete repair
+(the final attempt still left the line at top 1736.02). Their patch and logs were
+preserved; only those speculative edits were removed. Both source files match
+7e3c1d4c again and development output was rebuilt from restored source. The
+installed candidate and original projects were untouched. No new package pass
+or fix is claimed. Add viewport/clipping and exact-range assertions to the
+existing revision journey when implementing the repair; a selection notice
+alone is insufficient.
+
+Owner: coordinator. Exact resolution stage: **P7-G2 Batch 4 source-navigation
+repair before P5 human retry and formal Human Gate 4**. Required evidence:
+reproducible visible first selected line, exact saved range, no manuscript
+mutation, same/different originating chapter and fresh-process cases in the
+existing Electron journey, followed by repaired-candidate human confirmation.
+Reopen for offscreen/obscured selected text, wrong chapter/range, a false selected
+notice or lost anchor after reopen. Full gate readiness remains blocked.
+
+Current evidence: source-viewport-observation.json, source-viewport-check.log,
+source-viewport-unqualified-attempt.patch and source-viewport-dirty-captured.log
+in the candidate-7e3c1d4c evidence folder. Emotion routes were separately verified
+on a disposable retained-copy: sad -> Chapter X — Bereaved; happy -> Prologue.
+The first SVG wrapper-centre click diagnostic failed because the SVG intercepted
+the empty hit area. Actual circle-target clicks passed both routes; those logs
+remain distinct. This is not claimed as new native or human acceptance.
+
 ## Qualification fixture correction — October 6, 2026
 
 The combined runtime candidate 6a90262b passed clean Stage 19 (841 tests plus two

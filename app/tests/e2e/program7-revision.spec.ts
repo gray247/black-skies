@@ -11,7 +11,7 @@ import {
 
 test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
-test('Program 7 routes a current Carmilla finding through no-AI revision review and explicit acceptance', async ({ page, electronApp }) => {
+test('Program 7 routes a current Carmilla finding through no-AI revision review and explicit acceptance', async ({ page, electronApp }, testInfo) => {
   const { projectPath, selectionStart, selectionEnd } = await materializeProgram7Carmilla();
     const { writing } = await getProgram7Windows(electronApp, page);
     await openProgram7Project(writing, projectPath);
@@ -42,6 +42,33 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
     const headerEnd = beforeDraft.indexOf('\n---', 3) + 4;
     const header = beforeDraft.slice(0, headerEnd);
     const savedBody = beforeDraft.slice(headerEnd).replace(/^(?:\r?\n)+/u, '');
+    const firstSourceLine = savedBody.slice(selectionStart, selectionEnd).split('\n')[0]!;
+    const sourceLine = writing.locator('.cm-line').filter({ hasText: firstSourceLine }).first();
+    await testInfo.attach('source-return-scroll-topology', { contentType: 'application/json', body: JSON.stringify(await sourceLine.evaluate((element) => {
+      const result = [];
+      for (let node: HTMLElement | null = element as HTMLElement; node; node = node.parentElement) {
+        const bounds = node.getBoundingClientRect();
+        result.push({ tag: node.tagName, className: node.className, top: bounds.top, bottom: bounds.bottom, scrollTop: node.scrollTop, scrollHeight: node.scrollHeight, clientHeight: node.clientHeight, overflowY: getComputedStyle(node).overflowY });
+      }
+      return { viewportHeight: window.innerHeight, ancestors: result };
+    })) });
+    await expect(sourceLine).toBeInViewport({ ratio: 0.5 });
+    await expect.poll(() => sourceLine.evaluate((element) => {
+      const canvas = element.closest('.stage19-writing-shell__canvas')!;
+      const line = element.getBoundingClientRect();
+      const visible = canvas.getBoundingClientRect();
+      return line.top >= visible.top && line.bottom <= visible.bottom;
+    })).toBe(true);
+    for (const chapter of ['Chapter II', 'Chapter III']) {
+      await writing.getByRole('button', { name: new RegExp(`^Write here: ${chapter} \u2014`) }).click();
+      await showCommandInWriting(writing);
+      await writing.getByRole('article', { name: 'Revision task', exact: true }).first()
+        .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
+      await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Chapter I \u2014 An Early Fright' })).toBeFocused();
+      await expect(sourceLine).toBeInViewport({ ratio: 0.5 });
+    }
+
+
 
     await showCommandInWriting(writing);
     activeCard = writing.getByRole('article', { name: 'Revision task', exact: true }).first();
@@ -210,4 +237,95 @@ test('A changed saved passage blocks the earlier alternative without another man
   expect(afterDecision.candidates).toHaveLength(1);
   expect(afterDecision).toEqual(savedAlternatives);
   expect(await readFile(draftPath, 'utf8')).toBe(changed);
+});
+
+
+test('Manual sentence replacement distinguishes a collapsed caret, whole section and selected source through a fresh restart', async ({ page, electronApp }, testInfo) => {
+  const { projectPath } = await materializeProgram7Carmilla();
+  const { writing } = await getProgram7Windows(electronApp, page);
+  await openProgram7Project(writing, projectPath);
+  await writing.evaluate(async () => {
+    const bridge = window.projectSpine!;
+    const current = await bridge.getSession();
+    const created = await bridge.createUnit!({ projectId: current.project!.projectId, projectPath: current.project!.path, generation: current.generation, operationId: 'h6-selection-create', title: 'Selection scope check' });
+    if (!created.ok) throw new Error(created.error.message);
+  });
+  const source = "The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.\n\n";
+  const replacement = 'Mara heard a faint rhythm beyond the glass.';
+  const proposed = `${replacement} She held her breath.`;
+  const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Selection scope check' });
+  await editor.click();
+  await editor.press('Control+a');
+  await writing.keyboard.insertText(source);
+  await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds.length).toBe(1);
+  await editor.press('Control+s');
+  const draftPath = await writing.evaluate(async () => {
+    const current = await window.projectSpine!.getSession();
+    return `${current.project!.path}/drafts/${current.activeUnitId}.md`;
+  });
+  await expect.poll(() => readFile(draftPath, 'utf8')).toContain(source);
+  const before = await readFile(draftPath, 'utf8');
+  await editor.press('Control+a');
+  await editor.click();
+  await expect.poll(() => writing.evaluate(() => window.getSelection()?.isCollapsed)).toBe(true);
+  await showCommandInWriting(writing);
+  await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await writing.locator('#program7-candidate-purpose').fill('Caret only');
+  await writing.locator('#program7-candidate-text').fill(proposed);
+  await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
+  await expect(writing.getByTestId('revision-comparison')).toBeVisible();
+  const readCandidates = async () => JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8')).candidates;
+  await expect.poll(async () => (await readCandidates()).length).toBe(1);
+  expect((await readCandidates())[0].sourceAnchor).toBeNull();
+  await expect(writing.getByRole('button', { name: 'Apply only the selected part', exact: true })).toBeDisabled();
+  expect(await readFile(draftPath, 'utf8')).toBe(before);
+
+  await showWritingInWriting(writing);
+  await editor.press('Control+a');
+  await showCommandInWriting(writing);
+  await writing.locator('#program7-candidate-purpose').fill('Whole section scope');
+  await writing.locator('#program7-candidate-text').fill(proposed);
+  await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
+  await expect.poll(async () => (await readCandidates()).length).toBe(2);
+  const whole = (await readCandidates()).find((candidate: { purpose: string }) => candidate.purpose === 'Whole section scope');
+  expect(whole.sourceAnchor).toMatchObject({ selectionStart: 0, selectionEnd: source.length });
+  const wholeComparison = writing.getByTestId('revision-comparison').filter({ has: writing.getByText('Whole section scope', { exact: true }) });
+  await expect(wholeComparison.getByTestId('revision-replacement-text')).toHaveText(source);
+  await expect(wholeComparison.getByText(/This replaces the entire saved section/)).toBeVisible();
+  await expect(wholeComparison.getByRole('button', { name: 'Apply all of this alternative', exact: true })).toBeDisabled();
+  await wholeComparison.getByTestId('revision-replacement-text').scrollIntoViewIfNeeded();
+  await writing.screenshot({ path: testInfo.outputPath('whole-section-dark.png') });
+  await writing.getByRole('switch', { name: 'Light theme', exact: true }).click();
+  await writing.screenshot({ path: testInfo.outputPath('whole-section-light.png') });
+  await writing.getByRole('switch', { name: 'Light theme', exact: true }).click();
+  expect(await readFile(draftPath, 'utf8')).toBe(before);
+
+  await showWritingInWriting(writing);
+  await editor.press('Control+Home');
+  for (let index = 0; index < 60; index += 1) await editor.press('ArrowRight');
+  for (let index = 0; index < 58; index += 1) await editor.press('Shift+ArrowRight');
+  await expect.poll(() => writing.evaluate(() => window.getSelection()?.toString())).toBe(source.slice(60, 118));
+  await showCommandInWriting(writing);
+  await writing.locator('#program7-candidate-purpose').fill('Make the sentence more tense');
+  await writing.locator('#program7-candidate-text').fill(proposed);
+  await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
+  await expect.poll(async () => (await readCandidates()).length).toBe(3);
+  const sentence = (await readCandidates()).find((candidate: { purpose: string }) => candidate.purpose === 'Make the sentence more tense');
+  expect(sentence.sourceAnchor).toMatchObject({ selectionStart: 60, selectionEnd: 118 });
+  const comparison = writing.getByTestId('revision-comparison').filter({ has: writing.getByText('Make the sentence more tense', { exact: true }) });
+  await expect(comparison.getByTestId('revision-replacement-text')).toHaveText(source.slice(60, 118));
+  const partial = comparison.getByLabel('Part of this alternative to apply');
+  await partial.press('Control+Home');
+  for (let index = 0; index < replacement.length; index += 1) await partial.press('Shift+ArrowRight');
+  await comparison.getByRole('button', { name: 'Apply only the selected part', exact: true }).click();
+  const expected = before.replace(source, `${source.slice(0, 60)}${replacement}${source.slice(118)}`);
+  await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected);
+  const restarted = await restartElectronApp(electronApp);
+  const { writing: reopened } = await getProgram7Windows(restarted, await restarted.firstWindow());
+  await openProgram7Project(reopened, projectPath);
+  expect(await readFile(draftPath, 'utf8')).toBe(expected);
+  await showCommandInWriting(reopened);
+  await reopened.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await reopened.getByRole('button', { name: 'History', exact: true }).click();
+  await expect(reopened.getByText('Make the sentence more tense', { exact: true })).toBeVisible();
 });

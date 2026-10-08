@@ -6158,6 +6158,14 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   color: var(--bs-text-primary);
 }
 
+.stage19-spine--writing .stage19-continuous-manuscript .stage19-spine__editor,
+.stage19-spine--writing .stage19-continuous-manuscript .draft-editor,
+.stage19-spine--writing .stage19-continuous-manuscript .draft-editor__mount,
+.stage19-spine--writing .stage19-continuous-manuscript .cm-editor {
+  height: auto;
+  flex: 1 0 auto;
+}
+
 .stage19-continuous-manuscript .stage19-spine__editor,
 .stage19-continuous-manuscript .stage19-spine__editor .cm-content {
   width: 100%;
@@ -9496,9 +9504,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .program7-create-develop__notice {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  position: static;
   padding: 12px 16px;
   border-left: 3px solid var(--stage19-accent);
   background: var(--bs-surface-raised);
@@ -9710,4 +9716,54 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   .program7-revision-desk__metadata div {
     min-width: min(8rem, 100%);
   }
+}
+
+
+.program7-revision-comparison__replacement,
+.program7-revision-capture__notice {
+  margin-block: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--bs-state-info);
+  border-radius: 0.35rem;
+  background: var(--bs-surface-raised);
+  color: var(--bs-text-primary);
+}
+
+.stage19-dismissible-notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.stage19-dismissible-notice p {
+  flex: 1 1 20rem;
+  margin: 0;
+}
+
+.program7-revision-comparison__replacement input[type="checkbox"] {
+  width: auto;
+  margin-inline-end: 0.5rem;
+}
+
+
+.stage19-spine .program7-revision-comparison__replacement > label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.stage19-spine .program7-revision-comparison__replacement input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  padding: 0;
+}
+
+.program7-revision-comparison__replacement pre {
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
 }

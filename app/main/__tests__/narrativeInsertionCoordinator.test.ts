@@ -12,8 +12,8 @@ function hash(value: string): string {
   return createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
-const sourceText = 'Before selected passage after.\n';
-const draft = `---\ntitle: Unit A\n---\n${sourceText}`;
+const sourceText = 'Before selected passage after.';
+const draft = `---\ntitle: Unit A\n---\n${sourceText}\n`;
 
 function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandidateV1 {
   return {

@@ -108,7 +108,8 @@ function durableBody(markdown: string): string {
   if (!normalized.startsWith('---')) return normalized;
   const closing = normalized.indexOf('\n---', 3);
   if (closing < 0) return normalized;
-  return normalized.slice(closing + 4).replace(/^\n/u, '');
+  const framedBody = normalized.slice(closing + 4).replace(/^(?:\n)+/u, '');
+  return framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody;
 }
 
 function activeProject(

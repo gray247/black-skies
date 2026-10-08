@@ -2025,6 +2025,8 @@ export default function Stage19WritingSpineApp({
   const handleSelectUnit = useCallback(
     async (unitId: string) => {
       if (!bridge) return;
+      // Capture before awaiting IPC: restoring the source selection releases its owner.
+      const exactSourceReturn = program7SourceReturnUnitRef.current === unitId;
       const previousUnitId = snapshotRef.current.activeUnitId;
       if (previousUnitId) await flushRecoveryCheckpoint(previousUnitId);
       const binding = bindingFor(snapshotRef.current, 'select-unit');
@@ -2032,7 +2034,7 @@ export default function Stage19WritingSpineApp({
       try {
         const result = await bridge.selectUnit({ ...binding, unitId });
         applySnapshot(result.snapshot);
-        window.requestAnimationFrame(() => {
+        if (!exactSourceReturn) window.requestAnimationFrame(() => {
           const target = document.getElementById(`stage19-manuscript-unit-${unitId}`);
           if (target && typeof target.scrollIntoView === 'function') {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3396,10 +3398,11 @@ export default function Stage19WritingSpineApp({
       return;
     }
     await handleSelectUnit(source.unitId);
-    setNotice(
+    setNotice(null);
+    setSourceReturnConfirmation(
       source.selectionStart !== undefined && source.selectionEnd !== undefined && source.selectionFingerprint
         ? 'Opened the manuscript section. To select the recorded passage, use Open Command Center here in Writing Studio, then Story Knowledge and Review source.'
-        : 'Opened the manuscript section, but this concern did not record an exact passage.',
+        : 'Opened the manuscript section linked to this concern. This concern refers to the section as a whole.',
     );
   }, [activateSurface, handleSelectUnit, surfaceBridge]);
 
@@ -4392,6 +4395,8 @@ export default function Stage19WritingSpineApp({
     setFeedbackNoteBody,
     saveFeedbackNote,
     returnToStorySource,
+    dismissWritingNotice: () => { setNotice(null); setSourceReturnConfirmation(null); },
+    dismissProgram7Notice: () => setProgram7Notice(null),
     setProgram7CandidatePurpose,
     setProgram7CandidateText,
     createProgram7ManualCandidate,

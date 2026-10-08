@@ -10,7 +10,7 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
     projectId: 'project-a',
     unitId: 'story-unit/carmilla-chapter-01',
     sourceSnapshot: { unitId: 'story-unit/carmilla-chapter-01', bodySha256: 'source-body', text: 'Current manuscript passage.' },
-    sourceAnchor: { unitId: 'story-unit/carmilla-chapter-01', selectionStart: 0, selectionEnd: 28, selectionFingerprint: 'selection' },
+    sourceAnchor: { unitId: 'story-unit/carmilla-chapter-01', selectionStart: 0, selectionEnd: 6, selectionFingerprint: 'selection' },
     sourceBodySha256: 'source-body',
     purpose: 'Clarify the transition.',
     origin: 'manual',
@@ -29,6 +29,27 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 }
 
 describe('RevisionComparison component', () => {
+
+  it('shows the exact manuscript replacement range independently of the alternative selection', () => {
+    const source = "The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.";
+    const linked = candidate({ sourceSnapshot: { unitId: 'story-unit/carmilla-chapter-01', bodySha256: 'source-body', text: source }, sourceAnchor: { unitId: 'story-unit/carmilla-chapter-01', selectionStart: 60, selectionEnd: 118, selectionFingerprint: 'selection' } });
+    const { rerender } = render(<RevisionComparison candidate={linked} canAccept onPartialAccept={vi.fn()} />);
+    expect(screen.getByTestId('revision-replacement-text')).toHaveTextContent('Mara pressed her palm against the cold glass and listened.');
+    expect(screen.queryByText(/This replaces the entire saved section/)).not.toBeInTheDocument();
+    rerender(<RevisionComparison candidate={{ ...linked, sourceAnchor: { ...linked.sourceAnchor!, selectionStart: 0, selectionEnd: source.length } }} canAccept onPartialAccept={vi.fn()} />);
+    expect(screen.getByTestId('revision-replacement-text').textContent).toBe(source);
+    expect(screen.getByText(/This replaces the entire saved section/)).toBeVisible();
+    const partial = screen.getByLabelText('Part of this alternative to apply') as HTMLTextAreaElement;
+    partial.setSelectionRange(0, 6);
+    fireEvent.select(partial);
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('checkbox', { name: /I intend to replace this entire section/ }));
+    expect(screen.getByRole('button', { name: 'Apply only the selected part' })).toBeEnabled();
+    rerender(<RevisionComparison candidate={{ ...linked, lifecycle: 'partially accepted' }} />);
+    expect(screen.getByRole('heading', { name: 'Text that was replaced' })).toBeVisible();
+  });
+
+
   it('explains a pending decision beside disabled editing, application and decision controls', () => {
     const onOpenEditor = vi.fn();
     const onAcceptAll = vi.fn();
@@ -86,7 +107,7 @@ describe('RevisionComparison component', () => {
     const comparison = screen.getByTestId('revision-comparison');
     fireEvent.click(within(comparison).getByRole('button', { name: 'Apply all of this alternative' }));
     const partialSelection = within(comparison).getByRole('textbox', { name: 'Part of this alternative to apply' }) as HTMLTextAreaElement;
-    expect(within(comparison).getByRole('button', { name: 'Apply only the selected part' })).toHaveAccessibleDescription('To apply only part, select the words to insert in the box labeled “Part of this alternative to apply” above.');
+    expect(within(comparison).getByRole('button', { name: 'Apply only the selected part' })).toHaveAccessibleDescription('Check “Text that will be replaced” above. Then select the words to insert in “Part of this alternative to apply”. The selected alternative text replaces that entire manuscript target.');
     partialSelection.setSelectionRange(10, 20);
     fireEvent.select(partialSelection);
     fireEvent.click(within(comparison).getByRole('button', { name: 'Apply only the selected part' }));

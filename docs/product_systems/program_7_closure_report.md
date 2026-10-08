@@ -1,5 +1,539 @@
 # Program 7 Qualification Closure Report
 
+## October 8 bounded repairs — clean candidate and package preparation pending
+
+Jason renewed the bounded Program 7 execution authorization. The following
+repairs are implemented in the continuing program7-today copy; the old
+installed 7e3c1d4c application is historical and must not be used for the retry.
+
+- P7-PARTIAL-SOURCE-SCOPE-01: exact replacement-target preview and explicit
+  whole-section confirmation. A cursor after Select All creates no source
+  anchor; a fresh Mara sentence selection records 60..118. Exact surrounding
+  prose and author blank lines survive application and a fresh restart.
+  Original 0..208 capture remains unexplained; no user-error finding is made.
+  Status: mechanically repaired safeguards; Jason's H6 retry pending.
+- P7-CANDIDATE-SOURCE-RECOVERY-01: reproduced inconsistent newline framing,
+  repaired creation/calculation/application and recovery reconciliation to
+  preserve author blank lines, with whitespace-only staleness rejection.
+  Unsupported Reload wording now gives save/reselection/fresh-alternative
+  guidance. Repository test fixtures now supply editor body rather than the
+  extra Markdown framing LF; exact expected durable bytes remain asserted.
+  This does not establish the precise cause of the original H5 attempt.
+- P7-NOTICE-SEVERITY-DISMISS-01: neutral section-only source return, dismissible
+  source/alternative messages, retained source/save guards. The sticky
+  workspace notice also obscured comparison text during screenshot review;
+  it now occupies normal document flow. Whole-section checkbox alignment and
+  replacement-preview typography were checked in both themes.
+- P7-STORY-SOURCE-VIEWPORT-01: reproduced by an actual viewport assertion.
+  The fixed 20rem editor parent and percentage-height children let long prose
+  overflow the active chapter's layout. Continuous-manuscript editor height
+  now follows content. Source navigation captures scroll ownership before
+  awaited IPC so the ordinary chapter-start scroll does not override it.
+  The exact source first line is visibly within the manuscript canvas. The
+  existing journey checks additional originating chapters and exact durable
+  replacement/restart bytes. Earlier unsuccessful experiments remain history.
+
+Full app suite: 159 files, 1557 passed, two existing skips; log
+%TEMP%/bs-p7-oct8-final-tests-98507dcc.log. Later layout/scroll edits require the
+final Stage 19 matrix before this candidate is admitted. The initial dirty
+Stage 19 development run passed at bs-p7-oct8-gate-75120494, but repairs evolved
+while it ran: it is development feedback, not immutable-candidate proof.
+Revision journeys passed 3/3 at bs-p7-layout-final-0f7b85c5. Failed viewport
+traces are retained at bs-p7-oct8-journeys-d805f29b and
+bs-p7-source-layout-41105fcb. Other dedicated no-AI journeys passed in the first
+root, with one existing real-AI opt-in skip; final integration follows.
+
+No installer/lifecycle pass, H6 human acceptance, formal Human Gate 4 or Program
+7 closure is claimed for these repairs yet. Preserve the original H6 project
+and its evidence copy. Passed human rows are not reopened merely to repeat
+mechanical tests. P7-HUMAN-PACKET-CLARITY-01 remains assigned to the coordinator
+for one self-contained, current-candidate retry card.
+
+## October 8 human results and safety stop
+
+Jason reports H1, H2 and H3 passed; H4 steps 1–6 passed. H4 step 7 referred to
+the prior exact-passage visibility retry and is removed from the current human
+request. H1's human report is retained separately from the earlier 900-pixel
+viewport failure; it does not establish the older failure's cause or repair.
+H5 is reported passed, with the source-reload notice below. **H6 failed:
+surrounding manuscript sentences were removed. H7 onward is paused by Jason.**
+No repeat of passed checks is requested. Formal Human Gate 4 remains blocked.
+
+**P7-PARTIAL-SOURCE-SCOPE-01 — Fail.** The failed project is
+%TEMP%/bs-p7-human-inspection-3d800ca9/carmilla-review.
+Candidate candidate_410c3c05-b322-4a00-a9dc-130a93c81de0 stores the full 208-character
+paragraph as its sourceSnapshot and sourceAnchor 0..208. The intended Mara
+sentence occupies 60..118. The durable result is only
+"Mara heard a faint rhythm beyond the glass." The whole recorded range explains
+why the surrounding sentences disappeared. How the unintended range was
+captured remains unresolved; neither user error nor insertion corruption is
+assumed. The comparison currently displays the full source snapshot and does not
+clearly distinguish the exact replacement range from the alternative text range.
+The original paragraph remains in the saved snapshot. A hash-checked evidence
+copy was preserved at %TEMP%/bs-p7-h6-evidence-20261008-4971508b/failed-project.
+The live failed project has not been restored, reset or overwritten.
+
+Owner: coordinator. Exact stage: P7-G2 Batch 4 source-scope repair and affected
+qualification before H6 human retry and Human Gate 4. Required evidence:
+reproduce source selection through visible controls on a copy, inspect the
+persisted sourceAnchor, visibly preview the exact text to replace, and prove
+exact prefix/suffix survival in the existing Electron journey. Exercise both
+a sentence selection and an intentional whole-section selection. Source-range
+capture and selected alternative text are distinct author decisions; whole
+selection must be unmistakable before application. Reopen for unintended scope,
+missing/misleading replacement preview or any unintended text deletion.
+
+**P7-CANDIDATE-SOURCE-RECOVERY-01 — Uncertain cause, confirmed usability issue.**
+H5 displayed "The source unit changed; reload before creating a candidate."
+The guard refused creation; a later candidate exists. Recovery steps between
+the rejection and successful creation are not yet established. The screen
+provides no clear Reload control or self-contained recovery instruction.
+Do not assume closing/reopening fixes the underlying cause, or silently retry
+creation. Owner: coordinator. Exact stage: P7-G2 Batch 4 candidate source-state
+triage and writer recovery before affected H5/H6 retry and Human Gate 4.
+Evidence: explain the mismatch from actual saved/current source state, prove a
+safe supported recovery with proposed text preserved, and regression-test it.
+Reopen if a current saved source is refused, recovery loses draft alternative
+text, or the message requests an unavailable action.
+
+**P7-NOTICE-SEVERITY-DISMISS-01 — confirmed presentation finding.** Chapter X's
+section-only Emotion return succeeded but appeared as a red concern warning;
+a section reference without an exact passage is normal for that record. The
+writing notice and candidate notice have no visible dismissal control.
+Dismissal must clear the message only, retaining any actual save/source guard.
+Owner: coordinator. Exact stage: P7-G2 Batch 4 notice semantics and dismissal
+before human gate disposition. Evidence: section-only return as neutral status,
+actionable failure messages, dismissal/focus in both themes, and unchanged
+guarded actions. Reopen for a normal return presented as failure, unreadable or
+persistent acknowledged notices, or a dismissal that bypasses a real blocker.
+
+**P7-HUMAN-PACKET-CLARITY-01 — coordinator correction.** The previous packet
+combined repeated mechanical scenarios, subjective inspection, blocked cases
+and cross-referenced copy/paste. It placed unnecessary work on Jason.
+Future retry cards must be self-contained: purpose, fresh disposable unit,
+complete source/proposed text, source-range checkpoint, one operation, exact
+expected result and stopping condition. Match each request to a demonstrated
+gap or changed workflow; do not rerun already accepted rows simply to duplicate
+automated evidence. Existing accepted local-AI unavailability is unchanged.
+
+No runtime/source/test edit, new qualification pass, human gate acceptance or
+program closure is claimed from this October 8 investigation. The current
+installed candidate remains 7e3c1d4c. Agent repair work can proceed on copies;
+Jason's H7+ testing remains paused.
+
+### Replacement H6 retry card — prepared, not admitted for execution
+
+**Do not run this card on the current package.** It is the proposed focused human
+retry after the coordinator repairs and qualifies source-scope/recovery behavior.
+It supersedes the previous H6 instructions and contains all inputs locally.
+
+Purpose: prove that the app replaces only the writer's chosen source sentence
+with only the writer's chosen alternative sentence, preserving surrounding prose.
+There are two separate selections: the original text to replace in Writing
+Studio, and the alternative words to insert in the comparison.
+
+1. Open the fresh disposable retry project supplied with the repaired candidate.
+   Do not reuse or reset the failed Partial application check unit.
+2. Story rail + -> Unit. Rename the new unit **Partial application retry**.
+3. Paste this complete paragraph into that unit, then Save current writing:
+
+> The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+
+4. Wait for Saved durably. Select exactly this sentence in Writing Studio:
+
+> Mara pressed her palm against the cold glass and listened.
+
+5. Open Command Center here -> Create / Develop -> Revision Desk.
+   Purpose: **Make the sentence more tense**. Proposed text:
+
+> Mara heard a faint rhythm beyond the glass. She held her breath.
+
+6. Save alternative. Confirm the manuscript has not changed.
+7. **Before any Apply, inspect the repaired source-replacement preview.**
+   It must contain exactly the Mara sentence from step 4, not all four sentences.
+   If the preview differs, stop and report it; do not apply or adjust the old
+   candidate's anchor. This checkpoint is currently absent/unclear and must be
+   supplied by the repair before this card is admitted.
+8. In Part of this alternative to apply select exactly:
+
+> Mara heard a faint rhythm beyond the glass.
+
+9. Apply only the selected part once. Expected complete saved manuscript:
+
+> The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+
+10. Check the complete paragraph and Saved durably. Close/reopen this same
+    disposable project in a fresh app process; compare the complete paragraph
+    again. History should show Partly applied with repeat application disabled.
+11. Pass only if all three untouched sentences survive exactly, only the chosen
+    alternative sentence is inserted, and the result/history persist. For any
+    mismatch stop, preserve the project and report the actual text. Do not undo,
+    reapply, or restore the fixture to manufacture a pass.
+
+The coordinator will give H7+ individual self-contained cards only after this
+source-scope failure is resolved and their remaining human evidence is identified.
+Those cards will not ask Jason to retrieve text from this or any earlier test.
+
+## Current repaired candidate — October 6, 2026
+
+Current executable candidate: **7e3c1d4c373aeb86ceae62ef5f5b6913b2266b11**.
+Tree: **f6734fcd02b7253795c0296d48c56acac61ff752**.
+Branch: codex/program7-implementation in the continuing program7-today copy.
+Qualification ran with a clean tree; this final record update is documentation
+only and is explicitly later than that clean evidence.
+
+P7-INSTALLED-STORY-BRIDGE-01 is repaired: the packaged secondary Command Center
+now exposes the existing project-bound Story Knowledge bridge. The regression
+checks its exact allowlist and real read invocation. P7-STORY-DETACHED-GUIDANCE-01
+is repaired: saved passage anchors now receive truthful guidance for Writing
+Studio -> Open Command Center here -> Story Knowledge -> Review source.
+Detached section navigation remains supported; exact passage selection uses the
+same-window route. Original Glass Orchard and Carmilla data were preserved.
+
+Exact-current mechanical evidence passed: clean Stage 19, 841 tests and two
+existing skips, startup 1/1, Electron 36/36; dedicated Program 7 seven passed
+and one existing real-AI opt-in skip; installer/package verification; six
+packaged retained-project source/guidance assertions; representative packaged
+smoke with durable Story Knowledge across a fresh process, exact export,
+100 units and zero forbidden runtime processes. No real AI execution was used.
+
+The durable-fixture correction passed first on the corrected 6a90262b helper,
+then on this clean final helper binding. Failed fixtures and logs remain.
+The initial ASAR comparison falsely inferred an absent renderer asset because
+the diagnostic used forward-slash paths on Windows. Correct native-path
+extraction and executable-runtime scope matched all 254 SHA256 comparisons.
+Declarations, documentation and source maps are outside executable-runtime
+scope. The original finding and failed probe logs are retained with a correction.
+No asset defect is inferred. The fresh final package was also built and verified.
+
+Direct native observation remains bound to 6a90262b and its guarded-hope route
+to A Red Apple; current runtime equivalence and automated evidence do not claim
+a new complete native tour. Original failed installed da273821 remains preserved.
+On October 6 the user-opened app was confirmed at bs-p7-da-retry-988c47f7/installed,
+so its screen is not current-candidate verification.
+
+Current evidence folder: C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-7e3c1d4c.
+Package: %TEMP%/bs-p7-7e3c1d4c-package.
+The reviewed run-installed-recheck.ps1 in that evidence folder supersedes
+earlier commands. It checks commit, receipt, installer SHA256, Administrator
+rights and that Black Skies is closed. It runs the existing installed lifecycle
+with its temporary firewall isolation and the independent qualification witness.
+Its PowerShell syntax passed; the Administrator lifecycle now passed below.
+It uses a fresh short %TEMP%/bs-p7-7e3c1d4c-life-20261006 root and preserves failure.
+
+The Administrator offline lifecycle and independent qualification witness
+passed on October 6, 2026 at 18:56 UTC. Receipt and lifecycle evidence both bind
+7e3c1d4c. Uninstall removed the application while preserving external data;
+the same installer reinstalled successfully. The 100-unit representative
+workload, exact export and durable detached Story Knowledge reopen passed, with
+zero forbidden runtimes and zero surviving owned processes. The independent
+witness covered 197 external files. Reinstalled executable and ASAR SHA256 were
+checked against the witnessed values. installed-verification.json in the evidence
+folder records the transcript and Jason's pasted output. No human acceptance
+is inferred. Do not rerun the completed Administrator script.
+
+Next boundary: affected human source/navigation confirmation on the repaired
+installed executable:
+C:/Users/gray2/AppData/Local/Temp/bs-p7-7e3c1d4c-life-20261006/installed/Black Skies.exe.
+Administrator PowerShell may now be closed. Use supported Open project actions;
+do not edit files directly or reapply historical alternatives.
+
+| Human confirmation | Screen and action | Expected result / failure |
+| --- | --- | --- |
+| P6 repair confirmation — Jason Pass, October 6 | Open C:/Users/gray2/AppData/Local/Temp/black-skies-program6-e2e-CZ0XxW/glass-orchard. Open the detached Command Center -> Story Knowledge -> Emotion. Review measured unease and guarded hope, returning to Writing Studio after each. | Story Knowledge loads. Routes return to The Empty Conservatory and A Red Apple respectively, with the Glass Orchard identity intact. Failure: unavailable intelligence, wrong source/project, broken return or blocking stall. |
+| P5 exact passage | Open C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-da273821/jason-review/carmilla-review. Select Chapter I in Writing Studio, then Open Command Center here -> Story Knowledge -> Signals -> Review source. Navigate away/back and close/reopen this same project in a fresh process. | Selected childhood-fright passage begins "The first occurrence in my existence..."; anchor and route remain usable after reopen. Failure: wrong/unselected passage, lost anchor or wrong project. |
+
+Carmilla phrase is at drafts/carmilla-chapter-01.md line 92; it does not belong
+to Glass Orchard. P5's exact-passage check uses the same-window route.
+The earlier successful tests 1/2 and P5 back-and-forth navigation are preserved;
+do not require their repetition merely to duplicate evidence. Their unconfirmed
+formal row mapping is not invented. Jason reports "passed" in direct response to
+the current installed Glass Orchard checklist on October 6, 2026: Story Knowledge
+loaded, measured unease returned to The Empty Conservatory, guarded hope returned
+to A Red Apple, and the project identity/return remained correct. P7-HG4-REG-P6
+is human-confirmed on 7e3c1d4c; P7-INSTALLED-STORY-BRIDGE-01 has automated, installed
+and affected human confirmation. Historical da273821 failure remains preserved.
+Exact P5 visible passage return failed as recorded below; its repaired-candidate human retry is pending. This targeted acceptance does not
+approve the whole Human Gate 4, resolve historical unknown causes or close Program 7.
+Preserve any later failure and reopen the corresponding issue.
+Historical deterministic sample and qualification artifacts retain da273821
+identity. Formal current-package proof reconciliation, unknown-cause disposition
+and Jason's Human Gate 4 decision remain separate from these targeted confirmations.
+
+P7-SOURCE-RETURN-POLISH-01 retains coordinator ownership and exact resolution
+stage P7-G2 Batch 4 final issue disposition before Program 7 closure; required
+evidence is writer wording and a focused message assertion. Reopen before HG4
+if destination is unclear, a failed request is claimed successful or navigation
+is impaired. Historical uncertain issues keep their recorded stages/triggers.
+Human Gate 4, final issue disposition and Program 7 closure remain pending.
+Local-AI future admission remains separate under its accepted disposition.
+
+### P7-STORY-SOURCE-VIEWPORT-01 — human finding, October 6, 2026
+
+Jason's screenshot and description confirm the same-window source return opens
+Chapter I but do not confirm a visible exact passage. The saved concern is
+anchored to Chapter I; selecting Chapters II/III does not retarget that concern.
+Returning to Chapter I from those chapters is expected navigation behavior.
+
+The quoted text was verified at line 92 of the retained Carmilla draft. A
+disposable-copy check on installed 7e3c1d4c found its first line mounted at
+top 2969.65 / bottom 3001.00 in a 900-pixel viewport. The notice claimed selection;
+the DOM selection began with the quoted words, but virtualization prevents using
+that DOM string as proof of the entire 220-character saved range.
+This is **Fail for visible source return**, not a misquotation or human P5 pass.
+
+Bounded scroll-coordination attempts did not establish a complete repair
+(the final attempt still left the line at top 1736.02). Their patch and logs were
+preserved; only those speculative edits were removed. Both source files match
+7e3c1d4c again and development output was rebuilt from restored source. The
+installed candidate and original projects were untouched. No new package pass
+or fix is claimed. Add viewport/clipping and exact-range assertions to the
+existing revision journey when implementing the repair; a selection notice
+alone is insufficient.
+
+Owner: coordinator. Exact resolution stage: **P7-G2 Batch 4 source-navigation
+repair before P5 human retry and formal Human Gate 4**. Required evidence:
+reproducible visible first selected line, exact saved range, no manuscript
+mutation, same/different originating chapter and fresh-process cases in the
+existing Electron journey, followed by repaired-candidate human confirmation.
+Reopen for offscreen/obscured selected text, wrong chapter/range, a false selected
+notice or lost anchor after reopen. Full gate readiness remains blocked.
+
+Current evidence: source-viewport-observation.json, source-viewport-check.log,
+source-viewport-unqualified-attempt.patch and source-viewport-dirty-captured.log
+in the candidate-7e3c1d4c evidence folder. Emotion routes were separately verified
+on a disposable retained-copy: sad -> Chapter X — Bereaved; happy -> Prologue.
+The first SVG wrapper-centre click diagnostic failed because the SVG intercepted
+the empty hit area. Actual circle-target clicks passed both routes; those logs
+remain distinct. This is not claimed as new native or human acceptance.
+
+### Expanded remaining human inspection — October 6, 2026
+
+Use installed 7e3c1d4c already open. Jason's Glass Orchard P6 pass and earlier
+reported successful checks remain recorded. This is an inspection guide, not
+a request to repeat every automated test. Write Pass, Fail, Blocked or Not run
+for each case. Chapter navigation alone does not pass exact passage visibility.
+H1 below is already failed mechanically; do not spend more time searching for
+the quote until a repaired package is supplied. Other cases can be inspected
+independently. Do not declare Human Gate 4 passed while H1 remains unresolved.
+
+Save work before changing projects. Stop for unintended manuscript replacement,
+wrong project, unexpected AI/network action, crash or trapped focus. Preserve
+the screen/project and report the last action. A tolerable slow response is not
+automatically a defect; report a blocking stall or misleading progress.
+
+#### H1 — saved concern destination versus currently viewed chapter
+
+1. Keep the retained Carmilla project from the earlier instructions.
+2. In Writing Studio select Chapter II — A Guest.
+3. Open Command Center here -> Story Knowledge -> Signals.
+4. Choose the concern about the childhood fright beginning after the castle
+   and household account; click its Review source.
+5. Expected chapter: Chapter I — An Early Fright, because that is the concern's
+   stored source. The complete saved passage must be selected and visible.
+6. Repeat from Chapter III — We Compare Notes after the repair. It should still
+   return to Chapter I. Merely selecting different manuscript text does not
+   change an existing concern's saved anchor.
+
+Current disposition: chapter return observed; exact passage visibility Fail.
+No fresh human rerun is requested until the coordinator supplies the repair.
+
+#### H2 — two records with genuinely different destinations
+
+1. In the retained Carmilla project select Chapter II — A Guest.
+2. Open Command Center here -> Story Knowledge -> Emotion.
+3. Use the table's feeling/intensity labels to identify the **sad**, observed,
+   very-high point. Click the actual circle above the Chapter X position,
+   not empty chart space. Alternatively Tab to the point and press Enter.
+4. Expected: Writing Studio opens **Chapter X — Bereaved**. This record has a
+   section reference, so it need not select the childhood-fright passage.
+5. From there reopen Command Center here -> Story Knowledge -> Emotion.
+6. Identify **happy**, observed, medium, attached to the **Prologue**; activate
+   that point. Expected: Prologue opens. Manuscript text stays unchanged.
+
+These two destinations were verified automatically on a disposable copy. If
+either point is absent in your project, record Blocked rather than choose a
+different note and assume it has the same source.
+
+#### H3 — second window and chapter independence
+
+1. Select Chapter III — We Compare Notes in Writing Studio.
+2. Choose Open Command Center in second window -> Story Knowledge -> Emotion.
+3. Activate the saved sad point from H2.
+4. Expected: the paired Writing Studio opens Chapter X — Bereaved; both windows
+   retain Carmilla's identity. A section-only return may show section guidance.
+5. Close the second window normally. Expected: Writing Studio remains usable,
+   with Chapter X still selected and no unexpected manuscript write.
+6. Reopen the second window and activate happy. Expected: Prologue, not Chapter I.
+   For a passage-bearing signal in the detached window, honest guidance to the
+   same-window route is allowed; a false claim of exact selection is not.
+
+#### H4 — fresh process and keyboard route
+
+1. Save any writing and close the whole app normally, including a second window.
+2. Launch the current installed executable, not an older saved shortcut:
+   C:/Users/gray2/AppData/Local/Temp/bs-p7-7e3c1d4c-life-20261006/installed/Black Skies.exe.
+3. Open the same retained Carmilla folder, then select Chapter II.
+4. Open Command Center here -> Story Knowledge -> Emotion.
+5. Tab through controls. Activate sad using Enter when its point has focus.
+6. Expected: Chapter X — Bereaved. Reopen Emotion and activate happy; expect
+   Prologue. Points remain saved and no old app/process memory is required.
+7. Inspect the Chapter I exact source jump after the visibility repair, using
+   the same saved concern. Until then that part remains Blocked.
+
+#### H5 — fresh project and manual save/alternative boundaries
+
+For mutation tests use this newly materialized disposable project:
+C:/Users/gray2/AppData/Local/Temp/bs-p7-human-inspection-3d800ca9/carmilla-review.
+Keep the retained navigation project and failed states intact.
+
+1. Open this new project through Open project.
+2. In the Story rail click + (Add story content) -> Unit. Rename the new unit
+   by double-clicking its title or pressing F2; enter **Partial application check**
+   and use that title form's Save.
+3. Enter and Save current writing:
+
+> The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+
+4. Wait for Saved durably. Select exactly the Mara sentence in the saved editor.
+5. Open Command Center here -> Create / Develop -> Revision Desk.
+6. Purpose: **Make the sentence more tense**. Proposed text:
+   **Mara heard a faint rhythm beyond the glass. She held her breath.**
+   Click Save alternative.
+7. Return to Writing Studio. Expected: the four original sentences are unchanged.
+   Saving the alternative must not apply it.
+8. Return to the comparison; click Edit alternative. Add an unsaved extra line.
+   Close drawer and cancel the leave confirmation. Expected: your unsaved
+   alternative remains. Remove just that extra line, make an intentional small
+   alternative edit and Save revision alternative. This saves only the alternative.
+9. Return to Writing Studio again; original manuscript is still unchanged.
+
+If an action is disabled, its nearby explanation must give a usable next step.
+Do not create a second alternative merely to hide a failed save.
+
+#### H6 — exact partial application and persistence
+
+1. In the comparison from H5, use Part of this alternative to apply.
+2. Select only **Mara heard a faint rhythm beyond the glass.** Do not select the
+   second proposed sentence. Click Apply only the selected part once.
+3. Expected saved manuscript:
+
+> The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+
+4. Confirm the exact first, third and fourth sentences survived; the second
+   alternative sentence was not inserted. Check Saved durably.
+5. Inspect History: the alternative is Partly applied, author-entered, and its
+   earlier source is historical. It must not offer the same application again.
+6. Close/reopen this same disposable project in a fresh process. Verify the
+   complete expected paragraph and historical alternative state still match.
+7. If text differs, stop and preserve the project. Do not undo/reset to obtain a pass.
+
+#### H7 — stale source and refusal
+
+1. Add a different new unit named **Stale source check**. Enter the original H5
+   paragraph, save, and select its Mara sentence.
+2. Create a new manual alternative using the H5 purpose and proposed text.
+3. Return to that unit. Append **Human stale-source check.** on a new line,
+   then Save current writing. Note the exact resulting paragraph and new line.
+4. Reopen the saved alternative. Expected: stale/source-changed explanation,
+   disabled Apply, and guidance to start from a fresh saved selection.
+5. View alternative should show saved historical source and read-only editing.
+   Attempt no bypass. No text may change from viewing or a refused action.
+6. Make fresh work from a new saved selection if desired; the old alternative
+   must not be silently reattached or reactivated.
+
+#### H8 — full application and author dispositions
+
+1. Add **Full application check** as another new unit. Enter
+   **The bell sounded once. The courtyard remained empty.** Save.
+2. Select both saved sentences and create a fresh alternative with purpose
+   **Try a shorter version** and proposed text **The bell sounded over an empty courtyard.**
+3. Confirm Save alternative alone leaves both original sentences unchanged.
+4. Apply all of this alternative once. Expected: exactly the proposed single
+   sentence in this unit, Saved durably, applied history and no repeat Apply.
+5. For disposition checks create three fresh alternatives from saved selections,
+   with distinct purposes **Reject check**, **Park check**, **Stop check**.
+   Use respectively Do not use this alternative, Set this alternative aside,
+   and Stop working on this alternative. None may alter manuscript text.
+6. Check that each remains distinguishable in History. Do not reopen terminal
+   work as if new. Reopen the project and confirm the dispositions persist.
+
+#### H9 — duplicate task, recheck and author control
+
+1. In the fresh project open Story Knowledge -> Signals. Use Work on this on the
+   seeded childhood-fright concern. Observe the resulting Revision Desk task.
+2. Return to the same concern and use Work on this again.
+3. Expected: one durable task and clear duplicate feedback, not two tasks.
+4. Use Check after revising. Expected: advisory evidence explains the source
+   state. It must not rewrite prose or automatically decide you are satisfied.
+5. Set aside that test task; confirm its saved state and history after reopen.
+   Do not mark the real concern resolved just to complete this checklist while
+   its visible passage-return failure is unresolved.
+
+#### H10 — Foundation, Ideas, optional handoffs and History
+
+1. Create / Develop -> Story Foundation. Choose a visible question and leave
+   another blank. Writing must remain available with blanks.
+2. Set the chosen question to Deliberately unknown and Save answer. Then change
+   it to My answer, enter **Human inspection note** and Save revision.
+3. Archive answer, then Restore answer. Verify the saved answer, deliberate
+   unknown/blank distinction and provenance after reopen; manuscript stays unchanged.
+4. Ideas: save two ordinary seeds titled **Inspection seed A** and **Inspection seed B**,
+   with short author-entered text. Select both in Saved ideas.
+5. Explore a direction: Direction name **Inspection direction**, core idea
+   **Try a quieter confrontation**, open question **Who arrives first?**;
+   Create direction. Both ideas should remain linked.
+6. Answer one question under Explore this premise and invoke that action.
+   Expected: advisory exploration notes and visible uncertainty; no decision
+   about what belongs in the manuscript.
+7. Give a Combination name and Combination premise; Combine selected ideas.
+   Check both contributions remain identifiable. Archive/restore the direction.
+8. If using Preview destination, select only intended text and a supported
+   destination. Preview alone must not write to that destination. Use explicit
+   Send only if you want that test handoff; expect a truthful outcome/owner route.
+   An unavailable destination must explain its placeholder status.
+9. Optional synthetic privacy check: save **Private inspection seed** with its
+   privacy checkbox selected. Its body must not appear in project-tool results.
+   Do not use real private material for this inspection.
+10. History: inspect the applied/partly applied alternatives, dispositions,
+    Foundation changes and direction lineage. Earlier source must be labeled
+    historical; a completed alternative must not masquerade as fresh/stale work.
+
+#### H11 — readability, focus, support and remaining evidence review
+
+1. In both Dark and Light inspect Writing Studio, Story Knowledge, Revision
+   Desk, Ideas and History. Project Tools must not cover status or prose.
+2. Enter Focus mode and exit; context and unsaved work must survive. Tab through
+   the controls you used: visible focus, reachable controls, no trapped modal.
+3. With an unsaved alternative, attempt Close drawer or a surface departure and
+   cancel. Text must remain. A pending Save must prevent duplicate/departure actions.
+4. Read long outcomes, disabled explanations and historical states. For each,
+   judge whether you understand what happened, whether anything changed and
+   the next action. Report exact wording that misleads or hides the outcome.
+5. Earlier Companion tests need not be repeated. If inspecting them again,
+   Ask Black Skies -> Where am I? must use local project/current-writing facts;
+   Return to Writing clears the temporary summary and restores context;
+   Stay in Command Center clears it and stays. No AI is expected.
+6. Import/Structure regression is already mechanically covered. Do not import
+   over this project or deliberately corrupt files for human inspection.
+   The Command Center Structure/Interchange/Operations placeholders are intentional.
+7. Review current evidence/limitations and historical unknown causes before the
+   formal gate. The deterministic sample requires current-package reconciliation;
+   older da273821 sample IDs are historical, not a current decision request.
+   Local-AI unavailability already has an accepted disposition; no model retest
+   or renewed quality score is requested.
+
+#### Reporting and formal acceptance
+
+Reply with H1–H11 status, failing screen/action/actual outcome, and any usability
+judgment. H1 is already Fail; independent cases can pass without clearing it.
+Mark omitted cases Not run and dependencies Blocked, not Pass. A source jump
+works only if the appropriate stored source is opened; passage-bearing returns
+also need exact visible selection. Section-only returns do not owe a fabricated
+passage highlight. The coordinator repairs H1, extends the existing journey and
+qualifies its changed candidate before requesting the affected human retry.
+Formal Human Gate 4 and Program 7 closure remain separate explicit decisions.
+
 ## Qualification fixture correction — October 6, 2026
 
 The combined runtime candidate 6a90262b passed clean Stage 19 (841 tests plus two

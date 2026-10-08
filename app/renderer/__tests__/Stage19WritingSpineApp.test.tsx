@@ -1012,6 +1012,7 @@ describe('Stage19WritingSpineApp', () => {
       await screen.findByRole('textbox', { name: 'Revision alternative text' });
       fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
     }
+    if (applying) fireEvent.click(screen.getByRole('checkbox', { name: /I intend to replace this entire section/ }));
     fireEvent.click(await screen.findByRole('button', { name: applying ? 'Apply all of this alternative' : 'Set this alternative aside' }));
     if (outcome === 'drawer open') {
       fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
@@ -1761,6 +1762,28 @@ describe('Stage19WritingSpineApp', () => {
       });
     },
   );
+
+  it('announces a section-only source return neutrally and dismisses its message without writing', async () => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const storyIntelligence = createStoryIntelligenceBridge();
+    const read = await storyIntelligence.read({ projectId: 'proj_a', projectPath: 'C:/review/a', generation: 1, operationId: 'section-only-read' });
+    if (!read.ok) throw new Error('Fixture read failed');
+    vi.mocked(storyIntelligence.read).mockResolvedValue({ ok: true, data: { ...read.data, durableSignals: [{ ...read.data.durableSignals[0]!, positionRefs: [{ ...read.data.durableSignals[0]!.positionRefs[0]!, selectionStart: undefined, selectionEnd: undefined, selectionFingerprint: undefined }] }] } });
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} storyIntelligenceBridge={storyIntelligence} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await user.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+    await user.click(screen.getByRole('button', { name: 'Signals' }));
+    await user.click(screen.getAllByRole('button', { name: 'Review source' })[0]!);
+    const message = await screen.findByText('Opened the manuscript section linked to this concern. This concern refers to the section as a whole.');
+    expect(message).toHaveAttribute('role', 'status');
+    await user.click(within(screen.getByRole('group', { name: 'Project notices' })).getByRole('button', { name: 'Dismiss message' }));
+    expect(screen.queryByText(message.textContent!)).not.toBeInTheDocument();
+    expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
+    expect(storyIntelligence.write).not.toHaveBeenCalled();
+  });
 
   it('explains how to locate a recorded exact passage from a prose-free detached window', async () => {
     const current = snapshot('command');

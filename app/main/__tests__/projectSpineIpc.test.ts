@@ -1304,8 +1304,8 @@ describe('project-spine IPC', () => {
     const createdCandidate = await repository.createManual(created.projectId, 0, {
       sourceSnapshot: {
         unitId: withUnit.unitId,
-        bodySha256: sha256(sourceText),
-        text: sourceText,
+        bodySha256: sha256(sourceText.slice(0, -1)),
+        text: sourceText.slice(0, -1),
       },
       sourceAnchor: {
         unitId: withUnit.unitId,
@@ -1370,7 +1370,7 @@ describe('project-spine IPC', () => {
       operationId: 'open-partial-acceptance-project',
     });
     const initialMarkdown = opened.snapshot.project.drafts[withUnit.unitId];
-    const sourceText = 'Before the watchman waited. At midnight, the lantern guttered. After, the road was still.\n';
+    const sourceText = 'Before the watchman waited. At midnight, the lantern guttered. After, the road was still.\n\n\n';
     const populated = await invoke(PROJECT_SPINE_CHANNELS.saveUnit, 1, {
       projectId: created.projectId,
       projectPath: created.projectPath,
@@ -1389,7 +1389,7 @@ describe('project-spine IPC', () => {
     const sourceStart = sourceText.indexOf(sourceTarget);
     const repository = new RevisionCandidateRepository(created.projectPath);
     const createdCandidate = await repository.createManual(created.projectId, 0, {
-      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,
         selectionStart: sourceStart,
@@ -1463,7 +1463,7 @@ describe('project-spine IPC', () => {
     const sourceStart = sourceText.indexOf(sourceTarget);
     const repository = new RevisionCandidateRepository(created.projectPath);
     const ambiguous = await repository.createManual(created.projectId, 0, {
-      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: null,
       purpose: 'No exact target.',
       protection: { excluded: false, class: 'ordinary' },
@@ -1471,7 +1471,7 @@ describe('project-spine IPC', () => {
       candidateText: 'At midnight, the lantern dimmed.',
     });
     const missing = await repository.createManual(created.projectId, 1, {
-      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,
         selectionStart: sourceStart,
@@ -1563,7 +1563,7 @@ describe('project-spine IPC', () => {
     const expectedMarkdown = current.project.drafts[withUnit.unitId];
     const repository = new RevisionCandidateRepository(created.projectPath);
     const createdCandidate = await repository.createManual(created.projectId, 0, {
-      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText), text: sourceText },
+      sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,
         selectionStart: 7,

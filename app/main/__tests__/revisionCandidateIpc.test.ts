@@ -265,6 +265,19 @@ describe('revision candidate IPC authority', () => {
     expect(localInferenceService.run).not.toHaveBeenCalled();
   });
 
+  it('accepts a saved source containing author trailing blank lines without treating them as a source change', async () => {
+    const body = 'Source unit.\n\n';
+    const sourceSnapshot = { unitId: 'unit-a', text: body, bodySha256: createHash('sha256').update(body).digest('hex') };
+    registerRevisionCandidateIpc({
+      resolveWindowRole: () => 'writing',
+      getWritingSnapshot: () => ({ ...snapshot, project: { ...snapshot.project, drafts: { 'unit-a': `---\nid: unit-a\n---\n${body}\n` }, unitMetrics: { 'unit-a': { ...snapshot.project.unitMetrics['unit-a'], bodySha256: createHash('sha256').update(`${body}\n`).digest('hex') } } } }),
+      repositoryFactory: () => repository as never,
+      localInferenceService,
+    });
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, { ...manual, sourceSnapshot, sourceAnchor: { unitId: 'unit-a', selectionStart: 0, selectionEnd: 6, selectionFingerprint: createHash('sha256').update('Source').digest('hex') } })).resolves.toMatchObject({ ok: true });
+    expect(repository.createManual).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({ sourceSnapshot }));
+  });
+
   it('saves a manual alternative linked to a selected passage in the full saved body', async () => {
     const anchor = {
       unitId: 'unit-a',
