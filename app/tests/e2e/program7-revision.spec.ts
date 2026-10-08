@@ -328,4 +328,19 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await reopened.getByRole('button', { name: 'Create / Develop', exact: true }).click();
   await reopened.getByRole('button', { name: 'History', exact: true }).click();
   await expect(reopened.getByText('Make the sentence more tense', { exact: true })).toBeVisible();
+  const historical = (await readCandidates()).find((candidate: { id: string }) => candidate.id === sentence.id);
+  const historyCard = reopened.getByTestId(`program7-history-item-revision-candidate:${sentence.id}`);
+  await expect(historyCard).toContainText('Partly applied');
+  await expect(historyCard).not.toContainText('Partially Accepted');
+  await expect(historyCard.locator('time')).toHaveCount(2);
+  await expect(historyCard.locator('time').nth(0)).toHaveAttribute('datetime', historical.createdAt);
+  await expect(historyCard.locator('time').nth(1)).toHaveAttribute('datetime', historical.updatedAt);
+  for (const theme of ['dark', 'light']) {
+    const control = reopened.getByRole('switch', { name: 'Light theme', exact: true });
+    if (await control.getAttribute('aria-checked') !== String(theme === 'light')) await control.click();
+    await historyCard.scrollIntoViewIfNeeded();
+    await expect(historyCard.locator('time').nth(0)).toBeInViewport();
+    await expect(historyCard.locator('time').nth(1)).toBeInViewport();
+    await reopened.screenshot({ path: testInfo.outputPath(`history-times-${theme}.png`) });
+  }
 });

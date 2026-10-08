@@ -1,5 +1,316 @@
 # Program 7 Qualification Closure Report
 
+## October 8 timestamp delivery — updated candidate qualification in progress
+
+Jason closed/reopened again, confirmed History persistence and reports the tests
+looked good. This records the completed H6 checks; it does not invent outcomes
+for H7+ rows or formal Human Gate 4. No repeated human manuscript check is needed.
+The missing timestamp is an executable-version mismatch: the verified History
+source patch was not in the running 35ed2860 package. Coordinator is freezing
+the six intended files and qualifying a replacement package before delivering
+its launch command. Existing 35ed2860 proof and human reports remain historical
+candidate evidence. User projects and currently running apps remain unchanged.
+
+## October 8 H6 human confirmation and History timestamps
+
+Jason confirms the complete saved manuscript and new Partly applied history
+survived reopening. The intended 60..118 manuscript range and exact surrounding
+prose were independently verified from stored records. H6 range/persistence is
+confirmed for this actual input. The clean example differs by the literal "> "
+already recorded in Proposed text before application; how that input marker
+was entered remains unknown. Do not change Jason's manuscript automatically or
+repeat the Apply test merely to remove the marker. Formal Human Gate 4 is not
+inferred from this confirmation.
+
+The screenshot's two same-purpose cards are the earlier failed attempt and the
+later retry, with different IDs, proposed text and source ranges. In Jason's
+America/New_York time on October 8, 2026:
+
+| Record | Created | Last changed / application | Source range |
+| --- | --- | --- | --- |
+| Earlier attempt, candidate_410c3c05-b322-4a00-a9dc-130a93c81de0 | 2:15:09 PM EDT | 2:20:49 PM EDT | Whole 208-character paragraph, 0..208 |
+| Retry, candidate_66521364-58b1-4844-8907-677a8112ac6c | 4:22:24 PM EDT | 4:28:55 PM EDT | Mara sentence, 60..118 |
+
+This pair does not demonstrate duplicate Save from one operation. Do not delete,
+merge or deduplicate these historical alternatives.
+
+P7-HUMAN-PACKET-CLARITY-01 now includes ambiguous same-title History cards.
+The existing projection already supplies createdAt/updatedAt; the renderer patch
+shows Created and Last changed with seconds and an explicit local time zone,
+without a storage/schema/API change. Missing or malformed dates say Time not
+recorded. Revision statuses use Partly applied/Applied consistently with the
+comparison. Two new assertions failed before repair; History, projection and
+accessibility suites passed 12/12 after repair. Logs: %TEMP%/bs-p7-history-times-before.log
+and bs-p7-history-times-after.log. Existing restart journey now verifies both
+recorded timestamps and visible dates in dark/light themes. App lint, full
+TypeScript boundary and production build passed. Revision/accessibility Electron
+journeys passed 5/5 at %TEMP%/bs-p7-history-times-e8df20d8; both History screenshots
+were inspected. This is explicitly dirty source-patch evidence, not a new
+qualified executable/package or a native tour. The existing 35ed2860 package
+and Jason's successful human reopen report retain their original identity.
+
+Owner: coordinator. Exact resolution stage: P7-G2 Batch 4 History presentation
+repair and integration in the next qualified review package before Human Gate 4.
+Reopen for indistinguishable same-title alternatives, fabricated dates, hidden
+or unreadable timestamps, changed author records or renewed duplicate-save evidence.
+Running/package candidate 35ed2860 remains unchanged; timestamps are a source
+patch pending integration, not an update to that already-open executable.
+Historical native unknowns retain their existing stages and triggers. No new
+installer run or full desktop tour is requested by this presentation change.
+
+## October 8 H6 reopen continuation — fresh-profile launch repair
+
+Jason reached H6 step 7, closed the visible app and saw "Single instance lock
+acquired? false" / exit 0 on reopen. Process inspection found the earlier
+coordinator launch PID 16276 still owning the reused review profile. This is
+a current P7-PACKAGED-NATIVE-ACCESS-01 launcher variant; no earlier unknown
+native cause is declared solved. open-review.ps1 now requests a unique process
+profile on every launch and reports a launch request rather than a successful
+restart. No existing user process or project was reset, restored or terminated.
+The historical launcher is retained beside it.
+
+A bounded packaged startup check with the background owner still present reached
+a visible fresh renderer with no project open. That proves fresh-profile startup;
+its automation close did not return, so clean shutdown is not claimed. Preserve
+fresh-profile-launcher-check.json in the review root. The uniquely identified
+Node helper was ended after its close did not return; startup-check-helper-stop.json
+records this unqualified teardown. No Black Skies process was forcibly stopped. A guarded termination attempt stopped before mutation because descendants
+remained. Native close/reopen still requires Jason's confirmation; retain
+P7-NATIVE-RESP-01 uncertainty rather than treating this debugger observation as
+a diagnosed product shutdown defect. No broad desktop pass or suite rerun.
+
+The actual new H6 result is in **%TEMP%/bs-p7-human-inspection-3d800ca9/carmilla-review**,
+unit unit_418effe996b046b1 (section 18), candidate
+candidate_66521364-58b1-4844-8907-677a8112ac6c. It records the intended 60..118 source
+range, Partly applied status and exact original prefix/suffix preservation.
+Its saved proposed text starts with a literal "> ", which is also present in the
+saved result. The clean instruction paragraph therefore does not match exactly;
+no full H6 pass is inferred. Evidence: review root/h6-reopen-finding.json.
+The original failed candidate remains historical, and its earlier evidence copy
+is retained. Jason has changed the live earlier project; do not call that live
+project untouched at this later checkpoint.
+
+P7-HUMAN-PACKET-CLARITY-01 includes this project/formatting confusion. Quoted
+manuscript inputs in the earlier retry card are now plain-text copy blocks.
+Coordinator-owned resolution remains P7-G2 Batch 4 current H6 restart/intent
+confirmation before Human Gate 4. Reopen for singleton refusal, wrong project,
+missing history, changed persisted bytes or unintended copied formatting. H7+
+remains paused. Executable candidate remains 35ed2860; only launch helper and
+existing documentation changed, so no new executable qualification is claimed
+or required by this launcher-only repair.
+
+### Resume only H6 step 7 — do not create or apply again
+
+1. Run the updated command in ordinary PowerShell:
+
+   ```powershell
+   & "$env:TEMP\bs-p7-35ed2860-review-018641f2\open-review.ps1"
+   ```
+
+   A new usable window must appear. If it reports another singleton refusal or
+   no window appears, stop and send the message; do not repeatedly launch.
+
+2. Click **Project Tools → Open project…**. In the folder picker press **Alt+D**,
+   paste this exact path, press **Enter**, then **Select Folder**:
+
+   ```text
+   C:\Users\gray2\AppData\Local\Temp\bs-p7-human-inspection-3d800ca9\carmilla-review
+   ```
+
+   This is the earlier project containing your new H6 result. Its title is
+   **Carmilla Review bs-p7-human-inspection-3d800ca9**. The newly prepared project
+   from the original card has no saved alternative; do not substitute it here.
+   If Open project says "in use", stop and report that exact message/screen.
+
+3. Open **Story → section 18**, the section you just edited. For this restart
+   check its complete saved text, including the recorded literal marker, is:
+
+   ```text
+   The observatory's brass door had not opened in forty years. > Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+   ```
+
+   All four sentences must be present and unchanged after reopening. Do not edit
+   away the marker or reapply while checking persistence. The marker's presence
+   in the saved Proposed text is recorded separately from the original deletion.
+
+4. **Open Command Center here → Create / Develop → History**. Locate the new
+   **Make the sentence more tense.** alternative whose source replacement was
+   only **Mara pressed her palm against the cold glass and listened.** It should
+   say **Partly applied** and offer no further application. There is also an older
+   failed alternative with the same purpose and a whole-paragraph source: that
+   historical entry is not the new result. Do not apply either again.
+
+5. Report whether the complete saved text and the new partly applied history
+   survived reopening. Also report whether the literal "> " was unintended.
+   Stop here; there is no request to repeat H6 steps 1–6 or H1–H5. The coordinator
+   will resolve the input-formatting disposition before counting exact H6 acceptance.
+
+## Current handoff — October 8 final repaired candidate
+
+Executable candidate: **35ed28607d4de8ffc6be1e04be8c3c8ab1edde43**.
+Tree: **7a579104c75f2ac1cf3b6ce9fcc9e9bcff512a9b**.
+Continuing branch: codex/program7-implementation in program7-today.
+All qualification below finished with that clean candidate. This final record
+update is documentation-only, later than qualification, and leaves the working
+tree explicitly dirty only in these three campaign records. No push or release.
+
+| Check | Result and retained evidence |
+| --- | --- |
+| Full app repair suite | 159 files, 1557 passed, two existing skips; pre-final-layout repair evidence at %TEMP%/bs-p7-oct8-final-tests-98507dcc.log. Later changes received affected checks and clean qualification; this is not called a new full-suite run on 35ed2860 |
+| Clean Stage 19 | Lint, TypeScript, production build, 49 critical test files / 842 passed / two existing skips, startup 1/1 and Electron 36/36; %TEMP%/bs-p7-oct8-final-clean-6034b004 |
+| Final Program 7 journeys | 9 passed, one intentional real-AI opt-in skip; revision, disabled AI on both preloads, Create / Develop, Carmilla long form, accessibility and 17/34/68/136-unit scale; %TEMP%/bs-p7-35ed2860-final-828d4cef/journeys.log |
+| Package verification | New NSIS installer, unsigned internal RC; receipt qualifiedCommit matches 35ed2860; %TEMP%/bs-p7-35ed2860-pkg-9f421a07/package-receipt.json |
+| Unpacked packaged smoke | Packaged/sandboxed Writing-first and optional second window, five normal-GPU cold starts, 100-unit representative export, exact Markdown, detached Story Knowledge read/reopen, zero forbidden runtimes or teardown survivors; %TEMP%/bs-p7-35ed2860-final-828d4cef/unpacked-smoke.json. This is not installed/offline lifecycle proof |
+| Human project preparation | Fresh 18th unit saved through supported controls and reopened with exact four-sentence bytes; local-AI creation capability absent; screenshot inspected; %TEMP%/bs-p7-35ed2860-review-018641f2/prepared-review.json |
+
+Current repairs: P7-PARTIAL-SOURCE-SCOPE-01 has the exact replacement preview
+and an explicit whole-section safeguard; original 0..208 capture remains
+unexplained. P7-CANDIDATE-SOURCE-RECOVERY-01 has repaired newline framing,
+blank-line preservation and actionable fresh-work guidance; the precise old H5
+cause remains uncertain. P7-NOTICE-SEVERITY-DISMISS-01 has neutral source-return
+feedback, dismissal, no overlay and changed-message visibility. Its final Ideas
+regression is fixed and the original failing trace retained.
+P7-STORY-SOURCE-VIEWPORT-01 has content-sized chapter layout and owned source
+scrolling; exact passage visibility from multiple originating chapters passed.
+P7-HUMAN-PACKET-CLARITY-01 now has the complete current H6 card below. Its initial
+setup metadata inspection lost the automation context after saving; both logs
+are retained. A fresh renderer reopen verified the already-saved paragraph
+without mutation. No native responsiveness repair is inferred from that setup.
+
+Jason's H1/H2/H3 and H4 steps 1–6 passes and H5 pass remain accepted as reported.
+Only H6 is requested next. H7 onward remains paused pending that result; no full
+human tour or repeated passed row is requested. The failed H6 project and its
+hash-checked copy remain unchanged. Human acceptance is not claimed.
+
+Current no-AI unpacked executable received normal-GPU, isolated-profile launch
+attempts; normal interactive WindowStyle is used by open-review.ps1. Shell process
+metadata did not confirm a visible window, so no successful desktop launch or
+native review is claimed. The current launch receipt is in the review root/
+human-launch.json. This is a P7-PACKAGED-NATIVE-ACCESS-01 confirmation item under
+its existing coordinator-owned native-access stage before Human Gate 4; reopen
+if the reviewed command cannot expose a usable window. Jason runs the command
+from ordinary interactive PowerShell, then opens the named project through
+supported Open project. Current-candidate installed qualification remains separate.
+
+Remaining boundary: coordinator-owned P7-G2 Batch 4 H6 human scope confirmation
+before Human Gate 4; current-package Administrator offline installed lifecycle
+and its independent witness before final current-candidate package qualification;
+remaining H7+ authority/readability decisions and separate local-AI disposition
+before formal Human Gate 4. No local-AI admission, Human Gate 4 or Program 7 closure.
+P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01 and
+P7-PACKAGED-NATIVE-ACCESS-01 retain their recorded uncertainty, exact stages and
+reopening triggers in the historical entries; no earlier unknown cause is waived.
+P7-SOURCE-RETURN-POLISH-01 retains coordinator ownership at P7-G2 Batch 4 final
+issue disposition before Program 7 closure, reopening if internal wording makes
+the destination unclear, reports false success or impairs navigation.
+
+### Jason's single H6 retry — current build, all inputs included
+
+This checks **your intended replacement range**, not just whether a file changed.
+Automation has already proved exact replacement and restart bytes. Your earlier
+human test exposed an unclear scope choice; this retry checks that the repaired
+preview makes that choice understandable. There are two different selections:
+the manuscript words to replace, then the alternative words to insert.
+
+Use only candidate **35ed2860** and the fresh project below. Do not use the older
+installed app or the damaged Partial application check section. To launch the
+review app, run this one command in ordinary PowerShell. A visible normal window
+must appear; if it does not, stop and report that access blocker rather than
+repeatedly launching. Do not paste formatting backticks as commands:
+
+    & "$env:TEMP\bs-p7-35ed2860-review-018641f2\open-review.ps1"
+
+1. In Writing Studio click **Project Tools → Open project…**. Choose this folder
+   (paste it into the folder picker's address bar, press Enter, then Select Folder):
+
+   `C:\Users\gray2\AppData\Local\Temp\bs-p7-35ed2860-review-018641f2\carmilla-review`
+
+   Open **Story → 18 Partial application retry**. This section is already saved;
+   you do not need to create it or paste the source again. Confirm **Saved durably**
+   and this complete paragraph:
+
+   ```text
+   The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+   ```
+
+2. In the manuscript **highlight** exactly the following sentence, including its
+   period. A single click only places the cursor. Drag across these words, or use
+   Shift with the arrow keys. The other three sentences must not be highlighted.
+   Do not click back inside the editor after you make the selection.
+
+   ```text
+   Mara pressed her palm against the cold glass and listened.
+   ```
+
+3. Click **Open Command Center here → Create / Develop → Revision Desk**.
+   In **Purpose**, enter **Make the sentence more tense**. In **Proposed text**,
+   paste this complete two-sentence alternative:
+
+   ```text
+   Mara heard a faint rhythm beyond the glass. She held her breath.
+   ```
+
+   Click **Save alternative** once. Saving an alternative must leave the
+   manuscript unchanged. It creates a separate possibility for review.
+
+4. In its comparison, find **Text that will be replaced**. It must show exactly:
+
+   ```text
+   Mara pressed her palm against the cold glass and listened.
+   ```
+
+   **Stop before Apply if it shows the whole paragraph, a different sentence,
+   or a whole-section confirmation checkbox.** Do not tick that checkbox for
+   this test. Record the preview and preserve the project; no replacement should
+   happen. This is the new checkpoint that was missing from the earlier workflow.
+
+5. Inside **Part of this alternative to apply**, highlight only the first sentence:
+
+   ```text
+   Mara heard a faint rhythm beyond the glass.
+   ```
+
+   Leave **She held her breath.** unselected. Click **Apply only the selected part**
+   once. Do not click Apply all. This inserts the selected alternative sentence
+   into the manuscript range shown in step 4.
+
+6. Return to Writing Studio and open **18 Partial application retry** if needed.
+   Compare the **entire paragraph**, not just the new sentence. Expected:
+
+   ```text
+   The observatory's brass door had not opened in forty years. Mara heard a faint rhythm beyond the glass. Beyond it, the storm erased the road home. She knew the message inside was meant for her.
+   ```
+
+   All three surrounding sentences must remain exactly. **She held her breath.**
+   must not have been inserted. Confirm Saved durably. Any difference is a fail:
+   stop, retain the actual text and report it. Do not undo/reset/reapply to get a pass.
+
+7. Close this review app normally with its window X. Run the launch command above
+   again, open the **same exact folder**, and revisit **18 Partial application retry**.
+   The complete paragraph in step 6 must still match. Go to **Open Command Center
+   here → Create / Develop → History**. **Make the sentence more tense** should be
+   historical **Partly applied**, with further application unavailable. Do not reapply.
+
+8. Report whether the source preview, complete paragraph and fresh-restart history
+   all passed, and whether the instructions/controls were understandable. Stop here;
+   H7 onward is still paused. A failed outcome reopens P7-PARTIAL-SOURCE-SCOPE-01
+   at coordinator-owned P7-G2 Batch 4 repair/qualification before Human Gate 4.
+
+The Administrator installed lifecycle is a separate later step. Its current-package
+command is ready, but has **not** run. When that step is requested, use Administrator
+PowerShell and this single command; it automatically creates a fresh short work folder:
+
+    & "$env:TEMP\bs-p7-35ed2860-pkg-9f421a07\run-installed-current.ps1"
+
+It runs the existing offline firewall/install/uninstall/reinstall check and writes
+its transcript beside the installer. Do not paste Markdown fence lines into PowerShell.
+No old installer pass substitutes for this current-candidate proof.
+
+## Earlier checkpoints — retained historical evidence
+
+The sections below preserve earlier candidate identities and instructions. The
+current handoff and H6 card above supersede their launch/testing instructions.
+
 ## October 8 notice-visibility follow-up — final candidate pending
 
 Clean candidate 6d5a60adca1d59aef8ad79057f79afd6fdba8dfb (tree

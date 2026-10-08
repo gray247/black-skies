@@ -51,6 +51,33 @@ describe('Program7History component', () => {
     expect(screen.getByTestId('program7-history')).toHaveAttribute('data-history-store', 'projection-only');
   });
 
+  it('distinguishes separate same-purpose alternatives with recorded creation and change times', () => {
+    const earlier = item({ reference: 'revision-candidate:earlier', ownerKind: 'revision-candidate', ownerId: 'earlier', bucket: 'history', title: 'Make the sentence more tense.', lifecycle: 'partially accepted', acceptance: 'partial', occurredAt: '2026-10-08T18:15:09.214Z', updatedAt: '2026-10-08T18:20:49.820Z' });
+    const retry = item({ ...earlier, reference: 'revision-candidate:retry', ownerId: 'retry', occurredAt: '2026-10-08T20:22:24.910Z', updatedAt: '2026-10-08T20:28:55.846Z' });
+    render(<Program7History projection={projection({ items: [retry, earlier], activeItems: [], historyItems: [retry, earlier] })} />);
+    expect(screen.getAllByRole('heading', { name: 'Make the sentence more tense.' })).toHaveLength(2);
+    const first = screen.getByTestId('program7-history-item-revision-candidate:retry');
+    const second = screen.getByTestId('program7-history-item-revision-candidate:earlier');
+    for (const [card, record] of [[first, retry], [second, earlier]] as const) {
+      expect(within(card).getByText('Created', { exact: true })).toBeVisible();
+      expect(within(card).getByText('Last changed', { exact: true })).toBeVisible();
+      expect(card.querySelectorAll('time')).toHaveLength(2);
+      expect(card.querySelector('time')?.getAttribute('datetime')).toBe(record.occurredAt);
+      expect(card.querySelectorAll('time')[1]?.getAttribute('datetime')).toBe(record.updatedAt);
+      expect(card.querySelector('time')?.textContent).toMatch(/2026/);
+      expect(card).not.toHaveTextContent('Partially Accepted');
+    }
+    expect(first.querySelector('time')?.textContent).not.toBe(second.querySelector('time')?.textContent);
+  });
+
+  it('does not invent timestamps for missing or malformed recorded dates', () => {
+    const invalid = item({ reference: 'revision-candidate:invalid', ownerKind: 'revision-candidate', ownerId: 'invalid', occurredAt: '', updatedAt: '7' });
+    render(<Program7History projection={projection({ items: [invalid], activeItems: [invalid], historyItems: [] })} />);
+    const card = screen.getByTestId('program7-history-item-revision-candidate:invalid');
+    expect(within(card).getAllByText('Time not recorded')).toHaveLength(2);
+    expect(card.querySelectorAll('time')).toHaveLength(0);
+  });
+
   it('shows honest empty states for both buckets', () => {
     render(<Program7History projection={{ items: [], activeItems: [], historyItems: [], totalSourceItems: 0, trimmedCount: 0, limit: 100 }} />);
     expect(screen.getByTestId('program7-history-empty-active')).toHaveTextContent('No active records.');

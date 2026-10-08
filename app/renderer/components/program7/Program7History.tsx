@@ -34,8 +34,23 @@ function acceptanceLabel(status: Program7HistoryItemV1['acceptance']): string {
 }
 
 function lifecycleLabel(item: Program7HistoryItemV1): string {
-  if (item.ownerKind === 'revision-candidate' && item.lifecycle === 'generated') return 'Draft';
+  if (item.ownerKind === 'revision-candidate') {
+    if (item.lifecycle === 'generated') return 'Draft';
+    if (item.lifecycle === 'partially accepted') return 'Partly applied';
+    if (item.lifecycle === 'accepted') return 'Applied';
+  }
   return titleCase(item.lifecycle);
+}
+
+function RecordedTime({ value }: { readonly value: string }): JSX.Element {
+  // Other history families may use revision counters; those are not dates.
+  const milliseconds = /^\d{4}-\d{2}-\d{2}T/u.test(value) ? Date.parse(value) : NaN;
+  if (!Number.isFinite(milliseconds)) return <span>Time not recorded</span>;
+  const label = new Date(milliseconds).toLocaleString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit', timeZoneName: 'short',
+  });
+  return <time dateTime={value}>{label}</time>;
 }
 
 function HistoryCard({ item, onOpenSource, onOpenRecurrence }: { readonly item: Program7HistoryItemV1; readonly onOpenSource?: (item: Program7HistoryItemV1) => void; readonly onOpenRecurrence?: (item: Program7HistoryItemV1, recurrenceReference: string) => void }): JSX.Element {
@@ -53,6 +68,10 @@ function HistoryCard({ item, onOpenSource, onOpenRecurrence }: { readonly item: 
         {item.acceptance !== 'none' || item.ownerKind === 'revision-candidate'
           ? <div><dt>Outcome</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
           : null}
+        {item.ownerKind === 'revision-candidate' ? <>
+          <div><dt>Created</dt><dd><RecordedTime value={item.occurredAt} /></dd></div>
+          <div><dt>Last changed</dt><dd><RecordedTime value={item.updatedAt} /></dd></div>
+        </> : null}
         <div><dt>Content</dt><dd>{protectedItem ? 'Hidden because this material is protected' : 'Visible'}</dd></div>
       </dl>
       <div className="program7-history__actions" aria-label={`Actions for ${item.reference}`}>
