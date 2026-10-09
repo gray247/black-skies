@@ -409,11 +409,11 @@ async function createManual(
   try {
     return {
       ok: true,
-      data: await active.repository.createManual(
+      data: deriveSnapshotCurrentness(active.snapshot, await active.repository.createManual(
         active.snapshot.project!.projectId,
         request.expectedRevision,
         request,
-      ),
+      )),
     };
   } catch (error) {
     return repoFailure(error);
@@ -493,13 +493,13 @@ async function createLocalAi(
       );
     return {
       ok: true,
-      data: await active.repository.createFromLocalAi(
+      data: deriveSnapshotCurrentness(active.snapshot, await active.repository.createFromLocalAi(
         active.snapshot.project!.projectId,
         request.expectedRevision,
         request.inference,
         response,
         request.sourceAnchor ?? null,
-      ),
+      )),
     };
   } catch (error) {
     return repoFailure(error);
@@ -546,12 +546,12 @@ async function edit(
     }
     return {
       ok: true,
-      data: await active.repository.edit(
+      data: deriveSnapshotCurrentness(active.snapshot, await active.repository.edit(
         active.snapshot.project!.projectId,
         request.expectedRevision,
         request.candidateId,
         request.editedCandidateText,
-      ),
+      )),
     };
   } catch (error) {
     return repoFailure(error);
@@ -603,13 +603,13 @@ async function setLifecycle(
     }
     return {
       ok: true,
-      data: await active.repository.setLifecycle(
+      data: deriveSnapshotCurrentness(active.snapshot, await active.repository.setLifecycle(
         active.snapshot.project!.projectId,
         request.expectedRevision,
         request.candidateId,
         request.lifecycle,
         request.note,
-      ),
+      )),
     };
   } catch (error) {
     return repoFailure(error);

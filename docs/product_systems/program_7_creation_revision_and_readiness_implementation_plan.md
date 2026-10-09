@@ -1,5 +1,636 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## October 9 closure execution — History repair complete, qualification pending
+
+Execution uses the continuing program7-today checkout, starting at
+a6073ff9304240c3f9fae0826deab9d6e734d2ab with its four intentional documentation
+changes. Proof root: C:/Users/gray2/AppData/Local/Temp/bs-p7-close-d3ba5ba5.
+
+P7-HISTORY-CURRENTNESS-01: successful manual/synthetic-local creation, edit and
+lifecycle IPC replies now derive current/stale/unavailable source status using
+the existing saved-source helper. Storage, schemas and manuscript writes are
+unchanged. Four pre-repair regression failures prove the original reply defect;
+the repaired focused IPC matrix includes an unavailable source and preserves
+the raw repository reply and manuscript bytes.
+
+P7-HUMAN-PACKET-CLARITY-01: History and decision notices now display Not used,
+Set aside and Stopped while retaining rejected/parked/abandoned storage values.
+Applied/Partly applied and recorded timestamps remain intact. Three pre-repair
+component failures prove the wording mismatch.
+
+Evidence: history-before-tests.log exited 1 with seven expected failures and
+17 passes; history-focused.log exited 0 with five suites/193 passes.
+repair-build.log exited 0. history-electron-corrected.log exited 0, one extended
+existing stale-source journey: unrelated create/edit/three terminal decisions,
+same-session stale History, disabled Apply, terminal timestamps and exact
+manuscript/alternative bytes preserved after fresh-process reopening.
+history-electron.log retains a test-only ambiguous locator failure; the locator
+was scoped by the intended alternative purpose, with no product workaround.
+The initial history-before.log is a runner invocation error, not test evidence.
+
+The two repair stages have passed focused verification; successor qualification,
+package identity, installed/offline proof and formal human decisions remain
+pending. Earlier receipts retain their original candidate identity. Historical
+uncertain causes remain Uncertain. Accepted AI-unavailable disposition and
+RT-2B / Program 9 re-entry requirements remain unchanged. No AI execution,
+dependency change, new repository ledger or push occurred.
+
+## October 9 detailed Program 7 closure plan
+
+**Outcome:** close the accepted Program 7 scope on one qualified no-AI candidate,
+with Human Gate 4 recorded, every required family accounted for, and unfinished
+AI explicitly carried to Program 9. This is a five-batch closeout plan, not a
+new architecture or feature campaign. Two confirmed History repairs remain.
+Planning this sequence does not mean its repairs or qualification have executed.
+
+### Starting state and scope
+
+Use only the continuing repository:
+C:/Users/gray2/.codex/visualizations/2026/09/04/01a06e84-5626-7241-bbe0-639af79386bf/program7-today.
+Branch codex/program7-implementation; runtime candidate
+a6073ff9304240c3f9fae0826deab9d6e734d2ab; tree
+d14d2ac9808fda21613aba75fe6192e92877baf5. Four existing records are intentionally
+dirty: implementation plan, closure report, fix tracker and current open-work
+register. Before implementation, repeat identity/status checks and reconcile any
+unexpected change. Do not silently switch to the older similarly named checkout.
+
+Existing evidence is substantial: a6073ff9 passed clean Stage 19 (842 critical
+passes, two existing skips, startup and 36 Electron journeys), nine applicable
+Program 7 journeys, installed/offline lifecycle, package identity and independent
+preservation witness. H1-H10 installed Playwright actions and suppression/reopen
+were completed. Their final review found the two History issues below. Jason's
+positive workflow/reopen/timestamp reports remain human evidence. The earlier
+full-app 1557-pass run belongs to the preceding repair candidate, not a6073ff9.
+None of those receipts is relabelled as a run on the successor.
+
+AI pilot execution has already occurred. Admission remains unavailable. Jason
+accepted remaining AI qualification in Program 9 on October 8; the saved-output
+review is complete. No AI run, model substitution, provider work, GPU experiment,
+dependency change or AI-quality repair is included in these five batches. Keep
+Q02/Q04/Q06/Q07 findings, original receipts and pending quality scores visible.
+The exact resolution stage remains RT-2B rerun before future AI admission,
+scheduled in Program 9 model qualification/replacement work before HG5, with
+mandatory review at Program 9 planning entry.
+
+Preserve source owners, schemas, manuscript authority, saved projects, historical
+receipts, existing design tokens and intentional placeholders. No refactor,
+cleanup, reset/stash, destructive fixture teardown, new framework or new document
+ledger is planned. Built Writing Studio Markdown/Structure remains in scope.
+
+### Ownership and sequencing
+
+The coordinator owns shared host integration, the integrated revision Electron
+spec, fixture helpers, candidate freeze, qualification, records and desktop use.
+At most two workers may assist bounded packages: safety owns revisionCandidateIpc
+and its assigned IPC tests; UI owns Program7History and its component tests.
+Actual permitted paths and acceptance conditions are assigned before dispatch.
+Workers do not edit the shared host, commit, launch native reviews, spawn agents
+or expand scope. Review their diffs and outcome assertions before acceptance.
+Use the requested Luna reserve only when available; report unavailability rather
+than silently using a more expensive worker. These small repairs can be done
+serially by the coordinator if that is more efficient.
+
+Batch dependencies: 1 -> 2 -> 3 -> 4 -> 5. Evidence/family drafts from batches 3/4
+may proceed while the privileged part of batch 2 awaits completion, but cannot
+claim final readiness before installed proof. Report at each batch boundary and
+on a genuine blocker. No new allowance benchmark or desktop token experiment.
+
+### Batch 1 — repair the two History defects and prove the fixes
+
+**P7-HISTORY-CURRENTNESS-01:** unrelated candidate mutations can replace derived
+source status with raw persisted status. History then says Original available
+for an alternative already proved stale; restart corrects it. This misleading
+state must be repaired, not deferred as polish.
+
+1. Add a focused failing case to the existing IPC suite: create alternative A,
+   change/save its source, then create/edit/change lifecycle of current B. Assert
+   every successful response keeps A stale and B current. Cover unavailable
+   source status and current project/generation binding with existing fixtures.
+2. Reuse the existing deriveSnapshotCurrentness seam in revisionCandidateIpc.ts
+   for successful mutation snapshots; list already uses it. Inspect manual/local
+   create, edit and lifecycle paths for consistency. Local-path tests stay
+   synthetic; no real inference or product admission is enabled.
+3. Preserve stale rejection, expected revisions, terminal lifecycle rules and
+   exact manuscript bytes. Derivation must reflect the saved source; it must not
+   persist a new owner, reactivate old work or weaken acceptance guards.
+4. Extend the existing stale journey in program7-revision.spec.ts: after changing
+   A's source, mutate unrelated B, inspect A in same-session History, return to A,
+   prove Apply refusal, then reopen and prove the same source/status and bytes.
+
+**P7-HUMAN-PACKET-CLARITY-01:** retain the passed timestamps and replace technical
+terminal display/notice terms with Not used, Set aside and Stopped, consistent
+with existing actions. Do not rename stored rejected/parked/abandoned values.
+Cover both alternative cards and the relevant task presentation where applicable.
+Keep Applied and Partly applied outcomes distinct and terminal actions disabled.
+
+Permitted production seams: app/main/revisionCandidateIpc.ts;
+app/renderer/components/program7/Program7History.tsx; coordinator-owned nearby
+notice wording in app/renderer/Stage19WritingSpineApp.tsx. No storage or public
+interface change is planned; any demonstrated need for one is reviewed separately.
+
+Extend existing tests: revisionCandidateIpc.test.ts, Program7History.test.tsx,
+Stage19WritingSpineApp.test.tsx and program7-revision.spec.ts. Use existing
+program7History and RevisionComparison suites as regressions; add assertions only
+where missing. Shared host/fixture files remain coordinator-only.
+
+**Exit:** the behavioral test failed before repair and passes afterward; focused
+IPC/host/component/comparison/history suites pass; same-session stale status,
+exact preserved bytes, terminal wording and reopen outcomes are asserted. Record
+commands, exits and failed/passed evidence. No unresolved authority failure.
+
+### Batch 2 — freeze, qualify and package one successor
+
+1. Review the integrated diff and intended records. Run affected checks, lint,
+   typecheck, docs and diff hygiene as needed for the changes. Create the reviewed
+   local runtime qualification commit under existing execution authorization;
+   record its full commit/tree and verify a clean starting state. Workers never
+   stage or commit. Keep generated evidence outside tracked paths during checks.
+2. Run one final integrated app-suite check on that frozen successor. This supplies
+   a current broad integration result after the IPC/host changes; do not substitute
+   the old 1557-pass receipt. Retain compact counts and detailed external logs.
+3. Run the existing clean Stage 19 regression once: required hygiene/inventory,
+   lint, full typecheck, production build, critical suites, startup and fixed
+   Electron matrix. Its required overlap is retained; no new runner is built.
+4. Run dedicated Program 7 revision, Create / Develop, disabled-AI, long-form and
+   accessibility journeys not in Stage 19. Use one worker, zero automatic retries
+   and failure-retained traces. Leave real-AI opt-in unset. Capture the existing
+   accessibility observations and collect the structured report.
+5. Refresh required exact-candidate persistence, Unicode and scale reports with
+   the existing qualifiers. Their strict packet identity requires current reports;
+   do not stamp old JSON as new evidence. Run scale's Electron scenario once and
+   omit that spec from the separate dedicated batch to avoid duplication. Preserve
+   failure fixtures using the existing retention setting. No extra scale loop.
+6. Run the existing NSIS packaging/preflight/verification path with publish never.
+   Preserve successor installer, receipt, executable/ASAR hashes and verified build
+   identity. Run the existing unpacked normal-GPU smoke and representative workload.
+7. Prepare one guarded, successor-bound Administrator lifecycle command in a new
+   short working root, such as %TEMP%/bs-p7-close-<unique-id>. Do not reuse or erase
+   an earlier working root. The current Windows agent process cannot obtain the
+   required firewall privilege merely from sandbox approval: Jason may need to
+   run this prepared command once in Administrator PowerShell. No command is
+   requested until the installer/receipt and all preceding work are ready.
+8. Complete installed/offline install-launch-save-reopen-uninstall-reinstall and
+   external-data preservation, without SkipFirewallIsolation. Run the existing
+   independent witness and verify receipt/installer/executable/ASAR identities,
+   preserved files, forbidden runtimes and owned process teardown. Finish the
+   HEAD-bound witness before any final documentation checkpoint changes HEAD.
+
+Use existing scripts: stage19-regression.mjs; qualify-program7-persistence.mjs;
+qualify-program7-unicode.mjs; qualify-program7-scale.mjs;
+program7-accessibility-matrix.mjs; app package:win and installed-smoke;
+stage19-installed-lifecycle.ps1; stage19-22-qualification-witness.mjs.
+External output paths are explicit. Do not touch Jason's manuscript project.
+
+**Exit:** required successor checks and structured reports pass; package and both
+runtime forms are receipt-bound; installed/offline preservation witness passes.
+The completed a6073ff9 installer proof is not rerun merely for documentation.
+A changed executable does require its own proof. Repair a demonstrated failure,
+rerun its affected subset, and repeat broader checks only when the candidate change
+invalidates them. No unexplained skips, weakened assertions or artificial pass.
+
+### Batch 3 — reconcile evidence and every unresolved issue
+
+1. Use the existing schema, ledger builder, sampler and validator. Preserve old
+   packets, including c57be0ff and 5a30bb10. Assemble one successor packet with
+   one exact commit/tree, corpus snapshots, real commands, expected/observed
+   outcomes, artifact paths/hashes and result/disposition for each required row.
+2. Add repair evidence IDs linked to the earlier History findings; do not rewrite
+   the original failure as Pass. Keep historical AI evidence clearly historical.
+   Current AI rows record unavailable/deferred scope, not a successor live pilot.
+3. Recompute the deterministic objective-pass sample for the qualified commit:
+   10 percent per eligible package, minimum three or all if fewer than three.
+   Record seed, eligible/selected IDs and existing algorithm version. Separately
+   include every authority/protection/sovereignty, Fail and Uncertain row required
+   for author review. Do not cherry-pick a short convenient sample.
+4. Validate schema, artifact existence/hashes, candidate/tree consistency, sample
+   selection and human-review constraints. Builder/sampler regenerate pending
+   review fields: preserve recorded Jason decisions and reconcile them afterward;
+   never invent scores or erase acceptance through a blind rebuild.
+5. Review all current tracker entries and package stop conditions, not just the
+   two named bugs. A newly demonstrated defect gets a root-cause entry in the
+   existing tracker and a focused existing-suite regression; repair within its
+   owner boundary before proceeding. A missing mandatory proof remains a blocker.
+
+Proposed dispositions for the four old intermittent causes retain Uncertain:
+
+| Entry | Current proof / final disposition needed | Reopening condition |
+| --- | --- | --- |
+| P7-A11Y-ROUTE-01 | Current accessibility/route checks pass; old wrong-target cause unknown. Coordinator proposes an explicit historical-cause exception at Batch 4 route triage before HG4 | Wrong panel/target, route flip, bounds/input mismatch or stall; capture actual target, route, geometry and time |
+| P7-NATIVE-RESP-01 | Current ordinary use/close succeeds; old OS warning lacks correlation. Explicit exception at Batch 4 responsiveness triage before HG4 | OS warning, visible stall or impaired input/close; retain action/time/project/window/duration |
+| P7-STORY-SUPPRESS-01 | Current suppression advances revision and survives restart; old Lantern House cause unknown. Explicit exception at Batch 4 suppression triage before HG4 | Requested suppression without durable outcome, rejected write or false notice; preserve revision and fixture |
+| P7-PACKAGED-NATIVE-ACCESS-01 | Human visible launch and installed Playwright startup succeed; old window cause unknown, native helper later failed before input. Separate tool limitation and historical exception at P7-G2 current-package native access confirmation before HG4 | Missing/crashed/untargetable ordinary window; distinguish helper initialization failure from product failure |
+
+Owner: coordinator, with Jason's acceptance of exceptions in batch 5. No current
+failed A/AA, protection, package, source-authority or persistence requirement can
+be waived by these historical-cause exceptions.
+
+**Exit:** validator passes; current required rows have complete evidence; every
+remaining Fail/Uncertain has a concrete proposed repair, exception or accepted
+AI defer; historical identities and human reports remain intact.
+
+### Batch 4 — account for every family and prepare the final human packet
+
+Build the final family matrix inside the existing closure report:
+
+| Family | Evidence needed to close current scope | Remaining decision / boundary |
+| --- | --- | --- |
+| Finding -> manual revision/recheck/resolution | Carmilla finding, source return, duplicate Work on this, save, deterministic recheck, explicit author resolution, recurrence and recovery | Required no-AI path; no defer for HG4 |
+| Alternatives and manuscript insertion | Manual create/edit/compare, full/selected Apply, repeated text, exact prefix/suffix, stale rejection, reservations/recovery and restart | Built ProjectSpine insertion; author retains Apply and concern-resolution authority |
+| Story Foundation | Blank/unknown/undecided/revised/read-only, optional use, provenance, archive/restore and supported handoff | P7-G2 remaining-family subjective review before final checkpoint |
+| Ideas/library | Seed/branch/premise versions/exploration/combine, library, archive/restore, protection and preview/send preparation | Same remaining-family review; no silent promotion into manuscript truth |
+| Promotion | Built Foundation/Outline writes, owner receipts, explicit acceptance, idempotency, partial-failure and protection | P7-G2 handoff package review before final checkpoint; Character/Lore truth owners remain Program 8 boundary |
+| History | Correct same-session/reopen source status, truthful lifecycle/outcome/times, provenance, bounded lineage, resolved active-view exclusion and recurrence | Both current findings repaired; naming/usability reviewed |
+| Accessibility/visual and intake | Themes, focus/keyboard, contrast, 200 percent/narrow/topology; built Markdown/Structure source preservation and explicit Apply | No current A/AA/protection defer; intentional Command Center placeholders distinguished |
+| Packaging/recovery | Receipt-bound unpacked and installed/offline runtime, save/reopen, permission/corruption/interruption and preservation | No packaging defer for current package claim |
+| Local AI | Historical mandatory pilot and accepted unavailable disposition linked without claiming current admission | RT-2B in Program 9 before HG5, mandatory planning-entry review; Q02/Q04/Q06/Q07 remain open |
+
+Ideas Writing-section, manuscript-insertion and Project Memory destinations are
+currently previews/planned guidance; built revision-alternative insertion is
+separate. Coordinator and Jason must finish their P7-G2 handoff package review:
+accept the bounded present scope and explicitly assign each future integration a
+reason, owner, one real named resolution stage, required evidence and observable
+trigger. Do not invent Program 8 package numbers, claim a preview is a durable
+write, or treat an unnamed future stage as a completed deferral. If no justified
+stage/disposition is available, that family keeps Program 7 closure pending.
+No Program 8 implementation is required merely to make the current UI look complete.
+
+After automation and package proof, do a targeted installed History UI check:
+create stale A and current B; mutate B; inspect A before restart; check the three
+terminal labels/notices and timestamps; reopen and compare saved status/bytes.
+Use Playwright for repeatable assertions and native access only for needed visual
+judgment. Verify candidate/ASAR/profile/project identity first. Use a fresh short
+fixture and profile; do not reuse a stale renderer or interfere with a user app.
+If native helper initialization remains unavailable after a bounded retry, record
+that access blocker and retain installed Playwright proof without claiming a
+native pass. Jason's final changed-screen confirmation can cover the visual judgment.
+No automatic whole-feature desktop tour, usage benchmark or duplicate native loop.
+
+Prepare one self-contained packet: exact executable and project path, candidate/
+artifact identities, completed evidence and sample IDs, repaired defects, remaining
+exceptions/deferrals, family boundaries, simple screen/action/expected-result/failure
+instructions, and the proposed separate HG4 and Program 7 decisions. Preserve old
+human passes; do not demand the entire H1-H10 tour again.
+
+**Exit:** no current functional blocker; all families qualified or ready for a
+specific author-approved disposition; packet is concrete and understandable.
+
+### Batch 5 — final human decisions, authority records and checkpoint
+
+Only now request the remaining human decisions. Jason reviews the corrected
+History state/wording and required current-build P4/P5/P6 carry-forward rows,
+the deterministic evidence sample, authority/protection rows and explicit old
+uncertainty/family dispositions. Existing good human reports support acceptance;
+unchanged broad workflows are not automatically repeated. Any mandatory new-build
+row is explained as that specific requirement, not another general testing round.
+AI output scores/admission remain deferred, not prerequisites invented for this
+no-AI session. Do not ask Jason to deliberately corrupt a working project.
+
+Record two separate decisions in the existing closure report:
+
+1. Human Gate 4 acceptance of the qualified no-AI workflow, with exact candidate,
+   evidence and named limitations/exceptions.
+2. Program 7 closure acceptance of the complete family matrix and accepted
+   carry-forwards. HG4 alone does not automatically close the program.
+
+A failed result preserves the state, reopens its root-cause issue and returns only
+the affected repair/evidence to the earlier batch. The agent does not fabricate
+acceptance, scores, native success, AI admission or closure to finish the plan.
+
+After acceptance, reconcile existing tracker, implementation plan, closure report,
+open-work register and the applicable current roadmap/master/execution-control
+status pointers. Preserve immutable historical receipts. Record the runtime
+qualification commit separately from any final documentation-only checkpoint;
+verify such a checkpoint changes no executable inputs and retain package/ASAR
+identity rather than relabelling the binary. Run docs/diff hygiene and ensure
+only intended Program 7 changes remain. No instruction-file or automation edits.
+
+The existing closure conditions require a reviewed final checkpoint commit and
+push. Local implementation commits are within the existing campaign authorization,
+but the campaign explicitly excluded push/merge/release. Current origin is the
+older local implementation repository, not GitHub. Prepare the exact diff,
+checkpoint and intended handoff destination first; final remote/push authorization
+must be resolved before executing it. Do not silently push to that old origin,
+change remotes, merge into another branch, or claim final repository closure while
+this required handoff remains pending. No public release is implied.
+
+**Exit:** explicit Jason HG4 and family/Program 7 decisions recorded; all mandatory
+checks pass; every residual has an accepted owner/stage/evidence/trigger; current
+truth documents agree; reviewed checkpoint/handoff is complete within authorization.
+Then mark Program 7 closed and identify Program 8 planning as the next eligible
+program. AI remains unavailable until its accepted Program 9 RT-2B admission work.
+
+### Stop rules and what Jason needs to supply
+
+Stop for manuscript loss/unintended replacement, wrong project, protection leak,
+unexpected AI/network use, a blocking crash/focus trap or a current hard-gate fail.
+Preserve evidence and repair the demonstrated cause; no speculative broad rebuild.
+
+No information or test round is needed from Jason to begin batch 1. Possible
+human actions are limited to the prepared successor Administrator lifecycle step,
+final concrete acceptance/dispositions, and final checkpoint/handoff authorization.
+Do not ask permission to continue ordinary already-authorized repair/verification.
+A technical or authority blocker is reported with its exact missing evidence or
+controlling rule. No calendar or token-use promise is made; completion is governed
+by these observable exit conditions.
+
+## October 8 accepted local-AI deferral and Program 9 checkpoint
+
+Jason asks whether no-AI Human Gate 4 leaves the intended product incomplete and
+requires AI deferrals to be explicit in this plan and the current fix tracker. Jason then selected: Review the saved advisory results now, then defer remaining AI qualification to Program 9. The coordinator and read-only worker completed the retained-output review; this decision schedules unfinished qualification, not AI admission or human quality scores.
+The useful manual workflow and local-AI admission are separate claims. The
+mandatory real pilot has executed; local AI is unadmitted. No-AI HG4 does not
+certify AI quality or silently close the full product vision.
+
+### Current evidence and newly reviewed output-quality findings
+
+The latest full real pilot belongs to clean candidate
+5a30bb106b5f26629bad6488d9cb603f28e22b3e, tree
+8babfdfc1749e69612adc1592bbaa33dd01e461b, not current a6073ff9. It records all
+24 rows, 22 mechanical successes and two Q06 status failures; the packet is
+not-qualified and author admission/scoring is pending. All accepted timing
+limits passed. Earlier timeouts retain their historical results. The accepted
+60-second service/warm-visible policy was a waiting-policy repair, not a speedup.
+
+The coordinator and read-only audit worker reviewed retained outputs on October 8
+without running the model. This extends the existing P7-RT-2B findings:
+
+| Scenario / saved variants | Review finding | Disposition |
+| --- | --- | --- |
+| Q06 cold and warm | Explanation correctly identifies withholding, while status says still_appears_present instead of the declared appears_resolved expectation | Existing mechanical Fail retained; literary resolution remains Jason's judgment, not automatic resolution |
+| Q02 cold and warm | Two quoted turns become one speech after added My father nodded, despite a claim that two speakers were preserved | New source-fidelity Fail precheck; Jason's quality scores remain pending |
+| Q04 warm | Rewrite reverses the visit relationship/direction and adds an unsupported explanatory action | New fact/relationship-fidelity Fail precheck; distinguish from the protected-content scan result |
+| Q07 cold | Hypothetical suggestion falsely says the supplied Prologue references a 1:15 AM broadcast | New unsupported-source-claim Fail precheck; inventing a possibility does not authorize inventing what the source says |
+
+These are saved-output review findings, not newly executed pilot rows. Preserve
+the original raw 22/2 mechanical counts, ledger identity and pending author scores;
+do not relabel old successes, invent scores or treat self-reported model fidelity
+as independent verification. No manuscript or Story Knowledge mutation was
+observed. Recorded protection scans found zero hits in their declared scope;
+DOM/accessibility snapshots, screenshots, browser history, crash dumps and
+process-wide temporary files were excluded from that historical scan and are not
+claimed qualified by it. Future admission needs the full required protection proof.
+
+Retained packet root:
+C:/Users/gray2/AppData/Local/Temp/black-skies-p7-human-gate-20261005-75a1efba6d2c4cb38db597ba39ba2570/closure-final-20261005/candidate-5a30bb10.
+local-ai-final.json SHA256
+e8e0448128e758a508dfefe82ce8a32cd2ae5253a7b428faed2613fdc45de2b5.
+Q02 responses are at lines 417/537; Q04 warm at 1017; Q06 explanations at
+1376/1496; Q07 cold at 1617. pilot-resources-final.json records the bounded host
+observations. The tracked c57be0ff qualification JSON is older evidence and does
+not supersede these outputs or qualify a6073ff9.
+
+### Explicit deferral record
+
+| Field | Accepted disposition / scheduling |
+| --- | --- |
+| Item | P7-RT-2B: admission of bounded local rewrite, advisory revision recheck and premise alternatives |
+| Current state | Mandatory pilot execution completed; local-ai-unavailable under Jason's earlier accepted scope; new quality findings documented; no admission or complete AI product claim |
+| Reason | Q06 status mismatch and newly reviewed source-fidelity concerns; repeated unchanged prompt/model loops have no justified repair hypothesis. Safe manual work remains independently useful |
+| Owner | Program 7/post-V1 coordinator; Jason owns usefulness, voice, wait tolerance and admission review |
+| One exact resolution stage | RT-2B rerun before future AI admission |
+| Accepted scheduled review point | Program 9 — Heavy Intelligence, Durability, And Operationalization, model qualification and replacement evidence work, before Human Gate 5. Review at Program 9 planning entry even if no earlier technical trigger occurs |
+| Earlier reopening trigger | Jason requests renewed admission, or approves prompt/model/host/transport/admission-policy change; a protection/authority regression stops the affected route immediately |
+| Required evidence | New exact-candidate full 24-row pilot, saved/revised corpus hashes, model tag/digest and host, fixed expected outcomes, cancellation/fault/unavailable/stale controls, complete truth/protection proof, latency/resources, integrated UI/preloads/installed route, and Jason's quality review |
+| Closure consequence | No-AI HG4 may proceed after its own repairs/evidence and explicit author dispositions. AI remains unavailable; these findings cannot be called closed-as-passed |
+| Decision status | Jason accepted saved-output review now and remaining AI qualification in Program 9 on October 8. Existing unavailable disposition retained. No new model, provider, runtime change or Program 9 implementation is authorized before its bounded package |
+
+Program 8 owns Binder/search/cards/memory/interchange. It is not a prerequisite
+for qualifying the existing three bounded AI tasks. Its later owner/package
+changes may require fresh source/protection tests. Program 9 already owns model
+qualification/replacement, task-specific local/paid alternatives, performance and
+hardware claims. This is the justified home for broader AI work, rather than an
+unnamed V2 milestone. The private V1.0 engineering foundation is already closed;
+the present nine-program sequence is post-V1. Program 9/HG5 qualification must
+feed Human Gate 6 final installed-product review. No AI capability can be claimed
+in that final product without evidence for the route actually admitted.
+
+### Re-entry test and review plan
+
+1. At the named review point, read the saved Q02/Q04/Q06/Q07 outputs and record
+   Jason's row-specific limitation/repair decisions. His willingness to wait
+   longer does not supply source-fidelity or voice scores. Preserve all prior rows.
+2. Establish a concrete repair hypothesis and bounded package before changing
+   prompt, model, host or transport. Model replacement/provider routing belongs
+   to separately authorized Program 9 scope. Do not parse explanatory prose to
+   override a contradictory advisory status or automatically resolve author work.
+3. Extend existing qualifier/service/IPC tests for the demonstrated gaps. Fixed
+   source checks must catch dialogue attribution, visit relationships and false
+   source claims where objectively testable; subjective voice/usefulness remain
+   human review. Verify the evaluator catches the saved bad examples before using
+   it to qualify new output. Do not build a new test framework or judge quality
+   solely from a valid response schema, candidate status or the model's own reason.
+4. A small approved diagnostic can test a repair hypothesis, but cannot admit AI.
+   Full admission repeats Q01-Q09 and Q11 cold/warm, Q10 malformed-JSON/schema
+   fault variants, and Q12 pre-dispatch refusal/mid-request loss: exactly 24
+   separately receipted rows. Q09 refuses before transport; Q04/Q09-Q12 safety
+   cases cannot be replaced by mock model-quality claims.
+5. Reuse the existing qualification protocol: immutable exact candidate and
+   artifact hashes, real approved loopback route, no silent fallback/retry,
+   measured accepted wait/resource bounds, zero protection/truth/authority
+   violations, and manual parity. Jason scores Q01/Q02/Q03/Q05/Q06/Q07/Q08 on
+   usefulness, source fidelity, fact preservation, voice, actionability and
+   uncertainty restraint; each dimension at least 4/5 and mean at least 4.0.
+   Any proposed rubric change is explicit policy work, not an adjusted answer key.
+6. Only a fully passing exact-candidate packet plus Jason's required review permits
+   a reviewed admission-policy change. Until then ordinary launches and both
+   preload paths continue to withhold local-AI capabilities. Validate the admitted
+   route in the installed app and carry it into HG5/HG6 as applicable.
+
+## October 8 checklist audit and remaining closeout sequence
+
+The installed a6073ff9 H1-H10 actions and suppression/reopen prechecks are complete
+through Playwright. Native helper initialization failed before desktop access.
+The final review identified P7-HISTORY-CURRENTNESS-01 (unrelated mutation can revert
+a stale History source label) and residual P7-HUMAN-PACKET-CLARITY-01 terminal
+wording. No new manuscript-authority or persistence failure was observed.
+
+Continue within the existing plan: coordinator repairs those two bounded seams
+at the recorded P7-G2 Batch 4 stages; qualify/freeze the changed candidate;
+reconcile existing evidence ledger/sample; present explicit historical-uncertainty
+dispositions for Jason's formal HG4 decision; reconcile family closure/defer rows
+and the final reviewed Program 7 checkpoint. Preserve completed human reports;
+request no general repeat testing or repeated a6073ff9 installer proof merely for
+record updates. A changed executable requires its own qualification.
+
+Detailed evidence, owners, exact stages, reopening triggers and remaining tasks
+are in [the existing closure report](program_7_closure_report.md), leading October 8
+exact-checklist section. The accepted local-AI-unavailable disposition remains;
+RT-2B reruns only before future admission under its existing trigger. Final signoff
+is conditional on the new History repair and evidence reconciliation, not declared.
+
+## October 8 Human Gate 4 review clarification
+
+Jason reports trying many additional tests after the selected-passage/reopen
+retry, with good results, and considers the candidate acceptable if the agent
+checks also passed. This is additional human acceptance evidence for the no-AI
+workflow. Do not replace this report with invented item-by-item H7-H10 receipts
+or request another general test round solely because the report is summarized.
+
+The coordinator has run the required automated suites, targeted native workflow
+reviews and current installed/package qualification. The coordinator has not
+manually repeated every human checklist instruction identically. The latest
+candidate is a6073ff9304240c3f9fae0826deab9d6e734d2ab: clean Stage 19 passed
+842 critical tests (2 existing skips), 36 Electron journeys and startup; all
+9 applicable dedicated Program 7 journeys passed (1 intentional real-model
+opt-in skip). Current installed/offline lifecycle and independent preservation
+witness passed. The earlier full-app run (1557 passes, 2 existing skips) belongs
+to the preceding repair candidate; the subsequent History-only patch has its
+own 12 affected test passes and integrated restart/theme evidence. Do not label
+that historical full-app run as a new full-suite run on a6073ff9.
+
+Human Gate 4 is the author's no-AI workflow acceptance decision; it is distinct
+from Program 7 family closure or local-model admission. Protocol sections 3 and
+13 require author review and disposition of failures/uncertainties. The current
+passed requirements are not invalidated by an unexplained historical cause, but
+that old uncertainty cannot silently become Pass. The remaining coordinator
+closeout audit must reconcile P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01,
+P7-STORY-SUPPRESS-01 and historical P7-PACKAGED-NATIVE-ACCESS-01 with their current
+successful checks, retained failed artifacts, exact owner/stage and reopening
+triggers. Jason's successful normal launch/reopen/timestamp confirmation covers
+the current visible workflow; it does not identify every historical cause.
+
+No formal HG4 pass is declared by the agent from this general report, and no
+new test, installer run, native tour, AI run, code edit or scope expansion is
+requested. Next stage: coordinator-owned P7-G2 Batch 4 final issue/evidence
+reconciliation before the formal HG4 disposition and separate Program 7 closure.
+The accepted local-AI-unavailable scope remains unchanged.
+
+## October 8 installed qualification and timestamp confirmation — a6073ff9
+
+Jason confirms the timestamps are present and usable in the updated History
+build. P7-HUMAN-PACKET-CLARITY-01 timestamp delivery now has current-candidate
+human confirmation as well as the mechanical evidence below. His earlier saved
+manuscript/reopen confirmation remains recorded; no passed test is repeated.
+The earlier two same-purpose alternatives remain distinct author records.
+
+The supplied Administrator transcript reports STAGE19_INSTALLED_LIFECYCLE_PASS
+for a6073ff9304240c3f9fae0826deab9d6e734d2ab. Local lifecycle evidence and updated
+package receipt were checked. The existing independent Stage 19.22 witness also
+passed against the same installer, reinstalled executable and ASAR; all 197
+external files match the preservation manifest exactly. Qualification mode is
+offline-firewall-isolated, not the application-only bypass.
+
+| Requirement | Result / retained evidence |
+| --- | --- |
+| Current-candidate Administrator lifecycle | PASS; offline installed operation, packaged/sandboxed supported windows, exact Markdown, Story Knowledge read/reopen, 100-unit representative export, zero forbidden runtimes and owned teardown survivors, uninstall and same-installer reinstall. %TEMP%/bs-p7-a6073ff9-package-77b92d6e/installed-admin-203124a8.log |
+| Lifecycle candidate binding | PASS; %TEMP%/bs-p7-a6073ff9-life-ae51666e/stage19-22-lifecycle-evidence.json and current package-receipt.json |
+| Independent installed identity/preservation | PASS; installer SHA256 bf04f9da5f0436f2e74fa78fd838eb31dfa83efea51740f7eaf3813f6a420d2a; installed executable and ASAR match the verified package (ASAR 75f754ab4b4f1441b01e41cd6eab968a368af2d2490cf613936f2e92a82a6db3). All 197 external files unchanged. installed-witness-verified.json and installed-witness.log in the lifecycle root |
+| Timestamp human confirmation | PASS reported by Jason on the updated build. Created and Last changed appear; no repeat Apply or manuscript alteration requested |
+
+The witness's Windows PowerShell signature probe emitted a module-loading error;
+its existing PowerShell fallback completed successfully and recorded NotSigned.
+Raw warnings are retained. The coordinator's initial JSON export included those
+warnings and could not be parsed; that malformed installed-witness.json is
+retained as a diagnostic only. installed-witness-verified.json was parsed from
+the successful witness's JSON block and checked for the exact candidate, passed
+status and signature truth. No product repair, weakened assertion or repeated
+installed run was needed for this host/log-extraction issue.
+
+The prior heading's request to run the Administrator wrapper is now historical:
+**do not rerun that completed qualification. Administrator PowerShell may be
+closed.** The installed executable is at:
+
+    C:\Users\gray2\AppData\Local\Temp\bs-p7-a6073ff9-life-ae51666e\installed\Black Skies.exe
+
+Current-candidate mechanical/package qualification is complete. Existing clean
+Stage 19 and Program 7 checks retain their exact identity; no source/test edits
+were made after a6073ff9. Only the three campaign record files remain dirty.
+No push, release, local-AI admission, new feature scope or formal HG4 pass is
+inferred. Historical native unknown causes and their resolution stages/triggers
+remain recorded; a successful current run does not establish their old cause.
+
+For final human acceptance scope, Jason has been asked whether his report that
+the tests were finished also includes stale-source refusal, full Apply and
+reject/set-aside/stop, duplicate Work on this, and Story Foundation/Ideas. This
+is clarification of completed work, not another test request. Until clarified,
+keep unreported H7+ rows unassigned rather than marking them passed or demanding
+repeats. Formal Human Gate 4 and final Program 7 closure remain separate decisions.
+
+Owner: coordinator. Exact resolution stage for current package qualification:
+P7-G2 current-candidate installed lifecycle plus independent witness before HG4,
+now completed. Reopen for receipt/installer/executable/ASAR mismatch, changed
+external files, loss on uninstall/reinstall, unexpected runtime/network behavior
+or a new installed workflow failure. The timestamp issue retains its existing
+reopening triggers; passed delivery does not erase historical evidence.
+
+## October 8 updated History build delivered — a6073ff9
+
+The missing dates were a version mismatch: Jason reopened the existing 35ed2860
+executable, which preceded the timestamp patch. The new review package contains
+Created and Last changed, including seconds and the local time zone, on revision
+alternative History cards. It uses existing stored dates; no author records,
+project data, schema or source-selection rules changed. Jason reports the tests
+looked good after another close/reopen. His completed H6 range/persistence checks
+remain confirmed for 35ed2860 and do not need repeating. This does not assign
+unreported H7+ outcomes or infer formal Human Gate 4 acceptance.
+
+Candidate: a6073ff9304240c3f9fae0826deab9d6e734d2ab, tree
+ d14d2ac9808fda21613aba75fe6192e92877baf5, branch codex/program7-implementation.
+The six intended repair/evidence files were committed locally; no push/release.
+All following executable qualification ran with a clean tree. This final record
+update leaves only the three existing campaign documents dirty; executable and
+qualification source still match the qualified commit. Earlier reports below
+retain their own identity and are historical, including pending-patch wording.
+
+| Evidence | Current result and retained location |
+| --- | --- |
+| Clean Stage 19 | PASS: lint, full TypeScript, production build, 49 critical suites (842 passed, 2 existing skips), startup preflight, all 36 Electron journeys. %TEMP%/bs-p7-history-qualified-8cb43b35/stage19.log |
+| Dedicated Program 7 | PASS: 9 journeys; 1 intentional real-local-AI opt-in skip. Revision, disabled-AI, Create / Develop, Carmilla long form, accessibility and 17/34/68/136-unit scale. %TEMP%/bs-p7-a6073ff9-final-b83c4d91/journeys.log |
+| History restart and appearance | Fresh process checks exact persisted manuscript, Partly applied status and both stored timestamp attributes; dark/light timestamps visible. Both history-times screenshots in the retained journey artifacts inspected. No new native tour claimed |
+| Package | Preflight, unpacked and NSIS installer verification passed. %TEMP%/bs-p7-a6073ff9-package-77b92d6e/package-receipt.json; unsigned internal RC, not published |
+| Bundle identity | 246 packaged compiled files exactly match the tested output; timestamp renderer present. compiled-content-check.json in the package root. Two supplemental diagnostic attempts mishandled Windows ASAR paths and are recorded there; these were checking-tool errors, not app failures |
+| Unpacked packaged smoke | PASS: packaged/sandboxed window topology, five normal-GPU cold starts, exact Markdown and 100-unit export, Story Knowledge read/reopen, no forbidden runtime or surviving owned processes. %TEMP%/bs-p7-a6073ff9-final-b83c4d91/unpacked-smoke.json. This is not Administrator installed/offline lifecycle evidence |
+
+Installer SHA256: bf04f9da5f0436f2e74fa78fd838eb31dfa83efea51740f7eaf3813f6a420d2a.
+ASAR SHA256: 75f754ab4b4f1441b01e41cd6eab968a368af2d2490cf613936f2e92a82a6db3.
+No repeat of the earlier full-app suite was added for this presentation-only
+patch; affected History/projection/accessibility tests passed 12/12 before the
+freeze, and required Stage 19 overlap plus dedicated integration passed above.
+
+### Current launch and remaining human boundary
+
+Close the old visible Black Skies window after saving. In ordinary PowerShell,
+run this command (copy only the command, not Markdown fence lines):
+
+    & "$env:TEMP\bs-p7-a6073ff9-review-4826c819\open-review.ps1"
+
+The launcher checks the ASAR hash and requests a new normal-GPU, no-AI process
+profile each time. It is a launch request, not proof of a visible usable window.
+Use Open project with the actual successful H6 project:
+
+    C:\Users\gray2\AppData\Local\Temp\bs-p7-human-inspection-3d800ca9\carmilla-review
+
+Go to Command Center -> Create / Develop -> History. The earlier same-purpose
+alternative was created October 8 at 2:15:09 PM EDT and last changed 2:20:49 PM;
+the retry was created 4:22:24 PM and last changed 4:28:55 PM. Both remain separate
+historical records. Do not apply them again. Seeing these dates is an optional
+presentation confirmation, not another manuscript test. The prepared launcher
+and receipt were syntax/identity checked; they have not been executed natively
+against Jason's live project. His project and any running app remain unchanged.
+
+The next required OS boundary is current-candidate Administrator installed/offline
+lifecycle qualification with its independent witness. The ordinary agent shell
+cannot supply that elevated witness. Save and close Black Skies, open PowerShell
+as Administrator, then run the prepared current-package wrapper:
+
+    & "$env:TEMP\bs-p7-a6073ff9-package-77b92d6e\run-installed-current.ps1"
+
+The wrapper uses a fresh short working root on every run, preserves earlier
+attempts, validates candidate/source/receipt, retains a transcript, and invokes
+the existing lifecycle without bypassing firewall isolation. Its syntax passed;
+it was not executed by the coordinator. Older installed proof does not substitute
+for this candidate. Report the transcript/result rather than rerunning a failure.
+Formal HG4, unreported remaining human rows, historical unknown-cause disposition
+and Program 7 closure remain separate. The accepted local-AI disposition retains
+its original scope; this patch does not admit a model.
+
+P7-HUMAN-PACKET-CLARITY-01 History timestamp repair is mechanically integrated.
+Owner: coordinator. Exact resolution stage remains P7-G2 Batch 4 History
+presentation repair/integration before Human Gate 4. Reopen for indistinguishable
+same-title alternatives, fabricated/missing/unreadable dates, changed author
+records or fresh duplicate-save evidence. No historical native uncertainty is
+converted into a pass by this package. All prior failed fixtures are preserved.
+
 ## October 8 timestamp delivery — updated candidate qualification in progress
 
 Jason closed/reopened again, confirmed History persistence and reports the tests

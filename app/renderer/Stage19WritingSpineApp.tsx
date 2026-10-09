@@ -3641,7 +3641,10 @@ export default function Stage19WritingSpineApp({
       }
       setProgram7Candidates(result.data);
       setProgram7SelectedCandidate(result.data.document.candidates.find((value) => value.id === candidate.id) ?? null);
-      setProgram7Notice(`Revision alternative ${lifecycle}. Your manuscript has not changed.`);
+      const decisionLabel = lifecycle === 'parked' ? 'set aside'
+        : lifecycle === 'rejected' ? 'not used'
+          : lifecycle === 'abandoned' ? 'stopped' : lifecycle;
+      setProgram7Notice(`Revision alternative ${decisionLabel}. Your manuscript has not changed.`);
     } catch {
       if (bindingMatchesSnapshot(binding, snapshotRef.current)) {
         setProgram7Notice('The revision alternative change could not be saved.');

@@ -237,6 +237,67 @@ test('A changed saved passage blocks the earlier alternative without another man
   expect(afterDecision.candidates).toHaveLength(1);
   expect(afterDecision).toEqual(savedAlternatives);
   expect(await readFile(draftPath, 'utf8')).toBe(changed);
+  const staleId = savedAlternatives.candidates[0].id;
+  const staleCardId = `program7-history-item-revision-candidate:${staleId}`;
+  const terminalRecords: { id: string; label: string; lifecycle: string }[] = [];
+  for (const [action, label, lifecycle] of [
+    ['Set this alternative aside', 'Set aside', 'parked'],
+    ['Do not use this alternative', 'Not used', 'rejected'],
+    ['Stop working on this alternative', 'Stopped', 'abandoned'],
+  ]) {
+    await showWritingInWriting(writing);
+    await editor.click();
+    await showCommandInWriting(writing);
+    await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+    await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+    await writing.locator('#program7-candidate-purpose').fill(`Current B — ${label}`);
+    await writing.locator('#program7-candidate-text').fill('A current alternative that will not change the manuscript.');
+    await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
+    await writing.getByRole('button', { name: 'History', exact: true }).click();
+    await expect(writing.getByTestId(staleCardId)).toContainText('Original has changed');
+    await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+    await writing.getByTestId('revision-comparison').getByRole('button', { name: 'Edit alternative', exact: true }).click();
+    const drawer = writing.getByTestId('writing-revision-drawer');
+    await drawer.getByRole('textbox', { name: 'Revision alternative text' }).fill('Edited current B; manuscript untouched.');
+    await drawer.getByRole('button', { name: 'Save revision alternative', exact: true }).click();
+    await drawer.getByRole('button', { name: 'Close drawer', exact: true }).click();
+    await showCommandInWriting(writing);
+    await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+    await writing.getByRole('button', { name: 'History', exact: true }).click();
+    await expect(writing.getByTestId(staleCardId)).toContainText('Original has changed');
+    await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+    await writing.getByTestId('revision-comparison').filter({ has: writing.getByText(`Current B — ${label}`, { exact: true }) })
+      .getByRole('button', { name: action, exact: true }).click();
+    await expect(writing.getByText(`Revision alternative ${label.toLowerCase()}. Your manuscript has not changed.`, { exact: true })).toBeVisible();
+    const records = JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8')).candidates;
+    const record = records.find((candidate: { purpose: string }) => candidate.purpose === `Current B — ${label}`);
+    expect(record.lifecycle).toBe(lifecycle);
+    terminalRecords.push({ id: record.id, label, lifecycle });
+    await writing.getByRole('button', { name: 'History', exact: true }).click();
+    await expect(writing.getByTestId(staleCardId)).toContainText('Original has changed');
+    await expect(writing.getByTestId(`program7-history-item-revision-candidate:${record.id}`)).toContainText(label);
+    expect(await readFile(draftPath, 'utf8')).toBe(changed);
+  }
+  await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+  const unchangedStale = writing.getByTestId('revision-comparison').filter({ has: writing.getByText('Review the current opening.', { exact: true }) });
+  await expect(unchangedStale.getByRole('button', { name: 'Apply all of this alternative', exact: true })).toBeDisabled();
+  await expect(unchangedStale.getByRole('button', { name: 'Apply only the selected part', exact: true })).toBeDisabled();
+  const durableAlternatives = await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8');
+  const restarted = await restartElectronApp(electronApp);
+  const { writing: reopened } = await getProgram7Windows(restarted, await restarted.firstWindow());
+  await openProgram7Project(reopened, projectPath);
+  await showCommandInWriting(reopened);
+  await reopened.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await reopened.getByRole('button', { name: 'History', exact: true }).click();
+  await expect(reopened.getByTestId(staleCardId)).toContainText('Original has changed');
+  for (const record of terminalRecords) {
+    const card = reopened.getByTestId(`program7-history-item-revision-candidate:${record.id}`);
+    await expect(card).toContainText(record.label);
+    await expect(card.locator('time')).toHaveCount(2);
+    await expect(card.getByRole('button', { name: /Apply/ })).toHaveCount(0);
+  }
+  expect(await readFile(draftPath, 'utf8')).toBe(changed);
+  expect(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8')).toBe(durableAlternatives);
 });
 
 

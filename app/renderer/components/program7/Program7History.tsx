@@ -38,7 +38,10 @@ function lifecycleLabel(item: Program7HistoryItemV1): string {
     if (item.lifecycle === 'generated') return 'Draft';
     if (item.lifecycle === 'partially accepted') return 'Partly applied';
     if (item.lifecycle === 'accepted') return 'Applied';
+    if (item.lifecycle === 'rejected') return 'Not used';
+    if (item.lifecycle === 'abandoned') return 'Stopped';
   }
+  if (item.lifecycle === 'parked') return 'Set aside';
   return titleCase(item.lifecycle);
 }
 

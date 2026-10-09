@@ -1,5 +1,77 @@
 # Black Skies Current Open Work Register
 
+## October 9 closure execution — History repair complete, qualification pending
+
+Execution uses the continuing program7-today checkout, starting at
+a6073ff9304240c3f9fae0826deab9d6e734d2ab with its four intentional documentation
+changes. Proof root: C:/Users/gray2/AppData/Local/Temp/bs-p7-close-d3ba5ba5.
+
+P7-HISTORY-CURRENTNESS-01: successful manual/synthetic-local creation, edit and
+lifecycle IPC replies now derive current/stale/unavailable source status using
+the existing saved-source helper. Storage, schemas and manuscript writes are
+unchanged. Four pre-repair regression failures prove the original reply defect;
+the repaired focused IPC matrix includes an unavailable source and preserves
+the raw repository reply and manuscript bytes.
+
+P7-HUMAN-PACKET-CLARITY-01: History and decision notices now display Not used,
+Set aside and Stopped while retaining rejected/parked/abandoned storage values.
+Applied/Partly applied and recorded timestamps remain intact. Three pre-repair
+component failures prove the wording mismatch.
+
+Evidence: history-before-tests.log exited 1 with seven expected failures and
+17 passes; history-focused.log exited 0 with five suites/193 passes.
+repair-build.log exited 0. history-electron-corrected.log exited 0, one extended
+existing stale-source journey: unrelated create/edit/three terminal decisions,
+same-session stale History, disabled Apply, terminal timestamps and exact
+manuscript/alternative bytes preserved after fresh-process reopening.
+history-electron.log retains a test-only ambiguous locator failure; the locator
+was scoped by the intended alternative purpose, with no product workaround.
+The initial history-before.log is a runner invocation error, not test evidence.
+
+The two repair stages have passed focused verification; successor qualification,
+package identity, installed/offline proof and formal human decisions remain
+pending. Earlier receipts retain their original candidate identity. Historical
+uncertain causes remain Uncertain. Accepted AI-unavailable disposition and
+RT-2B / Program 9 re-entry requirements remain unchanged. No AI execution,
+dependency change, new repository ledger or push occurred.
+
+## October 9 Program 7 closeout index
+
+Current runtime candidate is a6073ff9; Program 7 remains open. The leading
+[implementation plan](program_7_creation_revision_and_readiness_implementation_plan.md)
+contains the detailed five-batch closure path. Next execution is the two History
+repairs, followed by one successor qualification/package, current evidence/sample,
+family/uncertainty dispositions and final human/checkpoint decisions. This planning
+pass changed documentation only; it did not complete repairs or qualification.
+
+AI admission remains deferred under the accepted Program 9 RT-2B schedule below.
+Final repository handoff is not automatic: existing closure conditions require a
+reviewed checkpoint/push, while prior campaign scope excludes push and origin
+points to the older local implementation repo. Resolve that concrete handoff
+before execution; do not infer Program 8/9 implementation or public release.
+
+## October 8 current AI disposition index — P7-RT-2B
+
+The original Wave 5 pilot-execution obligation has been fulfilled. Local AI is
+unadmitted under Jason's accepted unavailable scope; the latest full 5a30bb10
+pilot and October 8 saved-output fidelity findings remain open, not current AI
+passes. Older host-feasibility-only and Wave 5 entries below are historical for
+this item. Current candidate a6073ff9 is qualified only for its recorded no-AI scope.
+
+Owner: coordinator; exact resolution stage **RT-2B rerun before future AI
+admission**. Reopen on approved prompt/model/host/transport/admission-policy change
+or renewed author admission work. Required evidence remains a complete exact-
+candidate 24-row matrix, full truth/protection/resource proof and Jason quality
+review. Accepted scheduling: Program 9 model qualification/replacement before HG5,
+with review at Program 9 planning entry. Jason selected saved-output review now and remaining AI qualification in Program 9 on October 8; the coordinator read-only review is complete. Future quality/admission decisions remain pending. No
+Program 9 implementation or new model/provider is authorized by this index.
+
+Details and retained evidence are in the leading October 8 AI sections of the
+[existing implementation plan](program_7_creation_revision_and_readiness_implementation_plan.md)
+and [current fix tracker](../BLACK_SKIES_FIX_TRACKER.md). Those records identify
+Q02/Q04/Q06/Q07 findings, exact evidence and the future test/review plan. No new
+ledger or indefinite unnamed deferral is introduced.
+
 ## 1. Status And Purpose
 
 - Status: `CURRENT`
@@ -247,7 +319,7 @@ running process referenced it, and commit 929a0c3f remained readable. The
 recovery artifact remained unchanged at SHA-256
 A38DADD41E07D00247B2B2A94FC9CA50F3B9EB7D17247D87268E10ED23478044 and stable
 patch ID ecb56ad4cad2b8956560fc6df3faa530e9bb884c; it contains only the
-additions app/main/__tests__/sessionTruth.test.ts and
+additions `app/main/__tests__/sessionTruth.test.ts` and
 app/shared/sessionTruth.ts. The supplemental artifact remained
 2143CCE00B31A7DD8FF7F44C71C8902D80234ABBFF60504BE02F431B10225937; the
 ledger hash before this authorized documentation update was

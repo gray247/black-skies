@@ -372,6 +372,41 @@ describe('revision candidate IPC authority', () => {
     expect(localInferenceService.cancel).toHaveBeenCalledWith('inference-1');
   });
 
+  it.each(['createManual', 'createLocalAi', 'edit', 'setLifecycle'] as const)(
+    '%s preserves derived stale, current and unavailable source status in the entire mutation reply',
+    async (operation) => {
+      const raw = {
+        ...ready,
+        document: {
+          ...ready.document,
+          candidates: [
+            { id: 'stale-a', unitId: 'unit-a', sourceBodySha256: 'f'.repeat(64), currentness: 'current' },
+            { id: 'current-b', unitId: 'unit-a', sourceBodySha256: manual.sourceSnapshot.bodySha256, currentness: 'current' },
+            { id: 'missing-c', unitId: 'missing-unit', sourceBodySha256: 'e'.repeat(64), currentness: 'current' },
+          ],
+        },
+      };
+      repository.read.mockResolvedValue(raw);
+      const method = operation === 'createLocalAi' ? 'createFromLocalAi' : operation;
+      repository[method].mockResolvedValue(raw);
+      const request = operation === 'createManual' ? manual
+        : operation === 'createLocalAi' ? { ...binding, expectedRevision: 0, inference }
+          : operation === 'edit' ? { ...binding, expectedRevision: 0, candidateId: 'current-b', editedCandidateText: 'Edited B.' }
+            : { ...binding, expectedRevision: 0, candidateId: 'current-b', lifecycle: 'parked' };
+      const draftsBefore = { ...snapshot.project.drafts };
+      const result = await invoke(REVISION_CANDIDATE_CHANNELS[operation], 1, request);
+      expect(result).toMatchObject({
+        ok: true,
+        data: { document: { projectId: 'project-a', candidates: [
+          { id: 'stale-a', currentness: 'stale' },
+          { id: 'current-b', currentness: 'current' },
+          { id: 'missing-c', currentness: 'unavailable' },
+        ] } },
+      });
+      expect(snapshot.project.drafts).toEqual(draftsBefore);
+      expect(raw.document.candidates.map((candidate) => candidate.currentness)).toEqual(['current', 'current', 'current']);
+    },
+  );
   it('maps stale and unavailable repository failures visibly', async () => {
     repository.read.mockResolvedValueOnce({
       ...ready,

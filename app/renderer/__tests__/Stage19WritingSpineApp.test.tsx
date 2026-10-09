@@ -970,7 +970,7 @@ describe('Stage19WritingSpineApp', () => {
     confirm.mockRestore();
   });
 
-  it.each(['saved', 'failed', 'project changed', 'drawer open', 'applying', 'apply project changed', 'refresh failed', 'refresh refused'] as const)('guards a pending alternative decision when %s', async (outcome) => {
+  it.each(['saved', 'not used', 'stopped', 'failed', 'project changed', 'drawer open', 'applying', 'apply project changed', 'refresh failed', 'refresh refused'] as const)('guards a pending alternative decision when %s', async (outcome) => {
     const writing = createBridge(snapshot('writing'));
     const surfaces = createSurfaceBridge(snapshot('command'));
     const candidate: RevisionCandidateV1 = {
@@ -1013,7 +1013,7 @@ describe('Stage19WritingSpineApp', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
     }
     if (applying) fireEvent.click(screen.getByRole('checkbox', { name: /I intend to replace this entire section/ }));
-    fireEvent.click(await screen.findByRole('button', { name: applying ? 'Apply all of this alternative' : 'Set this alternative aside' }));
+    fireEvent.click(await screen.findByRole('button', { name: applying ? 'Apply all of this alternative' : outcome === 'not used' ? 'Do not use this alternative' : outcome === 'stopped' ? 'Stop working on this alternative' : 'Set this alternative aside' }));
     if (outcome === 'drawer open') {
       fireEvent.click(screen.getByRole('button', { name: 'Return to Writing Studio' }));
       const editor = await screen.findByRole('textbox', { name: 'Revision alternative text' });
@@ -1083,7 +1083,7 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => resolveDecision(outcome === 'failed'
       ? { ok: false, error: { code: 'CANDIDATE_WRITE_FAILED', message: 'Disk unavailable.' } }
       : { ok: true, data: { ...data, document: { ...data.document, revision: 2,
-        candidates: [{ ...candidate, lifecycle: 'parked', updatedAt: '2026-10-02T00:01:00.000Z' }],
+        candidates: [{ ...candidate, lifecycle: outcome === 'not used' ? 'rejected' : outcome === 'stopped' ? 'abandoned' : 'parked', updatedAt: '2026-10-02T00:01:00.000Z' }],
       } } }));
     if (outcome === 'failed') {
       expect(screen.getByText('Disk unavailable.')).toBeVisible();
@@ -1093,7 +1093,8 @@ describe('Stage19WritingSpineApp', () => {
       expect(screen.queryByTestId('revision-comparison')).not.toBeInTheDocument();
       expect(writing.current.project?.projectId).toBe('proj_b');
     } else {
-      expect(screen.getByTestId('revision-comparison-origin')).toHaveTextContent('Set aside');
+      expect(screen.getByTestId('revision-comparison-origin')).toHaveTextContent(outcome === 'not used' ? 'Not used' : outcome === 'stopped' ? 'Stopped' : 'Set aside');
+      expect(screen.getByText(`Revision alternative ${outcome === 'not used' ? 'not used' : outcome === 'stopped' ? 'stopped' : 'set aside'}. Your manuscript has not changed.`)).toBeVisible();
       expect(screen.queryByRole('button', { name: 'Edit alternative' })).not.toBeInTheDocument();
     }
     expect(writing.bridge.saveUnit).not.toHaveBeenCalled();

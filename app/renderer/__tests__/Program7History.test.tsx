@@ -17,6 +17,20 @@ function projection(overrides: Partial<Program7HistoryProjectionV1> = {}): Progr
 }
 
 describe('Program7History component', () => {
+  it.each([
+    ['rejected', 'Not used'],
+    ['parked', 'Set aside'],
+    ['abandoned', 'Stopped'],
+  ])('shows the author decision for %s without exposing storage terminology', (lifecycle, label) => {
+    const record = item({ ownerKind: 'revision-candidate', lifecycle, bucket: 'history', recurrenceReference: null });
+    render(<Program7History projection={projection({ items: [record], activeItems: [], historyItems: [record] })} />);
+    const card = screen.getByTestId('program7-history-item-feedback-note:feedback-a');
+    expect(card).toHaveTextContent(label);
+    expect(card).not.toHaveTextContent(new RegExp(lifecycle, 'i'));
+    expect(card).toHaveTextContent('Not applied');
+    expect(card.querySelectorAll('time')).toHaveLength(2);
+    expect(within(card).queryByRole('button', { name: /Apply/ })).not.toBeInTheDocument();
+  });
   it('labels a saved but unapplied alternative in writer language', () => {
     const draft = item({ reference: 'revision-candidate:candidate-b', ownerKind: 'revision-candidate', ownerId: 'candidate-b', lifecycle: 'generated', acceptance: 'none' });
     render(<Program7History projection={projection({ items: [draft], activeItems: [draft], historyItems: [] })} />);
