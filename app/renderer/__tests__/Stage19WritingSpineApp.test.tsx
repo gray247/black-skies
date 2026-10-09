@@ -1816,6 +1816,55 @@ describe('Stage19WritingSpineApp', () => {
     expect(storyIntelligence.write).not.toHaveBeenCalled();
   });
 
+
+  it('replaces pending detached source feedback with completion, dismissal, and a truthful failed retry', async () => {
+    const current = snapshot('command', { activeUnitId: 'unit_b' });
+    const command = createBridge(current);
+    const surfaces = createSurfaceBridge(current, { initialPlacement: 'secondary-window', windowRole: 'secondary' });
+    const storyIntelligence = createStoryIntelligenceBridge();
+    const select = vi.mocked(command.bridge.selectUnit).getMockImplementation()!;
+    let finish!: () => void;
+    vi.mocked(command.bridge.selectUnit).mockImplementationOnce(async (request) => {
+      await new Promise<void>((resolve) => { finish = resolve; });
+      return select(request);
+    });
+    const user = userEvent.setup();
+    render(<Stage19WritingSpineApp windowRole="command" bridge={command.bridge}
+      surfaceBridge={surfaces.bridge} storyIntelligenceBridge={storyIntelligence} />);
+    await screen.findByRole('region', { name: 'Command Center' });
+    await user.click(screen.getByRole('button', { name: 'Story Knowledge' }));
+    await user.click(screen.getByRole('button', { name: 'Emotion' }));
+    const point = await screen.findByRole('button', { name: /planned: guarded hope/i });
+    await user.click(point);
+    expect(await screen.findByText('Opening the linked manuscript section. Your manuscript will not change.')).toHaveAttribute('role', 'status');
+    expect(screen.queryByText(/Source return requested/)).not.toBeInTheDocument();
+    await act(async () => { finish(); });
+    const completed = await screen.findByText('Opened the manuscript section linked to this concern. This concern refers to the section as a whole.');
+    expect(completed).toHaveAttribute('role', 'status');
+    expect(screen.queryByText('Opening the linked manuscript section. Your manuscript will not change.')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Dismiss message' }));
+    expect(screen.queryByText(completed.textContent!)).not.toBeInTheDocument();
+    vi.mocked(command.bridge.selectUnit).mockRejectedValueOnce(new Error('Delayed IPC failure'));
+    await user.click(point);
+    expect(await screen.findByText('The manuscript unit could not be selected. Your current work was preserved; try again.')).toHaveAttribute('role', 'alert');
+    expect(screen.queryByText(completed.textContent!)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Source return requested|Opening the linked/)).not.toBeInTheDocument();
+    vi.mocked(command.bridge.selectUnit).mockResolvedValueOnce({
+      ok: false, error: { code: 'UNIT_NOT_FOUND', message: 'The linked section is unavailable. Your manuscript has not changed.' }, snapshot: current,
+    });
+    await user.click(point);
+    expect(await screen.findByText('The linked section is unavailable. Your manuscript has not changed.')).toHaveAttribute('role', 'alert');
+    expect(screen.queryByText(completed.textContent!)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Dismiss message' }));
+    expect(screen.queryByText('The linked section is unavailable. Your manuscript has not changed.')).not.toBeInTheDocument();
+    await user.click(point);
+    await screen.findByText(completed.textContent!);
+    await user.click(screen.getByRole('button', { name: 'Create / Develop' }));
+    expect(screen.queryByText(completed.textContent!)).not.toBeInTheDocument();
+    expect(storyIntelligence.write).not.toHaveBeenCalled();
+    expect(command.bridge.saveUnit).toBeUndefined();
+  });
+
   it('returns a detached Emotion Graph point to Writing Studio before selecting its linked unit', async () => {
     const units = [
       { id: 'unit_a', title: 'First Unit', order: 1, body: 'Alpha body' },

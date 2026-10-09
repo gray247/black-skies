@@ -2023,14 +2023,14 @@ export default function Stage19WritingSpineApp({
   );
 
   const handleSelectUnit = useCallback(
-    async (unitId: string) => {
-      if (!bridge) return;
+    async (unitId: string): Promise<boolean> => {
+      if (!bridge) return false;
       // Capture before awaiting IPC: restoring the source selection releases its owner.
       const exactSourceReturn = program7SourceReturnUnitRef.current === unitId;
       const previousUnitId = snapshotRef.current.activeUnitId;
       if (previousUnitId) await flushRecoveryCheckpoint(previousUnitId);
       const binding = bindingFor(snapshotRef.current, 'select-unit');
-      if (!binding) return;
+      if (!binding) return false;
       try {
         const result = await bridge.selectUnit({ ...binding, unitId });
         applySnapshot(result.snapshot);
@@ -2041,8 +2041,10 @@ export default function Stage19WritingSpineApp({
           }
         });
         setNotice(resultMessage(result));
+        return result.ok;
       } catch {
         setNotice('The manuscript unit could not be selected. Your current work was preserved; try again.');
+        return false;
       }
     },
     [applySnapshot, bridge, flushRecoveryCheckpoint],
@@ -3348,11 +3350,15 @@ export default function Stage19WritingSpineApp({
     program7SourceReturnUnitRef.current = null;
     setSourceReturnRequest(null);
     setSourceReturnConfirmation(null);
+    setNotice(null);
+    setStoryIntelligenceNotice(null);
     if (!source.unitId) {
       setNotice(`The source ${source.sourceKind}/${source.sourceId} has no manuscript unit. Writing remains authoritative.`);
       return;
     }
+    setSourceReturnConfirmation('Opening the linked manuscript section. Your manuscript will not change.');
     if (surfaceBridge && !(await activateSurface('writing', 'current-window'))) {
+      setSourceReturnConfirmation(null);
       setNotice('Writing Studio could not be opened. The source remains available in Command Center.');
       return;
     }
@@ -3390,14 +3396,22 @@ export default function Stage19WritingSpineApp({
             selectionFingerprint: source.selectionFingerprint,
           },
         });
-        await handleSelectUnit(source.unitId);
+        if (!(await handleSelectUnit(source.unitId))) {
+          program7SourceReturnUnitRef.current = null;
+          setSourceReturnRequest(null);
+          setSourceReturnConfirmation(null);
+        }
         return;
       }
-      await handleSelectUnit(source.unitId);
+      setSourceReturnConfirmation(null);
+      if (!(await handleSelectUnit(source.unitId))) return;
       setNotice('Returned to Writing Studio, but the saved passage changed and was not selected. Black Skies did not guess.');
       return;
     }
-    await handleSelectUnit(source.unitId);
+    if (!(await handleSelectUnit(source.unitId))) {
+      setSourceReturnConfirmation(null);
+      return;
+    }
     setNotice(null);
     setSourceReturnConfirmation(
       source.selectionStart !== undefined && source.selectionEnd !== undefined && source.selectionFingerprint
@@ -4143,6 +4157,7 @@ export default function Stage19WritingSpineApp({
 
   const selectCommandWorkspace = useCallback((workspace: CommandWorkspaceV1) => {
     if (companionResult) dismissCompanion();
+    setSourceReturnConfirmation(null);
     setCommandWorkspace(workspace);
   }, [companionResult, dismissCompanion]);
 
@@ -4323,7 +4338,7 @@ export default function Stage19WritingSpineApp({
     setProjectTitle,
     createProject: handleCreateProject,
     createUnit: handleCreateUnit,
-    selectUnit: handleSelectUnit,
+    selectUnit: async (unitId) => { await handleSelectUnit(unitId); },
     clearOutlineSelection,
     setStoryRailAddMenuOpen,
     toggleMultiSelectMode,
@@ -4400,6 +4415,7 @@ export default function Stage19WritingSpineApp({
     returnToStorySource,
     dismissWritingNotice: () => { setNotice(null); setSourceReturnConfirmation(null); },
     dismissProgram7Notice: () => setProgram7Notice(null),
+    dismissStoryIntelligenceNotice: () => setStoryIntelligenceNotice(null),
     setProgram7CandidatePurpose,
     setProgram7CandidateText,
     createProgram7ManualCandidate,

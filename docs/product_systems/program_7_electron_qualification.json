@@ -1,67 +1,86 @@
 {
   "schemaVersion": "program7.electron-qualification.v1",
-  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
-  "precommitTreeHash": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
+  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
   "execution": {
     "host": "outer Windows host",
-    "gpu": "normal",
     "diagnosticGpuDisable": false,
-    "workers": 1
+    "workers": 1,
+    "gpu": "normal",
+    "localAi": "disabled",
+    "retries": 0
   },
   "suites": [
     {
-      "id": "P7-G2-REVISION",
-      "path": "app/tests/e2e/program7-revision.spec.ts",
-      "result": "Pass"
-    },
-    {
-      "id": "P7-G2-CREATE-DEVELOP",
-      "path": "app/tests/e2e/program7-create-develop.spec.ts",
-      "result": "Pass"
-    },
-    {
-      "id": "P7-G2-LOCAL-AI",
-      "path": "app/tests/e2e/program7-local-ai.spec.ts",
       "result": "Pass",
-      "policy": "BLACKSKIES_DISABLE_LOCAL_AI=1"
+      "id": "P7-G2-REVISION",
+      "path": "app/tests/e2e/program7-revision.spec.ts"
     },
     {
+      "result": "Pass",
+      "id": "P7-G2-CREATE-DEVELOP",
+      "path": "app/tests/e2e/program7-create-develop.spec.ts"
+    },
+    {
+      "result": "Pass",
+      "policy": "BLACKSKIES_DISABLE_LOCAL_AI=1; real-model opt-in skipped",
+      "id": "P7-G2-LOCAL-AI",
+      "path": "app/tests/e2e/program7-local-ai.spec.ts"
+    },
+    {
+      "result": "Pass",
       "id": "P7-G2-LONG-FORM",
-      "path": "app/tests/e2e/program7-long-form.spec.ts",
-      "result": "Pass"
+      "path": "app/tests/e2e/program7-long-form.spec.ts"
     }
   ],
   "suiteSummary": {
-    "passed": 4,
     "failed": 0,
-    "electronDurationSeconds": 20.4
+    "passed": 4,
+    "dedicatedPassed": 8,
+    "intentionalRealAiSkip": 1
   },
   "focusedVitest": {
     "files": 5,
-    "passed": 44,
-    "failed": 0
+    "failed": 0,
+    "passed": 193
+  },
+  "fullApp": {
+    "files": 159,
+    "skipped": 2,
+    "passed": 1568,
+    "failed": 0,
+    "log": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\full-app.log"
   },
   "stage19": {
-    "criticalUnitFiles": 49,
-    "criticalUnitPassed": 806,
     "expectedSkips": 2,
-    "startupPreflight": "1/1",
+    "criticalUnitFiles": 49,
+    "criticalUnitPassed": 844,
     "electronPassed": "36/36",
+    "startupPreflight": "1/1",
     "markers": [
       "STAGE19_REGRESSION_PASS",
       "CLEAN_RC_ELIGIBLE"
     ]
   },
-  "limitations": [
-    "The pilot output is advisory evidence only; Jason must decide local-model usefulness, voice preservation, and admission.",
-    "Human Gate 4 has not been performed.",
-    "The exact outbound-firewall-isolated lifecycle passed in the Administrator PowerShell session."
-  ],
-  "installedLifecycle": {
-    "receiptPath": "app/release/stage19-package-receipt.json",
-    "applicationOnlyStatus": "passed",
-    "offlineFirewallIsolatedStatus": "passed",
-    "lifecycleEvidencePath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-p7-c57be0ff-admin-lifecycle-20260921-0020\\stage19-22-lifecycle-evidence.json"
+  "rawReports": {
+    "journeys": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\journeys.json",
+    "stage19": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\stage19.log"
   },
-  "capturedAt": "2026-09-21T00:22:00.000Z"
+  "limitations": [
+    "Mechanical results do not decide Human Gate 4 or Program 7 closure.",
+    "Local AI was not executed; admission remains unavailable.",
+    "Historical unresolved causes remain explicit Uncertain rows despite successful current checks."
+  ],
+  "protectedEvidenceUsed": false,
+  "humanAcceptanceClaimed": false,
+  "capturedAt": "2026-10-09T17:38:10.9558972Z",
+  "installedLifecycle": {
+    "independentStandardHostWitness": "passed",
+    "lifecycleEvidencePath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-beda0bbc-life-afb8c7ce\\stage19-22-lifecycle-evidence.json",
+    "offlineFirewallIsolatedStatus": "passed",
+    "targetedHistory": "passed",
+    "receiptPath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\package\\package-receipt.json",
+    "boundedP4P5P6": "passed",
+    "externalFileCount": 197
+  }
 }

@@ -1,54 +1,54 @@
 {
   "schema": "program7.accessibility-qualification.v1",
   "status": "qualified",
-  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
-  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
+  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
   "cleanExactCommitBinding": true,
   "dirtyPaths": [],
   "sourceHashes": {
     "app/renderer/components/program7/Program7CreateDevelopWorkspace.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\Program7CreateDevelopWorkspace.tsx",
-      "sha256": "24b4acdf9b44f59366ecb7df58b3e4f0a1907b805049fbe0e3d6bfceec566c19"
+      "sha256": "b36c7dc186cc729221d15de2716caacef38c67eae714436e5dcf56103535886a"
     },
     "app/renderer/components/program7/RevisionDesk.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\RevisionDesk.tsx",
-      "sha256": "7559bfe551b57aef1705f4a4ef9f98c5eca0ce842dc41ef5491220979d4cf780"
+      "sha256": "78ce145d5324f0f8dc68451fd1110d49a2ce5c7a4d41ecb16cb42adb6e7496dd"
     },
     "app/renderer/components/program7/RevisionComparison.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\RevisionComparison.tsx",
-      "sha256": "acd2939cd4dac34ea7309cf8032afd17992d84af0bd54fb8cebd29b4bc49407e"
+      "sha256": "b48fa596aa5c7b986aad0f36b902f1d8b58a8a6a40878f2eb786c63ace2678da"
     },
     "app/renderer/components/program7/StoryFoundation.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\StoryFoundation.tsx",
-      "sha256": "5b4b3fc1e3ad0e16775cd6197ec2a27860868dfc807495259eb42cb99e641db3"
+      "sha256": "7aa959c479bcd618d4eb1831971087d0b1fecea78eeb81880d7015a30fcfe656"
     },
     "app/renderer/components/program7/IdeasWorkspace.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\IdeasWorkspace.tsx",
-      "sha256": "3c4a5500b7b558d2c6c282ff8d70dc4a16bca154078159a710f8c6c4da0a0387"
+      "sha256": "655062412e59c193e84676edcf16a2915e825f674f3e6d29e14a664b37c4ff5d"
     },
     "app/renderer/components/program7/Program7History.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\Program7History.tsx",
-      "sha256": "4fdf88378963e6502714782687bb8661a12fddc69d1b712e3b15e288a97152fc"
+      "sha256": "37dd3ebe48b29e64a4fb3a8d19855bf1111cf5d552ddc68fd0d4435a61f6b9e9"
     },
     "app/renderer/components/program7/WritingRevisionDrawer.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\components\\program7\\WritingRevisionDrawer.tsx",
-      "sha256": "06ec321209d8be343dec7ae4f7befdf04f02547a0df1315fe17089488e75b4b6"
+      "sha256": "afb111a5d2b07c9539f4b845b403fad23baa8e9e8c8b0b2917002520f20b8caf"
     },
     "app/renderer/Stage19WritingSpineView.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\Stage19WritingSpineView.tsx",
-      "sha256": "590fedf75c85b97d3c57e9f15cccbbcd00850ff83effac15940dcffd50ea2856"
+      "sha256": "b8444cd44be39430bdf639baea555dca8dac87684f355b7ce56969d6d7bb7255"
     },
     "app/renderer/styles/app.css": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\styles\\app.css",
-      "sha256": "4a49fdcaf5ccf6ea615d3364dac2128682f675e8d88db66cd7e5c3f2a8650f33"
+      "sha256": "81cebd43ab7654592b43343b68e36f912a3bc9f1f9decb96c2b69ef533880e68"
     },
     "app/tests/e2e/program7-accessibility.spec.ts": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\tests\\e2e\\program7-accessibility.spec.ts",
-      "sha256": "4913948841befbe138ec511ae2145661ddf1798587ca0c0b6e3df6a51545ea0b"
+      "sha256": "b941b38a1733ad998dd995c2a76a203cc2c67233ad82e15db53d9f666b02fd1d"
     },
     "app/renderer/__tests__/Program7AccessibilityMatrix.test.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\__tests__\\Program7AccessibilityMatrix.test.tsx",
-      "sha256": "b20c2a044e1eaef6d70685146d1232b1c328719feeb22854e910c5df01310fad"
+      "sha256": "3099092cfca88a8a9ada01514b59f3ace70b0e51034074ea99be90c67386fa44"
     },
     "scripts/program7-accessibility-matrix.mjs": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\scripts\\program7-accessibility-matrix.mjs",

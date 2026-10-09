@@ -1,5 +1,160 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## October 9 successor repair — Human Gate 4 remains blocked
+
+Jason accepted the four historical-cause exceptions as **Uncertain**, retaining
+their recorded owners, stages and reopening triggers. All other installed checks
+on beda0bbc passed, with no unintended manuscript changes observed. The current
+blocker is **P7-EMOTION-NOTICE-FLOW-01**: sticky Story Knowledge feedback covers
+the Emotion graph and a local request message survives host completion.
+Coordinator is executing a narrowly scoped UI repair and successor qualification;
+one targeted installed visual confirmation follows. Human Gate 4 and Program 7
+remain open. Earlier "ready" entries below are historical and do not close this
+new blocker. Program 9 AI disposition and proposed Program 8 destination-owner
+checkpoint remain unchanged; no push or release authorized.
+
+## October 9 final installed closeout index — author decision needed
+
+Runtime beda0bbceeae4015c4a39ac9491ee1e07ba04641 is mechanically ready. Jason's
+exact offline-firewall lifecycle passed. Standard-host witness independently
+verified installed hashes and 197 preserved external files; installed targeted
+History and P4/P5/P6 carry-forward passed with exact manuscript bytes preserved.
+P7-HISTORY-CURRENTNESS-01 and P7-HUMAN-PACKET-CLARITY-01 are closed-mechanical.
+No new application defect or pending source repair was found in this execution.
+
+The leading [final author packet](program_7_closure_report.md) is self-contained:
+exact installed executable/project, ready History screen, four bounded
+confirmations, current sample and separate gate/family/checkpoint decisions.
+Existing ledger integrity passes: 52 rows, 21 Pass, zero current Fail,
+31 Uncertain (24 unavailable-AI, three formal human rows, four historical causes).
+The deterministic sample remains Stage 19, migration and corruption.
+
+Accepted AI disposition remains RT-2B in Program 9 before future admission/HG5
+with mandatory planning-entry review and saved Q02/Q04/Q06/Q07/protection evidence.
+No AI execution or admission is introduced.
+
+The P7-G2 handoff review now proposes an exact future home for Character/Lore,
+Ideas Writing-section/manuscript-insertion and Project Memory integration:
+**Program 8 destination-owner workflow qualification, before Program 8 closure**;
+review at Program 8 planning entry. This proposed checkpoint is grounded in the
+master Program 8 scope, not an invented implemented package. Owners: Program 8
+knowledge/destination-integration coordinator with Jason. Required evidence:
+authorized destination owner/contract and acceptance, durable receipts/reopen,
+idempotency, protection, currentness/sovereignty and human workflow proof.
+Reopening trigger: author-authorized integration or changed owner/recall/protection
+contract. These families remain author-pending until Jason accepts this exact
+home or names another; none is silently closed or deferred.
+
+Human Gate 4 and Program 7 closure are separate pending author decisions.
+Final documentation checkpoint and authorized repository handoff follow them.
+Runtime files remain unchanged; current dirty state is existing records only.
+No push is authorized, and origin remains the older local implementation repo.
+Historical candidate receipts, failed fixtures and positive human reports remain
+preserved. No additional broad testing or native tour is planned.
+
+## October 9 successor closeout — beda0bbc, privileged package proof pending
+
+**Current runtime qualification candidate:** beda0bbceeae4015c4a39ac9491ee1e07ba04641;
+tree 499b9602b16bd06fb385dec7e297d9e2212b9d83, branch
+codex/program7-implementation, continuing program7-today checkout only.
+The local repair commit was created after focused checks passed. All broad
+qualification ran on that clean candidate. Later changes are documentation and
+existing evidence records only; this is explicitly a dirty documentation state,
+not a claim that a changed runtime was qualified. No push or release occurred.
+Earlier dated candidate/launch entries below remain historical.
+
+### Completed evidence and repairs
+
+| Check | Actual result / retained artifact |
+| --- | --- |
+| Two History repairs | P7-HISTORY-CURRENTNESS-01 and P7-HUMAN-PACKET-CLARITY-01 closed-mechanical; final changed-screen human disposition pending. Existing IPC, component, host and revision Electron suites extended; no new repository test file, schema, dependency or owner |
+| Failure-before-repair | Seven expected failures, 17 passes; history-before-tests.log. Raw status derivation and technical labels failed before the production change |
+| Focused safety/presentation | Five suites, 193 passes; history-focused.log. Synthetic local-create response only; no real inference |
+| Final full app | 159 files, 1568 passes, two existing skips; full-app.log |
+| Clean Stage 19 | 49 critical files, 844 passes, two existing skips; startup 1/1; Electron 36/36; STAGE19_REGRESSION_PASS / CLEAN_RC_ELIGIBLE; stage19.log |
+| Dedicated Program 7 | Eight passes, one intentional real-AI opt-in skip; journeys-corrected.log / journeys.json. Revision, disabled AI, Create / Develop, long-form and accessibility |
+| Persistence / Unicode | Existing structured qualifiers passed: 143 persistence assertions, 18 Unicode assertions; persistence.json / unicode.json |
+| Accessibility / scale | Both current exact-candidate qualifiers qualified; accessibility.json / scale.json. Required fixed overlap retained; no extra broad reruns |
+| NSIS package | package.log; preserved package/BlackSkies-Setup-1.0.0-rc1.exe and package/package-receipt.json. Unsigned internal RC, NotSigned; no public release |
+| Unpacked representative | Normal GPU; exact Markdown, reopen, Story Knowledge and optional sandboxed second window pass; zero forbidden runtime descendants and zero survivors; unpacked-smoke.json |
+| Targeted unpacked History | package-history-review/package-history-result.json passed. Current B create/edit/three terminal decisions leave A stale; notices/labels/timestamps and exact durable bytes survive restart. All 17 original Carmilla files unchanged; dark/light upper-History screenshots inspected. This is packaged unpacked proof, not installed/offline proof or a native-computer-use pass |
+| Existing ledger / sample | Integrity validator exit 0, 49 rows: 17 Pass, zero current Fail, 32 Uncertain. Existing tracked reports/ledger/sample reconciled; preceding versions retained under prior-records and Git history. No subjective score/decision invented |
+
+Proof root: C:/Users/gray2/AppData/Local/Temp/bs-p7-close-d3ba5ba5. Installer SHA256:
+5b021afcf63f504612b4eea506fe3e1042b287156614cd2b748cff62a1f98264. ASAR SHA256: b524b01bab953d3bac491e48d25275e3a1798c9a71d417d978826a8905373380.
+
+The 32 Uncertain rows are 24 unavailable-AI cases, three formal P4/P5/P6 human
+carry-forward rows, four unresolved historical causes, and one required current
+installed/offline prerequisite. They are not 32 reproduced current defects.
+AI rows explicitly say no current inference execution and use not-applicable
+execution mode. Saved advisory Q02/Q04/Q06/Q07 findings and Jason's accepted
+October 8 Program 9 RT-2B disposition remain in the plan and tracker.
+
+The sample was generated by the existing deterministic algorithm, not selected
+by the coordinator: P7-G2-STAGE19, P7-G2-PROTOCOL-MIGRATION and
+P7-G2-PROTOCOL-CORRUPTION. Review all authority/protection, Fail/Uncertain and
+subjective rows in addition; Jason fields remain blank until formal disposition.
+
+Retained setup-only failures: initial pnpm --run invocation, an ambiguous
+Electron locator, PowerShell reporter comma splitting, and temporary package
+review driver syntax/returned-fixture-path errors. These occurred in test/setup
+code; none is classified as an application defect. Corrected focused runs passed,
+with original logs/traces preserved and no weakened assertion or unexplained skip.
+
+### Family closure/defer packet
+
+| Family | Current mechanical disposition | Owner / remaining exact resolution point / reopening trigger |
+| --- | --- | --- |
+| Finding to manual revision; recheck, author resolution and recurrence | Required no-AI flow qualified, exact selection and fresh-process preservation proved | Coordinator/Jason; formal HG4 P7-G2 author-resolution confirmation. No functional deferral. Reopen for wrong source, duplicate task, unsafe or unexplained write |
+| Manual alternatives and built manuscript insertion | Source/selected range, repeated text, stale guards, reservation/recovery and terminal status qualified | P7-G2 final HG4; no authority defer. Reopen for prefix/suffix loss, stale acceptance, duplicate application or restart mismatch |
+| Story Foundation | Blank/unknown/undecided/revised/read-only, provenance, archive/restore and durable supported handoff covered by existing suites and current full/qualification evidence | Coordinator/Jason; P7-G2 remaining-family subjective review before final checkpoint. Reopen on owner, startup, provenance or accepted-truth leakage |
+| Ideas and library | Seed/branch/test/combine/library/archive/restore/protection and honest destination preview covered; current Create / Develop journey passed | Coordinator/Jason; P7-G2 remaining-family review. Reopen on misleading advisory text, lost linkage, hidden feedback or unintended truth/manuscript write |
+| Built Foundation / Outline promotion | Destination-owned durable handoff, receipts, idempotency/protection/partial-failure suites and actual UI writes pass | P7-G2 handoff package review before final checkpoint. Reopen on changed destination contract or false successful write |
+| History | Currentness and writer-facing lifecycle repairs mechanically closed; provenance, recurrence, bounded lineage, active-view exclusion and timestamp persistence qualified | Coordinator/Jason; P7-G2 changed-History confirmation and final family review. Reopen on false source availability, technical labels, lost lineage/time, duplicate record evidence or terminal reactivation |
+| Accessibility / visual / built Markdown intake | Current required objective accessibility/Unicode/scale and fixed Markdown Structure regression pass | P7-G2 HG4 visual judgment; no A/AA/protection waiver. Reopen on token/route/layout/input regression |
+| Package / installed durability | NSIS and unpacked workload pass; installed/offline lifecycle and standard-host independent witness pending | Coordinator/Jason; P7-G2 current-candidate offline packaging gate. No package defer for a qualified-installed claim. Reopen on installer/hash/runtime/preservation mismatch |
+| Local AI | Accepted unavailable disposition, saved-output review completed; current model executions zero | Program 9 coordinator/Jason; RT-2B rerun before future admission, scheduled model qualification/replacement before HG5 and mandatory review at Program 9 entry. Require full 24-case/fault, fidelity, protection, resource and six-dimension human evidence. Reopen on renewed admission request or approved model/prompt/host/transport/policy change; authority/protection failure stops admission |
+| Character / Lore integration | Metadata handoff is built; full truth-owner activation belongs to the established Program 8 boundary | Coordinator/Jason; P7-G2 handoff package review before final Program 7 checkpoint must accept the bounded scope and assign the actual Program 8 owner-contract resolution stage. Evidence: explicit author acceptance, destination owner/receipts/idempotency/protection and human review. Reopen on authorized integration or owner-contract change |
+| Ideas Writing-section, manuscript-insertion and Project Memory destinations | Saved previews/planned guidance only; built revision-alternative insertion remains separate | Coordinator/Jason; P7-G2 handoff package review before final checkpoint. A future resolution stage is not invented: each destination still needs an explicit accepted owner/stage, durable receipt and protection/authority evidence. Reopen on author-authorized destination integration or changed owner contract. This family disposition remains author-pending, not falsely closed |
+
+Four historical-cause exceptions remain proposed for Jason, not Pass:
+P7-A11Y-ROUTE-01 at Batch 4 route triage; P7-NATIVE-RESP-01 at Batch 4
+responsiveness triage; P7-STORY-SUPPRESS-01 at Batch 4 suppression triage,
+each before final HG4 disposition; P7-PACKAGED-NATIVE-ACCESS-01 at P7-G2
+current-package native access confirmation before HG4. Their exact observable
+triggers remain in the existing detailed entries and current ledger limitations.
+Successful current tests do not establish old causes. Prior native helper
+initialization failed before UI access; no fresh direct-native success is claimed.
+
+### Required next action and prepared continuation
+
+The coordinator completed all independent work available before the privileged
+gate. Current Windows token is not Administrator. The existing
+scripts/stage19-installed-lifecycle.ps1 explicitly requires elevation for its
+temporary outbound firewall isolation. Sandbox approval does not supply that
+Windows privilege. No application-only/SkipFirewallIsolation substitute is used.
+
+Jason only needs to open PowerShell as Administrator and execute the saved
+C:/Users/gray2/AppData/Local/Temp/bs-p7-close-d3ba5ba5/complete-installed-review.ps1. It verifies candidate, installer SHA,
+receipt and a fresh short lifecycle root before any operation, records a
+transcript, preserves failures, and uses the existing install/uninstall/reinstall
+script. No general human test round is requested at this point.
+
+Prepared lifecycle root: C:/Users/gray2/AppData/Local/Temp/bs-p7-beda0bbc-life-afb8c7ce.
+The coordinator then runs the standard-host independent witness and the already
+prepared installed-history-review/history-package-review.mjs against that
+installed executable and a separate pristine fixture. It updates the package
+row/hash and validates/recomputes the final packet where necessary. No source
+change or additional broad suite is planned unless those steps find a defect.
+
+Formal final packet after installed proof will name the exact executable/project,
+the corrected History screen, required P4/P5/P6 carry-forward confirmations,
+sample IDs and family/exception decisions in one place. Jason's prior positive
+tests remain evidence; unchanged H1-H10 is not automatically repeated. Human
+Gate 4 and Program 7 closure are separate pending author decisions; repository
+checkpoint/handoff authorization remains separate because origin is the older
+local repo and no push was authorized.
+
 ## October 9 closure execution — History repair complete, qualification pending
 
 Execution uses the continuing program7-today checkout, starting at

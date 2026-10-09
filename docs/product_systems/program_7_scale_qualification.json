@@ -1,8 +1,9 @@
 {
   "schema": "black-skies.program7.scale-qualification.v1",
+  "rawEvidenceDirectory": "C:\\Users\\gray2\\AppData\\Local\\Temp\\black-skies-p7-scale-qualification-I6WsgO",
   "status": "qualified",
-  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
-  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
+  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
   "platform": "win32",
   "node": "v22.19.0",
   "command": "node scripts/run-vitest-offline.mjs --run main/__tests__/program7ScalePerformance.test.ts --reporter=json",
@@ -10,22 +11,22 @@
     {
       "name": "Program 7 G2 scale and performance mechanical matrix 1x Carmilla-derived load/list/persistence fixture remains bounded",
       "status": "passed",
-      "durationMs": 65.69569999999999
+      "durationMs": 70.2630999999999
     },
     {
       "name": "Program 7 G2 scale and performance mechanical matrix 2x Carmilla-derived load/list/persistence fixture remains bounded",
       "status": "passed",
-      "durationMs": 42.567600000000084
+      "durationMs": 45.68419999999992
     },
     {
       "name": "Program 7 G2 scale and performance mechanical matrix 4x Carmilla-derived load/list/persistence fixture remains bounded",
       "status": "passed",
-      "durationMs": 54.51219999999989
+      "durationMs": 65.48829999999998
     },
     {
       "name": "Program 7 G2 scale and performance mechanical matrix 8x Carmilla-derived load/list/persistence fixture remains bounded",
       "status": "passed",
-      "durationMs": 70.69579999999996
+      "durationMs": 73.856
     }
   ],
   "observations": [
@@ -34,16 +35,16 @@
       "fixtureKind": "carmilla-baseline",
       "unitCount": 17,
       "timingsMs": {
-        "open": 3.138400000000047,
-        "listAndPagination": 1.8904999999999745,
-        "search": 1.8904999999999745,
-        "projection": 10.653699999999844,
-        "save": 7.14670000000001,
-        "recheck": 3.1179000000001906,
+        "open": 2.744000000000142,
+        "listAndPagination": 2.0376000000001113,
+        "search": 2.0376000000001113,
+        "projection": 11.174099999999953,
+        "save": 8.400899999999865,
+        "recheck": 3.4181999999998425,
         "repeatedLoadProjection": [
-          2.1557000000000244,
-          2.105399999999918,
-          2.8315999999999804
+          2.300700000000006,
+          2.3735999999998967,
+          1.9954999999999927
         ]
       },
       "limitsMs": {
@@ -61,25 +62,25 @@
         "historyTrimmed": 26
       },
       "resourceObservation": {
-        "rssBeforeBytes": 125300736,
-        "rssAfterBytes": 126447616,
-        "rssDeltaBytes": 1146880,
-        "maxRssBeforeBytes": 129880064,
-        "maxRssAfterBytes": 129880064,
-        "maxRssDeltaBytes": 0,
+        "rssBeforeBytes": 132083712,
+        "rssAfterBytes": 134131712,
+        "rssDeltaBytes": 2048000,
+        "maxRssBeforeBytes": 133365760,
+        "maxRssAfterBytes": 134131712,
+        "maxRssDeltaBytes": 765952,
         "repeatedCycles": 3,
         "rssSamplesBytes": [
-          126857216,
-          126873600,
-          126447616
+          134074368,
+          134086656,
+          134131712
         ],
-        "rssCycleRangeBytes": 425984,
+        "rssCycleRangeBytes": 57344,
         "measured": "process.memoryUsage().rss samples plus process.resourceUsage().maxRSS high-water observation; Windows working-set attribution and host physical-memory availability were not measured"
       },
       "eventLoopFreezeObservation": "not measured by this repository harness; no main-thread freeze claim is made",
       "sidecarBytes": [
         12613,
-        59517,
+        60146,
         24341,
         1518
       ]
@@ -89,16 +90,16 @@
       "fixtureKind": "synthetic-non-evidence",
       "unitCount": 34,
       "timingsMs": {
-        "open": 2.4144999999998618,
-        "listAndPagination": 2.100700000000188,
-        "search": 2.100700000000188,
-        "projection": 1.493600000000015,
-        "save": 7.193899999999985,
-        "recheck": 2.6312000000000353,
+        "open": 2.330099999999902,
+        "listAndPagination": 3.7450000000001182,
+        "search": 3.7450000000001182,
+        "projection": 1.7235000000000582,
+        "save": 7.466599999999971,
+        "recheck": 3.394700000000057,
         "repeatedLoadProjection": [
-          2.7812000000001262,
-          2.5355999999999312,
-          2.5071000000000367
+          2.7228000000000065,
+          2.520999999999958,
+          2.395999999999958
         ]
       },
       "limitsMs": {
@@ -116,25 +117,25 @@
         "historyTrimmed": 77
       },
       "resourceObservation": {
-        "rssBeforeBytes": 126963712,
-        "rssAfterBytes": 127705088,
-        "rssDeltaBytes": 741376,
-        "maxRssBeforeBytes": 129880064,
-        "maxRssAfterBytes": 129880064,
-        "maxRssDeltaBytes": 0,
+        "rssBeforeBytes": 134770688,
+        "rssAfterBytes": 136888320,
+        "rssDeltaBytes": 2117632,
+        "maxRssBeforeBytes": 134770688,
+        "maxRssAfterBytes": 138010624,
+        "maxRssDeltaBytes": 3239936,
         "repeatedCycles": 3,
         "rssSamplesBytes": [
-          127397888,
-          127561728,
-          127705088
+          136630272,
+          136757248,
+          136888320
         ],
-        "rssCycleRangeBytes": 307200,
+        "rssCycleRangeBytes": 258048,
         "measured": "process.memoryUsage().rss samples plus process.resourceUsage().maxRSS high-water observation; Windows working-set attribution and host physical-memory availability were not measured"
       },
       "eventLoopFreezeObservation": "not measured by this repository harness; no main-thread freeze claim is made",
       "sidecarBytes": [
         24840,
-        53027,
+        54285,
         48481,
         1518
       ]
@@ -144,16 +145,16 @@
       "fixtureKind": "synthetic-non-evidence",
       "unitCount": 68,
       "timingsMs": {
-        "open": 3.493299999999863,
-        "listAndPagination": 3.438899999999876,
-        "search": 3.438899999999876,
-        "projection": 2.0978000000000065,
-        "save": 7.662799999999834,
-        "recheck": 2.873499999999922,
+        "open": 3.4213999999999487,
+        "listAndPagination": 4.037599999999884,
+        "search": 4.037599999999884,
+        "projection": 2.9348999999999705,
+        "save": 9.791999999999916,
+        "recheck": 3.845100000000002,
         "repeatedLoadProjection": [
-          3.7726000000000113,
-          3.805599999999913,
-          5.288400000000138
+          4.09680000000003,
+          4.259999999999991,
+          3.9991999999999734
         ]
       },
       "limitsMs": {
@@ -171,25 +172,25 @@
         "historyTrimmed": 179
       },
       "resourceObservation": {
-        "rssBeforeBytes": 128253952,
-        "rssAfterBytes": 128094208,
-        "rssDeltaBytes": 0,
-        "maxRssBeforeBytes": 129880064,
-        "maxRssAfterBytes": 130523136,
-        "maxRssDeltaBytes": 643072,
+        "rssBeforeBytes": 136998912,
+        "rssAfterBytes": 139075584,
+        "rssDeltaBytes": 2076672,
+        "maxRssBeforeBytes": 138010624,
+        "maxRssAfterBytes": 139075584,
+        "maxRssDeltaBytes": 1064960,
         "repeatedCycles": 3,
         "rssSamplesBytes": [
-          129736704,
-          129626112,
-          128094208
+          138326016,
+          138788864,
+          139075584
         ],
-        "rssCycleRangeBytes": 1642496,
+        "rssCycleRangeBytes": 749568,
         "measured": "process.memoryUsage().rss samples plus process.resourceUsage().maxRSS high-water observation; Windows working-set attribution and host physical-memory availability were not measured"
       },
       "eventLoopFreezeObservation": "not measured by this repository harness; no main-thread freeze claim is made",
       "sidecarBytes": [
         49150,
-        105693,
+        108209,
         96761,
         1518
       ]
@@ -199,16 +200,16 @@
       "fixtureKind": "synthetic-non-evidence",
       "unitCount": 136,
       "timingsMs": {
-        "open": 4.832999999999856,
-        "listAndPagination": 5.72440000000006,
-        "search": 5.72440000000006,
-        "projection": 3.2475999999999203,
-        "save": 10.853200000000015,
-        "recheck": 3.796000000000049,
+        "open": 5.04079999999999,
+        "listAndPagination": 5.456300000000056,
+        "search": 5.456300000000056,
+        "projection": 3.4417000000000826,
+        "save": 11.982799999999997,
+        "recheck": 3.5235000000000127,
         "repeatedLoadProjection": [
-          5.394999999999982,
-          5.95029999999997,
-          6.533700000000181
+          5.547500000000127,
+          6.378799999999956,
+          6.19360000000006
         ]
       },
       "limitsMs": {
@@ -226,25 +227,25 @@
         "historyTrimmed": 383
       },
       "resourceObservation": {
-        "rssBeforeBytes": 130002944,
-        "rssAfterBytes": 132796416,
-        "rssDeltaBytes": 2793472,
-        "maxRssBeforeBytes": 130523136,
-        "maxRssAfterBytes": 133296128,
-        "maxRssDeltaBytes": 2772992,
+        "rssBeforeBytes": 138752000,
+        "rssAfterBytes": 141594624,
+        "rssDeltaBytes": 2842624,
+        "maxRssBeforeBytes": 139137024,
+        "maxRssAfterBytes": 141942784,
+        "maxRssDeltaBytes": 2805760,
         "repeatedCycles": 3,
         "rssSamplesBytes": [
-          129945600,
-          132296704,
-          132796416
+          138715136,
+          140177408,
+          141594624
         ],
-        "rssCycleRangeBytes": 2850816,
+        "rssCycleRangeBytes": 2879488,
         "measured": "process.memoryUsage().rss samples plus process.resourceUsage().maxRSS high-water observation; Windows working-set attribution and host physical-memory availability were not measured"
       },
       "eventLoopFreezeObservation": "not measured by this repository harness; no main-thread freeze claim is made",
       "sidecarBytes": [
         97883,
-        211137,
+        216169,
         193581,
         1518
       ]
@@ -253,7 +254,7 @@
   "artifactHashes": [
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\main\\__tests__\\program7ScalePerformance.test.ts",
-      "sha256": "9f636452a923fa6dcbb85926e52485d6940c59337768a32840050f64071bdbe7"
+      "sha256": "84fd8d5677bbe92f4815b13dacbe31c87f18ba16c9d50e2c8c6292e78baf97d2"
     },
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\tests\\e2e\\program7-scale-performance.spec.ts",
@@ -261,7 +262,7 @@
     },
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\scripts\\qualify-program7-scale.mjs",
-      "sha256": "3e594c7f924aaab806963e14e142b8150b196e35a30afe50e569bd7c538a4aa5"
+      "sha256": "7503641d64c92eca13437604abf9b824c26e514e5f55d321d8c768b838c7446d"
     },
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\package.json",
@@ -289,6 +290,6 @@
     "The existing IdeationRepository tag-filter surface is used for deterministic search qualification; no separate free-text search route exists on the current Program 7 surface.",
     "process.resourceUsage().maxRSS is a process high-water observation; it is not a per-process Windows working-set attribution or host physical-memory measurement."
   ],
-  "capturedAt": "2026-09-21T00:09:54.893Z",
-  "outputPath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\blackskies-p7-c57be0ff-evidence\\step07-scale-electron-outer.json"
+  "capturedAt": "2026-10-09T17:37:04.864Z",
+  "outputPath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\scale.json"
 }

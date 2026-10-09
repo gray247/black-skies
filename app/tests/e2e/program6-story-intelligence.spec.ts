@@ -165,6 +165,30 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
         expect(await readFile(path.join(projectPath, 'drafts', 'go_02.md'), 'utf8')).toBe(secondDraftBefore);
 
 
+
+        // A completed author notice belongs in layout flow, never over the graph.
+        const noticeWindow = await electronApp.browserWindow(command);
+        for (const light of [false, true]) {
+          const themeSwitch = command.getByRole('switch', { name: 'Light theme' });
+          if ((await themeSwitch.getAttribute('aria-checked')) !== String(light)) await themeSwitch.click();
+          for (const width of [1280, 760]) {
+            await noticeWindow.evaluate((window, width) => window.setSize(width, 680), width);
+            for (const scrollTop of [0, 220, 440]) {
+              await command.getByRole('region', { name: 'Command Center' }).evaluate((element, top) => { element.scrollTop = top; }, scrollTop);
+              const layout = await command.evaluate(() => {
+                const notice = document.querySelector<HTMLElement>('.stage19-program6__notice')!;
+                const graph = document.querySelector<HTMLElement>('[aria-label="Emotion detail"]')!;
+                return { position: getComputedStyle(notice).position, noticeBottom: notice.getBoundingClientRect().bottom, graphTop: graph.getBoundingClientRect().top };
+              });
+              expect(layout.position).toBe('static');
+              expect(layout.noticeBottom).toBeLessThanOrEqual(layout.graphTop + 1);
+            }
+          }
+        }
+        await noticeWindow.evaluate((window) => window.setSize(1280, 900));
+        await command.getByRole('group', { name: 'Story Knowledge notices' }).getByRole('button', { name: 'Dismiss message' }).click();
+        await expect(command.getByRole('group', { name: 'Story Knowledge notices' })).toHaveCount(0);
+
         await command.getByRole('button', { name: 'Signals', exact: true }).click();
         await expect(command.getByText('Protected signal metadata', { exact: true })).toBeVisible();
         await expect(command.getByText(/content is excluded; no summary is displayed/i)).toBeVisible();
@@ -196,7 +220,21 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
           await expect(writing.getByRole('heading', { name: 'Glass Orchard', exact: true })).toBeVisible();
           await expect(command.getByRole('region', { name: 'Command Center' })).toBeVisible();
           expect(command.isClosed()).toBe(false);
-          await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${sourceReturn.title}` })).toBeVisible();
+          await expect(command.getByText(/Source return requested|Opening the linked manuscript section/)).toHaveCount(0);
+          await expect(command.locator('.stage19-program6__notice')).toHaveCount(0);
+          await expect(command.locator('.stage19-command__notice-slot').getByRole('status')).toContainText('Opened the manuscript section');
+          for (const scrollTop of [0, 250, 500]) {
+            await command.getByRole('region', { name: 'Command Center' }).evaluate((element, top) => { element.scrollTop = top; }, scrollTop);
+            const covered = await command.evaluate(() => {
+              const notice = document.querySelector('.stage19-command__notice-slot')!;
+              const canvas = document.querySelector('.stage19-command__task-canvas')!;
+              return notice.getBoundingClientRect().bottom > canvas.getBoundingClientRect().top + 1;
+            });
+            expect(covered).toBe(false);
+          }
+          await command.locator('.stage19-command__notice-slot').getByRole('button', { name: 'Dismiss message' }).click();
+          await expect(command.locator('.stage19-command__notice-slot').getByRole('status')).toHaveCount(0);
+          await expect(writing.getByRole('textbox', { name: 'Manuscript editor: ' + sourceReturn.title })).toBeVisible();
           await expect(writing.locator(`[data-manuscript-unit-id="${sourceReturn.unitId}"] [aria-current="location"]`)).toBeVisible();
           expect(await readFile(path.join(projectPath, 'drafts', `${sourceReturn.unitId}.md`), 'utf8')).toBe(manuscriptBefore);
         }

@@ -94,6 +94,8 @@ describe('Program 7 deterministic human sample validation', () => {
     const contents = JSON.stringify({ exactCommit: row.exactCommit });
     await writeFile(artifact, contents, 'utf8');
     row.artifacts = [{ path: artifact, sha256: createHash('sha256').update(contents).digest('hex'), containsProtectedContent: false }];
+    // Tamper an explicitly eligible synthetic Pass, independent of live AI disposition.
+    row.result = 'Pass';
     row.authoritySensitive = false;
     row.genuinelySubjective = false;
     const rows = Array.from({ length: 4 }, (_, index) => ({ ...row, evidenceId: 'RT-2B-OBJECTIVE-' + (index + 1) }));
@@ -118,7 +120,30 @@ describe('Program 7 pilot failure reporting', () => {
     const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot });
     const exactCommit = stdout.trim();
     const { stdout: treeOut } = await execFileAsync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repoRoot });
-    const pilot = JSON.parse(await readFile(path.join(repoRoot, 'docs/product_systems/program_7_local_ai_qualification.json'), 'utf8'));
+    // Synthetic builder input only: never a current model/admission receipt.
+    const pilot = JSON.parse(JSON.stringify({
+      schemaVersion: 'program7.local-ai-qualification.v1',
+      admission: 'pending-human',
+      providerPreconditionsVerified: true,
+      workingTreeClean: true,
+      matrixSummary: { expectedRows: 24, observedRows: 24, mechanicalPassRows: 24, mechanicalPass: true },
+      matrix: Array.from({ length: 24 }, (_, index) => ({
+        scenarioId: 'Q' + String(Math.floor(index / 2) + 1).padStart(2, '0'),
+        executionMode: index % 2 ? 'real-warm' : 'real-cold',
+        expected: 'Synthetic qualified outcome',
+        observed: 'Synthetic test response; no model execution',
+        mechanicalPass: true,
+      })),
+      protectionScan: { pass: true, hits: [] },
+      truthMutation: { unchanged: true },
+      controls: {
+        protectedRefusal: { sourceTextPackaged: false },
+        cancellation: { status: 'cancelled' },
+        timeout: { status: 'unavailable' },
+        unavailable: { status: 'unavailable' },
+        invalidResponse: { status: 'failed' },
+      },
+    }));
     pilot.exactCommit = exactCommit;
     pilot.exactTree = treeOut.trim();
     pilot.precommitTreeHash = treeOut.trim();

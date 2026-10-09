@@ -334,6 +334,7 @@ export interface Stage19WritingSpineViewActions {
   readonly changeBuffer: (unitId: string, body: string) => void;
   readonly dismissWritingNotice?: () => void;
   readonly dismissProgram7Notice?: () => void;
+  readonly dismissStoryIntelligenceNotice?: () => void;
   readonly changeAiSelection: (selection: DraftEditorSelectionEvidence) => void;
   readonly setAiCredential: (value: string) => void;
   readonly configureAiCredential: () => MaybeAsync;
@@ -816,6 +817,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         {model.sourceReturnConfirmation && model.logicalSurface === 'command' ? <p className="stage19-spine__source-return-confirmation" role="status">{model.sourceReturnConfirmation}</p> : null}
         {model.sourceReturnConfirmation && model.logicalSurface === 'command' && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
         {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
+        {commandAlert && !model.sourceReturnConfirmation && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
       </div>
       <nav className="stage19-command__workspace-switcher" aria-label="Command Center workspaces">
         {COMMAND_WORKSPACES.map((workspace) => (
@@ -863,6 +865,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
             generation={snapshot.generation}
             document={model.storyIntelligenceDocument}
             notice={model.storyIntelligenceNotice}
+            onDismissNotice={actions.dismissStoryIntelligenceNotice}
             localInferenceAvailable={model.program7LocalAiAvailable !== false}
             onSourceReturn={(source) => void actions.returnToStorySource(source)}
             onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}

@@ -99,6 +99,34 @@ afterEach(() => {
 });
 
 describe('Program 6 Story Knowledge workspace', () => {
+  it('delegates source-return feedback to the host without leaving a competing request notice', async () => {
+    const user = userEvent.setup();
+    const onSourceReturn = vi.fn();
+    render(<Program6StoryKnowledgeWorkspace project={project} generation={1}
+      document={documentWithSignal('current')} onSourceReturn={onSourceReturn} />);
+    await user.click(screen.getByRole('button', { name: /^Signals$/ }));
+    await user.click(screen.getByRole('button', { name: 'Review source' }));
+    expect(onSourceReturn).toHaveBeenCalledWith(signal('current').positionRefs[0]);
+    expect(screen.queryByText(/Source return requested/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Emotion$/ }));
+    expect(screen.queryByText(/Source return requested/)).not.toBeInTheDocument();
+  });
+
+  it('dismisses workspace feedback accessibly without hiding later results', async () => {
+    const user = userEvent.setup();
+    const onDismissNotice = vi.fn();
+    const props = { project, generation: 1, document: documentWithSignal('current'), onDismissNotice };
+    const view = render(<Program6StoryKnowledgeWorkspace {...props} notice="Feeling note saved." />);
+    const notice = screen.getByRole('group', { name: 'Story Knowledge notices' });
+    expect(within(notice).getByRole('status')).toHaveTextContent('Feeling note saved.');
+    await user.click(within(notice).getByRole('button', { name: 'Dismiss message' }));
+    expect(onDismissNotice).toHaveBeenCalledTimes(1);
+    view.rerender(<Program6StoryKnowledgeWorkspace {...props} notice={null} />);
+    expect(screen.queryByText('Feeling note saved.')).not.toBeInTheDocument();
+    view.rerender(<Program6StoryKnowledgeWorkspace {...props} notice="Another feeling note saved." />);
+    expect(screen.getByRole('status')).toHaveTextContent('Another feeling note saved.');
+  });
+
   it('keeps the lens controls usable with untitled story units', async () => {
     const user = userEvent.setup();
     const overlongTitle = 'A'.repeat(201);

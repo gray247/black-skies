@@ -1,8 +1,9 @@
 {
   "schema": "black-skies.program7.persistence-qualification.v1",
+  "rawEvidenceDirectory": "C:\\Users\\gray2\\AppData\\Local\\Temp\\black-skies-p7-persistence-729ee436-a962-4f25-940c-bff8b15235ec",
   "status": "qualified",
-  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
-  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
+  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
   "environment": {
     "platform": "win32",
     "node": "v22.19.0"
@@ -10,8 +11,8 @@
   "command": "node scripts/run-vitest-offline.mjs --run main/__tests__/feedbackNotesRepository.test.ts main/__tests__/ideationRepository.test.ts main/__tests__/revisionCandidateRepository.test.ts main/__tests__/storyFoundationRepository.test.ts main/__tests__/projectSpineIpc.test.ts main/__tests__/projectSessionCoordinator.test.ts main/__tests__/projectSpineRecoveryCheckpoints.test.ts main/__tests__/projectSpineRecoveryRepository.test.ts --reporter=json",
   "testSummary": {
     "files": 8,
-    "total": 136,
-    "passed": 136,
+    "total": 143,
+    "passed": 143,
     "failed": 0,
     "skipped": 0
   },
@@ -154,7 +155,7 @@
   "sourceArtifacts": [
     {
       "path": "app/main/__tests__/feedbackNotesRepository.test.ts",
-      "sha256": "2077b965f8a1055206c5dd6112998f0396cefd87bb1ea0feba5555cf709b3e13"
+      "sha256": "6154404f8254dedd92ee4dc186c82bbe3b541f2677090fca333e3d6d72065e09"
     },
     {
       "path": "app/main/__tests__/ideationRepository.test.ts",
@@ -162,7 +163,7 @@
     },
     {
       "path": "app/main/__tests__/revisionCandidateRepository.test.ts",
-      "sha256": "f56f0853a0f1b8efab443e92c6f3993b757cd54e54b4dd04418250868e5a0d94"
+      "sha256": "cfa86e042bb49800467be8b6dfdc230eaed87b7f4ce29c000e7318518daf8ac0"
     },
     {
       "path": "app/main/__tests__/storyFoundationRepository.test.ts",
@@ -170,7 +171,7 @@
     },
     {
       "path": "app/main/__tests__/projectSpineIpc.test.ts",
-      "sha256": "72155ec0f332e2d6f2c9680303ae00f4a9b90f3ac3242c008b490e9d9a6a42c2"
+      "sha256": "d27c83dee0b3252c97a40c45e5e3606eac778ae7f82d974db27291c3e5359a53"
     },
     {
       "path": "app/main/__tests__/projectSessionCoordinator.test.ts",
@@ -186,7 +187,7 @@
     },
     {
       "path": "app/main/feedbackNotesRepository.ts",
-      "sha256": "3f03b894e86a846d8b5dd3d2e7901f542c2e9f313c1f65809b5df08eef3a8c55"
+      "sha256": "0e0393fcb79ffa6f12735ddb8bb983f5bab068308cb9aba606f88ebc01c132bb"
     },
     {
       "path": "app/main/ideationRepository.ts",
@@ -194,7 +195,7 @@
     },
     {
       "path": "app/main/revisionCandidateRepository.ts",
-      "sha256": "7d6bd26654ca5cc7596c30c8088536344f9e1d3da9eef9f244e79969c4c4de7f"
+      "sha256": "2b35ef6e5070b467179f9fd89ec285666f8e49aa79bf159c0150be34b1eae726"
     },
     {
       "path": "app/main/storyFoundationRepository.ts",
@@ -202,10 +203,10 @@
     },
     {
       "path": "app/main/projectSpineIpc.ts",
-      "sha256": "7b0f970db14009dc0bbf6968ea16edfc168e43321fb58688248dbf8c12b0289a"
+      "sha256": "91adf11d84b0f7e39903d98849352ed0c2c17c0938ede80b56f8fc517998ee74"
     }
   ],
   "protectedEvidenceUsed": false,
   "humanAcceptanceClaimed": false,
-  "capturedAt": "2026-09-15T03:10:49.730Z"
+  "capturedAt": "2026-10-09T17:36:43.091Z"
 }

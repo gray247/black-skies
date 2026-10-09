@@ -73,6 +73,7 @@ export interface Program6StoryKnowledgeWorkspaceProps {
   /** False when the application has no usable local-AI capability in this session. */
   readonly localInferenceAvailable?: boolean;
   readonly notice?: string | null;
+  readonly onDismissNotice?: () => void;
   readonly onSourceReturn?: (source: StoryPositionRefV1) => void;
   readonly onAuthorRecordCreate?: (draft: StoryKnowledgeAuthorRecordDraftV1) => void;
   readonly onEnableLocalInference?: () => void;
@@ -905,6 +906,7 @@ export default function Program6StoryKnowledgeWorkspace({
   document,
   localInferenceAvailable = true,
   notice,
+  onDismissNotice,
   onSourceReturn,
   onAuthorRecordCreate,
   onEnableLocalInference,
@@ -915,6 +917,7 @@ export default function Program6StoryKnowledgeWorkspace({
 }: Program6StoryKnowledgeWorkspaceProps): JSX.Element {
   const [lens, setLens] = useState<Program6StoryKnowledgeLens>('overview');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  useEffect(() => setActionNotice(null), [notice, lens]);
   const [automaticScan, setAutomaticScan] = useState<AutomaticStoryIntelligenceRunStateV1 | null>(null);
   const [automaticRun, setAutomaticRun] = useState<{ readonly runId: string; readonly analysisId: string } | null>(null);
   const [automaticScanBusy, setAutomaticScanBusy] = useState(false);
@@ -943,7 +946,8 @@ export default function Program6StoryKnowledgeWorkspace({
     automaticEmotionCandidates,
   });
   const selectSource = (source: StoryPositionRefV1) => {
-    setActionNotice(`Source return requested for ${sourceLabel(source)}.`);
+    // The host owns pending, completed and failed navigation feedback.
+    setActionNotice(null);
     onSourceReturn?.(source);
   };
   const disposition = (
@@ -1084,9 +1088,12 @@ export default function Program6StoryKnowledgeWorkspace({
         ))}
       </nav>
       {notice || actionNotice ? (
-        <p className="stage19-program6__notice" role="status">
-          {notice ?? actionNotice}
-        </p>
+        <div className="stage19-program6__notice stage19-dismissible-notice" role="group" aria-label="Story Knowledge notices">
+          <p role="status">{notice ?? actionNotice}</p>
+          <button type="button" onClick={() => { setActionNotice(null); onDismissNotice?.(); }}>
+            Dismiss message
+          </button>
+        </div>
       ) : null}
       {lens === 'overview' ? (
         <>

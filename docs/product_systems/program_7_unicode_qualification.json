@@ -1,7 +1,7 @@
 {
   "schema": "program7.unicode-qualification.v2",
-  "exactCommit": "c57be0ffe41b5383f50fbc29546c121603094e40",
-  "exactTree": "a75c40f14e078ddda49b9fcfa33a5fe383390bc5",
+  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
+  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
   "testFile": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\__tests__\\program7SourceBinding.test.ts",
   "implementationFiles": [
     "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\program7SourceBinding.ts",
@@ -88,7 +88,7 @@
     {
       "id": "P7-G2-STALE-AMBIGUOUS",
       "category": "currentness",
-      "title": "refuses a changed source without silently reattaching a UTF-16 anchor"
+      "title": "marks an edited passage potentially outdated when its context remains unique"
     },
     {
       "id": "P7-G2-CRLF-ANCHOR",
@@ -128,15 +128,15 @@
   "sourceArtifacts": [
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\__tests__\\program7SourceBinding.test.ts",
-      "sha256": "bfb3a15dc8c1a16198036ecbc2b125e8f95394486788089e1935619b112691e4"
+      "sha256": "18419c5093d74a8a3232a92c3e9eafa3225ffd7e0a41078fcb684983603b0239"
     },
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\program7SourceBinding.ts",
-      "sha256": "fe29d247739b857f0121b41d71af08160490865b4f632eb24a0cfa1f457aed52"
+      "sha256": "88a7195f53f6b7e81949880cce53da1c5d262cbadf0c0747b5cb4d345d716a6e"
     },
     {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\shared\\manuscriptStructure.ts",
-      "sha256": "4bc8caf8cf5883ad9acc42c32fa7f0d70a1d5b667bc8fae3e430c7a7c9a55fc3"
+      "sha256": "afc83e1b868d88804d2c7137542409155ab5eaa0d72d90f39b707cb1c8089e8a"
     }
   ],
   "observed": {
@@ -281,12 +281,12 @@
     {
       "id": "P7-G2-STALE-AMBIGUOUS",
       "category": "currentness",
-      "title": "refuses a changed source without silently reattaching a UTF-16 anchor",
+      "title": "marks an edited passage potentially outdated when its context remains unique",
       "found": true,
       "passed": true,
       "observed": {
-        "title": "refuses a changed source without silently reattaching a UTF-16 anchor",
-        "fullName": "Program 7 source binding refuses a changed source without silently reattaching a UTF-16 anchor",
+        "title": "marks an edited passage potentially outdated when its context remains unique",
+        "fullName": "Program 7 source binding marks an edited passage potentially outdated when its context remains unique",
         "status": "passed"
       }
     },

@@ -6654,6 +6654,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-command__notice-slot {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   min-height: 56px;
   padding: 8px clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--bs-line-quiet);
@@ -9457,9 +9459,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-program6__notice {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  position: static;
   margin: 0;
   border-left: 3px solid var(--stage19-accent);
   padding: 8px 10px;
