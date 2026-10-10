@@ -1,9 +1,9 @@
 {
   "schema": "black-skies.program7.persistence-qualification.v1",
-  "rawEvidenceDirectory": "C:\\Users\\gray2\\AppData\\Local\\Temp\\black-skies-p7-persistence-729ee436-a962-4f25-940c-bff8b15235ec",
+  "rawEvidenceDirectory": "C:\\Users\\gray2\\AppData\\Local\\Temp\\black-skies-p7-persistence-b0b85308-e711-4677-8f2e-18817dbcf62c",
   "status": "qualified",
-  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
-  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
+  "exactCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33",
+  "exactTree": "3ffdb32098b8066919a1f6b091e5f16dbd4a68ee",
   "environment": {
     "platform": "win32",
     "node": "v22.19.0"
@@ -208,5 +208,5 @@
   ],
   "protectedEvidenceUsed": false,
   "humanAcceptanceClaimed": false,
-  "capturedAt": "2026-10-09T17:36:43.091Z"
+  "capturedAt": "2026-10-09T19:15:06.481Z"
 }

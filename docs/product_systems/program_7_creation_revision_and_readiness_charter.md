@@ -1,5 +1,33 @@
 # Program 7 Creation, Revision, And Readiness Charter
 
+## October 9 current status — accepted no-AI Human Gate 4; Program 7 closed
+
+Jason formally accepted no-AI Human Gate 4 for feee2e2e858c8430b02bc28b46c7efb2bfdf0d33
+and separately approved bounded built-family Program 7 closure. The current
+continuing repository is C:/Users/gray2/.codex/visualizations/2026/09/04/
+01a06e84-5626-7241-bbe0-639af79386bf/program7-today, branch
+codex/program7-implementation. Its final local documentation checkpoint does
+not change the qualified runtime or installed package identity.
+
+All five historical causes remain author-accepted Uncertain, with original
+failure results, owners, exact stages and reopening triggers preserved.
+The current acceptance/closure packet and evidence sample are recorded in
+[program_7_closure_report.md](program_7_closure_report.md) and the current
+open-work register. Earlier Program 7 planning/next-package/gate-pending text
+in this document is historical and superseded by this dated status.
+
+Next: Program 8 planning entry must review the approved **Program 8
+destination-owner workflow qualification, before Program 8 closure** stage for
+Character/Lore truth owners, Ideas Writing-section/manuscript destinations and
+Project Memory. Retain each named owner, evidence requirement and reopening
+trigger; memory additionally retains its separate higher-risk admission gate.
+Program 8 implementation is not activated by this closure record.
+
+Local AI remains unavailable. Review at Program 9 planning entry; complete
+RT-2B/model qualification before future AI admission/HG5, preserving saved
+advisory findings, the 24-case/fault matrix and human quality review.
+No push, merge, release, connector admission or new model execution is included.
+
 ## 1. Status And Authority
 
 - Status: accepted Program 7 planning authority and implementation plan;

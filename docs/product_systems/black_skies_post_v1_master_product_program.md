@@ -1,5 +1,33 @@
 # Black Skies Post-V1 Master Product Program
 
+## October 9 current status — accepted no-AI Human Gate 4; Program 7 closed
+
+Jason formally accepted no-AI Human Gate 4 for feee2e2e858c8430b02bc28b46c7efb2bfdf0d33
+and separately approved bounded built-family Program 7 closure. The current
+continuing repository is C:/Users/gray2/.codex/visualizations/2026/09/04/
+01a06e84-5626-7241-bbe0-639af79386bf/program7-today, branch
+codex/program7-implementation. Its final local documentation checkpoint does
+not change the qualified runtime or installed package identity.
+
+All five historical causes remain author-accepted Uncertain, with original
+failure results, owners, exact stages and reopening triggers preserved.
+The current acceptance/closure packet and evidence sample are recorded in
+[program_7_closure_report.md](program_7_closure_report.md) and the current
+open-work register. Earlier Program 7 planning/next-package/gate-pending text
+in this document is historical and superseded by this dated status.
+
+Next: Program 8 planning entry must review the approved **Program 8
+destination-owner workflow qualification, before Program 8 closure** stage for
+Character/Lore truth owners, Ideas Writing-section/manuscript destinations and
+Project Memory. Retain each named owner, evidence requirement and reopening
+trigger; memory additionally retains its separate higher-risk admission gate.
+Program 8 implementation is not activated by this closure record.
+
+Local AI remains unavailable. Review at Program 9 planning entry; complete
+RT-2B/model qualification before future AI admission/HG5, preserving saved
+advisory findings, the 24-case/fault matrix and human quality review.
+No push, merge, release, connector admission or new model execution is included.
+
 ## 1. Status And Authority
 
 Status: `ACCEPTED CURRENT PROGRAM`
@@ -577,6 +605,20 @@ The [qualification protocol](program_7_qualification_protocol.md) and
 annotated concept interpretation.
 
 ### Program 8 - Knowledge, Organization, And Interchange
+
+**Approved Program 7 carry-forward checkpoint — 2026-10-09:** mandatory review
+at Program 8 planning entry; exact resolution stage **Program 8 destination-owner
+workflow qualification, before Program 8 closure**. This is a destination
+qualification obligation, not blanket implementation authorization.
+
+| Integration | Owner | Required evidence | Reopening trigger |
+| --- | --- | --- | --- |
+| Character/Lore accepted truth owners | Program 8 knowledge-owner coordinator with Jason | Authorized fact-class/owner contract, explicit acceptance, receipts/idempotency/protection, durable reopen and human workflow proof | Authorized integration or changed owner contract |
+| Ideas Writing-section/manuscript destinations | Program 8 destination-integration coordinator with Jason | Explicit destination acceptance, current source/range/sovereignty, truthful success/failure receipts and durable state | Authorized integration or changed destination contract |
+| Project Memory | Program 8 knowledge/memory coordinator with Jason | Governed recall/owner contract, protection/currentness/provenance and durable human workflow proof; separate higher-risk admission gate retained | Authorized integration or changed recall/protection contract |
+
+Existing revision-alternative insertion is already built and qualified; these
+future destination integrations remain unimplemented.
 
 Goal: help the author find, connect, preserve, and move project knowledge.
 

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "program7.local-ai-qualification.v1",
   "status": "unavailable",
-  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
-  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
+  "exactCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33",
+  "exactTree": "3ffdb32098b8066919a1f6b091e5f16dbd4a68ee",
   "workingTreeClean": true,
   "providerPreconditionsVerified": false,
   "admission": "unavailable-author-accepted",
@@ -20,168 +20,168 @@
       "scenarioId": "Q01",
       "executionMode": "real-cold",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q01",
       "executionMode": "real-warm",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q02",
       "executionMode": "real-cold",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q02",
       "executionMode": "real-warm",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q03",
       "executionMode": "real-cold",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q03",
       "executionMode": "real-warm",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q04",
       "executionMode": "real-cold",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q04",
       "executionMode": "real-warm",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q05",
       "executionMode": "real-cold",
       "expected": "still_appears_present",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q05",
       "executionMode": "real-warm",
       "expected": "still_appears_present",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q06",
       "executionMode": "real-cold",
       "expected": "appears_resolved",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q06",
       "executionMode": "real-warm",
       "expected": "appears_resolved",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q07",
       "executionMode": "real-cold",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q07",
       "executionMode": "real-warm",
       "expected": "candidate",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q08",
       "executionMode": "real-cold",
       "expected": "Visible refusal or clarification for empty author purpose.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q08",
       "executionMode": "real-warm",
       "expected": "Visible refusal or clarification for empty author purpose.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q09",
       "executionMode": "real-cold",
       "expected": "Stale source fingerprint is rejected before transport invocation.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q09",
       "executionMode": "real-warm",
       "expected": "Stale source fingerprint is rejected before transport invocation.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q10",
       "executionMode": "fault-a",
       "expected": "Malformed provider output fails closed.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q10",
       "executionMode": "fault-b",
       "expected": "Malformed provider output fails closed.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q11",
       "executionMode": "real-cold",
       "expected": "A real in-progress qwen3:4b generation is cancelled and the transport closes within 2 seconds.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q11",
       "executionMode": "real-warm",
       "expected": "A real in-progress qwen3:4b generation is cancelled and the transport closes within 2 seconds.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q12",
       "executionMode": "fault-a",
       "expected": "A real connection-refused endpoint fails before model dispatch.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     },
     {
       "scenarioId": "Q12",
       "executionMode": "fault-b",
       "expected": "A real endpoint loss after dispatch fails closed without fallback.",
-      "observed": "Not executed on beda0bbc. Local AI remains unavailable under Jason accepted October 8 disposition. Saved advisory outputs were reviewed separately; remaining qualification is mandatory RT-2B in Program 9 before future admission/HG5.",
+      "observed": "Not executed on feee2e2e. Local AI remains unavailable under the accepted Program 9 RT-2B disposition; no new model execution or admission claim.",
       "mechanicalPass": null
     }
   ],
@@ -194,5 +194,5 @@
   "owner": "Program 9 qualification coordinator and Jason",
   "reopeningTrigger": "Renewed author AI-admission request or approved prompt/model/host/transport/policy change; protection or manuscript-authority regression is a hard stop",
   "requiredEvidence": "Full 24-case cold/warm and fault matrix, source fidelity repairs Q02/Q04/Q06/Q07, complete protected-plane review, resource/latency evidence, Jason six-dimension review before admission",
-  "capturedAt": "2026-10-09T17:31:52.7423565Z"
+  "capturedAt": "2026-10-09T19:18:45.4438292Z"
 }

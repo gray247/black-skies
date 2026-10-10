@@ -1,5 +1,288 @@
 # Program 7 Creation, Revision, And Readiness Implementation Plan
 
+## October 9 final author acceptance — Human Gate 4 accepted; Program 7 closed
+
+Jason explicitly selected **“Accept no-AI Human Gate 4”** and separately
+**“Approve Program 7 closure and Program 8 checkpoint”** on 2026-10-09.
+This supersedes the pending gate/family/checkpoint wording in earlier dated
+entries below; their execution outcomes, failed fixtures and provenance remain
+historical evidence.
+
+Qualified runtime: feee2e2e858c8430b02bc28b46c7efb2bfdf0d33; tree
+3ffdb32098b8066919a1f6b091e5f16dbd4a68ee. Existing application, package and
+installed evidence retains that identity. The final local checkpoint changes
+documentation only; it does not relabel qualification or rebuild the installer.
+
+Formal acceptance includes the Recovery/Long-form/Migration evidence sample,
+completed human checks and targeted installed Emotion notice confirmation.
+The original failed Save remains Fail; all five historical-cause exceptions
+remain **Uncertain, not Pass**, under their recorded owners, stages and triggers:
+P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01,
+P7-PACKAGED-NATIVE-ACCESS-01 and P7-MANUAL-SAVE-UNKNOWN-01.
+No current repair remains pending under these accepted dispositions.
+
+Program 7 closure covers its qualified bounded built families only. The
+approved exact destination stage is **Program 8 destination-owner workflow
+qualification, before Program 8 closure**, with review at Program 8 planning
+entry. Character/Lore truth owners, Ideas Writing-section/manuscript
+destinations and Project Memory retain their named owners, completion
+evidence and reopening triggers in the closure report. The separate
+higher-risk memory gate remains. Existing revision-alternative insertion is
+built and qualified; future destination integrations are not implemented.
+
+Local AI remains unavailable. Program 9 planning-entry review and RT-2B/model
+qualification before future AI admission/HG5 remain mandatory, including the
+24-case/fault matrix, saved advisory findings and human quality review.
+No model execution, connector admission, Program 8 implementation, push,
+merge or release is authorized by these closure decisions.
+
+Ledger: 55 rows; 21 Pass, 2 retained Fail, 32 Uncertain.
+The three prior-human carry-forward rows retain Uncertain execution results
+with explicit accepted evidence dispositions; no new replay is invented.
+Generated sample decision fields remain blank by contract. Exact decisions
+are preserved in the existing author receipt and formal manual ledger rows.
+
+Receipt: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e/jason-disposition.json.
+Final local commit identity is recorded in Git and the external final closure
+receipt after validation; the qualified runtime identity above is unchanged.
+
+## October 9 final decision checkpoint — five historical causes accepted
+
+Jason explicitly accepted **P7-MANUAL-SAVE-UNKNOWN-01’s historical cause as
+Uncertain**, retaining Program7 coordinator ownership, the exact Program7
+Save-write triage/author disposition stage before HG4, and recurrence triggers.
+The original failed execution remains **Fail**, now an author-accepted exception;
+cause is a separate **Uncertain / exception** row. Positive repeats/diagnosis
+do not establish cause or count as a repair. No fifth cause was silently waived.
+
+Runtime candidate feee2e2e858c8430b02bc28b46c7efb2bfdf0d33; tree
+3ffdb32098b8066919a1f6b091e5f16dbd4a68ee. Qualified app/package/installed
+identity is unchanged; existing evidence/records are dirty documentation only.
+No further current implementation or broad test/PC campaign is pending.
+P7-EMOTION-NOTICE-FLOW-01 is closed with mechanical, installed and Jason visual
+Pass. The original four accepted historical causes remain Uncertain unchanged.
+No AI execution/admission, push, release or formal gate/program closure claimed.
+
+Current ledger integrity:53 rows,19 Pass,2 Fail (one retained initial incident,
+accepted exception),32 Uncertain (24 unavailable-AI,3 formal human carry-forwards,
+5 accepted historical causes). Deterministic sample remains Recovery, Long-form,
+Migration; blank generated Jason decision fields retained. Human dispositions
+are recorded separately in the author receipt; no score is invented.
+
+Receipt: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e/jason-disposition.json.
+Prior packet is preserved in pre-save-exception-acceptance. Reopen the accepted
+Save cause for supported Save failure, missing/duplicate durable alternative,
+misleading status or manuscript mutation; capture operation/code/syscall and
+before/after bytes. Any manuscript-integrity regression is a hard stop.
+
+Remaining author decisions are **formal no-AI Human Gate4 acceptance**, including
+current objective sample/authority evidence review, and **separate Program7
+built-family closure** with explicit Program8 destination-owner checkpoint
+disposition. Accepted Program9 RT-2B remains mandatory before AI admission/HG5
+with planning-entry review. Program8 future home remains proposed until accepted.
+The leading final decision packet in the existing closure report is the current
+authority; earlier pending/failure/launch checkpoints below remain historical.
+
+## October 9 bounded Save diagnosis complete — author disposition pending
+
+Jason authorized bounded diagnosis and a minimal repair if warranted. One
+instrumented actual Save on installed feee2e2e858c8430b02bc28b46c7efb2bfdf0d33
+in a separate copy of the retained failed project passed mkdir/open/write/sync/
+close/rename. Exact selected offsets60..118 and the third alternative persisted
+after normal close/fresh process. All18 manuscript files and the original failed
+fixture/alternative bytes remain unchanged. No AI or permanent runtime change.
+
+The original message uniquely identifies RevisionCandidateRepository.write()
+failure handling, excluding source selection/stale validation as its immediate
+origin. That catch discarded the underlying filesystem exception. The original
+failing operation/code/syscall cannot be recovered from its retained evidence.
+Current success does not establish that cause. No automatic retry, format change
+or storage patch is warranted by this bounded result; no new full qualification
+or package is needed because executable/ASAR and runtime sources remain unchanged.
+The existing focused repository fault tests already prove sync/replacement refusal
+preserves the prior alternative document; no mirror test or new test file added.
+
+Evidence: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e/save-diagnosis-s4inrA/diagnosis.json.
+Log: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e/save-diagnosis-result.log.
+Temporary setup probes failed module access before Save and are retained. They
+are helper failures, not current product failures; the successful diagnostic
+used the installed Node built-in-module API. Temporary observers ended at normal
+process close. Earlier qualified/user-reviewed installed build is unchanged.
+
+Ledger integrity:52 rows,19 Pass,2 Fail (same original Save incident),31 Uncertain.
+Both failed original rows remain Fail/repair, alongside positive diagnostics.
+No fifth exception is silently accepted. Proposed disposition:
+**P7-MANUAL-SAVE-UNKNOWN-01 historical filesystem cause remains Uncertain**.
+Owner: Program7 coordinator. Exact resolution stage: Program7 Save-write triage/
+author disposition, before Human Gate4. Reopening trigger: another supported
+Save error, missing/duplicate durable alternative, misleading status or manuscript
+mutation. Required reopened evidence: failing stage/code/syscall and before/after
+durable bytes; any manuscript-integrity regression is a hard stop.
+
+This proposal needs Jason’s explicit decision. If accepted, preserve the failed
+run as historical Fail and record only the cause as Uncertain/exception; do not
+claim the failure repaired. If declined, the gate stays blocked pending new
+causal evidence; repeating passing saves without a new lead is not diagnosis.
+Formal Human Gate4 and separate Program7 family closure remain open. Required
+sample evidence review (Recovery, Long-form, Migration), the proposed Program8
+destination-owner checkpoint disposition and accepted Program9 AI boundary are
+retained. Four accepted historical uncertainties are unchanged. No push/release.
+
+## October 9 Jason notice confirmation — P7-EMOTION-NOTICE-FLOW-01 closed
+
+Jason replied **“passed”** to the single targeted installed Emotion notice
+checklist on feee2e2e858c8430b02bc28b46c7efb2bfdf0d33, tree
+3ffdb32098b8066919a1f6b091e5f16dbd4a68ee. This records his confirmation of
+scroll/resize layout, dismissal, repeated Prologue/Chapter X returns, light
+theme and workspace cleanup. Combined with existing mechanical and exact
+installed qualification, **P7-EMOTION-NOTICE-FLOW-01 is closed**.
+
+Reopening trigger: graph covered by feedback, competing/stale/false-completed
+messages, failed dismissal/cleanup, incorrect source/project or manuscript
+integrity regression. Owner remains Program7 coordinator; reopened repair and
+affected qualification must precede formal Human Gate4 disposition.
+
+Current ledger:51 rows,18 Pass,2 Fail (one original Save incident),31 Uncertain;
+integrity and unchanged deterministic sample verified. Author receipt is
+C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e/jason-disposition.json;
+prior receipt/packet preserved under pre-human-confirmation-records.
+Runtime sources remain unchanged; only existing evidence/governance records dirty.
+
+**Human Gate4 and Program7 remain open.** P7-MANUAL-SAVE-UNKNOWN-01 remains the
+current unresolved technical finding before the gate. Original failed Save,
+preserved fixture/trace and successful unfixed follow-ups are all retained;
+do not replace the failure with Pass or infer an accepted fifth uncertainty.
+Latest author scope limits implementation to the notice repair; the separate
+bounded Save diagnosis/minimal repair scope decision is still pending. No
+storage/save repair or additional broad human testing is authorized by “passed”.
+
+The four explicitly accepted historical causes remain Uncertain with unchanged
+owners/stages/triggers. Accepted Program9 AI boundary, proposed Program8
+destination-owner checkpoint, sample review and separate formal HG4/Program7
+decisions remain intact. No push/release/closure claim. Earlier pending visual
+entries below are historical and superseded by this confirmation.
+
+## October 9 installed feee2e2e successor — one visual confirmation pending
+
+Exact runtime feee2e2e858c8430b02bc28b46c7efb2bfdf0d33; tree
+3ffdb32098b8066919a1f6b091e5f16dbd4a68ee. Jason completed the required
+offline-firewall-isolated installation, workload, uninstall, preservation and
+same-installer reinstall. Independent standard-host witness passed exact
+installer/executable/ASAR/receipt hashes and all197 preserved external files.
+Normal GPU, zero forbidden runtimes; unsigned internal RC only.
+
+Installed Emotion notice review passed: both themes, widths1280/760,24 scrolling
+observations, repeated keyboard/detached returns, dismissal/cleanup and fresh
+process reopen. All17 original Carmilla manuscripts unchanged. Painted-circle
+pointer returns to Chapter X/Prologue and dismissal also passed. Preparation
+group-centre locator failed in unpainted SVG space; circle clicks passed and
+only the external helper selector changed. Failure output/screenshot retained.
+Witness signing-module warning used its existing pwsh fallback; direct signing
+check also NotSigned. Neither helper observation established a product defect.
+
+Evidence root: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e.
+Installed root: C:/Users/gray2/AppData/Local/Temp/bs-p7-feee2e2e-life-90f6a37c.
+Artifacts: installed-witness-verified.json, package/installed-admin.log,
+emotion-review/result-installed.json, installed-review.log and
+jason-installed-ready.json/png. Pre-installed packet retained in
+pre-installed-records. Ledger integrity:51 rows,17 Pass,2 Fail (same original
+Save incident),32 Uncertain. Sample remains Recovery, Long-form and Migration;
+blank Jason decision fields retained. Current tracked changes are records only.
+
+**Human Gate 4 and Program 7 remain open.** One targeted installed visual
+confirmation pending; no H1-H10 repeat. P7-MANUAL-SAVE-UNKNOWN-01 remains
+unresolved; bounded diagnosis scope question pending. Passing repeats are not
+a repair. Four accepted historical causes remain Uncertain with recorded owners,
+exact resolution stages and reopening triggers. Program9 AI boundary and proposed
+Program8 destination-owner checkpoint retained; no push, release or closure.
+
+## October 9 feee2e2e notice repair — qualification and human actions pending
+
+Runtime candidate: feee2e2e858c8430b02bc28b46c7efb2bfdf0d33; tree
+3ffdb32098b8066919a1f6b091e5f16dbd4a68ee. **Human Gate 4 and Program 7 remain open.**
+Existing evidence/documents are now dirty successor records; the runtime sources
+remain those qualified clean. Earlier candidate receipts and dated claims below
+remain historical and are not current launch instructions.
+
+P7-EMOTION-NOTICE-FLOW-01 is repaired mechanically: remove the sticky local request
+notice, use host-owned pending/completed/failed feedback, reject false success
+after a failed selection, and preserve accessible dismissal and workspace cleanup.
+The reserved header notice may remain visible above the graph while scrolling;
+it occupies its own layout space and must never cover graph content.
+
+Required checks: focused notice 170/170; evidence fixture 7/7; full application
+159 files / 1571 Pass / 2 existing skips (dirty pre-freeze source-identical run);
+clean Stage 19 49 critical files / 845 Pass / 2 skips, startup 1/1, Electron 36/36;
+persistence 143 assertions, Unicode 18/18, accessibility and scale qualified.
+Lint, typecheck, production build and diff hygiene passed. No AI ran.
+
+Dedicated Program 7 journeys exposed P7-MANUAL-SAVE-UNKNOWN-01: original run
+7 Pass / 1 Fail / 1 intentional real-AI skip; a focused repeat and a separate full
+follow-up (8 Pass / 1 intentional skip) passed without source changes. The original
+failure is retained as **Fail / repair**, not erased by these repeats.
+
+Unsigned internal RC package verified, installer SHA-256
+c467e6c1ea59cce1b6fbc15bbe6634b458ee174de91bf645462733e39d264f35.
+Unpacked representative smoke and targeted packaged Emotion review passed:
+light/dark, widths 1280/760, 24 scrolling observations, repeated keyboard/detached
+returns, dismissal/navigation cleanup and fresh-process reopen; all 17 original
+Carmilla manuscript files remained unchanged. This is unpacked package evidence,
+not installed offline qualification or Jason visual acceptance.
+
+Evidence root: C:/Users/gray2/AppData/Local/Temp/bs-p7-notice-9a743c2e.
+Installed offline qualification is pending: the existing lifecycle script requires
+Administrator rights for a temporary outbound firewall rule; this executor is
+not elevated. Saved helper: run-installed-gate.ps1 under that evidence root.
+Planned fresh short root: C:/Users/gray2/AppData/Local/Temp/bs-p7-feee2e2e-life-90f6a37c.
+Preserve any failed state. After its pass, coordinator must run the independent
+standard-host witness and exact installed Emotion review, then provide the
+corrected installed build for one targeted human visual confirmation.
+
+Jason accepted P7-A11Y-ROUTE-01, P7-NATIVE-RESP-01, P7-STORY-SUPPRESS-01 and
+P7-PACKAGED-NATIVE-ACCESS-01 as **Uncertain**, retaining their recorded owners,
+exact stages and triggers. His other installed checks on beda0bbc passed; those
+reports are historical human evidence, not unperformed human tests on feee2e2e.
+Accepted Program 9 RT-2B before AI admission/HG5 remains mandatory; the Program 8
+destination-owner checkpoint remains proposed for explicit closure disposition.
+No formal gate acceptance, family closure, push or release is claimed.
+
+Current evidence reconciliation passes: 49 rows, 14 Pass, 2 Fail, 33 Uncertain.
+Both Fail rows describe **one** original manual-save incident (journey and finding),
+not two defects. The seven objective Pass rows produce the deterministic sample
+Recovery, Long-form and Migration. Blank Jason sample decision fields are retained;
+this evidence review does not require another H1-H10 campaign. Prior installed
+checks and accepted uncertainties are preserved without inventing successor
+human execution. Current installed qualification and targeted visual row remain pending.
+
+### P7-MANUAL-SAVE-UNKNOWN-01 — current unresolved save finding
+
+Owner: Program 7 coordinator. Exact resolution stage: this successor revision
+qualification **before Human Gate 4**. Reopen/stop condition: another supported
+Save alternative failure, missing durable record, incorrect status or manuscript
+mutation; any safety regression is a hard stop.
+
+In program7-revision.spec.ts:304, the third manual Save alternative returned
+"The revision candidate could not be saved."; only two records persisted instead
+of three. No Apply had occurred. Generic failure is real, but the low-level
+exception was not retained. Do not infer timeout, storage damage or test timing.
+The original project and failed trace remain intact:
+C:/Users/gray2/AppData/Local/Temp/black-skies-program7-e2e-eq9iuk/carmilla-review;
+journeys/test-results/program7-revision-Manual-s-c9533-rce-through-a-fresh-restart-electron/trace.zip
+under the evidence root; extracted screenshot trace-013aed786f276f4ffa7b9df6f6d6cbffe3a20015.png.
+
+No save-path repair has been authorized or attempted in this narrow UI task.
+The original run, focused repeat and full follow-up are all retained. A bounded
+diagnosis/minimal repair scope question is pending with Jason. A passing follow-up
+is not causal resolution. Required next evidence: retained underlying failure,
+minimal demonstrated fix if applicable, focused regression and any invalidated
+broader/package qualification; otherwise an explicit author disposition.
+
+P7-EVIDENCE-FIXTURE-DRIFT-01 is closed mechanically: synthetic sample eligibility
+and complete synthetic pilot fixtures remove coupling to mutable live records;
+7/7 focused and the required full application run pass. Existing qualification,
+seed/tampering, stale-binding and false-admission assertions remain. Reopen when
+a live disposition change breaks fixture-independent tests. No AI Pass inferred.
+
 ## October 9 successor repair — Human Gate 4 remains blocked
 
 Jason accepted the four historical-cause exceptions as **Uncertain**, retaining

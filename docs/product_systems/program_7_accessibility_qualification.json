@@ -1,8 +1,8 @@
 {
   "schema": "program7.accessibility-qualification.v1",
   "status": "qualified",
-  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
-  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
+  "exactCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33",
+  "exactTree": "3ffdb32098b8066919a1f6b091e5f16dbd4a68ee",
   "cleanExactCommitBinding": true,
   "dirtyPaths": [],
   "sourceHashes": {
@@ -36,11 +36,11 @@
     },
     "app/renderer/Stage19WritingSpineView.tsx": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\Stage19WritingSpineView.tsx",
-      "sha256": "b8444cd44be39430bdf639baea555dca8dac87684f355b7ce56969d6d7bb7255"
+      "sha256": "e7b931fde5a2cd4fc38c2d1b70b805fe0f35bbb11901bb01108dc988caa4937b"
     },
     "app/renderer/styles/app.css": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\renderer\\styles\\app.css",
-      "sha256": "81cebd43ab7654592b43343b68e36f912a3bc9f1f9decb96c2b69ef533880e68"
+      "sha256": "2aea7875730d06ad42ec6608e4e4d541a4ace3d96d59eeb568148f138e00ccaf"
     },
     "app/tests/e2e/program7-accessibility.spec.ts": {
       "path": "C:\\Users\\gray2\\.codex\\visualizations\\2026\\09\\04\\01a06e84-5626-7241-bbe0-639af79386bf\\program7-today\\app\\tests\\e2e\\program7-accessibility.spec.ts",

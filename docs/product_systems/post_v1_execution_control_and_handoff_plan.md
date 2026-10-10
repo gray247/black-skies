@@ -1,12 +1,43 @@
 # Black Skies Post-V1 Execution Control And Handoff Plan
 
+## October 9 current status — accepted no-AI Human Gate 4; Program 7 closed
+
+Jason formally accepted no-AI Human Gate 4 for feee2e2e858c8430b02bc28b46c7efb2bfdf0d33
+and separately approved bounded built-family Program 7 closure. The current
+continuing repository is C:/Users/gray2/.codex/visualizations/2026/09/04/
+01a06e84-5626-7241-bbe0-639af79386bf/program7-today, branch
+codex/program7-implementation. Its final local documentation checkpoint does
+not change the qualified runtime or installed package identity.
+
+All five historical causes remain author-accepted Uncertain, with original
+failure results, owners, exact stages and reopening triggers preserved.
+The current acceptance/closure packet and evidence sample are recorded in
+[program_7_closure_report.md](program_7_closure_report.md) and the current
+open-work register. Earlier Program 7 planning/next-package/gate-pending text
+in this document is historical and superseded by this dated status.
+
+Next: Program 8 planning entry must review the approved **Program 8
+destination-owner workflow qualification, before Program 8 closure** stage for
+Character/Lore truth owners, Ideas Writing-section/manuscript destinations and
+Project Memory. Retain each named owner, evidence requirement and reopening
+trigger; memory additionally retains its separate higher-risk admission gate.
+Program 8 implementation is not activated by this closure record.
+
+Local AI remains unavailable. Review at Program 9 planning entry; complete
+RT-2B/model qualification before future AI admission/HG5, preserving saved
+advisory findings, the 24-case/fault matrix and human quality review.
+No push, merge, release, connector admission or new model execution is included.
+
 ## 1. Status And Authority
 
 - Status: `ACCEPTED CURRENT EXECUTION CONTROL`
 - Author approval: `JASON APPROVED ON 2026-08-10`
-- Current implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 P7-0B COMPLETE; HARDENING COMMIT D3C41281 ACCEPTED, CLEAN, AND PUSHED; IMPLEMENTATION AUTHORIZED IN THE RECORDED WORKTREE`
-- Next implementation control point: `BEGIN WAVE 1 IN C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation ON codex/program7-implementation; REVIEWED CHECKPOINT COMMIT/PUSH MAY BE PERFORMED BY JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR`
-- Git authority: `JASON APPROVES DESTRUCTIVE DISPOSITION; JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR MAY STAGE, COMMIT, AND PUSH WITHIN THE RECORDED WORKTREE AND BRANCH; MERGES REQUIRE EXPLICIT AUTHORIZATION`
+- Current state: Program 7 bounded built-family closure and no-AI Human Gate 4 accepted by Jason on 2026-10-09; runtime feee2e2e.
+- Next control point: Program 8 planning-entry review of its approved destination-owner workflow qualification before Program 8 closure; implementation requires bounded authorization.
+- Historical September 8 implementation state: `PROGRAMS 1–6 CLOSED; HUMAN GATES 2 AND 3 PASSED; CLEANUP WAVE A CLOSED; PROGRAM 7 P7-0B COMPLETE; HARDENING COMMIT D3C41281 ACCEPTED, CLEAN, AND PUSHED; IMPLEMENTATION AUTHORIZED IN THE RECORDED WORKTREE`
+- Historical September 8 implementation control point: `BEGIN WAVE 1 IN C:\Users\gray2\.codex\worktrees\4f0b\black-skies\tmp\program7-implementation ON codex/program7-implementation; REVIEWED CHECKPOINT COMMIT/PUSH MAY BE PERFORMED BY JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR`
+- Current Git limit: final local documentation checkpoint only; no push, merge or release authorized.
+- Historical execution Git authority: `JASON APPROVES DESTRUCTIVE DISPOSITION; JASON OR AN EXPLICITLY AUTHORIZED COORDINATOR MAY STAGE, COMMIT, AND PUSH WITHIN THE RECORDED WORKTREE AND BRANCH; MERGES REQUIRE EXPLICIT AUTHORIZATION`
 
 This plan translates the product direction in
 [black_skies_post_v1_master_product_program.md](black_skies_post_v1_master_product_program.md)
@@ -780,6 +811,14 @@ These are integrated into the affected product program or professionalization
 checkpoint. They do not become an unrelated permanent audit campaign.
 
 ## 14. Immediate Next Sequence
+
+Current sequence after October 9 closure: preserve the feee2e2e no-AI runtime
+and local documentation checkpoint; enter Program 8 planning and review the
+approved destination-owner checkpoint before any separately authorized
+implementation. Retain Program 9 AI qualification and higher-risk memory gates.
+No push/release or Program 8 implementation is included.
+
+The following September 8 sequence is retained as historical planning only:
 
 1. preserve the accepted planning baseline at user commit
    `994e558d7ede9d9dde4df1a4e268d91be20ebd43` and record the accepted,

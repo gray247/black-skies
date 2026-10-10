@@ -1,7 +1,7 @@
 {
   "schemaVersion": "program7.electron-qualification.v1",
-  "exactCommit": "beda0bbceeae4015c4a39ac9491ee1e07ba04641",
-  "exactTree": "499b9602b16bd06fb385dec7e297d9e2212b9d83",
+  "exactCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33",
+  "exactTree": "3ffdb32098b8066919a1f6b091e5f16dbd4a68ee",
   "execution": {
     "host": "outer Windows host",
     "diagnosticGpuDisable": false,
@@ -12,9 +12,10 @@
   },
   "suites": [
     {
-      "result": "Pass",
+      "result": "Fail",
       "id": "P7-G2-REVISION",
-      "path": "app/tests/e2e/program7-revision.spec.ts"
+      "path": "app/tests/e2e/program7-revision.spec.ts",
+      "observed": "First dedicated journey: 1 manual-alternative save failed; explicit focused and full follow-ups passed without source changes. Original cause remains unresolved."
     },
     {
       "result": "Pass",
@@ -34,53 +35,110 @@
     }
   ],
   "suiteSummary": {
-    "failed": 0,
-    "passed": 4,
-    "dedicatedPassed": 8,
-    "intentionalRealAiSkip": 1
+    "passed": 3,
+    "failed": 1,
+    "dedicatedInitialPassed": 7,
+    "dedicatedInitialFailed": 1,
+    "explicitFollowupPassed": 8,
+    "explicitFollowupFailed": 0,
+    "intentionalRealAiSkip": 1,
+    "automaticRetries": 0
   },
   "focusedVitest": {
-    "files": 5,
-    "failed": 0,
-    "passed": 193
+    "files": 3,
+    "passed": 177,
+    "failed": 0
   },
   "fullApp": {
     "files": 159,
-    "skipped": 2,
-    "passed": 1568,
+    "passed": 1571,
     "failed": 0,
-    "log": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\full-app.log"
+    "skipped": 2,
+    "log": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\full-app-corrected.log",
+    "binding": "Dirty pre-freeze run; tested runtime sources unchanged in the frozen qualification commit. Not relabelled as a clean full-suite run."
   },
   "stage19": {
-    "expectedSkips": 2,
     "criticalUnitFiles": 49,
-    "criticalUnitPassed": 844,
-    "electronPassed": "36/36",
+    "criticalUnitPassed": 845,
+    "expectedSkips": 2,
     "startupPreflight": "1/1",
+    "electronPassed": "36/36",
     "markers": [
       "STAGE19_REGRESSION_PASS",
       "CLEAN_RC_ELIGIBLE"
-    ]
+    ],
+    "log": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\stage19.log"
   },
   "rawReports": {
-    "journeys": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\journeys.json",
-    "stage19": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\stage19.log"
+    "stage19": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\stage19.log",
+    "journeysInitial": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\journeys.log",
+    "focusedFollowup": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\revision-followup.log",
+    "journeysFollowup": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\journeys-followup.json",
+    "journeysFollowupLog": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\journeys-followup.log"
   },
   "limitations": [
-    "Mechanical results do not decide Human Gate 4 or Program 7 closure.",
-    "Local AI was not executed; admission remains unavailable.",
-    "Historical unresolved causes remain explicit Uncertain rows despite successful current checks."
+    "Mechanical UI repair passed; required revision qualification retains one unresolved author-accepted original failure despite passing explicit follow-ups.",
+    "No model execution or AI admission. Five historical causes remain accepted Uncertain, not Pass.",
+    "Jason explicitly accepted no-AI Human Gate 4 and separately approved bounded Program 7 closure on 2026-10-09; mechanical execution alone does not claim human acceptance.",
+    "Installed lifecycle, witness and Emotion proofs pass. Targeted Jason visual confirmation passed; P7-MANUAL-SAVE-UNKNOWN-01 historical cause is accepted Uncertain; its original failed run remains Fail."
   ],
   "protectedEvidenceUsed": false,
   "humanAcceptanceClaimed": false,
-  "capturedAt": "2026-10-09T17:38:10.9558972Z",
+  "capturedAt": "2026-10-09T19:39:08.697Z",
   "installedLifecycle": {
+    "status": "passed",
+    "receiptPath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\package\\package-receipt.json",
+    "workingRoot": "C:/Users/gray2/AppData/Local/Temp/bs-p7-feee2e2e-life-90f6a37c",
+    "lifecycleEvidencePath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-feee2e2e-life-90f6a37c\\stage19-22-lifecycle-evidence.json",
     "independentStandardHostWitness": "passed",
-    "lifecycleEvidencePath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-beda0bbc-life-afb8c7ce\\stage19-22-lifecycle-evidence.json",
     "offlineFirewallIsolatedStatus": "passed",
-    "targetedHistory": "passed",
-    "receiptPath": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-close-d3ba5ba5\\package\\package-receipt.json",
-    "boundedP4P5P6": "passed",
-    "externalFileCount": 197
+    "externalFileCount": 197,
+    "targetedEmotion": "passed",
+    "targetedEmotionEvidence": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\emotion-review\\result-installed.json",
+    "manuscriptFilesUnchanged": 17,
+    "humanVisualConfirmation": "passed",
+    "humanVisualBasis": "Jason reported passed for the single targeted installed Emotion notice checklist."
+  },
+  "unresolvedFindings": [
+    {
+      "id": "P7-MANUAL-SAVE-UNKNOWN-01",
+      "result": "Fail",
+      "originalProject": "C:/Users/gray2/AppData/Local/Temp/black-skies-program7-e2e-eq9iuk/carmilla-review",
+      "message": "The revision candidate could not be saved.",
+      "expectedCandidates": 3,
+      "observedCandidates": 2,
+      "underlyingCause": "unknown; low-level error was not retained",
+      "repairPerformed": false,
+      "scope": "Bounded diagnosis completed without runtime edits. Jason accepted the original historical filesystem cause as Uncertain, not Pass. Original failed execution retained; no current repair pending under this accepted disposition.",
+      "boundedDiagnosis": {
+        "artifact": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\save-diagnosis-s4inrA\\diagnosis.json",
+        "status": "Pass",
+        "saveAttempts": 1,
+        "automaticRetries": 0,
+        "allSixWriteStages": "Pass",
+        "manuscriptFilesUnchanged": 18,
+        "originalEvidenceUntouched": true,
+        "originalCause": "Uncertain",
+        "permanentBehaviorChanged": false
+      },
+      "disposition": "author-accepted-historical-cause-exception",
+      "causeResult": "Uncertain",
+      "acceptedBy": "Jason"
+    }
+  ],
+  "currentQualificationDisposition": {
+    "status": "author-accepted-no-ai-bounded-closure",
+    "dedicatedExplicitFollowup": "8 Pass / 1 intentional real-AI skip / 0 Fail / 0 flaky",
+    "originalDedicatedFailureRetained": true,
+    "historicalCauseExceptionsAccepted": 5,
+    "currentFunctionalRepairPending": false,
+    "formalHumanGate4": "accepted-no-ai",
+    "program7Closure": "closed-bounded-built-families"
+  },
+  "authorDecisionReceipt": {
+    "path": "C:\\Users\\gray2\\AppData\\Local\\Temp\\bs-p7-notice-9a743c2e\\jason-disposition.json",
+    "recordedAt": "2026-10-10T03:26:04.313Z",
+    "formalHumanGate4": "accepted-no-ai",
+    "separateProgram7Closure": "approved-bounded-closure"
   }
 }
