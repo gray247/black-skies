@@ -145,6 +145,8 @@
     "docs/product_systems/program_7_creation_revision_and_readiness_implementation_plan.md",
     "docs/product_systems/program_7_qualification_protocol.md",
     "docs/product_systems/program_7_visual_handoff.md",
+    "docs/product_systems/program_8_9_review_and_scope_decisions.md",
+    "docs/product_systems/program_8_knowledge_organization_and_interchange_plan.md",
     "docs/product_systems/repository_control_point_0_reconciliation_ledger.md",
     "docs/product_systems/stage19_foundation_spine_acceptance_reconciliation.md",
     "docs/product_systems/stage19_package_19_22_closure.md",
@@ -165,5 +167,41 @@
     "RUNBOOK.md",
     "sample_project/program_7_corpus/carmilla/README.md",
     "SECURITY.md"
-  ]
+  ],
+  "currentProgram8Planning": {
+    "status": "proposed-bounded-plan-planning-only",
+    "entryReviewDate": "2026-10-09",
+    "startingCommit": "f9868e6f432fbb005caf8d4c470fbd95c71756cd",
+    "startingWorkingTree": "clean",
+    "plan": "docs/product_systems/program_8_knowledge_organization_and_interchange_plan.md",
+    "model": "GPT-5.6 Sol",
+    "reasoning": "xhigh",
+    "modelConfirmation": "Jason confirmed the model/effort switch in the current chat before planning synthesis",
+    "scope": "Planning-entry checkpoint review, current functionality/seams/gaps, proposed owner packages and acceptance/regression requirements",
+    "implementationAuthorization": "none",
+    "approvedDestinationStage": "Program 8 destination-owner workflow qualification, before Program 8 closure",
+    "higherRiskMemoryGate": "retained-separate",
+    "qualifiedRuntimeCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33",
+    "localAi": "unavailable; Program 9 entry review and RT-2B/model qualification before future admission/HG5",
+    "inclusionNotice": "Draft inclusion validates documentation; it does not accept the plan or activate runtime scope",
+    "independentReview": {
+      "date": "2026-10-12",
+      "document": "docs/product_systems/program_8_9_review_and_scope_decisions.md",
+      "status": "pending-independent-review",
+      "pendingAuthorQuestionCount": 5,
+      "answersRecorded": false,
+      "publicationAuthorization": "Jason explicitly requested commit/push for independent GitHub review",
+      "substantiveRecommendationsAccepted": false
+    }
+  },
+  "currentPlanningPublicationAuthorization": {
+    "date": "2026-10-12",
+    "branch": "codex/program7-implementation",
+    "remote": "github",
+    "url": "https://github.com/gray247/black-skies.git",
+    "scope": "Publish existing committed app history and bounded planning/review documentation",
+    "implementationAuthorization": "none",
+    "releaseAuthorization": "none",
+    "qualifiedRuntimeCommit": "feee2e2e858c8430b02bc28b46c7efb2bfdf0d33"
+  }
 }

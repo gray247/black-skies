@@ -1,5 +1,36 @@
 # Black Skies Current Open Work Register
 
+## October 12 independent Program 8 review — author questions pending
+
+Jason requested an independent AI review of the current GitHub app and
+authorized committing/pushing this planning checkpoint. The
+[review/handoff](program_8_9_review_and_scope_decisions.md) provides the bounded
+edit list, blockers, deferrals and a proposed P9 outline. Five author
+questions are still being reviewed; no product answers are inferred.
+P8 remains planning-only, and its three-destination qualification checkpoint,
+separate Memory admission and P9 RT-2B requirements are unchanged. Earlier
+current-table inconsistencies are identified in the review for subsequent
+reconciliation; historical evidence and accepted dispositions are preserved.
+
+## October 9 Program 8 planning entry — proposed bounded plan
+
+Repository/branch/HEAD/clean state matched the handoff at f9868e6f. The
+[Program 8 plan](program_8_knowledge_organization_and_interchange_plan.md)
+records the completed planning-entry review of the accepted destination
+checkpoint, current implemented behavior, missing owners, proposed packages,
+contract decisions and regression/human acceptance requirements. It is a
+draft for Jason's review, not implementation authorization. P8-01 is active
+for planning only; the prior owned-later/HG4 sequencing has reached planning
+entry. Destination qualification itself remains pending before Program 8
+closure, and the separate higher-risk memory gate is retained.
+
+Program 7/HG4 remain accepted. All five historical causes retain Uncertain
+status and their original owners/stages/triggers; no evidence outcome is
+reclassified. Runtime/package qualification stays bound to feee2e2e.
+Local AI remains unavailable under Program 9 entry review and RT-2B/model
+qualification before future admission/HG5. No runtime/instruction/automation/
+dependency change, destructive cleanup, push or release is included.
+
 ## October 9 final author acceptance — Human Gate 4 accepted; Program 7 closed
 
 Jason explicitly selected **“Accept no-AI Human Gate 4”** and separately
@@ -587,7 +618,7 @@ register or a currently authorized program promotes it.
 | P7-01 | Program 7 Creation, Revision, and Readiness implementation | [Program 7 charter](program_7_creation_revision_and_readiness_charter.md), [implementation plan](program_7_creation_revision_and_readiness_implementation_plan.md), [qualification protocol](program_7_qualification_protocol.md), and [visual handoff](program_7_visual_handoff.md) | implementation-authorized-wave-1-checkpoint-pushed | Program 7 later packages | Jason accepted the charter and authorized Luna-high bounded implementation/test delegation. The planning baseline remains user commit `994e558d7ede9d9dde4df1a4e268d91be20ebd43`; the documentation-only hardening is accepted, clean, and pushed at `d3c412816fae98346ca5d4f40cce7ea38d2fe5cc`. P7-0B is complete. The reviewed Wave 1 implementation checkpoint is clean-qualified and pushed at `034ccf62edc09534f8effd2697dc16f36cdb44b9`; later Program 7 packages and gates retain their named owners. |
 | P7-RT | Program 7 Readiness Track: Program 6 integration, one-model local-AI pilot, and long-form corpus | [Program 7 charter](program_7_creation_revision_and_readiness_charter.md), [implementation plan](program_7_creation_revision_and_readiness_implementation_plan.md), and [`Carmilla` source manifest](../../sample_project/program_7_corpus/carmilla/README.md) | host-feasibility-proved; qualification-required | Program 7 Readiness Track | `Carmilla` is selected and its untouched 28,199-word Project Gutenberg source is downloaded with license and hash evidence. Ollama `0.13.0` is healthy on loopback, all six installed models are visible, and provisional `qwen3:4b` returned exactly `OK` and loaded on CPU. This removes the old runtime/ACL-repair blocker but does not qualify the model. The derived baseline/revised corpus and answer key now verify deterministically; quality, latency, resource, cancellation, timeout, structured-harness, protection, mandatory no-AI baseline qualification, and mandatory local-AI pilot evidence remain open. Admission requires every pilot row to pass; a bounded limitation blocks admission and records re-entry; no silent fallback is permitted |
 | HG-04 | Intelligence and creation review | Execution-control plan and [Program 7 charter](program_7_creation_revision_and_readiness_charter.md) | owned-later | Human Gate 4 | The first Program 6 finding through Program 7 revision, re-evaluation, and Jason-resolution workflow passes exact mechanical qualification and long-form human review through an independently accepted no-AI path; the mandatory local-AI pilot is executed and recorded, and its path is reviewed as admitted only if every pilot row passes. An unadmitted local-AI outcome does not invalidate the no-AI path; this gate does not silently close the remaining Program 7 workflow families |
-| P8-01 | Knowledge, organization, and broader interchange | Program 8 | owned-later | Program 8 | Human Gate 4 synthesis identifies the highest-value workflow order |
+| P8-01 | Knowledge, organization, and broader interchange: planning only | [Proposed Program 8 plan](program_8_knowledge_organization_and_interchange_plan.md) | active | Program 8 coordinator; destination owners retained with Jason | Planning-entry review complete; draft scope/contracts need review and bounded runtime authorization. All three destination integrations require the approved qualification stage before closure; separate memory gate retained |
 | CLN-B | Second legacy cleanup and professionalization wave | Reachability, dependency, and architecture evidence | owned-later | After Program 8 | Major product families have current owners and replacements |
 | P9-01 | Heavy intelligence, durability, and operationalization | Program 9 | owned-later | Program 9 | Proven workflows justify each high-risk capability |
 | HG-05 | High-risk behavior review | Execution-control plan | owned-later | Human Gate 5 | High-risk candidate is complete and qualified |

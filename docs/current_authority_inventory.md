@@ -1,5 +1,22 @@
 # Current Documentation Authority Inventory
 
+## October 12 independent Program 8 review publication
+
+Jason authorized committing and pushing the current branch for independent
+GitHub review. The [review/handoff](product_systems/program_8_9_review_and_scope_decisions.md)
+and P8 draft are planning inputs, not accepted implementation authority.
+Five author questions remain pending. This publication authorization
+supersedes earlier no-push limits only for this documentation checkpoint
+and existing branch history; runtime, admission and release gates remain.
+
+## October 9 Program 8 draft planning record
+
+The [Program 8 plan](product_systems/program_8_knowledge_organization_and_interchange_plan.md)
+is included for documentation validation and discoverability. It records
+planning-entry review and proposed packages/contracts; it is not an accepted
+implementation plan or new runtime authority. Existing accepted execution,
+direction, destination-owner and memory/AI gates retain precedence.
+
 ## October 9 current status — accepted no-AI Human Gate 4; Program 7 closed
 
 Jason formally accepted no-AI Human Gate 4 for feee2e2e858c8430b02bc28b46c7efb2bfdf0d33

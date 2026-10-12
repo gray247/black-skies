@@ -1,5 +1,36 @@
 ## October 9 Program 7 closure execution plan
 
+## October 12 GitHub planning publication for independent review
+
+Jason authorized committing/pushing the app branch and pending P8 planning
+documents for a second AI review. The
+[review/handoff](product_systems/program_8_9_review_and_scope_decisions.md)
+records recommendations and evidence limits. Five author questions remain
+pending. No runtime repair, new qualification Pass, P8 draft acceptance,
+AI/Memory admission, historical evidence reclassification or release is claimed.
+Earlier no-push statements record prior task scope; this publication has
+separate explicit author authorization.
+
+## October 9 Program 8 planning entry — documentation only
+
+The continuing program7-today repository matches codex/program7-implementation
+at f9868e6f432fbb005caf8d4c470fbd95c71756cd, initially clean.
+The [proposed Program 8 plan](product_systems/program_8_knowledge_organization_and_interchange_plan.md)
+separates built Foundation/Outline handoff and revision-alternative insertion
+from deferred Character/Lore packages and saved Ideas Writing-section/
+manuscript/Project-memory previews. It reviews the accepted destination-owner
+checkpoint, maps proposed owners/packages and names contract/evidence gaps.
+No new defect, repair, destination implementation or qualification Pass is
+claimed. P8-01 planning is indexed in the current open-work register.
+
+Program 7 bounded closure and no-AI HG4 acceptance remain intact. The five
+historical causes remain accepted Uncertain under unchanged owners/stages/
+triggers, with original failures preserved. Runtime/package identity remains
+feee2e2e; memory keeps its separate higher-risk gate, and AI remains
+unavailable pending Program 9 entry review and RT-2B/model qualification.
+Implementation, instruction/automation/dependency changes, destructive cleanup,
+push and release remain outside this task.
+
 ## October 9 final author acceptance — Human Gate 4 accepted; Program 7 closed
 
 Jason explicitly selected **“Accept no-AI Human Gate 4”** and separately
