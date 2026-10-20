@@ -10,7 +10,16 @@ from typing import Any
 
 from .persistence import dump_diagnostic
 
-_SENSITIVE_DETAIL_KEYWORDS = ("path", "project", "snapshot", "note", "file")
+_SENSITIVE_DETAIL_KEYWORDS = (
+    "path", "project", "snapshot", "note", "file", "prompt", "content", "body",
+    "input", "text", "manuscript", "token", "secret", "password", "credential",
+    "authorization", "api_key",
+)
+_SENSITIVE_VALUE_PATTERNS = (
+    re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]+"),
+    re.compile(r"(?i)\bsk-[A-Za-z0-9_-]{16,}"),
+    re.compile(r"(?i)\b(?:api[_-]?key|token|secret|password|credential)\s*[:=]\s*[^\s,;]+"),
+)
 
 
 @dataclass
@@ -42,7 +51,7 @@ class DiagnosticLogger:
         payload = {
             "timestamp": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
             "code": code,
-            "message": message,
+            "message": _redact_text(message),
             "details": sanitized_details,
         }
         dump_diagnostic(path, payload)
@@ -65,12 +74,24 @@ def _sanitize_details(details: dict[str, Any] | None) -> dict[str, Any]:
     if not details:
         return {}
 
-    return {key: _redact_value(key, value) for key, value in details.items()}
+    return {key: _redact_value(str(key), value) for key, value in details.items()}
 
 
 def _redact_value(key: str, value: Any) -> Any:
-    if _should_redact(key) and isinstance(value, str):
+    if _should_redact(key):
         return "[REDACTED]"
+    if isinstance(value, dict):
+        return {nested_key: _redact_value(str(nested_key), item) for nested_key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_redact_value(key, item) for item in value]
+    if isinstance(value, str):
+        return _redact_text(value)
+    return value
+
+
+def _redact_text(value: str) -> str:
+    for pattern in _SENSITIVE_VALUE_PATTERNS:
+        value = pattern.sub("[REDACTED]", value)
     return value
 
 

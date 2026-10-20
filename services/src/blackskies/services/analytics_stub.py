@@ -21,6 +21,7 @@ from .constants import (
 from .export import load_outline_artifact
 from .io import read_json
 from .scene_docs import DraftRequestError, read_scene_document
+from .models._project_id import validate_project_id
 from .analytics.cache import (
     compute_content_hash,
     read_scene_cache,
@@ -45,7 +46,7 @@ def get_project_summary(
 ) -> dict[str, object]:
     """Return a lightweight analytics summary for the requested project."""
 
-    project_root = _resolve_project_root(settings, project_id)
+    project_root = resolve_analytics_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
     scenes = list(_generate_scene_stats(project_root, outline, force_refresh=force_refresh))
     pacing_results = score_scene_pacing(
@@ -176,7 +177,7 @@ def get_scene_metrics(
 ) -> dict[str, object]:
     """Return per-scene metrics for the requested project."""
 
-    project_root = _resolve_project_root(settings, project_id)
+    project_root = resolve_analytics_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
     scenes = [
         scene.to_dict()
@@ -193,7 +194,7 @@ def get_scene_metrics(
 def get_relationship_graph(settings: ServiceSettings, project_id: str) -> dict[str, object]:
     """Return a simple relationship graph for the requested project."""
 
-    project_root = _resolve_project_root(settings, project_id)
+    project_root = resolve_analytics_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
     nodes: list[dict[str, object]] = []
     char_nodes: dict[str, dict[str, object]] = {}
@@ -255,9 +256,16 @@ class SceneMetrics:
         }
 
 
-def _resolve_project_root(settings: ServiceSettings, project_id: str) -> Path:
-    project_root = settings.project_base_dir / project_id
-    if not project_root.exists():
+def resolve_analytics_project_root(settings: ServiceSettings, project_id: str) -> Path:
+    try:
+        validated = validate_project_id(project_id)
+    except ValueError as exc:
+        raise DraftRequestError("Project ID is invalid.", {"project_id": project_id}) from exc
+    base_root = settings.project_base_dir.resolve()
+    project_root = (base_root / validated).resolve()
+    if not project_root.is_relative_to(base_root):
+        raise DraftRequestError("Project path escapes the configured workspace.", {"project_id": project_id})
+    if not project_root.is_dir():
         raise DraftRequestError("Project root does not exist.", {"project_id": project_id})
     return project_root
 

@@ -5,15 +5,31 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..analytics_stub import get_project_summary, get_relationship_graph, get_scene_metrics
+from ..analytics_stub import (
+    get_project_summary,
+    get_relationship_graph,
+    get_scene_metrics,
+    resolve_analytics_project_root,
+)
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..feature_flags import analytics_enabled
 from ..http import raise_service_error
 from ..operations.budget_service import BudgetService
+from ..scene_docs import DraftRequestError
 from .dependencies import get_diagnostics, get_settings
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
+
+
+def _validated_project_id(settings: ServiceSettings, project_id: str) -> str:
+    try:
+        resolve_analytics_project_root(settings, project_id)
+    except DraftRequestError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
+            "code": "VALIDATION", "message": "Project path is invalid.",
+        }) from exc
+    return project_id
 
 
 @router.get("/summary")
@@ -26,7 +42,7 @@ def get_analytics_summary(
     """Return a lightweight summary for the requested project."""
 
     _assert_analytics_enabled()
-    return get_project_summary(settings, project_id, force_refresh=force_refresh)
+    return get_project_summary(settings, _validated_project_id(settings, project_id), force_refresh=force_refresh)
 
 
 @router.get("/scenes")
@@ -39,7 +55,7 @@ def get_analytics_scenes(
     """Return stubbed scene metrics for the requested project."""
 
     _assert_analytics_enabled()
-    return get_scene_metrics(settings, project_id, force_refresh=force_refresh)
+    return get_scene_metrics(settings, _validated_project_id(settings, project_id), force_refresh=force_refresh)
 
 
 class AnalyticsRelationshipNode(BaseModel):
@@ -70,7 +86,7 @@ def get_analytics_relationships(
     """Return relationship graph data for the requested project."""
 
     _assert_analytics_enabled()
-    graph = get_relationship_graph(settings, project_id)
+    graph = get_relationship_graph(settings, _validated_project_id(settings, project_id))
     return AnalyticsRelationshipGraph.model_validate(graph)
 
 
@@ -84,7 +100,7 @@ def get_analytics_budget(
     """Return the current budget summary for the requested project."""
 
     _assert_analytics_enabled()
-    project_root = settings.project_base_dir / project_id
+    project_root = resolve_analytics_project_root(settings, _validated_project_id(settings, project_id))
     try:
         budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         state = budget_service.load_state(project_root)

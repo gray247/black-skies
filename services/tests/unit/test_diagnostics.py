@@ -124,3 +124,29 @@ def test_log_appends_suffix_when_collision(tmp_path: Path, frozen_datetime: None
     with second.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
     assert payload["message"] == "second"
+
+
+def test_log_redacts_nested_manuscript_and_credentials_without_mutating_input(tmp_path: Path) -> None:
+    details = {"nested": {"items": [{"prompt": "synthetic private prose", "token": "synthetic-secret"}],
+                          "count": 4}, "manuscript": {"body": "another private sentinel"}}
+    original = json.loads(json.dumps(details))
+    logged = diagnostics.DiagnosticLogger().log(tmp_path, code="guard", message="blocked", details=details)
+    raw = logged.read_text(encoding="utf-8")
+    payload = json.loads(raw)
+
+    for sentinel in ["synthetic private prose", "synthetic-secret", "another private sentinel"]:
+        assert sentinel not in raw
+    assert payload["details"]["nested"]["count"] == 4
+    assert details == original
+
+
+def test_log_redacts_credential_patterns_in_messages_and_nested_strings(tmp_path: Path) -> None:
+    logged = diagnostics.DiagnosticLogger().log(tmp_path, code="guard",
+        message="Request failed Bearer SYNTHETIC-CREDENTIAL",
+        details={"nested": ["token=SYNTHETIC-TOKEN", "sk-1234567890abcdefghijkl"]})
+    raw = logged.read_text(encoding="utf-8")
+
+    assert "SYNTHETIC-CREDENTIAL" not in raw
+    assert "SYNTHETIC-TOKEN" not in raw
+    assert "sk-1234567890abcdefghijkl" not in raw
+    assert "[REDACTED]" in raw

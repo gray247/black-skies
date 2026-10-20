@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 
@@ -22,16 +21,14 @@ def validate_project_id(value: str) -> str:
     if candidate in {".", ".."}:
         raise ValueError("Project ID is invalid.")
 
-    separators = {os.sep}
-    if os.altsep:
-        separators.add(os.altsep)
+    separators = {"/", "\\"}
     if any(sep in candidate for sep in separators):
         raise ValueError("Project ID must not contain path separators.")
 
     if any(ord(char) < 32 for char in candidate):
         raise ValueError("Project ID contains invalid control characters.")
 
-    if os.name == "nt" and len(candidate) >= 2 and candidate[1] == ":":
+    if len(candidate) >= 2 and candidate[1] == ":":
         raise ValueError("Project ID must not include drive specifiers.")
 
     if Path(candidate).is_absolute():

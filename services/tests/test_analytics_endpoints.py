@@ -2,9 +2,12 @@
 
 import json
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+
+from blackskies.services import analytics_stub
 
 
 @pytest.fixture(autouse=True)
@@ -94,3 +97,52 @@ def test_analytics_relationships_endpoint_returns_graph(test_client: TestClient)
         assert edge["kind"] == "appearsIn"
         assert edge["from"].startswith("char:")
         assert edge["to"].startswith("scene:")
+
+
+@pytest.mark.parametrize("endpoint", ["summary", "scenes", "relationships", "budget"])
+@pytest.mark.parametrize("identifier_kind", ["posix-parent", "windows-parent", "absolute"])
+def test_analytics_rejects_identifiers_outside_project_base(test_client, endpoint, identifier_kind):
+    base = Path(test_client.app.state.settings.project_base_dir)
+    outside = base.parent / f"outside-{uuid4().hex[:12]}"
+    assert outside.resolve().is_relative_to(base.parent.resolve())
+    _seed_project(test_client, "../" + outside.name)
+    identifiers = {"posix-parent": "../" + outside.name,
+                   "windows-parent": "..\\" + outside.name, "absolute": str(outside)}
+    before = {p.relative_to(outside).as_posix(): p.read_bytes() for p in outside.rglob("*") if p.is_file()}
+
+    response = test_client.get(f"/api/v1/analytics/{endpoint}", params={"project_id": identifiers[identifier_kind]})
+
+    assert response.status_code == 400
+    assert response.json()["code"] == "VALIDATION"
+    assert response.json()["trace_id"] == response.headers["x-trace-id"]
+    assert {p.relative_to(outside).as_posix(): p.read_bytes() for p in outside.rglob("*") if p.is_file()} == before
+
+
+@pytest.mark.parametrize("endpoint", ["summary", "budget"])
+def test_analytics_rejects_a_resolved_project_root_escape(test_client, endpoint, monkeypatch):
+    _seed_project(test_client, "linked-project")
+    base = Path(test_client.app.state.settings.project_base_dir)
+    linked = base / "linked-project"
+    outside = base.parent / f"junction-{uuid4().hex[:12]}"
+    outside.mkdir()
+    resolve = Path.resolve
+
+    def resolved_junction(path, *args, **kwargs):
+        return outside if path == linked else resolve(path, *args, **kwargs)
+
+    # Simulate the canonical resolution of a Windows junction without requiring
+    # symlink privileges or changing machine security settings.
+    monkeypatch.setattr(analytics_stub.Path, "resolve", resolved_junction)
+    response = test_client.get(f"/api/v1/analytics/{endpoint}", params={"project_id": "linked-project"})
+
+    assert response.status_code == 400
+    assert response.json()["code"] == "VALIDATION"
+    assert response.json()["trace_id"] == response.headers["x-trace-id"]
+    assert not list(outside.iterdir())
+
+
+def test_analytics_budget_still_loads_an_existing_project(test_client):
+    _seed_project(test_client, "valid-budget-project")
+    response = test_client.get("/api/v1/analytics/budget", params={"project_id": "valid-budget-project"})
+    assert response.status_code == 200
+    assert response.json()["project_id"] == "valid-budget-project"
