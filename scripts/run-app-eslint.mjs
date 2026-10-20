@@ -18,12 +18,12 @@ const require = createRequire(import.meta.url);
 
 let eslintExecutable;
 try {
-  eslintExecutable = require.resolve(".bin/eslint", {
+  eslintExecutable = path.join(path.dirname(require.resolve("eslint/package.json", {
     paths: [
       path.join(appDir, "node_modules"),
       path.join(repoRoot, "node_modules")
     ]
-  });
+  })), "bin", "eslint.js");
 } catch (error) {
   process.stdout.write(
     "Skipping ESLint run: install Node dev dependencies to enable linting.\n"
@@ -34,13 +34,12 @@ try {
 const flatConfigPath = path.join(repoRoot, "eslint.config.js");
 
 const { status, error } = spawnSync(
-  eslintExecutable,
-  ["--config", flatConfigPath, "--max-warnings", "0", ...lintTargets],
+  process.execPath,
+  [eslintExecutable, "--config", flatConfigPath, "--max-warnings", "0", ...lintTargets],
   {
     cwd: appDir,
     env: process.env,
-    stdio: "inherit",
-    shell: process.platform === "win32"
+    stdio: "inherit"
   }
 );
 

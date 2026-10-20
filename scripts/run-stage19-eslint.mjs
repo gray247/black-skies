@@ -43,16 +43,17 @@ const lintTargets = [
   "tests/e2e/stage19-program3-visual.spec.ts"
 ];
 
-const eslintExecutable = require.resolve(".bin/eslint", {
+const eslintExecutable = path.join(path.dirname(require.resolve("eslint/package.json", {
   paths: [
     path.join(appDir, "node_modules"),
     path.join(repoRoot, "node_modules")
   ]
-});
+})), "bin", "eslint.js");
 
 const result = spawnSync(
-  eslintExecutable,
+  process.execPath,
   [
+    eslintExecutable,
     "--config",
     path.join(repoRoot, "eslint.config.js"),
     "--max-warnings",
@@ -62,8 +63,7 @@ const result = spawnSync(
   {
     cwd: appDir,
     env: process.env,
-    stdio: "inherit",
-    shell: process.platform === "win32"
+    stdio: "inherit"
   }
 );
 
