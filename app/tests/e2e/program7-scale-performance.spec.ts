@@ -31,6 +31,12 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
   const observations: Array<Record<string, unknown>> = [];
   try {
     for (const fixture of SCALES) {
+      const cpuSession = process.env.P75_SCALE_PROFILE === '1' && fixture.scale === '8x'
+        ? await writing.context().newCDPSession(writing) : null;
+      if (cpuSession) {
+        await cpuSession.send('Profiler.enable');
+        await cpuSession.send('Profiler.start');
+      }
       let projectPath: string;
       let projectId: string;
       if (fixture.kind === 'carmilla-baseline') {
@@ -69,12 +75,25 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
 
       await writing.evaluate(() => {
         const target = window as unknown as {
-          __program7ScaleFrameMonitor?: { running: boolean; last: number; maxGap: number };
+          __program7ScaleFrameMonitor?: {
+            running: boolean; last: number; maxGap: number; phase: string;
+            gaps: Array<{ phase: string; durationMs: number }>;
+            longTasks: Array<{ startTime: number; durationMs: number }>;
+            observer: PerformanceObserver;
+          };
         };
-        const monitor = { running: true, last: performance.now(), maxGap: 0 };
+        const longTasks: Array<{ startTime: number; durationMs: number }> = [];
+        const observer = new PerformanceObserver((records) => {
+          for (const entry of records.getEntries()) longTasks.push({ startTime: entry.startTime, durationMs: entry.duration });
+        });
+        observer.observe({ entryTypes: ['longtask'] });
+        const monitor = { running: true, last: performance.now(), maxGap: 0, phase: 'open',
+          gaps: [] as Array<{ phase: string; durationMs: number }>, longTasks, observer };
         target.__program7ScaleFrameMonitor = monitor;
         const tick = (timestamp: number) => {
-          monitor.maxGap = Math.max(monitor.maxGap, timestamp - monitor.last);
+          const durationMs = timestamp - monitor.last;
+          monitor.maxGap = Math.max(monitor.maxGap, durationMs);
+          if (durationMs > 50) monitor.gaps.push({ phase: monitor.phase, durationMs });
           monitor.last = timestamp;
           if (monitor.running) window.requestAnimationFrame(tick);
         };
@@ -83,6 +102,10 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
       const openStartedAt = performance.now();
       await openProgram7Project(writing, projectPath);
       const openDurationMs = performance.now() - openStartedAt;
+      await writing.evaluate(() => {
+        const monitor = (window as unknown as { __program7ScaleFrameMonitor?: { phase: string } }).__program7ScaleFrameMonitor;
+        if (monitor) monitor.phase = 'story-rail';
+      });
       await openWritingStudioRail(writing, 'Story');
       const renderStartedAt = performance.now();
       const unitRail = writing.locator('[data-manuscript-unit-id]');
@@ -93,16 +116,32 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
       await lastUnit.getByRole('button').first().click();
       await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${fixture.finalTitle}` })).toBeVisible();
       const selectDurationMs = performance.now() - selectStartedAt;
-      const frameGapMs = await writing.evaluate(() => {
+      const frameObservation = await writing.evaluate(() => {
         const target = window as unknown as {
-          __program7ScaleFrameMonitor?: { running: boolean; maxGap: number };
+          __program7ScaleFrameMonitor?: {
+            running: boolean; maxGap: number;
+            gaps: Array<{ phase: string; durationMs: number }>;
+            longTasks: Array<{ startTime: number; durationMs: number }>;
+            observer: PerformanceObserver;
+          };
         };
         const monitor = target.__program7ScaleFrameMonitor;
         if (!monitor) return null;
         monitor.running = false;
-        return monitor.maxGap;
+        monitor.observer.disconnect();
+        return { maxGap: monitor.maxGap, gaps: monitor.gaps, longTasks: monitor.longTasks };
       });
-      observations.push({ scale: fixture.scale, kind: fixture.kind, projectId, count: fixture.count, openDurationMs, renderDurationMs, selectDurationMs, frameGapMs });
+      const frameGapMs = frameObservation?.maxGap ?? null;
+      const observation = { scale: fixture.scale, kind: fixture.kind, projectId, count: fixture.count, openDurationMs, renderDurationMs, selectDurationMs, frameGapMs, frameObservation };
+      observations.push(observation);
+      console.info('[program7-scale-electron-observation]', JSON.stringify(observation));
+      if (cpuSession) {
+        const { profile } = await cpuSession.send('Profiler.stop');
+        await test.info().attach('program7-scale-8x-cpu', {
+          body: Buffer.from(JSON.stringify(profile)), contentType: 'application/json',
+        });
+        await cpuSession.detach();
+      }
       const openLimitMs = fixture.scale === '1x' ? 5_000 : fixture.scale === '2x' ? 7_500 : fixture.scale === '4x' ? 10_000 : 20_000;
       expect(openDurationMs).toBeLessThanOrEqual(openLimitMs);
       expect(renderDurationMs).toBeLessThan(5_000);

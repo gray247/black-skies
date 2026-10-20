@@ -11,9 +11,31 @@ fresh short temporary directory only when the Windows template path reaches
 MAX_PATH. Relative includes stay together, original template bytes remain
 intact, and compiler pipes, warnings, package identity and dependency versions
 are unchanged. Frozen offline installation validates the updated patch hash.
-Focused behavioral regression and exact clean package qualification are being
-recorded in `outputs/program-7.5-completion-2026-10-20` in the parent workspace.
-Do not infer installer acceptance before the actual package verifier passes.
+Five focused behavioral tests pass. Exact clean package construction and the
+unchanged package verifier pass at `bcbe6800`; the unsigned NSIS installer is
+87,155,825 bytes, SHA-256
+`d675aa66918231fe37929a0d61f5e99db615b8594a578a126c11548dd9e877aa`.
+The full app suite passes 1,587 tests with two existing skips. The clean fixed
+gate passes 857 critical tests (two skips), startup and 36 Electron scenarios.
+Packaged-runtime save/reopen, exact export and 100-unit smoke also pass. Receipts
+remain in `outputs/program-7.5-completion-2026-10-20` in the parent workspace.
+P75-PACK-01 is verified within installer-construction/static-verification scope;
+installed lifecycle remains a separate gate.
+
+P75-SCALE-01 remains open. The October 20 expanded run passes eight cases,
+skips real local AI and fails the 136-unit frame-gap assertion at 125.3 ms,
+above its unchanged 100 ms limit. Packaging was no longer running; concurrency
+with packaging is not a sufficient explanation for this observation. Retain
+the original failure and trace. Per-scale frame/long-task telemetry is being
+added to diagnose which measured operation stalls. Idle diagnostics reproduce
+131.882 and 139.272 ms at 136 units. Two bounded one-worker load samples fail
+at 175.994 ms (136 units) and 108.3 ms (68 units). Receipt timestamps show that
+the type check began after the first load sample ended, correcting an initial
+overlap concern. A profiled sample passes at 66.7 ms for 136 units, but does not
+resolve the variability. A detached-editor initialization experiment passes
+its unit guard but still fails the desktop limit at 123.612 ms; it was preserved
+as a rejected patch and removed. Production editor bytes remain unchanged.
+No timing threshold, retry or fixture was weakened to obtain a pass.
 
 P75-INSTALL-01 / P75-HUMAN-01 remain open. On October 20 the owner confirmed
 there is no separate Windows VM or test computer. Never run the candidate
