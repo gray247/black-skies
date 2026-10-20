@@ -422,10 +422,21 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     const projectTools = writing.getByRole('region', { name: 'Project Tools' });
     const projectPresentation = await projectTools.evaluate((element) => ({
       height: element.getBoundingClientRect().height,
+      scrollHeight: element.scrollHeight,
+      viewport: { width: innerWidth, height: innerHeight },
+      font: getComputedStyle(element).font,
+      children: Array.from(element.children).map((child) => ({
+        className: child.className,
+        height: child.getBoundingClientRect().height,
+        text: child.textContent?.trim(),
+      })),
       helperColors: Array.from(element.querySelectorAll('.stage19-spine__lifecycle-help, .stage19-spine__lifecycle label'))
         .map((node) => getComputedStyle(node).color),
     }));
-    expect(projectPresentation.height).toBeLessThan(320);
+    console.log('[p75-project-tools-geometry]', JSON.stringify(projectPresentation));
+    // The CSS cap is 20rem (320px). Integer device scaling can hit that
+    // boundary exactly; fractional scaling previously rounded just below it.
+    expect(projectPresentation.height).toBeLessThanOrEqual(320);
     expect(projectPresentation.helperColors.length).toBeGreaterThan(0);
     expect(projectPresentation.helperColors.every((color) => color === 'rgb(87, 81, 73)')).toBe(true);
     expect(projectPresentation.helperColors).not.toContain('rgb(119, 112, 103)');
@@ -537,6 +548,9 @@ test('Slice 1 keeps long prose in a private canvas scroll region while rails sta
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-slice1-geometry-'));
   try {
     const { writing } = await getStage19Windows(electronApp, page);
+    // This journey verifies desktop rail/canvas geometry. Native placement depends
+    // on the host display; compact responsive behavior has its own coverage.
+    await writing.setViewportSize({ width: 1900, height: 1000 });
     await writing.evaluate(async (parentPath) => {
       const bridge = window.projectSpine!;
       const project = await bridge.createProject({

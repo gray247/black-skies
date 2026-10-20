@@ -11,7 +11,7 @@ env:
 
 jobs:
   windows-package:
-    name: Windows 11 x64 package, install, and uninstall
+    name: Windows Server 2022 x64 package, install, and uninstall
     runs-on: windows-2022
     timeout-minutes: 60
     steps:
@@ -19,6 +19,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Use a canonical temporary directory outside the checkout
+        shell: pwsh
+        run: |
+          $qualificationTemp = Join-Path $env:RUNNER_TEMP 'black-skies-qualification'
+          New-Item -ItemType Directory -Path $qualificationTemp -ErrorAction Stop | Out-Null
+          $qualificationTemp = (Resolve-Path -LiteralPath $qualificationTemp).Path
+          "TEMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "TMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Set up Python for repository hygiene gate
         uses: actions/setup-python@v6
         with:

@@ -37,6 +37,10 @@ Each Electron run needs distinct output/result paths. The qualification packet
 includes exact argv/environment, service tests and six additional Program 7
 desktop specs covering revisions, Ideas, long form, accessibility and scale.
 
+The hosted packaging workflow uses Windows Server 2022 and a canonical job-owned
+RUNNER_TEMP subdirectory. Its results do not establish Windows 11 visual or human
+acceptance. Desktop geometry journeys set their intended viewport explicitly.
+
 ## Source-return repair and ownership
 
 CodeMirror can revise wrapped-line height estimates after an initial reveal.

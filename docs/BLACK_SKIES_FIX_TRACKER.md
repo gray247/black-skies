@@ -52,6 +52,19 @@ timeouts and 20-second case budgets. The UTF-8/BOM/newline, receipt-update,
 application frame, startup and installed-performance assertions are unchanged.
 Retain the first run's failure; require a passing fresh qualification run.
 
+Run 39457076597 passes the native integration cases but stops at five of 36
+Electron scenarios. Three use the hosted runner's short `RUNNER~1` TEMP alias
+against canonical `runneradmin` session paths. The workflow now uses a newly
+owned canonical directory under RUNNER_TEMP, outside Git. The private-canvas
+desktop journey inherited a 706x558 native window and is now explicit about its
+1900x1000 desktop viewport; compact geometry retains separate coverage. The
+Project Tools observation is a test boundary defect: its CSS cap is 20rem/320px,
+the local reading is 319.994476px, and the hosted integer-scale reading is 320px.
+The assertion now includes the declared 320px maximum; the numerical limit and
+CSS remain unchanged. Geometry is logged before the assertion. The job now correctly
+identifies Windows Server 2022 rather than claiming Windows 11. These are harness
+repairs pending a fresh complete run, not installed qualification evidence.
+
 ## October 19 Program 7.5 Phases 3–5 — stabilization candidate
 
 The verified Phase 2 checkpoint is retained in five local commits on
