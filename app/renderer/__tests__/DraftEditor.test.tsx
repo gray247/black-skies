@@ -1,6 +1,7 @@
 ﻿import { fireEvent, render, screen } from '@testing-library/react';
-import { waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { EditorView } from '@codemirror/view';
 
 import DraftEditor, { buildDraftEditorSelectionEvidence } from '../DraftEditor';
 
@@ -209,5 +210,175 @@ describe('DraftEditor', () => {
     const textbox = await screen.findByRole('textbox', { name: 'Draft editor' });
     await waitFor(() => expect(onSelectionRestoreResult).toHaveBeenCalledWith('review-stale', false));
     expect(textbox).not.toHaveFocus();
+  });
+});
+
+describe('DraftEditor measured source return', () => {
+  let restoreRangeMeasurement: (() => void) | undefined;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    restoreRangeMeasurement?.();
+    restoreRangeMeasurement = undefined;
+  });
+
+  async function renderMeasuredReturn() {
+    const source = 'Before the signal, Mara waited. After the signal, she ran.';
+    const selectionStart = source.indexOf('Mara');
+    const selectionEnd = selectionStart + 'Mara waited'.length;
+    const evidence = await buildDraftEditorSelectionEvidence(source, selectionStart, selectionEnd, 0);
+    const rangeDescriptor = Object.getOwnPropertyDescriptor(Range.prototype, 'getClientRects');
+    Object.defineProperty(Range.prototype, 'getClientRects', { configurable: true, value: () => [] });
+    restoreRangeMeasurement = () => {
+      if (rangeDescriptor) Object.defineProperty(Range.prototype, 'getClientRects', rangeDescriptor);
+      else Reflect.deleteProperty(Range.prototype, 'getClientRects');
+    };
+
+    // Keep the real editor/document/selection, controlling only its layout clock.
+    // Pixel visibility remains the responsibility of the unchanged Electron case.
+    const measurements: Array<{
+      view: EditorView;
+      request: NonNullable<Parameters<EditorView['requestMeasure']>[0]>;
+    }> = [];
+    vi.spyOn(EditorView.prototype, 'requestMeasure').mockImplementation(function (this: EditorView, request) {
+      if (request) measurements.push({ view: this, request });
+    });
+    let geometry: { top: number | undefined; height: number } = { top: 550, height: 8_965 };
+    vi.spyOn(EditorView.prototype, 'coordsAtPos').mockImplementation(() => geometry.top === undefined
+      ? null
+      : { top: geometry.top, bottom: geometry.top + 20, left: 0, right: 100 });
+    vi.spyOn(EditorView.prototype, 'contentHeight', 'get').mockImplementation(() => geometry.height);
+    const frames = new Map<number, FrameRequestCallback>();
+    let nextFrame = 1;
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      const id = nextFrame++;
+      frames.set(id, callback);
+      return id;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => { frames.delete(id); });
+    const onSelectionRestoreResult = vi.fn();
+    const onChange = vi.fn();
+    const props = {
+      value: source,
+      selectionRestore: { requestId: 'measured-return', selectionStart, selectionEnd,
+        selectionFingerprint: evidence.selectionFingerprint },
+      onSelectionRestoreResult,
+      onChange,
+    };
+    const rendered = render(<DraftEditor {...props} />);
+    await waitFor(() => expect(measurements).toHaveLength(1));
+    const view = measurements[0]!.view;
+    const dispatch = vi.spyOn(view, 'dispatch');
+    const measure = (nextGeometry = geometry) => {
+      geometry = nextGeometry;
+      const pending = measurements.shift();
+      expect(pending).toBeDefined();
+      act(() => {
+        const measured = pending!.request.read(pending!.view);
+        pending!.request.write?.(measured, pending!.view);
+      });
+    };
+    const advanceFrame = () => {
+      const pending = [...frames.entries()];
+      frames.clear();
+      act(() => { for (const [, callback] of pending) callback(16); });
+    };
+    return { ...rendered, props, view, dispatch, measurements, frames, measure, advanceFrame,
+      source, onChange, onSelectionRestoreResult };
+  }
+
+  it('waits for changed wrapped geometry to settle without changing prose or selection', async () => {
+    const h = await renderMeasuredReturn();
+    h.measure({ top: 550, height: 8_965 });
+    expect(h.onSelectionRestoreResult).not.toHaveBeenCalled();
+    h.advanceFrame();
+    h.measure({ top: 205, height: 5_548 });
+    expect(h.onSelectionRestoreResult).not.toHaveBeenCalled();
+    h.advanceFrame();
+    h.measure({ top: 205, height: 5_548 });
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['measured-return', true]]);
+    expect(h.frames.size).toBe(0);
+    expect(h.measurements).toHaveLength(0);
+    expect(h.view.state.doc.toString()).toBe(h.source);
+    expect(h.view.state.selection.main.from).toBe(h.props.selectionRestore.selectionStart);
+    expect(h.view.state.selection.main.to).toBe(h.props.selectionRestore.selectionEnd);
+    expect(h.onChange).not.toHaveBeenCalled();
+    h.unmount();
+  });
+
+  it.each(['unstable', 'unavailable'] as const)('bounds %s geometry without claiming measured viewport visibility', async (kind) => {
+    const h = await renderMeasuredReturn();
+    for (let index = 0; index < 6; index += 1) {
+      if (index > 0) h.advanceFrame();
+      h.measure({ top: kind === 'unavailable' ? undefined : index * 50, height: 5_000 + index * 100 });
+      if (index < 5) expect(h.onSelectionRestoreResult).not.toHaveBeenCalled();
+    }
+    // true acknowledges the still-current restored selection, not viewport truth.
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['measured-return', true]]);
+    expect(h.frames.size).toBe(0);
+    expect(h.measurements).toHaveLength(0);
+    expect(h.onChange).not.toHaveBeenCalled();
+    h.unmount();
+  });
+
+  it('keeps an equivalent inline request rerender in the same pending operation', async () => {
+    const h = await renderMeasuredReturn();
+    h.measure();
+    h.rerender(<DraftEditor {...h.props} selectionRestore={{ ...h.props.selectionRestore }} />);
+    expect(h.frames.size).toBe(1);
+    h.advanceFrame();
+    h.measure();
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['measured-return', true]]);
+    expect(h.measurements).toHaveLength(0);
+    h.unmount();
+  });
+
+  it('cancels a pending frame on unmount without acknowledging the request', async () => {
+    const h = await renderMeasuredReturn();
+    h.measure();
+    expect(h.frames.size).toBe(1);
+    h.unmount();
+    expect(h.frames.size).toBe(0);
+    h.advanceFrame();
+    expect(h.onSelectionRestoreResult).not.toHaveBeenCalled();
+  });
+
+  it('supersedes an earlier request without acknowledging its pending frame', async () => {
+    const h = await renderMeasuredReturn();
+    h.measure();
+    h.rerender(<DraftEditor {...h.props} selectionRestore={{ ...h.props.selectionRestore, requestId: 'new-return' }} />);
+    expect(h.frames.size).toBe(0);
+    await waitFor(() => expect(h.measurements).toHaveLength(1));
+    h.measure();
+    h.advanceFrame();
+    h.measure();
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['new-return', true]]);
+    h.unmount();
+  });
+
+  it.each(['document', 'selection'] as const)('stops an obsolete frame after an intervening %s edit', async (kind) => {
+    const h = await renderMeasuredReturn();
+    h.measure();
+    act(() => {
+      h.view.dispatch(kind === 'document'
+        ? { changes: { from: 0, to: h.view.state.doc.length, insert: 'Edited' } }
+        : { selection: { anchor: 0 } });
+    });
+    const callsAfterEdit = h.dispatch.mock.calls.length;
+    h.advanceFrame();
+    expect(h.dispatch).toHaveBeenCalledTimes(callsAfterEdit);
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['measured-return', false]]);
+    expect(h.frames.size).toBe(0);
+    expect(h.measurements).toHaveLength(0);
+    h.unmount();
+  });
+
+  it('rejects a changed document before reading its queued layout measurement', async () => {
+    const h = await renderMeasuredReturn();
+    act(() => { h.view.dispatch({ changes: { from: 0, to: h.view.state.doc.length, insert: 'Edited' } }); });
+    h.measure();
+    expect(h.onSelectionRestoreResult.mock.calls).toEqual([['measured-return', false]]);
+    expect(h.frames.size).toBe(0);
+    h.unmount();
   });
 });

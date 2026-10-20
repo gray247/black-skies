@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: exercises source return, manual revision acceptance, stale-source protection and restart using materialized projects and the Electron harness with local AI disabled.
+// Owner: app/tests/e2e/program7-revision.spec.ts
+// Retire when: installed-build qualification provides equivalent source-return, acceptance, persistence and History coverage without harness-only dependencies.
+
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, restartElectronApp, test } from './_electron.fixture';
@@ -66,6 +71,11 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
         .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
       await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Chapter I \u2014 An Early Fright' })).toBeFocused();
       await expect(sourceLine).toBeInViewport({ ratio: 0.5 });
+      await expect.poll(() => sourceLine.evaluate((element) => {
+        const line = element.getBoundingClientRect();
+        const canvas = element.closest('.stage19-writing-shell__canvas')!.getBoundingClientRect();
+        return line.top >= canvas.top && line.bottom <= canvas.bottom;
+      })).toBe(true);
     }
 
 

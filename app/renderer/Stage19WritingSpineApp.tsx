@@ -4189,7 +4189,7 @@ export default function Stage19WritingSpineApp({
       return;
     }
     setSourceReturnConfirmation(null);
-    setNotice('Returned to Writing Studio, but the reviewed passage changed and could not be selected exactly.');
+    setNotice('Returned to Writing Studio, but the reviewed passage could not be restored exactly. Reopen it before continuing.');
     const reference = owner === 'critique' ? activeReviewReference() : null;
     if (reference && critiqueReviewBridge) {
       void critiqueReviewBridge.markStale(reference).catch(() => undefined);

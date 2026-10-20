@@ -174,6 +174,10 @@ export default function DraftEditor({
   });
   const editorRevisionRef = useRef(0);
   const selectionSequenceRef = useRef(0);
+  const restoreRequestId = selectionRestore?.requestId;
+  const restoreStart = selectionRestore?.selectionStart;
+  const restoreEnd = selectionRestore?.selectionEnd;
+  const restoreFingerprint = selectionRestore?.selectionFingerprint;
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -425,9 +429,13 @@ export default function DraftEditor({
 
   useEffect(() => {
     const view = viewRef.current;
-    if (!view || !selectionRestore) return;
+    if (!view || restoreRequestId === undefined || restoreStart === undefined ||
+        restoreEnd === undefined || restoreFingerprint === undefined) return;
     const source = view.state.doc.toString();
-    const { requestId, selectionStart, selectionEnd, selectionFingerprint } = selectionRestore;
+    const requestId = restoreRequestId;
+    const selectionStart = restoreStart;
+    const selectionEnd = restoreEnd;
+    const selectionFingerprint = restoreFingerprint;
     if (
       selectionStart < 0 ||
       selectionEnd < selectionStart ||
@@ -437,6 +445,7 @@ export default function DraftEditor({
       return;
     }
     let cancelled = false;
+    let frame: number | undefined;
     void buildDraftEditorSelectionEvidence(
       source,
       selectionStart,
@@ -444,7 +453,7 @@ export default function DraftEditor({
       editorRevisionRef.current,
     ).then((evidence) => {
       if (cancelled) return;
-      if (evidence.selectionFingerprint !== selectionFingerprint) {
+      if (view.state.doc.toString() !== source || evidence.selectionFingerprint !== selectionFingerprint) {
         onSelectionRestoreResult?.(requestId, false);
         return;
       }
@@ -456,12 +465,56 @@ export default function DraftEditor({
         ...(scrollEffect ? { effects: scrollEffect } : {}),
       });
       view.focus();
-      onSelectionRestoreResult?.(requestId, true);
+      if (!scrollEffect) {
+        onSelectionRestoreResult?.(requestId, true);
+        return;
+      }
+      // In the continuous manuscript the canvas, rather than CodeMirror's
+      // scroller, owns scrolling. Newly mounted wrapped prose can change height
+      // after the first reveal. Keep the exact anchor through bounded layout
+      // measurements before acknowledging the selection restoration.
+      let remaining = 6;
+      let previous: { top: number | undefined; height: number } | undefined;
+      const stillCurrent = () => viewRef.current === view && view.state.doc.toString() === source &&
+        view.state.selection.main.from === selectionStart &&
+        view.state.selection.main.to === selectionEnd;
+      const measureRestore = () => view.requestMeasure({
+        read: () => !cancelled && stillCurrent()
+          ? { top: view.coordsAtPos(selectionStart)?.top, height: view.contentHeight }
+          : null,
+        write: (geometry) => {
+          if (cancelled) return;
+          if (!geometry || !stillCurrent()) {
+            onSelectionRestoreResult?.(requestId, false);
+            return;
+          }
+          const stable = previous?.top !== undefined && geometry.top !== undefined &&
+            Math.abs(previous.top - geometry.top) < 1 &&
+            Math.abs(previous.height - geometry.height) < 1;
+          if (stable || --remaining === 0) {
+            onSelectionRestoreResult?.(requestId, true);
+            return;
+          }
+          previous = geometry;
+          frame = window.requestAnimationFrame(() => {
+            if (cancelled) return;
+            if (!stillCurrent()) {
+              onSelectionRestoreResult?.(requestId, false);
+              return;
+            }
+            view.dispatch({ effects: scrollEffect });
+            measureRestore();
+          });
+        },
+      });
+      measureRestore();
     });
     return () => {
       cancelled = true;
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
     };
-  }, [onSelectionRestoreResult, selectionRestore]);
+  }, [applyAccessibilityAttributes, baseExtensions, onSelectionRestoreResult,
+    restoreRequestId, restoreStart, restoreEnd, restoreFingerprint]);
 
   useEffect(() => {
     const view = viewRef.current;
