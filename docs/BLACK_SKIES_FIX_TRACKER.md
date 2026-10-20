@@ -1,3 +1,59 @@
+## October 20 Program 7.5 — PC review repair pass
+
+Repairs are in progress on top of the stabilization source. P75-HUMAN-01 stays
+open until a new packaged candidate is identified and reviewed. The source-return
+root cause is established: deterministic scanning used saved Markdown including
+YAML front matter, while Writing Studio addressed prose-only offsets. A shared
+draft splitter now supplies the body to both the editor projection and scan;
+the finding range and fingerprints therefore refer to the same saved prose.
+
+The narrow-window layout now places rail controls and Companion in normal flow,
+limits the scrollable notice and Companion heights at compact widths, and keeps
+the active manuscript section rendered. This removes the fixed-edge overlap and
+reserves editor space. The 136-unit rail-scroll check retained a visible active
+editor after a large Story-rail scroll; the earlier one-snapshot blank pane did
+not reproduce as a sustained blank in that controlled journey.
+
+Verification so far: focused renderer/IPC suites pass (167 tests), app typecheck
+and lint pass, Electron source-return passes against the disposable Carmilla
+fixture, the narrow layout regression passes at 456 × 496 in both themes and
+existing wider sizes, and the 17/34/68/136-unit scale journey passes with frame
+gaps at or below the existing 100 ms criterion. The full app unit suite also
+passes (1,587 passed, 2 skipped). Its first run put temporary fixtures inside
+the Git checkout, triggering the repository safety guard in unrelated
+qualification and project-spine tests; rerunning those files and the complete
+suite with system temp storage passed. These are source-level and Electron
+harness results. Packaging, hosted Windows qualification and a fresh
+agent/human review of the new candidate remain required; no acceptance status
+is changed here.
+
+## October 20 Program 7.5 — owner-requested PC review attempt
+
+P75-HUMAN-01 remains open with observed failures. Codex operated the preserved
+scale-fix unpacked candidate `a332a920` through the Windows UI, with a fresh
+isolated profile and disposable projects. Executable and ASAR hashes matched
+the review launcher before and after the session. Writing/save/restart,
+two-project navigation, explicit manual alternative application, History after
+restart, and attached/detached Command passed within the agent-observed scope.
+These observations are not a human signature or owner acceptance.
+
+A fresh Story Knowledge scan followed by Return to source repeatedly refused
+passage selection as changed, even with all units saved and after reopening the
+project. At a 946 × 1027 window and Chromium zoom level 4 (207.36%), header,
+Companion and edge controls consumed the manuscript view and overlapped actions
+in both themes. Root causes remain unestablished; no production repair was made.
+The 136-unit UI journey allowed late-unit editing/save/navigation but retained
+one blank-manuscript snapshot after a large rail scroll as an observation needing
+reproduction. It does not reverse or extend the existing numeric scale receipts.
+
+Recommendation: do not accept yet; Program 8 remains on hold. Installer prompt
+review was not attempted on the accepted host. Actual results, reproduction
+fixtures, screenshots, launch/restart receipts and 124 timestamped UI snapshots
+are in the parent workspace's
+`outputs/program-7.5-performance-followup-2026-10-20/HUMAN_REVIEW_RECORD.md`
+and its `human-review-pc-desktop-20261020/` folder. This tracker update is
+documentation only and does not relabel the preserved packaged candidate.
+
 ## October 20 Program 7.5 — installer continuation
 
 Final hosted result: run 39459099173 at

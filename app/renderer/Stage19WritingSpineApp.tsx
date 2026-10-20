@@ -84,6 +84,7 @@ import type {
 } from '../shared/ipc/storyFoundation';
 import { PROGRAM7_LOCAL_INFERENCE_BOUNDS, PROGRAM7_LOCAL_INFERENCE_MODEL, PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA } from '../shared/localInference';
 import { buildProgram7HistoryProjection } from '../shared/program7History';
+import { splitProjectSpineDraft } from '../shared/projectSpineDraft';
 import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import type { StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
@@ -164,21 +165,7 @@ function defaultOutlineLabel(selection: DraftEditorSelectionEvidence | null): st
 }
 
 function splitDraft(markdown: string): DraftEnvelope {
-  const normalized = markdown.replace(/\r\n/g, '\n');
-  const lines = normalized.split('\n');
-  if (lines[0]?.trim() !== '---') {
-    return { header: '', body: normalized };
-  }
-  const closingOffset = lines.slice(1).findIndex((line) => line.trim() === '---');
-  if (closingOffset < 0) {
-    return { header: '', body: normalized };
-  }
-  const closingIndex = closingOffset + 1;
-  const framedBody = lines.slice(closingIndex + 1).join('\n').replace(/^(?:\n)+/u, '');
-  return {
-    header: `${lines.slice(0, closingIndex + 1).join('\n')}\n`,
-    body: framedBody.endsWith('\n') ? framedBody.slice(0, -1) : framedBody,
-  };
+  return splitProjectSpineDraft(markdown);
 }
 
 function composeDraft(envelope: DraftEnvelope, body: string): string {

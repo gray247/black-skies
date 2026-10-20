@@ -50,6 +50,7 @@ import {
   PROGRAM7_LOCAL_INFERENCE_MODEL,
   PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA,
 } from '../shared/localInference.js';
+import { extractProjectSpineDraftBody } from '../shared/projectSpineDraft.js';
 import type { ProjectSpineSessionSnapshot, ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import { StoryIntelligenceRepository, StoryIntelligenceRepositoryError } from './storyIntelligenceRepository.js';
 import type { Program7LocalInferenceService } from './program7LocalInferenceService.js';
@@ -129,10 +130,6 @@ function sha256(value: string): string {
   return createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
-function normalizeBody(value: string): string {
-  return value.replace(/\r\n?/gu, '\n');
-}
-
 function automaticRunKey(projectId: string, runId: string): string {
   return `${projectId}:${runId}`;
 }
@@ -161,7 +158,7 @@ function buildAutomaticRunRequest(
   const unitPolicies = new Map(document.unitPolicies.map((policy) => [policy.unitId, policy]));
 
   for (const unit of project.units) {
-    const body = typeof drafts[unit.id] === 'string' ? normalizeBody(drafts[unit.id]!) : '';
+    const body = typeof drafts[unit.id] === 'string' ? extractProjectSpineDraftBody(drafts[unit.id]!) : '';
     const policy = unitPolicies.get(unit.id);
     if (policy && !policy.enabled) {
       excludedUnits.push({ unitId: unit.id, orderIndex: unit.order, orderBasis: 'manuscript', protectionClass: 'ai-excluded', exclusionReason: 'policy' });

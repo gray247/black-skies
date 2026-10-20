@@ -9766,6 +9766,85 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   padding: 0;
 }
 
+@media (max-width: 720px) {
+  .stage19-spine--writing .stage19-writing-shell__edge-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    min-height: 52px;
+    padding: 4px 8px;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__edge {
+    position: static;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 4px;
+    transform: none;
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__edge-label,
+  .stage19-spine--writing .stage19-writing-shell__edge:hover .stage19-writing-shell__edge-label,
+  .stage19-spine--writing .stage19-writing-shell__edge:focus-visible .stage19-writing-shell__edge-label,
+  .stage19-spine--writing .stage19-writing-shell__edge[aria-expanded="true"] .stage19-writing-shell__edge-label {
+    max-width: none;
+    opacity: 1;
+    font-size: 0.68rem;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__edge--top,
+  .stage19-spine--writing .stage19-writing-shell__edge--left,
+  .stage19-spine--writing .stage19-writing-shell__edge--right,
+  .stage19-spine--writing .stage19-writing-shell__edge--bottom {
+    inset: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    top: auto;
+  }
+
+  .stage19-spine--writing .stage19-companion-bar {
+    position: relative;
+    inset: auto;
+    grid-template-columns: minmax(0, 1fr);
+    max-height: min(18vh, 7rem);
+    min-height: 0;
+    margin: 0 8px 8px;
+    overflow: auto;
+    pointer-events: auto;
+  }
+
+  .stage19-spine--writing .stage19-writing-shell__notice-row {
+    align-content: start;
+    max-height: 5rem;
+    min-height: 0;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    overflow: auto;
+  }
+
+  .stage19-spine--writing .stage19-spine__source-return-confirmation,
+  .stage19-spine--writing .stage19-spine__notice {
+    padding: 0.35rem 0.5rem;
+  }
+
+  .stage19-spine--writing .stage19-companion-bar__scope,
+  .stage19-spine--writing .stage19-companion-bar__examples,
+  .stage19-spine--writing .stage19-companion-bar__notice {
+    grid-column: 1;
+  }
+
+  .stage19-spine--writing .stage19-continuous-manuscript__section.is-active {
+    content-visibility: visible;
+    contain-intrinsic-size: auto;
+  }
+}
+
 .program7-revision-comparison__replacement pre {
   font-family: Georgia, "Times New Roman", ui-serif, serif;
   font-size: 1.05rem;

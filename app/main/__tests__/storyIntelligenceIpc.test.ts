@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -6,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORY_INTELLIGENCE_CHANNELS } from '../../shared/ipc/storyIntelligence';
 import { AUTOMATIC_STORY_INTELLIGENCE_LENSES, AUTOMATIC_STORY_INTELLIGENCE_SCHEMA_VERSION } from '../../shared/ipc/automaticStoryIntelligence';
 import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
+import { extractProjectSpineDraftBody } from '../../shared/projectSpineDraft';
 import type {
   DurableSignalV1,
   StoryIntelligenceDocumentV1,
@@ -395,7 +397,7 @@ describe('story-intelligence IPC', () => {
         7,
         'a'.repeat(64),
         'clean',
-        { 'unit-a': 'Mara felt fear in the dark. TODO: check this threat.' },
+        { 'unit-a': '---\nid: unit-a\ntitle: "Unit A"\norder: 1\n---\nMara felt fear in the dark. TODO: check this threat.\n' },
       ),
       repositoryFactory: () => repository,
     });
@@ -414,13 +416,21 @@ describe('story-intelligence IPC', () => {
     expect(result).toMatchObject({ ok: true, data: { status: 'completed', analysis: { projectId: 'project-a' } } });
     const completed = result as { readonly ok: true; readonly data: { readonly analysis: { readonly findingCount: number; readonly lensResults: readonly { readonly findings: readonly { readonly positionRefs: readonly StoryPositionRefV1[] }[] }[] } } };
     expect(completed.data.analysis.findingCount).toBeGreaterThan(0);
-    expect(completed.data.analysis.lensResults.flatMap((lens) => lens.findings)[0]?.positionRefs[0]).toMatchObject({
+    const emotionFinding = completed.data.analysis.lensResults
+      .find((lens) => lens.lens === 'emotion')?.findings[0];
+    const emotionReference = emotionFinding?.positionRefs[0];
+    const savedProse = extractProjectSpineDraftBody(
+      '---\nid: unit-a\ntitle: "Unit A"\norder: 1\n---\nMara felt fear in the dark. TODO: check this threat.\n',
+    );
+    expect(emotionReference).toMatchObject({
       unitId: 'unit-a',
       orderIndex: 1,
       selectionStart: expect.any(Number),
       selectionEnd: expect.any(Number),
       selectionFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
+    expect(savedProse.slice(emotionReference!.selectionStart, emotionReference!.selectionEnd)).toBe('fear');
+    expect(emotionReference!.bodySha256).toBe(createHash('sha256').update(savedProse, 'utf8').digest('hex'));
     const after = await repository.read('project-a');
     expect(after.revision).toBe(before.revision);
     expect(after.authorRecords).toEqual(before.authorRecords);

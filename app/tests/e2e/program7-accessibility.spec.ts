@@ -326,13 +326,14 @@ test('Project Tools remains reachable below a long source-return notice in both 
     .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
   const notice = writing.locator('.stage19-spine__source-return-confirmation');
   const tools = writing.getByRole('button', { name: 'Open Project Tools', exact: true });
-  for (const width of [1907, 1280, 640]) {
-    await writing.setViewportSize({ width, height: 900 });
+  for (const width of [1907, 1280, 640, 456]) {
+    const height = width === 456 ? 496 : 900;
+    await writing.setViewportSize({ width, height });
     for (const theme of ['dark', 'light'] as const) {
       // The compact Writing Studio intentionally hides the theme switch.
       await writing.setViewportSize({ width: 1280, height: 900 });
       await setTheme(writing, theme);
-      await writing.setViewportSize({ width, height: 900 });
+      await writing.setViewportSize({ width, height });
       await expect(notice).toBeVisible();
       await expect(tools).toBeVisible();
       const noticeBox = await notice.boundingBox();
@@ -343,6 +344,22 @@ test('Project Tools remains reachable below a long source-return notice in both 
       const canvasBox = await writing.locator('[data-manuscript-scroll-owner]').boundingBox();
       expect(canvasBox).not.toBeNull();
       expect(canvasBox!.y, 'Project Tools must stay above manuscript prose').toBeGreaterThanOrEqual(toolsBox!.y + toolsBox!.height);
+      if (width === 456) {
+        const companionBox = await writing.locator('.stage19-companion-bar').boundingBox();
+        const compactLayout = await writing.evaluate(() => {
+          const describe = (selector: string) => {
+            const element = document.querySelector<HTMLElement>(selector);
+            if (!element) return null;
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return { height: rect.height, y: rect.y, position: style.position, maxHeight: style.maxHeight, minHeight: style.minHeight, flex: style.flex, overflow: style.overflow };
+          };
+          return { viewport: { width: innerWidth, height: innerHeight }, shell: describe('.stage19-writing-shell'), topbar: describe('.stage19-writing-shell__topbar'), notice: describe('.stage19-writing-shell__notice-row'), controls: describe('.stage19-writing-shell__edge-controls'), workspace: describe('.stage19-writing-shell__workspace'), canvas: describe('[data-manuscript-scroll-owner]'), companion: describe('.stage19-companion-bar') };
+        });
+        expect(canvasBox!.height, `narrow enlarged layout must retain a usable manuscript viewport: ${JSON.stringify(compactLayout)}`).toBeGreaterThanOrEqual(80);
+        expect(companionBox).not.toBeNull();
+        expect(companionBox!.y, 'Companion must follow the manuscript instead of covering it').toBeGreaterThanOrEqual(canvasBox!.y + canvasBox!.height);
+      }
       await tools.focus();
       await expect(tools).toBeFocused();
       await writing.getByRole('button', { name: 'Enter Focus mode', exact: true }).click();

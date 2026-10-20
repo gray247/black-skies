@@ -218,6 +218,20 @@ test('Program 7 scale journey opens, renders, and selects every bounded fixture'
           }),
       );
       const storyRailVisualDurationMs = performance.now() - renderStartedAt;
+      if (fixture.scale === '8x') {
+        const firstUnit = unitRail.first();
+        await firstUnit.getByRole('button').first().click();
+        const firstEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Synthetic 8x Unit 001' });
+        await expect(firstEditor).toBeVisible();
+        await writing.locator('.stage19-writing-shell__rail--left').evaluate((rail) => {
+          rail.scrollTop = rail.scrollHeight;
+        });
+        await writing.evaluate(
+          async () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+        );
+        await expect(firstEditor, 'scrolling the large Story rail must leave the active manuscript available').toBeVisible();
+        await expect(writing.locator('[data-manuscript-scroll-owner] .cm-editor')).toBeVisible();
+      }
       await writing.evaluate(() => {
         const monitor = (
           window as unknown as {

@@ -16,6 +16,29 @@ import {
 
 test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
+test('automatic Story Knowledge scan returns to the exact prose passage in a saved Markdown draft', async ({ page, electronApp }) => {
+  const { projectPath } = await materializeProgram7Carmilla();
+  const { writing } = await getProgram7Windows(electronApp, page);
+  await openProgram7Project(writing, projectPath);
+  await showCommandInWriting(writing);
+  await writing.getByRole('button', { name: 'Story Knowledge', exact: true }).click();
+  await writing.getByRole('button', { name: 'Scan manuscript automatically', exact: true }).click();
+  await expect(writing.getByText(/Scan status: completed\./)).toBeVisible();
+  const sourceReturn = writing.getByRole('button', { name: 'Return to source', exact: true }).first();
+  await expect(sourceReturn).toBeVisible();
+  await sourceReturn.click();
+
+  const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Chapter I — An Early Fright' });
+  await expect(editor).toBeFocused();
+  await expect(writing.getByText(/selected the passage connected to this concern\./)).toBeVisible();
+  const selectedText = await editor.evaluate(() => window.getSelection()?.toString() ?? '');
+  expect(selectedText.trim()).not.toBe('');
+  const savedDraft = await readFile(path.join(projectPath, 'drafts', 'carmilla-chapter-01.md'), 'utf8');
+  const bodyStart = savedDraft.indexOf('\n---', 3) + 4;
+  const savedProse = savedDraft.slice(bodyStart).replace(/^(?:\r?\n)+/u, '').replace(/\r\n?/gu, '\n').replace(/\n$/u, '');
+  expect(savedProse).toContain(selectedText);
+});
+
 test('Program 7 routes a current Carmilla finding through no-AI revision review and explicit acceptance', async ({ page, electronApp }, testInfo) => {
   const { projectPath, selectionStart, selectionEnd } = await materializeProgram7Carmilla();
     const { writing } = await getProgram7Windows(electronApp, page);
