@@ -1,3 +1,38 @@
+## October 19 Program 7.5 Phases 3–5 — stabilization candidate
+
+The verified Phase 2 checkpoint is retained in five local commits on
+`codex/program7-5-stabilization`; no original repository or installation changed.
+The following bounded repairs extend that checkpoint:
+
+- P75-SOURCE-RETURN-01: a measured CodeMirror layout shift moved wrapped prose
+  after the initial source reveal while the outer writing canvas retained its
+  scroll offset. Bounded layout measurements retain the exact source anchor
+  through settling. Superseded requests, changed prose/selection and unmount
+  cancel pending work. The previously failing full Electron revision scenario
+  passes; the chapter-switch regression also checks the visible canvas bounds.
+  The complete exact-candidate qualification receipts remain the authority for
+  final acceptance, rather than this targeted result alone.
+- P2-HYGIENE-01: seven factual harness-only declarations now identify their
+  fixture dependence, file owner and replacement trigger. Scenario bodies and
+  the metadata test contract were preserved. The full service suite passes
+  674 tests after this repair.
+- Six Phase 2 repairs remain intact. Real Windows sharing-denial probes confirm
+  old bytes survive file replacement and directory backup-move denial, followed
+  by successful replacement/restore after unlocking. This does not qualify
+  arbitrary ACL, cloud/junction, power-loss or whole-project transaction behavior.
+
+No broad duplicate removal was justified by the caller/contract review.
+Legacy routes, external-service authentication and future AI/destination-owner
+contracts remain under their recorded admission decisions.
+
+Current operations are described in [the baseline runbook](program_7_5_baseline.md).
+Exact clean source identity, final tests, package hashes, remaining issues and
+readiness are recorded in the separate
+`outputs/program-7.5-phases3-5-2026-10-19` packet in the parent workspace.
+The accepted NSIS registration must not be reused for local installation tests;
+isolated unpacked-runtime evidence is distinct from installed lifecycle and
+human acceptance. Historical ledger and acceptance decisions remain unchanged.
+
 ## October 19 Program 7.5 Phase 2 — bounded recovery checkpoint
 
 The independent `codex/program7-5-stabilization` checkout starts at
