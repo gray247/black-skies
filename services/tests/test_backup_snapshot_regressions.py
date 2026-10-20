@@ -6,7 +6,11 @@ import json
 import zipfile
 from pathlib import Path
 
-from blackskies.services.snapshots import SNAPSHOT_RETENTION, create_snapshot, list_snapshots
+import pytest
+
+from blackskies.services import snapshot_includes
+
+from blackskies.services.snapshots import SNAPSHOT_RETENTION, create_snapshot, list_snapshots, prune_snapshots
 from blackskies.services.export_service import ExportFormat, ProjectExportService
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
@@ -145,3 +149,115 @@ def test_restore_and_export_integrity(tmp_path: Path) -> None:
     snapshots = list_snapshots(project_root)
     assert snapshots
     assert snapshots[0]["snapshot_id"] == snapshot_meta["snapshot_id"]
+
+
+def _restore_fixture(tmp_path: Path) -> tuple[Path, Path]:
+    snapshot = tmp_path / "snapshot"
+    project = tmp_path / "project"
+    (snapshot / "drafts").mkdir(parents=True)
+    (project / "drafts").mkdir(parents=True)
+    (snapshot / "drafts/scene.md").write_text("archived replacement", encoding="utf-8")
+    (project / "drafts/scene.md").write_text("previously saved prose", encoding="utf-8")
+    return snapshot, project
+
+
+def _restore_drafts(snapshot: Path, project: Path) -> None:
+    snapshot_includes.restore_include_entries(
+        snapshot_dir=snapshot,
+        snapshot_dir_resolved=snapshot.resolve(),
+        project_root=project,
+        project_root_resolved=project.resolve(),
+        include_entries=["drafts"],
+    )
+
+
+def test_directory_restore_preserves_prior_prose_when_commit_fails(tmp_path: Path, monkeypatch) -> None:
+    snapshot, project = _restore_fixture(tmp_path)
+    replace = snapshot_includes.replace_file
+
+    def fail_commit(source: Path, target: Path) -> None:
+        if source.name.endswith(".restore"):
+            raise PermissionError("synthetic commit lock")
+        replace(source, target)
+
+    monkeypatch.setattr(snapshot_includes, "replace_file", fail_commit)
+    with pytest.raises(PermissionError, match="synthetic commit lock"):
+        _restore_drafts(snapshot, project)
+
+    assert (project / "drafts/scene.md").read_text(encoding="utf-8") == "previously saved prose"
+    assert (snapshot / "drafts/scene.md").read_text(encoding="utf-8") == "archived replacement"
+    assert not list(project.glob(".*.restore"))
+    assert not list(project.glob(".*.backup"))
+
+
+def test_directory_restore_retains_recoverable_backup_when_rollback_fails(tmp_path: Path, monkeypatch) -> None:
+    snapshot, project = _restore_fixture(tmp_path)
+    replace = snapshot_includes.replace_file
+
+    def fail_commit_and_rollback(source: Path, target: Path) -> None:
+        if source.name.endswith((".restore", ".backup")):
+            raise PermissionError("synthetic persistent lock")
+        replace(source, target)
+
+    monkeypatch.setattr(snapshot_includes, "replace_file", fail_commit_and_rollback)
+    with pytest.raises(OSError, match="original preserved at") as failure:
+        _restore_drafts(snapshot, project)
+
+    backups = list(project.glob(".*.backup"))
+    assert len(backups) == 1
+    assert str(backups[0]) in str(failure.value)
+    assert (backups[0] / "scene.md").read_text(encoding="utf-8") == "previously saved prose"
+    assert not list(project.glob(".*.restore"))
+
+
+def test_directory_restore_does_not_remove_prior_prose_when_backup_move_fails(tmp_path: Path, monkeypatch) -> None:
+    snapshot, project = _restore_fixture(tmp_path)
+    replace = snapshot_includes.replace_file
+
+    def fail_backup(source: Path, target: Path) -> None:
+        if source == project / "drafts":
+            raise PermissionError("synthetic backup lock")
+        replace(source, target)
+
+    monkeypatch.setattr(snapshot_includes, "replace_file", fail_backup)
+    with pytest.raises(PermissionError, match="synthetic backup lock"):
+        _restore_drafts(snapshot, project)
+
+    assert (project / "drafts/scene.md").read_text(encoding="utf-8") == "previously saved prose"
+    assert not list(project.glob(".*.restore"))
+
+
+def test_directory_restore_commits_replacement_and_removes_only_its_backup(tmp_path: Path) -> None:
+    snapshot, project = _restore_fixture(tmp_path)
+    retained = project / ".unrelated.backup"
+    retained.mkdir()
+    (retained / "keep.txt").write_text("unrelated recovery content", encoding="utf-8")
+
+    _restore_drafts(snapshot, project)
+
+    assert (project / "drafts/scene.md").read_text(encoding="utf-8") == "archived replacement"
+    assert (retained / "keep.txt").read_text(encoding="utf-8") == "unrelated recovery content"
+    assert list(project.glob(".*.backup")) == [retained]
+    assert not list(project.glob(".*.restore"))
+
+
+def _seed_snapshot_retention_fixture(project: Path) -> None:
+    for snapshot_id in ["ss_20200101", "ss_20200102", "zz_in_progress.tmp"]:
+        directory = project / ".snapshots" / snapshot_id
+        directory.mkdir(parents=True)
+        (directory / "manifest.json").write_text(
+            json.dumps({"snapshot_id": snapshot_id}), encoding="utf-8"
+        )
+
+
+def test_snapshot_listing_does_not_publish_an_uncommitted_directory(tmp_path: Path) -> None:
+    _seed_snapshot_retention_fixture(tmp_path)
+    assert [row["snapshot_id"] for row in list_snapshots(tmp_path)] == ["ss_20200102", "ss_20200101"]
+
+
+def test_snapshot_retention_does_not_count_or_delete_an_uncommitted_directory(tmp_path: Path) -> None:
+    _seed_snapshot_retention_fixture(tmp_path)
+    prune_snapshots(tmp_path, keep=1)
+    assert (tmp_path / ".snapshots/zz_in_progress.tmp/manifest.json").is_file()
+    assert (tmp_path / ".snapshots/ss_20200102/manifest.json").is_file()
+    assert not (tmp_path / ".snapshots/ss_20200101").exists()

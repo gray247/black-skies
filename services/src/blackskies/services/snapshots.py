@@ -325,7 +325,7 @@ def list_snapshots(project_root: Path) -> list[dict[str, Any]]:
 
     entries: list[dict[str, Any]] = []
     for directory in sorted(
-        (item for item in snapshot_root.iterdir() if item.is_dir()),
+        (item for item in snapshot_root.iterdir() if item.is_dir() and not item.name.endswith(".tmp")),
         key=lambda entry: entry.name,
         reverse=True,
     ):
@@ -351,7 +351,7 @@ def prune_snapshots(project_root: Path, *, keep: int) -> None:
         return
 
     directories = sorted(
-        (item for item in snapshot_root.iterdir() if item.is_dir()),
+        (item for item in snapshot_root.iterdir() if item.is_dir() and not item.name.endswith(".tmp")),
         key=lambda entry: entry.name,
         reverse=True,
     )

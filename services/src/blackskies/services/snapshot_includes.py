@@ -10,7 +10,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Sequence
 from uuid import uuid4
 
-from .persistence.atomic import replace_file
+from .persistence.atomic import locked_path, replace_file
 
 DEFAULT_SNAPSHOT_INCLUDES: tuple[str, ...] = ("drafts", "outline.json", "project.json")
 SNAPSHOT_IGNORE_PATTERNS: tuple[str, ...] = ("*.tmp",)
@@ -122,12 +122,34 @@ def copy_include_entries(include_specs: Sequence[SnapshotIncludeSpec]) -> list[s
 
 def _restore_directory(source: Path, target: Path) -> None:
     temp_dir = target.parent / f".{uuid4().hex}.restore"
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
-    shutil.copytree(source, temp_dir, dirs_exist_ok=True)
-    if target.exists():
-        shutil.rmtree(target)
-    replace_file(temp_dir, target)
+    backup_dir = target.parent / f".{uuid4().hex}.backup"
+    with locked_path(target):
+        moved_existing_target = False
+        try:
+            shutil.copytree(source, temp_dir)
+            if target.exists():
+                if not target.is_dir():
+                    raise NotADirectoryError(target)
+                replace_file(target, backup_dir)
+                moved_existing_target = True
+            try:
+                replace_file(temp_dir, target)
+            except OSError:
+                if moved_existing_target:
+                    try:
+                        replace_file(backup_dir, target)
+                    except OSError as rollback_error:
+                        raise OSError(
+                            f"Snapshot restore failed; original preserved at {backup_dir}."
+                        ) from rollback_error
+                raise
+            if moved_existing_target:
+                shutil.rmtree(backup_dir)
+        finally:
+            # Failed cleanup must not hide the restore/rollback error or remove
+            # the only remaining copy of the original directory.
+            if temp_dir.exists():
+                shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def _restore_file(source: Path, target: Path) -> None:
