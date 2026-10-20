@@ -1,3 +1,46 @@
+## October 19 Program 7.5 Phase 2 — bounded recovery checkpoint
+
+The independent `codex/program7-5-stabilization` checkout starts at
+6523e515b8b05e4ab5d3859c7cb90396d6867351. Phase 1 preservation is accepted.
+The unchanged baseline builds, passes type checking, 1,571 app assertions
+(two skipped), 38 focused Python tests, and two normal-GPU Electron
+startup/save/reopen tests on synthetic projects. Initial qualification tests
+failed because their temporary output was inside a Git worktree; moving the
+temporary test root outside Git passes without relaxing the output guard.
+
+- P75-LINT-01: repaired; four behavioral regression cases and both existing
+  zero-warning lint commands pass beneath paths containing spaces.
+- P75-RESTORE-01: repaired for synchronous filesystem failures; original bytes
+  survive commit denial, or a named backup survives rollback denial. No
+  process-crash or whole-project transaction claim is made.
+- P75-SNAPSHOT-01: repaired; in-progress snapshot directories are excluded from
+  listing and retention. Snapshot rollback/retention coverage passes 10 tests.
+- P75-LOCAL-ONLY-01: repaired; 29 routing tests pass, including remote-probe
+  prohibition and fail-closed unsupported tasks. No real AI execution occurred.
+- P75-ANALYTICS-01 / P75-DIAGNOSTICS-01: repaired in the opt-in legacy service
+  boundary; 22 endpoint/redaction tests pass, including outside-project
+  non-mutation and the existing structured error contract.
+
+The post-repair app suite passes 1,575 assertions with two existing skips.
+The full service suite on short isolated paths passes 673 tests with one
+inherited failure for seven missing E2E harness/truth declarations. All 45
+metadata-test/spec inputs match the starting commit. That classification is
+deferred to Phase 3 hygiene; no unsupported truth labels were added.
+The fixed Stage 19 development gate passes, including 36 Electron cases.
+An additional Program 7 revision/Create-Develop run passes three cases but
+fails source-passage visibility after switching chapters and returning to a
+revision task (P75-SOURCE-RETURN-01). The accepted desktop implementation and
+test reproduce this failure. An animation-cancellation experiment also fails
+and was removed; the original desktop source is retained. Root cause and
+repair remain unqualified. This workflow is not claimed newly verified.
+See [the recovery runbook](program_7_5_phase2_recovery.md) for scope and commands;
+the external Phase 2 packet retains exact results and the remaining gate status.
+
+No original worktree/project, historical ledger, dependency version or accepted
+Program 7 closure has changed. Real AI, new ownership contracts, Program 8/9,
+release packaging and broad cleanup remain excluded. New evidence is kept in
+the separate `program-7.5-phase2-2026-10-19` output packet.
+
 ## October 9 Program 7 closure execution plan
 
 ## October 12 GitHub planning publication for independent review
