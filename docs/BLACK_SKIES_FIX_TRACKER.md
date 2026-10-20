@@ -42,6 +42,16 @@ there is no separate Windows VM or test computer. Never run the candidate
 installer against the accepted Windows registration to substitute for that
 missing environment. Human acceptance cannot be inferred from automated tests.
 
+The owner subsequently approved publishing the stabilization branch and running
+the existing GitHub-hosted Windows qualification workflow. Run 39456037971 at
+`b3a1a9bc` installed frozen dependencies, then stopped on P75-CI-01: the existing
+PowerShell JSON-writer integration case took 6.783 seconds on a cold runner and
+exceeded Vitest's default five-second case timeout. No JSON-byte assertion failed.
+Its two native PowerShell integration cases now have explicit 15-second child
+timeouts and 20-second case budgets. The UTF-8/BOM/newline, receipt-update,
+application frame, startup and installed-performance assertions are unchanged.
+Retain the first run's failure; require a passing fresh qualification run.
+
 ## October 19 Program 7.5 Phases 3–5 — stabilization candidate
 
 The verified Phase 2 checkpoint is retained in five local commits on

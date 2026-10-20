@@ -24,6 +24,8 @@ const receipt = {
 };
 
 describe("Package 19.22 candidate-bound qualification witness", () => {
+  // A cold native PowerShell launch can exceed Vitest's five-second default
+  // on a fresh Windows runner. Bound the child and integration test separately.
   it("writes all lifecycle JSON outputs as BOM-free UTF-8 with a trailing newline", () => {
     const lifecycleScript = readFileSync(resolve(import.meta.dirname, "../../../scripts/stage19-installed-lifecycle.ps1"), "utf8");
     const helper = lifecycleScript.match(/function Write-JsonUtf8NoBom \{[\s\S]*?\r?\n\}/)?.[0];
@@ -39,6 +41,7 @@ describe("Package 19.22 candidate-bound qualification witness", () => {
       execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
         env: { ...process.env, MANIFEST_PATH: outputPaths[0]!, RECEIPT_PATH: outputPaths[1]!, LIFECYCLE_PATH: outputPaths[2]! },
         stdio: "pipe",
+        timeout: 15_000,
       });
 
       for (const outputPath of outputPaths) {
@@ -51,7 +54,7 @@ describe("Package 19.22 candidate-bound qualification witness", () => {
     } finally {
       rmSync(working, { recursive: true, force: true });
     }
-  });
+  }, 20_000);
 
   it("updates an existing installedLifecycle receipt property without a duplicate-member error", () => {
     const lifecycleScript = readFileSync(resolve(import.meta.dirname, "../../../scripts/stage19-installed-lifecycle.ps1"), "utf8");
@@ -64,7 +67,7 @@ $receipt = [pscustomobject]@{ schema = 'black-skies.stage19.package-receipt.v1';
 $replacement = [ordered]@{ status = 'passed'; qualificationMode = 'offline-firewall-isolated' }
 Set-ReceiptInstalledLifecycle -ReceiptDocument $receipt -Value $replacement
 $receipt | ConvertTo-Json -Depth 10`;
-    const updated = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", stdio: "pipe" }));
+    const updated = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", stdio: "pipe", timeout: 15_000 }));
 
     expect(updated).toMatchObject({
       schema: "black-skies.stage19.package-receipt.v1",
@@ -72,7 +75,7 @@ $receipt | ConvertTo-Json -Depth 10`;
       installedLifecycle: { status: "passed", qualificationMode: "offline-firewall-isolated" },
     });
     expect(updated.installedLifecycle).not.toHaveProperty("staleGuidance");
-  });
+  }, 20_000);
 
   it("accepts an exact candidate receipt", () => {
     expect(validateCandidateReceipt(receipt, installer, commit)).toEqual([]);
