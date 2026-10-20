@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: checks unavailable-AI behavior and an opt-in real-model journey through the Electron harness; the model journey is skipped unless explicitly enabled.
+// Owner: app/tests/e2e/program7-local-ai.spec.ts
+// Retire when: installed-build qualification covers unavailable-AI controls and the explicitly enabled production-model advisory boundary without harness-only dependencies.
+
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test } from './_electron.fixture';

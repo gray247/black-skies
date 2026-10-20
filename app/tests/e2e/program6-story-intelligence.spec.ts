@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: exercises source-linked Story Knowledge using materialized review projects and the Electron harness, not an installed-product truth receipt.
+// Owner: app/tests/e2e/program6-story-intelligence.spec.ts
+// Retire when: installed-build qualification provides equivalent source-link, detached-window, persistence and manuscript-protection coverage without harness-only dependencies.
+
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, mkdtemp } from 'node:fs/promises';

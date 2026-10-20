@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: exercises a materialized 17-unit Carmilla project through the Electron harness and production project bridge, not an installed-product truth receipt.
+// Owner: app/tests/e2e/program7-long-form.spec.ts
+// Retire when: installed-build qualification provides equivalent long-form project, unit-selection and attached/detached session coverage without harness-only dependencies.
+
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test } from './_electron.fixture';

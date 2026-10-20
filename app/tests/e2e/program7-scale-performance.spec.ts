@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: measures bounded Carmilla and explicitly synthetic scale fixtures in the Electron harness; timings do not establish installed-product or human acceptance.
+// Owner: app/tests/e2e/program7-scale-performance.spec.ts
+// Retire when: installed-build performance qualification provides equivalent bounded project-open, rendering, selection and frame-gap coverage without harness-only dependencies.
+
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';

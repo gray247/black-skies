@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: measures mechanical accessibility on materialized review projects in the Electron harness; it does not establish human accessibility acceptance.
+// Owner: app/tests/e2e/program7-accessibility.spec.ts
+// Retire when: installed-build accessibility qualification covers equivalent attached/detached routes, themes, viewport profiles and revision controls without harness-only dependencies.
+
 import AxeBuilder from '@axe-core/playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';

@@ -1,3 +1,8 @@
+// HARNESS_ONLY:
+// Reason: exercises materialized-project author workflows in the Electron harness and injects controlled IPC failures for handoff rejection paths.
+// Owner: app/tests/e2e/program7-create-develop.spec.ts
+// Retire when: installed-build qualification supplies equivalent Foundation, Ideas, promotion and failure-path manuscript-protection coverage without harness-only dependencies.
+
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { StoryFoundationDocumentV1 } from '../../shared/ipc/storyFoundation';
