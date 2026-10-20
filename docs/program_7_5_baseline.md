@@ -67,6 +67,16 @@ owner's Windows account. Actual install/uninstall/reinstall qualification
 requires a disposable Windows environment without the accepted registration.
 Do not change appId merely to make an installation test pass.
 
+The October 20 pinned builder patch handles Windows template working
+directories at or beyond MAX_PATH by copying the full template tree into a
+fresh short directory beneath TEMP/TMP. Keep TEMP/TMP short and outside Git;
+the patch fails explicitly if the temporary parent is itself too long.
+Do not change compiler stdio or relax warnings to address ENOTCONN. The
+diagnostic receipt reproduces the failure with both Node and NSIS version
+commands using the original long working directory. Only the patch hash in
+the frozen lockfile changes; package versions and installer identity stay
+pinned. Retain temporary staged resources with the build evidence as needed.
+
 The existing packaged-runtime smoke can safely target the new `win-unpacked`
 executable with a new outside-Git test root and isolated profile. Label that
 result as packaged runtime, not installed lifecycle or human approval. Keep

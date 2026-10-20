@@ -69,3 +69,30 @@ index 729cdc8..41caed9 100644
      }
      macro(name, lines) {
          this.lines.push(`!macro ${name}`, `  ${(Array.isArray(lines) ? lines : lines.lines).join("\n  ")}`, `!macroend\n`);
+diff --git a/out/targets/nsis/nsisUtil.js b/out/targets/nsis/nsisUtil.js
+--- a/out/targets/nsis/nsisUtil.js
++++ b/out/targets/nsis/nsisUtil.js
+@@ -7,7 +7,22 @@
+ const zlib = require("zlib");
+ const windows_1 = require("../../toolsets/windows");
+ const pathManager_1 = require("../../util/pathManager");
+-exports.nsisTemplatesDir = (0, pathManager_1.getTemplatePath)("nsis");
++const originalNsisTemplatesDir = (0, pathManager_1.getTemplatePath)("nsis");
++exports.nsisTemplatesDir = originalNsisTemplatesDir;
++if (process.platform === "win32" && originalNsisTemplatesDir.length >= 260) {
++    // CreateProcessW cannot use a current directory beyond MAX_PATH, even
++    // when long file paths are enabled. Keep every relative NSIS resource
++    // together in a fresh, process-owned directory; do not change stdio.
++    const syncFs = require("fs");
++    const os = require("os");
++    const stagingParent = os.tmpdir();
++    if (path.join(stagingParent, "bs-nsis-XXXXXX").length >= 248) {
++        throw new Error("NSIS requires a shorter TEMP/TMP directory for Windows process creation.");
++    }
++    const stagedTemplatesDir = syncFs.mkdtempSync(path.join(stagingParent, "bs-nsis-"));
++    syncFs.cpSync(originalNsisTemplatesDir, stagedTemplatesDir, { recursive: true, errorOnExist: true, force: false });
++    exports.nsisTemplatesDir = stagedTemplatesDir;
++}
+ class AppPackageHelper {
+     constructor(elevateHelper) {
+         this.elevateHelper = elevateHelper;

@@ -1,3 +1,25 @@
+## October 20 Program 7.5 — installer continuation
+
+P75-PACK-01 now has a reproduced root cause: the pinned builder launches NSIS
+with a 267-character template working directory. On this Windows host, both
+Node and NSIS version probes succeed from the short checkout and fail from
+that directory with ENOTCONN / process exit -4058. The earlier generic pipe
+probes did not exercise the failing working directory.
+
+The existing pinned builder patch now stages the entire template tree into a
+fresh short temporary directory only when the Windows template path reaches
+MAX_PATH. Relative includes stay together, original template bytes remain
+intact, and compiler pipes, warnings, package identity and dependency versions
+are unchanged. Frozen offline installation validates the updated patch hash.
+Focused behavioral regression and exact clean package qualification are being
+recorded in `outputs/program-7.5-completion-2026-10-20` in the parent workspace.
+Do not infer installer acceptance before the actual package verifier passes.
+
+P75-INSTALL-01 / P75-HUMAN-01 remain open. On October 20 the owner confirmed
+there is no separate Windows VM or test computer. Never run the candidate
+installer against the accepted Windows registration to substitute for that
+missing environment. Human acceptance cannot be inferred from automated tests.
+
 ## October 19 Program 7.5 Phases 3–5 — stabilization candidate
 
 The verified Phase 2 checkpoint is retained in five local commits on
