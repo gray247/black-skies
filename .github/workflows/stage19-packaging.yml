@@ -1,7 +1,13 @@
 name: Stage 19 Windows Packaging Proof
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      qualification_ref:
+        description: Branch or tag containing the Program 7.5 qualification scripts
+        required: true
+        default: codex/program7-5-stabilization
+        type: string
 
 env:
   CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -16,9 +22,24 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout exact source
+        id: checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ inputs.qualification_ref }}
+      - name: Validate selected qualification source
+        id: validate_source
+        shell: pwsh
+        run: |
+          $package = Get-Content -LiteralPath ./package.json -Raw | ConvertFrom-Json
+          $requiredScripts = @('stage19:regression', 'program3:performance')
+          foreach ($scriptName in $requiredScripts) {
+            if (-not $package.scripts.PSObject.Properties[$scriptName]) {
+              throw "Selected qualification ref is missing '$scriptName'. Select a Program 7.5 stabilization ref."
+            }
+          }
+          $qualificationSha = git rev-parse HEAD
+          "sha=$qualificationSha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       - name: Use a canonical temporary directory outside the checkout
         shell: pwsh
         run: |
@@ -74,10 +95,12 @@ jobs:
             --external-root ./.tmp/stage19-22-lifecycle/external-data `
             --lifecycle-evidence ./.tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json `
             --expected-manifest ./.tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
+      - name: Enforce Program 3/4 Writing-first installed qualification
+        run: pnpm program3:performance -- --receipt app/release/stage19-package-receipt.json
       - name: Upload qualified RC installer and receipt
         uses: actions/upload-artifact@v6
         with:
-          name: black-skies-1.0.0-rc1-${{ github.sha }}
+          name: black-skies-1.0.0-rc1-${{ steps.validate_source.outputs.sha }}
           retention-days: 14
           if-no-files-found: error
           path: |
@@ -85,8 +108,6 @@ jobs:
             app/release/stage19-package-receipt.json
             .tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json
             .tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
-      - name: Enforce Program 3/4 Writing-first installed qualification
-        run: pnpm program3:performance -- --receipt app/release/stage19-package-receipt.json
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v6
