@@ -1,0 +1,121 @@
+name: Stage 19 Windows Packaging Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      qualification_ref:
+        description: Branch or tag containing the Program 7.5 qualification scripts
+        required: true
+        default: codex/program7-5-stabilization
+        type: string
+
+env:
+  CSC_IDENTITY_AUTO_DISCOVERY: false
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
+jobs:
+  windows-package:
+    name: Windows Server 2022 x64 package, install, and uninstall
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact source
+        id: checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.qualification_ref }}
+      - name: Validate selected qualification source
+        id: validate_source
+        shell: pwsh
+        run: |
+          $package = Get-Content -LiteralPath ./package.json -Raw | ConvertFrom-Json
+          $requiredScripts = @('stage19:regression', 'program3:performance')
+          foreach ($scriptName in $requiredScripts) {
+            if (-not $package.scripts.PSObject.Properties[$scriptName]) {
+              throw "Selected qualification ref is missing '$scriptName'. Select a Program 7.5 stabilization ref."
+            }
+          }
+          $qualificationSha = git rev-parse HEAD
+          "sha=$qualificationSha" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      - name: Use a canonical temporary directory outside the checkout
+        shell: pwsh
+        run: |
+          $qualificationTemp = Join-Path $env:RUNNER_TEMP 'black-skies-qualification'
+          New-Item -ItemType Directory -Path $qualificationTemp -ErrorAction Stop | Out-Null
+          $qualificationTemp = (Resolve-Path -LiteralPath $qualificationTemp).Path
+          "TEMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "TMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Set up Python for repository hygiene gate
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Set up pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.9 --activate
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: pwsh
+        run: '"path=$(pnpm store path --silent)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append'
+      - name: Cache pnpm store
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install frozen dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Run fixed Stage 19 regression
+        run: pnpm stage19:regression
+      - name: Build and verify unsigned NSIS installer
+        run: pnpm --filter app run package:win
+      - name: Install, run offline lifecycle, and uninstall
+        shell: pwsh
+        run: |
+          ./scripts/stage19-installed-lifecycle.ps1 `
+            -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
+            -ReceiptPath ./app/release/stage19-package-receipt.json `
+            -WorkingRoot ./.tmp/stage19-22-lifecycle
+      - name: Verify receipt-bound installed candidate
+        shell: pwsh
+        run: |
+          node ./scripts/stage19-22-qualification-witness.mjs `
+            --receipt ./app/release/stage19-package-receipt.json `
+            --installer ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
+            --install-dir ./.tmp/stage19-22-lifecycle/installed `
+            --external-root ./.tmp/stage19-22-lifecycle/external-data `
+            --lifecycle-evidence ./.tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json `
+            --expected-manifest ./.tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
+      - name: Enforce Program 3/4 Writing-first installed qualification
+        run: pnpm program3:performance -- --receipt app/release/stage19-package-receipt.json
+      - name: Upload qualified RC installer and receipt
+        uses: actions/upload-artifact@v6
+        with:
+          name: black-skies-1.0.0-rc1-${{ steps.validate_source.outputs.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            app/release/BlackSkies-Setup-1.0.0-rc1.exe
+            app/release/stage19-package-receipt.json
+            .tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json
+            .tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: stage19-packaging-failure-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            app/test-results
+            app/playwright-report
+
