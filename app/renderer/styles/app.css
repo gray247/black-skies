@@ -6076,6 +6076,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   position: relative;
   scroll-margin-top: 72px;
   padding: 18px 0 64px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 18rem;
 }
 
 .stage19-continuous-manuscript__section + .stage19-continuous-manuscript__section::before {
@@ -8257,6 +8259,8 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   max-width: 100%;
   padding: 2px 0 8px;
   border-bottom: 1px solid var(--bs-line-quiet);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.35rem;
 }
 
 .stage19-story-rail__sections > li::before {

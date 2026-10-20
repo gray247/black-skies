@@ -444,6 +444,7 @@ export const test = base.extend<Fixtures>({
     });
     const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererUrl = rendererIndexExists ? pathToFileURL(rendererIndex).toString() : undefined;
+    const scalePackagedExecutable = process.env.BLACKSKIES_SCALE_PACKAGED_EXE?.trim();
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
     const runtimeConfigDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-runtime-'));
     const runtimeConfigPath = path.join(runtimeConfigDir, 'runtime.yaml');
@@ -467,7 +468,7 @@ export const test = base.extend<Fixtures>({
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
       NODE_ENV: 'test',
-      ...(rendererUrl ? { ELECTRON_RENDERER_URL: rendererUrl } : {}),
+      ...(!scalePackagedExecutable && rendererUrl ? { ELECTRON_RENDERER_URL: rendererUrl } : {}),
       PLAYWRIGHT: '1',
       BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
@@ -495,10 +496,11 @@ export const test = base.extend<Fixtures>({
     const retainArtifacts = preserveTestArtifacts || process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1';
     if (!retainArtifacts) resetPersistedHarnessState(repoRoot);
     const launchOptions = {
+      ...(scalePackagedExecutable ? { executablePath: scalePackagedExecutable } : {}),
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
         `--user-data-dir=${userDataDir}`,
-        entryPoint,
+        ...(!scalePackagedExecutable ? [entryPoint] : []),
       ],
       env: launchEnv,
     };

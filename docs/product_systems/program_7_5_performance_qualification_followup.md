@@ -1,0 +1,17 @@
+# Program 7.5 performance qualification follow-up
+
+**Date:** 2026-10-20
+**Disposition:** FIXED; the contaminated scale-test setup was also corrected.
+**Human acceptance:** Pending.
+
+The original scale test created large fixtures through the live application: it created and activated a project, then added each manuscript unit through the renderer-facing project bridge. Those operations published snapshots and queued UI work before the test measured opening the project. The old setup therefore did not represent a clean, ready fixture. Its failures are retained in the Program 7.5 completion evidence.
+
+Replacing that setup with runner-side fixture materialization made the measurement valid but did not by itself eliminate stalls. A corrected-fixture 136-unit run still recorded a 108.2 ms frame gap; a separate traced run recorded a 149.8 ms maximum while tracing, including a 108 ms long task during final selection and a 96 ms task during opening. The trace showed a 108.5 ms React task overlapping 83.4 ms of layout-tree updating. Source inspection found that both the manuscript canvas and Story rail eagerly rendered every unit section/row.
+
+The focused renderer change applies Chromium `content-visibility: auto` with intrinsic-size estimates to offscreen manuscript sections and Story rail rows. This lets the browser defer offscreen layout and paint until content approaches the viewport while retaining the existing editor, data ownership, navigation, and two-surface design. The scale test now creates and reads back all fixture files before measurement, marks fixture readiness, separates project open, Story rail rendering, selection, editor availability, and visual settling, and records frame gaps, long tasks, and event markers. The 100 ms assertion, all four fixture sizes, and zero-retry policy remain unchanged.
+
+Five independent idle runs per scale passed. Across those five runs, maxima were 58.3 ms at 17 units, 58.3 ms at 34, 41.7 ms at 68, and 58.5 ms at 136. The observed idle ranges were respectively 41.6–58.3 ms (16.7 ms spread), 16.8–58.3 ms (41.5 ms), 25.0–41.7 ms (16.7 ms), and 41.6–58.5 ms (16.9 ms). Two additional defined-load runs passed at 68 and 136 units, with 25.0/33.5 ms and 41.9/49.9 ms respectively. No long tasks were reported in these samples. An isolated packaged Windows candidate also passed all scales: 41.7 ms at 17, 25.1 ms at 34, 25.0 ms at 68, and 33.4 ms at 136. The original accepted package and installed application were not changed.
+
+Relevant regressions passed: 22 Electron tests across accessibility, revisions, project reopen/discard, and writing-shell navigation; and the full app Vitest suite, 160 files with 1,587 passed and 2 skipped. Build, lint, and package preflight passed. These results meet the predefined matrix but are a bounded sample, not a population failure-rate estimate. The exact minified React call was not resolved to a named source function; the evidence supports eager offscreen list layout as the contributing work addressed by the fix.
+
+**Review readiness:** The performance issue no longer blocks human review. The fresh-profile visual and functional acceptance remains explicitly pending. **Program 8 recommendation:** unchanged; do not treat this performance repair as human acceptance or as authorization to begin Program 8. Detailed logs, measurements, and package candidate are in `outputs/program-7.5-performance-followup-2026-10-20`.
