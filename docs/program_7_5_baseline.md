@@ -40,6 +40,13 @@ desktop specs covering revisions, Ideas, long form, accessibility and scale.
 The hosted packaging workflow uses Windows Server 2022 and a canonical job-owned
 RUNNER_TEMP subdirectory. Its results do not establish Windows 11 visual or human
 acceptance. Desktop geometry journeys set their intended viewport explicitly.
+Run 39459099173 at 646750335630bbf1db9c4ddd9c94f2513f6fbce0 passes the clean gate,
+verified installer, isolated offline installed lifecycle, independent witness and
+installed performance. The October 20 completion packet preserves downloaded
+receipts/artifacts and a hash-checked replay kit. The installer SHA-256 is
+3de247a61cd8db801b3465446ad5338902f746ad080d0bc3d1f2bc90bb480d21.
+Later documentation-only commits do not change that package binding. The expanded
+scale frame-gap defect and explicitly deferred human acceptance remain open.
 
 ## Source-return repair and ownership
 

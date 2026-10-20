@@ -1,5 +1,29 @@
 ## October 20 Program 7.5 — installer continuation
 
+Final hosted result: run 39459099173 at
+`646750335630bbf1db9c4ddd9c94f2513f6fbce0` passes clean regression (857 critical
+tests, two existing skips, startup and all 36 Electron scenarios), installer
+construction/verification, offline-firewall installed smoke, external-data
+preservation, uninstall, same-installer reinstall, independent receipt witness
+and combined installed-performance enforcement. P75-PACK-01, P75-INSTALL-01 and
+P75-CI-01 are verified within that automated Windows Server 2022 scope. The
+downloaded installer is 87,155,825 bytes, SHA-256
+`3de247a61cd8db801b3465446ad5338902f746ad080d0bc3d1f2bc90bb480d21`.
+Its executable and ASAR hashes exactly match the preserved local runtime.
+Downloaded receipt, lifecycle evidence and 197-record preservation manifest
+are retained and rechecked in the October 20 completion packet. The installed
+cold-launch median is 297.1989 ms over five governed samples. The accepted host
+was not an installation target. This resolves the installation-environment gap
+through the owner's explicitly approved hosted workflow.
+
+P75-SCALE-01 remains open with the failures below. A final native-attribute
+diagnostic passes at 16.7 ms for 136 units and captures no attribute call above
+20 ms; it establishes variability, not a repair. Its temporary instrumentation
+is preserved and removed. P75-HUMAN-01 stays pending at the owner's explicit
+request. No completed-program or Program 8 implementation claim is made.
+This tracker/guidance update is documentation only; the qualified package stays
+bound to 64675033 and is not relabelled with a newer documentation commit.
+
 P75-PACK-01 now has a reproduced root cause: the pinned builder launches NSIS
 with a 267-character template working directory. On this Windows host, both
 Node and NSIS version probes succeed from the short checkout and fail from
