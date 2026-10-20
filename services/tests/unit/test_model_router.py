@@ -10,6 +10,7 @@ from blackskies.services.model_router import (
     create_default_model_router,
 )
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
+from blackskies.services.run_policy import RunPolicyDecision
 
 
 @pytest.mark.parametrize(
@@ -238,3 +239,48 @@ def test_local_route_exposes_prompt_profile():
     decision = router.route(ModelTask.DRAFT)
 
     assert decision.prompt_profile == "local_ollama_fast_draft"
+
+
+@pytest.mark.parametrize("task", list(ModelTask))
+@pytest.mark.parametrize("local_available", [True, False])
+def test_local_only_never_probes_or_falls_back_to_remote(task, local_available, monkeypatch):
+    router = create_default_model_router(ModelRouterConfig(
+        policy=ModelRoutingPolicy.LOCAL_ONLY,
+        openai_api_key="synthetic-key",
+        local_llm_available=local_available,
+    ))
+
+    def forbidden_remote_probe(*_args):
+        pytest.fail("LOCAL_ONLY must not inspect a remote provider")
+
+    monkeypatch.setattr(router.providers["openai"], "supports", forbidden_remote_probe)
+    monkeypatch.setattr(router.providers["openai"], "is_available", forbidden_remote_probe)
+    can_route_locally = local_available and router.providers["local_llm"].supports(task)
+    if can_route_locally:
+        assert router.route(task).provider == "local_llm"
+    else:
+        with pytest.raises(RuntimeError, match="No healthy model providers available"):
+            router.route(task)
+    decision = router.evaluate_run_policy(task, budget_status="ok")
+    assert decision.allow_api is False
+    if can_route_locally:
+        assert router.route_with_policy(task, decision).provider == "local_llm"
+    else:
+        with pytest.raises(RuntimeError, match="No healthy model providers available"):
+            router.route_with_policy(task, decision)
+
+
+def test_local_only_rejects_a_run_policy_envelope_that_permits_remote(monkeypatch):
+    router = create_default_model_router(ModelRouterConfig(
+        policy=ModelRoutingPolicy.LOCAL_ONLY,
+        openai_api_key="synthetic-key",
+        local_llm_available=False,
+    ))
+    monkeypatch.setattr(router.providers["openai"], "is_available",
+                        lambda *_args: pytest.fail("Remote provider must remain unprobed"))
+    decision = RunPolicyDecision(task="draft", policy=ModelRoutingPolicy.API_ONLY,
+        budget_status="ok", allow_local=False, allow_api=True, prefer_local=False,
+        reason="synthetic stale policy", warnings=[])
+
+    with pytest.raises(RuntimeError, match="No healthy model providers available"):
+        router.route_with_policy(ModelTask.DRAFT, decision)

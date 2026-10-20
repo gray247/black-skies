@@ -150,7 +150,13 @@ class ModelRouter:
         local = self.providers.get("local_llm")
         api = self.providers.get("openai")
         local_available = bool(local and local.supports(task) and local.is_available(self.config))
-        api_available = bool(api and api.supports(task) and api.is_available(self.config))
+        # Local-only forbids remote availability probes as well as remote calls.
+        api_available = bool(
+            self.config.policy is not ModelRoutingPolicy.LOCAL_ONLY
+            and api
+            and api.supports(task)
+            and api.is_available(self.config)
+        )
         return local_available, api_available
 
     def route(self, task: ModelTask) -> ModelRouteDecision:
@@ -174,7 +180,9 @@ class ModelRouter:
                 decision = self._build_decision(task, local, "policy.local_only")
                 self._trace(decision)
                 return decision
-            fallback_used = True
+            raise RuntimeError(
+                "No healthy model providers available. Local-only policy forbids remote fallback."
+            )
 
         if policy is ModelRoutingPolicy.LOCAL_THEN_API_FALLBACK:
             if local_available:
