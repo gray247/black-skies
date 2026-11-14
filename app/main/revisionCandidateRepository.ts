@@ -287,13 +287,16 @@ function validCandidate(value: unknown, projectId: string): value is RevisionCan
       'history',
       'createdAt',
       'updatedAt',
-    ], ['acceptanceReservation'])
+    ], ['acceptanceReservation', 'concernId', 'deleteSource'])
   )
     return false;
   const candidate = value as Partial<RevisionCandidateV1>;
   return (
     nonEmpty(candidate.id) &&
     candidate.projectId === projectId &&
+    (candidate.concernId === undefined || nonEmpty(candidate.concernId, 240)) &&
+    (candidate.deleteSource === undefined || typeof candidate.deleteSource === 'boolean') &&
+    (!candidate.deleteSource || (candidate.editedCandidateText === null && candidate.origin === 'manual' && candidate.candidateText === '' && candidate.sourceAnchor != null && candidate.sourceAnchor.selectionEnd > candidate.sourceAnchor.selectionStart)) &&
     nonEmpty(candidate.unitId) &&
     validSnapshot(candidate.sourceSnapshot) &&
     candidate.sourceSnapshot.unitId === candidate.unitId &&
@@ -315,7 +318,7 @@ function validCandidate(value: unknown, projectId: string): value is RevisionCan
       bounded(warning, REVISION_CANDIDATE_MAX_WARNING_LENGTH),
     ) &&
     currentness(candidate.currentness) &&
-    bounded(candidate.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH) &&
+    bounded(candidate.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH, candidate.deleteSource === true) &&
     (candidate.editedCandidateText === null ||
       bounded(candidate.editedCandidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH)) &&
     lifecycle(candidate.lifecycle) &&
@@ -350,7 +353,7 @@ function validDocument(value: unknown, projectId: string): value is RevisionCand
 
 function validInferenceRequest(value: unknown): value is Program7LocalInferenceRequestV1 {
   if (!record(value)) return false;
-  const candidate = value as Record<string, any>;
+  const candidate = value as Record<string, unknown>;
   if (
     !exactKeys(candidate, [
       'schema',
@@ -405,7 +408,7 @@ function validLocalResponse(
   request: Program7LocalInferenceRequestV1,
 ): value is Program7LocalInferenceResponseV1 {
   if (!record(value)) return false;
-  const candidate = value as Record<string, any>;
+  const candidate = value as Record<string, unknown>;
   if (
     !exactKeys(candidate, [
       'schema',
@@ -507,13 +510,16 @@ export class RevisionCandidateRepository {
     >,
   ): Promise<RevisionCandidatesSnapshotV1> {
     if (
+      (input.concernId !== undefined && !nonEmpty(input.concernId, 240)) ||
+      (input.deleteSource !== undefined && typeof input.deleteSource !== 'boolean') ||
+      (input.deleteSource && (input.candidateText !== '' || !input.sourceAnchor || input.sourceAnchor.selectionEnd <= input.sourceAnchor.selectionStart)) ||
       !validSnapshot(input.sourceSnapshot) ||
       !validAnchor(input.sourceAnchor ?? null) ||
       (input.sourceAnchor !== undefined &&
         input.sourceAnchor !== null &&
         input.sourceAnchor.unitId !== input.sourceSnapshot.unitId) ||
       !bounded(input.purpose, REVISION_CANDIDATE_MAX_PURPOSE_LENGTH) ||
-      !bounded(input.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH) ||
+      !bounded(input.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH, input.deleteSource === true) ||
       !validProtection(input.protection) ||
       input.protection.excluded ||
       input.protection.class !== 'ordinary' ||
@@ -533,6 +539,8 @@ export class RevisionCandidateRepository {
         id: `candidate_${this.createId()}`,
         projectId,
         unitId: input.sourceSnapshot.unitId,
+        ...(input.concernId ? { concernId: input.concernId } : {}),
+        ...(input.deleteSource ? { deleteSource: true } : {}),
         sourceSnapshot: input.sourceSnapshot,
         sourceAnchor: input.sourceAnchor ?? null,
         sourceBodySha256: input.sourceSnapshot.bodySha256,
@@ -636,7 +644,7 @@ export class RevisionCandidateRepository {
           'UNKNOWN_CANDIDATE',
           'The revision candidate does not exist.',
         );
-      if (!editable(found))
+      if (!editable(found) || found.deleteSource)
         throw new RevisionCandidateRepositoryError(
           found.acceptanceReservation ? 'RESERVED' : 'STALE',
           found.acceptanceReservation

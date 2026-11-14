@@ -31,6 +31,7 @@ export type StoryFoundationLifecycle = 'active' | 'archived';
 export type StoryFoundationHistoryAction = 'created' | 'revised' | 'superseded' | 'archived' | 'restored';
 
 export interface StoryFoundationAnswerVersionV1 {
+  readonly sourcePromotionId?: string;
   readonly id: string;
   readonly posture: StoryFoundationPosture;
   readonly text: string;

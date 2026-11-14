@@ -14,6 +14,7 @@ export interface Program7HistoryItemV1 {
   readonly reference: string;
   readonly ownerKind: Program7HistoryOwnerKind;
   readonly ownerId: string;
+  readonly concernId?: string;
   readonly bucket: Program7HistoryBucket;
   readonly lifecycle: string;
   readonly title: string;
@@ -71,9 +72,10 @@ function makeItem(item: Omit<Program7HistoryItemV1, 'reference'>): Program7Histo
 function feedbackHistory(item: RevisionItem): Program7HistoryItemV1 {
   const sourceReference = item.sourceId ?? item.sourceFindingId ?? null;
   return makeItem({
+    concernId: item.id,
     ownerKind: 'feedback-note',
     ownerId: item.id,
-    bucket: bucketForLifecycle(item.lifecycle, ['parked', 'dismissed', 'resolved', 'abandoned']),
+    bucket: bucketForLifecycle(item.lifecycle, ['parked', 'dismissed', 'resolved', 'abandoned', 'intentional']),
     lifecycle: item.lifecycle,
     title: item.lens ?? 'Revision item',
     summary: item.body,
@@ -96,6 +98,7 @@ function candidateHistory(item: RevisionCandidateV1): Program7HistoryItemV1 {
       ? 'complete'
       : 'none';
   return makeItem({
+    ...(item.concernId ? { concernId: item.concernId } : {}),
     ownerKind: 'revision-candidate',
     ownerId: item.id,
     bucket: bucketForLifecycle(item.lifecycle, ['accepted', 'partially accepted', 'rejected', 'parked', 'abandoned']),

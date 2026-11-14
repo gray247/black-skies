@@ -4,7 +4,7 @@ import type { ProjectSpineSaveStatus, ProjectSpineSessionSnapshot } from './ipc/
 export const COMPANION_ORIENTATION_SCHEMA_VERSION = 1 as const;
 export const COMPANION_MAX_REQUEST_LENGTH = 500;
 
-export type CompanionRouteV1 = 'orientation' | 'not-routed';
+export type CompanionRouteV1 = 'orientation' | 'help' | 'not-routed';
 export type CompanionOrientationStatusV1 = 'available' | 'unavailable' | 'not-routed';
 
 export interface CompanionRequestV1 {
@@ -19,7 +19,8 @@ export interface CompanionRequestV1 {
 export type CompanionOrientationSourceOwnerV1 =
   | 'Project session'
   | 'Manuscript unit'
-  | 'Story plan';
+  | 'Story plan'
+  | 'Tool help';
 
 export interface CompanionOrientationSourceFactV1 {
   readonly owner: CompanionOrientationSourceOwnerV1;
@@ -30,7 +31,10 @@ export interface CompanionOrientationSourceFactV1 {
 
 export type CompanionOrientationAllowedActionV1 = 'return-to-writing' | 'dismiss';
 
+export type CompanionHelpDestination = 'structure' | 'create-develop' | 'project-interchange' | 'writing';
+
 export interface CompanionOrientationResultV1 {
+  readonly helpDestination?: CompanionHelpDestination;
   readonly schemaVersion: typeof COMPANION_ORIENTATION_SCHEMA_VERSION;
   readonly requestId: string;
   readonly projectId: string | null;
@@ -52,6 +56,16 @@ const ORIENTATION_REQUESTS = new Set([
   'what am i working on',
   'what am i working on in this project',
 ]);
+
+const HELP_TOPICS: readonly { aliases: readonly string[]; title: string; text: string; destination: CompanionHelpDestination }[] = [
+  { aliases: ['help', 'how does black skies work', 'what can i do here'], title: 'Writing and tools', destination: 'writing', text: 'Write directly in Writing Studio. Pin groups exact writing without making chapters. Story holds Outline and Notebook; Review and Develop hold manual concerns and alternatives. Save keeps writing. AI story answers and background reading remain separate capabilities.' },
+  { aliases: ['where is notebook', 'where are my notes', 'how do i add a note', 'open notebook'], title: 'Notebook and passage Notes', destination: 'structure', text: 'Open Story, then All-story Notebook. Browse or search Notes by their text; duplicate names remain separate. Select writing and use Note for an exact passage attachment. Whole-story, deliberately unattached and unavailable-source Notes have different meanings. Keep saves a Note; closing a rail keeps its temporary draft in this window.' },
+  { aliases: ['how do i pin writing', 'what does pin do', 'where is outline'], title: 'Pin and Outline', destination: 'structure', text: 'Select exact words and choose Pin, or use one Pin button to place a beginning and ending. Pin groups writing without locking it or deciding chapters. Planning order changes the plan; moving prose is a separate preview and deliberate action. Keep open locks a rail, not writing.' },
+  { aliases: ['how do i export', 'where can i export', 'where is import', 'import and export'], title: 'Supported interchange', destination: 'project-interchange', text: 'Save writing before exporting all saved sections as Markdown or UTF-8 source text. Source text retains Markdown characters and body whitespace. Notes and other project records are outside manuscript export; whole-project archive and named versions are not supplied by it. Import stages a separate UTF-8/Markdown copy for review and Apply.' },
+  { aliases: ['where are writing preferences', 'how do i change spacing', 'where is spelling', 'how do i set a word goal'], title: 'Writing preferences and spelling', destination: 'writing', text: 'Writing preferences is on the Writing toolbar. Typeface, size, line height, extra paragraph spacing and indentation affect the whole manuscript display, not source bytes. A blank story word goal turns it off. Spelling and accepted words reports actual native dictionary availability; accepted words belong to the native session across projects and may also affect Windows.' },
+  { aliases: ['how do i save', 'how do i undo'], title: 'Save and Undo', destination: 'writing', text: 'Save writing or Ctrl+S keeps current writing and its links. Undo and Redo work independently of AI. Later typing or link changes can refuse an obsolete structural Undo to protect newer work. Session Undo is not a named whole-project version.' },
+  { aliases: ['what is a source check', 'how do i revise a concern', 'where is history'], title: 'Concerns, revisions and History', destination: 'create-develop', text: 'A manual concern can link primary and related exact evidence. Review each current source before considering a revision. Author choices, partial application and History use the same concern identity. A source check verifies source availability; it does not judge whether a literary concern still applies. History preserves decisions, not a claim of fresh reading.' },
+];
 
 const ORIENTATION_ACTIONS = ['return-to-writing', 'dismiss'] as const;
 
@@ -91,7 +105,7 @@ export function routeCompanionRequest(
     text: trimmed,
     route: ORIENTATION_REQUESTS.has(normalizeRequestText(trimmed))
       ? 'orientation'
-      : 'not-routed',
+      : HELP_TOPICS.some(topic => topic.aliases.includes(normalizeRequestText(trimmed))) ? 'help' : 'not-routed',
   };
 }
 
@@ -116,12 +130,22 @@ export function deriveCompanionOrientationResult(
     project && request.projectId === project.projectId && request.generation === snapshot.generation,
   );
 
+  if (request.route === 'help') {
+    const topic = HELP_TOPICS.find(value => value.aliases.includes(normalizeRequestText(request.text)));
+    if (currentProjectMatches && topic) return {
+      ...base, status: 'available', requestLabel: topic.title, helpDestination: topic.destination,
+      sourceFacts: [{ owner: 'Tool help', label: 'Built-in instructions', currentness: 'current', value: topic.text }],
+      limitationText: 'Built-in product help. No story was analyzed, no AI was called and no writing changed.',
+    };
+    return { ...base, status: 'unavailable', sourceFacts: [], limitationText: 'The project changed before this help was opened. Ask again from the current project.' };
+  }
+
   if (request.route === 'not-routed') {
     return {
       ...base,
       status: 'not-routed',
       sourceFacts: [],
-      limitationText: 'Companion currently helps you find your place in this project. It did not change your manuscript or save anything.',
+      limitationText: 'Companion currently helps you find your place in this project and offers selected built-in product help. It did not change your manuscript or save anything.',
     };
   }
 

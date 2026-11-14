@@ -139,13 +139,28 @@ function promotionSourceReference(projectId: string, branchId: string, premiseId
   return `ideation:${projectId}:${branchId}:premise=${premiseId}:seeds=${seedIds.join(',')}:versions=${versions}:selectedSha256=${selectedTextSha256}:protection=ordinary`;
 }
 function validPromotionPackage(value: unknown, projectId: string, branches: readonly IdeationExplorationBranchV1[], seeds: readonly IdeationIdeaSeedV1[]): value is IdeationPromotionPackageV1 {
-  if (!exact(value, ['id', 'branchId', 'seedIds', 'destination', 'selectedText', 'selectedTextSha256', 'sourceContributions', 'preparedAt', 'provenance', 'status'])) return false;
-  const pkg = value as Partial<IdeationPromotionPackageV1>; const branch = branches.find((candidate) => candidate.id === pkg.branchId); const seedIds = pkg.seedIds; const contributions = pkg.sourceContributions;
-  if (!branch || !Array.isArray(seedIds) || !Array.isArray(contributions) || !id(pkg.id) || seedIds.length === 0 || !unique(seedIds) || !seedIds.every((seedId) => branch.seedIds.includes(seedId) && seeds.some((seed) => seed.id === seedId && !seed.protected)) || !destinationValues.has(pkg.destination as IdeationPromotionDestination) || !text(pkg.selectedText) || !nonEmpty(pkg.selectedText) || !/^[a-f0-9]{64}$/.test(String(pkg.selectedTextSha256)) || pkg.selectedTextSha256 !== sha256(pkg.selectedText as string) || !timestamp(pkg.preparedAt) || !provenance(pkg.provenance) || pkg.status !== 'prepared') return false;
-  const premise = branch.premiseVersions.find((version) => version.id === branch.currentPremiseVersionId); if (!premise || contributions.length !== seedIds.length || !contributions.every(contribution) || !unique(contributions.map((item) => item.seedId))) return false;
-  const expectedContributions = seedIds.map((seedId) => branch.sourceContributions.find((item) => item.seedId === seedId));
-  if (expectedContributions.some((item) => !item) || contributions.some((item, index) => JSON.stringify(item) !== JSON.stringify(expectedContributions[index]))) return false;
-  return pkg.provenance.sourceReference === promotionSourceReference(projectId, branch.id, premise.id, seedIds, contributions, pkg.selectedTextSha256 as string);
+  if (!record(value) || !exact(value, ['id', 'branchId', 'seedIds', 'destination', 'selectedText', 'selectedTextSha256', 'sourceContributions', 'preparedAt', 'provenance', 'status', ...(value.destinationRevision !== undefined ? ['destinationRevision'] : [])])) return false;
+  const pkg = value as unknown as Partial<IdeationPromotionPackageV1>, branch = branches.find(candidate => candidate.id === pkg.branchId);
+  const seedIds = pkg.seedIds, contributions = pkg.sourceContributions;
+  if (!branch || !Array.isArray(seedIds) || !Array.isArray(contributions) || !id(pkg.id) || !seedIds.length || !unique(seedIds) ||
+    !seedIds.every(seedId => seeds.some(seed => seed.id === seedId)) || !destinationValues.has(pkg.destination as IdeationPromotionDestination) ||
+    !text(pkg.selectedText) || !nonEmpty(pkg.selectedText) || pkg.selectedTextSha256 !== sha256(pkg.selectedText) ||
+    !timestamp(pkg.preparedAt) || !provenance(pkg.provenance) || pkg.status !== 'prepared' ||
+    (pkg.destinationRevision !== undefined && (!Number.isInteger(pkg.destinationRevision) || pkg.destinationRevision < 0)) ||
+    contributions.length !== seedIds.length || !contributions.every(contribution) || !unique(contributions.map(item => item.seedId))) return false;
+  if (contributions.some(item => !seedIds.includes(item.seedId) || item.sourceVersionId !== null && !seeds.find(seed => seed.id === item.seedId)?.versions.some(version => version.id === item.sourceVersionId))) return false;
+  // A retained preview binds its historical premise and seed versions. Currentness
+  // is checked at handoff, rather than invalidating the entire source document.
+  return branch.premiseVersions.some(premise => pkg.provenance!.sourceReference === promotionSourceReference(projectId, branch.id, premise.id, seedIds, contributions, pkg.selectedTextSha256!));
+}
+export function currentIdeationPromotion(document: IdeationDocumentV1, packageId: string): IdeationPromotionPackageV1 | null {
+  const pkg = document.promotionPackages.find(item => item.id === packageId), branch = document.branches.find(item => item.id === pkg?.branchId);
+  if (!pkg || !branch || ['archived', 'stale', 'rejected'].includes(branch.posture)) return null;
+  if (!pkg.seedIds.every(seedId => {
+    const seed = document.seeds.find(item => item.id === seedId), contribution = pkg.sourceContributions.find(item => item.seedId === seedId);
+    return seed && seed.lifecycle !== 'archived' && !seed.protected && branch.seedIds.includes(seedId) && seed.currentVersionId === contribution?.sourceVersionId;
+  })) return null;
+  return pkg.provenance.sourceReference === promotionSourceReference(document.projectId, branch.id, branch.currentPremiseVersionId ?? '', pkg.seedIds, pkg.sourceContributions, pkg.selectedTextSha256) ? pkg : null;
 }
 function validAiAlternative(value: unknown, projectId: string, branches: readonly IdeationExplorationBranchV1[]): value is IdeationAiAlternativeV1 {
   if (!exact(value, ['id', 'branchId', 'premiseVersionId', 'text', 'request', 'provenance', 'model', 'receipt', 'accepted'])) return false;
@@ -334,7 +349,7 @@ export class IdeationRepository {
     return snapshot({ ...current.document, seeds, branches, premiseTests, promotionPackages, aiAlternatives, history: current.document.history.filter((item) => visibleObjectIds.has(item.objectId)) });
   }
 
-  async preparePromotion(projectId: string, expectedRevision: number, input: { readonly branchId: string; readonly destination: IdeationPromotionDestination; readonly seedIds: readonly string[]; readonly selectedText: string }): Promise<IdeationSnapshotV1> {
+  async preparePromotion(projectId: string, expectedRevision: number, input: { readonly branchId: string; readonly destination: IdeationPromotionDestination; readonly seedIds: readonly string[]; readonly selectedText: string; readonly destinationRevision?: number }): Promise<IdeationSnapshotV1> {
     if (!record(input) || !id(input.branchId) || !destinationValues.has(input.destination) || !text(input.selectedText) || !nonEmpty(input.selectedText) || !Array.isArray(input.seedIds) || input.seedIds.length === 0 || !input.seedIds.every(id) || !unique(input.seedIds)) throw new IdeationRepositoryError('INVALID', 'The promotion package is invalid.');
     return this.mutate(projectId, expectedRevision, (document, now) => {
       const branch = this.requireBranch(document, input.branchId); if (branch.posture === 'archived') throw new IdeationRepositoryError('ARCHIVED_BRANCH', 'Restore the branch before preparing promotion.'); const seeds = this.requireSeeds(document, input.seedIds); if (input.seedIds.some((seedId) => !branch.seedIds.includes(seedId))) throw new IdeationRepositoryError('INVALID_LINEAGE', 'Promotion seeds must belong to the branch.'); const premise = branch.premiseVersions.find((version) => version.id === branch.currentPremiseVersionId); if (!premise) throw new IdeationRepositoryError('INVALID_LINEAGE', 'Promotion requires the branch current premise.');
@@ -342,7 +357,7 @@ export class IdeationRepository {
       const selectedText = input.selectedText.trim(); const selectedTextSha256 = sha256(selectedText); const sourceContributions = input.seedIds.map((seedId) => branch.sourceContributions.find((item) => item.seedId === seedId)).filter((item): item is IdeationSourceContributionV1 => Boolean(item));
       if (sourceContributions.length !== input.seedIds.length) throw new IdeationRepositoryError('INVALID_LINEAGE', 'Promotion source contribution lineage is incomplete.');
       const provenance = { ...newProvenance(now), sourceReference: promotionSourceReference(projectId, branch.id, premise.id, input.seedIds, sourceContributions, selectedTextSha256) };
-      const pkg: IdeationPromotionPackageV1 = { id: 'promotion_' + this.createId(), branchId: branch.id, seedIds: [...input.seedIds], destination: input.destination, selectedText, selectedTextSha256, sourceContributions: clone(sourceContributions), preparedAt: now, provenance, status: 'prepared' };
+      const pkg: IdeationPromotionPackageV1 = { ...(input.destinationRevision !== undefined ? { destinationRevision: input.destinationRevision } : {}), id: 'promotion_' + this.createId(), branchId: branch.id, seedIds: [...input.seedIds], destination: input.destination, selectedText, selectedTextSha256, sourceContributions: clone(sourceContributions), preparedAt: now, provenance, status: 'prepared' };
       return { ...document, promotionPackages: [...document.promotionPackages, pkg].slice(-IDEATION_MAX_PROMOTION_HISTORY), history: trimHistory([...document.history, event(pkg.id, 'promotion-prepared', now, input.destination, true)]) };
     });
   }

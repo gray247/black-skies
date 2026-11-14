@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { IDEATION_FIXED_CORE_QUESTIONS, type IdeationBranchPosture, type IdeationSnapshotV1 } from '../../shared/ipc/ideation';
-import IdeasWorkspace from '../components/program7/IdeasWorkspace';
+import IdeasWorkspace, { type IdeasUnfinishedWork } from '../components/program7/IdeasWorkspace';
 
 function snapshot(overrides: Partial<IdeationSnapshotV1> = {}): IdeationSnapshotV1 {
   return {
@@ -58,6 +58,21 @@ function branch(id = 'branch-a', posture: IdeationBranchPosture = 'active') {
 }
 
 describe('IdeasWorkspace component', () => {
+  it('retains unfinished seed/direction fields by project/path and leaves a different project blank', () => {
+    const memory = new Map<string, IdeasUnfinishedWork>();
+    const a = render(<IdeasWorkspace snapshot={snapshot()} draftKey="a:path-a" draftMemory={memory} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your idea' }), { target: { value: 'The forest grows a door.' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Direction name' }), { target: { value: 'Duplicate name' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Core idea for this direction' }), { target: { value: 'Unfinished direction.' } });
+    a.unmount();
+    const b = render(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, projectId: 'project-b' } })} draftKey="b:path-b" draftMemory={memory} />);
+    expect(screen.getByRole('textbox', { name: 'Your idea' })).toHaveValue('');
+    b.unmount();
+    render(<IdeasWorkspace snapshot={snapshot()} draftKey="a:path-a" draftMemory={memory} />);
+    expect(screen.getByRole('textbox', { name: 'Your idea' })).toHaveValue('The forest grows a door.');
+    expect(screen.getByRole('textbox', { name: 'Direction name' })).toHaveValue('Duplicate name');
+    expect(screen.getByRole('textbox', { name: 'Core idea for this direction' })).toHaveValue('Unfinished direction.');
+  });
 
   it('explains the saved idea requirement instead of sending an empty-source direction', () => {
     const onCreateBranch = vi.fn();

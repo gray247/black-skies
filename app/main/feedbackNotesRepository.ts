@@ -1,3 +1,7 @@
+import { SOURCE_CLASSES_V1, isStoryPositionRefV1 } from '../shared/storyIntelligencePolicy.js';
+import { revisionItemSources, resolveProgram7SourceBinding } from '../shared/program7SourceBinding.js';
+import type { ProjectSpineSessionSnapshot } from '../shared/ipc/projectSpine.js';
+import { extractProjectSpineDraftBody } from '../shared/projectSpineDraft.js';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -10,6 +14,7 @@ import {
   type AdvisoryFeedbackNote,
   type FeedbackNoteRecord,
   type FeedbackNoteDisposition,
+  type FeedbackSourceEvidence,
   type FeedbackNotesDocument,
   type FeedbackNoteMutationResult,
   type FeedbackNoteRecheck,
@@ -75,6 +80,7 @@ function isLifecycle(value: unknown): value is FeedbackRevisionLifecycle {
     value === 'active' ||
     value === 'review' ||
     value === 'intended' ||
+    value === 'intentional' ||
     value === 'underway' ||
     value === 'ready_for_recheck' ||
     value === 'stale' ||
@@ -174,6 +180,18 @@ function isAnchor(value: unknown): boolean {
   );
 }
 
+function isSourceEvidence(value: unknown): boolean {
+  if (value === undefined) return true;
+  return Array.isArray(value) && value.length <= 2 && value.every(entry => isRecord(entry) &&
+    isNonEmptyString(entry.unitId) && ['current', 'exact', 'relocated', 'potentially-outdated', 'ambiguous', 'stale', 'unavailable', 'protected'].includes(String(entry.status)) &&
+    ['passage', 'unit'].includes(String(entry.scope)) &&
+    (entry.bodyFingerprint === undefined || isSha256(entry.bodyFingerprint)) &&
+    (entry.text === undefined || (typeof entry.text === 'string' && entry.text.length <= 4000 && entry.status !== 'protected')) &&
+    (entry.truncated === undefined || typeof entry.truncated === 'boolean') &&
+    (entry.selectionStart === undefined || (Number.isInteger(entry.selectionStart) && Number(entry.selectionStart) >= 0)) &&
+    (entry.selectionEnd === undefined || (Number.isInteger(entry.selectionEnd) && Number(entry.selectionEnd) >= Number(entry.selectionStart ?? 0))));
+}
+
 function isDispositionHistory(value: unknown): boolean {
   if (value === undefined) return true;
   if (!Array.isArray(value)) return false;
@@ -182,9 +200,11 @@ function isDispositionHistory(value: unknown): boolean {
       entry &&
         typeof entry === 'object' &&
         isNonEmptyString((entry as FeedbackNoteDisposition).id) &&
-        isDisposition((entry as FeedbackNoteDisposition).disposition) &&
+        (isDisposition((entry as FeedbackNoteDisposition).disposition) ||
+          (entry as FeedbackNoteDisposition).disposition === 'intentional' ||
+          (entry as FeedbackNoteDisposition).disposition === 'reopened') &&
         isNonEmptyString((entry as FeedbackNoteDisposition).createdAt) &&
-        isNonEmptyString((entry as FeedbackNoteDisposition).actor),
+        isNonEmptyString((entry as FeedbackNoteDisposition).actor) && isSourceEvidence((entry as FeedbackNoteDisposition).sourceEvidence),
     ),
   );
 }
@@ -230,6 +250,13 @@ function isFeedbackNote(value: unknown, projectId: string): value is FeedbackNot
     candidate.kind === 'revision_item' &&
     isLifecycle(candidate.lifecycle) &&
     isAnchor(candidate.anchor) &&
+    (candidate.relatedSources === undefined || (Array.isArray(candidate.relatedSources) && candidate.relatedSources.length <= 1 && candidate.relatedSources.every(source =>
+      isRecord(source) && source.schemaVersion === 'BlackSkiesProgram7SourceBinding v1' && source.projectId === projectId &&
+      isNonEmptyString(source.unitId) && source.text === undefined && isRecord(source.protection) &&
+      typeof source.protection.metadataOnly === 'boolean' && SOURCE_CLASSES_V1.includes(source.protection.sourceClass as (typeof SOURCE_CLASSES_V1)[number]) &&
+      Number.isInteger(source.generation) && Number(source.generation) >= 0 &&
+      (source.bodySha256 === undefined || isSha256(source.bodySha256)) &&
+      isStoryPositionRefV1(source.sourceRef, projectId) && isAnchor(source.anchor)))) &&
     (candidate.protection === undefined ||
       Boolean(
         candidate.protection &&
@@ -250,7 +277,7 @@ function isFeedbackNote(value: unknown, projectId: string): value is FeedbackNot
     (candidate.sourceId === undefined || isNonEmptyString(candidate.sourceId)) &&
     (candidate.sourceClass === undefined || isNonEmptyString(candidate.sourceClass)) &&
     isRechecks(candidate.rechecks) &&
-    isDispositionHistory(candidate.dispositionHistory)
+    isDispositionHistory(candidate.dispositionHistory) && isSourceEvidence(candidate.originalEvidence)
   );
 }
 
@@ -304,7 +331,7 @@ function noteId(prefix: string): string {
 
 function makeDisposition(
   id: string,
-  value: FeedbackRevisionDisposition,
+  value: FeedbackNoteDisposition['disposition'],
   now: string,
   reason?: string,
 ): FeedbackNoteDisposition {
@@ -561,18 +588,20 @@ export class FeedbackNotesRepository {
     itemId: string,
     lifecycle: FeedbackRevisionLifecycle,
     reason?: string,
+    sourceEvidence?: readonly FeedbackSourceEvidence[],
   ): Promise<FeedbackNoteMutationResult> {
-    return this.updateRevisionItem(projectId, expectedRevision, itemId, (item, revision) => ({
-      ...item,
-      lifecycle,
-      documentRevision: revision,
-      dispositionHistory: isDisposition(lifecycle)
-        ? [
-            ...(item.dispositionHistory ?? []),
-            makeDisposition(noteId('disposition'), lifecycle, this.now().toISOString(), reason),
-          ]
-        : item.dispositionHistory,
-    }));
+    return this.updateRevisionItem(projectId, expectedRevision, itemId, (item, revision) => {
+      if (item.lifecycle === lifecycle) return item;
+      const decision = lifecycle === 'active' && ['intentional', 'resolved'].includes(item.lifecycle) ? 'reopened'
+        : lifecycle === 'intentional' || isDisposition(lifecycle) ? lifecycle : null;
+      return {
+        ...item, lifecycle, documentRevision: revision,
+        dispositionHistory: decision ? [
+          ...(item.dispositionHistory ?? []),
+          { ...makeDisposition(noteId('disposition'), decision, this.now().toISOString(), reason), ...(sourceEvidence ? { sourceEvidence: structuredClone(sourceEvidence) } : {}) },
+        ] : item.dispositionHistory,
+      };
+    });
   }
 
   async park(projectId: string, expectedRevision: number, itemId: string, reason?: string) {
@@ -758,3 +787,20 @@ export const FEEDBACK_NOTES_PERSISTENCE_RECEIPT = {
   filename: FEEDBACK_NOTES_FILENAME,
   historyLimit: FEEDBACK_NOTE_HISTORY_LIMIT,
 } as const;
+
+/** Existing feedback owner is the authority for a candidate's optional concern link. */
+export async function verifiedRevisionConcern(snapshot: ProjectSpineSessionSnapshot, concernId: string, unitId: string) {
+  if (!snapshot.project) return null;
+  const document = await new FeedbackNotesRepository(snapshot.project.path).read(snapshot.project.projectId);
+  const item = document.notes.find((note): note is RevisionItem => note.advisory === false && note.id === concernId);
+  if (!item || item.unitId !== unitId || item.protection?.protected) return null;
+  const sources = revisionItemSources(item);
+  if (!sources.length) return null;
+  for (const source of sources) {
+    if (source.projectId !== snapshot.project.projectId || snapshot.dirtyUnitIds.includes(source.unitId)) return null;
+    const markdown = snapshot.project.drafts?.[source.unitId];
+    const resolution = await resolveProgram7SourceBinding(source, markdown === undefined ? undefined : extractProjectSpineDraftBody(markdown));
+    if (!['current', 'exact', 'relocated'].includes(resolution.status)) return null;
+  }
+  return item;
+}

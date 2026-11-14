@@ -1,3 +1,4 @@
+import { extractProjectSpineDraftBody } from '../shared/projectSpineDraft.js';
 import { createHash } from 'node:crypto';
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
@@ -28,6 +29,8 @@ import {
 import {
   PROGRAM7_SOURCE_BINDING_SCHEMA_VERSION,
   resolveProgram7SourceBinding,
+  captureProgram7SourceEvidence,
+  revisionItemSources,
   type Program7SourceBindingResolutionV1,
   type Program7SourceEnvelopeV1,
 } from '../shared/program7SourceBinding.js';
@@ -77,6 +80,8 @@ const REVISION_ITEM_ACTIVE_LIFECYCLES = new Set<FeedbackRevisionLifecycle>([
 ]);
 
 const AUTHOR_LIFECYCLE_ACTIONS = new Set<FeedbackRevisionLifecycle>([
+  'active',
+  'intentional',
   'review',
   'intended',
   'underway',
@@ -193,10 +198,6 @@ function repositoryFailure(error: unknown): FeedbackNoteFailure {
   return fail('FEEDBACK_NOTE_WRITE_FAILED', 'The revision-item operation could not be completed.');
 }
 
-function normalizeSource(value: string): string {
-  return value.replace(/\r\n?/gu, '\n');
-}
-
 function sha256(value: string): string {
   return createHash('sha256').update(value, 'utf8').digest('hex');
 }
@@ -206,7 +207,7 @@ function sourceTextFor(
   unitId: string,
 ): string | undefined {
   const text = snapshot.project?.drafts?.[unitId];
-  return typeof text === 'string' ? normalizeSource(text) : undefined;
+  return typeof text === 'string' ? extractProjectSpineDraftBody(text) : undefined;
 }
 
 async function resolveCurrentSource(
@@ -270,7 +271,7 @@ function sourceEnvelopeForItem(item: RevisionItem): Program7SourceEnvelopeV1 | n
 function revisionInput(
   request: CreateRevisionItemRequest | CreateRevisionRecurrenceRequest,
   snapshot: ProjectSpineSessionSnapshot,
-  provenanceSource: 'program6_finding' | 'recurrence',
+  provenanceSource: 'program6_finding' | 'recurrence' | 'manual',
 ): CreateRevisionItemInput {
   const source = request.source;
   const sourceFindingId = source.findingId ?? source.signalId;
@@ -287,7 +288,7 @@ function revisionInput(
       ...(sourceFindingId ? { findingId: sourceFindingId } : {}),
       ...(source.lens ? { lens: source.lens } : {}),
       ...(source.evidenceSummary ? { evidence: source.evidenceSummary } : {}),
-      origin: source.protection.sourceClass === 'local-only' ? 'local-inference' : 'program6',
+      origin: provenanceSource === 'manual' ? 'author' : source.protection.sourceClass === 'local-only' ? 'local-inference' : 'program6',
     },
     protection: {
       protected: source.protection.metadataOnly,
@@ -416,11 +417,33 @@ async function createRevisionItem(
     return fail('INVALID_REQUEST', 'The revision-item request has invalid author or source data.');
   }
   const source = request.source;
+  if ((request.manual !== undefined && typeof request.manual !== 'boolean') ||
+      (request.relatedSources !== undefined && (!Array.isArray(request.relatedSources) || request.relatedSources.length > 1 ||
+       request.relatedSources.some(related => !validSourceEnvelope(related, request.projectId, request.generation, related?.unitId ?? '')))))
+    return fail('INVALID_REQUEST', 'Concern evidence is incomplete.');
+  if (request.manual || request.relatedSources?.length) {
+    for (const evidence of [source, ...(request.relatedSources ?? [])]) {
+      const checked = await resolveCurrentSource(active.snapshot, evidence);
+      if (!['current', 'exact', 'relocated'].includes(checked.status) || active.snapshot.dirtyUnitIds.includes(evidence.unitId))
+        return fail('SOURCE_STALE', 'Save and verify every evidence passage before keeping this manual concern. Protected or uncertain sources were not copied.');
+    }
+  }
   const resolution = await resolveCurrentSource(active.snapshot, source);
   if (!sourceReadyForRevision(resolution)) return sourceFailure(resolution);
+  if (request.manual || request.relatedSources?.length) {
+    const latest = activeRevisionProject(event, request);
+    if ('ok' in latest) return latest;
+    if ([source, ...(request.relatedSources ?? [])].some(evidence => latest.snapshot.project?.drafts?.[evidence.unitId] !== active.snapshot.project?.drafts?.[evidence.unitId] || latest.snapshot.dirtyUnitIds.includes(evidence.unitId)))
+      return fail('SOURCE_STALE', 'Evidence changed while the concern was prepared. Its draft remains available.');
+  }
   try {
+    const originalEvidence = await Promise.all([source, ...(request.relatedSources ?? [])].map(evidence => captureProgram7SourceEvidence(evidence, sourceTextFor(active.snapshot, evidence.unitId))));
+    const checked = activeRevisionProject(event, request);
+    if ('ok' in checked) return checked;
+    if ([source, ...(request.relatedSources ?? [])].some(evidence => checked.snapshot.project?.drafts?.[evidence.unitId] !== active.snapshot.project?.drafts?.[evidence.unitId] || checked.snapshot.dirtyUnitIds.includes(evidence.unitId))) return fail('SOURCE_STALE', 'Evidence changed before the concern could be kept.');
     const result = await active.repository.createRevisionItem(
-      revisionInput(request, active.snapshot, 'program6_finding'),
+      { ...revisionInput(request, active.snapshot, request.manual ? 'manual' : 'program6_finding'), originalEvidence,
+        ...(request.relatedSources ? { relatedSources: request.relatedSources.map(evidence => { const metadata = { ...evidence }; delete metadata.text; return metadata; }) } : {}) },
       request.expectedRevision,
     );
     return revisionMutationSuccess(result);
@@ -484,16 +507,26 @@ async function setLifecycle(
   try {
     const current = await readRevisionItem(active.repository, active.snapshot.project!.projectId, request.itemId);
     if ('ok' in current) return current;
+    if (request.lifecycle === 'active' && !['intentional', 'resolved'].includes(current.item.lifecycle)) {
+      return fail('INVALID_REQUEST', 'Only an addressed or intentional concern can be reopened here.');
+    }
     const source = sourceEnvelopeForItem(current.item);
     if (!source) return fail('SOURCE_STALE', 'This revision item has no safely re-checkable source binding.');
     const resolution = await resolveCurrentSource(active.snapshot, source);
-    if (!sourceReadyForRevision(resolution)) return sourceFailure(resolution);
+    if (current.item.provenance?.source !== 'manual' && !sourceReadyForRevision(resolution)) return sourceFailure(resolution);
+    const sources = revisionItemSources(current.item);
+    if (sources.some(evidence => active.snapshot.dirtyUnitIds.includes(evidence.unitId))) return fail('SOURCE_STALE', 'Save the concern sources before recording this decision.');
+    const sourceEvidence = await Promise.all(sources.map(evidence => captureProgram7SourceEvidence(evidence, sourceTextFor(active.snapshot, evidence.unitId))));
+    const checked = activeRevisionProject(event, request);
+    if ('ok' in checked) return checked;
+    if (sources.some(evidence => checked.snapshot.project?.drafts?.[evidence.unitId] !== active.snapshot.project?.drafts?.[evidence.unitId] || checked.snapshot.dirtyUnitIds.includes(evidence.unitId))) return fail('SOURCE_STALE', 'A concern source changed while the decision was being prepared.');
     const result = await active.repository.setLifecycle(
       active.snapshot.project!.projectId,
       request.expectedRevision,
       current.item.id,
       request.lifecycle,
       request.reason?.trim() || undefined,
+      sourceEvidence,
     );
     return revisionMutationSuccess(result);
   } catch (error) {
@@ -514,7 +547,9 @@ async function recordDeterministicRecheck(
     const source = sourceEnvelopeForItem(current.item);
     if (!source) return fail('SOURCE_STALE', 'This revision item has no safely re-checkable source binding.');
     const resolution = await resolveCurrentSource(active.snapshot, source);
-    const status = sourceReadyForRevision(resolution) ? 'not_run' : 'unavailable';
+    const related = await Promise.all((current.item.relatedSources ?? []).map(evidence => resolveCurrentSource(active.snapshot, evidence)));
+    const relatedReady = related.every(result => ['current', 'exact', 'relocated'].includes(result.status));
+    const status = sourceReadyForRevision(resolution) && relatedReady ? 'not_run' : 'unavailable';
     const evidence = sourceReadyForRevision(resolution)
       ? resolution.status === 'potentially-outdated'
         ? 'The edited passage is still linked to this concern. Black Skies did not decide whether the concern is resolved.'
@@ -527,7 +562,7 @@ async function recordDeterministicRecheck(
       request.expectedRevision,
       current.item.id,
       status,
-      evidence,
+      evidence + related.map((result, index) => ` Related source ${index + 1}: ${result.message}`).join(''),
       { method: 'deterministic', sourceStatus: resolution.status },
     );
     return revisionMutationSuccess(result);

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer, webFrame, type IpcRendererEvent } from 'electron';
 import type {
   AcceptRevisionCandidateRequest,
   AcceptRevisionCandidateResultData,
@@ -179,6 +179,8 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     removeRecent: 'project-spine:remove-recent',
     selectUnit: 'project-spine:select-unit',
     setUnitDirty: 'project-spine:set-unit-dirty',
+    setWritingPreferences: 'project-spine:set-writing-preferences',
+    spellingDictionary: 'project-spine:spelling-dictionary',
     captureRecoveryCheckpoint: 'project-spine:capture-recovery-checkpoint',
     acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
     rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
@@ -230,12 +232,16 @@ export const STAGE19_PRELOAD_CHANNELS = Object.freeze({
     createRecurrence: 'feedback-notes:create-recurrence',
   }),
   livingOutline: Object.freeze({
+    prepareGap: 'living-outline:prepare-gap',
+    finishGap: 'living-outline:finish-gap',
+    restoreItem: 'living-outline:restore-item',
     get: 'living-outline:get',
     createItem: 'living-outline:create-item',
     updateItem: 'living-outline:update-item',
     moveItem: 'living-outline:move-item',
     linkItem: 'living-outline:link-item',
     deleteItem: 'living-outline:delete-item',
+    replaceWritingState: 'living-outline:replace-writing-state',
   }),
   storyIntelligence: Object.freeze({
     read: 'story-intelligence:read',
@@ -681,6 +687,13 @@ const commandProjectSpine: CommandProjectSpineBridge = {
 };
 
 const writingProjectSpine: ProjectSpineBridge = {
+  spellingDictionary: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.spellingDictionary, request),
+  setWritingPreferences: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.setWritingPreferences, request),
+  checkSpelling: (word) => {
+    if (typeof word !== 'string' || word.length > 80 || !/^[\p{L}\p{M}'’–-]+$/u.test(word)) return { available: false, misspelled: false, suggestions: [] };
+    const available = webFrame.isWordMisspelled('foorrrest') || webFrame.isWordMisspelled('qzxvwlj');
+    return { available, misspelled: available && webFrame.isWordMisspelled(word), suggestions: available ? webFrame.getWordSuggestions(word).slice(0, 8) : [] };
+  },
   ...baseProjectSpine,
   focusWritingWindow: () =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.projectSpine.focusWritingWindow) as Promise<
@@ -954,6 +967,10 @@ const program7Promotion: Program7PromotionBridge = {
 };
 
 const livingOutline: LivingOutlineBridge = {
+  prepareGap: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.prepareGap, request),
+  finishGap: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.finishGap, request),
+  restoreItem: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.restoreItem, request),
+  replaceWritingState: (request) => ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.replaceWritingState, request),
   get: (request: GetLivingOutlineRequest) =>
     ipcRenderer.invoke(STAGE19_PRELOAD_CHANNELS.livingOutline.get, request),
   createItem: (request: CreateLivingOutlineItemRequest) =>

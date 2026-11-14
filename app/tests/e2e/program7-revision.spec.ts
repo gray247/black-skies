@@ -105,7 +105,7 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
 
     await showCommandInWriting(writing);
     activeCard = writing.getByRole('article', { name: 'Revision task', exact: true }).first();
-    await activeCard.getByRole('button', { name: 'Check after revising', exact: true }).click();
+    await activeCard.getByRole('button', { name: 'Check source availability', exact: true }).click();
     await expect(activeCard.getByText(/Passage check:/)).toBeVisible();
     await activeCard.getByRole('button', { name: 'I’m satisfied — mark resolved', exact: true }).click();
     await expect(writing.getByRole('heading', { name: 'Completed revision tasks', exact: true })).toBeVisible();

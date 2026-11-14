@@ -42,8 +42,9 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
   });
   const currentSection = props.activeSection ?? localSection;
   const active = sections.find((section) => section.id === currentSection) ?? sections[0];
-  const content = contentFor(active.id, props);
+  const [visited, setVisited] = useState<readonly Program7CreateDevelopSection[]>([currentSection]);
   const selectSection = (section: Program7CreateDevelopSection) => {
+    setVisited(previous => previous.includes(section) ? previous : [...previous, section]);
     setLocalSection(section);
     props.onSectionChange?.(section);
   };
@@ -52,7 +53,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
     <section className="program7-create-develop" aria-labelledby="program7-create-develop-heading" data-testid="program7-create-develop" data-writing-gate="false" data-truth-owner="parent-owned">
       <header>
         <h1 id="program7-create-develop-heading">Develop your story</h1>
-        <p>The concern you chose opens directly in Revision Desk. The other sections hold your story foundation, ideas, and earlier decisions.</p>
+        <p>The concern you chose opens directly in Revision Desk. The other sections hold your story foundation, ideas, and earlier decisions. Unfinished Foundation and Ideas forms stay with this project in this window while you switch tools or projects. Save them before reloading or closing the app.</p>
       </header>
       <nav aria-label="Create and Develop sections" className="program7-create-develop__nav">
         {sections.map((section) => (
@@ -67,10 +68,12 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
           </button>
         ))}
       </nav>
-      <section aria-label={active.label} data-testid={`program7-create-develop-panel-${active.id}`}>
-        {props.notice ? <div ref={noticeRef} className="program7-create-develop__notice">{props.notice}</div> : null}
-        {content ?? <p data-testid="program7-create-develop-empty">This section is not connected yet. No change was made.</p>}
-      </section>
+      {[...new Set([...visited, currentSection])].map(section => (
+        <section key={section} hidden={section !== active.id} aria-label={sections.find(value => value.id === section)!.label} data-testid={`program7-create-develop-panel-${section}`}>
+          {section === active.id && props.notice ? <div ref={noticeRef} className="program7-create-develop__notice">{props.notice}</div> : null}
+          {contentFor(section, props) ?? <p data-testid={section === active.id ? 'program7-create-develop-empty' : undefined}>This section is not connected yet. No change was made.</p>}
+        </section>
+      ))}
     </section>
   );
 }

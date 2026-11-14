@@ -8,6 +8,13 @@ function marker(label: string): JSX.Element {
 }
 
 describe('Program7CreateDevelopWorkspace component', () => {
+  it('retains unfinished text and control state when leaving and returning to a section', () => {
+    render(<Program7CreateDevelopWorkspace initialSection="ideas" ideas={<label>Unfinished idea<input defaultValue="" /></label>} storyFoundation={marker('foundation')} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Unfinished idea' }), { target: { value: 'Mara leaves the forest.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Story Foundation' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ideas' }));
+    expect(screen.getByRole('textbox', { name: 'Unfinished idea' })).toHaveValue('Mara leaves the forest.');
+  });
   it('composes the four provisional sections behind explicit navigation', () => {
     render(<Program7CreateDevelopWorkspace revisionDesk={marker('revision')} storyFoundation={marker('foundation')} ideas={marker('ideas')} history={marker('history')} />);
     expect(screen.getByRole('heading', { name: 'Develop your story' })).toBeInTheDocument();
@@ -16,7 +23,7 @@ describe('Program7CreateDevelopWorkspace component', () => {
     expect(screen.queryByTestId('marker-foundation')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Ideas' }));
     expect(screen.getByTestId('marker-ideas')).toBeInTheDocument();
-    expect(screen.queryByTestId('marker-revision')).not.toBeInTheDocument();
+    expect(screen.getByTestId('marker-revision')).not.toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     expect(screen.getByTestId('marker-history')).toBeInTheDocument();
   });

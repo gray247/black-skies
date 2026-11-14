@@ -81,6 +81,8 @@ export interface RevisionCandidateAcceptanceReservationV1 {
 }
 
 export interface RevisionCandidateV1 {
+  readonly deleteSource?: boolean;
+  readonly concernId?: string;
   readonly id: string;
   readonly projectId: string;
   readonly unitId: string;
@@ -124,9 +126,11 @@ export interface RevisionCandidateProjectBinding {
   readonly unitId?: string;
 }
 
-export interface ListRevisionCandidatesRequest extends RevisionCandidateProjectBinding {}
+export type ListRevisionCandidatesRequest = RevisionCandidateProjectBinding;
 
 export interface CreateManualRevisionCandidateRequest extends RevisionCandidateProjectBinding {
+  readonly deleteSource?: boolean;
+  readonly concernId?: string;
   readonly expectedRevision: number;
   readonly sourceSnapshot: RevisionCandidateSourceSnapshotV1;
   readonly sourceAnchor?: RevisionCandidateSourceAnchorV1 | null;

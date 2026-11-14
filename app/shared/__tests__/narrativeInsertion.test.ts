@@ -32,6 +32,18 @@ function candidate(
 }
 
 describe('Narrative Insertion calculation', () => {
+  it('deletes only an explicitly linked passage and refuses accidental blank or partial deletion requests', async () => {
+    const source = 'Before selected passage after.';
+    const deletion = { ...candidate(source, 7, 23, ''), deleteSource: true };
+    const result = await calculateNarrativeInsertion({ candidate: deletion, currentBody: source, mode: 'accept-all' });
+    expect(result).toMatchObject({ status: 'ready', replacement: { sourceStart: 7, sourceEnd: 23, text: '' }, acceptedResultSha256: hash('Before  after.') });
+    for (const invalid of [{ ...deletion, deleteSource: false }, { ...deletion, sourceAnchor: null }]) {
+      expect((await calculateNarrativeInsertion({ candidate: invalid, currentBody: source, mode: 'accept-all' })).status).toBe('blocked');
+    }
+    expect((await calculateNarrativeInsertion({ candidate: deletion, currentBody: source, mode: 'accept-selected-text', candidateSelection: { selectionStart: 0, selectionEnd: 0 } })).status).toBe('blocked');
+    expect((await calculateNarrativeInsertion({ candidate: deletion, currentBody: source + 'new', mode: 'accept-all' })).status).toBe('blocked');
+  });
+
   it('preserves blank lines outside the exact replacement range and rejects a whitespace-only source change', async () => {
     const source = 'Before selected passage after.\n\n';
     const linked = candidate(source, 7, 23, 'Keep NEW words.');

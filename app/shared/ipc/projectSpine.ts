@@ -14,6 +14,8 @@ export const PROJECT_SPINE_CHANNELS = {
   removeRecent: 'project-spine:remove-recent',
   selectUnit: 'project-spine:select-unit',
   setUnitDirty: 'project-spine:set-unit-dirty',
+  setWritingPreferences: 'project-spine:set-writing-preferences',
+  spellingDictionary: 'project-spine:spelling-dictionary',
   captureRecoveryCheckpoint: 'project-spine:capture-recovery-checkpoint',
   acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
   rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
@@ -70,6 +72,7 @@ export interface ProjectSpineProjectContext {
   readonly schemaVersion: 'ProjectMetadataSchema v1';
   readonly units: readonly ProjectSpineUnitSummary[];
   /** Deterministic measurements only. Never contains manuscript excerpts. */
+  readonly writingPreferences?: WritingPreferencesState;
   readonly unitMetrics?: Readonly<Record<string, ProjectSpineUnitMetrics>>;
   /** Present only in the Writing Studio projection. */
   readonly drafts?: Readonly<Record<string, string>>;
@@ -379,6 +382,7 @@ export interface DeleteManuscriptUnitRequest extends ProjectSpineBinding {
 }
 
 export interface ExportMarkdownRequest extends ProjectSpineBinding {
+  readonly format?: 'markdown' | 'source-text';
   readonly revision: number;
 }
 
@@ -409,7 +413,64 @@ export type ExportMarkdownResultData =
   | ExportMarkdownCancelledResultData
   | ExportMarkdownCompletedResultData;
 
+export interface WritingPreferencesValues {
+  readonly font: 'default' | 'serif' | 'sans' | 'mono';
+  readonly fontSize: number | null;
+  readonly lineHeight: number | null;
+  readonly paragraphSpacing: number;
+  readonly firstLineIndent: number;
+  readonly wordGoal: number | null;
+  readonly spellcheck: boolean;
+}
+export interface WritingPreferencesState {
+  readonly revision: number;
+  readonly values: WritingPreferencesValues;
+  readonly invalid?: boolean;
+}
+export const DEFAULT_WRITING_PREFERENCES: WritingPreferencesValues = {
+  font: 'default', fontSize: null, lineHeight: null, paragraphSpacing: 0,
+  firstLineIndent: 0, wordGoal: null, spellcheck: true,
+};
+export function validWritingPreferences(value: unknown): value is WritingPreferencesValues {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const p = value as Record<string, unknown>;
+  const bounded = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+  return ['default', 'serif', 'sans', 'mono'].includes(String(p.font))
+    && (p.fontSize === null || bounded(p.fontSize, 12, 36))
+    && (p.lineHeight === null || bounded(p.lineHeight, 1, 3))
+    && bounded(p.paragraphSpacing, 0, 40) && bounded(p.firstLineIndent, 0, 4)
+    && (p.wordGoal === null || (bounded(p.wordGoal, 1, 10000000) && Number.isInteger(p.wordGoal)))
+    && typeof p.spellcheck === 'boolean'
+    && Object.keys(p).every(key => Object.keys(DEFAULT_WRITING_PREFERENCES).includes(key));
+}
+export function readWritingPreferences(value: unknown): WritingPreferencesState {
+  if (value === undefined) return { revision: 0, values: { ...DEFAULT_WRITING_PREFERENCES } };
+  const p = value as WritingPreferencesState | null;
+  if (p && Number.isSafeInteger(p.revision) && p.revision > 0 && validWritingPreferences(p.values)) {
+    return { revision: p.revision, values: { ...p.values } };
+  }
+  return { revision: 0, values: { ...DEFAULT_WRITING_PREFERENCES }, invalid: true };
+}
+export interface SetWritingPreferencesRequest extends ProjectSpineBinding {
+  readonly expectedRevision: number;
+  readonly values: WritingPreferencesValues;
+  readonly resetInvalid?: boolean;
+}
+
+export interface SpellingDictionaryRequest extends ProjectSpineBinding {
+  readonly action: 'inspect' | 'accept' | 'remove';
+  readonly word?: string;
+}
+export interface SpellingDictionaryState {
+  readonly languages: readonly string[];
+  readonly words: readonly string[];
+  readonly scope: 'electron-session-and-possible-os';
+}
 export interface ProjectSpineBridge {
+  spellingDictionary?(request: SpellingDictionaryRequest): Promise<ProjectSpineResult<SpellingDictionaryState>>;
+  setWritingPreferences?(request: SetWritingPreferencesRequest): Promise<ProjectSpineResult>;
+  /** Renderer-native Electron webFrame dictionary, never a cloud text service. */
+  checkSpelling?(word: string): { available: boolean; misspelled: boolean; suggestions: readonly string[] };
   readonly windowRole: ProjectSpineWindowRole;
   /** Writing Studio only. Re-activates the owning Electron window after a native dialog closes. */
   focusWritingWindow?(): Promise<ProjectSpineResult>;

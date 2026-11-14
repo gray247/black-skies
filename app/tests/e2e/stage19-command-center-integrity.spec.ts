@@ -8,7 +8,6 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
-  openWritingStudioRail,
   readDurableDraftByTitle,
   recoveryArtifactPath,
   removeTemporaryDirectory,
@@ -89,11 +88,11 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 }
 
 async function saveCurrentUnit(writing: Page, title: string, prose?: string): Promise<void> {
-  await openWritingStudioRail(writing, 'Story');
-  await writing.locator('.stage19-story-rail__unit-title', { hasText: title }).click();
+  const section = writing.getByRole('region', { name: 'Written section ' + title, exact: true });
+  await section.getByRole('button', { name: /^Write here:/ }).click();
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
-  await writing.getByRole('button', { name: /^Save$/ }).click();
-  await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
+  await writing.getByRole('button', { name: /^Save writing$/ }).click();
+  await expect(section.getByRole('button', { name: /^Write here:/ })).not.toContainText('Unsaved');
 }
 
 async function expectCommandStatus(
@@ -200,7 +199,7 @@ async function expectCommandPrivacyAndAuthority(
     expect(evidence.visibleText).not.toContain(text);
   }
 
-  await expect(command.getByRole('button', { name: /^Save$/ })).toHaveCount(0);
+  await expect(command.getByRole('button', { name: /^Save writing$/ })).toHaveCount(0);
   await expect(command.getByRole('button', { name: 'Recover this prose' })).toHaveCount(0);
   await expect(command.getByRole('button', { name: 'Reject and delete candidate' })).toHaveCount(0);
   await expect(command.getByRole('button', { name: 'Create unit' })).toHaveCount(0);
@@ -244,7 +243,7 @@ test('Command Center tracks dirty prose through Writing Studio durable Save with
     await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
     await expectCommandPrivacyAndAuthority(command, [prose]);
 
-    await writing.getByRole('button', { name: /^Save$/ }).click();
+    await writing.getByRole('button', { name: /^Save writing$/ }).click();
     await expectCommandStatus(command, {
       projectId: project.id,
       lifecycle: 'active',
@@ -303,7 +302,7 @@ test('Command Center projects interrupted recovery acceptance as pending until W
     await expect(command.getByText('Saved durably', { exact: true })).toHaveCount(0);
     await expectCommandPrivacyAndAuthority(command, [baseline, recovered, recoveryArtifactPath(project.path)]);
 
-    await recoveredWriting.getByRole('button', { name: /^Save$/ }).click();
+    await recoveredWriting.getByRole('button', { name: /^Save writing$/ }).click();
     await expectCommandStatus(command, {
       projectId: project.id,
       lifecycle: 'active',

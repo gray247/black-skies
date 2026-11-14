@@ -18,12 +18,14 @@ export interface StoryFoundationAnswerDraft {
 
 export interface StoryFoundationProps {
   readonly snapshot: StoryFoundationSnapshotV1;
+  readonly draftMemory?: Map<string, Record<string, DraftValue>>;
+  readonly draftKey?: string;
   readonly onSaveAnswer?: (draft: StoryFoundationAnswerDraft) => void;
   readonly onArchiveAnswer?: (questionId: StoryFoundationQuestionId) => void;
   readonly onRestoreAnswer?: (questionId: StoryFoundationQuestionId) => void;
 }
 
-interface DraftValue {
+export interface DraftValue {
   readonly posture: StoryFoundationPosture;
   readonly text: string;
 }
@@ -171,13 +173,14 @@ function QuestionCard({
 }
 
 export default function StoryFoundation({
-  snapshot,
+  snapshot, draftMemory, draftKey,
   onSaveAnswer,
   onArchiveAnswer,
   onRestoreAnswer,
 }: StoryFoundationProps): JSX.Element {
-  const [drafts, setDrafts] = useState<Record<string, DraftValue>>(() => draftSeed(snapshot));
+  const [drafts, setDrafts] = useState<Record<string, DraftValue>>(() => draftKey ? draftMemory?.get(draftKey) ?? draftSeed(snapshot) : draftSeed(snapshot));
   const priorSnapshotRef = useRef(snapshot);
+  useEffect(() => { if (draftKey) draftMemory?.set(draftKey, drafts); }, [draftKey, draftMemory, drafts]);
 
   useEffect(() => {
     const priorSnapshot = priorSnapshotRef.current;

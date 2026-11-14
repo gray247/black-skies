@@ -1,3 +1,6 @@
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MANUSCRIPT_STRUCTURE_CHANNELS } from '../../shared/ipc/manuscriptStructure';
@@ -56,6 +59,26 @@ describe('Manuscript Structure IPC authority', () => {
       getWritingSnapshot: () => ({ generation: 2, project: { projectId: 'project-a', path: binding.projectPath } } as never),
       repositoryFactory: () => repository as never,
     });
+  });
+
+  it('stages UTF-8 text, preserves the external bytes, and rejects invalid encoding before creating a project', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'black-skies-text-intake-'));
+    try {
+      const sourcePath = join(parent, 'Story.txt');
+      const raw = Buffer.from('\ufeffFive trees.\r\n\r\n**Literal source** 🌲\r\n', 'utf8');
+      await writeFile(sourcePath, raw);
+      const result = await invoke(MANUSCRIPT_STRUCTURE_CHANNELS.importMarkdown, 1, { ...binding, parentPath: parent, filePath: sourcePath });
+      expect(result.ok).toBe(true);
+      expect(repository.importSource).toHaveBeenCalledWith(expect.any(String), 'Story.txt', 'Five trees.\r\n\r\n**Literal source** 🌲\r\n');
+      expect(await readFile(sourcePath)).toEqual(raw);
+      const before = (await readdir(parent)).sort();
+      for (const invalid of [Buffer.from([0xff, 0xfe, 0x41, 0]), Buffer.from([0xc3, 0x28])]) {
+        await writeFile(sourcePath, invalid);
+        expect(await invoke(MANUSCRIPT_STRUCTURE_CHANNELS.importMarkdown, 1, { ...binding, parentPath: parent, filePath: sourcePath })).toMatchObject({ ok: false });
+        expect((await readdir(parent)).sort()).toEqual(before);
+        expect(await readFile(sourcePath)).toEqual(invalid);
+      }
+    } finally { await rm(parent, { recursive: true, force: true }); }
   });
 
   it('restricts the seam to Writing Studio and binds reads to the active project', async () => {

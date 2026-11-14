@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   IDEATION_FIXED_CORE_QUESTIONS,
@@ -22,8 +22,17 @@ export interface ManualIdeaSeedDraft {
   readonly protected: boolean;
 }
 
+export interface IdeasUnfinishedWork {
+  seedDraft: ManualIdeaSeedDraft; tagText: string; selectedSeedIds: readonly string[];
+  combineName: string; combinePremise: string; branchName: string; branchPremise: string; branchUnknowns: string;
+  testAnswers: Record<string, Record<string, string>>;
+  promotionText: Record<string, string>; promotionDestination: Record<string, IdeationPromotionDestination>;
+}
 export interface IdeasWorkspaceProps {
+  readonly draftMemory?: Map<string, IdeasUnfinishedWork>;
+  readonly draftKey?: string;
   readonly snapshot: IdeationSnapshotV1;
+  readonly foundationAboutness?: { text: string; revision: number };
   readonly onCaptureSeed?: (draft: ManualIdeaSeedDraft) => void;
   readonly onCreateBranch?: (name: string, premise: string, seedIds: readonly string[], unknowns: readonly IdeationUnresolvedAreaV1[]) => void;
   readonly onTestPremise?: (branch: IdeationExplorationBranchV1, answers: Readonly<Record<string, string>>) => void;
@@ -75,7 +84,7 @@ function destinationLabel(destination: IdeationPromotionDestination): string {
 }
 
 export default function IdeasWorkspace({
-  snapshot,
+  snapshot, draftMemory, draftKey,
   onCaptureSeed,
   onCreateBranch,
   onTestPremise,
@@ -84,20 +93,33 @@ export default function IdeasWorkspace({
   onRestoreBranch,
   onPreparePromotion,
   onRoutePromotion,
+  foundationAboutness,
 }: IdeasWorkspaceProps): JSX.Element {
-  const [seedDraft, setSeedDraft] = useState<ManualIdeaSeedDraft>({ title: '', body: '', kind: 'fragment', tags: [], protected: false });
-  const [tagText, setTagText] = useState('');
-  const [selectedSeedIds, setSelectedSeedIds] = useState<Set<string>>(() => new Set());
-  const [combineName, setCombineName] = useState('');
-  const [combinePremise, setCombinePremise] = useState('');
-  const [branchName, setBranchName] = useState('');
-  const [branchPremise, setBranchPremise] = useState('');
-  const [branchUnknowns, setBranchUnknowns] = useState('');
-  const [testAnswers, setTestAnswers] = useState<Record<string, Record<string, string>>>({});
-  const [promotionText, setPromotionText] = useState<Record<string, string>>({});
-  const [promotionDestination, setPromotionDestination] = useState<Record<string, IdeationPromotionDestination>>({});
+  const held = draftKey ? draftMemory?.get(draftKey) : undefined;
+  const [seedDraft, setSeedDraft] = useState<ManualIdeaSeedDraft>(held?.seedDraft ?? { title: '', body: '', kind: 'fragment', tags: [], protected: false });
+  const [tagText, setTagText] = useState(held?.tagText ?? '');
+  const [selectedSeedIds, setSelectedSeedIds] = useState<Set<string>>(() => new Set(held?.selectedSeedIds ?? []));
+  const [combineName, setCombineName] = useState(held?.combineName ?? '');
+  const [combinePremise, setCombinePremise] = useState(held?.combinePremise ?? '');
+  const [branchName, setBranchName] = useState(held?.branchName ?? '');
+  const [branchPremise, setBranchPremise] = useState(held?.branchPremise ?? '');
+  const [branchUnknowns, setBranchUnknowns] = useState(held?.branchUnknowns ?? '');
+  const [testAnswers, setTestAnswers] = useState<Record<string, Record<string, string>>>(held?.testAnswers ?? {});
+  const [closedPreviews, setClosedPreviews] = useState<Set<string>>(() => new Set());
+  const [promotionText, setPromotionText] = useState<Record<string, string>>(held?.promotionText ?? {});
+  const [promotionDestination, setPromotionDestination] = useState<Record<string, IdeationPromotionDestination>>(held?.promotionDestination ?? {});
 
+  const ownerProject = useRef(snapshot.document.projectId);
+  const initialProject = useRef(snapshot.document.projectId);
   useEffect(() => {
+    if (draftKey && initialProject.current === snapshot.document.projectId) draftMemory?.set(draftKey, {
+      seedDraft, tagText, selectedSeedIds: [...selectedSeedIds], combineName, combinePremise,
+      branchName, branchPremise, branchUnknowns, testAnswers, promotionText, promotionDestination,
+    });
+  }, [draftKey, draftMemory, snapshot.document.projectId, seedDraft, tagText, selectedSeedIds, combineName, combinePremise, branchName, branchPremise, branchUnknowns, testAnswers, promotionText, promotionDestination]);
+  useEffect(() => {
+    if (ownerProject.current === snapshot.document.projectId) return;
+    ownerProject.current = snapshot.document.projectId;
     setSeedDraft({ title: '', body: '', kind: 'fragment', tags: [], protected: false });
     setTagText('');
     setSelectedSeedIds(new Set());
@@ -107,6 +129,7 @@ export default function IdeasWorkspace({
     setBranchPremise('');
     setBranchUnknowns('');
     setTestAnswers({});
+    setClosedPreviews(new Set());
     setPromotionText({});
     setPromotionDestination({});
   }, [snapshot.document.projectId]);
@@ -226,11 +249,13 @@ export default function IdeasWorkspace({
           const answers = testAnswers[branch.id] ?? {};
           const selectedPromotionText = promotionText[branch.id] ?? currentPremise(branch);
           const destination = promotionDestination[branch.id] ?? 'author-intent';
-          const prepared = snapshot.document.promotionPackages.find((candidate) =>
-            candidate.branchId === branch.id &&
+          const prepared = [...snapshot.document.promotionPackages].reverse().find((candidate) =>
+            !closedPreviews.has(candidate.id) && candidate.branchId === branch.id &&
             candidate.destination === destination &&
             candidate.selectedText === selectedPromotionText,
           );
+          const preparedCurrent = prepared && prepared.provenance.sourceReference?.includes(`:premise=${branch.currentPremiseVersionId}:`) && prepared.sourceContributions.every(contribution => seedsById.get(contribution.seedId)?.currentVersionId === contribution.sourceVersionId && !seedsById.get(contribution.seedId)?.protected) && !['archived', 'stale', 'rejected'].includes(branch.posture);
+          const destinationDeferred = destination === 'character' || destination === 'lore';
           const destinationCanRoute = destination === 'author-intent' || destination === 'outline' || destination === 'character' || destination === 'lore';
           const archived = branch.posture === 'archived';
           return (
@@ -247,7 +272,7 @@ export default function IdeasWorkspace({
               <div aria-label={`Branch actions for ${branch.name}`}>
                 {archived ? <button type="button" disabled={!onRestoreBranch} onClick={() => onRestoreBranch?.(branch)}>Restore branch</button> : <button type="button" disabled={!onArchiveBranch} onClick={() => onArchiveBranch?.(branch)}>Archive branch</button>}
               </div>
-              <section aria-label={`Send ${branch.name} to another part of the project`}><h4>Use this direction elsewhere</h4><p>Preview the text and destination before anything is copied.</p><label htmlFor={`idea-promotion-destination-${branch.id}`}>Send to</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{destinationLabel(option)}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Preview destination</button>{prepared ? <><p role="status">This text is ready to send to {destinationLabel(destination)}.</p>{destinationCanRoute ? <button type="button" disabled={!onRoutePromotion} onClick={() => onRoutePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Send to {destinationLabel(destination)}</button> : <p>This destination is planned but not available yet. Your preview remains saved here.</p>}</> : null}</section>
+              <section aria-label={`Send ${branch.name} to another part of the project`}><h4>Use this direction elsewhere</h4><p>Preview the text and destination before anything is copied.</p>{destination === 'author-intent' ? <><p>This replaces the Foundation “What is it about?” guidance. Earlier versions remain in Foundation history. Outer whitespace follows Foundation's guidance formatting.</p><blockquote aria-label="Current Foundation guidance">{foundationAboutness?.text || 'No current answer is shown.'}</blockquote></> : destination === 'outline' ? <p>This appends one planning Note in Outline. It does not insert manuscript writing.</p> : destinationDeferred ? <p>The card owner is unavailable. Only a deferred package can be kept; no Character or Lore card will be created.</p> : <p>This destination is planned; previewing does not write to it.</p>}<label htmlFor={`idea-promotion-destination-${branch.id}`}>Send to</label><select id={`idea-promotion-destination-${branch.id}`} value={destination} onChange={(event) => setPromotionDestination((previous) => ({ ...previous, [branch.id]: event.target.value as IdeationPromotionDestination }))}>{destinations.map((option) => <option key={option} value={option}>{destinationLabel(option)}</option>)}</select><label htmlFor={`idea-promotion-text-${branch.id}`}>Text to preview</label><textarea id={`idea-promotion-text-${branch.id}`} value={selectedPromotionText} onChange={(event) => setPromotionText((previous) => ({ ...previous, [branch.id]: event.target.value }))} /><button type="button" disabled={!onPreparePromotion || selectedPromotionText.length === 0} onClick={() => onPreparePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>Preview destination</button>{prepared ? <><button type="button" onClick={() => setClosedPreviews(previous => new Set([...previous, prepared.id]))}>Close destination preview without sending</button><p role="status">{preparedCurrent ? `Preview kept for ${destinationLabel(destination)}.` : 'The preview source changed. Prepare a fresh preview before sending.'}</p>{destinationCanRoute ? <button type="button" disabled={!onRoutePromotion || !preparedCurrent} onClick={() => onRoutePromotion?.(branch, destination, selectedPromotionText, branch.seedIds)}>{destinationDeferred ? `Keep deferred ${destinationLabel(destination)} package` : `Send to ${destinationLabel(destination)}`}</button> : <p>This destination is planned but not available yet. Your preview remains saved here.</p>}</> : null}</section>
             </article>
           );
         })}

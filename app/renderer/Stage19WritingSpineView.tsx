@@ -1,3 +1,7 @@
+import type { useWorkNavigation, WritingViewSnapshot } from './useWorkNavigation';
+import { WritingPageProvider, WritingPageToolbar, WritingPageOutline, WritingSourcePreview, useWritingContext, getWritingMarks } from './components/WritingPage';
+import type { WritingLinksSnapshot, WritingPageState } from './useWritingPage';
+import type { WritingEdit } from '../shared/writingRanges';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import type {
@@ -44,10 +48,10 @@ import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import DraftEditor, { type DraftEditorSelectionEvidence } from './DraftEditor';
 import Program6StoryKnowledgeWorkspace, { type StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
 import Program7CreateDevelopWorkspace, { type Program7CreateDevelopSection } from './components/program7/Program7CreateDevelopWorkspace';
-import RevisionDesk from './components/program7/RevisionDesk';
+import RevisionDesk, { RevisionEvidence } from './components/program7/RevisionDesk';
 import RevisionComparison from './components/program7/RevisionComparison';
-import StoryFoundation, { type StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
-import IdeasWorkspace, { type ManualIdeaSeedDraft } from './components/program7/IdeasWorkspace';
+import StoryFoundation, { type StoryFoundationAnswerDraft, type DraftValue } from './components/program7/StoryFoundation';
+import IdeasWorkspace, { type ManualIdeaSeedDraft, type IdeasUnfinishedWork } from './components/program7/IdeasWorkspace';
 import Program7History from './components/program7/Program7History';
 import WritingRevisionDrawer, { type WritingRevisionSaveResult } from './components/program7/WritingRevisionDrawer';
 import type { Stage19ViewPhase } from './stage19WritingSpineController';
@@ -63,6 +67,8 @@ export type Stage19WritingRail = 'top' | 'left' | 'right' | 'bottom';
 export type Stage19Theme = 'dark' | 'light';
 
 export interface Stage19WritingSpineViewModel {
+  readonly workNavigation?: ReturnType<typeof useWorkNavigation>;
+  readonly writingPage?: WritingPageState;
   readonly phase: Stage19ViewPhase;
   readonly windowRole: ProjectSpineWindowRole;
   readonly logicalSurface: SplitCommandLogicalSurface;
@@ -85,6 +91,7 @@ export interface Stage19WritingSpineViewModel {
   readonly theme: Stage19Theme;
   readonly focusMode: boolean;
   readonly openWritingRail: Stage19WritingRail | null;
+  readonly lockedWritingRails?: readonly Stage19WritingRail[];
   readonly companionPrompt: string;
   readonly companionResult: CompanionOrientationResultV1 | null;
   readonly companionNotice: string | null;
@@ -151,11 +158,16 @@ export interface Stage19WritingSpineViewModel {
   };
   readonly program7Candidates: RevisionCandidatesSnapshotV1 | null;
   readonly program7CandidateDecisionPending?: boolean;
+  readonly program7FoundationDrafts?: Map<string, Record<string, DraftValue>>;
+  readonly program7IdeasDrafts?: Map<string, IdeasUnfinishedWork>;
   readonly program7Foundation: StoryFoundationSnapshotV1 | null;
   readonly program7Ideation: IdeationSnapshotV1 | null;
   readonly program7History: Program7HistoryProjectionV1;
   readonly program7SelectedCandidate: RevisionCandidateV1 | null;
   readonly program7RevisionDrawerOpen: boolean;
+  readonly program7RevisionPending?: boolean;
+  readonly acceptedRevision?: { id: string; projectId: string; generation: number; unitId: string; before: string; after: string; linksBefore: WritingLinksSnapshot };
+  readonly program7ConcernId?: string | null;
   readonly program7CandidatePurpose: string;
   readonly program7CandidateText: string;
   readonly program7LocalAiRequestId: string | null;
@@ -263,12 +275,19 @@ function isManuscriptStructureUpToDate(
 type MaybeAsync = void | Promise<void>;
 
 export interface Stage19WritingSpineViewActions {
+  readonly rememberWork?: () => void;
+  readonly setWritingViewContext?: (state: WritingViewSnapshot) => void;
+  readonly goBack?: () => MaybeAsync;
+  readonly acknowledgeNavigationSelection?: (requestId: string, restored: boolean) => void;
   readonly showWritingSurface: () => MaybeAsync;
   readonly showCommandSurface: () => MaybeAsync;
   readonly openCommandInSecondaryWindow: () => MaybeAsync;
-  readonly exportMarkdown: () => MaybeAsync;
+  readonly exportMarkdown: (format?: 'markdown' | 'source-text') => MaybeAsync;
   readonly toggleTheme: () => void;
   readonly toggleFocusMode: () => void;
+  readonly revealWritingRail?: (rail: Stage19WritingRail) => void;
+  readonly leaveWritingRail?: (rail: Stage19WritingRail) => void;
+  readonly toggleWritingRailLock?: (rail: Stage19WritingRail) => void;
   readonly toggleWritingRail: (rail: Stage19WritingRail) => void;
   readonly closeWritingRail: (rail: Stage19WritingRail) => void;
   readonly setCompanionPrompt: (value: string) => void;
@@ -331,7 +350,7 @@ export interface Stage19WritingSpineViewActions {
   readonly linkOutlineItem: (itemId: string, unitId: string | null) => MaybeAsync;
   readonly deleteOutlineItem: (itemId: string) => MaybeAsync;
   readonly saveUnit: (unitId: string, body?: string) => MaybeAsync;
-  readonly changeBuffer: (unitId: string, body: string) => void;
+  readonly changeBuffer: (unitId: string, body: string, changes?: readonly WritingEdit[], historyAction?: 'undo' | 'redo') => void;
   readonly dismissWritingNotice?: () => void;
   readonly dismissProgram7Notice?: () => void;
   readonly dismissStoryIntelligenceNotice?: () => void;
@@ -358,7 +377,10 @@ export interface Stage19WritingSpineViewActions {
   readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
   readonly setProgram7CandidatePurpose: (value: string) => void;
   readonly setProgram7CandidateText: (value: string) => void;
-  readonly createProgram7ManualCandidate: () => MaybeAsync;
+  readonly createManualConcern?: (body: string, ranges: readonly { unitId: string; from: number; to: number; body: string }[]) => Promise<boolean>;
+  readonly considerProgram7Concern?: (item: RevisionItem) => MaybeAsync;
+  readonly clearProgram7Concern?: () => void;
+  readonly createProgram7ManualCandidate: (deleteSource?: boolean) => MaybeAsync;
   readonly createProgram7LocalAiCandidate: () => MaybeAsync;
   readonly cancelProgram7LocalAiCandidate: () => MaybeAsync;
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
@@ -453,7 +475,7 @@ function surfaceHostNoticeLabel(notice: SplitCommandSurfaceHostNotice): string |
 }
 
 function SurfaceControlsView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
-  if (!model.surfaceHostAvailable) return null;
+  if (!model.surfaceHostAvailable) return actions.goBack ? <button type="button" disabled={!model.workNavigation?.canBack} onClick={() => void actions.goBack?.()}>Back</button> : null;
   const secondaryBusy = model.secondarySurfaceStatus === 'opening';
   const secondaryOpen = model.commandPlacement === 'secondary-window' &&
     model.secondarySurfaceStatus === 'open';
@@ -461,6 +483,7 @@ function SurfaceControlsView({ model, actions }: Stage19WritingSpineViewProps): 
   return (
     <div className="stage19-spine__surface-host">
       <nav className="stage19-spine__surface-actions" aria-label="Writing and Command surfaces">
+        {actions.goBack ? <button type="button" disabled={!model.workNavigation?.canBack} onClick={() => void actions.goBack?.()}>Back</button> : null}
         {model.logicalSurface === 'writing' ? (
           <>
             <button type="button" onClick={() => void actions.showCommandSurface()}>
@@ -547,7 +570,7 @@ const COMMAND_WORKSPACES: readonly {
   readonly purpose: string;
 }[] = [
   { id: 'review', label: 'Review', purpose: 'Advisory critique and author decisions' },
-  { id: 'structure', label: 'Structure', purpose: 'Story planning and structural work' },
+  { id: 'structure', label: 'Outline', purpose: 'Arrange the plan and compare selected writing' },
   { id: 'story-knowledge', label: 'Story Knowledge', purpose: 'Characters, world, and continuity' },
   { id: 'create-develop', label: 'Create / Develop', purpose: 'Revisions, story foundation, ideas, and history' },
   { id: 'project-interchange', label: 'Project Interchange', purpose: 'Import, export, and handoff' },
@@ -655,9 +678,12 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const candidates = model.program7Candidates?.document.candidates ?? [];
   const canWrite = model.windowRole === 'writing';
   const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>('revision-desk');
+  const [proposeDeletion, setProposeDeletion] = useState(false);
   const revisionDesk = (
     <>
-      <RevisionDesk
+      <RevisionDesk pending={model.program7RevisionPending}
+        renderEvidence={item => <RevisionEvidence item={item} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds} onRead={source => void actions.returnToStorySource(source)} />}
+        onConsiderRevision={actions.considerProgram7Concern ? item => void actions.considerProgram7Concern?.(item) : undefined}
         activeItems={model.program7RevisionItems.activeItems}
         historyItems={model.program7RevisionItems.historyItems}
         availability={model.program7RevisionItems.availability}
@@ -679,6 +705,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           <p>Try the change in your own words. Your manuscript stays untouched until you apply an alternative.</p>
           <p>To apply only part later, first save your manuscript and select the exact words to replace in Writing Studio. Then return here and save a new alternative. An older alternative cannot be linked afterward.</p>
         </header>
+        {model.program7ConcernId ? <p>Alternative for concern <code>{model.program7ConcernId}</code>. <button type="button" onClick={actions.clearProgram7Concern}>Draft without a concern link</button></p> : null}
         <label htmlFor="program7-candidate-purpose">Purpose</label>
         <input
           id="program7-candidate-purpose"
@@ -688,6 +715,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           maxLength={1000}
           disabled={!canWrite}
         />
+        <label><input type="checkbox" checked={proposeDeletion} onChange={event => setProposeDeletion(event.target.checked)} disabled={!canWrite} />Propose deleting the exact linked passage</label>
         <label htmlFor="program7-candidate-text">Proposed text</label>
         <textarea
           id="program7-candidate-text"
@@ -696,10 +724,10 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           placeholder="Write the version you want to compare with the manuscript."
           maxLength={6000}
           rows={8}
-          disabled={!canWrite}
+          disabled={!canWrite || proposeDeletion}
         />
         <div className="program7-revision-capture__actions">
-          <button type="button" onClick={() => void actions.createProgram7ManualCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim() || !model.program7CandidateText.trim()}>Save alternative</button>
+          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion)} disabled={!canWrite || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())}>Save alternative</button>
           {model.program7LocalAiAvailable !== false && model.program7LocalAiRequestId ? (
             <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
           ) : model.program7LocalAiAvailable !== false ? (
@@ -738,6 +766,9 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   );
   const foundation = model.program7Foundation ? (
     <StoryFoundation
+      key={`${model.program7Foundation.document.projectId}:${model.snapshot.project?.path}`}
+      draftKey={`${model.program7Foundation.document.projectId}:${model.snapshot.project?.path}`}
+      draftMemory={model.program7FoundationDrafts}
       snapshot={model.program7Foundation}
       onSaveAnswer={canWrite ? (draft) => void actions.saveStoryFoundationAnswer(draft) : undefined}
       onArchiveAnswer={canWrite ? (questionId) => void actions.archiveStoryFoundationAnswer(questionId) : undefined}
@@ -746,6 +777,11 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   ) : <p role="status">Story Foundation is unavailable in this window.</p>;
   const ideas = model.program7Ideation ? (
     <IdeasWorkspace
+      foundationAboutness={model.program7Foundation ? { revision: model.program7Foundation.document.revision,
+        text: (() => { const entry = model.program7Foundation.document.entries.find(item => item.questionId === 'aboutness'); return entry?.versions.find(version => version.id === entry.currentVersionId)?.text ?? ''; })() } : undefined}
+      key={`${model.program7Ideation.document.projectId}:${model.snapshot.project?.path}`}
+      draftKey={`${model.program7Ideation.document.projectId}:${model.snapshot.project?.path}`}
+      draftMemory={model.program7IdeasDrafts}
       snapshot={model.program7Ideation}
       onCaptureSeed={canWrite ? (draft) => void actions.captureIdeaSeed(draft) : undefined}
       onCreateBranch={canWrite ? (name, premise, seedIds, unknowns) => void actions.createIdeaBranch(name, premise, seedIds, unknowns) : undefined}
@@ -760,6 +796,33 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const history = (
     <Program7History
       projection={model.program7History}
+      renderConcernDetails={item => {
+        const concern = [...model.program7RevisionItems.activeItems, ...model.program7RevisionItems.historyItems]
+          .find(candidate => candidate.id === item.ownerId);
+        const decisions = concern?.dispositionHistory?.filter(event =>
+          event.disposition === 'intentional' || event.disposition === 'resolved' || event.disposition === 'reopened') ?? [];
+        if (!concern || item.protection.protected || !decisions.length) return null;
+        return <>
+          <details><summary>Decision history</summary><ol>{decisions.map(event => (
+            <li key={event.id}>{event.disposition === 'intentional' ? 'Marked intentional' : event.disposition === 'resolved' ? 'Addressed' : 'Reopened'} by {event.actor === 'author' ? 'you' : event.actor} · <time dateTime={event.createdAt}>{new Date(event.createdAt).toLocaleString()}</time>
+              {event.sourceEvidence ? <RevisionEvidence item={concern} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds} decisionEvidence={event.sourceEvidence} onRead={source => void actions.returnToStorySource(source)} /> : <p>No evidence quote was recorded with this earlier decision.</p>}
+            </li>
+          ))}</ol></details>
+          {['intentional', 'resolved'].includes(concern.lifecycle) ? <>
+            {!decisions.some(event => event.sourceEvidence) ? <RevisionEvidence item={concern} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds}
+              onRead={source => void actions.returnToStorySource(source)} /> : null}
+            {canWrite ? <button type="button" onClick={() => void actions.setProgram7RevisionItemLifecycle(concern, 'active')}>Reopen concern</button>
+              : <p>Open Command Center in the Writing Studio window to reopen this concern.</p>}
+          </> : null}
+        </>;
+      }}
+      onOpenConcern={concernId => {
+        setActiveSection('revision-desk');
+        requestAnimationFrame(() => {
+          const card = [...document.querySelectorAll<HTMLElement>('[data-concern-id]')].find(node => node.dataset.concernId === concernId && node.getClientRects().length > 0);
+          card?.focus(); card?.scrollIntoView({ block: 'nearest' });
+        });
+      }}
       onOpenSource={(item) => {
         if (item.ownerKind === 'feedback-note') {
           const source = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems).find((candidate) => candidate.id === item.ownerId);
@@ -788,8 +851,98 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   return <Program7CreateDevelopWorkspace notice={model.program7Notice ? <div className="program7-revision-capture__notice stage19-dismissible-notice"><p role={model.program7NoticeTone ?? 'status'}>{model.program7Notice}</p>{actions.dismissProgram7Notice ? <button type="button" onClick={actions.dismissProgram7Notice}>Dismiss message</button> : null}</div> : null} activeSection={activeSection} onSectionChange={setActiveSection} revisionDesk={revisionDesk} storyFoundation={foundation} ideas={ideas} history={history} />;
 }
 
+function CommandTaskView({ model, actions, workspace }: Stage19WritingSpineViewProps & { workspace: CommandWorkspaceV1 }): JSX.Element {
+  const { snapshot } = model;
+  return (!snapshot.project ? (
+          <section className="stage19-command__empty-state">
+            <span className="stage19-spine__eyebrow">No active project</span>
+            <h2>Begin in Writing Studio</h2>
+            <p>Command Center follows the active writing project and never gates opening or editing it.</p>
+            {!model.surfaceHostAvailable
+              ? <button type="button" onClick={() => void actions.showWritingSurface()}>Return to Writing Studio</button>
+              : null}
+          </section>
+        ) : workspace === 'review' ? (
+          <><RevisionDesk pending={model.program7RevisionPending} activeItems={model.program7RevisionItems.activeItems} historyItems={model.program7RevisionItems.historyItems}
+            localAiAvailable={false} canResolve={model.windowRole === 'writing'}
+            renderEvidence={item => <RevisionEvidence item={item} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds} onRead={source => void actions.returnToStorySource(source)} />}
+            onConsiderRevision={actions.considerProgram7Concern ? item => void actions.considerProgram7Concern?.(item) : undefined}
+            onLifecycle={(item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle)}
+            onRecheck={(item, method) => void actions.recheckProgram7RevisionItem(item, method)}
+            onReturnToSource={item => void actions.returnProgram7RevisionItemToSource(item)} />
+          <ReviewWorkspaceView model={model} actions={actions} /></>
+        ) : workspace === 'structure' && model.writingPage && model.windowRole === 'writing' ? (
+          <WritingPageOutline />
+        ) : workspace === 'structure' ? (
+          <section className="stage19-command__empty-state"><h2>Outline and passage comparison</h2>
+            <p>Use the Writing Studio window to arrange the plan and compare current passages.</p>
+          </section>
+        ) : workspace === 'create-develop' ? (
+          <Program7CreateDevelopView model={model} actions={actions} />
+        ) : workspace === 'project-interchange' ? (
+          <section aria-label="Text and Markdown interchange"><h2>Text and Markdown</h2>
+            <p>Imports stage a new project for source review. Manuscript exports include all saved writing sections, with no purpose-based exclusions. Notes and other project records need their own portable-project contract; this is not a whole-project archive or named version.</p>
+            {model.windowRole === 'writing' ? <>
+              <button type="button" disabled={model.manuscriptStructureLoading} onClick={() => void actions.importManuscriptStructure()}>Import Markdown / UTF-8 text</button>
+              <button type="button" disabled={!model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown} onClick={() => void actions.exportMarkdown()}>Export saved Markdown</button>
+              <button type="button" disabled={!model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown} onClick={() => void actions.exportMarkdown('source-text')}>Export saved source text</button>
+              <p>Source text retains Markdown characters and body whitespace with section titles. Display typography and spacing are outside both export formats. Save current prose before exporting.</p>
+              {model.markdownExportNotice ? <p role={model.markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}>{model.markdownExportNotice.message}</p> : null}
+            </> : <button type="button" onClick={() => void actions.showWritingSurface()}>Open Writing Studio for import/export</button>}
+          </section>
+        ) : workspace === 'operations-approvals' ? (
+          <section aria-label="Project operation status"><h2>Project operations</h2>
+            <p>Current project: {snapshot.project.title}. Save status: {snapshot.saveState.status}.</p>
+            <p>Opening this screen starts no analysis, changes no writing and grants no AI, provider, schedule or Memory approval. Source checks establish source availability; they do not re-read or judge the story.</p>
+            <p>Use Writing Studio for Save and any presented recovery choices. Named whole-project versions, portable archive restore and overnight jobs remain unavailable here.</p>
+            <button type="button" onClick={() => void actions.showWritingSurface()}>Open Writing Studio</button>
+          </section>
+        ) : workspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
+          <Program6StoryKnowledgeWorkspace
+            key={`${snapshot.project.projectId}\n${snapshot.project.path}\n${snapshot.generation}`}
+            // The command projection intentionally omits prose. When Story
+            // Knowledge is rendered inside the Writing Studio window, use the
+            // authoritative editor buffers for the exact source-bound handoff.
+            // Unit metrics and Story Intelligence use the durable LF body,
+            // which includes its terminal newline; preserve that boundary here.
+            project={{
+              ...snapshot.project,
+              drafts: Object.fromEntries(Object.entries(model.buffers).map(([unitId, body]) => [
+                unitId,
+                `${body.replace(/^(?:\n)+/u, '').replace(/\n+$/u, '')}\n`,
+              ])),
+            }}
+            generation={snapshot.generation}
+            document={model.storyIntelligenceDocument}
+            notice={model.storyIntelligenceNotice}
+            onDismissNotice={actions.dismissStoryIntelligenceNotice}
+            localInferenceAvailable={model.program7LocalAiAvailable !== false}
+            onSourceReturn={(source) => void actions.returnToStorySource(source)}
+            onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
+            onEnableLocalInference={() => void actions.enableLocalInference()}
+            onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
+            onWorkOnThis={(envelope) => void actions.createRevisionFromProgram6(envelope)}
+          />
+        ) : workspace === 'story-knowledge' ? (
+          <section className="stage19-command__empty-state" aria-live="polite">
+            <span className="stage19-spine__eyebrow">Story Knowledge unavailable</span>
+            <h2>Project intelligence is unavailable</h2>
+            <p>{model.storyIntelligenceNotice ?? 'The project-bound story-intelligence record could not be read.'}</p>
+          </section>
+        ) : (
+          <section className="stage19-command__empty-state">
+            <span className="stage19-spine__eyebrow">Coming later</span>
+            <h2>{COMMAND_WORKSPACES.find((choice) => choice.id === workspace)?.label}</h2>
+            <p>{COMMAND_WORKSPACES.find((choice) => choice.id === workspace)?.purpose} is not available yet. You can keep writing or use the available tabs.</p>
+            <button type="button" onClick={() => actions.selectCommandWorkspace('review')}>Open Review</button>
+          </section>
+));
+}
+
 function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const { snapshot, notice } = model;
+  const [visitedWorkspaces, setVisitedWorkspaces] = useState<readonly CommandWorkspaceV1[]>([model.commandWorkspace]);
+  useEffect(() => { setVisitedWorkspaces((current) => current.includes(model.commandWorkspace) ? current : [...current, model.commandWorkspace]); }, [model.commandWorkspace]);
   const commandStatus = snapshot.commandStatus;
   if (!commandStatus) return <CommandUnavailableView model={model} actions={actions} />;
   const projectTitle = snapshot.project?.title ?? 'No project open';
@@ -832,61 +985,15 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         ))}
       </nav>
       <div className="stage19-command__task-canvas">
-        {model.companionResult ? (
-          <CompanionTaskCanvasView model={model} actions={actions} />
-        ) : !snapshot.project ? (
-          <section className="stage19-command__empty-state">
-            <span className="stage19-spine__eyebrow">No active project</span>
-            <h2>Begin in Writing Studio</h2>
-            <p>Command Center follows the active writing project and never gates opening or editing it.</p>
-            {!model.surfaceHostAvailable
-              ? <button type="button" onClick={() => void actions.showWritingSurface()}>Return to Writing Studio</button>
-              : null}
+        <header className="stage19-command__tool-title"><h2 aria-label={`Current tool: ${model.companionResult ? 'Companion' : COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.label}`}>{model.companionResult ? 'Companion' : COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.label}</h2><p>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.purpose}</p></header>
+        <details><summary>Help with this tool</summary><p>{COMMAND_WORKSPACES.find(value => value.id === model.commandWorkspace)?.purpose}.</p><p>Outline and Review use exact linked passages. Create / Develop holds manual revisions, Foundation, Ideas and History. Project Interchange uses saved manuscript writing. Old results and source checks are separate from fresh AI reading; unavailable analysis never prevents writing.</p><button type="button" onClick={() => void actions.showWritingSurface()}>Return to current writing</button></details>
+        {model.workNavigation?.notice ? <p role="status">{model.workNavigation.notice}</p> : null}
+        {model.companionResult ? <CompanionTaskCanvasView model={model} actions={actions} /> : null}
+        {[...new Set([...visitedWorkspaces, model.commandWorkspace])].map((workspace) => (
+          <section key={`${snapshot.project?.projectId ?? 'none'}:${snapshot.generation}:${workspace}`} hidden={Boolean(model.companionResult) || model.commandWorkspace !== workspace} aria-label={`Command task: ${workspace}`}>
+            <CommandTaskView model={model} actions={actions} workspace={workspace} />
           </section>
-        ) : model.commandWorkspace === 'review' ? (
-          <ReviewWorkspaceView model={model} actions={actions} />
-        ) : model.commandWorkspace === 'create-develop' ? (
-          <Program7CreateDevelopView model={model} actions={actions} />
-        ) : model.commandWorkspace === 'story-knowledge' && model.storyIntelligenceDocument ? (
-          <Program6StoryKnowledgeWorkspace
-            key={`${snapshot.project.projectId}\n${snapshot.project.path}\n${snapshot.generation}`}
-            // The command projection intentionally omits prose. When Story
-            // Knowledge is rendered inside the Writing Studio window, use the
-            // authoritative editor buffers for the exact source-bound handoff.
-            // Unit metrics and Story Intelligence use the durable LF body,
-            // which includes its terminal newline; preserve that boundary here.
-            project={{
-              ...snapshot.project,
-              drafts: Object.fromEntries(Object.entries(model.buffers).map(([unitId, body]) => [
-                unitId,
-                `${body.replace(/^(?:\n)+/u, '').replace(/\n+$/u, '')}\n`,
-              ])),
-            }}
-            generation={snapshot.generation}
-            document={model.storyIntelligenceDocument}
-            notice={model.storyIntelligenceNotice}
-            onDismissNotice={actions.dismissStoryIntelligenceNotice}
-            localInferenceAvailable={model.program7LocalAiAvailable !== false}
-            onSourceReturn={(source) => void actions.returnToStorySource(source)}
-            onAuthorRecordCreate={(draft) => void actions.createEmotionRecord(draft)}
-            onEnableLocalInference={() => void actions.enableLocalInference()}
-            onSignalDisposition={(signalId, lifecycle) => void actions.disposeStorySignal(signalId, lifecycle)}
-            onWorkOnThis={(envelope) => void actions.createRevisionFromProgram6(envelope)}
-          />
-        ) : model.commandWorkspace === 'story-knowledge' ? (
-          <section className="stage19-command__empty-state" aria-live="polite">
-            <span className="stage19-spine__eyebrow">Story Knowledge unavailable</span>
-            <h2>Project intelligence is unavailable</h2>
-            <p>{model.storyIntelligenceNotice ?? 'The project-bound story-intelligence record could not be read.'}</p>
-          </section>
-        ) : (
-          <section className="stage19-command__empty-state">
-            <span className="stage19-spine__eyebrow">Coming later</span>
-            <h2>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.label}</h2>
-            <p>{COMMAND_WORKSPACES.find((workspace) => workspace.id === model.commandWorkspace)?.purpose} is not available yet. You can keep writing or use the available tabs.</p>
-            <button type="button" onClick={() => actions.selectCommandWorkspace('review')}>Open Review</button>
-          </section>
-        )}
+        ))}
       </div>
       <footer className="stage19-command__footer">
         <span>{commandLifecycleLabel(commandStatus)}</span>
@@ -1787,7 +1894,8 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
         <div className="stage19-manuscript-structure__heading">
           <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure</h3></div>
           <div className="stage19-manuscript-structure__actions">
-            <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown</button>
+            <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown / UTF-8 text</button>
+            <p>Import stages a separate UTF-8 copy; the original stays untouched. Line endings become LF and an encoding BOM is removed. Review and Apply determine the writing destination. Text retains its source characters; Markdown characters can display as emphasis or headings. Word-processing styles, comments and layout are not imported.</p>
             {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || !['current', 'changed'].includes(structure.sourceStatus)}>Rediscover</button> : null}
           </div>
         </div>
@@ -1876,6 +1984,13 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
 }
 
 function ManuscriptBinderView(props: Stage19WritingSpineViewProps): JSX.Element {
+  if (props.model.writingPage) return <>
+    <WritingPageOutline compact />
+    <details className="stage19-outline-planning">
+      <summary>Saved sections and planning tools</summary>
+      <ManuscriptBinderView {...props} model={{ ...props.model, writingPage: undefined }} />
+    </details>
+  </>;
   const { model, actions } = props;
   const { dirtyUnitIds, multiSelectMode, recoveryBlocksEditing, renameTitle, selectedStoryItemIds, snapshot, storyRailHelpOpen, unitAdvancedId, unitEditingId } = model;
   const advancedUnit = snapshot.project?.units.find((unit) => unit.id === unitAdvancedId) ?? null;
@@ -2164,6 +2279,7 @@ function SelectedProseCritiqueView({ model, actions }: Stage19WritingSpineViewPr
 }
 
 function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element {
+  const writing = useWritingContext();
   const { model, actions } = props;
   const { activeUnit, snapshot } = model;
   const units = snapshot.project?.units ?? [];
@@ -2173,7 +2289,7 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
     <section className="stage19-spine__editor-card" aria-label="Manuscript editor">
       {activeUnit ? (
         <>
-          {!model.focusMode ? (
+          {!model.focusMode && !model.writingPage ? (
             <>
               <div className="stage19-spine__editor-header">
                 <div><span className="stage19-spine__eyebrow">Manuscript</span><h2>One continuous story</h2></div>
@@ -2184,7 +2300,13 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
               <p className="stage19-spine__shortcut">Scroll through the whole story. Click any section to write there. Ctrl+S saves the section you are writing.</p>
             </>
           ) : null}
-          <div className="stage19-continuous-manuscript" aria-label="Continuous manuscript">
+          <div className="stage19-continuous-manuscript" aria-label="Continuous manuscript" style={{
+            '--writing-font': ({ serif: 'Georgia, "Times New Roman", serif', sans: 'Arial, sans-serif', mono: 'Consolas, monospace' } as Record<string, string>)[snapshot.project?.writingPreferences?.values.font ?? 'default'],
+            '--writing-size': snapshot.project?.writingPreferences?.values.fontSize ? `${snapshot.project.writingPreferences.values.fontSize}px` : undefined,
+            '--writing-line-height': snapshot.project?.writingPreferences?.values.lineHeight ?? undefined,
+            '--writing-paragraph-spacing': `${snapshot.project?.writingPreferences?.values.paragraphSpacing ?? 0}px`,
+            '--writing-indent': `${snapshot.project?.writingPreferences?.values.firstLineIndent ?? 0}em`,
+          } as React.CSSProperties}>
             {units.map((unit, index) => {
               const active = unit.id === activeUnit.id;
               const body = model.buffers[unit.id] ?? '';
@@ -2212,9 +2334,23 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
                   {active ? (
                     <div className="stage19-spine__editor">
                       <DraftEditor
+                        writingTools
+                        spellcheck={snapshot.project?.writingPreferences?.values.spellcheck ?? true}
+                        historyChange={writing?.editorHistoryChanges[unit.id]}
+                        toolbarVisible={!model.writingPage}
+                        onCommands={model.writingPage ? writing?.registerCommands : undefined}
+                        writingMarks={getWritingMarks(writing, unit.id)}
+                        onWritingNote={(id) => writing?.openNote(id, [])}
                         key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${unit.id}`}
                         value={body}
-                        onChange={(nextBody) => actions.changeBuffer(unit.id, nextBody)}
+                        onChange={(nextBody, changes, historyAction, change) => {
+                          const linksBefore = model.writingPage?.captureLinks();
+                          actions.changeBuffer(unit.id, nextBody, changes, historyAction);
+                          writing?.editorEdited(historyAction, change && linksBefore ? {
+                            unitId: unit.id, before: change.before, after: nextBody,
+                            edits: changes ?? [], group: change.group, linksBefore,
+                          } : undefined);
+                        }}
                         onSave={(nextBody) => void actions.saveUnit(unit.id, nextBody)}
                         onSelectionChange={actions.changeAiSelection}
                         selectionRestore={
@@ -2226,13 +2362,22 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
                                 selectionEnd: model.sourceReturnRequest.anchor.selectionEnd,
                                 selectionFingerprint: model.sourceReturnRequest.anchor.selectionFingerprint,
                               }
-                            : null
+                            : model.workNavigation?.selectionRestore?.unitId === unit.id ? model.workNavigation.selectionRestore
+                              : writing?.returnRequest?.unitId === unit.id ? writing.returnRequest : null
                         }
-                        onSelectionRestoreResult={actions.sourceSelectionRestoreResult}
-                        readOnly={model.recoveryBlocksEditing}
+                        onSelectionRestoreResult={(requestId, restored) => {
+                          if (model.workNavigation?.selectionRestore?.requestId === requestId) actions.acknowledgeNavigationSelection?.(requestId, restored);
+                          else if (writing?.returnRequest?.requestId === requestId) writing.acknowledgeReturn(requestId);
+                          else actions.sourceSelectionRestoreResult(requestId, restored);
+                        }}
+                        readOnly={model.recoveryBlocksEditing || Boolean(model.writingPage?.pendingGap)}
                         placeholder="Start writing…"
                         ariaLabel={`Manuscript editor: ${unit.displayTitle}`}
                       />
+                    </div>
+                  ) : model.writingPage ? (
+                    <div className="stage19-continuous-manuscript__prose" role="group" aria-label={`Writing preview: ${unit.displayTitle}`}>
+                      <WritingSourcePreview unitId={unit.id} text={body} />
                     </div>
                   ) : (
                     <button
@@ -2241,7 +2386,7 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
                       aria-label={`Write in ${unit.displayTitle}`}
                       onClick={() => void actions.activateUnitInStream(unit.id)}
                     >
-                      {body || 'This section is empty. Click to begin writing.'}
+                      {body ? <WritingSourcePreview unitId={unit.id} text={body} /> : 'This section is empty. Click to begin writing.'}
                     </button>
                   )}
                 </section>
@@ -2275,8 +2420,8 @@ function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProp
   return (
     <nav className="stage19-writing-shell__edge-controls" aria-label="Writing Studio edge controls">
       {availableRails.map((rail) => {
-        const label = WRITING_RAIL_LABELS[rail];
-        const open = model.openWritingRail === rail;
+        const label = rail === 'bottom' && model.writingPage ? { shortLabel: 'Companion', accessibleLabel: 'Companion' } : WRITING_RAIL_LABELS[rail];
+        const open = model.openWritingRail === rail || Boolean(model.lockedWritingRails?.includes(rail));
         return (
           <button
             key={rail}
@@ -2287,7 +2432,9 @@ function WritingEdgeControlsView({ model, actions }: Stage19WritingSpineViewProp
             title={`${open ? 'Close' : 'Open'} ${label.shortLabel}`}
             aria-expanded={open}
             aria-controls={`stage19-writing-rail-${rail}`}
-            onClick={() => actions.toggleWritingRail(rail)}
+            onPointerMove={(event) => { if (!open && event.pointerType !== 'touch') actions.revealWritingRail?.(rail); }}
+            onPointerLeave={() => actions.leaveWritingRail?.(rail)}
+            onClick={() => actions.revealWritingRail ? actions.revealWritingRail(rail) : actions.toggleWritingRail(rail)}
           >
             <span className="stage19-writing-shell__edge-mark" aria-hidden="true">{open ? '‹' : '›'}</span>
             <span className="stage19-writing-shell__edge-label">{label.shortLabel}</span>
@@ -2302,14 +2449,17 @@ function WritingRailHeading({
   rail,
   title,
   actions,
+  locked = false,
 }: {
   readonly rail: Stage19WritingRail;
   readonly title: string;
   readonly actions: Stage19WritingSpineViewActions;
+  readonly locked?: boolean;
 }): JSX.Element {
   return (
     <div className="stage19-writing-shell__rail-heading">
       <h2>{title}</h2>
+      {actions.toggleWritingRailLock ? <button type="button" aria-pressed={locked} onClick={() => actions.toggleWritingRailLock?.(rail)}>{locked ? 'Locked open' : 'Keep open'}</button> : null}
       <button type="button" onClick={() => actions.closeWritingRail(rail)}>
         Close
       </button>
@@ -2325,7 +2475,7 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
       className="stage19-writing-shell__rail stage19-writing-shell__rail--top"
       aria-label="Project Tools"
     >
-      <WritingRailHeading rail="top" title="Project Tools" actions={actions} />
+      <WritingRailHeading locked={model.lockedWritingRails?.includes('top')} rail="top" title="Project Tools" actions={actions} />
       <ProjectLifecycleView {...props} />
       {model.snapshot.project ? (
         <div className="stage19-writing-shell__project-tools">
@@ -2336,13 +2486,15 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
           >
             {model.exportingMarkdown ? 'Exporting...' : 'Export Markdown...'}
           </button>
+          <button type="button" onClick={() => void actions.exportMarkdown('source-text')} disabled={!model.markdownExportAvailable || model.exportingMarkdown || model.markdownExportRequiresSave}>Export source text...</button>
+          <p>Both exports include all saved writing sections, including unpinned ideas. Source text retains Markdown characters and exact body whitespace with section titles; it is not a rendered document. Separate Notes, Foundation/Ideas records and staged intake are outside this manuscript export. Display preferences are not exported.</p>
           <p>Export follows the saved manuscript order and never includes unsaved prose.</p>
         </div>
       ) : null}
       {model.markdownExportRequiresSave ? <p className="stage19-spine__export-remedy" role="status">Save the project successfully before exporting.</p> : null}
       {model.markdownExportNotice ? (
         <p className={`stage19-spine__export-notice stage19-spine__export-notice--${model.markdownExportNotice.tone}`} role={model.markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}>
-          <strong>Markdown export for {model.markdownExportNotice.projectTitle}</strong>{' - '}{model.markdownExportNotice.message}
+          <strong>Manuscript export for {model.markdownExportNotice.projectTitle}</strong>{' - '}{model.markdownExportNotice.message}
         </p>
       ) : null}
     </section>
@@ -2356,7 +2508,7 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
       className="stage19-writing-shell__rail stage19-writing-shell__rail--right"
       aria-label="Review"
     >
-      <WritingRailHeading rail="right" title="Review" actions={props.actions} />
+      <WritingRailHeading locked={props.model.lockedWritingRails?.includes('right')} rail="right" title="Review" actions={props.actions} />
       <WritingRevisionDrawer
         open={props.model.program7RevisionDrawerOpen}
         decisionPending={props.model.program7CandidateDecisionPending}
@@ -2373,13 +2525,7 @@ function WritingRightRailView(props: Stage19WritingSpineViewProps): JSX.Element 
 
 function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element {
   const { activeUnit, snapshot } = model;
-  return (
-    <section
-      id="stage19-writing-rail-bottom"
-      className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
-      aria-label="Writing Session"
-    >
-      <WritingRailHeading rail="bottom" title="Writing Session" actions={actions} />
+  const sessionSummary = (
       <div className="stage19-writing-shell__session-summary">
         <p><strong>Current writing</strong><span>{activeUnit?.displayTitle ?? 'No manuscript unit selected'}</span></p>
         <p><strong>Save state</strong><span>{model.writingSaveSummary}</span></p>
@@ -2394,6 +2540,16 @@ function WritingBottomRailView({ model, actions }: Stage19WritingSpineViewProps)
           </button>
         ) : null}
       </div>
+  );
+  return (
+    <section
+      id="stage19-writing-rail-bottom"
+      className="stage19-writing-shell__rail stage19-writing-shell__rail--bottom"
+      aria-label={model.writingPage ? 'Companion' : 'Writing Session'}
+    >
+      <WritingRailHeading locked={model.lockedWritingRails?.includes('bottom')} rail="bottom" title={model.writingPage ? 'Companion' : 'Writing Session'} actions={actions} />
+      {model.writingPage ? <CompanionBarView model={model} actions={actions} /> : null}
+      {model.writingPage ? <details><summary>Writing Session</summary>{sessionSummary}</details> : sessionSummary}
     </section>
   );
 }
@@ -2417,7 +2573,7 @@ function CompanionBarView({ model, actions }: Stage19WritingSpineViewProps): JSX
         type="text"
         value={model.companionPrompt}
         onChange={(event) => actions.setCompanionPrompt(event.target.value)}
-        placeholder="Ask where you are in this project"
+        placeholder="Ask where you are, or ask for tool help"
         disabled={!snapshot.project}
         title={snapshot.project ? 'Ask for local orientation within this project' : 'Open a project before asking Companion'}
         maxLength={500}
@@ -2442,6 +2598,8 @@ function CompanionBarView({ model, actions }: Stage19WritingSpineViewProps): JSX
         Try:
         <button type="button" onClick={() => actions.setCompanionPrompt('Where am I in this project?')}>Where am I in this project?</button>
         <button type="button" onClick={() => actions.setCompanionPrompt('Where was I?')}>Where was I?</button>
+        <button type="button" onClick={() => actions.setCompanionPrompt('Where is Notebook?')}>Where is Notebook?</button>
+        <button type="button" onClick={() => actions.setCompanionPrompt('How do I export?')}>How do I export?</button>
       </span>
       {model.companionNotice ? <span className="stage19-companion-bar__notice" role="status">{model.companionNotice}</span> : null}
     </form>
@@ -2452,7 +2610,7 @@ function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProp
   const result = model.companionResult;
   if (!result) return <></>;
   const heading = result.status === 'available'
-    ? 'Here is where you are'
+    ? result.route === 'help' ? result.requestLabel : 'Here is where you are'
     : result.status === 'not-routed'
       ? 'This request is not supported yet'
       : 'Local orientation is unavailable';
@@ -2481,6 +2639,11 @@ function CompanionTaskCanvasView({ model, actions }: Stage19WritingSpineViewProp
       <p className="stage19-command-companion__limitation">{result.limitationText}</p>
       {model.companionNotice ? <p className="stage19-command-companion__notice" role="status">{model.companionNotice}</p> : null}
       <div className="stage19-command-companion__actions">
+        {result.helpDestination && result.projectId === model.snapshot.project?.projectId && result.generation === model.snapshot.generation ? <button type="button" onClick={() => {
+          if (result.helpDestination === 'writing') { void actions.returnToCompanionWriting(); return; }
+          actions.selectCommandWorkspace(result.helpDestination! as CommandWorkspaceV1);
+          actions.dismissCompanion();
+        }}>Open this tool</button> : null}
         <button type="button" className="is-primary" onClick={() => void actions.returnToCompanionWriting()}>Return to Writing</button>
         <button type="button" onClick={actions.dismissCompanion}>Stay in Command Center</button>
       </div>
@@ -2523,18 +2686,24 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
   const { model, actions } = props;
   const { activeUnit, snapshot } = model;
   const projectTitle = snapshot.project?.title ?? 'Writing Studio';
-  const supportOpen = !model.focusMode && model.openWritingRail !== null;
+  const railOpen = (rail: Stage19WritingRail) => model.openWritingRail === rail || Boolean(model.lockedWritingRails?.includes(rail));
+  const supportOpen = !model.focusMode && (model.openWritingRail !== null || Boolean(model.lockedWritingRails?.length));
+  const railPointer = (rail: Stage19WritingRail) => ({
+    onPointerEnter: () => actions.revealWritingRail?.(rail),
+    onPointerLeave: () => actions.leaveWritingRail?.(rail),
+  });
   return (
     <main
       className={`stage19-spine stage19-spine--writing ${model.focusMode ? 'is-focus-mode' : ''}`}
       data-stage19-role={model.logicalSurface === 'writing' ? 'writing' : undefined}
+      data-writing-page={Boolean(model.writingPage)}
       data-stage19-theme={model.theme}
       data-stage19-writing-rail={model.focusMode ? 'focus' : model.openWritingRail ?? 'closed'}
       data-primary-scroll-container="true"
       role="region"
       aria-label="Writing Studio"
     >
-      <div className={`stage19-writing-shell ${model.openWritingRail === 'bottom' && !model.focusMode ? 'has-session-rail' : ''}`}>
+      <div className={`stage19-writing-shell ${railOpen('bottom') && !model.focusMode ? 'has-session-rail' : ''}`}>
       <header className="stage19-writing-shell__topbar">
         {model.focusMode ? (
           <div className="stage19-writing-shell__focus-context">
@@ -2560,6 +2729,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
         </div>
       </header>
       <div className="stage19-writing-shell__notice-row" role="group" aria-label="Project notices">
+        {model.workNavigation?.notice ? <p role="status">{model.workNavigation.notice}</p> : null}
         {model.sourceReturnConfirmation ? (
           <p className="stage19-spine__source-return-confirmation" role="status">
             {model.sourceReturnConfirmation}
@@ -2568,16 +2738,18 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
         {model.notice || snapshot.lastError ? <p className="stage19-spine__notice" role="alert">{model.notice ?? snapshot.lastError?.message}</p> : null}
         {(model.notice || model.sourceReturnConfirmation) && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
       </div>
+      {model.writingPage ? <WritingPageToolbar /> : null}
       <WritingEdgeControlsView {...props} />
-      {!model.focusMode && model.openWritingRail === 'top' ? <WritingTopRailView {...props} /> : null}
-      <div className={`stage19-writing-shell__workspace ${supportOpen ? 'has-support' : ''}`}>
-        {!model.focusMode && model.openWritingRail === 'left' ? (
+      {!model.focusMode && railOpen('top') ? <div {...railPointer('top')}><WritingTopRailView {...props} /></div> : null}
+      <div className={`stage19-writing-shell__workspace ${supportOpen ? 'has-support' : ''}`} data-left-open={railOpen('left') && !model.focusMode} data-right-open={railOpen('right') && !model.focusMode}>
+        {!model.focusMode && railOpen('left') ? (
           <section
             id="stage19-writing-rail-left"
             className="stage19-writing-shell__rail stage19-writing-shell__rail--left"
             aria-label="Story tools"
+            {...railPointer('left')}
           >
-            <WritingRailHeading rail="left" title="Story" actions={actions} />
+            <WritingRailHeading locked={model.lockedWritingRails?.includes('left')} rail="left" title={model.writingPage ? "Outline" : "Story"} actions={actions} />
             <ManuscriptBinderView {...props} />
           </section>
         ) : null}
@@ -2587,10 +2759,10 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
             ? <ManuscriptCanvasView {...props} />
             : <WelcomeView {...props} showProjectLifecycle={model.openWritingRail !== 'top'} />}
         </div>
-        {!model.focusMode && model.openWritingRail === 'right' ? <WritingRightRailView {...props} /> : null}
+        {!model.focusMode && railOpen('right') ? <div className="stage19-writing-shell__rail-host" {...railPointer('right')}><WritingRightRailView {...props} /></div> : null}
       </div>
-      {!model.focusMode && model.openWritingRail === 'bottom' ? <WritingBottomRailView {...props} /> : null}
-      <CompanionBarView {...props} />
+      {!model.focusMode && railOpen('bottom') ? <div {...railPointer('bottom')}><WritingBottomRailView {...props} /></div> : null}
+      {!model.writingPage ? <CompanionBarView {...props} /> : null}
       {model.overlays}
       </div>
     </main>
@@ -2617,6 +2789,7 @@ export default function Stage19WritingSpineView(props: Stage19WritingSpineViewPr
       },
     };
     return (
+      <WritingPageProvider key={`${props.model.snapshot.project?.projectId ?? 'none'}:${props.model.snapshot.generation}`} model={props.model} actions={props.actions}>
       <div
         className="stage19-spine-host"
         data-stage19-logical-surface={props.model.logicalSurface}
@@ -2632,6 +2805,7 @@ export default function Stage19WritingSpineView(props: Stage19WritingSpineViewPr
             : <CommandUnavailableView {...commandProps} />}
         </div>
       </div>
+      </WritingPageProvider>
     );
   }
   switch (props.model.phase) {
@@ -2642,6 +2816,6 @@ export default function Stage19WritingSpineView(props: Stage19WritingSpineViewPr
     case 'command':
       return <CommandCenterView {...props} />;
     default:
-      return <WritingStudioView {...props} />;
+      return <WritingPageProvider key={`${props.model.snapshot.project?.projectId ?? 'none'}:${props.model.snapshot.generation}`} model={props.model} actions={props.actions}><WritingStudioView {...props} /></WritingPageProvider>;
   }
 }

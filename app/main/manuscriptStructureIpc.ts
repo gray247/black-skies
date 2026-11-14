@@ -104,7 +104,7 @@ export function registerManuscriptStructureIpc(nextOptions: RegisterManuscriptSt
     if (harnessPath) return { canceled: false, filePath: harnessPath };
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
-      filters: [{ name: 'Markdown', extensions: ['md', 'markdown'] }],
+      filters: [{ name: 'Markdown / UTF-8 text', extensions: ['md', 'markdown', 'txt'] }],
     });
     return { canceled: result.canceled, filePath: result.filePaths?.[0] };
   });
@@ -115,15 +115,19 @@ export function registerManuscriptStructureIpc(nextOptions: RegisterManuscriptSt
       const request = value ?? ({} as ImportMarkdownRequest);
       operationId(request.operationId);
       if (typeof request.parentPath !== 'string' || !request.parentPath.trim() || typeof request.filePath !== 'string' || !request.filePath.trim()) {
-        throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'A Markdown file and destination folder are required.');
+        throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'A Markdown or UTF-8 text file and destination folder are required.');
       }
-      if (!/\.(md|markdown)$/i.test(request.filePath)) {
-        throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'Only Markdown intake is supported.');
+      if (!/\.(md|markdown|txt)$/i.test(request.filePath)) {
+        throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'Only Markdown and UTF-8 text intake are supported.');
       }
-      const source = await fs.readFile(request.filePath, 'utf8');
+      const bytes = await fs.readFile(request.filePath);
+      let source: string;
+      try { source = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+      catch { throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'This file is not valid UTF-8. Convert a separate copy to UTF-8 before import; the original has not been changed.'); }
+      if (source.includes(String.fromCharCode(0))) throw new ManuscriptStructureRepositoryError('UNAVAILABLE', 'Binary or UTF-16 text is unsupported. Import a UTF-8 copy instead.');
       const title = typeof request.title === 'string' && request.title.trim()
         ? request.title.trim()
-        : path.basename(request.filePath).replace(/\.(md|markdown)$/i, '') || 'Imported manuscript';
+        : path.basename(request.filePath).replace(/\.(md|markdown|txt)$/i, '') || 'Imported manuscript';
       const project = await bootstrapFreshProject({ parentPath: request.parentPath, title, initialState: 'empty' });
       return success(await repository(project.projectPath).importSource(project.projectId, path.basename(request.filePath), source));
     } catch (error) {

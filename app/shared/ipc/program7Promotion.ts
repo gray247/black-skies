@@ -65,6 +65,7 @@ export interface Program7PromotionOwnerAcceptanceV1 {
 }
 
 export interface Program7AuthorIntentPromotionPayloadV1 {
+  readonly expectedRevision?: number;
   readonly destination: 'author-intent';
   readonly questionId: string;
   readonly posture: StoryFoundationPosture;
@@ -72,6 +73,7 @@ export interface Program7AuthorIntentPromotionPayloadV1 {
 }
 
 export interface Program7OutlinePromotionPayloadV1 {
+  readonly expectedRevision?: number;
   readonly destination: 'outline';
   readonly label: string;
   readonly body: string;
@@ -100,6 +102,7 @@ export type Program7PromotionPayloadV1 =
   | Program7DeferredPromotionPayloadV1;
 
 export interface Program7PromotionItemV1 {
+  readonly preparedPackageId?: string;
   readonly itemId: string;
   readonly destination: Program7PromotionDestinationV1;
   readonly source: Program7PromotionSourceV1;

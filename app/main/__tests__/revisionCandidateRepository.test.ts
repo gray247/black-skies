@@ -97,6 +97,25 @@ function response(): Program7LocalInferenceResponseV1 {
 }
 
 describe('revision candidate repository', () => {
+  it('retains an explicit empty deletion alternative, refuses unlinked or accidental blank alternatives', async () => {
+    const root = await project(), repo = store(root);
+    await expect(repo.createManual('project-a', 0, { ...manualInput(), candidateText: '' })).rejects.toMatchObject({ code: 'INVALID' });
+    await expect(repo.createManual('project-a', 0, { ...manualInput(), candidateText: '', deleteSource: true, sourceAnchor: null })).rejects.toMatchObject({ code: 'INVALID' });
+    const saved = await repo.createManual('project-a', 0, { ...manualInput(), candidateText: '', deleteSource: true });
+    expect(saved.document.candidates[0]).toMatchObject({ candidateText: '', deleteSource: true, lifecycle: 'generated' });
+    expect(await store(root).read('project-a')).toEqual(saved);
+  });
+  it('preserves a concern identity through candidate edits, dispositions and reopen without changing legacy candidates', async () => {
+    const root = await project(), repo = store(root);
+    const first = await repo.createManual('project-a', 0, { ...manualInput(), concernId: 'concern-a' });
+    const id = first.document.candidates[0]!.id;
+    const second = await repo.createManual('project-a', 1, manualInput());
+    await repo.edit('project-a', 2, id, 'Edited alternative.');
+    await repo.setLifecycle('project-a', 3, id, 'parked');
+    const reopened = await store(root).read('project-a');
+    expect(reopened.document.candidates.find(candidate => candidate.id === id)).toMatchObject({ concernId: 'concern-a', lifecycle: 'parked', editedCandidateText: 'Edited alternative.' });
+    expect(second.document.candidates[1]).not.toHaveProperty('concernId');
+  });
   afterEach(async () => {
     vi.restoreAllMocks();
     await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));

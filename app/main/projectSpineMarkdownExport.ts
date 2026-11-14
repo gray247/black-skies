@@ -106,6 +106,7 @@ function sourceSnapshotProjection(snapshot: MarkdownExportSourceSnapshot): strin
 
 export function buildMarkdownExportArtifact(
   snapshot: MarkdownExportSourceSnapshot,
+  format: 'markdown' | 'source-text' = 'markdown',
 ): MarkdownExportArtifact {
   const orderedUnits = [...snapshot.units].sort((left, right) => left.order - right.order);
   const sections = [
@@ -116,7 +117,12 @@ export function buildMarkdownExportArtifact(
       return body ? `${heading}\n\n${body}` : heading;
     }),
   ];
-  const markdown = `${sections.join('\n\n')}\n`;
+  // Source-text includes every saved body byte after LF normalization, including
+  // whitespace-only sections. Headings identify sections; Markdown syntax is retained.
+  const markdown = format === 'source-text'
+    ? [collapseTitleLines(snapshot.projectTitle) || 'Untitled Project', ...orderedUnits.map(unit =>
+      `${collapseTitleLines(unit.title) || 'Untitled'}\n\n${extractDurableDraftBody(unit.markdown)}`)].join('\n\n')
+    : `${sections.join('\n\n')}\n`;
   const bytes = Buffer.from(markdown, 'utf8');
   return {
     markdown,
@@ -150,13 +156,13 @@ export function suggestMarkdownFilename(projectTitle: string): string {
   return `${stem}.md`;
 }
 
-export function normalizeSelectedMarkdownPath(selectedPath: string): string {
+export function normalizeSelectedMarkdownPath(selectedPath: string, format: 'markdown' | 'source-text' = 'markdown'): string {
   if (typeof selectedPath !== 'string' || !selectedPath.trim()) {
     throw new MarkdownExportError('EXPORT_DESTINATION_INVALID', 'Choose a Markdown export destination.');
   }
   const resolved = path.resolve(selectedPath);
   const basename = path.basename(resolved);
-  const existingExtensions = basename.match(TERMINAL_MARKDOWN_EXTENSIONS)?.[0] ?? '';
+  const existingExtensions = basename.match(format === 'source-text' ? /(?:\.txt)+$/i : TERMINAL_MARKDOWN_EXTENSIONS)?.[0] ?? '';
   const rawStem = existingExtensions ? basename.slice(0, -existingExtensions.length) : basename;
   if (
     !rawStem ||
@@ -170,7 +176,7 @@ export function normalizeSelectedMarkdownPath(selectedPath: string): string {
       'Choose a Windows-safe filename with a valid Markdown extension.',
     );
   }
-  return path.join(path.dirname(resolved), `${rawStem}.md`);
+  return path.join(path.dirname(resolved), `${rawStem}.${format === 'source-text' ? 'txt' : 'md'}`);
 }
 
 export async function destinationExists(targetPath: string): Promise<boolean> {

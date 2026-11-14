@@ -1,3 +1,29 @@
+## October 20 Program 7.5 — owner human acceptance received
+
+The owner reports: “i have verified 7.5 and all passed.” Record P75-HUMAN-01
+as owner-accepted based on that report. No per-check observations, build hash,
+or package identity were included, so this entry does not infer those details.
+
+The repaired source commit is `8fc087d1`, and its source-level and Electron
+regression checks passed. PR #192 still changes only the workflow file. Its
+initial CI checks passed, but review identified a missing qualification-ref
+guard and an installer upload ordered before the final performance gate. Both
+were corrected in the workflow; a follow-up hygiene run exposed CRLF line
+endings from the API edit, which have since been normalized. All checks on
+normalized PR head `9bfda669` passed. The historical installer qualification below
+applies to commit `64675033`, before the review repairs. PR #192 is merged as
+`511ca109`. Hosted Windows qualification run #93 (`39517868215`) succeeded
+against `codex/program7-5-stabilization` at exact source commit
+`8fc087d1c22e13bcf6eebd88864dd46547f77683`. Stage 19 regression, unsigned
+installer build/verification, isolated install/offline lifecycle/uninstall,
+receipt witness, and installed-performance enforcement all passed. The
+receipt-bound artifact `black-skies-1.0.0-rc1-8fc087d1c22e13bcf6eebd88864dd46547f77683`
+uploaded successfully (artifact id `12310895172`, 87,164,458 bytes, ZIP
+SHA-256 `fbd1aefbeb82028b4f8b8a0c724891753ea22b28fe75655d5580dab731603e39`,
+retained through November 4, 2026). Along with the owner's human acceptance,
+the Program 7.5 gates recorded here are complete. This update records owner
+acceptance without rewriting earlier review evidence.
+
 ## October 20 Program 7.5 — PC review repair pass
 
 Repairs are in progress on top of the stabilization source. P75-HUMAN-01 stays
@@ -9434,3 +9460,659 @@ Backlog note drifted after phase-log cleanup.
 - [2026-09-13] Program 7 P7-G2/RT-2B prerequisite repair: exact runtime candidate `31046317c7be3e80fcf70f6b89f0af0902d491ba` (tree `9e59e5ff2ba1fae3b22073f8e04e3c42dfc35e2f`) now records 24 granular local-AI rows against named Carmilla fixtures. Q11 uses a real loopback `/api/generate` request and records cancellation plus transport termination within 2 seconds; Q12 records real connection refusal before dispatch and real endpoint socket loss after dispatch. Q04 uses the named protected-span fixture and records byte/Unicode sentinel scan with zero hits; the disposable Carmilla review copy remains separate and the immutable baseline is unchanged. The clean outer-host normal-GPU Stage 19 gate passed at the docs-only packet binding commit `fef743f56bb258c3b7659108c227c7cd0514d98e` (49 files, 803 passed, 2 skips, startup 1/1, Electron 36/36). The ledger now contains 35 granular rows bound to that clean packet commit/tree, a strict deterministic Jason sample artifact (SHA-256 exactCommit/package/program7-human-sample-v1, 10% with minimum three), and three explicit Human Gate 4 carry-forward rows. Mechanical evidence remains separate from Jason’s blank score/admission fields. Unresolved protocol matrix, packaged NSIS, and current-build P4/P5/P6 human regression rows are recorded as `Uncertain`/deferred rather than hidden; Human Gate 4 and local-AI admission remain unperformed.
 - [2026-10-20] `P75-SCALE-01` final performance follow-up: corrected the scale-test fixture lifecycle after confirming it created/activated projects through the live renderer bridge and could queue snapshot work before timing. With clean runner-materialized fixtures, a real residual stall remained (136-unit idle 108.2 ms; traced maximum 149.8 ms with a 108.5 ms React task overlapping 83.4 ms layout-tree update). Source audit found all manuscript sections and Story rail rows rendered eagerly; focused CSS adds `content-visibility:auto` and intrinsic-size estimates to both offscreen lists. The 100 ms requirement and 17/34/68/136-unit scales remain unchanged, with zero retries. Five idle runs per scale passed (worst 58.3/58.3/41.7/58.5 ms); two defined-load runs each at 68 and 136 passed (maxima 33.5 and 49.9 ms). An isolated packaged Windows candidate passed all four scales (max 33.4 ms). No long tasks appeared in post-fix samples. Relevant Electron regressions passed 22/22; app Vitest passed 160 files / 1,587 tests with 2 existing skips; lint/build/package preflight passed. Disposition: FIXED; the original contaminated test setup is separately recorded as a harness defect. Human acceptance remains pending; Program 8 recommendation unchanged. Full report and receipts: `outputs/program-7.5-performance-followup-2026-10-20/FINAL_PERFORMANCE_REPORT.md`.
 - [2026-10-20] `P75-SCALE-01` hosted packaging follow-up: commit `a332a920f409015ad61574a99a8b258d00f152a3` passed GitHub Actions run [39472375411](https://github.com/gray247/black-skies/actions/runs/39472375411) in 8m57s. Stage 19 regression, unsigned NSIS build/verification, isolated install/offline lifecycle/uninstall, receipt-bound installed-candidate witness, artifact upload, and Program 3/4 installed Writing-first performance gate all passed. This additionally closes the installed-lifecycle qualification on the hosted Windows runner; the author's accepted local installation and human-acceptance status are unchanged.
+
+
+## 2026-10-23 — P75-WF-B1 writer foundation, authorized implementation in progress
+
+The author explicitly authorized implementing the proposed first build batch in
+`codex/program7-5-stabilization` at starting HEAD `8fc087d1`. Pre-existing packaging
+workflow and tracker edits are preserved. See
+[writer foundation Batch 1](product_systems/program_7_5_writer_foundation_batch_1.md)
+for the source/range contract, slice status and evidence. Selected-word editing,
+explicit literal replacement, rail locks/hover, and validated group persistence
+have intermediate coverage: 218 tests pass across seven suites; renderer and
+main-process type checks pass. Writing-view Pin/Notes integration, follow,
+Companion placement, Back, native and installed qualification remain pending.
+The nested Add-menu/Escape regression was reproduced and repaired; no broad
+application completion or human acceptance is claimed. Existing Program 7
+closure and P8/P9 admission requirements are unchanged. No AI route was enabled.
+
+
+### 2026-10-23 — P75-WF-B1 implemented; development evidence and human checks
+
+The authorized first writer-foundation batch is implemented in the continuation
+checkout. The existing writer/source/save owners are extended with selected
+formatting, whole-manuscript literal replacement and guarded batch Undo, range
+Pin/unpin/Undo Pin, co-located complete outline, multi-passage Notes and separate
+pencils, source-range rebasing, follow/highlight controls, independent quiet rail
+locks and bottom Companion, persistent task titles, and bounded source-aware Back.
+The source/storage contract, limitations, evidence and six human test batches are
+recorded in [the Batch 1 report](product_systems/program_7_5_writer_foundation_batch_1.md).
+
+Final app Vitest: 164 files, 1,628 passed, 2 skipped, 1 failed. The remaining
+packaging-policy failure reports that artifact upload at line 101 lacks the exact
+source SHA; it concerns the pre-existing modified packaging workflow, preserved
+by this task (observed SHA-256
+`9c4c97195ce5c6cb8fc49ef035727c2ac54b35d7c2248e11b2c782268b59cc33`).
+The complete gate is not green. App lint, scoped main/new desktop-test lint,
+renderer/main type checks and builds pass. The native disposable-project journey
+passes, including multi-source Note save/reload, individual pencils, manuscript
+replacement/save/Undo, true document-edge movement, many-row follow, Back and
+independent Story/Companion locks. Its final screenshot was inspected.
+
+Native checks found and repaired true-document keyboard-edge handling, overlapping
+pencils and missing forwarding of validated extra Note anchors. An implicit Note
+field label was made explicit after distinguishing a test-identification failure
+from an actual failure to open the Note. Intermediate test counts overlap the
+full final run and are not additive. No author acceptance, installed qualification,
+AI admission, release or Program 7/8/9 closure is claimed; no model route or
+scheduler was enabled and no accepted installation or external plan was changed.
+
+
+Final B1 scope check also delivers label-only Rename and generated names that
+follow each fragment's own opening words; explicit names stay independent of
+prose. The final full Vitest run after this addition remains 1,628 passed,
+2 skipped and the same one unrelated packaging-policy failure (164 files).
+The updated native journey passes Rename with byte-equal manuscript files and
+retained multi-passage Notes. The 21-test rename/layout slice and 18-test
+label/range slice pass; counts overlap the full run. Final renderer typecheck,
+app lint, main build and renderer build pass; no implementation work remains in
+B1.0–B1.6. Author acceptance, installed/scale qualification and later catalog
+items remain separate, as recorded in the report.
+
+
+### 2026-10-24 — P75-WF-B1 Batch A development checks and repairs
+
+Expanded ordinary-writing validation reproduced a native Find next renderer hang
+and a Replace next case that reprocessed its own insertion (`shirt` to `shirt
+sleeve`). The editor's source-return callback now uses a current ref so ordinary
+parent rerenders cannot restart bounded restoration; its existing source checks,
+cancellation and measurement limits are preserved. Single replacement uses the
+existing source-return path to place the cursor after the replacement before
+another search action. An explicit Search scope accessible label resolves an
+implicit-label ambiguity. Each behavioral repair has a failing-before/passing-after
+regression; the native expanded Batch A exercises the original examples.
+
+Evidence and complete test steps are appended to the
+[Batch 1 report](product_systems/program_7_5_writer_foundation_batch_1.md).
+The real-editor/navigation slice passes 44 tests; the expanded Batch A and earlier
+native journey pass 2/2; renderer typecheck, app/test lint and renderer build pass.
+The complete app suite has 1,630 passed, 2 skipped and the same one pre-existing
+packaging-workflow policy failure (164 files). Full gate remains non-green; no
+package/installed qualification is inferred. A premature disk assertion in the
+new test was separately repaired to wait for save completion, not called a product
+save failure. The author has a restored, saved disposable project open in an
+isolated development host; author acceptance remains pending. No AI, service
+scheduler, installation, external plan, commit or push was changed/performed.
+
+
+### 2026-10-24 — P75-WF-B1 visible formatting, author failure and repair
+
+Author Batch A results: Bold FAILED; Undo/Redo PASSED; Italic FAILED; Save PASSED.
+The first visible-editing assertions had checked source delimiters rather than
+the promised appearance. The user also reproduced invalid delimiter placement
+when a selection included its trailing newline. Reopened B1.1 and repaired the
+existing editor presentation/selection path: valid parsed emphasis is visibly
+styled, delimiters are hidden, paragraph/space boundaries remain outside emphasis,
+and inactive sections keep exact source offsets for Notes. Existing Markdown
+ownership, ranges, saving and Undo remain in place; no new framework or prose
+store was added. Literal/escaped asterisks and code stay literal.
+
+Four failing-before cases are recorded in writer-visible-formatting-repro.log.
+The final focused slice passes 49 tests and both native desktop journeys pass;
+the new native evidence checks font weight/style, visible text, exact save/reload
+and inactive preview. The screenshot was inspected and Bold was separately tried
+through the desktop controls, then undone to leave a clean starting copy. Renderer
+types/build, app lint, scoped test lint and diff whitespace checks pass. The full
+suite retains the unrelated packaging-policy failure and the packaging workflow
+hash remains unchanged. Full evidence and limits are in the linked Batch 1 report.
+Undo/Redo and Save retain author passes; Bold/Italic await author retest in the
+repaired development build. The earlier saved attempt is preserved. No AI route,
+installation, external plan, commit/push or release was changed/performed.
+
+Final formatting-repair suite: 1,635 passed, 2 skipped, 1 failed across 164 files.
+The only failure is the unchanged packaging-workflow source-SHA policy issue.
+
+### 2026-10-24 — P75-WF-B1 author formatting retest PASSED
+
+The author confirmed "both passed" for the requested retest of selected-word
+Bold and Italic in the repaired development build. Retain the existing author
+Undo/Redo and Save passes: the first four hands-on checks are now accepted.
+This closes the visible-formatting author-retest gate only. Find/Replace,
+remaining Batch A behavior and Batches B-F retain their pending author checks;
+no broader catalog, AI, installed-build or release acceptance is inferred.
+Next author check: current-writing-section Find/Replace, explicit Replace next,
+batch Undo, and Replace all with exact scope/neighbor preservation.
+
+
+### 2026-10-24 — P75-WF-B1 replacement ordinary Undo/Redo repair
+
+Author clarified Undo replacement PASSED, but ordinary Undo/Redo FAILED after
+replacement. Earlier ordinary history acceptance covered formatting only.
+The visible scope was Whole manuscript; three shirt occurrences was correct,
+with two in Forest ideas and one in River revelation. No scope failure inferred.
+
+Parent replacement values cleared the editor's local history. Exact authored
+replacement provenance now preserves that history; a bounded replacement batch
+history routes ordinary toolbar/prose keyboard Undo/Redo across affected sections.
+Live Save retains it, later actions keep their order, new writing discards redo,
+and unrelated source values retain reset behavior. Existing buffer, Note-anchor,
+explicit batch-Undo guards and source-return owners remain. Incremental source
+return now also publishes already-verified selection evidence when the caret is
+already in place, preserving Replace next advancement.
+
+Three failing-before cases reproduced the reported failure. Focused run: 53 pass;
+both native journeys pass, including ordinary Undo/Redo after a saved three-match
+replacement and keyboard replay. Final suite, including the additional provenance
+guard regression: 1,640 pass, 2 skip, 1 unchanged packaging-policy failure across
+164 files. Renderer types/build, app lint, test lint and whitespace checks pass.
+See the Batch 1 report and writer-replacement-history-* logs for evidence/limits.
+The author's three-blouse text was durably saved and preserved before the same
+isolated development project was reopened. Ordinary replacement Undo/Redo awaits
+author retest; prior accepted formatting and explicit Undo replacement remain
+bounded author passes. No model, installation, external plan or release changed.
+
+
+### 2026-10-24 — P75-WF-B1 replacement author pass; outline plan and comparison
+
+The author reports the ordinary replacement Undo/Redo retest PASSED. The saved
+three-match manuscript replacement and explicit Undo replacement are accepted;
+other scopes and Batches B–F retain their own pending author checks.
+
+Under the author's instruction to continue building tested tools without another
+mockup, added persisted outline Planning order, Earlier/Later, native drag, guarded
+Undo plan move and exact selected-passage/Note comparison. Writing order remains
+independent; loose material stays co-located, group/Note identities remain, and
+prose files are unchanged by plan actions. Same-window Outline expansion and Back
+share the existing provider context; detached Command remains prose-free with an
+explicit limitation. Corrected rail-ancestor follow after tool reflow and skipped
+equivalent Note-anchor writes so untouched Notes do not acquire edit timestamps.
+
+Evidence: 33 focused editor/navigation/storage checks; all 3 native desktop
+journeys pass. Full final suite: 1,644 pass, 2 skip, 1 unchanged packaging-policy
+failure across 164 files. Renderer types/build, app lint, native/storage-test lint
+and diff whitespace pass. Packaging workflow hash unchanged. Full gate is not
+green. See the Batch 1 report and writer-outline-tools-* logs for exact scope.
+
+The author's saved writing was preserved and reopened in the same isolated
+development project. New tools are assistant-verified, author acceptance pending;
+long-draft, long-rail dragging and complete detached-window continuity remain
+listed. No AI, scheduler, external plan, installation, release or commit changed.
+
+### 2026-10-24 — P75-WF-B1 bounded testing-method evidence
+
+Combined handover received; all 24 changed/untracked file hashes matched the
+handover before documentation edits. Application source and builds are unchanged.
+Reused the existing 0.19 demo: CUA first timed out on a sandbox-loopback server,
+then succeeded with approved server access, including exact passage selection
+and source return. A small Playwright script passed two clean runs and detected
+an intentional wrong source target in an isolated page. Initial setup failures
+remain recorded. No new mockup, dependency or application Graph claim is made.
+
+For bounded actual-build verification, one existing Outline arrangement and
+comparison Electron journey passed (10.1s) on a disposable project with local AI
+disabled. This overlaps earlier desktop evidence. Full suite was not rerun;
+1,644 pass, 2 skip and the unchanged packaging-policy failure remain the latest
+full-suite evidence. Author Pin/Notes/planning checks remain pending; neither the
+demo result nor this assistant run changes human/installed/catalog acceptance.
+The author project was not opened, restarted or rewritten by this experiment.
+
+See the Batch 1 report's testing-method section and
+[experiment record](<C:/Users/gray2/Documents/ChatGPT/Black-skies program 8/outputs/testing-method-2026-10-24/REPORT.md>)
+for source/build hashes, scripts, screenshots, traces, failure evidence and
+limits. Exact token usage is unavailable; no measured token savings are claimed.
+
+### 2026-10-25 — P75-WF-B1 remaining-work edge campaign and scoped repairs
+
+Author confirms **Batch A was completed before handover**. Treat its earlier
+pending wording as superseded. The saved project's Batch A name is not a reason
+to retest that batch; the earlier Pin directions were Batch B and should have
+said so. Do not ask for unchanged Batch A human checks again.
+
+Extended the existing Batch 1 report with an ordered 29-item ordinary/AI queue,
+at least two planned edge cases per item, and explicit implemented/partial/
+unimplemented distinctions. Missing features are not promoted to passes by tests
+of their underlying owners. The current ordinary build sequence stays within
+existing storage/UI owners; no new mockup, framework or testing platform.
+
+Added 20 meaningful unit/integration edge cases. Four initial Pin/Back failures,
+two count failures, two replacement-lock cases and one native header-clipping
+failure have before/after evidence. Repairs:
+
+- Preserve later independent names through Pin/Unpin membership Undo.
+- Reject stale failed Back completions before restoring history/notices across
+  a project switch.
+- Count punctuation-only text as zero words and keep Unicode combining marks
+  with the word; apply the same rule to dialogue ratios, retaining source hashes.
+- Retry only temporary EPERM/EACCES/EBUSY atomic replacement failures, at most
+  three times inside the existing mutation queue; persistent failure preserves
+  prior bytes and reports failure. One earlier native WRITE_FAILED cause remains
+  uncertain; the injected file-lock tests do not prove that historical cause.
+- Extend existing compact-header wrapping through 900px so the save status and
+  structural controls fit at 760px; retain the separate 720px revision rules and
+  prove existing 640px behavior remains valid.
+
+`writer-remaining-owner-regressions-2026-10-25.log`: **235 pass in six affected
+files**, including all 20 new cases. `writer-remaining-owner-boundaries-2026-10-25.log`:
+**20 selected checks pass in ten partial owners**, two each for Note revision/
+concurrency, revision persistence/drawer/comparison, manual/stale Story Knowledge,
+timeline, Graph UI/contracts, Markdown export and recovery. Counts overlap.
+`writer-remaining-electron-complete-2026-10-25.log`: **4/4 targeted desktop journeys
+pass (20.3s)**: extended Outline/name Undo, 30,000 words/80 pins, 760px/120 pins
+and the supported 640px/120 pins, including exact source/Note preservation,
+manual outline browsing and header geometry. Completed native Batch A excluded.
+
+Full unit-suite integration checkpoint:
+`writer-remaining-vitest-final-2026-10-25.log` — **1,664 pass, 2 skip, 1 fail across
+164 files**. Only the existing artifact-upload exact-SHA packaging policy fails;
+workflow SHA256 remains
+`9c4c97195ce5c6cb8fc49ef035727c2ac54b35d7c2248e11b2c782268b59cc33`.
+Full gate is not green. Final scoped CSS was verified in actual desktop journeys;
+pure type/unused-binding lint cleanup changes no runtime behavior. Types, builds,
+app lint, scoped main/native lint and whitespace checks have their own evidence.
+
+The report records corrected native-test assumptions about deliberate clicks
+and virtualized source; those failed prototypes were not treated as application
+bugs. Distant drag/autoscroll, sustained growth, complete detached continuity,
+unimplemented ordinary journeys and real AI remain named work. No author project
+was opened/restarted/reset/rewritten. Existing local work, historical uncertain
+records and human acceptance remain; no provider, installed app, external plan,
+behavior/configuration file, release, commit or push changed. The experiment now
+has evidence of useful defect detection and reusable checks; exact token savings
+and a bug-free application are not claimed.
+
+### 2026-10-25 — P75-WF-B1 organization milestone completed; stop requested
+
+The author changed scope from completing the catalog to **finish the current
+milestone and stop**. Completed the bounded actual passage move/preview/Undo and
+writer-unit split/join slice in the verified `program7-5-continuation` checkout.
+Gap fill/retirement, Notebook and later rows were not started and are not active.
+Batch A remains author-completed before handover; no human retest requested.
+
+Extended the existing writing/range/history owners. Per-unit **Organize this
+writing** offers exact before/after move preview, cancel, guarded Apply and
+ordinary Undo/Redo plus explicit move Undo. Save uses the existing Markdown and
+outline owners. Exact source characters, complete emphasis, group IDs and Note
+IDs/bodies follow their source; cross-section Note ownership changes use the
+existing explicit reconnect contract. Planning order remains independent.
+Split/join alter group boundaries only, preserving prose and Notes, with existing
+Undo Pin. Join explicitly includes intervening writing and sorts by source order.
+
+Stale previews, later source edits, newer Pin/Note links, partial emphasis/Note
+cuts, interior protected destinations and half-surrogate boundaries refuse
+unsafe actions. A discovered existing draft-envelope limit strips leading blank
+lines; moves producing that result are refused before Apply with directions to
+include paragraph spacing. This limit was guarded, not rewritten. Unrestricted
+arrangement and crash-atomic multi-file saves are not claimed; existing Save is
+sequential and Undo history remains session-local.
+
+Added **14 unit/integration cases** with at least two exercised edges for each
+move/split/join slice. `writer-organization-regressions.log`: **251 pass in five
+affected files**. `writer-organization-electron-complete.log`: **1 real Electron
+journey passes (9.1s including startup)** on a disposable fixture with local AI
+disabled: exact preview/cancel, styled cross-section move/Note relocation,
+Save/Undo/Save/Redo/Save/reload, independently measured cursor split, join and
+membership Undo. Screenshots visually inspected. Native Batch A excluded.
+
+Earlier native attempts exposed test-oracle assumptions: word navigation/key
+counts did not prove actual caret position, and a Note timestamp snapshot taken
+before source Undo/Redo was not the right split/join baseline. Final assertions
+measure the DOM source caret and compare exact saved boundaries, then compare the
+complete Note with its post-source-cycle snapshot. These are test corrections,
+not claims of reproduced application defects.
+
+`writer-organization-vitest-final.log`: **1,678 pass, 2 skip, 1 existing
+packaging-policy failure in 164 files**. Artifact upload line 101 still lacks the
+exact source SHA binding. The packaging file remains SHA256
+`9c4c97195ce5c6cb8fc49ef035727c2ac54b35d7c2248e11b2c782268b59cc33`.
+Renderer/main types and builds, app/scoped lint and whitespace checks pass with
+the existing tracker line-ending warning. The complete catalog, installed build
+and author acceptance are not claimed.
+
+Scope, controls, limitations and continuation directions are in the existing
+Batch 1 report's **organization milestone — safe stopping checkpoint**. Source
+and built-artifact hashes plus evidence are saved under the workspace's
+`outputs/writing-organization-2026-10-25/checkpoint.json`. All inherited local work
+is retained; no reset, commit/push, installation, provider/AI run or behavior-file
+work. **Stopped after this milestone.** Row 11 (manual gaps) is next only when
+requested; row 12 (Notebook) follows it.
+
+
+## Authorized B1–B8 campaign — engineering baseline preserved
+
+Execution began after source/runtime hash verification. Recoverable baseline: `outputs/catalog-checkpoints/baseline-2026-10-25/` contains source.zip (2,099 files), runtime.zip (426 files), references.zip (59 files), exact manifests, tracked.patch/status and RECOVER.md. Source extraction verified against every manifest hash. No stage/commit/stash/reset/clean. Packaging-policy failure is unchanged and independently owned. B1 is in progress; no new behavior is marked passed. All 69 IDs and 36 journeys have delivery-plan cross-references in the existing coverage map and program sections. US English first and preserved filled-gap planning Note are settled.
+
+
+## B1 engineering checkpoint — October 26, 2026
+
+OUT05/T10 manual gap lifecycle implemented in the actual checkout. The original gap ID, label and planning body become an attached authored Note after fill. Exact source insertion creates one writer group. Preview/cancel, explicit relocation, ordinary/explicit Undo, Redo and reopen use current owners. Main validates both saved source and proposed ranges. One pending outline metadata record coordinates recovery with existing manuscript recovery checkpoints; it contains fingerprints/coordinates/link metadata, not another prose store. Other outline mutations refuse while the pending save needs completion.
+
+`catalog-b1-owners-complete.log`: 81 passes in four affected files. This includes 10 added checks: five renderer lifecycle/fault cases, four repository prepare/finalize/reopen/Undo fault cases and one main source/authority case. `catalog-b1-electron-complete.log`: 2 passes (10.1s), one normal gap/Undo/Redo/reopen journey and one injected three-attempt EBUSY failure specifically during final metadata replacement, followed by renderer reload and Finish gap save. The exact saved prose is inserted once, original planning Note/ID retained, and pending state cleared. A fresh repository instance independently exercises durable pending records. This is not a fresh full-process installer qualification. Final screenshots inspected.
+
+Initial failures retained: `catalog-b1-fault-final.log` exposed an old test waiting for Undo-button state instead of persisted plan order; its assertion now waits for the stored result. The first native fault injection used dynamic import unsupported by Playwright's main-process evaluation context; it now uses the actual built-in fs/promises module. Neither is recorded as a product defect. Three pre-existing test `any` annotations were replaced with equivalent narrow types for scoped lint. Renderer/main types/build, app lint and scoped lint pass. `catalog-b1-vitest-checkpoint.log`: 1,688 pass, 2 skip, one unchanged packaging-policy failure across 164 files (132.75s). The known packaging policy stays unchanged.
+
+Recoverable checkpoint target: `outputs/catalog-checkpoints/b1-2026-10-26/`; baseline recovery already verified at `baseline-2026-10-25/`. No author acceptance or installed-release claim. B2 Notebook follows after this checkpoint; the overall B1–B8 campaign remains active.
+
+### B2 engineering checkpoint — October 26, 2026
+
+ED09 is delivered within its manual Notebook scope; OUT17 gains Notebook browsing while its direction/classification obligations remain. The existing Living Outline owner stores all Notes. New optional scope fields distinguish whole-story, deliberately unattached, passage and uncertain legacy origins. Deleted or collapsed passage links retain their original relationship; unverified excerpts and navigation are withheld. Search and edits address stable IDs even with duplicate labels. Dirty drafts block deletion/switching and survive rail closure and project return during this app session. Explicit Keep/Discard controls remain; unsaved drafts are not claimed durable after process exit.
+
+Narrow restore inserts only the deleted Note and its placement into the current metadata revision. It refuses stale revision/identity collision and retains intervening edits/new Notes. Missing source refs are preserved rather than retargeted. Undo is session-local and resets on reload/project-session change. Existing accepted passage Notes/formatting behavior is not reopened for human retesting.
+
+Evidence: `catalog-b2-owners-complete.log` — 88 passes across four affected files (7 new B2 checks over B1: four renderer, two repository, one IPC). `catalog-b2-electron-first.log` — one real Electron journey passes (5.7s including startup): duplicate labels/scopes, search, dirty-delete refusal, rail-close draft retention, edit/delete/intervening create/Undo, exact unchanged manuscript bytes and reload. Renderer/main types and build pass; app lint passes. Scoped lint initially found an empty-interface annotation from B1; changed to an equivalent type alias, no runtime behavior change. Initial B2 log retains the non-unique old removed-source assertion failure, corrected to accept both truthful visible statuses; no application defect counted. The known packaging failure remains unchanged; full shared-owner regression next occurs at B3 integration.
+
+Recoverable checkpoint: `outputs/catalog-checkpoints/b2-2026-10-26/`. Human Gate A pending; no installed acceptance. B3 concern/evidence/revision integration follows.
+
+### B3 engineering checkpoint — October 26, 2026
+
+Delivered manual scope: OUT11, CR04–06; manual portions of OUT10, CR03/07 and CP07. The existing feedback repository owns the concern identity. Primary and optional related evidence keep independently verified coordinates/protection; related records contain metadata rather than copied prose. Manual concerns sharing the same range remain separate. Quiet per-concern Outline controls open Review, then Consider a revision uses the same concern ID in existing alternatives and History. Existing P7 partial/full acceptance, reservation/recovery journal and author dispositions remain the owners. Manual empty deletion proposals require an explicit choice and a nonempty exact source range; accidental empty input remains refused. Inline changes use labeled inert del/ins text and Unicode-safe boundaries.
+
+Applied revisions now enter the existing bounded source-batch history. Explicit/ordinary Undo/Redo preserve linked Note identity/coordinates and cannot overwrite later typing or changed links. Save persists the resulting source/links. This Undo is session-local; an earlier acceptance remains a historical event rather than being silently rewritten. Author resolution is deliberate, even when the source has changed. Source checks record independent availability, never semantic resolution. Feedback decisions wait for source-check persistence, avoiding a rapid-click stale-revision race.
+
+Native evidence: `catalog-b3-electron-qualified.log` passes one complete actual Electron journey (10.3s): two independent concerns on shared evidence; Outline row controls → Review pair → linked alternative; changed related source refuses Apply; source restore then deliberate Apply; linked Note/source Undo/Redo and later-edit guard; author resolution leaves its neighboring concern active; History returns to the visible correct record; reload; explicit deletion and source Undo. `catalog-b3-program7-regression.log` passes the existing no-AI P7 precise partial-application/drawer/fresh-process restart journey (9.9s); this automated shared-owner regression does not reopen accepted human work. B1/B2 native cases passed in the mixed integration invocation; its B3 failures are retained separately and superseded only by the named passing execution, not erased.
+
+Owner evidence: `catalog-b3-owners-complete.log` 367 passes in 14 affected files; later comparison/currentness additions have focused evidence in `catalog-b3-compare-icons.log` and `catalog-b3-ui-qualified.log`. `catalog-b3-vitest-final.log` has 1,705 passes, 2 skips and the unchanged packaging-policy failure across 164 files; it precedes the last presentation/currentness checks and is not falsely described as a final all-catalog green suite. Renderer/main types/build and app/scoped lint pass, with currentness type/lint logs separately retained. Existing React act warnings remain test-harness qualifications.
+
+Defects found/repaired: Outline compared unframed passage hashes with framed metrics retaining a final newline, hiding valid manual concern controls/highlights. It now uses the existing exact-source resolver and withholds unverified projections immediately. History focus previously selected a hidden duplicate view of the same concern; it now finds the visible record. A generic ready-to-open label contradicted a stale evidence result; the evidence projection is now the explicit source status. The new applied-revision Undo control was initially nested inside the gap disclosure; it is now on the writing toolbar. Rapid source-check/decision requests used the same metadata revision; decision controls now wait for the active owner write. Failing native traces/logs remain.
+
+Test-oracle mistakes are separate: the initial source edit fixture built an invalid Markdown envelope (correctly rejected); a whole-section apply omitted its existing deliberate confirmation checkbox; selectors initially counted hidden views; early assertions read a sidecar before creation or candidate finalization; one later-edit test expected session history after its deliberate reload had cleared it. These corrected fixtures/assertions are not counted as application defects.
+
+Gate A is prepared at `outputs/catalog-gate-a-2026-10-26/README.md`, with `Launch-GateA.ps1`, disposable fixtures and an exact frozen candidate. Current candidate hash: `341647c037dd0c74b50967e60f759a7a5218484e3bc787f461f91ef2475e6404`. Its launcher smoke passed using the copied candidate, not just the mutable checkout. Earlier candidate manifests and smoke records remain distinct. Human results are Pending; no installed acceptance or semantic/Graph/Companion completion is inferred.
+
+Recoverable checkpoint: `outputs/catalog-checkpoints/b3-2026-10-26/`. B4–B8 remain active and continue independently. P8-R/P9-D/P10-B/C retain the missing Graph/Companion concern projections; P9-D retains fresh semantic re-evaluation; P9-A/D retains generated continuation with real task/provenance/quality evidence. Ordinary manual owners cannot supply those literary judgments by deterministic source matching. No behavior ID is removed.
+
+### B4 engineering checkpoint — October 26, 2026
+
+Completed the supportable Foundation/Outline Ideas destinations through their existing real owners. Destination previews now capture the expected destination metadata revision and retain a stable prepared-package identity. Foundation explicitly previews replacement of the aboutness guidance and its existing outer-whitespace formatting; Outline explicitly appends a planning Note without inserting manuscript prose. Closing a preview sends nothing. Both UI and commit choose the newest matching preview. Main independently validates current branch/premise/seed lineage, source protection, exact selected text and prepared destination revision. Project-switch completions are guarded.
+
+Durable `sourcePromotionId` metadata is written atomically with the destination answer version or Note. A retry returns that original artifact, including after a fresh process, without duplicate Notes/answer versions or replacement of later author guidance. This uses the existing destination files, not another receipt/manuscript store. Historical Ideas previews remain readable after a premise revision; they are no longer allowed to invalidate the whole Ideas document or masquerade as eligible current previews. Character/Lore actions are labeled as deferred-package retention, not successful card creation. Owner receipt messages distinguish an actual copy from a retry that preserved later work.
+
+Evidence: `catalog-b4-before.log` preserves the reproduced historical-preview validation failure. `catalog-b4-source-target.log`: 50 focused passes; `catalog-b4-owner-next.log`: 232 passes across seven affected owner/UI files before the final receipt-label refinement. Renderer/main types/build and app lint pass. `catalog-b4-electron-complete.log`: one actual Electron journey passes (9.1s): duplicate idea/direction names remain ID-independent; preview/close preserves exact manuscript bytes; an intervening Foundation edit refuses the obsolete copy; a new preview succeeds; repeat sends preserve answer versions and a subsequent author edit; Outline copy and fresh-process retry retain one original Note; revised-premise previews remain historical/unavailable; the other identically named branch stays untouched. `catalog-b4-program7-regression.log`: existing Foundation/Ideas/promotion/failure-path native journey passes (5.4s). Accepted P7 human results are not reopened. The initial native setup omitted required operation IDs, and a later run exposed newest-preview selection still using the first match in the renderer handler; the missing-ID fixture error and actual stale-selection defect are recorded separately.
+
+B4 qualifications / exact carry-forward:
+
+- CP02, CP06, OUT17 and T23 retain Character/Lore/World accepted-card writes and selected update batches in P8-0/A (B-07). The missing requirement is an adopted domain-owned card identity/field/write contract covering aliases, mixed card classes, accepted event truth versus belief, context/time and per-item recovery. Foundation stores guidance and Outline stores planning Notes; neither can safely become a card/fact owner. Minimum future completion: real owner writes with stable entity identity, source/destination version checks, inspectable old/new fields, selected batch outcomes and durable receipts/reopen. Edges: duplicate entity names remain independent; stale/protected or intentionally conflicting evidence cannot silently overwrite accepted facts. Automated owner/IPC/batch/failure/protection and actual Electron evidence are required, then human field-meaning/usability review. Manual Foundation/Outline copying is independently complete today.
+- Ideas Writing-section meaning remains O-04, owned by the destination coordinator + author in P8-0/B: named Unit, explicit insertion, or another chosen object have different effects. Existing revision acceptance is source-first and cannot be fabricated into an Idea destination to bypass identity. Minimum: the adopted effect has exact source/target preview, cancel/apply, unchanged surroundings, lineage/retry and fresh-process persistence. Edges: source/target changes after preview refuse; duplicate labels/project switches cannot redirect the write. Plain preview remains available today; the real revision-alternative insertion path stays delivered.
+- Project Memory destination remains P8-M/R and O-05, with its actual admission, retention, source/protection and purge contract; a Note is not admitted Memory. Minimum and edges remain in that package: attributed current/protected inputs and honest unavailable admission; source deletion/purge and contradictory retained claims require explicit policy. Genuine generated proposals/extraction remain P9-B/D and require task-quality evidence, not manual-fixture success.
+
+Gate B will include the delivered manual destinations. Current Gate A remains its exact frozen B3 candidate; later shared-owner qualification will update its candidate reference at final campaign integration. Recoverable checkpoint: `outputs/catalog-checkpoints/b4-2026-10-26/`. B5–B8 continue; this is not catalog or installed-release acceptance.
+
+
+### B5–B6 integration checkpoint — October 26, 2026
+
+**Delivered existing-owner slices:** ED02 native accepted-vocabulary inspection/accept/removal and honest spelling availability; ED04 manuscript-wide display preferences; ED07/GR06 optional project word goal/count presentation; OP08/T29 UTF-8 text intake and saved source-text export. These do not close ED02 spelling detection, ED10 purpose scopes, archive restoration or T28 coordinated named versions. Gate B remains pending.
+
+Project.json stores bounded display values with a revision; no manuscript whitespace is rewritten. Invalid preferences fall back visibly and require deliberate replacement, stale revisions/project identities refuse writes, metadata replacement failure preserves exact prior bytes, and dirty prose/history survives a settings write. Defaults remain until changed. Typography/line height/extra paragraph spacing/first-line indentation apply to active/inactive manuscript presentation. The optional story word goal counts current buffers, can be disabled and never prevents writing. Markdown export does not carry layout preferences.
+
+Native vocabulary is the actual Electron session custom dictionary, not a separate application dictionary. A unique disposable word survived a fresh process and another project in the same session; removal restored the original entry list exactly. Invalid multiword input and stale project requests were refused. Electron documents that Windows can also share these words with the OS; the product does not promise project-only or OS isolation. See https://www.electronjs.org/docs/latest/api/session#sesaddwordtospellcheckerdictionaryword.
+
+**ED02 qualification blocker remains explicit:** actual Electron 39.8.10 US-English language availability/enabled state does not establish loaded detection. Cold offline editor, online language reinitialization, official pinned dictionary cache plus fresh process, focused/plain-control and a native process without browser automation returned no misspelling/suggestions for `foorrrest`. A preliminary isolated-control attempt had no bridge and is not engine evidence. Original wrong webContents API and innerText/textContent test oracles are harness mistakes; subsequent real webFrame failures are retained. Official release dictionary archive SHA256 `63df0916adbd9f1c7fc627b2e10b6a73829f6ea2634a8b2b0c5accecb39d0db8`; two original US BDIC assets and upstream LICENSE are preserved under app/resources/dictionaries as diagnostic assets, not a qualified packaged provisioning path. No invented word list or cloud text service substitutes for native spelling. UI reports unavailable instead of calling a word correct. Conditional suggestions use exact source/body/editor guards and ordinary Undo; their native spelling usefulness is **not** accepted. Failure traces and logs under catalog-checkpoints/b5-dictionary-* remain Fail; no skip or relaxed oracle makes them green.
+
+The exact unfulfilled ED02 requirement is reliable US-English detection/suggestions offline from first launch with accepted-word behavior. P75-B writer foundation/native Electron startup owns repair/qualification, with P8-Q carrying the release gate; the current owner can persist words but has not demonstrated detection. Root cause/provisioning compatibility remains unresolved in the pinned runtime. Do not force a major runtime replacement or counterfeit dictionary to close it. Minimum future completion: clean-profile offline real editor checks, deliberate correction, ordinary Undo/Save/reopen and honest unavailable state; edges: missing/corrupt dictionary and newly accepted/removed proper name across restart/another project. Owner/native automation and Gate B writing-comfort review are required. Original references: ED02, T32 and US-English-first O-02. Independently deliverable preferences/vocabulary/interchange were completed now.
+
+UTF-8 .txt and Markdown intake uses the existing staged source/structure owner, never replaces the external source, normalizes CRLF to LF and strips an encoding BOM. Invalid UTF-8 or binary/UTF-16 input refuses before project creation. Text retains source characters; Markdown characters may display as emphasis/headings. Existing source-bound review/Apply controls remain. Export source text reuses the saved ProjectSpine snapshot and atomic export writer, includes every saved section (including unpinned ideas and whitespace-only writing), retains literal Markdown/body whitespace and adds section labels. Notes, separate Foundation/Ideas records and unapplied staged intake are explicitly outside manuscript export. No purpose-based omission has been invented.
+
+**Reproduced and repaired:** existing manuscript CSS overrode both requested font and paragraph spacing; scoped preference variables/specificity now reach real editor layout. Initial text-content versus rendered-line test mismatch was a harness error, not source loss.
+
+**Evidence:** catalog-b5-prefs-owners.log 68 passes/3 files; catalog-b5-b6-owners.log 101 passes/4 files (overlap, not additive); catalog-b6-interchange-initial.log 41 passes/3 files; catalog-b5-b6-native.log **3 passes,16.0s** actual application journeys (vocabulary restart/project scope, preferences/history/restart, UTF-8 intake/full source export/cancel). The export file picker was stubbed in the native journey; no native OS picker acceptance is inferred. Main/renderer types, build and app lint pass. Failed dictionary qualification logs remain separate and unresolved. Packaging workflow hash remains unchanged. Batch A/Program 7 human acceptance stays closed; no installed-release acceptance.
+
+**B6 retained obligations:** ED10/T29 purpose-aware manuscript versus full working-page export needs O-08 explicit source-class and purpose exclusion rules under P8-E/P10-E; Pin/Note attachment is not a purpose label and cannot justify deleting text. Minimum: author-visible coverage inventory, deliberate scopes and all supported writing accounted for; edges: mixed idea/prose in one section and attached Note whose source is deleted. Verify exact included content/cancel/failure and human scope clarity. OP08 portable archive restoration and T28 named versions require versioned coverage of every adopted owner/asset, safe path validation, checksums, project/reference identity and coordinated recovery. Existing prose recovery checkpoints do not snapshot Notes/knowledge/decisions and cannot stand in for named whole-project versions. P8-E owns this O-08 contract; P10-E owns agreed format breadth and advanced version/restore integration. Minimum: independently open a validated archive/version without overwriting current work and with intact links/provenance; edges: corrupt/unsafe archive paths and cross-project identity collisions/partial restore failure. Automated every-owner round-trip/fault tests plus human restore/version choice are required. Existing Markdown and prose recovery remain available today. Original refs: ED10, OP08, T28–T30 and design-register/checklist descriptions; these obligations must remain in the requirement mapping.
+
+
+### B7 retained work and truthful routes — October 26
+
+Delivered bounded WS01/WS03/WS08/WS09/ED06/OP01/OP02 and T27 slices, with remaining conversational/background/detached obligations preserved. A real defect lost an unfinished Ideas form on tab switch (catalog-b7-retention-before.log:1 fail/4 pass). Develop now retains visited tabs through the same existing hidden-view approach as Command workspaces. Typed app-window draft maps bind Foundation questions/Ideas seeds, directions, premise answers and promotion fields to project identity **and path**. These contain unsaved forms only, never accepted guidance, canon or Memory. The existing writing owner similarly keeps a manual-concern draft through rail closure; frozen evidence remains source-checked before Save. Notebook draft retention remains B2. The UI states that unsaved forms must be saved before app close/reload; durable conversations are not implied.
+
+History now labels stored references as recorded and checked on opening, rather than claiming original availability from a fingerprint alone. It explicitly separates past decisions/source checks from fresh analysis. Project Interchange connects the real existing staged intake/saved export actions inside the owning Writing window; the prose-free Command window routes back to Writing. Operations displays actual project/save context and explains that visiting the route grants no AI, Memory, provider or schedule authority. Contextual help explains the actual manual destinations and limitations.
+
+Verification: catalog-b7-native-next.log **1 actual Electron pass,3.6s journey/5.4s total**: Ideas→Foundation→Ideas, tool return, concern draft rail close/reopen, duplicate project titles/paths with independent drafts and return to original questions/direction, useful Interchange/Operations routes. No accepted record was changed merely by navigation. Native initial failure targeted the hidden keyboard-only edge close control; using the visible rail-header Close repaired the harness action, not application behavior. catalog-b7-owners-final.log records the final owner/integration run; renderer types/build and app lint pass. Earlier export-notice assertions used the superseded Markdown-only caption after B6 generalized it; corrected label assertions preserve behavior.
+
+Remaining WS03/CP04/CP05/T27/T35 conversation drafts, separate conversations and richer same-question results require the actual O-05 retained-conversation/source/privacy/forget contract (P8-0/M/R) before P9-D intake and P10-B/D integration. Existing temporary form state cannot become a governed conversation/Memory store. Minimum: reopen the same project-bound conversation/result/context with source versions and deliberate retention/forget controls, keeping author truth separate. Edges: duplicate thread names in different projects and changed/protected evidence before old-result expansion. Required: owner/project/privacy/purge/late-completion automation, native reopen/return, human context/usefulness judgment. Existing manual form/Note/question-orientation boundaries can be used now.
+
+OP01/OP02/OP03/T26 retain P8-R coverage/source dependency contracts and P9-C/E genuine incremental reading/jobs, not a timer over source checks. Minimum: inspect declared fresh/partial/failed coverage, cancel/resume without duplicate effects, preserve author decisions and writing access. Edges: one source changes during a task; sleep/restart/unknown result does not report complete coverage or automatically repeat accepted effects. Owner/fault/native interruption checks and human trust/usefulness review required. No such job was started or admitted here. Full detached/context continuity WS01/WS04/WS05/WS08 remains P10-D with O-12 authority/focus/message/recovery contracts; current-window retention does not close a second-monitor promise. Original refs remain each named ID/T journey and the authoritative design/checklist.
+
+
+### B8 and final catalog engineering checkpoint — October 26, 2026
+
+B8 actual tiny-Pin growth (12 real input/Save stages, >35,000 words), 81-group rail/native drag, original Pin/Note/chapter links, dirty-writing secondary close/reopen and fresh-process exact-source comparison pass. Repaired native selection containing decorative glyphs and stale source-gesture suppression swallowing an unrelated pointer/keyboard action. Two suppression regressions failed before repair; 227 affected owner checks pass afterward. Earlier rail failures initially suspected to be harness-only are now explicitly qualified by the reproduced application cause; original failed logs remain. Viewport/fixture/revision/transition mistakes are recorded separately in the current register.
+
+Final evidence: catalog-final-repaired-vitest.log **1,728 pass / 2 skip / 1 unchanged packaging-policy failure**,164 files,189.86s; catalog-final-repaired-native.log **17 supported Electron journeys pass,2.9m**. Known failed ED02 dictionary qualification/diagnostic tests were explicitly outside that supported run; detection is not accepted. Main/renderer types/build, renderer lint and scoped main/shared lint pass. The packaging workflow remains SHA256 9c4c97195ce5c6cb8fc49ef035727c2ac54b35d7c2248e11b2c782268b59cc33; policy/tests unchanged. No observed unresolved source-integrity defect is concealed.
+
+All 69 IDs / 36 existing journeys retain explicit dispositions in outputs/BLACK_SKIES_CATALOG_RECONCILIATION_2026-10-25.md and the existing Program 7.5–10 coverage mapping. Supported manual slices are complete; real card owners, O-04/O-05/O-08, semantic AI, shared Graph/full detached work and remaining interchange/version breadth retain precise prerequisites/minima/two edges/acceptance. ED02 native repair remains P75-B/P8-Q. Return to P8-0 then established P8-A/B sequence. Batch A and P7 acceptance, five historical-cause uncertainties and original Fail executions stay closed/preserved.
+
+Human Gate A candidate-v5 and Gate B candidate-v2 are prepared at workspace outputs/catalog-gate-a-2026-10-26 and catalog-gate-b-2026-10-26. Both frozen runtime hashes are 7171de486b95e5e20ff61d01f14023cf5ba4f7219911a38ac6bfde0256e8cf37; both launchers passed smoke, **human acceptance Pending**. Source/build/launch/evidence recovery is outputs/catalog-checkpoints/catalog-final-2026-10-26/RECOVER.md, extracted source hash-verified separately. No stage/commit/stash/reset/clean; no installed-release acceptance.
+
+### Writing Studio playground follow-through
+
+- Development changes: Review trigger inset, sticky Story rail heading, selection-based Merge pins using existing pin persistence, and outline concern disclosure with live source jumps. Verified on disposable Electron projects: B8 drags the manuscript scrollbar without opening Review and reopens the long saved draft after the save acknowledgement; B3 saves and reloads joined units with the original passage Note and linked concern evidence intact; B1 covers outline follow and Back. The WritingPage integration suite passed all 49 tests, including selection-based Merge pins with partial endpoint selections. Existing concern records have no demonstrated timing category, so their marker remains the generic red exclamation.
+
+### Intentional concern decisions in Command Center History
+
+- Verified in disposable Electron B3: mark intentional from Outline, hide that marker while retaining a neighboring open concern, reload, inspect both linked sources and the author decision in Create / Develop → History, reopen there, and restore the marker with both decisions retained. The existing revision workflow also passes.
+- Feedback repository, IPC and History tests: 45 passed. Reopening uses the existing writing-window mutation owner. A detached Command Center can inspect the record and directs the writer to the in-window Command Center for reopening.
+
+
+### Compact Outline desktop review
+
+- Changed the Writing Studio rail to one scrolling outline list under a fixed header. Row actions open from the ellipsis. Concern details, comparison, Notes, Notebook and concern capture use bounded panels so their content does not collapse the list or manuscript.
+- Live Windows comparison used the browser mockup and a labeled development window with a disposable paired shirt concern. Confirmed the marker, two passages, fixed heading and no manuscript resize on opening a Note. The October 26 candidate remains separate.
+- Writer foundation: 14 of 19 broad-run journeys passed, followed by three passing targeted reruns for the new row-action entry points. Two offline dictionary diagnostics remain unresolved. The 150 selected owner tests passed.
+- Broader shell follow-up: current controls and like-for-like chrome states replaced outdated test assumptions. The app fixes move Saved sections and planning tools to a bounded panel, keep explicit rail Close from reopening under a stationary pointer, and restore full-width Review below the manuscript at narrow widths. Outline stays beside the manuscript at narrow widths. Follow reads the visible manuscript center and retains the exact start/end and explicit selection paths. Eight targeted Electron checks passed, including 640px, 760px, 30,000 words, Focus, saved Note source return, and both Markdown structure journeys. The two offline dictionary failures remain open.
+- Live on the rebuilt disposable desktop: verified the panel preserves the outline list, inspected Review, Story Knowledge lenses, Ideas, History, Project Interchange and Operations. Pacing separates measured counts from author intent. History distinguishes existing records and source availability from a fresh read. The browser reference still affords more room for prose and a clearer distinction among concern symbols. Story Knowledge passed across three materialized corpus projects and all five Command Center recovery/status journeys passed.
+- Final supported shell and writer run passed all 25 Writing Studio journeys. A separate focused rerun passed Companion orientation and clean reopen, reversible Focus, and unfinished-work retention after retaining the rail while one of its controls has focus. The disposable development window was relaunched with separately verified ferry and walk-home sources; its red concern opens both with author attribution. The packaged candidate remains separate.
+
+
+### November 6 — compact Writing Studio default
+
+- Consolidated the writing toolbar and kept Pinned, Unpinned and Open concern switches visible. Preferences, spelling and gap controls share a compact options line and open bounded panels. Removed the duplicate manuscript heading and Save button from the writing-page presentation.
+- The single Save writing button uses the existing Writing Studio save owner, then linked metadata persistence. The initial consolidated route missed accepted recovery when metadata was clean. The recovery journey reproduced it and passed after restoring the normal owner. Existing failure evidence remains historical.
+- Reduced blank editor minimum heights and section spacing, hid line numbers in the writing-page presentation, and centered a readable manuscript column. Focus hides the toolbar and rails while preserving unfinished toolbar form state. A native test filled a preference draft, entered/exited Focus and found the same draft.
+- Concern symbols use the existing saved lens. Continuity and generic concerns use a red exclamation, timing a gold clock, emotion a blue diamond, pressure a violet triangle and pacing green waves. Tooltips include the concern text and authority. Legacy/unknown types use the generic exclamation. Multiple concerns on the same passage retain separate identities and independent disclosure. These symbols do not infer a category or change concern records.
+- Verification: 28 of 30 supported Electron journeys passed on the broad run. The accepted-recovery Save failure and a disabled-action locator failure were corrected. The final six-journey rerun passed recovery Save, growing a five-word Pin, paired concerns/History, formatting and saved Undo, arrangement/comparison and reversible Focus with draft retention. WritingPage integration: 49 passed. Renderer typecheck, build and repository renderer/shared lint passed. Offline dictionary diagnostics retain their prior unresolved status.
+- Live Windows review: the rebuilt Compact Writing Review window shows both the red exclamation and gold clock on the walk-home passage. The timing disclosure shows its exact source and Author note authority. Entering/exiting Focus clears/restores controls. Scrolling to the story end follows the final Outline row; returning upward follows the opening. The browser playground was restarted for comparison.
+
+### November 6 — continuous mouse selection across saved passages
+
+- Reproduced the reported drag failure on Windows in the disposable Compact Writing Review project. The active saved passage uses CodeMirror while its neighbors are reading previews. CodeMirror and Chromium constrained native selection to that editable boundary. Pin membership decorations were not intended boundaries.
+- The WritingPage gesture owner now lets the browser select across the manuscript using CodeMirror's public content-attribute Compartment. It retains document selection until the next source gesture or explicit navigation, restores ordinary in-passage editing, and preserves the existing recovery/read-only configuration. A new drag clears the prior document selection so Chromium does not turn it into a selected-text drag. Copy takes exact source ranges and omits passage headings and decoration glyphs. Bold/Italic stay unavailable for a selection spanning separate editors.
+- The first physical mouse review exposed a visual gap that selection-text assertions missed: CodeMirror's native selection paint was transparent in the active passage. A scoped document-selection attribute now restores the system selection colors there. The regression checks nontransparent selection paint as well as endpoints and durable Pin spans.
+- Verification: the new real-mouse Electron regression passed after reproducing the original failure. It covers downward/upward drags, an active first/last/middle passage, repeated selection, exact prose-only copy, durable Merge pins and Undo Pin, restored in-passage replacement/Undo, and unchanged saved manuscript files. Existing Batch A formatting/search/saved Undo and 760px Outline/scroll checks passed. The final B1 writer journey passed after waiting for completed file and metadata saves before direct fixture replacement; the previous stale notice allowed a test race. WritingPage/DraftEditorWritingTools suites: 65 passed. Renderer build, typecheck and renderer/shared lint passed.
+- Live Windows verification on the final rebuilt Selection Review: dragged across opening Pin, three unpinned passages and the walk-home Pin; all prose remained visibly blue after release. Repeated upward selection worked. Merge pins produced one Outline unit covering passages 1–5; Undo Pin restored the original two pins with unchanged prose. The labeled review window remains open on disposable data.
+- Review scope: one continuous selection and membership, not disconnected multi-selections or cross-section text replacement. Click inside a passage to resume ordinary editing. User steps are in the separate playground SELECTION-REVIEW.md. Packaged candidate and user manuscripts were not modified.
+
+### November 6 — rejected Gate B review and separate browser correction
+
+- User's screenshots and current Windows inspection identify the open program as the separate outputs/catalog-gate-b-2026-10-26/candidate-v2/app/dist/index.html. The temporary Selection Review window is no longer open. Candidate still shows the old line-number gutter, expanded Outline action grid, and separate Undo Pin. User reports failed selection/expected unpin, unclear merging, and poor Outline usability; ordinary text Undo worked. This remains a rejected human usability result. Earlier development-test passes do not verify this candidate or establish design approval.
+- Restored the unavailable local playground using a persistent hidden server. The browser page is explicitly labeled Outline review 2 · browser demo. This pass modifies the separate playground only; candidate files and manuscripts are untouched.
+- Browser trial: preserve the simple rail with one independently scrolling list, show stable Pin unit identities, word and passage counts, an ending excerpt for merged spans, and matching nonselectable source brackets. Use one chronological Undo/Redo pair for text, formatting, purpose and Pin membership. Explicit Unpin acts on current membership. Blue selection remains visible across pinned/unpinned passages. Last-action feedback is visible. Separate red exclamation/gold timing concerns and the three independent washes remain.
+- Verification: playground check.cjs passed, including newly added actual mouse drags in both directions/reselection, three-pin five-passage merge, visible extent and row following, Undo/Redo, Unpin/Undo, unchanged prose, interleaved keyboard text/membership history, and preserved earlier checks. Live browser review confirmed five original pins after Undo, three after Redo and two after Unpin. Browser left with Unit 6 selected, 106 words/five passages, Undo ready. User instructions and screenshot are in the separate writing-playground folder.
+- Scope/status: browser functionality checked, human design acceptance pending. Gate B selection, gutter and Outline failures remain unresolved in that separate candidate. Do not conflate this trial with a candidate rebuild or approval to integrate all catalog tools.
+
+### November 6 — repeatable Undo/Redo review handoff
+
+- User reported no result from browser Undo/Redo and insufficient test instructions. Live inspection found the baseline five pins, no recorded action and both controls disabled. The previous handoff relied on an agent-held page/history state, not a reproducible user action. This is a review-handoff defect; it does not establish that an enabled Undo handler failed.
+- Separate playground now has an open, collapsible three-step guide and Prepare merge test. It merges the first two existing pins via the normal merge owner, preserving all words. Baseline five pins become four; Undo merge restores five; Redo merge restores four. The combined unit is 26 words across two passages. Repeated Prepare clicks are idempotent for this check. Buttons name their available action, and empty history explicitly directs the reviewer to prepare first.
+- Verification: full playground checks passed with new first-open/reload, duplicate Prepare, action caption, guidance/count and unchanged-source assertions. Live browser confirmed Prepare → four, Undo → five, Redo → four and 285 words throughout. Existing browsing verification now waits for actual wheel movement and ignores duplicate unchanged native selection notifications. The browser is left at the fresh five-pin baseline with its guide open. Browser design acceptance remains pending; Gate B candidate and manuscripts are untouched.
+
+### November 6 — user-confirmed merge behavior and sequential Outline numbers
+
+- Human review: user reports all three prepared merge/Undo/Redo steps passed, plus successful merging with unpinned writing and Redo. Preserve these accepted functional results. New request is to number pinned units by their current Outline position, so merging Units 1 and 2 yields Unit 1 and renumbers subsequent units.
+- Separate playground fix: calculate the displayed ordinal during unit collection; use it in row headings, selection tooltips and the last-action message. Keep membership identities/source links unchanged. Unpinned passages do not consume an ordinal. Undo/Redo recomputes numbers with the restored composition. Current review instructions now say Unit 1 instead of Unit 6. Also corrected empty-history guidance when a Redo action is available.
+- Verification: full playground check.cjs passed, including sequential-number assertions for initial load, start/middle merges, absorbed unpinned prose, Unpin, Undo and Redo. Live browser confirmed merged labels 1–4, undone labels 1–5 and redone labels 1–4 with 285 words unchanged. Refreshed the same browser review and left the combined first unit selected. No Gate B application or manuscript changes in this pass. Numbering design revision remains available for human review.
+
+### November 6 — human acceptance of mockup numbering revision
+
+User reports “all pass” following the sequential Outline numbering revision. Record merge/Undo/Redo, inclusion of unpinned writing and current-order numbering as the accepted browser mockup functional baseline. Earlier automated evidence remains separate. Gate B candidate integration and the remaining catalog are outside this acceptance.
+
+### November 6 — saved concerns after source edits; browser History destination
+
+- User reports the concern review passed, then changed green to cotton and found the saved warning remained. The deterministic no-AI playground cannot infer semantic resolution. It now distinguishes source edits from a new analysis, presents original/current quotes and lets the author explicitly Mark addressed.
+- Added stable sample evidence identity, changed/unavailable source states in flags/tooltip/disclosure, retained original text and explicit Addressed. Formatting and Pin merges do not revise source status. Addressing the shirt concern removes its active markers/washes while keeping the separate timing concern. Decisions capture their then-current evidence. Later source Undo cannot erase that decision; History identifies later text differences and provides explicit Reopen.
+- Removed resolved/intentional history from the active Outline and added only the needed Command Center · History browser destination, with source navigation and return. Accurate manuscript counts survive hidden History updates; source remains unchanged during decisions.
+- Verification: full playground check.cjs passed with green→cotton evidence/status, source Undo/Redo, Addressed, independent timing concern, decision evidence retention after later text Undo, History-only Reopen and word counts on return, plus existing merge/numbering/selection coverage. Live browser confirmed shirt warnings 0, timing warning 1, cotton evidence stored, and 285 words through History return. Reopened the shirt concern and left the edited-source disclosure ready for human review.
+- Integration audit only: actual development owners already retain concern decisions and source-availability guards. Remaining accepted-UI gaps include shared chronological text/Pin Undo/Redo, full multi-range Outline selection, sequential/count presentation and honest changed-source review through native bindings. No development application code or Gate B files/manuscripts changed in this pass. Browser source-edit behavior is tested but awaits user design acceptance.
+
+### November 6 — accepted browser baseline adapted to development Writing Studio
+
+- Human acceptance: user reports all passed after the browser source-change/Addressed/History check. Record that browser slice as accepted, separately from native integration and the wider catalog.
+- Extend the existing guarded source-batch history with precise native edit provenance/typing groups and Pin/Unpin/split/join membership snapshots. The main Undo/Redo pair now traverses these in chronological order. Link identity, independent custom names, source guards and existing save/recovery owners are retained. Legacy metadata-only Undo Pin is behind a closed Advanced unit history disclosure.
+- Merged Outline cards select their entire source across saved sections, not only their first range. Selection waits for the exact editor return and source validation, then uses the existing document-selection path and restores ordinary editing on the next gesture. Cards display sequential current-order unit numbers, word counts and passage counts, with readable wrapped excerpts. Internal IDs remain independent of display numbering.
+- Verification: 66 focused WritingPage/DraftEditor tests pass. Eight actual Electron journeys pass across the final targeted executions: arrangement/comparison, organization/split/join, cross-section mouse selection/full merged copy/main Undo/Redo, B1 writer tools and source return, Batch A formatting/search/saved history, 30,000 words, narrow many-unit rail, and minimum640px layout. Renderer types, build and lint pass. Evidence logs are writing-test.log, writing-native.log, writing-native-selection.log, writing-native-regression.log and writing-native-batch-a.log in the separate playground workspace. Earlier failed runs are retained: the new selection test requested the wrong Story control name; the older Batch A test attempted to click replacement Undo that is now correctly disabled behind a newer typed edit. Updated checks still prove exact saved source preservation and chronological reversal.
+- Physical Windows mouse review: continuous blue selection through opening Pin, three unpinned passages and walk-home Pin; Merge gives Unit1,89 words/five passages; clicking the card selects that full span; main Undo restores two pins; Redo recombines. Manuscript stays172 words. New persistent disposable window is Black Skies · Development Writing Baseline, distinct from the old plain Black Skies Gate B window. Its temporary project/profile is separate. The review is left merged with Undo ready; exact steps and screenshot are in writing-playground/SELECTION-REVIEW.md and development-writing-baseline.png.
+- Scope/status: development adaptation checked and ready for human review. Gate B candidate files and author manuscripts remain unchanged. Full native changed-source/Addressed concern presentation remains a later adaptation through Program7 source bindings/RevisionDesk/History; browser acceptance does not imply it has already been ported. Offline dictionary diagnostics retain their prior unresolved status. No claim of complete catalog or installed-release acceptance.
+
+### November 6 — development selection/history human acceptance
+
+User reports pass for the explicitly labeled Development Writing Baseline review: full five-passage Outline selection, main Undo to the original two pins, main Redo to Unit1/89 words/five passages, and unchanged172-word manuscript. This bounded development adaptation is human accepted. The remaining concern source-change/Addressed/History adaptation is a separate batch; Gate B remains unchanged.
+
+### November 6 — native edited-source concern review
+
+- Adapted the accepted browser source-change/Addressed/History behavior through the existing Program7 source-binding, feedback-note, Writing Studio save/recovery and History owners. New concern records retain bounded original quotes; author decisions retain independent main-owned saved-source quotes in dispositionHistory.sourceEvidence. OriginalEvidence and decision evidence are optional for legacy compatibility, limited to two sources and4000 characters per quote, with explicit excerpt flags. No renderer-supplied quote is trusted. Protected sources never receive text; the UI withholds original/recorded quotes even while async checks are pending.
+- Dirty or concurrently changed sources cannot commit a decision. Pending author edits are saved through the existing coordinator first. Source fingerprints and quotes use the shared Markdown body extractor, matching the editor rather than frontmatter. A whole-section binding can display its current stable section as Source changed without claiming exact passage reattachment; ambiguous partial evidence remains withheld.
+- Identifiable edited-source markers remain in Outline with authority tooltips. Dirty/changed sources do not receive a verified prose wash. The disclosure distinguishes original/current evidence, avoids identical repeated quotes, and offers Mark addressed. Addressing removes only that concern; independent concerns remain active. Decisions and explicit resolved/intentional reopening are in Command Center History. Reopening appends to the same identity. Later text Undo cannot rewrite the decision quote or reopen a concern. Legacy decisions do not invent missing quotes.
+- Validation: concern-final.log records276 owner/source/editor/app passes. Final disclosure/History rendering checks pass19 tests in two files, overlapping the larger run. concern-native-final.log records4 actual Electron passes: paired concerns/revisions/History, cotton edit/Addressed/text Undo/recorded History/Reopen/reload, continuous selection/main Undo/Redo, and minimum640px layout. Renderer/main types and development builds pass. Renderer/shared and changed main implementation lint pass. Linting the two old main test files separately reports seven existing any/unused-variable errors on unchanged lines; no rules were suppressed. The earlier hover regression used pointer-enter although the existing trigger now uses pointer-move; corrected the stimulus and retained dismissal/re-entry assertions. Removed duplicate Unpinned row text from the prior compact layout.
+- Handoff preparation failures are retained separately: a startup source-selection assumption, a Playwright beforeunload protocol error, and a selector matching both a hidden concern-capture quote and the active disclosure. The review launcher now scopes to the active disclosure, selects the fixture source through its owner, logs preparation stages and keeps a persistent explicit title. Only verified failed disposable launcher process trees were stopped; Gate B and all files were preserved.
+- Scope/status: implementation checked, native human acceptance pending. The previous selection/history development batch is human accepted. Gate B candidate files and author manuscripts remain unchanged. No AI, new production campaign, release/install, repository reset or commit/push. Original broad catalog and offline dictionary limitations remain as previously recorded.
+
+Final concern handoff: Black Skies · Concern Source Review is verified open on its isolated disposable project black-skies-outline-review-TRzSID (launcher20380). The hidden duplicate evidence locator was corrected by scoping to the active disclosure. Physical desktop scrolling confirmed separate original green/current cotton quotes; Mark addressed, the red exclamation and independent gold clock are visible. The panel is returned to its action heading. Screenshot and successful ready log are in the separate writing-playground folder. Human review is pending; the plain Gate B window remains untouched.
+
+
+### November 13 — white-screen investigation and durable concern links
+
+- Human report: Concern Source Review turned white on Undo immediately after Mark addressed. November 6 main log and two isolated pointer-click reproductions confirm a native renderer crash (`reason: crashed`, exitCode -2147483645); no renderer JavaScript exception identified. A renderer-only reload displayed prose but left split Command Center primary authority invalid. This crash is OPEN / NOT VERIFIED FIXED. The November 6 concern handoff above is superseded as an unaccepted native review.
+- November 13 fresh checks: normal pointer click, direct pointer phases and forced Windows renderer accessibility completed without reproducing that crash. Physical desktop Mark addressed → main Undo restored green, kept the shirt decision addressed, retained the independent clock; Redo restored cotton. These passes do not establish the historical crash root cause or its repair. Original crash/dispatch/pointer logs are preserved separately from new successful receipts.
+- Full restart exposed a separate reproducible save omission: lifecycle auto-save persisted edited prose and decision evidence but bypassed Writing Studio's linked-state save. The walk-home Pin kept its green fingerprint/range and became unresolved on reopening cotton. Corrected setProgram7RevisionItemLifecycle to await the existing writingPageSaveRef owner before committing the decision; failure keeps the concern open. Normal source/binding/concurrency guards remain. This is a bounded development correction, not a new persistence owner or a frozen candidate update.
+- Extended the existing edited-concern native regression from two unpinned paragraphs to ten saved sections with two Pins and intervening loose writing. The new exact durable anchor assertion failed before the correction (green fingerprint and range41 instead of cotton42). It passes after the correction, including text Undo, retained decision quote, History-only Reopen, a second Addressed action, a fresh main-process restart, two valid Pins, active independent clock and Command Center navigation. Evidence: concern-link-before-fix.log, concern-link-after-fix.log, concern-link-restart.log. Initial fixture failures incorrectly waited for a redundant Save control after Pin had already saved; their logs are retained.
+- Validation: 212 focused WritingPage/Stage19 app owner tests pass; renderer build, full tsconfig.json types and changed app-file lint pass. The narrower tsconfig.stage19-renderer.json omits the existing manuscriptStructure Window declaration and reports TS2339 at unchanged line598; no declaration or check was suppressed.
+- Recovery: original disposable review TRzSID and its earlier backup are retained. Hash comparison confirms every original project file unchanged. A separate workspace recovery copy retains identical prose/feedback decisions; only living-outline.json changes. Its one known original whole-passage Pin was restored through replaceWritingState after exact verification against the saved original green evidence, recorded cotton decision and current cotton source, preserving Pin identity. No general fuzzy reattachment or author-manuscript repair was attempted. Review launcher can resume a saved project with a fresh profile without seeding; diagnostic tools close before handoff and title is explicit.
+- Scope/status: stale linked-state persistence defect verified repaired; historical native crash remains unresolved. Development concern human acceptance remains pending. No Gate B candidate, installed app, production manuscript, synced source, install, repository reset, commit or push changed.
+
+
+### November 13 — author concern workflow passed; human batch queue reconciled
+
+Author reports all four explicitly requested desktop steps passed: History Reopen; edit cotton to linen; Mark addressed; main Undo restores cotton without reopening the shirt concern. Independent clock, two Pins and172 words remain. Record human acceptance for this bounded native concern/edit/decision/Undo flow, superseding its prior pending status. Do not infer historical renderer crash resolution or whole-catalog/native-release acceptance. Preserve the author's post-test source and decision state.
+
+The current A–F human usability queue is reconciled at the top of the separate playground catalog-review.md. Historical B1–B8 engineering packages and frozen Gate A/B candidates are distinct naming systems. Batch A stays author-completed. Core Batch B selection/merge/numbering and core Batch D follow/concern behavior have scoped author passes; additional B/D edges retain separate status. Next earliest unaccepted core batch is C, passage/cross-section Notes and source lifecycle. Then remaining B/D edges, E rails/Focus, F Back/retained work/reopen, followed by the existing ordinary Command Center/manual/preference/interchange slices. Reuse existing engineering evidence, prepare small disposable fixtures and explicit expected outcomes; do not request unchanged accepted checks again.
+
+Real semantic AI/Companion/inferred Graph/background jobs retain their existing deferred contracts, including non-AI domain/window prerequisites where applicable. Offline dictionary detection and the confirmed historical renderer crash remain current non-AI defects, not AI deferrals. No runtime/source/build/test changes are needed to record this acceptance. Production candidate and author manuscripts are untouched.
+
+
+### November 13 — human Batch C Notes preparation, acceptance pending
+
+Prepared a fresh disposable Notes review using the existing local launcher and public project/living-outline/UI owners. Three saved sections,52 words, one two-passage Ferry scene Pin, three distinct Notes each attached to both passages. Created through Add Note/Keep Note, checked independent opening, middle edit retaining all IDs/count, both exact source returns, insertion/save/Undo, deletion/Undo, saved/reloaded exact anchor resolution. Restored original sample and Note bodies before handoff. Existing native Notebook and writer-unit/Notes journeys pass2/2 (batch-c-existing-native.log); isolated real-startup preparation passes in batch-c-clean-start logs. Physical desktop pencil2 and second source return verified, locked Story restored after layout settles. Six explicit author checks are at the top of the separate playground SELECTION-REVIEW.md; no human acceptance inferred yet.
+
+Known native crash repeated in preliminary Notes setup with automatic detached DevTools open. Closing that window before preparation permitted the full actual flow. This is a startup mitigation/association, not an established native engine cause or crash closure. Active/all layout-skipping overrides and blocked-scroll-follow diagnostic variants still crashed and were removed; no corresponding application CSS or follow behavior changed. Local-only crash reporting yielded no usable dump. Failed diagnostics are retained. One hung failed fixture helper and its verified descendants were stopped; ready Batch C helper27996 and all saved data preserved.
+
+The author's accepted concern test state was saved through visible controls and backed up to the separate workspace recovery/after-human-concern-pass-20261113-175258 before closing its window. One clearly labeled Batch C — Notes desktop window is the handoff target. No production/frozen candidate/source files, app source/builds, installed app, provider/AI route, release, reset, commit or push changed. Notes human usability and the historical native crash remain separate open statuses.
+
+
+### November 13 — Batch C failed/ambiguous human results, Notes access correction
+
+Author reports sidebar pencils disappeared, Note2 lacks Reviewed., saved source deletion retained all4 Notes, Undo restored the sentence, and Ctrl+R appeared to enter Focus. No BatchC pass is recorded. Saved complete author fixture copy in separate workspace recovery/batch-c-human-feedback-20261113-184307; current4 Note records and manuscript preserved, not reset or edited on the author's behalf.
+
+Direct inspection: all4 saved Notes link both source passages, including newNote4 which the instructions intended as Mother-only. This proves stored scope, not the gesture that captured it. Note2's durable body truly lacks Reviewed.; not merely a stale label. Ctrl+R physically reloads with Focus OFF (Enter Focus and normal toolbar visible) and Story closed. Explained distinction between step5 current-session Undo and step6 durable reload. A fresh proper single-passage toolbar capture produces one source. On isolated data, Note2 edit plus source deletion/Save, Undo/Save/reload retains Reviewed.; original loss cause remains unestablished.
+
+Bounded corrections through existing owners: moved pencil-labelled per-row Notes disclosure outside closed compact tool actions; added captured source count/excerpts to new-Note drafts; added explicit Unsaved Note changes/Saving Note/Saved Note feedback. Originally text-span anchors collapsed by deletion no longer render a misleading active pencil. Their Note records remain in Notebook, and other valid passage links remain. Deliberately position-linked Notes retain their pencil. Undo restores span projection through existing history; no new store or automatic deletion.
+
+Evidence: notes-feedback-before.log2fail/1pass for missing preview/save/access feedback and retained deleted-source pencil; notes-feedback-after.log52pass connected-writing checks. Full renderer types/build pass after correcting two invalid Testing Library options in new tests. Existing native Notebook/writer2pass; isolated four-Note capture/edit/saved-delete/Undo/reload passes in notes-feedback-native-diagnostic.log. A pseudo-element pencil altered native accessible names; corrected to aria-hidden decoration. One native diagnostic still reproduced the known -2147483645 crash; the crash remainsOPEN and successful later execution is not a fix. Helper now handles late devtools-opened events, since an early close is insufficient as an isolation guarantee. Full changed-file lint reports an unchanged concern-popup static-keydown error and two existing hook warnings; no rule suppressed or unrelated lint cleanup performed.
+
+Current handoff: same author's four-Note project with corrected renderer, visible Notes access and saved-state feedback. Only next requested author check is Note2 explicit edit/save/reopen, not a repeat of the full six steps. No frozen GateB candidate, production manuscripts, install/release, reset or commit/push changed.
+
+### November 13 — Note form overlap corrected
+
+Human passed the separate Note 2 Outline access, both source jumps and Note 1/3 manuscript pencil checks. Human reports Note 5 single-source creation/reopening works, but Keep Note crowds/overlaps the text box and the instruction named an invisible source-preview label. The visible preview is '1 selected passage' plus its quote; 'Selected Note sources' was only its accessible name, not a checkbox. Future steps must use visible wording.
+
+Reproduced Add Note geometry failure before correction: at 1700px Keep Note top587.94 lay within text-box bottom667.98, box width179.55 within458px panel. Root cause: the more specific compact toolbar label rule forced inline-flex over the lower-specificity Note label grid. Bounded app.css fix gives the Note label a properly scoped full-width grid, border-box bounded textarea, vertical-only resizing, and separated buttons below it. No source capture/save owners changed.
+
+Evidence: separate workspace notes-layout-before.log fails the real geometry assertion; notes-layout-after.log passes Add/Edit at1700/1000/640px with default and240px resized textareas, no horizontal overflow, plus existing Note source capture/edit/saved deletion/Undo/reload checks. Renderer build passes. A transient Electron developer-tools WebContents message appears in the successful diagnostic log; historical native crash remains open and is not claimed fixed. No new dependency, production/frozen candidate overwrite or installation.
+
+Before reload copied the author's five-Note project to workspace recovery/notes-layout-before-20261113-205211. Desktop window591200 refreshed and Note5 reopened: full-width text box with Keep Note/Close Note below, Saved Note, one Read passage link. Durable records retain Note2 Reviewed., all five Notes and Note5's one Mother-only source. Restored Story rail. Source preview label issue was instruction wording, not missing data. Layout correction awaits visual author judgment; full Batch C remains pending.
+
+### November 13 — current Batch C Notes script human passed
+
+Author reports both final checks passed: saved source deletion/main Undo and saved reload. With prior explicit passes, this closes the current Notes script: Outline access, identity-preserving saved edit, both exact sources, independent manuscript pencils, one-source Note creation/return, corrected Note form spacing, deleted-source pencil handling/Undo and durable reload. Accepted fixture52words/fiveNotes, Note2 Reviewed., Note5 Mother-only, one26-word/two-passage Ferry Pin. Keep this scoped human acceptance; do not repeat unchanged checks or infer whole-Notebook/catalog/release approval. Separate workspace ledger and continuation updated; saved fixture backed up without resetting it. Next review queue: remaining B/D edges, then E rails/Focus and F retained navigation/work, followed by ordinary manual Command Center workflows. Historical renderer crash and offline spelling remain open. This receipt needs no app/source/build change.
+
+### November 13 — next Batch B slice prepared: Pin boundaries and names
+
+Preserved the author-passed Notes fixture and its five-Note backup. Closed its saved desktop window only after the next review was ready; exactly one Electron review window remains: Black Skies · Pin Review — Boundaries and Names. Fresh disposable project,52 words/three saved passages, no Notes or concerns, zero Pins, Mother/poison editing caret collapsed, Story locked open. No app source/build changes.
+
+Existing launcher extended with bounded Pin checks: cancel before an endpoint; cancel after first endpoint; real-mouse beginning/end Pin exactly0..29 on Mother/poison; one five-word unit with byte-identical prose; cancel name edit; save Mother knows while retaining group identity/anchors and all manuscript bytes; reload confirms saved name. Removed only that fresh fixture's Pin through existing Unpin UI, then reloaded to a clean zero-Pin handoff. Evidence pin-review-ready.out.log; handoff pin-review-handoff.json. Physical Windows toolbar Pin/Cancel and final zero-Pin screen verified. Helper PID24844, window1901638, profilei87s77. Human acceptance pending for this slice; partial overlaps, split/join and plan/prose moves remain unaccepted.
+
+Failed preparation attempts retained as pin-review-attempt1..3 logs: assumed unsaved empty outline file existed; read optimistic Pin row before disk save; ambiguous nested summary selector. Corrected only helper assumptions by empty-outline handling, bounded durable metadata waits and direct-child summary. These failures are not app bug fixes or acceptance evidence. Historical renderer crash remains open.
+
+### November13 — Pin boundaries/names human passed; split/join ready
+
+Author reports all three Pin cancellation/boundary/Rename checks passed. Saved current group Mother knows is an exact five-word Mother/poison span0..29; preserved in separate workspace recovery/pin-boundaries-names-human-passed-20261113-221207. No unchanged retest. Existing native arrangement/organization journeys pass2/2 in12.6s (workspace pin-shape-native.log). Current single desktop review retained, physical row action/Organize/Split controls inspected and left open. Next human check: split before about into two-/three-word units, then select both with current Compare checkboxes and Join selected units. Compare label reused for Join is a usability question; no approval inferred. Partial overlap and actual prose versus plan movement remain unaccepted. No app source/build changes; historical renderer crash remains open.
+
+### November13 — Split/Join functional pass; workflow design open
+
+Author reports Split/Join passed, but repeated moves between top toolbar, manuscript, nested unit menus and top of Outline are mechanical and excessive. Record functional acceptance separately from unresolved usability. Same saved desktop fixture retained; no desktop source/build changed. Avoid another unchanged functional handoff.
+
+Existing local browser playground now trials unit actions beside the writing: select to Pin/Join without Compare selection; right-click inside a unit for a word-boundary split preview and Name unit. Current toolbar remains fallback. Full browser regression checks and visible IAB real right-click/drag/Join pass;285word sample retained. First visible trial exposed accidental half-word splits on imprecise right-clicks; explicit named-word preview now preserves words and passes midword regression. Browser deliverable fresh and backed up in workspace; local-tools-trial.jpg proof, local-tools-regression.log evidence. Human design approval pending; no production integration. Partial overlaps, plan/prose movement and later E/F/catalog reviews remain outstanding. Historical renderer crash and offline spelling remain open.
+
+### November13 — browser local unit workflow author-approved; extension preview prepared
+
+Author explicitly likes/approves the local writing tools and requests preserving them and updating docs. Record browser workflow approved: nearby Pin/Join, right-click named-word split preview, local Name unit. Saved approved code/hash checkpoint in workspace recovery/local-unit-tools-approved-20261113-231824. No desktop adaptation or whole-catalog approval inferred; keep approved control placement while reviewing remaining behavior.
+
+Next partial-overlap inspection found native/browser difference: browser changePin expands the entire touched Pin, while native single-Pin selection can preserve an old remainder through subtractWritingSelection. Existing browser mutation now has a shared exact range preview and explicit Extend unit caption, with whole-unit retention and resulting count before action. Browser suite passes (workspace extend-unit-regression.log): preview nonmutation,5+5word extent across two passages, five Pins,285words and exact Undo HTML; prior checks retained. Actual visible browser partial drag/Extend/Undo verified. Left the10word local preview ready; screenshot extend-unit-preview.jpg. Extension behavior approval pending. No desktop source/build, frozen candidate, manuscript, provider, install or production change. Plan/prose movement and remaining E/F/catalog reviews, historical renderer crash and offline spelling remain open.
+
+### November14 — Extend author-approved; planning-only browser slice ready
+
+Author passes/likes explicit whole-unit extension preview. Approved browser checkpoint retained in separate workspace recovery/extension-approved-20261114-105530; no unchanged retest. Native one-Pin partial-overlap difference and approved local-tools adaptation remain open.
+
+Same local browser demo now provides nearby Move in plan target/preview with explicit scope. Apply changes separate plan ordering, shows labeled Planning view, and preserves all manuscript HTML/prose/285words and reading position. Writing/Planning selector retains independent views; loose writing remains beside its preceding Pin. Corrected active-row and selection mapping to source indices when visual plan order differs. Shared snapshot history includes plan metadata; moved unit split pieces remain adjacent and rejoin retains position. Full browser suite passes including cancel/no source mutation, exact source return, views, Undo/Redo, reshape and640px bounds (workspace plan-order-regression.log). Actual visible browser Apply/view switches verified; fresh unapplied Mother-before-Julian preview left ready. Screenshots plan-order-preview.jpg (saved image visually verified) and plan-order-result.jpg. Human planning review pending; actual prose movement next. Browser-only; no native source/build/candidate/manuscript/provider/install change. Historical native crash/offline spelling remain open.
+
+### November14 — planning author-approved; verified handover checkpoint
+
+Author passes planning-only movement and Writing/Planning views and requests an implementation/continuity plan. Current approved browser baseline now includes local unit tools, explicit whole-unit extension and planning behavior. No unchanged planning retest. Created canonical workspace BLACK_SKIES_HANDOVER.md and implementation/WRITING_STUDIO_PLAN.md: accepted behavior/native owner mappings, concrete overlap/name/history gaps, next actual-prose-movement task, integration and D/E/F milestone, remaining catalog queue and open defects. Updated current ledger, review script, README and continuation pointer to avoid conflicting historical statuses.
+
+Preserved workspace recovery/planning-approved-20261114: approved browser files, four selected native writing source/test files, SHA256 hashes, current Git HEAD/status/diff-stat and scoped reference patch. HEAD verified8fc087d1c22e13bcf6eebd88864dd46547f77683 on codex/program7-5-stabilization, dirty checkout preserved. This is not a full-repository backup or instruction to apply the patch. Seven checkpoint file hashes verified. Latest browser suite remains passed in plan-order-regression.log; no source code change in this documentation pass. Clean stopping point is now, before actual manuscript movement. Historical renderer crash/offline spelling, native overlap semantics, custom-name retention and shared-history adaptation remain explicit.
+
+### November14 — actual manuscript movement browser trial ready; author judgment pending
+
+Extended the same disposable Writing Workflow Trial with local Move actual writing, explicitly separate from approved planning-only movement. Whole-Pin before/after manuscript and exact word-count preview; Cancel/Escape do not mutate prose/history; explicit Apply changes writing order and retains an independent plan, including a previously untouched initial plan. Shared Undo/Redo restores exact browser content. Preserve nearby Pin/Join, named-word Split, Name unit and approved whole-unit Extend/planning behavior. Human design approval of actual movement remains PENDING; no unchanged accepted-script retest.
+
+Read current WritingPage.tsx previewMove/applyMove and existing stage19-writer-foundation organization E2E before implementation: native emphasis/Note-boundary/link relocation/concurrency/recovery/save/reload guards remain the integration reference. This pass changed no native runtime source and ran no native E2E. Browser DOM snapshots are disposable simulation, not a native storage model or native Notes persistence qualification. No manuscript/candidate/install/provider/Git mutation.
+
+Full existing workspace check.cjs passes in installed Chrome, with independent exact HTML/per-character Pin identity/name/purpose/source/concern/formatting retention; Cancel/Escape, explicit and untouched plan independence, exact linked-source return, Undo/Redo, whole multi-passage move, partial-paragraph source/target, stale/no-op/half-word refusal and640px action-button bounds. Receipt: writing-playground/manuscript-move-regression.log. Corrected a floating-panel clamp exposed by distant selection; empty clone text nodes do not count as retained content. A first multi-passage test cut glasses one letter short; the guard correctly refused285-to286words. Corrected that fixture to the exact word and retained a separate half-word refusal regression.
+
+Visual receipts manuscript-move-preview.png/result.png/narrow.png inspected. Direct returned Chrome window exercised Cancel, local right-click entry, Apply and main Undo; reopened Mother-before-Julian preview left unapplied with five Pins/285words. Assistant Redo remains available; author script uses Apply. Browser app-launch request initially timed out, but installed Playwright visible preparation and direct UI inspection succeeded. An initial attempt to run the entire old suite visibly stopped at an unrelated one-pixel scroll equality541/540; its assertion was not weakened. check.cjs --review now only prepares a fresh visible trial; normal mode runs the passing full suite. No claim that full visible/native suites passed.
+
+Updated canonical workspace BLACK_SKIES_HANDOVER.md, implementation/WRITING_STUDIO_PLAN.md, catalog-review.md, SELECTION-REVIEW.md and README. Preserved prior approved snapshot and current recovery/manuscript-move-trial-20261114 with source hashes/evidence. Current native HEAD8fc087d1c22e13bcf6eebd88864dd46547f77683, branch codex/program7-5-stabilization; all four recorded native file hashes match the planning-approved checkpoint. Historical renderer crash, offline spelling, custom-name retention and native history/extension adaptation remain OPEN. Next action is author design judgment, then approved native adaptation and remaining D/E/F, not further browser/catalog expansion.
+
+### November14 — movement author functional pass; simplicity and separate-order scope reopened
+
+Author reports everything passed for the actual manuscript-move trial, but says it felt like a long route for a simple copy/paste-like move, questions the purpose of planning versus writing outlines, and suspects overengineering relative to the original60-plus catalog. Record FUNCTIONAL PASS, USABILITY OPEN. Earlier planning test pass remains evidence; it does not override this new question about whether an independent plan order is wanted. No unchanged retest requested; no runtime change or two-order native adaptation authorized by this clarification.
+
+Read the original Desktop handwritten ZIP without modifying it. Relevant photo20260523_195844.jpg (sheets1–3) explicitly allows group drag in writing surface or outline and says the argument moved in story and outline together. Random Notes3 in20260524_095210.jpg asks to reduce redundant screens and merge tools; Random Thoughts1 in200018 shows the same outline in the Writing/Command surfaces. These inspected references support a single linked outline as the simpler reading; they do not explicitly require independently retained planning/writing orders. This was a focused reference check, not a claim every ZIP page was newly reconciled. Existing design-reference register OUT03 later distinguishes planning/prose; October24 arrangement implementation added Writing/Planning views. That is an implementation interpretation, not an extra explicit handwritten tool requirement.
+
+Recommendation for author discussion: one outline tracking actual writing order, direct movement from either surface, preserving unit identity, formatting, classification, Note/source attachments and Undo internally. An independent speculative planning order is optional only if author wants that workflow; no deletion/replacement choice is yet recorded. Browser checks cover simulated metadata, not native Note persistence. The existing69-behavior catalog and subordinate build/review batches remain the governing scope; no new catalog campaign.
+
+Updated live workspace handover, Writing Studio plan, ledger, review checkpoint and README to close the functional script and reopen usability/scope. Preserved all demo source, old approvals, checkpoints and tests. Existing crash/offline-spelling/name-retention/history gaps remain open. Next step is resolve this specific design need before porting the two-order interaction.
+
+### November14 — single linked Outline direction approved; full status/review schedule reconciled
+
+Author explicitly agrees with one outline following the manuscript, direct movement from writing or Outline, attached information preserved automatically, and Undo. This settles the prior simplicity/scope question; the extra visible independent Writing/Planning order mode is superseded product direction. Earlier planning/movement functional passes remain historical evidence. Preserve legacy saved metadata and chapter decisions; do not delete/rewrite stored order or sources casually while changing the UI. Native guarded previewMove/applyMove/link relocation/source/Note/formatting/recovery owners remain the integration path.
+
+Status audit checked current live sources, current ledger and prior handover/chat, plus parent project outputs/black-skies-delivery-plan and catalog recovery checkpoint. Development HEAD8fc087d1c22e13bcf6eebd88864dd46547f77683, codex/program7-5-stabilization;85 changed/untracked status lines preserved. The four selected native writing source/test hashes still match the approved planning checkpoint. Existing core writing/Notes/concern repairs and bounded manual catalog features are in the real checkout; recent nearby controls/explicit Extend/simpler movement adaptation is still outstanding. No runtime edits or tests claimed in this planning-only pass.
+
+Updated canonical workspace WRITING_STUDIO_PLAN.md and handover/ledger/review/README/pin handoff and historical start pointer. The existing69 catalog rows remain; do not confuse behavior inventory, B1–B8 engineering packages, A–F author scripts and frozen candidates. Newly consolidated planning target is9 remaining human review batches for the current ordinary/manual milestone: H1 native unit/move integration; H2 remaining D/E writing comfort; H3 F/Studio continuity; H4 comparison/gaps/manual revisions; H5 existing Ideas/Foundation/manual Story Knowledge; H6 whole Notebook beyond accepted C; H7 preferences/counts/goals/help/spelling after engineering repair; H8 supported files/project recovery; H9 connected ordinary workflow. Three finish Writing Studio. This groups existing reviews and creates no new features or duplicate gates; reuse prior author receipts and retest only changed/failing outcomes. It is a planning target, not a promise that defects cannot require scoped retests or that all candidates are ready.
+
+Eventual installed-candidate review maps to the existing final release gate. Future real card/destination/search/retention contracts, grounded/qualified AI and operations, layered Graph/Timeline/structure and extended continuity/interchange stay in named P8–P10 homes, with existing scope ceilings and open decisions. Their later human usefulness reviews are not included in the9 and cannot yet be given a trustworthy fixed count. No AI/model/paid/installer authorization inferred. Full product acceptance is not established by9 ordinary passes. Renderer crash, offline detector, native name/history/Extend gaps and existing packaging/lint issues remain open engineering obligations. Next actual work is native integration and assistant verification, then H1; do not restart an all-catalog implementation or browser campaign.
+
+### November14 — scope correction: original A–F sequence restored; added nine-review schedule withdrawn
+
+Author challenged the newly expanded review plan, correctly identifying that core/AI/full-workflow work already has P8/P9/P10 homes and that useful whole-system evaluation must follow the AI integration. Author then supplied the predecessor's exact A–F sequence. That sequence governs: C Notes is now complete; finish remaining B/D edges, E rails/Focus and F navigation/reopen; then only existing usable non-AI Command Center routes; one integrated writing workflow. Preserve passed A, C and other scoped B/D results. No added H1–H9 campaign or new fixed human-session total. The previous tracker entry's nine-review proposal is withdrawn by this newer correction.
+
+Read the predecessor's actual turns (not memory inference): turn01a1d717-17d9-7d63-b693-b723ad839378 establishes A–F and explicitly defers real AI/story conversations/inferred Graph/jobs; turn01a1d7d8-427c-7161-8d27-ad20f425ceb7 records the complete C Notes pass. Ordinary native controls and bounded manual routes exist. The app's reported poor experience is a real usability/integration/defect finding; it is not evidence those tools were absent or must be rebuilt. Recent browser-approved local/Extend/single-outline interaction still needs adaptation through existing native owners. Keep the agreed one linked outline/direct movement/attached information/Undo direction.
+
+Re-read existing delivery-plan03/05/06/09/10 in the parent project outputs. P8 owns missing domain/destination/search/retention/interchange foundations within accepted scope; P9 first milestone is actual rough-pages to source-linked proposed cards and short Review, followed by qualified intelligence/jobs; P10 owns remaining coherent whole-product/Graph/one-two-screen journeys and final product review. Document10 explicitly groups author outcomes and rejects per-change human validation. Do not pull those future outcomes or complete AI-dependent workflow review into this current repair sequence. Preserve scope ceilings, mandatory owner/protection checks and existing human gates rather than creating new ones. Crash/offline spelling remain tracked current defects; inherited packaging/lint limits remain honest, without turning them into a new all-catalog repair campaign.
+
+GitHub read-only audit: local branch codex/program7-5-stabilization at8fc087d1c22e13bcf6eebd88864dd46547f77683;85 changed/untracked status entries and nothing staged. Local origin is a preserved B-all.bundle, not GitHub. GitHub connector confirms gray247/black-skies exists and the same development branch is identical to8fc087d1 (0ahead/0behind); later working-tree changes are uncommitted. GitHub main511ca109 and the development branch diverge1048ahead/10behind, so no blind main merge/force push. Recommend a reviewed development checkpoint soon, not waiting for AI or implying release. Inventory intended versus inherited edits, preserve recoverability, include accurate scope/known defects/evidence, and deliberately establish a publication remote before actual commit/push. User asked should/when; no stage/commit/push/merge/remote change authorized or performed by this audit.
+
+Corrected the canonical workspace implementation plan, handover, current A–F ledger/review and pin handoff.69 inventory rows preserved. Browser/runtime/test sources are unchanged from the verified snapshot; no runtime test rerun claimed for documentation-only review. No P8/P9/P10 plan source, real manuscript, installed/frozen candidate, provider or AI state modified. Next implementation remains the bounded Writing Studio changes, not the withdrawn expanded campaign.
+
+
+### November14 — authorized preservation checkpoint baseline
+
+Author explicitly requested implementation of the bounded repair plan, including reviewed development commit/push before further native changes. Verified branch8fc087d1 and matching GitHub development ref. Preserved87 changed/new files with byte/SHA256-verified ZIP and Git history bundle in local recovery/native-before-checkpoint-20261114-191533. Reviewed source/owner guards, tests, dictionary license and inherited packaging diff. Portable scope/acceptance summary added to the existing writer-foundation document. Current baseline:1735 passed,2 skipped,2 failed (packaging exact-SHA policy; old broad canvas-gradient ban versus later approved Outline washes); types/build/lint pass;4 selected disposable Electron journeys pass. No test was weakened. Preserve all A/C and other accepted scripts; current native interaction adaptation still pending. No AI/provider/install/release/main merge authorized. This checkpoint preserves known limits, not product completion.

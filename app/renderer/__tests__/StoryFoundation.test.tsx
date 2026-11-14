@@ -5,7 +5,7 @@ import {
   STORY_FOUNDATION_QUESTIONS,
   type StoryFoundationSnapshotV1,
 } from '../../shared/ipc/storyFoundation';
-import StoryFoundation from '../components/program7/StoryFoundation';
+import StoryFoundation, { type DraftValue } from '../components/program7/StoryFoundation';
 
 function snapshot(overrides: Partial<StoryFoundationSnapshotV1> = {}): StoryFoundationSnapshotV1 {
   return {
@@ -24,6 +24,17 @@ function snapshot(overrides: Partial<StoryFoundationSnapshotV1> = {}): StoryFoun
 }
 
 describe('StoryFoundation component', () => {
+  it('retains an unfinished question by project/path across remounts without leaking into a matching title', () => {
+    const memory = new Map<string, Record<string, DraftValue>>();
+    const a = render(<StoryFoundation snapshot={snapshot()} draftKey="a:path-a" draftMemory={memory} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your note for aboutness' }), { target: { value: 'Unfinished forest purpose.' } });
+    a.unmount();
+    const b = render(<StoryFoundation snapshot={snapshot({ document: { ...snapshot().document, projectId: 'project-b' } })} draftKey="b:path-b" draftMemory={memory} />);
+    expect(screen.getByRole('textbox', { name: 'Your note for aboutness' })).toHaveValue('');
+    b.unmount();
+    render(<StoryFoundation snapshot={snapshot()} draftKey="a:path-a" draftMemory={memory} />);
+    expect(screen.getByRole('textbox', { name: 'Your note for aboutness' })).toHaveValue('Unfinished forest purpose.');
+  });
   it('is optional, preserves blank/unknown/undecided postures, and never gates writing', () => {
     render(<StoryFoundation snapshot={snapshot()} />);
     expect(screen.getByRole('heading', { name: 'Story Foundation' })).toBeInTheDocument();

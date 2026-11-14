@@ -68,14 +68,14 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
     const foundationPath = path.join(projectPath, 'story-foundation.json');
     const beforePreview = await readFile(foundationPath, 'utf8');
     await branch.getByRole('button', { name: 'Preview destination', exact: true }).click();
-    await expect(branch.getByRole('status')).toContainText('ready to send');
+    await expect(branch.getByRole('status')).toContainText('Preview kept for');
     await expect(actionNotice).toBeInViewport();
     expect(await readFile(foundationPath, 'utf8')).toBe(beforePreview);
     expect(await readFile(draftPath, 'utf8')).toBe(draftBefore);
 
     const promotedText = 'A letter creates a bounded alternate direction for author exploration.';
     await branch.getByRole('button', { name: 'Send to Story Foundation', exact: true }).click();
-    await expect(writing.getByText('Text sent to Story Foundation. Your manuscript has not changed. Open Story Foundation to review it.', { exact: true })).toBeInViewport();
+    await expect(writing.getByText('The accepted idea was written as author-owned Story Foundation guidance. Open Story Foundation to review it.', { exact: true })).toBeInViewport();
     await expect.poll(async () => {
       const document = JSON.parse(await readFile(foundationPath, 'utf8')) as StoryFoundationDocumentV1;
       const entry = document.entries.find((item) => item.questionId === 'aboutness');
@@ -87,10 +87,10 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
 
     await branch.getByLabel('Send to', { exact: true }).selectOption('outline');
     await branch.getByRole('button', { name: 'Preview destination', exact: true }).click();
-    await expect(branch.getByRole('status')).toContainText('ready to send');
+    await expect(branch.getByRole('status')).toContainText('Preview kept for');
     await expect(actionNotice).toBeInViewport();
     await branch.getByRole('button', { name: 'Send to Outline', exact: true }).click();
-    await expect(writing.getByText('Text sent to Outline. Your manuscript has not changed. Open Outline to review it.', { exact: true })).toBeInViewport();
+    await expect(writing.getByText('The accepted idea was written as an author-owned Living Outline note. Open Outline to review it.', { exact: true })).toBeInViewport();
     await expect.poll(async () => {
       const document = JSON.parse(await readFile(path.join(projectPath, 'living-outline.json'), 'utf8')) as LivingOutlineDocumentV1;
       return document.items.find((item) => item.label === 'The letter path');

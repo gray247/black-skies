@@ -65,7 +65,8 @@ function isHistoryAction(value: unknown): value is StoryFoundationHistoryAction 
 function isVersion(value: unknown): value is StoryFoundationAnswerVersionV1 {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Partial<StoryFoundationAnswerVersionV1>;
-  return hasExactKeys(value, ['id', 'posture', 'text', 'provenance', 'createdAt', 'supersededAt']) &&
+  return hasExactKeys(value, ['id', 'posture', 'text', 'provenance', 'createdAt', 'supersededAt', ...(candidate.sourcePromotionId !== undefined ? ['sourcePromotionId'] : [])]) &&
+    (candidate.sourcePromotionId === undefined || isNonEmptyString(candidate.sourcePromotionId) && candidate.sourcePromotionId.length <= 240) &&
     isNonEmptyString(candidate.id) &&
     isPosture(candidate.posture) &&
     typeof candidate.text === 'string' && candidate.text.length <= STORY_FOUNDATION_MAX_ANSWER_LENGTH &&
@@ -206,7 +207,7 @@ export class StoryFoundationRepository {
   async setAnswer(
     projectId: string,
     expectedRevision: number,
-    input: { readonly questionId: StoryFoundationQuestionId; readonly posture: StoryFoundationPosture; readonly text: string },
+    input: { readonly questionId: StoryFoundationQuestionId; readonly posture: StoryFoundationPosture; readonly text: string; readonly sourcePromotionId?: string },
   ): Promise<StoryFoundationSnapshotV1> {
     if (!isQuestionId(input.questionId)) {
       throw new StoryFoundationRepositoryError('UNKNOWN_QUESTION', 'That Story Foundation question does not exist.');
@@ -235,6 +236,7 @@ export class StoryFoundationRepository {
       });
       const version: StoryFoundationAnswerVersionV1 = {
         id: versionId,
+        ...(input.sourcePromotionId ? { sourcePromotionId: input.sourcePromotionId } : {}),
         posture: input.posture,
         text: input.posture === 'blank' ? '' : input.text.trim(),
         provenance: 'author',

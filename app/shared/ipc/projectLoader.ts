@@ -68,6 +68,7 @@ export interface ProjectIssue {
 }
 
 export interface LoadedProject {
+  writingPreferences?: import('./projectSpine').WritingPreferencesState;
   path: string;
   projectId?: string;
   name: string;

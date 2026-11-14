@@ -1,3 +1,4 @@
+import type { FeedbackSourceEvidence, RevisionItem } from './ipc/feedbackNotes.js';
 import type { ManuscriptStructureAnchorV1 } from './ipc/manuscriptStructure';
 import type { StoryIntelligenceSourceClassV1, StoryPositionRefV1 } from './ipc/storyIntelligence';
 import {
@@ -284,3 +285,41 @@ export async function resolveProgram7SourceBinding(
 }
 
 export const resolveProgram7Source = resolveProgram7SourceBinding;
+
+/** Reconstruct the existing concern binding without copying manuscript text. */
+export function revisionItemSources(item: RevisionItem): readonly Program7SourceEnvelopeV1[] {
+  const fingerprint = item.anchor?.sourceFingerprint ?? item.sourceBodyFingerprint;
+  if (!fingerprint) return [...(item.relatedSources ?? [])];
+  const sourceClass = (item.sourceClass ?? (item.protection?.protected ? 'protected' : 'included')) as StoryIntelligenceSourceClassV1;
+  const primary: Program7SourceEnvelopeV1 = {
+    schemaVersion: PROGRAM7_SOURCE_BINDING_SCHEMA_VERSION, projectId: item.projectId, generation: item.sourceGeneration ?? 0,
+    unitId: item.unitId, ...(item.sourceBodyFingerprint ? { bodySha256: item.sourceBodyFingerprint } : {}),
+    protection: { sourceClass, metadataOnly: item.protection?.protected === true },
+    sourceRef: { projectId: item.projectId, sourceKind: (item.sourceKind ?? 'manuscript') as StoryPositionRefV1['sourceKind'],
+      sourceId: item.sourceId ?? item.unitId, sourceRevision: item.sourceRevision ?? 0, sourceFingerprint: fingerprint, unitId: item.unitId,
+      ...(item.sourceBodyFingerprint ? { bodySha256: item.sourceBodyFingerprint } : {}),
+      ...(item.anchor ? { selectionStart: item.anchor.selectionStart, selectionEnd: item.anchor.selectionEnd, selectionFingerprint: item.anchor.selectionFingerprint } : {}) },
+    ...(item.anchor ? { anchor: item.anchor, selectionStart: item.anchor.selectionStart, selectionEnd: item.anchor.selectionEnd } : {}),
+  };
+  return [primary, ...(item.relatedSources ?? [])];
+}
+
+
+/** Captures a bounded quote without treating source availability as resolution.
+ * A whole-section binding may show its current section after an edit; this does
+ * not claim the old quote was reattached to an exact passage. */
+export async function captureProgram7SourceEvidence(source: Program7SourceEnvelopeV1, body?: string): Promise<FeedbackSourceEvidence> {
+  const resolution = await resolveProgram7SourceBinding(source, body);
+  const wholeUnit = Boolean(source.anchor && source.anchor.selectionStart === 0 && source.anchor.prefixLength === 0 && source.anchor.suffixLength === 0);
+  const scope = wholeUnit ? 'unit' as const : 'passage' as const;
+  if (resolution.status === 'protected' || body === undefined) return { unitId: source.unitId, status: resolution.status, scope };
+  const normalized = normalizeManuscriptSource(body);
+  const known = ['current', 'exact', 'relocated', 'potentially-outdated'].includes(resolution.status);
+  const from = resolution.selectionStart ?? (wholeUnit ? 0 : undefined);
+  const to = resolution.selectionEnd ?? (wholeUnit ? normalized.length : undefined);
+  const identifiable = (known || wholeUnit) && from !== undefined && to !== undefined && from >= 0 && to >= from && to <= normalized.length;
+  const quote = identifiable ? normalized.slice(from, to) : undefined;
+  return { unitId: source.unitId, status: wholeUnit && !known ? 'potentially-outdated' : resolution.status, scope,
+    bodyFingerprint: await sha256(normalized),
+    ...(identifiable ? { selectionStart: from, selectionEnd: to, text: quote!.slice(0, 4000), truncated: quote!.length > 4000 } : {}) };
+}

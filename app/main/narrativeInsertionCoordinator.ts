@@ -1,3 +1,4 @@
+import { verifiedRevisionConcern } from './feedbackNotesRepository.js';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import type { ProjectSpineSessionSnapshot, ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
@@ -141,6 +142,7 @@ function candidateForCalculation(candidate: RevisionCandidateV1): NarrativeInser
     unitId: candidate.unitId,
     sourceSnapshot: candidate.sourceSnapshot,
     sourceAnchor: candidate.sourceAnchor,
+    ...(candidate.deleteSource ? { deleteSource: true } : {}),
     candidateText: candidate.candidateText,
     editedCandidateText: candidate.editedCandidateText,
     protection: candidate.protection,
@@ -174,6 +176,8 @@ export class NarrativeInsertionCoordinator {
     ) {
       return fail('STALE_CANDIDATE', 'The revision candidate is stale and cannot be inserted.');
     }
+    if (candidate.concernId && !(await verifiedRevisionConcern(active.snapshot, candidate.concernId, candidate.unitId)))
+      return fail('STALE_CANDIDATE', 'A concern evidence source changed or became unavailable. Review the linked concern before applying this alternative.');
     const currentDraft = active.snapshot.project?.drafts?.[candidate.unitId];
     if (typeof currentDraft !== 'string') return fail('STALE_CANDIDATE', 'The candidate source unit is unavailable.');
     const calculation = await calculateNarrativeInsertion({

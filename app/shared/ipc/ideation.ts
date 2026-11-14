@@ -161,6 +161,7 @@ export interface IdeationPremiseTestV1 {
 }
 
 export interface IdeationPromotionPackageV1 {
+  readonly destinationRevision?: number;
   readonly id: string;
   readonly branchId: string;
   readonly seedIds: readonly string[];
@@ -297,6 +298,7 @@ export interface FilterLibraryRequest extends IdeationProjectBinding {
   };
 }
 export interface PreparePromotionRequest extends IdeationProjectBinding {
+  readonly destinationRevision?: number;
   readonly expectedRevision: number;
   readonly branchId: string;
   readonly destination: IdeationPromotionDestination;

@@ -1,3 +1,4 @@
+import { verifiedRevisionConcern } from './feedbackNotesRepository.js';
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
@@ -105,7 +106,7 @@ function exactKeys(
 
 function bindingValid(request: unknown): request is RevisionCandidateProjectBinding {
   if (!record(request)) return false;
-  const candidate = request as Record<string, any>;
+  const candidate = request as Record<string, unknown>;
   return (
     typeof candidate.operationId === 'string' &&
     candidate.operationId.trim().length > 0 &&
@@ -114,7 +115,7 @@ function bindingValid(request: unknown): request is RevisionCandidateProjectBind
     typeof candidate.projectPath === 'string' &&
     candidate.projectPath.trim().length > 0 &&
     Number.isInteger(candidate.generation) &&
-    candidate.generation >= 0
+    Number(candidate.generation) >= 0
   );
 }
 
@@ -363,7 +364,7 @@ async function createManual(
         'protection',
         'candidateText',
       ],
-      ['unitId', 'sourceAnchor', 'warnings'],
+      ['unitId', 'sourceAnchor', 'warnings', 'concernId', 'deleteSource'],
     )
   )
     return fail('INVALID_REQUEST', 'The manual revision candidate request is invalid.');
@@ -375,7 +376,9 @@ async function createManual(
     request.sourceSnapshot.unitId !== active.snapshot.activeUnitId ||
     !validAnchor(request.sourceAnchor) ||
     !validText(request.purpose, REVISION_CANDIDATE_MAX_PURPOSE_LENGTH) ||
-    !validText(request.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH) ||
+    (request.deleteSource !== undefined && typeof request.deleteSource !== 'boolean') ||
+    (request.deleteSource && (request.candidateText !== '' || !request.sourceAnchor || request.sourceAnchor.selectionEnd <= request.sourceAnchor.selectionStart)) ||
+    !(request.deleteSource === true && request.candidateText === '' || validText(request.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH)) ||
     !validProtection(request.protection) ||
     (request.warnings !== undefined &&
       (!Array.isArray(request.warnings) ||
@@ -406,6 +409,12 @@ async function createManual(
     )
   )
     return fail('INVALID_REQUEST', 'The selected passage no longer matches the saved manuscript. Select it again in Writing Studio, then save a new alternative. Your manuscript has not changed.');
+  if (request.concernId !== undefined) {
+    if (!validText(request.concernId, 240)) return fail('INVALID_REQUEST', 'The concern identity is invalid.');
+    const concern = await verifiedRevisionConcern(active.snapshot, request.concernId, request.sourceSnapshot.unitId);
+    if (!concern || (concern.anchor && (!request.sourceAnchor || request.sourceAnchor.selectionFingerprint !== concern.anchor.selectionFingerprint)))
+      return fail('STALE_CANDIDATES', 'A concern evidence source is stale, protected or unavailable. Review both passages before creating a new alternative.');
+  }
   try {
     return {
       ok: true,

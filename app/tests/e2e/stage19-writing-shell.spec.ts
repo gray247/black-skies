@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -9,6 +10,18 @@ import {
   removeTemporaryDirectory,
   type WritingStudioRailLabel,
 } from './stage19-electron-support';
+
+async function openOutlinePlanning(writing: Page): Promise<void> {
+  await openWritingStudioRail(writing, 'Story');
+  const planning = writing.locator('details.stage19-outline-planning');
+  if (await planning.getAttribute('open') === null) await planning.locator('summary').first().click();
+}
+
+async function openOutlineStructure(writing: Page): Promise<void> {
+  await openOutlinePlanning(writing);
+  const structure = writing.locator('details.stage19-manuscript-structure');
+  if (await structure.getAttribute('open') === null) await structure.locator('summary').first().click();
+}
 
 async function snapshotStructureCanonicalFiles(projectPath: string): Promise<Record<string, string>> {
   const relativePaths = ['manuscript-intake.md', 'manuscript-structure.json', 'outline.json'];
@@ -111,24 +124,8 @@ test('P5-UX-01 keeps no-project startup tools composed and unavailable controls 
     });
   }
 
-  await expect(writing.getByRole('button', { name: 'Open Writing Session' })).toHaveCount(0);
-
-  const askButton = writing.getByRole('button', { name: 'Ask' });
-  await expect(askButton).toBeDisabled();
-  expect(await askButton.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      borderStyle: style.borderStyle,
-      cursor: style.cursor,
-      textDecorationLine: style.textDecorationLine,
-      title: element.title,
-    };
-  })).toEqual({
-    borderStyle: 'dashed',
-    cursor: 'not-allowed',
-    textDecorationLine: 'none',
-    title: 'Open a project before asking Companion',
-  });
+  await expect(writing.getByRole('button', { name: /Open (Companion|Writing Session)/ })).toHaveCount(0);
+  await expect(writing.getByRole('button', { name: 'Ask', exact: true })).toHaveCount(0);
 });
 
 test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardized', async ({
@@ -175,7 +172,7 @@ test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardize
       const title = document.querySelector<HTMLElement>('.stage19-writing-shell__project');
       const statusGroup = document.querySelector<HTMLElement>('.stage19-writing-shell__status');
       const status = statusGroup?.querySelector<HTMLElement>('.stage19-spine__save-state');
-      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button');
+      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button:not(:disabled)');
       const editor = document.querySelector<HTMLElement>('.stage19-spine__editor .cm-scroller');
       if (!header || !title || !statusGroup || !status || !action || !editor) {
         throw new Error('Writing Studio chrome nodes are unavailable');
@@ -234,7 +231,7 @@ test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardize
       const title = document.querySelector<HTMLElement>('.stage19-command__identity h1');
       const statusGroup = document.querySelector<HTMLElement>('.stage19-command__status');
       const status = statusGroup?.querySelector<HTMLElement>('.stage19-spine__save-state');
-      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button');
+      const action = statusGroup?.querySelector<HTMLButtonElement>('.stage19-spine__surface-actions button:not(:disabled)');
       if (!header || !title || !statusGroup || !status || !action) {
         throw new Error('Command Center chrome nodes are unavailable');
       }
@@ -405,7 +402,8 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
         cardWidth: card.getBoundingClientRect().width,
       };
     });
-    expect(proseGeometry.contentWidth).toBeGreaterThan(950);
+    expect(proseGeometry.contentWidth).toBeGreaterThan(550);
+    expect(proseGeometry.contentWidth).toBeLessThan(900);
     expect(proseGeometry.contentWidth).toBeLessThanOrEqual(proseGeometry.cardWidth);
 
     const themeSwitch = writing.getByRole('switch', { name: 'Light theme' });
@@ -465,12 +463,12 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
       role: 'region' | 'complementary';
     }> = [
       { control: 'Project Tools', panel: 'Project Tools', role: 'region' },
-      { control: 'Story', panel: 'Story rail', role: 'complementary' },
+      { control: 'Story', panel: 'Story tools', role: 'region' },
       { control: 'Review', panel: 'Review', role: 'complementary' },
-      { control: 'Writing Session', panel: 'Writing Session', role: 'region' },
+      { control: 'Companion', panel: 'Companion', role: 'region' },
     ];
     for (const rail of rails) {
-      if (rail.control === 'Writing Session') {
+      if (rail.control === 'Companion') {
         const hitTest = await writing.evaluate(() => {
           const button = document.getElementById('stage19-writing-edge-bottom');
           if (!button) return { targetId: null, viewport: null, button: null, companion: null };
@@ -506,22 +504,29 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     }
 
     await openWritingStudioRail(writing, 'Story');
-    await expect(writing.getByRole('complementary', {
-      name: 'Story rail',
+    await expect(writing.getByRole('region', {
+      name: 'Story tools',
     })).toBeVisible();
+    await writing.getByText('Writing preferences', { exact: true }).first().click();
+    const preferenceSize = writing.getByRole('spinbutton', { name: 'Text size (px)', exact: true });
+    await preferenceSize.fill('24');
     await writing.getByRole('button', { name: 'Enter Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'focus');
     await expect(writing.getByRole('navigation', { name: 'Writing Studio edge controls' })).toHaveCount(0);
-    await expect(writing.getByRole('complementary', { name: 'Story rail' })).toHaveCount(0);
+    await expect(writing.getByRole('region', { name: 'Story tools' })).toHaveCount(0);
     await expect(writing.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveCount(0);
+    await expect(writing.getByRole('group', { name: 'Writing organization' })).toHaveCount(0);
+    await expect(writing.getByRole('group', { name: 'Writing highlights' })).toHaveCount(0);
     await expect(writing.getByRole('heading', { name: 'One continuous story' })).toHaveCount(0);
     await expect(writing.getByText(/Scroll through the whole story/)).toHaveCount(0);
     await expect(editor).toContainText(prose);
 
     await writing.getByRole('button', { name: 'Exit Focus mode' }).click();
     await expect(studio).toHaveAttribute('data-stage19-writing-rail', 'left');
-    await expect(writing.getByRole('complementary', { name: 'Story rail' })).toBeVisible();
+    await expect(writing.getByRole('region', { name: 'Story tools' })).toBeVisible();
     await expect(editor).toContainText(prose);
+    await expect(preferenceSize).toHaveValue('24');
+    await writing.getByRole('button', { name: 'Cancel preferences', exact: true }).click();
 
     await writing.setViewportSize({ width: 1000, height: 800 });
     await openWritingStudioRail(writing, 'Review');
@@ -535,6 +540,10 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     );
     expect(responsiveWidth).toBeGreaterThan(700);
     expect(responsiveWidth).toBeLessThanOrEqual(1_000);
+    const canvas = await writing.locator('[data-manuscript-scroll-owner="true"]').boundingBox();
+    const review = await writingSupport.boundingBox();
+    expect(canvas!.height).toBeGreaterThan(review!.height);
+    expect(review!.y).toBeGreaterThanOrEqual(canvas!.y + canvas!.height - 1);
     await expect(editor).toContainText(prose);
   } finally {
     await removeTemporaryDirectory(parent);
@@ -593,6 +602,7 @@ test('Slice 1 keeps long prose in a private canvas scroll region while rails sta
     });
     expect(geometryBefore.shellOverflow).toBe('hidden');
     expect(geometryBefore.canvasOverflow).toBe('auto');
+    expect(geometryBefore.canvasClientHeight).toBeGreaterThan(700);
     expect(geometryBefore.canvasScrollHeight).toBeGreaterThan(geometryBefore.canvasClientHeight);
 
     const geometryAfter = await writing.evaluate(() => {
@@ -649,21 +659,21 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     const crossingProse = 'Mara carried the lantern across the flooded station and listened for the signal.';
     const crossingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Crossing' });
     await crossingEditor.fill(crossingProse);
-    await writing.getByRole('button', { name: 'Save', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
 
-    await openWritingStudioRail(writing, 'Story');
+    await openOutlinePlanning(writing);
     await writing.getByRole('button', { name: '01 Opening' }).click();
     const openingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening' });
     const openingProse = 'Rain crossed the windows before the first passenger arrived.';
     await openingEditor.fill(openingProse);
-    await writing.getByRole('button', { name: 'Save', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
     await writing.getByRole('button', { name: 'Close', exact: true }).click();
 
     // Rail selection, rather than the in-manuscript jump control, must bring
     // the selected unit into view in a long continuous manuscript.
-    await openWritingStudioRail(writing, 'Story');
+    await openOutlinePlanning(writing);
     await writing.getByRole('button', { name: '02 Crossing' }).click();
     await expect(crossingEditor).toBeInViewport();
     await writing.getByRole('button', { name: '01 Opening' }).click();
@@ -672,17 +682,17 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     const manuscript = writing.getByLabel('Continuous manuscript');
     await expect(manuscript.locator('[data-manuscript-unit-id]')).toHaveCount(2);
     await expect(openingEditor).toContainText(openingProse);
-    await expect(writing.getByRole('button', { name: 'Write in Crossing' })).toContainText(crossingProse);
+    await expect(manuscript.getByRole('region', { name: 'Written section Crossing' })).toContainText(crossingProse);
 
-    await writing.getByRole('button', { name: 'Write in Crossing' }).click();
+    await writing.getByRole('button', { name: 'Write here: Crossing, section 2' }).click();
     const activeCrossingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Crossing' });
     await expect(activeCrossingEditor).toContainText(crossingProse);
-    await expect(writing.getByRole('button', { name: 'Write in Opening' })).toContainText(openingProse);
+    await expect(manuscript.getByRole('region', { name: 'Written section Opening' })).toContainText(openingProse);
 
     await activeCrossingEditor.selectText();
-    await openWritingStudioRail(writing, 'Story');
+    await openOutlinePlanning(writing);
     await writing.getByRole('button', { name: 'Add story content' }).click();
-    await writing.getByRole('button', { name: 'Note' }).click();
+    await writing.getByRole('button', { name: 'Note', exact: true }).click();
     const title = writing.getByRole('textbox', { name: `Title for ${crossingProse}` });
     await title.fill('Lantern crossing');
     const saveNote = writing.getByRole('button', { name: 'Save note and close' });
@@ -778,12 +788,13 @@ test('Program 5 requires complete decisions before applying a disposable Markdow
       process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;
     }, { parentPath: destinationPath, filePath: sourcePath });
 
-    await openWritingStudioRail(writing, 'Story');
-    await writing.locator('details.stage19-manuscript-structure').evaluate((element) => { (element as HTMLDetailsElement).open = true; });
-    await writing.getByRole('button', { name: 'Import Markdown' }).click();
+    await openOutlineStructure(writing);
+    await writing.getByRole('button', { name: 'Import Markdown / UTF-8 text' }).click();
     await expect.poll(async () => (await readdir(destinationPath)).filter((entry) => entry.startsWith('proj_intake_')).length).toBe(1);
     const importedDirectory = (await readdir(destinationPath)).find((entry) => entry.startsWith('proj_intake_'))!;
     const imported = { projectPath: join(destinationPath, importedDirectory) };
+    await expect(writing.locator('.stage19-writing-shell__project')).not.toContainText('Structure Host');
+    await openOutlineStructure(writing);
     await expect(writing.getByRole('button', { name: 'Rediscover' })).toBeVisible();
     await writing.getByRole('button', { name: 'Rediscover' }).click();
     await expect(writing.getByRole('heading', { name: 'Structure', exact: true })).toBeVisible();
@@ -971,14 +982,13 @@ test('Program 5 keeps a substantial Markdown intake bounded and blocks partial A
       process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;
     }, { parentPath: destinationPath, filePath: sourcePath });
 
-    await openWritingStudioRail(writing, 'Story');
-    await writing.locator('details.stage19-manuscript-structure').evaluate((element) => {
-      (element as HTMLDetailsElement).open = true;
-    });
-    await writing.getByRole('button', { name: 'Import Markdown' }).click();
+    await openOutlineStructure(writing);
+    await writing.getByRole('button', { name: 'Import Markdown / UTF-8 text' }).click();
     await expect.poll(async () => (await readdir(destinationPath)).filter((entry) => entry.startsWith('proj_substantial-manuscript_')).length).toBe(1);
     const importedDirectory = (await readdir(destinationPath)).find((entry) => entry.startsWith('proj_substantial-manuscript_'))!;
     const projectPath = join(destinationPath, importedDirectory);
+    await expect(writing.locator('.stage19-writing-shell__project')).not.toContainText('Structure Host');
+    await openOutlineStructure(writing);
     await writing.getByRole('button', { name: 'Rediscover' }).click();
 
     await expect.poll(async () => {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildProgram7SourceEnvelope,
+  captureProgram7SourceEvidence,
   type Program7SourceEnvelopeV1,
   resolveProgram7SourceBinding,
 } from '../program7SourceBinding';
@@ -304,5 +305,19 @@ describe('Program 7 source binding', () => {
     await expect(resolveProgram7SourceBinding(wholeSource, 'Other text')).resolves.toMatchObject({
       status: 'stale',
     });
+  });
+});
+
+
+describe('bounded concern evidence', () => {
+  it('keeps a whole-section edit distinct from an exact passage and bounds retained quotes', async () => {
+    const original = 'Mara wore a green shirt.';
+    const source = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'a', sourceText: original, selectionStart: 0, selectionEnd: original.length });
+    expect(await captureProgram7SourceEvidence(source, original)).toMatchObject({ status: 'exact', scope: 'unit', text: original });
+    expect(await captureProgram7SourceEvidence(source, original.replace('green', 'cotton'))).toMatchObject({ status: 'potentially-outdated', scope: 'unit', text: 'Mara wore a cotton shirt.', selectionStart: 0, selectionEnd: 25 });
+    const long = await captureProgram7SourceEvidence(source, 'x'.repeat(4500));
+    expect(long.text).toHaveLength(4000); expect(long.truncated).toBe(true);
+    expect(await captureProgram7SourceEvidence({ ...source, protection: { sourceClass: 'protected', metadataOnly: true } }, original)).toEqual({ unitId: 'a', status: 'protected', scope: 'unit' });
+    expect(await captureProgram7SourceEvidence(source)).toEqual({ unitId: 'a', status: 'unavailable', scope: 'unit' });
   });
 });

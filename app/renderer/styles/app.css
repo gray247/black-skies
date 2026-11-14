@@ -5940,9 +5940,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-spine--writing .stage19-spine__editor .cm-scroller {
   overflow: visible;
   color: var(--bs-text-primary);
-  font-family: Georgia, "Times New Roman", ui-serif, serif;
-  font-size: 19px;
-  line-height: 1.65;
+  font-family: var(--writing-font, Georgia, "Times New Roman", ui-serif, serif);
+  font-size: var(--writing-size, 19px);
+  line-height: var(--writing-line-height, 1.65);
 }
 
 .stage19-spine--writing .stage19-spine__editor .cm-content {
@@ -6543,7 +6543,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   }
 
   .stage19-spine--writing .stage19-spine__editor .cm-scroller {
-    font-size: 18px;
+    font-size: var(--writing-size, 18px);
   }
 
   .stage19-writing-shell__rail--top,
@@ -9679,7 +9679,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   white-space: pre-wrap;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .stage19-spine--writing .stage19-writing-shell__topbar {
     z-index: 30;
     align-items: stretch;
@@ -9698,7 +9698,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
     width: 100%;
     min-width: 0;
   }
+}
 
+@media (max-width: 720px) {
   .program7-create-develop,
   .program7-revision-desk,
   .program7-story-foundation,
@@ -9850,3 +9852,395 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   font-size: 1.05rem;
   line-height: 1.65;
 }
+
+/* Writing essentials extend the existing editor and inherit its theme. */
+.stage19-editor-tools { padding: .5rem; border-bottom: 1px solid currentColor; }
+.stage19-editor-tools__actions, .stage19-editor-tools__search { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.stage19-editor-tools__search { margin-top: .5rem; }
+.stage19-editor-tools__search label { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; max-width: 100%; }
+.stage19-editor-tools__search input, .stage19-editor-tools__search select { min-width: 0; max-width: 100%; }
+
+/* Deliberate rail locks can keep both sides open without moving source text. */
+.stage19-writing-shell__workspace[data-left-open="true"][data-right-open="false"] { grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr); }
+.stage19-writing-shell__workspace[data-left-open="false"][data-right-open="true"] { grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem); }
+.stage19-writing-shell__workspace[data-left-open="true"][data-right-open="true"] { grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr) minmax(16rem, 23rem); }
+.stage19-writing-shell__rail-host { overflow: auto; min-height: 0; }
+@media (max-width: 1100px) {
+  .stage19-writing-shell__workspace[data-left-open="true"][data-right-open] {
+    grid-template-columns: clamp(12rem, 31vw, 17rem) minmax(0, 1fr);
+  }
+  .stage19-writing-shell__workspace[data-left-open="false"][data-right-open="true"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stage19-writing-shell__workspace[data-left-open][data-right-open="true"] {
+    grid-template-rows: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  .stage19-writing-shell__workspace[data-right-open="true"] > .stage19-writing-shell__rail-host {
+    grid-column: 1 / -1;
+    overflow: hidden;
+  }
+}
+
+.stage19-writing-page-tools > [role="group"] { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .5rem; }
+.stage19-writing-page-tools label { display: flex; gap: .35rem; align-items: center; }
+.stage19-writing-page-outline { min-height: 0; }
+.stage19-writing-move-preview pre { max-height: 16rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.stage19-writing-unit-organization { flex: 1 1 100%; }
+.stage19-writing-unit-organization label { display: flex; flex-wrap: wrap; gap: .4rem; }
+.stage19-writing-page-outline > ol { list-style: none; margin: .5rem 0; padding: 0; overflow-y: auto; max-height: calc(100vh - 22rem); overscroll-behavior: contain; }
+.stage19-writing-page-outline li { padding: .5rem; border-left: 2px solid transparent; display: flex; flex-wrap: wrap; gap: .35rem; }
+.stage19-writing-page-outline li.is-pinned { border-left-color: #79b493; }
+.stage19-writing-page-outline li.is-unpinned { border-left-color: #d9b96c; border-left-style: dashed; }
+.stage19-writing-page-outline li > button:first-child { flex: 1 1 100%; text-align: left; }
+.stage19-writing-pinned { background: color-mix(in srgb, #79b493 18%, transparent); }
+/* Document selection crosses the active CodeMirror and passive manuscript.
+   Override CodeMirror's transparent native selection while the browser owns it. */
+.cm-content[data-document-selection]::selection,
+.cm-content[data-document-selection] ::selection {
+  background: Highlight !important;
+  color: HighlightText !important;
+}
+.stage19-writing-unpinned { background: color-mix(in srgb, #d9b96c 18%, transparent); }
+.stage19-writing-concern { background: color-mix(in srgb, #e77982 30%, transparent); text-decoration: underline dotted #e77982; }
+.stage19-writing-pin-marker, .stage19-writing-note-marker { position: absolute; transform: translateY(-.6em); font-size: .7em; padding: 0; min-width: 0; border: 0; background: transparent; color: inherit; }
+.stage19-writing-page-note { padding: .75rem; border: 1px solid var(--bs-text-muted); }
+.stage19-writing-page-note textarea { display: block; width: 100%; min-height: 5rem; }
+
+.stage19-command__task-canvas { min-height: 0; overflow-y: auto; border: 1px solid var(--bs-line-strong); border-radius: 4px; }
+.stage19-command__tool-title { padding: .75rem 1rem; border-bottom: 1px solid var(--bs-line-quiet); }
+
+.stage19-spine--writing[data-writing-page="true"] .stage19-writing-shell__edge--bottom { bottom: 8px; }
+.stage19-spine--writing[data-writing-page="true"] .stage19-writing-shell__rail--bottom { margin-bottom: 12px; }
+.stage19-writing-shell__rail--bottom .stage19-companion-bar { position: static; margin: 0; width: 100%; grid-template-columns: auto minmax(0, 1fr) auto; box-shadow: none; }
+.stage19-writing-shell__rail--bottom .stage19-companion-bar__scope,
+.stage19-writing-shell__rail--bottom .stage19-companion-bar__examples { grid-column: 1 / -1; }
+
+.stage19-writing-page-tools { flex: 0 0 auto; max-height: 42vh; overflow-y: auto; margin: 0 48px; }
+.stage19-writing-page-tools [role="search"] { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .5rem; }
+.stage19-writing-page-tools [role="search"] label { flex-wrap: wrap; max-width: 100%; }
+.stage19-writing-page-tools [role="search"] input, .stage19-writing-page-tools [role="search"] select { max-width: 100%; min-width: 0; }
+.stage19-writing-page-tools [role="search"] details, .stage19-writing-page-tools [role="search"] p { flex-basis: 100%; overflow-wrap: anywhere; }
+
+.stage19-writing-context-menu { position: fixed; z-index: 120; min-width: 12rem; padding: .5rem; border: 1px solid var(--bs-line-strong); border-radius: 4px; background: var(--bs-surface-raised); display: grid; gap: .35rem; }
+
+/* Co-located pencils remain separate click targets above unchanged prose. */
+.stage19-spine .stage19-writing-note-marker,
+.stage19-spine .stage19-writing-pin-marker { width: 18px; height: 18px; min-width: 0; min-height: 0; padding: 0; font-size: 12px; line-height: 18px; border: 0; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Compact writer controls override the general form-field minimum widths. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools label { min-width: 0; width: auto; flex: 0 0 auto; display: inline-flex; align-items: center; gap: .4rem; }
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools input[type="checkbox"] { width: 1rem; min-width: 1rem; max-width: 1rem; height: 1rem; min-height: 0; flex: none; margin: 0; padding: 0; accent-color: var(--bs-accent-primary); }
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools [aria-label="Writing highlights"] { gap: 1.25rem; }
+@media (min-width: 721px) {
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge { border-color: transparent; background: transparent; box-shadow: none; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--left,
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--right { width: 44px; min-width: 44px; height: 50vh; padding: 0; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge-mark { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--bs-accent-primary); opacity: .6; font-size: 0; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge-label { position: absolute; max-width: none; white-space: nowrap; opacity: 0; pointer-events: none; padding: .3rem .5rem; border-radius: 4px; background: var(--bs-surface-raised); }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge:hover .stage19-writing-shell__edge-label,
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge:focus-visible .stage19-writing-shell__edge-label { opacity: 1; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--left .stage19-writing-shell__edge-label { left: 40px; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--right .stage19-writing-shell__edge-label { right: 40px; }
+}
+
+.stage19-writing-unit-name { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: .35rem; }
+.stage19-writing-unit-name label { min-width: 0; width: 100%; }
+
+
+/* Existing outline tools work in the rail and the steady Command canvas. */
+.stage19-outline-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-block: .5rem; }
+.stage19-writing-page-outline > label { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.stage19-outline-drag { cursor: grab; }
+.stage19-writing-page-outline li.is-plan-drop { border-top: 2px solid var(--bs-text-muted); }
+.stage19-outline-comparison { border-top: 1px solid var(--bs-line-strong); padding-block: .75rem; }
+.stage19-outline-comparison__passages { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: .75rem; }
+.stage19-outline-comparison article { min-width: 0; padding: .75rem; border: 1px solid var(--bs-line-quiet); }
+.stage19-outline-comparison__prose { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 55vh; overflow-y: auto; }
+.stage19-outline-comparison ul { padding: 0; list-style: none; }
+
+.stage19-spine .stage19-writing-page-outline input[type="checkbox"] { width: 1rem; height: 1rem; padding: 0; margin: 0; flex: 0 0 auto; }
+.stage19-writing-page-outline li > label { display: inline-flex; align-items: center; gap: .3rem; }
+.stage19-spine .stage19-writing-page-outline li > button { padding: .3rem .45rem; min-height: 2rem; }
+.stage19-writing-page-outline > details { margin-block: .35rem; }
+
+.stage19-spine .stage19-outline-actions button { padding: .3rem .45rem; font-size: .86rem; min-height: 2rem; }
+
+/* Display preferences never add whitespace to manuscript source. */
+.stage19-spine--writing .stage19-continuous-manuscript .stage19-spine__editor .writing-paragraph-start {
+  padding-block-start: var(--writing-paragraph-spacing, 0px);
+  text-indent: var(--writing-indent, 0em);
+}
+.stage19-spine--writing .stage19-continuous-manuscript .stage19-spine__editor .writing-paragraph-first { text-indent: var(--writing-indent, 0em); }
+.stage19-continuous-manuscript__prose {
+  font-family: var(--writing-font, Georgia, "Times New Roman", ui-serif, serif);
+  font-size: var(--writing-size, 19px);
+  line-height: var(--writing-line-height, 1.65);
+}
+.stage19-writing-preferences form { padding: .6rem; max-width: 38rem; }
+.stage19-writing-preferences fieldset { display: flex; flex-wrap: wrap; gap: .6rem; }
+.stage19-writing-preferences label { display: flex; gap: .3rem; align-items: center; }
+.stage19-writing-preferences input[type="number"] { width: 6rem; }
+
+/* Icons stay visible without becoming selected manuscript characters. */
+.stage19-writing-pin-marker::before { content: '📌'; }
+.stage19-writing-note-marker::before { content: '✎'; }
+
+/* Keep the Review trigger off the manuscript scrollbar. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--right {
+  right: 26px;
+}
+.stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left > .stage19-writing-shell__rail-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bs-surface-raised, Canvas);
+}
+.writing-outline-concern > button {
+  color: #c74751;
+  font-weight: bold;
+}
+.writing-outline-concern__sources {
+  overflow-wrap: anywhere;
+}
+.writing-outline-concern__sources button {
+  display: block;
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+/* The Writing Studio Outline has one scroll owner. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.stage19-writing-shell__rail--left > .stage19-writing-shell__rail-heading { flex: none; }
+.stage19-writing-page-outline.is-compact { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+.stage19-writing-page-outline.is-compact > ol { flex: 1 1 auto; max-height: none; min-height: 4rem; scrollbar-gutter: stable; }
+.stage19-writing-page-outline.is-compact .stage19-outline-order-help { display: none; }
+.stage19-writing-page-outline.is-compact .stage19-outline-actions button:disabled:not(:first-child) { display: none; }
+.stage19-writing-page-outline.is-compact .stage19-outline-actions button { padding: .22rem .4rem; min-height: 1.8rem; font-size: .82rem; }
+.stage19-writing-page-outline.is-compact > ol > li { margin: 0 0 .35rem; border-radius: 4px; gap: .25rem; }
+.stage19-writing-page-outline.is-compact > ol > li.is-pinned { background: linear-gradient(90deg, color-mix(in srgb, #79b493 20%, transparent), transparent); }
+.stage19-writing-page-outline.is-compact > ol > li.is-unpinned { background: linear-gradient(90deg, color-mix(in srgb, #d9b96c 17%, transparent), transparent); }
+.stage19-spine .stage19-writing-page-outline.is-compact li > .stage19-outline-source {
+  flex: 1 1 65%; min-width: 0; max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: normal; background: transparent; border-color: transparent;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-align: left;
+}
+.stage19-outline-unit-heading { display: flex; justify-content: space-between; gap: .4rem; flex: 1 1 100%; font-size: .7rem; color: var(--bs-text-muted); }
+.stage19-outline-unit-heading > :first-child { text-transform: uppercase; letter-spacing: .06em; }
+.stage19-writing-legacy-history { font-size: .8rem; }
+.stage19-writing-legacy-history > summary { cursor: pointer; }
+.stage19-outline-kind { font-size: .78rem; color: var(--bs-text-muted); flex: 1 1 65%; }
+.stage19-outline-row-actions > summary { cursor: pointer; }
+.stage19-outline-row-actions[open] { flex: 1 1 100%; }
+.stage19-outline-row-actions > div { display: flex; flex-wrap: wrap; gap: .3rem; }
+.stage19-writing-page-tools .stage19-writing-page-note {
+  position: fixed; inset: auto clamp(12px, 4vw, 64px) 22px auto; z-index: 30;
+  width: min(460px, calc(100vw - 24px)); max-height: 55dvh; overflow: auto;
+  background: var(--bs-surface-raised, Canvas); border: 1px solid var(--bs-border, GrayText);
+  padding: 1rem; border-radius: 8px; box-shadow: 0 12px 32px #0008;
+}
+/* The Note field must override compact toolbar labels, including their specificity. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools .stage19-writing-page-note > label {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: .4rem;
+  margin-block: .75rem;
+}
+.stage19-writing-page-tools .stage19-writing-page-note textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 6rem;
+  resize: vertical;
+}
+.stage19-writing-page-tools .stage19-writing-page-note > button { margin-right: .5rem; margin-bottom: .25rem; }
+
+/* Open long forms beside the list instead of consuming its height. */
+.stage19-writing-page-outline.is-compact > details > :is([aria-label="Manual concern capture"], [aria-label="All-story Notebook"]) {
+  position: fixed; z-index: 24;
+  inset: auto auto 24px clamp(12px, 28vw, 440px);
+  width: min(440px, 68vw); max-height: 62dvh; overflow: auto;
+  background: var(--bs-surface-raised, Canvas);
+  border: 1px solid var(--bs-border, GrayText); border-radius: 8px;
+  padding: 1rem; box-shadow: 0 12px 32px #0008;
+}
+.stage19-writing-page-outline.is-compact .stage19-outline-kind { order: 2; flex-basis: 100%; }
+.stage19-writing-page-outline.is-compact .writing-outline-concern__sources { width: min(100%, 36ch); }
+
+.stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left { padding-bottom: .75rem; scroll-padding: 0; }
+.stage19-writing-page-outline.is-compact li[aria-current="location"] { outline: 1px solid var(--bs-accent-primary); outline-offset: -1px; }
+.stage19-writing-page-outline.is-compact .writing-outline-concern__sources {
+  position: fixed; z-index: 25;
+  inset: auto auto 24px clamp(12px, 28vw, 440px);
+  width: min(390px, 68vw); max-height: 62dvh; overflow: auto;
+  background: var(--bs-surface-raised, Canvas);
+  border: 1px solid var(--bs-line-quiet); border-radius: 8px;
+  padding: 1rem; box-shadow: 0 12px 32px #0008;
+}
+
+.stage19-writing-page-outline.is-compact .stage19-outline-comparison {
+  position: fixed; z-index: 26; inset: auto 3vw 24px auto;
+  width: min(680px, 72vw); max-height: 65dvh; overflow: auto;
+  background: var(--bs-surface-raised); border: 1px solid var(--bs-line-quiet);
+  border-radius: 8px; padding: 1rem; box-shadow: 0 12px 32px #0008;
+}
+
+.stage19-outline-planning { flex: none; }
+.stage19-spine--writing .stage19-outline-planning > .stage19-spine__binder {
+  position: fixed;
+  z-index: 24;
+  inset: auto auto 24px clamp(12px, 28vw, 440px);
+  width: min(520px, 68vw);
+  max-height: 62dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--bs-surface-raised, Canvas);
+  border: 1px solid var(--bs-line-quiet);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 12px 32px #0008;
+}
+
+@media (max-width: 1100px) {
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left {
+    padding: .55rem .65rem;
+  }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left > .stage19-writing-shell__rail-heading {
+    gap: .35rem;
+    margin-bottom: .4rem;
+    padding-bottom: .4rem;
+  }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left > .stage19-writing-shell__rail-heading button {
+    min-height: 1.85rem;
+    padding: .2rem .35rem;
+    font-size: .82rem;
+    white-space: nowrap;
+  }
+  .stage19-writing-page-outline.is-compact > details { margin-block: .2rem; }
+  .stage19-writing-page-outline.is-compact > ol { min-height: 0; }
+  .stage19-writing-page-outline.is-compact > label select { min-height: 1.85rem; padding: .2rem .35rem; font-size: .82rem; }
+  .stage19-writing-page-outline.is-compact .stage19-outline-actions button:disabled { display: none; }
+}
+
+/* Keep everyday writing controls compact and long forms out of the canvas flow. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem .75rem;
+  margin: 0;
+  padding: .4rem clamp(16px, 2.5vw, 48px);
+  border-bottom: 1px solid var(--bs-line-quiet);
+  overflow: visible;
+  max-height: none;
+}
+.stage19-writing-page-tools > [aria-label="Writing organization"] { order: 1; padding: 0; gap: .3rem; }
+.stage19-writing-page-tools > [aria-label="Writing highlights"] { order: 2; margin-left: auto; padding: .25rem 0; }
+.stage19-writing-page-options {
+  order: 3;
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem 1.25rem;
+  font-size: .8rem;
+  color: var(--bs-text-muted);
+}
+.stage19-writing-page-options > .stage19-writing-preferences { display: contents; }
+.stage19-writing-page-options details > summary { cursor: pointer; padding: .2rem 0; }
+.stage19-spine[data-writing-page="true"] .stage19-writing-page-tools > [aria-label="Writing organization"] > button {
+  min-height: 2rem;
+  padding: .25rem .5rem;
+  font-size: .9rem;
+}
+.stage19-writing-page-tools > p { order: 4; margin: .1rem 0; font-size: .8rem; }
+.stage19-writing-page-tools > :is([role="search"], section) { order: 5; flex: 1 1 100%; }
+.stage19-writing-page-tools > :is([aria-label="Passage move preview"], [aria-label="Pending gap save"]) {
+  max-height: 55dvh;
+  overflow: auto;
+}
+.stage19-writing-page-options :is(form[aria-label="Writing preferences"], [aria-label="Spelling and accepted words"], [aria-label="Story gaps"]) {
+  position: fixed;
+  z-index: 36;
+  inset: 160px auto auto clamp(16px, 3vw, 48px);
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(65dvh, calc(100dvh - 180px));
+  overflow: auto;
+  padding: 1rem;
+  background: var(--bs-surface-raised, Canvas);
+  border: 1px solid var(--bs-line-quiet);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px #0008;
+}
+.stage19-spine[data-writing-page="true"]:not(.is-focus-mode) .stage19-spine__editor-card {
+  min-height: 100%;
+  padding: 28px clamp(20px, 4vw, 64px) 72px;
+}
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript {
+  width: min(100%, 76ch);
+  margin-inline: auto;
+}
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript__heading {
+  min-height: 1.8rem;
+  padding: .3rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--bs-line-quiet);
+  border-radius: 0;
+  background: transparent;
+  font-size: .85rem;
+}
+.stage19-spine[data-writing-page="true"] .cm-gutters { display: none; }
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript__section { padding-top: 0; }
+.stage19-writing-page-outline.is-compact > label { flex-wrap: nowrap; font-size: .8rem; }
+.stage19-spine .stage19-writing-page-outline.is-compact > label select {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  min-height: 1.8rem;
+  padding: .2rem .35rem;
+  font-size: .85rem;
+}
+.stage19-writing-page-outline.is-compact .stage19-outline-actions button:disabled { display: none; }
+.stage19-spine .stage19-writing-page-outline.is-compact .writing-outline-concern > button {
+  width: 1.75rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  height: 1.75rem;
+  padding: .1rem;
+  border-color: transparent;
+  background: transparent;
+  font-size: 1rem;
+}
+.writing-outline-concern > button[data-concern-symbol="!"] { color: #e77982; }
+.writing-outline-concern > button[data-concern-symbol="◷"] { color: #d9b96c; }
+.writing-outline-concern > button[data-concern-symbol="◇"] { color: #96b9dd; }
+.writing-outline-concern > button[data-concern-symbol="△"] { color: #c5a1dd; }
+.writing-outline-concern > button[data-concern-symbol="≋"] { color: #79b493; }
+
+.stage19-spine .stage19-writing-page-tools[hidden] { display: none; }
+
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .stage19-spine__editor,
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .draft-editor,
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .draft-editor__mount,
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .cm-editor,
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .cm-content {
+  min-height: 2.5rem;
+}
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript .cm-content { padding-bottom: .5rem; }
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript__section { padding-bottom: 24px; }
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript__heading { margin-bottom: 10px; }
+.stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript__section + .stage19-continuous-manuscript__section::before { display: none; }
+
+/* Passage Notes remain reachable without opening the unit tool grid. */
+.stage19-outline-notes { flex: 1 1 100%; min-width: 0; }
+.stage19-outline-notes > summary { cursor: pointer; padding-block: .3rem; }
+.stage19-outline-notes [aria-hidden="true"] { color: var(--bs-accent-primary); }
+.stage19-outline-notes > button { display: block; width: 100%; margin-block: .25rem; text-align: left; white-space: normal; }
+.stage19-note-selected-sources { max-height: 10rem; overflow-y: auto; }
+.stage19-note-selected-sources blockquote { margin: .35rem 0; padding-left: .65rem; border-left: 2px solid var(--bs-line-quiet); white-space: pre-wrap; }

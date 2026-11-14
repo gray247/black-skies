@@ -171,7 +171,8 @@ export type WritingStudioRailLabel =
   | 'Project Tools'
   | 'Story'
   | 'Review'
-  | 'Writing Session';
+  | 'Writing Session'
+  | 'Companion';
 
 export async function openWritingStudioRail(
   writing: Page,
@@ -179,7 +180,11 @@ export async function openWritingStudioRail(
 ): Promise<void> {
   const closeControl = writing.getByRole('button', { name: `Close ${label}` });
   if (await closeControl.isVisible()) return;
-  await writing.getByRole('button', { name: `Open ${label}` }).click();
+  const opening = writing.getByRole('button', { name: `Open ${label}` });
+  // Use the public reveal interaction. A hovered cue becomes a clipped keyboard
+  // close control, so clicking its old box is not a reliable mouse action.
+  if ((writing.viewportSize()?.width ?? 1200) < 800) await opening.press('Enter');
+  else await opening.hover();
   await expect(closeControl).toBeVisible();
 }
 

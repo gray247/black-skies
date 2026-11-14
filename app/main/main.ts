@@ -1115,10 +1115,16 @@ async function acceptProgram7AuthorIntent(
     if (current.availability !== 'ready') {
       return { ok: false, message: current.message ?? 'Story Foundation is unavailable.' };
     }
+    const prior = input.item.preparedPackageId && current.document.entries.flatMap(entry => entry.versions.map(version => ({ entry, version })))
+      .find(({ version }) => version.sourcePromotionId === input.item.preparedPackageId);
+    if (prior) return { ok: true, receipt: { artifactId: `story-foundation:${prior.entry.questionId}:${prior.version.id}`, message: 'This preview was already copied. Newer author guidance was preserved.' } };
+    if (input.item.preparedPackageId && payload.expectedRevision !== current.document.revision)
+      return { ok: false, message: 'Story Foundation changed after this preview. Prepare it again before replacing guidance.' };
     const next = await repository.setAnswer(
       input.request.projectId,
-      current.document.revision,
+      payload.expectedRevision ?? current.document.revision,
       {
+        ...(input.item.preparedPackageId ? { sourcePromotionId: input.item.preparedPackageId } : {}),
         questionId: payload.questionId as StoryFoundationQuestionId,
         posture: payload.posture,
         text: payload.text,
@@ -1127,7 +1133,7 @@ async function acceptProgram7AuthorIntent(
     return {
       ok: true,
       receipt: {
-        artifactId: `story-foundation:${payload.questionId}:${next.document.revision}`,
+        artifactId: `story-foundation:${payload.questionId}:${next.document.entries.find(entry => entry.questionId === payload.questionId)!.currentVersionId}`,
         message: 'The accepted idea was written as author-owned Story Foundation guidance.',
       },
     };
@@ -1149,10 +1155,15 @@ async function acceptProgram7Outline(
     if (current.availability !== 'ready') {
       return { ok: false, message: current.message ?? 'The Living Outline is unavailable.' };
     }
+    const prior = input.item.preparedPackageId && current.document.items.find(item => item.sourcePromotionId === input.item.preparedPackageId);
+    if (prior) return { ok: true, receipt: { artifactId: `outline:${prior.id}`, message: 'This preview was already copied. Its current Note was preserved.' } };
+    if (input.item.preparedPackageId && payload.expectedRevision !== current.document.revision)
+      return { ok: false, message: 'The Outline changed after this preview. Prepare it again before copying.' };
     const next = await repository.create(
       input.request.projectId,
-      current.document.revision,
+      payload.expectedRevision ?? current.document.revision,
       {
+        ...(input.item.preparedPackageId ? { sourcePromotionId: input.item.preparedPackageId } : {}),
         label: payload.label,
         body: payload.body,
         kind: payload.kind,
@@ -1217,6 +1228,7 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
     autoHideMenuBar: true,
     env: { ...process.env, PLAYWRIGHT: '1' },
     webPreferences: {
+      spellcheck: true,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: app.isPackaged,
@@ -1323,6 +1335,7 @@ async function createSplitCommandSecondaryWindow(
     autoHideMenuBar: true,
     env: { ...process.env, PLAYWRIGHT: '1' },
     webPreferences: {
+      spellcheck: true,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: app.isPackaged,

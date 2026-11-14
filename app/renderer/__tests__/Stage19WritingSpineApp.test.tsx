@@ -50,7 +50,8 @@ import Stage19WritingSpineApp, {
   useCloseConfirmationRequest,
 } from '../Stage19WritingSpineApp';
 
-vi.mock('../DraftEditor', () => ({
+vi.mock('../DraftEditor', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../DraftEditor')>(),
   default: ({
     value,
     onChange,
@@ -764,7 +765,7 @@ function createCritiqueReviewBridge(
   };
 }
 
-function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'] = []) {
+function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'] = [], writingGroups = false) {
   let current: LivingOutlineSnapshotV1 = {
     availability: 'ready',
     document: {
@@ -791,6 +792,7 @@ function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'
       label: request.label.trim(), kind: request.kind, state: request.state,
       manuscriptUnitId: request.manuscriptUnitId,
       sourceAnchor: request.sourceAnchor,
+      sourceAnchors: request.sourceAnchors,
       body: request.body,
       createdAt: '2026-08-09T12:00:00.000Z', updatedAt: '2026-08-09T12:00:00.000Z',
     }])),
@@ -811,6 +813,11 @@ function createLivingOutlineBridge(initialItems: LivingOutlineDocumentV1['items'
       : item))),
     deleteItem: vi.fn(async (request) => update(current.document.items.filter((item) => item.id !== request.itemId))),
   };
+  if (writingGroups) bridge.replaceWritingState = vi.fn(async (request: Parameters<NonNullable<LivingOutlineBridge['replaceWritingState']>>[0]) => {
+    current = { ...current, document: { ...current.document, revision: current.document.revision + 1, writingGroups: request.groups,
+      items: current.document.items.map((item) => { const update = request.noteAnchors.find((entry) => entry.itemId === item.id); return update ? { ...item, manuscriptUnitId: update.reconnect ? update.anchor.unitId : item.manuscriptUnitId, sourceAnchor: update.anchor, sourceAnchors: update.anchors ?? item.sourceAnchors } : item; }) } };
+    return success();
+  });
   return { bridge, get current() { return current; } };
 }
 
@@ -2148,7 +2155,7 @@ describe('Stage19WritingSpineApp', () => {
     await user.click(screen.getByRole('button', { name: 'Ask' }));
 
     expect(await screen.findByRole('heading', { name: 'This request is not supported yet' })).toBeVisible();
-    expect(screen.getByText('Companion currently helps you find your place in this project. It did not change your manuscript or save anything.')).toBeVisible();
+    expect(screen.getByText('Companion currently helps you find your place in this project and offers selected built-in product help. It did not change your manuscript or save anything.')).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Selected prose AI critique' })).not.toBeInTheDocument();
     expect(writing.bridge.saveUnit).not.toHaveBeenCalled();
 
@@ -2229,7 +2236,7 @@ describe('Stage19WritingSpineApp', () => {
     const workspaces = screen.getByRole('navigation', { name: 'Command Center workspaces' });
     for (const name of [
       'Review',
-      'Structure',
+      'Outline',
       'Story Knowledge',
       'Create / Develop',
       'Project Interchange',
@@ -2237,9 +2244,9 @@ describe('Stage19WritingSpineApp', () => {
     ]) expect(within(workspaces).getByRole('button', { name })).toBeVisible();
     expect(within(workspaces).getByRole('button', { name: 'Review' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('heading', { name: 'Writing remains available' })).toBeVisible();
-    fireEvent.click(within(workspaces).getByRole('button', { name: 'Structure' }));
-    expect(screen.getByRole('heading', { name: 'Structure' })).toBeVisible();
-    expect(screen.getByText(/is not available yet. You can keep writing or use the available tabs./i)).toBeVisible();
+    fireEvent.click(within(workspaces).getByRole('button', { name: 'Outline' }));
+    expect(screen.getByRole('heading', { name: 'Current tool: Outline' })).toBeVisible();
+    expect(screen.getByText('Use the Writing Studio window to arrange the plan and compare current passages.')).toBeVisible();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Export Markdown/i })).not.toBeInTheDocument();
@@ -2730,7 +2737,7 @@ describe('Stage19WritingSpineApp', () => {
       await Promise.resolve();
     });
 
-    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Project B' })).toBeVisible();
   });
 
@@ -2780,14 +2787,14 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => {
       await userEvent.click(projectAExportButton);
     });
-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.getByText(/Manuscript export for Project A/)).toBeVisible();
     expect(screen.getByText(/Export cancelled\. No file was created\./)).toBeVisible();
 
     act(() => harness.emit(projectB));
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
     expect(screen.getByText('Saved durably')).toBeVisible();
     expect(await findExportButton()).toBeEnabled();
-    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
 
     await act(async () => {
       await userEvent.click(await findExportButton());
@@ -2798,8 +2805,8 @@ describe('Stage19WritingSpineApp', () => {
       generation: 2,
       revision: 3,
     }));
-    expect(await screen.findByText(/Markdown export for Project B/)).toBeVisible();
-    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+    expect(await screen.findByText(/Manuscript export for Project B/)).toBeVisible();
+    expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
   });
 
   it('discards a delayed export failure after an authoritative project switch', async () => {
@@ -2835,7 +2842,7 @@ describe('Stage19WritingSpineApp', () => {
     });
 
     expect(screen.queryByText(/Project A export failed\./)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
   });
 
   it('keeps an export notice through a same-project revision', async () => {
@@ -2847,10 +2854,10 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => {
       await userEvent.click(exportButton);
     });
-    expect(await screen.findByText(/Markdown export for Project A/)).toBeVisible();
+    expect(await screen.findByText(/Manuscript export for Project A/)).toBeVisible();
 
     act(() => harness.emit(snapshot('writing', { revision: 2 })));
-    expect(screen.getByText(/Markdown export for Project A/)).toBeVisible();
+    expect(screen.getByText(/Manuscript export for Project A/)).toBeVisible();
   });
 
   it('does not resurrect an old export after switching away and back to the same project', async () => {
@@ -2895,7 +2902,7 @@ describe('Stage19WritingSpineApp', () => {
       await Promise.resolve();
     });
 
-    expect(screen.queryByText(/Markdown export for Project A/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
   });
 
   it('blocks editing while showing full prior-session prose and sends exact recovery decisions', async () => {
@@ -4547,7 +4554,7 @@ describe('Stage19WritingSpineApp', () => {
     await openWritingRail('Story');
     const disclosure = await screen.findByLabelText('Manuscript structure intake');
     fireEvent.click(disclosure.querySelector('summary')!);
-    fireEvent.click(await screen.findByRole('button', { name: 'Import Markdown' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Import Markdown / UTF-8 text' }));
 
     await waitFor(() => expect(structureBridge.importMarkdown).toHaveBeenCalledWith(expect.objectContaining({
       parentPath: 'C:\\imports',
@@ -4592,4 +4599,143 @@ describe('Stage19WritingSpineApp', () => {
     expect(structureBridge.apply).toHaveBeenCalledTimes(1);
     expect(project.bridge.reloadActiveProject).toHaveBeenCalledTimes(1);
   });
+  it('keeps a deliberately locked Story rail open through Escape and another tool', async () => {
+    const project = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+    await openWritingRail('Story');
+    const story = screen.getByRole('region', { name: 'Story tools' });
+    fireEvent.click(within(story).getByRole('button', { name: 'Keep open' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Locked open' })).toHaveAttribute('aria-pressed', 'true');
+    await openWritingRail('Review');
+    expect(screen.getByRole('region', { name: 'Story tools' })).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.getByRole('region', { name: 'Story tools' })).toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Review' })).not.toBeInTheDocument();
+  });
+
+  it('edge: keeping a rail open cancels a previously scheduled hover dismissal', async () => {
+    const project = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+    await openWritingRail('Story');
+    const story = screen.getByRole('region', { name: 'Story tools' });
+    fireEvent.pointerLeave(story);
+    fireEvent.click(within(story).getByRole('button', { name: 'Keep open' }));
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 300)); });
+    expect(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Locked open' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('edge: closing a second locked rail retains the independent Story lock', async () => {
+    const project = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+    await openWritingRail('Story');
+    fireEvent.click(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Keep open' }));
+    await openWritingRail('Review');
+    const review = screen.getByRole('complementary', { name: 'Review' });
+    fireEvent.click(within(review).getByRole('button', { name: 'Keep open' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(review).toBeInTheDocument();
+    fireEvent.click(within(review).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('complementary', { name: 'Review' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Locked open' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('closes an unlocked hover rail after leaving and cancels dismissal on re-entry', async () => {
+    const project = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+    const edge = await screen.findByRole('button', { name: 'Open Story' });
+    fireEvent.pointerMove(edge, { pointerType: 'mouse' });
+    let story = await screen.findByRole('region', { name: 'Story tools' });
+    fireEvent.pointerLeave(story);
+    fireEvent.pointerEnter(story);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 300)); });
+    story = screen.getByRole('region', { name: 'Story tools' });
+    fireEvent.pointerLeave(story);
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Story tools' })).not.toBeInTheDocument());
+  });
+
+  it('explicit close releases the lock and reopening reports Keep open accurately', async () => {
+    const project = createBridge(snapshot('writing'));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} />);
+    await openWritingRail('Story');
+    const story = screen.getByRole('region', { name: 'Story tools' });
+    fireEvent.click(within(story).getByRole('button', { name: 'Keep open' }));
+    fireEvent.click(within(story).getByRole('button', { name: 'Close' }));
+    await openWritingRail('Story');
+    expect(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Keep open' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('pins selected words into the real writing outline and preserves exact saved prose', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([], true);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
+    (editor as HTMLTextAreaElement).setSelectionRange(0, 5);
+    fireEvent.select(editor);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Notes' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    await screen.findByText('Writing units and Notes saved.');
+    await openWritingRail('Story');
+    const list = screen.getByRole('list', { name: 'Writing units and unpinned passages' });
+    expect(within(list).getAllByText('Pinned', { exact: true })).toHaveLength(1);
+    expect(within(list).getAllByText('Unpinned', { exact: true })).toHaveLength(2);
+    expect(outline.current.document.writingGroups?.[0]?.spans[0]).toMatchObject({ unitId: 'unit_a', selectionStart: 0, selectionEnd: 5 });
+    expect(project.current.project?.drafts?.unit_a).toContain('Alpha body');
+    expect(project.bridge.saveUnit).not.toHaveBeenCalled();
+  });
+
+  it('supports beginning/end Pin across saved sections without imposing chapter divisions', async () => {
+    window.getSelection()?.removeAllRanges();
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([], true);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
+    (editor as HTMLTextAreaElement).setSelectionRange(0, 0);
+    fireEvent.select(editor);
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    await screen.findByText('Click the beginning of the unit.');
+    fireEvent.pointerUp(editor);
+    await screen.findByText('First pin placed. Click its end.');
+    const preview = document.querySelector('[data-writing-source]')!;
+    const text = preview.querySelector('[data-writing-span]')!.firstChild!;
+    const range = document.createRange();
+    range.setStart(text, 4); range.collapse(true);
+    window.getSelection()!.removeAllRanges(); window.getSelection()!.addRange(range);
+    fireEvent.pointerUp(preview);
+    await screen.findByText('Writing units and Notes saved.');
+    expect(outline.current.document.writingGroups).toHaveLength(1);
+    expect(outline.current.document.writingGroups![0]!.spans.map((span) => [span.unitId, span.selectionStart, span.selectionEnd])).toEqual([['unit_a', 0, 10], ['unit_b', 0, 4]]);
+    expect(project.bridge.saveUnit).not.toHaveBeenCalled();
+  });
+
+  it('keeps three Notes individually reachable and edits Note two without duplicating it', async () => {
+    window.getSelection()?.removeAllRanges();
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([], true);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    (editor as HTMLTextAreaElement).setSelectionRange(0, 5); fireEvent.select(editor);
+    const notes = screen.getByRole('button', { name: 'Notes' });
+    await waitFor(() => expect(notes).toBeEnabled());
+    for (const body of ['First detail', 'Second detail', 'Third detail']) {
+      fireEvent.click(notes);
+      fireEvent.change(screen.getByLabelText('Note text'), { target: { value: body } });
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Keep Note' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Keep Note' }));
+      await waitFor(() => expect(outline.current.document.items.some((item) => item.body === body)).toBe(true));
+      fireEvent.click(screen.getByRole('button', { name: 'Close Note' }));
+    }
+    await openWritingRail('Story');
+    fireEvent.click(screen.getByText('All Notes · 3'));
+    const all = screen.getByText('All Notes · 3').parentElement!;
+    fireEvent.click(within(all).getByRole('button', { name: 'Second detail' }));
+    expect(screen.getByLabelText('Note text')).toHaveValue('Second detail');
+    fireEvent.change(screen.getByLabelText('Note text'), { target: { value: 'Second detail edited' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Keep Note' }));
+    await waitFor(() => expect(outline.current.document.items.map((item) => item.body)).toEqual(['First detail', 'Second detail edited', 'Third detail']));
+    expect(outline.bridge.createItem).toHaveBeenCalledTimes(3);
+  });
+
 });

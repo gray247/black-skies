@@ -1,4 +1,6 @@
+import { isWritingGroups, sameWritingAnchor, validGapWritingOperation } from '../shared/writingRanges.js';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -8,10 +10,12 @@ import {
   LIVING_OUTLINE_MAX_BODY_LENGTH,
   LIVING_OUTLINE_SCHEMA_VERSION,
   type LivingOutlineDocumentV1,
+  type ReplaceWritingStateRequest,
   type LivingOutlineItemKind,
   type LivingOutlineItemState,
   type LivingOutlineItemV1,
   type LivingOutlineSnapshotV1,
+  type GapWritingOperationV1,
 } from '../shared/ipc/livingOutline.js';
 
 export const LIVING_OUTLINE_FILENAME = 'living-outline.json';
@@ -70,14 +74,19 @@ function isItem(value: unknown): value is LivingOutlineItemV1 {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Partial<LivingOutlineItemV1>;
   return isNonEmptyString(candidate.id) &&
+    (candidate.sourcePromotionId === undefined || isNonEmptyString(candidate.sourcePromotionId) && candidate.sourcePromotionId.length <= 240) &&
     typeof candidate.label === 'string' &&
     candidate.label.trim().length > 0 &&
     candidate.label.length <= LIVING_OUTLINE_MAX_LABEL_LENGTH &&
     (candidate.body === undefined || (typeof candidate.body === 'string' && candidate.body.length <= LIVING_OUTLINE_MAX_BODY_LENGTH)) &&
     isKind(candidate.kind) &&
+    (candidate.noteScope === undefined || ['whole-story', 'unattached', 'passage'].includes(candidate.noteScope)) &&
+    (candidate.sourceWasSpan === undefined || typeof candidate.sourceWasSpan === 'boolean') &&
+    (!(candidate.noteScope === 'whole-story' || candidate.noteScope === 'unattached') || (candidate.manuscriptUnitId === null && !candidate.sourceAnchor && !candidate.sourceAnchors)) &&
     isState(candidate.state) &&
     (candidate.manuscriptUnitId === null || isNonEmptyString(candidate.manuscriptUnitId)) &&
     isSourceAnchor(candidate.sourceAnchor) &&
+    (candidate.sourceAnchors === undefined || (Array.isArray(candidate.sourceAnchors) && candidate.sourceAnchors.length > 0 && candidate.sourceAnchors.every((anchor) => anchor && isSourceAnchor(anchor)) && candidate.sourceAnchors[0]?.unitId === candidate.manuscriptUnitId && sameWritingAnchor(candidate.sourceAnchor, candidate.sourceAnchors[0]))) &&
     (!candidate.sourceAnchor || candidate.sourceAnchor.unitId === candidate.manuscriptUnitId) &&
     isNonEmptyString(candidate.createdAt) &&
     isNonEmptyString(candidate.updatedAt);
@@ -104,6 +113,8 @@ function validateDocument(value: unknown, projectId: string): LivingOutlineDocum
     (candidate.revision ?? -1) < 0 ||
     !Array.isArray(candidate.items) ||
     !candidate.items.every(isItem) ||
+    (candidate.pendingGap != null && !validGapWritingOperation(candidate.pendingGap, isSourceAnchor)) ||
+    (candidate.writingGroups !== undefined && !isWritingGroups(candidate.writingGroups, isSourceAnchor)) ||
     new Set(candidate.items.map((item) => item.id)).size !== candidate.items.length
   ) {
     throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The story plan file has an unsupported format. Writing remains available.');
@@ -139,11 +150,74 @@ export class LivingOutlineRepository {
     }
   }
 
+  async replaceWritingState(projectId: string, expectedRevision: number, input: Pick<ReplaceWritingStateRequest, 'groups' | 'noteAnchors'>): Promise<LivingOutlineSnapshotV1> {
+    if (!isWritingGroups(input.groups, isSourceAnchor) || !Array.isArray(input.noteAnchors) ||
+        new Set(input.noteAnchors.map((item) => item?.itemId)).size !== input.noteAnchors.length ||
+        input.noteAnchors.some((item) => !item || !item.anchor || !isSourceAnchor(item.anchor) || (item.anchors !== undefined && (!Array.isArray(item.anchors) || !item.anchors.length || item.anchors.some((anchor: ReplaceWritingStateRequest['noteAnchors'][number]['anchor']) => !anchor || !isSourceAnchor(anchor)) || !sameWritingAnchor(item.anchors[0], item.anchor))) || (item.reconnect !== undefined && typeof item.reconnect !== 'boolean'))) {
+      throw new LivingOutlineRepositoryError('UNAVAILABLE', 'Writing ranges are invalid or overlap. No writing was changed.');
+    }
+    return this.mutate(projectId, expectedRevision, (document) => {
+      for (const update of input.noteAnchors) {
+        const note = document.items.find((item) => item.id === update.itemId);
+        if (!note || (!update.reconnect && note.manuscriptUnitId !== update.anchor.unitId) || (note.sourceAnchors && note.sourceAnchors.length > 1 && !update.anchors)) throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'A linked Note changed. Reload before saving ranges.');
+      }
+      return document.items.map((item) => {
+        const update = input.noteAnchors.find((candidate) => candidate.itemId === item.id);
+        return update ? { ...item, ...(update.reconnect ? { noteScope: 'passage' as const, sourceWasSpan: (update.anchors ?? [update.anchor]).some(anchor => anchor.anchorKind === 'span') } : {}), manuscriptUnitId: update.reconnect ? update.anchor.unitId : item.manuscriptUnitId, sourceAnchor: update.anchor, sourceAnchors: update.anchors ?? (item.sourceAnchors ? [update.anchor] : undefined), updatedAt: this.now().toISOString() } : item;
+      });
+    }, { writingGroups: input.groups });
+  }
+
+  async prepareGap(projectId: string, revision: number, pending: GapWritingOperationV1): Promise<LivingOutlineSnapshotV1> {
+    if (!validGapWritingOperation(pending, isSourceAnchor)) throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The gap operation is invalid.');
+    const current = await this.read(projectId);
+    if (current.document.pendingGap?.id === pending.id) {
+      if (JSON.stringify(current.document.pendingGap) !== JSON.stringify(pending)) throw new LivingOutlineRepositoryError('STALE', 'This gap operation identity belongs to another proposal.');
+      return current;
+    }
+    return this.mutate(projectId, revision, document => {
+      const gap = document.items.find(item => item.id === pending.gapId);
+      if (!gap || (pending.direction === 'fill' ? gap.kind !== 'gap' : gap.kind !== 'fragment'))
+        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'The gap changed before this operation.');
+      if (pending.noteAnchors.some(note => !document.items.some(item => item.id === note.itemId)))
+        throw new LivingOutlineRepositoryError('UNKNOWN_ITEM', 'A linked Note changed.');
+      return document.items;
+    }, { pendingGap: pending });
+  }
+
+  async finishGap(projectId: string, revision: number, operationId: string): Promise<LivingOutlineSnapshotV1> {
+    const current = await this.read(projectId);
+    const pending = current.document.pendingGap;
+    if (!pending && current.document.items.some(item => item.completedGapOperationId === operationId)) return current;
+    if (!pending || pending.id !== operationId) throw new LivingOutlineRepositoryError('STALE', 'The pending gap operation changed.');
+    return this.mutate(projectId, revision, document => document.items.map(item => {
+      const update = pending.noteAnchors.find(note => note.itemId === item.id);
+      let next = update ? { ...item, manuscriptUnitId: update.anchor.unitId, sourceAnchor: update.anchor, sourceAnchors: update.anchors ?? [update.anchor] } : item;
+      if (item.id === pending.gapId) next = { ...next, kind: pending.target.kind, state: pending.target.state,
+        noteScope: 'passage', sourceWasSpan: pending.target.anchor.anchorKind === 'span', manuscriptUnitId: pending.unitId, sourceAnchor: pending.target.anchor, sourceAnchors: [pending.target.anchor], completedGapOperationId: operationId };
+      return next === item ? item : { ...next, updatedAt: this.now().toISOString() };
+    }), { writingGroups: pending.groups, pendingGap: null }, true);
+  }
+
+  async restore(projectId: string, revision: number, item: LivingOutlineItemV1, beforeId: string | null): Promise<LivingOutlineSnapshotV1> {
+    if (!isItem(item) || item.kind !== 'fragment') throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The deleted Note record is invalid.');
+    return this.mutate(projectId, revision, document => {
+      if (document.items.some(current => current.id === item.id)) throw new LivingOutlineRepositoryError('STALE', 'This Note identity already exists.');
+      const index = beforeId === null ? -1 : document.items.findIndex(current => current.id === beforeId);
+      const items = [...document.items]; items.splice(index < 0 ? items.length : index, 0, item); return items;
+    });
+  }
+
   async create(
     projectId: string,
     expectedRevision: number,
-    input: Pick<LivingOutlineItemV1, 'label' | 'body' | 'kind' | 'state' | 'manuscriptUnitId' | 'sourceAnchor'>,
+    input: Pick<LivingOutlineItemV1, 'label' | 'body' | 'kind' | 'state' | 'manuscriptUnitId' | 'sourceAnchor' | 'sourceAnchors' | 'noteScope' | 'sourceWasSpan' | 'sourcePromotionId'>,
   ): Promise<LivingOutlineSnapshotV1> {
+    if ((input.noteScope !== undefined && !['whole-story', 'unattached', 'passage'].includes(input.noteScope)) ||
+        (input.sourceWasSpan !== undefined && typeof input.sourceWasSpan !== 'boolean') ||
+        ((input.noteScope === 'whole-story' || input.noteScope === 'unattached') && (input.manuscriptUnitId !== null || input.sourceAnchor != null || input.sourceAnchors !== undefined)))
+      throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The Note scope does not match its source.');
+    if (input.sourceAnchors !== undefined && (!Array.isArray(input.sourceAnchors) || !input.sourceAnchors.length || input.sourceAnchors.some((anchor) => !anchor || !isSourceAnchor(anchor)) || !sameWritingAnchor(input.sourceAnchor, input.sourceAnchors[0]))) throw new LivingOutlineRepositoryError('UNAVAILABLE', 'The Note sources are incomplete. No Note was saved.');
     return this.mutate(projectId, expectedRevision, (document) => {
       const timestamp = this.now().toISOString();
       return [...document.items, {
@@ -198,7 +272,9 @@ export class LivingOutlineRepository {
     return this.mutate(projectId, expectedRevision, (document) => this.replaceItem(document, itemId, (item) => ({
       ...item,
       manuscriptUnitId,
+      ...(item.kind === 'fragment' ? { noteScope: manuscriptUnitId === null ? 'unattached' as const : 'passage' as const } : {}),
       sourceAnchor: manuscriptUnitId === item.sourceAnchor?.unitId ? item.sourceAnchor : null,
+      sourceAnchors: manuscriptUnitId === item.sourceAnchor?.unitId ? item.sourceAnchors : undefined,
       updatedAt: this.now().toISOString(),
     })));
   }
@@ -231,6 +307,8 @@ export class LivingOutlineRepository {
     projectId: string,
     expectedRevision: number,
     change: (document: LivingOutlineDocumentV1) => readonly LivingOutlineItemV1[],
+    extra: Pick<LivingOutlineDocumentV1, 'writingGroups' | 'pendingGap'> = {},
+    finishingGap = false,
   ): Promise<LivingOutlineSnapshotV1> {
     const prior = mutationQueues.get(this.filePath) ?? Promise.resolve();
     let release!: () => void;
@@ -246,8 +324,10 @@ export class LivingOutlineRepository {
       if (current.document.revision !== expectedRevision) {
         throw new LivingOutlineRepositoryError('STALE', 'The story plan changed. Reload it before trying again.');
       }
+      if (current.document.pendingGap && !finishingGap) throw new LivingOutlineRepositoryError('STALE', 'Finish the pending gap save before changing its linked metadata.');
       const next: LivingOutlineDocumentV1 = {
         ...current.document,
+        ...extra,
         revision: current.document.revision + 1,
         items: change(current.document),
       };
@@ -265,7 +345,18 @@ export class LivingOutlineRepository {
     try {
       await fs.mkdir(directory, { recursive: true });
       await fs.writeFile(tempPath, `${JSON.stringify(document, null, 2)}\n`, 'utf8');
-      await fs.rename(tempPath, this.filePath);
+      // A short Windows sharing lock must not discard an otherwise valid save.
+      // Keep the mutation queue and atomic replacement; never delete the target.
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          await fs.rename(tempPath, this.filePath);
+          return;
+        } catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          if (attempt === 2 || !['EPERM', 'EACCES', 'EBUSY'].includes(code ?? '')) throw error;
+          await delay(25 * (attempt + 1));
+        }
+      }
     } catch {
       await fs.rm(tempPath, { force: true }).catch(() => undefined);
       throw new LivingOutlineRepositoryError('WRITE_FAILED', 'The story plan change could not be saved.');

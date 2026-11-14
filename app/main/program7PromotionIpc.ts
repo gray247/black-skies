@@ -1,3 +1,4 @@
+import { IdeationRepository, currentIdeationPromotion } from './ideationRepository.js';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
@@ -183,11 +184,13 @@ function validNarrativeCalculation(value: unknown): value is NarrativeInsertionC
 function validPayload(value: unknown): value is Program7PromotionItemV1['payload'] {
   if (!record(value) || typeof value.destination !== 'string') return false;
   if (value.destination === 'author-intent') {
-    return exactKeys(value, ['destination', 'questionId', 'posture', 'text']) && id(value.questionId) &&
+    return exactKeys(value, ['destination', 'questionId', 'posture', 'text'], ['expectedRevision']) &&
+      (value.expectedRevision === undefined || Number.isInteger(value.expectedRevision) && Number(value.expectedRevision) >= 0) && id(value.questionId) &&
       foundationPostures.includes(value.posture as Program7AuthorIntentPromotionPayloadV1['posture']) && bounded(value.text, PROGRAM7_PROMOTION_MAX_TEXT_LENGTH);
   }
   if (value.destination === 'outline') {
-    return exactKeys(value, ['destination', 'label', 'body', 'kind', 'state', 'manuscriptUnitId', 'sourceAnchor']) &&
+    return exactKeys(value, ['destination', 'label', 'body', 'kind', 'state', 'manuscriptUnitId', 'sourceAnchor'], ['expectedRevision']) &&
+      (value.expectedRevision === undefined || Number.isInteger(value.expectedRevision) && Number(value.expectedRevision) >= 0) &&
       bounded(value.label, 240, true) && bounded(value.body, 4_000) && outlineKinds.includes(value.kind as Program7OutlinePromotionPayloadV1['kind']) &&
       outlineStates.includes(value.state as Program7OutlinePromotionPayloadV1['state']) &&
       (value.manuscriptUnitId === null || id(value.manuscriptUnitId)) && validOutlineAnchor(value.sourceAnchor);
@@ -204,7 +207,8 @@ function validPayload(value: unknown): value is Program7PromotionItemV1['payload
 }
 
 function validItem(value: unknown): value is Program7PromotionItemV1 {
-  if (!exactKeys(value, ['itemId', 'destination', 'source', 'payload', 'ownerAcceptance'])) return false;
+  if (!exactKeys(value, ['itemId', 'destination', 'source', 'payload', 'ownerAcceptance'], ['preparedPackageId'])) return false;
+  if ((value as Record<string, unknown>).preparedPackageId !== undefined && !id((value as Record<string, unknown>).preparedPackageId)) return false;
   const item = value as Record<string, unknown>;
   const acceptance = item.ownerAcceptance as Record<string, unknown>;
   return id(item.itemId) && destinations.includes(item.destination as Program7PromotionDestinationV1) &&
@@ -324,6 +328,21 @@ export class Program7PromotionCoordinator {
   }
 
   private async route(request: Program7PromotionHandoffRequestV1, item: Program7PromotionItemV1): Promise<Program7PromotionOutcomeV1> {
+    if (item.source.kind === 'ideation-branch') {
+      if (!item.preparedPackageId) return outcome(item, 'failed', 'Prepare a current source-bound destination preview before sending this direction.');
+      const loaded = await new IdeationRepository(request.projectPath).read(request.projectId);
+      const prepared = loaded.availability === 'ready' ? currentIdeationPromotion(loaded.document, item.preparedPackageId) : null;
+      if (!prepared || prepared.branchId !== item.source.sourceId || prepared.destination !== item.destination ||
+        loaded.document.revision !== item.source.sourceRevision || prepared.selectedTextSha256 !== item.source.selectedTextSha256 || prepared.selectedTextSha256 !== item.source.sourceFingerprint ||
+        prepared.provenance.sourceReference !== item.source.provenance.sourceReference)
+        return outcome(item, 'failed', 'The idea source, lineage or protection changed. Prepare a fresh preview; no destination write occurred.');
+      if ((item.payload.destination === 'author-intent' || item.payload.destination === 'outline') &&
+        (prepared.destinationRevision === undefined || item.payload.expectedRevision !== prepared.destinationRevision ||
+          (item.payload.destination === 'author-intent' ? item.payload.text : item.payload.body) !== prepared.selectedText))
+        return outcome(item, 'failed', 'The destination preview or selected text changed. Preview this exact copy again before sending.');
+      const latest = this.options.getWritingSnapshot();
+      if (latest.project?.projectId !== request.projectId || latest.generation !== request.generation || !samePath(latest.project.path, request.projectPath)) return outcome(item, 'failed', 'The active project changed. No destination write occurred.');
+    }
     if (item.source.protection.excluded || item.source.protection.class !== 'ordinary') {
       if (item.destination !== 'character' && item.destination !== 'lore') {
         return outcome(item, 'failed', 'Protected or excluded source material cannot be routed into this destination.');

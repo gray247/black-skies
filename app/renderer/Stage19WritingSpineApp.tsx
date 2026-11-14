@@ -1,3 +1,6 @@
+import { useWorkNavigation, type WritingViewSnapshot } from './useWorkNavigation';
+import { useWritingPage } from './useWritingPage';
+import type { WritingEdit } from '../shared/writingRanges';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type {
   ProjectSpineCloseConfirmationDecision,
@@ -85,7 +88,7 @@ import type {
 import { PROGRAM7_LOCAL_INFERENCE_BOUNDS, PROGRAM7_LOCAL_INFERENCE_MODEL, PROGRAM7_LOCAL_INFERENCE_REQUEST_SCHEMA } from '../shared/localInference';
 import { buildProgram7HistoryProjection } from '../shared/program7History';
 import { splitProjectSpineDraft } from '../shared/projectSpineDraft';
-import type { Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
+import { buildProgram7SourceEnvelope, revisionItemSources, resolveProgram7SourceBinding, type Program7SourceEnvelopeV1 } from '../shared/program7SourceBinding';
 import type { DraftEditorSelectionEvidence } from './DraftEditor';
 import type { StoryKnowledgeAuthorRecordDraftV1 } from './components/Program6StoryKnowledgeWorkspace';
 import type { StoryFoundationAnswerDraft } from './components/program7/StoryFoundation';
@@ -632,6 +635,24 @@ export default function Stage19WritingSpineApp({
   const [theme, setTheme] = useState<Stage19Theme>(readStage19ThemePreference);
   const [focusMode, setFocusMode] = useState(false);
   const [openWritingRail, setOpenWritingRail] = useState<Stage19WritingRail | null>(null);
+  const [lockedWritingRails, setLockedWritingRails] = useState<readonly Stage19WritingRail[]>([]);
+  const railLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelRailLeave = useCallback(() => {
+    if (railLeaveTimer.current !== null) clearTimeout(railLeaveTimer.current);
+    railLeaveTimer.current = null;
+  }, []);
+  useEffect(() => () => cancelRailLeave(), [cancelRailLeave]);
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[role="dialog"]') || document.getElementById('stage19-story-rail-add-menu')?.hidden === false) return;
+      cancelRailLeave();
+      setOpenWritingRail((current) => current === 'right' &&
+        (program7CandidateEditDirtyRef.current || program7CandidateEditSavingRef.current) ? current : null);
+    };
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, [cancelRailLeave]);
+
   const [companionPrompt, setCompanionPrompt] = useState('');
   const [companionResult, setCompanionResult] = useState<CompanionOrientationResultV1 | null>(null);
   const [companionNotice, setCompanionNotice] = useState<string | null>(null);
@@ -682,6 +703,8 @@ export default function Stage19WritingSpineApp({
     readonly notice: string | null;
   }>({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
   const [program7Candidates, setProgram7Candidates] = useState<RevisionCandidatesSnapshotV1 | null>(null);
+  const program7FoundationDrafts = useRef(new Map<string, Record<string, import('./components/program7/StoryFoundation').DraftValue>>());
+  const program7IdeasDrafts = useRef(new Map<string, import('./components/program7/IdeasWorkspace').IdeasUnfinishedWork>());
   const [program7Foundation, setProgram7Foundation] = useState<StoryFoundationSnapshotV1 | null>(null);
   const [program7Ideation, setProgram7Ideation] = useState<IdeationSnapshotV1 | null>(null);
   const [program7SelectedCandidate, setProgram7SelectedCandidate] = useState<RevisionCandidateV1 | null>(null);
@@ -701,6 +724,12 @@ export default function Stage19WritingSpineApp({
     setProgram7SelectedCandidate(null);
     return true;
   }, []);
+  const revisionMutationRef = useRef<string | null>(null);
+  const [program7RevisionPending, setProgram7RevisionPending] = useState(false);
+  useEffect(() => { revisionMutationRef.current = null; setProgram7RevisionPending(false); }, [snapshot.project?.projectId, snapshot.generation]);
+  const [acceptedRevision, setAcceptedRevision] = useState<Stage19WritingSpineViewModel['acceptedRevision']>();
+  const [program7ConcernId, setProgram7ConcernId] = useState<string | null>(null);
+  useEffect(() => { setProgram7ConcernId(null); }, [snapshot.project?.projectId, snapshot.generation]);
   const [program7CandidatePurpose, setProgram7CandidatePurpose] = useState('');
   const [program7CandidateText, setProgram7CandidateText] = useState('');
   const [program7LocalAiRequestId, setProgram7LocalAiRequestId] = useState<string | null>(null);
@@ -710,6 +739,10 @@ export default function Stage19WritingSpineApp({
   const snapshotRef = useRef(snapshot);
   const hasAuthoritativeSnapshotRef = useRef(false);
   const buffersRef = useRef(buffers);
+  const writingPageEditRef = useRef<(id: string, before: string, after: string, changes?: readonly WritingEdit[], historyAction?: 'undo' | 'redo') => void>(() => undefined);
+  const writingPageSaveRef = useRef<() => Promise<boolean>>(async () => true);
+  const navigationPrepareRef = useRef<() => () => void>(() => () => undefined);
+  const writingViewContextRef = useRef<WritingViewSnapshot | null>(null);
   const editRevisionRef = useRef<Record<string, number>>({});
   const reportedDirtyRef = useRef<Record<string, boolean>>({});
   const dirtyReportPromisesRef = useRef(new Map<string, Promise<void>>());
@@ -2447,7 +2480,7 @@ export default function Stage19WritingSpineApp({
   }, []);
 
   const handleBufferChange = useCallback(
-    (unitId: string, body: string) => {
+    (unitId: string, body: string, changes?: readonly WritingEdit[], historyAction?: 'undo' | 'redo') => {
       setAiSelection(null);
       if (aiResult) {
         setAiResultStale(true);
@@ -2475,6 +2508,7 @@ export default function Stage19WritingSpineApp({
           selectionFingerprint: projection.selectionFingerprint,
         }).catch(() => undefined);
       }
+      writingPageEditRef.current(unitId, buffersRef.current[unitId] ?? '', body, changes, historyAction);
       editRevisionRef.current[unitId] = (editRevisionRef.current[unitId] ?? 0) + 1;
       buffersRef.current = { ...buffersRef.current, [unitId]: body };
       setBuffers(buffersRef.current);
@@ -2594,6 +2628,24 @@ export default function Stage19WritingSpineApp({
     ],
   );
 
+  const writingPage = useWritingPage({
+    snapshot, outline: livingOutline, bridge: livingOutlineBridge,
+    getSnapshot: () => snapshotRef.current,
+    getBodies: () => buffersRef.current,
+    saveSource: saveUnit,
+    captureSourceRecovery: async (unitId, prose) => {
+      const current = snapshotRef.current;
+      const binding = bindingFor(current, 'gap-recovery');
+      if (!binding || !bridge?.captureRecoveryCheckpoint) return false;
+      const result = await bridge.captureRecoveryCheckpoint({ ...binding, unitId, prose });
+      return result.ok && snapshotRef.current.generation === current.generation && snapshotRef.current.project?.projectId === current.project?.projectId;
+    },
+    onOutline: setLivingOutline,
+    reportDirty,
+  });
+  writingPageEditRef.current = writingPage.edited;
+  writingPageSaveRef.current = writingPage.enabled ? writingPage.save : async () => true;
+
   useEffect(() => {
     if (windowRole !== 'writing') return;
     const handler = (event: KeyboardEvent) => {
@@ -2605,7 +2657,7 @@ export default function Stage19WritingSpineApp({
         event.preventDefault();
         if (snapshotRef.current.recovery?.status === 'decision-required' || snapshotRef.current.recovery?.status === 'degraded') return;
         const unitId = snapshotRef.current.activeUnitId;
-        if (unitId) void saveUnit(unitId);
+        if (unitId) void saveUnit(unitId).then(() => writingPageSaveRef.current());
       }
     };
     window.addEventListener('keydown', handler);
@@ -2742,7 +2794,7 @@ export default function Stage19WritingSpineApp({
     if (unitId) await handleDeleteUnit(unitId);
   }, [deleteLivingOutlineItem, handleDeleteUnit, livingOutline, outlineAdvancedItemId, selectedOutlineItemId, selectedRailKind]);
 
-  const handleExportMarkdown = useCallback(async () => {
+  const handleExportMarkdown = useCallback(async (format: 'markdown' | 'source-text' = 'markdown') => {
     const current = snapshotRef.current;
     const api = bridge?.exportMarkdown;
     if (!current.project || !api || windowRole !== 'writing') return;
@@ -2780,7 +2832,7 @@ export default function Stage19WritingSpineApp({
     setExportingMarkdown(true);
     setMarkdownExportNotice(null);
     try {
-      const result = await api({ ...binding, revision: current.revision });
+      const result = await api({ ...binding, revision: current.revision, ...(format === 'source-text' ? { format } : {}) });
       if (!sourceIsCurrent()) return;
       if (!result.ok) {
         setMarkdownExportNotice({
@@ -3312,6 +3364,7 @@ export default function Stage19WritingSpineApp({
       return false;
     }
     const current = snapshotRef.current;
+    const remember = navigationPrepareRef.current();
     setSurfaceHostError(null);
     try {
       const result = await surfaceBridge.activateSurface({
@@ -3323,6 +3376,7 @@ export default function Stage19WritingSpineApp({
       });
       setSurfaceHostState(result.state);
       if (!result.ok) setSurfaceHostError(result.error.message);
+      else remember();
       return result.ok;
     } catch {
       setSurfaceHostError(
@@ -3419,15 +3473,16 @@ export default function Stage19WritingSpineApp({
     return { current, project, unit, body, bodySha256: await fingerprintVisibleText(body) };
   }, []);
 
-  const createProgram7ManualCandidate = useCallback(async () => {
+  const createProgram7ManualCandidate = useCallback(async (deleteSource = false) => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createManual !== 'function') {
       setProgram7Notice('Manual revision alternatives can only be created from Writing Studio.');
       return;
     }
-    const source = await currentProgram7UnitSource();
+    const concern = program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems).find(item => item.id === program7ConcernId);
+    const source = await currentProgram7UnitSource(concern?.unitId);
     const purpose = program7CandidatePurpose.trim();
-    const candidateText = program7CandidateText.trim();
-    if (!source || !purpose || !candidateText) {
+    const candidateText = deleteSource ? '' : program7CandidateText.trim();
+    if (!source || !purpose || (!candidateText && !deleteSource)) {
       setProgram7Notice('Save the project and enter both a purpose and alternative text before creating a revision alternative.');
       return;
     }
@@ -3435,22 +3490,27 @@ export default function Stage19WritingSpineApp({
       setProgram7Notice('Save the current manuscript section before creating a source-linked revision alternative.');
       return;
     }
-    const selection = aiSelection && aiSelection.sourceFingerprint === source.bodySha256 &&
-      aiSelection.selectionStart >= 0 && aiSelection.selectionEnd > aiSelection.selectionStart &&
-      aiSelection.selectionEnd <= source.body.length
+    const selectedEvidence = concern?.anchor ? { ...concern.anchor, sourceFingerprint: concern.sourceBodyFingerprint } : aiSelection;
+    if (program7ConcernId && !concern) { setProgram7Notice('The linked concern is unavailable. Your proposed alternative is retained.'); return; }
+    const selection = selectedEvidence && selectedEvidence.sourceFingerprint === source.bodySha256 &&
+      selectedEvidence.selectionStart >= 0 && selectedEvidence.selectionEnd > selectedEvidence.selectionStart &&
+      selectedEvidence.selectionEnd <= source.body.length
       ? {
           unitId: source.unit.id,
-          selectionStart: aiSelection.selectionStart,
-          selectionEnd: aiSelection.selectionEnd,
-          selectionFingerprint: aiSelection.selectionFingerprint,
+          selectionStart: selectedEvidence.selectionStart,
+          selectionEnd: selectedEvidence.selectionEnd,
+          selectionFingerprint: selectedEvidence.selectionFingerprint,
         }
       : null;
+    if (deleteSource && !selection) { setProgram7Notice('A deletion alternative needs an exact selected or concern-linked passage. Your draft is retained.'); return; }
     const binding = bindingFor(source.current, 'program7-manual-candidate');
     if (!binding) return;
     try {
       const result = await revisionCandidatesBridge.createManual({
         ...binding,
         unitId: source.unit.id,
+        ...(concern ? { concernId: concern.id } : {}),
+        ...(deleteSource ? { deleteSource: true } : {}),
         expectedRevision: program7Candidates?.document.revision ?? 0,
         sourceSnapshot: { unitId: source.unit.id, bodySha256: source.bodySha256, text: source.body },
         sourceAnchor: selection,
@@ -3471,7 +3531,7 @@ export default function Stage19WritingSpineApp({
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       setProgram7Notice('The manual revision alternative could not be saved. Your manuscript has not changed.');
     }
-  }, [aiSelection, currentProgram7UnitSource, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+  }, [aiSelection, currentProgram7UnitSource, program7ConcernId, program7RevisionItems, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
   const createProgram7LocalAiCandidate = useCallback(async () => {
     const createLocalAi = revisionCandidatesBridge?.createLocalAi;
@@ -3675,6 +3735,7 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const current = snapshotRef.current;
+    const linksBefore = writingPage.captureLinks();
     const expectedMarkdown = current.project?.drafts?.[candidate.unitId];
     if (!current.project || typeof expectedMarkdown !== 'string' || candidate.currentness !== 'current') {
       setProgram7Notice('This revision alternative is not current against the saved manuscript. Recheck it before applying it.');
@@ -3724,6 +3785,8 @@ export default function Stage19WritingSpineApp({
         return;
       }
       applied = true;
+      setAcceptedRevision({ id: binding.operationId, projectId: binding.projectId, generation: binding.generation, unitId: candidate.unitId,
+        before: splitDraft(expectedMarkdown).body, after: splitDraft(result.snapshot.project!.drafts![candidate.unitId]!).body, linksBefore });
       setProgram7Candidates(null);
       applySnapshot(result.snapshot);
       closeProgram7Candidate();
@@ -3752,7 +3815,7 @@ export default function Stage19WritingSpineApp({
         setProgram7CandidateDecisionPending(false);
       }
     }
-  }, [applySnapshot, bridge, closeProgram7Candidate, refreshProgram7RevisionItems, revisionCandidatesBridge, windowRole]);
+  }, [applySnapshot, bridge, closeProgram7Candidate, refreshProgram7RevisionItems, revisionCandidatesBridge, windowRole, writingPage]);
 
   const returnProgram7CandidateToSource = useCallback(async (candidate: RevisionCandidateV1) => {
     if (candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted') {
@@ -3815,18 +3878,32 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const binding = bindingFor(snapshotRef.current, 'program7-revision-item-lifecycle');
-    if (!binding) return;
+    if (!binding || revisionMutationRef.current) return;
+    revisionMutationRef.current = binding.operationId; setProgram7RevisionPending(true);
     try {
+      const evidenceBodies = new Map(revisionItemSources(item).map(source => [source.unitId, buffersRef.current[source.unitId]]));
+      // Keep rebased Pin and Note anchors durable with the source saved for this
+      // decision, as the normal Writing Studio Save action does.
+      if (!(await writingPageSaveRef.current())) {
+        setProgram7Notice('The writing and its linked units or Notes could not be saved. The concern remains open; save and try again.'); return;
+      }
+      for (const [unitId, body] of evidenceBodies) {
+        if (typeof body === 'string' && (snapshotRef.current.dirtyUnitIds.includes(unitId) || splitDraft(snapshotRef.current.project?.drafts?.[unitId] ?? '').body !== body)) await saveUnit(unitId);
+      }
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current) || [...evidenceBodies].some(([unitId, body]) => typeof body === 'string' && (buffersRef.current[unitId] !== body || splitDraft(snapshotRef.current.project?.drafts?.[unitId] ?? '').body !== body || snapshotRef.current.dirtyUnitIds.includes(unitId)))) {
+        setProgram7Notice('The source changed or could not be saved. The concern remains open; save and try again.'); return;
+      }
       const result = await feedbackNotesBridge.setLifecycle({ ...binding, expectedRevision: program7RevisionItems.revision, itemId: item.id, lifecycle });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (!result.ok) setProgram7Notice(result.error.message);
       else {
         await refreshProgram7RevisionItems();
         setProgram7Notice(`Revision item ${lifecycle}.`);
       }
     } catch {
-      setProgram7Notice('The revision-item lifecycle change could not be saved.');
-    }
-  }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
+      if (bindingMatchesSnapshot(binding, snapshotRef.current)) setProgram7Notice('The revision-item lifecycle change could not be saved.');
+    } finally { if (revisionMutationRef.current === binding.operationId) { revisionMutationRef.current = null; setProgram7RevisionPending(false); } }
+  }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, saveUnit, windowRole]);
 
   const recheckProgram7RevisionItem = useCallback(async (item: RevisionItem, method: 'deterministic' | 'local-ai') => {
     const api = method === 'deterministic' ? feedbackNotesBridge?.deterministicRecheck : feedbackNotesBridge?.localRecheck;
@@ -3835,20 +3912,59 @@ export default function Stage19WritingSpineApp({
       return;
     }
     const binding = bindingFor(snapshotRef.current, `program7-${method}-recheck`);
-    if (!binding) return;
+    if (!binding || revisionMutationRef.current) return;
+    revisionMutationRef.current = binding.operationId; setProgram7RevisionPending(true);
     try {
       const result = await api({ ...binding, expectedRevision: program7RevisionItems.revision, itemId: item.id, purpose: item.body });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (!result.ok) setProgram7Notice(result.error.message);
       else {
         await refreshProgram7RevisionItems();
         setProgram7Notice(method === 'local-ai'
           ? 'Local AI added an advisory check. You still decide whether the concern is resolved.'
-          : 'The saved passage is still available. Black Skies did not judge whether the writing concern is resolved.');
+          : 'Source check recorded. Review each passage result. You decide whether the concern is resolved.');
       }
     } catch {
-      setProgram7Notice('This concern could not be checked again. Nothing was changed.');
-    }
+      if (bindingMatchesSnapshot(binding, snapshotRef.current)) setProgram7Notice('This concern could not be checked again. Nothing was changed.');
+    } finally { if (revisionMutationRef.current === binding.operationId) { revisionMutationRef.current = null; setProgram7RevisionPending(false); } }
   }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
+
+  const createManualConcern = useCallback(async (body: string, ranges: readonly { unitId: string; from: number; to: number; body: string }[]): Promise<boolean> => {
+    const current = snapshotRef.current, binding = bindingFor(current, 'manual-concern');
+    if (!binding || windowRole !== 'writing' || !feedbackNotesBridge?.createRevisionItem || !body.trim() || !ranges.length || ranges.length > 2) return false;
+    try {
+      const sources = await Promise.all(ranges.map(async range => {
+        const saved = current.project?.drafts?.[range.unitId];
+        if (saved === undefined || splitDraft(saved).body !== range.body || current.dirtyUnitIds.includes(range.unitId)) throw new Error('Save and reselect the exact evidence before keeping this concern.');
+        return buildProgram7SourceEnvelope({ projectId: binding.projectId, generation: binding.generation, unitId: range.unitId,
+          sourceKind: 'manuscript', sourceText: range.body, selectionStart: range.from, selectionEnd: range.to });
+      }));
+      const result = await feedbackNotesBridge.createRevisionItem({ ...binding, expectedRevision: program7RevisionItems.revision, manual: true,
+        source: sources[0]!, relatedSources: sources.slice(1), body });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return false;
+      if (!result.ok) { setProgram7Notice(result.error.message); return false; }
+      await refreshProgram7RevisionItems();
+      setProgram7Notice('Manual concern kept with exact evidence. Source checks do not judge whether a concern is resolved.');
+      return true;
+    } catch (error) { if (bindingMatchesSnapshot(binding, snapshotRef.current)) setProgram7Notice(error instanceof Error ? error.message : 'The concern was not saved.'); return false; }
+  }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
+
+  const considerProgram7Concern = useCallback(async (item: RevisionItem) => {
+    const current = snapshotRef.current;
+    if (!current.project || item.projectId !== current.project.projectId) return;
+    for (const evidence of revisionItemSources(item)) {
+      const source = current.project.drafts?.[evidence.unitId];
+      const result = await resolveProgram7SourceBinding(evidence, source === undefined ? undefined : splitDraft(source).body);
+      if (!['current', 'exact', 'relocated'].includes(result.status) || current.dirtyUnitIds.includes(evidence.unitId)) {
+        setProgram7Notice('An evidence passage is changed, protected or unavailable. Inspect both sources before drafting a linked alternative.'); return;
+      }
+    }
+    if (!(await handleSelectUnit(item.unitId))) return;
+    if (snapshotRef.current.project?.projectId !== item.projectId || snapshotRef.current.generation !== current.generation) return;
+    setProgram7ConcernId(item.id); setProgram7CandidatePurpose(item.body);
+    setCommandWorkspace('create-develop');
+    if (surfaceBridge) await activateSurface('command', 'current-window');
+  }, [activateSurface, handleSelectUnit, surfaceBridge]);
 
   const createRevisionFromProgram6 = useCallback(async (envelope: Program7SourceEnvelopeV1) => {
     if (windowRole !== 'writing' || typeof feedbackNotesBridge?.createRevisionItem !== 'function') {
@@ -3991,10 +4107,14 @@ export default function Stage19WritingSpineApp({
     const binding = bindingFor(snapshotRef.current, 'program7-prepare-promotion');
     if (!binding || !program7Ideation) return;
     try {
-      const result = await ideationBridge.preparePromotion({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id, destination, seedIds, selectedText });
+      const destinationRevision = destination === 'author-intent' ? program7Foundation?.document.revision : destination === 'outline' ? livingOutline?.document.revision : undefined;
+      if ((destination === 'author-intent' || destination === 'outline') && destinationRevision === undefined) { setProgram7Notice('The destination is unavailable. No preview or copy was made.'); return; }
+      const result = await ideationBridge.preparePromotion({ ...binding, expectedRevision: program7Ideation.document.revision, branchId: branch.id, destination, seedIds, selectedText,
+        ...(destinationRevision !== undefined ? { destinationRevision } : {}) });
+      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       if (updateIdeation(result)) setProgram7Notice('Preview saved. Your manuscript and destination have not changed. Review the text and destination before sending.');
     } catch { setProgram7Notice('The promotion preview could not be prepared.'); }
-  }, [ideationBridge, program7Ideation, updateIdeation, windowRole]);
+  }, [ideationBridge, program7Ideation, program7Foundation, livingOutline, updateIdeation, windowRole]);
 
   const routeIdeaPromotion = useCallback(async (branch: IdeationExplorationBranchV1, destination: IdeationPromotionDestination, selectedText: string, seedIds: readonly string[]) => {
     if (windowRole !== 'writing' || !program7PromotionBridge?.handoff) {
@@ -4010,7 +4130,7 @@ export default function Stage19WritingSpineApp({
       setProgram7Notice('This destination is not owned by Program 7 yet. The preview remains deferred.');
       return;
     }
-    const prepared = ideation.document.promotionPackages.find((candidate) =>
+    const prepared = [...ideation.document.promotionPackages].reverse().find((candidate) =>
       candidate.branchId === branch.id && candidate.destination === destination && candidate.selectedText === selectedText,
     );
     if (!prepared) {
@@ -4040,15 +4160,16 @@ export default function Stage19WritingSpineApp({
     };
     let payload: Program7PromotionItemV1['payload'];
     if (destination === 'author-intent') {
-      payload = { destination, questionId: 'aboutness', posture: 'answered', text: selectedText };
+      payload = { destination, expectedRevision: prepared.destinationRevision, questionId: 'aboutness', posture: 'answered', text: selectedText };
     } else if (destination === 'outline') {
-      payload = { destination, label: branch.name, body: selectedText, kind: 'fragment', state: 'planned', manuscriptUnitId: null, sourceAnchor: null };
+      payload = { destination, expectedRevision: prepared.destinationRevision, label: branch.name, body: selectedText, kind: 'fragment', state: 'planned', manuscriptUnitId: null, sourceAnchor: null };
     } else {
       payload = { destination, label: branch.name, summary: selectedText, selectedText };
     }
     const operationIdValue = operationId('program7-route-promotion');
     const item: Program7PromotionItemV1 = {
       itemId: prepared.id,
+      preparedPackageId: prepared.id,
       destination: destination as Program7PromotionDestinationV1,
       source,
       payload,
@@ -4063,6 +4184,7 @@ export default function Stage19WritingSpineApp({
     };
     try {
       const result = await program7PromotionBridge.handoff(request);
+      if (!bindingMatchesSnapshot(request, snapshotRef.current)) return;
       if (!result.ok) {
         setProgram7Notice(result.error.message);
         return;
@@ -4071,11 +4193,11 @@ export default function Stage19WritingSpineApp({
       const outcome = result.data.outcomes.find((entry) => entry.itemId === item.itemId && entry.destination === destination);
       const destinationLabel = { 'author-intent': 'Story Foundation', outline: 'Outline', character: 'Characters', lore: 'World notes' }[destination as 'author-intent' | 'outline' | 'character' | 'lore'];
       setProgram7Notice(outcome?.status === 'routed'
-        ? `Text sent to ${destinationLabel}. Your manuscript has not changed. Open ${destinationLabel} to review it.`
+        ? `${outcome.message} Open ${destinationLabel} to review it.`
         : outcome?.message ?? result.data.message);
       if (destination === 'author-intent' && typeof storyFoundationBridge?.get === 'function') {
         const foundation = await storyFoundationBridge.get({ ...bindingFor(current, 'program7-foundation-after-promotion')! });
-        if (foundation.ok) setProgram7Foundation(foundation.data);
+        if (foundation.ok && bindingMatchesSnapshot(request, snapshotRef.current)) setProgram7Foundation(foundation.data);
       }
       if (destination === 'outline' && livingOutlineBridge) {
         const outline = await livingOutlineBridge.get({
@@ -4084,10 +4206,10 @@ export default function Stage19WritingSpineApp({
           projectPath: project.path,
           generation: current.generation,
         });
-        if (outline.ok) setLivingOutline(outline.data);
+        if (outline.ok && bindingMatchesSnapshot(request, snapshotRef.current)) setLivingOutline(outline.data);
       }
     } catch {
-      setProgram7Notice('The handoff result could not be confirmed. Check the destination before sending again.');
+      if (bindingMatchesSnapshot(request, snapshotRef.current)) setProgram7Notice('The handoff result could not be confirmed. Check the destination before sending again.');
     }
   }, [livingOutlineBridge, program7Ideation, program7PromotionBridge, storyFoundationBridge, windowRole]);
 
@@ -4142,11 +4264,24 @@ export default function Stage19WritingSpineApp({
     setCompanionNotice(null);
   }, [activateSurface]);
 
+  const workNavigation = useWorkNavigation({
+    projectKey: livingOutlineProjectIdentity,
+    getPlace: () => ({ surface: logicalSurface, workspace: commandWorkspace, unitId: snapshotRef.current.activeUnitId, selection: aiSelection ? { selectionStart: aiSelection.selectionStart, selectionEnd: aiSelection.selectionEnd, selectionFingerprint: aiSelection.selectionFingerprint, sourceFingerprint: aiSelection.sourceFingerprint } : null, writingView: writingViewContextRef.current, companion: { result: companionResult, prompt: companionPrompt } }),
+    getBody: (unitId) => buffersRef.current[unitId],
+    activate: (surface) => activateSurface(surface, 'current-window'),
+    selectUnit: handleSelectUnit,
+    setWorkspace: setCommandWorkspace,
+    restoreCompanion: (state) => { setCompanionResult(state?.result ?? null); setCompanionPrompt(state?.prompt ?? ''); },
+  });
+  navigationPrepareRef.current = workNavigation.prepare;
+
   const selectCommandWorkspace = useCallback((workspace: CommandWorkspaceV1) => {
+    if (workspace === commandWorkspace && !companionResult) return;
+    navigationPrepareRef.current()();
     if (companionResult) dismissCompanion();
     setSourceReturnConfirmation(null);
     setCommandWorkspace(workspace);
-  }, [companionResult, dismissCompanion]);
+  }, [commandWorkspace, companionResult, dismissCompanion]);
 
   const autoOpenedReviewRequestRef = useRef<string | null>(null);
   useEffect(() => {
@@ -4206,6 +4341,7 @@ export default function Stage19WritingSpineApp({
     theme,
     focusMode,
     openWritingRail,
+    lockedWritingRails,
     companionPrompt,
     companionResult,
     companionNotice,
@@ -4219,6 +4355,8 @@ export default function Stage19WritingSpineApp({
     unitAdvancedId,
     dirtyUnitIds,
     recoveryBlocksEditing,
+    workNavigation,
+    writingPage: writingPage.enabled ? writingPage : undefined,
     livingOutline,
     livingOutlineLoading,
     livingOutlineNotice,
@@ -4264,6 +4402,8 @@ export default function Stage19WritingSpineApp({
     program7Candidates,
     program7CandidateDecisionPending,
     program7LocalAiAvailable: program7LocalAiIsAvailable(revisionCandidatesBridge),
+    program7FoundationDrafts: program7FoundationDrafts.current,
+    program7IdeasDrafts: program7IdeasDrafts.current,
     program7Foundation,
     program7Ideation,
     program7History: buildProgram7HistoryProjection({
@@ -4275,6 +4415,9 @@ export default function Stage19WritingSpineApp({
     }),
     program7SelectedCandidate,
     program7RevisionDrawerOpen,
+    program7RevisionPending,
+    acceptedRevision,
+    program7ConcernId,
     program7CandidatePurpose,
     program7CandidateText,
     program7LocalAiRequestId,
@@ -4296,6 +4439,10 @@ export default function Stage19WritingSpineApp({
     ),
   };
   const viewActions: Stage19WritingSpineViewActions = {
+    rememberWork: () => navigationPrepareRef.current()(),
+    setWritingViewContext: (state) => { writingViewContextRef.current = state; },
+    goBack: workNavigation.back,
+    acknowledgeNavigationSelection: workNavigation.acknowledgeSelection,
     showWritingSurface: async () => { await activateSurface('writing', 'current-window'); },
     showCommandSurface: async () => { await activateSurface('command', 'current-window'); },
     openCommandInSecondaryWindow: async () => { await activateSurface('command', 'secondary-window'); },
@@ -4305,13 +4452,38 @@ export default function Stage19WritingSpineApp({
       if (!focusMode && !confirmProgram7CandidateLeave()) return;
       setFocusMode((current) => !current);
     },
+    revealWritingRail: (rail) => {
+      cancelRailLeave();
+      if (openWritingRail === 'right' && (program7CandidateEditDirtyRef.current || program7CandidateEditSavingRef.current)) return;
+      setOpenWritingRail(rail);
+    },
+    leaveWritingRail: (rail) => {
+      cancelRailLeave();
+      if (rail === 'right' && (program7CandidateEditDirtyRef.current || program7CandidateEditSavingRef.current)) return;
+      railLeaveTimer.current = setTimeout(() => {
+        const panel = document.getElementById('stage19-writing-rail-' + rail);
+        if (panel?.contains(document.activeElement)) return;
+        setOpenWritingRail((current) => current === rail ? null : current);
+      }, 250);
+    },
+    toggleWritingRailLock: (rail) => {
+      cancelRailLeave();
+      setLockedWritingRails((current) => current.includes(rail) ? current.filter((item) => item !== rail) : [...current, rail]);
+      setOpenWritingRail(rail);
+    },
     toggleWritingRail: (rail) => {
+      cancelRailLeave();
       if (openWritingRail === 'right' && !confirmProgram7CandidateLeave()) return;
-      setOpenWritingRail((current) => current === rail ? null : rail);
+      if (lockedWritingRails.includes(rail)) {
+        setLockedWritingRails((current) => current.filter((item) => item !== rail));
+        setOpenWritingRail((current) => current === rail ? null : current);
+      } else setOpenWritingRail((current) => current === rail ? null : rail);
     },
     closeWritingRail: (rail) => {
       if (rail === 'right' && !confirmProgram7CandidateLeave()) return;
-      setOpenWritingRail(null);
+      cancelRailLeave();
+      setLockedWritingRails((current) => current.filter((item) => item !== rail));
+      setOpenWritingRail((current) => current === rail ? null : current);
       window.requestAnimationFrame(() => {
         document.getElementById(`stage19-writing-edge-${rail}`)?.focus();
       });
@@ -4372,7 +4544,10 @@ export default function Stage19WritingSpineApp({
     moveOutlineItemTo: moveLivingOutlineItemTo,
     linkOutlineItem: linkLivingOutlineItem,
     deleteOutlineItem: deleteLivingOutlineItem,
-    saveUnit,
+    saveUnit: async (unitId, body) => {
+      await saveUnit(unitId, body);
+      if (writingPage.enabled) await writingPage.save();
+    },
     changeBuffer: handleBufferChange,
     changeAiSelection: handleAiSelection,
     setAiCredential,
@@ -4416,6 +4591,9 @@ export default function Stage19WritingSpineApp({
     acceptProgram7Candidate,
     setProgram7CandidateLifecycle,
     returnProgram7CandidateToSource,
+    createManualConcern,
+    considerProgram7Concern,
+    clearProgram7Concern: () => setProgram7ConcernId(null),
     returnProgram7RevisionItemToSource,
     setProgram7RevisionItemLifecycle,
     recheckProgram7RevisionItem,

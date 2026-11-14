@@ -46,7 +46,7 @@ describe('Program7History component', () => {
     render(<Program7History projection={projection()} onOpenSource={onOpenSource} onOpenRecurrence={onOpenRecurrence} />);
     expect(screen.getByRole('heading', { name: 'Active records' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Resolved and archived history' })).toBeInTheDocument();
-    expect(screen.getByTestId('program7-history-item-feedback-note:feedback-a')).toHaveTextContent('Original available');
+    expect(screen.getByTestId('program7-history-item-feedback-note:feedback-a')).toHaveTextContent('Original reference recorded; checked when opened');
     const historyCard = screen.getByTestId('program7-history-item-revision-candidate:candidate-a');
     expect(historyCard).toHaveTextContent('Original has changed');
     expect(historyCard).toHaveTextContent('Partly applied');

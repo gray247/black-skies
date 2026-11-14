@@ -20,6 +20,20 @@ export interface RevisionComparisonProps {
   readonly onOpenEditor?: (candidate: RevisionCandidateV1) => void;
 }
 
+function ReplacementChanges({ before, after }: { before: string; after: string }): JSX.Element {
+  const oldPoints = Array.from(before), newPoints = Array.from(after);
+  let prefix = 0, suffix = 0;
+  while (prefix < oldPoints.length && prefix < newPoints.length && oldPoints[prefix] === newPoints[prefix]) prefix += 1;
+  while (suffix < oldPoints.length - prefix && suffix < newPoints.length - prefix && oldPoints[oldPoints.length - 1 - suffix] === newPoints[newPoints.length - 1 - suffix]) suffix += 1;
+  const removed = oldPoints.slice(prefix, oldPoints.length - suffix).join('');
+  const added = newPoints.slice(prefix, newPoints.length - suffix).join('');
+  return <section aria-label="Proposed passage changes"><h3>Proposed passage changes</h3>
+    <p>Removed text is struck through. Added text is underlined. These are proposed changes until you apply them.</p>
+    <pre>{oldPoints.slice(0, prefix).join('')}{removed ? <del aria-label="Removed text">{removed}</del> : null}{added ? <ins aria-label="Added text">{added}</ins> : null}{suffix ? oldPoints.slice(-suffix).join('') : ''}</pre>
+    {!removed && !added ? <p>No wording changes in this passage.</p> : null}
+  </section>;
+}
+
 const dispositionActions: readonly Extract<RevisionCandidateLifecycle, 'rejected' | 'parked' | 'abandoned'>[] = [
   'rejected',
   'parked',
@@ -116,6 +130,7 @@ export default function RevisionComparison({
 
   return (
     <section className="program7-revision-comparison" aria-labelledby={`revision-comparison-${candidate.id}`} data-testid="revision-comparison">
+      {candidate.concernId ? <p>Linked concern <code>{candidate.concernId}</code></p> : null}
       <header className="program7-revision-comparison__header">
         <div>
           <h1 id={`revision-comparison-${candidate.id}`}>Compare revision alternative</h1>
@@ -148,13 +163,14 @@ export default function RevisionComparison({
           <p>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted'
             ? 'This is the alternative you applied.'
             : candidate.editedCandidateText ? 'Your edited alternative is ready to review.' : 'This alternative is ready to review.'}</p>
-          <pre data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : visibleCandidateText(candidate)}</pre>
+          <pre data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : candidate.deleteSource ? 'Delete the exact linked passage. No replacement words will be inserted.' : visibleCandidateText(candidate)}</pre>
         </article>
       </div>
       {!redacted ? (
         <section className="program7-revision-comparison__replacement" aria-labelledby={`revision-replacement-${candidate.id}`}>
           <h2 id={`revision-replacement-${candidate.id}`}>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted' ? 'Text that was replaced' : sourceIsHistorical ? 'Text linked for replacement' : 'Text that will be replaced'}</h2>
           <pre data-testid="revision-replacement-text">{replacementText}</pre>
+          <ReplacementChanges before={replacementText} after={candidateText} />
           {editable && !stale ? <p>The manuscript text shown here is the replacement target. Selecting part of the alternative below changes what you insert, not which manuscript words are replaced.</p> : null}
           {editable && !stale && replacesWholeSection ? (
             <label>
@@ -227,9 +243,9 @@ export default function RevisionComparison({
         />
       </div>
       <div className="program7-revision-comparison__actions" aria-label="Revision alternative actions">
-        {onOpenEditor && editable ? <button type="button" disabled={decisionPending} onClick={() => onOpenEditor(candidate)}>{stale ? 'View alternative' : 'Edit alternative'}</button> : null}
+        {onOpenEditor && editable && !candidate.deleteSource ? <button type="button" disabled={decisionPending} onClick={() => onOpenEditor(candidate)}>{stale ? 'View alternative' : 'Edit alternative'}</button> : null}
         <button type="button" disabled={!acceptEnabled || !onAcceptAll} onClick={() => onAcceptAll?.(candidate)}>
-          Apply all of this alternative
+          {candidate.deleteSource ? 'Delete this linked passage' : 'Apply all of this alternative'}
         </button>
         <button
           type="button"

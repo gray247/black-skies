@@ -333,6 +333,20 @@ describe('DraftEditor measured source return', () => {
     h.unmount();
   });
 
+
+  it('keeps a pending return stable when the parent recreates its callback', async () => {
+    const h = await renderMeasuredReturn();
+    h.measure();
+    const latestResult = vi.fn();
+    h.rerender(<DraftEditor {...h.props} onSelectionRestoreResult={(id, restored) => latestResult(id, restored)} />);
+    expect(h.frames.size).toBe(1);
+    h.advanceFrame(); h.measure();
+    expect(latestResult.mock.calls).toEqual([['measured-return', true]]);
+    expect(h.onSelectionRestoreResult).not.toHaveBeenCalled();
+    expect(h.measurements).toHaveLength(0);
+    h.unmount();
+  });
+
   it('cancels a pending frame on unmount without acknowledging the request', async () => {
     const h = await renderMeasuredReturn();
     h.measure();

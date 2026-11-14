@@ -7,6 +7,7 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
+  openWritingStudioRail,
   removeTemporaryDirectory,
   requestWritingStudioClose,
   waitForCleanElectronApplicationExit,
@@ -54,8 +55,13 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
       readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),
     ]);
 
+    const windowsBefore = electronApp.windows().length;
+    await openWritingStudioRail(writing, 'Companion');
     const prompt = writing.getByRole('textbox', { name: 'Ask Black Skies' });
-    await prompt.fill('Where am I?');
+    await prompt.click();
+    await writing.getByRole('heading', { name: 'Companion Boundary Project' }).hover();
+    await prompt.pressSequentially('Where am I?', { delay: 35 });
+    await expect(prompt).toHaveValue('Where am I?');
     await prompt.press('Enter');
 
     const result = writing.getByRole('region', { name: 'Companion orientation result' });
@@ -63,7 +69,7 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await expect(result).toContainText('Companion Boundary Project');
     await expect(result).toContainText('Orientation Passage · unit 1 of 1');
     await expect(result).toContainText('It did not change your manuscript, create a saved record, or decide what you should do next.');
-    await expect.poll(() => electronApp.windows().length).toBe(1);
+    await expect.poll(() => electronApp.windows().length).toBeLessThanOrEqual(windowsBefore);
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),
@@ -74,12 +80,13 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Orientation Passage' }))
       .toBeFocused();
 
-    await writing.getByRole('textbox', { name: 'Ask Black Skies' })
-      .fill('How should I rewrite this?');
+    await openWritingStudioRail(writing, 'Companion');
+    await prompt.click();
+    await prompt.fill('How should I rewrite this?');
     await writing.getByRole('button', { name: 'Ask', exact: true }).click();
     await expect(writing.getByRole('region', { name: 'Companion orientation result' }))
       .toContainText('This request is not supported yet');
-    await expect(writing.getByText('Companion currently helps you find your place in this project. It did not change your manuscript or save anything.')).toBeVisible();
+    await expect(writing.getByText('Companion currently helps you find your place in this project and offers selected built-in product help. It did not change your manuscript or save anything.')).toBeVisible();
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),
       readFile(join(created.projectPath, 'drafts', `${created.unitId}.md`), 'utf8'),
@@ -106,6 +113,7 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
       .toHaveCount(0);
     await expect(reopened.command.getByRole('region', { name: 'Companion orientation result' }))
       .toHaveCount(0);
+    await openWritingStudioRail(reopened.writing, 'Companion');
     await expect(reopened.writing.getByRole('textbox', { name: 'Ask Black Skies' })).toHaveValue('');
     expect(await Promise.all([
       readFile(join(created.projectPath, 'project.json'), 'utf8'),

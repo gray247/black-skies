@@ -65,7 +65,7 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
 
     for (const projectPath of projects) {
       await openProject(writing, projectPath);
-      await expect(command.getByRole('heading', { level: 1 })).toHaveText(/Lantern House|Northline Letters|Glass Orchard/);
+      await expect(command.locator('.stage19-command__identity h1')).toHaveText(/Lantern House|Northline Letters|Glass Orchard/);
       const projectId = path.basename(projectPath) === 'glass-orchard'
         ? 'proj_glass_orchard_review'
         : path.basename(projectPath) === 'northline-letters'
@@ -221,7 +221,7 @@ test('real Program 6 corpus projects expose the complete source-linked Story Kno
           } else {
             await command.getByRole('button', { name: 'Review source', exact: true }).first().click();
           }
-          await expect(command.getByRole('heading', { level: 1 })).toHaveText('Glass Orchard');
+          await expect(command.locator('.stage19-command__identity h1')).toHaveText('Glass Orchard');
           await expect(writing.getByRole('heading', { name: 'Glass Orchard', exact: true })).toBeVisible();
           await expect(command.getByRole('region', { name: 'Command Center' })).toBeVisible();
           expect(command.isClosed()).toBe(false);

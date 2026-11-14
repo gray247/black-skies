@@ -1,5 +1,9 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { revisionItemSources, captureProgram7SourceEvidence, buildProgram7SourceEnvelope } from '../../../shared/program7SourceBinding';
+import type { StoryPositionRefV1 } from '../../../shared/ipc/storyIntelligence';
 import type {
   FeedbackNoteRecheck,
+  FeedbackSourceEvidence,
   FeedbackRevisionDisposition,
   FeedbackRevisionLifecycle,
   RevisionItem,
@@ -12,6 +16,9 @@ export interface RevisionDeskProps {
   readonly unavailableMessage?: string | null;
   readonly canResolve?: boolean;
   readonly localAiAvailable?: boolean;
+  readonly pending?: boolean;
+  readonly renderEvidence?: (item: RevisionItem) => ReactNode;
+  readonly onConsiderRevision?: (item: RevisionItem) => void;
   readonly onReturnToSource?: (item: RevisionItem) => void;
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
@@ -39,7 +46,7 @@ function sourceDescription(item: RevisionItem): string {
 }
 
 function originDescription(item: RevisionItem): string {
-  return item.provenance?.origin === 'local-ai' ? 'Local advisory suggestion' : 'Story Knowledge';
+  return item.provenance?.source === 'manual' ? 'Author concern' : item.provenance?.origin === 'local-ai' ? 'Local advisory suggestion' : 'Story Knowledge';
 }
 
 function lifecycleLabel(lifecycle: FeedbackRevisionLifecycle): string {
@@ -53,6 +60,7 @@ function lifecycleLabel(lifecycle: FeedbackRevisionLifecycle): string {
     case 'resolved': return 'Finished';
     case 'parked': return 'Set aside';
     case 'dismissed': return 'Dismissed';
+    case 'intentional': return 'Marked intentional';
     case 'abandoned': return 'Stopped';
     case 'stale': return 'Needs review';
     default: return 'Unavailable';
@@ -123,6 +131,9 @@ function RevisionCard({
   item,
   history,
   canResolve,
+  pending,
+  renderEvidence,
+  onConsiderRevision,
   onReturnToSource,
   onLifecycle,
   onRecheck,
@@ -132,6 +143,9 @@ function RevisionCard({
   readonly item: RevisionItem;
   readonly history: boolean;
   readonly canResolve: boolean;
+  readonly pending?: boolean;
+  readonly renderEvidence?: (item: RevisionItem) => ReactNode;
+  readonly onConsiderRevision?: (item: RevisionItem) => void;
   readonly onReturnToSource?: (item: RevisionItem) => void;
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
@@ -143,6 +157,7 @@ function RevisionCard({
     <article
       className="program7-revision-desk__card"
       tabIndex={0}
+      data-concern-id={item.id}
       aria-label="Revision task"
       onKeyDown={(event) => {
         if (event.key === 'Enter' && onReturnToSource) onReturnToSource(item);
@@ -151,7 +166,7 @@ function RevisionCard({
       <header className="program7-revision-desk__card-header">
         <div>
           <h3>{item.lens ? `${item.lens[0]?.toUpperCase()}${item.lens.slice(1)} concern` : 'Revision to consider'}</h3>
-          <p>{sourceDescription(item)} · {sourceStatus(item)}</p>
+          <p>{sourceDescription(item)} · {renderEvidence ? 'See each source check below' : sourceStatus(item)}</p>
         </div>
         {history ? <span>{lifecycleLabel(item.lifecycle)}</span> : null}
       </header>
@@ -163,6 +178,8 @@ function RevisionCard({
           {item.protection?.protected ? 'Evidence hidden by protection policy.' : item.evidence}
         </p>
       ) : null}
+      {renderEvidence?.(item)}
+      {onConsiderRevision && !history ? <button type="button" disabled={pending} onClick={() => onConsiderRevision(item)}>Consider a revision</button> : null}
       <RecheckList rechecks={item.rechecks} />
       {recurrenceId && onOpenRecurrence ? (
         <p>
@@ -171,13 +188,13 @@ function RevisionCard({
           </button>
         </p>
       ) : null}
-      <div className="program7-revision-desk__actions" aria-label={`Actions for ${item.id}`}>
+      <fieldset disabled={pending} style={{ border: 0, padding: 0 }}><div className="program7-revision-desk__actions" aria-label={`Actions for ${item.id}`}>
         {onReturnToSource ? (
           <button type="button" onClick={() => onReturnToSource(item)}>Open passage in Writing Studio</button>
         ) : null}
         {!history && onRecheck ? (
           <>
-            <button type="button" onClick={() => onRecheck(item, 'deterministic')}>Check after revising</button>
+            <button type="button" onClick={() => onRecheck(item, 'deterministic')}>Check source availability</button>
             {localAiAvailable ? <button type="button" onClick={() => onRecheck(item, 'local-ai')}>Ask for another advisory check</button> : null}
           </>
         ) : null}
@@ -201,7 +218,7 @@ function RevisionCard({
             <small id={`${item.id}-resolution-note`}>Only you can mark this concern finished.</small>
           </>
         ) : null}
-      </div>
+      </div></fieldset>
       <details className="program7-revision-desk__technical-details">
         <summary>Technical details</summary>
         <dl className="program7-revision-desk__metadata">
@@ -225,6 +242,9 @@ function ItemSection({
   readonly items: readonly RevisionItem[];
   readonly history: boolean;
   readonly canResolve: boolean;
+  readonly pending?: boolean;
+  readonly renderEvidence?: (item: RevisionItem) => ReactNode;
+  readonly onConsiderRevision?: (item: RevisionItem) => void;
   readonly onReturnToSource?: (item: RevisionItem) => void;
   readonly onLifecycle?: (item: RevisionItem, lifecycle: FeedbackRevisionLifecycle) => void;
   readonly onRecheck?: (item: RevisionItem, method: 'deterministic' | 'local-ai') => void;
@@ -254,6 +274,9 @@ export default function RevisionDesk({
   unavailableMessage,
   canResolve = false,
   localAiAvailable = true,
+  pending,
+  renderEvidence,
+  onConsiderRevision,
   onReturnToSource,
   onLifecycle,
   onRecheck,
@@ -280,6 +303,9 @@ export default function RevisionDesk({
         items={activeItems}
         history={false}
         canResolve={canResolve}
+        pending={pending}
+        renderEvidence={renderEvidence}
+        onConsiderRevision={onConsiderRevision}
         onReturnToSource={onReturnToSource}
         onLifecycle={onLifecycle}
         onRecheck={onRecheck}
@@ -291,6 +317,9 @@ export default function RevisionDesk({
         items={historyItems}
         history
         canResolve={canResolve}
+        pending={pending}
+        renderEvidence={renderEvidence}
+        onConsiderRevision={onConsiderRevision}
         onReturnToSource={onReturnToSource}
         onLifecycle={onLifecycle}
         onRecheck={onRecheck}
@@ -299,4 +328,46 @@ export default function RevisionDesk({
       />
     </section>
   );
+}
+
+/** Current and recorded evidence remain distinct, including after source Undo. */
+export function RevisionEvidence({ item, bodies, dirtyUnitIds, onRead, decisionEvidence }: {
+  item: RevisionItem; bodies: Readonly<Record<string, string>>; dirtyUnitIds: ReadonlySet<string>;
+  onRead?: (source: StoryPositionRefV1) => void;
+  decisionEvidence?: readonly FeedbackSourceEvidence[];
+}): JSX.Element {
+  const [checked, setChecked] = useState<{ item: RevisionItem; bodies: Readonly<Record<string, string>>; values: readonly FeedbackSourceEvidence[] } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(revisionItemSources(item).map(source => captureProgram7SourceEvidence(source, bodies[source.unitId])))
+      .then(values => { if (!cancelled) setChecked({ item, bodies, values }); })
+      .catch(() => { if (!cancelled) setChecked(null); });
+    return () => { cancelled = true; };
+  }, [item, bodies]);
+  const current = checked?.item === item && checked.bodies === bodies ? checked.values : [];
+  return <div aria-label={`Concern evidence ${item.id}`}>
+    {revisionItemSources(item).map((source, index) => {
+      const evidence = current[index], original = item.originalEvidence?.[index], recorded = decisionEvidence?.[index];
+      const protectedSource = item.protection?.protected || source.protection.metadataOnly || !evidence || evidence.status === 'protected';
+      const dirty = dirtyUnitIds.has(source.unitId);
+      const identifiable = evidence?.text !== undefined && !protectedSource;
+      const changed = evidence && !['current', 'exact', 'relocated'].includes(evidence.status);
+      const label = index === 0 ? 'primary' : 'related';
+      return <section key={index} aria-label={`${index === 0 ? 'Primary' : 'Related'} evidence`}>
+        <h4>{index === 0 ? 'Primary passage' : 'Related passage'}</h4>
+        <p>{!evidence ? 'Checking source availability.' : protectedSource ? 'This source is protected; only metadata is available.' : changed ? 'Source changed. Review the original and current evidence.' : 'Linked passage found.'} {dirty ? 'Unsaved source changes.' : ''}</p>
+        {!protectedSource && original?.text !== undefined && (original.text !== evidence?.text || original.truncated !== evidence?.truncated) ? <><strong>Original evidence</strong><blockquote aria-label={`Original ${label} evidence`}>{original.text}</blockquote>{original.truncated ? <small>Excerpt; original selection is longer.</small> : null}</> : null}
+        {!protectedSource && recorded ? <><strong>Recorded at this decision</strong>{recorded.text !== undefined ? <blockquote aria-label={`Recorded ${label} evidence`}>{recorded.text}</blockquote> : <p>No quote was available at this decision.</p>}{recorded.truncated ? <small>Excerpt; recorded selection is longer.</small> : null}
+          {recorded.bodyFingerprint && evidence?.bodyFingerprint && recorded.bodyFingerprint !== evidence.bodyFingerprint ? <p>Current source differs from this decision.</p> : null}</> : null}
+        {identifiable ? <><strong>{dirty ? 'Current unsaved evidence' : 'Current evidence'}</strong><blockquote aria-label={`Current ${label} evidence`}>{evidence.text}</blockquote>{evidence.truncated ? <small>Excerpt; current selection is longer.</small> : null}</> : <p>Evidence excerpt withheld until this source is verified.</p>}
+        <button type="button" disabled={!identifiable || dirty || !onRead} onClick={() => {
+          if (!evidence || evidence.selectionStart === undefined || evidence.selectionEnd === undefined || bodies[source.unitId] === undefined) return;
+          void buildProgram7SourceEnvelope({ projectId: source.projectId, generation: source.generation, unitId: source.unitId,
+            sourceText: bodies[source.unitId], selectionStart: evidence.selectionStart, selectionEnd: evidence.selectionEnd })
+            .then(fresh => onRead?.(fresh.sourceRef));
+        }}>Read {label} evidence</button>
+      </section>;
+    })}
+    <p>Source checks locate evidence. Editing does not automatically address a concern; you decide.</p>
+  </div>;
 }

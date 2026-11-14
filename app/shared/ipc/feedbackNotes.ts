@@ -20,6 +20,7 @@ export type FeedbackRevisionLifecycle =
   | 'active'
   | 'review'
   | 'intended'
+  | 'intentional'
   | 'underway'
   | 'ready_for_recheck'
   | 'stale'
@@ -79,9 +80,22 @@ export interface FeedbackNoteRecheck {
   readonly [key: string]: unknown;
 }
 
+/** Bounded author-shareable evidence, captured by the owning main process. */
+export interface FeedbackSourceEvidence {
+  readonly unitId: string;
+  readonly status: import('../program7SourceBinding').Program7SourceBindingResolutionStatus;
+  readonly scope: 'passage' | 'unit';
+  readonly bodyFingerprint?: string;
+  readonly selectionStart?: number;
+  readonly selectionEnd?: number;
+  readonly text?: string;
+  readonly truncated?: boolean;
+}
+
 export interface FeedbackNoteDisposition {
+  readonly sourceEvidence?: readonly FeedbackSourceEvidence[];
   readonly id: string;
-  readonly disposition: FeedbackRevisionDisposition;
+  readonly disposition: FeedbackRevisionDisposition | 'intentional' | 'reopened';
   readonly createdAt: string;
   readonly actor: 'author' | 'system' | string;
   readonly reason?: string;
@@ -107,6 +121,9 @@ export interface FeedbackNoteError {
 }
 
 interface FeedbackNoteBase {
+  readonly originalEvidence?: readonly FeedbackSourceEvidence[];
+  /** Metadata-only references; each source retains independent protection/currentness. */
+  readonly relatedSources?: readonly Program7SourceEnvelopeV1[];
   readonly id: string;
   readonly projectId: string;
   readonly unitId: string;
@@ -169,6 +186,8 @@ export type FeedbackNotesDocument = {
 };
 
 export interface CreateRevisionItemInput {
+  readonly originalEvidence?: readonly FeedbackSourceEvidence[];
+  readonly relatedSources?: readonly Program7SourceEnvelopeV1[];
   readonly projectId: string;
   readonly unitId: string;
   readonly body: string;
@@ -227,6 +246,8 @@ export interface RevisionItemProjectBindingV1 {
 }
 
 export interface CreateRevisionItemRequest extends RevisionItemProjectBindingV1 {
+  readonly manual?: boolean;
+  readonly relatedSources?: readonly Program7SourceEnvelopeV1[];
   readonly expectedRevision: number;
   readonly source: Program7SourceEnvelopeV1;
   /** The author's concern or intended revision, never manuscript prose. */

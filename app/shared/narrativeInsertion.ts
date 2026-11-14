@@ -15,6 +15,7 @@ export type NarrativeInsertionRiskV1 =
   | 'source-staleness';
 
 export interface NarrativeInsertionCandidateV1 {
+  readonly deleteSource?: boolean;
   readonly projectId: string;
   readonly unitId: string;
   readonly sourceSnapshot: {
@@ -180,7 +181,7 @@ export async function calculateNarrativeInsertion(
   ) {
     return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, [], 'The stored source body fingerprint does not match the stored source text.');
   }
-  if (!candidateText || candidateText.length > NARRATIVE_INSERTION_MAX_TEXT_LENGTH) {
+  if ((!candidateText && !(candidate.deleteSource === true && candidate.sourceAnchor && candidate.sourceAnchor.selectionEnd > candidate.sourceAnchor.selectionStart && request.mode === 'accept-all')) || candidateText.length > NARRATIVE_INSERTION_MAX_TEXT_LENGTH) {
     return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, [], 'The accepted candidate text is empty or exceeds the insertion limit.');
   }
 
@@ -244,7 +245,7 @@ export async function calculateNarrativeInsertion(
     candidateEnd = candidateSelection.selectionEnd;
   }
   const replacementText = candidateText.slice(candidateStart, candidateEnd);
-  if (!replacementText) {
+  if (!replacementText && !(candidate.deleteSource === true && request.mode === 'accept-all' && sourceEnd > sourceStart)) {
     return blocked(request, sourceBodySha256, currentBodySha256, candidateTextSha256, risks, acknowledgedRisks, [], 'The selected candidate range is empty.');
   }
   if (sourceEnd > currentBody.length) {

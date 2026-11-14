@@ -36,6 +36,14 @@ describe('Story Foundation project-local authored truth owner', () => {
     await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
   });
 
+  it('B4 retains promotion lineage on its original answer version across later author edits and reopen', async () => {
+    const root = await temporaryProject(), store = repository(root);
+    await store.setAnswer('project-a', 0, { questionId: 'aboutness', posture: 'answered', text: 'Copied idea.', sourcePromotionId: 'preview-a' });
+    const changed = await store.setAnswer('project-a', 1, { questionId: 'aboutness', posture: 'answered', text: 'Later author guidance.' });
+    expect(changed.document.entries[0]!.versions).toMatchObject([{ sourcePromotionId: 'preview-a', text: 'Copied idea.' }, { text: 'Later author guidance.' }]);
+    expect(await repository(root).read('project-a')).toEqual(changed);
+  });
+
   it('exposes the exact bounded thirteen-question dossier set', () => {
     expect(STORY_FOUNDATION_QUESTIONS).toHaveLength(13);
     expect(STORY_FOUNDATION_QUESTIONS.map((question) => question.prompt)).toEqual([

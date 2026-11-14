@@ -244,6 +244,29 @@ describe('Feedback Notes IPC authority', () => {
     );
   });
 
+  it('manual concern: verifies both exact sources and persists references without manuscript copies', async () => {
+    const source = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: 'Protected manuscript text.', selectionStart: 0, selectionEnd: 9 });
+    const related = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: 'Protected manuscript text.', selectionStart: 10, selectionEnd: 20 });
+    revisionMocks.createRevisionItem.mockResolvedValue({ document: { revision: 1 }, note: { id: 'manual', advisory: false } });
+    await expect(invokeRevision(FEEDBACK_NOTE_CHANNELS.createRevisionItem, 1, { operationId: 'manual', projectId: 'project-a', projectPath, generation: 1,
+      expectedRevision: 0, source, relatedSources: [related], manual: true, body: 'Compare the promise.' })).resolves.toMatchObject({ ok: true });
+    const input = revisionMocks.createRevisionItem.mock.calls[0][0];
+    expect(input.provenance).toMatchObject({ source: 'manual', origin: 'author' });
+    expect(input.relatedSources[0]).toMatchObject({ anchor: related.anchor, protection: related.protection });
+    expect(input.relatedSources[0]).not.toHaveProperty('text');
+    expect(input).not.toHaveProperty('text');
+  });
+
+  it.each(['primary-stale', 'related-stale', 'primary-protected', 'related-protected'])('manual concern: refuses %s without a feedback write', async edge => {
+    const source = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: edge === 'primary-stale' ? 'Entirely different source.' : 'Protected manuscript text.',
+      selectionStart: 0, selectionEnd: 9, sourceClass: edge === 'primary-protected' ? 'protected' : 'included' });
+    const related = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: edge === 'related-stale' ? 'Entirely different source.' : 'Protected manuscript text.',
+      selectionStart: 10, selectionEnd: 20, sourceClass: edge === 'related-protected' ? 'protected' : 'included' });
+    await expect(invokeRevision(FEEDBACK_NOTE_CHANNELS.createRevisionItem, 1, { operationId: 'manual', projectId: 'project-a', projectPath, generation: 1,
+      expectedRevision: 0, source, relatedSources: [related], manual: true, body: 'Keep this draft.' })).resolves.toMatchObject({ ok: false, error: { code: 'SOURCE_STALE' } });
+    expect(revisionMocks.createRevisionItem).not.toHaveBeenCalled();
+  });
+
   it('lists active and history revision projections through the owner', async () => {
     const notes = [
       { id: 'active', projectId: 'project-a', unitId: 'unit-a', body: 'Open', advisory: false, kind: 'revision_item', lifecycle: 'underway' },
@@ -285,7 +308,7 @@ describe('Feedback Notes IPC authority', () => {
       },
     ));
     expect(result).toMatchObject({ ok: true, data: { lifecycle: 'resolved' }, revision: 3 });
-    expect(revisionMocks.setLifecycle).toHaveBeenCalledWith('project-a', 2, 'revision-a', 'resolved', undefined);
+    expect(revisionMocks.setLifecycle).toHaveBeenCalledWith('project-a', 2, 'revision-a', 'resolved', undefined, [expect.objectContaining({ unitId: 'unit-a', text: 'Protected manuscript text.', scope: 'unit' })]);
     await expect(Promise.resolve(electronMocks.handlers.get(FEEDBACK_NOTE_CHANNELS.setLifecycle)!(
       { sender: { id: 2 } }, {
         operationId: 'bad-lifecycle', projectId: 'project-a', projectPath, generation: 1,
@@ -350,6 +373,26 @@ describe('Feedback Notes IPC authority', () => {
       'project-a', 2, 'revision-a', 'appears_resolved', 'The concern is not obvious.',
       { method: 'local-ai', sourceStatus: 'exact' },
     );
+    expect(revisionMocks.setLifecycle).not.toHaveBeenCalled();
+  });
+
+  it('records main-owned quotes and rejects dirty or concurrently changed decision sources', async () => {
+    const body = 'Protected manuscript text.';
+    const source = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: body, selectionStart: 0, selectionEnd: body.length });
+    const item = { id: 'revision-a', projectId: 'project-a', unitId: 'unit-a', body: 'Manual concern', advisory: false, kind: 'revision_item', lifecycle: 'active', provenance: { source: 'manual' }, anchor: source.anchor, sourceBodyFingerprint: source.bodySha256 };
+    revisionMocks.read.mockResolvedValue({ revision: 2, notes: [item] });
+    revisionMocks.setLifecycle.mockResolvedValue({ document: { revision: 3 }, note: { ...item, lifecycle: 'resolved' } });
+    const request = { operationId: 'decision', projectId: 'project-a', projectPath, generation: 1, expectedRevision: 2, itemId: 'revision-a', lifecycle: 'resolved', sourceEvidence: [{ text: 'forged renderer quote' }] };
+    registerFeedbackNotesIpc({ resolveWindowRole: () => 'writing', getWritingSnapshot: () => ({ ...snapshot(), project: { ...snapshot().project, drafts: { 'unit-a': '---\nid: unit-a\n---\n\n' + body + '\n' } } }), repositoryFactory: () => ({ read: revisionMocks.read, setLifecycle: revisionMocks.setLifecycle } as never) });
+    expect(await invokeRevision(FEEDBACK_NOTE_CHANNELS.setLifecycle, 1, request)).toMatchObject({ ok: true });
+    expect(revisionMocks.setLifecycle.mock.calls[0]![5][0]).toMatchObject({ text: body, bodyFingerprint: source.bodySha256 });
+    revisionMocks.setLifecycle.mockClear();
+    registerFeedbackNotesIpc({ resolveWindowRole: () => 'writing', getWritingSnapshot: () => ({ ...snapshot(), dirtyUnitIds: ['unit-a'] }), repositoryFactory: () => ({ read: revisionMocks.read, setLifecycle: revisionMocks.setLifecycle } as never) });
+    expect(await invokeRevision(FEEDBACK_NOTE_CHANNELS.setLifecycle, 1, request)).toMatchObject({ ok: false, error: { code: 'SOURCE_STALE' } });
+    expect(revisionMocks.setLifecycle).not.toHaveBeenCalled();
+    let reads = 0;
+    registerFeedbackNotesIpc({ resolveWindowRole: () => 'writing', getWritingSnapshot: () => (++reads === 1 ? snapshot() : { ...snapshot(), project: { ...snapshot().project, drafts: { 'unit-a': 'Changed while recording.' } } }), repositoryFactory: () => ({ read: revisionMocks.read, setLifecycle: revisionMocks.setLifecycle } as never) });
+    expect(await invokeRevision(FEEDBACK_NOTE_CHANNELS.setLifecycle, 1, request)).toMatchObject({ ok: false, error: { code: 'SOURCE_STALE' } });
     expect(revisionMocks.setLifecycle).not.toHaveBeenCalled();
   });
 

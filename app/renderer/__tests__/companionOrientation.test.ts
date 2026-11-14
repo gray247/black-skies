@@ -57,6 +57,21 @@ function outline(): LivingOutlineSnapshotV1 {
 }
 
 describe('minimal Companion orientation route', () => {
+  it.each(['Where is Notebook?', 'How do I export?', 'What is a source check?', 'Where are writing preferences?'])('returns built-in truthful product help for %s without manuscript text', text => {
+    const request = routeCompanionRequest(text, { requestId: 'help-a', projectId: 'project-a', generation: 4 });
+    expect(request.route).toBe('help');
+    const result = deriveCompanionOrientationResult(request, snapshot(), outline());
+    expect(result.status).toBe('available'); expect(result.helpDestination).toBeTruthy();
+    expect(result.limitationText).toContain('No story was analyzed');
+    expect(JSON.stringify(result)).not.toContain('This prose must never enter');
+    const stale = deriveCompanionOrientationResult(request, snapshot({ generation: 5 }), outline());
+    expect(stale.status).toBe('unavailable'); expect(stale.sourceFacts).toEqual([]); expect(stale.helpDestination).toBeUndefined();
+  });
+  it('does not pass an unsupported literary question off as product help', () => {
+    const request = routeCompanionRequest('When did Mara kiss Julian?', { requestId: 'help-unknown', projectId: 'project-a', generation: 4 });
+    expect(request.route).toBe('not-routed');
+    expect(deriveCompanionOrientationResult(request, snapshot(), outline()).sourceFacts).toEqual([]);
+  });
   it.each(['Where am I?', 'Where am I in this project?', 'where was I in this project.', '  WHAT am I working on in this project  '])(
     'routes the supported local orientation phrase %s',
     (text) => {

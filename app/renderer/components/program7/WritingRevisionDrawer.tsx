@@ -81,7 +81,7 @@ export default function WritingRevisionDrawer({
   const redacted = candidate ? protectedContent(candidate) : false;
   const originalText = candidate ? candidateText(candidate) : '';
   const changed = !redacted && editedText !== originalText;
-  const editable = candidate?.currentness === 'current' && (candidate?.lifecycle === 'generated' || candidate?.lifecycle === 'reviewing');
+  const editable = !candidate?.deleteSource && candidate?.currentness === 'current' && (candidate?.lifecycle === 'generated' || candidate?.lifecycle === 'reviewing');
   const sourceIsHistorical = decisionPending || candidate?.currentness !== 'current' || candidate?.lifecycle === 'accepted' || candidate?.lifecycle === 'partially accepted';
 
   useEffect(() => {

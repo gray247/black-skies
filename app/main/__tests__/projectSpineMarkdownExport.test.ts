@@ -26,6 +26,20 @@ afterEach(async () => {
 });
 
 describe('Project Spine Markdown export', () => {
+  it('exports all source-text bodies including whitespace and literal Markdown, in saved order', () => {
+    const source = { projectId: 'txt-project', projectTitle: 'Story', generation: 1, revision: 2, units: [
+      { id: 'second', title: 'Duplicate', order: 2, markdown: '---\nid: second\n---\n \t\n\n' },
+      { id: 'first', title: 'Duplicate', order: 1, markdown: '---\nid: first\n---\n**Mara** <literal> 🌲\n\n\n' },
+    ] };
+    const result = buildMarkdownExportArtifact(source, 'source-text');
+    expect(result.markdown).toBe('Story\n\nDuplicate\n\n**Mara** <literal> 🌲\n\n\n\n\nDuplicate\n\n \t\n\n');
+    expect(result.bytes.toString('utf8')).toBe(result.markdown);
+    expect(result.orderedUnitIds).toEqual(['first', 'second']);
+    expect(result.unitCount).toBe(2);
+    expect(normalizeSelectedMarkdownPath('story.txt.txt', 'source-text')).toBe(join(process.cwd(), 'story.txt'));
+    expect(() => normalizeSelectedMarkdownPath('CON.txt', 'source-text')).toThrow(MarkdownExportError);
+    expect(() => normalizeSelectedMarkdownPath('bad?.txt', 'source-text')).toThrow(MarkdownExportError);
+  });
   it('renders deterministic exact bytes in authoritative order without front matter', () => {
     const artifact = buildMarkdownExportArtifact({
       projectId: 'proj_export',

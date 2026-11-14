@@ -1,4 +1,4 @@
-﻿import { contextBridge, ipcRenderer, shell } from 'electron';
+﻿import { contextBridge, ipcRenderer, webFrame, shell } from 'electron';
 import { randomUUID } from 'node:crypto';
 import type { IpcRendererEvent } from 'electron';
 import { promises as fs } from 'node:fs';
@@ -2413,6 +2413,11 @@ function normalizeSplitCommandSurfaceHostResult(
 const projectSpineWindowRole = isCommandCenterPreload ? 'command' : 'writing';
 
 const projectSpineBaseBridge: ProjectSpineBridge = {
+  checkSpelling: (word) => {
+    if (typeof word !== 'string' || word.length > 80 || !/^[\p{L}\p{M}'’–-]+$/u.test(word)) return { available: false, misspelled: false, suggestions: [] };
+    const available = webFrame.isWordMisspelled('foorrrest') || webFrame.isWordMisspelled('qzxvwlj');
+    return { available, misspelled: available && webFrame.isWordMisspelled(word), suggestions: available ? webFrame.getWordSuggestions(word).slice(0, 8) : [] };
+  },
   windowRole: projectSpineWindowRole,
   async focusWritingWindow() {
     return ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.focusWritingWindow) as Promise<ProjectSpineResult>;
@@ -2487,6 +2492,8 @@ const projectSpineBridge: ProjectSpineBridge | CommandProjectSpineBridge =
   projectSpineWindowRole === 'writing'
     ? {
         ...projectSpineBaseBridge,
+        spellingDictionary: (request) => ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.spellingDictionary, request),
+        setWritingPreferences: (request) => ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, request),
         setUnitDirty: (request: SetManuscriptUnitDirtyRequest) =>
           ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, request) as Promise<ProjectSpineResult>,
         captureRecoveryCheckpoint: (request: CaptureRecoveryCheckpointRequest) =>
@@ -2912,6 +2919,10 @@ const program7PromotionBridge: Program7PromotionBridge = {
 };
 
 const livingOutlineBridge: LivingOutlineBridge = {
+  prepareGap: (request) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.prepareGap, request),
+  finishGap: (request) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.finishGap, request),
+  restoreItem: (request) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.restoreItem, request),
+  replaceWritingState: (request) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.replaceWritingState, request),
   get: (request: GetLivingOutlineRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.get, request),
   createItem: (request: CreateLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.createItem, request),
   updateItem: (request: UpdateLivingOutlineItemRequest) => ipcRenderer.invoke(LIVING_OUTLINE_CHANNELS.updateItem, request),

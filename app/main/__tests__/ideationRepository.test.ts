@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { IDEATION_FILENAME, IDEATION_FIXED_CORE_QUESTIONS, IDEATION_MAX_OBJECT_HISTORY, IDEATION_SCHEMA_VERSION } from '../../shared/ipc/ideation';
 import { PROGRAM7_LOCAL_INFERENCE_ENDPOINT, PROGRAM7_LOCAL_INFERENCE_MODEL, PROGRAM7_LOCAL_INFERENCE_RESPONSE_SCHEMA } from '../../shared/localInference';
-import { IdeationRepository, IdeationRepositoryError } from '../ideationRepository';
+import { IdeationRepository, IdeationRepositoryError, currentIdeationPromotion } from '../ideationRepository';
 import { program7LocalInferenceSchemaHash } from '../program7LocalInferenceService';
 import { program7LocalInferencePromptHash } from '../ollamaLocalInferenceTransport';
 
@@ -49,6 +49,23 @@ async function seedPair(repository: IdeationRepository) {
 
 describe('Ideation owner', () => {
   afterEach(async () => { vi.restoreAllMocks(); await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))); });
+
+  it('B4 keeps a historical destination preview readable after its branch premise changes', async () => {
+    const root = await project(), repository = store(root), { firstId } = await seedPair(repository);
+    const branch = await repository.createBranch('project-a', 2, { name: 'Same name', seedIds: [firstId], premise: 'First premise.', unknowns: [] });
+    const branchId = branch.document.branches[0]!.id;
+    const prepared = await repository.preparePromotion('project-a', 3, { branchId, seedIds: [firstId], selectedText: 'Selected idea.', destination: 'outline' });
+    expect(currentIdeationPromotion(prepared.document, prepared.document.promotionPackages[0]!.id)).not.toBeNull();
+    const changed = await repository.addPremiseVersion('project-a', 4, { branchId, text: 'Changed premise.', unresolvedAreas: [] });
+    expect(changed.document.promotionPackages[0]).toEqual(prepared.document.promotionPackages[0]);
+    expect((await repository.read('project-a')).availability).toBe('ready');
+    expect(currentIdeationPromotion(changed.document, prepared.document.promotionPackages[0]!.id)).toBeNull();
+    const metadata = JSON.parse(await readFile(join(root, IDEATION_FILENAME), 'utf8'));
+    metadata.seeds[0].protected = true;
+    await writeFile(join(root, IDEATION_FILENAME), JSON.stringify(metadata));
+    expect((await repository.read('project-a')).availability).toBe('ready');
+    expect(currentIdeationPromotion((await repository.read('project-a')).document, prepared.document.promotionPackages[0]!.id)).toBeNull();
+  });
 
   it('reads an absent sidecar and captures author-owned seed/version provenance', async () => {
     const root = await project(); const repository = store(root);

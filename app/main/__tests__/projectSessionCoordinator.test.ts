@@ -40,6 +40,18 @@ function binding(coordinator: ProjectSessionCoordinator, active: LoadedProject, 
 }
 
 describe('ProjectSessionCoordinator', () => {
+  it('edge: punctuation alone does not inflate word counts or dialogue ratios', () => {
+    const metrics = measureProjectSpineUnit('--- … ‘’ -- –');
+    expect(metrics.wordCount).toBe(0);
+    expect(metrics.dialogueRatio).toBe(0);
+  });
+
+  it('edge: decomposed Unicode and internal name punctuation count as whole words', () => {
+    const metrics = measureProjectSpineUnit('“E\u0301owyn’s well-being,” 李白 42 -- ’');
+    expect(metrics.wordCount).toBe(4);
+    expect(metrics.dialogueRatio).toBe(0.5);
+  });
+
   it('normalizes blank front-matter separators before measuring the durable body', () => {
     const metric = measureProjectSpineUnit('---\nid: unit_1\n---\n\nBody\n');
 

@@ -30,6 +30,25 @@ function candidate(overrides: Partial<RevisionCandidateV1> = {}): RevisionCandid
 
 describe('RevisionComparison component', () => {
 
+  it('shows literal multiline additions and deletions without splitting a shared Unicode character', () => {
+    const before = '🌲 old\n<script> & tail', after = '🌲 new\n<img> & tail';
+    render(<RevisionComparison candidate={candidate({ sourceSnapshot: { unitId: 'a', bodySha256: 'hash', text: before }, sourceAnchor: null, candidateText: after })} />);
+    const changes = screen.getByRole('region', { name: 'Proposed passage changes' });
+    expect(changes.querySelector('del')?.textContent).toBe('old\n<script');
+    expect(changes.querySelector('ins')?.textContent).toBe('new\n<img');
+    expect(changes.querySelector('pre')?.textContent).toBe('🌲 old\n<scriptnew\n<img> & tail');
+    expect(changes.querySelector('script, img')).toBeNull();
+  });
+
+  it('shows an explicit deletion proposal with its exact removed passage and no invented insertion', () => {
+    const before = 'Remove this.\nKeep its history.';
+    render(<RevisionComparison candidate={candidate({ sourceSnapshot: { unitId: 'a', bodySha256: 'hash', text: before }, sourceAnchor: null, candidateText: '', deleteSource: true })} />);
+    const changes = screen.getByRole('region', { name: 'Proposed passage changes' });
+    expect(changes.querySelector('del')?.textContent).toBe(before);
+    expect(changes.querySelector('ins')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Delete this linked passage' })).toBeDisabled();
+  });
+
   it('shows the exact manuscript replacement range independently of the alternative selection', () => {
     const source = "The observatory's brass door had not opened in forty years. Mara pressed her palm against the cold glass and listened. Beyond it, the storm erased the road home. She knew the message inside was meant for her.";
     const linked = candidate({ sourceSnapshot: { unitId: 'story-unit/carmilla-chapter-01', bodySha256: 'source-body', text: source }, sourceAnchor: { unitId: 'story-unit/carmilla-chapter-01', selectionStart: 60, selectionEnd: 118, selectionFingerprint: 'selection' } });

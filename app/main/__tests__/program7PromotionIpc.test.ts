@@ -1,5 +1,6 @@
+import { IdeationRepository } from '../ideationRepository';
 import { createHash } from 'node:crypto';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   PROGRAM7_PROMOTION_CHANNELS,
@@ -129,6 +130,33 @@ describe('Program 7 promotion handoff authority', () => {
   beforeEach(() => {
     resetProgram7PromotionIpcForTests();
     electronMocks.handlers.clear();
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('B4 checks a prepared branch package independently from caller claims and refuses stale or altered target intent', async () => {
+    const text = 'Selected idea.', selectedHash = hash(text);
+    const sourceReference = `ideation:project-a:branch-a:premise=premise-a:seeds=seed-a:versions=seed-a@v1:selectedSha256=${selectedHash}:protection=ordinary`;
+    const pkg = { id: 'preview-a', branchId: 'branch-a', seedIds: ['seed-a'], destination: 'author-intent', selectedText: text, selectedTextSha256: selectedHash,
+      destinationRevision: 7, sourceContributions: [{ seedId: 'seed-a', sourceVersionId: 'v1' }], provenance: { sourceReference } };
+    const document = { projectId: 'project-a', revision: 3, promotionPackages: [pkg], branches: [{ id: 'branch-a', posture: 'draft', currentPremiseVersionId: 'premise-a', seedIds: ['seed-a'] }],
+      seeds: [{ id: 'seed-a', lifecycle: 'active', currentVersionId: 'v1', protected: false }] };
+    vi.spyOn(IdeationRepository.prototype, 'read').mockResolvedValue({ availability: 'ready', document, message: null } as never);
+    const acceptAuthorIntent = vi.fn().mockResolvedValue({ ok: true, receipt: { artifactId: 'foundation-a', message: 'Copied.' } });
+    registerProgram7PromotionIpc({ resolveWindowRole: () => 'writing', getWritingSnapshot: snapshot, acceptAuthorIntent });
+    const item = baseItem({ preparedPackageId: 'preview-a', source: source({ kind: 'ideation-branch', sourceId: 'branch-a', sourceRevision: 3, sourceFingerprint: selectedHash,
+      selectedTextSha256: selectedHash, provenance: { origin: 'author', sourceReference, authorRequested: true } }),
+      payload: { destination: 'author-intent', questionId: 'aboutness', posture: 'answered', text, expectedRevision: 7 } });
+    expect(await invoke(1, request([item], { operationId: 'current' }))).toMatchObject({ ok: true, data: { status: 'complete' } });
+    expect(acceptAuthorIntent).toHaveBeenCalledTimes(1);
+    document.seeds[0]!.protected = true;
+    expect(await invoke(1, request([item], { operationId: 'protected' }))).toMatchObject({ ok: true, data: { status: 'failed' } });
+    document.seeds[0]!.protected = false;
+    document.branches[0]!.currentPremiseVersionId = 'new-premise';
+    expect(await invoke(1, request([item], { operationId: 'stale' }))).toMatchObject({ ok: true, data: { status: 'failed' } });
+    document.branches[0]!.currentPremiseVersionId = 'premise-a';
+    expect(await invoke(1, request([{ ...item, payload: { destination: 'author-intent', questionId: 'aboutness', posture: 'answered', text: 'Changed after preview.', expectedRevision: 7 } }], { operationId: 'changed-text' }))).toMatchObject({ ok: true, data: { status: 'failed' } });
+    expect(acceptAuthorIntent).toHaveBeenCalledTimes(1);
   });
 
   it('routes accepted intent and outline through injected destination owners, calculates prose, and defers character/lore', async () => {

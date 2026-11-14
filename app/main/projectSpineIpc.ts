@@ -1,3 +1,4 @@
+import { verifiedRevisionConcern } from './feedbackNotesRepository.js';
 import { app, dialog, ipcMain } from 'electron';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
@@ -6,6 +7,9 @@ import type { IpcMainInvokeEvent } from 'electron';
 import type { LoadedProject, OutlineFile, SceneDraftMetadata } from '../shared/ipc/projectLoader';
 import {
   PROJECT_SPINE_CHANNELS,
+  readWritingPreferences, validWritingPreferences,
+  type SetWritingPreferencesRequest,
+  type SpellingDictionaryRequest,
   type CaptureRecoveryCheckpointRequest,
   type AcceptRevisionCandidateRequest,
   type AcceptRevisionCandidateResultData,
@@ -107,6 +111,7 @@ interface ProjectMetadataV1 {
   readonly schema_version: typeof PROJECT_METADATA_SCHEMA_VERSION;
   readonly project_id: string;
   readonly name: string;
+  readonly writing_preferences?: unknown;
 }
 
 let coordinator = new ProjectSessionCoordinator();
@@ -283,6 +288,7 @@ async function readStrictProjectMetadata(projectPath: string): Promise<ProjectMe
     schema_version: PROJECT_METADATA_SCHEMA_VERSION,
     project_id: projectId,
     name,
+    writing_preferences: metadata.writing_preferences,
   };
 }
 
@@ -341,6 +347,7 @@ function validateAndJoinManuscript(
     path: path.resolve(loaded.path),
     projectId: metadata.project_id,
     name: metadata.name,
+    writingPreferences: readWritingPreferences(metadata.writing_preferences),
     scenes,
     drafts,
   };
@@ -837,6 +844,7 @@ function candidateForInsertion(candidate: RevisionCandidateV1) {
     unitId: candidate.unitId,
     sourceSnapshot: candidate.sourceSnapshot,
     sourceAnchor: candidate.sourceAnchor,
+    ...(candidate.deleteSource ? { deleteSource: true } : {}),
     candidateText: candidate.candidateText,
     editedCandidateText: candidate.editedCandidateText,
     protection: candidate.protection,
@@ -1188,6 +1196,59 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     }
   });
 
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.spellingDictionary, async (event, request: SpellingDictionaryRequest) => {
+    const role = requireWritingRole(event);
+    try {
+      requireOperationId(request?.operationId);
+      coordinator.assertRecoveryMutationAllowed(request);
+      if (!['inspect', 'accept', 'remove'].includes(request?.action)) throw new ProjectSessionError('INVALID_REQUEST', 'Choose an available dictionary action.');
+      const native = event.sender.session;
+      if (native.availableSpellCheckerLanguages.includes('en-US')) native.setSpellCheckerLanguages(['en-US']);
+      await native.listWordsInSpellCheckerDictionary();
+      coordinator.assertRecoveryMutationAllowed(request);
+      if (request.action !== 'inspect') {
+        if (typeof request.word !== 'string' || request.word.length > 80 || !/^[\p{L}\p{M}'’-]+$/u.test(request.word)) throw new ProjectSessionError('INVALID_REQUEST', 'Choose one word without spaces or punctuation.');
+        const changed = request.action === 'accept' ? native.addWordToSpellCheckerDictionary(request.word) : native.removeWordFromSpellCheckerDictionary(request.word);
+        if (!changed) throw new ProjectSessionError('INVALID_REQUEST', 'The native dictionary could not save this word.');
+      }
+      const words = await native.listWordsInSpellCheckerDictionary();
+      coordinator.assertRecoveryMutationAllowed(request);
+      return success(role, { languages: native.getSpellCheckerLanguages(), words, scope: 'electron-session-and-possible-os' as const });
+    } catch (error) { return failure(role, error); }
+  });
+
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.setWritingPreferences, async (event, request: SetWritingPreferencesRequest) => {
+    const role = requireWritingRole(event);
+    let token: ReturnType<ProjectSessionCoordinator['beginStructureMutation']> | null = null;
+    try {
+      requireOperationId(request?.operationId);
+      if (!validWritingPreferences(request?.values) || !Number.isSafeInteger(request.expectedRevision)) {
+        throw new ProjectSessionError('INVALID_REQUEST', 'Writing preferences contain an unsupported value.');
+      }
+      coordinator.assertRecoveryMutationAllowed(request);
+      token = coordinator.beginStructureMutation(request);
+      const project = coordinator.getActiveProject()!;
+      const target = path.join(project.path, 'project.json');
+      const raw = JSON.parse(await fs.readFile(target, 'utf8')) as Record<string, unknown>;
+      if (raw.project_id !== request.projectId || raw.schema_version !== PROJECT_METADATA_SCHEMA_VERSION) {
+        throw new ProjectSessionError('PROJECT_ID_MISMATCH', 'Project metadata identity changed.');
+      }
+      const current = readWritingPreferences(raw.writing_preferences);
+      if (current.revision !== request.expectedRevision || (current.invalid && !request.resetInvalid)) {
+        throw new ProjectSessionError('STALE_SESSION', current.invalid ? 'Stored preferences need an explicit reset before replacing them.' : 'Writing preferences changed. Reopen the controls before saving.');
+      }
+      if (current.revision >= Number.MAX_SAFE_INTEGER) throw new ProjectSessionError('INVALID_REQUEST', 'Writing preference revision limit reached.');
+      const next = { revision: current.revision + 1, values: { ...request.values } };
+      await writeJsonAtomic(target, { ...raw, writing_preferences: next });
+      coordinator.completeStructureMutation(token, { ...project, writingPreferences: next }, coordinator.snapshot('writing').activeUnitId);
+      publish(event.sender.id);
+      return success(role, {});
+    } catch (error) {
+      if (token) coordinator.failStructureMutation(token, error instanceof Error ? error.message : 'Preferences could not be saved.');
+      return failure(role, error);
+    }
+  });
+
   ipcMain.handle(PROJECT_SPINE_CHANNELS.setUnitDirty, async (event, request: SetManuscriptUnitDirtyRequest) => {
     const role = requireWritingRole(event);
     try {
@@ -1401,6 +1462,8 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
             'The revision candidate is no longer current and cannot be accepted.',
           );
         }
+        if (candidate.concernId && !(await verifiedRevisionConcern(coordinator.snapshot('writing'), candidate.concernId, candidate.unitId)))
+          throw new RevisionCandidateRepositoryError('STALE', 'A concern evidence source changed or became unavailable. No revision was applied.');
         const currentBody = durableBody(request.expectedMarkdown);
         const calculation = await calculateNarrativeInsertion({
           candidate: candidateForInsertion(candidate),
@@ -1653,12 +1716,14 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
       if (!request || typeof request.revision !== 'number') {
         throw new ProjectSessionError('INVALID_REQUEST', 'A bound Markdown export request is required.');
       }
+      if (request.format !== undefined && request.format !== 'markdown' && request.format !== 'source-text') throw new ProjectSessionError('INVALID_REQUEST', 'Unsupported export format.');
+      const sourceText = request.format === 'source-text';
       const source = coordinator.createExportSnapshot(request, request.revision);
       const destination = await dialog.showSaveDialog({
-        title: 'Export Markdown manuscript',
-        defaultPath: suggestMarkdownFilename(source.project.name),
+        title: sourceText ? 'Export saved manuscript source text' : 'Export Markdown manuscript',
+        defaultPath: sourceText ? suggestMarkdownFilename(source.project.name).replace(/\.md$/, '.txt') : suggestMarkdownFilename(source.project.name),
         buttonLabel: 'Export',
-        filters: [{ name: 'Markdown', extensions: ['md'] }],
+        filters: [{ name: sourceText ? 'UTF-8 source text' : 'Markdown', extensions: [sourceText ? 'txt' : 'md'] }],
       });
       if (destination.canceled || !destination.filePath) {
         return success<ExportMarkdownResultData>(role, {
@@ -1669,12 +1734,12 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           operationId: request.operationId,
         });
       }
-      const targetPath = normalizeSelectedMarkdownPath(destination.filePath);
+      const targetPath = normalizeSelectedMarkdownPath(destination.filePath, request.format);
       const replacementRequired = await destinationExists(targetPath);
       if (replacementRequired) {
         const replacement = await dialog.showMessageBox({
           type: 'warning',
-          title: 'Replace existing Markdown file?',
+          title: 'Replace existing export file?',
           message: 'A file already exists at this destination.',
           detail: targetPath,
           buttons: ['Replace', 'Cancel'],
@@ -1703,7 +1768,7 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
           order: unit.order,
           markdown: source.project.drafts[unit.id] ?? '',
         })),
-      });
+      }, request.format);
       await (registrationOptions.writeMarkdownFile ?? writeMarkdownAtomic)(
         targetPath,
         artifact.bytes,

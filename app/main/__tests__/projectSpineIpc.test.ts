@@ -1,9 +1,10 @@
+import fs from 'node:fs/promises';
 import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PROJECT_SPINE_CHANNELS } from '../../shared/ipc/projectSpine';
+import { DEFAULT_WRITING_PREFERENCES, PROJECT_SPINE_CHANNELS } from '../../shared/ipc/projectSpine';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 
 const electronMocks = vi.hoisted(() => {
@@ -123,6 +124,64 @@ describe('project-spine IPC', () => {
   afterEach(async () => {
     resetProjectSpineForTests();
     await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+  });
+
+  it('persists project-wide preferences without touching dirty prose, identity, or unrelated metadata', async () => {
+    const created = await bootstrapFreshProject({ parentPath: await temporaryRoot(), title: 'Preferences' });
+    const metadataPath = join(created.projectPath, 'project.json');
+    const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+    await writeFile(metadataPath, JSON.stringify({ ...metadata, future_metadata: { retained: 'yes' } }));
+    await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, { path: created.projectPath, operationId: 'prefs-open' });
+    const unit = await invoke(PROJECT_SPINE_CHANNELS.createUnit, 1, { projectId: created.projectId, projectPath: created.projectPath, generation: testCoordinator.snapshot('writing').generation, operationId: 'prefs-unit', title: 'Writing' });
+    const before = testCoordinator.snapshot('writing');
+    const binding = { projectId: created.projectId, projectPath: created.projectPath, generation: before.generation, operationId: 'prefs-save' };
+    const drafts = { ...before.project!.drafts };
+    await invoke(PROJECT_SPINE_CHANNELS.setUnitDirty, 1, { ...binding, unitId: unit.data.unitId, dirty: true });
+    const values = { ...DEFAULT_WRITING_PREFERENCES, font: 'mono', fontSize: 24, paragraphSpacing: 12, firstLineIndent: 2, wordGoal: 200 };
+    const saved = await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values });
+    expect(saved.ok).toBe(true);
+    expect(saved.snapshot.generation).toBe(before.generation);
+    expect(saved.snapshot.dirtyUnitIds).toEqual([unit.data.unitId]);
+    expect(saved.snapshot.project.drafts).toEqual(drafts);
+    expect(JSON.parse(await readFile(metadataPath, 'utf8'))).toMatchObject({ project_id: created.projectId, future_metadata: { retained: 'yes' }, writing_preferences: { revision: 1, values } });
+    expect((await loadProjectForSpine(created.projectPath)).writingPreferences).toEqual({ revision: 1, values });
+    expect(testCoordinator.snapshot('command').project!.writingPreferences).toBeUndefined();
+    const exact = await readFile(metadataPath, 'utf8');
+    expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values })).toMatchObject({ ok: false, error: { code: 'STALE_SESSION' } });
+    expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, projectId: 'other-project', expectedRevision: 1, values })).toMatchObject({ ok: false });
+    expect(await readFile(metadataPath, 'utf8')).toBe(exact);
+  });
+
+  it('rejects malformed choices and requires an explicit reset of unreadable preferences', async () => {
+    const created = await bootstrapFreshProject({ parentPath: await temporaryRoot(), title: 'Invalid preferences' });
+    const target = join(created.projectPath, 'project.json');
+    const original = JSON.parse(await readFile(target, 'utf8'));
+    await writeFile(target, JSON.stringify({ ...original, writing_preferences: { revision: 2, values: { fontSize: -50 } } }));
+    await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, { path: created.projectPath, operationId: 'prefs-invalid' });
+    expect(testCoordinator.snapshot('writing').project!.writingPreferences?.invalid).toBe(true);
+    const binding = { projectId: created.projectId, projectPath: created.projectPath, generation: testCoordinator.snapshot('writing').generation, operationId: 'prefs-reset' };
+    const before = await readFile(target, 'utf8');
+    for (const patch of [{ fontSize: 100 }, { wordGoal: 0 }, { wordGoal: 1.5 }, { firstLineIndent: -1 }, { lineHeight: NaN }, { font: 'url(evil)' }, { extra: 'unsupported' }]) {
+      expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values: { ...DEFAULT_WRITING_PREFERENCES, ...patch }, resetInvalid: true })).toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
+    }
+    expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values: DEFAULT_WRITING_PREFERENCES })).toMatchObject({ ok: false });
+    expect(await readFile(target, 'utf8')).toBe(before);
+    expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values: DEFAULT_WRITING_PREFERENCES, resetInvalid: true })).toMatchObject({ ok: true });
+  });
+
+  it('retains exact prior preferences when atomic metadata replacement fails and permits retry', async () => {
+    const created = await bootstrapFreshProject({ parentPath: await temporaryRoot(), title: 'Failed preferences' });
+    await invoke(PROJECT_SPINE_CHANNELS.openProject, 1, { path: created.projectPath, operationId: 'prefs-fail-open' });
+    const binding = { projectId: created.projectId, projectPath: created.projectPath, generation: testCoordinator.snapshot('writing').generation, operationId: 'prefs-fail' };
+    const target = join(created.projectPath, 'project.json'), before = await readFile(target, 'utf8');
+    const rename = vi.spyOn(fs, 'rename').mockRejectedValueOnce(Object.assign(new Error('busy metadata'), { code: 'EBUSY' }));
+    try {
+      expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values: DEFAULT_WRITING_PREFERENCES })).toMatchObject({ ok: false });
+      expect(await readFile(target, 'utf8')).toBe(before);
+      expect(testCoordinator.snapshot('writing').project!.writingPreferences?.revision).toBe(0);
+    } finally { rename.mockRestore(); }
+    expect(await invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 1, { ...binding, expectedRevision: 0, values: DEFAULT_WRITING_PREFERENCES })).toMatchObject({ ok: true });
+    await expect(invoke(PROJECT_SPINE_CHANNELS.setWritingPreferences, 2, { ...binding, expectedRevision: 1, values: DEFAULT_WRITING_PREFERENCES })).rejects.toMatchObject({ code: 'WRONG_WINDOW_ROLE' });
   });
 
   it('synchronizes one active identity while withholding drafts from Command Center', async () => {

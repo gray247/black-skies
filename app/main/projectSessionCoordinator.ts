@@ -40,11 +40,14 @@ export function measureProjectSpineUnit(markdown: string): ProjectSpineUnitMetri
   const body = durableBody.trim();
   const bodySha256 = createHash('sha256').update(durableBody, 'utf8').digest('hex');
   if (!body) return { wordCount: 0, sentenceCount: 0, paragraphCount: 0, dialogueRatio: 0, bodySha256 };
-  const words = body.match(/[\p{L}\p{N}'’–-]+/gu) ?? [];
+  // A word starts with a letter/number. Retain combining marks and ordinary
+  // name punctuation inside it; punctuation alone is never a word.
+  const wordPattern = /[\p{L}\p{N}][\p{L}\p{N}\p{M}'’–-]*/gu;
+  const words = body.match(wordPattern) ?? [];
   const sentences = body.match(/[^.!?]+[.!?]+(?:["'”’)]|\s|$)|[^.!?]+$/gu) ?? [];
   const paragraphs = body.split(/\r?\n\s*\r?\n/u).map((item) => item.trim()).filter(Boolean);
   const dialogueText = [...body.matchAll(/["“]([^"”]+)["”]/gu)].map((match) => match[1] ?? '').join(' ');
-  const dialogueWords = dialogueText.match(/[\p{L}\p{N}'’–-]+/gu)?.length ?? 0;
+  const dialogueWords = dialogueText.match(wordPattern)?.length ?? 0;
   return {
     wordCount: words.length,
     sentenceCount: sentences.map((item) => item.trim()).filter(Boolean).length,
@@ -62,7 +65,7 @@ export interface ProjectSaveToken {
   readonly operationId: string;
 }
 
-export interface ProjectRevisionAcceptanceToken extends ProjectSaveToken {}
+export type ProjectRevisionAcceptanceToken = ProjectSaveToken;
 
 export interface ProjectStructureToken {
   readonly generation: number;
@@ -122,6 +125,7 @@ function cloneProject(project: LoadedProject): LoadedProject {
       beats: scene.beats ? [...scene.beats] : undefined,
     })),
     drafts: { ...project.drafts },
+    writingPreferences: project.writingPreferences ? { ...project.writingPreferences, values: { ...project.writingPreferences.values } } : undefined,
   };
 }
 
@@ -863,6 +867,7 @@ export class ProjectSessionCoordinator {
             schemaVersion: 'ProjectMetadataSchema v1',
             units: orderedUnits,
             unitMetrics,
+            ...(role === 'writing' ? { writingPreferences: project.writingPreferences } : {}),
             ...(role === 'writing' ? { drafts: { ...project.drafts } } : {}),
           }
         : null,

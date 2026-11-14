@@ -1,3 +1,6 @@
+import { buildProgram7SourceEnvelope } from '../../shared/program7SourceBinding';
+import { verifiedRevisionConcern } from '../feedbackNotesRepository';
+import type { ProjectSpineSessionSnapshot } from '../../shared/ipc/projectSpine';
 import fs, { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -32,6 +35,25 @@ describe('Feedback Notes sidecar', () => {
     await Promise.all(
       temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })),
     );
+  });
+
+  it('manual paired concerns retain independent identities on one source and guard each candidate evidence source', async () => {
+    const projectPath = await temporaryProject(), repo = new FeedbackNotesRepository(projectPath);
+    const primary = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-a', sourceText: 'First promise.', selectionStart: 0, selectionEnd: 5 });
+    const related = await buildProgram7SourceEnvelope({ projectId: 'project-a', generation: 1, unitId: 'unit-b', sourceText: 'Later promise.', selectionStart: 0, selectionEnd: 5 });
+    const { text: _text, ...relatedMetadata } = related;
+    const input = { projectId: 'project-a', unitId: 'unit-a', body: 'Consider both promises.', provenance: { source: 'manual', origin: 'author' },
+      anchor: primary.anchor, sourceBodyFingerprint: primary.bodySha256, sourceClass: 'included', relatedSources: [relatedMetadata] };
+    const first = await repo.createRevisionItem(input, 0), second = await repo.createRevisionItem(input, 1);
+    expect(first.note!.id).not.toBe(second.note!.id);
+    const snap = { project: { projectId: 'project-a', path: projectPath, drafts: { 'unit-a': 'First promise.', 'unit-b': 'Later promise.' } }, dirtyUnitIds: [] } as unknown as ProjectSpineSessionSnapshot;
+    expect((await verifiedRevisionConcern(snap, first.note!.id, 'unit-a'))?.id).toBe(first.note!.id);
+    expect(await verifiedRevisionConcern({ ...snap, dirtyUnitIds: ['unit-b'] }, first.note!.id, 'unit-a')).toBeNull();
+    expect(await verifiedRevisionConcern({ ...snap, project: { ...snap.project!, drafts: { ...snap.project!.drafts, 'unit-b': 'Nothing remains.' } } }, first.note!.id, 'unit-a')).toBeNull();
+    expect(await verifiedRevisionConcern(snap, first.note!.id, 'unit-b')).toBeNull();
+    expect(await verifiedRevisionConcern({ ...snap, project: { ...snap.project!, projectId: 'project-b' } }, first.note!.id, 'unit-a').catch(() => null)).toBeNull();
+    expect((await new FeedbackNotesRepository(projectPath).read('project-a')).notes).toHaveLength(2);
+    expect(await readFile(join(projectPath, FEEDBACK_NOTES_FILENAME), 'utf8')).not.toContain('Later promise.');
   });
 
   it('writes a minimal project-local advisory note without touching project content files', async () => {
@@ -520,4 +542,21 @@ describe('Feedback Notes sidecar', () => {
     );
     expect((await readdir(projectPath)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
+});
+
+
+it('retains decision-time evidence through later source changes, reload and explicit reopening', async () => {
+  const projectPath = await temporaryProject(), repository = new FeedbackNotesRepository(projectPath);
+  const originalEvidence = [{ unitId: 'unit-a', status: 'exact' as const, scope: 'unit' as const, text: 'green shirt' }];
+  const made = await repository.createRevisionItem({ projectId: 'project-a', unitId: 'unit-a', body: 'Shirt continuity', originalEvidence });
+  const captured = [{ unitId: 'unit-a', status: 'potentially-outdated' as const, scope: 'unit' as const, text: 'cotton shirt' }];
+  const addressed = await repository.setLifecycle('project-a', made.document.revision, made.note!.id, 'resolved', undefined, captured);
+  captured[0]!.text = 'later mutation';
+  const reopened = await new FeedbackNotesRepository(projectPath).setLifecycle('project-a', addressed.document.revision, made.note!.id, 'active');
+  const item = (await new FeedbackNotesRepository(projectPath).listRevisionItems('project-a'))[0]!;
+  expect(item.id).toBe(made.note!.id);
+  expect(item.originalEvidence).toEqual(originalEvidence);
+  expect(item.dispositionHistory?.map(event => event.disposition)).toEqual(['resolved', 'reopened']);
+  expect(item.dispositionHistory?.[0]?.sourceEvidence?.[0]?.text).toBe('cotton shirt');
+  expect(reopened.note!.lifecycle).toBe('active');
 });
