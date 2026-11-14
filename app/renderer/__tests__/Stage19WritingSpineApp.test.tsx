@@ -2246,7 +2246,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.getByRole('heading', { name: 'Writing remains available' })).toBeVisible();
     fireEvent.click(within(workspaces).getByRole('button', { name: 'Outline' }));
     expect(screen.getByRole('heading', { name: 'Current tool: Outline' })).toBeVisible();
-    expect(screen.getByText('Use the Writing Studio window to arrange the plan and compare current passages.')).toBeVisible();
+    expect(screen.getByText('Use the Writing Studio window to move manuscript units and compare current passages.')).toBeVisible();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Save$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Export Markdown/i })).not.toBeInTheDocument();

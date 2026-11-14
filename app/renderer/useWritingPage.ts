@@ -15,6 +15,7 @@ import { extractProjectSpineDraftBody } from '../shared/projectSpineDraft';
 import {
   isWritingGroups,
   writingGroupLabel,
+  joinedWritingName,
   rebaseWritingAnchor,
   subtractWritingSelection,
   noteSourceAnchors,
@@ -77,6 +78,7 @@ export function useWritingPage(options: Options) {
   const busyRef = useRef(false);
   const [unsaved, setUnsaved] = useState(false);
   const dirty = useRef(false);
+  const dirtySourceIds = useRef(new Set<string>());
   const epoch = useRef(0);
   const [unresolved, setUnresolved] = useState<readonly string[]>([]);
   const [unresolvedNotes, setUnresolvedNotes] = useState<readonly string[]>([]);
@@ -116,6 +118,7 @@ export function useWritingPage(options: Options) {
   useEffect(() => {
     epoch.current += 1;
     dirty.current = false;
+    dirtySourceIds.current.clear();
     setUnsaved(false);
     setCurrentGroups([]);
     noteOverrides.current.clear();
@@ -240,6 +243,7 @@ export function useWritingPage(options: Options) {
     historyAction?: 'undo' | 'redo',
   ) => {
     if (before === after) return;
+    dirtySourceIds.current.add(unitId);
     const canMapNotes = loadedIdentity.current === identity;
     if (!canMapNotes) {
       const stored = outlineRef.current?.document.writingGroups ?? [];
@@ -370,6 +374,11 @@ export function useWritingPage(options: Options) {
             ),
           ),
       );
+      // A move followed by Undo can restore exact saved prose in a former
+      // source section. Flush its save/recovery owner as well as its dirty
+      // receipt, even when Undo restored the exact durable prose.
+      for (const unitId of dirtySourceIds.current) sourceIds.add(unitId);
+      for (const unitId of current.dirtyUnitIds ?? []) if (typeof bodies[unitId] === 'string') sourceIds.add(unitId);
       for (const [unitId, body] of Object.entries(bodies))
         if (
           typeof current.project.drafts?.[unitId] === 'string' &&
@@ -382,7 +391,7 @@ export function useWritingPage(options: Options) {
           throw new Error(
             'A linked writing section is unavailable. Its unit and Notes were retained.',
           );
-        if (extractProjectSpineDraftBody(raw) !== bodies[unitId])
+        if (extractProjectSpineDraftBody(raw) !== bodies[unitId] || dirtySourceIds.current.has(unitId) || current.dirtyUnitIds?.includes(unitId))
           await latest.current.saveSource(unitId, bodies[unitId]);
         if (identityRef.current !== entryIdentity || epoch.current !== startEpoch)
           throw new Error('Writing changed during Save. Save again to keep the latest ranges.');
@@ -457,6 +466,7 @@ export function useWritingPage(options: Options) {
         noteOverrides.current.clear();
         relocatedNotes.current.clear();
         dirty.current = false;
+        dirtySourceIds.current.clear();
         setUnsaved(false);
         for (const unitId of sourceIds) latest.current.reportDirty(unitId, false);
       }
@@ -485,7 +495,7 @@ export function useWritingPage(options: Options) {
     }
   };
 
-  const pin = async (selection: readonly WritingRange[]) => {
+  const pin = async (selection: readonly WritingRange[], options?: { extendId?: string; name?: string }) => {
     if (
       busyRef.current ||
       !loaded ||
@@ -513,6 +523,20 @@ export function useWritingPage(options: Options) {
       return;
     }
     const before = groupRef.current;
+    const extended = options?.extendId ? before.find(group => group.id === options.extendId) : undefined;
+    if (options?.extendId && (!extended || extended.spans.some(span => !selection.some(range =>
+      range.unitId === span.unitId && range.from <= span.selectionStart && range.to >= span.selectionEnd)))) {
+      setNotice('Extend must retain the complete original unit. Choose its current range again.');
+      return;
+    }
+    const included = before.filter(group => group.spans.every(span => selection.some(range =>
+      range.unitId === span.unitId && range.from <= span.selectionStart && range.to >= span.selectionEnd)));
+    const customName = extended ? writingGroupLabel(extended, bodies) : options?.name?.trim()
+      || (included.length > 1 ? joinedWritingName(included, latest.current.getSnapshot().project?.units.map(unit => unit.id) ?? []) : '');
+    if (customName.length > 240 || (options?.name !== undefined && !options.name.trim())) {
+      setNotice('Edit the combined unit name to 1–240 characters before joining. No units changed.');
+      return;
+    }
     const startEpoch = epoch.current;
     const startIdentity = identityRef.current;
     busyRef.current = true;
@@ -549,12 +573,12 @@ export function useWritingPage(options: Options) {
     history.current = [...history.current.slice(-49), [...before]];
     setCurrentGroups([
       ...subtractWritingSelection(before, selection),
-      { id: `writing-${crypto.randomUUID()}`, label, spans },
+      { ...(extended ?? {}), id: extended?.id ?? `writing-${crypto.randomUUID()}`, label: customName || label, customLabel: Boolean(customName), spans },
     ]);
     epoch.current += 1;
     dirty.current = true;
     setUnsaved(true);
-    publishMembership(membershipBefore, 'Pin / merge');
+    publishMembership(membershipBefore, extended ? 'Extend unit' : 'Pin / merge');
     await save();
   };
 
@@ -870,12 +894,15 @@ export function useWritingPage(options: Options) {
   };
 
   /** Used only with an explicit, source-guarded prose arrangement batch. */
-  const installLinks = (state: WritingLinksSnapshot): boolean => {
+  const installLinks = (state: WritingLinksSnapshot, from?: WritingLinksSnapshot): boolean => {
     if (!canInstallLinks(state)) return false;
     const current = new Map(groupRef.current.map(group => [group.id, group]));
     setCurrentGroups(state.groups.map(group => {
       const present = current.get(group.id);
-      return present ? { ...group, label: present.label, customLabel: present.customLabel } : group;
+      const expected = from?.groups.find(item => item.id === group.id);
+      // Restore names changed by this operation; retain a later independent rename.
+      const independentlyNamed = present && (!expected || present.label !== expected.label || Boolean(present.customLabel) !== Boolean(expected.customLabel));
+      return independentlyNamed ? { ...group, label: present.label, customLabel: present.customLabel } : group;
     }));
     noteOverrides.current = new Map(state.notes.filter(note => note.anchors.length).map(note => [note.id, note.anchors]));
     relocatedNotes.current = new Set(state.notes.filter(note => note.anchors.length &&
@@ -917,6 +944,7 @@ export function useWritingPage(options: Options) {
     const membershipBefore = captureLinks();
     history.current = [...history.current.slice(-49), [...groupRef.current]];
     const second = { ...group, id: `writing-${crypto.randomUUID()}`, customLabel: false, spans: right };
+    second.label = writingGroupLabel(second, latest.current.getBodies());
     setCurrentGroups(groupRef.current.flatMap(current => current.id === id ? [{ ...group, spans: left }, second] : [current]));
     epoch.current += 1;
     dirty.current = true;
@@ -931,7 +959,7 @@ export function useWritingPage(options: Options) {
     setCurrentGroups(snapshot.document.writingGroups ?? []);
     noteOverrides.current.clear(); relocatedNotes.current.clear();
     history.current = []; planHistory.current = [];
-    dirty.current = false; setUnsaved(false); redraw(value => value + 1);
+    dirty.current = false; dirtySourceIds.current.clear(); setUnsaved(false); redraw(value => value + 1);
   };
 
   const createPlanningItem = async (label: string, body: string, kind: 'gap' | 'fragment', scope: 'passage' | 'whole-story' | 'unattached', range?: WritingRange) => {

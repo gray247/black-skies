@@ -570,7 +570,7 @@ const COMMAND_WORKSPACES: readonly {
   readonly purpose: string;
 }[] = [
   { id: 'review', label: 'Review', purpose: 'Advisory critique and author decisions' },
-  { id: 'structure', label: 'Outline', purpose: 'Arrange the plan and compare selected writing' },
+  { id: 'structure', label: 'Outline', purpose: 'Move manuscript units and compare selected writing' },
   { id: 'story-knowledge', label: 'Story Knowledge', purpose: 'Characters, world, and continuity' },
   { id: 'create-develop', label: 'Create / Develop', purpose: 'Revisions, story foundation, ideas, and history' },
   { id: 'project-interchange', label: 'Project Interchange', purpose: 'Import, export, and handoff' },
@@ -875,7 +875,7 @@ function CommandTaskView({ model, actions, workspace }: Stage19WritingSpineViewP
           <WritingPageOutline />
         ) : workspace === 'structure' ? (
           <section className="stage19-command__empty-state"><h2>Outline and passage comparison</h2>
-            <p>Use the Writing Studio window to arrange the plan and compare current passages.</p>
+            <p>Use the Writing Studio window to move manuscript units and compare current passages.</p>
           </section>
         ) : workspace === 'create-develop' ? (
           <Program7CreateDevelopView model={model} actions={actions} />
@@ -2341,6 +2341,7 @@ function ManuscriptCanvasView(props: Stage19WritingSpineViewProps): JSX.Element 
                         onCommands={model.writingPage ? writing?.registerCommands : undefined}
                         writingMarks={getWritingMarks(writing, unit.id)}
                         onWritingNote={(id) => writing?.openNote(id, [])}
+                        onWritingMove={offset => writing?.moveTo({ unitId: unit.id, offset })}
                         key={`${snapshot.project?.projectId ?? 'no-project'}:${snapshot.generation}:${unit.id}`}
                         value={body}
                         onChange={(nextBody, changes, historyAction, change) => {

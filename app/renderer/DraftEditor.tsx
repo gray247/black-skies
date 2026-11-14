@@ -17,16 +17,16 @@ import { syntaxTree } from '@codemirror/language';
 export interface DraftEditorWritingMark {
   readonly from: number;
   readonly to: number;
-  readonly kind: 'pinned' | 'unpinned' | 'concern' | 'pin' | 'note';
+  readonly kind: 'pinned' | 'unpinned' | 'concern' | 'pin' | 'note' | 'move';
   readonly id?: string;
   readonly label?: string;
 }
 
 class WritingMarker extends WidgetType {
-  constructor(readonly kind: 'pin' | 'note', readonly label: string, readonly activate: () => void, readonly slot = 0, readonly markerId = '') { super(); }
+  constructor(readonly kind: 'pin' | 'note' | 'move', readonly label: string, readonly activate: () => void, readonly slot = 0, readonly markerId = '') { super(); }
   eq(other: WritingMarker): boolean { return this.kind === other.kind && this.label === other.label && this.slot === other.slot && this.markerId === other.markerId; }
   toDOM(view: EditorView): HTMLElement {
-    const element = view.dom.ownerDocument.createElement(this.kind === 'note' ? 'button' : 'span');
+    const element = view.dom.ownerDocument.createElement(this.kind !== 'pin' ? 'button' : 'span');
     element.className = `stage19-writing-${this.kind}-marker`;
     element.dataset.writingDecoration = this.kind;
     element.style.marginInlineStart = `${this.slot * 20}px`;
@@ -147,6 +147,7 @@ export interface DraftEditorProps {
   onCommands?: (commands: DraftEditorCommands | null) => void;
   writingMarks?: readonly DraftEditorWritingMark[];
   onWritingNote?: (id: string) => void;
+  onWritingMove?: (offset: number) => void;
   placeholder?: string;
   readOnly?: boolean;
   className?: string;
@@ -279,6 +280,7 @@ export default function DraftEditor({
   onCommands,
   writingMarks,
   onWritingNote,
+  onWritingMove,
   placeholder,
   readOnly = false,
   className,
@@ -304,6 +306,8 @@ export default function DraftEditor({
   const historyCommands = useRef<{ undo: (view: EditorView) => boolean; redo: (view: EditorView) => boolean; format: (view: EditorView, mark: string) => boolean } | null>(null);
   const writingNoteRef = useRef(onWritingNote);
   writingNoteRef.current = onWritingNote;
+  const writingMoveRef = useRef(onWritingMove);
+  writingMoveRef.current = onWritingMove;
   const mountRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const documentSelection = useRef(new Compartment());
@@ -818,7 +822,7 @@ export default function DraftEditor({
     const length = view.state.doc.length;
     const slots = new Map<number, number>();
     const ranges = (writingMarks ?? []).filter((mark) => Number.isInteger(mark.from) && Number.isInteger(mark.to) && mark.from >= 0 && mark.to >= mark.from && mark.to <= length).map((mark) => {
-      if (mark.kind === 'pin' || mark.kind === 'note') { const slot = slots.get(mark.from) ?? 0; slots.set(mark.from, slot + 1); return Decoration.widget({ widget: new WritingMarker(mark.kind, mark.label ?? '', () => { if (mark.id) writingNoteRef.current?.(mark.id); }, slot, mark.id ?? ''), side: mark.kind === 'pin' ? -1 : 1 }).range(mark.from); }
+      if (mark.kind === 'pin' || mark.kind === 'note' || mark.kind === 'move') { const slot = slots.get(mark.from) ?? 0; slots.set(mark.from, slot + 1); return Decoration.widget({ widget: new WritingMarker(mark.kind, mark.label ?? '', () => { if (mark.kind === 'move') writingMoveRef.current?.(mark.from); else if (mark.id) writingNoteRef.current?.(mark.id); }, slot, mark.id ?? ''), side: mark.kind === 'pin' ? -1 : 1 }).range(mark.from); }
       return mark.to > mark.from ? Decoration.mark({ class: `stage19-writing-${mark.kind}` }).range(mark.from, mark.to) : null;
     }).filter((range): range is NonNullable<typeof range> => range !== null);
     view.dispatch({ effects: replaceWritingMarks.of(Decoration.set(ranges, true)) });

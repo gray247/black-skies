@@ -421,7 +421,7 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await showCommandInWriting(reopened);
   await reopened.getByRole('button', { name: 'Create / Develop', exact: true }).click();
   await reopened.getByRole('button', { name: 'History', exact: true }).click();
-  await expect(reopened.getByText('Make the sentence more tense', { exact: true })).toBeVisible();
+  await expect(reopened.getByRole('heading', { name: 'Make the sentence more tense', exact: true })).toBeVisible();
   const historical = (await readCandidates()).find((candidate: { id: string }) => candidate.id === sentence.id);
   const historyCard = reopened.getByTestId(`program7-history-item-revision-candidate:${sentence.id}`);
   await expect(historyCard).toContainText('Partly applied');

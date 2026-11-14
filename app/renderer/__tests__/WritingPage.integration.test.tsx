@@ -51,6 +51,7 @@ function Editor({
         onSelectionChange={selected}
         writingMarks={getWritingMarks(context, 'a')}
         onWritingNote={(id) => context.openNote(id, [])}
+        onWritingMove={offset => context.moveTo({ unitId: 'a', offset })}
         selectionRestore={context.returnRequest?.unitId === 'a' ? context.returnRequest : null}
         onSelectionRestoreResult={(id) => context.acknowledgeReturn(id)}
       />
@@ -229,8 +230,8 @@ function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second 
   );
 }
 
-async function setup(initialBodies?: Record<string, string>, compactOutline = false) {
-  render(<Harness initialBodies={initialBodies} compactOutline={compactOutline} />);
+async function setup(initialBodies?: Record<string, string>, compactOutline = false, initialConcerns: readonly RevisionItem[] = []) {
+  render(<Harness initialBodies={initialBodies} compactOutline={compactOutline} initialConcerns={initialConcerns} />);
   const input = await screen.findByRole('textbox', { name: 'Draft editor' });
   const editor = EditorView.findFromDOM(input)!;
   await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
@@ -387,31 +388,34 @@ describe('Outstanding writer edge cases after completed Batch A', () => {
     expect(e.text()).toBe(original);
   });
 
-  it('edge: Undo plan move keeps a later unit rename and its exact source', async () => {
+  it('edge: direct move Undo keeps a later independent unit rename and its exact source', async () => {
     const e = await setup();
-    await pinEdgeRange(e, 0, 4);
-    await pinEdgeRange(e, 11, 17);
-    const before = storedWriting().writingGroups.map((group: { id: string }) => group.id);
-    fireEvent.click(screen.getByRole('button', { name: 'Earlier in plan: winter' }));
-    await waitFor(() => expect(storedWriting().writingGroups[0].id).toBe(before[1]));
+    await pinEdgeRange(e, 0, 4); await pinEdgeRange(e, 11, 17);
+    const before = storedWriting().writingGroups;
+    directEdgeMove(before[1].id, 'winter', before[0].id);
+    expect(e.text()).toBe('winter\n\nmoon glass  shirt');
     await renameEdgeGroup('winter', 'Ending image');
-    fireEvent.click(screen.getByRole('button', { name: 'Undo plan move' }));
-    await waitFor(() => expect(storedWriting().writingGroups.map((group: { id: string }) => group.id)).toEqual(before));
-    expect(storedWriting().writingGroups[1]).toMatchObject({ label: 'Ending image', customLabel: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(e.text()).toBe('moon glass winter shirt');
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups.find((group: { id: string }) => group.id === before[1].id))
+      .toMatchObject({ label: 'Ending image', customLabel: true, spans: before[1].spans }));
   });
 
-  it('edge: rapid plan clicks during a save form one move and one Undo', async () => {
+  it('edge: cancel and Escape create no history entry and a direct move creates only one', async () => {
     const e = await setup();
-    for (const [from, to] of [[0, 4], [5, 10], [11, 17]]) await pinEdgeRange(e, from!, to!);
-    const before = storedWriting().writingGroups.map((group: { id: string }) => group.id);
-    const button = screen.getByRole('button', { name: 'Earlier in plan: winter' });
-    fireEvent.click(button);
-    fireEvent.click(button);
-    await waitFor(() => expect(storedWriting().writingGroups.map((group: { id: string }) => group.id)).toEqual([before[0], before[2], before[1]]));
-    fireEvent.click(screen.getByRole('button', { name: 'Undo plan move' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Undo plan move' })).toBeDisabled());
-    expect(storedWriting().writingGroups.map((group: { id: string }) => group.id)).toEqual(before);
+    await pinEdgeRange(e, 0, 4); await pinEdgeRange(e, 11, 17);
+    const before = storedWriting().writingGroups;
+    beginEdgeMove(before[1].id);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('group', { name: 'Move writing' })).toBeNull();
+    expect(e.text()).toBe('moon glass winter shirt');
+    directEdgeMove(before[1].id, 'winter', before[0].id);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(e.text()).toBe('moon glass winter shirt');
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(1));
+    expect(storedWriting().writingGroups[0].id).toBe(before[0].id);
   });
 
   it('edge: comparison preserves literal markup, Unicode and paragraph whitespace without rendering HTML', async () => {
@@ -463,10 +467,19 @@ function organizationRow(id: string) {
   if (!(summary.parentElement as HTMLDetailsElement).open) fireEvent.click(summary);
   return within(row);
 }
-function previewEdgeMove(id: string, label: string, targetId: string) {
-  const row = organizationRow(id);
-  fireEvent.change(row.getByLabelText(`Move ${label} before`), { target: { value: targetId } });
-  fireEvent.click(row.getByRole('button', { name: 'Preview passage move' }));
+function beginEdgeMove(id: string) {
+  fireEvent.click(organizationRow(id).getByRole('button', { name: 'Move' }));
+}
+function finishEdgeMove(targetId: string) {
+  const row = document.querySelector(`[data-writing-group-id="${targetId}"]`) as HTMLElement;
+  fireEvent.click(within(row).getByRole('button', { name: /^Insert before/ }));
+}
+function directEdgeMove(id: string, _label: string, targetId: string) {
+  beginEdgeMove(id); finishEdgeMove(targetId);
+}
+function localUnitMenu(input: HTMLElement) {
+  fireEvent.keyDown(input, { key: 'F10', shiftKey: true });
+  return within(screen.getByRole('dialog', { name: 'Writing passage actions' }));
 }
 
 async function openNotebook() {
@@ -669,7 +682,7 @@ describe('Catalog gap lifecycle', () => {
 });
 
 describe('Writing organization milestone', () => {
-  it('previews and cancels without touching writing, then saves cross-section moves and Notes through Undo/Redo', async () => {
+  it('cancels source-addressed moves, then directly saves cross-section moves and Notes through Undo/Redo', async () => {
     const original = { a: 'forest moon', b: 'river' };
     const e = await setup(original);
     await pinEdgeRange(e, 0, 6);
@@ -684,13 +697,12 @@ describe('Writing organization milestone', () => {
     const noteId = storedWriting().items[0].id;
     await pinInactiveSection();
     const targetId = storedWriting().writingGroups.find((group: { id: string }) => group.id !== sourceId).id;
-    previewEdgeMove(sourceId, 'forest', targetId);
-    expect(screen.getByRole('region', { name: 'Passage move preview' })).toBeVisible();
+    beginEdgeMove(sourceId);
+    expect(screen.getByRole('group', { name: 'Move writing' })).toBeVisible();
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel passage move' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel move' }));
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
-    previewEdgeMove(sourceId, 'forest', targetId);
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
+    directEdgeMove(sourceId, 'forest', targetId);
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: ' moon', b: 'forest\n\nriver' });
     fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
     await waitFor(() => expect(storedWriting().items[0]).toMatchObject({ id: noteId, manuscriptUnitId: 'b' }));
@@ -704,19 +716,18 @@ describe('Writing organization milestone', () => {
     expect(e.text()).toBe(' moon');
   });
 
-  it('rejects stale previews and refuses explicit move Undo over later writing', async () => {
+  it('rejects stale destinations and refuses explicit move Undo over later writing', async () => {
     const e = await setup({ a: 'forest moon', b: 'river' });
     await pinEdgeRange(e, 0, 6);
     const id = storedWriting().writingGroups[0].id;
     await pinInactiveSection();
     const targetId = storedWriting().writingGroups[1].id;
-    previewEdgeMove(id, 'forest', targetId);
+    beginEdgeMove(id);
     act(() => e.editor.dispatch({ changes: { from: e.text().length, insert: ' later' } }));
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
-    expect(screen.getByText(/links changed after this preview/)).toBeVisible();
+    finishEdgeMove(targetId);
+    expect(screen.getByText(/links changed/)).toBeVisible();
     expect(e.text()).toBe('forest moon later');
-    previewEdgeMove(id, 'forest', targetId);
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
+    directEdgeMove(id, 'forest', targetId);
     act(() => e.editor.dispatch({ changes: { from: e.text().length, insert: ' newest' } }));
     expect(screen.queryByRole('button', { name: 'Undo passage move' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
@@ -730,14 +741,13 @@ describe('Writing organization milestone', () => {
     await pinEdgeRange(e, 2, 8);
     const id = storedWriting().writingGroups[0].id;
     await pinInactiveSection();
-    previewEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
+    directEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: ' moon', b: '**forest**\n\nriver' });
     expect([...document.querySelectorAll('[data-writing-source] [data-writing-span]')].find(node => node.textContent === 'forest')).toHaveStyle({ fontWeight: 700 });
     fireEvent.click(screen.getByRole('button', { name: 'Undo passage move' }));
     await pinEdgeRange(e, 2, 5);
     const partial = storedWriting().writingGroups.find((group: { spans: { selectionStart: number; selectionEnd: number }[] }) => group.spans[0].selectionStart === 2 && group.spans[0].selectionEnd === 5);
-    previewEdgeMove(partial.id, 'for', storedWriting().writingGroups.find((group: { spans: { unitId: string }[] }) => group.spans[0].unitId === 'b').id);
+    directEdgeMove(partial.id, 'for', storedWriting().writingGroups.find((group: { spans: { unitId: string }[] }) => group.spans[0].unitId === 'b').id);
     expect(screen.getByText(/split visible formatting/)).toBeVisible();
     expect(e.text()).toBe('**forest** moon');
   });
@@ -754,7 +764,7 @@ describe('Writing organization milestone', () => {
     await pinEdgeRange(e, 0, 6);
     await pinInactiveSection();
     const groups = storedWriting().writingGroups;
-    previewEdgeMove(groups[0].id, 'forest', groups[1].id);
+    directEdgeMove(groups[0].id, 'forest', groups[1].id);
     expect(screen.getByText(/split a linked Note passage/)).toBeVisible();
     expect(e.text()).toBe('forest moon');
     expect(storedWriting().items).toHaveLength(1);
@@ -800,8 +810,7 @@ describe('Writing organization milestone', () => {
     const id = storedWriting().writingGroups[0].id;
     await pinInactiveSection();
     act(() => e.editor.dispatch({ changes: { from: e.text().length, insert: ' earlier' } }));
-    previewEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
+    directEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: ' moon earlier', b: 'forest\n\n**river**' });
     await renameEdgeGroup('forest', 'New forest name');
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
@@ -821,8 +830,7 @@ describe('Writing organization milestone', () => {
     await pinEdgeRange(e, 0, 6);
     const id = storedWriting().writingGroups[0].id;
     await pinInactiveSection();
-    previewEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
-    fireEvent.click(screen.getByRole('button', { name: 'Move this passage' }));
+    directEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
     await pinEdgeRange(e, 1, 5);
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(2));
@@ -841,7 +849,7 @@ describe('Writing organization milestone', () => {
     await pinEdgeRange(e, 0, 6);
     const id = storedWriting().writingGroups[0].id;
     await pinInactiveSection();
-    previewEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
+    directEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
     expect(screen.getByText(/Include the paragraph spacing/)).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Move this passage' })).toBeNull();
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
@@ -886,6 +894,176 @@ describe('Writing organization milestone', () => {
     await waitFor(() => expect(storedWriting().writingGroups).toEqual(parts));
     expect(storedWriting().items[0]).toEqual(note);
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
+  });
+});
+
+
+describe('Approved local unit workflow', () => {
+  it('previews whole-unit Extend and preserves identity, name, exclusive membership and chronological Undo/Redo', async () => {
+    const body = 'Mother knew about the poison. Loose words.';
+    const e = await setup({ a: body, b: 'river' });
+    await pinEdgeRange(e, 0, 29);
+    await renameEdgeGroup('Mother knew about the poison.', 'Mother knows');
+    const original = storedWriting().writingGroups[0];
+    await e.select(12, body.length);
+    const menu = localUnitMenu(e.input);
+    expect(menu.getByText(/Result: 7 words/)).toBeVisible();
+    expect(storedWriting().writingGroups).toEqual([original]);
+    fireEvent.click(menu.getByRole('button', { name: 'Extend unit' }));
+    await waitFor(() => expect(storedWriting().writingGroups[0].spans[0].selectionEnd).toBe(body.length));
+    expect(storedWriting().writingGroups).toHaveLength(1);
+    expect(storedWriting().writingGroups[0]).toMatchObject({ id: original.id, label: original.label, customLabel: true });
+    expect(e.text()).toBe(body);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toEqual([original]));
+    fireEvent.click(screen.getByRole('button', { name: 'Redo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups[0].spans[0].selectionEnd).toBe(body.length));
+    expect(storedWriting().writingGroups[0].id).toBe(original.id);
+  });
+
+  it('retains an automatic opening-word name when Extend adds earlier loose writing and restores its original naming on Undo', async () => {
+    const e = await setup({ a: 'loose words moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 12, 22);
+    const original = storedWriting().writingGroups[0];
+    await e.select(0, 16);
+    fireEvent.click(localUnitMenu(e.input).getByRole('button', { name: 'Extend unit' }));
+    await waitFor(() => expect(storedWriting().writingGroups[0].spans[0].selectionStart).toBe(0));
+    expect(storedWriting().writingGroups[0]).toMatchObject({ id: original.id, label: 'moon glass', customLabel: true });
+    expect(screen.getByRole('button', { name: 'moon glass' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toEqual([original]));
+  });
+
+  it('splits before the named whole word from keyboard and retains the original custom name on the first part', async () => {
+    const e = await setup({ a: 'Mother knew about the poison.', b: 'river' });
+    await pinEdgeRange(e, 0, e.text().length);
+    await renameEdgeGroup('Mother knew about the poison.', 'Mother knows');
+    const original = storedWriting().writingGroups[0];
+    await e.select(14, 14); // inside about: resolve its beginning, not a half word.
+    const menu = localUnitMenu(e.input);
+    expect(menu.getByText('Split: 2 + 3 words. Writing stays unchanged.')).toBeVisible();
+    fireEvent.click(menu.getByRole('button', { name: 'Split before “about”' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(2));
+    const parts = storedWriting().writingGroups;
+    expect(parts[0]).toMatchObject({ id: original.id, label: 'Mother knows', customLabel: true });
+    expect(parts[1]).toMatchObject({ label: 'about the poison.', customLabel: false, spans: [{ selectionStart: 12 }] });
+    expect(parts[1].id).not.toBe(original.id);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toEqual([original]));
+  });
+
+  it('joins distinct custom names in manuscript order and restores both identities/names on Undo', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 11, 17); await renameEdgeGroup('winter', 'Ending');
+    await pinEdgeRange(e, 0, 4); await renameEdgeGroup('moon', 'Opening');
+    const original = storedWriting().writingGroups;
+    await e.select(1, 15);
+    fireEvent.click(localUnitMenu(e.input).getByRole('button', { name: 'Join units' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(1));
+    expect(storedWriting().writingGroups[0]).toMatchObject({ label: 'Opening / Ending', customLabel: true, spans: [{ selectionStart: 0, selectionEnd: 17 }] });
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toEqual(original));
+    expect(e.text()).toBe('moon glass winter');
+  });
+
+  it('requires an edited overlong name before joining and never truncates it silently', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 0, 4); await renameEdgeGroup('moon', 'A'.repeat(240));
+    await pinEdgeRange(e, 11, 17); await renameEdgeGroup('winter', 'B'.repeat(240));
+    const original = storedWriting().writingGroups;
+    await e.select(0, 17);
+    fireEvent.click(localUnitMenu(e.input).getByRole('button', { name: 'Join units' }));
+    expect(screen.getByLabelText('Combined unit name', { selector: 'input' })).toHaveValue('A'.repeat(240) + ' / ' + 'B'.repeat(240));
+    expect(screen.getByRole('button', { name: 'Join with this name' })).toBeDisabled();
+    expect(storedWriting().writingGroups).toEqual(original);
+    fireEvent.change(screen.getByLabelText('Combined unit name', { selector: 'input' }), { target: { value: 'Opening / Ending' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Join with this name' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(1));
+    expect(storedWriting().writingGroups[0].label).toBe('Opening / Ending');
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toEqual(original));
+  });
+
+  it('applies a fast drag/drop before another render and does not label a completed drop canceled', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 0, 4); await pinEdgeRange(e, 11, 17);
+    const source = screen.getByRole('button', { name: 'Drag winter in the manuscript' });
+    const target = document.querySelector('[data-writing-group-id]')!;
+    let data = '';
+    const transfer = { setData: (_type: string, value: string) => { data = value; }, getData: () => data, types: ['application/x-black-skies-writing-unit'], effectAllowed: '', dropEffect: '' };
+    act(() => {
+      for (const [element, type] of [[source, 'dragstart'], [target, 'dragover'], [target, 'drop'], [source, 'dragend']] as const) {
+        const event = new Event(type, { bubbles: true, cancelable: true });
+        Object.defineProperty(event, 'dataTransfer', { value: transfer });
+        element.dispatchEvent(event);
+      }
+    });
+    expect(e.text()).toBe('winter\n\nmoon glass ');
+    expect(screen.getByText(/Passage moved with its Notes/)).toBeVisible();
+    expect(screen.queryByText('Move canceled. Writing was unchanged.')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(e.text()).toBe('moon glass winter');
+  });
+
+  it('refuses a move that touches protected source information without mutating writing or concern evidence', async () => {
+    const envelope = await buildProgram7SourceEnvelope({ projectId: 'test', generation: 1, unitId: 'a', sourceText: 'forest moon', selectionStart: 0, selectionEnd: 6, sourceClass: 'protected' });
+    const concern: RevisionItem = { id: 'protected-source', projectId: 'test', unitId: 'a', body: 'Protected record', createdAt: '2026-11-14T00:00:00.000Z',
+      kind: 'revision_item', advisory: false, lifecycle: 'active', sourceClass: 'protected', protection: { protected: true }, anchor: envelope.anchor, sourceBodyFingerprint: envelope.bodySha256 };
+    const original = JSON.stringify(concern);
+    const e = await setup({ a: 'forest moon', b: 'river' }, false, [concern]);
+    await pinEdgeRange(e, 0, 6); await pinInactiveSection();
+    const groups = storedWriting().writingGroups;
+    directEdgeMove(groups[0].id, 'forest', groups[1].id);
+    expect(screen.getByText(/Protected source information prevents this move/)).toBeVisible();
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'forest moon', b: 'river' });
+    expect(JSON.stringify(concern)).toBe(original);
+  });
+
+  it('moves from the local controls to a real editor insertion marker at manuscript beginning and end', async () => {
+    const original = { a: 'moon glass winter', b: 'river' };
+    const e = await setup(original);
+    await pinEdgeRange(e, 11, 17);
+    const id = storedWriting().writingGroups[0].id;
+    await e.select(13, 13);
+    fireEvent.click(localUnitMenu(e.input).getByRole('button', { name: 'Move' }));
+    fireEvent.click(within(e.input).getByRole('button', { name: 'Insert writing here, position 0' }));
+    expect(e.text()).toBe('winter\n\nmoon glass ');
+    expect(screen.queryByRole('region', { name: 'Passage move preview' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(e.text()).toBe(original.a);
+    beginEdgeMove(id);
+    fireEvent.click(screen.getByRole('button', { name: 'Insert at manuscript end' }));
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'moon glass ', b: 'river\n\nwinter' });
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
+  });
+
+  it('refuses a stale local action, a self destination and a word-splitting move without mutation', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 0, 4);
+    const id = storedWriting().writingGroups[0].id;
+    await e.select(2, 2);
+    localUnitMenu(e.input);
+    act(() => e.editor.dispatch({ changes: { from: e.text().length, insert: ' later' } }));
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Writing passage actions' })).getByRole('button', { name: 'Move' }));
+    expect(screen.getByText(/Select the current words again/)).toBeVisible();
+    expect(screen.queryByRole('group', { name: 'Move writing' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
+    beginEdgeMove(id); finishEdgeMove(id);
+    expect(screen.getByText(/inside or immediately beside/)).toBeVisible();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await pinEdgeRange(e, 1, 3);
+    const partial = storedWriting().writingGroups.find((group: { spans: { selectionStart: number }[] }) => group.spans[0].selectionStart === 1);
+    beginEdgeMove(partial.id);
+    fireEvent.click(screen.getByRole('button', { name: 'Insert at manuscript end' }));
+    expect(screen.getByText(/split a word/)).toBeVisible();
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'moon glass winter later', b: 'river' });
   });
 });
 
@@ -1139,12 +1317,12 @@ describe('Connected writer tools with the real editor', () => {
     const e = await setup();
     await e.select(5, 10);
     fireEvent.contextMenu(e.input, { clientX: 200, clientY: 200 });
-    const menu = await screen.findByRole('menu', { name: 'Writing passage actions' });
+    const menu = await screen.findByRole('dialog', { name: 'Writing passage actions' });
     expect(menu).toBeVisible();
     fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Writing passage actions' })).not.toBeInTheDocument();
     fireEvent.contextMenu(e.input);
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Notes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add Note here' }));
     expect(screen.getByRole('heading', { name: 'Add Note' })).toBeVisible();
   });
   it('changes all eight independent highlight combinations without touching source or membership', async () => {
@@ -1248,73 +1426,42 @@ describe('Connected writer tools with the real editor', () => {
     expect(JSON.parse(screen.getByLabelText('Stored metadata').textContent!).items).toHaveLength(1);
   });
 
-  it('arranges the plan while keeping loose writing beside its preceding unit, prose and Notes intact', async () => {
-    const original = { a: 'forest loose moon more winter trailing', b: 'A second shirt. Forest.' };
-    const e = await setup(original);
-    for (const [from, to] of [[0, 6], [13, 17], [23, 29]]) {
-      await e.select(from!, to!);
-      fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
-    }
-    fireEvent.click(screen.getByRole('button', { name: 'Notes' }));
-    fireEvent.change(screen.getByLabelText('Note text'), { target: { value: 'Keep winter quiet.' } });
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Keep Note' })).toBeEnabled());
-    fireEvent.click(screen.getByRole('button', { name: 'Keep Note' }));
-    await screen.findByRole('heading', { name: 'Edit Note' });
-    fireEvent.click(screen.getByRole('button', { name: 'Close Note' }));
-    const before = JSON.parse(screen.getByLabelText('Stored metadata').textContent!);
-    const labels = () => [...screen.getByRole('list', { name: 'Writing units and unpinned passages' }).children]
-      .map(row => row.querySelector('button')!.textContent);
-    expect(screen.getByRole('button', { name: 'Earlier in plan: forest' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Later in plan: winter' })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Earlier in plan: winter' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Undo plan move' })).toBeEnabled());
-    expect(screen.getByLabelText('Outline order')).toHaveValue('plan');
-    expect(labels()).toEqual(['forest', 'loose', 'winter', 'trailing', 'A second shirt. Forest.', 'moon', 'more']);
-    const moved = JSON.parse(screen.getByLabelText('Stored metadata').textContent!);
-    expect(moved.writingGroups.map((g: { label: string }) => g.label)).toEqual(['forest', 'winter', 'moon']);
-    expect(moved.items).toEqual(before.items);
-    expect(moved.writingGroups.map((g: { id: string }) => before.writingGroups.find((old: { id: string }) => old.id === g.id))).toEqual(moved.writingGroups);
-    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
-    fireEvent.change(screen.getByLabelText('Outline order'), { target: { value: 'writing' } });
-    expect(labels()).toEqual(['forest', 'loose', 'moon', 'more', 'winter', 'trailing', 'A second shirt. Forest.']);
-    fireEvent.click(screen.getByRole('button', { name: 'Undo plan move' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Undo plan move' })).toBeDisabled());
-    await waitFor(() => expect(JSON.parse(screen.getByLabelText('Stored metadata').textContent!).writingGroups).toEqual(before.writingGroups));
+  it('uses one manuscript Outline and keeps loose writing outside a moved unit', async () => {
+    const e = await setup({ a: 'forest loose moon more winter trailing', b: 'river' });
+    for (const [from, to] of [[0, 6], [13, 17], [23, 29]]) await pinEdgeRange(e, from!, to!);
+    const before = storedWriting().writingGroups;
+    expect(screen.queryByLabelText('Outline order')).toBeNull();
+    directEdgeMove(before[2].id, 'winter', before[0].id);
+    expect(e.text()).toBe('winter\n\nforest loose moon more  trailing');
+    const rows = [...document.querySelectorAll('[data-writing-group-id]')];
+    expect(rows.map(row => row.getAttribute('data-writing-group-id'))).toEqual([before[2].id, before[0].id, before[1].id]);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(e.text()).toBe('forest loose moon more winter trailing');
+    expect([...document.querySelectorAll('[data-writing-group-id]')].map(row => row.getAttribute('data-writing-group-id')))
+      .toEqual(before.map((group: { id: string }) => group.id));
   });
 
-  it('accepts a same-project plan drag and ignores self, foreign and malformed drops', async () => {
+  it('drags writing to a visible insertion marker and ignores self, foreign and malformed drops', async () => {
     const e = await setup();
-    for (const [from, to] of [[0, 4], [5, 10], [11, 17]]) {
-      await e.select(from!, to!);
-      fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
-    }
-    const original = JSON.parse(screen.getByLabelText('Stored metadata').textContent!);
-    const sourceId = original.writingGroups[2].id;
-    const firstId = original.writingGroups[0].id;
+    for (const [from, to] of [[0, 4], [5, 10], [11, 17]]) await pinEdgeRange(e, from!, to!);
+    const before = storedWriting().writingGroups;
+    const sourceId = before[2].id, firstId = before[0].id;
+    const source = screen.getByRole('button', { name: 'Drag winter in the manuscript' });
     const target = document.querySelector(`[data-writing-group-id="${firstId}"]`)!;
-    const dataTransfer = (data: string) => ({ getData: () => data, dropEffect: 'move' });
+    let payload = '';
+    const transfer = { setData: (_type: string, data: string) => { payload = data; }, getData: () => payload, effectAllowed: '', dropEffect: '' };
+    fireEvent.dragStart(source, { dataTransfer: transfer });
+    expect(within(target as HTMLElement).getByRole('button', { name: 'Insert before moon' })).toBeVisible();
     for (const data of ['broken', JSON.stringify({ id: sourceId, projectId: 'other', generation: 1 }),
-      JSON.stringify({ id: firstId, projectId: 'test', generation: 1 }),
-      JSON.stringify({ id: sourceId, projectId: 'test', generation: 2 })]) {
-      fireEvent.drop(target, { dataTransfer: dataTransfer(data) });
-      expect(JSON.parse(screen.getByLabelText('Stored metadata').textContent!)).toEqual(original);
+      JSON.stringify({ id: firstId, projectId: 'test', generation: 1 }), JSON.stringify({ id: sourceId, projectId: 'test', generation: 2 })]) {
+      fireEvent.drop(target, { dataTransfer: { ...transfer, getData: () => data } });
+      expect(e.text()).toBe('moon glass winter shirt');
     }
-    fireEvent.drop(target, { dataTransfer: dataTransfer(JSON.stringify({ id: sourceId, projectId: 'test', generation: 1 })) });
-    await waitFor(() => expect(JSON.parse(screen.getByLabelText('Stored metadata').textContent!).writingGroups[0].id).toBe(sourceId));
+    fireEvent.drop(target, { dataTransfer: transfer });
+    expect(e.text()).toBe('winter\n\nmoon glass  shirt');
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(e.text()).toBe('moon glass winter shirt');
-    // Merging pins changes membership. Undo plan must not resurrect removed units.
-    await e.select(1, 16);
-    fireEvent.click(screen.getByRole('button', { name: 'Merge pins' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
-    const repinned = JSON.parse(screen.getByLabelText('Stored metadata').textContent!);
-    expect(repinned.writingGroups).toHaveLength(1);
-    expect(repinned.writingGroups[0].spans[0]).toMatchObject({ selectionStart: 0, selectionEnd: 17 });
-    expect(e.text()).toBe('moon glass winter shirt');
-    fireEvent.click(screen.getByRole('button', { name: 'Undo plan move' }));
-    expect(screen.getByText(/newer order has been kept/)).toBeInTheDocument();
-    expect(JSON.parse(screen.getByLabelText('Stored metadata').textContent!)).toEqual(repinned);
+    expect(storedWriting().writingGroups.map((group: { id: string }) => group.id)).toEqual(before.map((group: { id: string }) => group.id));
   });
 
   it('compares exact passages and linked Notes, then clears removed units without stale excerpts', async () => {

@@ -10244,3 +10244,24 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-outline-notes > button { display: block; width: 100%; margin-block: .25rem; text-align: left; white-space: normal; }
 .stage19-note-selected-sources { max-height: 10rem; overflow-y: auto; }
 .stage19-note-selected-sources blockquote { margin: .35rem 0; padding-left: .65rem; border-left: 2px solid var(--bs-line-quiet); white-space: pre-wrap; }
+
+/* Current Writing Studio: local source actions and shared move markers. */
+.stage19-writing-context-menu { width: min(292px, calc(100vw - 16px)); max-height: min(420px, calc(100vh - 16px)); overflow: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; z-index: 100; }
+.stage19-writing-context-menu p { margin: 4px 0; font-size: .85rem; }
+.stage19-writing-context-menu form, .stage19-writing-context-menu label { display: grid; gap: 6px; min-width: 0; }
+.stage19-writing-context-menu input { min-width: 0; width: 100%; box-sizing: border-box; }
+.stage19-writing-move-marker { display: inline-block; vertical-align: middle; width: 28px; height: 20px; padding: 0; margin: 0 3px; border: 1px solid currentColor; color: var(--accent, #79b493); background: transparent; cursor: pointer; }
+.stage19-writing-move-marker::before { content: '↳'; }
+.stage19-outline-insertion { display: block; width: 100%; border: 1px dashed currentColor; margin-block: 4px; padding: 3px; }
+.stage19-writing-page-outline li.is-move-drop > .stage19-outline-insertion { border-style: solid; outline: 2px solid var(--accent, #79b493); }
+.stage19-writing-page-tools > .stage19-writing-arrangement-controls { order: 4; flex: 1 1 100%; }
+.stage19-spine.is-focus-mode .stage19-writing-arrangement-controls { position: fixed; top: 68px; right: 12px; z-index: 40; max-width: min(320px, calc(100vw - 24px)); max-height: calc(100vh - 100px); overflow: auto; background: var(--bs-surface-base, #111); padding: 8px; }
+
+/* Move affordances never reflow their source or destination during a drag. */
+.stage19-writing-arrangement-controls,
+.stage19-spine.is-focus-mode .stage19-writing-arrangement-controls { position: fixed; inset: auto 16px 16px auto; z-index: 60; max-width: min(340px, calc(100vw - 32px)); max-height: calc(100vh - 100px); overflow: auto; padding: 8px 12px; border: 1px solid var(--bs-accent-primary, #c2a66a); background: var(--bs-surface-base, #111); }
+.stage19-writing-page-outline > ol > li { position: relative; }
+.stage19-writing-page-outline.is-moving .stage19-outline-unit-heading { visibility: hidden; }
+.stage19-writing-page-outline .stage19-outline-insertion { position: absolute; inset: 0 0 auto; height: 20px; margin: 0; padding: 0; font-size: .72rem; line-height: 18px; z-index: 2; background: var(--bs-surface-base, #111); }
+.stage19-writing-page-outline .stage19-outline-end-insertion { min-height: 24px; }
+.stage19-writing-page-outline.is-compact > ol > li > .stage19-outline-drag { float: right; width: 30px; min-width: 30px; padding: 2px; margin-left: 4px; cursor: grab; }

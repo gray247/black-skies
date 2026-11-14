@@ -365,6 +365,26 @@ export function noteSourceAnchors(
 }
 
 /** Generated names follow their own words; a deliberate name stays independent. */
+/** Custom names compose in manuscript order, independently of legacy plan order. */
+export function joinedWritingName(groups: readonly WritingGroupV1[], unitOrder: readonly string[]): string {
+  const ordered = [...groups].sort((a, b) => {
+    const first = (group: WritingGroupV1) => [...group.spans].sort((x, y) =>
+      unitOrder.indexOf(x.unitId) - unitOrder.indexOf(y.unitId) || x.selectionStart - y.selectionStart)[0]!;
+    const x = first(a), y = first(b);
+    return unitOrder.indexOf(x.unitId) - unitOrder.indexOf(y.unitId) || x.selectionStart - y.selectionStart;
+  });
+  return [...new Set(ordered.filter(group => group.customLabel).map(group => group.label))].join(' / ');
+}
+
+/** Only source-addressed unit/paragraph edges are offered as move destinations. */
+export function writingMoveBoundaries(unitId: string, body: string, groups: readonly WritingGroupV1[]): number[] {
+  return [...new Set([0, body.length,
+    ...[...body.matchAll(/\n\s*\n(?=\S)/gu)].map(match => match.index! + match[0].length),
+    ...groups.flatMap(group => group.spans.filter(span => span.unitId === unitId)
+      .flatMap(span => [span.selectionStart, span.selectionEnd])),
+  ])].sort((a, b) => a - b);
+}
+
 export function writingGroupLabel(
   group: WritingGroupV1,
   bodies: Readonly<Record<string, string>>,

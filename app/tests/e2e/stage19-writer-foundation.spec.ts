@@ -116,7 +116,7 @@ test('Catalog B8 grows a five-word Pin into a long manuscript and tests distant 
     await openWritingStudioRail(writing, 'Story');
     const rail = writing.getByRole('region', { name: 'Story tools', exact: true });
     await rail.getByRole('button', { name: 'Keep open', exact: true }).click();
-    await rail.getByLabel('Outline order', { exact: true }).selectOption('plan');
+    await expect(rail.getByLabel('Outline order', { exact: true })).toHaveCount(0);
     const list = rail.getByRole('list', { name: 'Writing units and unpinned passages', exact: true });
     await expect(list.locator(':scope > li[data-writing-group-id]')).toHaveCount(81);
     const canvas = writing.locator('[data-manuscript-scroll-owner]');
@@ -137,7 +137,7 @@ test('Catalog B8 grows a five-word Pin into a long manuscript and tests distant 
     await rail.getByRole('button', { name: 'Tiny forest idea', exact: true }).click();
     await expect.poll(() => writing.evaluate(() => window.getSelection()?.toString())).toBe('Five quiet trees await Mara.');
     await rail.getByLabel('Actions for Tiny forest idea', { exact: true }).click();
-    const handle = rail.getByRole('button', { name: 'Drag Tiny forest idea in the plan', exact: true });
+    const handle = rail.getByRole('button', { name: 'Drag Tiny forest idea in the manuscript', exact: true });
     await list.evaluate(element => { element.scrollTop = 0; });
     await handle.scrollIntoViewIfNeeded();
     const handleBox = (await handle.boundingBox())!, listBox = (await list.boundingBox())!, railBox = (await rail.boundingBox())!;
@@ -805,7 +805,12 @@ test('Catalog B3 manual concern keeps paired evidence, guarded alternatives, aut
     await expect(historyConcern.getByText(/Marked intentional by you/)).toBeVisible();
     await expect(historyConcern.locator('blockquote[aria-label="Current related evidence"]').last()).toHaveText(bodies[1]!);
     await historyConcern.getByRole('button', { name: 'Reopen concern' }).click();
-    await expect.poll(async () => (await concerns()).notes.find((item: { id: string }) => item.id === concernId).lifecycle).toBe('active');
+    try {
+      await expect.poll(async () => (await concerns()).notes.find((item: { id: string }) => item.id === concernId).lifecycle).toBe('active');
+    } catch (error) {
+      await testInfo.attach('reopen-visible-state', { body: await writing.locator('body').innerText(), contentType: 'text/plain' });
+      throw error;
+    }
     await expect(historyConcern.getByRole('button', { name: 'Reopen concern' })).toHaveCount(0);
     await historyConcern.getByText('Decision history', { exact: true }).click();
     await expect(historyConcern.getByText(/Reopened by you/)).toBeVisible();
@@ -1614,7 +1619,7 @@ test.describe('Batch A development-build checks', () => {
 });
 
 
-test('Outline arrangement and comparison preserve exact prose, Notes and saved plan order', async ({ electronApp, page }, testInfo) => {
+test('Outline arrangement and comparison preserve source order, legacy metadata, exact prose and Notes', async ({ electronApp, page }, testInfo) => {
   test.setTimeout(100_000);
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-outline-tools-'));
   try {
@@ -1649,7 +1654,7 @@ test('Outline arrangement and comparison preserve exact prose, Notes and saved p
     const groups = [
       { id: 'forest', label: 'Forest image', customLabel: true, spans: [await buildLivingOutlineSourceAnchor(fixture.ids[0]!, fullBodies[0]!, 0, 6)] },
       { id: 'moon', label: 'Moon image', customLabel: true, spans: [await buildLivingOutlineSourceAnchor(fixture.ids[0]!, fullBodies[0]!, fullBodies[0]!.indexOf('moon'), fullBodies[0]!.indexOf('moon') + 4)] },
-      { id: 'winter', label: 'Winter return', customLabel: true, spans: [await buildLivingOutlineSourceAnchor(fixture.ids[1]!, fullBodies[1]!, 0, 6)] },
+      { id: 'winter', label: 'Winter return', customLabel: true, spans: [await buildLivingOutlineSourceAnchor(fixture.ids[1]!, fullBodies[1]!, 0, 8)] },
     ];
     await writing.evaluate(async groups => {
       const state = await window.projectSpine!.getSession();
@@ -1659,7 +1664,7 @@ test('Outline arrangement and comparison preserve exact prose, Notes and saved p
       const note = await window.livingOutline!.createItem({ ...binding, expectedRevision: outline.data.document.revision,
         label: 'Winter thought', body: 'Keep the cold quiet.', kind: 'fragment', state: 'authored', manuscriptUnitId: groups[2]!.spans[0]!.unitId, sourceAnchor: groups[2]!.spans[0] });
       if (!note.ok) throw new Error(note.error.message);
-      const saved = await window.livingOutline!.replaceWritingState!({ ...binding, expectedRevision: note.data.document.revision, groups, noteAnchors: [] });
+      const saved = await window.livingOutline!.replaceWritingState!({ ...binding, expectedRevision: note.data.document.revision, groups: [groups[2]!, groups[0]!, groups[1]!], noteAnchors: [] });
       if (!saved.ok) throw new Error(saved.error.message);
     }, groups);
     await writing.reload();
@@ -1677,35 +1682,59 @@ test('Outline arrangement and comparison preserve exact prose, Notes and saved p
       const menu = rail.getByLabel('Actions for ' + label, { exact: true });
       if (!(await menu.evaluate(el => el.parentElement?.hasAttribute('open')))) await menu.click();
     };
-    await openRowActions('Forest image');
-    await openRowActions('Winter return');
-    await expect(rail.getByRole('button', { name: 'Earlier in plan: Forest image' })).toBeDisabled();
-    await expect(rail.getByRole('button', { name: 'Later in plan: Winter return' })).toBeDisabled();
-    await rail.getByRole('button', { name: 'Earlier in plan: Winter return' }).click();
-    await expect.poll(async () => (await metadata()).writingGroups.map((g: { id: string }) => g.id)).toEqual(['forest', 'winter', 'moon']);
-    await expect.poll(planIds).toEqual(['forest', 'winter', 'moon']);
-    await rail.getByRole('button', { name: 'Undo plan move' }).click();
+    await expect(rail.getByLabel('Outline order', { exact: true })).toHaveCount(0);
+    // Legacy saved order remains intact, while the only visible Outline follows source.
+    expect(before.writingGroups.map((group: { id: string }) => group.id)).toEqual(['winter', 'forest', 'moon']);
     await expect.poll(planIds).toEqual(['forest', 'moon', 'winter']);
-    await expect(rail.getByRole('button', { name: 'Undo plan move', includeHidden: true })).toBeDisabled();
-    // Expand the same tool before a distant drag: both targets are visible,
-    // so the automation does not scroll the origin away before pointer-down.
     await rail.getByRole('button', { name: 'Expand outline in Command Center' }).click();
     await expect(writing.getByRole('heading', { name: 'Current tool: Outline' })).toBeVisible();
-    const handle = writing.getByRole('button', { name: 'Drag Winter return in the plan' });
+    const handle = writing.getByRole('button', { name: 'Drag Winter return in the manuscript' });
     await expect(handle).toHaveAttribute('draggable', 'true');
-    await handle.dragTo(outline.getByRole('button', { name: 'Forest image', exact: true }));
-    await expect.poll(planIds).toEqual(['winter', 'forest', 'moon']);
-    await expect.poll(async () => (await metadata()).writingGroups.map((g: { id: string }) => g.id)).toEqual(['winter', 'forest', 'moon']);
-    await expect(handle).toHaveAttribute('draggable', 'true');
-    await handle.dragTo(handle);
+    const transfer = await writing.evaluateHandle(() => new DataTransfer());
+    await handle.dispatchEvent('dragstart', { dataTransfer: transfer });
+    const marker = outline.getByRole('button', { name: 'Insert before Forest image', exact: true });
+    await expect(marker).toBeVisible();
+    await marker.dispatchEvent('drop', { dataTransfer: transfer });
     await expect.poll(planIds).toEqual(['winter', 'forest', 'moon']);
     await writing.getByRole('button', { name: 'Back', exact: true }).click();
-    await expect(rail.getByLabel('Outline order', { exact: true })).toBeVisible();
-    expect(await disk()).toEqual(original);
-    expect((await metadata()).items).toEqual(before.items);
-    await rail.getByLabel('Outline order', { exact: true }).selectOption('writing');
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(async () => (await metadata()).items[0].manuscriptUnitId).toBe(fixture.ids[0]);
+    expect((await metadata()).writingGroups.map((group: { id: string }) => group.id)).toEqual(['winter', 'forest', 'moon']);
+    expect((await disk()).map(extractProjectSpineDraftBody)).toEqual(['winter\n\n' + bodies[0], 'The river ending.']);
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(original);
+    await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
+    await expect(writing.getByRole('button', { name: 'Save writing', exact: true })).toBeDisabled();
     await expect.poll(planIds).toEqual(['forest', 'moon', 'winter']);
-    await rail.getByLabel('Outline order', { exact: true }).selectOption('plan');
+    // Electron requires the native owner foregrounded for the OS drag loop.
+    await electronApp.evaluate(({ BrowserWindow }) => {
+      const owner = BrowserWindow.getAllWindows().find(window => window.id === 1)!;
+      owner.show(); owner.focus(); owner.webContents.focus();
+    });
+    await writing.evaluate(() => {
+      const records: unknown[] = [];
+      (window as unknown as { currentMoveDrag: unknown[] }).currentMoveDrag = records;
+      for (const type of ['dragstart', 'dragenter', 'dragover', 'drop', 'dragend']) document.addEventListener(type, event => {
+        const drag = event as DragEvent;
+        if (records.length < 50) records.push({ type, x: drag.clientX, y: drag.clientY, types: [...(drag.dataTransfer?.types ?? [])], target: (drag.target as Element)?.closest('[data-writing-group-id]')?.getAttribute('data-writing-group-id'), data: type === 'drop' ? drag.dataTransfer?.getData('application/x-black-skies-writing-unit') : undefined });
+      }, { capture: true });
+    });
+    const nativeHandle = rail.getByRole('button', { name: 'Drag Winter return in the manuscript', exact: true });
+    await nativeHandle.scrollIntoViewIfNeeded();
+    await expect(nativeHandle).toBeInViewport();
+    const adjacentTarget = outline.getByRole('button', { name: 'Moon image', exact: true });
+    await expect(adjacentTarget).toBeInViewport();
+    await nativeHandle.dragTo(adjacentTarget, { timeout: 5000 });
+    await testInfo.attach('native-direct-move-events', { body: JSON.stringify(await writing.evaluate(() => (window as unknown as { currentMoveDrag: unknown[] }).currentMoveDrag)), contentType: 'application/json' });
+    await expect.poll(planIds).toEqual(['forest', 'winter', 'moon']);
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(original);
+    await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
+    await expect(writing.getByRole('button', { name: 'Save writing', exact: true })).toBeDisabled();
+    await expect.poll(planIds).toEqual(['forest', 'moon', 'winter']);
+    expect((await metadata()).items).toMatchObject(before.items.map((item: Record<string, unknown>) => ({ ...item, updatedAt: expect.any(String) })));
     for (const label of ['Forest image', 'Winter return']) {
       await openRowActions(label);
       await rail.getByRole('checkbox', { name: 'Compare ' + label, exact: true }).check();
@@ -1721,19 +1750,20 @@ test('Outline arrangement and comparison preserve exact prose, Notes and saved p
     await writing.getByRole('button', { name: 'Back', exact: true }).click();
     await openRowActions('Winter return');
     await expect(rail.getByRole('checkbox', { name: 'Compare Winter return' })).toBeChecked();
-    await expect(rail.getByLabel('Outline order', { exact: true })).toHaveValue('plan');
+    await expect(rail.getByLabel('Outline order', { exact: true })).toHaveCount(0);
     await expect(comparison).toBeVisible();
     await comparison.getByRole('article', { name: 'Compared unit: Winter return' }).getByRole('button', { name: 'Read passage 1' }).click();
     await expect(writing.getByRole('textbox', { name: 'Manuscript editor: River return' })).toContainText('winter');
     expect(await disk()).toEqual(original);
+    await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
     await writing.screenshot({ path: testInfo.outputPath('outline-tools.png') });
     await writing.reload();
     await expect(writing.getByRole('button', { name: 'Pin', exact: true })).toBeEnabled();
     await openWritingStudioRail(writing, 'Story');
     await rail.getByRole('button', { name: 'Keep open', exact: true }).click();
-    await rail.getByLabel('Outline order', { exact: true }).selectOption('plan');
-    await expect.poll(planIds).toEqual(['winter', 'forest', 'moon']);
-    expect((await metadata()).items).toEqual(before.items);
+    await expect.poll(planIds).toEqual(['forest', 'moon', 'winter']);
+    expect((await metadata()).writingGroups.map((group: { id: string }) => group.id)).toEqual(['winter', 'forest', 'moon']);
+    expect((await metadata()).items).toMatchObject(before.items.map((item: Record<string, unknown>) => ({ ...item, updatedAt: expect.any(String) })));
     expect(await disk()).toEqual(original);
     // A membership Undo must not erase a later independent unit name.
     const moonRow = outline.locator('[data-writing-group-id="moon"]');
@@ -1749,7 +1779,7 @@ test('Outline arrangement and comparison preserve exact prose, Notes and saved p
     await expect.poll(async () => (await metadata()).writingGroups.length).toBe(3);
     expect((await metadata()).writingGroups.find((group: { id: string }) => group.id === 'forest'))
       .toMatchObject({ label: 'Forest renamed after Unpin', customLabel: true });
-    expect((await metadata()).items).toEqual(before.items);
+    expect((await metadata()).items).toMatchObject(before.items.map((item: Record<string, unknown>) => ({ ...item, updatedAt: expect.any(String) })));
     expect(await disk()).toEqual(original);
   } finally {
     await removeTemporaryDirectory(parent);
@@ -1844,7 +1874,7 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
   test.setTimeout(120_000);
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-writing-organization-'));
   try {
-    const { writing } = await getStage19Windows(electronApp, page);
+    let { writing } = await getStage19Windows(electronApp, page);
     await writing.setViewportSize({ width: 1680, height: 1050 });
     await writing.bringToFront();
     const bodies = ['**forest** moon glass winter', 'river ending'];
@@ -1900,19 +1930,16 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
     const forest = outline.locator('[data-writing-group-id="forest"]');
     await forest.locator('.stage19-outline-row-actions > summary').click();
     await forest.locator('summary').filter({ hasText: 'Organize this writing' }).click();
-    await forest.getByLabel('Move Forest image before', { exact: true }).selectOption('river');
     const originalDisk = await disk();
-    await forest.getByRole('button', { name: 'Preview passage move' }).click();
-    const preview = writing.getByRole('region', { name: 'Passage move preview' });
-    await expect(preview).toBeVisible();
-    for (const detail of await preview.locator('summary').all()) await detail.click();
-    await expect(preview.locator('pre').nth(0)).toHaveText(bodies[0]!);
+    await forest.getByRole('button', { name: 'Move', exact: true }).click();
+    await expect(writing.getByRole('button', { name: 'Cancel move' })).toBeVisible();
     expect(await disk()).toEqual(originalDisk);
-    await writing.screenshot({ path: testInfo.outputPath('passage-move-preview.png') });
-    await preview.getByRole('button', { name: 'Cancel passage move' }).click();
+    await writing.keyboard.press('Escape');
+    await expect(writing.getByRole('button', { name: 'Cancel move' })).toHaveCount(0);
     expect(await disk()).toEqual(originalDisk);
-    await forest.getByRole('button', { name: 'Preview passage move' }).click();
-    await preview.getByRole('button', { name: 'Move this passage' }).click();
+    await forest.getByRole('button', { name: 'Move', exact: true }).click();
+    await outline.locator('[data-writing-group-id="river"]').getByRole('button', { name: 'Insert before River ending' }).click();
+    await expect(writing.getByRole('region', { name: 'Passage move preview' })).toHaveCount(0);
     const moved = [' moon glass winter', '**forest**\n\nriver ending'];
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect.poll(savedBodies).toEqual(moved);
@@ -1930,12 +1957,17 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect.poll(savedBodies).toEqual(moved);
     await expect.poll(async () => (await metadata()).items[0].manuscriptUnitId).toBe(fixture.ids[1]);
-    await writing.reload();
+    // Fresh main process, not just a renderer reload, verifies durable identities/links.
+    const restarted = await restartElectronApp(electronApp);
+    ({ writing } = await getStage19Windows(restarted, await restarted.firstWindow()));
+    await openProgram7Project(writing, fixture.path); await showWritingInWriting(writing);
     await expect(writing.getByRole('button', { name: 'Pin', exact: true })).toBeEnabled();
     await openWritingStudioRail(writing, 'Story');
-    await rail.getByRole('button', { name: 'Keep open', exact: true }).click();
+    const resumedRail = writing.getByRole('region', { name: 'Story tools' });
+    await resumedRail.getByRole('button', { name: 'Keep open', exact: true }).click();
     expect(await savedBodies()).toEqual(moved);
     expect((await metadata()).items[0].id).toBe(noteId);
+    const resumedOutline = writing.getByRole('list', { name: 'Writing units and unpinned passages' });
     const noteBeforeSplit = (await metadata()).items[0];
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Forest ideas', exact: true });
     await editor.press('Control+End');
@@ -1954,7 +1986,7 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
     // one keypress always corresponds to exactly one source character.
     expect(cursor.offset).toBeGreaterThan(1);
     expect(cursor.offset).toBeLessThan(moved[0]!.length);
-    const middle = outline.locator('[data-writing-group-id="middle"]');
+    const middle = resumedOutline.locator('[data-writing-group-id="middle"]');
     await middle.locator('.stage19-outline-row-actions > summary').click();
     await middle.locator('summary').filter({ hasText: 'Organize this writing' }).click();
     await middle.getByRole('button', { name: 'Split at writing cursor' }).click();
@@ -1964,12 +1996,13 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await expect.poll(async () => (await metadata()).writingGroups.length).toBe(3);
     for (const label of ['Forest image', 'Middle passage']) {
-      const menu = rail.getByLabel('Actions for ' + label, { exact: true });
+      const menu = resumedRail.getByLabel('Actions for ' + label, { exact: true });
       if (!(await menu.evaluate(el => el.parentElement?.hasAttribute('open')))) await menu.click();
-      await rail.getByRole('checkbox', { name: 'Compare ' + label, exact: true }).check();
+      await resumedRail.getByRole('checkbox', { name: 'Compare ' + label, exact: true }).check();
     }
-    await rail.getByRole('button', { name: 'Join selected units' }).click();
+    await resumedRail.getByRole('button', { name: 'Join selected units' }).click();
     await expect.poll(async () => (await metadata()).writingGroups.length).toBe(2);
+    expect((await metadata()).writingGroups.find((group: { customLabel?: boolean; label: string }) => group.label === 'Middle passage / Forest image')?.customLabel).toBe(true);
     expect(await savedBodies()).toEqual(moved);
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await expect.poll(async () => (await metadata()).writingGroups.length).toBe(3);
@@ -1978,6 +2011,112 @@ test('Writing organization milestone moves actual prose and Notes, restores hist
   } finally {
     await removeTemporaryDirectory(parent);
   }
+});
+
+
+test('Native local unit controls retain names, Notes and writing through Split, Join, Extend and direct Move', async ({ electronApp, page }, testInfo) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-local-unit-controls-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    await writing.setViewportSize({ width: 1200, height: 900 });
+    const bodies = ['Mother knew about the poison.\n\nLoose words.', 'river ending'];
+    const fixture = await writing.evaluate(async ({ parent, bodies }) => {
+      const bridge = window.projectSpine!;
+      const created = await bridge.createProject({ parentPath: parent, title: 'Local controls review', operationId: 'local-create' });
+      if (!created.ok) throw new Error(created.error.message);
+      let state = created.snapshot;
+      const ids: string[] = [];
+      for (const [index, title] of ['Mother and loose writing', 'River return'].entries()) {
+        const binding = { projectId: state.project!.projectId, projectPath: state.project!.path, generation: state.generation };
+        const made = await bridge.createUnit!({ ...binding, title, operationId: `local-unit-${index}` });
+        if (!made.ok) throw new Error(made.error.message);
+        state = made.snapshot; ids.push(made.data.unitId);
+        const raw = state.project!.drafts![made.data.unitId]!;
+        const saved = await bridge.saveUnit!({ ...binding, unitId: made.data.unitId, expectedMarkdown: raw,
+          markdown: raw + bodies[index] + '\n', submittedProse: bodies[index]!, operationId: `local-save-${index}` });
+        if (!saved.ok) throw new Error(saved.error.message);
+        state = saved.snapshot;
+      }
+      const selected = await bridge.selectUnit({ projectId: state.project!.projectId, projectPath: state.project!.path,
+        generation: state.generation, unitId: ids[0]!, operationId: 'local-select' });
+      if (!selected.ok) throw new Error(selected.error.message);
+      return { path: state.project!.path, ids };
+    }, { parent, bodies });
+    await writing.reload();
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Mother and loose writing', exact: true });
+    await editor.press('Control+Home'); await editor.press('Shift+End');
+    await editor.press('Shift+F10');
+    const controls = writing.getByRole('dialog', { name: 'Writing passage actions' });
+    await controls.getByRole('button', { name: 'Pin selection', exact: true }).click();
+    const metadata = async () => JSON.parse(await readFile(join(fixture.path, 'living-outline.json'), 'utf8'));
+    const disk = async () => Promise.all(fixture.ids.map(async id => extractProjectSpineDraftBody(await readFile(join(fixture.path, 'drafts', id + '.md'), 'utf8'))));
+    await expect.poll(async () => (await metadata()).writingGroups?.length).toBe(1);
+    await editor.press('Control+Home'); await editor.press('ArrowRight'); await editor.press('Shift+F10');
+    await controls.getByRole('button', { name: 'Name unit', exact: true }).click();
+    await controls.getByLabel('Unit name', { exact: true }).fill('Mother knows');
+    await controls.getByRole('button', { name: 'Save unit name', exact: true }).click();
+    await expect.poll(async () => (await metadata()).writingGroups[0].label).toBe('Mother knows');
+    const originalId = (await metadata()).writingGroups[0].id;
+    await editor.press('Control+Home'); await editor.press('Shift+End');
+    await writing.getByRole('button', { name: 'Notes', exact: true }).click();
+    await writing.getByLabel('Note text', { exact: true }).fill('Mother source stays linked.');
+    await expect(writing.getByRole('button', { name: 'Keep Note', exact: true })).toBeEnabled();
+    await writing.getByRole('button', { name: 'Keep Note', exact: true }).click();
+    await expect(writing.getByRole('heading', { name: 'Edit Note', exact: true })).toBeVisible();
+    await writing.getByRole('button', { name: 'Close Note', exact: true }).click();
+    const noteId = (await metadata()).items[0].id;
+    await editor.press('Control+Home');
+    for (let step = 0; step < 14; step += 1) await editor.press('ArrowRight');
+    await editor.press('Shift+F10');
+    await expect(controls.getByText('Split: 2 + 3 words. Writing stays unchanged.')).toBeVisible();
+    await controls.getByRole('button', { name: 'Split before “about”', exact: true }).click();
+    await expect.poll(async () => (await metadata()).writingGroups.length).toBe(2);
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: originalId, label: 'Mother knows', customLabel: true });
+    expect((await metadata()).writingGroups[1]).toMatchObject({ label: 'about the poison.', customLabel: false });
+    await editor.press('Control+Home'); await editor.press('Shift+End'); await editor.press('Shift+F10');
+    await controls.getByRole('button', { name: 'Join units', exact: true }).click();
+    await expect.poll(async () => (await metadata()).writingGroups.length).toBe(1);
+    expect((await metadata()).writingGroups[0].label).toBe('Mother knows');
+    const joinedId = (await metadata()).writingGroups[0].id;
+    // Local controls stay reachable without revealing the ordinary toolbar in Focus.
+    await writing.getByRole('button', { name: 'Enter Focus mode', exact: true }).click();
+    for (const width of [1200, 640]) {
+      await writing.setViewportSize({ width, height: 900 });
+      await editor.press('Control+Home'); await editor.press('ArrowRight'); await editor.press('Shift+F10');
+      await expect(controls.getByRole('button', { name: 'Name unit', exact: true })).toBeVisible();
+      const box = (await controls.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(width);
+      expect(box.y).toBeGreaterThanOrEqual(0); expect(box.y + box.height).toBeLessThanOrEqual(900);
+      await writing.keyboard.press('Escape');
+    }
+    await writing.getByRole('button', { name: 'Exit Focus mode', exact: true }).click();
+    await writing.setViewportSize({ width: 1200, height: 900 });
+    await editor.press('Control+Home');
+    for (let step = 0; step < 14; step += 1) await editor.press('ArrowRight');
+    await editor.press('Control+Shift+End'); await editor.press('Shift+F10');
+    await expect(controls.getByText(/Result: 7 words/)).toBeVisible();
+    await controls.getByRole('button', { name: 'Extend unit', exact: true }).click();
+    await expect.poll(async () => (await metadata()).writingGroups[0].spans[0].selectionEnd).toBe(bodies[0]!.length);
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows' });
+    await editor.press('Control+Home'); await editor.press('ArrowRight'); await editor.press('Shift+F10');
+    await controls.getByRole('button', { name: 'Move', exact: true }).click();
+    const target = writing.locator(`[data-manuscript-unit-id="${fixture.ids[1]}"]`);
+    await target.getByRole('button', { name: `Insert writing here, position ${bodies[1]!.length}`, exact: true }).click();
+    // Undo before the first Save must clear every affected dirty receipt too.
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
+    expect(await disk()).toEqual(bodies);
+    await writing.getByRole('button', { name: 'Redo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(['', bodies[1] + '\n\n' + bodies[0]]);
+    expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1], sourceAnchor: { selectionStart: bodies[1]!.length + 2, selectionEnd: bodies[1]!.length + 31 } });
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1] }] });
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(bodies);
+    await writing.screenshot({ path: testInfo.outputPath('native-local-unit-controls.png') });
+  } finally { await removeTemporaryDirectory(parent); }
 });
 
 for (const size of [

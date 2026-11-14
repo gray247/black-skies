@@ -25,6 +25,8 @@ import {
 import {
   writingCoverage,
   writingGroupLabel,
+  joinedWritingName,
+  writingMoveBoundaries,
   noteSourceAnchors,
   findLiteralWritingMatches,
   mapWritingOffset,
@@ -49,6 +51,14 @@ import type { WritingLinksSnapshot } from '../useWritingPage';
 import type { GapWritingOperationV1, LivingOutlineSourceAnchorV1, LivingOutlineItemState } from '../../shared/ipc/livingOutline';
 
 type Point = { unitId: string; offset: number };
+type PreparedMove = { groupId: string; plan: WritingMovePlan; projectKey: string; beforeLinks: WritingLinksSnapshot; afterLinks: WritingLinksSnapshot };
+type MoveSource = { groupId: string; projectKey: string; bodies: Record<string, string>; linksKey: string };
+type UnitControls = { x: number; y: number; ranges: readonly WritingRange[]; point: Point; bodies: Record<string, string>; linksKey: string; keyboard: boolean };
+function splitWord(body: string, offset: number) {
+  return [...body.matchAll(/[\p{L}\p{N}][\p{L}\p{N}\p{M}'’–-]*/gu)]
+    .find(word => word.index! + word[0].length > offset);
+}
+const wordCount = (text: string) => text.trim().split(/\s+/u).filter(Boolean).length;
 type ReturnRequest = DraftEditorSelectionRestore & { unitId: string };
 type HighlightKey = 'pinned' | 'unpinned' | 'concerns';
 export interface WritingOutlineView {
@@ -111,13 +121,20 @@ export interface WritingContext {
   canUndoReplacement: boolean;
   searchNotice: string;
   searchMoving: boolean;
-  contextMenu: { x: number; y: number; ranges: readonly WritingRange[] } | null;
+  contextMenu: UnitControls | null;
+  controlsCurrent: () => boolean;
+  pinRanges: (ranges: readonly WritingRange[], extendId?: string, name?: string) => void;
+  splitAt: (id: string, point: Point) => void;
+  movingGroupId: string | null;
+  startMove: (id: string) => void;
+  moveTo: (point: Point, groupId?: string) => void;
+  joinName: { ranges: readonly WritingRange[]; name: string } | null;
+  setJoinName: (name: string) => void;
+  applyJoinName: () => void;
+  cancelJoinName: () => void;
   contextNote: () => void;
   closeContextMenu: () => void;
   useCurrentNoteSelection: () => void;
-  movePreview: { groupId: string; targetId: string; plan: WritingMovePlan } | null;
-  previewMove: (groupId: string, targetId: string) => void;
-  applyMove: () => void;
   cancelMove: () => void;
   undoMove: () => void;
   canUndoMove: boolean;
@@ -287,17 +304,18 @@ export function WritingPageProvider({
   const [, redrawHistory] = useState(0);
   const [editorHistoryChanges, setEditorHistoryChanges] = useState<Record<string, DraftEditorHistoryChange>>({});
   const routeHistory = useRef<(kind: 'undo' | 'redo') => boolean>(() => false);
-  const [movePreview, setMovePreview] = useState<{
-    groupId: string; targetId: string; plan: WritingMovePlan;
-    projectKey: string; beforeLinks: WritingLinksSnapshot; afterLinks: WritingLinksSnapshot;
-  } | null>(null);
+  const [moveSource, setMoveSource] = useState<MoveSource | null>(null);
+  const moveSourceRef = useRef(moveSource);
+  moveSourceRef.current = moveSource;
+  const [joinName, setJoinName] = useState<{ ranges: readonly WritingRange[]; name: string; bodies: Record<string, string>; linksKey: string } | null>(null);
   const [arrangementNotice, setArrangementNotice] = useState('');
   useEffect(() => {
     replacementHistory.current = { entries: [], cursor: 0 };
     restoreDocumentSelection.current?.();
     crossSelection.current = null;
     setEditorHistoryChanges({});
-    setMovePreview(null);
+    setMoveSource(null); moveSourceRef.current = null;
+    setContextMenu(null); setJoinName(null);
     setArrangementNotice('');
   }, [projectKey]);
 
@@ -551,6 +569,13 @@ export function WritingPageProvider({
         if (current.ranges.length && event.target.closest('[data-writing-source]'))
           suppressClick.current = event.target.closest('[data-manuscript-unit-id]');
         setSelection(current.ranges);
+        if (current.ranges.length && !moveSourceRef.current) {
+          const state = latest.current.model;
+          setContextMenu({ x: Math.max(4, Math.min(event.clientX, window.innerWidth - 300)),
+            y: Math.max(4, Math.min(event.clientY + 12, window.innerHeight - 300)),
+            ranges: current.ranges, point: current.a, bodies: { ...state.buffers },
+            linksKey: state.writingPage!.captureLinks().key, keyboard: false });
+        }
         follow(current.a);
         if (!current.ranges.length && current.a.unitId !== latest.current.model.activeUnit?.id)
           void navigate({ unitId: current.a.unitId, from: current.a.offset, to: current.a.offset });
@@ -577,15 +602,30 @@ export function WritingPageProvider({
           return;
         }
       }
-      if (event.key === 'Escape' && crossSelection.current) {
+      if ((event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) &&
+          event.target instanceof Element && event.target.closest('[data-manuscript-unit-id]')) {
+        const selected = readSelection(), state = latest.current.model;
+        if (selected) {
+          const rect = event.target.getBoundingClientRect();
+          setContextMenu({ x: Math.max(4, Math.min(rect.left, window.innerWidth - 300)),
+            y: Math.max(4, Math.min(rect.top + 24, window.innerHeight - 300)),
+            ranges: selected.ranges, point: selected.a, bodies: { ...state.buffers },
+            linksKey: state.writingPage!.captureLinks().key, keyboard: true });
+          event.preventDefault(); event.stopPropagation();
+        }
+      } else if (event.key === 'Escape' && moveSourceRef.current) {
+        moveSourceRef.current = null; setMoveSource(null);
+        setArrangementNotice('Move canceled. Writing was unchanged.');
+        event.preventDefault(); event.stopPropagation();
+      } else if (event.key === 'Escape' && contextMenuRef.current) {
+        setContextMenu(null);
+        commandsRef.current?.focus();
+        event.preventDefault();
+      } else if (event.key === 'Escape' && crossSelection.current) {
         crossSelection.current = null;
         restoreDocumentSelection.current?.();
         restoreEditor();
         setSelection([]);
-        commandsRef.current?.focus();
-        event.preventDefault();
-      } else if (event.key === 'Escape' && contextMenuRef.current) {
-        setContextMenu(null);
         commandsRef.current?.focus();
         event.preventDefault();
       } else if (event.key === 'Escape' && armedRef.current) {
@@ -620,6 +660,7 @@ export function WritingPageProvider({
       }
     };
     const scroll = (event: Event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('[data-writing-context-menu]')) setContextMenu(null);
       if (event.target instanceof Element && event.target.matches('[data-manuscript-scroll-owner]'))
         followReading();
     };
@@ -638,9 +679,10 @@ export function WritingPageProvider({
       armedRef.current = null;
       setArmed(null);
       setContextMenu({
-        x: Math.max(4, Math.min(event.clientX, window.innerWidth - 230)),
-        y: Math.max(4, Math.min(event.clientY, window.innerHeight - 100)),
-        ranges,
+        x: Math.max(4, Math.min(event.clientX, window.innerWidth - 300)),
+        y: Math.max(4, Math.min(event.clientY, window.innerHeight - 300)),
+        ranges, point: selected?.a ?? { unitId: latest.current.model.activeUnit?.id ?? '', offset: 0 },
+        bodies: { ...latest.current.model.buffers }, linksKey: latest.current.model.writingPage!.captureLinks().key, keyboard: true,
       });
     };
     const outsideMenu = (event: PointerEvent) => {
@@ -713,9 +755,9 @@ export function WritingPageProvider({
     }
   }, [model.buffers]);
   useEffect(() => {
-    if (contextMenu)
+    if (contextMenu?.keyboard)
       document
-        .querySelector<HTMLButtonElement>('[data-writing-context-menu] [role="menuitem"]')
+        .querySelector<HTMLButtonElement>('[data-writing-context-menu] button:not(:disabled)')
         ?.focus();
   }, [contextMenu]);
   useEffect(() => {
@@ -953,7 +995,7 @@ export function WritingPageProvider({
     }])));
     for (const [id, body] of Object.entries(after))
       latest.current.actions.changeBuffer(id, body, changes[id], kind === 'edit' ? undefined : kind);
-    if (links && !page?.installLinks(links)) throw new Error('The writing arrangement could not install its validated links. Save has not been committed.');
+    if (links && !page?.installLinks(links, kind === 'undo' ? batch.linksAfter : batch.linksBefore)) throw new Error('The writing arrangement could not install its validated links. Save has not been committed.');
     return true;
   };
 
@@ -1030,15 +1072,16 @@ export function WritingPageProvider({
     } catch (error) { setArrangementNotice(error instanceof Error ? error.message : 'The gap could not be prepared.'); }
   };
 
-  const previewMove = (groupId: string, targetId: string) => {
+  const prepareMove = (groupId: string, destination: Point): PreparedMove | null => {
     const page = model.writingPage;
-    setMovePreview(null);
-    if (!page?.ready || page.busy || model.recoveryBlocksEditing) return;
+    if (!page?.ready || page.busy || page.pendingGap || model.recoveryBlocksEditing) return null;
     try {
       if (page.unresolved.length || page.unresolvedNotes.length) throw new Error('Reconnect unresolved writing and Note sources before moving a passage.');
       const source = page.groups.find(group => group.id === groupId);
-      const target = page.groups.find(group => group.id === targetId);
-      if (!source || !target || source.id === target.id) throw new Error('Choose another pinned unit as the destination.');
+      if (!source) throw new Error('This unit is no longer available.');
+      const destinationBody = model.buffers[destination.unitId];
+      if (destinationBody === undefined || !writingMoveBoundaries(destination.unitId, destinationBody, page.groups).includes(destination.offset))
+        throw new Error('Choose a unit or paragraph insertion marker.');
       const cuts = source.spans.map(span => ({ unitId: span.unitId, from: span.selectionStart, to: span.selectionEnd }));
       for (const cut of cuts) {
         const emphasis = getDraftEmphasis(model.buffers[cut.unitId]!);
@@ -1056,12 +1099,24 @@ export function WritingPageProvider({
           if (!expanded) break;
         }
       }
-      let offset = target.spans[0]!.selectionStart;
-      const targetUnit = target.spans[0]!.unitId;
+      for (const cut of cuts) {
+        const body = model.buffers[cut.unitId]!;
+        for (const edge of [cut.from, cut.to]) if (/[\p{L}\p{N}\p{M}]/u.test(body[edge - 1] ?? '') && /[\p{L}\p{N}\p{M}]/u.test(body[edge] ?? ''))
+          throw new Error('This move would split a word. Adjust the unit boundary first.');
+      }
+      let offset = destination.offset;
+      const targetUnit = destination.unitId;
+      for (const item of model.program7RevisionItems.activeItems) for (const evidence of revisionItemSources(item)) {
+        if ((evidence.protection.metadataOnly || !['included', 'local-only'].includes(evidence.protection.sourceClass)) &&
+            (evidence.unitId === targetUnit || cuts.some(cut => cut.unitId === evidence.unitId)))
+          throw new Error('Protected source information prevents this move. No writing was changed.');
+      }
       for (const span of getDraftEmphasis(model.buffers[targetUnit]!)) {
         if (offset === span.contentFrom) offset = span.from;
         else if (offset > span.from && offset < span.to) throw new Error('Choose a destination outside an existing formatted passage.');
       }
+      if (/[\p{L}\p{N}\p{M}]/u.test(destinationBody[offset - 1] ?? '') && /[\p{L}\p{N}\p{M}]/u.test(destinationBody[offset] ?? ''))
+        throw new Error('Choose an insertion marker outside the middle of a word.');
       for (const other of page.groups.filter(group => group.id !== groupId)) {
         if (other.spans.some(span => cuts.some(cut => cut.unitId === span.unitId && cut.from < span.selectionEnd && cut.to > span.selectionStart)))
           throw new Error('The move would include another unit. Adjust its boundaries first.');
@@ -1071,9 +1126,10 @@ export function WritingPageProvider({
         const overlap = cuts.filter(cut => cut.unitId === anchor.unitId).reduce((total, cut) => total + Math.max(0, Math.min(cut.to, anchor.selectionEnd) - Math.max(cut.from, anchor.selectionStart)), 0);
         if ((overlap > 0 && overlap < anchor.selectionEnd - anchor.selectionStart) ||
             (anchor.unitId === targetUnit && offset > anchor.selectionStart && offset < anchor.selectionEnd))
-          throw new Error('This move would split a linked Note passage. Adjust the boundaries first; planning moves remain available.');
+          throw new Error('This move would split a linked Note passage. Adjust the boundaries first.');
       }
       const plan = planWritingMove(model.snapshot.project!.units.map(unit => unit.id), model.buffers, cuts, { unitId: targetUnit, offset });
+      if (!plan.changedUnitIds.length) throw new Error('The passage is already at this position.');
       if (plan.changedUnitIds.some(id => plan.after[id]!.startsWith('\n')))
         throw new Error('This move would leave leading blank lines that the current writing format cannot retain. Include the paragraph spacing in the pinned passage first.');
       const mapAnchor = (anchor: typeof source.spans[number]) => relocateWritingRange({ unitId: anchor.unitId, from: anchor.selectionStart, to: anchor.selectionEnd }, plan)
@@ -1088,18 +1144,17 @@ export function WritingPageProvider({
       const notes = beforeLinks.notes.map(note => ({ ...note, anchors: note.anchors.flatMap(mapAnchor) }));
       const afterLinks: WritingLinksSnapshot = { groups, notes, key: writingLinksKey(groups, notes), pinHistory: [], planHistory: [] };
       if (!page.canInstallLinks(afterLinks, plan.after)) throw new Error('The proposed move cannot retain the current links. No writing was changed.');
-      setMovePreview({ groupId, targetId, plan, projectKey, beforeLinks, afterLinks });
-      setArrangementNotice('Preview only. Apply moves writing; Save keeps the change.');
+      return { groupId, plan, projectKey, beforeLinks, afterLinks };
     } catch (error) {
       setArrangementNotice(error instanceof Error ? error.message : 'The move could not be prepared.');
+      return null;
     }
   };
-  const applyMove = () => {
-    const preview = movePreview;
+  const applyMove = (preview: PreparedMove) => {
     const page = model.writingPage;
-    if (!preview || !page || page.busy || model.recoveryBlocksEditing) return;
+    if (!page || page.busy || page.pendingGap || model.recoveryBlocksEditing) return;
     if (preview.projectKey !== projectKey || !matchesBodies({ ...preview.plan.before }) || page.captureLinks().key !== preview.beforeLinks.key) {
-      setArrangementNotice('Writing or its links changed after this preview. Preview the move again.'); return;
+      setArrangementNotice('Writing or its links changed. Choose the move again.'); return;
     }
     const before: Record<string, string> = {}, after: Record<string, string> = {};
     const forward: Record<string, WritingEdit[]> = {}, inverse: Record<string, WritingEdit[]> = {};
@@ -1111,13 +1166,48 @@ export function WritingPageProvider({
     const batch: ReplacementBatch = { projectKey, kind: 'move', before, after, forward, inverse,
       guardBefore: { ...preview.plan.before }, guardAfter: { ...preview.plan.after }, search, afterSearch: search,
       linksBefore: preview.beforeLinks, linksAfter: preview.afterLinks };
-    if (!applyReplacement(batch, 'edit')) { setArrangementNotice('The move is no longer available. Preview it again.'); return; }
+    if (!applyReplacement(batch, 'edit')) { setArrangementNotice('The move is no longer available. Choose it again.'); return; }
     const history = replacementHistory.current;
     history.entries.splice(history.cursor); history.entries.push(batch);
     if (history.entries.length > 200) history.entries.shift();
     history.cursor = history.entries.length;
-    setMovePreview(null); setSelection([]); redrawHistory(value => value + 1);
-    setArrangementNotice('Passage moved with its Notes. Save writing keeps it; Undo passage move restores it.');
+    setMoveSource(null); moveSourceRef.current = null; setSelection([]); redrawHistory(value => value + 1);
+    setArrangementNotice('Passage moved with its Notes. Save writing keeps it; Undo restores it.');
+  };
+  const controlsCurrent = () => {
+    const controls = contextMenuRef.current;
+    if (!controls || !matchesBodies(controls.bodies) || model.writingPage?.captureLinks().key !== controls.linksKey) {
+      setArrangementNotice('Writing or its links changed. Select the current words again.'); return false;
+    }
+    return !model.recoveryBlocksEditing && Boolean(model.writingPage?.ready) && !model.writingPage?.busy;
+  };
+  const requestPin = (ranges: readonly WritingRange[], extendId?: string, name?: string) => {
+    const page = model.writingPage;
+    if (!page || model.recoveryBlocksEditing || page.busy || page.pendingGap) return;
+    const included = page.groups.filter(group => group.spans.every(span => ranges.some(range =>
+      range.unitId === span.unitId && range.from <= span.selectionStart && range.to >= span.selectionEnd)));
+    const proposed = joinedWritingName(included, model.snapshot.project!.units.map(unit => unit.id));
+    if (!extendId && name === undefined && proposed.length > 240) {
+      setJoinName({ ranges, name: proposed, bodies: { ...model.buffers }, linksKey: page.captureLinks().key });
+      setContextMenu(null); return;
+    }
+    void page.pin(ranges, { extendId, name }); setContextMenu(null);
+  };
+  const startMove = (id: string) => {
+    const page = latest.current.model.writingPage;
+    if (!page?.ready || page.busy || page.pendingGap || latest.current.model.recoveryBlocksEditing || !page.groups.some(group => group.id === id)) return;
+    const source = { groupId: id, projectKey, bodies: { ...latest.current.model.buffers }, linksKey: page.captureLinks().key };
+    moveSourceRef.current = source; setMoveSource(source); setContextMenu(null);
+    setArrangementNotice('Choose an insertion marker in the writing or Outline. Escape cancels.');
+  };
+  const moveTo = (point: Point, groupId?: string) => {
+    const source = moveSourceRef.current;
+    if (!source || (groupId !== undefined && source.groupId !== groupId)) return;
+    if (source.projectKey !== projectKey || !matchesBodies(source.bodies) || model.writingPage?.captureLinks().key !== source.linksKey) {
+      setArrangementNotice('Writing or its links changed. Choose the move again.'); return;
+    }
+    const prepared = prepareMove(source.groupId, point);
+    if (prepared) applyMove(prepared);
   };
   const replaceWriting = (all: boolean) => {
     if (replaceReturn || returnRequest || model.recoveryBlocksEditing || model.writingPage?.busy)
@@ -1346,8 +1436,20 @@ export function WritingPageProvider({
     replaceWriting,
     undoReplacement: () => undoReplacement('replacement'),
     canUndoReplacement: replacementHistory.current.cursor > 0 && replacementHistory.current.entries[replacementHistory.current.cursor - 1]?.kind === 'replacement',
-    movePreview, previewMove, applyMove,
-    cancelMove: () => { setMovePreview(null); setArrangementNotice('Move canceled. Writing was unchanged.'); },
+    controlsCurrent,
+    pinRanges: requestPin,
+    splitAt: (id, point) => { if (controlsCurrent()) { void model.writingPage?.splitGroup(id, point); setContextMenu(null); } },
+    movingGroupId: moveSource?.groupId ?? null, startMove, moveTo,
+    joinName, setJoinName: name => setJoinName(current => current ? { ...current, name } : null),
+    cancelJoinName: () => setJoinName(null),
+    applyJoinName: () => {
+      if (!joinName || !joinName.name.trim() || joinName.name.trim().length > 240) return;
+      if (!matchesBodies(joinName.bodies) || model.writingPage?.captureLinks().key !== joinName.linksKey) {
+        setArrangementNotice('Writing or its links changed. Choose the join again.'); return;
+      }
+      requestPin(joinName.ranges, undefined, joinName.name); setJoinName(null);
+    },
+    cancelMove: () => { if (!moveSourceRef.current) return; setMoveSource(null); moveSourceRef.current = null; setArrangementNotice('Move canceled. Writing was unchanged.'); },
     undoMove: () => undoReplacement('move'),
     canUndoMove: replacementHistory.current.cursor > 0 && replacementHistory.current.entries[replacementHistory.current.cursor - 1]?.kind === 'move',
     arrangementNotice,
@@ -1363,7 +1465,7 @@ export function WritingPageProvider({
       const units = model.snapshot.project!.units.map(unit => unit.id);
       const spans = selected.flatMap(group => group.spans).sort((a, b) => units.indexOf(a.unitId) - units.indexOf(b.unitId) || a.selectionStart - b.selectionStart);
       const first = spans[0]!, last = spans[spans.length - 1]!;
-      void model.writingPage?.pin(selectedRanges(model, { unitId: first.unitId, offset: first.selectionStart }, { unitId: last.unitId, offset: last.selectionEnd }));
+      requestPin(selectedRanges(model, { unitId: first.unitId, offset: first.selectionStart }, { unitId: last.unitId, offset: last.selectionEnd }));
     },
     searchMoving: Boolean(replaceReturn || returnRequest),
     searchNotice: sourceChanged
@@ -1384,7 +1486,7 @@ export function WritingPageProvider({
           || (a.unitId === b.unitId && a.from < b.from) ? a : b);
         const last = edges.reduce((a, b) => units.indexOf(a.unitId) > units.indexOf(b.unitId)
           || (a.unitId === b.unitId && a.to > b.to) ? a : b);
-        void model.writingPage?.pin(pins.length > 1
+        requestPin(pins.length > 1
           ? selectedRanges(model, { unitId: first.unitId, offset: first.from }, { unitId: last.unitId, offset: last.to })
           : current.ranges);
       }
@@ -1580,6 +1682,7 @@ export function WritingPageToolbar() {
   const page = context?.model.writingPage;
   if (!context || !page) return null;
   return (
+    <>
     <div className="stage19-writing-page-tools" hidden={context.model.focusMode}>
       <div className="stage19-writing-page-options">
         <WritingPreferences />
@@ -1703,18 +1806,7 @@ export function WritingPageToolbar() {
           </button>
         ) : null}
       </div>
-      {context.arrangementNotice ? <p role="status">{context.arrangementNotice}</p> : null}
-      {context.movePreview ? <section aria-label="Passage move preview" className="stage19-writing-move-preview">
-        <h3>Move actual writing</h3>
-        <p>This changes the manuscript. Notes follow their writing; existing analysis becomes out of date. Planning order and chapter decisions stay independent.</p>
-        {context.movePreview.plan.changedUnitIds.map(id => <details key={id}>
-          <summary>{context.model.snapshot.project?.units.find(unit => unit.id === id)?.displayTitle ?? id}: exact before and after</summary>
-          <h4>Before</h4><pre>{context.movePreview!.plan.before[id]}</pre>
-          <h4>After</h4><pre>{context.movePreview!.plan.after[id]}</pre>
-        </details>)}
-        <button type="button" disabled={page.busy || context.model.recoveryBlocksEditing} onClick={context.applyMove}>Move this passage</button>
-        <button type="button" onClick={context.cancelMove}>Cancel passage move</button>
-      </section> : null}
+      <WritingArrangementControls />
       {context.search.open ? (
         <section role="search" aria-label="Find and replace writing" data-writing-search="true">
           <label>
@@ -1833,27 +1925,6 @@ export function WritingPageToolbar() {
         ))}
       </div>
       {page.notice ? <p role="status">{page.notice}</p> : null}
-      {context.contextMenu ? (
-        <div
-          role="menu"
-          aria-label="Writing passage actions"
-          data-writing-context-menu="true"
-          className="stage19-writing-context-menu"
-          style={{ left: context.contextMenu.x, top: context.contextMenu.y }}
-        >
-          <button
-            role="menuitem"
-            type="button"
-            disabled={!context.contextMenu.ranges.length || page.busy || !page.ready}
-            onClick={context.contextNote}
-          >
-            Notes
-          </button>
-          <button role="menuitem" type="button" onClick={context.closeContextMenu}>
-            Close menu
-          </button>
-        </div>
-      ) : null}
       {context.note ? (
         <section aria-label="Passage Note" className="stage19-writing-page-note">
           <h3>{context.note.id ? 'Edit Note' : 'Add Note'}</h3>
@@ -1927,7 +1998,83 @@ export function WritingPageToolbar() {
         </section>
       ) : null}
     </div>
+    {context.model.focusMode ? <WritingArrangementControls /> : null}
+    <WritingUnitControls />
+    </>
   );
+}
+
+function WritingArrangementControls() {
+  const context = useWritingContext();
+  const page = context?.model.writingPage;
+  if (!context || !page) return null;
+  if (!context.arrangementNotice && !context.movingGroupId && !context.joinName) return null;
+  return <div className="stage19-writing-arrangement-controls">
+      {context.arrangementNotice ? <p role="status">{context.arrangementNotice}</p> : null}
+      {context.movingGroupId ? <div role="group" aria-label="Move writing">
+        <p>Choose an insertion marker. The whole unit and its supported attachments move together.</p>
+        <button type="button" onClick={context.cancelMove}>Cancel move</button>
+      </div> : null}
+      {context.joinName ? <form aria-label="Combined unit name" onSubmit={event => { event.preventDefault(); context.applyJoinName(); }}>
+        <p>The combined name exceeds 240 characters. Edit it before joining; the original units are unchanged.</p>
+        <label>Combined unit name<input value={context.joinName.name} onChange={event => context.setJoinName(event.target.value)} /></label>
+        <span>{context.joinName.name.trim().length} / 240 characters</span>
+        <button type="submit" disabled={page.busy || !context.joinName.name.trim() || context.joinName.name.trim().length > 240}>Join with this name</button>
+        <button type="button" onClick={context.cancelJoinName}>Cancel join</button>
+      </form> : null}
+  </div>;
+}
+
+function WritingUnitControls() {
+  const context = useWritingContext();
+  const menu = context?.contextMenu;
+  const [naming, setNaming] = useState(false);
+  const [name, setName] = useState('');
+  useEffect(() => { setNaming(false); }, [menu]);
+  if (!context || !menu || !context.model.writingPage) return null;
+  const { model } = context, page = model.writingPage!;
+  const selected = menu.ranges.filter(range => range.to > range.from);
+  const touched = selected.length ? touchedPins(model, selected) : page.groups.filter(group =>
+    !page.unresolved.includes(group.id) && group.spans.some(span => span.unitId === menu.point.unitId &&
+      menu.point.offset >= span.selectionStart && menu.point.offset < span.selectionEnd));
+  const group = touched.length === 1 ? touched[0] : undefined;
+  const units = model.snapshot.project?.units.map(unit => unit.id) ?? [];
+  const edges = [...selected, ...touched.flatMap(item => item.spans.map(span => ({ unitId: span.unitId, from: span.selectionStart, to: span.selectionEnd })))];
+  const sorted = [...edges].sort((a, b) => units.indexOf(a.unitId) - units.indexOf(b.unitId) || a.from - b.from);
+  const last = [...edges].sort((a, b) => units.indexOf(b.unitId) - units.indexOf(a.unitId) || b.to - a.to)[0];
+  const expanded = sorted.length && last ? selectedRanges(model, { unitId: sorted[0]!.unitId, offset: sorted[0]!.from }, { unitId: last.unitId, offset: last.to }) : [];
+  const extendsUnit = Boolean(group && selected.some(range => !group.spans.some(span => span.unitId === range.unitId && span.selectionStart <= range.from && span.selectionEnd >= range.to)));
+  const word = group ? splitWord(model.buffers[menu.point.unitId] ?? '', menu.point.offset) : undefined;
+  const at = word?.index ?? -1;
+  const spanIndex = group?.spans.findIndex(span => span.unitId === menu.point.unitId && at >= span.selectionStart && at < span.selectionEnd) ?? -1;
+  const left = group?.spans.map((span, index) => index < spanIndex ? (model.buffers[span.unitId] ?? '').slice(span.selectionStart, span.selectionEnd)
+    : index === spanIndex ? (model.buffers[span.unitId] ?? '').slice(span.selectionStart, at) : '').join(' ') ?? '';
+  const right = group?.spans.map((span, index) => index > spanIndex ? (model.buffers[span.unitId] ?? '').slice(span.selectionStart, span.selectionEnd)
+    : index === spanIndex ? (model.buffers[span.unitId] ?? '').slice(at, span.selectionEnd) : '').join(' ') ?? '';
+  const disabled = page.busy || !page.ready || model.recoveryBlocksEditing || Boolean(page.pendingGap);
+  return <div role="dialog" aria-label="Writing passage actions" data-writing-context-menu="true"
+    className="stage19-writing-context-menu" style={{ left: menu.x, top: menu.y }}>
+    {selected.length ? <>
+      {extendsUnit ? <p>Extend keeps the complete original unit and its name. Result: {wordCount(expanded.map(range => model.buffers[range.unitId]!.slice(range.from, range.to)).join(' '))} words.</p> : null}
+      <button type="button" disabled={disabled} onClick={() => {
+        if (context.controlsCurrent()) context.pinRanges(touched.length ? expanded : selected, extendsUnit ? group!.id : undefined);
+      }}>{extendsUnit ? 'Extend unit' : touched.length > 1 ? 'Join units' : 'Pin selection'}</button>
+    </> : null}
+    {group ? <>
+      <button type="button" disabled={disabled || spanIndex < 0 || !wordCount(left) || !wordCount(right)}
+        onClick={() => context.splitAt(group.id, { unitId: menu.point.unitId, offset: at })}>
+        {word ? `Split before “${word[0]}”` : 'Split unit'}</button>
+      {spanIndex >= 0 && wordCount(left) && wordCount(right) ? <p>Split: {wordCount(left)} + {wordCount(right)} words. Writing stays unchanged.</p> : null}
+      <button type="button" disabled={disabled} onClick={() => { setNaming(true); setName(writingGroupLabel(group, model.buffers)); }}>Name unit</button>
+      {naming ? <form onSubmit={event => { event.preventDefault(); if (context.controlsCurrent()) void page.renameGroup(group.id, name).then(saved => { if (saved) context.closeContextMenu(); }); }}>
+        <label>Unit name<input autoFocus maxLength={240} value={name} onChange={event => setName(event.target.value)} /></label>
+        <button type="submit" disabled={disabled || !name.trim()}>Save unit name</button>
+      </form> : null}
+      <button type="button" disabled={disabled} onClick={() => { if (context.controlsCurrent()) context.startMove(group.id); }}>Move</button>
+    </> : null}
+    <button type="button" aria-label="Add Note here" disabled={disabled} onClick={context.contextNote}>Notes</button>
+    <button type="button" onClick={context.closeContextMenu}>Close menu</button>
+  </div>;
 }
 
 function WritingManualConcerns() {
@@ -2086,7 +2233,6 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
   const [renaming, setRenaming] = useState<{ id: string; label: string } | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [openConcern, setOpenConcern] = useState<{ row: string; id: string } | null>(null);
-  const [moveTargets, setMoveTargets] = useState<Record<string, string>>({});
   const page = context?.model.writingPage;
   if (!context || !page) return null;
   const { model, outlineView } = context;
@@ -2140,51 +2286,28 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
     rows.push({ key: `gap-${gap.id}`, label: gap.label, groupId: null, gapId: gap.id, ranges: [{ unitId: anchor.unitId, from: anchor.selectionStart, to: anchor.selectionStart }] });
   }
   rows.sort((a, b) => sourceOrder.indexOf(a.ranges[0]!.unitId) - sourceOrder.indexOf(b.ranges[0]!.unitId) || a.ranges[0]!.from - b.ranges[0]!.from || (a.gapId ? -1 : 1));
-  // In planning order, loose writing stays beside its preceding pinned unit,
-  // as in the accepted mixed-page workflow. It never becomes a member of it.
-  const leading: typeof rows = [];
-  const chunks = new Map<string, typeof rows>();
-  let preceding: string | null = null;
-  for (const row of rows) {
-    if (row.groupId) preceding = row.groupId;
-    if (preceding) chunks.set(preceding, [...(chunks.get(preceding) ?? []), row]);
-    else leading.push(row);
-  }
-  const orderedRows = outlineView.order === 'plan'
-    ? [...leading, ...valid.flatMap(group => chunks.get(group.id) ?? [])] : rows;
+  const orderedRows = rows;
   let nextUnitNumber = 0;
   const numberedRows = orderedRows.map(row => ({ ...row, number: row.groupId ? ++nextUnitNumber : null }));
   const selected = outlineView.selected.map(id => rows.find(row => row.groupId === id));
   const available = selected.filter((row): row is typeof rows[number] => Boolean(row));
-  const move = async (id: string, beforeId: string | null) => {
-    if (id === beforeId || page.busy || !page.ready) return;
-    context.setOutlineView({ order: 'plan' });
-    await page.moveGroup(id, beforeId);
-  };
-  const drop = (event: React.DragEvent, beforeId: string | null) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDropTarget(null);
+  const endUnit = model.snapshot.project?.units.at(-1);
+  const endPoint = endUnit ? { unitId: endUnit.id, offset: (model.buffers[endUnit.id] ?? '').length } : null;
+  const drop = (event: React.DragEvent, point: Point) => {
+    event.preventDefault(); event.stopPropagation(); setDropTarget(null);
     try {
       const source = JSON.parse(event.dataTransfer.getData('application/x-black-skies-writing-unit')) as { id: string; projectId: string; generation: number };
       if (source.projectId !== model.snapshot.project?.projectId || source.generation !== model.snapshot.generation || typeof source.id !== 'string') return;
-      if (source.id !== beforeId) void move(source.id, beforeId);
-    } catch { /* Ignore unrelated or incomplete drags without changing a plan. */ }
+      context.moveTo(point, source.id);
+    } catch { /* Unrelated/incomplete drags cannot change writing. */ }
   };
   return (
-    <section className={`stage19-writing-page-outline${compact ? ' is-compact' : ''}`} aria-label="Writing outline">
+    <section className={`stage19-writing-page-outline${compact ? ' is-compact' : ''}${context.movingGroupId ? ' is-moving' : ''}`} aria-label="Writing outline">
       {!compact ? <h3>Outline</h3> : null}
       <WritingNotebook />
       <WritingManualConcerns />
-      <label>Outline order <select aria-label="Outline order" value={outlineView.order}
-        onChange={event => context.setOutlineView({ order: event.target.value as WritingOutlineView['order'] })}>
-        <option value="writing">Writing order</option><option value="plan">Planning order</option>
-      </select></label>
-      {!compact ? <p>{outlineView.order === 'writing' ? 'Pinned and unpinned writing, together in page order.'
-        : 'Planning order. Unpinned writing stays beside its preceding pinned passage.'}</p> : null}
-      <details className="stage19-outline-order-help"><summary>About planning order</summary><p>Plan changes keep your written pages in their current order. Choose Writing order to see the manuscript sequence.</p></details>
+      {!compact ? <p>Pinned and unpinned writing in manuscript order. Drag a pinned row to an insertion marker.</p> : null}
       <div className="stage19-outline-actions">
-        <button type="button" disabled={!page.canUndoPlan || page.busy} onClick={() => void page.undoPlan()}>Undo plan move</button>
         <button type="button" disabled={available.length < 2} onClick={() => context.setOutlineView({ comparing: true })}>Compare selected · {available.length}</button>
         <button type="button" disabled={available.length < 2 || page.busy} onClick={context.joinSelected}>Join selected units</button>
         <button type="button" disabled={!outlineView.selected.length} onClick={() => context.setOutlineView({ selected: [], comparing: false })}>Clear selection</button>
@@ -2196,7 +2319,7 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
       {available.length > 1 ? <p>Join includes the writing between the selected units. Undo restores their previous boundaries.</p> : null}
       <ol data-writing-outline-list="true" aria-label="Writing units and unpinned passages"
         onDragOver={event => { if (event.target === event.currentTarget) event.preventDefault(); }}
-        onDrop={event => { if (event.target === event.currentTarget) drop(event, null); }}>
+        onDrop={event => { if (event.target === event.currentTarget) if (endPoint) drop(event, endPoint); }}>
         {numberedRows.map((row) => {
           const notes = page.notes.filter((item) =>
             noteSourceAnchors(item).some((anchor) =>
@@ -2216,15 +2339,27 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
               key={row.key}
               data-writing-outline-spans={JSON.stringify(row.ranges)}
               data-writing-group-id={row.groupId ?? undefined}
-              className={`${row.groupId ? 'is-pinned' : 'is-unpinned'}${dropTarget === row.groupId && dropTarget ? ' is-plan-drop' : ''}`}
-              onDragOver={event => { if (row.groupId && !page.busy) { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; setDropTarget(row.groupId); } }}
+              draggable={Boolean(row.groupId && page.ready && !page.busy)}
+              onDragStart={event => {
+                if (!row.groupId || page.busy || !page.ready) { event.preventDefault(); return; }
+                event.dataTransfer.setData('application/x-black-skies-writing-unit', JSON.stringify({ id: row.groupId, projectId: model.snapshot.project?.projectId, generation: model.snapshot.generation }));
+                event.dataTransfer.effectAllowed = 'move'; context.startMove(row.groupId);
+              }}
+              onDragEnd={() => { setDropTarget(null); if (context.movingGroupId) context.cancelMove(); }}
+              className={`${row.groupId ? 'is-pinned' : 'is-unpinned'}${dropTarget === row.key ? ' is-move-drop' : ''}`}
+              onDragOver={event => { if (event.dataTransfer.types.includes('application/x-black-skies-writing-unit') && !page.busy) { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; setDropTarget(row.key); } }}
               onDragLeave={() => setDropTarget(null)}
-              onDrop={row.groupId ? event => drop(event, row.groupId) : undefined}
+              onDrop={event => drop(event, { unitId: row.ranges[0]!.unitId, offset: row.ranges[0]!.from })}
             >
+              {context.movingGroupId ? <button type="button" className="stage19-outline-insertion"
+                aria-label={`Insert before ${row.label}`} onClick={() => context.moveTo({ unitId: row.ranges[0]!.unitId, offset: row.ranges[0]!.from })}>Move here</button> : null}
               <span className="stage19-outline-unit-heading" data-writing-unit-number={row.number ?? undefined}>
                 <span>{row.number ? `Unit ${row.number}` : row.gapId ? 'Missing passage' : 'Unpinned'}</span>
                 <span>{row.ranges.map(range => model.buffers[range.unitId]?.slice(range.from, range.to) ?? '').join(' ').trim().split(/\s+/u).filter(Boolean).length} words · {row.ranges.length} passage{row.ranges.length === 1 ? '' : 's'}</span>
               </span>
+              {row.groupId ? <button type="button" draggable={!page.busy && page.ready}
+                aria-label={`Drag ${row.label} in the manuscript`} title="Drag writing to an insertion marker, or activate to choose a destination"
+                className="stage19-outline-drag" onClick={() => context.startMove(row.groupId!)}>⠿</button> : null}
               <button type="button" className="stage19-outline-source" title={row.label} onClick={() => void context.selectSources(row.ranges)}>
                 {row.label}
               </button>
@@ -2282,16 +2417,6 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
                 <label><input type="checkbox" aria-label={`Compare ${row.label}`} checked={outlineView.selected.includes(row.groupId)}
                   onChange={event => context.setOutlineView({ selected: event.target.checked
                     ? [...outlineView.selected, row.groupId!] : outlineView.selected.filter(id => id !== row.groupId) })} /> Compare</label>
-                <button type="button" draggable={!page.busy && page.ready}
-                  aria-label={`Drag ${row.label} in the plan`} title="Drag to change the plan"
-                  className="stage19-outline-drag" onDragStart={event => {
-                    event.dataTransfer.setData('application/x-black-skies-writing-unit', JSON.stringify({ id: row.groupId, projectId: model.snapshot.project?.projectId, generation: model.snapshot.generation }));
-                    event.dataTransfer.effectAllowed = 'move';
-                  }} onDragEnd={() => setDropTarget(null)}>⠿</button>
-                <button type="button" aria-label={`Earlier in plan: ${row.label}`} disabled={page.busy || !page.ready || valid.findIndex(group => group.id === row.groupId) <= 0}
-                  onClick={() => { const index = valid.findIndex(group => group.id === row.groupId); void move(row.groupId!, valid[index - 1]!.id); }}>Earlier</button>
-                <button type="button" aria-label={`Later in plan: ${row.label}`} disabled={page.busy || !page.ready || valid.findIndex(group => group.id === row.groupId) >= valid.length - 1}
-                  onClick={() => { const index = valid.findIndex(group => group.id === row.groupId); void move(row.groupId!, valid[index + 2]?.id ?? null); }}>Later</button>
               </> : null}
               {row.groupId ? (
                 renaming?.id === row.groupId ? (
@@ -2357,15 +2482,7 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
                 <summary>Organize this writing</summary>
                 <button type="button" disabled={page.busy} onClick={() => context.split(row.groupId!)}>Split at writing cursor</button>
                 <p>Split changes the pins only. Place the cursor inside this unit first.</p>
-                {valid.length > 1 ? <>
-                  <label>Move before
-                    <select aria-label={`Move ${row.label} before`} value={moveTargets[row.groupId] ?? valid.find(group => group.id !== row.groupId)!.id}
-                      onChange={event => setMoveTargets(current => ({ ...current, [row.groupId!]: event.target.value }))}>
-                      {valid.filter(group => group.id !== row.groupId).map(group => <option key={group.id} value={group.id}>{writingGroupLabel(group, model.buffers)}</option>)}
-                    </select>
-                  </label>
-                  <button type="button" disabled={page.busy} onClick={() => context.previewMove(row.groupId!, moveTargets[row.groupId!] ?? valid.find(group => group.id !== row.groupId)!.id)}>Preview passage move</button>
-                </> : null}
+                <button type="button" disabled={page.busy} onClick={() => context.startMove(row.groupId!)}>Move</button>
               </details> : null}
               <button type="button" onClick={() => context.openNote(null, row.ranges)}>
                 Add Note
@@ -2383,6 +2500,10 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
             </li>
           );
         })}
+        {context.movingGroupId && endPoint ? <li className="stage19-outline-end-insertion"
+          onDragOver={event => { event.preventDefault(); }} onDrop={event => drop(event, endPoint)}>
+          <button type="button" className="stage19-outline-insertion" onClick={() => context.moveTo(endPoint)}>Insert at manuscript end</button>
+        </li> : null}
       </ol>
       {outlineView.comparing ? <section className="stage19-outline-comparison" aria-label="Selected passage comparison">
         <h3>Compare selected passages</h3>
@@ -2446,14 +2567,20 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
   const preference = context?.model.snapshot.project?.writingPreferences?.values;
   const layout = Boolean(interactive && (preference?.paragraphSpacing || preference?.firstLineIndent));
   const points = [...new Set([start, end, ...marks.flatMap((mark) => [mark.from, mark.to]), ...(layout ? paragraphs : []),
-    ...emphasis.flatMap(span => [span.from, span.contentFrom, span.contentTo, span.to])])]
+    ...emphasis.flatMap(span => [span.from, span.contentFrom, span.contentTo, span.to]),
+    ...marks.filter(mark => mark.kind === 'move').map(mark => mark.from)])]
     .filter((point) => point >= start && point <= end && point >= 0 && point <= text.length)
     .sort((a, b) => a - b);
   const widgets = (point: number) =>
     marks
-      .filter((mark) => (mark.kind === 'pin' || mark.kind === 'note') && mark.from === point)
+      .filter((mark) => (mark.kind === 'pin' || mark.kind === 'note' || mark.kind === 'move') && mark.from === point)
       .map((mark, index) =>
-        mark.kind === 'note' ? (
+        mark.kind === 'move' ? (
+          <button type="button" key={`${point}-move`} data-writing-decoration="move" className="stage19-writing-move-marker"
+            aria-label={mark.label} onMouseDown={event => event.preventDefault()} onClick={event => {
+              event.stopPropagation(); context?.moveTo({ unitId, offset: point });
+            }} />
+        ) : mark.kind === 'note' ? (
           <button
             type="button"
             key={`${point}-note-${mark.id}`}
@@ -2519,6 +2646,8 @@ export function getWritingMarks(
   const body = context.model.buffers[unitId] ?? '';
   const groups = page.groups.filter((group) => !page.unresolved.includes(group.id));
   const marks: DraftEditorWritingMark[] = [];
+  if (context.movingGroupId) for (const offset of writingMoveBoundaries(unitId, body, groups))
+    marks.push({ kind: 'move', from: offset, to: offset, id: `${context.movingGroupId}:${offset}`, label: `Insert writing here, position ${offset}` });
   try {
     for (const span of writingCoverage(unitId, body.length, groups)) {
       if (span.groupId ? context.highlights.pinned : context.highlights.unpinned)
