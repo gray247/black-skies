@@ -62,7 +62,17 @@ describe("Stage 19 packaging workflow policy", () => {
     ).toContainEqual(expect.stringContaining("exact source SHA"));
   });
 
-  it("guards the committed packaging workflow", () => {
+  it.each([
+    ["missing validation step", (source: string) => source.replace("id: validate_source", "id: unverified_source")],
+    ["unverified SHA assignment", (source: string) => source.replace("$qualificationSha = git rev-parse HEAD", "$qualificationSha = 'latest'")],
+    ["unbound output", (source: string) => source.replace('"sha=$qualificationSha"', '"sha=latest"')],
+    ["another checkout after validation", (source: string) => source.replace("      - name: Upload qualified RC installer and receipt", "      - name: Another checkout\n        uses: actions/checkout@v7\n      - name: Upload qualified RC installer and receipt")],
+  ] as const)("rejects a selected-source artifact with %s", (_label, change) => {
+    expect(validateStage19PackagingWorkflow(change(readFileSync(workflowPath, "utf8"))))
+      .toContainEqual(expect.stringContaining("exact source SHA"));
+  });
+
+  it("guards the committed workflow including its verified selected-source SHA", () => {
     expect(() =>
       assertStage19PackagingWorkflow(readFileSync(workflowPath, "utf8"))
     ).not.toThrow();

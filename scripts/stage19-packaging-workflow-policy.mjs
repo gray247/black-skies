@@ -50,6 +50,16 @@ export function validateStage19PackagingWorkflow(source) {
   if (uploadIndexes.length === 0) {
     errors.push('The packaging workflow has no artifact upload steps.');
   }
+  // A manually selected qualification ref can differ from the workflow ref.
+  // Accept its artifact label only when the existing validation step obtains
+  // HEAD from the checkout and immediately exports that exact value.
+  const selectedShaIndex = lines.findIndex((line) => /^\s+id:\s+validate_source\s*$/u.test(line));
+  const selectedShaEnd = lines.findIndex((line, index) => index > selectedShaIndex && /^      - name:/u.test(line));
+  const selectedShaStep = selectedShaIndex >= 0
+    ? lines.slice(selectedShaIndex, selectedShaEnd < 0 ? lines.length : selectedShaEnd).join('\n') : '';
+  const checkoutShaIsExported = selectedShaIndex >= 0 &&
+    lines.slice(0, selectedShaIndex).some((line) => /^\s+uses:\s+actions\/checkout@/u.test(line)) &&
+    /^\s+\$qualificationSha = git rev-parse HEAD\s*\n\s+"sha=\$qualificationSha" \| Out-File -FilePath \$env:GITHUB_OUTPUT -Append\s*$/mu.test(selectedShaStep);
   for (const uploadIndex of uploadIndexes) {
     let stepEnd = lines.length;
     for (let index = uploadIndex + 1; index < lines.length; index += 1) {
@@ -62,7 +72,10 @@ export function validateStage19PackagingWorkflow(source) {
       .slice(uploadIndex + 1, stepEnd)
       .map((line) => /^\s{10}name:\s*(.+)$/u.exec(line)?.[1] ?? null)
       .find(Boolean);
-    if (!artifactName?.includes('${{ github.sha }}')) {
+    const usesSelectedCheckout = checkoutShaIsExported && selectedShaIndex < uploadIndex &&
+      !lines.slice(selectedShaEnd, uploadIndex).some((line) => /^\s+uses:\s+actions\/checkout@/u.test(line)) &&
+      artifactName?.includes('${{ steps.validate_source.outputs.sha }}');
+    if (!artifactName?.includes('${{ github.sha }}') && !usesSelectedCheckout) {
       errors.push(
         `Artifact upload at line ${uploadIndex + 1} is not bound to the exact source SHA.`,
       );
