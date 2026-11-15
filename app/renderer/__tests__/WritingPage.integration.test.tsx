@@ -1,7 +1,7 @@
 import type { RevisionItem } from '../../shared/ipc/feedbackNotes';
 import { buildProgram7SourceEnvelope } from '../../shared/program7SourceBinding';
 import { useRef, useState } from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { EditorView } from '@codemirror/view';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DraftEditor from '../DraftEditor';
@@ -906,6 +906,35 @@ describe('Writing organization milestone', () => {
 
 
 describe('Approved local unit workflow', () => {
+  it.each([false, true])('saves externally recovered sections without local membership edits and keeps failed sources unsaved (failure: %s)', async (failSecond) => {
+    const bodies = { a: 'Recovered alpha', b: 'Recovered beta' };
+    const snapshot = { generation: 1, dirtyUnitIds: ['a', 'b'], saveState: { status: 'dirty' },
+      project: { projectId: 'test', path: 'C:/disposable', units: [{ id: 'a' }, { id: 'b' }],
+        drafts: { a: 'Durable alpha', b: 'Durable beta' }, unitMetrics: {} },
+    } as unknown as ProjectSpineSessionSnapshot;
+    const outline: LivingOutlineSnapshotV1 = { availability: 'ready', message: null,
+      document: { schemaVersion: 'BlackSkiesLivingOutline v1', projectId: 'test', revision: 0, items: [], writingGroups: [] } };
+    const replaceWritingState = vi.fn(async () => ({ ok: true as const, data: outline }));
+    const saveSource = vi.fn(async (id: string, body?: string) => {
+      if (id === 'b' && failSecond) throw new Error('Recovered beta could not be saved');
+      Object.assign(snapshot.project!.drafts!, { [id]: body });
+      Object.assign(snapshot, { dirtyUnitIds: snapshot.dirtyUnitIds.filter(value => value !== id) });
+    });
+    const hook = renderHook(() => useWritingPage({ snapshot, outline,
+      bridge: { replaceWritingState } as unknown as LivingOutlineBridge,
+      getSnapshot: () => snapshot, getBodies: () => bodies, saveSource, onOutline: () => {}, reportDirty: () => {} }));
+    await waitFor(() => expect(hook.result.current.ready).toBe(true));
+    expect(hook.result.current.unsaved).toBe(false);
+    let saved = false;
+    await act(async () => { saved = await hook.result.current.save(); });
+    expect(saveSource.mock.calls).toEqual([['a', bodies.a], ['b', bodies.b]]);
+    expect(saved).toBe(!failSecond);
+    expect(snapshot.project!.drafts!.a).toBe(bodies.a);
+    expect(snapshot.project!.drafts!.b).toBe(failSecond ? 'Durable beta' : bodies.b);
+    expect(snapshot.dirtyUnitIds).toEqual(failSecond ? ['b'] : []);
+    expect(replaceWritingState).toHaveBeenCalledTimes(failSecond ? 0 : 1);
+    if (failSecond) expect(hook.result.current.notice).toContain('Recovered beta could not be saved');
+  });
   it('expires or dismisses writing notices without canceling a pending move or changing writing', async () => {
     const e = await setup({ a: 'moon glass winter', b: 'river' });
     await pinEdgeRange(e, 0, 4);

@@ -8,7 +8,6 @@ import {
   closeLaunchedApplicationBestEffort,
   getStage19Windows,
   launchStage19BuiltApplication,
-  openWritingStudioRail,
   readDurableDraftByTitle,
   readRecoveryArtifact,
   recoveryArtifactPath,
@@ -80,8 +79,8 @@ function editorFor(writing: Page, title: string) {
 }
 
 async function selectUnit(writing: Page, title: string): Promise<void> {
-  await openWritingStudioRail(writing, 'Story');
-  await writing.locator('.stage19-story-rail__unit-title', { hasText: title }).click();
+  const section = writing.getByRole('region', { name: `Written section ${title}`, exact: true });
+  await section.getByRole('button', { name: /^Write here:/u }).click();
   await expect(editorFor(writing, title)).toBeVisible();
 }
 
@@ -94,8 +93,9 @@ async function replaceEditorProse(writing: Page, title: string, prose: string): 
 async function saveUnit(writing: Page, title: string, prose?: string): Promise<void> {
   await selectUnit(writing, title);
   if (prose !== undefined) await replaceEditorProse(writing, title, prose);
-  await writing.getByRole('button', { name: /^Save$/ }).click();
-  await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
+  const save = writing.getByRole('button', { name: 'Save writing', exact: true });
+  if (await save.isEnabled()) await save.click();
+  await expect(writing.locator('.stage19-writing-shell__status').getByRole('status')).toHaveText('Saved');
 }
 
 async function closeApplicationCleanly(
@@ -140,11 +140,8 @@ async function expectRecoveryChoice(
   await expect(writing.getByRole('heading', { name: 'Recover unsaved Writing Studio prose' })).toBeVisible();
   await expect(writing.getByRole('heading', { name: title, level: 3 })).toBeVisible();
   await expect(writing.getByLabel(`Recovered prose for ${title}`)).toHaveText(prose || '(Empty manuscript prose)');
-  await openWritingStudioRail(writing, 'Story');
-  const addMenu = writing.locator('#stage19-story-rail-add-menu');
-  const unitChoice = addMenu.locator('button', { hasText: 'Unit' });
-  await expect(unitChoice).toHaveCount(1);
-  await expect(unitChoice).toBeDisabled();
+  await expect(writing.locator('.cm-content[contenteditable="true"]')).toHaveCount(0);
+  await expect(writing.getByRole('button', { name: 'Save writing', exact: true })).toBeDisabled();
 }
 
 async function cleanupLaunches(launches: LaunchedStage19Application[]): Promise<void> {
@@ -202,7 +199,7 @@ test('accepts two interrupted candidates, guards them, saves, and reopens cleanl
 
     const betaChoice = recoveredWriting.locator('article').filter({ hasText: beta.title });
     await betaChoice.getByRole('button', { name: 'Recover this prose' }).click();
-    await expect(recoveredWriting.getByText('Recovered prose is applied and remains unsaved.')).toBeVisible();
+    await expect(recoveredWriting.getByText(/Recovered prose is applied and remains unsaved\./u)).toBeVisible();
     await selectUnit(recoveredWriting, alpha.title);
     await expect(editorFor(recoveredWriting, alpha.title)).toHaveText(alpha.recovered);
     await selectUnit(recoveredWriting, beta.title);

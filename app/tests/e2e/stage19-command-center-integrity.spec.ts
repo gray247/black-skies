@@ -291,7 +291,7 @@ test('Command Center projects interrupted recovery acceptance as pending until W
     await expectCommandPrivacyAndAuthority(command, [baseline, recovered, recoveryArtifactPath(project.path)]);
 
     await recoveredWriting.getByRole('button', { name: 'Recover this prose' }).click();
-    await expect(recoveredWriting.getByText('Recovered prose is applied and remains unsaved.')).toBeVisible();
+    await expect(recoveredWriting.getByText(/Recovered prose is applied and remains unsaved\./u)).toBeVisible();
     await expectCommandStatus(command, {
       projectId: project.id,
       lifecycle: 'active',

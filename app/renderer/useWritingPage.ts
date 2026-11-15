@@ -349,7 +349,14 @@ export function useWritingPage(options: Options) {
   const save = async (): Promise<boolean> => {
     const entryIdentity = identityRef.current;
     const bridge = latest.current.bridge;
-    if (!dirty.current) return true;
+    const pending = latest.current.getSnapshot();
+    const pendingBodies = latest.current.getBodies();
+    // Accepted recovery can supply unsaved prose without a local editor or
+    // membership edit. The shared Save must still flush every such section.
+    const pendingSources = dirtySourceIds.current.size > 0 || (pending.dirtyUnitIds?.length ?? 0) > 0 ||
+      Object.entries(pendingBodies).some(([id, body]) => typeof pending.project?.drafts?.[id] === 'string' &&
+        extractProjectSpineDraftBody(pending.project.drafts[id]!) !== body);
+    if (!dirty.current && !pendingSources) return true;
     if (busyRef.current || !bridge?.replaceWritingState || !outlineRef.current) return false;
     if (unresolvedRef.current.length) {
       setNotice(

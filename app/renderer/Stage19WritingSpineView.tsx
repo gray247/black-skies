@@ -1010,7 +1010,7 @@ function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JS
     return (
       <section className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
         <h2 id="stage19-recovery-title">Recover unsaved Writing Studio prose</h2>
-        <p>Review every candidate. Recovered prose remains unsaved until you use the normal Save action.</p>
+        <p>Review every candidate. Recovered prose remains unsaved until you use {model.writingPage ? 'Save writing' : 'Save'}.</p>
         {recovery.candidates.map((candidate) => {
           const allSelected = recovery.candidates.every((entry) => entry.decision === 'accept-selected');
           const submitting = model.recoveryDecisionUnitId !== null;
@@ -1044,7 +1044,7 @@ function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JS
     );
   }
   if (recovery?.status === 'accepted-pending-save') {
-    return <p className="stage19-spine__notice" role="status">Recovered prose is applied and remains unsaved. Use Save for each recovered unit to make it durable.</p>;
+    return <p className="stage19-spine__notice" role="status">Recovered prose is applied and remains unsaved. {model.writingPage ? 'Use Save writing to keep the recovered writing.' : 'Use Save for each recovered unit to make it durable.'}</p>;
   }
   return null;
 }
