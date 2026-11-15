@@ -170,6 +170,7 @@ export interface Stage19WritingSpineViewModel {
   readonly program7ConcernId?: string | null;
   readonly program7CandidatePurpose: string;
   readonly program7CandidateText: string;
+  readonly program7RevisionTarget?: { kind: 'selection' | 'section' | 'unavailable'; unitId?: string; title?: string; text: string; message?: string };
   readonly program7LocalAiRequestId: string | null;
   /** Supplied by the main-owned capability bridge; false removes all local-AI actions. */
   readonly program7LocalAiAvailable?: boolean;
@@ -380,7 +381,7 @@ export interface Stage19WritingSpineViewActions {
   readonly createManualConcern?: (body: string, ranges: readonly { unitId: string; from: number; to: number; body: string }[]) => Promise<boolean>;
   readonly considerProgram7Concern?: (item: RevisionItem) => MaybeAsync;
   readonly clearProgram7Concern?: () => void;
-  readonly createProgram7ManualCandidate: (deleteSource?: boolean) => MaybeAsync;
+  readonly createProgram7ManualCandidate: (deleteSource?: boolean, wholeSection?: boolean) => MaybeAsync;
   readonly createProgram7LocalAiCandidate: () => MaybeAsync;
   readonly cancelProgram7LocalAiCandidate: () => MaybeAsync;
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
@@ -679,6 +680,10 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const canWrite = model.windowRole === 'writing';
   const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>('revision-desk');
   const [proposeDeletion, setProposeDeletion] = useState(false);
+  const [wholeSection, setWholeSection] = useState(false);
+  const target = model.program7RevisionTarget;
+  useEffect(() => { setWholeSection(false); }, [target?.kind, target?.unitId, target?.text, model.program7ConcernId]);
+  const sourceReady = !target || target.kind === 'selection' || (target.kind === 'section' && wholeSection);
   const revisionDesk = (
     <>
       <RevisionDesk pending={model.program7RevisionPending}
@@ -706,6 +711,11 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           <p>To apply only part later, first save your manuscript and select the exact words to replace in Writing Studio. Then return here and save a new alternative. An older alternative cannot be linked afterward.</p>
         </header>
         {model.program7ConcernId ? <p>Alternative for concern <code>{model.program7ConcernId}</code>. <button type="button" onClick={actions.clearProgram7Concern}>Draft without a concern link</button></p> : null}
+        {target ? <section className="program7-revision-capture__target" aria-label="Replacement target">
+          <h3>{target.kind === 'selection' ? `Selected words from ${target.title}` : target.kind === 'section' ? `Whole saved section: ${target.title}` : 'Choose a replacement target'}</h3>
+          {target.kind === 'unavailable' ? <p role="alert">{target.message}</p> : <pre>{target.text}</pre>}
+          {target.kind === 'section' ? <label><input type="checkbox" checked={wholeSection} onChange={event => setWholeSection(event.currentTarget.checked)} disabled={!canWrite} />Use this entire saved section for the alternative</label> : null}
+        </section> : null}
         <label htmlFor="program7-candidate-purpose">Purpose</label>
         <input
           id="program7-candidate-purpose"
@@ -723,11 +733,13 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           onChange={(event) => actions.setProgram7CandidateText(event.target.value)}
           placeholder="Write the version you want to compare with the manuscript."
           maxLength={6000}
-          rows={8}
+          rows={4}
+          aria-describedby="program7-proposed-text-help"
           disabled={!canWrite || proposeDeletion}
         />
+        <p id="program7-proposed-text-help">Write the replacement wording here. Save alternative keeps a proposal for comparison and clears this field for another draft.</p>
         <div className="program7-revision-capture__actions">
-          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion)} disabled={!canWrite || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())}>Save alternative</button>
+          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion, wholeSection)} disabled={!canWrite || !sourceReady || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())}>Save alternative</button>
           {model.program7LocalAiAvailable !== false && model.program7LocalAiRequestId ? (
             <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
           ) : model.program7LocalAiAvailable !== false ? (

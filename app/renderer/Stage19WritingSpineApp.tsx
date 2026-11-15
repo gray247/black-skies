@@ -589,6 +589,38 @@ export interface Stage19WritingSpineAppProps {
   readonly program7PromotionBridge?: Program7PromotionBridge;
 }
 
+type ManualRevisionTarget =
+  | { kind: 'unavailable'; text: string; message: string }
+  | { kind: 'selection' | 'section'; unitId: string; title: string; body: string; text: string; from: number; to: number };
+
+export function resolveManualRevisionTarget(
+  current: ProjectSpineSessionSnapshot,
+  buffers: Readonly<Record<string, string>>,
+  view: WritingViewSnapshot | null,
+  concern?: RevisionItem,
+): ManualRevisionTarget {
+  const unavailable = (message: string): ManualRevisionTarget => ({ kind: 'unavailable', text: '', message });
+  const ranges = concern?.anchor ? [{ unitId: concern.unitId, from: concern.anchor.selectionStart, to: concern.anchor.selectionEnd }] : view?.selection ?? [];
+  if (ranges.length > 1) return unavailable('This alternative needs words from one saved passage. Return to Writing Studio and select one passage.');
+  const range = ranges[0];
+  const unitId = range?.unitId ?? concern?.unitId ?? current.activeUnitId;
+  const unit = current.project?.units.find(item => item.id === unitId);
+  const markdown = unitId ? current.project?.drafts?.[unitId] : undefined;
+  if (!unit || typeof markdown !== 'string') return unavailable('Open a saved passage in Writing Studio before drafting an alternative.');
+  const body = splitDraft(markdown).body;
+  if (current.dirtyUnitIds.includes(unit.id) || (buffers[unit.id] !== undefined && buffers[unit.id] !== body))
+    return unavailable('Save the selected passage in Writing Studio before drafting an alternative.');
+  if (range) {
+    if (!Number.isInteger(range.from) || !Number.isInteger(range.to) || range.from < 0 || range.to <= range.from || range.to > body.length)
+      return unavailable('The selected words are no longer available. Return to Writing Studio and select them again.');
+    const proof = view?.selectionSource;
+    if (!concern?.anchor && (!proof || proof.projectId !== current.project?.projectId || proof.generation !== current.generation || proof.bodies[unit.id] !== body))
+      return unavailable('The selected passage changed. Return to Writing Studio and select the words again. No whole section was substituted.');
+    return { kind: 'selection', unitId: unit.id, title: unit.title, body, text: body.slice(range.from, range.to), from: range.from, to: range.to };
+  }
+  return { kind: 'section', unitId: unit.id, title: unit.title, body, text: body, from: 0, to: body.length };
+}
+
 export default function Stage19WritingSpineApp({
   windowRole = window.projectSpine?.windowRole ?? 'writing',
   bridge = window.projectSpine,
@@ -3473,13 +3505,29 @@ export default function Stage19WritingSpineApp({
     return { current, project, unit, body, bodySha256: await fingerprintVisibleText(body) };
   }, []);
 
-  const createProgram7ManualCandidate = useCallback(async (deleteSource = false) => {
+  const getProgram7RevisionTarget = () => {
+    if (windowRole !== 'writing') return { kind: 'unavailable' as const, text: '', message: 'Select a passage in Writing Studio.' };
+    const concern = program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems).find(item => item.id === program7ConcernId);
+    if (program7ConcernId && !concern) return { kind: 'unavailable' as const, text: '', message: 'The linked concern is unavailable. Your proposed alternative is retained.' };
+    return resolveManualRevisionTarget(snapshotRef.current, buffersRef.current, writingViewContextRef.current, concern);
+  };
+
+  const createProgram7ManualCandidate = useCallback(async (deleteSource = false, wholeSection = false) => {
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createManual !== 'function') {
       setProgram7Notice('Manual revision alternatives can only be created from Writing Studio.');
       return;
     }
     const concern = program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems).find(item => item.id === program7ConcernId);
-    const source = await currentProgram7UnitSource(concern?.unitId);
+    if (program7ConcernId && !concern) { setProgram7Notice('The linked concern is unavailable. Your proposed alternative is retained.'); return; }
+    const target = resolveManualRevisionTarget(snapshotRef.current, buffersRef.current, writingViewContextRef.current, concern);
+    if (target.kind === 'unavailable') { setProgram7Notice(target.message); return; }
+    if (target.kind === 'section' && !wholeSection) { setProgram7Notice('Select the words to replace, or explicitly choose the whole saved section before saving an alternative.'); return; }
+    const targetProject = snapshotRef.current.project?.projectId, targetGeneration = snapshotRef.current.generation;
+    // Preserve the main process's active-source authority: select the validated
+    // preview source through its existing owner before creating the proposal.
+    if (snapshotRef.current.activeUnitId !== target.unitId && !(await handleSelectUnit(target.unitId))) return;
+    if (snapshotRef.current.project?.projectId !== targetProject || snapshotRef.current.generation !== targetGeneration) return;
+    const source = await currentProgram7UnitSource(target.unitId);
     const purpose = program7CandidatePurpose.trim();
     const candidateText = deleteSource ? '' : program7CandidateText.trim();
     if (!source || !purpose || (!candidateText && !deleteSource)) {
@@ -3490,18 +3538,13 @@ export default function Stage19WritingSpineApp({
       setProgram7Notice('Save the current manuscript section before creating a source-linked revision alternative.');
       return;
     }
-    const selectedEvidence = concern?.anchor ? { ...concern.anchor, sourceFingerprint: concern.sourceBodyFingerprint } : aiSelection;
-    if (program7ConcernId && !concern) { setProgram7Notice('The linked concern is unavailable. Your proposed alternative is retained.'); return; }
-    const selection = selectedEvidence && selectedEvidence.sourceFingerprint === source.bodySha256 &&
-      selectedEvidence.selectionStart >= 0 && selectedEvidence.selectionEnd > selectedEvidence.selectionStart &&
-      selectedEvidence.selectionEnd <= source.body.length
-      ? {
-          unitId: source.unit.id,
-          selectionStart: selectedEvidence.selectionStart,
-          selectionEnd: selectedEvidence.selectionEnd,
-          selectionFingerprint: selectedEvidence.selectionFingerprint,
-        }
-      : null;
+    if (target.body !== source.body || (concern?.anchor && concern.sourceBodyFingerprint !== source.bodySha256)) {
+      setProgram7Notice('The selected passage changed. Select it again before saving an alternative. No whole section was substituted.'); return;
+    }
+    const selection = target.kind === 'selection' ? {
+      unitId: target.unitId, selectionStart: target.from, selectionEnd: target.to,
+      selectionFingerprint: await fingerprintVisibleText(target.text),
+    } : null;
     if (deleteSource && !selection) { setProgram7Notice('A deletion alternative needs an exact selected or concern-linked passage. Your draft is retained.'); return; }
     const binding = bindingFor(source.current, 'program7-manual-candidate');
     if (!binding) return;
@@ -3531,7 +3574,7 @@ export default function Stage19WritingSpineApp({
       if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
       setProgram7Notice('The manual revision alternative could not be saved. Your manuscript has not changed.');
     }
-  }, [aiSelection, currentProgram7UnitSource, program7ConcernId, program7RevisionItems, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+  }, [currentProgram7UnitSource, handleSelectUnit, program7ConcernId, program7RevisionItems, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
 
   const createProgram7LocalAiCandidate = useCallback(async () => {
     const createLocalAi = revisionCandidatesBridge?.createLocalAi;
@@ -4420,6 +4463,7 @@ export default function Stage19WritingSpineApp({
     program7ConcernId,
     program7CandidatePurpose,
     program7CandidateText,
+    program7RevisionTarget: getProgram7RevisionTarget(),
     program7LocalAiRequestId,
     program7Notice,
     feedbackNotesAvailable: Boolean(critiqueReviewBridge),

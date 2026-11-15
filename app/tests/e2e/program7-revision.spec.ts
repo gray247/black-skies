@@ -366,6 +366,11 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
   await writing.locator('#program7-candidate-purpose').fill('Caret only');
   await writing.locator('#program7-candidate-text').fill(proposed);
+  await expect(writing.getByRole('button', { name: 'Save alternative', exact: true })).toBeDisabled();
+  const deletionBox = await writing.getByLabel('Propose deleting the exact linked passage', { exact: true }).boundingBox();
+  expect(deletionBox!.width).toBeLessThanOrEqual(24);
+  expect(deletionBox!.height).toBeLessThanOrEqual(24);
+  await writing.getByLabel('Use this entire saved section for the alternative', { exact: true }).check();
   await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
   await expect(writing.getByTestId('revision-comparison')).toBeVisible();
   const readCandidates = async () => JSON.parse(await readFile(path.join(projectPath, 'revision-candidates.json'), 'utf8')).candidates;
@@ -437,4 +442,65 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
     await expect(historyCard.locator('time').nth(1)).toBeInViewport();
     await reopened.screenshot({ path: testInfo.outputPath(`history-times-${theme}.png`) });
   }
+
+  // A browser highlight in an inactive preview must carry that section's
+  // source identity, rather than falling back to the current editor's section.
+  await showWritingInWriting(reopened);
+  const otherId = await reopened.evaluate(async () => {
+    const api = window.projectSpine!, state = await api.getSession();
+    const result = await api.createUnit!({ projectId: state.project!.projectId, projectPath: state.project!.path, generation: state.generation, operationId: 'revision-other-active', title: 'Different current section' });
+    if (!result.ok) throw new Error(result.error.message);
+    return result.snapshot.activeUnitId!;
+  });
+  const otherEditor = reopened.getByRole('textbox', { name: 'Manuscript editor: Different current section', exact: true });
+  await expect(otherEditor).toBeVisible();
+  await otherEditor.fill('Mother knew about the poison.');
+  await otherEditor.press('Control+s');
+  const otherPath = path.join(projectPath, 'drafts', `${otherId}.md`);
+  await expect.poll(() => readFile(otherPath, 'utf8')).toContain('Mother knew about the poison.');
+  const otherBefore = await readFile(otherPath, 'utf8');
+  const originalId = path.basename(draftPath, '.md');
+  const preview = reopened.locator(`[data-manuscript-unit-id="${originalId}"] [data-writing-source]`);
+  await preview.scrollIntoViewIfNeeded();
+  const bounds = await preview.evaluate(element => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const index = node.textContent?.indexOf('brass') ?? -1;
+      if (index < 0) continue;
+      const range = document.createRange(); range.setStart(node, index); range.setEnd(node, index + 5);
+      const rect = range.getBoundingClientRect(); return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    }
+    throw new Error('Preview word unavailable');
+  });
+  await reopened.mouse.move(bounds.x + 1, bounds.y + bounds.height / 2);
+  await reopened.mouse.down();
+  await reopened.mouse.move(bounds.x + bounds.width - 1, bounds.y + bounds.height / 2, { steps: 8 });
+  await reopened.mouse.up();
+  await expect.poll(() => reopened.evaluate(() => window.getSelection()?.toString())).toBe('brass');
+  expect((await reopened.evaluate(() => window.projectSpine!.getSession())).activeUnitId).toBe(otherId);
+  await showCommandInWriting(reopened);
+  await reopened.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+  await reopened.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+  const target = reopened.getByRole('region', { name: 'Replacement target', exact: true });
+  await expect(target).toContainText('Selected words from Selection scope check');
+  await expect(target.locator('pre')).toHaveText('brass');
+  await reopened.locator('#program7-candidate-purpose').fill('Inactive preview word');
+  await reopened.locator('#program7-candidate-text').fill('silver');
+  await reopened.getByRole('button', { name: 'Save alternative', exact: true }).click();
+  await expect.poll(async () => (await readCandidates()).length).toBe(4);
+  const previewCandidate = (await readCandidates()).find((candidate: { purpose: string }) => candidate.purpose === 'Inactive preview word');
+  expect(previewCandidate.unitId).toBe(originalId);
+  expect(previewCandidate.sourceAnchor).toMatchObject({ unitId: originalId, selectionStart: source.indexOf('brass'), selectionEnd: source.indexOf('brass') + 5 });
+  const previewComparison = reopened.getByTestId('revision-comparison').filter({ has: reopened.getByText('Inactive preview word', { exact: true }) });
+  await expect(previewComparison.getByTestId('revision-replacement-text')).toHaveText('brass');
+  await previewComparison.getByRole('button', { name: 'Apply all of this alternative', exact: true }).click();
+  await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
+  expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
+  const finalApp = await restartElectronApp(restarted);
+  const { writing: finalWriting } = await getProgram7Windows(finalApp, await finalApp.firstWindow());
+  await openProgram7Project(finalWriting, projectPath);
+  expect(await readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
+  expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
+  await finalWriting.screenshot({ path: testInfo.outputPath('inactive-preview-revision-reopened.png') });
+
 });

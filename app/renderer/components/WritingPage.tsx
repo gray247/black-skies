@@ -263,6 +263,7 @@ export function WritingPageProvider({
   const gapInFlight = useRef(false);
   useEffect(() => { setGapPreview(null); gapInFlight.current = false; }, [projectKey]);
   const [selection, setSelection] = useState<readonly WritingRange[]>([]);
+  const selectionSource = useRef<{ ranges: readonly WritingRange[]; projectId: string; generation: number; bodies: Readonly<Record<string, string>> } | null>(null);
   const [armed, setArmed] = useState<'beginning' | Point | null>(null);
   const [pinMessage, setPinMessage] = useState('');
   const armedBodies = useRef<Readonly<Record<string, string>> | null>(null);
@@ -767,8 +768,15 @@ export function WritingPageProvider({
         ?.focus();
   }, [contextMenu]);
   useEffect(() => {
-    if (model.writingPage) actions.setWritingViewContext?.({ note, selection, pin: armed, search, outlineView });
-  }, [note, selection, armed, search, outlineView, actions, model.writingPage]);
+    if (!model.writingPage) return;
+    // Freeze source proof when the selected ranges change, not on later edits
+    // or surface/form renders. Preview selections have their own unit IDs.
+    if (selectionSource.current?.ranges !== selection) selectionSource.current = {
+      ranges: selection, projectId: model.snapshot.project?.projectId ?? '', generation: model.snapshot.generation,
+      bodies: Object.fromEntries(selection.map(range => [range.unitId, model.buffers[range.unitId] ?? ''])),
+    };
+    actions.setWritingViewContext?.({ note, selection, selectionSource: selectionSource.current, pin: armed, search, outlineView });
+  }, [note, selection, armed, search, outlineView, actions, model.writingPage, model.buffers, model.snapshot.generation, model.snapshot.project?.projectId]);
   const restoredView = model.workNavigation?.writingViewRestore;
   useEffect(() => {
     if (!restoredView) return;
@@ -782,6 +790,12 @@ export function WritingPageProvider({
     );
     if (restoredView.state.search) setSearch(restoredView.state.search);
     if (restoredView.state.outlineView) setOutlineView(restoredView.state.outlineView);
+    // Back restores the original source proof too; a later body must not
+    // silently certify old offsets as a fresh revision selection.
+    selectionSource.current = { ranges: restoredView.state.selection,
+      projectId: restoredView.state.selectionSource?.projectId ?? '',
+      generation: restoredView.state.selectionSource?.generation ?? -1,
+      bodies: restoredView.state.selectionSource?.bodies ?? {} };
     setSelection(restoredView.state.selection);
     armedRef.current = restoredView.state.pin;
     setArmed(restoredView.state.pin);

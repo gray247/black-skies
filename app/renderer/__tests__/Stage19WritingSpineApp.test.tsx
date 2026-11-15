@@ -44,6 +44,7 @@ import type {
 import { createDefaultStoryIntelligenceDocument } from '../../shared/storyIntelligencePolicy';
 import Stage19WritingSpineApp, {
   deriveDirtyUnitIds,
+  resolveManualRevisionTarget,
   parseStage19Theme,
   program7LocalAiIsAvailable,
   STAGE19_THEME_STORAGE_KEY,
@@ -903,6 +904,28 @@ async function findExportButton(): Promise<HTMLElement> {
 }
 
 describe('Stage19WritingSpineApp', () => {
+
+  it.each(['current', 'changed source', 'other project', 'other generation', 'cross-section', 'invalid range', 'dirty source'] as const)('binds a preview revision selection to its own saved unit and refuses fallback for %s', status => {
+    const body = 'Julian watched the wake.';
+    const current = snapshot('writing', { activeUnitId: 'unit_b', units: [
+      { id: 'unit_a', title: 'Passage 1', order: 1, body },
+      { id: 'unit_b', title: 'Passage 2', order: 2, body: 'Mother knew about the poison.' },
+    ] });
+    const view = { note: null, pin: null, selection: [{ unitId: 'unit_a', from: 7, to: 14 }],
+      selectionSource: { projectId: current.project!.projectId, generation: current.generation, bodies: { unit_a: body } } };
+    const buffers = { unit_a: body, unit_b: 'Mother knew about the poison.' };
+    if (status === 'changed source') view.selectionSource.bodies.unit_a = 'Julian studied the wake.';
+    if (status === 'other project') view.selectionSource.projectId = 'another-project';
+    if (status === 'other generation') view.selectionSource.generation += 1;
+    if (status === 'cross-section') view.selection.push({ unitId: 'unit_b', from: 0, to: 6 });
+    if (status === 'invalid range') view.selection[0]!.to = body.length + 1;
+    if (status === 'dirty source') buffers.unit_a += ' Changed.';
+    const target = resolveManualRevisionTarget(current, buffers, view);
+    if (status === 'current') expect(target).toMatchObject({ kind: 'selection', unitId: 'unit_a', title: 'Passage 1', text: 'watched', from: 7, to: 14 });
+    else expect(target).toMatchObject({ kind: 'unavailable', text: '' });
+    expect(current.activeUnitId).toBe('unit_b');
+  });
+
 
   it('preserves unsaved alternative edits across canceled navigation and reports durable saves beside the editor', async () => {
     const writing = createBridge(snapshot('writing'));

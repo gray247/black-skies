@@ -9589,7 +9589,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   gap: 8px;
 }
 
-.program7-revision-capture input,
+.program7-revision-capture input:not([type='checkbox']),
 .program7-revision-capture textarea,
 .program7-story-foundation input,
 .program7-story-foundation select,
@@ -9611,6 +9611,13 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-height: 7rem;
   resize: vertical;
 }
+
+.stage19-spine .program7-revision-capture label:has(input[type='checkbox']) { display: flex; align-items: center; gap: 8px; }
+.stage19-spine .program7-revision-capture input[type='checkbox'] { width: 1rem; height: 1rem; min-height: 0; margin: 0; padding: 0; flex: 0 0 auto; }
+.program7-revision-capture__target { padding: 12px; border: 1px solid var(--border-color, #454038); border-radius: 4px; }
+.program7-revision-capture__target h3 { margin-top: 0; }
+.program7-revision-capture__target pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 10rem; overflow-y: auto; }
+.stage19-spine .program7-revision-capture textarea { min-height: 4rem; }
 
 .program7-story-foundation__questions,
 .program7-ideas-workspace__seed-list,
@@ -9678,7 +9685,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-height: 44px;
 }
 
-.stage19-spine--command .program7-revision-capture input,
+.stage19-spine--command .program7-revision-capture input:not([type='checkbox']),
 .stage19-spine--command .program7-revision-capture textarea,
 .stage19-spine--command .program7-story-foundation input,
 .stage19-spine--command .program7-story-foundation select,

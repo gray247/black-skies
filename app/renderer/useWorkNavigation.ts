@@ -17,6 +17,7 @@ export interface WritingViewSnapshot {
     message?: string;
   } | null;
   readonly selection: readonly WritingRange[];
+  readonly selectionSource?: { readonly projectId: string; readonly generation: number; readonly bodies: Readonly<Record<string, string>> };
   readonly pin: 'beginning' | { unitId: string; offset: number } | null;
   readonly search?: WritingSearchState;
   readonly outlineView?: WritingOutlineView;
