@@ -2905,6 +2905,43 @@ describe('Stage19WritingSpineApp', () => {
     expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
   });
 
+  it.each(['decision-required', 'degraded'] as const)('keeps an actionable %s blocker outside manuscript scrolling without choosing recovery', async (status) => {
+    const recovery: ProjectSpineWritingRecoveryState = status === 'decision-required'
+      ? { status, candidates: [recoveryCandidate('unit_a', 'Recovered full prose')] }
+      : { status, reason: 'read-failed', message: 'Recovery evidence could not be read.', candidates: [] };
+    const harness = createBridge(snapshot('writing', { recovery }));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={harness.bridge} />);
+    const blocker = await screen.findByRole('region', { name: 'Writing recovery blocker' });
+    expect(blocker.closest('[data-manuscript-scroll-owner]')).toBeNull();
+    expect(within(blocker).queryByRole('button', { name: /dismiss/i })).toBeNull();
+    const action = within(blocker).getByRole('button', { name: status === 'degraded' ? 'View recovery details' : 'Review recovery' });
+    const target = document.getElementById('stage19-writing-recovery')!;
+    const scroll = vi.fn();
+    Object.defineProperty(target, 'scrollIntoView', { configurable: true, value: scroll });
+    await userEvent.click(action);
+    expect(target).toHaveFocus();
+    expect(scroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' });
+    expect(screen.getByLabelText('Manuscript editor: First Unit')).toHaveAttribute('readonly');
+    expect(harness.bridge.acceptRecoveryCandidate).not.toHaveBeenCalled();
+    expect(harness.bridge.rejectRecoveryCandidate).not.toHaveBeenCalled();
+    expect(harness.bridge.saveUnit).not.toHaveBeenCalled();
+    act(() => harness.emit({ ...harness.current, revision: harness.current.revision + 1, recovery: undefined }));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Writing recovery blocker' })).toBeNull());
+  });
+
+  it('takes the same-window Command Center blocker to the focused writing recovery decision', async () => {
+    const writing = createBridge(snapshot('writing', { recovery: { status: 'decision-required', candidates: [recoveryCandidate('unit_a', 'Recovered private prose')] } }));
+    const surfaces = createSurfaceBridge(snapshot('command', { commandStatus: { recovery: 'decision-required' } }), { initialSurface: 'command' });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} />);
+    const command = await screen.findByRole('region', { name: 'Command Center' });
+    expect(within(command).queryByText('Recovered private prose')).toBeNull();
+    await userEvent.click(within(command).getByRole('button', { name: 'Review recovery' }));
+    await waitFor(() => expect(screen.getByRole('region', { name: 'Writing Studio' })).toBeVisible());
+    await waitFor(() => expect(document.getElementById('stage19-writing-recovery')).toHaveFocus());
+    expect(writing.bridge.acceptRecoveryCandidate).not.toHaveBeenCalled();
+    expect(writing.bridge.rejectRecoveryCandidate).not.toHaveBeenCalled();
+  });
+
   it('blocks editing while showing full prior-session prose and sends exact recovery decisions', async () => {
     const current = snapshot('writing', {
       recovery: {

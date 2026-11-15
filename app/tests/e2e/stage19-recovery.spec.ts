@@ -180,6 +180,19 @@ test('accepts two interrupted candidates, guards them, saves, and reopens cleanl
     await expectRecoveryChoice(recoveredWriting, beta.title, beta.recovered);
     await expectCommandCenterPassive(recoveredCommand, [alpha.recovered, beta.recovered]);
 
+    // A reader can scroll the decision out of sight; its remedy stays in the
+    // fixed shell and returns keyboard focus to the actual decision panel.
+    await recoveredWriting.setViewportSize({ width: 1000, height: 650 });
+    const recoveryPanel = recoveredWriting.locator('#stage19-writing-recovery');
+    const blocker = recoveredWriting.getByRole('region', { name: 'Writing recovery blocker' });
+    await recoveredWriting.locator('[data-manuscript-scroll-owner]').evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await expect(recoveredWriting.getByRole('heading', { name: 'Recover unsaved Writing Studio prose' })).not.toBeInViewport();
+    await expect(blocker).toBeInViewport();
+    await blocker.getByRole('button', { name: 'Review recovery' }).click();
+    await expect(recoveryPanel).toBeFocused();
+    await expect(recoveredWriting.getByRole('heading', { name: 'Recover unsaved Writing Studio prose' })).toBeInViewport();
+    expect((await recoveredWriting.evaluate(() => window.projectSpine!.getSession())).recovery?.status).toBe('decision-required');
+
     const alphaChoice = recoveredWriting.locator('article').filter({ hasText: alpha.title });
     await alphaChoice.getByRole('button', { name: 'Recover this prose' }).click();
     await expect(alphaChoice.getByRole('button', { name: /Accepted/ })).toBeVisible();

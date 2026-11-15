@@ -967,6 +967,7 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
         </div>
       </header>
       <div className="stage19-command__notice-slot">
+        <RecoveryBlockerView model={model} actions={actions} />
         {model.sourceReturnConfirmation && model.logicalSurface === 'command' ? <p className="stage19-spine__source-return-confirmation" role="status">{model.sourceReturnConfirmation}</p> : null}
         {model.sourceReturnConfirmation && model.logicalSurface === 'command' && actions.dismissWritingNotice ? <button type="button" onClick={actions.dismissWritingNotice}>Dismiss message</button> : null}
         {commandAlert ? <p className="stage19-spine__notice" role="alert">{commandAlert}</p> : null}
@@ -1004,11 +1005,40 @@ function CommandCenterView({ model, actions }: Stage19WritingSpineViewProps): JS
   );
 }
 
+function revealWritingRecovery(): void {
+  const target = document.getElementById('stage19-writing-recovery');
+  target?.focus({ preventScroll: true });
+  target?.scrollIntoView?.({ behavior: 'auto', block: 'start' });
+}
+
+function RecoveryBlockerView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
+  const status = model.snapshot.recovery?.status ?? model.snapshot.commandStatus?.recovery;
+  if (status !== 'decision-required' && status !== 'degraded') return null;
+  const candidates = model.snapshot.recovery?.candidates ?? [];
+  const passage = candidates.length === 1 ? ` for ${candidates[0]!.unitTitle.trim() || 'Untitled'}`
+    : candidates.length > 1 ? ` for ${candidates.length} passages` : '';
+  const inWritingWindow = model.windowRole === 'writing';
+  return <section className="stage19-recovery-blocker" aria-label="Writing recovery blocker" aria-live="polite">
+    <p>{status === 'decision-required'
+      ? `Editing paused. Review recovered writing${passage} to continue.`
+      : 'Editing paused. Recovery information needs attention in Writing Studio.'}</p>
+    <button type="button" onClick={() => {
+      if (inWritingWindow && model.logicalSurface === 'writing') revealWritingRecovery();
+      else void actions.showWritingSurface();
+    }}>{!inWritingWindow ? 'Open Writing Studio' : status === 'degraded' ? 'View recovery details' : 'Review recovery'}</button>
+  </section>;
+}
+
 function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
   const recovery = model.snapshot.recovery;
+  useEffect(() => {
+    if (model.logicalSurface !== 'writing' || !['decision-required', 'degraded'].includes(recovery?.status ?? '')) return;
+    const frame = window.requestAnimationFrame(revealWritingRecovery);
+    return () => window.cancelAnimationFrame(frame);
+  }, [model.logicalSurface, model.snapshot.project?.path, model.snapshot.generation, recovery?.status]);
   if (recovery?.status === 'decision-required') {
     return (
-      <section className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
+      <section id="stage19-writing-recovery" tabIndex={-1} className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
         <h2 id="stage19-recovery-title">Recover unsaved Writing Studio prose</h2>
         <p>Review every candidate. Recovered prose remains unsaved until you use {model.writingPage ? 'Save writing' : 'Save'}.</p>
         {recovery.candidates.map((candidate) => {
@@ -1036,7 +1066,7 @@ function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JS
   }
   if (recovery?.status === 'degraded') {
     return (
-      <section className="stage19-spine__card stage19-spine__recovery" role="alert">
+      <section id="stage19-writing-recovery" tabIndex={-1} className="stage19-spine__card stage19-spine__recovery" role="alert">
         <h2>Recovery evidence needs attention</h2>
         <p>{recovery.message}</p>
         <p>Editing is blocked and the recovery artifact has not been deleted. Open another project or close Writing Studio to preserve it.</p>
@@ -2730,6 +2760,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
         </div>
       </header>
       <div className="stage19-writing-shell__notice-row" role="group" aria-label="Project notices">
+        <RecoveryBlockerView model={model} actions={actions} />
         {model.workNavigation?.notice ? <p role="status">{model.workNavigation.notice}</p> : null}
         {model.sourceReturnConfirmation ? (
           <p className="stage19-spine__source-return-confirmation" role="status">
