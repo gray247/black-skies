@@ -514,6 +514,13 @@ describe('Catalog verified concern projection', () => {
     fireEvent.click(timing);
     expect(screen.getByText('Second concern', { exact: true })).toBeVisible();
     expect(screen.getByText('Raised by: Story Knowledge')).toBeVisible();
+    const close = screen.getByRole('button', { name: 'Close concern' });
+    expect(close).toHaveTextContent('×');
+    fireEvent.click(close);
+    expect(screen.queryByText('Second concern', { exact: true })).toBeNull();
+    expect(document.querySelectorAll('[data-outline-concern-id]')).toHaveLength(2);
+    fireEvent.click(timing);
+    expect(screen.getByText('Second concern', { exact: true })).toBeVisible();
 
     view.rerender(<Harness initialConcerns={[second]} />);
     await waitFor(() => expect(document.querySelectorAll('[data-outline-concern-id]')).toHaveLength(1));
@@ -899,6 +906,33 @@ describe('Writing organization milestone', () => {
 
 
 describe('Approved local unit workflow', () => {
+  it('expires or dismisses writing notices without canceling a pending move or changing writing', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 0, 4);
+    const original = storedWriting().writingGroups;
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const start = () => fireEvent.click(screen.getByRole('button', { name: 'Drag moon in the manuscript' }));
+      start();
+      expect(screen.getByText('Choose an insertion marker in the writing or Outline. Escape cancels.')).toBeVisible();
+      act(() => vi.advanceTimersByTime(5000));
+      expect(screen.queryByText('Choose an insertion marker in the writing or Outline. Escape cancels.')).toBeNull();
+      expect(screen.getByRole('group', { name: 'Move writing' })).toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel move' }));
+      expect(screen.getByText('Move canceled. Writing was unchanged.')).toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss writing message' }));
+      expect(screen.queryByText('Move canceled. Writing was unchanged.')).toBeNull();
+      start();
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel move' }));
+      act(() => vi.advanceTimersByTime(5000));
+      expect(screen.queryByText('Move canceled. Writing was unchanged.')).toBeNull();
+      expect(screen.queryByRole('group', { name: 'Move writing' })).toBeNull();
+      expect(e.text()).toBe('moon glass winter');
+      expect(storedWriting().writingGroups).toEqual(original);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   it('previews whole-unit Extend and preserves identity, name, exclusive membership and chronological Undo/Redo', async () => {
     const body = 'Mother knew about the poison. Loose words.';
     const e = await setup({ a: body, b: 'river' });

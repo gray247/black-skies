@@ -80,7 +80,7 @@ function saveStateValue(status: ProjectSpineSaveStatus, dirtyUnitCount: number):
     case 'saving':
       return 'Saving the current manuscript state';
     case 'saved':
-      return 'Saved durably';
+      return 'Saved';
     case 'save-failed':
       return 'Save failed; local writing remains available';
     default:

@@ -164,8 +164,8 @@ test('P5-HG3 keeps Writing Studio and Command Center chrome visually standardize
     await expect(commandTitle).toHaveText(projectTitle);
     await expect(writingTitle).toHaveAttribute('title', projectTitle);
     await expect(commandTitle).toHaveAttribute('title', projectTitle);
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-    await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
+    await expect(command.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
 
     const writingChrome = await writing.evaluate(() => {
       const header = document.querySelector<HTMLElement>('.stage19-writing-shell__topbar');
@@ -660,7 +660,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     const crossingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Crossing' });
     await crossingEditor.fill(crossingProse);
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
 
     await openOutlinePlanning(writing);
     await writing.getByRole('button', { name: '01 Opening' }).click();
@@ -668,7 +668,7 @@ test('Program 5 bridge reads as one manuscript and returns a story point to its 
     const openingProse = 'Rain crossed the windows before the first passenger arrived.';
     await openingEditor.fill(openingProse);
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await writing.getByRole('button', { name: 'Close', exact: true }).click();
 
     // Rail selection, rather than the in-manuscript jump control, must bring
@@ -782,7 +782,7 @@ test('Program 5 requires complete decisions before applying a disposable Markdow
       if (!created.ok) throw new Error(created.error.message);
     }, parent);
     await writing.keyboard.press('Control+s');
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await electronApp.evaluate(({}, paths) => {
       process.env.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH = paths.filePath;
       process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;
@@ -976,7 +976,7 @@ test('Program 5 keeps a substantial Markdown intake bounded and blocks partial A
       if (!created.ok) throw new Error(created.error.message);
     }, parent);
     await writing.keyboard.press('Control+s');
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await electronApp.evaluate(({}, paths) => {
       process.env.BLACKSKIES_E2E_STRUCTURE_MARKDOWN_PATH = paths.filePath;
       process.env.BLACKSKIES_E2E_STRUCTURE_DIRECTORY_PATH = paths.parentPath;

@@ -1337,7 +1337,7 @@ describe('Stage19WritingSpineApp', () => {
       const harness = createBridge(snapshot(windowRole));
       render(<Stage19WritingSpineApp windowRole={windowRole} bridge={harness.bridge} />);
 
-      expect(await screen.findByRole('status')).toHaveTextContent('Saved durably');
+      expect(await screen.findByRole('status')).toHaveTextContent('Saved');
       expect(screen.queryByText('Unsaved')).not.toBeInTheDocument();
     },
   );
@@ -2303,7 +2303,7 @@ describe('Stage19WritingSpineApp', () => {
   it.each([
     ['dirty', ['unit_a'], '1 unsaved unit'],
     ['saving', ['unit_a'], 'Saving…'],
-    ['saved', [], 'Saved durably'],
+    ['saved', [], 'Saved'],
     ['save-failed', ['unit_a'], 'Save failed in Writing Studio'],
   ] as const)('renders authoritative Command Save status %s', async (save, dirtyUnitIds, label) => {
     const current = snapshot('command', {
@@ -2360,7 +2360,7 @@ describe('Stage19WritingSpineApp', () => {
     expect(await screen.findByRole('heading', { name: 'No project open' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Begin in Writing Studio' })).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('No active project');
-    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
   });
 
   it('replaces Project A recovery status on switch and rejects stale snapshots', async () => {
@@ -2431,11 +2431,11 @@ describe('Stage19WritingSpineApp', () => {
     render(<Stage19WritingSpineApp windowRole="command" bridge={unavailableHarness.bridge} />);
     expect(await screen.findByRole('status')).toHaveTextContent('Status unavailable');
     expect(screen.getByRole('heading', { name: 'Project status unavailable' })).toBeVisible();
-    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
 
     act(() => unavailableHarness.emit(snapshot('command', { generation: 2, revision: 1 })));
     expect(await screen.findByRole('heading', { name: 'Project A' })).toBeVisible();
-    expect(screen.getByRole('status')).toHaveTextContent('Saved durably');
+    expect(screen.getByRole('status')).toHaveTextContent('Saved');
     expect(screen.queryByText('Project status unavailable')).not.toBeInTheDocument();
   });
 
@@ -2459,7 +2459,7 @@ describe('Stage19WritingSpineApp', () => {
       expect(screen.queryByText('Project status unavailable')).not.toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
-    expect(screen.getByRole('status')).toHaveTextContent('Saved durably');
+    expect(screen.getByRole('status')).toHaveTextContent('Saved');
   });
 
   it('fails closed when the initial Command snapshot lacks authoritative status', async () => {
@@ -2473,7 +2473,7 @@ describe('Stage19WritingSpineApp', () => {
 
     expect(await screen.findByRole('heading', { name: 'Project status unavailable' })).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Status unavailable');
-    expect(screen.queryByText('Saved durably')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
   });
 
   it('renders Writing Studio as the only prose-editing and structural authority', async () => {
@@ -2792,7 +2792,7 @@ describe('Stage19WritingSpineApp', () => {
 
     act(() => harness.emit(projectB));
     expect(await screen.findByRole('heading', { name: 'Project B' })).toBeVisible();
-    expect(screen.getByText('Saved durably')).toBeVisible();
+    expect(screen.getByText('Saved')).toBeVisible();
     expect(await findExportButton()).toBeEnabled();
     expect(screen.queryByText(/Manuscript export for Project A/)).not.toBeInTheDocument();
 
@@ -3348,7 +3348,7 @@ describe('Stage19WritingSpineApp', () => {
         markdown: expect.stringMatching(/saved text.*Alpha body|Alpha body.*saved text/s),
       }),
     );
-    expect(await screen.findByText('Saved durably')).toBeVisible();
+    expect(await screen.findByText('Saved')).toBeVisible();
   });
 
   it('does not duplicate an editor-owned Ctrl+S save at window scope', async () => {
@@ -3366,7 +3366,7 @@ describe('Stage19WritingSpineApp', () => {
         markdown: expect.stringContaining('redone prose'),
       }),
     );
-    expect(await screen.findByText('Saved durably')).toBeVisible();
+    expect(await screen.findByText('Saved')).toBeVisible();
   });
 
   it('waits for rapid dirty-state changes to settle before saving redone prose', async () => {
@@ -3447,7 +3447,7 @@ describe('Stage19WritingSpineApp', () => {
     await act(async () => {
       await user.click(screen.getByRole('button', { name: 'Save' }));
     });
-    expect(await screen.findByText('Saved durably')).toBeVisible();
+    expect(await screen.findByText('Saved')).toBeVisible();
     expect(harness.current.dirtyUnitIds).toEqual([]);
   });
 

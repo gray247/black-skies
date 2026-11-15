@@ -79,7 +79,7 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
     await writing.keyboard.press('Control+Y');
     await writing.keyboard.press('Control+S');
 
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await openWritingStudioRail(writing, 'Story');
     await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Opening unit' }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
@@ -122,7 +122,7 @@ test('Ctrl+S saves editor prose that ends with an intentional trailing newline',
     await editor.fill('Baseline retained after deleting line two.\n');
     await writing.keyboard.press('Control+S');
 
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await expect(writing.getByText('The submitted manuscript prose does not match')).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
       const current = await window.projectSpine!.getSession();
@@ -232,7 +232,7 @@ test('switching back to a saved project does not create a recovery editing lock'
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Round trip unit' });
     await editor.fill('Saved round-trip prose');
     await writing.keyboard.press('Control+S');
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
 
     await electronApp.evaluate(({ dialog }, targetPath) => {
       dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
@@ -331,7 +331,7 @@ test.describe('C1 unsaved close flow', () => {
       expect(electronProcess.signalCode).toBeNull();
 
       await writing.keyboard.press('Control+S');
-      await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+      await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
       const cleanExit = waitForCleanElectronApplicationExit(electronApp);
       await requestWritingStudioClose(electronApp);
       await expect.poll(() => electronApp.windows().length).toBe(0);
@@ -418,9 +418,9 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       const editor = writing.getByRole('textbox', { name: `Manuscript editor: ${title}` });
       await editor.pressSequentially(prose);
       await writing.keyboard.press('Control+S');
-      await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+      await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     }
-    await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(command.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await expect(writing.getByRole('dialog')).toHaveCount(0);
     const firstExit = waitForCleanElectronApplicationExit(electronApp);
     await requestWritingStudioClose(electronApp);
@@ -449,8 +449,8 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       await expect(reWriting.getByRole('textbox', { name: `Manuscript editor: ${title}` })).toHaveText(prose);
       await expect(reWriting.locator('.stage19-story-rail__unit-row', { hasText: title }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     }
-    await expect(reWriting.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
-    await expect(reCommand.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(reWriting.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
+    await expect(reCommand.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     const secondExit = waitForCleanElectronApplicationExit(relaunched.application);
     await requestWritingStudioClose(relaunched.application);
     await expect.poll(() => relaunched?.application.windows().length ?? 0).toBe(0);

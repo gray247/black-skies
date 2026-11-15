@@ -5554,7 +5554,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 .stage19-writing-shell__status .stage19-spine__save-state {
-  font-size: 0.875rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -5574,6 +5576,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-spine__surface-actions button,
 .stage19-writing-shell__focus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
   align-self: center;
   height: 34px;
   min-height: 34px;
@@ -6720,7 +6727,9 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-command__status .stage19-spine__save-state {
   color: var(--bs-text-secondary);
-  font-size: 0.875rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -10007,6 +10016,36 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   max-width: 100%;
   text-align: left;
   white-space: normal;
+}
+.writing-outline-concern__header {
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bs-surface-raised, Canvas);
+}
+.writing-outline-concern__sources .writing-outline-concern__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  line-height: 1;
+  font-size: 1.25rem;
+}
+.stage19-writing-arrangement-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.stage19-writing-arrangement-notice p { margin: 0; }
+.stage19-writing-arrangement-notice button {
+  flex: none;
+  padding: 0 4px;
+  line-height: 1.25;
 }
 
 /* The Writing Studio Outline has one scroll owner. */

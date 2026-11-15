@@ -93,7 +93,7 @@ test('selected-prose critique is Writing-Studio-only, preview-bound, optional, a
     await editor.pressSequentially(' Changed after preview.');
     await expect(preview).toHaveCount(0);
     await writing.getByRole('button', { name: /^Save$/ }).click();
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
 
     const cleanExit = waitForCleanElectronApplicationExit(electronApp);
     await requestWritingStudioClose(electronApp);

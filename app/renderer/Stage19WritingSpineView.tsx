@@ -456,7 +456,7 @@ function commandSaveLabel(
   if (status.save === 'dirty') {
     return `${snapshot.dirtyUnitIds.length} unsaved unit${snapshot.dirtyUnitIds.length === 1 ? '' : 's'}`;
   }
-  return 'Saved durably';
+  return 'Saved';
 }
 
 function surfaceHostNoticeLabel(notice: SplitCommandSurfaceHostNotice): string | null {

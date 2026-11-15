@@ -250,7 +250,7 @@ test('Command Center tracks dirty prose through Writing Studio durable Save with
       recovery: 'none',
       save: 'saved',
     });
-    await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(command.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await expectCommandPrivacyAndAuthority(command, [prose]);
     expect((await readDurableDraftByTitle(project.path, title)).contents).toContain(prose);
 
@@ -287,7 +287,7 @@ test('Command Center projects interrupted recovery acceptance as pending until W
       save: 'clean',
     });
     await expect(command.getByText('Recovery decision required in Writing Studio', { exact: true }).first()).toBeVisible();
-    await expect(command.getByText('Saved durably', { exact: true })).toHaveCount(0);
+    await expect(command.getByText('Saved', { exact: true })).toHaveCount(0);
     await expectCommandPrivacyAndAuthority(command, [baseline, recovered, recoveryArtifactPath(project.path)]);
 
     await recoveredWriting.getByRole('button', { name: 'Recover this prose' }).click();
@@ -299,7 +299,7 @@ test('Command Center projects interrupted recovery acceptance as pending until W
       save: 'accepted-recovery-pending-save',
     });
     await expect(command.getByText('Recovered work is unsaved and pending normal Save').first()).toBeVisible();
-    await expect(command.getByText('Saved durably', { exact: true })).toHaveCount(0);
+    await expect(command.getByText('Saved', { exact: true })).toHaveCount(0);
     await expectCommandPrivacyAndAuthority(command, [baseline, recovered, recoveryArtifactPath(project.path)]);
 
     await recoveredWriting.getByRole('button', { name: /^Save writing$/ }).click();
@@ -310,7 +310,7 @@ test('Command Center projects interrupted recovery acceptance as pending until W
       save: 'saved',
     });
     await expect(command.getByText('No recovery action required').first()).toBeVisible();
-    await expect(command.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(command.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
     await expect(recoveredWriting.getByRole('heading', { name: 'Recover unsaved Writing Studio prose' })).toHaveCount(0);
     await waitForRecoveryArtifactRemoval(project.path);
     expect((await readDurableDraftByTitle(project.path, title)).contents).toContain(recovered);
@@ -398,7 +398,7 @@ test('Command Center renders corrupt recovery evidence as degraded without detai
       save: 'clean',
     });
     await expect(command.getByText('Recovery evidence is degraded or unavailable', { exact: true }).first()).toBeVisible();
-    await expect(command.getByText('Saved durably', { exact: true })).toHaveCount(0);
+    await expect(command.getByText('Saved', { exact: true })).toHaveCount(0);
     await expectCommandPrivacyAndAuthority(command, [baseline, corruptBytes, artifactPath]);
     expect(await readFile(artifactPath, 'utf8')).toBe(corruptBytes);
     expect(await readFile(durableBefore.draftPath, 'utf8')).toBe(durableBefore.contents);

@@ -139,6 +139,7 @@ export interface WritingContext {
   undoMove: () => void;
   canUndoMove: boolean;
   arrangementNotice: string;
+  dismissArrangementNotice: () => void;
   split: (groupId: string) => void;
   joinSelected: () => void;
   createGap: (label: string, body: string) => Promise<void>;
@@ -309,6 +310,11 @@ export function WritingPageProvider({
   moveSourceRef.current = moveSource;
   const [joinName, setJoinName] = useState<{ ranges: readonly WritingRange[]; name: string; bodies: Record<string, string>; linksKey: string } | null>(null);
   const [arrangementNotice, setArrangementNotice] = useState('');
+  useEffect(() => {
+    if (!arrangementNotice) return;
+    const timer = window.setTimeout(() => setArrangementNotice(''), 5000);
+    return () => window.clearTimeout(timer);
+  }, [arrangementNotice, projectKey]);
   useEffect(() => {
     replacementHistory.current = { entries: [], cursor: 0 };
     restoreDocumentSelection.current?.();
@@ -1453,6 +1459,7 @@ export function WritingPageProvider({
     undoMove: () => undoReplacement('move'),
     canUndoMove: replacementHistory.current.cursor > 0 && replacementHistory.current.entries[replacementHistory.current.cursor - 1]?.kind === 'move',
     arrangementNotice,
+    dismissArrangementNotice: () => setArrangementNotice(''),
     split: id => {
       const range = selection[0];
       const point = range ? { unitId: range.unitId, offset: range.from } : model.activeUnit
@@ -2010,7 +2017,10 @@ function WritingArrangementControls() {
   if (!context || !page) return null;
   if (!context.arrangementNotice && !context.movingGroupId && !context.joinName) return null;
   return <div className="stage19-writing-arrangement-controls">
-      {context.arrangementNotice ? <p role="status">{context.arrangementNotice}</p> : null}
+      {context.arrangementNotice ? <div className="stage19-writing-arrangement-notice">
+        <p role="status">{context.arrangementNotice}</p>
+        <button type="button" aria-label="Dismiss writing message" title="Dismiss message" onClick={context.dismissArrangementNotice}><span aria-hidden="true">×</span></button>
+      </div> : null}
       {context.movingGroupId ? <div role="group" aria-label="Move writing">
         <p>Choose an insertion marker. The whole unit and its supported attachments move together.</p>
         <button type="button" onClick={context.cancelMove}>Cancel move</button>
@@ -2385,7 +2395,9 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
                   {expanded ? <div className="writing-outline-concern__sources" onKeyDown={event => {
                     if (event.key === 'Escape') { event.stopPropagation(); setOpenConcern(null); }
                   }}>
-                    <button type="button" onClick={() => setOpenConcern(null)}>Close concern</button>
+                    <div className="writing-outline-concern__header">
+                      <button type="button" className="writing-outline-concern__close" aria-label="Close concern" title="Close concern" onClick={() => setOpenConcern(null)}><span aria-hidden="true">×</span></button>
+                    </div>
                     <p>{concern.body}</p>
                     <p>Raised by: {authority}</p>
                     {changed ? <p role="status">Source changed. Editing does not automatically address this concern.</p> : null}

@@ -80,7 +80,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     const openingEditor = writing.getByRole('textbox', { name: 'Manuscript editor: Opening Signal' });
     await openingEditor.fill(openingProse);
     await writing.getByRole('button', { name: /^Save$/ }).click();
-    await expect(writing.getByRole('status').filter({ hasText: 'Saved durably' })).toBeVisible();
+    await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
 
     await openingEditor.focus();
     await writing.keyboard.press('Control+A');
