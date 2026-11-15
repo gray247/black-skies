@@ -1088,7 +1088,7 @@ export function WritingPageProvider({
       const destinationBody = model.buffers[destination.unitId];
       if (destinationBody === undefined || !writingMoveBoundaries(destination.unitId, destinationBody, page.groups).includes(destination.offset))
         throw new Error('Choose a unit or paragraph insertion marker.');
-      const cuts = source.spans.map(span => ({ unitId: span.unitId, from: span.selectionStart, to: span.selectionEnd }));
+      let cuts = source.spans.map(span => ({ unitId: span.unitId, from: span.selectionStart, to: span.selectionEnd }));
       for (const cut of cuts) {
         const emphasis = getDraftEmphasis(model.buffers[cut.unitId]!);
         for (let pass = 0; pass <= emphasis.length; pass += 1) {
@@ -1105,6 +1105,23 @@ export function WritingPageProvider({
           if (!expanded) break;
         }
       }
+      // A first paragraph owns its following blank-line separator when moved.
+      // Carry those exact characters instead of leaving a leading separator
+      // that the existing Markdown envelope would discard on Save/reopen.
+      // Do this before link/overlap validation so spacing attachments retain
+      // the same protections as the rest of the moved source.
+      for (const cut of cuts) {
+        if (cut.from !== 0) continue;
+        const separator = /^\n(?:[ \t]*\n)+/u.exec(model.buffers[cut.unitId]!.slice(cut.to));
+        if (separator) cut.to += separator[0].length;
+      }
+      const merged: typeof cuts = [];
+      for (const cut of cuts.sort((a, b) => a.unitId.localeCompare(b.unitId) || a.from - b.from)) {
+        const previous = merged.at(-1);
+        if (previous?.unitId === cut.unitId && previous.to >= cut.from) previous.to = Math.max(previous.to, cut.to);
+        else merged.push(cut);
+      }
+      cuts = merged;
       for (const cut of cuts) {
         const body = model.buffers[cut.unitId]!;
         for (const edge of [cut.from, cut.to]) if (/[\p{L}\p{N}\p{M}]/u.test(body[edge - 1] ?? '') && /[\p{L}\p{N}\p{M}]/u.test(body[edge] ?? ''))
@@ -1137,7 +1154,7 @@ export function WritingPageProvider({
       const plan = planWritingMove(model.snapshot.project!.units.map(unit => unit.id), model.buffers, cuts, { unitId: targetUnit, offset });
       if (!plan.changedUnitIds.length) throw new Error('The passage is already at this position.');
       if (plan.changedUnitIds.some(id => plan.after[id]!.startsWith('\n')))
-        throw new Error('This move would leave leading blank lines that the current writing format cannot retain. Include the paragraph spacing in the pinned passage first.');
+        throw new Error('This move would change an unsupported line-break boundary. No writing was changed.');
       const mapAnchor = (anchor: typeof source.spans[number]) => relocateWritingRange({ unitId: anchor.unitId, from: anchor.selectionStart, to: anchor.selectionEnd }, plan)
         .map(range => ({ ...anchor, unitId: range.unitId, selectionStart: range.from, selectionEnd: range.to,
           anchorKind: range.from === range.to ? 'position' as const : 'span' as const }));
@@ -2242,6 +2259,7 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
   const context = useWritingContext();
   const [renaming, setRenaming] = useState<{ id: string; label: string } | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const dropAttempted = useRef(false);
   const [openConcern, setOpenConcern] = useState<{ row: string; id: string } | null>(null);
   const page = context?.model.writingPage;
   if (!context || !page) return null;
@@ -2308,6 +2326,7 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
     try {
       const source = JSON.parse(event.dataTransfer.getData('application/x-black-skies-writing-unit')) as { id: string; projectId: string; generation: number };
       if (source.projectId !== model.snapshot.project?.projectId || source.generation !== model.snapshot.generation || typeof source.id !== 'string') return;
+      dropAttempted.current = true;
       context.moveTo(point, source.id);
     } catch { /* Unrelated/incomplete drags cannot change writing. */ }
   };
@@ -2352,10 +2371,11 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
               draggable={Boolean(row.groupId && page.ready && !page.busy)}
               onDragStart={event => {
                 if (!row.groupId || page.busy || !page.ready) { event.preventDefault(); return; }
+                dropAttempted.current = false;
                 event.dataTransfer.setData('application/x-black-skies-writing-unit', JSON.stringify({ id: row.groupId, projectId: model.snapshot.project?.projectId, generation: model.snapshot.generation }));
                 event.dataTransfer.effectAllowed = 'move'; context.startMove(row.groupId);
               }}
-              onDragEnd={() => { setDropTarget(null); if (context.movingGroupId) context.cancelMove(); }}
+              onDragEnd={() => { setDropTarget(null); if (!dropAttempted.current) context.cancelMove(); dropAttempted.current = false; }}
               className={`${row.groupId ? 'is-pinned' : 'is-unpinned'}${dropTarget === row.key ? ' is-move-drop' : ''}`}
               onDragOver={event => { if (event.dataTransfer.types.includes('application/x-black-skies-writing-unit') && !page.busy) { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; setDropTarget(row.key); } }}
               onDragLeave={() => setDropTarget(null)}

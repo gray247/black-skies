@@ -21,7 +21,7 @@ import type {
 } from '../Stage19WritingSpineView';
 import type { LivingOutlineBridge, LivingOutlineSnapshotV1 } from '../../shared/ipc/livingOutline';
 import type { ProjectSpineSessionSnapshot } from '../../shared/ipc/projectSpine';
-import type { WritingEdit } from '../../shared/writingRanges';
+import { planWritingMove, relocateWritingRange, type WritingEdit } from '../../shared/writingRanges';
 
 afterEach(() => {
   cleanup();
@@ -850,16 +850,72 @@ describe('Writing organization milestone', () => {
     await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(3));
   });
 
-  it('withholds Apply when removing a first paragraph would leave blank lines the existing save envelope cannot retain', async () => {
-    const original = { a: 'forest\n\nmoon', b: 'river' };
+  it('carries first-paragraph spacing through Outline and local moves while retaining formatting, both Notes and exact Undo', async () => {
+    const original = { a: '**forest**\n\nmoon', b: 'river' };
     const e = await setup(original);
-    await pinEdgeRange(e, 0, 6);
+    await pinEdgeRange(e, 2, 8);
+    await renameEdgeGroup('forest', 'Forest scene');
     const id = storedWriting().writingGroups[0].id;
+    for (const [from, to, body] of [[2, 8, 'Moved thought'], [12, 16, 'Following thought']] as const) {
+      await e.select(from, to);
+      fireEvent.click(screen.getByRole('button', { name: 'Notes' }));
+      fireEvent.change(screen.getByLabelText('Note text'), { target: { value: body } });
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Keep Note' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Keep Note' }));
+      await screen.findByRole('heading', { name: 'Edit Note' });
+      fireEvent.click(screen.getByRole('button', { name: 'Close Note' }));
+    }
+    const noteIds = storedWriting().items.map((note: { id: string }) => note.id);
     await pinInactiveSection();
     directEdgeMove(id, 'forest', storedWriting().writingGroups[1].id);
-    expect(screen.getByText(/Include the paragraph spacing/)).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Move this passage' })).toBeNull();
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'moon', b: '**forest**\n\nriver' });
+    fireEvent.click(screen.getByRole('button', { name: 'Save writing' }));
+    await waitFor(() => expect(storedWriting().writingGroups[0]).toMatchObject({ id, label: 'Forest scene', spans: [{ unitId: 'b', selectionStart: 2, selectionEnd: 8 }] }));
+    expect(storedWriting().items.map((note: { id: string }) => note.id)).toEqual(noteIds);
+    expect(storedWriting().items[0].sourceAnchor).toMatchObject({ unitId: 'b', selectionStart: 2, selectionEnd: 8 });
+    expect(storedWriting().items[1].sourceAnchor).toMatchObject({ unitId: 'a', selectionStart: 0, selectionEnd: 4 });
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
+    beginEdgeMove(id);
+    fireEvent.click(screen.getByRole('button', { name: 'Insert at manuscript end' }));
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'moon', b: 'river\n\n**forest**\n\n' });
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual(original);
+    fireEvent.click(screen.getByRole('button', { name: 'Redo' }));
+    expect(JSON.parse(screen.getByLabelText('Bodies').textContent!)).toEqual({ a: 'moon', b: 'river\n\n**forest**\n\n' });
+  });
+
+  it('retains carried paragraph characters between multiple moved pieces without inserting a second separator', () => {
+    const plan = planWritingMove(['a', 'b'], { a: 'Mother\n\nloose\n\nend', b: 'river' },
+      [{ unitId: 'a', from: 0, to: 8 }, { unitId: 'a', from: 15, to: 18 }], { unitId: 'b', offset: 0 });
+    expect(plan.after).toEqual({ a: 'loose\n\n', b: 'Mother\n\nend\n\nriver' });
+    expect(relocateWritingRange({ unitId: 'a', from: 8, to: 13 }, plan)).toEqual([{ unitId: 'a', from: 0, to: 5 }]);
+    expect(relocateWritingRange({ unitId: 'a', from: 0, to: 6 }, plan)).toEqual([{ unitId: 'b', from: 0, to: 6 }]);
+  });
+
+  it('keeps a refused drop reason through drag-end and reserves canceled for a canceled gesture', async () => {
+    const e = await setup({ a: 'moon glass winter', b: 'river' });
+    await pinEdgeRange(e, 0, 4);
+    const original = storedWriting().writingGroups;
+    const source = screen.getByRole('button', { name: 'Drag moon in the manuscript' });
+    const target = document.querySelector('[data-writing-group-id]')!;
+    let data = '';
+    const transfer = { setData: (_type: string, value: string) => { data = value; }, getData: () => data,
+      types: ['application/x-black-skies-writing-unit'], effectAllowed: '', dropEffect: '' };
+    const send = (element: Element, type: string) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'dataTransfer', { value: transfer }); element.dispatchEvent(event);
+    };
+    act(() => { send(source, 'dragstart'); send(target, 'drop'); send(source, 'dragend'); });
+    expect(screen.getByText('The destination is inside or immediately beside this passage.')).toBeVisible();
+    expect(screen.queryByText('Move canceled. Writing was unchanged.')).toBeNull();
+    expect(e.text()).toBe('moon glass winter');
+    expect(storedWriting().writingGroups).toEqual(original);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    act(() => { send(source, 'dragstart'); send(source, 'dragend'); });
+    expect(screen.getByText('Move canceled. Writing was unchanged.')).toBeVisible();
+    expect(screen.queryByRole('group', { name: 'Move writing' })).toBeNull();
+    expect(e.text()).toBe('moon glass winter');
   });
 
   it('splits and joins a cross-section unit with one linked Note while retaining exact source and membership Undo', async () => {

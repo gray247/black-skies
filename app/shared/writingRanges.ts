@@ -117,7 +117,7 @@ export function planWritingMove(
   }
   const movedPieces: Piece[] = [];
   for (const [index, range] of ranges.entries()) {
-    if (index) movedPieces.push({ text: '\n\n' });
+    if (index && !/\n[ \t]*\n$/u.test(movedPieces.at(-1)?.text ?? '')) movedPieces.push({ text: '\n\n' });
     movedPieces.push({ text: bodies[range.unitId]!.slice(range.from, range.to), source: range });
   }
   const movedText = movedPieces.map(piece => piece.text).join('');

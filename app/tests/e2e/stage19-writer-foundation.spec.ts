@@ -2115,7 +2115,48 @@ test('Native local unit controls retain names, Notes and writing through Split, 
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect.poll(disk).toEqual(bodies);
+    // Restore only the first-paragraph Pin: the earlier whole-unit Extend
+    // concealed the separator case reported in the recovered author example.
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    // Membership Undo saves through its existing owner automatically.
+    const saveParagraphBaseline = writing.getByRole('button', { name: 'Save writing', exact: true });
+    if (await saveParagraphBaseline.isEnabled()) await saveParagraphBaseline.click();
+    await expect.poll(async () => (await metadata()).writingGroups[0].spans[0].selectionEnd).toBe(29);
+    await openWritingStudioRail(writing, 'Story');
+    const riverRow = writing.getByRole('button', { name: 'river ending', exact: true }).locator('..');
+    await writing.getByRole('button', { name: 'Drag Mother knows in the manuscript', exact: true }).dragTo(riverRow);
+    await expect(writing.getByText('Passage moved with its Notes. Save writing keeps it; Undo restores it.', { exact: true })).toBeVisible();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(['Loose words.', 'Mother knew about the poison.\n\nriver ending']);
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1], selectionStart: 0, selectionEnd: 29 }] });
+    expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1], sourceAnchor: { selectionStart: 0, selectionEnd: 29 } });
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(bodies);
+    await editor.press('Control+Home'); await editor.press('ArrowRight'); await editor.press('Shift+F10');
+    await controls.getByRole('button', { name: 'Move', exact: true }).click();
+    await target.getByRole('button', { name: `Insert writing here, position ${bodies[1]!.length}`, exact: true }).click();
+    const movedParagraph = ['Loose words.', bodies[1] + '\n\nMother knew about the poison.\n\n'];
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(bodies);
+    await writing.getByRole('button', { name: 'Redo', exact: true }).click();
+    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect.poll(disk).toEqual(movedParagraph);
+    await expect(writing.getByRole('status', { name: 'Story word count' })).toHaveText('9 words');
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1], selectionStart: bodies[1]!.length + 2, selectionEnd: bodies[1]!.length + 31 }] });
+    expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1], sourceAnchor: { selectionStart: bodies[1]!.length + 2, selectionEnd: bodies[1]!.length + 31 } });
     await writing.screenshot({ path: testInfo.outputPath('native-local-unit-controls.png') });
+    const restarted = await restartElectronApp(electronApp);
+    const reopened = await getStage19Windows(restarted, await restarted.firstWindow());
+    await openProgram7Project(reopened.writing, fixture.path);
+    await showWritingInWriting(reopened.writing);
+    await reopened.writing.getByRole('button', { name: 'Write here: River return, section 2', exact: true }).click();
+    await expect(reopened.writing.getByRole('textbox', { name: 'Manuscript editor: River return', exact: true })).toContainText('Mother knew about the poison.');
+    await expect(reopened.writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
+    expect(await disk()).toEqual(movedParagraph);
+    expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows' });
+    expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1] });
   } finally { await removeTemporaryDirectory(parent); }
 });
 
